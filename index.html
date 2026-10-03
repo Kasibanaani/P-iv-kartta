@@ -116,6 +116,17 @@ details.more summary::-webkit-details-marker{display:none}
 .pair span{display:block;font-size:13.5px;color:var(--muted)}
 .foot{font-size:12.5px;color:var(--muted);margin:22px 0 0;max-width:40em}
 .sw{display:inline-block;width:18px;height:18px;border-radius:50%;border:3px solid;flex:none}
+#p-day .opt{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+.opt[data-off]{opacity:.6;border-style:dashed;background:transparent}
+.opt[data-off]::before{width:0}
+.opt[data-off] .t{text-decoration:line-through}
+.bar small{display:block;font-size:12.5px;color:var(--muted)}
+.combo{padding:14px 0 16px;border-bottom:1px solid var(--line)}
+.combo>b{display:block;font-weight:600}
+.combo .to{display:block;font-size:13.5px;color:var(--muted);margin:2px 0 10px}
+.combo .rows,.tree,.branch{display:grid;gap:5px}
+.combo .bar,.tree .bar{min-height:42px;padding:6px 12px;font-size:14.5px}
+.branch{margin-left:12px;padding-left:10px;border-left:2px solid var(--line)}
 
 nav{flex:none;display:grid;grid-template-columns:repeat(3,1fr);background:var(--surface);border-top:1px solid var(--line)}
 .tab{background:none;border:0;border-top:2px solid transparent;padding:14px 2px 13px;font-size:14px;color:var(--muted);cursor:pointer}
@@ -171,51 +182,115 @@ dialog input{background:var(--ground)}
    Ei valmista sisältöä: kaikki opitaan omista kirjauksista.
    Jokaiselle vaihtoehdolle lasketaan todennäköisyys tälle päivälle:
    perustaso (kuinka usein valittu niinä päivinä, kun se oli listalla)
-   + tämän päivän jo valittujen vaihtoehtojen yhteisesiintymät aiempina päivinä.
+   + viikonpäivän ja tämän päivän jo valittujen vaihtoehtojen yhteisesiintymät muina päivinä.
    Tarkasteltava päivä jätetään itse laskennasta pois. */
 var MIN_DAYS=3;
-function computeStats(D,ex){
+var WDN=['maanantai','tiistai','keskiviikko','torstai','perjantai','lauantai','sunnuntai'];
+function wdIndex(d){var p=d.split('-');return (new Date(+p[0],+p[1]-1,+p[2]).getDay()+6)%7;}
+function shr(k,n){return (k+1)/(n+2);}
+/* Päivämatriisi. Tila 0 = ei mukana (ei listalla tai merkitty pois päältä), 1 = mukana mutta ei valittu, 2 = valittu.
+   Tekijät: omat vaihtoehdot (0..n-1) ja automaattiset viikonpäivät (n..n+6). */
+function buildMatrix(D,ex){
   var ix={},n=D.opts.length,i;for(i=0;i<n;i++)ix[D.opts[i].id]=i;
-  var st={ix:ix,n:n,days:0,N:new Uint16Array(n),S:new Uint16Array(n),both:new Uint16Array(n*n),selb:new Uint16Array(n*n),co:new Uint16Array(n*n)};
-  Object.keys(D.days).forEach(function(d){if(d===ex)return;var r=D.days[d];if(!r||!r.s||!r.s.length)return;
-    var s=[],v=[],seen={},a,b;
-    r.s.forEach(function(id){var k=ix[id];if(k!==undefined&&!seen[k]){seen[k]=1;s.push(k);v.push(k);}});
-    if(!s.length)return;
-    (r.v||[]).forEach(function(id){var k=ix[id];if(k!==undefined&&!seen[k]){seen[k]=1;v.push(k);}});
-    st.days++;
-    for(a=0;a<v.length;a++){st.N[v[a]]++;for(b=0;b<v.length;b++)st.both[v[a]*n+v[b]]++;}
-    for(a=0;a<s.length;a++){st.S[s[a]]++;for(b=0;b<v.length;b++)st.selb[s[a]*n+v[b]]++;for(b=0;b<s.length;b++)st.co[s[a]*n+s[b]]++;}
-  });
+  var nF=n+7,rows=[];
+  Object.keys(D.days).sort().forEach(function(d){if(d===ex)return;var r=D.days[d];if(!r||!r.s||!r.s.length)return;
+    var st=new Uint8Array(nF),off={},any=false,w;
+    (r.x||[]).forEach(function(id){if(ix[id]!==undefined)off[ix[id]]=1;});
+    (r.v||[]).forEach(function(id){var k=ix[id];if(k!==undefined&&!off[k])st[k]=1;});
+    r.s.forEach(function(id){var k=ix[id];if(k!==undefined&&!off[k]){st[k]=2;any=true;}});
+    if(!any)return;
+    for(w=0;w<7;w++)st[n+w]=1;st[n+wdIndex(d)]=2;
+    rows.push({d:d,st:st});});
+  return {ix:ix,n:n,nF:nF,rows:rows};
+}
+function computeStats(D,ex){
+  var m=buildMatrix(D,ex),nF=m.nF;
+  var st={ix:m.ix,n:m.n,nF:nF,rows:m.rows,days:m.rows.length,N:new Uint16Array(nF),S:new Uint16Array(nF),both:new Uint16Array(nF*nF),selb:new Uint16Array(nF*nF),co:new Uint16Array(nF*nF)};
+  m.rows.forEach(function(r){var v=[],s=[],a,b,k;
+    for(k=0;k<nF;k++)if(r.st[k]){v.push(k);if(r.st[k]===2)s.push(k);}
+    for(a=0;a<v.length;a++){st.N[v[a]]++;for(b=0;b<v.length;b++)st.both[v[a]*nF+v[b]]++;}
+    for(a=0;a<s.length;a++){st.S[s[a]]++;for(b=0;b<v.length;b++)st.selb[s[a]*nF+v[b]]++;for(b=0;b<s.length;b++)st.co[s[a]*nF+s[b]]++;}});
   return st;
 }
-/* P(j valitaan tänään | tänään jo valitut sel) tai null, jos tietoa on liian vähän */
+/* P(j valitaan tänään | päivän tekijät sel) tai null, jos tietoa on liian vähän.
+   Jokainen tekijä siirtää j:n perustasoa kohti sitä osuutta, jolla j on toteutunut tekijän kanssa.
+   Tekijä, jota ei ole aiemmin havaittu, ei siirrä arviota mihinkään. */
 function predict(st,sel,j){
   if(st.days<MIN_DAYS||st.N[j]<MIN_DAYS)return null;
-  var n=st.n,base=(st.S[j]+0.5)/(st.N[j]+1),lo=Math.log(base/(1-base)),sum=0,k=0;
+  var n=st.nF,base=(st.S[j]+0.5)/(st.N[j]+1),lo=Math.log(base/(1-base)),sum=0,k=0;
   sel.forEach(function(i){if(i===j)return;var Nb=st.both[i*n+j];if(Nb<MIN_DAYS)return;
-    var nj=st.selb[j*n+i],ni=st.selb[i*n+j],c=st.co[i*n+j];
-    var lr=Math.log(((c+1)/(nj+2))/((ni-c+1)/(Nb-nj+2)));
-    sum+=Math.max(-1.8,Math.min(1.8,lr));k++;});
+    var nj=st.selb[j*n+i],ni=st.selb[i*n+j],c=st.co[i*n+j];if(!ni)return;
+    var b=(nj+0.5)/(Nb+1),q=(c+2*b)/(ni+2);
+    sum+=Math.max(-1.8,Math.min(1.8,Math.log(q/(1-q))-Math.log(b/(1-b))));k++;});
   if(k)lo+=sum*Math.pow(k,-0.35);
   return 1/(1+Math.exp(-lo));
 }
-/* Kahden vaihtoehdon yhteys niiltä päiviltä, jolloin molemmat olivat listalla */
+/* Kahden tekijän yhteys niiltä päiviltä, jolloin molemmat olivat mukana */
 function assoc(st,i,j){
-  var n=st.n,Nb=st.both[i*n+j],ni=st.selb[i*n+j],nj=st.selb[j*n+i],c=st.co[i*n+j];
+  var n=st.nF,Nb=st.both[i*n+j],ni=st.selb[i*n+j],nj=st.selb[j*n+i],c=st.co[i*n+j];
   var den=Math.sqrt(ni*nj*(Nb-ni)*(Nb-nj));
   return {Nb:Nb,ni:ni,nj:nj,c:c,pji:ni?c/ni:null,pjn:(Nb-ni)?(nj-c)/(Nb-ni):null,phi:den?(c*Nb-ni*nj)/den:0};
+}
+/* Kahden tekijän yhdistelmät kohteelle T. Yhdistelmä hyväksytään vain, jos
+   1) se selittää selvästi enemmän kuin kumpikaan tekijä yksin,
+   2) yhteisiä päiviä on riittävästi ja
+   3) suunta on sama aineiston alku- ja loppupuoliskolla (jos puoliskot riittävät vertailuun). */
+function combosFor(st,T,cands){
+  var rows=st.rows.filter(function(r){return r.st[T]>0;}),R=rows.length,half=R>>1,n=st.n,out=[],K=0,i;
+  for(i=0;i<R;i++)if(rows[i].st[T]===2)K++;
+  if(R<10)return {base:R?K/R:0,R:R,K:K,list:out};
+  var base=shr(K,R);
+  for(var ai=0;ai<cands.length;ai++)for(var bi=ai+1;bi<cands.length;bi++){
+    var a=cands[ai],b=cands[bi];if(a===T||b===T||(a>=n&&b>=n))continue;
+    var cn=[0,0,0,0],ck=[0,0,0,0],hb=[0,0],hbk=[0,0],hr=[0,0],hrk=[0,0];
+    for(i=0;i<R;i++){var s=rows[i].st,sa=s[a],sb=s[b];if(!sa||!sb)continue;
+      var c=(sa===2?2:0)+(sb===2?1:0),t=s[T]===2?1:0,h=i<half?0:1;cn[c]++;ck[c]+=t;
+      if(c===3){hb[h]++;hbk[h]+=t;}else{hr[h]++;hrk[h]+=t;}}
+    if(cn[3]<5||cn[2]<3||cn[1]<3)continue;
+    var p3=shr(ck[3],cn[3]),p2=shr(ck[2],cn[2]),p1=shr(ck[1],cn[1]);
+    var up=p3-Math.max(p2,p1),dn=Math.min(p2,p1)-p3,dir=0,add=0;
+    if(up>=0.15&&p3-base>=0.15){dir=1;add=up;}else if(dn>=0.15&&base-p3>=0.15){dir=-1;add=dn;}else continue;
+    var m=dir>0?(p2>=p1?2:1):(p2<=p1?2:1),pp=(ck[3]+ck[m])/(cn[3]+cn[m]),se=Math.sqrt(pp*(1-pp)*(1/cn[3]+1/cn[m]));
+    if(se>0&&Math.abs(ck[3]/cn[3]-ck[m]/cn[m])/se<1.5)continue; // ero parhaaseen yksittäiseen tekijään ei saa olla sattuman kokoinen
+    var prelim=cn[3]<10;
+    if(hb[0]>=2&&hb[1]>=2&&hr[0]>=2&&hr[1]>=2){
+      var d0=shr(hbk[0],hb[0])-shr(hrk[0],hr[0]),d1=shr(hbk[1],hb[1])-shr(hrk[1],hr[1]);
+      if(d0*dir<=0||d1*dir<=0)continue;
+    }else prelim=true;
+    out.push({T:T,a:a,b:b,n:cn,k:ck,dir:dir,add:add,prelim:prelim,score:add*Math.sqrt(cn[3])});
+  }
+  out.sort(function(x,y){return y.score-x.score;});
+  return {base:K/R,R:R,K:K,list:out};
+}
+/* Polku: jaetaan päivät tekijällä, joka erottelee kohdetta parhaiten, ja jatketaan haaroissa niin kauan kuin päiviä riittää */
+function treeFor(st,T,cands){
+  var rows=st.rows.filter(function(r){return r.st[T]>0;});
+  function grow(rs,used,depth){var n=rs.length,k=0,i;for(i=0;i<n;i++)if(rs[i].st[T]===2)k++;
+    var node={n:n,k:k,f:-1,yes:null,no:null};if(depth>=3||n<12)return node;
+    var best=null;cands.forEach(function(f){if(f===T||used[f])return;var n1=0,k1=0,n0=0,k0=0;
+      for(var j=0;j<n;j++){var s=rs[j].st[f];if(!s)continue;var t=rs[j].st[T]===2?1:0;if(s===2){n1++;k1+=t;}else{n0++;k0+=t;}}
+      if(n1<5||n0<5)return;var d=Math.abs(shr(k1,n1)-shr(k0,n0));if(d<0.25)return;
+      var sc=d*Math.sqrt(Math.min(n1,n0));if(!best||sc>best.sc)best={f:f,sc:sc};});
+    if(!best)return node;var u={};Object.keys(used).forEach(function(x){u[x]=1;});u[best.f]=1;
+    node.f=best.f;
+    node.yes=grow(rs.filter(function(r){return r.st[best.f]===2;}),u,depth+1);
+    node.no=grow(rs.filter(function(r){return r.st[best.f]===1;}),u,depth+1);
+    return node;}
+  return grow(rows,{},0);
 }
 function normalize(o){ // tuodun tiedoston tarkistus
   if(!o||typeof o!=='object'||o.app!=='paivakartta'||!Array.isArray(o.options)||!o.days||typeof o.days!=='object')return null;
   var out={seq:0,opts:[],days:{},cfg:null},ids={};
   o.options.forEach(function(x){if(!x||typeof x.id!=='string'||typeof x.name!=='string'||ids[x.id])return;ids[x.id]=1;
     out.opts.push({id:x.id,n:x.name.slice(0,200),h:!!x.hidden});var m=/^o(\d+)$/.exec(x.id);if(m)out.seq=Math.max(out.seq,+m[1]);});
+  function known(id){return ids[id];}
   Object.keys(o.days).forEach(function(d){if(!/^\d{4}-\d{2}-\d{2}$/.test(d))return;var r=o.days[d];if(!r||!Array.isArray(r.s))return;
-    var s=r.s.filter(function(id){return ids[id];});if(!s.length)return;
-    out.days[d]={s:s,v:(Array.isArray(r.v)?r.v:[]).filter(function(id){return ids[id];})};});
+    var s=r.s.filter(known),x=(Array.isArray(r.x)?r.x:[]).filter(known);if(!s.length&&!x.length)return;
+    out.days[d]={s:s,v:(Array.isArray(r.v)?r.v:[]).filter(known),x:x};});
   if(o.cfg&&typeof o.cfg==='object')out.cfg=o.cfg;
   return out;
 }
+function loggedCount(days){var c=0;Object.keys(days).forEach(function(d){if(days[d]&&days[d].s&&days[d].s.length)c++;});return c;}
 
 /* ===================== KÄYTTÖLIITTYMÄ ===================== */
 if(typeof document!=='undefined')(function(){
@@ -290,7 +365,7 @@ function renderCal(){var mon=monday(cur),sun=addDays(mon,6);
   $('today').hidden=cur===todayStr;
   var box=$('days');box.textContent='';
   for(var k=0;k<7;k++){(function(d){var dt=parse(d),b=el('button','daybtn'+(d===todayStr?' today':''));b.type='button';b.dataset.day=d;
-    var logged=!!(data.days[d]&&data.days[d].s.length);
+    var logged=!!(data.days[d]&&data.days[d].s&&data.days[d].s.length);
     b.setAttribute('aria-pressed',d===cur?'true':'false');b.setAttribute('aria-label',WD[dt.getDay()]+' '+fi(d)+(logged?', kirjattu':''));
     b.appendChild(el('span','wd',WDS[dt.getDay()]));b.appendChild(el('span','dn',dt.getDate()));if(logged)b.appendChild(el('span','dot'));
     box.appendChild(b);})(addDays(mon,k));}
@@ -309,71 +384,154 @@ function showTab(t){scrollPos[tab]=main.scrollTop;tab=t;
 $('nav').addEventListener('click',function(ev){var b=ev.target.closest('[data-tab]');if(b)showTab(b.dataset.tab);});
 
 /* ---- päivä ---- */
-var dayBtn={};
+var dayBtn={},offMode=false;
+function rec(){var r=data.days[cur];return {s:r?r.s.slice():[],x:r&&r.x?r.x.slice():[]};}
+function commit(s,x){
+  if(s.length||x.length){var v=[];visible().forEach(function(o){if(x.indexOf(o.id)<0)v.push(o.id);});
+    s.forEach(function(id){if(v.indexOf(id)<0)v.push(id);});data.days[cur]={s:s,v:v,x:x};}
+  else delete data.days[cur];
+  data.meta.dirty=(data.meta.dirty||0)+1;save();renderStatus();renderCal();updateDay();}
+function toggle(id){var r=rec(),kx=r.x.indexOf(id);
+  if(kx>=0){r.x.splice(kx,1);commit(r.s,r.x);return;} // pois päältä -> takaisin mukaan
+  var k=r.s.indexOf(id);if(k>=0)r.s.splice(k,1);else r.s.push(id);commit(r.s,r.x);}
+function toggleOff(id){var r=rec(),kx=r.x.indexOf(id);
+  if(kx>=0)r.x.splice(kx,1);else{r.x.push(id);var k=r.s.indexOf(id);if(k>=0)r.s.splice(k,1);}
+  commit(r.s,r.x);}
 function renderDay(){var p=panels.day,vis=visible(),dt=parse(cur);p.textContent='';dayBtn={};
   var name=WD[dt.getDay()];p.appendChild(el('h2','',name.charAt(0).toUpperCase()+name.slice(1)+' '+fi(cur)));
   if(!vis.length){p.appendChild(el('p','sub','Lista on vielä tyhjä. Lisää asetuksissa ne asiat, joita haluat päivistäsi merkitä.'));
     var b=el('button','btn solid','Lisää vaihtoehtoja');b.type='button';b.addEventListener('click',function(){showTab('set');});p.appendChild(b);return;}
   var cnt=el('p','sub');cnt.id='day-count';p.appendChild(cnt);
   var lg=el('p','legend');lg.id='day-legend';p.appendChild(lg);
+  var om=el('button','link');om.type='button';om.id='offmode';om.style.display='block';om.style.marginBottom='8px';p.appendChild(om);
+  var oh=el('p','sub');oh.id='offhint';oh.style.margin='4px 0 12px';p.appendChild(oh);
+  om.addEventListener('click',function(){offMode=!offMode;updateDay();});
   var list=el('div',data.cfg.layout==='tiivis'?'tiivis':'rows');
   vis.forEach(function(o){var b=el('button','opt');b.type='button';b.dataset.id=o.id;b.appendChild(el('span','t',o.n));b.appendChild(el('span','pct'));dayBtn[o.id]=b;list.appendChild(b);});
   p.appendChild(list);
-  list.addEventListener('click',function(ev){var b=ev.target.closest('[data-id]');if(b)toggle(b.dataset.id);});
+  // napautus = valinta; pitkä painallus = pois päältä tältä päivältä
+  var lpT=null,lpXY=null,suppress=false;
+  function lpClear(){if(lpT){clearTimeout(lpT);lpT=null;}}
+  list.addEventListener('click',function(ev){var b=ev.target.closest('[data-id]');if(!b)return;if(suppress){suppress=false;return;}
+    if(offMode)toggleOff(b.dataset.id);else toggle(b.dataset.id);});
+  list.addEventListener('pointerdown',function(ev){var b=ev.target.closest('[data-id]');suppress=false;lpClear();if(!b||offMode)return;
+    lpXY=[ev.clientX,ev.clientY];var id=b.dataset.id;lpT=setTimeout(function(){lpT=null;suppress=true;toggleOff(id);},550);});
+  list.addEventListener('pointermove',function(ev){if(lpT&&lpXY&&(Math.abs(ev.clientX-lpXY[0])>8||Math.abs(ev.clientY-lpXY[1])>8))lpClear();});
+  ['pointerup','pointercancel','pointerleave'].forEach(function(t){list.addEventListener(t,lpClear);});
+  list.addEventListener('contextmenu',function(ev){ev.preventDefault();});
   updateDay();
 }
-function toggle(id){var rec=data.days[cur],s=rec?rec.s.slice():[],k=s.indexOf(id);
-  if(k>=0)s.splice(k,1);else s.push(id);
-  if(s.length){var v=visible().map(function(o){return o.id;});s.forEach(function(x){if(v.indexOf(x)<0)v.push(x);});data.days[cur]={s:s,v:v};}
-  else delete data.days[cur];
-  data.meta.dirty=(data.meta.dirty||0)+1;save();renderStatus();renderCal();updateDay();
-}
-function updateDay(){var st=stats(cur),rec=data.days[cur],s=rec?rec.s:[],selIdx=[];
+function updateDay(){var st=stats(cur),r=data.days[cur],s=r?r.s:[],x=r&&r.x?r.x:[],selIdx=[st.n+wdIndex(cur)];
   s.forEach(function(id){if(st.ix[id]!==undefined)selIdx.push(st.ix[id]);});
-  Object.keys(dayBtn).forEach(function(id){var b=dayBtn[id],on=s.indexOf(id)>=0,p=predict(st,selIdx,st.ix[id]);
-    b.setAttribute('aria-pressed',on?'true':'false');b.style.setProperty('--f',on||p===null?0:p.toFixed(3));
-    b.querySelector('.pct').textContent=p===null?'':pct(p);});
-  var c=$('day-count'),l=$('day-legend');
-  if(c)c.textContent=s.length?s.length+' valittu':'Ei vielä valintoja tälle päivälle.';
+  Object.keys(dayBtn).forEach(function(id){var b=dayBtn[id],on=s.indexOf(id)>=0,off=x.indexOf(id)>=0,p=off?null:predict(st,selIdx,st.ix[id]);
+    b.setAttribute('aria-pressed',on?'true':'false');if(off)b.dataset.off='1';else delete b.dataset.off;
+    b.style.setProperty('--f',on||p===null?0:p.toFixed(3));
+    b.querySelector('.pct').textContent=off?'pois':(p===null?'':pct(p));});
+  var c=$('day-count'),l=$('day-legend'),om=$('offmode'),oh=$('offhint');
+  if(c){var parts=[];if(s.length)parts.push(s.length+' valittu');if(x.length)parts.push(x.length+' pois päältä');
+    c.textContent=parts.length?parts.join(', '):'Ei vielä valintoja tälle päivälle.';}
   if(l)l.textContent=st.days<MIN_DAYS?'Ennuste alkaa näkyä, kun muita päiviä on kirjattu '+MIN_DAYS+'. Nyt kirjattuna: '+st.days+'.':
-    'Täyttö näyttää, kuinka todennäköinen vaihtoehto on tälle päivälle muiden päiviesi ja tämän päivän valintojen perusteella.';
+    'Täyttö näyttää, kuinka todennäköinen vaihtoehto on tälle päivälle viikonpäivän, muiden päiviesi ja tämän päivän valintojen perusteella.';
+  if(om)om.textContent=offMode?'Valmis':'Merkitse pois päältä tältä päivältä';
+  if(oh){oh.hidden=!offMode;oh.textContent='Napauta vaihtoehtoa, joka ei koske tätä päivää. Se ei vaikuta tilastoon kumpaankaan suuntaan. Sama onnistuu ilman tätä tilaa painamalla vaihtoehtoa pitkään.';}
 }
 
 /* ---- yhteydet ---- */
-var linkSel='';
-function barRow(name,f,right){var r=el('div','bar');r.style.setProperty('--f',Math.max(0,Math.min(1,f)).toFixed(3));r.appendChild(el('span','t',name));r.appendChild(el('span','pct',right));return r;}
-function renderLinks(){var p=panels.links,st=stats(null),vis=visible();p.textContent='';
+var linkSel='',linkView='single';
+function fshort(st,k){return k<st.n?data.opts[k].n:WDN[k-st.n];}
+function fcond(st,k,neg){return k<st.n?(neg?'Kun ei: ':'Kun: ')+data.opts[k].n:(neg?'Kun ei ole ':'Kun on ')+WDN[k-st.n];}
+function ratio(k,n){return n?pct(k/n):'–';}
+function barRow(name,f,right,sub){var r=el('div','bar');r.style.setProperty('--f',Math.max(0,Math.min(1,f||0)).toFixed(3));
+  var t=el('span','t',name);if(sub)t.appendChild(el('small','',sub));r.appendChild(t);r.appendChild(el('span','pct',right));return r;}
+function renderLinks(){var p=panels.links,st=stats(null),vis=visible(),n=st.n;p.textContent='';
   p.appendChild(el('h2','','Yhteydet'));
   if(st.days<5){p.appendChild(el('p','sub','Yhteydet alkavat näkyä, kun päiviä on kirjattu vähintään viisi. Nyt kirjattuna: '+st.days+'.'));return;}
-  p.appendChild(el('p','sub','Mitkä valinnat osuvat samoille päiville. Kirjattuja päiviä: '+st.days+'. Yhteys ei kerro, kumpi aiheuttaa kumman.'));
-  var sel=el('select');sel.setAttribute('aria-label','Valitse vaihtoehto');
-  var o0=el('option','','Vahvimmat yhteydet');o0.value='';sel.appendChild(o0);
+  p.appendChild(el('p','sub','Kirjattuja päiviä: '+st.days+'. Viikonpäivä on mukana automaattisesti. Pois päältä merkityt päivät eivät ole kyseisen väitteen luvuissa. Yhteys ei kerro, kumpi aiheuttaa kumman.'));
+  var sel=el('select');sel.setAttribute('aria-label','Valitse väite tai viikonpäivä');
+  var o0=el('option','','Kaikki väitteet');o0.value='';sel.appendChild(o0);
   vis.forEach(function(o){var x=el('option','',o.n);x.value=o.id;sel.appendChild(x);});
-  if(linkSel&&!opt(linkSel))linkSel='';sel.value=linkSel;
+  var og=el('optgroup');og.label='Viikonpäivä';WDN.forEach(function(w,k){var x=el('option','',w);x.value='wd'+k;og.appendChild(x);});sel.appendChild(og);
+  if(linkSel&&linkSel.indexOf('wd')!==0&&(!opt(linkSel)||opt(linkSel).h))linkSel='';sel.value=linkSel;
   sel.addEventListener('change',function(){linkSel=sel.value;renderLinks();});p.appendChild(sel);
-  var n=st.n,i,j;
-  if(!linkSel){var pairs=[];
-    for(i=0;i<vis.length;i++)for(j=i+1;j<vis.length;j++){var a=st.ix[vis[i].id],b=st.ix[vis[j].id],A=assoc(st,a,b);
-      if(A.Nb>=5&&A.ni>=3&&A.nj>=3&&A.Nb-A.ni>=2&&A.Nb-A.nj>=2)pairs.push({a:vis[i],b:vis[j],A:A});}
-    var pos=pairs.filter(function(x){return x.A.phi>=0.25;}).sort(function(x,y){return y.A.phi-x.A.phi;}).slice(0,10);
-    var neg=pairs.filter(function(x){return x.A.phi<=-0.25;}).sort(function(x,y){return x.A.phi-y.A.phi;}).slice(0,6);
-    if(!pos.length&&!neg.length){p.appendChild(el('p','sub','Selviä yhteyksiä ei vielä erotu. Ne vaativat, että sama vaihtoehto on valittu vähintään kolmena päivänä.'));return;}
-    function block(title,list){if(!list.length)return;p.appendChild(el('h3','subh',title));
-      list.forEach(function(x){var d=el('div','pair');var t=el('b','',x.a.n+' ja '+x.b.n);d.appendChild(t);
-        d.appendChild(el('span','','Yhdessä '+x.A.c+' päivänä. Erikseen: '+x.A.ni+' ja '+x.A.nj+' päivänä '+x.A.Nb+':sta.'));p.appendChild(d);});}
-    block('Usein samana päivänä',pos);block('Harvoin samana päivänä',neg);return;}
-  var xi=st.ix[linkSel],X=opt(linkSel);
-  p.appendChild(el('p','sub','Valittu '+st.S[xi]+' päivänä '+st.N[xi]+':sta'+(st.N[xi]?' ('+pct(st.S[xi]/st.N[xi])+')':'')+'.'));
-  var rows=[];vis.forEach(function(o){if(o.id===linkSel)return;var A=assoc(st,xi,st.ix[o.id]);
-    if(A.ni>=3&&A.Nb-A.ni>=3&&A.pji!==null&&A.pjn!==null)rows.push({o:o,A:A,d:A.pji-A.pjn});});
-  var up=rows.filter(function(r){return r.d>=0.15;}).sort(function(a,b){return b.d-a.d;}),
-      dn=rows.filter(function(r){return r.d<=-0.15;}).sort(function(a,b){return a.d-b.d;});
-  if(st.S[xi]<3){p.appendChild(el('p','sub','Tämä on valittu alle kolmena päivänä, joten yhteyksiä ei voi vielä arvioida.'));return;}
-  if(!up.length&&!dn.length){p.appendChild(el('p','sub','Selviä yhteyksiä muihin vaihtoehtoihin ei vielä erotu.'));return;}
-  p.appendChild(el('p','legend','Ensimmäinen luku: kuinka usein valittu samana päivänä kuin ”'+X.n+'”. Toinen: kuinka usein muina päivinä.'));
-  function group(title,list){if(!list.length)return;p.appendChild(el('h3','subh',title));var g=el('div','rows');
-    list.forEach(function(r){g.appendChild(barRow(r.o.n,r.A.pji,pct(r.A.pji)+' / '+pct(r.A.pjn)));});p.appendChild(g);}
-  group('Useammin samana päivänä',up);group('Harvemmin samana päivänä',dn);
+  var seg=el('div','chips');seg.style.margin='10px 0 14px';
+  [['single','Yksittäiset'],['combo','Yhdistelmät'],['tree','Polku']].forEach(function(v){var b=el('button','chip');b.type='button';b.setAttribute('aria-pressed',linkView===v[0]?'true':'false');
+    b.appendChild(el('span','',v[1]));b.addEventListener('click',function(){linkView=v[0];renderLinks();});seg.appendChild(b);});
+  p.appendChild(seg);
+  var cands=vis.map(function(o){return st.ix[o.id];});for(var w=0;w<7;w++)cands.push(n+w);
+  var isWd=linkSel.indexOf('wd')===0,xi=!linkSel?-1:(isWd?n+(+linkSel.slice(2)):st.ix[linkSel]);
+  function note(t){p.appendChild(el('p','sub',t));}
+  function head(t){p.appendChild(el('h3','subh',t));}
+
+  /* ----- Yksittäiset ----- */
+  if(linkView==='single'){
+    if(xi<0){var pairs=[];
+      for(var i=0;i<cands.length;i++)for(var j=i+1;j<cands.length;j++){var a=cands[i],b=cands[j];if(a>=n&&b>=n)continue;var A=assoc(st,a,b);
+        if(A.Nb>=5&&A.ni>=3&&A.nj>=3&&A.Nb-A.ni>=2&&A.Nb-A.nj>=2)pairs.push({a:a,b:b,A:A});}
+      var pos=pairs.filter(function(x){return x.A.phi>=0.25;}).sort(function(x,y){return y.A.phi-x.A.phi;}).slice(0,12);
+      var neg=pairs.filter(function(x){return x.A.phi<=-0.25;}).sort(function(x,y){return x.A.phi-y.A.phi;}).slice(0,8);
+      if(!pos.length&&!neg.length){note('Selviä yhteyksiä ei vielä erotu. Ne vaativat, että sama väite on valittu vähintään kolmena päivänä.');return;}
+      var block=function(title,list){if(!list.length)return;head(title);
+        list.forEach(function(x){var A=x.A,d=el('div','pair');d.appendChild(el('b','',fshort(st,x.a)+' ja '+fshort(st,x.b)));
+          d.appendChild(el('span','','Yhdessä '+A.c+' päivänä '+A.Nb+':sta.'));
+          var one=function(c1,c2,k,nn,k0,n0){return fcond(st,c1,false)+' → '+fshort(st,c2)+' '+ratio(k,nn)+' ('+k+'/'+nn+'), muulloin '+ratio(k0,n0)+' ('+k0+'/'+n0+').';};
+          if(x.b<n)d.appendChild(el('span','',one(x.a,x.b,A.c,A.ni,A.nj-A.c,A.Nb-A.ni)));
+          if(x.a<n)d.appendChild(el('span','',one(x.b,x.a,A.c,A.nj,A.ni-A.c,A.Nb-A.nj)));
+          p.appendChild(d);});};
+      block('Usein samana päivänä',pos);block('Harvoin samana päivänä',neg);return;}
+    if(isWd)note('Kirjattuja päiviä, jolloin oli '+WDN[xi-n]+': '+st.S[xi]+'.');
+    else note('Valittu '+st.S[xi]+' päivänä '+st.N[xi]+':sta'+(st.N[xi]?' ('+pct(st.S[xi]/st.N[xi])+')':'')+'.');
+    if(st.S[xi]<3){note(isWd?'Tätä viikonpäivää on kirjattu alle kolme kertaa, joten yhteyksiä ei voi vielä arvioida.':'Tämä on valittu alle kolmena päivänä, joten yhteyksiä ei voi vielä arvioida.');return;}
+    if(!isWd){head('Viikonpäivittäin');var gw=el('div','rows');
+      for(var k=0;k<7;k++){var W=assoc(st,n+k,xi);gw.appendChild(barRow(WDN[k],W.ni?W.c/W.ni:0,ratio(W.c,W.ni),W.ni?W.c+'/'+W.ni+' päivänä':'ei kirjattuja päiviä'));}
+      p.appendChild(gw);}
+    var rows=[];vis.forEach(function(o){if(o.id===linkSel)return;var A=assoc(st,xi,st.ix[o.id]);
+      if(A.ni>=3&&A.Nb-A.ni>=3&&A.pji!==null&&A.pjn!==null)rows.push({o:o,A:A,d:A.pji-A.pjn});});
+    var up=rows.filter(function(r){return r.d>=0.15;}).sort(function(a,b){return b.d-a.d;}),
+        dn=rows.filter(function(r){return r.d<=-0.15;}).sort(function(a,b){return a.d-b.d;});
+    if(!up.length&&!dn.length){note('Selviä yhteyksiä muihin väitteisiin ei vielä erotu.');return;}
+    p.appendChild(el('p','legend',isWd?'Ensimmäinen luku: kuinka usein valittu, kun on '+WDN[xi-n]+'. Toinen: kuinka usein muina päivinä.':
+      'Ensimmäinen luku: kuinka usein valittu samana päivänä kuin ”'+fshort(st,xi)+'”. Toinen: kuinka usein muina päivinä.'));
+    var group=function(title,list){if(!list.length)return;head(title);var g=el('div','rows');
+      list.forEach(function(r){var A=r.A;g.appendChild(barRow(r.o.n,A.pji,pct(A.pji)+' / '+pct(A.pjn),A.c+'/'+A.ni+' päivänä, muulloin '+(A.nj-A.c)+'/'+(A.Nb-A.ni)));});p.appendChild(g);};
+    group(isWd?'Useammin tänä viikonpäivänä':'Useammin samana päivänä',up);group(isWd?'Harvemmin tänä viikonpäivänä':'Harvemmin samana päivänä',dn);return;}
+
+  /* ----- Yhdistelmät ja Polku tarvitsevat kohteen ----- */
+  if(isWd){note('Viikonpäivä voi olla yhdistelmän tai polun osa, mutta ei kohde. Valitse kohteeksi jokin väitteistäsi.');return;}
+
+  if(linkView==='combo'){
+    var card=function(c,showT){var d=el('div','combo');d.appendChild(el('b','',fshort(st,c.a)+' + '+fshort(st,c.b)));
+      var to=el('span','to',(showT?'→ '+fshort(st,c.T)+'. ':'')+'Yhdistelmä '+(c.dir>0?'nostaa':'laskee')+' kohdetta enemmän kuin kumpikaan yksin.'+(c.prelim?' Alustava: päiviä on vielä vähän.':''));d.appendChild(to);
+      var g=el('div','rows'),nn=c.n,kk=c.k;
+      g.appendChild(barRow('Molemmat yhdessä',nn[3]?kk[3]/nn[3]:0,ratio(kk[3],nn[3]),kk[3]+'/'+nn[3]+' päivänä'));
+      g.appendChild(barRow('Vain: '+fshort(st,c.a),nn[2]?kk[2]/nn[2]:0,ratio(kk[2],nn[2]),kk[2]+'/'+nn[2]+' päivänä'));
+      g.appendChild(barRow('Vain: '+fshort(st,c.b),nn[1]?kk[1]/nn[1]:0,ratio(kk[1],nn[1]),kk[1]+'/'+nn[1]+' päivänä'));
+      g.appendChild(barRow('Ei kumpaakaan',nn[0]?kk[0]/nn[0]:0,ratio(kk[0],nn[0]),kk[0]+'/'+nn[0]+' päivänä'));
+      d.appendChild(g);return d;};
+    if(xi<0){
+      var work=vis.length*cands.length*cands.length/2*st.days;
+      if(work>3e7){note('Aineisto on jo niin laaja, että kaikkien kohteiden yhdistelmien laskeminen kerralla olisi hidasta. Valitse kohde yllä olevasta valikosta.');return;}
+      var all=[];vis.forEach(function(o){combosFor(st,st.ix[o.id],cands).list.slice(0,4).forEach(function(c){all.push(c);});});
+      all.sort(function(x,y){return y.score-x.score;});all=all.slice(0,12);
+      if(!all.length){note('Yhdistelmiä ei vielä erotu. Ne vaativat tyypillisesti useita kymmeniä kirjattuja päiviä: molempien tekijöiden pitää osua samalle päivälle vähintään viisi kertaa.');return;}
+      note('Vahvimmat yhdistelmät kaikista kohteista. Valitse kohde nähdäksesi kaikki sen yhdistelmät.');
+      all.forEach(function(c){p.appendChild(card(c,true));});return;}
+    var res=combosFor(st,xi,cands);
+    note('Kohde: ”'+fshort(st,xi)+'”. Tavallisesti '+ratio(res.K,res.R)+' ('+res.K+'/'+res.R+' päivänä).');
+    if(res.R<10){note('Yhdistelmien arviointiin tarvitaan vähintään kymmenen päivää, joina kohde on ollut mukana.');return;}
+    if(!res.list.length){note('Tälle kohteelle ei vielä erotu yhdistelmiä, jotka selittäisivät enemmän kuin tekijät yksinään.');return;}
+    var ups=res.list.filter(function(c){return c.dir>0;}).slice(0,10),dns=res.list.filter(function(c){return c.dir<0;}).slice(0,10);
+    if(ups.length){head('Nostavat kohdetta');ups.forEach(function(c){p.appendChild(card(c,false));});}
+    if(dns.length){head('Laskevat kohdetta');dns.forEach(function(c){p.appendChild(card(c,false));});}
+    return;}
+
+  /* ----- Polku ----- */
+  if(xi<0){note('Valitse kohde yllä olevasta valikosta. Polku näyttää, mitkä tekijät jakavat kohteen päivät selvimmin kahtia.');return;}
+  var tree=treeFor(st,xi,cands);
+  note('Kohde: ”'+fshort(st,xi)+'”. Päivät jaetaan tekijällä, joka erottelee kohdetta parhaiten, ja jako jatkuu haaroissa niin pitkälle kuin päiviä riittää.');
+  if(tree.f<0){note(tree.n<10?'Polkuun tarvitaan vähintään kymmenen päivää, joina kohde on ollut mukana.':'Mikään tekijä ei vielä jaa kohteen päiviä selvästi kahtia.');return;}
+  var draw=function(node,label,box){box.appendChild(barRow(label,node.n?node.k/node.n:0,ratio(node.k,node.n),node.k+'/'+node.n+' päivänä'));
+    if(node.f<0)return;var br=el('div','branch');draw(node.yes,fcond(st,node.f,false),br);draw(node.no,fcond(st,node.f,true),br);box.appendChild(br);};
+  var tb=el('div','tree');draw(tree,'Kaikki päivät',tb);p.appendChild(tb);
 }
 
 /* ---- asetukset ---- */
@@ -461,14 +619,14 @@ $('ed-ok').addEventListener('click',function(){var o=opt(editId);if(o){var name=
 $('ed-hide').addEventListener('click',function(){var o=opt(editId);if(o){o.h=!o.h;if(!o.h){data.opts.splice(data.opts.indexOf(o),1);data.opts.push(o);}touch();}closeEdit();renderOptList();});
 $('ed-del').addEventListener('click',function(){if(!delArmed){delArmed=true;$('ed-del').textContent='Vahvista poisto';return;}
   var id=editId;data.opts=data.opts.filter(function(o){return o.id!==id;});
-  Object.keys(data.days).forEach(function(d){var r=data.days[d];r.s=r.s.filter(function(x){return x!==id;});r.v=(r.v||[]).filter(function(x){return x!==id;});if(!r.s.length)delete data.days[d];});
+  Object.keys(data.days).forEach(function(d){var r=data.days[d];r.s=r.s.filter(function(x){return x!==id;});r.v=(r.v||[]).filter(function(x){return x!==id;});r.x=(r.x||[]).filter(function(x){return x!==id;});if(!r.s.length&&!r.x.length)delete data.days[d];});
   touch();closeEdit();renderOptList();renderCal();});
 sheet.addEventListener('click',function(ev){if(ev.target===sheet)closeEdit();});
 
 /* ---- vienti ja tuonti ---- */
-function exportObj(){return {app:'paivakartta',version:1,exportedAt:new Date().toISOString(),
+function exportObj(){return {app:'paivakartta',version:2,exportedAt:new Date().toISOString(),
   options:data.opts.map(function(o){return {id:o.id,name:o.n,hidden:!!o.h};}),days:data.days,cfg:data.cfg};}
-function renderDataInfo(){var nd=Object.keys(data.days).length,i=$('datainfo');if(!i)return;
+function renderDataInfo(){var nd=loggedCount(data.days),i=$('datainfo');if(!i)return;
   var le=data.meta.lastExport?fi(data.meta.lastExport.slice(0,10),true):'ei vielä kertaakaan';
   i.textContent='Kirjattuja päiviä '+nd+', vaihtoehtoja '+data.opts.length+'. Viimeksi viety: '+le+'.'+(data.meta.dirty>0?' Sen jälkeen on tehty muutoksia.':'');}
 function markExported(){data.meta.lastExport=iso(new Date())+'T'+new Date().toTimeString().slice(0,5);data.meta.dirty=0;save();renderStatus();renderDataInfo();}
@@ -498,7 +656,7 @@ function offerImport(txt){var obj=null,out=$('dataout');out.textContent='';pendi
   try{obj=normalize(JSON.parse(txt));}catch(e){obj=null;}
   if(!obj){setMsg('datamsg','Sisältö ei ole Päiväkartan tiedosto.',true);return;}
   pendingImport=obj;setMsg('datamsg','');
-  var c=el('div','confirm');c.appendChild(el('p','','Tiedostossa on '+Object.keys(obj.days).length+' päivää ja '+obj.opts.length+' vaihtoehtoa. Tämän laitteen nykyiset tiedot ('+Object.keys(data.days).length+' päivää, '+data.opts.length+' vaihtoehtoa) korvataan.'));
+  var c=el('div','confirm');c.appendChild(el('p','','Tiedostossa on '+loggedCount(obj.days)+' päivää ja '+obj.opts.length+' vaihtoehtoa. Tämän laitteen nykyiset tiedot ('+loggedCount(data.days)+' päivää, '+data.opts.length+' vaihtoehtoa) korvataan.'));
   var r=el('div','btnrow');r.style.marginTop='0';var y=el('button','btn solid','Korvaa tiedot');y.type='button';var nn=el('button','btn','Peru');nn.type='button';r.appendChild(y);r.appendChild(nn);c.appendChild(r);out.appendChild(c);
   nn.addEventListener('click',function(){pendingImport=null;out.textContent='';});
   y.addEventListener('click',function(){var o=pendingImport;if(!o)return;data.opts=o.opts;data.days=o.days;data.seq=o.seq;
@@ -509,7 +667,7 @@ function offerImport(txt){var obj=null,out=$('dataout');out.textContent='';pendi
 
 renderStatus();renderCal();showTab('day');
 })();
-if(typeof module!=='undefined')module.exports={computeStats:computeStats,predict:predict,assoc:assoc,normalize:normalize};
+if(typeof module!=='undefined')module.exports={computeStats:computeStats,predict:predict,assoc:assoc,normalize:normalize,combosFor:combosFor,treeFor:treeFor,wdIndex:wdIndex,WDN:WDN};
 </script>
 </body>
 </html>
