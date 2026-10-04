@@ -95,7 +95,7 @@ h2{font-family:var(--font-display);font-weight:var(--dw);font-size:25px;line-hei
 .btn.solid{background:var(--accent);color:var(--on-accent)}
 .btn.danger{border-color:var(--alert);color:var(--alert)}
 .btnrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-input[type="text"],input[type="number"],textarea,select{font:inherit;font-size:16px;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)}
+input[type="text"],input[type="number"],input[type="date"],textarea,select{font:inherit;font-size:16px;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)}
 textarea{min-height:140px;font:13px/1.4 ui-monospace,Menlo,Consolas,monospace}
 label.fl{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:14px 0 6px}
 .orow{display:grid;grid-template-columns:1fr 44px 44px;gap:6px}
@@ -169,6 +169,9 @@ dialog input{background:var(--ground)}
   <h2 id="sheet-h">Muokkaa vaihtoehtoa</h2>
   <label class="fl" for="ed-name">Nimi</label><input type="text" id="ed-name" autocomplete="off">
   <div id="ed-posbox"><label class="fl" for="ed-pos">Paikka listassa</label><input type="number" id="ed-pos" min="1" inputmode="numeric"></div>
+  <label class="fl" for="ed-start">Alkamispäivä</label><input type="date" id="ed-start">
+  <button type="button" class="link" id="ed-nostart">Poista alkamispäivä</button>
+  <p class="sub" style="margin:4px 0 0">Tätä aiemmat päivät eivät ole väitteen laskuissa, eikä väite näy niiden sivulla. Aikaista päivää, jos haluat täyttää väitteen takautuvasti. Ilman alkamispäivää väite on mukana kaikkina päivinä.</p>
   <p class="sub" id="ed-info" style="margin:12px 0 0"></p>
   <div class="btnrow">
     <button type="button" class="btn solid" id="ed-ok">Valmis</button>
@@ -189,15 +192,17 @@ var WDN=['maanantai','tiistai','keskiviikko','torstai','perjantai','lauantai','s
 function wdIndex(d){var p=d.split('-');return (new Date(+p[0],+p[1]-1,+p[2]).getDay()+6)%7;}
 function shr(k,n){return (k+1)/(n+2);}
 /* Päivämatriisi. Tila 0 = ei mukana (ei listalla tai merkitty pois päältä), 1 = mukana mutta ei valittu, 2 = valittu.
+   Väite ei ole mukana päivinä, jotka ovat ennen sen alkamispäivää (c).
    Tekijät: omat vaihtoehdot (0..n-1) ja automaattiset viikonpäivät (n..n+6). */
 function buildMatrix(D,ex){
   var ix={},n=D.opts.length,i;for(i=0;i<n;i++)ix[D.opts[i].id]=i;
-  var nF=n+7,rows=[];
+  var nF=n+7,rows=[],start=D.opts.map(function(o){return o.c||'';});
   Object.keys(D.days).sort().forEach(function(d){if(d===ex)return;var r=D.days[d];if(!r||!r.s||!r.s.length)return;
-    var st=new Uint8Array(nF),off={},any=false,w;
+    var st=new Uint8Array(nF),off={},any=false,w,k2;
     (r.x||[]).forEach(function(id){if(ix[id]!==undefined)off[ix[id]]=1;});
     (r.v||[]).forEach(function(id){var k=ix[id];if(k!==undefined&&!off[k])st[k]=1;});
-    r.s.forEach(function(id){var k=ix[id];if(k!==undefined&&!off[k]){st[k]=2;any=true;}});
+    r.s.forEach(function(id){var k=ix[id];if(k!==undefined&&!off[k])st[k]=2;});
+    for(k2=0;k2<n;k2++){if(start[k2]&&d<start[k2])st[k2]=0;else if(st[k2]===2)any=true;} // alkamispäivää edeltävät päivät pois laskuista
     if(!any)return;
     for(w=0;w<7;w++)st[n+w]=1;st[n+wdIndex(d)]=2;
     rows.push({d:d,st:st});});
@@ -282,7 +287,7 @@ function normalize(o){ // tuodun tiedoston tarkistus
   if(!o||typeof o!=='object'||o.app!=='paivakartta'||!Array.isArray(o.options)||!o.days||typeof o.days!=='object')return null;
   var out={seq:0,opts:[],days:{},cfg:null},ids={};
   o.options.forEach(function(x){if(!x||typeof x.id!=='string'||typeof x.name!=='string'||ids[x.id])return;ids[x.id]=1;
-    out.opts.push({id:x.id,n:x.name.slice(0,200),h:!!x.hidden});var m=/^o(\d+)$/.exec(x.id);if(m)out.seq=Math.max(out.seq,+m[1]);});
+    var o1={id:x.id,n:x.name.slice(0,200),h:!!x.hidden};if(typeof x.start==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(x.start))o1.c=x.start;else if(x.start===null)o1.c=null;out.opts.push(o1);var m=/^o(\d+)$/.exec(x.id);if(m)out.seq=Math.max(out.seq,+m[1]);});
   function known(id){return ids[id];}
   Object.keys(o.days).forEach(function(d){if(!/^\d{4}-\d{2}-\d{2}$/.test(d))return;var r=o.days[d];if(!r||!Array.isArray(r.s))return;
     var s=r.s.filter(known),x=(Array.isArray(r.x)?r.x:[]).filter(known);if(!s.length&&!x.length)return;
@@ -290,6 +295,12 @@ function normalize(o){ // tuodun tiedoston tarkistus
   if(o.cfg&&typeof o.cfg==='object')out.cfg=o.cfg;
   return out;
 }
+/* Vanhoille väitteille, joilla ei ole alkamispäivää: päätellään se ensimmäisestä päivästä, jonka listalla väite on ollut.
+   Jos väite ei ole ollut vielä yhdenkään päivän listalla, rajausta ei tarvita (null). */
+function migrateStarts(D){var changed=false,first={};
+  Object.keys(D.days).sort().forEach(function(d){var r=D.days[d];if(!r)return;(r.s||[]).concat(r.v||[]).forEach(function(id){if(!first[id])first[id]=d;});});
+  D.opts.forEach(function(o){if(o.c===undefined){o.c=first[o.id]||null;changed=true;}});
+  return changed;}
 function loggedCount(days){var c=0;Object.keys(days).forEach(function(d){if(days[d]&&days[d].s&&days[d].s.length)c++;});return c;}
 
 /* ===================== KÄYTTÖLIITTYMÄ ===================== */
@@ -316,12 +327,16 @@ try{var raw=JSON.parse(localStorage.getItem(KEY)||'null');
     if(raw.meta)data.meta={lastExport:raw.meta.lastExport||null,dirty:raw.meta.dirty||0};}}catch(e){}
 var storeOk=true;
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(function(){});}catch(e){}
+var needSave=migrateStarts(data);
 function save(){try{localStorage.setItem(KEY,JSON.stringify(data));storeOk=true;}catch(e){storeOk=false;}}
+if(needSave)save();
 function touch(){data.meta.dirty=(data.meta.dirty||0)+1;rev++;save();renderStatus();}
 
 var todayStr=iso(new Date()),cur=todayStr,tab='day',rev=0,cache={key:'',st:null};
 function stats(ex){var key=(ex||'')+'|'+rev;if(cache.key!==key){cache.key=key;cache.st=computeStats(data,ex);}return cache.st;}
 function visible(){return data.opts.filter(function(o){return !o.h;});}
+function active(o,d){return !o.c||d>=o.c;}
+function visibleOn(d){return data.opts.filter(function(o){return !o.h&&active(o,d);});}
 function opt(id){for(var i=0;i<data.opts.length;i++)if(data.opts[i].id===id)return data.opts[i];return null;}
 
 /* ---- ulkoasu ---- */
@@ -387,7 +402,7 @@ $('nav').addEventListener('click',function(ev){var b=ev.target.closest('[data-ta
 var dayBtn={},offMode=false;
 function rec(){var r=data.days[cur];return {s:r?r.s.slice():[],x:r&&r.x?r.x.slice():[]};}
 function commit(s,x){
-  if(s.length||x.length){var v=[];visible().forEach(function(o){if(x.indexOf(o.id)<0)v.push(o.id);});
+  if(s.length||x.length){var v=[];visibleOn(cur).forEach(function(o){if(x.indexOf(o.id)<0)v.push(o.id);});
     s.forEach(function(id){if(v.indexOf(id)<0)v.push(id);});data.days[cur]={s:s,v:v,x:x};}
   else delete data.days[cur];
   data.meta.dirty=(data.meta.dirty||0)+1;save();renderStatus();renderCal();updateDay();}
@@ -397,8 +412,9 @@ function toggle(id){var r=rec(),kx=r.x.indexOf(id);
 function toggleOff(id){var r=rec(),kx=r.x.indexOf(id);
   if(kx>=0)r.x.splice(kx,1);else{r.x.push(id);var k=r.s.indexOf(id);if(k>=0)r.s.splice(k,1);}
   commit(r.s,r.x);}
-function renderDay(){var p=panels.day,vis=visible(),dt=parse(cur);p.textContent='';dayBtn={};
+function renderDay(){var p=panels.day,all=visible(),vis=visibleOn(cur),late=all.length-vis.length,dt=parse(cur);p.textContent='';dayBtn={};
   var name=WD[dt.getDay()];p.appendChild(el('h2','',name.charAt(0).toUpperCase()+name.slice(1)+' '+fi(cur)));
+  if(all.length&&!vis.length){p.appendChild(el('p','sub','Yksikään väite ei ollut vielä käytössä tänä päivänä. Alkamispäivää voi aikaistaa asetuksissa väitteen muokkauksesta.'));return;}
   if(!vis.length){p.appendChild(el('p','sub','Lista on vielä tyhjä. Lisää asetuksissa ne asiat, joita haluat päivistäsi merkitä.'));
     var b=el('button','btn solid','Lisää vaihtoehtoja');b.type='button';b.addEventListener('click',function(){showTab('set');});p.appendChild(b);return;}
   var cnt=el('p','sub');cnt.id='day-count';p.appendChild(cnt);
@@ -419,9 +435,12 @@ function renderDay(){var p=panels.day,vis=visible(),dt=parse(cur);p.textContent=
   list.addEventListener('pointermove',function(ev){if(lpT&&lpXY&&(Math.abs(ev.clientX-lpXY[0])>8||Math.abs(ev.clientY-lpXY[1])>8))lpClear();});
   ['pointerup','pointercancel','pointerleave'].forEach(function(t){list.addEventListener(t,lpClear);});
   list.addEventListener('contextmenu',function(ev){ev.preventDefault();});
+  if(late>0){var ln=el('p','sub',(late===1?'1 väite ei ollut':late+' väitettä ei ollut')+' vielä käytössä tänä päivänä. Alkamispäivää voi muuttaa asetuksissa väitteen muokkauksesta.');ln.style.marginTop='14px';p.appendChild(ln);}
   updateDay();
 }
 function updateDay(){var st=stats(cur),r=data.days[cur],s=r?r.s:[],x=r&&r.x?r.x:[],selIdx=[st.n+wdIndex(cur)];
+  function act(id){var o=opt(id);return !!o&&active(o,cur);}
+  s=s.filter(act);x=x.filter(act);
   s.forEach(function(id){if(st.ix[id]!==undefined)selIdx.push(st.ix[id]);});
   Object.keys(dayBtn).forEach(function(id){var b=dayBtn[id],on=s.indexOf(id)>=0,off=x.indexOf(id)>=0,p=off?null:predict(st,selIdx,st.ix[id]);
     b.setAttribute('aria-pressed',on?'true':'false');if(off)b.dataset.off='1';else delete b.dataset.off;
@@ -446,7 +465,7 @@ function barRow(name,f,right,sub){var r=el('div','bar');r.style.setProperty('--f
 function renderLinks(){var p=panels.links,st=stats(null),vis=visible(),n=st.n;p.textContent='';
   p.appendChild(el('h2','','Yhteydet'));
   if(st.days<5){p.appendChild(el('p','sub','Yhteydet alkavat näkyä, kun päiviä on kirjattu vähintään viisi. Nyt kirjattuna: '+st.days+'.'));return;}
-  p.appendChild(el('p','sub','Kirjattuja päiviä: '+st.days+'. Viikonpäivä on mukana automaattisesti. Pois päältä merkityt päivät eivät ole kyseisen väitteen luvuissa. Yhteys ei kerro, kumpi aiheuttaa kumman.'));
+  p.appendChild(el('p','sub','Kirjattuja päiviä: '+st.days+'. Viikonpäivä on mukana automaattisesti. Pois päältä merkityt päivät ja alkamispäivää edeltävät päivät eivät ole väitteen luvuissa. Yhteys ei kerro, kumpi aiheuttaa kumman.'));
   var sel=el('select');sel.setAttribute('aria-label','Valitse väite tai viikonpäivä');
   var o0=el('option','','Kaikki väitteet');o0.value='';sel.appendChild(o0);
   vis.forEach(function(o){var x=el('option','',o.n);x.value=o.id;sel.appendChild(x);});
@@ -598,15 +617,16 @@ function renderOptList(){var ol=$('optlist'),vis=visible();ol.textContent='';
 }
 function addOpt(){var inp=$('newopt'),name=inp.value.trim().replace(/\s+/g,' ');if(!name)return;
   if(data.opts.some(function(o){return o.n.toLowerCase()===name.toLowerCase();})){setMsg('addmsg','”'+name+'” on jo listassa.',true);return;}
-  data.seq++;data.opts.push({id:'o'+data.seq,n:name.slice(0,200),h:false});inp.value='';touch();renderOptList();
-  setMsg('addmsg','Lisätty listan loppuun paikalle '+visible().length+': '+name);inp.focus();}
+  var c0=loggedCount(data.days)>0?iso(new Date()):null;
+  data.seq++;data.opts.push({id:'o'+data.seq,n:name.slice(0,200),h:false,c:c0});inp.value='';touch();renderOptList();
+  setMsg('addmsg','Lisätty listan loppuun paikalle '+visible().length+': '+name+(c0?'. Käytössä tästä päivästä alkaen.':''));inp.focus();}
 function move(id,dir){var vis=visible(),k=-1;vis.forEach(function(o,i){if(o.id===id)k=i;});var t=k+dir;if(k<0||t<0||t>=vis.length)return;
   var a=data.opts.indexOf(vis[k]),b=data.opts.indexOf(vis[t]);data.opts[a]=vis[t];data.opts[b]=vis[k];touch();renderOptList();
   var btn=$('optlist').querySelector('[data-'+(dir<0?'up':'down')+'="'+id+'"]');if(btn&&!btn.disabled)btn.focus();}
 function moveTo(id,pos){var o=opt(id);if(!o||o.h)return;data.opts.splice(data.opts.indexOf(o),1);var vis=visible();
   pos=Math.max(1,Math.min(vis.length+1,pos));if(pos>vis.length)data.opts.push(o);else data.opts.splice(data.opts.indexOf(vis[pos-1]),0,o);}
 function openEdit(id){var o=opt(id);if(!o)return;editId=id;delArmed=false;var vis=visible();
-  $('ed-name').value=o.n;$('ed-posbox').hidden=o.h;$('ed-pos').value=o.h?'':vis.indexOf(o)+1;$('ed-pos').max=vis.length;
+  $('ed-name').value=o.n;$('ed-start').value=o.c||'';$('ed-posbox').hidden=o.h;$('ed-pos').value=o.h?'':vis.indexOf(o)+1;$('ed-pos').max=vis.length;
   var st=stats(null),k=st.ix[id];$('ed-info').textContent='Valittu '+st.S[k]+' päivänä. Piilotettu vaihtoehto poistuu listalta, mutta säilyy aiemmissa päivissä. Poistaminen hävittää sen myös aiemmista päivistä.';
   $('ed-hide').textContent=o.h?'Palauta listalle':'Piilota listalta';$('ed-del').textContent='Poista kokonaan';
   if(sheet.showModal)sheet.showModal();else sheet.setAttribute('open','');}
@@ -614,8 +634,10 @@ function closeEdit(){editId=null;if(sheet.close)sheet.close();else sheet.removeA
 $('ed-ok').addEventListener('click',function(){var o=opt(editId);if(o){var name=$('ed-name').value.trim().replace(/\s+/g,' '),changed=false;
     if(name&&name!==o.n){o.n=name.slice(0,200);changed=true;}
     var pos=parseInt($('ed-pos').value,10),vis=visible();if(!o.h&&pos>=1&&pos!==vis.indexOf(o)+1){moveTo(o.id,pos);changed=true;}
+    var sv=$('ed-start').value,nc=/^\d{4}-\d{2}-\d{2}$/.test(sv)?sv:null;if(nc!==(o.c||null)){o.c=nc;changed=true;}
     if(changed)touch();}
   closeEdit();renderOptList();});
+$('ed-nostart').addEventListener('click',function(){$('ed-start').value='';});
 $('ed-hide').addEventListener('click',function(){var o=opt(editId);if(o){o.h=!o.h;if(!o.h){data.opts.splice(data.opts.indexOf(o),1);data.opts.push(o);}touch();}closeEdit();renderOptList();});
 $('ed-del').addEventListener('click',function(){if(!delArmed){delArmed=true;$('ed-del').textContent='Vahvista poisto';return;}
   var id=editId;data.opts=data.opts.filter(function(o){return o.id!==id;});
@@ -625,7 +647,7 @@ sheet.addEventListener('click',function(ev){if(ev.target===sheet)closeEdit();});
 
 /* ---- vienti ja tuonti ---- */
 function exportObj(){return {app:'paivakartta',version:2,exportedAt:new Date().toISOString(),
-  options:data.opts.map(function(o){return {id:o.id,name:o.n,hidden:!!o.h};}),days:data.days,cfg:data.cfg};}
+  options:data.opts.map(function(o){return {id:o.id,name:o.n,hidden:!!o.h,start:o.c||null};}),days:data.days,cfg:data.cfg};}
 function renderDataInfo(){var nd=loggedCount(data.days),i=$('datainfo');if(!i)return;
   var le=data.meta.lastExport?fi(data.meta.lastExport.slice(0,10),true):'ei vielä kertaakaan';
   i.textContent='Kirjattuja päiviä '+nd+', vaihtoehtoja '+data.opts.length+'. Viimeksi viety: '+le+'.'+(data.meta.dirty>0?' Sen jälkeen on tehty muutoksia.':'');}
@@ -659,7 +681,7 @@ function offerImport(txt){var obj=null,out=$('dataout');out.textContent='';pendi
   var c=el('div','confirm');c.appendChild(el('p','','Tiedostossa on '+loggedCount(obj.days)+' päivää ja '+obj.opts.length+' vaihtoehtoa. Tämän laitteen nykyiset tiedot ('+loggedCount(data.days)+' päivää, '+data.opts.length+' vaihtoehtoa) korvataan.'));
   var r=el('div','btnrow');r.style.marginTop='0';var y=el('button','btn solid','Korvaa tiedot');y.type='button';var nn=el('button','btn','Peru');nn.type='button';r.appendChild(y);r.appendChild(nn);c.appendChild(r);out.appendChild(c);
   nn.addEventListener('click',function(){pendingImport=null;out.textContent='';});
-  y.addEventListener('click',function(){var o=pendingImport;if(!o)return;data.opts=o.opts;data.days=o.days;data.seq=o.seq;
+  y.addEventListener('click',function(){var o=pendingImport;if(!o)return;data.opts=o.opts;data.days=o.days;data.seq=o.seq;migrateStarts(data);
     if(o.cfg)Object.keys(data.cfg).forEach(function(k){if(typeof o.cfg[k]==='string')data.cfg[k]=o.cfg[k];});
     data.meta={lastExport:data.meta.lastExport,dirty:0};rev++;save();applyCfg();pendingImport=null;out.textContent='';
     renderStatus();renderCal();renderSettings();setMsg('datamsg','Tiedot tuotu.');});
@@ -667,7 +689,7 @@ function offerImport(txt){var obj=null,out=$('dataout');out.textContent='';pendi
 
 renderStatus();renderCal();showTab('day');
 })();
-if(typeof module!=='undefined')module.exports={computeStats:computeStats,predict:predict,assoc:assoc,normalize:normalize,combosFor:combosFor,treeFor:treeFor,wdIndex:wdIndex,WDN:WDN};
+if(typeof module!=='undefined')module.exports={migrateStarts:migrateStarts,computeStats:computeStats,predict:predict,assoc:assoc,normalize:normalize,combosFor:combosFor,treeFor:treeFor,wdIndex:wdIndex,WDN:WDN};
 </script>
 </body>
 </html>
