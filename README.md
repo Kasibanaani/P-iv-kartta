@@ -10,6 +10,7 @@ Henkilökohtaiseen käyttöön tehtyjä selainappeja. Jokainen appi on yksi HTML
 | `paatoskartta/` | Päätöskartta | https://kasibanaani.github.io/P-iv-kartta/paatoskartta/ |
 | `projektikartta/` | Projektikartta | https://kasibanaani.github.io/P-iv-kartta/projektikartta/ |
 | `taitokartta/` | Taitokartta | https://kasibanaani.github.io/P-iv-kartta/taitokartta/ |
+| `oppikartta/` | Oppikartta | https://kasibanaani.github.io/P-iv-kartta/oppikartta/ |
 
 Uusi appi tulee omaan kansioonsa nimellä `index.html`. Osoite on silloin `https://kasibanaani.github.io/P-iv-kartta/<kansio>/`.
 
