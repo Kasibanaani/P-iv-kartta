@@ -1,5 +1,5 @@
-// Pelin säännöt: kartta, vihollisten kulku ja esteiden kierto, banaani, vesimeloni, kolot, pisteytys, elämät, vaikeustasot, pelaajien pisteet.
-const E=require('./vv.js');const {W,TYPES,LEVELS,LEVEL_IDS,BAN,MEL,HOLE,LIVES,MIN_GAP,rngOf,makeMap,newGame,spawnOne,stepGame,fire,select,newData,normalize,recordGame,cleanPlayer}=E;
+// Pelin säännöt: kartta, vihollisten kulku ja esteiden kierto, banaani, vesimeloni, kolot, gorilla ja kivien siirto, pisteytys, elämät, vaikeustasot, pelaajien pisteet.
+const E=require('./vv.js');const {W,TYPES,LEVELS,LEVEL_IDS,BAN,MEL,HOLE,ROCK,LIVES,MIN_GAP,grab,dragTo,drop,rockFit,rngOf,makeMap,newGame,spawnOne,stepGame,fire,select,newData,normalize,recordGame,cleanPlayer}=E;
 let ok=true;function eq(label,a,b){const p=JSON.stringify(a)===JSON.stringify(b);if(!p)ok=false;console.log((p?'ok  ':'FAIL')+' '+label+(p?'':'\n   sain   '+JSON.stringify(a)+'\n   odotin '+JSON.stringify(b)));}
 function check(label,cond,extra){if(!cond)ok=false;console.log((cond?'ok  ':'FAIL')+' '+label+(extra?'  '+extra:''));}
 const DT=1/60,none=()=>0.5;
@@ -53,10 +53,12 @@ G=bare();put(G,'perus',30,60).spd=0;put(G,'nopea',70,60).spd=0;fire(G,30,60);run
 G=bare();G.obst=[{x:50,y:90,r:7}];put(G,'jarea',50,60).spd=0;put(G,'perus',56,64).spd=0;put(G,'perus',50,30).spd=0;
 select(G,'mel');eq('elefantti heittää vesimelonin',[fire(G,50,60).k,G.sel,G.shots[0].k],['mel','mel','mel']);
 ev=run(G,0.5);eq('meloni on vielä ilmassa: mihinkään ei ole osuttu',[ev.length,G.enemies.length],[0,3]);
-ev=run(G,1);eq('meloni putoaa napautettuun kohtaan kiven yli: järeäkin kaatuu kerrasta, kauempana oleva säilyy',[ev.map(x=>x.k),G.enemies.map(x=>Math.round(x.y)),G.score,ev[0].n,ev[0].pts],[['splat','splash','splash'],[30],4,2,4]);
-// vesimelonin pisteet: kerralla kaatuneiden määrä toiseen potenssiin, vihollisen tyypistä riippumatta
-{const got=[];for(let n=0;n<=5;n++){const g=bare();const ty=['perus','nopea','jarea','perus','nopea'];for(let i=0;i<n;i++)put(g,ty[i],46+i*2,60).spd=0;select(g,'mel');fire(g,50,60);run(g,2);got.push(g.score);}
-  eq('vesimelonin pisteet: 0, 1, 4, 9, 16, 25 sen mukaan, montako kaatuu kerralla; tyhjään pudonnut meloni ei vie pisteitä',got,[0,1,4,9,16,25]);}
+ev=run(G,1);eq('meloni putoaa napautettuun kohtaan kiven yli: järeäkin kaatuu kerrasta, kauempana oleva säilyy',[ev.map(x=>x.k),G.enemies.map(x=>Math.round(x.y)),G.score,ev[0].n,ev[0].pts],[['splat','splash','splash'],[30],8,2,8]);
+// vesimelonin pisteet: yksi kaadettu antaa saman kuin banaanilla; monta kerralla = pisteiden summa kertaa kaatuneiden määrä
+function melon(types){const g=bare();types.forEach((t,i)=>put(g,t,46+i*2,60).spd=0);select(g,'mel');fire(g,50,60);run(g,2);return g.score;}
+eq('vesimelonilla yksi vihollinen antaa saman kuin banaanilla: tavallinen 1, nopea 2, järeä 3',['perus','nopea','jarea'].map(t=>melon([t])),[TYPES.perus.pts,TYPES.nopea.pts,TYPES.jarea.pts]);
+eq('tavallisia kerralla 0, 1, 2, 3, 4 ja 5: pisteet 0, 1, 4, 9, 16 ja 25; tyhjään pudonnut meloni ei vie pisteitä',[0,1,2,3,4,5].map(n=>melon(Array(n).fill('perus'))),[0,1,4,9,16,25]);
+eq('sekaryhmä: pisteiden summa kertaa kaatuneiden määrä (nopea + tavallinen 2 x 3, kaksi nopeaa 2 x 4, järeä + nopea + tavallinen 3 x 6)',[melon(['nopea','perus']),melon(['nopea','nopea']),melon(['jarea','nopea','perus'])],[6,8,18]);
 G=bare();select(G,'mel');eq('elefantin lataus kestää pidempään kuin simpanssin',[fire(G,50,30).k,fire(G,50,30).k,(run(G,BAN.cd+0.05),fire(G,50,30).k),(run(G,MEL.cd),fire(G,50,30).k)],['mel','wait','wait','mel']);
 G=bare();select(G,'mel');fire(G,50,20);const far=G.shots[0].dur;G=bare();select(G,'mel');fire(G,50,120);check('kauas heitetty meloni on ilmassa pidempään',far>G.shots[0].dur&&far<2,far.toFixed(2)+' s ja '+G.shots[0].dur.toFixed(2)+' s');
 G=bare();put(G,'perus',50,60).spd=0;select(G,'mel');fire(G,50,60+MEL.r+4);run(G,2);eq('pläsähdyksen ulkopuolella oleva säilyy',G.enemies.length,1);
@@ -70,11 +72,60 @@ eq('koloon kävelevä vihollinen putoaa pois pelistä, mutta pisteitä siitä ei
 fire(G,30,90);eq('kolmannen kolon jälkeen myyrä vaihtuu simpanssiin eikä sitä voi enää valita',[fire(G,80,90).k,G.holesLeft,G.sel,select(G,'mole'),G.sel],['hole',0,'ban',false,'ban']);
 G=bare();select(G,'mole');fire(G,50,G.H);check('kolo ei mene kotirajan alle',G.holes[0].y<=G.homeY-HOLE.r);
 
+// ---------- gorilla ja kivien siirto ----------
+const near=(a,b,tol)=>Math.abs(a-b)<=(tol||0.05);
+G=bare();G.obst=[{x:50,y:80,r:6},{x:20,y:40,r:7}];
+eq('kiveen ei voi tarttua simpanssilla, ja gorillan voi valita',[grab(G,50,80).k,select(G,'gor'),G.sel],['none',true,'gor']);
+eq('gorillan vuorolla napautus ei ammu eikä kaiva',[fire(G,50,30).k,fire(G,50,80).k,G.shots.length,G.holes.length],['none','none',0,0]);
+eq('tyhjästä kohdasta ei saa otetta, kiven reunan vierestä saa',[grab(G,50,60).k,G.drag,grab(G,50+6+ROCK.pad-0.5,80).k,G.drag.i],['none',null,'grab',0]);
+drop(G);grab(G,52,81);dragTo(G,82,51);run(G,0.05);
+check('kivi lähtee sormen perään mutta ei hyppää: nopeus on rajattu',near(Math.hypot(G.obst[0].x-50,G.obst[0].y-80),ROCK.spd*0.05,0.5),'siirtyi '+Math.hypot(G.obst[0].x-50,G.obst[0].y-80).toFixed(1));
+run(G,1);check('kivi päätyy sormen alle niin, että tartuntakohta pysyy sormen alla',near(G.obst[0].x,80)&&near(G.obst[0].y,50),JSON.stringify(G.obst[0]));
+eq('siirrosta ei tule pisteitä, eikä siirroilla ole ylärajaa',[G.score,(drop(G),grab(G,80,50).k),(drop(G),grab(G,80,50).k),(drop(G),grab(G,80,50).k)],[0,'grab','grab','grab']);
+dragTo(G,20,40);run(G,2);{const a=G.obst[0],b=G.obst[1],gap=Math.hypot(a.x-b.x,a.y-b.y)-a.r-b.r;
+  check('kiveä ei saa toisen kiven päälle eikä viereen: väliin jää vihollisen mentävä rako',near(gap,MIN_GAP,0.02),'rako '+gap.toFixed(2));}
+dragTo(G,-40,-40);run(G,3);check('kivi ei mene kentän ulkopuolelle eikä viidakon reunan sisään',G.obst[0].x>=G.obst[0].r*0.4-0.01&&G.obst[0].y>=G.obst[0].r+ROCK.top-0.01,JSON.stringify(G.obst[0]));
+dragTo(G,70,400);run(G,3);check('kivi ei mene kotirajan alle',near(G.obst[0].y,G.homeY-G.obst[0].r-1)&&near(G.obst[0].x,70),JSON.stringify(G.obst[0]));
+eq('ote irtoaa, kun sormi nousee, ja kivi jää paikalleen',[drop(G),G.drag,dragTo(G,10,10),(run(G,1),Math.round(G.obst[0].x))],[true,null,false,70]);
+grab(G,70,G.obst[0].y);eq('ote irtoaa myös, kun eläin vaihdetaan',[select(G,'ban'),G.drag,fire(G,50,50).k],[true,null,'ban']);
+// viholliset väistävät siirtyvää kiveä: kukaan ei kaadu, kukaan ei siirry ylöspäin
+G=bare();G.obst=[{x:20,y:60,r:7}];select(G,'gor');const dodgers=[put(G,'perus',50,56),put(G,'jarea',64,62),put(G,'nopea',78,60)];dodgers.forEach(x=>x.spd=0);
+grab(G,20,60);dragTo(G,90,60);{let up=0,ins=0;for(let i=0;i<120;i++){const ys=dodgers.map(x=>x.y);stepGame(G,DT,none);dodgers.forEach((x,k)=>{if(x.y<ys[k]-1e-9)up++;if(Math.hypot(x.x-G.obst[0].x,x.y-G.obst[0].y)<G.obst[0].r+x.r-0.02)ins++;});}
+  eq('kivi vedetään kolmen vihollisen läpi: kaikki väistävät ja jäävät henkiin, pisteitä ei tule',[G.enemies.length,G.kills,G.score,ins,up,Math.round(G.obst[0].x)],[3,0,0,0,0,90]);}
+G=bare();G.obst=[{x:50,y:100,r:7}];select(G,'gor');e=put(G,'perus',50,70);e.spd=0;grab(G,50,100);dragTo(G,50,40);run(G,1.5);
+check('alta päin nostettu kivi ei työnnä vihollista ylöspäin: vihollinen astuu sivuun',near(e.y,70)&&Math.abs(e.x-50)>=10&&near(G.obst[0].y,40),JSON.stringify([e.x.toFixed(1),e.y]));
+G=bare();G.obst=[{x:20,y:60,r:7}];select(G,'gor');e=put(G,'jarea',3+5.6,60);e.spd=0;grab(G,20,60);dragTo(G,4,60);run(G,1);
+check('seinän ja kiven väliin jäävä vihollinen pääsee kiven toiselle puolelle',e.x>G.obst[0].x&&Math.hypot(e.x-G.obst[0].x,e.y-G.obst[0].y)>=7+e.r-0.02&&G.enemies.length===1,JSON.stringify([e.x.toFixed(1),G.obst[0].x.toFixed(1)]));
+// kivi ei jää jumiin toisen kiven ja seinän väliin: se liukuu sormen alle toisen kiven yli, ja lepopaikka on aina sallittu
+G=bare();G.obst=[{x:4,y:20,r:6},{x:20,y:50,r:7}];select(G,'gor');grab(G,4,20);dragTo(G,6,90);run(G,1.5);
+check('kiven voi vetää seinän vierestä toisen kiven ohi',near(G.obst[0].x,6)&&near(G.obst[0].y,90),JSON.stringify(G.obst[0]));
+dragTo(G,20,50);run(G,0.05);drop(G);check('kesken matkan irrotettu kivi liukuu loppuun sallittuun paikkaan',G.drag&&G.drag.rel===true&&dragTo(G,90,90)===false);
+run(G,1);{const a=G.obst[0],b=G.obst[1];check('  ja pysähtyy raon päähän toisesta kivestä',G.drag===null&&near(Math.hypot(a.x-b.x,a.y-b.y)-a.r-b.r,MIN_GAP,0.02),JSON.stringify(a));}
+G=bare();G.obst=[{x:50,y:80,r:6}];select(G,'gor');grab(G,50,80);dragTo(G,80,80);G.paused=true;stepGame(G,1,none);eq('tauolla kivi ei liiku',G.obst[0].x,50);
+// rasitus: kiviä siirrellään jatkuvasti satunnaisiin paikkoihin samalla kun vihollisia tulee
+{let gapBad=0,inside=0,out=0,stuck=0,maxAge=0,moved=0,total=0;
+  for(let s=1;s<=120;s++){const r=rngOf(1000+s),H=[110,150,190][s%3],g=newGame(['helppo','tavallinen','vaikea'][s%3],H,r);g.lives=1e9;select(g,'gor');const born={};let next=0;
+    for(let i=0;i<60*45;i++){if(i>=next){drop(g);const k=Math.floor(r()*g.obst.length),o=g.obst[k];if(grab(g,o.x,o.y).k==='grab'){dragTo(g,r()*W,r()*H);moved++;}next=i+20+Math.floor(r()*70);}
+      stepGame(g,DT,r);
+      const D=g.drag,rest=!D||Math.hypot(D.gx-g.obst[D.i].x,D.gy-g.obst[D.i].y)<0.001;   // levossa = kivi on perillä sallitussa paikassaan
+      for(const en of g.enemies){if(!(en.id in born))born[en.id]=g.t;maxAge=Math.max(maxAge,g.t-born[en.id]);if(en.x<en.r-0.01||en.x>W-en.r+0.01)out++;
+        if(rest&&en.y>-en.r)for(const o of g.obst)if(Math.hypot(en.x-o.x,en.y-o.y)<o.r+en.r-0.05)inside++;}
+      for(let a=0;a<g.obst.length;a++){const A=g.obst[a];if(A.x<A.r*0.4-0.01||A.x>W-A.r*0.4+0.01||A.y<A.r+ROCK.top-0.01||A.y>g.homeY-A.r-0.99)out++;
+        if(rest)for(let b=a+1;b<g.obst.length;b++)if(Math.hypot(A.x-g.obst[b].x,A.y-g.obst[b].y)-A.r-g.obst[b].r<MIN_GAP-0.01)gapBad++;}}
+    total+=g.seq;drop(g);run(g,1,r);g.spawnT=1e9;let t=0;while(g.enemies.length&&t<60){stepGame(g,DT,r);t+=DT;}stuck+=g.enemies.length;}
+  check('120 pelissä kiviä siirrellään koko ajan ('+moved+' siirtoa, '+total+' vihollista): kivien väli säilyy, kukaan ei jää kiven sisään, ulos kentältä tai jumiin',gapBad===0&&inside===0&&out===0&&stuck===0&&maxAge<60,'väli '+gapBad+', sisällä '+inside+', ulkona '+out+', jumissa '+stuck+', pisin aika kentällä '+maxAge.toFixed(0)+' s');}
+// kivillä ei voi sulkea kenttää: pahimmankin rivin läpi pääsee
+{let stuck=0,tot=0;for(let s=1;s<=60;s++){const r=rngOf(5000+s),g=newGame('tavallinen',150,r);g.lives=1e9;g.spawnT=1e9;select(g,'gor');
+    const row=40+r()*70;for(let pass=0;pass<4;pass++)for(let k=0;k<g.obst.length;k++){const o=g.obst[k];grab(g,o.x,o.y);dragTo(g,(k+0.5)*W/g.obst.length+(r()-0.5)*6,row+(r()-0.5)*4);run(g,1.2,r);drop(g);run(g,0.5,r);}
+    for(const type of ['perus','nopea','jarea'])for(let i=0;i<12;i++)spawnOne(g,r,type,2+r()*96,-5-r()*20);
+    let t=0;while(g.enemies.length&&t<60){stepGame(g,DT,r);t+=DT;}stuck+=g.enemies.length;tot+=36;}
+  check('kivet yritetään vetää yhdeksi riviksi 60 kentällä: kaikki '+tot+' vihollista pääsevät silti läpi',stuck===0,'jumissa '+stuck);}
+
 // ---------- elämät ja pelin loppu ----------
 G=bare();put(G,'nopea',20,G.homeY-2);ev=run(G,0.5);eq('rajan yli päässyt vihollinen vie elämän',[ev.map(x=>x.k),G.lives,G.enemies.length,G.over],[['life'],LIVES-1,0,false]);
 put(G,'nopea',20,G.homeY-2);put(G,'nopea',60,G.homeY-2);ev=run(G,0.5);
 eq('kolmas elämä päättää pelin',[ev.map(x=>x.k).sort(),G.lives,G.over],[['life','life','over'],0,true]);
-eq('päättyneessä pelissä ei voi ampua eikä aika kulje',[fire(G,50,50).k,stepGame(G,1,none).length,select(G,'mel')],['none',0,false]);
+eq('päättyneessä pelissä ei voi ampua, tarttua kiveen eikä aika kulje',[fire(G,50,50).k,stepGame(G,1,none).length,select(G,'mel'),select(G,'gor'),grab(G,50,50).k,G.drag],['none',0,false,false,'none',null]);
 G=bare();G.paused=true;put(G,'perus',50,50);const y0=G.enemies[0].y;stepGame(G,1,none);eq('tauolla mikään ei liiku eikä ammu',[G.enemies[0].y,fire(G,50,50).k],[y0,'none']);
 
 // ---------- vaikeustasot ----------

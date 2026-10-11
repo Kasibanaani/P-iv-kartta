@@ -4,8 +4,8 @@ Aja kaikki: `sh viidakkovahti/testit/aja.sh` (repon juuresta). Vaatii Noden sek�
 
 ## Mitä ajetaan
 
-- `logiikka_01_peli.js`: pelin säännöt. Kartan arvonta, vihollisten kulku ja esteiden kierto, banaani, vesimeloni, myyrän kolot, elämät, vaikeustasot, pelaajien pisteet ja tallennusmuoto. Tuloste sisältää myös suuntaa antavan simulaation siitä, kuinka kauan tasaiseen tahtiin napauttava pelaaja kestää kullakin vaikeustasolla.
-- `selain_01_perus.py`: koko peli selaimessa puhelinkoossa (390 px, 320 px tummana ja 430 x 932 px). Aikaa siirretään sivun testikoukulla `__vv.advance`, jottei tarvitse odottaa. Tulosteet ja kuvakaappaukset tulevat kansioon `tulosteet/`.
+- `logiikka_01_peli.js`: pelin säännöt. Kartan arvonta, vihollisten kulku ja esteiden kierto, banaani, vesimeloni, myyrän kolot, gorilla ja kivien siirto (myös rasitustesti, jossa kiviä siirrellään koko pelin ajan), pisteytys, elämät, vaikeustasot, pelaajien pisteet ja tallennusmuoto. Tuloste sisältää myös suuntaa antavan simulaation siitä, kuinka kauan tasaiseen tahtiin napauttava pelaaja kestää kullakin vaikeustasolla.
+- `selain_01_perus.py`: koko peli selaimessa puhelinkoossa (390 px, 320 px tummana ja 430 x 932 px). Kiven raahaus tehdään oikeilla kosketustapahtumilla, myös kahdella sormella. Aikaa siirretään sivun testikoukulla `__vv.advance`, jottei tarvitse odottaa. Tulosteet ja kuvakaappaukset tulevat kansioon `tulosteet/`.
 
 Ajo poimii pelin koodin tiedostosta `../index.html` tiedostoksi `vv.js`.
 
