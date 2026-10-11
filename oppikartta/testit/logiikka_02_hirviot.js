@@ -30,7 +30,7 @@ R={lv:'tavallinen',len:10,hits:0,miss:0,turn:0,seq:2,lane:0,cd:3,mons:[{id:1,d:1
 ev=stepRound(R,true,false,()=>0.99);eq('oikea vastaus ei koskaan päätä peliä häviöön',[ev.over,R.mons.map(m=>m.d)],['',[1]]);
 ev=stepRound(R,false,false,()=>0.99);eq('seuraava virhe päättää',[ev.over,ev.caught.id],['loss',2]);
 // tallennetun kierroksen siivous
-eq('kesken oleva kierros säilyy latauksessa',cleanRound({lv:'vaikea',len:20,hits:3,miss:1,turn:5,seq:4,lane:1,cd:2,mons:[{id:4,d:3,v:2,x:-1}]}),{lv:'vaikea',len:20,hits:3,miss:1,turn:5,seq:4,lane:1,cd:2,mons:[{id:4,d:3,v:2,x:-1}],over:''});
+eq('kesken oleva kierros säilyy latauksessa',cleanRound({lv:'vaikea',len:20,hits:3,miss:1,turn:5,seq:4,lane:1,cd:2,mons:[{id:4,d:3,v:2,x:-1},{id:3,d:9,v:1,x:0}]}),{lv:'vaikea',len:20,hits:3,miss:1,turn:5,seq:4,lane:1,cd:2,mons:[{id:4,d:3,v:2,x:-1}],over:''});
 eq('rikkinäinen tai päättynyt kierros hylätään',[cleanRound({lv:'x',len:10,mons:[]}),cleanRound({lv:'helppo',len:10,over:'win',mons:[]}),cleanRound(null)],[null,null,null]);
 
 // ---------- satunnaispelit: virheetön peli voittaa aina, pelkät virheet häviävät aina ----------
@@ -50,5 +50,6 @@ console.log('     oikein  90% 80% 70% 60% 50%');for(const lv of Object.keys(tbl)
 check('taso vaikeutuu järjestyksessä helppo > tavallinen > vaikea',[10,20].every(len=>[0,1,2,3,4].every(i=>tbl.helppo[len][i]>=tbl.tavallinen[len][i]&&tbl.tavallinen[len][i]>=tbl.vaikea[len][i])));
 check('pidempi peli on vaikeampi',Object.keys(tbl).every(lv=>[0,1,2,3,4].every(i=>tbl[lv][10][i]>=tbl[lv][20][i])));
 check('helppo: 60 % oikein voittaa yleensä; vaikea: 60 % oikein häviää yleensä',tbl.helppo[10][3]>=85&&tbl.vaikea[10][3]<=45);
+check('vaikea on selvästi tavallista vaikeampi: 80 % oikein voittaa lyhyen pelin enintään kolmesti neljästä ja pitkän harvemmin kuin joka toisen',tbl.vaikea[10][1]<=75&&tbl.vaikea[20][1]<=50&&tbl.tavallinen[10][1]>=90);
 
 console.log(ok?'KAIKKI OK':'VIRHEITÄ');process.exit(ok?0:1);

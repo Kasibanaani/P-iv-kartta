@@ -1,5 +1,5 @@
-// Pelin sisältö tekstinä, kysymyksen rakentaminen, palkkien sääntö ja tallennusmuoto.
-const E=require('./ok.js');const {parseGameText,mergeItems,gameToText,buildQuestion,preBars,topIsCorrect,cardsOf,normalize,cleanCfg,OKKEY,CFG_DEF,newState,applyAnswer}=E;
+// Pelin sisältö tekstinä, kysymyksen rakentaminen ja tallennusmuoto (myös ensimmäisen version tallennuksen muunnos).
+const E=require('./ok.js');const {parseGameText,mergeItems,gameToText,buildQuestion,cardsOf,normalize,cleanCfg,OKKEY,CFG_DEF,newState,applyAnswer,isOpen}=E;
 let ok=true;function eq(label,a,b){const p=JSON.stringify(a)===JSON.stringify(b);if(!p)ok=false;console.log((p?'ok  ':'FAIL')+' '+label+(p?'':'\n   sain   '+JSON.stringify(a)+'\n   odotin '+JSON.stringify(b)));}
 function rngOf(seed){let a=seed>>>0;return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 
@@ -41,27 +41,28 @@ eq('aiemmin valitut väärät vaihtoehdot palaavat samaan korttiin',miss,0);
 const M={id:'g3',name:'m',iseq:1,items:[{id:'i1',k:'m',q:'q',c:'oikea',w:['a','b','c','d','e'],ex:''}]};
 q=buildQuestion(M,cardsOf(M)[0],{h:{'e':1}},rng);eq('monivalinta: enintään kolme väärää, valittu väärä mukana',[q.opts.length,q.opts.some(o=>o.t==='e'),q.opts.filter(o=>o.ok).length],[4,true,1]);
 
-// ---------- palkit ennen vastausta ----------
-const cfg=Object.assign({},CFG_DEF),H=h=>({h});
-eq('alle viisi vastausta: ei palkkeja',preBars(H({[OKKEY]:2,a:2}),cfg),false);
-eq('selvä enemmistö: ei palkkeja (paljastaisi vastauksen)',[preBars(H({[OKKEY]:7,a:3}),cfg),preBars(H({a:7,[OKKEY]:3}),cfg)],[false,false]);
-eq('tasainen jakauma: palkit näkyvät riippumatta siitä, kumpi on oikea',[preBars(H({[OKKEY]:3,a:2}),cfg),preBars(H({a:3,[OKKEY]:2}),cfg),preBars(H({a:3,b:3,[OKKEY]:1}),cfg)],[true,true,true]);
-eq('toiseksi yleisin liian harvinainen: ei palkkeja',preBars(H({[OKKEY]:5,a:2,b:2,c:1}),cfg),false);
-eq('rajat ovat asetuksia',[preBars(H({[OKKEY]:2,a:1}),Object.assign({},cfg,{preMin:3,preTop:70})),preBars(H({[OKKEY]:3,a:2}),Object.assign({},cfg,{preTop:50}))],[true,false]);
-eq('korkein palkki oikea?',[topIsCorrect(H({[OKKEY]:3,a:2})),topIsCorrect(H({a:3,[OKKEY]:2})),topIsCorrect(H({}))],[true,false,false]);
-
 // ---------- tallennusmuoto ----------
-const S=newState();applyAnswer(S,'i1>','kissa',false,'2026-10-11');applyAnswer(S,'i1>',OKKEY,true,'2026-10-11');S.round={lv:'helppo',len:10,hits:1,miss:1,turn:2,seq:2,lane:0,cd:2,mons:[{id:2,d:6,v:1,x:1}],over:''};
-const raw={app:'oppikartta',version:1,pseq:2,gseq:2,players:[{id:'p1',name:' Aino '},{id:'p2',name:'Toinen'},{id:'huono',name:'x'},{id:'p3',name:''}],
+const S=newState();applyAnswer(S,'i1>','kissa',false,'2026-10-11','new');applyAnswer(S,'i1>',OKKEY,true,'2026-10-11','retry');S.round={lv:'helppo',len:10,hits:1,miss:1,turn:2,seq:2,lane:0,cd:2,mons:[{id:2,d:6,v:1,x:1}],over:''};
+const raw={app:'oppikartta',version:2,v:2,pseq:2,gseq:2,players:[{id:'p1',name:' Aino '},{id:'p2',name:'Toinen'},{id:'huono',name:'x'},{id:'p3',name:''}],
   games:[W,{id:'g9',name:'',items:[{id:'i1',k:'m',q:'q',c:'c',w:[]},{id:'i2',k:'s',a:'a',b:'b',off:1},{id:'i2',k:'s',a:'tupla',b:'b'},null]}],
-  cur:{p:'p2',g:'eioo'},prog:{'p1|g2':S,'p9|g2':S,'p1|g9':'roska'},cfg:{tint:'vihrea',mode:'outo',newPerDay:15,maxOpen:999,preTop:'60'},meta:{lastExport:'2026-10-01',dirty:3}};
+  cur:{p:'p2',g:'eioo'},prog:{'p1|g2':S,'p9|g2':S,'p1|g9':'roska'},cfg:{tint:'vihrea',mode:'outo',maxOpen:12,show:'2000',newPerDay:15,preTop:60},meta:{lastExport:'2026-10-01',dirty:3}};
 const d=normalize(JSON.parse(JSON.stringify(raw)));
 eq('pelaajat: nimi siistitään, kelvottomat pois',d.players,[{id:'p1',name:'Aino'},{id:'p2',name:'Toinen'}]);
 eq('pelit: kelvottomat kortit pois, laskurit säilyvät',[d.games.map(g=>g.id+':'+g.name+':'+g.items.length),d.games[1].items,d.pseq,d.gseq,d.games[0].iseq],[['g2:s:8','g9:Peli:1'],[{id:'i2',k:'s',a:'a',b:'b',ex:'',off:true}],2,9,8]);
 eq('valinnat: tuntematon peli korvautuu ensimmäisellä',d.cur,{p:'p2',g:'g2'});
-eq('eteneminen vain olemassa oleville pareille',[Object.keys(d.prog).sort(),d.prog['p1|g2'].cards['i1>'],d.prog['p1|g2'].round.mons,d.prog['p1|g9'].n],[['p1|g2','p1|g9'],{l:1,d:'2026-10-12',t:2,s:1,h:{kissa:1,[OKKEY]:1},a:'2026-10-11'},[{id:2,d:6,v:1,x:1}],0]);
-eq('asetukset: vain sallitut arvot',d.cfg,Object.assign({},CFG_DEF,{tint:'vihrea',newPerDay:15}));
+eq('eteneminen vain olemassa oleville pareille',[Object.keys(d.prog).sort(),d.prog['p1|g2'].cards['i1>'],d.prog['p1|g2'].round.mons,d.prog['p1|g9'].n],[['p1|g2','p1|g9'],{l:1,d:'2026-10-11',t:2,s:1,h:{kissa:1,[OKKEY]:1},a:'2026-10-11'},[{id:2,d:6,v:1,x:1}],0]);
+eq('asetukset: vain sallitut arvot, vanhat asetukset putoavat pois',d.cfg,Object.assign({},CFG_DEF,{tint:'vihrea',maxOpen:12,show:2000}));
 eq('tallennus kiertää muuttumatta',JSON.stringify(normalize(JSON.parse(JSON.stringify(d)))),JSON.stringify(d));
 eq('vieras sisältö hylätään',[normalize(null),normalize({trees:[]}),normalize('x')],[null,null,null]);
+// ensimmäisen version tallennus: tasot 0–5 olivat päivävälejä, taso 0 kesken oleva kortti
+const v1={v:1,pseq:1,gseq:2,players:[{id:'p1',name:'Aino'}],games:[W],cur:{p:'p1',g:'g2'},cfg:{tint:'oranssi',mode:'auto',newPerDay:10,maxOpen:20,preMin:5,preTop:60,preSecond:30},meta:{lastExport:null,dirty:4},
+  prog:{'p1|g2':{n:14,day:'2026-10-11',nd:10,lv:'vaikea',len:20,st:{r:2,w:1,p:17},pre:[1,1],gaps:{'0':[5,7]},round:null,
+    cards:{'i1>':{l:1,d:'2026-10-12',t:9,s:2,h:{[OKKEY]:2},a:'2026-10-11'},'i2>':{l:0,d:'2026-10-11',t:14,s:0,h:{koira:1},a:'2026-10-11'},'i3>':{l:5,d:'2026-11-20',t:3,s:6,h:{[OKKEY]:6}},'i4>':{l:3,d:'2026-10-15',t:4,s:3,h:{[OKKEY]:3}}}}}};
+const m1=normalize(JSON.parse(JSON.stringify(v1))),C=m1.prog['p1|g2'].cards;
+eq('vanha tallennus: päivävälit siirtyvät harvoin kerrattaviksi samalla päivällä',[m1.v,C['i1>'].l,C['i1>'].d,C['i3>'].l,C['i3>'].d,C['i4>'].l,isOpen(C['i1>'])],[2,3,'2026-10-12',7,'2026-11-20',5,false]);
+eq('vanha tallennus: kesken ollut kortti tulee pian uudestaan',[C['i2>'].l,C['i2>'].q,isOpen(C['i2>'])],[0,1,true]);
+eq('vanha tallennus: muu säilyy, vanhat asetukset korvautuvat oletuksilla',[m1.prog['p1|g2'].n,m1.prog['p1|g2'].st,m1.prog['p1|g2'].lv,m1.prog['p1|g2'].len,m1.prog['p1|g2'].gaps,m1.cfg],[14,{r:2,w:1,p:17},'vaikea',20,{'0':[5,7]},CFG_DEF]);
+eq('muunnos tehdään vain kerran',JSON.stringify(normalize(JSON.parse(JSON.stringify(m1)))),JSON.stringify(m1));
+eq('ensimmäisen version varmuuskopio (version: 1) muunnetaan samoin',normalize(Object.assign({app:'oppikartta',version:1},JSON.parse(JSON.stringify(v1)),{v:undefined})).prog['p1|g2'].cards['i1>'].l,3);
 
 console.log(ok?'KAIKKI OK':'VIRHEITÄ');process.exit(ok?0:1);
