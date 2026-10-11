@@ -8,6 +8,7 @@ Henkilökohtaiseen käyttöön tehtyjä selainappeja. Jokainen appi on yksi HTML
 | --- | --- | --- |
 | `/` (juuri) | Päiväkartta | https://kasibanaani.github.io/P-iv-kartta/ |
 | `paatoskartta/` | Päätöskartta | https://kasibanaani.github.io/P-iv-kartta/paatoskartta/ |
+| `projektikartta/` | Projektikartta | https://kasibanaani.github.io/P-iv-kartta/projektikartta/ |
 
 Uusi appi tulee omaan kansioonsa nimellä `index.html`. Osoite on silloin `https://kasibanaani.github.io/P-iv-kartta/<kansio>/`.
 
@@ -15,6 +16,6 @@ Uusi appi tulee omaan kansioonsa nimellä `index.html`. Osoite on silloin `https
 
 - Muutokset viedään suoraan päähaaraan. GitHub Pages julkaisee ne minuutin tai parin kuluessa.
 - Koodi tallennetaan tänne jo ensimmäisestä versiosta. Testit ovat appin kansiossa `testit/`.
-- Testit ajetaan ennen jokaista vientiä, esimerkiksi `sh paatoskartta/testit/aja.sh`.
+- Testit ajetaan ennen jokaista vientiä, esimerkiksi `sh paatoskartta/testit/aja.sh`. Päiväkartan testit ovat juuren kansiossa `testit/`.
 - Repo on julkinen: tänne ei viedä henkilökohtaista tietoa eikä tekijänoikeuden alaista materiaalia.
 - Appien tila, ideat ja tarkemmat työtavat ovat käyttäjän Notionissa sivulla Appipaja.
