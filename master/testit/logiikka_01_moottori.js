@@ -20,7 +20,7 @@ eq('muotoilu',[E.fmt(3.14159),E.fmt(3.14159,1),E.fmt(null),E.fmt(5),E.fmt(-0.001
 
 // projekti
 const P=E.newProject('Testi');const s=P.screens[0].id;
-const add=(t,n,x)=>{const o=E.newObj(P,t,s,n);Object.assign(o,x||{});P.objs.push(o);return o;};
+const add=(t,n,x)=>{const o=E.newObj(P,t,s,n);if(x&&x.f!==undefined)o.mode='f';Object.assign(o,x||{});P.objs.push(o);return o;};
 const en=add('slider','Energia',{start:5}),mi=add('slider','Mieliala',{start:5});
 const vire=add('calc','Vire',{f:'KESKIARVO([Energia];[Mieliala])',show:'bar'});
 const mat=add('cond','Matala vire',{req:[{o:vire.id,op:'lt',v:4}]});

@@ -33,7 +33,7 @@ async def run(w,h,scheme,shots,tag):
         await add('slider','Energia'); await add('slider','Mieliala')
         await pick('Mieliala'); await pg.fill('#f-start','3'); await pg.press('#f-start','Tab'); await pg.fill('#f-lo','raskas'); await pg.press('#f-lo','Tab')
         # 2 kaava osoittamalla
-        await add('calc','Summa'); await pg.click('#insp .fnbar .mb:text-is("SUMMA( )")')
+        await add('calc','Summa'); await pg.click('#f-mode [data-v="f"]'); await pg.wait_for_timeout(80); await pg.click('#insp .fnbar .mb:text-is("SUMMA( )")')
         await pg.click('text=Osoita puhelimesta'); await pg.wait_for_timeout(80)
         print('2 osoitustila:', await pg.is_visible('#pointbar'), '| säädin ei liiku osoittaessa:', await pg.evaluate("getComputedStyle(document.querySelector('#pscreen input')).pointerEvents"))
         await pg.click('#pscreen .ua-sl:has-text("Energia")'); await pg.click('#insp .fnbar .mb:text-is(";")'); await pg.click('#pscreen .ua-sl:has-text("Mieliala")'); await pg.click('#pointdone'); await pg.wait_for_timeout(100)
@@ -47,7 +47,7 @@ async def run(w,h,scheme,shots,tag):
         await add('choice','A'); await pg.fill('#f-note','Valitsit A:n, summa {Summa}.'); await pg.wait_for_timeout(60)
         await add('choice','B'); await pg.select_option('#insp [data-ex] select', await pg.evaluate("[...document.querySelectorAll('#insp [data-ex] option')].filter(o=>o.text==='A')[0].value")); await pg.wait_for_timeout(80)
         await add('choice','C'); await addrule('hl','A','off')
-        await add('calc','Näkyvä luku'); await pg.fill('#f-f','JOS([Korkea];"hyvä";"matala")'); await pg.wait_for_timeout(60)
+        await add('calc','Näkyvä luku'); await pg.click('#f-mode [data-v="f"]'); await pg.wait_for_timeout(80); await pg.fill('#f-f','JOS([Korkea];"hyvä";"matala")'); await pg.wait_for_timeout(60)
         print('  puhelin alussa:', await phone())
         if shots: await pg.screenshot(path='m%s_1.png' % tag)
         await slide('Energia',9); await slide('Mieliala',8)
