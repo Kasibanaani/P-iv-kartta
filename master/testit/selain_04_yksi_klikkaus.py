@@ -1,5 +1,6 @@
 # Yksi klikkaus riittää: kun kenttää on muokattu ja sitten klikataan muualle, klikkaus ei saa hukkua
 # (muutos tallentuu kentästä poistuttaessa, ja näkymä piirretään uudelleen vasta klikkauksen jälkeen).
+# Liike pois (reduced_motion): luvut näkyvät heti lopullisina, jotta tulosteet ovat vertailukelpoisia.
 import asyncio, os
 from playwright.async_api import async_playwright
 D=os.path.dirname(os.path.abspath(__file__))
@@ -7,7 +8,7 @@ U='file://'+os.path.abspath(os.path.join(D,'..','index.html'))
 async def main():
     async with async_playwright() as p:
         b=await p.chromium.launch(); errs=[]
-        pg=await b.new_page(viewport={'width':1440,'height':900}); pg.on('pageerror',lambda e:errs.append(str(e)))
+        pg=await b.new_page(reduced_motion='reduce',viewport={'width':1440,'height':900}); pg.on('pageerror',lambda e:errs.append(str(e)))
         await pg.goto(U); await pg.wait_for_timeout(300)
         await pg.click('text=Luo esimerkkiprojekti'); await pg.wait_for_timeout(300)
         h=lambda: pg.inner_text('#insp h2')

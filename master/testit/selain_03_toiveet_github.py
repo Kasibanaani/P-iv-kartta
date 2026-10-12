@@ -1,5 +1,6 @@
 # Versio 3: toiveet tekoälylle ja GitHub-tallennus. GitHubin rajapinta korvataan testissä paikallisella jäljitelmällä
 # (yksityinen repo muistissa), joten testi ei käytä verkkoa.
+# Liike pois (reduced_motion): luvut näkyvät heti lopullisina, jotta tulosteet ovat vertailukelpoisia.
 import asyncio, json, os, base64, re
 from playwright.async_api import async_playwright
 D=os.path.dirname(os.path.abspath(__file__))
@@ -38,7 +39,7 @@ class FakeGH:
 async def run(w,h,scheme,shots,tag):
     async with async_playwright() as p:
         b=await p.chromium.launch(); errs=[]; G=FakeGH()
-        ctx=await b.new_context(viewport={'width':w,'height':h},color_scheme=scheme,accept_downloads=True)
+        ctx=await b.new_context(reduced_motion='reduce',viewport={'width':w,'height':h},color_scheme=scheme,accept_downloads=True)
         await ctx.route('https://api.github.com/**',G.handle)
         pg=await ctx.new_page(); pg.on('pageerror',lambda e:errs.append(str(e)))
         await pg.goto(U); await pg.wait_for_timeout(300)

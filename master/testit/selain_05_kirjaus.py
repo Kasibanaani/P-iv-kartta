@@ -1,5 +1,6 @@
 # Versio 4: kirjaus ja painalluksen kesto. Rakennetaan masterissa painike, joka kirjaa irrottaessa painalluksen keston,
 # pidetään sitä eri pituisia aikoja, tarkistetaan puhelin, Seuranta, uudelleenlataus, Alusta ja viety appi (390 px).
+# Liike pois (reduced_motion): luvut näkyvät heti lopullisina, jotta tulosteet ovat vertailukelpoisia.
 import asyncio, os
 from playwright.async_api import async_playwright
 D=os.path.dirname(os.path.abspath(__file__))
@@ -7,7 +8,7 @@ U='file://'+os.path.abspath(os.path.join(D,'..','index.html'))
 async def run(w,h,scheme,shots,tag):
     async with async_playwright() as p:
         b=await p.chromium.launch(); errs=[]
-        ctx=await b.new_context(viewport={'width':w,'height':h},color_scheme=scheme,accept_downloads=True)
+        ctx=await b.new_context(reduced_motion='reduce',viewport={'width':w,'height':h},color_scheme=scheme,accept_downloads=True)
         pg=await ctx.new_page(); pg.on('pageerror',lambda e:errs.append(str(e)))
         await pg.goto(U); await pg.wait_for_timeout(300)
         print('==== %dx%d %s ====' % (w,h,scheme))
@@ -52,7 +53,7 @@ async def run(w,h,scheme,shots,tag):
         await add('text','Ohje'); print('6 muokkaus ei nollaa:', (await pg.inner_text('#pscreen .ua-log')).split('\n')[-1])
         # viety appi
         html=await pg.evaluate("MASTER.appHtml()"); ap=os.path.join(os.getcwd(),'kirjaus_%s.html' % tag); open(ap,'w',encoding='utf8').write(html)
-        m=await (await b.new_context(viewport={'width':390,'height':844},color_scheme=scheme,has_touch=False)).new_page(); m.on('pageerror',lambda e:errs.append('appi: '+str(e)))
+        m=await (await b.new_context(reduced_motion='reduce',viewport={'width':390,'height':844},color_scheme=scheme,has_touch=False)).new_page(); m.on('pageerror',lambda e:errs.append('appi: '+str(e)))
         await m.goto('file://'+ap); await m.wait_for_timeout(300)
         print('7 viety appi alussa:', (await m.inner_text('.ua-log')).replace('\n',' | '))
         bx=await m.locator('.ua-row:has(.t:text-is("Hengitä ulos"))').bounding_box(); await m.mouse.move(bx['x']+20,bx['y']+20); await m.mouse.down(); await m.wait_for_timeout(900); await m.mouse.up(); await m.wait_for_timeout(150)

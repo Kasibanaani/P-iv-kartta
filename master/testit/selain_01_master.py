@@ -1,4 +1,5 @@
 # Master: projektin rakentaminen alusta, kaavat osoittamalla, säännöt, arvotaulukko, seuranta, julkaisu käyttäjä-appiksi ja tuonnit.
+# Liike pois (reduced_motion): luvut näkyvät heti lopullisina, jotta tulosteet ovat vertailukelpoisia.
 import asyncio, json, os
 from playwright.async_api import async_playwright
 D=os.path.dirname(os.path.abspath(__file__))
@@ -6,7 +7,7 @@ U='file://'+os.path.abspath(os.path.join(D,'..','index.html'))
 async def run(w,h,scheme,shots,tag):
     async with async_playwright() as p:
         b=await p.chromium.launch(); errs=[]
-        ctx=await b.new_context(viewport={'width':w,'height':h},color_scheme=scheme,accept_downloads=True)
+        ctx=await b.new_context(reduced_motion='reduce',viewport={'width':w,'height':h},color_scheme=scheme,accept_downloads=True)
         pg=await ctx.new_page(); pg.on('pageerror',lambda e:errs.append(str(e)))
         await pg.goto(U); await pg.wait_for_timeout(300)
         print('==== %dx%d %s ====' % (w,h,scheme))
