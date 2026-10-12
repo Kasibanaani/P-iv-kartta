@@ -12,6 +12,7 @@ Master tallentaa projektien rakenteen ja toiveet käyttäjän **yksityiseen** Gi
 
 - Päiväkirjaukset (`days`) ja kokeiluvalinnat (`state`) eivät ole mukana. Avain ei ole koskaan tiedostossa.
 - Objektityypit ja kentät: ks. `master/index.html`, lohko `<script id="engine">` (`ENG.TYPES`, `ENG.newObj`, `ENG.repair`).
+- Kirjaus on objekti `t: "log"` (`unit`, `dec`, `show`: hidden/summary/chart). Merkinnät lisätään toiminnolla `{do:"log", o:<kirjauksen id>}`; palautuvan painikkeen `ract`-listassa ("Kun irrotetaan") toiminnolle voi antaa `src:"dur"`, jolloin arvo on painalluksen kesto sekunteina.
 - Toive on objekti `t: "wish"`: `n` (otsikko), `body` (toive), `status` (`"auki"` / `"tehty"`), `reply` (tekoälyn vastaus), `about` (`""` = koko projekti, `"screen"` = ruutu `s`, muuten objektin id), `s` (ruutu). Toiveita ei viedä käyttäjä-appiin.
 
 ## Kun käyttäjä pyytää "käy masterin toiveet läpi"
