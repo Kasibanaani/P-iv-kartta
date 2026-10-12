@@ -6,12 +6,14 @@ D=os.path.dirname(os.path.abspath(__file__))
 U='file://'+os.path.abspath(os.path.join(D,'..','index.html'))
 TOKEN='github_pat_TESTI'
 class FakeGH:
-    def __init__(s): s.files={}; s.n=0; s.calls=[]
+    def __init__(s): s.files={}; s.n=0; s.calls=[]; s.badheaders=set()
     def sha(s): s.n+=1; return 'sha%03d' % s.n
     def put_json(s,path,obj):
         s.files[path]={'sha':s.sha(),'text':json.dumps(obj,ensure_ascii=False)}
     def get_json(s,path): return json.loads(s.files[path]['text'])
     async def handle(s,route,request):
+        bad=[k for k in request.headers if k.lower() not in ('authorization','accept','content-type','user-agent','referer','origin','sec-ch-ua','sec-ch-ua-mobile','sec-ch-ua-platform','accept-language','content-length') and not k.lower().startswith('sec-fetch')]
+        if bad: s.badheaders.update(bad)
         url=request.url.split('?')[0]; m=re.match(r'https://api\.github\.com/repos/Kasibanaani/master-tiedot(/contents/(.*))?$',url)
         auth=request.headers.get('authorization','')
         s.calls.append((request.method,url.replace('https://api.github.com/repos/Kasibanaani/master-tiedot','')))
@@ -108,6 +110,6 @@ async def run(w,h,scheme,shots,tag):
         await pg.evaluate("document.getElementById('psel').value=MASTER.data.projects[0].id;document.getElementById('psel').dispatchEvent(new Event('change'))"); await pg.wait_for_timeout(200)
         await pg.reload(); await pg.wait_for_timeout(800); await pg.click('#mtabs [data-v="build"]')
         print('8 latauksessa haettu:', await pg.locator('.oname:has(.on:text-is("Lisätty taustalla"))').count()==1, '| chip:', await chip())
-        print('  leveys', await pg.evaluate("[document.documentElement.scrollWidth, window.innerWidth]"), 'errs', errs)
+        print('  kielletyt otsakkeet (CORS):', sorted(G.badheaders) or 'ei'); print('  leveys', await pg.evaluate("[document.documentElement.scrollWidth, window.innerWidth]"), 'errs', errs)
         await b.close()
 asyncio.run(run(1440,900,'light',True,'')); asyncio.run(run(1280,800,'dark',True,'_n'))

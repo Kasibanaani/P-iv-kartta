@@ -803,11 +803,14 @@ function ghSaveCfg(){try{localStorage.setItem(GHK,JSON.stringify(gh));}catch(e){
 function ghOn(){return !!(gh.repo&&gh.token);}
 function b64e(s){return btoa(unescape(encodeURIComponent(s)));}
 function b64d(b){return decodeURIComponent(escape(atob(String(b).replace(/\s/g,''))));}
-function ghApi(url,method,body){return fetch(url,{method:method||'GET',cache:'no-store',headers:{'Authorization':'Bearer '+gh.token,'Accept':'application/vnd.github+json'},body:body?JSON.stringify(body):undefined})
-  .then(function(r){return r.text().then(function(t){var j={};try{j=JSON.parse(t);}catch(e){}return {status:r.status,j:j};});},function(){return {status:0,j:{}};});}
+/* Huom: ei cache-asetusta eikä ylimääräisiä otsakkeita. Safari lisäisi niistä otsakkeita, joita GitHub ei salli selaimesta (CORS), ja kutsu estyisi. Välimuisti ohitetaan aikaleimalla. */
+var ghLastErr='';
+function ghApi(url,method,body){method=method||'GET';var u=method==='GET'?url+(url.indexOf('?')<0?'?':'&')+'t='+Date.now():url;var h={'Authorization':'Bearer '+gh.token,'Accept':'application/vnd.github+json'};if(body)h['Content-Type']='application/json';
+  var req;try{req=fetch(u,{method:method,headers:h,body:body?JSON.stringify(body):undefined});}catch(e){ghLastErr=String(e&&e.message||e);return Promise.resolve({status:0,j:{}});}
+  return req.then(function(r){ghLastErr='';return r.text().then(function(t){var j={};try{j=JSON.parse(t);}catch(e){}return {status:r.status,j:j};});},function(e){ghLastErr=String(e&&e.message||e);return {status:0,j:{}};});}
 function ghRepoUrl(){return 'https://api.github.com/repos/'+E.clean(gh.repo).replace(/^https?:\/\/github\.com\//,'').replace(/\.git$/,'').replace(/\/+$/,'');}
 function ghPath(P){return 'projektit/'+P.uid+'.json';}
-function ghErr(st){return ({0:'Ei yhteyttä GitHubiin.',401:'Avain ei kelpaa tai se on vanhentunut.',403:'Avaimella ei ole oikeutta. Tarvitaan Contents: Read and write.',404:'Repoa ei löydy, tai avaimella ei ole pääsyä siihen.',409:'GitHubissa on uudempi versio.',422:'GitHubissa on uudempi versio.'})[st]||('GitHub vastasi virheellä '+st+'.');}
+function ghErr(st){if(st===0)return 'Ei yhteyttä GitHubiin. Tarkista nettiyhteys ja että avain on kopioitu kokonaan ilman ylimääräisiä merkkejä (alkaa github_pat_).'+(ghLastErr?' Selaimen ilmoitus: '+ghLastErr:'');return ({401:'Avain ei kelpaa tai se on vanhentunut.',403:'Avaimella ei ole oikeutta. Tarvitaan Contents: Read and write.',404:'Repoa ei löydy, tai avaimella ei ole pääsyä siihen.',409:'GitHubissa on uudempi versio.',422:'GitHubissa on uudempi versio.'})[st]||('GitHub vastasi virheellä '+st+'.');}
 function ghMeta(P){if(!P._gh||typeof P._gh!=='object')P._gh={sha:'',at:'',dirty:false,remote:false};return P._gh;}
 function uid(){return 'm'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
 function payload(P){var p=JSON.parse(JSON.stringify(P));delete p.days;delete p._gh;p.state={sel:[],vals:{}};
@@ -838,7 +841,7 @@ function ghNew(){if(!ghOn())return Promise.resolve(0);return ghApi(ghRepoUrl()+'
   var have={};data.projects.forEach(function(P){have[P.uid]=1;});var todo=r.j.filter(function(f){var m=/^(.+)\.json$/.exec(f.name);return m&&!have[m[1]];});
   return Promise.all(todo.map(function(f){return ghApi(ghRepoUrl()+'/contents/'+f.path).then(function(x){try{var o=JSON.parse(b64d(x.j.content));if(o&&o.projekti&&Array.isArray(o.projekti.objs)){var P=o.projekti;P.uid=f.name.replace(/\.json$/,'');P.days={};P.state={sel:[],vals:{}};P._gh={sha:x.j.sha,at:new Date().toISOString(),dirty:false,remote:false};addProject(P,false,true);return 1;}}catch(e){}return 0;});}))
     .then(function(l){var n=l.reduce(function(a,b){return a+b;},0);if(n){ghMsg=n+(n===1?' uusi projekti haettu GitHubista.':' uutta projektia haettu GitHubista.');renderAll();}return n;});});}
-function ghTest(m){m.className='msg';m.textContent='Tarkistetaan…';ghApi(ghRepoUrl()).then(function(r){
+function ghTest(m){if(/[^\x21-\x7e]/.test(gh.token)){m.className='msg bad';m.textContent='Avaimessa on merkkejä, joita GitHubin avaimessa ei voi olla (esim. ääkkösiä tai lainausmerkkejä). Kopioi avain uudelleen.';return;}m.className='msg';m.textContent='Tarkistetaan…';ghApi(ghRepoUrl()).then(function(r){
   if(r.status!==200){m.className='msg bad';m.textContent=ghErr(r.status);return;}
   if(!r.j.private){m.className='msg bad';m.textContent='Yhteys toimii, mutta repo on JULKINEN: kaikki näkisivät projektisi. Vaihda repo yksityiseksi GitHubissa.';return;}
   if(r.j.permissions&&!r.j.permissions.push){m.className='msg bad';m.textContent='Yhteys toimii, mutta avaimella ei ole kirjoitusoikeutta.';return;}
@@ -850,7 +853,7 @@ function renderGh(){var b=$('mgh');if(!b)return;var P=proj();if(!ghOn()||!P){b.h
 function ghCard(box){var P=proj(),c=el('div','card');c.style.maxWidth='760px';c.id='sec-gh';c.appendChild(el('h3','','GitHub-tallennus (yksityinen repo)'));
   c.appendChild(el('p','hint','Tallentaa projektien rakenteen ja toiveet tekoälylle omaan yksityiseen repoosi. Silloin tekoäly näkee ne ja voi tehdä muutoksia, kun pyydät keskustelussa esimerkiksi ”käy masterin toiveet läpi”. Päiväkirjaukset ja kokeiluvalinnat eivät tallennu. Avain on vain tämän selaimen muistissa, eikä se tule mukaan varmuuskopioihin.'));
   var ri=inp('text',gh.repo,'gh-repo',function(v){gh.repo=E.clean(v);ghSaveCfg();renderGh();});ri.placeholder='Kasibanaani/master-tiedot';c.appendChild(fld('Repo',ri));
-  var ti=inp('password',gh.token,'gh-token',function(v){gh.token=E.clean(v);ghSaveCfg();renderGh();if(ghOn())ghNew();});ti.placeholder='github_pat_…';ti.autocomplete='off';c.appendChild(fld('Avain',ti,false,gh.token?'Avain on tallessa tässä selaimessa.':'Liitä tähän GitHubissa tehty avain.'));
+  var ti=inp('password',gh.token,'gh-token',function(v){gh.token=String(v||'').replace(/[\s\u200b-\u200d\ufeff]+/g,'');ghSaveCfg();renderGh();if(ghOn())ghNew();});ti.placeholder='github_pat_…';ti.autocomplete='off';c.appendChild(fld('Avain',ti,false,gh.token?'Avain on tallessa tässä selaimessa.':'Liitä tähän GitHubissa tehty avain.'));
   c.appendChild(check('Tallenna automaattisesti muutosten jälkeen',gh.auto,function(v){gh.auto=v;ghSaveCfg();}));
   var m=el('p','msg');m.id='gh-msg';var r=el('div','row2');
   r.appendChild(btn('Tallenna nyt','mb solid',function(){var g=ghMeta(proj());ghPush(proj(),!!g.remote);}));
