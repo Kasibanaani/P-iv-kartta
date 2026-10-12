@@ -56,7 +56,7 @@ button,input,textarea,select{font:inherit;color:inherit}
 #v-build[hidden]{display:none}
 .olist{flex:none;width:330px;overflow-y:auto;padding:14px 4px 40px 16px}
 .insp{flex:1;min-width:0;overflow-y:auto;padding:14px 20px 60px 4px}
-.addbar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.addbar{display:flex;flex-wrap:wrap;gap:6px;margin:-14px -4px 12px -16px;padding:14px 4px 10px 16px;position:sticky;top:-14px;z-index:3;background:var(--bg);border-bottom:1px solid var(--sep)}
 .addbar .lbl{flex-basis:100%;font-size:12px;font-weight:700;color:var(--label2);text-transform:uppercase;letter-spacing:.06em}
 .scr{margin:14px 0 6px;display:flex;align-items:center;gap:6px}
 .scr b{flex:1;min-width:0;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--label2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -244,6 +244,7 @@ dialog p{margin:0 0 12px;white-space:pre-wrap}
 .ua-row.lock{background:var(--seg);color:var(--label2);box-shadow:none}
 .ua-row.excl{background:transparent;color:var(--label2);border:1.5px dashed var(--sep);box-shadow:none}.ua-row.excl .t{text-decoration:line-through}
 .ua-row.hold{justify-content:center;text-align:center;font-weight:600}.ua-row.hold .t{flex:none}.ua-row.hold .tag:empty{display:none}
+.ua-row.hold.done .tag{color:var(--accent);font-weight:700}
 .ua-row{-webkit-touch-callout:none}
 .ua-in{padding:var(--cp);border-radius:var(--rc);background:var(--card);box-shadow:var(--ring),var(--shadow)}
 .ua-in label{display:block;margin-bottom:6px}
@@ -550,7 +551,8 @@ if(typeof module!=='undefined')module.exports=STYLE;
 <script id="engine">
 /* ===================== MOOTTORI =====================
    Projekti = ruudut ja objektit. Jokaisella objektilla on nimi ja arvo:
-   - choice (valinta): arvo on o.v (oletus 1), kun valittu, muuten 0
+   - choice (valinta): arvo on o.v (oletus 1), kun valittu, muuten 0. Palautuva painike (beh 'hold') on valittu vain pidettäessä;
+     jos sillä on once, yksi painallus jää voimaan (vals[id]=1), ja se täyttää ehdot ja pullonkaulan, kunnes se tyhjennetään tai alustetaan
    - slider (liukusäädin): käyttäjän asettama luku; piilossa ollessaan tyhjä (null)
    - text (teksti): luettava ruutu, jonka sisällä voi näyttää arvoja muodossa {Nimi}; ei omaa arvoa
    - calc (laskettu arvo): kaava, esim. SUMMA([Energia];[Mieliala]); voi olla piilossa tai näkyä lukuna tai palkkina
@@ -661,8 +663,10 @@ function run(C,sel,vals){var memo={},busy={},cyc={},sset={},stack=[];vals=vals||
   function guard(key,fn,dflt){if(key in memo)return memo[key];
     if(busy[key]){for(var i=stack.indexOf(key);i<stack.length;i++)if(stack[i].charAt(0)==='v')cyc[stack[i].slice(2)]=1;return dflt;} // kaikki kehän jäsenet
     busy[key]=1;stack.push(key);var r=fn();stack.pop();busy[key]=0;memo[key]=r;return r;}
+  /* palautuva painike, jonka yksi painallus jää voimaan: painettu ja näkyvissä */
+  function pressed(id){var o=C.by[id];return !!o&&isOnce(o)&&n0(vals[id])>0&&ok(id);}
   function value(id){return guard('v:'+id,function(){var o=C.by[id];if(!o)return null;
-    if(o.t==='choice')return sset[id]?num(o.v,1):0;
+    if(o.t==='choice')return sset[id]||pressed(id)?num(o.v,1):0;
     if(o.t==='slider'){if(!ok(id))return null;var v=vals[id];return sliderVal(o,v);}
     if(o.t==='cond')return met(id)?1:0;
     if(o.t==='input'){if(!ok(id))return null;var tv=vals[id];return typeof tv==='string'?tv:'';}
@@ -681,7 +685,7 @@ function run(C,sel,vals){var memo={},busy={},cyc={},sset={},stack=[];vals=vals||
     if(o.mode==='if'){var cs=lst(o.cases);for(var i=0;i<cs.length;i++){var w=lst(cs[i].when);if(w.length&&w.every(holds))return outv(cs[i].out);}return outv(o.els);}
     return null;}
   function outv(x){if(!x)return null;if(x.k==='num')return num(x.v,0);if(x.k==='txt')return String(x.v===undefined?'':x.v);if(x.k==='ref')return C.by[x.v]?value(x.v):null;return null;}
-  function on(id){var o=C.by[id];if(!o)return false;if(o.t==='choice')return !!sset[id];if(o.t==='cond')return met(id);if(o.t==='slider'&&!ok(id))return false;return truthy(value(id));}
+  function on(id){var o=C.by[id];if(!o)return false;if(o.t==='choice')return !!sset[id]||pressed(id);if(o.t==='cond')return met(id);if(o.t==='slider'&&!ok(id))return false;return truthy(value(id));}
   function holds(c){if(!c||!C.by[c.o])return false;
     if(c.op==='on')return on(c.o);if(c.op==='off')return !on(c.o);
     if(c.op==='empty'||c.op==='filled'){var tx=value(c.o),e=tx===null||tx===undefined||String(tx).trim()==='';return c.op==='empty'?e:!e;}
@@ -705,7 +709,8 @@ function run(C,sel,vals){var memo={},busy={},cyc={},sset={},stack=[];vals=vals||
     (C.imp[id]||[]).forEach(function(x){if(!on(x))out.req.push({o:x,op:'on'});});
     lst(o.req).forEach(function(c){if(!holds(c))out.req.push(c);});
     var s=lst(o.suf);if(s.length&&!s.some(holds))out.suf=s.slice();return out;}
-  return {value:value,on:on,holds:holds,ok:ok,met:met,hl:hl,need:need,cyc:cyc,sel:sel,vals:vals};}
+  return {value:value,on:on,holds:holds,ok:ok,met:met,hl:hl,need:need,pressed:pressed,cyc:cyc,sel:sel,vals:vals};}
+function isOnce(o){return !!o&&o.t==='choice'&&o.beh==='hold'&&o.once===true;}
 function sliderVal(o,v){var lo=num(o.min,0),hi=num(o.max,10);if(hi<lo){var t=lo;lo=hi;hi=t;}
   var x=(v===undefined||v===null||v==='')?num(o.start,lo):num(v,lo);return Math.max(lo,Math.min(hi,x));}
 function exHas(C,a,b){var o=C.by[a];return !!o&&lst(o.ex).indexOf(b)>=0;}
@@ -725,7 +730,7 @@ function evaluate(C,state){state=state||{};var vals=state.vals||{},S=settle(C,ls
     if(o.t==='choice'){var k=S.sel.indexOf(id);if(k>=0){st[id]={s:'sel',n:k+1,hl:R.hl(id)};return;}
       var by=S.sel.filter(function(x){return exHas(C,x,id)||exHas(C,id,x);});
       if(by.length){st[id]={s:'excl',by:by,vis:R.ok(id)};return;}
-      if(R.ok(id)){st[id]={s:'open',hl:R.hl(id)};return;}
+      if(R.ok(id)){st[id]={s:'open',hl:R.hl(id),done:R.pressed(id)};return;}
       st[id]={s:'lock',need:R.need(id),hl:R.hl(id)};return;}
     if(o.t==='cond'){st[id]={s:'cond',met:R.met(id),need:R.need(id)};return;}
     var vis=R.ok(id);
@@ -743,7 +748,8 @@ function evaluate(C,state){state=state||{};var vals=state.vals||{},S=settle(C,ls
 function fill(C,R,txt){return String(txt||'').replace(/\{([^{}]+)\}/g,function(m,n){var o=C.name[norm(n)];if(!o||o.t==='text')return m;
   var dec=o.t==='calc'?o.dec:undefined,v=R.value(o.id);return fmt(v,dec)+(o.unit&&v!==null&&typeof v==='number'?' '+o.unit:'');});}
 function clauseText(C,c){var o=C.by[c.o];if(!o)return '?';var n=o.n;
-  var OPS={on:o.t==='cond'?'täyttyy':(o.t==='choice'?'on valittu':'on päällä'),off:o.t==='cond'?'ei täyty':(o.t==='choice'?'ei ole valittu':'ei ole päällä'),
+  var hd=o.t==='choice'&&o.beh==='hold';
+  var OPS={on:o.t==='cond'?'täyttyy':(o.t==='choice'?(hd?'on painettu':'on valittu'):'on päällä'),off:o.t==='cond'?'ei täyty':(o.t==='choice'?(hd?'ei ole painettu':'ei ole valittu'):'ei ole päällä'),
     ge:'on vähintään',le:'on enintään',gt:'on yli',lt:'on alle',eq:'on',ne:'ei ole',btw:'on välillä',empty:'on tyhjä',filled:'on kirjoitettu',has:'sisältää'};
   var v=c.op==='btw'?fmt(n0(c.v))+'–'+fmt(n0(c.v2)):(c.op==='on'||c.op==='off'||c.op==='empty'||c.op==='filled'?'':((o.t==='input'||(typeof c.v==='string'&&nv(c.v)===null))?'”'+(c.v===undefined?'':c.v)+'”':fmt(n0(c.v))));
   return n+' '+(OPS[c.op]||c.op)+(v?' '+v:'');}
@@ -764,7 +770,7 @@ function dayStats(C,days,from,to){var out={n:0,first:null,last:null,items:{}};
   Object.keys(days||{}).sort().forEach(function(d){if((from&&d<from)||(to&&d>to))return;var D=days[d];if(!D||(!lst(D.sel).length&&!Object.keys(D.vals||{}).length))return;
     var E=evaluate(C,D);out.n++;if(!out.first)out.first=d;out.last=d;
     C.P.objs.forEach(function(o){var x=out.items[o.id],s=E.st[o.id];
-      if(o.t==='choice'){if(s.s==='sel'){x.sel++;x.poss++;}else if(s.s==='open'||(s.s==='excl'&&s.vis))x.poss++;return;}
+      if(o.t==='choice'){if(s.s==='sel'||s.done){x.sel++;x.poss++;}else if(s.s==='open'||(s.s==='excl'&&s.vis))x.poss++;return;}
       if(o.t==='cond'){x.cnt++;if(s.met)x.met++;return;}
       if(o.t==='input'){if(s.s==='show'){x.cnt++;var tv=E.R.value(o.id);if(tv&&String(tv).trim())x.met++;}return;}
       if(o.t==='slider'||o.t==='calc'||o.t==='counter'){var v=E.R.value(o.id);if(typeof v!=='number')return;x.cnt++;x.sum+=v;x.min=x.min===null?v:Math.min(x.min,v);x.max=x.max===null?v:Math.max(x.max,v);x.series.push([d,v]);}});});
@@ -773,9 +779,9 @@ function dayStats(C,days,from,to){var out={n:0,first:null,last:null,items:{}};
 function cooc(C,days,aId,from,to){var res={withA:0,without:0,items:{}};
   C.P.objs.forEach(function(o){res.items[o.id]={a:{sel:0,poss:0,sum:0,cnt:0},b:{sel:0,poss:0,sum:0,cnt:0}};});
   Object.keys(days||{}).sort().forEach(function(d){if((from&&d<from)||(to&&d>to))return;var D=days[d];if(!D||(!lst(D.sel).length&&!Object.keys(D.vals||{}).length))return;
-    var E=evaluate(C,D),A=E.R.on(aId)&&(C.by[aId].t!=='choice'||E.sel.indexOf(aId)>=0),k=A?'a':'b';if(A)res.withA++;else res.without++;
+    var E=evaluate(C,D),A=E.R.on(aId)&&(C.by[aId].t!=='choice'||E.sel.indexOf(aId)>=0||E.R.pressed(aId)),k=A?'a':'b';if(A)res.withA++;else res.without++;
     C.P.objs.forEach(function(o){if(o.id===aId)return;var x=res.items[o.id][k],s=E.st[o.id];
-      if(o.t==='choice'){if(s.s==='sel'){x.sel++;x.poss++;}else if(s.s==='open'||(s.s==='excl'&&s.vis))x.poss++;}
+      if(o.t==='choice'){if(s.s==='sel'||s.done){x.sel++;x.poss++;}else if(s.s==='open'||(s.s==='excl'&&s.vis))x.poss++;}
       else if(o.t==='cond'){x.poss++;if(s.met)x.sel++;}
       else if(o.t==='input'){if(s.s==='show'){x.poss++;var tv=E.R.value(o.id);if(tv&&String(tv).trim())x.sel++;}}
       else if(o.t==='slider'||o.t==='calc'||o.t==='counter'){var v=E.R.value(o.id);if(typeof v==='number'){x.sum+=v;x.cnt++;}}});});
@@ -802,7 +808,7 @@ function rename(P,id,name){var o=null;P.objs.forEach(function(x){if(x.id===id)o=
   return true;}
 function esc(s){return String(s).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
 /* Lajin vaihto: säilyttää näkyvyysehdot ja poistaa lajiin sopimattomat säännöt (repair) */
-function setType(P,id,t){var o=null;P.objs.forEach(function(x){if(x.id===id)o=x;});if(!o||!TYPES[t]||o.t===t)return;var keep={id:o.id,n:o.n,s:o.s,req:o.req,suf:o.suf,note:o.note,b:o.b,act:o.act,hue:o.hue,look:o.look};
+function setType(P,id,t){var o=null;P.objs.forEach(function(x){if(x.id===id)o=x;});if(!o||!TYPES[t]||o.t===t)return;var keep={id:o.id,n:o.n,s:o.s,req:o.req,suf:o.suf,note:o.note,b:o.b,act:o.act,hue:o.hue,look:o.look};if(t==='choice'&&o.t==='choice')keep.once=o.once;
   var tmp=newObj({objs:[],screens:[],seq:0},t,o.s,'x');Object.keys(o).forEach(function(k){delete o[k];});Object.keys(tmp).forEach(function(k){o[k]=tmp[k];});
   Object.keys(keep).forEach(function(k){if(keep[k]!==undefined)o[k]=keep[k];});if(t==='text'&&keep.note){o.body=keep.note;delete o.note;}
   if(t==='wish'){delete o.req;delete o.suf;delete o.note;}else if(!o.req){o.req=[];o.suf=[];}
@@ -836,6 +842,7 @@ function repair(P){var ch=false;if(!Array.isArray(P.objs)){P.objs=[];ch=true;}if
       o[f].forEach(function(x){if('src' in x&&(x.src!=='dur'||f!=='ract'||['set','add','log'].indexOf(x.do)<0)){delete x.src;ch=true;}});});
     if(o.t==='log'){if(['hidden','summary','chart'].indexOf(o.show)<0){o.show='chart';ch=true;}}
     if(o.t==='choice'&&o.beh!=='toggle'&&o.beh!=='hold'){o.beh='toggle';ch=true;}
+    if('once' in o&&(o.t!=='choice'||typeof o.once!=='boolean')){if(o.t!=='choice')delete o.once;else o.once=!!o.once;ch=true;}
     if(o.t==='calc'){if(o.mode!=='agg'&&o.mode!=='if'&&o.mode!=='f'){o.mode='f';ch=true;}
       if(!o.agg||typeof o.agg!=='object'){o.agg={op:'sum',ids:[]};ch=true;}var ai=lst(o.agg.ids),al=ai.filter(function(x,i){return by[x]&&x!==o.id&&by[x].t!=='text'&&ai.indexOf(x)===i;});if(!Array.isArray(o.agg.ids)||al.length!==ai.length){o.agg.ids=al;ch=true;}
       if(!Array.isArray(o.cases)){o.cases=[];ch=true;}o.cases.forEach(function(c){var w=lst(c.when),wl=w.filter(function(x){return okRef(x,o.id);});if(!Array.isArray(c.when)||wl.length!==w.length){c.when=wl;ch=true;}if(fixOut(c,'out'))ch=true;});
@@ -847,7 +854,7 @@ function repair(P){var ch=false;if(!Array.isArray(P.objs)){P.objs=[];ch=true;}if
   P.objs.forEach(function(o){if(o.t!=='choice')return;o.ex.forEach(function(x){var t=by[x];if(t.ex.indexOf(o.id)<0){t.ex.push(o.id);ch=true;}});}); // poissulku molempiin suuntiin
   var st=P.state;if(!Array.isArray(st.sel)){st.sel=[];ch=true;}if(!st.vals||typeof st.vals!=='object'){st.vals={};ch=true;}
   function cleanState(S){var n=lst(S.sel).length;S.sel=lst(S.sel).filter(function(x){return by[x]&&by[x].t==='choice';});if(S.sel.length!==n)ch=true;
-    if(!S.vals||typeof S.vals!=='object')S.vals={};Object.keys(S.vals).forEach(function(k){var t=by[k],v=S.vals[k],okv=!!t&&((t.t==='slider'||t.t==='counter')&&typeof v==='number'||t.t==='input'&&typeof v==='string'||t.t==='log'&&Array.isArray(v));if(!okv){delete S.vals[k];ch=true;}});}
+    if(!S.vals||typeof S.vals!=='object')S.vals={};Object.keys(S.vals).forEach(function(k){var t=by[k],v=S.vals[k],okv=!!t&&((t.t==='slider'||t.t==='counter'||t.t==='choice')&&typeof v==='number'||t.t==='input'&&typeof v==='string'||t.t==='log'&&Array.isArray(v));if(!okv){delete S.vals[k];ch=true;}});}
   cleanState(st);Object.keys(P.days).forEach(function(d){if(!/^\d{4}-\d{2}-\d{2}$/.test(d)||!P.days[d]||typeof P.days[d]!=='object'){delete P.days[d];ch=true;return;}cleanState(P.days[d]);});
   return ch;}
 function setEx(P,a,b,on){var by=byId(P),A=by[a],B=by[b];if(!A||!B||a===b||A.t!=='choice'||B.t!=='choice')return false;
@@ -890,9 +897,9 @@ function applyActs(C,state,acts,out,ctx){lst(acts).forEach(function(a){var o=C.b
     case 'set':if(!o)break;if(o.t==='input')state.vals[o.id]=String(a.v===undefined||a.v===null?'':a.v);else{av=a.src==='dur'?actVal(a,ctx):a.v;if(av===null)break;if(o.t==='slider')state.vals[o.id]=sliderVal(o,av);else if(o.t==='counter')state.vals[o.id]=counterVal(o,av);}break;
     case 'add':if(o&&o.t==='counter'){av=actVal(a,ctx,1);if(av===null)break;state.vals[o.id]=counterVal(o,counterVal(o,state.vals[o.id])+av);}break;
     case 'log':if(o&&o.t==='log'){av=actVal(a,ctx,0);if(av===null)break;var lg=logList(state.vals[o.id]);lg.push({t:Date.now(),v:Math.round(av*100)/100});if(lg.length>LOG_MAX)lg=lg.slice(-LOG_MAX);state.vals[o.id]=lg;}break;
-    case 'clear':if(!o)break;if(o.t==='choice')state.sel=state.sel.filter(function(x){return x!==o.id;});else if(o.t==='input')state.vals[o.id]='';else delete state.vals[o.id];break;
-    case 'select':if(o&&o.t==='choice'&&o.beh!=='hold'&&state.sel.indexOf(o.id)<0)state.sel=state.sel.concat([o.id]);break;
-    case 'unselect':if(o)state.sel=state.sel.filter(function(x){return x!==o.id;});break;
+    case 'clear':if(!o)break;if(o.t==='choice'){state.sel=state.sel.filter(function(x){return x!==o.id;});delete state.vals[o.id];}else if(o.t==='input')state.vals[o.id]='';else delete state.vals[o.id];break;
+    case 'select':if(isOnce(o))state.vals[o.id]=1;else if(o&&o.t==='choice'&&o.beh!=='hold'&&state.sel.indexOf(o.id)<0)state.sel=state.sel.concat([o.id]);break;
+    case 'unselect':if(o){state.sel=state.sel.filter(function(x){return x!==o.id;});if(o.t==='choice')delete state.vals[o.id];}break;
     case 'goto':out.goto=a.s;break;
     case 'msg':out.msg=a.t||'';break;
     case 'reset':state.sel=[];Object.keys(state.vals).forEach(function(k){var t=C.by[k];if(!(t&&(t.t==='counter'&&t.keep||t.t==='log')))delete state.vals[k];});out.reset=true;break;}});}
@@ -920,7 +927,7 @@ function newProject(name){var P={id:'',name:clean(name)||'Uusi projekti',screens
 return {TYPES:TYPES,NOTE_MAX:NOTE_MAX,parse:parse,refs:refs,evalAst:evalAst,fmt:fmt,compile:compile,run:run,settle:settle,evaluate:evaluate,fill:fill,
   clauseText:clauseText,needText:needText,randomState:randomState,dayStats:dayStats,cooc:cooc,uniqueName:uniqueName,newObj:newObj,rename:rename,setType:setType,
   dropObj:dropObj,repair:repair,setEx:setEx,refable:refable,opsFor:opsFor,usedBy:usedBy,fromPaatoskartta:fromPaatoskartta,newProject:newProject,
-  norm:norm,clean:clean,num:num,sliderVal:sliderVal,lst:lst,FN:FN,ACTS:ACTS,actTargets:actTargets,applyActs:applyActs,metSet:metSet,change:change,toFormula:toFormula,counterVal:counterVal,logList:logList,logStats:logStats};
+  norm:norm,clean:clean,num:num,sliderVal:sliderVal,lst:lst,FN:FN,ACTS:ACTS,actTargets:actTargets,applyActs:applyActs,metSet:metSet,change:change,toFormula:toFormula,isOnce:isOnce,counterVal:counterVal,logList:logList,logStats:logStats};
 })();
 if(typeof module!=='undefined')module.exports=ENG;
 </script>
@@ -998,9 +1005,9 @@ function update(){var R=E.evaluate(C,{sel:state.sel.concat(ui.hold&&state.sel.in
       else if(s.s==='open'){f=1;if(s.hl){cls+=' rec';t='suositus';}}
       else if(s.s==='lock'){cls+=' lock';t='lukittu';hide=vis!=='kaikki';}
       else{cls+=' excl';t='pois';hide=!s.vis&&vis!=='kaikki';}
-      if(o.beh==='hold'){cls+=' hold';if(s.s==='sel')t='';}
+      if(o.beh==='hold'){cls+=' hold';if(s.s==='sel')t='';else if(s.done){cls+=' done';t='✓';}}
       if(o.look==='hero'||o.look==='quiet')cls+=' ua-'+o.look;var pop=s.s==='sel'&&!/\bsel\b/.test(x.className)&&ui.ready&&ui.st.liike==='eloisa'&&motion()&&x.animate;
-      x.className=cls;x.style.setProperty('--f',f);if(pop)x.animate([{transform:'scale(1)'},{transform:'scale(1.035)'},{transform:'scale(1)'}],{duration:380,easing:'cubic-bezier(.34,1.56,.64,1)'});x.querySelector('.tag').textContent=t;x.setAttribute('aria-pressed',s.s==='sel'?'true':'false');}
+      x.className=cls;x.style.setProperty('--f',f);if(pop)x.animate([{transform:'scale(1)'},{transform:'scale(1.035)'},{transform:'scale(1)'}],{duration:380,easing:'cubic-bezier(.34,1.56,.64,1)'});x.querySelector('.tag').textContent=t;x.setAttribute('aria-pressed',s.s==='sel'||s.done?'true':'false');}
     else if(o.t==='input'){hide=s.s!=='show';var fe=x.querySelector('input,textarea'),tv=typeof state.vals[o.id]==='string'?state.vals[o.id]:'';if(document.activeElement!==fe&&fe.value!==tv)fe.value=tv;}
     else if(o.t==='slider'){hide=s.s!=='show';var inp=x.querySelector('input');var v=E.sliderVal(o,state.vals[o.id]);if(document.activeElement!==inp||+inp.value!==v)inp.value=v;
       x.querySelector('b').textContent=E.fmt(v)+(o.unit?' '+o.unit:'');}
@@ -1044,7 +1051,7 @@ function tapChoice(id){var R=E.evaluate(C,state),s=R.st[id],prev=state.sel.slice
 function release(){if(press&&press.t)clearTimeout(press.t);if(ui.hold){var o=C.by[ui.hold],dur=press&&press.t0?Math.round((Date.now()-press.t0)/100)/10:0,before=E.metSet(C,state,ui.hold);ui.hold=null;doChange(o?E.lst(o.ract):[],before,{dur:dur});}}
 root.addEventListener('pointerdown',function(ev){var row=ev.target.closest('.ua-row[data-oid]');if(!row||!root.contains(row)||(io.picking&&io.picking()))return;var o=C.by[row.dataset.oid];if(!o)return;
   if(press&&press.t)clearTimeout(press.t);press={id:o.id,long:false,done:false,t0:Date.now()};
-  if(o.beh==='hold'){var st=(E0&&E0.st[o.id])||{};if(st.s!=='open'&&st.s!=='sel'){press.done=false;}else{var before=E.metSet(C,state);ui.hold=o.id;ui.msg='';press.done=true;doChange(o.act,before);}}
+  if(o.beh==='hold'){var st=(E0&&E0.st[o.id])||{};if(st.s!=='open'&&st.s!=='sel'){press.done=false;}else{var before=E.metSet(C,state);if(E.isOnce(o))state.vals[o.id]=1;ui.hold=o.id;ui.msg='';press.done=true;doChange(o.act,before);}}
   var lact=E.lst(o.lact);if(lact.length)press.t=setTimeout(function(){press.long=true;press.t=null;var b2=E.metSet(C,state,ui.hold);ui.msg='';doChange(lact,b2);},550);});
 ['pointerup','pointercancel','pointerleave'].forEach(function(t){root.addEventListener(t,function(ev){if(t==='pointerleave'&&ev.target!==root)return;release();});});
 root.addEventListener('contextmenu',function(ev){if(ev.target.closest('.ua-row'))ev.preventDefault();});
@@ -1058,7 +1065,7 @@ root.addEventListener('click',function(ev){var t=ev.target;
   var o=t.closest('[data-oid]');if(!o||!root.contains(o))return;if(io.intercept&&io.intercept(o.dataset.oid))return;
   var obj=C.by[o.dataset.oid];if(obj&&obj.t==='wish'&&io.openWish){io.openWish(obj.id);return;}if(!obj||obj.t!=='choice')return;
   if(press&&press.id===obj.id&&press.long){press=null;return;} // pitkä painallus hoiti jo
-  if(obj.beh==='hold'){if(ev.detail===0&&!(press&&press.done)){var bk=E.metSet(C,state);doChange(obj.act,bk);}press=null;return;} // näppäimistöllä: vain toiminnot
+  if(obj.beh==='hold'){if(ev.detail===0&&!(press&&press.done)){var st0=(E0&&E0.st[obj.id])||{};if(st0.s==='open'||st0.s==='sel'){var bk=E.metSet(C,state);if(E.isOnce(obj))state.vals[obj.id]=1;doChange(obj.act,bk);}}press=null;return;} // näppäimistöllä: toiminnot (ja kertapainallus)
   press=null;tapChoice(obj.id);});
 root.addEventListener('input',function(ev){var t=ev.target;if(!t.matches||!t.dataset.oid)return;var o=C.by[t.dataset.oid];if(!o)return;var before=E.metSet(C,state);
   if(o.t==='slider')state.vals[o.id]=+t.value;else if(o.t==='input')state.vals[o.id]=String(t.value).slice(0,E.NOTE_MAX);else return;ui.msg='';doChange([],before);});
@@ -1081,7 +1088,7 @@ function fi(s){var p=s.split('-');return (+p[2])+'.'+(+p[1])+'.'+p[0];}
 function dshift(s,n){var p=s.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]);d.setDate(d.getDate()+n);return iso(d);}
 var BADGE={choice:'V',slider:'S',input:'✎',text:'T',calc:'=',counter:'#',log:'≡',cond:'E',wish:'?'};
 var OPLBL={on:'on valittu',off:'ei ole valittu',ge:'on vähintään',le:'on enintään',gt:'on yli',lt:'on alle',eq:'on',ne:'ei ole',btw:'on välillä',empty:'on tyhjä',filled:'on kirjoitettu',has:'sisältää'};
-function opLabel(o,op){if(o&&o.t==='cond'){if(op==='on')return 'täyttyy';if(op==='off')return 'ei täyty';}return OPLBL[op];}
+function opLabel(o,op){if(o&&o.t==='cond'){if(op==='on')return 'täyttyy';if(op==='off')return 'ei täyty';}if(o&&o.t==='choice'&&o.beh==='hold'){if(op==='on')return 'on painettu';if(op==='off')return 'ei ole painettu';}return OPLBL[op];}
 
 /* ---- tiedot ---- */
 var data={seq:0,cur:null,projects:[],meta:{lastExport:null,dirty:0}},storeOk=true;
@@ -1209,9 +1216,12 @@ function renderUndo(){var b=$('mundo');if(b){b.disabled=!undoStack.length;b.titl
 var ptrDown=false,laterQ=[],laterT=null;
 function laterRun(){clearTimeout(laterT);laterT=null;var q=laterQ;laterQ=[];q.forEach(function(f){try{f();}catch(e){console.error(e);}});}
 function later(f){if(!ptrDown){f();return;}laterQ.push(f);clearTimeout(laterT);laterT=setTimeout(function(){ptrDown=false;laterRun();},1500);}
-document.addEventListener('pointerdown',function(){ptrDown=true;},true);
+/* Valikko (select) avaa selaimen oman listan, joka nielee hiiren irrotuksen. Siksi valikon painallus ei lykkää piirtämistä:
+   muuten valinnan jälkeen uudet kentät ilmestyisivät vasta seuraavasta klikkauksesta. */
+document.addEventListener('pointerdown',function(ev){ptrDown=!(ev.target&&ev.target.closest&&ev.target.closest('select'));},true);
+document.addEventListener('change',function(ev){if(ev.target&&ev.target.tagName==='SELECT'&&ptrDown){ptrDown=false;if(laterQ.length)setTimeout(laterRun,0);}},true);
 ['pointerup','pointercancel'].forEach(function(t){document.addEventListener(t,function(){ptrDown=false;if(laterQ.length)setTimeout(laterRun,0);},true);});
-function editing(){var a=document.activeElement;return !!(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.closest&&a.closest('#insp'));}
+function editing(){var a=document.activeElement;return !!(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName)&&a.closest&&a.closest('#insp'));}
 function edit(fn,o){o=o||{};var P=proj();if(!P)return;snap(P,o.key);fn(P);E.repair(P);dirty();markStruct(P);var dfr=ptrDown;later(function(){if(o.phone!==false)phone();renderList();if(o.insp&&!(dfr&&editing()))renderInsp();else{liveInsp();var hh=document.querySelector('#insp h2'),so=obj(selId);if(hh&&so&&!hh.children.length)hh.textContent=so.n;}if(view==='table')renderTable();});}
 function obj(id){var P=proj();if(!P)return null;for(var i=0;i<P.objs.length;i++)if(P.objs[i].id===id)return P.objs[i];return null;}
 function select(id,fromPhone){selId=id;var o=obj(id);if(o&&ua&&ua.tab()!==o.s)ua.setTab(o.s);markSel();if(view!=='build')showView('build');else{renderList();renderInsp();}
@@ -1226,13 +1236,13 @@ function move(id,dir){edit(function(P){var o=obj(id),same=P.objs.filter(function
 function addScreen(){var id;edit(function(P){var n=P.screens.length+1,k=n;id='s'+k;while(P.screens.some(function(x){return x.id===id;})){k++;id='s'+k;}P.screens.push({id:id,n:'Ruutu '+n});},{phone:false});ua.setTab(id);renderList();}
 /* ---- rakenne: lista ---- */
 function valText(o){if(o.t==='wish')return o.status==='tehty'?'tehty':'auki';if(!lastR)return '';var s=lastR.st[o.id];if(!s)return '';if(lastR.err[o.id])return '!';
-  if(o.t==='choice')return s.s==='sel'?(o.beh==='hold'?'pohjassa':'valittu'):(s.s==='open'?'':(s.s==='lock'?'lukittu':'pois'));
+  if(o.t==='choice')return s.s==='sel'?(o.beh==='hold'?'pohjassa':'valittu'):(s.s==='open'?(s.done?'painettu':''):(s.s==='lock'?'lukittu':'pois'));
   if(o.t==='cond')return s.met?'täyttyy':'ei';if(o.t==='text')return s.s==='show'?'':'piilossa';
   if(o.t==='input'){if(s.s!=='show')return 'piilossa';var tv=lastR.R.value(o.id);return tv?'”'+tv+'”':'tyhjä';}
   if(o.t==='log'){var ln=E.logList(proj().state.vals[o.id]).length;return ln?ln+' kertaa':'tyhjä';}
   var v=lastR.R.value(o.id);return v===null?(s.s==='hide'&&o.t==='slider'?'piilossa':'–'):E.fmt(v,o.dec);}
 function stateCls(o){if(!lastR)return '';var s=lastR.st[o.id];if(lastR.err[o.id])return 'err';if(!s)return '';
-  if(o.t==='choice')return s.s==='sel'?'sel':(s.s==='open'?'show':'');if(o.t==='cond')return s.met?'sel':'';return s.s==='show'||((o.t==='calc'||o.t==='counter'||o.t==='log')&&s.vis)?'show':'';}
+  if(o.t==='choice')return s.s==='sel'||s.done?'sel':(s.s==='open'?'show':'');if(o.t==='cond')return s.met?'sel':'';return s.s==='show'||((o.t==='calc'||o.t==='counter'||o.t==='log')&&s.vis)?'show':'';}
 function renderList(){var box=$('olist'),P=proj();box.textContent='';if(!P)return;
   var ab=el('div','addbar');ab.appendChild(el('span','lbl','Lisää ruudulle'));
   [['choice','+ Valinta'],['slider','+ Liukusäädin'],['input','+ Tekstikenttä'],['text','+ Teksti'],['calc','+ Laskettu arvo'],['counter','+ Laskuri'],['log','+ Kirjaus'],['cond','+ Ehto'],['wish','+ Toive tekoälylle']].forEach(function(x){var b=btn(x[1],'mb small'+(x[0]==='wish'?' wishb':''),function(){addObj(x[0]);});b.dataset.add=x[0];ab.appendChild(b);});
@@ -1271,6 +1281,7 @@ var HELP={
   'Valinta on napautettava palikka. Valittuna sen arvo on 1 (tai kentän Arvo valittuna luku), muuten 0. Siksi valinnan voi laskea mukaan summaan tai keskiarvoon.',
   '• Jää valituksi: toimii kuin kytkin. Napautus valitsee ja toinen napautus poistaa valinnan. Valinnat numeroidaan siinä järjestyksessä, jossa ne tehtiin.',
   '• Palautuu irrottaessa: toimii kuin painike. Se on päällä vain niin kauan kuin sitä pidetään pohjassa, joten sillä voi näyttää jotain vain painettaessa. Toiminnot (Kun painetaan) tapahtuvat joka painalluksella, esimerkiksi laskuriin +1.',
+  '• Yksi painallus riittää (palautuvalla painikkeella): painike palautuu irrottaessa, mutta jää painetuksi (✓) sääntöjen ja pullonkaulan kannalta. Sopii Jatka- ja Vastaa-painikkeisiin: pullonkaulaksi merkitty painike avaa loput ruudusta yhdellä painalluksella ilman erillistä laskuria ja ehtoa. Alusta ja toiminto Tyhjennä nollaavat sen.',
   '• Pitkä painallus (noin puoli sekuntia) voi tehdä omat toimintonsa. Jos niitä ei ole, pitkä painallus toimii kuin tavallinen napautus.',
   '• Kun irrotetaan (vain palautuvalla painikkeella): toiminnot tapahtuvat, kun sormi nostetaan. Niiden arvoksi voi valita painalluksen keston sekunteina, esimerkiksi ”Kirjaa Uloshengitykset: painalluksen kesto”.',
   '• Huomio näkyy puhelimen yläpalkissa, kun valinta on viimeksi tehty.',
@@ -1356,7 +1367,7 @@ function check(label,val,fn){var ck=el('label','check'),cb=el('input');cb.type='
 function statusLine(o){var P=proj();if(!lastR)return null;var s=lastR.st[o.id],C=E.compile(P),R=lastR.R,err=lastR.err[o.id],d=el('div','status'+(err?' bad':''));
   if(err){d.appendChild(el('b','','Virhe: '));d.appendChild(document.createTextNode(err));return d;}
   if(!s)return null;var t='';
-  if(o.t==='choice')t=s.s==='sel'?(o.beh==='hold'?'Pidetään pohjassa.':'Valittu (järjestyksessä '+s.n+'.)'):(s.s==='open'?(o.beh==='hold'?'Painettavissa':'Valittavissa')+(s.hl?', korostettuna':''):(s.s==='excl'?'Pois, koska ei sovi yhteen: '+s.by.map(function(x){return obj(x).n;}).join(', '):'Lukittu. Tarvitsee vielä: '+E.needText(C,s.need)));
+  if(o.t==='choice')t=s.s==='sel'?(o.beh==='hold'?'Pidetään pohjassa.':'Valittu (järjestyksessä '+s.n+'.)'):(s.s==='open'?(s.done?'Painettu: täyttää ehdot ja pullonkaulan.':(o.beh==='hold'?'Painettavissa':'Valittavissa'))+(s.hl?', korostettuna':''):(s.s==='excl'?'Pois, koska ei sovi yhteen: '+s.by.map(function(x){return obj(x).n;}).join(', '):'Lukittu. Tarvitsee vielä: '+E.needText(C,s.need)));
   else if(o.t==='cond')t=s.met?'Täyttyy nyt.':((o.req.length||o.suf.length)?'Ei täyty. Puuttuu: '+E.needText(C,s.need):'Ei vielä omia sääntöjä, joten ei täyty koskaan.');
   else if(o.t==='text')t=s.s==='show'?'Näkyy.':'Piilossa. Tarvitsee vielä: '+E.needText(C,s.need);
   else if(o.t==='slider')t=s.s==='show'?'Näkyy. Arvo '+E.fmt(R.value(o.id))+'.':'Piilossa, joten ei mukana laskuissa. Tarvitsee vielä: '+E.needText(C,s.need);
@@ -1387,6 +1398,8 @@ function renderInsp(){var box=$('insp'),P=proj(),y=box.scrollTop;box.textContent
   if(o.t==='choice'){c2.appendChild(el('h3','','Valinta'));
     c2.appendChild(fld('Painallus',segm([['toggle','Jää valituksi'],['hold','Palautuu irrottaessa']],o.beh||'toggle',function(v){edit(function(){obj(o.id).beh=v;},{insp:true});}),false,
       o.beh==='hold'?'Päällä vain niin kauan kuin sitä pidetään pohjassa. Toiminnot tapahtuvat joka painalluksella, ja irrottaessa voi tallentaa painalluksen keston.':'Napautus valitsee, toinen napautus poistaa valinnan.'));
+    if(o.beh==='hold'){var oc=check('Yksi painallus riittää: painike palautuu, mutta pysyy painettuna sääntöjen ja pullonkaulan kannalta',o.once,function(v){edit(function(){var x=obj(o.id);if(v)x.once=true;else delete x.once;},{insp:true});});oc.id='f-once';oc.style.margin='-4px 0 12px';c2.appendChild(oc);
+      c2.appendChild(el('p','hint',o.once?'Ensimmäinen painallus merkitsee painikkeen painetuksi (✓). Ehdot ”on painettu” täyttyvät ja pullonkaula aukeaa pysyvästi, kunnes Alusta tai toiminto Tyhjennä nollaa sen. Erillistä laskuria ja ehtoa ei tarvita.':'Ilman tätä painike on ”painettu” vain pidettäessä, joten sen jälkeen näkyvä sisältö katoaa, kun sormi nostetaan.'));}
     c2.appendChild(fld('Arvo valittuna',inp('number',o.v,'f-v',function(v){edit(function(){obj(o.id).v=E.num(v,1);});}),false,'Laskuissa valinta on tämä luku, kun se on valittu, ja muuten 0.'));
     var nt=inp('area',o.note,'f-note',function(v){edit(function(){obj(o.id).note=v.slice(0,E.NOTE_MAX);},{key:'note'+o.id});},'input');
     c2.appendChild(fld('Huomio',nt,true,'Näkyy puhelimen yläpalkissa, kun tämä on viimeksi valittu.'));c2.appendChild(insertRow(nt));}
@@ -1428,7 +1441,8 @@ function renderInsp(){var box=$('insp'),P=proj(),y=box.scrollTop;box.textContent
     var others=P.objs.filter(function(x){return x.t==='choice'&&x.id!==o.id&&o.ex.indexOf(x.id)<0;});
     if(others.length){var s2=sel([['','+ lisää…']].concat(others.map(function(x){return [x.id,x.n];})),'',function(v){if(v)edit(function(P){E.setEx(P,o.id,v,true);},{insp:true});});s2.style.width='auto';ch.appendChild(s2);}
     ex.appendChild(ch);ex.appendChild(el('p','hint','Vain yksi kerrallaan voi olla valittuna. Poissuljettua napauttamalla valinta vaihtuu.'));c3.appendChild(ex);}
-  if(o.t==='choice'||o.t==='cond'){var b2=check('Pullonkaula: mikään tämän jälkeen samalla ruudulla ei näy, ennen kuin tämä on '+(o.t==='cond'?'täyttynyt':'valittu')+'.',o.b,function(v){edit(function(){var x=obj(o.id);if(v)x.b=true;else delete x.b;});});b2.style.marginTop='12px';c3.appendChild(b2);}
+  if(o.t==='choice'||o.t==='cond'){var b2=check('Pullonkaula: mikään tämän jälkeen samalla ruudulla ei näy, ennen kuin tämä on '+(o.t==='cond'?'täyttynyt':(o.beh==='hold'?'painettu':'valittu'))+'.',o.b,function(v){edit(function(){var x=obj(o.id);if(v)x.b=true;else delete x.b;});});b2.style.marginTop='12px';c3.appendChild(b2);
+    if(o.t==='choice'&&o.b&&o.beh==='hold'&&!o.once)c3.appendChild(el('p','hint','Palautuva painike avaa pullonkaulan vain pidettäessä. Valitse ylempää ”Yksi painallus riittää”, niin se jää auki.'));}
   c3.appendChild(help('rules',false));box.appendChild(c3);
   /* toiminnot */
   if(o.t==='choice'||o.t==='cond'){var c5=el('div','card');c5.appendChild(el('h3','','Toiminnot (kun–niin)'));
@@ -1539,14 +1553,14 @@ var prevVals={};
 function rulesText(C,o){var p=[];if(o.req.length)p.push((o.t==='cond'?'täyttyy kun ':'näkyy kun ')+o.req.map(function(c){return E.clauseText(C,c);}).join(' ja '));
   if(o.suf.length)p.push('jokin: '+o.suf.map(function(c){return E.clauseText(C,c);}).join(' / '));if(o.hl&&o.hl.length)p.push('korostuu kun '+o.hl.map(function(c){return E.clauseText(C,c);}).join(' tai '));
   if(o.ex&&o.ex.length)p.push('ei yhteen: '+o.ex.map(function(x){return C.by[x].n;}).join(', '));if(o.b)p.push('pullonkaula');
-  if(o.beh==='hold')p.push('palautuu irrottaessa');var na=(o.act||[]).length+(o.lact||[]).length+(o.ract||[]).length;if(na)p.push(na+(na===1?' toiminto':' toimintoa'));if(o.t==='counter'&&o.keep)p.push('muistaa yli päivien');return p.join(' · ');}
+  if(o.beh==='hold')p.push('palautuu irrottaessa'+(o.once?', yksi painallus riittää':''));var na=(o.act||[]).length+(o.lact||[]).length+(o.ract||[]).length;if(na)p.push(na+(na===1?' toiminto':' toimintoa'));if(o.t==='counter'&&o.keep)p.push('muistaa yli päivien');return p.join(' · ');}
 function renderTable(){var box=$('v-table'),P=proj();box.textContent='';if(!P)return;var C=E.compile(P);
   box.appendChild(el('h1','ptitle','Arvotaulukko'));box.appendChild(el('p','lead','Jokainen objekti rivinä. Arvot päivittyvät heti, kun käytät puhelinta vasemmalla. Riviä napauttamalla pääset muokkaamaan sitä.'));
   var t=el('table','vt'),h=el('tr');['Nimi','Laji','Ruutu','Tila','Arvo','Kaava tai säännöt'].forEach(function(x){h.appendChild(el('th','',x));});var th=el('thead');th.appendChild(h);t.appendChild(th);var tb=el('tbody');
   var scr={};P.screens.forEach(function(s){scr[s.id]=s.n;});
   P.objs.forEach(function(o){var r=el('tr','click'),s=lastR&&lastR.st[o.id],err=lastR&&lastR.err[o.id];r.dataset.id=o.id;
     r.appendChild(el('td','',o.n));r.appendChild(el('td','',E.TYPES[o.t]));r.appendChild(el('td','',scr[o.s]||''));
-    var stt='',cls='';if(s){if(o.t==='choice'){stt={sel:o.beh==='hold'?'pohjassa':'valittu',open:o.beh==='hold'?'painettavissa':'valittavissa',lock:'lukittu',excl:'pois'}[s.s];cls=s.s==='sel'?'st-sel':(s.s==='open'?'st-show':'st-hide');}
+    var stt='',cls='';if(s){if(o.t==='choice'){stt=s.done?'painettu':{sel:o.beh==='hold'?'pohjassa':'valittu',open:o.beh==='hold'?'painettavissa':'valittavissa',lock:'lukittu',excl:'pois'}[s.s];cls=s.s==='sel'||s.done?'st-sel':(s.s==='open'?'st-show':'st-hide');}
       else if(o.t==='cond'){stt=s.met?'täyttyy':'ei täyty';cls=s.met?'st-sel':'st-hide';}else{stt=s.s==='show'?'näkyy':((o.t==='calc'||o.t==='counter'||o.t==='log')&&o.show==='hidden'?'piilotettu':'piilossa');cls=s.s==='show'?'st-show':'st-hide';}}
     r.appendChild(el('td',cls,stt));
     var v=o.t==='text'?'':(err?'virhe':(o.t==='log'?valText(o):E.fmt(lastR?lastR.R.value(o.id):null,o.dec)));var vc=el('td','num'+(err?' err':''),v);r.appendChild(vc);
