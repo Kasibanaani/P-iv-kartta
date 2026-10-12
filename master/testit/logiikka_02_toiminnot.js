@@ -45,5 +45,11 @@ const Q=JSON.parse(JSON.stringify(P));const qo=n=>Q.objs.find(o=>o.n===n);qo('A'
 eq('korjaus muuttaa',E.repair(Q),true);eq('  siivottu',[qo('A').act.length,qo('A').beh,qo('Tila').cases[0].when.length,qo('Summa').agg.ids.length,qo('Energia').act],[2,'toggle',1,2,undefined]);
 eq('käyttäjät',E.usedBy(P,pis.id).map(x=>P.objs.find(o=>o.id===x).n),['Kirjoitettu']);
 eq('käyttäjät: koottu arvo ja toiminto',E.usedBy(P,en.id).map(x=>P.objs.find(o=>o.id===x).n),['Summa','Ka','Erotus','Jako','A']);
-eq('lajit',Object.keys(E.TYPES),['choice','slider','input','text','calc','counter','cond']);
+eq('lajit',Object.keys(E.TYPES),['choice','slider','input','text','calc','counter','cond','wish']);
+// toive tekoälylle: ei arvoa, ei sääntöjä, ei viitattavissa; kohde siivotaan
+const W=E.newProject('T');const wa=E.newObj(W,'slider','s1','A');W.objs.push(wa);const ww=E.newObj(W,'wish','s1','Toive');Object.assign(ww,{about:wa.id,body:'Isompi',req:[{o:wa.id,op:'ge',v:1}],status:'outo'});W.objs.push(ww);
+eq('toive siivotaan',[E.repair(W),ww.req,ww.status,ww.about===wa.id],[true,undefined,'auki',true]);
+eq('toivetta ei voi käyttää ehdoissa',[E.refable(W,'x').map(o=>o.n),E.opsFor(ww)],[['A'],[]]);
+eq('toiveen tila',E.evaluate(E.compile(W),{}).st[ww.id],{s:'wish'});
+E.dropObj(W,wa.id);eq('kohde poistettu',ww.about,'');
 console.log(ok?'\nKAIKKI OK':'\nVIRHEITÄ');process.exit(ok?0:1);
