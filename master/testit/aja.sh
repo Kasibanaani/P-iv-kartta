@@ -6,8 +6,10 @@ python3 - <<'PY' || exit 1
 import re
 s=open('../index.html',encoding='utf8').read()
 open('moottori.js','w',encoding='utf8').write(re.search(r'<script id="engine">(.*?)</script>',s,re.S).group(1))
+open('tyyli.js','w',encoding='utf8').write(''.join(re.search(r'<script id="'+k+'">(.*?)</script>',s,re.S).group(1) for k in ('styledata','stylefn')))
 PY
 node --check moottori.js || exit 1
+node --check tyyli.js || exit 1
 virheet=0
 for f in logiikka_*.js; do
   if node "$f" > "tulosteet_$f.txt" 2>&1; then echo "ok    $f"; else echo "VIRHE $f"; virheet=1; fi
