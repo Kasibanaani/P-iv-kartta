@@ -901,7 +901,15 @@ function snap(P,key){var now=Date.now();if(key&&key===lastKey&&now-lastT<1500){l
 function undo(){var u=undoStack.pop();if(!u){renderUndo();return;}var i=-1;data.projects.forEach(function(P,k){if(P.id===u.pid)i=k;});if(i<0){renderUndo();return;}
   var cg=data.projects[i]._gh,np=JSON.parse(u.json);if(cg)np._gh={sha:cg.sha,at:cg.at,dirty:true,remote:!!cg.remote};data.projects[i]=np;data.cur=u.pid;selId=u.sel;lastKey=null;dirty();markStruct(data.projects[i]);renderAll();renderUndo();}
 function renderUndo(){var b=$('mundo');if(b){b.disabled=!undoStack.length;b.title=undoStack.length?'Peru viimeisin muokkaus (Ctrl+Z)':'Ei kumottavaa';}}
-function edit(fn,o){o=o||{};var P=proj();if(!P)return;snap(P,o.key);fn(P);E.repair(P);dirty();markStruct(P);if(o.phone!==false)phone();renderList();if(o.insp)renderInsp();else liveInsp();if(view==='table')renderTable();}
+/* Klikkaus ei saa hukkua: kun kentän muutos tallentuu (blur) kesken hiiren painalluksen, näkymää ei piirretä uudelleen
+   ennen kuin painallus on päättynyt. Muuten klikattu kohta vaihtuisi kesken klikkauksen ja pitäisi klikata kahdesti. */
+var ptrDown=false,laterQ=[],laterT=null;
+function laterRun(){clearTimeout(laterT);laterT=null;var q=laterQ;laterQ=[];q.forEach(function(f){try{f();}catch(e){console.error(e);}});}
+function later(f){if(!ptrDown){f();return;}laterQ.push(f);clearTimeout(laterT);laterT=setTimeout(function(){ptrDown=false;laterRun();},1500);}
+document.addEventListener('pointerdown',function(){ptrDown=true;},true);
+['pointerup','pointercancel'].forEach(function(t){document.addEventListener(t,function(){ptrDown=false;if(laterQ.length)setTimeout(laterRun,0);},true);});
+function editing(){var a=document.activeElement;return !!(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.closest&&a.closest('#insp'));}
+function edit(fn,o){o=o||{};var P=proj();if(!P)return;snap(P,o.key);fn(P);E.repair(P);dirty();markStruct(P);var dfr=ptrDown;later(function(){if(o.phone!==false)phone();renderList();if(o.insp&&!(dfr&&editing()))renderInsp();else{liveInsp();var hh=document.querySelector('#insp h2'),so=obj(selId);if(hh&&so&&!hh.children.length)hh.textContent=so.n;}if(view==='table')renderTable();});}
 function obj(id){var P=proj();if(!P)return null;for(var i=0;i<P.objs.length;i++)if(P.objs[i].id===id)return P.objs[i];return null;}
 function select(id,fromPhone){selId=id;var o=obj(id);if(o&&ua&&ua.tab()!==o.s)ua.setTab(o.s);markSel();if(view!=='build')showView('build');else{renderList();renderInsp();}
   if(fromPhone){var r=document.querySelector('.oname.sel');if(r)r.scrollIntoView({block:'nearest'});}}
@@ -1356,7 +1364,7 @@ function showView(v){view=v;['build','table','wish','stats','proj'].forEach(func
   Array.prototype.forEach.call($('mtabs').querySelectorAll('button'),function(b){b.setAttribute('aria-selected',b.dataset.v===v?'true':'false');});renderView();}
 function renderView(){renderWishTab();if(view==='build'){renderList();renderInsp();}else if(view==='table')renderTable();else if(view==='wish')renderWishes();else if(view==='stats')renderStats();else renderProj();}
 function renderTop(){var s=$('psel');s.textContent='';data.projects.forEach(function(P){var o=el('option','',P.name);o.value=P.id;s.appendChild(o);});s.value=data.cur||'';s.hidden=!data.projects.length;}
-function renderAll(){renderTop();var P=proj();$('mempty').hidden=!!P;$('mbody').hidden=!P;$('mtabs').hidden=!P;
+function renderAll(){if(ptrDown){later(renderAll);return;}renderTop();var P=proj();$('mempty').hidden=!!P;$('mbody').hidden=!P;$('mtabs').hidden=!P;
   if(!P){renderWelcome();renderStat();renderGh();return;}if(selId&&!obj(selId))selId=null;phone();setMode(pmode==='point'?'use':pmode);showView(view);renderStat();renderGh();}
 /* ---- toiveet tekoälylle ---- */
 function renderWishTab(){var b=document.querySelector('#mtabs [data-v="wish"]'),P=proj();if(!b||!P)return;var n=P.objs.filter(function(o){return o.t==='wish'&&o.status!=='tehty';}).length;b.textContent='Toiveet'+(n?' ('+n+')':'');}
