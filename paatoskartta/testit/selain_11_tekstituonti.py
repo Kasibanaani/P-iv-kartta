@@ -34,7 +34,7 @@ async def main():
         await pg.click('#ti-out [data-act="add"]'); await pg.wait_for_timeout(300)
         print('  lisätty:', await trees(), '| valittuna:', await pg.inner_text('#tname'), '| ikkuna kiinni:', not await pg.is_visible('#tsheet'), '| piste:', await pg.evaluate("!document.getElementById('setdot').hidden"))
         await pg.click('[data-tab="use"]'); print('  käyttö:', await vis()); await pg.click('#p-use .row:has-text("Uusi potilas")'); print('  valinta:', await vis())
-        await pg.click('#p-use .row:has-text("Tarkista lääkelista")'); print('  huomio:', (await pg.inner_text('#notebox')).replace('\n',' / '), '|', await vis())
+        await pg.click('#p-use .row:has-text("Tarkista lääkelista")'); print('  huomio:', (await pg.inner_text('#info-text')).replace('\n',' / '), '|', await vis())
         # sama nimi: korvaa tai lisää uutena
         await openimport(); await pg.fill('#ti-text', AI_REPLY.replace('Kysy sivuvaikutuksista','Kysy haitoista')); await pg.click('#ti-check'); print('3 sama nimi:', (await pg.inner_text('#ti-out')).replace('\n',' | ')[-190:])
         await pg.click('#ti-out [data-act="replace"]'); await pg.wait_for_timeout(200); print('  korvattu:', await trees(), '|', await pg.evaluate("JSON.parse(localStorage.getItem('paatoskartta:v1')).trees[1].opts[4].n"))

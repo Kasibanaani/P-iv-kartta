@@ -13,7 +13,7 @@ async def main():
         pg = await ctx.new_page(); pg.on('pageerror', lambda e: errs.append(str(e)))
         await pg.goto(U); await pg.wait_for_timeout(300)
         async def vis(): return await pg.evaluate("[...document.querySelectorAll('#p-use .row')].filter(b=>!b.hidden).map(b=>b.querySelector('.t').textContent+'='+(b.className.replace('row','').trim()||'neutraali')).join(', ')")
-        async def msg(): return (await pg.inner_text('#use-msgrow')).replace('\n',' | ') if await pg.is_visible('#use-msgrow') else '(ei viestiä)'
+        async def msg(): return (await pg.inner_text('#info')).replace('\n',' | ') if await pg.is_visible('#info') else '(ei viestiä)'
         inc = lambda: pg.evaluate("document.getElementById('teach-inc').innerText.replace(/\\n/g,' ')")
         store = lambda q: pg.evaluate("(function(){var d=JSON.parse(localStorage.getItem('paatoskartta:v1')),t=d.trees[0];return JSON.stringify(%s)})()" % q)
         lst = lambda: pg.evaluate("[...document.querySelectorAll('#teach-list .row')].map(b=>b.querySelector('.t').firstChild.textContent+(b.classList.contains('bn')?' [bn]':'')+' ('+b.querySelector('small').textContent+')').join('; ')")
@@ -36,8 +36,8 @@ async def main():
         await pg.click('#os-bn [data-b2="b"]'); print('  vihje:', await pg.inner_text('#os-bnhint')); await pg.screenshot(path='pt9_sheet.png'); await pg.click('#os-ok'); await pg.wait_for_timeout(200)
         print('  järjestyslista:', await pg.evaluate("[...document.querySelectorAll('#optlist .oname')].map(b=>b.innerText.replace(/\\n/g,' ')).join('; ')"), '| polku:', await store('t.sel'))
         await use(); print('  ma:', await vis()); await pg.click('#p-use .row:has-text("DKT-tiimi")'); await pg.wait_for_timeout(300); print('  ma+dkt:', await vis()); await pg.screenshot(path='pt9_use.png')
-        await pg.click('#p-use .row:has-text("Sali")'); await pg.click('#p-use .row:has-text("DKT-tiimi")'); print('5 dkt pois:', (await pg.inner_text('#ctx')).replace('\n',' '), '|', await msg()); await pg.click('#use-undo')
-        await pg.click('#ctx .pchip.reset'); await pg.click('#use-showall'); await pg.click('#p-use .row:has-text("Ilta")'); print('  lukittu:', await pg.inner_text('#use-msg')); await pg.click('#use-showall')
+        await pg.click('#p-use .row:has-text("Sali")'); await pg.click('#p-use .row:has-text("DKT-tiimi")'); print('5 dkt pois:', (await pg.inner_text('#ctx')).replace('\n',' '), '|', await msg()); await pg.click('#info-undo')
+        await pg.click('#ctx .pchip.reset'); await pg.click('#use-showall'); await pg.click('#p-use .row:has-text("Ilta")'); print('  lukittu:', await pg.inner_text('#info-text')); await pg.click('#use-showall')
         for n in ['Maanantai','DKT-tiimi','Sali']: await pg.click('#p-use .row:has-text("%s")' % n)
         print('  polku:', await store('t.sel'))
         # järjestys ratkaisee: Sali pullonkaulan eteen -> polussa oleva Sali säilyy, Ilta jää taakse
@@ -61,7 +61,7 @@ async def main():
         pg = await ctx.new_page(); pg.on('pageerror', lambda e: errs.append(str(e)))
         await pg.goto(U); await pg.click('[data-tab="teach"]'); await pg.evaluate("[...document.querySelectorAll('#teach-list .row')].filter(b=>b.querySelector('.t').firstChild.textContent==='Päivä valittu')[0].click()"); await pg.wait_for_timeout(300); await pg.screenshot(path='pt9_n_c.png')
         ow=[await pg.evaluate("[document.documentElement.scrollWidth, document.getElementById('main').scrollWidth, document.getElementById('main').clientWidth]")]
-        await pg.click('#p-teach .link:has-text("Nimeä uudelleen")'); await pg.wait_for_timeout(300); await pg.screenshot(path='pt9_n_sheet.png')
+        await pg.click('#item-edit'); await pg.wait_for_timeout(300); await pg.screenshot(path='pt9_n_sheet.png')
         print(ow, await pg.evaluate("[document.getElementById('osheet').scrollWidth,document.getElementById('osheet').clientWidth,document.getElementById('osheet').scrollHeight,document.getElementById('osheet').clientHeight]"))
         print('errs',errs); await b.close()
 asyncio.run(main())

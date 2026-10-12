@@ -36,7 +36,7 @@ async def main():
         await pg.click('.cday[data-d="%s"]' % yd); await pg.wait_for_timeout(200); print('  kalenterista eiliseen:', await ctxt(), '| ikkuna kiinni:', not await pg.is_visible('#dsheet'))
         await pg.click('#day-label'); await pg.click('#ds-today'); await pg.wait_for_timeout(200); print('  Tänään-painike:', await ctxt())
         # poisto tyhjentää päivän kirjauksen; kumoa palauttaa
-        await pg.click('#ctx .pchip.reset'); print('5 alusta:', await days(0)); await pg.click('#use-undo'); print('  kumoa:', await days(0))
+        await pg.click('#ctx .pchip.reset'); print('5 alusta:', await days(0)); await pg.click('#info-undo'); print('  kumoa:', await days(0))
         # opetus ei näytä päivää
         await pg.click('[data-tab="teach"]'); await pg.wait_for_timeout(200); print('6 opetus rivi2:', await ctxt(), '| päivänappi näkyvissä:', await pg.locator('.dnav').count()); geo['opetus']=await pg.evaluate(GEO)
         await pg.evaluate("[...document.querySelectorAll('#teach-list .row')].filter(b=>b.querySelector('.t').firstChild.textContent==='Sali')[0].click()"); await pg.wait_for_timeout(200); print('  tekijän sivu rivi2:', await ctxt(), '| päivänappi:', await pg.locator('.dnav').count())

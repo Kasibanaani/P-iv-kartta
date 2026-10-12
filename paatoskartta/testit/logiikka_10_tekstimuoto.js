@@ -2,7 +2,7 @@ const fs=require('fs');const {parseTreeText,treeToText,evaluate,settle,normalize
 let ok=true;function eq(label,a,b){const p=JSON.stringify(a)===JSON.stringify(b);if(!p)ok=false;console.log((p?'ok  ':'FAIL')+' '+label+(p?'':'\n   sain   '+JSON.stringify(a)+'\n   odotin '+JSON.stringify(b)));}
 const guide=JSON.parse(fs.readFileSync(__dirname+'/../index.html','utf8').match(/var AI_GUIDE=("(?:[^"\\]|\\.)*");/)[1]);
 // aloitusviestin esimerkki on itse kelvollinen ja toimii kuvatulla tavalla
-let r=parseTreeText(guide);eq('esimerkki aloitusviestistä: kelpaa ilman huomautuksia',[r.ok,r.warnings,r.stats],[true,[],{o:5,e:1,b:1,r:6,c:2}]);
+let r=parseTreeText(guide);eq('esimerkki aloitusviestistä: kelpaa ilman huomautuksia',[r.ok,r.warnings,r.stats],[true,[],{o:5,e:1,t:1,b:1,r:7,c:2}]);
 let T=r.tree;const id=n=>T.opts.find(o=>o.n===n).id;const vis=sel=>T.opts.filter(o=>!o.c).map(o=>{const x=evaluate(T,sel.map(id))[o.id];return x.s==='sel'?o.n+'*':(x.s==='open'?o.n+(x.rec?'!':''):null);}).filter(Boolean);
 eq('alussa vain päivät',vis([]),['Maanantai','Tiistai']);
 eq('maanantai: muut näkyviin, hoitosuunnitelma korostettuna',vis(['Maanantai']),['Maanantai*','DKT-tiimi','Hoitosuunnitelmien tarkistus!']);

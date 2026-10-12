@@ -17,7 +17,7 @@ async def main():
         await pg.goto(U); await pg.wait_for_timeout(300)
         async def vis(): return await pg.evaluate("[...document.querySelectorAll('#p-use .row')].filter(b=>!b.hidden).map(b=>b.querySelector('.t').textContent+'='+(b.className.replace('row','').trim()||'neutraali')).join(', ')")
         async def bar(): return await pg.evaluate("(function(){var t=document.getElementById('top'),c=document.getElementById('ctx');return t.dataset.mode+' | '+document.getElementById('mode').textContent+' | korkeus '+t.offsetHeight+' | tausta '+getComputedStyle(t).backgroundColor+' | rivi2: '+(c.hidden?'-':c.innerText.replace(/\\n/g,' ').trim())+' | teemaväri '+document.querySelector('meta[name=theme-color]').content+' | piste '+!document.getElementById('setdot').hidden})()")
-        async def msg(): return (await pg.inner_text('#use-msgrow')).replace('\n',' | ') if await pg.is_visible('#use-msgrow') else '(ei viestiä)'
+        async def msg(): return (await pg.inner_text('#info')).replace('\n',' | ') if await pg.is_visible('#info') else '(ei viestiä)'
         inc = lambda: pg.evaluate("document.getElementById('teach-inc').innerText.replace(/\\n/g,' ')")
         store = lambda q: pg.evaluate("(function(){var d=JSON.parse(localStorage.getItem('paatoskartta:v1')),t=d.trees[0];return JSON.stringify(%s)})()" % q)
         lst = lambda: pg.evaluate("[...document.querySelectorAll('#teach-list .row')].map(b=>b.querySelector('.t').firstChild.textContent+' ('+b.querySelector('small').textContent+')').join('; ')")
@@ -62,8 +62,8 @@ async def main():
         await pg.click('#p-use .row:has-text("Tiistai")'); print('  vaihto tiistaihin:', (await pg.inner_text('#ctx')).replace('\n',' '), '|', await msg(), '|', await vis())
         await pg.click('#p-use .row:has-text("Valmistaudu")'); await pg.click('#ctx .pchip >> nth=1'); print('  paluu kohtaan 2:', (await pg.inner_text('#ctx')).replace('\n',' '), '|', await msg())
         await pg.click('#ctx .pchip >> nth=0'); print('  paluu kohtaan 1:', (await pg.inner_text('#ctx')).replace('\n',' '), '|', await msg())
-        await pg.click('#ctx .pchip.reset'); print('  alusta:', await bar(), '|', await msg()); await pg.click('#use-undo'); print('  kumoa:', (await pg.inner_text('#ctx')).replace('\n',' ')); await pg.click('#ctx .pchip.reset')
-        await pg.click('#use-showall'); await pg.click('#p-use .row:has-text("Valmistaudu")'); print('  lukittu:', await pg.inner_text('#use-msg')); await pg.click('#use-showall')
+        await pg.click('#ctx .pchip.reset'); print('  alusta:', await bar(), '|', await msg()); await pg.click('#info-undo'); print('  kumoa:', (await pg.inner_text('#ctx')).replace('\n',' ')); await pg.click('#ctx .pchip.reset')
+        await pg.click('#use-showall'); await pg.click('#p-use .row:has-text("Valmistaudu")'); print('  lukittu:', await pg.inner_text('#info-text')); await pg.click('#use-showall')
         # asetukset, vienti, tuonti
         await pg.click('[data-tab="set"]'); print('7 asetukset, palkki:', await bar())
         async with pg.expect_download() as dl:
