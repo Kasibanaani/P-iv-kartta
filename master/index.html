@@ -31,6 +31,7 @@ button,input,textarea,select{font:inherit;color:inherit}
 /* painikkeet */
 .mb{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:30px;padding:0 12px;border:0;border-radius:8px;background:var(--cell);box-shadow:inset 0 0 0 1px var(--sep);color:var(--accent);font-weight:600;cursor:pointer;white-space:nowrap}
 .mb:hover{background:var(--hover)}
+.mb:active:not(:disabled){transform:scale(.96);opacity:.75}
 .mb.solid{background:var(--solid);color:var(--on-solid);box-shadow:none}
 .mb.danger{color:var(--red)}
 .mb.small{min-height:26px;padding:0 8px;font-size:12.5px}
@@ -852,14 +853,20 @@ function renderGh(){var b=$('mgh');if(!b)return;var P=proj();if(!ghOn()||!P){b.h
   b.textContent=t;b.className=cls;b.title=ghMsg||'GitHub-tallennus';var gm=$('gh-msg');if(gm){gm.textContent=ghMsg;gm.className='msg'+(cls.indexOf('bad')>=0?' bad':'');}}
 function ghCard(box){var P=proj(),c=el('div','card');c.style.maxWidth='760px';c.id='sec-gh';c.appendChild(el('h3','','GitHub-tallennus (yksityinen repo)'));
   c.appendChild(el('p','hint','Tallentaa projektien rakenteen ja toiveet tekoälylle omaan yksityiseen repoosi. Silloin tekoäly näkee ne ja voi tehdä muutoksia, kun pyydät keskustelussa esimerkiksi ”käy masterin toiveet läpi”. Päiväkirjaukset ja kokeiluvalinnat eivät tallennu. Avain on vain tämän selaimen muistissa, eikä se tule mukaan varmuuskopioihin.'));
-  var ri=inp('text',gh.repo,'gh-repo',function(v){gh.repo=E.clean(v);ghSaveCfg();renderGh();});ri.placeholder='Kasibanaani/master-tiedot';c.appendChild(fld('Repo',ri));
-  var ti=inp('password',gh.token,'gh-token',function(v){gh.token=String(v||'').replace(/[\s\u200b-\u200d\ufeff]+/g,'');ghSaveCfg();renderGh();if(ghOn())ghNew();});ti.placeholder='github_pat_…';ti.autocomplete='off';c.appendChild(fld('Avain',ti,false,gh.token?'Avain on tallessa tässä selaimessa.':'Liitä tähän GitHubissa tehty avain.'));
+  function setRepo(v){gh.repo=E.clean(v);ghSaveCfg();renderGh();}function setTok(v){gh.token=String(v||'').replace(/[\s\u200b-\u200d\ufeff]+/g,'');ghSaveCfg();renderGh();}
+  function readF(){var a=$('gh-repo'),b=$('gh-token');if(a)setRepo(a.value);if(b)setTok(b.value);}
+  var ri=inp('text',gh.repo,'gh-repo',setRepo,'input');ri.placeholder='Kasibanaani/master-tiedot';c.appendChild(fld('Repo',ri));
+  var ti=inp('password',gh.token,'gh-token',setTok,'input');ti.addEventListener('change',function(){if(ghOn())ghNew();});ti.placeholder='github_pat_…';ti.autocomplete='off';c.appendChild(fld('Avain',ti,false,gh.token?'Avain on tallessa tässä selaimessa.':'Liitä tähän GitHubissa tehty avain.'));
   c.appendChild(check('Tallenna automaattisesti muutosten jälkeen',gh.auto,function(v){gh.auto=v;ghSaveCfg();}));
   var m=el('p','msg');m.id='gh-msg';var r=el('div','row2');
-  r.appendChild(btn('Tallenna nyt','mb solid',function(){var g=ghMeta(proj());ghPush(proj(),!!g.remote);}));
+  r.appendChild(btn('Tallenna nyt','mb',function(){readF();var P=proj();
+    if(!ghOn()){m.className='msg bad';m.textContent='Täytä ensin Repo ja Avain.';return;}
+    if(ghBusy){m.className='msg';m.textContent='Tallennus on jo käynnissä…';return;}
+    m.className='msg';m.textContent='Tallennetaan…';var g=ghMeta(P);
+    ghPush(P,!!g.remote).then(function(ok){if(ok){var d=new Date();m.className='msg';m.textContent='Tallennettu GitHubiin klo '+d.getHours()+'.'+pad(d.getMinutes())+': '+gh.repo+' / '+ghPath(P);}else if(!ghMsg){m.className='msg bad';m.textContent='Tallennus ei onnistunut.';}});}));
   r.appendChild(btn('Hae GitHubista','mb',function(){var P=proj(),g=ghMeta(P);if(g.dirty){ask('Haetaanko GitHubin versio?','Tämän projektin tallentamattomat muutokset korvataan GitHubin versiolla. Kumoa palauttaa ne tarvittaessa.',[['Hae','danger'],['Peru','']]).then(function(x){if(x&&x.b==='Hae')ghPull(P);});}else ghPull(P);}));
   r.appendChild(btn('Hae uudet projektit','mb',function(){ghNew().then(function(n){if(!n){ghMsg='Ei uusia projekteja GitHubissa.';renderGh();}});}));
-  r.appendChild(btn('Testaa yhteys','mb',function(){ghTest(m);}));
+  r.appendChild(btn('Testaa yhteys','mb',function(){readF();ghTest(m);}));
   if(gh.token)r.appendChild(btn('Poista avain','mb danger',function(){gh.token='';ghSaveCfg();renderProj();renderGh();}));
   c.appendChild(r);c.appendChild(m);
   var d=el('details','help');d.appendChild(el('summary','','Näin otat GitHub-tallennuksen käyttöön'));

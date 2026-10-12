@@ -64,12 +64,14 @@ async def run(w,h,scheme,shots,tag):
         # 2 yhteyden asetus
         await pg.click('#mtabs [data-v="proj"]'); await pg.wait_for_timeout(100)
         print('2 ennen yhteyttä:', await chip(), '| github-kutsuja:', len(G.calls))
+        await pg.click('#sec-gh .mb:text-is("Tallenna nyt")'); await pg.wait_for_timeout(100); print('  tallenna ilman avainta:', await pg.inner_text('#gh-msg'))
         await pg.fill('#gh-repo','Kasibanaani/master-tiedot'); await pg.press('#gh-repo','Tab'); await pg.fill('#gh-token','vaara_avain'); await pg.press('#gh-token','Tab'); await pg.wait_for_timeout(200)
         await pg.click('#sec-gh .mb:text-is("Testaa yhteys")'); await pg.wait_for_timeout(300); print('  väärä avain:', await pg.inner_text('#gh-msg'))
-        await pg.fill('#gh-token',TOKEN); await pg.press('#gh-token','Tab'); await pg.wait_for_timeout(200)
+        await pg.fill('#gh-token',' '+TOKEN+'\n'); await pg.wait_for_timeout(100)
         await pg.click('#sec-gh .mb:text-is("Testaa yhteys")'); await pg.wait_for_timeout(300); print('  oikea avain:', await pg.inner_text('#gh-msg'))
         if shots: await pg.screenshot(path='g%s_proj.png' % tag)
         await pg.click('#sec-gh .mb:text-is("Tallenna nyt")'); await pg.wait_for_timeout(400)
+        print('  tallenna nyt -viesti:', await pg.inner_text('#gh-msg'))
         path=[k for k in G.files][0]; js=G.get_json(path)
         print('  tallennettu:', path.split('/')[0], '| chip:', await chip(), '| toive mukana:', any(o['t']=='wish' for o in js['projekti']['objs']), '| päivät pois:', 'days' not in js['projekti'], '| avain ei tiedostossa:', TOKEN not in G.files[path]['text'])
         # 3 automaattinen tallennus muokkauksesta
