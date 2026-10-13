@@ -1,0 +1,26 @@
+'use strict';
+const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('assert');
+const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
+const code=html.split('// MODEL_START')[1].split('// MODEL_END')[0];
+const context=vm.createContext({console});vm.runInContext(code,context);const run=s=>vm.runInContext(s,context);
+let checks=0;function check(name,fn){fn();checks++;console.log('OK '+name)}
+check('new state valid',()=>assert(run('validData(initial())')));
+check('legacy state migrates and preserves results',()=>assert(run(`(()=>{let s=initial();delete s.career;delete s.course;delete s.bag;s.rounds=[{id:'a',date:'2026-10-13',player:'roni',scores:[3,4,5]}];let v=migrate(s);return validData(v)&&v.rounds[0].scores[2]===5&&v.career.owned.includes('roni')})()`)));
+check('malformed data rejected',()=>assert(run(`(()=>{let s=initial();s.bag=['unknown'];return !validData(s)})()`)));
+check('power increases distance for every disc',()=>assert(run(`(()=>{for(const d of DISCS){const p=PLAYERS[0],o={x:0,y:0},w={angle:0,speed:0};let a=flightModel(o,-90,d,p,w,{}, {power:30,elevation:18,tilt:0,mode:'back'}).at(-1),b=flightModel(o,-90,d,p,w,{}, {power:90,elevation:18,tilt:0,mode:'back'}).at(-1);if(distance(o,a)>=distance(o,b))return false;}return true})()`)));
+check('left hand and fore mirror right backhand',()=>assert(run(`(()=>{const p=PLAYERS[0],d=DISCS[2],o={x:0,y:0},w={angle:0,speed:0},s={power:65,elevation:18,tilt:0,mode:'back'},a=flightModel(o,-90,d,p,w,{},s).at(-1),b=flightModel(o,-90,d,{...p,hand:-1},w,{},s).at(-1);return Math.abs(a.x+b.x)<1e-8&&Math.abs(a.y-b.y)<1e-8&&a.x<0;})()`)));
+check('fore reverses turn and fade',()=>assert(run(`(()=>{const p=PLAYERS[0],d=DISCS[2],o={x:0,y:0},w={angle:0,speed:0},s={power:65,elevation:18,tilt:0,mode:'back'},a=flightModel(o,-90,d,p,w,{},s).at(-1),b=flightModel(o,-90,d,p,w,{}, {...s,mode:'fore'}).at(-1);return a.x*b.x<0})()`)));
+check('hyzer and anhyzer change opposite directions',()=>assert(run(`(()=>{const p=PLAYERS[0],d=DISCS[1],o={x:0,y:0},w={angle:0,speed:0},s={power:70,elevation:18,tilt:0,mode:'back'},a=flightModel(o,-90,d,p,w,{}, {...s,tilt:25}).at(-1),b=flightModel(o,-90,d,p,w,{}, {...s,tilt:-25}).at(-1);return a.x<b.x})()`)));
+check('crosswind moves disc downwind',()=>assert(run(`(()=>{const p=PLAYERS[0],d=DISCS[1],o={x:0,y:0},s={power:70,elevation:18,tilt:0,mode:'back'},a=flightModel(o,-90,d,p,{angle:0,speed:5},{},s).at(-1),b=flightModel(o,-90,d,p,{angle:0,speed:0},{},s).at(-1);return a.x>b.x})()`)));
+check('headwind increases turn early in flight',()=>assert(run(`(()=>{const p=PLAYERS[0],d=DISCS[3],o={x:0,y:0},s={power:70,elevation:18,tilt:0,mode:'back'},a=flightModel(o,-90,d,p,{angle:Math.PI/2,speed:5},{},s)[60],b=flightModel(o,-90,d,p,{angle:0,speed:0},{},s)[60];return a.x>b.x})()`)));
+check('strong throw shortens timing and window',()=>assert(run(`(()=>{let p=PLAYERS[0],q=freshProgress(),s={difficulty:'normal'},a=shotTiming(p,q,s,{power:30,mode:'back',tilt:0}),b=shotTiming(p,q,s,{power:100,mode:'back',tilt:0});return b.duration<a.duration&&b.window<a.window})()`)));
+check('player fore specialty affects timing',()=>assert(run(`(()=>{let p=PLAYERS[3],q=freshProgress(),s={difficulty:'normal'},a=shotTiming(p,q,s,{power:70,mode:'back',tilt:0}),b=shotTiming(p,q,s,{power:70,mode:'fore',tilt:0});return b.window>a.window})()`)));
+check('confidence reacts more in sensitive player',()=>assert(run(`confidenceAfter(PLAYERS[1],80,'bad')<confidenceAfter(PLAYERS[4],80,'bad')`)));
+check('confidence changes visible preparatory pace',()=>assert(run(`(()=>{let p=PLAYERS[1],s={difficulty:'normal'},a=shotTiming(p,{confidence:30},s,{power:70,mode:'back',tilt:0},0),b=shotTiming(p,{confidence:30},s,{power:70,mode:'back',tilt:0},1);return a.duration!==b.duration})()`)));
+check('learning improves skills and length',()=>assert(run(`learned(PLAYERS[0],{xp:400}).back>PLAYERS[0].back&&learned(PLAYERS[0],{xp:400}).max>PLAYERS[0].max`)));
+check('trees never stop the disc',()=>assert(run(`(()=>{const f=[{x:0,y:10,z:3},{x:0,y:20,z:3},{x:0,y:30,z:0}],h={basket:{x:10,y:40},trees:[{x:0,y:20,r:10,z:20}]};const r=resolveFlight(f,h,{x:0,y:10},false);return !r.collision&&r.landing.y===30&&r.flight.length===3})()`)));
+check('OB penalty returns original lie',()=>assert(run(`resolveFlight([{x:60,y:10,z:0}],{basket:{x:0,y:20},trees:[]},{x:0,y:10},false).penalty`)));
+check('basket capture only near landing',()=>assert(run(`(()=>{const h={basket:{x:0,y:10},trees:[]};return resolveFlight([{x:0,y:10.5,z:0}],h,{x:0,y:0},true).holed&&!resolveFlight([{x:0,y:10,z:1},{x:0,y:20,z:0}],h,{x:0,y:0},false).holed})()`)));
+check('team reward win and loss',()=>assert(run(`roundReward({course:'forest',scores:[3,4,4]}).won&&!roundReward({course:'forest',scores:[8,8,8]}).won&&roundReward({course:'forest',scores:[8,8,8]}).credits===40`)));
+check('all parameter combinations produce finite trajectories',()=>assert(run(`(()=>{for(const p of PLAYERS)for(const d of DISCS)for(const power of [15,65,100])for(const tilt of [-35,0,35])for(const mode of ['back','fore']){const a=flightModel({x:0,y:140},-90,d,p,{angle:2,speed:6},{error:12},{power,elevation:45,tilt,mode});if(a.length!==121||a.some(v=>!Number.isFinite(v.x)||!Number.isFinite(v.y)||!Number.isFinite(v.z)))return false;}return true})()`)));
+console.log(checks+' model tests passed');
