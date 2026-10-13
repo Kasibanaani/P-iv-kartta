@@ -72,7 +72,7 @@ async def run(w,h,scheme,shots,tag):
         # 7 pullonkaula ja ruudut
         await pick('C'); await pg.check('#insp .check input'); await pg.wait_for_timeout(100); print('7 pullonkaula C:', await phone())
         await pg.click('[data-add="choice"]'); await pg.wait_for_timeout(80); print('  uusi valinta C:n jälkeen lukittu:', await pg.evaluate("[...document.querySelectorAll('.oname .on')].map(e=>e.textContent).join(', ')"), '|', await pg.inner_text('#insp-status'))
-        await pg.click('[data-add="text"]'); await pg.click('text=+ Ruutu'); await pg.wait_for_timeout(150)
+        await pg.click('[data-add="text"]'); await pg.click('[data-newscreen]'); await pg.wait_for_timeout(150)
         await pick('Teksti 11') if await pg.locator('.oname:has(.on:text-is("Teksti 11"))').count() else None
         print('  ruudut:', await pg.evaluate("[...document.querySelectorAll('.scr b')].map(e=>e.textContent).join(', ')"), '| välilehdet puhelimessa:', await pg.evaluate("[...document.querySelectorAll('#pscreen .ua-tabs button')].map(e=>e.textContent).join(', ')"))
         # 8 seuranta
