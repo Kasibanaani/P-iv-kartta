@@ -1163,7 +1163,8 @@ if(!proj())data.cur=data.projects.length?data.projects[0].id:null;else data.cur=
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(data));storeOk=true;}catch(e){storeOk=false;}renderStat();}
 function dirty(){data.meta.dirty=(data.meta.dirty||0)+1;persist();}
 function renderStat(){var s=$('mstat');if(!s)return;s.className='mstat'+((data.meta.dirty>0||!storeOk)?' dirty':'');
-  s.textContent=!storeOk?'Tallennus selaimeen ei onnistu':(data.meta.dirty>0?'Muutoksia viemättä':(data.meta.lastExport?'Varmuuskopio viety '+fi(data.meta.lastExport):'Tallessa tässä selaimessa'));}
+  s.title=data.meta.dirty>0?'Varmuuskopiotiedostoa ei ole viety viimeisten muutosten jälkeen. Tämä koskee vain varmuuskopiotiedostoa, ei GitHub-tallennusta.':'';
+  s.textContent=!storeOk?'Tallennus selaimeen ei onnistu':(data.meta.dirty>0?'Varmuuskopio viemättä':(data.meta.lastExport?'Varmuuskopio viety '+fi(data.meta.lastExport):'Tallessa tässä selaimessa'));}
 
 /* ---- GitHub-tallennus: projektin rakenne ja toiveet käyttäjän yksityiseen repoon ----
    Tiedosto projektit/<uid>.json. Päiväkirjauksia ja kokeiluvalintoja ei tallenneta. Avain on vain tämän selaimen muistissa (master:gh),
@@ -1199,7 +1200,7 @@ function ghPush(P,force){if(!ghOn()||!P||ghBusy)return Promise.resolve(false);va
     persist();renderGh();return false;});}
 function ghPull(P,quiet){if(!ghOn()||!P)return Promise.resolve(false);ghBusy=true;renderGh();
   return ghApi(ghRepoUrl()+'/contents/'+ghPath(P)).then(function(r){ghBusy=false;
-    if(r.status!==200){ghMsg=r.status===404?'Tätä projektia ei ole vielä GitHubissa. Tallenna se ensin.':ghErr(r.status);renderGh();return false;}
+    if(r.status!==200){ghMsg=r.status===404?'Tätä projektia ei ole GitHubissa. Se on tehty vain tässä selaimessa.':ghErr(r.status);renderGh();return false;}
     var o=null;try{o=JSON.parse(b64d(r.j.content));}catch(e){}if(!o||!o.projekti||!Array.isArray(o.projekti.objs)){ghMsg='GitHubin tiedosto ei ole masterin projekti.';renderGh();return false;}
     snap(P,null);var keep={id:P.id,uid:P.uid,days:P.days,state:P.state};Object.keys(P).forEach(function(k){delete P[k];});Object.keys(o.projekti).forEach(function(k){P[k]=o.projekti[k];});
     Object.keys(keep).forEach(function(k){P[k]=keep[k];});E.repair(P);P._gh={sha:r.j.sha,at:new Date().toISOString(),dirty:false,remote:false};
@@ -1209,7 +1210,9 @@ function ghCheck(P){if(!ghOn()||!P||ghBusy)return Promise.resolve();var g=ghMeta
   return ghApi(ghRepoUrl()+'/contents/'+ghPath(P)).then(function(r){if(r.status!==200){if(r.status!==404){ghMsg=ghErr(r.status);renderGh();}return;}
     if(r.j.sha===g.sha)return;if(!g.dirty)return ghPull(P,true);g.remote=true;ghMsg='GitHubissa on uudempi versio, esimerkiksi tekoälyn muutokset. Hae se tai tallenna omasi sen päälle.';renderGh();});}
 /* projektit, jotka ovat GitHubissa mutta eivät tässä selaimessa (esimerkiksi tekoälyn tekemät) */
-function ghNew(){if(!ghOn())return Promise.resolve(0);return ghApi(ghRepoUrl()+'/contents/projektit').then(function(r){if(r.status!==200||!Array.isArray(r.j))return 0;
+var ghNewP=null;/* yksi haku kerrallaan, ettei sama projekti tule kahdesti */
+function ghNew(){if(!ghOn())return Promise.resolve(0);if(ghNewP)return ghNewP;ghNewP=ghNew0().then(function(n){ghNewP=null;return n;},function(){ghNewP=null;return 0;});return ghNewP;}
+function ghNew0(){return ghApi(ghRepoUrl()+'/contents/projektit').then(function(r){if(r.status!==200||!Array.isArray(r.j)){if(r.status!==404){ghMsg=ghErr(r.status);renderGh();}return 0;}
   var have={};data.projects.forEach(function(P){have[P.uid]=1;});var todo=r.j.filter(function(f){var m=/^(.+)\.json$/.exec(f.name);return m&&!have[m[1]];});
   return Promise.all(todo.map(function(f){return ghApi(ghRepoUrl()+'/contents/'+f.path).then(function(x){try{var o=JSON.parse(b64d(x.j.content));if(o&&o.projekti&&Array.isArray(o.projekti.objs)){var P=o.projekti;P.uid=f.name.replace(/\.json$/,'');P.days={};P.state={sel:[],vals:{}};P._gh={sha:x.j.sha,at:new Date().toISOString(),dirty:false,remote:false};addProject(P,false,true);return 1;}}catch(e){}return 0;});}))
     .then(function(l){var n=l.reduce(function(a,b){return a+b;},0);if(n){ghMsg=n+(n===1?' uusi projekti haettu GitHubista.':' uutta projektia haettu GitHubista.');renderAll();}return n;});});}
@@ -1222,12 +1225,24 @@ function renderGh(){var b=$('mgh');if(!b)return;var P=proj();if(!ghOn()||!P){b.h
   if(ghBusy)t='GitHub: tallennetaan…';else if(g.remote){t='GitHubissa uudempi';cls+=' bad';}else if(ghMsg&&/Avain|oikeutta|löydy|yhteyttä|virheellä/.test(ghMsg)){t='GitHub: virhe';cls+=' bad';}
   else if(g.dirty)t='GitHub: tallentamatta';else if(g.at){var d=new Date(g.at);t='GitHub: tallennettu '+d.getHours()+'.'+pad(d.getMinutes());}else t='GitHub: ei vielä tallennettu';
   b.textContent=t;b.className=cls;b.title=ghMsg||'GitHub-tallennus';var gm=$('gh-msg');if(gm){gm.textContent=ghMsg;gm.className='msg'+(cls.indexOf('bad')>=0?' bad':'');}}
+/* kun repo ja avain on juuri annettu (esim. uudessa selaimessa), haetaan GitHubin projektit itsestään */
+var ghSoonT=null;function ghSoon(){clearTimeout(ghSoonT);if(!ghOn())return;ghSoonT=setTimeout(function(){ghNew().then(function(n){if(!n&&!/Avain|oikeutta|löydy|yhteyttä|virheellä/.test(ghMsg)){ghMsg='Yhteys GitHubiin. Kaikki GitHubin projektit ovat jo tässä selaimessa.';renderGh();}});},900);}
+/* Hae GitHubista: ensin projektit, joita tässä selaimessa ei vielä ole, sitten avoimen projektin uusin versio. Mitään ei tallenneta GitHubiin. */
+function ghFetchAll(){return ghNew().then(function(n){var P=proj();if(!P){if(!n&&!/Avain|oikeutta|löydy|yhteyttä|virheellä/.test(ghMsg)){ghMsg='GitHubissa ei ole projekteja.';renderGh();}return;}var g=ghMeta(P);
+  return ghApi(ghRepoUrl()+'/contents/'+ghPath(P)).then(function(r){
+    if(r.status===404){ghMsg=(n?n+(n===1?' projekti haettu GitHubista. ':' projektia haettu GitHubista. '):'Ei uusia projekteja GitHubissa. ')+'Avoin projekti ”'+P.name+'” on tehty vain tässä selaimessa, eikä sitä ole GitHubissa.'+(n?' Valitse haettu projekti ylhäältä projektivalikosta.':'');renderGh();return;}
+    if(r.status!==200){ghMsg=ghErr(r.status);renderGh();return;}
+    if(r.j.sha===g.sha&&!g.dirty){ghMsg=(n?n+(n===1?' projekti haettu GitHubista. ':' projektia haettu GitHubista. '):'')+'Avoin projekti on jo sama kuin GitHubissa.';renderGh();return;}
+    function pull(){return ghPull(P).then(function(ok){if(ok&&n){ghMsg=n+(n===1?' projekti ja ':' projektia ja ')+'avoimen projektin uusin versio haettu GitHubista.';renderGh();}});}
+    if(g.dirty)return ask('Haetaanko GitHubin versio?','Projektin ”'+P.name+'” tallentamattomat muutokset korvataan GitHubin versiolla. Kumoa palauttaa ne tarvittaessa.',[['Hae','danger'],['Peru','']]).then(function(x){if(x&&x.b==='Hae')return pull();});
+    return pull();});});}
 function ghCard(box){var P=proj(),c=el('div','card');c.style.maxWidth='760px';c.id='sec-gh';c.appendChild(el('h3','','GitHub-tallennus (yksityinen repo)'));
   c.appendChild(el('p','hint','Tallentaa projektien rakenteen ja toiveet tekoälylle omaan yksityiseen repoosi. Silloin tekoäly näkee ne ja voi tehdä muutoksia, kun pyydät keskustelussa esimerkiksi ”käy masterin toiveet läpi”. Päiväkirjaukset ja kokeiluvalinnat eivät tallennu. Avain on vain tämän selaimen muistissa, eikä se tule mukaan varmuuskopioihin.'));
-  function setRepo(v){gh.repo=E.clean(v);ghSaveCfg();renderGh();}function setTok(v){gh.token=String(v||'').replace(/[\s\u200b-\u200d\ufeff]+/g,'');ghSaveCfg();renderGh();}
+  c.appendChild(el('p','hint','Uusi selain tai kotinäytön appi: täytä Repo ja Avain, niin GitHubin projektit haetaan itsestään. Uudessa selaimessa tehty projekti tallentuu omaksi tiedostokseen, joten se ei korvaa muita projekteja.'));
+  function setRepo(v){gh.repo=E.clean(v);ghSaveCfg();renderGh();ghSoon();}function setTok(v){gh.token=String(v||'').replace(/[\s\u200b-\u200d\ufeff]+/g,'');ghSaveCfg();renderGh();ghSoon();}
   function readF(){var a=$('gh-repo'),b=$('gh-token');if(a)setRepo(a.value);if(b)setTok(b.value);}
   var ri=inp('text',gh.repo,'gh-repo',setRepo,'input');ri.placeholder='Kasibanaani/master-tiedot';c.appendChild(fld('Repo',ri));
-  var ti=inp('password',gh.token,'gh-token',setTok,'input');ti.addEventListener('change',function(){if(ghOn())ghNew();});ti.placeholder='github_pat_…';ti.autocomplete='off';c.appendChild(fld('Avain',ti,false,gh.token?'Avain on tallessa tässä selaimessa.':'Liitä tähän GitHubissa tehty avain.'));
+  var ti=inp('password',gh.token,'gh-token',setTok,'input');ti.placeholder='github_pat_…';ti.autocomplete='off';c.appendChild(fld('Avain',ti,false,gh.token?'Avain on tallessa tässä selaimessa.':'Liitä tähän GitHubissa tehty avain.'));
   c.appendChild(check('Tallenna automaattisesti muutosten jälkeen',gh.auto,function(v){gh.auto=v;ghSaveCfg();}));
   var m=el('p','msg');m.id='gh-msg';var r=el('div','row2');
   r.appendChild(btn('Tallenna nyt','mb',function(){readF();var P=proj();
@@ -1235,7 +1250,7 @@ function ghCard(box){var P=proj(),c=el('div','card');c.style.maxWidth='760px';c.
     if(ghBusy){m.className='msg';m.textContent='Tallennus on jo käynnissä…';return;}
     m.className='msg';m.textContent='Tallennetaan…';var g=ghMeta(P);
     ghPush(P,!!g.remote).then(function(ok){if(ok){var d=new Date();m.className='msg';m.textContent='Tallennettu GitHubiin klo '+d.getHours()+'.'+pad(d.getMinutes())+': '+gh.repo+' / '+ghPath(P);}else if(!ghMsg){m.className='msg bad';m.textContent='Tallennus ei onnistunut.';}});}));
-  r.appendChild(btn('Hae GitHubista','mb',function(){var P=proj(),g=ghMeta(P);if(g.dirty){ask('Haetaanko GitHubin versio?','Tämän projektin tallentamattomat muutokset korvataan GitHubin versiolla. Kumoa palauttaa ne tarvittaessa.',[['Hae','danger'],['Peru','']]).then(function(x){if(x&&x.b==='Hae')ghPull(P);});}else ghPull(P);}));
+  r.appendChild(btn('Hae GitHubista','mb',function(){readF();clearTimeout(ghSoonT);if(!ghOn()){m.className='msg bad';m.textContent='Täytä ensin Repo ja Avain.';return;}ghFetchAll();}));
   r.appendChild(btn('Hae uudet projektit','mb',function(){ghNew().then(function(n){if(!n){ghMsg='Ei uusia projekteja GitHubissa.';renderGh();}});}));
   r.appendChild(btn('Testaa yhteys','mb',function(){readF();ghTest(m);}));
   if(gh.token)r.appendChild(btn('Poista avain','mb danger',function(){gh.token='';ghSaveCfg();renderProj();renderGh();}));
