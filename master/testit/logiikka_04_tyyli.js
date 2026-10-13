@@ -22,10 +22,10 @@ eq('läpinäkyvä väri lasketaan taustan päälle (puoliksi musta valkoisella =
 // 2) akselit ja valmiit tyylit
 eq('kahdeksan akselia',S.AX,['paletti','muoto','pinta','tausta','fontti','tiheys','painikkeet','liike']);
 const pre=S.presets();
-eq('kaksitoista valmista tyyliä, nimet uniikit',[pre.length,new Set(pre.map(p=>p.n)).size],[12,12]);
+eq('kolmetoista valmista tyyliä, nimet uniikit',[pre.length,new Set(pre.map(p=>p.n)).size],[13,13]);
 eq('valmiiden tyylien kaikki arvot ovat olemassa',pre.filter(p=>S.AX.some(k=>!S.opt(k,p.s[k]))).map(p=>p.id),[]);
 eq('esimerkkikuvan henkinen tyyli: lämmin paletti, pyöreä fontti, varjo',(p=>[p.s.paletti,p.s.fontti,p.s.pinta])(S.preset('aamurusko')),['aamu','pyorea','varjo']);
-eq('valmiit tyylit ovat keskenään erilaisia',new Set(pre.map(p=>S.AX.map(k=>p.s[k]).join('|'))).size,12);
+eq('valmiit tyylit ovat keskenään erilaisia',new Set(pre.map(p=>S.AX.map(k=>p.s[k]).join('|'))).size,13);
 
 // 3) vanhat projektit ja virheelliset arvot
 eq('ei tyyliä eikä väriä -> Perus',S.resolve({}),{preset:'perus',paletti:'sininen',muoto:'pyoristetty',pinta:'tasainen',tausta:'tasainen',fontti:'jarjestelma',tiheys:'normaali',painikkeet:'taytetty',liike:'kevyt'});
@@ -77,4 +77,24 @@ const sa=Object.assign({},S.preset('laguuni').s);const va=S.vars(sa,false);
 eq('aallot: kuva on koodattu ja värit paletista',[/^url\("data:image\/svg\+xml,/.test(va['--bgimg']),va['--bgimg'].includes(encodeURIComponent(S.pal('meri').L.bg2))],[true,true]);
 eq('läikät ja liukuväri käyttävät paletin taustasävyjä',[S.vars(Object.assign({},sa,{tausta:'laikat'}),true)['--bgimg'].includes(S.pal('meri').D.bg3),S.vars(Object.assign({},sa,{tausta:'liukuvari'}),false)['--bgimg'].includes(S.pal('meri').L.bg2)],[true,true]);
 eq('palikan sävyn muuttujat',Object.keys(S.hueVars(sa,3,false)).sort(),['--acc2','--accent','--fill','--fill2','--on','--solid']);
+
+// 7) Appipajan ilme 1.0 ja oman värin luonteet
+const ap=S.pal('appi');
+eq('Appipaja: määrittelyn pinnat, tekstit, reuna ja korostus vaaleassa',[ap.L.bg,ap.L.cell,ap.L.label,ap.L.sep,ap.L.accent,ap.L.fill],['#F5F3EE','#FFFEFA','#252B28','#DDE2D9','#39775A','#E7F0E7']);
+eq('Appipaja: määrittelyn pinnat tummassa',[ap.D.bg,ap.D.cell,ap.D.label,ap.D.sep,ap.D.fill],['#151B18','#202922','#EEF1E9','#3B473E','#2B4032']);
+eq('Appipajan teemavärit sininen ja luumu',[S.pal('appisin').L.accent,S.pal('appiluumu').L.accent],['#386EA2','#87597E']);
+const sp=Object.assign({preset:'appipaja'},S.preset('appipaja').s),vp=S.vars(sp,false);
+eq('Appipaja-tyyli: kortti 22 px, painike 14, kenttä 12, dialogi 24, teksti 16 px',[vp['--rc'],vp['--rr'],vp['--ri'],vp['--rs'],vp['--fs']],['22px','14px','12px','24px','16px']);
+eq('Appipaja-tyyli: ohut reuna ja hento varjo, tummassa ei varjoa',[vp['--ring'],vp['--shadow'],S.vars(sp,true)['--shadow']],['inset 0 0 0 1px #DDE2D9','0 12px 40px #273d2210','0 0 0 0 transparent']);
+eq('kuusi luonnetta',S.LU.map(l=>l[0]),['tasapaino','rauha','lampo','pastelli','eloisa','kontrasti']);
+const luFails=[];S.LU.forEach(l=>omat.forEach(h=>{if(S.checkPal(S.gen(h,l[0])).some(c=>!c.ok))luFails.push(l[0]+' '+h);}));
+eq('jokainen luonne: 409 väriä läpäisee luettavuuden (myös palikoiden sävyt)',luFails.slice(0,8),[]);
+const kc=S.checkPal(S.gen('#3A7BD5','kontrasti')).filter(c=>c.min>=4.5);
+eq('kontrastikas: tekstien kontrasti vähintään 7:1',kc.filter(c=>c.hue===undefined&&c.r<7).map(c=>c.tila+' '+c.mita),[]);
+eq('luonteet tuottavat eri paletit samasta väristä',new Set(S.LU.map(l=>S.gen('#3A7BD5',l[0]).L.bg+S.gen('#3A7BD5',l[0]).L.accent)).size,6);
+eq('lämmin neutraali: tausta lämmin vaikka väri on sininen',(q=>q[0]>20&&q[0]<70)(S.toHsl(S.gen('#3A7BD5','lampo').L.bg)),true);
+const sl=S.resolve({style:Object.assign({},S.preset('perus').s,{preset:'',paletti:'oma',oma:'#3a7bd5',luonne:'rauha'})});
+eq('luonne tallentuu ja vaikuttaa väreihin',[sl.luonne,S.vars(sl,false)['--bg']===S.gen('#3A7BD5','rauha').L.bg],['rauha',true]);
+eq('tuntematon luonne -> tasapainoinen, eikä kenttää tallenneta',S.resolve({style:{paletti:'oma',oma:'#3A7BD5',luonne:'hupsu'}}).luonne,undefined);
+eq('luonne ei jää muille paleteille',S.resolve({style:{paletti:'meri',luonne:'rauha'}}).luonne,undefined);
 console.log(ok?'KAIKKI OK':'VIRHEITÄ');process.exit(ok?0:1);
