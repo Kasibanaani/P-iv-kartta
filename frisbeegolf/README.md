@@ -1,4 +1,4 @@
-# Metsärata 2.1
+# Metsärata 2.2
 
 Itsenäinen frisbeegolf-peli, yksi HTML-tiedosto ilman ulkoisia kirjastoja.
 
@@ -6,9 +6,9 @@ Käyttö: https://kasibanaani.github.io/P-iv-kartta/frisbeegolf/
 
 ## Pelaaminen
 
-Valitse Peli-välilehdellä yksi tiimin pelaaja, rata ja 1–3 omistettua kiekkoa. Aloita kierros. Etäisyys koriin näkyy aina kentän yläreunassa linnuntietä metreinä. Kierroksen kaikki heiton perussäädöt ja heittopainike mahtuvat samalle ruudulle ilman vieritystä. Yleisnavigaatio piiloutuu kierroksen ajaksi pienen ☰-painikkeen taakse. Kiekko ja rysty/fore valitaan nykyistä valintaa näyttävistä painikkeista avautuvissa valikoissa. Kartta täyttää jäljelle jäävän tilan ja on pitkällä puhelinruudulla pystysuuntainen. Kori on uuden heittopaikan mukaan suunnatussa kartassa keskellä ylhäällä; kartta pysyy lennon aikana vakaana. Zoomauspainikkeet −, + ja Sovita. Tuulinuoli kääntyy kartan mukaan; heittomalli käyttää edelleen alkuperäisiä maailmakoordinaatteja.
+Valitse Peli-välilehdellä yksi tiimin pelaaja, rata ja 1–3 omistettua kiekkoa. Aloita kierros. Etäisyys koriin näkyy kartalla selkeästi linnuntietä metreinä yhdessä tuulinuolen ja tuulen nopeuden kanssa. Kierroksen kaikki heiton perussäädöt ja heittopainike mahtuvat samalle ruudulle ilman vieritystä. Yleisnavigaatio piiloutuu kierroksen ajaksi pienen ☰-painikkeen taakse. Kiekko ja rysty/fore valitaan nykyistä valintaa näyttävistä painikkeista avautuvissa valikoissa. Kartta täyttää jäljelle jäävän tilan ja on pitkällä puhelinruudulla pystysuuntainen. Kori on uuden heittopaikan mukaan suunnatussa kartassa keskellä ylhäällä; kartta pysyy lennon aikana vakaana. Zoomauspainikkeet −, + ja Sovita. Tuulinuoli kääntyy kartan mukaan; heittomalli käyttää edelleen alkuperäisiä maailmakoordinaatteja.
 
-Suuntaa napauttamalla kenttää tai suuntasäätimellä (0° tarkoittaa suoraan koriin). Valitse kiekko, rysty/fore, kallistus (positiivinen hysse, negatiivinen antsa), korkeus ja voima. Pidä painiketta pohjassa ja irrota vihreällä alueella. Suurempi voima nopeuttaa vetoa ja kaventaa osumaikkunaa. Kämmen ja vasenkätisyys peilaavat kiekon kaaren.
+Suuntaa ainoastaan napauttamalla kenttää. Kolme leveämpää säädintä (voima, kallistus, korkeus) ovat allekkain vasemmalla. Kiekko, rysty/fore, heiton tiedot ja heittopainike ovat allekkain oikealla. Ajoitusmittari säilyy koko paneelin levyisenä; sen korkeus ja heittopainikkeen 104×44 px koko säilyvät. Ohjeet ja viimeisen heiton palaute avautuvat i-painikkeesta. Valitse kiekko, rysty/fore, kallistus (positiivinen hysse, negatiivinen antsa), korkeus ja voima. Pidä painiketta pohjassa ja irrota vihreällä alueella. Suurempi voima nopeuttaa vetoa ja kaventaa osumaikkunaa. Kämmen ja vasenkätisyys peilaavat kiekon kaaren.
 
 Putissa pito kasvattaa etäisyyttä 0–25 metriin. Vapauta vihreän etäisyysmerkin kohdalla. Pelaajan puttitaito ja itsevarmuus vaikuttavat ajoitusikkunaan. Puttinäkymä on korin suuntaan katsova kuva; sen voi vaihtaa ylhäältä kuvattuun asetuksissa.
 
@@ -37,5 +37,9 @@ Lentomalli on pelillinen, ei tarkka aerodynamiikkasimulaatio. Lentonumerot, suht
 
 `sh frisbeegolf/testit/aja.sh` repon juuresta. Tarvitaan Node.js ja Playwright sekä Chromium. `BROWSER_EXECUTABLE` voi osoittaa erilliseen Chromium-binaariin. Ei pelin riippuvuus.
 
-Logiikkatesti tarkistaa tallennuksen, V1-muunnoksen, eri kätisyydet ja heittotavat, tuulen, kallistuksen, voiman, ajoituksen, oppimisen, itsevarmuuden, OB:n ja esteiden poistamisen. Selaintesti tarkistaa 390×844, 320×568, 390×664 ja 320×844 px asettelun, neljän säätimen yhtäaikaisen näkyvyyden ilman vieritystä, valikot, zoomauksen ja kameran koordinaattimuunnokset, heiton, perumisen, putin, kierrospalkkiot, rekrytoinnin, varmuuskopion ja uudelleenavaamisen. Testattu tietokoneen Chromiumissa, ei oikealla iPhonella/Safarissa.
+Logiikkatesti tarkistaa tallennuksen, V1-muunnoksen, eri kätisyydet ja heittotavat, tuulen, kallistuksen, voiman, ajoituksen, oppimisen, itsevarmuuden, OB:n ja esteiden poistamisen. Selaintesti tarkistaa 390×844, 320×568, 390×664 ja 320×844 px asettelun, kolmen leveän säätimen yhtäaikaisen näkyvyyden, kartalta suuntaamisen ja kartan etäisyys-/tuulitietojen ilman vieritystä, valikot, zoomauksen ja kameran koordinaattimuunnokset, heiton, perumisen, putin, kierrospalkkiot, rekrytoinnin, varmuuskopion ja uudelleenavaamisen. Testattu tietokoneen Chromiumissa, ei oikealla iPhonella/Safarissa.
 
+
+## Myöhemmin pohdittavaa
+
+Kartan maisemayksityiskohdat, tilanteeseen sopivien heittokommenttien valikoima ja putin lisähaaste (esimerkiksi liikkuva korkeuden lukitus) ovat käyttäjän jatkoideoita. Versio 2.2 muuttaa asettelua; näitä ideoita ei vielä toteuteta.
