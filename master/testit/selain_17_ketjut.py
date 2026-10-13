@@ -1,4 +1,4 @@
-# Versio 15: Ketjut-välilehti. Uusi ketju, palikoiden raahaus paletista JOS-, TAI- ja NIIN-kohtiin sekä vertailun arvoon,
+# Versio 15: Ketjut-välilehti (versiosta 16 alkaen Lista-näkymä). Uusi ketju, palikoiden raahaus paletista JOS-, TAI- ja NIIN-kohtiin sekä vertailun arvoon,
 # ruutu NIIN-kohtaan (Siirry ruutuun), laukaisimien nollaus, käytössä-kytkin, korostus paletista, tapahtumakortit
 # (painike, laukaisin, maailman tekijä) ja raahaus Rakenteen listasta luvun kenttään. Ketju toimii puhelimessa ja viedyssä apissa 390 px.
 # Kuvakaappaukset ketjut_*.png.
@@ -27,7 +27,7 @@ async def main():
         await pg.fill('#mempty input','x'); await pg.click('#mempty .mb:text-is("Luo projekti")'); await pg.wait_for_timeout(200)
         await pg.click('#mtabs [data-v="proj"]'); await pg.fill('#v-proj textarea',json.dumps(PK,ensure_ascii=False)); await pg.click('text=Tuo uutena projektina'); await pg.wait_for_timeout(300)
         async def P(js): return json.loads(await pg.evaluate("(function(){var P=MASTER.data.projects.filter(x=>x.name==='Ketjutesti')[0];function O(n){return P.objs.filter(o=>o.n===n)[0];}return JSON.stringify("+js+");})()"))
-        await pg.click('#mtabs [data-v="ketjut"]'); await pg.wait_for_timeout(200)
+        await pg.click('#mtabs [data-v="ketjut"]'); await pg.wait_for_timeout(200); await pg.click('#kv-mode button[data-v="lista"]'); await pg.wait_for_timeout(200)
         print('1 tapahtumat:', await pg.evaluate("[...document.querySelectorAll('#v-ketjut .kje .kjhead')].map(h=>h.innerText.replace(/\\s+/g,' ').replace(/ (Rakenteessa|Maailmassa)$/,''))"))
         print('  paletin ryhmät:', await pg.evaluate("[...document.querySelectorAll('#v-ketjut .kjpal h4')].map(h=>h.textContent)"))
         await pg.click('#v-ketjut .mb:text-is("+ Uusi ketju")'); await pg.wait_for_timeout(250)
