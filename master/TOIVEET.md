@@ -32,6 +32,11 @@ Master tallentaa projektien rakenteen ja toiveet käyttäjän **yksityiseen** Gi
 - Luku tai palikka ja näkymät (versio 13):
   - Lukukentän arvo on luku tai viittaus `{r: <id>}` palikkaan, jonka arvo on luku (valinta ja ehto 1/0; ei tekstikenttää). Käytössä toimintojen kentissä `v`, `lo`, `hi`, `p`, `x`, `y`, ajastimen `len` ja `every`, sateen `rate` ja `fall` sekä kohdelistan `life`. Toimintojen viittaukset luetaan toiminnon hetkellä, muut jatkuvasti. Puuttuva tai kelvoton viittaus korvataan kentän oletuksella. Vanhat muodot (`src: "o", from` ja `{k: "num" | "ref", v}`) muunnetaan repairissa.
   - Ruutu `nav: false` on näkymä: ei alapalkissa, ja alapalkki on piilossa, kun näkymä on auki. Toiminto `{do: "back"}` (Palaa takaisin) vie ruutuun, josta viimeksi siirryttiin toiminnolla; jos historiaa ei ole ja ollaan näkymässä, ensimmäiselle välilehdelle. Käyttäjän oma välilehtivalinta nollaa historian.
+- Laukaisin, lippu ja nopeus (versio 14):
+  - Laukaisin `t: "trig"`: näkymätön painike, arvo luku. `mode` `latch` (jää 1:ksi), `inside` (1 vain kun hahmo on kytketyn tekijän alueella), `toggle` (vaihtuu 1 ↔ 0), `count` (laukaisukerrat). Toiminnot `act` (kun laukeaa). Toiminto `{do: "fire", o: laukaisin}` painaa sitä (`ev: "out"` = poistuminen alueelta, vain `inside`). Säännöissä `on`/`off` = on lauennut / ei, ja luvut. Ei pullonkaulana.
+  - Maailman tekijän `tr` = laukaisimen id: kun tekijä laukeaa (astuu, pysähtyy, kosketus), se painaa laukaisinta ennen omia toimintojaan; `inside`-laukaisimelle poistuminen alueelta antaa `ev: "out"`.
+  - Lippu `t: "flag"`: näkymätön päällä/pois (1/0), `init` alkutila. Valitse = päälle, Poista valinta = pois, Aseta 1/0, Tyhjennä = alkutila.
+  - Säätimen `min`, `max`, `start` ja laskurin `min`, `max` voivat olla `{r: id}`. Maailmaikkunan `spd` = hahmon nopeus ruutua/s (luku tai `{r: id}`, oletus 4,2, rajat 0,5–20).
 - Toive on objekti `t: "wish"`: `n` (otsikko), `body` (toive), `status` (`"auki"` / `"tehty"`), `reply` (tekoälyn vastaus), `about` (`""` = koko projekti, `"screen"` = ruutu `s`, muuten objektin id), `s` (ruutu). Toiveita ei viedä käyttäjä-appiin.
 
 ## Kun käyttäjä pyytää "käy masterin toiveet läpi"

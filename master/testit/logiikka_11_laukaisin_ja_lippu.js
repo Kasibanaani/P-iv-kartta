@@ -1,0 +1,40 @@
+// Versio 14: säätimen ja laskurin rajat palikasta, hahmon nopeus, Laukaisin (jää päälle, päällä vain alueella, vaihtuu, laskee)
+// ja toiminto Laukaise, maailman tekijän laukaisin (tr) sekä Lippu.
+const E=require('./moottori.js');
+let ok=true;function eq(l,a,b){const p=JSON.stringify(a)===JSON.stringify(b);if(!p)ok=false;console.log((p?'ok  ':'FAIL')+' '+l+(p?'':'\n   sain   '+JSON.stringify(a)+'\n   odotin '+JSON.stringify(b)));}
+const P=E.newProject('V14');const add=(t,n,x)=>{const o=E.newObj(P,t,'s1',n);Object.assign(o,x||{});P.objs.push(o);return o;};
+const taso=add('slider','Taso',{min:1,max:5,start:2});
+const raja=add('calc','Raja',{mode:'f',f:'[Taso]*10'});
+const sl=add('slider','Voima',{min:0,max:{r:raja.id},start:{r:taso.id}});
+const pis=add('counter','Pisteet',{min:0,max:{r:raja.id}});
+const juokse=add('choice','Juokse');const nop=add('calc','Nopeus',{mode:'f',f:'JOS([Juokse];8;4)'});
+const ik=add('map','Ikkuna',{spd:{r:nop.id}});P.maps=[{id:'k1',n:'M',w:10,h:10,fx:[]}];ik.m='k1';
+const t1=add('trig','Käytävä');const t2=add('trig','Huone',{mode:'inside'});const t3=add('trig','Valo',{mode:'toggle'});const t4=add('trig','Askeleet',{mode:'count'});
+const lippu=add('flag','Puhunut');const lippu2=add('flag','Valmis',{init:true});
+t1.act=[{do:'add',o:pis.id,v:5},{do:'fire',o:t4.id}];
+P.maps[0].fx=[{id:'f1',n:'Käytävä',k:'zone',vis:false,trig:'enter',cells:['1,1'],req:[],act:[],tr:t1.id},{id:'f2',n:'Väärä',k:'zone',vis:false,trig:'enter',cells:['2,2'],req:[],act:[],tr:pis.id}];
+const ehto=add('cond','Pääsee',{req:[{o:t1.id,op:'on'},{o:lippu.id,op:'on'}]});
+eq('repair: väärä laukaisinviittaus pois',[E.repair(P),'tr' in P.maps[0].fx[1],P.maps[0].fx[0].tr],[true,false,t1.id]);
+eq('nopeus viittauksena säilyy',ik.spd,{r:nop.id});
+let C=E.compile(P);const val=(st,o)=>E.evaluate(C,st).R.value(o.id);let st={sel:[],vals:{}};
+eq('säädin: lähtöarvo ja loppu palikoista (Taso 2 → loppu 20)',[val(st,sl),(st.vals[sl.id]=99,val(st,sl))],[2,20]);
+st.vals[taso.id]=4;eq('taso 4 → loppu 40',val(st,sl),40);
+E.change(C,st,E.metSet(C,st),[{do:'set',o:pis.id,v:100}]);eq('laskurin yläraja palikasta (40)',val(st,pis),40);
+st.vals[taso.id]=1;E.change(C,st,E.metSet(C,st),[{do:'set',o:pis.id,v:0}]);
+eq('laukaisimet alussa 0, lippu ja alussa päällä -lippu',[val(st,t1),val(st,lippu),val(st,lippu2)],[0,0,1]);
+let out=E.change(C,st,E.metSet(C,st),[{do:'fire',o:t1.id}]);
+eq('Laukaise: jää päälle, omat toiminnot (Pisteet +5, Askeleet +1)',[val(st,t1),val(st,pis),val(st,t4)],[1,5,1]);
+E.change(C,st,E.metSet(C,st),[{do:'fire',o:t1.id},{do:'fire',o:t4.id}]);eq('uudelleen: jää 1, askeleet 3',[val(st,t1),val(st,t4)],[1,3]);
+eq('ehto ei vielä täyty (lippu pois)',E.evaluate(C,st).R.on(ehto.id),false);
+E.change(C,st,E.metSet(C,st),[{do:'select',o:lippu.id}]);eq('lippu päälle → ehto täyttyy',[val(st,lippu),E.evaluate(C,st).R.on(ehto.id)],[1,true]);
+E.change(C,st,E.metSet(C,st),[{do:'unselect',o:lippu2.id},{do:'set',o:lippu.id,v:0}]);eq('lippu pois ja alussa päällä -lippu pois',[val(st,lippu),val(st,lippu2)],[0,0]);
+E.change(C,st,E.metSet(C,st),[{do:'clear',o:lippu2.id}]);eq('tyhjennä palauttaa alkutilaan',val(st,lippu2),1);
+E.change(C,st,E.metSet(C,st),[{do:'fire',o:t3.id}]);let a=val(st,t3);E.change(C,st,E.metSet(C,st),[{do:'fire',o:t3.id}]);eq('vaihtuu: 1 sitten 0',[a,val(st,t3)],[1,0]);
+E.change(C,st,E.metSet(C,st),[{do:'fire',o:t2.id}]);a=val(st,t2);E.change(C,st,E.metSet(C,st),[{do:'fire',o:t2.id,ev:'out'}]);eq('päällä vain alueella: sisään 1, ulos 0',[a,val(st,t2)],[1,0]);
+E.change(C,st,E.metSet(C,st),[{do:'fire',o:t1.id,ev:'out'}]);eq('poistuminen ei muuta jää päälle -laukaisinta',val(st,t1),1);
+E.change(C,st,E.metSet(C,st),[{do:'reset'}]);eq('Alusta nollaa laukaisimet ja liput',[val(st,t1),val(st,t4),val(st,lippu2)],[0,0,1]);
+eq('sääntöteksti',[E.clauseText(C,{o:t1.id,op:'on'}),E.clauseText(C,{o:lippu.id,op:'off'}),E.clauseText(C,{o:t4.id,op:'ge',v:3})],['Käytävä on lauennut','Puhunut ei ole päällä','Askeleet on vähintään 3']);
+eq('laukaisin ja lippu viitattavissa, ei pullonkaulaa',[E.refable(P,null).some(o=>o.id===t1.id),E.refable(P,null).some(o=>o.id===lippu.id),E.canB(t1),E.canB(lippu)],[true,true,false,false]);
+eq('usedBy: maailman tekijä löytyy laukaisimelle',E.fxUsing(P,t1.id).map(q=>q.f.n),['Käytävä']);
+E.dropObj(P,t1.id);eq('poisto vie tekijän laukaisimen',' tr' in P.maps[0].fx[0]||'tr' in P.maps[0].fx[0],false);
+console.log(ok?'KAIKKI OK':'VIRHEITÄ');process.exit(ok?0:1);
