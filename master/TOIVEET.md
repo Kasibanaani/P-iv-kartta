@@ -37,6 +37,10 @@ Master tallentaa projektien rakenteen ja toiveet käyttäjän **yksityiseen** Gi
   - Maailman tekijän `tr` = laukaisimen id: kun tekijä laukeaa (astuu, pysähtyy, kosketus), se painaa laukaisinta ennen omia toimintojaan; `inside`-laukaisimelle poistuminen alueelta antaa `ev: "out"`.
   - Lippu `t: "flag"`: näkymätön päällä/pois (1/0), `init` alkutila. Valitse = päälle, Poista valinta = pois, Aseta 1/0, Tyhjennä = alkutila.
   - Säätimen `min`, `max`, `start` ja laskurin `min`, `max` voivat olla `{r: id}`. Maailmaikkunan `spd` = hahmon nopeus ruutua/s (luku tai `{r: id}`, oletus 4,2, rajat 0,5–20).
+- Ketjut (versio 15):
+  - Ketju on ehto `t: "cond"`: `req` = JOS (kaikkien pitää päteä), `suf` = TAI (yksi riittää, jos niitä on), `act` = NIIN (ajetaan, kun ketju täyttyy). Ehdon `off: true` = ei käytössä (ei täyty eikä laukea). `rst: true` = laukeamisen jälkeen ketjun säännöissä olevat laukaisimet nollataan, jolloin ketju voi laueta uudelleen.
+  - Säännön vertailuarvo `v` (ja välin yläraja `v2`) voi olla luku tai `{r: <id>}` palikkaan, esim. `{o: Pisteet, op: "ge", v: {r: Tavoite}}`. Arvo luetaan jatkuvasti.
+  - Ketjut-välilehti näyttää kaikki ehdot JOS/TAI → NIIN -kortteina ja tapahtumat (painike, laukaisin, ajastin, sade, kohdelista, maailman tekijä) KUN → NIIN -kortteina. Palikan voi raahata paletista tai Rakenteen listasta sääntöön, toimintoon tai lukukenttään. Tämä on vain muokkausnäkymä: tietomalli on sama kuin Rakenteessa.
 - Toive on objekti `t: "wish"`: `n` (otsikko), `body` (toive), `status` (`"auki"` / `"tehty"`), `reply` (tekoälyn vastaus), `about` (`""` = koko projekti, `"screen"` = ruutu `s`, muuten objektin id), `s` (ruutu). Toiveita ei viedä käyttäjä-appiin.
 
 ## Kun käyttäjä pyytää "käy masterin toiveet läpi"
