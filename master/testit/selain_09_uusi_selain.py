@@ -46,6 +46,15 @@ async def run(w,h,scheme):
         # 5 väärä avain: virhe näkyy, ei hiljaista epäonnistumista
         await pg.fill('#gh-token','github_pat_VAARA'); await pg.wait_for_timeout(1500)
         print('5 väärä avain:', await pg.inner_text('#gh-msg'))
+        # 6 väärä repo: kerrotaan että repo on väärin, ei ”ei uusia projekteja”
+        await pg.fill('#gh-token',TOKEN)
+        for v in ('master-tiedot','Kasibanaani/master-tieodt'):
+            await pg.fill('#gh-repo',v); await pg.wait_for_timeout(200)
+            await pg.click('#sec-gh .mb:text-is("Hae GitHubista")'); await pg.wait_for_timeout(600)
+            print('6 väärä repo', v, ':', await pg.inner_text('#gh-msg'))
+        await pg.fill('#gh-repo',' Kasibanaani / master-tiedot '); await pg.wait_for_timeout(200)
+        await pg.click('#sec-gh .mb:text-is("Hae GitHubista")'); await pg.wait_for_timeout(600)
+        print('  välilyönnit sallitaan:', await pg.inner_text('#gh-msg'))
         print('  vanha lopussakin ennallaan:', G.files['projektit/mvanha1.json']['text']==vanha_ennen, '| leveys', await pg.evaluate("[document.documentElement.scrollWidth, window.innerWidth]"), 'errs', errs)
         await b.close()
 asyncio.run(run(1440,900,'light')); asyncio.run(run(1280,800,'dark'))

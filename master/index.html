@@ -1181,7 +1181,13 @@ var ghLastErr='';
 function ghApi(url,method,body){method=method||'GET';var u=method==='GET'?url+(url.indexOf('?')<0?'?':'&')+'t='+Date.now():url;var h={'Authorization':'Bearer '+gh.token,'Accept':'application/vnd.github+json'};if(body)h['Content-Type']='application/json';
   var req;try{req=fetch(u,{method:method,headers:h,body:body?JSON.stringify(body):undefined});}catch(e){ghLastErr=String(e&&e.message||e);return Promise.resolve({status:0,j:{}});}
   return req.then(function(r){ghLastErr='';return r.text().then(function(t){var j={};try{j=JSON.parse(t);}catch(e){}return {status:r.status,j:j};});},function(e){ghLastErr=String(e&&e.message||e);return {status:0,j:{}};});}
-function ghRepoUrl(){return 'https://api.github.com/repos/'+E.clean(gh.repo).replace(/^https?:\/\/github\.com\//,'').replace(/\.git$/,'').replace(/\/+$/,'');}
+function ghRepoName(){return E.clean(gh.repo).replace(/\s+/g,'').replace(/^https?:\/\/(www\.)?github\.com\//,'').replace(/\.git$/,'').replace(/\/+$/,'');}
+function ghRepoUrl(){return 'https://api.github.com/repos/'+ghRepoName();}
+/* 404 voi tarkoittaa tyhjää kansiota tai väärää repoa/avainta: tämä kertoo kumpi */
+var ghRepoBad=false;
+function ghRepoErr(st){var n=ghRepoName();if(st!==404)return ghErr(st);
+  if(n.indexOf('/')<0)return 'Repoa ei löydy: Repo-kenttään kirjoitetaan omistaja ja nimi kauttaviivalla, esimerkiksi Kasibanaani/master-tiedot. Nyt kentässä on ”'+n+'”.';
+  return 'Repoa ”'+n+'” ei löydy, tai avaimella ei ole pääsyä siihen. Tarkista Repo-kentän kirjoitusasu ja että avaimen Repository access -kohdassa on valittuna juuri tämä repo.';}
 function ghPath(P){return 'projektit/'+P.uid+'.json';}
 function ghErr(st){if(st===0)return 'Ei yhteyttä GitHubiin. Tarkista nettiyhteys ja että avain on kopioitu kokonaan ilman ylimääräisiä merkkejä (alkaa github_pat_).'+(ghLastErr?' Selaimen ilmoitus: '+ghLastErr:'');return ({401:'Avain ei kelpaa tai se on vanhentunut.',403:'Avaimella ei ole oikeutta. Tarvitaan Contents: Read and write.',404:'Repoa ei löydy, tai avaimella ei ole pääsyä siihen.',409:'GitHubissa on uudempi versio.',422:'GitHubissa on uudempi versio.'})[st]||('GitHub vastasi virheellä '+st+'.');}
 function ghMeta(P){if(!P._gh||typeof P._gh!=='object')P._gh={sha:'',at:'',dirty:false,remote:false};return P._gh;}
@@ -1212,12 +1218,14 @@ function ghCheck(P){if(!ghOn()||!P||ghBusy)return Promise.resolve();var g=ghMeta
 /* projektit, jotka ovat GitHubissa mutta eivät tässä selaimessa (esimerkiksi tekoälyn tekemät) */
 var ghNewP=null;/* yksi haku kerrallaan, ettei sama projekti tule kahdesti */
 function ghNew(){if(!ghOn())return Promise.resolve(0);if(ghNewP)return ghNewP;ghNewP=ghNew0().then(function(n){ghNewP=null;return n;},function(){ghNewP=null;return 0;});return ghNewP;}
-function ghNew0(){return ghApi(ghRepoUrl()+'/contents/projektit').then(function(r){if(r.status!==200||!Array.isArray(r.j)){if(r.status!==404){ghMsg=ghErr(r.status);renderGh();}return 0;}
+function ghNew0(){ghRepoBad=false;return ghApi(ghRepoUrl()+'/contents/projektit').then(function(r){
+  if(r.status===404)return ghApi(ghRepoUrl()).then(function(q){if(q.status!==200){ghRepoBad=true;ghMsg=ghRepoErr(q.status);renderGh();}return 0;});
+  if(r.status!==200||!Array.isArray(r.j)){ghMsg=ghErr(r.status);renderGh();return 0;}
   var have={};data.projects.forEach(function(P){have[P.uid]=1;});var todo=r.j.filter(function(f){var m=/^(.+)\.json$/.exec(f.name);return m&&!have[m[1]];});
   return Promise.all(todo.map(function(f){return ghApi(ghRepoUrl()+'/contents/'+f.path).then(function(x){try{var o=JSON.parse(b64d(x.j.content));if(o&&o.projekti&&Array.isArray(o.projekti.objs)){var P=o.projekti;P.uid=f.name.replace(/\.json$/,'');P.days={};P.state={sel:[],vals:{}};P._gh={sha:x.j.sha,at:new Date().toISOString(),dirty:false,remote:false};addProject(P,false,true);return 1;}}catch(e){}return 0;});}))
     .then(function(l){var n=l.reduce(function(a,b){return a+b;},0);if(n){ghMsg=n+(n===1?' uusi projekti haettu GitHubista.':' uutta projektia haettu GitHubista.');renderAll();}return n;});});}
 function ghTest(m){if(/[^\x21-\x7e]/.test(gh.token)){m.className='msg bad';m.textContent='Avaimessa on merkkejä, joita GitHubin avaimessa ei voi olla (esim. ääkkösiä tai lainausmerkkejä). Kopioi avain uudelleen.';return;}m.className='msg';m.textContent='Tarkistetaan…';ghApi(ghRepoUrl()).then(function(r){
-  if(r.status!==200){m.className='msg bad';m.textContent=ghErr(r.status);return;}
+  if(r.status!==200){m.className='msg bad';m.textContent=ghRepoErr(r.status);return;}
   if(!r.j.private){m.className='msg bad';m.textContent='Yhteys toimii, mutta repo on JULKINEN: kaikki näkisivät projektisi. Vaihda repo yksityiseksi GitHubissa.';return;}
   if(r.j.permissions&&!r.j.permissions.push){m.className='msg bad';m.textContent='Yhteys toimii, mutta avaimella ei ole kirjoitusoikeutta.';return;}
   m.className='msg';m.textContent='Yhteys toimii. Repo '+r.j.full_name+' on yksityinen.';});}
@@ -1228,7 +1236,7 @@ function renderGh(){var b=$('mgh');if(!b)return;var P=proj();if(!ghOn()||!P){b.h
 /* kun repo ja avain on juuri annettu (esim. uudessa selaimessa), haetaan GitHubin projektit itsestään */
 var ghSoonT=null;function ghSoon(){clearTimeout(ghSoonT);if(!ghOn())return;ghSoonT=setTimeout(function(){ghNew().then(function(n){if(!n&&!/Avain|oikeutta|löydy|yhteyttä|virheellä/.test(ghMsg)){ghMsg='Yhteys GitHubiin. Kaikki GitHubin projektit ovat jo tässä selaimessa.';renderGh();}});},900);}
 /* Hae GitHubista: ensin projektit, joita tässä selaimessa ei vielä ole, sitten avoimen projektin uusin versio. Mitään ei tallenneta GitHubiin. */
-function ghFetchAll(){return ghNew().then(function(n){var P=proj();if(!P){if(!n&&!/Avain|oikeutta|löydy|yhteyttä|virheellä/.test(ghMsg)){ghMsg='GitHubissa ei ole projekteja.';renderGh();}return;}var g=ghMeta(P);
+function ghFetchAll(){return ghNew().then(function(n){if(ghRepoBad)return;var P=proj();if(!P){if(!n&&!/Avain|oikeutta|löydy|yhteyttä|virheellä/.test(ghMsg)){ghMsg='GitHubissa ei ole projekteja.';renderGh();}return;}var g=ghMeta(P);
   return ghApi(ghRepoUrl()+'/contents/'+ghPath(P)).then(function(r){
     if(r.status===404){ghMsg=(n?n+(n===1?' projekti haettu GitHubista. ':' projektia haettu GitHubista. '):'Ei uusia projekteja GitHubissa. ')+'Avoin projekti ”'+P.name+'” on tehty vain tässä selaimessa, eikä sitä ole GitHubissa.'+(n?' Valitse haettu projekti ylhäältä projektivalikosta.':'');renderGh();return;}
     if(r.status!==200){ghMsg=ghErr(r.status);renderGh();return;}
