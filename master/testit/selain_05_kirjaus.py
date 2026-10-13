@@ -32,7 +32,7 @@ async def run(w,h,scheme,shots,tag):
         await selopt('#insp [data-acts="ract"]>select','Lisää laskuriin')
         r2='#insp [data-acts="ract"] .rule >> nth=1'
         await pg.select_option(r2+' >> select >> nth=2','dur'); await pg.wait_for_timeout(100)
-        print('  lisää laskuriin:', await pg.evaluate("[...document.querySelectorAll('#insp [data-acts=\"ract\"] .rule')][1].innerText.replace(/\\s+/g,' ')"), '| arvokenttä piilossa:', await pg.locator(r2+' >> input.val').count()==0)
+        print('  lisää laskuriin:', await pg.evaluate("[...document.querySelectorAll('#insp [data-acts=\"ract\"] .rule')][1].innerText.replace(/\\s+/g,' ')"), '| arvokenttä piilossa:', await pg.locator(r2+' >> input.val:not(.pct)').count()==0)
         btn='#pscreen .ua-row:has(.t:text-is("Hengitä ulos"))'
         for ms in (700,1500,1100): await hold(btn,ms)
         lg=await pg.inner_text('#pscreen .ua-log'); print('3 puhelin 3 painalluksen jälkeen:', lg.replace('\n',' | '), '| pylväitä:', await pg.locator('#pscreen .ua-chart i').count())
