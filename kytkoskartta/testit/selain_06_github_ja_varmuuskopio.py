@@ -1,6 +1,6 @@
 # GitHub-tallennus (masterin malli) ja varmuuskopio omalle laitteelle. GitHub korvataan testissä valepalvelimella:
 # oikeaan repoon ei kosketa. Tarkistaa: Masterin asetukset otetaan käyttöön, automaattinen tallennus muutoksen jälkeen,
-# käyttötiedot eivät mene GitHubiin, uudempi GitHub-versio haetaan itsestään ja käyttötiedot säilyvät, ristiriidassa valinta,
+# käyttötiedotkin menevät GitHubiin (Emil 14.10.2026, kamerat eivät), uudempi GitHub-versio haetaan itsestään ja käyttötiedot säilyvät, ristiriidassa valinta,
 # uudet projektit haetaan toiseen selaimeen, poistettua ei haeta itsestään, varmuuskopio ladataan eikä siinä ole avainta.
 import asyncio, json, base64, re
 from playwright.async_api import async_playwright
@@ -59,12 +59,13 @@ async def main():
         await pg.click('#wexample');await pg.wait_for_timeout(3300)
         pid=await pg.evaluate("APP.P.id");path='kytkoskartta/'+pid+'.json'
         f=json.loads(REPO[path][0]) if path in REPO else {}
-        print('5 tallennettu GitHubiin:',path in REPO,'| app:',f.get('app'),'| palikoita:',len(f.get('projekti',{}).get('b',{})),'| ei käyttötietoja:', 'st' not in f.get('projekti',{}) and 'mem' not in f.get('projekti',{}),'| tila:',await pg.inner_text('#ghbtn'))
-        # käyttötieto ei saa laukaista GitHub-tallennusta
+        print('5 tallennettu GitHubiin:',path in REPO,'| app:',f.get('app'),'| palikoita:',len(f.get('projekti',{}).get('b',{})),'| ei kameroita:', 'cam' not in f.get('projekti',{}) and 'lcam' not in f.get('projekti',{}),'| tila:',await pg.inner_text('#ghbtn'))
+        # käyttö tallentuu GitHubiin
         sha0=REPO[path][1];await pg.click('#lockbtn');await pg.wait_for_timeout(100)
         await pg.click('.ue.k-kytkin .w-sw');await pg.click('.w-btn:has-text("Kirjaa tauko")');await pg.wait_for_timeout(3000)
         st=await pg.evaluate("Object.keys(APP.P.st).length")
-        print('6 lukitus tallentuu, käyttö ei: sha vaihtui kerran lukituksesta:',REPO[path][1]!=sha0,'| käyttötietoja selaimessa:',st>0,'| GitHubissa ei käyttötietoja:','"st"' not in REPO[path][0])
+        gst=json.loads(REPO[path][0])['projekti'].get('st',{})
+        print('6 käyttö tallentui GitHubiin:',REPO[path][1]!=sha0,'| käyttötietoja selaimessa:',st>0,'| samat GitHubissa:',len(gst)==st and st>0)
         sha1=REPO[path][1];await pg.wait_for_timeout(2700);print('7 ei turhia tallennuksia:',REPO[path][1]==sha1)
         # 3 tekoäly muuttaa GitHubissa → haetaan itsestään, käyttötiedot säilyvät
         o=json.loads(REPO[path][0]);o['projekti']['name']='Tekoälyn muokkaama';put_file(path,json.dumps(o))
@@ -92,7 +93,7 @@ async def main():
         ctx,pg,errs2=await uusi(b,1280);errs+=errs2
         await pg.add_init_script("if(!localStorage.getItem('kytkoskartta:gh'))localStorage.setItem('kytkoskartta:gh',JSON.stringify({repo:'Testi/master-tiedot',token:'github_pat_TESTI',auto:true}))")
         await pg.goto(U);await pg.wait_for_timeout(500)
-        print('14 haettu uuteen selaimeen:',await pg.evaluate("APP.data.projects.map(p=>p.name)"),'| sama id:',await pg.evaluate("APP.data.projects.some(p=>p.id===%s)"%json.dumps(pid)))
+        print('14 haettu uuteen selaimeen:',await pg.evaluate("APP.data.projects.map(p=>p.name)"),'| käyttötiedot mukana:',await pg.evaluate("Object.keys(APP.data.projects[0].st).length")==st,'| sama id:',await pg.evaluate("APP.data.projects.some(p=>p.id===%s)"%json.dumps(pid)))
         pg.once('dialog',lambda d:asyncio.ensure_future(d.accept()))
         await pg.click('#projbtn');await pg.click('[data-x="delete"]');await pg.wait_for_timeout(200)
         await pg.reload();await pg.wait_for_timeout(500)

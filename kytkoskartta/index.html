@@ -2449,7 +2449,7 @@ function openSettings(){
    '<div class="fs"><h4>Projektin käyttönäkymän ilme</h4><div id="view-appearance-settings"></div></div>'+
    '<div class="fs"><h4>Päivämäärät</h4>'+fSegsS('Muoto','df',c.df,[['pp.kk.vvvv','14.10.2026'],['pp.kk.vv','14.10.26']])+'<div class="help">Viikkonumero on aina suomalainen (ISO 8601): viikko alkaa maanantaina.</div></div>'+
    '<div class="fs"><h4>Muokkaus</h4>'+fSegsS('Kohdista ruudukkoon','snap',c.snap?'1':'0',[['1','Kyllä'],['0','Ei']])+'<div class="help">Vaihto-näppäin (⇧) ohittaa kohdistuksen raahatessa.</div></div>'+
-   ghSection()+'<div class="help">Kytköskartta · versio '+KK.VER+'. Tiedot ovat tämän selaimen muistissa'+(ghOn()?' ja projektien rakenne GitHubissa.':'.')+'</div>';
+   ghSection()+'<div class="help">Kytköskartta · versio '+KK.VER+'. Tiedot ovat tämän selaimen muistissa'+(ghOn()?' ja GitHubissa.':'.')+'</div>';
   openSheet(h);APP_APPEARANCE.mount($('#appearance-settings'));
   APP_APPEARANCE.mountView($('#view-appearance-settings'),P,c.teema,function(k,v){if(!P)return;pushUndo();P.appearance=P.appearance||{};P.appearance[k]=v;save();renderAll();});
 }
@@ -2515,7 +2515,7 @@ function openExample(){
 
 /* ---------- GitHub-tallennus ja varmuuskopio ----------
    Masterin mallin mukaan: projektin rakenne tallentuu käyttäjän yksityiseen repoon tiedostoon kytkoskartta/<projektin id>.json.
-   Käyttötiedot (st, mem) ja kameran paikat eivät tallennu GitHubiin, vaan pysyvät selaimessa ja varmuuskopiotiedostossa.
+   Mukana ovat myös käyttötiedot (st, mem) Emilin päätöksellä 14.10.2026; vain kameran paikat (cam, lcam) jäävät selaimeen.
    Avain on vain tämän selaimen muistissa (kytkoskartta:gh), ei varmuuskopioissa. Jos Masterin GitHub-asetukset ovat samassa
    selaimessa, ne otetaan käyttöön (sama repo ja avain käyvät). Jos GitHubissa on uudempi versio (esim. tekoälyn muutokset),
    se haetaan itsestään, ellei omia tallentamattomia muutoksia ole; muuten käyttäjä valitsee. */
@@ -2541,8 +2541,8 @@ function ghRepoErr(st){var n=ghRepoName();if(st!==404)return ghErr(st);
   return 'Repoa ”'+n+'” ei löydy, tai avaimella ei ole pääsyä siihen. Tarkista Repo-kentän kirjoitusasu ja avaimen Repository access -kohta.';}
 var ghBadRe=/Avain|oikeutta|löydy|yhteyttä|virheellä|ei ole Kytköskartan/;
 function ghMeta(p){if(!p._gh||typeof p._gh!=='object')p._gh={sha:'',at:'',dirty:false,remote:false};return p._gh;}
-/* Rakenne = kaikki paitsi käyttötiedot, kamerat ja kirjanpito. Täysi = kaikki paitsi kamerat ja kirjanpito (varmuuskopion tila). */
-var NOSTRUCT={st:1,mem:1,cam:1,lcam:1,_gh:1};
+/* GitHubiin = kaikki paitsi kamerat ja kirjanpito. Täysi = kaikki paitsi kamerat ja kirjanpito (varmuuskopion tila). */
+var NOSTRUCT={cam:1,lcam:1,_gh:1};
 function structOf(p){var c={};for(var k in p)if(!NOSTRUCT[k])c[k]=p[k];return JSON.stringify(c);}
 function fullOf(p){var c={};for(var k in p)if(k!=='cam'&&k!=='lcam'&&k!=='_gh')c[k]=p[k];return JSON.stringify(c);}
 function ghInitHashes(){H={};Dt.projects.forEach(function(p){H[p.id]={s:structOf(p),f:fullOf(p)};var g=ghMeta(p);if(!g.sha)g.dirty=true;});}
@@ -2565,13 +2565,13 @@ function ghPush(p,force){if(!ghOn()||!p||ghBusy)return Promise.resolve(false);va
     saveQuiet();renderGh();return false;});}
 function saveQuiet(){try{localStorage.setItem(LS,JSON.stringify(Dt));}catch(e){}}
 function okProj(o){return o&&o.app==='kytkoskartta'&&o.projekti&&typeof o.projekti==='object'&&o.projekti.b&&o.projekti.lg;}
-/* Hakee projektin GitHubista. Käyttötiedot, kamerat ja tunniste säilyvät. Kumoa palauttaa edellisen rakenteen. */
+/* Hakee projektin GitHubista käyttötietoineen. Kamerat ja tunniste säilyvät. Kumoa palauttaa edellisen rakenteen. */
 function ghPull(p,quiet){if(!ghOn()||!p)return Promise.resolve(false);ghBusy=true;renderGh();
   return ghApi(ghRepoUrl()+'/contents/'+ghPath(p)).then(function(r){ghBusy=false;
     if(r.status!==200){ghMsg=r.status===404?'Projektia ”'+p.name+'” ei ole GitHubissa. Se on tehty vain tässä selaimessa.':ghErr(r.status);renderGh();return false;}
     var o=null;try{o=JSON.parse(b64d(r.j.content));}catch(e){}if(!okProj(o)){ghMsg='GitHubin tiedosto ei ole Kytköskartan projekti.';renderGh();return false;}
     if(p===P)pushUndo();
-    var keep={id:p.id,st:p.st,mem:p.mem,cam:p.cam,lcam:p.lcam};Object.keys(p).forEach(function(k){delete p[k];});Object.keys(o.projekti).forEach(function(k){p[k]=o.projekti[k];});
+    var keep={id:p.id,cam:p.cam,lcam:p.lcam};Object.keys(p).forEach(function(k){delete p[k];});Object.keys(o.projekti).forEach(function(k){p[k]=o.projekti[k];});
     Object.keys(keep).forEach(function(k){p[k]=keep[k];});KK.repair(p);p._gh={sha:r.j.sha,at:new Date().toISOString(),dirty:false,remote:false};
     H[p.id]={s:structOf(p),f:fullOf(p)};
     if(p===P){S.sel=null;S.multi=[];fixView();KK.tick(P,ctx());}
@@ -2590,7 +2590,7 @@ function ghNew0(all){ghRepoBad=false;return ghApi(ghRepoUrl()+'/contents/'+GHDIR
   var have={};Dt.projects.forEach(function(p){have[p.id]=1;});
   var todo=r.j.filter(function(f){var m=/^(.+)\.json$/.exec(f.name);return m&&!have[m[1]]&&(all||Dt.meta.ghGone.indexOf(m[1])<0);});
   return Promise.all(todo.map(function(f){return ghApi(ghRepoUrl()+'/contents/'+f.path).then(function(x){try{var o=JSON.parse(b64d(x.j.content));if(okProj(o)){var p=o.projekti;
-      p.id=f.name.replace(/\.json$/,'');p.st={};p.mem={};p.cam={};delete p.lcam;KK.repair(p);p._gh={sha:x.j.sha,at:new Date().toISOString(),dirty:false,remote:false};
+      p.id=f.name.replace(/\.json$/,'');p.st=p.st||{};p.mem=p.mem||{};p.cam={};delete p.lcam;KK.repair(p);p._gh={sha:x.j.sha,at:new Date().toISOString(),dirty:false,remote:false};
       if(Dt.projects.some(function(q){return q.id===p.id;}))return 0;Dt.projects.push(p);H[p.id]={s:structOf(p),f:fullOf(p)};
       var gi=Dt.meta.ghGone.indexOf(p.id);if(gi>=0)Dt.meta.ghGone.splice(gi,1);return 1;}}catch(e){}return 0;});}))
     .then(function(l){var n=l.reduce(function(a,b){return a+b;},0);
@@ -2613,14 +2613,14 @@ function renderGh(){var b=$('#ghbtn');if(!b)return;if(!ghOn()){b.hidden=true;ren
   var gm=$('#gh-msg');if(gm&&ghMsg){gm.textContent=ghMsg;gm.className='ghmsg'+(bad?' bad':'');}renderStat();}
 function renderStat(){var s=$('#kstat');if(!s||!Dt)return;var d=(Dt.meta&&Dt.meta.dirty)>0,le=Dt.meta&&Dt.meta.lastExport;
   s.className='kstat'+((!storeOk||(d&&!ghOn()))?' dirty':'');
-  s.title=d?'Varmuuskopiotiedostoa ei ole viety viimeisten muutosten jälkeen.'+(ghOn()?' Projektien rakenne on silti tallessa GitHubissa; käyttötiedot ovat vain tässä selaimessa ja varmuuskopiossa.':''):'';
+  s.title=d?'Varmuuskopiotiedostoa ei ole viety viimeisten muutosten jälkeen.'+(ghOn()?' Kaikki on silti tallessa GitHubissa.':''):'';
   s.textContent=!storeOk?'Tallennus selaimeen ei onnistu':(d?'Varmuuskopio viemättä':(le?'Varmuuskopio viety '+KK.fmtDate(le,Dt.cfg.df):'Tallessa tässä selaimessa'));}
 /* Varmuuskopio omalle laitteelle: kaikki projektit käyttötietoineen. Avain ei tule mukaan. */
 function exportAll(){download('kytkoskartta-varmuuskopio-'+KK.iso(new Date())+'.json',JSON.stringify(Dt,null,1));Dt.meta.lastExport=KK.iso(new Date());Dt.meta.dirty=0;saveQuiet();renderStat();}
 /* Asetusten osio */
 function ghSection(){
   return '<div class="fs" id="sec-gh"><h4>GitHub-tallennus (yksityinen repo)</h4>'+
-   '<div class="help" style="margin-bottom:8px">Tallentaa projektien rakenteen omaan yksityiseen repoosi kansioon <b>kytkoskartta</b>. Silloin tekoäly näkee projektit ja voi muokata niitä, ja saat ne toiseen selaimeen. Käyttötiedot (kirjoitetut tekstit, valinnat, listojen rivit, aikajana) eivät tallennu GitHubiin: ne ovat tässä selaimessa ja varmuuskopiossa. Sama repo ja avain kuin Masterissa käyvät. Avain on vain tämän selaimen muistissa, eikä se tule varmuuskopioon.</div>'+
+   '<div class="help" style="margin-bottom:8px">Tallentaa kaiken tekemäsi omaan yksityiseen repoosi kansioon <b>kytkoskartta</b>: projektien rakenteen ja käyttötiedot (kirjoitetut tekstit, valinnat, listojen rivit, aikajanan). Silloin tekoäly näkee projektit ja voi muokata niitä, ja saat ne toiseen selaimeen. Vain kanvaasin vierityskohta jää tähän selaimeen. Sama repo ja avain kuin Masterissa käyvät. Avain on vain tämän selaimen muistissa, eikä se tule varmuuskopioon.</div>'+
    '<label class="ghf"><span>Repo</span><input type="text" id="gh-repo" value="'+esc(gh.repo)+'" placeholder="Kasibanaani/master-tiedot" autocomplete="off" spellcheck="false"></label>'+
    '<label class="ghf"><span>Avain'+(gh.token?' · tallessa tässä selaimessa':'')+'</span><input type="password" id="gh-token" value="'+esc(gh.token)+'" placeholder="github_pat_…" autocomplete="off"></label>'+
    '<label style="display:flex;gap:8px;align-items:center;font-size:13px;margin:4px 0 8px"><input type="checkbox" id="gh-auto"'+(gh.auto?' checked':'')+'> Tallenna automaattisesti muutosten jälkeen</label>'+
