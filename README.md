@@ -27,3 +27,7 @@ Uusi appi tulee omaan kansioonsa nimellä `index.html`. Osoite on silloin `https
 - Taitokartan sisältö on kaikille käyttäjille yhteinen ja sijaitsee tiedoston `taitokartta/index.html` lohkossa `sisalto`. Käyttäjien omat valinnat pysyvät heidän selaimessaan.
 - Repo on julkinen: tänne ei viedä henkilökohtaista tietoa eikä tekijänoikeuden alaista materiaalia.
 - Appien tila, ideat ja tarkemmat työtavat ovat käyttäjän Notionissa sivulla Appipaja.
+
+## Yhteinen visuaalinen ilme
+
+Appipajan ilme 2.0 on uusien appien oletus, ellei käyttäjä pyydä muuta. Täsmälliset arvot: `design/appipaja-2.0.json`. [Notion-määrittely](https://app.notion.com/p/3f9977255eec812b992af928ba817112) ja [toteutusohje](https://app.notion.com/p/3f9977255eec81efb883e5a4ffdb7bfb). Vanhoihin appeihin ulkoasun uudistamista ehdotetaan erillisenä työvaiheena. Rakennusympäristön ja projektin käyttönäkymän teemavalinnat ovat erilliset, mutta vaihtoehdot samat.

@@ -20,3 +20,9 @@ Skripti poimii `index.html`:n lohkot `engine` (moottori) ja `ui` (käyttöliitty
 - `selain_04_versio2.py` – pikatoiminnot painikkeen asetuksista, Rinnakkain-näkymä ja valinnan korostus molemmilla puolilla, Miksi? ja Yhteydet, ikkunan tiivistys, monivalinta (⇧-napsautus ja alue), tasaus ja tasavälit, käytössä / pois, virhe palikassa, palikkalista
 
 Tulosteet ja kuvakaappaukset menevät kansioon `tulosteet/`. Testit ajetaan tietokoneselaimessa, eivät oikealla iPadilla.
+
+## Yhteinen ilme ja kaksi valintaa (14.10.2026)
+
+Asetuksissa on rakennusympäristön ja projektin käyttönäkymän erilliset valinnat, molemmissa samat kymmenen teemaa ja vaalea/tumma/laitteen mukaan. Työkalujen teema tallentuu erikseen selaimeen, käyttönäkymän teema projektin `appearance`-kenttään (kopio ja vienti säilyttävät sen).
+
+`selain_05_ilme.py` tarkistaa 20 ympäristön ja 20 käyttönäkymän teema/tila-yhdistelmää, kontrastit, samaa teemarekisteriä, valintojen erillisyyden, tietojen ja palikoiden värien säilymisen, tallennuksen, laitteen tilan seuraamisen, nykyiset asetukset, 390/320 px sekä estyneen ja rikkinäisen selaintallennuksen.
