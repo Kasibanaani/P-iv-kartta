@@ -18,5 +18,5 @@ Aja kaikki: `sh master/testit/aja.sh` (repon juuresta). Vaatii Noden sekä Pytho
 Selaintestit epäonnistuvat automaattisesti vain, jos sivulla tapahtuu virhe tai testi ei pääse loppuun. Tulosteen sisältö pitää lukea itse, kun toimintaa on muutettu. Testit ajetaan tietokoneen Chromiumissa.
 
 ## Masterin oma ilme (14.10.2026)
-- Yläpalkin **Asetukset** vaihtaa vain masterin ilmettä: Metsä, Järvi, Luumu, Hiekka ja Ruusu; vaalea, tumma tai laitteen mukaan. Valinta tallentuu erikseen selaimeen (`master:appearance`), ei projektin tyyleihin tai vientiin.
-- `selain_19_master_ilme.py`: kaikki 10 paletti/tila-yhdistelmää, tekstien kontrasti vähintään 4,5:1, puhelinesikatselun sisällön samat pikselit, projektin ja HTML-viennin muuttumattomuus, asetusten säilyminen, laitteen tilan seuraaminen, kaikki välilehdet, asetukset 390/320 px sekä rikkinäinen tai estetty selaintallennus.
+- Yläpalkin **Asetukset** vaihtaa vain masterin ilmettä: Metsä, Järvi, Luumu, Hiekka, Ruusu, Harmaa, Laguuni, Laventeli, Oliivi ja Kupari; vaalea, tumma tai laitteen mukaan. Valinta tallentuu erikseen selaimeen (`master:appearance`), ei projektin tyyleihin tai vientiin.
+- `selain_19_master_ilme.py`: kaikki 20 paletti/tila-yhdistelmää, tekstien kontrasti vähintään 4,5:1, harmaan työkalujen neutraali väritys ja säilyvät punaiset huomiot, puhelinesikatselun sisällön samat pikselit, projektin ja HTML-viennin muuttumattomuus, asetusten säilyminen, laitteen tilan seuraaminen, kaikki välilehdet, asetukset 390/320 px sekä rikkinäinen tai estetty selaintallennus.

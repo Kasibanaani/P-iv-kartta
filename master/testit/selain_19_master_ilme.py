@@ -22,7 +22,7 @@ async def run():
         assert await page.locator('#master-settings').is_visible()
         for mode in ['light','dark']:
             await page.click('[data-master-mode="'+mode+'"]')
-            for theme in ['forest','lake','plum','sand','rose']:
+            for theme in ['graphite','lagoon','lavender','olive','copper','forest','lake','plum','sand','rose']:
                 await page.click('button[data-master-theme="'+theme+'"]')
                 assert await page.get_attribute('html','data-theme')==mode
                 assert await page.locator('button[data-master-theme="'+theme+'"]').get_attribute('aria-pressed')=='true'
@@ -34,6 +34,19 @@ async def run():
                   return ['--bg','--cell'].flatMap(b=>['--label','--label2','--accent'].map(a=>ratio(a,b))).concat(ratio('--on-solid','--solid'));
                 }""")
                 assert min(contrast)>=4.5,(theme,mode,contrast)
+                if theme=='graphite':
+                    neutral=await page.evaluate(r"""() => {
+                      const grey=s=>{const m=s.match(/rgba?\(([^)]+)\)/);if(!m)return true;const c=m[1].split(',').slice(0,3).map(Number);return c[0]===c[1]&&c[1]===c[2]};
+                      const selectors=['.mh','.phonecol','.phone','.oname','.mpanel .badge','.dot.show','.mpanel .mb.wishb','.mpanel .help'];
+                      return selectors.every(q=>[...document.querySelectorAll(q)].every(e=>{const s=getComputedStyle(e);return grey(s.color)&&grey(s.backgroundColor)}));
+                    }""")
+                    assert neutral,'Harmaa sisältää työkalujen värisävyjä'
+                    red=await page.evaluate("getComputedStyle(document.querySelector('.mstat')).color")
+                    r,g,b=map(int,red[4:-1].split(','))
+                    assert r>g and r>b,'Punainen huomioväri on säilytettävä'
+                await page.click('#ms-close')
+                assert await page.screenshot(clip=clip)==phone,(theme,mode,'puhelimen pikselit')
+                await page.click('#master-settings-open')
         await page.press('#ms-close','Escape')
         assert not await page.locator('#master-settings').is_visible()
         # The rounded screen's outside corners intentionally expose the master background.
@@ -65,5 +78,5 @@ async def run():
             assert await q.get_attribute('html','data-master-theme')=='lake'
             await c.close()
         await browser.close()
-        print('OK: 10 palette/mode combinations, contrast, exact phone pixels, project/export isolation, persistence, auto mode, views, 390/320 px dialog and blocked/invalid storage.')
+        print('OK: 20 palette/mode combinations, contrast, exact phone pixels, project/export isolation, persistence, auto mode, views, 390/320 px dialog and blocked/invalid storage.')
 asyncio.run(run())
