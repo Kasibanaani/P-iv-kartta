@@ -505,6 +505,14 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .kstat2.on{background:color-mix(in srgb,var(--h1) 12%,var(--cell))}.kstat2.on b{color:var(--h1)}
 .kstat2.er{background:var(--s1)}.kstat2.er b,.kstat2.er div{color:var(--h1)}
 .kstat2 div{margin-top:3px;font-size:12.5px}
+.ln.kv .kbar{position:absolute;left:12px;right:12px;bottom:4px;height:3px;border-radius:2px;background:color-mix(in srgb,var(--kc) 18%,transparent);overflow:hidden;pointer-events:none}
+.ln.kv .kbar>b{display:block;height:100%;background:var(--kc);border-radius:2px;transition:width .9s linear}
+.lw.kt .know{font:700 11.5px ui-monospace,Menlo,monospace;color:var(--kc);white-space:nowrap;flex:none}
+.kstat2 .kn{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;margin-top:3px}.kstat2 .kn b{font:700 12px ui-monospace,Menlo,monospace;color:var(--h1)}
+#lsvg path.lk.ch.kd{stroke-width:3.4;opacity:1}
+#lsvg path.lk.ch.kact{stroke-width:3.4;opacity:1;stroke-dasharray:7 5;animation:kflow .9s linear infinite}
+@keyframes kflow{to{stroke-dashoffset:-24}}
+@media(prefers-reduced-motion:reduce){#lsvg path.lk.ch.kact{animation:none}.ln.kv .kbar>b{transition:none}.ln.kv.kdone{animation:none}}
 .kch{display:inline-flex;align-items:center;gap:2px}
 .kissl{margin-top:8px;font-size:12.5px;display:flex;flex-direction:column;gap:4px}
 .qas select+select{margin-top:6px}
@@ -2422,6 +2430,8 @@ function renderLogicStage(){
   els.innerHTML=h;S.issC=null;
   applyCam($('#lvp'),$('#lworld'),camL());
   if(S.pendingFit){var pn=KK.nodeOf(P,S.pendingFit);S.pendingFit=null;if(pn&&pn.g)growChain(pn.g);}
+  /* Ketjuikkuna kasvaa aina sisältönsä kokoiseksi (myös tekoälyn tai toisen laitteen tekemissä projekteissa). */
+  P.lg.n.forEach(function(n){var b=P.b[n.p];if(b&&b.k==='ketju'&&!n.col&&!H[n.id])growChain(n.id);});
   renderLogicSelOnly();
   drawLinks(E);$('#lzpct').textContent=Math.round(camL().z*100)+' %';
   var em=$('#lempty',st);if(em)em.remove();
@@ -2439,6 +2449,25 @@ function pinsHTML(b,n,kv){
   if(pr.outs.length){h+='<div class="pins o">';pr.outs.forEach(function(p){h+=pin(p,'o');});h+='</div>';}
   return h;
 }
+/* Seuranta: odottavan haaran edistyminen (0–1) ja jäljellä oleva aika. */
+function tokAt(n){var ch=KK.chainOfNode(P,n);var cs=ch&&P.st[ch.id];if(!cs||!cs.run)return null;var best=null;(cs.tk||[]).forEach(function(t){if(t.n===n.id&&t.u!=null&&(!best||t.u<best.u))best=t;});return best;}
+function timerBar(n){var t=tokAt(n);if(!t)return '';var tot=Math.max(1,t.u-(t.s||t.u)),f=clamp((Date.now()-(t.s||t.u))/tot,0,1);return '<i class="kbar"><b style="width:'+Math.round(f*1000)/10+'%"></b></i>';}
+/* Ketjun otsikkoon: mitä nyt odotetaan. */
+function chainNow(kid){var cs=P.st[kid];if(!cs||!cs.run)return '';var tk=(cs.tk||[]).filter(function(t){return t.u!=null;}).sort(function(a,b){return a.u-b.u;});if(!tk.length)return '';
+  var t=tk[0],n=KK.nodeOf(P,t.n),sb=n&&P.b[n.p];if(!sb)return '';var nm=sb.k==='ajastin'&&!sb.nmSet?'Odota':sb.nm;
+  return nm+' · '+KK.fmtLeft(t.u-Date.now())+(tk.length>1?' (+'+(tk.length-1)+')':'');}
+/* Sekunnin välein: päivitetään vain ajat ja palkit, ei koko kanvaasia (ei välkyntää, veto ja vihjeet säilyvät). */
+function liveChains(){
+  var lw=$('#lworld');if(!lw)return;
+  $$('.ln.kv.krun',lw).forEach(function(el){var n=KK.nodeOf(P,el.getAttribute('data-nid'));if(!n)return;var t=tokAt(n);if(!t)return;
+    var kl=$('.kleft',el);if(kl)kl.textContent='⏳ '+KK.fmtLeft(t.u-Date.now());
+    var bar=$('.kbar>b',el);if(bar){var tot=Math.max(1,t.u-(t.s||t.u));bar.style.width=Math.round(clamp((Date.now()-(t.s||t.u))/tot,0,1)*1000)/10+'%';}});
+  $$('.lw.kt.running',lw).forEach(function(el){var n=KK.nodeOf(P,el.getAttribute('data-nid'));var kn=$('.know',el);if(n&&kn)kn.textContent=chainNow(n.p);});
+  var ins=$('#insp .know2');if(ins){var sb=selBlock();if(sb)ins.innerHTML=nowList(sb.k==='ketju'?sb.id:null);}
+}
+/* Paneelin lista: missä haarat ovat menossa nyt. */
+function nowList(kid){if(!kid)return '';var cs=P.st[kid];if(!cs||!cs.run)return '';
+  return (cs.tk||[]).map(function(t){var n=KK.nodeOf(P,t.n),sb=n&&P.b[n.p];if(!sb)return '';return '<div class="kn"><span>'+esc(stepText(sb))+'</span>'+(t.u!=null?'<b>'+esc(KK.fmtLeft(t.u-Date.now()))+'</b>':'')+'</div>';}).join('');}
 /* Tapahtuman omat virheet (ei tietoja), solmun korostukseen. */
 function stepIssuesOf(n){var ch=KK.chainOfNode(P,n);if(!ch)return [];return chainIssues(ch.id).filter(function(x){return x.n===n.id&&!x.info;});}
 /* Ketjun seuranta: missä tapahtumassa ketju on menossa. */
@@ -2496,7 +2525,7 @@ function nodeHTML(n,b,E){
   else if(K[b.k].ch&&b.k!=='tee')err=' has-err';
   var mh=np>2&&!kv?' ;min-height:'+(np*16+4)+'px':'';
   return '<div class="ln g-'+groupOf(b)+dim+err+(b.off?' off':'')+(kv?' kv'+stepCls(n):'')+'" data-nid="'+n.id+'" style="left:'+n.x+'px;top:'+n.y+'px'+mh+'">'+cap+vtag+
-    '<div class="lb"><span class="lic">'+esc(icon(b))+'</span><span class="lt">'+lab+'</span>'+(b.off?'<span class="offt">pois</span>':'')+(n.not?'<span class="not">EI</span>':'')+valChip(E,b,id)+'</div>'+pinsHTML(b,n,kv)+'</div>';
+    '<div class="lb"><span class="lic">'+esc(icon(b))+'</span><span class="lt">'+lab+'</span>'+(b.off?'<span class="offt">pois</span>':'')+(n.not?'<span class="not">EI</span>':'')+valChip(E,b,id)+'</div>'+(kv?timerBar(n):'')+pinsHTML(b,n,kv)+'</div>';
 }
 function winHTML(n,E){
   var b=P.b[n.p],col=!!n.col;
@@ -2511,7 +2540,7 @@ function winHTML(n,E){
 function chainHTML(n,E){
   var b=P.b[n.p],col=!!n.col,cs=P.st[b.id]||{},run=!!cs.run;
   var cnt=col?descendants(n.id).length:0,iss=chainIssues(b.id).filter(function(x){return !x.info;});
-  var stt=b.off?'<span class="offt">pois päältä</span>':run?'<span class="kst on">käynnissä</span>':(cs.err?'<span class="kst er" title="'+esc(cs.err)+'">⚠ pysähtyi</span>':'');
+  var stt=b.off?'<span class="offt">pois päältä</span>':run?'<span class="kst on">käynnissä</span><span class="know">'+esc(chainNow(b.id))+'</span>':(cs.err?'<span class="kst er" title="'+esc(cs.err)+'">⚠ pysähtyi</span>':'');
   return '<div class="lw kt'+(col?' col':'')+(b.off?' off':'')+(run?' running':'')+'" data-nid="'+n.id+'" style="left:'+n.x+'px;top:'+n.y+'px'+(col?'':';width:'+n.w+'px;height:'+n.h+'px')+'">'+
     '<div class="wh"><span class="ktl">⛓ KETJU</span><span class="wname">'+esc(b.nm)+' <span class="wvt">'+esc(b.vt)+'</span>'+(col?' <small>· '+cnt+' sisällä</small>':'')+'</span>'+stt+
     (iss.length&&!col?'<span class="kiss" title="'+esc(iss.map(function(x){return x.t;}).join('\n'))+'">⚠ '+iss.length+'</span>':'')+
@@ -2554,9 +2583,10 @@ function drawLinks(E){
     var va=isKV(l.f)&&!a.pill,vb=isKV(l.t)&&!b.pill;
     if(va)a.y+=4;else a.x+=4;if(vb)b.y-=6;else b.x-=6;
     var f=KK.nodeOf(P,l.f),fb=f&&P.b[f.p],po=fb&&KK.port(fb,'outs',l.fp);
-    var evl=po&&po.t==='e';var on=!evl&&KK.truth(E.srcVal(l));var chl=evl&&KK.isChainLink(P,l);
+    var evl=po&&po.t==='e';var on=!evl&&KK.truth(E.srcVal(l));var chl=evl&&KK.isChainLink(P,l);var kx='';
+    if(chl){var cw=KK.chainOfNode(P,f),cs=cw&&P.st[cw.id];if(cs&&cs.run&&cs.fl&&cs.fl[l.f]>=cs.t0){var act=(cs.tk||[]).some(function(t){return t.n===l.t;});if(act)kx=' kact';else if(cs.fl[l.t]>=cs.t0)kx=' kd';}}
     var sel=S.sel&&S.sel.t==='l'&&S.sel.id===l.id;var hl=anySel&&(sn[l.f]||sn[l.t]);var d=curve(a,b,va,vb);
-    h+='<path class="lk'+(chl?' ch':evl?' ev':on?' on':'')+(sel?' sel':'')+(hl?' hl':'')+(anySel&&!hl&&!sel?' fade':'')+'" d="'+d+'" marker-end="url(#'+(chl?'lc':evl?'le':on?'lo':'la')+')"/><path class="hit" data-lid="'+l.id+'" d="'+d+'"/>';
+    h+='<path class="lk'+(chl?' ch'+kx:evl?' ev':on?' on':'')+(sel?' sel':'')+(hl?' hl':'')+(anySel&&!hl&&!sel?' fade':'')+'" d="'+d+'" marker-end="url(#'+(chl?'lc':evl?'le':on?'lo':'la')+')"/><path class="hit" data-lid="'+l.id+'" d="'+d+'"/>';
   });
   /* Katkoviiva kaavasta sen tulokseen: kaava antaa arvon. */
   P.lg.n.forEach(function(n){var kb=P.b[n.p];if(!kb||kb.k!=='kaava'||(S.hidden&&S.hidden[n.id]))return;var tg=E.targetOf(kb.id);if(!tg||E.ownerOf(tg)!==kb.id)return;
@@ -3129,7 +3159,7 @@ function chainToggle(kid){
 function chainStatus(b){
   var ci=KK.chainInfo(P,b.id,ctx()),h='';
   var t=b.off?'Pois päältä: ketju ei käynnisty.':ci.run?'Käynnissä · '+ci.tk.length+' haara'+(ci.tk.length===1?'':'a')+' menossa':ci.err?'Pysähtyi':ci.n?(ci.stop?'Pysäytetty':'Valmis')+' · käynnistynyt '+ci.n+' kertaa':'Ei ole vielä käynnistynyt';
-  h+='<div class="kstat2'+(ci.run?' on':'')+(ci.err&&!ci.run?' er':'')+'"><b>'+esc(t)+'</b>'+(ci.err&&!ci.run?'<div>'+esc(ci.err)+'</div>':'')+'</div>';
+  h+='<div class="kstat2'+(ci.run?' on':'')+(ci.err&&!ci.run?' er':'')+'"><b>'+esc(t)+'</b>'+(ci.err&&!ci.run?'<div>'+esc(ci.err)+'</div>':'')+(ci.run?'<div>Käynnistyi klo '+esc(hmFull(ci.t0))+'. Nyt menossa:</div><div class="know2">'+nowList(b.id)+'</div>':'')+'</div>';
   h+='<div class="ibs">'+(b.off?'':'<button class="ib nf" data-kplay2="1">'+(ci.run?'■ Pysäytä':'▶ Käynnistä nyt')+'</button>')+'</div>';
   h+='<div class="help">▶ on kokeilua varten: ketjun tapahtumat tehdään oikeasti, eli arvot ja tilat muuttuvat. Kumoa ei peru niitä, mutta projektien Tyhjennä käyttötiedot palauttaa ne.</div>';
   return section('Tila',h);
@@ -3842,7 +3872,8 @@ function chainTick(){
   if(!P){chainTimer();return;}
   var ch=pollChains();if(ch)chainErrToast();
   if(ch)save();
-  if(!S.drg&&(ch||KK.anyChainRunning(P))){if(showL()&&$('#lvp'))renderLogicStage();if(ch&&showU()&&$('#uvp'))renderUIStage();var sb=selBlock();if(sb&&(sb.k==='ketju'||KK.isStep(sb))&&!($('#insp')&&$('#insp').contains(document.activeElement)))renderInsp();}
+  if(!S.drg&&ch){if(showL()&&$('#lvp'))renderLogicStage();if(showU()&&$('#uvp'))renderUIStage();var sb=selBlock();if(sb&&(sb.k==='ketju'||KK.isStep(sb))&&!($('#insp')&&$('#insp').contains(document.activeElement)))renderInsp();}
+  else if(KK.anyChainRunning(P))liveChains();
   chainTimer();
 }
 document.addEventListener('visibilitychange',function(){if(!document.hidden&&P){if(pollChains()){save();renderStage();}chainTimer();}});
