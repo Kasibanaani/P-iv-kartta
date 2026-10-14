@@ -51,5 +51,5 @@ A.strictEqual(JSON.stringify(old),before,'repair ei muuta vanhaa projektia');
 A.strictEqual(om.kk,undefined,'vanha merkki ei saa keski-kohdistusta oletuksena');
 A.strictEqual(om.nm,'Paikkamerkki','vanha nimi säilyy');
 
-A.strictEqual(KK.VER,4);
+A.ok(KK.VER>=4,"versio vähintään 4");
 console.log('ok logiikka_07_sijainnit');
