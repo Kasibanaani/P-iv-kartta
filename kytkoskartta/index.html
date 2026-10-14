@@ -49,6 +49,12 @@ button{cursor:pointer}
 .seg button{border:0;background:transparent;border-radius:8px;padding:6px 16px;font-weight:600;color:var(--label2)}
 .seg button.on{background:var(--cell);color:var(--label);box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .sp{flex:1}
+.kstat{min-width:0;flex:0 1 auto;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:12.5px;color:var(--label2)}
+.kstat.dirty{color:var(--h1);font-weight:600}
+#top>.tb.ghchip.bad,.tb.ghchip.bad{color:var(--h1)}
+.ghf{display:block;margin:0 0 8px}.ghf>span{display:block;font-size:12px;color:var(--label2);margin-bottom:3px}.ghf input[type=text],.ghf input[type=password]{width:100%;border:1px solid var(--sep);border-radius:9px;padding:8px 10px;background:var(--tint);color:var(--label)}
+.ghmsg{font-size:13px;margin:8px 0 0;color:var(--label2);min-height:1em}.ghmsg.bad{color:var(--h1)}
+.ghhelp summary{cursor:pointer;font-weight:600;font-size:13px;margin-top:10px}.ghhelp p{font-size:12.5px;color:var(--label2);margin:6px 0}
 #lockbtn.locked{background:var(--fill);color:var(--accent)}
 
 /* ---------- Runko ---------- */
@@ -426,6 +432,9 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   <button class="tb" id="projbtn" title="Projektit">Projekti</button>
   <div class="seg" id="tabs"><button data-t="nakyma">Näkymä</button><button data-t="logiikka">Logiikka</button><button data-t="molemmat" title="Näkymä ja logiikka vierekkäin">Rinnakkain</button></div>
   <div class="sp"></div>
+  <span class="kstat" id="kstat"></span>
+  <button class="tb ghchip" id="ghbtn" hidden></button>
+  <button class="tb" id="bkbtn" title="Vie kaikki projektit varmuuskopiotiedostoksi omalle laitteelle">Varmuuskopio</button>
   <button class="tb" id="listbtn" title="Kaikki palikat taulukkona">☰ Palikat</button>
   <button class="tb" id="undobtn" title="Kumoa (⌘Z)">↶ Kumoa</button>
   <button class="tb" id="lockbtn" title="Lukitse näkymä käyttöön tai avaa muokattavaksi">🔒 Lukitse</button>
@@ -1146,19 +1155,22 @@ function load(){
   var raw=null;try{raw=localStorage.getItem(LS);}catch(e){}
   var d=null;try{d=raw?JSON.parse(raw):null;}catch(e){d=null;}
   Dt=KK.repairData(d);
+  Dt.meta=Dt.meta||{};if(!Array.isArray(Dt.meta.ghGone))Dt.meta.ghGone=[];
   P=curProject();
+  ghInitHashes();
 }
 function curProject(){for(var i=0;i<Dt.projects.length;i++)if(Dt.projects[i].id===Dt.cur)return Dt.projects[i];return null;}
 var saveT=null;
 function save(){clearTimeout(saveT);saveT=setTimeout(saveNow,250);}
-function saveNow(){clearTimeout(saveT);try{localStorage.setItem(LS,JSON.stringify(Dt));}catch(e){toast('Tallennus ei onnistunut: selaimen muisti on täynnä. Vie varmuuskopio.');}}
+var storeOk=true;
+function saveNow(){clearTimeout(saveT);trackChanges();try{localStorage.setItem(LS,JSON.stringify(Dt));storeOk=true;}catch(e){storeOk=false;toast('Tallennus ei onnistunut: selaimen muisti on täynnä. Vie varmuuskopio.');}renderStat();}
 function ctx(){return {now:function(){return new Date();},df:Dt.cfg.df,nav:navTo,toast:toast};}
 function ev(){return KK.Ev(P,ctx());}
 
 /* Kumoa: rakenne talteen ilman käyttötietoja */
-function snap(){var c={};for(var k in P)if(k!=='st'&&k!=='mem')c[k]=P[k];return JSON.stringify(c);}
+function snap(){var c={};for(var k in P)if(k!=='st'&&k!=='mem'&&k!=='_gh')c[k]=P[k];return JSON.stringify(c);}
 function pushUndo(){if(!P)return;S.undo.push(snap());if(S.undo.length>80)S.undo.shift();S.redo=[];}
-function restore(s){var o=JSON.parse(s);o.st=P.st;o.mem=P.mem;var i=Dt.projects.indexOf(P);KK.repair(o);Dt.projects[i]=o;P=o;}
+function restore(s){var o=JSON.parse(s);o.st=P.st;o.mem=P.mem;if(P._gh)o._gh=P._gh;var i=Dt.projects.indexOf(P);KK.repair(o);Dt.projects[i]=o;P=o;}
 function undo(){if(!S.undo.length){toast('Ei kumottavaa');return;}S.redo.push(snap());restore(S.undo.pop());S.sel=null;S.multi=[];S.back=null;fixView();save();renderAll();}
 function redo(){if(!S.redo.length)return;S.undo.push(snap());restore(S.redo.pop());S.sel=null;S.multi=[];S.back=null;fixView();save();renderAll();}
 function fixView(){if(!P)return;if(!P.views.some(function(v){return v.id===S.vw;}))S.vw=P.views[0].id;}
@@ -2399,12 +2411,12 @@ function openProjects(){
   Dt.projects.forEach(function(p){h+='<div class="plrow'+(P&&p.id===P.id?' cur':'')+'" data-open="'+p.id+'"><b>'+esc(p.name)+'</b><small>'+Object.keys(p.b).filter(function(i){return K[p.b[i].k].g==='ui';}).length+' palikkaa · '+p.views.length+' näkymää</small></div>';});
   h+='<div class="fs" style="margin-top:12px"><div class="row2"><input id="newpname" placeholder="Uuden projektin nimi" style="border:1px solid var(--sep);border-radius:9px;padding:8px 10px;background:var(--tint)"><button class="ib nf" data-x="new">Luo</button></div></div>';
   if(P)h+='<div class="fs"><h4>Tämä projekti: '+esc(P.name)+'</h4><div class="row2"><input id="renp" value="'+esc(P.name)+'" style="border:1px solid var(--sep);border-radius:9px;padding:8px 10px;background:var(--tint)"><button class="ib nf" data-x="rename">Nimeä</button></div><div class="ibs"><button class="ib" data-x="copy">Monista</button><button class="ib" data-x="export">Vie tiedostona</button><button class="ib" data-x="reset">Tyhjennä käyttötiedot</button><button class="ib del" data-x="delete">Poista projekti</button></div><div class="help">Käyttötiedot ovat kirjoitetut tekstit, valinnat, listojen rivit ja aikajanan merkinnät. Rakenne säilyy.</div></div>';
-  h+='<div class="fs"><h4>Varmuuskopio ja tuonti</h4><div class="ibs"><button class="ib" data-x="exportall">Vie kaikki projektit</button><button class="ib" data-x="import">Tuo tiedostosta</button><button class="ib" data-x="example">Avaa esimerkkiprojekti</button></div><textarea id="imptext" placeholder="…tai liitä tähän viety teksti ja paina Tuo tekstistä" style="width:100%;margin-top:8px;border:1px solid var(--sep);border-radius:9px;padding:8px;background:var(--tint);min-height:70px"></textarea><div class="ibs"><button class="ib" data-x="importtext">Tuo tekstistä</button></div><div class="help">Tiedot ovat vain tämän selaimen muistissa. Vie varmuuskopio säännöllisesti.</div></div>';
+  h+='<div class="fs"><h4>Varmuuskopio ja tuonti</h4><div class="ibs"><button class="ib" data-x="exportall">Vie kaikki projektit</button><button class="ib" data-x="import">Tuo tiedostosta</button><button class="ib" data-x="example">Avaa esimerkkiprojekti</button></div><textarea id="imptext" placeholder="…tai liitä tähän viety teksti ja paina Tuo tekstistä" style="width:100%;margin-top:8px;border:1px solid var(--sep);border-radius:9px;padding:8px;background:var(--tint);min-height:70px"></textarea><div class="ibs"><button class="ib" data-x="importtext">Tuo tekstistä</button></div><div class="help">Varmuuskopio tallentaa kaikki projektit käyttötietoineen tiedostoksi omalle laitteellesi, esimerkiksi iCloud Driveen. GitHub-tallennuksen saat päälle asetuksista.</div></div>';
   openSheet(h);
 }
 $('#sheet').addEventListener('click',function(e){
   var g=e.target.closest('tr[data-goto]');if(g){closeSheet();gotoBlock(g.getAttribute('data-goto'));return;}
-  var o=e.target.closest('[data-open]');if(o){Dt.cur=o.getAttribute('data-open');P=curProject();S.sel=null;S.undo=[];S.redo=[];S.vw=P.views[0].id;KK.tick(P,ctx());save();closeSheet();$('#stage').innerHTML='';renderAll();return;}
+  var o=e.target.closest('[data-open]');if(o){Dt.cur=o.getAttribute('data-open');P=curProject();S.sel=null;S.undo=[];S.redo=[];S.vw=P.views[0].id;KK.tick(P,ctx());save();closeSheet();$('#stage').innerHTML='';renderAll();ghCheck(P);return;}
   var x=e.target.closest('[data-x]');if(!x)return;var a=x.getAttribute('data-x');
   switch(a){
     case 'close':closeSheet();break;
@@ -2412,9 +2424,9 @@ $('#sheet').addEventListener('click',function(e){
     case 'rename':{var v=$('#renp').value.trim();if(v){P.name=v;save();renderAll();openProjects();}break;}
     case 'copy':{var c=KK.clone(P);c.id='p'+Date.now().toString(36);c.name=P.name+' (kopio)';Dt.projects.push(c);Dt.cur=c.id;P=c;save();closeSheet();$('#stage').innerHTML='';renderAll();break;}
     case 'export':download(P.name+'.kytkoskartta.json',JSON.stringify({app:'kytkoskartta',ver:KK.VER,projects:[P]},null,1));break;
-    case 'exportall':download('kytkoskartta-varmuuskopio-'+KK.iso(new Date())+'.json',JSON.stringify(Dt,null,1));break;
+    case 'exportall':exportAll();break;
     case 'reset':if(confirm('Tyhjennetäänkö projektin käyttötiedot? Rakenne säilyy.')){P.st={};P.mem={};KK.tick(P,ctx());save();closeSheet();renderAll();}break;
-    case 'delete':if(confirm('Poistetaanko projekti ”'+P.name+'” pysyvästi?')){Dt.projects=Dt.projects.filter(function(p){return p!==P;});Dt.cur=Dt.projects.length?Dt.projects[0].id:'';P=curProject();S.undo=[];save();closeSheet();$('#stage').innerHTML='';renderAll();}break;
+    case 'delete':if(confirm('Poistetaanko projekti ”'+P.name+'” pysyvästi?'+(ghOn()?' GitHubiin tallennettu kopio säilyy, ja sen saa takaisin asetusten kohdasta Hae uudet projektit.':''))){if(Dt.meta.ghGone.indexOf(P.id)<0)Dt.meta.ghGone.push(P.id);Dt.projects=Dt.projects.filter(function(p){return p!==P;});Dt.cur=Dt.projects.length?Dt.projects[0].id:'';P=curProject();S.undo=[];save();closeSheet();$('#stage').innerHTML='';renderAll();}break;
     case 'import':$('#filein').click();break;
     case 'importtext':importText($('#imptext').value);break;
     case 'example':openExample();closeSheet();break;
@@ -2437,7 +2449,7 @@ function openSettings(){
    '<div class="fs"><h4>Projektin käyttönäkymän ilme</h4><div id="view-appearance-settings"></div></div>'+
    '<div class="fs"><h4>Päivämäärät</h4>'+fSegsS('Muoto','df',c.df,[['pp.kk.vvvv','14.10.2026'],['pp.kk.vv','14.10.26']])+'<div class="help">Viikkonumero on aina suomalainen (ISO 8601): viikko alkaa maanantaina.</div></div>'+
    '<div class="fs"><h4>Muokkaus</h4>'+fSegsS('Kohdista ruudukkoon','snap',c.snap?'1':'0',[['1','Kyllä'],['0','Ei']])+'<div class="help">Vaihto-näppäin (⇧) ohittaa kohdistuksen raahatessa.</div></div>'+
-   '<div class="help">Kytköskartta · versio '+KK.VER+'. Tiedot ovat tämän selaimen muistissa.</div>';
+   ghSection()+'<div class="help">Kytköskartta · versio '+KK.VER+'. Tiedot ovat tämän selaimen muistissa'+(ghOn()?' ja projektien rakenne GitHubissa.':'.')+'</div>';
   openSheet(h);APP_APPEARANCE.mount($('#appearance-settings'));
   APP_APPEARANCE.mountView($('#view-appearance-settings'),P,c.teema,function(k,v){if(!P)return;pushUndo();P.appearance=P.appearance||{};P.appearance[k]=v;save();renderAll();});
 }
@@ -2501,6 +2513,155 @@ function openExample(){
   KK.tick(P,ctx());save();$('#stage').innerHTML='';renderAll();toast('Esimerkki avattu. Lukitse 🔒 ja kokeile.');
 }
 
+/* ---------- GitHub-tallennus ja varmuuskopio ----------
+   Masterin mallin mukaan: projektin rakenne tallentuu käyttäjän yksityiseen repoon tiedostoon kytkoskartta/<projektin id>.json.
+   Käyttötiedot (st, mem) ja kameran paikat eivät tallennu GitHubiin, vaan pysyvät selaimessa ja varmuuskopiotiedostossa.
+   Avain on vain tämän selaimen muistissa (kytkoskartta:gh), ei varmuuskopioissa. Jos Masterin GitHub-asetukset ovat samassa
+   selaimessa, ne otetaan käyttöön (sama repo ja avain käyvät). Jos GitHubissa on uudempi versio (esim. tekoälyn muutokset),
+   se haetaan itsestään, ellei omia tallentamattomia muutoksia ole; muuten käyttäjä valitsee. */
+var GHK='kytkoskartta:gh',GHDIR='kytkoskartta',gh={repo:'',token:'',auto:true},ghBusy=false,ghMsg='',ghTimer=null,ghLastErr='',ghRepoBad=false,H={};
+(function(){var g0=null;try{g0=JSON.parse(localStorage.getItem(GHK)||'null');}catch(e){}
+  if(!g0){try{var m=JSON.parse(localStorage.getItem('master:gh')||'null');if(m&&m.repo&&m.token){g0={repo:m.repo,token:m.token,auto:true,fromMaster:true};localStorage.setItem(GHK,JSON.stringify(g0));}}catch(e){}}
+  if(g0){gh.repo=g0.repo||'';gh.token=g0.token||'';gh.auto=g0.auto!==false;}})();
+function ghSaveCfg(){try{localStorage.setItem(GHK,JSON.stringify({repo:gh.repo,token:gh.token,auto:gh.auto}));}catch(e){}}
+function ghOn(){return !!(gh.repo&&gh.token);}
+function b64e(s){return btoa(unescape(encodeURIComponent(s)));}
+function b64d(b){return decodeURIComponent(escape(atob(String(b).replace(/\s/g,''))));}
+function hm(d){d=new Date(d);return d.getHours()+'.'+('0'+d.getMinutes()).slice(-2);}
+/* Ei ylimääräisiä otsakkeita (Safari ja CORS). Välimuisti ohitetaan aikaleimalla. */
+function ghApi(url,method,body){method=method||'GET';var u=method==='GET'?url+(url.indexOf('?')<0?'?':'&')+'t='+Date.now():url;var h={'Authorization':'Bearer '+gh.token,'Accept':'application/vnd.github+json'};if(body)h['Content-Type']='application/json';
+  var req;try{req=fetch(u,{method:method,headers:h,body:body?JSON.stringify(body):undefined});}catch(e){ghLastErr=String(e&&e.message||e);return Promise.resolve({status:0,j:{}});}
+  return req.then(function(r){ghLastErr='';return r.text().then(function(t){var j={};try{j=JSON.parse(t);}catch(e){}return {status:r.status,j:j};});},function(e){ghLastErr=String(e&&e.message||e);return {status:0,j:{}};});}
+function ghRepoName(){return String(gh.repo||'').trim().replace(/\s+/g,'').replace(/^https?:\/\/(www\.)?github\.com\//,'').replace(/\.git$/,'').replace(/\/+$/,'');}
+function ghRepoUrl(){return 'https://api.github.com/repos/'+ghRepoName();}
+function ghPath(p){return GHDIR+'/'+p.id+'.json';}
+function ghErr(st){if(st===0)return 'Ei yhteyttä GitHubiin. Tarkista nettiyhteys ja että avain on kopioitu kokonaan (alkaa github_pat_).'+(ghLastErr?' Selaimen ilmoitus: '+ghLastErr:'');return ({401:'Avain ei kelpaa tai se on vanhentunut.',403:'Avaimella ei ole oikeutta. Tarvitaan Contents: Read and write.',404:'Repoa ei löydy, tai avaimella ei ole pääsyä siihen.',409:'GitHubissa on uudempi versio.',422:'GitHubissa on uudempi versio.'})[st]||('GitHub vastasi virheellä '+st+'.');}
+function ghRepoErr(st){var n=ghRepoName();if(st!==404)return ghErr(st);
+  if(n.indexOf('/')<0)return 'Repoa ei löydy: Repo-kenttään kirjoitetaan omistaja ja nimi kauttaviivalla, esimerkiksi Kasibanaani/master-tiedot. Nyt kentässä on ”'+n+'”.';
+  return 'Repoa ”'+n+'” ei löydy, tai avaimella ei ole pääsyä siihen. Tarkista Repo-kentän kirjoitusasu ja avaimen Repository access -kohta.';}
+var ghBadRe=/Avain|oikeutta|löydy|yhteyttä|virheellä|ei ole Kytköskartan/;
+function ghMeta(p){if(!p._gh||typeof p._gh!=='object')p._gh={sha:'',at:'',dirty:false,remote:false};return p._gh;}
+/* Rakenne = kaikki paitsi käyttötiedot, kamerat ja kirjanpito. Täysi = kaikki paitsi kamerat ja kirjanpito (varmuuskopion tila). */
+var NOSTRUCT={st:1,mem:1,cam:1,lcam:1,_gh:1};
+function structOf(p){var c={};for(var k in p)if(!NOSTRUCT[k])c[k]=p[k];return JSON.stringify(c);}
+function fullOf(p){var c={};for(var k in p)if(k!=='cam'&&k!=='lcam'&&k!=='_gh')c[k]=p[k];return JSON.stringify(c);}
+function ghInitHashes(){H={};Dt.projects.forEach(function(p){H[p.id]={s:structOf(p),f:fullOf(p)};var g=ghMeta(p);if(!g.sha)g.dirty=true;});}
+/* Kutsutaan jokaisessa tallennuksessa: huomaa rakenteen ja käyttötietojen muutokset */
+function trackChanges(){var any=false;
+  Dt.projects.forEach(function(p){var s=structOf(p),f=fullOf(p),h=H[p.id],g=ghMeta(p);
+    if(!h){H[p.id]={s:s,f:f};if(!g.sha){g.dirty=true;any=true;}Dt.meta.dirty=(Dt.meta.dirty||0)+1;return;}
+    if(h.s!==s){g.dirty=true;any=true;}if(h.f!==f)Dt.meta.dirty=(Dt.meta.dirty||0)+1;h.s=s;h.f=f;});
+  if(any)ghSchedule();}
+function ghSchedule(){clearTimeout(ghTimer);if(ghOn()&&gh.auto)ghTimer=setTimeout(ghFlush,2500);renderGh();}
+function ghFlush(){clearTimeout(ghTimer);if(!ghOn()||ghBusy)return;var p=Dt.projects.filter(function(x){var g=ghMeta(x);return g.dirty&&!g.remote;})[0];if(p)ghPush(p);}
+function payload(p){var c=JSON.parse(structOf(p));return JSON.stringify({app:'kytkoskartta',ver:KK.VER,savedAt:new Date().toISOString(),projekti:c},null,1)+'\n';}
+function ghPush(p,force){if(!ghOn()||!p||ghBusy)return Promise.resolve(false);var g=ghMeta(p),sent=structOf(p);ghBusy=true;renderGh();
+  function put(sha){return ghApi(ghRepoUrl()+'/contents/'+ghPath(p),'PUT',{message:'Kytköskartta: '+p.name,content:b64e(payload(p)),sha:sha||undefined});}
+  var first=(force||!g.sha)?ghApi(ghRepoUrl()+'/contents/'+ghPath(p)).then(function(r){if(r.status===200&&!force&&r.j.sha!==g.sha)return {status:409,j:{}};return put(r.status===200?r.j.sha:'');}):put(g.sha);
+  return first.then(function(r){ghBusy=false;
+    if(r.status===200||r.status===201){g.sha=r.j.content.sha;g.at=new Date().toISOString();g.dirty=structOf(p)!==sent;g.remote=false;ghMsg='';saveQuiet();renderGh();if(gh.auto)ghSchedule();return true;}
+    if(r.status===409||r.status===422){g.remote=true;ghMsg='Projektista ”'+p.name+'” on GitHubissa uudempi versio, esimerkiksi tekoälyn muutokset. Hae se tai tallenna omasi sen päälle.';}
+    else ghMsg=ghErr(r.status);
+    saveQuiet();renderGh();return false;});}
+function saveQuiet(){try{localStorage.setItem(LS,JSON.stringify(Dt));}catch(e){}}
+function okProj(o){return o&&o.app==='kytkoskartta'&&o.projekti&&typeof o.projekti==='object'&&o.projekti.b&&o.projekti.lg;}
+/* Hakee projektin GitHubista. Käyttötiedot, kamerat ja tunniste säilyvät. Kumoa palauttaa edellisen rakenteen. */
+function ghPull(p,quiet){if(!ghOn()||!p)return Promise.resolve(false);ghBusy=true;renderGh();
+  return ghApi(ghRepoUrl()+'/contents/'+ghPath(p)).then(function(r){ghBusy=false;
+    if(r.status!==200){ghMsg=r.status===404?'Projektia ”'+p.name+'” ei ole GitHubissa. Se on tehty vain tässä selaimessa.':ghErr(r.status);renderGh();return false;}
+    var o=null;try{o=JSON.parse(b64d(r.j.content));}catch(e){}if(!okProj(o)){ghMsg='GitHubin tiedosto ei ole Kytköskartan projekti.';renderGh();return false;}
+    if(p===P)pushUndo();
+    var keep={id:p.id,st:p.st,mem:p.mem,cam:p.cam,lcam:p.lcam};Object.keys(p).forEach(function(k){delete p[k];});Object.keys(o.projekti).forEach(function(k){p[k]=o.projekti[k];});
+    Object.keys(keep).forEach(function(k){p[k]=keep[k];});KK.repair(p);p._gh={sha:r.j.sha,at:new Date().toISOString(),dirty:false,remote:false};
+    H[p.id]={s:structOf(p),f:fullOf(p)};
+    if(p===P){S.sel=null;S.multi=[];fixView();KK.tick(P,ctx());}
+    ghMsg=quiet?'Haettu GitHubista uudempi versio projektista ”'+p.name+'”.':'Haettu GitHubista.';saveQuiet();$('#stage').innerHTML='';renderAll();renderGh();if(quiet)toast(ghMsg);return true;});}
+/* Onko GitHubissa uudempi versio? Haetaan, jos omia tallentamattomia muutoksia ei ole. */
+function ghCheck(p){if(!ghOn()||!p||ghBusy)return Promise.resolve();var g=ghMeta(p);
+  return ghApi(ghRepoUrl()+'/contents/'+ghPath(p)).then(function(r){if(r.status!==200){if(r.status!==404){ghMsg=ghErr(r.status);renderGh();}return;}
+    if(r.j.sha===g.sha)return;if(!g.dirty)return ghPull(p,true);g.remote=true;ghMsg='Projektista ”'+p.name+'” on GitHubissa uudempi versio, esimerkiksi tekoälyn muutokset. Hae se tai tallenna omasi sen päälle.';renderGh();});}
+/* Projektit, jotka ovat GitHubissa mutta eivät tässä selaimessa (esim. tekoälyn tekemät tai toisella laitteella tehdyt).
+   Itse poistetut jätetään hakematta, ellei käyttäjä pyydä (all=true). */
+var ghNewP=null;
+function ghNew(all){if(!ghOn())return Promise.resolve(0);if(ghNewP)return ghNewP;ghNewP=ghNew0(all).then(function(n){ghNewP=null;return n;},function(){ghNewP=null;return 0;});return ghNewP;}
+function ghNew0(all){ghRepoBad=false;return ghApi(ghRepoUrl()+'/contents/'+GHDIR).then(function(r){
+  if(r.status===404)return ghApi(ghRepoUrl()).then(function(q){if(q.status!==200){ghRepoBad=true;ghMsg=ghRepoErr(q.status);renderGh();}return 0;});
+  if(r.status!==200||!Array.isArray(r.j)){ghMsg=ghErr(r.status);renderGh();return 0;}
+  var have={};Dt.projects.forEach(function(p){have[p.id]=1;});
+  var todo=r.j.filter(function(f){var m=/^(.+)\.json$/.exec(f.name);return m&&!have[m[1]]&&(all||Dt.meta.ghGone.indexOf(m[1])<0);});
+  return Promise.all(todo.map(function(f){return ghApi(ghRepoUrl()+'/contents/'+f.path).then(function(x){try{var o=JSON.parse(b64d(x.j.content));if(okProj(o)){var p=o.projekti;
+      p.id=f.name.replace(/\.json$/,'');p.st={};p.mem={};p.cam={};delete p.lcam;KK.repair(p);p._gh={sha:x.j.sha,at:new Date().toISOString(),dirty:false,remote:false};
+      if(Dt.projects.some(function(q){return q.id===p.id;}))return 0;Dt.projects.push(p);H[p.id]={s:structOf(p),f:fullOf(p)};
+      var gi=Dt.meta.ghGone.indexOf(p.id);if(gi>=0)Dt.meta.ghGone.splice(gi,1);return 1;}}catch(e){}return 0;});}))
+    .then(function(l){var n=l.reduce(function(a,b){return a+b;},0);
+      if(n){if(!P){Dt.cur=Dt.projects[0].id;P=curProject();S.vw=P.views[0].id;KK.tick(P,ctx());}
+        ghMsg=n+(n===1?' projekti haettu GitHubista.':' projektia haettu GitHubista.');saveQuiet();$('#stage').innerHTML='';renderAll();toast(ghMsg);}
+      return n;});});}
+function ghTest(){var m=$('#gh-msg');function say(t,bad){if(m){m.textContent=t;m.className='ghmsg'+(bad?' bad':'');}}
+  if(/[^\x21-\x7e]/.test(gh.token)){say('Avaimessa on merkkejä, joita GitHubin avaimessa ei voi olla (esim. ääkkösiä tai lainausmerkkejä). Kopioi avain uudelleen.',1);return;}
+  say('Tarkistetaan…');ghApi(ghRepoUrl()).then(function(r){
+    if(r.status!==200){say(ghRepoErr(r.status),1);return;}
+    if(!r.j.private){say('Yhteys toimii, mutta repo on JULKINEN: kaikki näkisivät projektisi. Vaihda repo yksityiseksi GitHubissa.',1);return;}
+    if(r.j.permissions&&!r.j.permissions.push){say('Yhteys toimii, mutta avaimella ei ole kirjoitusoikeutta.',1);return;}
+    say('Yhteys toimii. Repo '+r.j.full_name+' on yksityinen.');});}
+/* Tila yläpalkissa */
+function renderGh(){var b=$('#ghbtn');if(!b)return;if(!ghOn()){b.hidden=true;renderStat();return;}b.hidden=false;
+  var dirtyN=0,remote=null,last='';Dt.projects.forEach(function(p){var g=ghMeta(p);if(g.dirty)dirtyN++;if(g.remote&&!remote)remote=p;if(g.at&&g.at>last)last=g.at;});
+  var t,bad=false;if(ghBusy)t='GitHub: tallennetaan…';else if(remote){t='GitHubissa uudempi';bad=true;}else if(ghMsg&&ghBadRe.test(ghMsg)){t='GitHub: virhe';bad=true;}
+  else if(dirtyN)t=gh.auto?'GitHub: tallentamatta':'GitHub: '+dirtyN+' tallentamatta';else if(last)t='GitHub: tallennettu '+hm(last);else t='GitHub: ei vielä tallennettu';
+  b.textContent=t;b.className='tb ghchip'+(bad?' bad':'');b.title=ghMsg||'GitHub-tallennus. Avaa asetukset napauttamalla.';
+  var gm=$('#gh-msg');if(gm&&ghMsg){gm.textContent=ghMsg;gm.className='ghmsg'+(bad?' bad':'');}renderStat();}
+function renderStat(){var s=$('#kstat');if(!s||!Dt)return;var d=(Dt.meta&&Dt.meta.dirty)>0,le=Dt.meta&&Dt.meta.lastExport;
+  s.className='kstat'+((!storeOk||(d&&!ghOn()))?' dirty':'');
+  s.title=d?'Varmuuskopiotiedostoa ei ole viety viimeisten muutosten jälkeen.'+(ghOn()?' Projektien rakenne on silti tallessa GitHubissa; käyttötiedot ovat vain tässä selaimessa ja varmuuskopiossa.':''):'';
+  s.textContent=!storeOk?'Tallennus selaimeen ei onnistu':(d?'Varmuuskopio viemättä':(le?'Varmuuskopio viety '+KK.fmtDate(le,Dt.cfg.df):'Tallessa tässä selaimessa'));}
+/* Varmuuskopio omalle laitteelle: kaikki projektit käyttötietoineen. Avain ei tule mukaan. */
+function exportAll(){download('kytkoskartta-varmuuskopio-'+KK.iso(new Date())+'.json',JSON.stringify(Dt,null,1));Dt.meta.lastExport=KK.iso(new Date());Dt.meta.dirty=0;saveQuiet();renderStat();}
+/* Asetusten osio */
+function ghSection(){
+  return '<div class="fs" id="sec-gh"><h4>GitHub-tallennus (yksityinen repo)</h4>'+
+   '<div class="help" style="margin-bottom:8px">Tallentaa projektien rakenteen omaan yksityiseen repoosi kansioon <b>kytkoskartta</b>. Silloin tekoäly näkee projektit ja voi muokata niitä, ja saat ne toiseen selaimeen. Käyttötiedot (kirjoitetut tekstit, valinnat, listojen rivit, aikajana) eivät tallennu GitHubiin: ne ovat tässä selaimessa ja varmuuskopiossa. Sama repo ja avain kuin Masterissa käyvät. Avain on vain tämän selaimen muistissa, eikä se tule varmuuskopioon.</div>'+
+   '<label class="ghf"><span>Repo</span><input type="text" id="gh-repo" value="'+esc(gh.repo)+'" placeholder="Kasibanaani/master-tiedot" autocomplete="off" spellcheck="false"></label>'+
+   '<label class="ghf"><span>Avain'+(gh.token?' · tallessa tässä selaimessa':'')+'</span><input type="password" id="gh-token" value="'+esc(gh.token)+'" placeholder="github_pat_…" autocomplete="off"></label>'+
+   '<label style="display:flex;gap:8px;align-items:center;font-size:13px;margin:4px 0 8px"><input type="checkbox" id="gh-auto"'+(gh.auto?' checked':'')+'> Tallenna automaattisesti muutosten jälkeen</label>'+
+   '<div class="ibs"><button class="ib" data-gh="save">Tallenna nyt</button><button class="ib" data-gh="fetch">Hae GitHubista</button><button class="ib" data-gh="new">Hae uudet projektit</button><button class="ib" data-gh="test">Testaa yhteys</button>'+(gh.token?'<button class="ib del" data-gh="delkey">Poista avain</button>':'')+'</div>'+
+   '<p class="ghmsg'+(ghMsg&&ghBadRe.test(ghMsg)?' bad':'')+'" id="gh-msg">'+esc(ghMsg)+'</p>'+
+   '<details class="ghhelp"><summary>Näin otat GitHub-tallennuksen käyttöön</summary>'+
+   ['Jos Masterin GitHub-tallennus on jo käytössä tässä selaimessa, Kytköskartta ottaa sen asetukset itsestään, eikä mitään tarvitse tehdä.',
+    '1. GitHubissa: oikean yläkulman + → New repository. Nimi esimerkiksi master-tiedot, valitse Private ja rasti Add a README file. Create repository.',
+    '2. Avain: profiilikuva → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.',
+    '3. Repository access: Only select repositories → valitse repo. Permissions → Repository permissions → Contents: Read and write.',
+    '4. Generate token, kopioi avain (alkaa github_pat_) ja liitä se yllä olevaan kenttään. Kirjoita Repo-kenttään omistaja/nimi ja paina Testaa yhteys.',
+    '5. Jotta tekoäly näkee projektit: anna Claude-sovellukselle pääsy repoon GitHubissa (Settings → Applications → Claude → Configure) ja kerro keskustelussa repon nimi.'].map(function(t){return '<p>'+esc(t)+'</p>';}).join('')+
+   '</details></div>';}
+var ghSoonT=null;function ghSoon(){clearTimeout(ghSoonT);if(!ghOn())return;ghSoonT=setTimeout(function(){ghNew().then(function(){ghFlush();});},900);}
+document.addEventListener('input',function(e){var id=e.target.id;
+  if(id==='gh-repo'){gh.repo=String(e.target.value||'').trim();ghSaveCfg();ghMsg='';renderGh();ghSoon();}
+  else if(id==='gh-token'){gh.token=String(e.target.value||'').replace(/[\s​-‍﻿]+/g,'');ghSaveCfg();ghMsg='';renderGh();ghSoon();}});
+document.addEventListener('change',function(e){if(e.target.id==='gh-auto'){gh.auto=!!e.target.checked;ghSaveCfg();if(gh.auto)ghFlush();renderGh();}});
+$('#sheet').addEventListener('click',function(e){var x=e.target.closest('[data-gh]');if(!x)return;var a=x.getAttribute('data-gh'),m=$('#gh-msg');
+  function say(t,bad){if(m){m.textContent=t;m.className='ghmsg'+(bad?' bad':'');}}
+  if(a!=='delkey'&&!ghOn()){say('Täytä ensin Repo ja Avain.',1);return;}
+  if(a==='save'){if(ghBusy){say('Tallennus on jo käynnissä…');return;}if(!P){say('Avaa ensin projekti.',1);return;}say('Tallennetaan…');var g=ghMeta(P);
+    ghPush(P,!!g.remote).then(function(ok){if(ok){say('Tallennettu GitHubiin klo '+hm(new Date())+': '+ghRepoName()+' / '+ghPath(P));ghFlush();}else if(!ghMsg)say('Tallennus ei onnistunut.',1);});}
+  else if(a==='fetch'){say('Haetaan…');ghNew().then(function(n){if(ghRepoBad||!P)return;var g=ghMeta(P);
+      return ghApi(ghRepoUrl()+'/contents/'+ghPath(P)).then(function(r){var pre=n?n+(n===1?' projekti haettu. ':' projektia haettu. '):'';
+        if(r.status===404){say(pre+'Avoin projekti ”'+P.name+'” on vain tässä selaimessa, eikä sitä ole vielä GitHubissa.');return;}
+        if(r.status!==200){say(ghErr(r.status),1);return;}
+        if(r.j.sha===g.sha&&!g.dirty){say(pre+'Avoin projekti on jo sama kuin GitHubissa.');return;}
+        if(g.dirty&&!confirm('Haetaanko GitHubin versio? Projektin ”'+P.name+'” tallentamattomat muutokset korvataan. Kumoa palauttaa ne tarvittaessa.'))return;
+        return ghPull(P).then(function(ok){if(ok)openSettingsGh();});});});}
+  else if(a==='new'){say('Haetaan…');ghNew(true).then(function(n){if(!n&&!ghRepoBad)say('Ei uusia projekteja GitHubissa.');else if(n)openSettingsGh();});}
+  else if(a==='test')ghTest();
+  else if(a==='delkey'){gh.token='';ghSaveCfg();ghMsg='';renderGh();openSettingsGh();}});
+function openSettingsGh(){openSettings();var s=$('#sec-gh');if(s)s.scrollIntoView({block:'start'});}
+$('#bkbtn').addEventListener('click',exportAll);
+$('#ghbtn').addEventListener('click',function(){var p=Dt.projects.filter(function(x){return ghMeta(x).remote;})[0];
+  if(p){if(confirm('Projektista ”'+p.name+'” on GitHubissa uudempi versio, todennäköisesti tekoälyn tekemiä muutoksia.\n\nOK = hae GitHubin versio (tämän projektin tallentamattomat muutokset korvautuvat; Kumoa palauttaa ne).\nPeru = muut vaihtoehdot.')){ghPull(p);return;}
+    if(confirm('Tallennetaanko oma versiosi GitHubin version päälle? GitHubin uudempi versio korvautuu.'))ghPush(p,true);return;}
+  openSettingsGh();});
+document.addEventListener('visibilitychange',function(){if(document.hidden){if(ghOn()&&gh.auto){saveNow();ghFlush();}}else if(P)ghCheck(P);});
+
 /* ---------- Päivä vaihtuu ---------- */
 var lastDay=KK.iso(new Date());
 setInterval(function(){var d=KK.iso(new Date());if(d!==lastDay&&P){lastDay=d;KK.tick(P,ctx());save();renderStage();}},30000);
@@ -2511,7 +2672,8 @@ window.addEventListener('beforeunload',saveNow);
 load();
 if(P){S.vw=P.views[0].id;KK.tick(P,ctx());}
 renderAll();
-return {get data(){return Dt;},get P(){return P;},S:S,renderAll:renderAll,openExample:openExample,saveNow:saveNow,ev:ev,ctx:ctx};
+renderGh();if(ghOn()){ghCheck(P).then(function(){return ghNew();}).then(function(){ghFlush();});}
+return {get data(){return Dt;},get P(){return P;},S:S,gh:gh,ghPush:function(){return ghPush(P);},ghCheck:function(){return ghCheck(P);},ghNew:function(a){return ghNew(a);},ghFlush:ghFlush,ghMeta:ghMeta,exportAll:exportAll,renderAll:renderAll,openExample:openExample,saveNow:saveNow,ev:ev,ctx:ctx};
 })();
 </script>
 </body>
