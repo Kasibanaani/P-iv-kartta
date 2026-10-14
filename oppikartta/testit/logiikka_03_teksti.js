@@ -61,7 +61,7 @@ const v1={v:1,pseq:1,gseq:2,players:[{id:'p1',name:'Aino'}],games:[W],cur:{p:'p1
 const m1=normalize(JSON.parse(JSON.stringify(v1))),C=m1.prog['p1|g2'].cards;
 eq('vanha tallennus: päivävälit siirtyvät harvoin kerrattaviksi samalla päivällä',[m1.v,C['i1>'].l,C['i1>'].d,C['i3>'].l,C['i3>'].d,C['i4>'].l,isOpen(C['i1>'])],[2,3,'2026-10-12',7,'2026-11-20',5,false]);
 eq('vanha tallennus: kesken ollut kortti tulee pian uudestaan',[C['i2>'].l,C['i2>'].q,isOpen(C['i2>'])],[0,1,true]);
-eq('vanha tallennus: muu säilyy, vanhat asetukset korvautuvat oletuksilla',[m1.prog['p1|g2'].n,m1.prog['p1|g2'].st,m1.prog['p1|g2'].lv,m1.prog['p1|g2'].len,m1.prog['p1|g2'].gaps,m1.cfg],[14,{r:2,w:1,p:17},'vaikea',20,{'0':[5,7]},CFG_DEF]);
+eq('vanha tallennus: eteneminen säilyy ja aiempi väriteema säilyy',[m1.prog['p1|g2'].n,m1.prog['p1|g2'].st,m1.prog['p1|g2'].lv,m1.prog['p1|g2'].len,m1.prog['p1|g2'].gaps,m1.cfg],[14,{r:2,w:1,p:17},'vaikea',20,{'0':[5,7]},Object.assign({},CFG_DEF,{tint:'oranssi'})]);
 eq('muunnos tehdään vain kerran',JSON.stringify(normalize(JSON.parse(JSON.stringify(m1)))),JSON.stringify(m1));
 eq('ensimmäisen version varmuuskopio (version: 1) muunnetaan samoin',normalize(Object.assign({app:'oppikartta',version:1},JSON.parse(JSON.stringify(v1)),{v:undefined})).prog['p1|g2'].cards['i1>'].l,3);
 
