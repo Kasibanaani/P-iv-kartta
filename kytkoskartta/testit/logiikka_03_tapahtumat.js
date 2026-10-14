@@ -11,7 +11,7 @@ A.strictEqual(P.st[pis.id],4);A.strictEqual(P.st[btn.id],2);A.strictEqual(P.st[a
 var ge=KK.addBlock(P,'vert',{op:'ge',b:6}),il=KK.addBlock(P,'tee',{do:'ilmoita',tx:'Voitto!'});var np=N(pis),ng=N(ge),ni=N(il);KK.addLink(P,np.id,'v',ng.id,'a');KK.addLink(P,ng.id,'v',ni.id,'e');
 KK.tick(P,C);A.strictEqual(toasts.length,0);KK.press(P,btn.id,C);A.deepStrictEqual(toasts,['Voitto!']);KK.press(P,btn.id,C);A.strictEqual(toasts.length,1,'ei uudelleen, kun ehto jo päti');
 // JOS NIIN / MUUTEN
-var sw=KK.addBlock(P,'kytkin'),j=KK.addBlock(P,'jos'),on=KK.addBlock(P,'tee',{do:'rivi',o:'',tx:'päälle'}),li=KK.addBlock(P,'lista',{rivit:'eka'});on.o=li.id;
+var sw=KK.addBlock(P,'kytkin'),j=KK.addBlock(P,'jos',{muuten:true}),on=KK.addBlock(P,'tee',{do:'rivi',o:'',tx:'päälle'}),li=KK.addBlock(P,'lista',{rivit:'eka'});on.o=li.id;
 var off=KK.addBlock(P,'tee',{do:'ilmoita',tx:'pois'});var ns=N(sw),nj=N(j),non=N(on),noff=N(off);KK.addLink(P,ns.id,'v',nj.id,'c');KK.addLink(P,nj.id,'e',non.id,'e');KK.addLink(P,nj.id,'m',noff.id,'e');
 KK.tick(P,C);KK.userSet(P,sw.id,true,C);A.deepStrictEqual(KK.listRows(P,li.id).map(function(r){return r.tx;}),['eka','päälle']);KK.userSet(P,sw.id,false,C);A.strictEqual(toasts[toasts.length-1],'pois');
 // KUN: tapahtuma läpi vain kun ehto pätee

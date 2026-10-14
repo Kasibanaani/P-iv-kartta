@@ -7,7 +7,7 @@ A.strictEqual(KK.parseDate('24.12.',now()),'2026-12-24');A.strictEqual(KK.parseD
 A.strictEqual(KK.parseDate('31.2.2026',now()),null);A.strictEqual(KK.parseDate('tänään',now()),'2026-10-14');A.strictEqual(KK.addDays('2026-03-28',2),'2026-03-30');
 A.strictEqual(KK.diffDays('2026-11-01','2026-10-14'),18);
 A.deepStrictEqual(KK.calc('add',KK.D('2026-10-14'),5),KK.D('2026-10-19'));A.strictEqual(KK.calc('sub',KK.D('2026-10-20'),KK.D('2026-10-14')),6);
-A.strictEqual(KK.calc('add','Hei ','maailma'),'Hei maailma');A.strictEqual(KK.calc('div',1,0),null);A.strictEqual(KK.calc('mul','2,5',2),5);A.strictEqual(KK.calc('add',0.1,0.2),0.3);
+A.strictEqual(KK.calc('add','Hei ','maailma'),'Hei maailma');A.deepStrictEqual(KK.calc('div',1,0),{err:'jako nollalla'});A.strictEqual(KK.calc('mul','2,5',2),5);A.strictEqual(KK.calc('add',0.1,0.2),0.3);
 A.strictEqual(KK.cmp('lt',2,3),true);A.strictEqual(KK.cmp('eq','Kyllä ','kyllä'),true);A.strictEqual(KK.cmp('lt',KK.D('2026-10-14'),'20.10.2026',now()),true);A.strictEqual(KK.cmp('lt',null,3),false);A.strictEqual(KK.cmp('eq',null,''),true);
 A.strictEqual(KK.fmt(true),'kyllä');A.strictEqual(KK.fmt(3.456),'3,46');A.strictEqual(KK.fmt(-2),'−2');A.strictEqual(KK.fmt(null),'–');
 A.strictEqual(KK.datePart('vkp',KK.D('2026-10-14')),'keskiviikko');A.strictEqual(KK.datePart('ero',KK.D('2026-10-19'),now()),5);
@@ -24,7 +24,7 @@ KK.userSet(P,s.id,99,C);A.strictEqual(P.st[s.id],10,'säädin rajataan');
 var tx=KK.addBlock(P,'nayta',{tx:'Viikko {#'+o.id+'}'});A.strictEqual(KK.Ev(P,C).text(tx.id),'Viikko 43');
 A.strictEqual(KK.toNames(P,tx.tx),'Viikko {'+o.nm+'}');A.strictEqual(KK.toIds(P,'Viikko {'+o.nm+'} {ei ole}'),'Viikko {#'+o.id+'} {ei ole}');
 o.nm='Vk';A.strictEqual(KK.toNames(P,tx.tx),'Viikko {Vk}','nimen vaihto ei riko viittausta');
-// JOS valitsee arvon
-var j=KK.addBlock(P,'jos',{a:'Iso',b:'Pieni'});var nj=KK.addNode(P,j.id,0,0);var ns=KK.addNode(P,s.id,0,0);var g=KK.addBlock(P,'vert',{op:'gt',b:5});var ng=KK.addNode(P,g.id,0,0);
+// VALITSE valitsee arvon (versiossa 1 tämä oli JOS-palikan tehtävä)
+var j=KK.addBlock(P,'valitse',{a:'Iso',b:'Pieni'});var nj=KK.addNode(P,j.id,0,0);var ns=KK.addNode(P,s.id,0,0);var g=KK.addBlock(P,'vert',{op:'gt',b:5});var ng=KK.addNode(P,g.id,0,0);
 KK.addLink(P,ns.id,'v',ng.id,'a');KK.addLink(P,ng.id,'v',nj.id,'c');A.strictEqual(KK.Ev(P,C).val(j.id),'Iso');KK.userSet(P,s.id,2,C);A.strictEqual(KK.Ev(P,C).val(j.id),'Pieni');
 console.log('ok arvot ja päivät');
