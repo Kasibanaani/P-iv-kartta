@@ -47,6 +47,10 @@ Master tallentaa projektien rakenteen ja toiveet käyttäjän **yksityiseen** Gi
   - Nuoli `{id: "l1", f, fp, t, tp}`. Lähtöportit: `v` arvo; palikan tapahtumat toimintolistojen nimillä (`act`, `lact`, `ract`, `eact`, `done`, `miss`, `ok`, `bad`, `empty`, `back`); JOS `e` (NIIN) ja `m` (MUUTEN); KUN `e`. Kohdeportit: lasku `a` ja `b`, sana ja ikkuna `in`, JOS `c`, KUN `e` ja `c`, KUN-ikkuna `e`, toiminto `e` (tapahtuma, tai arvo joka alkaa olla totta) ja `v` (arvo set/add/log-toiminnolle), Ehto-palikka `c`.
   - Ehto-palikka, johon tulee nuolia, on nimetty tulos: se täyttyy, kun sen omat säännöt (jos on) ja kaikki siihen tulevat nuolet pätevät. Sitä voi käyttää Rakenteen säännöissä kuten muitakin ehtoja.
   - Palikan omat toimintolistat toimivat edelleen; kanvaasin nuolet lisätään niiden perään (moottorin `evActs`). Repair poistaa kelvottomat solmut ja nuolet, myös poistetun palikan solmut.
+- Ketjut-kanvaasi (versio 17):
+  - Solmun `off: true` = pois käytöstä. Sallittu JOS-, KUN- ja toimintosolmulle sekä JOS- ja KUN-ikkunalle (`w` + `j`). Pois käytöstä oleva solmu ei laukaise eikä päästä tapahtumaa läpi, mutta sen arvo lasketaan. Käyttöön otto ei laukaise heti, vaikka ehto jo pätisi. Muilta solmuilta repair poistaa kentän.
+  - Virheet: moottorin `run` palauttaa `kerr` (kanvaasin solmut: jako nollalla, teksti luvun paikalla laskussa) ja `verr` (lasketut arvot: kaavan tai osamäärän jako nollalla). Arvot ovat samat kuin ennen (tyhjä tai 0), joten julkaistu appi toimii ennallaan; vain master näyttää ⚠-merkin.
+  - Kanvaasin sivupaneeli (vain masterissa, ei tallennusmuotoa): Miksi? (sääntö lauseena, ✓/✗ sisäkkäin), palikan omat toimintolistat muokattavina ja Käytössä-valinta. Palikan omat toiminnot näkyvät solmussa lappuna.
 - Toive on objekti `t: "wish"`: `n` (otsikko), `body` (toive), `status` (`"auki"` / `"tehty"`), `reply` (tekoälyn vastaus), `about` (`""` = koko projekti, `"screen"` = ruutu `s`, muuten objektin id), `s` (ruutu). Toiveita ei viedä käyttäjä-appiin.
 
 ## Kun käyttäjä pyytää "käy masterin toiveet läpi"
