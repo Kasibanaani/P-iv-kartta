@@ -66,6 +66,7 @@ async def main():
         await pg.click('#use-showall'); await pg.click('#p-use .row:has-text("Valmistaudu")'); print('  lukittu:', await pg.inner_text('#info-text')); await pg.click('#use-showall')
         # asetukset, vienti, tuonti
         await pg.click('[data-tab="set"]'); print('7 asetukset, palkki:', await bar())
+        assert await pg.locator('#set-tint [data-v]').evaluate_all("es=>es.map(e=>e.dataset.v).slice(-10)")==['forest','lake','plum','sand','rose','graphite','lagoon','lavender','olive','copper']
         async with pg.expect_download() as dl:
             await pg.click('.btn:has-text("Vie tiedosto")')
         obj=json.load(open(await (await dl.value).path(),encoding='utf8')); t=obj['trees'][0]; print('  vienti:', obj['version'], sorted(t.keys()), json.dumps(t['sufs']), json.dumps(t['reqs']), json.dumps(t['recs']))

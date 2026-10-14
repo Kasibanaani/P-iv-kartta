@@ -34,6 +34,11 @@ async def main():
 
         # 1 aloitus
         await pg.goto(U); await pg.wait_for_timeout(300); await pg.screenshot(path='vv1_alku.png')
+        themes=await pg.locator('.theme-chip[data-ap-theme]').evaluate_all("es=>es.map(e=>e.dataset.apTheme)")
+        chk('yhteiset kymmenen teemaa näkyvät alussa',themes==['forest','lake','plum','sand','rose','graphite','lagoon','lavender','olive','copper'],themes)
+        await pg.click('.theme-chip[data-ap-theme="graphite"]'); await pg.click('.theme-modes [data-ap-mode="dark"]')
+        chk('harmaa tumma tila tallentuu ulkoasuasetukseen',await pg.evaluate("[localStorage.getItem('viidakkovahti:appearance'),document.documentElement.style.getPropertyValue('--bg')]")==['{"theme":"graphite","mode":"dark"}','#191919'])
+        await pg.click('.theme-modes [data-ap-mode="auto"]'); await pg.click('.theme-chip[data-ap-theme="forest"]')
         chk('1 alussa pyydetään lisäämään pelaaja','Lisää pelaaja' in await pg.inner_text('#p-start') and not await pg.is_visible('#p-game'))
         await pg.click('#start'); chk('  peli ei ala ilman pelaajaa',(await pg.inner_text('#start-msg'))=='Lisää ensin pelaaja.' and not await pg.is_visible('#p-game'))
         await pg.click('#pl-add'); chk('  tyhjä nimi hylätään',(await pg.inner_text('#pl-msg'))=='Kirjoita pelaajan nimi.')

@@ -24,6 +24,9 @@ async def run(p,w,h):
     print('  projekti luotu:',await pg.inner_text('#wk'))
     await check('projekti luotu')
     await pg.click('[data-tab="set"]'); await pg.wait_for_timeout(200)
+    themes=await pg.locator('#set-pal [data-v]').evaluate_all("es=>es.map(e=>e.dataset.v).slice(-10)")
+    print('  yhteiset teemat:',themes)
+    if themes!=['forest','lake','plum','sand','rose','graphite','lagoon','lavender','olive','copper']: bad.append('yhteiset teemat')
     for n in ['Nukuin hyvin','Liikuin','Pitkä vaihtoehdon nimi, joka rivittyy varmasti usealle riville kapealla näytöllä']:
         await pg.fill('#newopt',n); await pg.click('#addopt'); await pg.wait_for_timeout(80)
     n=await pg.locator('#optlist [data-edit]').count(); print('  tekijöitä listassa:',n)

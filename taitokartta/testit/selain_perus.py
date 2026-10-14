@@ -72,7 +72,7 @@ async def run(p,w,h,U2):
     check('lukitut saa taas piiloon',len([x for x in await rows() if 'lock' in x]),0)
     # 5 tallennus: vain nimet, säilyy latauksen yli
     s=json.loads(await stored())
-    check('muistissa on vain kartan nimi, valintojen nimet ja ulkoasu',s,{'cur':'Mikä taito nyt?','sel':{'Mikä taito nyt?':['Tunne ylivoimainen','STOP']},'cfg':{'tint':'vihrea','mode':'auto'}})
+    check('muistissa on vain kartan nimi, valintojen nimet ja ulkoasu',s,{'cur':'Mikä taito nyt?','sel':{'Mikä taito nyt?':['Tunne ylivoimainen','STOP']},'cfg':{'tint':'forest','mode':'auto'}})
     await pg.reload(); await pg.wait_for_timeout(300)
     check('valinnat säilyvät latauksen yli',await ctxt(),'1 Tunne ylivoimainen 2 STOP Alusta')
     # 6 paluu polulla ja alusta
@@ -91,9 +91,10 @@ async def run(p,w,h,U2):
     # 8 asetukset
     await pg.click('[data-tab="set"]'); await pg.wait_for_timeout(250)
     check('asetuksissa yläpalkki on saman kokoinen',await geo(),g0)
+    check('yhteiset teemat ovat valittavissa',await pg.locator('#set-tint [data-v]').evaluate_all("es=>es.map(e=>e.dataset.v).slice(-10)"),['forest','lake','plum','sand','rose','graphite','lagoon','lavender','olive','copper'])
     solid=lambda: pg.evaluate("getComputedStyle(document.documentElement).getPropertyValue('--solid').trim()")
     s0=await solid(); await pg.click('#set-tint [data-v="sininen"]'); await pg.wait_for_timeout(150)
-    check('korostusväri vaihtuu',[s0,await solid()],['#1F7A37','#0066E0'])
+    check('korostusväri vaihtuu',[s0,await solid()],['#39775A','#0066E0'])
     await pg.click('#set-mode [data-v="dark"]'); await pg.wait_for_timeout(150)
     check('tumma tila vaihtaa taustan',await pg.evaluate("getComputedStyle(document.body).backgroundColor"),'rgb(0, 0, 0)')
     await fits(pg,'asetukset'); await pg.screenshot(path='tk_%d_asetukset_tumma.png'%w)
