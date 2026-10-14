@@ -651,7 +651,7 @@ var OPS={add:'+',sub:'−',mul:'×',div:'÷'};
 var CMPS={eq:'=',ne:'≠',lt:'<',le:'≤',gt:'>',ge:'≥'};
 var WM={and:'JA',or:'TAI',one:'VAIN YKSI',min:'VÄHINTÄÄN',max:'ENINTÄÄN',eq:'TÄSMÄLLEEN',not:'EI MIKÄÄN',sum:'SUMMA',avg:'KESKIARVO',maxv:'SUURIN',minv:'PIENIN',cnt:'MONTAKO PÄTEE'};
 var PARTS={vk:'Viikkonumero',vkp:'Viikonpäivä',vkpn:'Viikonpäivä numerona',pv:'Päivä',kk:'Kuukausi',v:'Vuosi',ero:'Päiviä tästä päivästä'};
-var DOS={aseta:'Aseta arvo',lisaa:'Lisää',valitse:'Valitse',poista:'Poista valinta',vaihda:'Vaihda',tyhjenna:'Tyhjennä',siirry:'Siirry',kirjaa:'Kirjaa aikajanalle',rivi:'Lisää riviksi listaan',ilmoita:'Näytä ilmoitus'};
+var DOS={aseta:'Aseta arvo',tila:'Aseta tila',lisaa:'Lisää',valitse:'Valitse',poista:'Poista valinta',vaihda:'Vaihda',tyhjenna:'Tyhjennä',siirry:'Siirry',kirjaa:'Kirjaa aikajanalle',rivi:'Lisää riviksi listaan',ilmoita:'Näytä ilmoitus'};
 var VKP=['sunnuntai','maanantai','tiistai','keskiviikko','torstai','perjantai','lauantai'];
 var KUUT=['tammikuu','helmikuu','maaliskuu','huhtikuu','toukokuu','kesäkuu','heinäkuu','elokuu','syyskuu','lokakuu','marraskuu','joulukuu'];
 var BOOLK={ruutu:1,kytkin:1};
@@ -923,6 +923,7 @@ function repair(P){
     if(b.nkt&&['piilo','harmaa','luku'].indexOf(b.nkt)<0)b.nkt='piilo';
     if(b.k==='merkki'){if(b.kk!==undefined&&b.kk!=='keski'&&b.kk!=='kulma')delete b.kk;if(b.zz!==undefined&&!(typeof b.zz==='number'&&b.zz>=0.2&&b.zz<=3))delete b.zz;}
     if(b.k==='tee'&&b.tapa!==undefined&&b.tapa!=='heti'&&b.tapa!=='vieri')delete b.tapa;
+    if(b.k==='tee'&&b.do==='tila'&&b.ti!=='on'&&b.ti!=='ei')b.ti='on';
   });
   /* Viitteet: säilytetään ensimmäinen kelvollinen, puuttuvat ja tuplat saavat uuden nimestä. */
   var seenVt={},needVt=[];
@@ -1337,6 +1338,7 @@ function runAction(P,id,ctx,depth){
   var ev=Ev(P,ctx),o=b.o,tg=P.b[o],vv=ev.has(id,'v')?ev.inp(id,'v'):null;
   switch(b.do){
     case 'aseta':if(tg)setVal(P,o,vv,ctx);break;
+    case 'tila':if(tg&&isBoolKind(tg))setVal(P,o,b.ti!=='ei',ctx);break;
     case 'lisaa':if(tg){var cur=ev.val(o);var d=vv===null?1:num(vv);if(isNaN(d))d=0;
       if(tg.k==='pvm'){var base=isD(cur)?cur.d:iso(ev.now);setVal(P,o,D(addDays(base,d)),ctx);}
       else setVal(P,o,round9(num(cur)+d),ctx);}break;
@@ -1554,6 +1556,7 @@ function descAct(P,id,df){
   var s=DOS[b.do]||'Toiminto';
   switch(b.do){
     case 'aseta':s=tn?tn+' = '+(lit(b.v)||'arvo nuolesta'):'Aseta arvo';break;
+    case 'tila':s=tn?tn+': '+(b.ti==='ei'?'ei ole valittu':'on valittu'):'Aseta tila';break;
     case 'lisaa':s=tn?tn+' + '+(lit(b.v)||'1'):'Lisää';break;
     case 'valitse':case 'poista':case 'vaihda':case 'tyhjenna':s+=tn?': '+tn:'';break;
     case 'siirry':s+=tn?' → '+tn:(b.vw?' → '+((P.views.filter(function(v){return v.id===b.vw;})[0]||{}).n||'')+' ('+b.x+', '+b.y+')':' → kohta ('+b.x+', '+b.y+')');if(b.tapa==='heti')s+=' (heti)';break;
@@ -1912,7 +1915,7 @@ function renderPal(){
     h+='</div><div class="pt-h">Ikkunat</div><div class="chips">';
     [['and',4],['or',6],['one',7],['min',3],['max',3],['eq',3],['not',1],['cnt',3],['sum',2],['avg',2],['maxv',2],['minv',2]].forEach(function(m){h+=chipHTML('ikkuna',{m:m[0]},KK.WM[m[0]],'( )',m[1]);});
     h+=chipHTML('ikkuna',{m:'and',j:'jos'},'JOS-ikkuna','?',4)+chipHTML('ikkuna',{m:'and',j:'kun'},'KUN-ikkuna','⚡',5);
-    h+='</div><div class="pt-h">Ketju</div><div class="chips">'+chipHTML('ketju',{},'Ketju','⛓',1)+chipHTML('ajastin',{},'Ajastin','⏱',5)+chipHTML('tee',{do:'aseta'},'Aseta arvo','▶',1)+'</div>';
+    h+='</div><div class="pt-h">Ketju</div><div class="chips">'+chipHTML('ketju',{},'Ketju','⛓',1)+chipHTML('ajastin',{},'Ajastin','⏱',5)+chipHTML('tee',{do:'aseta'},'Aseta arvo','▶',1)+chipHTML('tee',{do:'tila',ti:'on'},'Aseta tila','▶',1)+'</div>';
     h+='<div class="pt-h">Ehdot</div><div class="chips">'+chipHTML('jos',{},'JOS','?',4)+chipHTML('valitse',{},'VALITSE','⑂',4)+chipHTML('kun',{},'KUN','⚡',4)+chipHTML('haku',{},'Hakutaulukko','⇉',4)+'</div>';
     h+='<div class="pt-h">Toiminnot</div><div class="chips">';
     Object.keys(KK.DOS).forEach(function(d){h+=chipHTML('tee',{do:d},KK.DOS[d],'▶',1);});
@@ -3045,7 +3048,7 @@ var STEPMENU=function(){return [['ajastin','Ajastin (odota)']].concat(Object.key
 function stepSelect(attr,label){return '<select '+attr+'><option value="">'+esc(label)+'</option>'+STEPMENU().map(function(o){return '<option value="'+esc(o[0])+'">'+esc(o[1])+'</option>';}).join('')+'</select>';}
 function chainInsp(b,E,node){
   var order=KK.chainOrder(P,b.id),h='';
-  h+='<div class="help" style="margin:0 0 8px">Ketju lähtee käyntiin, kun kohtaan <b>käynnistä</b> tulee tapahtuma (esim. painike painettu) tai siihen tuleva arvo alkaa päteä. Sitten se etenee punaisia viivoja pitkin palikasta toiseen. Jos samasta palikasta lähtee monta viivaa, haarat etenevät rinnakkain.</div>';
+  h+='<div class="help" style="margin:0 0 8px">Ketju lähtee käyntiin, kun kohtaan <b>käynnistä</b> tulee tapahtuma (esim. painike painettu) tai siihen tuleva arvo alkaa päteä. Sitten se etenee punaisia viivoja pitkin palikasta toiseen. Jos samasta palikasta lähtee monta viivaa, haarat etenevät rinnakkain. Ketjun alussa voi asettaa arvoja ja tiloja muihin palikoihin: <b>＋ Lisää tapahtuma alkuun</b> → Aseta arvo tai Aseta tila.</div>';
   var steps=order.map(function(nid,i){var n=KK.nodeOf(P,nid),sb=n&&P.b[n.p];if(!sb)return '';return '<div class="qa'+(sb.off?' off':'')+'"><span class="qn">'+(i+1)+'</span><button class="qt" data-kgo="'+nid+'" title="Näytä palikka">'+esc(stepText(sb))+'</button><button class="qx" data-kdel="'+nid+'" title="Poista tapahtuma">×</button></div>';}).join('');
   h+='<div class="qas">'+(steps||'<div class="help" style="margin:0 0 6px">Ketjussa ei ole vielä tapahtumia.</div>')+stepSelect('data-kadd="end"','＋ Lisää tapahtuma loppuun…')+(order.length?stepSelect('data-kadd="start"','＋ Lisää tapahtuma alkuun…'):'')+'</div>';
   var iss=chainIssues(b.id);if(iss.length)h+='<div class="kissl">'+iss.map(function(x){return x.info?'<div class="help" style="margin:0">ℹ︎ '+esc(x.t)+'</div>':'<div class="errt">⚠ '+esc(x.t)+'</div>';}).join('')+'</div>';
@@ -3112,7 +3115,7 @@ function addChainStep(kb,where,spec,fromNid){
   var ends=nodes.filter(function(n){return !KK.chainLinksFrom(P,n.id).length;}),starts=KK.chainStarts(P,kb.id);
   var from=where==='after'?KK.nodeOf(P,fromNid):where==='end'&&ends.length?ends[ends.length-1]:null;
   if(from){var r=nodeRect(from);x=from.x;y=from.y+Math.max(r.h,34)+44;}
-  if(where==='start'&&starts.length){x=starts[0].x;y=starts[0].y;nodes.forEach(function(n){n.y+=64;});}
+  if(where==='start'&&starts.length){x=starts[0].x;y=starts[0].y;nodes.forEach(function(n){n.y+=84;});}
   var nn=KK.addNode(P,nb.id,x,y,w.id);
   if(from)KK.addLink(P,from.id,'e',nn.id,'e');
   if(where==='start')starts.forEach(function(st){KK.addLink(P,nn.id,'e',st.id,'e');});
@@ -3215,15 +3218,16 @@ function hakuInsp(b,E){
 }
 function teeInsp(b,E){
   var d=b.do,h=fSelect('Toiminto','do',d,Object.keys(KK.DOS).map(function(x){return [x,KK.DOS[x]];}));
-  var tf={aseta:settable,lisaa:function(o){return ['saadin','luku','muisti','pvm'].indexOf(o.k)>=0||(o.k==='nappi'&&o.beh==='kerta');},valitse:function(o){return KK.isBoolKind(o)||(o.k==='nappi');},poista:KK.isBoolKind,vaihda:KK.isBoolKind,
+  var tf={aseta:settable,tila:KK.isBoolKind,lisaa:function(o){return ['saadin','luku','muisti','pvm'].indexOf(o.k)>=0||(o.k==='nappi'&&o.beh==='kerta');},valitse:function(o){return KK.isBoolKind(o)||(o.k==='nappi');},poista:KK.isBoolKind,vaihda:KK.isBoolKind,
     tyhjenna:function(o){return settable(o)||o.k==='lista'||o.k==='aika';},kirjaa:function(o){return o.k==='aika';},rivi:function(o){return o.k==='lista';},siirry:function(o){return isUI(o);}}[d];
   if(tf)h+=F(d==='siirry'?'Kohde (sijainti, alue tai palikka)':'Kohde','<select data-k="o">'+refOptions(b.o,tf,d==='siirry'?'— ei, käytä näkymää ja kohtaa —':'Valitse…')+'</select>');
-  if(d==='aseta')h+=fValue('Uusi arvo','v',b,'Tai vie nuoli kohtaan ”arvo”.');
+  if(d==='aseta')h+=fValue('Uusi arvo','v',b,'Luku, teksti, päivämäärä tai toisen palikan arvo. Tai vie nuoli kohtaan ”arvo”.');
+  if(d==='tila')h+=fSegs('Tila','ti',b.ti==='ei'?'ei':'on',[['on','on valittu'],['ei','ei ole valittu']],'Painike (jää pohjaan), valintaruutu, kytkin tai muisti muuttuu valituksi tai ei-valituksi.');
   if(d==='lisaa')h+=fValue('Määrä','v',b,'Tyhjä = 1. Päivämäärään lisätään päiviä. Negatiivinen luku vähentää.');
   if(d==='siirry'&&!b.o)h+=fSelect('Näkymä','vw',b.vw,[['','tämä näkymä']].concat(P.views.map(function(v){return [v.id,v.n];})))+'<div class="row2">'+fNum('X','x',b.x)+fNum('Y','y',b.y)+'</div><div class="help">Kohta (X, Y) tulee näytön vasempaan yläkulmaan. Koordinaatit näkyvät Näkymän muokkaustilassa.</div>';
   if(d==='siirry')h+=fSegs('Siirtymä','tapa',b.tapa==='heti'?'heti':'vieri',[['vieri','Vierien'],['heti','Heti']],b.tapa==='heti'?'Ruutu hyppää uuteen kohtaan välittömästi.':'Ruutu vierii uuteen kohtaan noin puolessa sekunnissa.');
   if(d==='kirjaa'||d==='rivi'||d==='ilmoita')h+=fTpl(d==='ilmoita'?'Ilmoitus':'Teksti','tx',b,d==='kirjaa'?'Tulee aikajanalle aikaleiman kanssa. {Nimi} tuo toisen palikan arvon.':null);
-  var hp={aseta:'',lisaa:'',valitse:'',poista:'',vaihda:'',tyhjenna:'Palauttaa kohteen alkutilaan.',siirry:'',kirjaa:'',rivi:'',ilmoita:'Ilmoitus näkyy hetken näytön yläreunassa.'}[d];
+  var hp={aseta:'',tila:'',lisaa:'',valitse:'',poista:'',vaihda:'',tyhjenna:'Palauttaa kohteen alkutilaan.',siirry:'',kirjaa:'',rivi:'',ilmoita:'Ilmoitus näkyy hetken näytön yläreunassa.'}[d];
   return section('Toiminto',fCheck('Käytössä','on',!b.off)+h+(hp?'<div class="help">'+hp+'</div>':'')+'<div class="help">Toiminto tehdään, kun siihen tulee tapahtuma (esim. painettu, NIIN, silloin) tai kun siihen tuleva arvo alkaa päteä. Ulos lähtee ”sitten”, josta voi jatkaa seuraavaan toimintoon.</div>');
 }
 
