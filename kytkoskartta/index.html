@@ -696,7 +696,7 @@ function ports(b){
     case 'tee':ins=[E('e','tee kun'),V('v','arvo')];outs=[E('e','sitten')];break;
     case 'ketju':ins=[E('e','käynnistä'),E('x','pysäytä')];outs=[V('v','käynnissä'),E('e','valmis')];break;
     case 'ilmesty':case 'kuva':case 'anim':case 'nvaihto':ins=[E('e','alkaa')];outs=[E('e','sitten')];break;
-    case 'ajastin':ins=[E('e','alkaa'),V('k','kesto')];outs=[E('e','kulunut'),V('v','käynnissä'),V('j','jäljellä s')];break;
+    case 'ajastin':ins=[E('e','alkaa'),V('k','kesto')];outs=[E('e','kulunut'),V('v','käynnissä'),V('j','jäljellä')];break;
   }
   return {ins:ins,outs:outs};
 }
@@ -1443,6 +1443,33 @@ function chainOrder(P,kid){
   return out;
 }
 
+/* Ketjun huomautukset ennen ajoa: virheet (⚠) ja tiedot (info). Kehä ilman ajastinta löytyy jo ennen käynnistystä. */
+var NEEDT={aseta:1,lisaa:1,valitse:1,poista:1,vaihda:1,tyhjenna:1,tila:1,kirjaa:1,rivi:1};
+function chainIssues(P,kid,ctx){
+  var out=[],b=P.b[kid];if(!b)return out;var steps=chainSteps(P,kid),w=chainNode(P,kid);
+  if(!steps.length){out.push({info:1,t:'Ketju on tyhjä: vedä tähän tapahtumia, esim. Aseta arvo tai Ajastin.'});return out;}
+  var ids={};steps.forEach(function(n){ids[n.id]=1;});
+  var trig=P.lg.l.some(function(l){return (w&&l.t===w.id&&l.tp==='e')||(ids[l.t]&&!isChainLink(P,l)&&(port(P.b[nodeOf(P,l.t).p],'ins',l.tp)||{}).t==='e');});
+  if(!trig)out.push({info:1,t:'Mikään ei vielä käynnistä ketjua: vie nuoli kohtaan ”käynnistä”, esim. painikkeesta tai kaavasta. Kokeilla voi ▶-napilla.'});
+  if(b.off)out.push({info:1,t:'Ketju on pois päältä: se ei käynnisty.'});
+  if(chainIsRing(P,kid))out.push({info:1,t:'Ketju on kehä: jokaiseen palikkaan tulee viiva, joten se alkaa ylimmästä palikasta.'});
+  // kehä ilman ajastinta: etsitään kehä, joka ei kulje ajastimen kautta
+  var adj={};P.lg.l.forEach(function(l){if(isChainLink(P,l)&&P.b[nodeOf(P,l.f).p].k!=='ajastin'&&P.b[nodeOf(P,l.t).p].k!=='ajastin')(adj[l.f]=adj[l.f]||[]).push(l.t);});
+  var col={},path=[],cyc=null;
+  function dfs(u){if(cyc)return;col[u]=1;path.push(u);(adj[u]||[]).forEach(function(v){if(cyc)return;if(col[v]===1){cyc=path.slice(path.indexOf(v)).concat([v]);}else if(!col[v])dfs(v);});path.pop();col[u]=2;}
+  steps.forEach(function(n){if(!col[n.id])dfs(n.id);});
+  if(cyc)out.push({n:cyc[0],t:'Kehä ilman ajastinta: '+cyc.map(function(id){return P.b[nodeOf(P,id).p].nm;}).join(' → ')+'. Se pysäytettäisiin heti. Lisää kehään ajastin.'});
+  steps.forEach(function(n){var sb=P.b[n.p],nm='”'+sb.nm+'”';
+    if(sb.off)out.push({n:n.id,info:1,t:nm+' on pois käytöstä: ketju jatkuu sen ohi.'});
+    if(sb.k==='tee'){var tg=P.b[sb.o];
+      if(NEEDT[sb.do]&&!tg)out.push({n:n.id,t:nm+': valitse kohde.'});
+      else if(sb.do==='tila'&&tg&&!isBoolKind(tg))out.push({n:n.id,t:nm+': kohde ”'+tg.nm+'” ei ole valittava palikka (painike, valintaruutu, kytkin tai muisti).'});}
+    if(sb.k==='ajastin'){var d=timerMs(P,sb.id,ctx);if(isErr(d))out.push({n:n.id,t:nm+': '+d.err+'.'});}
+    if(FXK[sb.k])out.push({n:n.id,info:1,t:nm+' tulee myöhemmin: nyt ketju jatkuu sen ohi.'});
+  });
+  return out;
+}
+
 /* ---------- Ketjun ajo ----------
    Ketjussa on haaroja (tk). Jokainen haara on jossakin tapahtumassa. Kun ketju käynnistyy, jokaiseen alkupalikkaan tulee
    haara. Tapahtuma tehdään, ja haara jatkaa sen viivoja pitkin: jos viivoja on monta, haara jakautuu ja osat etenevät
@@ -1681,7 +1708,7 @@ function why(P,E,id,depth,seen){
   return r;
 }
 
-return {FXK:FXK,YKS:YKS,YKSN:YKSN,fmtDur:fmtDur,fmtLeft:fmtLeft,timerMs:timerMs,chainStart:chainStart,chainStop:chainStop,chainAdvance:chainAdvance,chainPoll:chainPoll,chainInfo:chainInfo,anyChainRunning:anyChainRunning,CH_STEPS:CH_STEPS,CH_TOKENS:CH_TOKENS,
+return {chainIssues:chainIssues,FXK:FXK,YKS:YKS,YKSN:YKSN,fmtDur:fmtDur,fmtLeft:fmtLeft,timerMs:timerMs,chainStart:chainStart,chainStop:chainStop,chainAdvance:chainAdvance,chainPoll:chainPoll,chainInfo:chainInfo,anyChainRunning:anyChainRunning,CH_STEPS:CH_STEPS,CH_TOKENS:CH_TOKENS,
   isWin:isWin,isStep:isStep,STEPK:STEPK,chainNode:chainNode,chainOfNode:chainOfNode,chainSteps:chainSteps,isChainLink:isChainLink,chainLinksFrom:chainLinksFrom,chainStarts:chainStarts,chainIsRing:chainIsRing,chainOrder:chainOrder,
   VER:VER,K:K,KW:KW,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,kaavaToIds:kaavaToIds,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
   ports:ports,port:port,newProject:newProject,addBlock:addBlock,addNode:addNode,addLink:addLink,canLink:canLink,
@@ -2388,11 +2415,11 @@ function renderLogicStage(){
       '<div class="zoomc"><button data-z="out">−</button><button data-z="reset" id="lzpct">100 %</button><button data-z="in">+</button><button data-z="fit" title="Sovita kaikki näkyviin">⤢</button></div>';
     bindLogicStage();
   }
-  var E=ev(),els=$('#lels'),h='';var H=S.hidden=hiddenSet();
+  var E=ev(),els=$('#lels'),h='';var H=S.hidden=hiddenSet();S.issC={};
   var wins=P.lg.n.filter(function(n){return KK.isWin(P.b[n.p])&&!H[n.id];}).sort(function(a,b){return depthOf(a)-depthOf(b);});
   wins.forEach(function(n){h+=P.b[n.p].k==='ketju'?chainHTML(n,E):winHTML(n,E);});
   P.lg.n.forEach(function(n){var b=P.b[n.p];if(b&&!KK.isWin(b)&&!H[n.id])h+=nodeHTML(n,b,E);});
-  els.innerHTML=h;
+  els.innerHTML=h;S.issC=null;
   applyCam($('#lvp'),$('#lworld'),camL());
   if(S.pendingFit){var pn=KK.nodeOf(P,S.pendingFit);S.pendingFit=null;if(pn&&pn.g)growChain(pn.g);}
   renderLogicSelOnly();
@@ -2412,6 +2439,8 @@ function pinsHTML(b,n,kv){
   if(pr.outs.length){h+='<div class="pins o">';pr.outs.forEach(function(p){h+=pin(p,'o');});h+='</div>';}
   return h;
 }
+/* Tapahtuman omat virheet (ei tietoja), solmun korostukseen. */
+function stepIssuesOf(n){var ch=KK.chainOfNode(P,n);if(!ch)return [];return chainIssues(ch.id).filter(function(x){return x.n===n.id&&!x.info;});}
 /* Ketjun seuranta: missä tapahtumassa ketju on menossa. */
 function stepCls(n){var ch=KK.chainOfNode(P,n);var cs=ch&&P.st[ch.id];if(!cs||!cs.tk)return '';
   if(cs.tk.some(function(t){return t.n===n.id;}))return ' krun';
@@ -2463,6 +2492,8 @@ function nodeHTML(n,b,E){
   var pr=KK.ports(b),li={};P.lg.l.forEach(function(l){if(l.t===n.id)li[l.tp]=1;});
   var np=Math.max(pr.outs.length,pr.ins.filter(function(p){return !optPin(b,p)||li[p.p];}).length);
   var kv=!!KK.chainOfNode(P,n);
+  if(kv){var nis=stepIssuesOf(n);if(nis.length){err=' has-err';}}
+  else if(K[b.k].ch&&b.k!=='tee')err=' has-err';
   var mh=np>2&&!kv?' ;min-height:'+(np*16+4)+'px':'';
   return '<div class="ln g-'+groupOf(b)+dim+err+(b.off?' off':'')+(kv?' kv'+stepCls(n):'')+'" data-nid="'+n.id+'" style="left:'+n.x+'px;top:'+n.y+'px'+mh+'">'+cap+vtag+
     '<div class="lb"><span class="lic">'+esc(icon(b))+'</span><span class="lt">'+lab+'</span>'+(b.off?'<span class="offt">pois</span>':'')+(n.not?'<span class="not">EI</span>':'')+valChip(E,b,id)+'</div>'+pinsHTML(b,n,kv)+'</div>';
@@ -2489,13 +2520,7 @@ function chainHTML(n,E){
     (col||descendants(n.id).length?'':'<div class="kempty">Vedä tähän tapahtumia, esim. Aseta arvo tai Ajastin. Ketju etenee viivoja pitkin.</div>')+(col?'':'<i class="rs"></i>')+'</div>';
 }
 /* Ketjun huomautukset: tyhjä ketju, puuttuva alku, puuttuva kohde ja niin edelleen. */
-function chainIssues(kid){
-  var b=P.b[kid],out=[];if(!b)return out;var steps=KK.chainSteps(P,kid);
-  if(!steps.length)return out;
-  if(KK.chainIsRing(P,kid))out.push({info:1,t:'Ketju on kehä: jokaiseen palikkaan tulee viiva, joten se alkaa ylimmästä palikasta. Kehässä pitää olla ajastin.'});
-  steps.forEach(function(n){var sb=P.b[n.p];if(sb.k==='tee'&&['aseta','lisaa','valitse','poista','vaihda','tyhjenna','tila','kirjaa','rivi'].indexOf(sb.do)>=0&&!P.b[sb.o])out.push({n:n.id,t:'”'+sb.nm+'”: kohde puuttuu.'});});
-  return out;
-}
+function chainIssues(kid){if(S.issC&&S.issC[kid])return S.issC[kid];var r=KK.chainIssues(P,kid,ctx());if(S.issC)S.issC[kid]=r;return r;}
 /* Uusi tapahtuma pudotettiin ketjuun: se kytketään viimeiseen palikkaan, jos loppuja on tasan yksi. */
 function chainDropped(chb,n,dropped){
   var others=KK.chainSteps(P,chb.id).filter(function(x){return x.id!==n.id;});
@@ -3807,13 +3832,15 @@ function pollChains(){
   return cur;
 }
 var chT=null;
+/* Kun ketju pysähtyy virheeseen käytön aikana (esim. ajastimen kesto nuolesta on nolla), siitä kerrotaan kerran. */
+function chainErrToast(){if(!P)return;S.errSeen=S.errSeen||{};Object.keys(P.st).forEach(function(id){var b=P.b[id],cs=P.st[id];if(!b||b.k!=='ketju'||!cs||!cs.err)return;var key=id+'|'+cs.end;if(S.errSeen[key])return;S.errSeen[key]=1;toast('⚠ Ketju ”'+b.nm+'”: '+cs.err);});}
 function chainTimer(){
   var any=Dt&&Dt.projects.some(function(p){return KK.anyChainRunning(p);});
   if(any&&!chT)chT=setInterval(chainTick,1000);else if(!any&&chT){clearInterval(chT);chT=null;}
 }
 function chainTick(){
   if(!P){chainTimer();return;}
-  var ch=pollChains();
+  var ch=pollChains();if(ch)chainErrToast();
   if(ch)save();
   if(!S.drg&&(ch||KK.anyChainRunning(P))){if(showL()&&$('#lvp'))renderLogicStage();if(ch&&showU()&&$('#uvp'))renderUIStage();var sb=selBlock();if(sb&&(sb.k==='ketju'||KK.isStep(sb))&&!($('#insp')&&$('#insp').contains(document.activeElement)))renderInsp();}
   chainTimer();
