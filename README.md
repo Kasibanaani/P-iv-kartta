@@ -13,6 +13,7 @@ Henkilökohtaiseen käyttöön tehtyjä selainappeja. Jokainen appi on yksi HTML
 | `oppikartta/` | Oppikartta | https://kasibanaani.github.io/P-iv-kartta/oppikartta/ |
 | `viidakkovahti/` | Viidakkovahti | https://kasibanaani.github.io/P-iv-kartta/viidakkovahti/ |
 | `master/` | Master (tietokoneelle) | https://kasibanaani.github.io/P-iv-kartta/master/ |
+| `kytkoskartta/` | Kytköskartta (tietokoneelle) | https://kasibanaani.github.io/P-iv-kartta/kytkoskartta/ |
 
 Uusi appi tulee omaan kansioonsa nimellä `index.html`. Osoite on silloin `https://kasibanaani.github.io/P-iv-kartta/<kansio>/`.
 
@@ -22,6 +23,7 @@ Uusi appi tulee omaan kansioonsa nimellä `index.html`. Osoite on silloin `https
 - Koodi tallennetaan tänne jo ensimmäisestä versiosta. Testit ovat appin kansiossa `testit/`.
 - Testit ajetaan ennen jokaista vientiä, esimerkiksi `sh paatoskartta/testit/aja.sh`. Päiväkartan testit ovat juuren kansiossa `testit/`.
 - Master on tietokoneelle tehty rakennusympäristö. Sen moottori (`<script id="engine">`) ja puhelinnäkymä (`<script id="runtime">`) kopioituvat sellaisinaan jokaiseen siitä vietyyn käyttäjä-appiin. Tyylit (paletti, muoto, pinta, fontti, tiheys, painikkeet) ovat lohkoissa `styledata` ja `stylefn`; viety appi saa niistä vain valitun tyylin. Masterin testit: `sh master/testit/aja.sh`. Toiveiden käsittely tekoälylle: `master/TOIVEET.md`.
+- Kytköskartta on Masterista erillinen tietokoneappi: projekteissa on logiikkakanvaasi (palikat, ikkunat eli sulut, nuolet) ja näkymäkanvaasi, joka lukitaan käyttöön. Moottori on lohkossa `<script id="engine">` (objekti `KK`), käyttöliittymä lohkossa `<script id="ui">`. Tietomuoto: `projects[].b` palikat, `lg.n` logiikan esiintymät, `lg.l` nuolet, `deco` koristeviivat, `st` käyttötiedot. Testit: `sh kytkoskartta/testit/aja.sh`.
 - Taitokartan sisältö on kaikille käyttäjille yhteinen ja sijaitsee tiedoston `taitokartta/index.html` lohkossa `sisalto`. Käyttäjien omat valinnat pysyvät heidän selaimessaan.
 - Repo on julkinen: tänne ei viedä henkilökohtaista tietoa eikä tekijänoikeuden alaista materiaalia.
 - Appien tila, ideat ja tarkemmat työtavat ovat käyttäjän Notionissa sivulla Appipaja.
