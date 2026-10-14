@@ -11,6 +11,7 @@ Skripti poimii `index.html`:n lohkot `engine` (moottori) ja `ui` (käyttöliitty
 - `logiikka_03_tapahtumat.js` – painike → toiminto → sitten, arvon nousu, JOS NIIN/MUUTEN, KUN, KUN-ikkuna, Siirry, aikajana, lista, ilmoitus, silmukkasuoja
 - `logiikka_04_rakenne.js` – nuolten säännöt, poistot, repair ja rikkinäisen tiedon lukeminen
 - `logiikka_06_versio3.js` – hakutaulukko (välit, täsmälleen, rajattomat päät, järjestys, muuten, {Nimi} tuloksessa, virhe läpi, repair), piilotetun syötteen arvo (säilyy / palautuu alkuun / pois laskuista, ketjuuntuva JOS), vain luettava ja syy, pikaluonnin rakenne (napit VAIN YKSI -ikkunassa + VALITSE + SUMMA) ja vanhan projektin muuttumattomuus
+- `logiikka_07_sijainnit.js` – versio 4: Sijainti- ja Alue-palikat (nimet, ei kytkentäkohtia), Siirry heti / vierien (vanha viesti ennallaan), näkymän `alku`, `rul`, `alue` ja niiden korjaus, rikkinäiset `kk`, `zz`, `tapa`, poistetun sijainnin tai alueen viittaus, vanhan paikkamerkin säilyminen
 - `logiikka_05_versio2.js` – VALITSE, vanhan JOS-palikan (niin- ja muuten-arvo) muunto JOS + VALITSE -pariksi, käytössä / pois käytöstä, virheet näkyviin (jako nollalla, kehä, teksti luvun paikalla), yhteydet, toimintojen kuvaukset, Miksi?, ikkunan tiivistys
 
 ## Selaintestit (Chromium, tietokoneleveys 1440 ja 1280 px)
@@ -19,6 +20,7 @@ Skripti poimii `index.html`:n lohkot `engine` (moottori) ja `ui` (käyttöliitty
 - `selain_02_logiikka.py` – nuolen veto, valikko palikan päälle pudotettaessa, ikkuna, ikkunan tyyppi, toiminto, nuolen irrotus, elävät arvot
 - `selain_03_esimerkki_ja_tallennus.py` – esimerkkiprojekti, Siirry näkymien välillä, kaavio, kalenteri, tumma tila, päivämäärämuoto, vienti ja tuonti
 - `selain_07_versio3.py` – pikaluonti (vaihtoehtoryhmä lukuineen ja kyllä/ei-kysymys), käyttö lukittuna, pikatoiminto ”Arvo, kun valittu”, hakutaulukko paletista ja paneelista (osuva rivi, Miksi?, rivin laji ja järjestys), vain luettava kenttä syineen ja pois laskuista, Kumoa ja Vie taakse; kuvakaappaukset `versio3_*.png`
+- `selain_08_sijainnit.py` – versio 4: ⌖ Sijainti -nappi (keskipiste, zoomaus, kehys, Kumoa), alkukohta (lukitus ja uudelleenavaus), Ei rullausta (veto, rulla ja ⌘-zoomaus estetty, zoomausnapit piilossa), ⛶ Alue -nappi käyttönäkymän kokoisena, Alueen sisällä (reunat pitävät joka suuntaan, pieni alue keskellä myös vedossa), Siirry heti / vierien, toisen alueen sijainti vaihtaa rajauksen ja takaisin, sijainnit ja alueet piilossa käytössä, paneelin Kohta ruudulla, Zoomaus ja Päivitä tähän ruutuun; kuvakaappaukset `versio4_*.png`
 - `selain_04_versio2.py` – pikatoiminnot painikkeen asetuksista, Rinnakkain-näkymä ja valinnan korostus molemmilla puolilla, Miksi? ja Yhteydet, ikkunan tiivistys, monivalinta (⇧-napsautus ja alue), tasaus ja tasavälit, käytössä / pois, virhe palikassa, palikkalista
 
 Tulosteet ja kuvakaappaukset menevät kansioon `tulosteet/`. Testit ajetaan tietokoneselaimessa, eivät oikealla iPadilla.

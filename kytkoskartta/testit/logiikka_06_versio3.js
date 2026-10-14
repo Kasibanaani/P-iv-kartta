@@ -95,5 +95,5 @@ ryh.m='or';ryh.pakota=false;KK.press(R,btn[0].id,C);KK.press(R,btn[2].id,C);A.st
 var O=KK.newProject('vanha');var ok=KK.addBlock(O,'kytkin'),ol=KK.addBlock(O,'luku',{start:5,nk:{m:'kun',r:ok.id},nkt:'harmaa'});
 var before=JSON.stringify(O);KK.repair(O);A.strictEqual(JSON.stringify(O),before,'repair ei lisää uusia kenttiä vanhaan projektiin');
 A.strictEqual(V(O,ol),5);
-A.strictEqual(KK.VER,3);
+A.ok(KK.VER>=3,'versio vähintään 3');
 console.log('ok versio 3');
