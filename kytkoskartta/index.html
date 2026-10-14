@@ -379,7 +379,7 @@ textarea.fld{resize:none;flex:1}
 .relc small{color:var(--label3);font-weight:500}
 .relc:hover{border-color:var(--accent)}
 .errt{color:var(--h1)}
-.ln.g-kaava{--gc:var(--h3)}
+.ln.g-kaava{--gc:var(--h3)}.ln.g-aika{--gc:var(--h5)}
 .ln .lt code.kf{font:12px ui-monospace,Menlo,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;display:inline-block;vertical-align:bottom}
 .ln .vtag{position:absolute;right:9px;top:-16px;font:700 10.5px ui-monospace,Menlo,monospace;color:var(--vtc);white-space:nowrap;pointer-events:none}
 .vtc{color:var(--vtc);font-weight:700}
@@ -507,7 +507,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .kissl{margin-top:8px;font-size:12.5px;display:flex;flex-direction:column;gap:4px}
 .qas select+select{margin-top:6px}
 .lw.kt.col{background:color-mix(in srgb,var(--kc) 10%,var(--cell))}
-.ln.kv .pins{left:0;right:0;top:auto;bottom:auto;height:12px;flex-direction:row;justify-content:center;gap:26px}
+.ln.kv .pins{left:0;right:0;top:auto;bottom:auto;height:12px;flex-direction:row;justify-content:center;gap:44px}
 .ln.kv .pins.i{top:-7px}.ln.kv .pins.o{bottom:-7px}
 .ln.kv .pw{position:relative;display:inline-flex;justify-content:center}
 .ln.kv .pw>em{display:none;position:absolute;left:50%;transform:translateX(-50%);font-style:normal;font-size:10.5px;font-weight:700;white-space:nowrap;color:var(--label2);background:var(--bg);padding:1px 5px;border-radius:5px;pointer-events:none;z-index:3}
@@ -644,6 +644,7 @@ var K={
   ikkuna:{n:'Ikkuna',g:'lg',ic:'( )',d:{m:'and',n:1,j:'',pakota:false,muuten:false,off:false}},
   /* Versio 6: tapahtumaketju. Ketju on ikkuna, jonka sisällä palikat ovat tapahtumia, ja ne etenevät viivoja pitkin. */
   ketju:{n:'Ketju',g:'lg',ic:'⛓',d:{uusi:'ohita',off:false}},
+  ajastin:{n:'Ajastin',g:'lg',ic:'⏱',ch:1,d:{kesto:10,yks:'s',off:false}},
   tee:{n:'Toiminto',g:'lg',ic:'▶',d:{do:'aseta',o:'',v:'',vw:'',x:0,y:0,tx:'',off:false}}
 };
 var OPS={add:'+',sub:'−',mul:'×',div:'÷'};
@@ -687,6 +688,7 @@ function ports(b){
       break;
     case 'tee':ins=[E('e','tee kun'),V('v','arvo')];outs=[E('e','sitten')];break;
     case 'ketju':ins=[E('e','käynnistä'),E('x','pysäytä')];outs=[V('v','käynnissä'),E('e','valmis')];break;
+    case 'ajastin':ins=[E('e','alkaa'),V('k','kesto')];outs=[E('e','kulunut'),V('v','käynnissä'),V('j','jäljellä s')];break;
   }
   return {ins:ins,outs:outs};
 }
@@ -694,7 +696,13 @@ function port(b,dir,p){var a=ports(b)[dir];for(var i=0;i<a.length;i++)if(a[i].p=
 /* Ikkunan kaltaiset: tavallinen ikkuna (sulut) ja ketju. Niillä on yksi esiintymä, leveys ja korkeus, ja palikoita voi laittaa sisään. */
 function isWin(b){return !!b&&(b.k==='ikkuna'||b.k==='ketju');}
 /* Ketjun palikat eli tapahtumat: ne etenevät ketjun sisällä viivoja pitkin. */
-var STEPK={tee:1};
+var STEPK={tee:1,ajastin:1};
+/* Ajastimen kesto: luku ja yksikkö. Sekunnista vuorokausiin. */
+var YKS={s:1000,min:60000,h:3600000,vrk:86400000},YKSN={s:'s',min:'min',h:'h',vrk:'vrk'};
+function fmtDur(ms){ms=Math.max(0,Math.round(ms));if(ms<1000&&ms>0)return fiNum(ms/1000)+' s';var t=Math.round(ms/1000),d=Math.floor(t/86400),h=Math.floor(t%86400/3600),m=Math.floor(t%3600/60),x=t%60,o=[];
+  if(d)o.push(d+' vrk');if(h)o.push(h+' h');if(m&&!d)o.push(m+' min');if(x&&!d&&!h)o.push(x+' s');return o.length?o.join(' '):'0 s';}
+/* Jäljellä oleva aika kellona: 0:07, 12:30, 1:02:03 tai 2 vrk 3 h. */
+function fmtLeft(ms){var t=Math.max(0,Math.ceil(ms/1000));if(t>=86400)return fmtDur(t*1000);var h=Math.floor(t/3600),m=Math.floor(t%3600/60),x=t%60;function z(n){return (n<10?'0':'')+n;}return h?h+':'+z(m)+':'+z(x):m+':'+z(x);}
 function isStep(b){return !!b&&!!STEPK[b.k];}
 
 /* ---------- Arvot ---------- */
@@ -939,7 +947,7 @@ function repair(P){
     cs.run=!!cs.run;if(!Array.isArray(cs.tk))cs.tk=[];cs.tk=cs.tk.filter(function(t){return t&&typeof t==='object'&&typeof t.n==='string';});
     cs.tk.forEach(function(t){if(!Array.isArray(t.v))t.v=[];if(t.u!=null&&typeof t.u!=='number')delete t.u;if(typeof t.a!=='number')delete t.a;});
     if(!cs.fl||typeof cs.fl!=='object')cs.fl={};if(cs.run&&!cs.tk.length)cs.run=false;});
-  Object.keys(P.b).forEach(function(id){var b=P.b[id];if(b.k==='ketju'&&b.uusi!=='alusta'&&b.uusi!=='ohita')b.uusi='ohita';});
+  Object.keys(P.b).forEach(function(id){var b=P.b[id];if(b.k==='ketju'&&b.uusi!=='alusta'&&b.uusi!=='ohita')b.uusi='ohita';if(b.k==='ajastin'&&!YKS[b.yks])b.yks='s';});
   var seenWin={};
   P.lg.n=P.lg.n.filter(function(n){
     var b=P.b[n.p];if(!b)return false;
@@ -1167,6 +1175,10 @@ function Ev(P,ctx){
     return ev(ast);
   }
   function stv(id,def){return P.st.hasOwnProperty(id)?P.st[id]:def;}
+  /* Ajastimen jäljellä oleva aika (ms), jos jokin ketjun haara odottaa siinä. Lyhin, jos haaroja on monta. */
+  function timerLeft(id){var best=null,ns={};P.lg.n.forEach(function(n){if(n.p===id)ns[n.id]=n;});
+    Object.keys(ns).forEach(function(nid){var ch=chainOfNode(P,ns[nid]);var cs=ch&&P.st[ch.id];if(!cs||!cs.run)return;
+      (cs.tk||[]).forEach(function(t){if(t.n===nid&&t.u!=null){var l=Math.max(0,t.u-now.getTime());if(best==null||l<best)best=l;}});});return best;}
   function compute(id,p,raw){
     var b=B[id];if(!b)return null;
     /* Piilotetun syötteen arvo: säilyy (oletus), palautuu alkuun (tick) tai jää pois laskuista eli on tyhjä. */
@@ -1196,6 +1208,7 @@ function Ev(P,ctx){
       case 'kun':{if(!has(id,'c'))return true;var ck=inp(id,'c');return isErr(ck)?ck:truth(ck);}
       case 'ikkuna':return win(id);
       case 'ketju':{var cs=P.st[id];return !!(cs&&cs.run);}
+      case 'ajastin':{var lw=timerLeft(id);if(p==='j')return lw==null?null:Math.ceil(lw/1000);return lw!=null;}
     }
     return null;
   }
@@ -1273,7 +1286,7 @@ function Ev(P,ctx){
     if(!visible(id))s=b.nkt==='harmaa'?'harmaa':b.nkt==='luku'?'luettava':'piilossa';
     if(STRANK[s]<STRANK.harmaa&&greyed(id))s='harmaa';
     return s;
-  }  return {val:val,inp:inp,has:has,tpl:tpl,text:text,visible:visible,alt:alt,hue:hue,greyed:greyed,state:state,prop:prop,kaava:kaava,targetOf:targetOf,ownerOf:ownerOf,linked:linked,srcVal:srcVal,members:members,hakuRow:hakuRow,shown:function(id){var b=B[id];return b&&b.nka==='pois'?compute(id,'v',true):val(id,'v');},
+  }  return {timerLeft:timerLeft,val:val,inp:inp,has:has,tpl:tpl,text:text,visible:visible,alt:alt,hue:hue,greyed:greyed,state:state,prop:prop,kaava:kaava,targetOf:targetOf,ownerOf:ownerOf,linked:linked,srcVal:srcVal,members:members,hakuRow:hakuRow,shown:function(id){var b=B[id];return b&&b.nka==='pois'?compute(id,'v',true):val(id,'v');},
     fmt:function(v){return fmt(v,df);},now:now,df:df,outl:outl,inl:inl,nid:nid};
 }
 
@@ -1395,11 +1408,15 @@ function isChainLink(P,l){
   var o=port(P.b[f.p],'outs',l.fp),i=port(P.b[t.p],'ins',l.tp);return !!(o&&i&&o.t==='e'&&i.t==='e');
 }
 function chainLinksFrom(P,nid,p){return P.lg.l.filter(function(l){return l.f===nid&&(p==null||l.fp===p)&&isChainLink(P,l);});}
-/* Alkupalikat: vaiheet, joihin ei tule ketjun viivaa. Ylin ensin. */
+/* Alkupalikat: vaiheet, joihin ei tule ketjun viivaa. Ylin ensin. Jos ketju on kokonaan kehä (jokaiseen tulee viiva),
+   se alkaa ylimmästä palikasta. */
 function chainStarts(P,kid){
   var inc={};P.lg.l.forEach(function(l){if(isChainLink(P,l))inc[l.t]=1;});
-  return chainSteps(P,kid).filter(function(n){return !inc[n.id];}).sort(function(a,b){return a.y-b.y||a.x-b.x;});
+  var all=chainSteps(P,kid).sort(function(a,b){return a.y-b.y||a.x-b.x;});
+  var st=all.filter(function(n){return !inc[n.id];});
+  return st.length?st:all.slice(0,1);
 }
+function chainIsRing(P,kid){var inc={};P.lg.l.forEach(function(l){if(isChainLink(P,l))inc[l.t]=1;});var all=chainSteps(P,kid);return all.length>0&&all.every(function(n){return inc[n.id];});}
 /* Vaiheet järjestyksessä alusta alkaen (leveyshaku), lopuksi ne, joihin ei päästä. */
 function chainOrder(P,kid){
   var seen={},out=[],q=chainStarts(P,kid).map(function(n){return n.id;});
@@ -1429,7 +1446,7 @@ function chainStart(P,kid,ctx,at,depth){
   cs=P.st[kid]={run:true,n:((cs&&cs.n)||0)+1,t0:now,tk:[],err:'',fl:{}};
   if(!w||!starts.length){
     var has=chainSteps(P,kid).length;
-    chainErr(P,kid,has?'Ketjulla ei ole alkua: jokaiseen palikkaan tulee viiva.':'Ketju on tyhjä: siinä ei ole tapahtumia.',now);return false;}
+    chainErr(P,kid,'Ketju on tyhjä: siinä ei ole tapahtumia.',now);return false;}
   starts.forEach(function(n){cs.tk.push({n:n.id,a:now,v:[]});});
   chainAdvance(P,kid,ctx,depth);
   return true;
@@ -1439,8 +1456,24 @@ function chainStop(P,kid,ctx){var cs=P.st[kid];if(!cs||!cs.run)return false;cs.r
 function stepRun(P,sb,t,ctx,depth,now,seenT){
   switch(sb.k){
     case 'tee':runAction(P,sb.id,ctx,(depth||0)+1);return {p:'e',fired:true};
+    case 'ajastin':{
+      if(t.u==null){var d=timerMs(P,sb.id,ctx);if(isErr(d))return {err:d.err};
+        /* Aloitus: hetki, jolloin haara tuli tähän. Jos ajastin on jo tehty tällä tarkistuskerralla (kehä), aloitetaan nyt,
+           jotta suljettuna ollut appi ei tee kiinni jääneitä kierroksia. */
+        var a=(seenT[t.n]||t.a==null)?now:Math.min(t.a,now);t.s=a;t.u=a+d;}
+      seenT[t.n]=1;
+      if(t.u>now)return {wait:t.u};
+      return {p:'e'};}
   }
   return {p:'e'};
+}
+function timerMs(P,id,ctx){
+  var b=P.b[id],ev=Ev(P,ctx),x=ev.linked(id,'k')?ev.inp(id,'k'):parseLit(b.kesto);
+  if(isErr(x))return x;var n=num(x);
+  if(x==null||x===''||isNaN(n))return ERR('kesto ei ole luku');
+  if(n<=0)return ERR('kesto on nolla');
+  var ms=n*(YKS[b.yks]||1000);if(ms>3650*864e5)return ERR('kesto on yli 10 vuotta');
+  return Math.round(ms);
 }
 function chainAdvance(P,kid,ctx,depth){
   var cs=P.st[kid],b=P.b[kid];if(!cs||!cs.run||!b)return false;
@@ -1453,11 +1486,11 @@ function chainAdvance(P,kid,ctx,depth){
       if(!n||!sb||!w||n.g!==w.id||!isStep(sb)){changed=true;continue;} // tapahtuma poistettu tai siirretty pois ketjusta
       if(t.u==null&&t.v.indexOf(n.id)>=0){chainErr(P,kid,'Ketju pysäytettiin: se kiersi kehää ilman ajastinta (palikka ”'+sb.nm+'” tuli vastaan uudelleen samalla hetkellä). Lisää kehään ajastin.',now);return true;}
       if(++steps>CH_STEPS){chainErr(P,kid,'Ketju pysäytettiin: yli '+CH_STEPS+' tapahtumaa samalla hetkellä.',now);return true;}
-      var r;
+      var r,had=t.u!=null;
       if(sb.off)r={p:'e',skip:true};
       else r=stepRun(P,sb,t,ctx,depth,now,seenT);
       if(r.err){chainErr(P,kid,'”'+sb.nm+'”: '+r.err,now);return true;}
-      if(r.wait!=null){if(t.u==null||t.u!==r.wait){t.u=r.wait;changed=true;}keep.push(t);continue;}
+      if(r.wait!=null){if(!had)changed=true;keep.push(t);continue;}
       if(!cs.run)return true; // tapahtuma pysäytti ketjun
       changed=true;cs.fl[n.id]=now;
       if(!r.fired&&!r.skip)fire(P,sb.id,r.p,ctx,(depth||0)+1);
@@ -1598,6 +1631,10 @@ function why(P,E,id,depth,seen){
         var pv=E.prop(t.id,t.p);r.kids.push({id:t.id,nm:P.b[t.id].nm+' .'+t.p,k:P.b[t.id].k,v:pv,ok:typeof pv==='boolean'?pv:null,err:isErr(pv)?pv.err:'',txt:'',kids:[]});});
       break;}
     case 'tee':r.txt=descAct(P,id);break;
+    case 'ajastin':{var tl=E.timerLeft(id),dm=timerMs(P,id,{now:function(){return E.now;}});
+      var inch=nodesOfBlock(P,id).some(function(n){return chainOfNode(P,n);});
+      r.txt=!inch?'Ajastin toimii ketjun sisällä: vedä se ketjuikkunaan.':isErr(dm)?'Kesto: '+dm.err+'.':tl!=null?'Odottaa '+fmtDur(dm)+'. Jäljellä '+fmtLeft(tl)+'.':'Odottaa '+fmtDur(dm)+', kun ketju tulee tähän.';
+      r.ok=tl!=null;break;}
     case 'ketju':{var ci=P.st[id]||{},cn=chainSteps(P,id).length;
       r.txt=!cn?'Ketju on tyhjä.':ci.run?'Ketju on käynnissä: '+(ci.tk||[]).length+' haara'+((ci.tk||[]).length===1?'':'a')+' menossa.':ci.err?'Ketju pysähtyi: '+ci.err:ci.n?'Ketju ei ole käynnissä. Se on käynnistynyt '+ci.n+' kertaa.':'Ketju ei ole vielä käynnistynyt.';
       r.ok=!!ci.run;break;}
@@ -1618,8 +1655,8 @@ function why(P,E,id,depth,seen){
   return r;
 }
 
-return {chainStart:chainStart,chainStop:chainStop,chainAdvance:chainAdvance,chainPoll:chainPoll,chainInfo:chainInfo,anyChainRunning:anyChainRunning,CH_STEPS:CH_STEPS,CH_TOKENS:CH_TOKENS,
-  isWin:isWin,isStep:isStep,STEPK:STEPK,chainNode:chainNode,chainOfNode:chainOfNode,chainSteps:chainSteps,isChainLink:isChainLink,chainLinksFrom:chainLinksFrom,chainStarts:chainStarts,chainOrder:chainOrder,
+return {YKS:YKS,YKSN:YKSN,fmtDur:fmtDur,fmtLeft:fmtLeft,timerMs:timerMs,chainStart:chainStart,chainStop:chainStop,chainAdvance:chainAdvance,chainPoll:chainPoll,chainInfo:chainInfo,anyChainRunning:anyChainRunning,CH_STEPS:CH_STEPS,CH_TOKENS:CH_TOKENS,
+  isWin:isWin,isStep:isStep,STEPK:STEPK,chainNode:chainNode,chainOfNode:chainOfNode,chainSteps:chainSteps,isChainLink:isChainLink,chainLinksFrom:chainLinksFrom,chainStarts:chainStarts,chainIsRing:chainIsRing,chainOrder:chainOrder,
   VER:VER,K:K,KW:KW,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,kaavaToIds:kaavaToIds,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
   ports:ports,port:port,newProject:newProject,addBlock:addBlock,addNode:addNode,addLink:addLink,canLink:canLink,
   removeNode:removeNode,removeBlock:removeBlock,nodeOf:nodeOf,nodesOfBlock:nodesOfBlock,uniqueName:uniqueName,baseName:baseName,
@@ -1677,7 +1714,7 @@ function viewName(id){for(var i=0;i<P.views.length;i++)if(P.views[i].id===id)ret
 function hueCls(h){return 'h'+clamp(+h||0,0,7);}
 function groupOf(b){
   if(isUI(b))return 'ui';
-  switch(b.k){case 'lasku':return 'lasku';case 'vert':return 'vert';case 'jos':case 'kun':case 'valitse':case 'haku':return 'ehto';case 'tee':return 'tee';case 'tanaan':case 'pvmosa':return 'pvm';case 'kaava':case 'tulos':return 'kaava';}
+  switch(b.k){case 'lasku':return 'lasku';case 'vert':return 'vert';case 'jos':case 'kun':case 'valitse':case 'haku':return 'ehto';case 'tee':return 'tee';case 'tanaan':case 'pvmosa':return 'pvm';case 'kaava':case 'tulos':return 'kaava';case 'ajastin':return 'aika';case 'ketju':return 'tee';}
   return 'arvo';
 }
 function icon(b){if(b.k==='lasku')return KK.OPS[b.op];if(b.k==='vert')return KK.CMPS[b.op];if(b.k==='muoto')return {laatikko:'▢',ympyra:'◯',lappu:'▤',pilleri:'⬭',kehys:'⬚'}[b.laji]||'▢';return K[b.k].ic;}
@@ -1875,7 +1912,7 @@ function renderPal(){
     h+='</div><div class="pt-h">Ikkunat</div><div class="chips">';
     [['and',4],['or',6],['one',7],['min',3],['max',3],['eq',3],['not',1],['cnt',3],['sum',2],['avg',2],['maxv',2],['minv',2]].forEach(function(m){h+=chipHTML('ikkuna',{m:m[0]},KK.WM[m[0]],'( )',m[1]);});
     h+=chipHTML('ikkuna',{m:'and',j:'jos'},'JOS-ikkuna','?',4)+chipHTML('ikkuna',{m:'and',j:'kun'},'KUN-ikkuna','⚡',5);
-    h+='</div><div class="pt-h">Ketju</div><div class="chips">'+chipHTML('ketju',{},'Ketju','⛓',1)+chipHTML('tee',{do:'aseta'},'Aseta arvo','▶',1)+'</div>';
+    h+='</div><div class="pt-h">Ketju</div><div class="chips">'+chipHTML('ketju',{},'Ketju','⛓',1)+chipHTML('ajastin',{},'Ajastin','⏱',5)+chipHTML('tee',{do:'aseta'},'Aseta arvo','▶',1)+'</div>';
     h+='<div class="pt-h">Ehdot</div><div class="chips">'+chipHTML('jos',{},'JOS','?',4)+chipHTML('valitse',{},'VALITSE','⑂',4)+chipHTML('kun',{},'KUN','⚡',4)+chipHTML('haku',{},'Hakutaulukko','⇉',4)+'</div>';
     h+='<div class="pt-h">Toiminnot</div><div class="chips">';
     Object.keys(KK.DOS).forEach(function(d){h+=chipHTML('tee',{do:d},KK.DOS[d],'▶',1);});
@@ -2324,7 +2361,7 @@ function renderLogicStage(){
   if(!P.lg.n.length){var d=document.createElement('div');d.className='empty-c';d.id='lempty';d.innerHTML='<b>Logiikka on tyhjä</b>Vedä vasemmalta näkymän palikoita, laskuja, vertailuja, ikkunoita ja toimintoja. Yhdistä ne nuolilla oikeasta reunasta vasempaan.';st.appendChild(d);}
 }
 var OPTPINS={nk:1,tx:1,vr:1,'in':1};
-function optPin(b,p){return OPTPINS[p.p]||(b.k==='tee'&&p.p==='v')||(b.k==='kun'&&p.p==='e')||(b.k==='ikkuna'&&p.p==='e');}
+function optPin(b,p){return OPTPINS[p.p]||(b.k==='tee'&&p.p==='v')||(b.k==='kun'&&p.p==='e')||(b.k==='ikkuna'&&p.p==='e')||(b.k==='ketju'&&p.p==='x')||(b.k==='ajastin'&&p.p==='k');}
 function pinsHTML(b,n,kv){
   var pr=KK.ports(b),h='';
   var linkedIn={};P.lg.l.forEach(function(l){if(l.t===n.id)linkedIn[l.tp]=1;});
@@ -2348,6 +2385,8 @@ function litText(E,b,key,id){
   return '<i>'+esc(KK.toNames(P,String(x)))+'</i>';
 }
 function valChip(E,b,id){
+  if(b.k==='ajastin'){var tl=E.timerLeft(id);return tl==null?'':'<span class="lv on kleft" title="Jäljellä">⏳ '+esc(KK.fmtLeft(tl))+'</span>';}
+  if(b.k==='ketju')return '';
   var pr=KK.ports(b);if(!pr.outs.some(function(p){return p.p==='v';}))return '';
   var v=E.val(id);
   if(KK.isErr(v))return '<span class="lv err" title="'+esc(v.err)+'">⚠ '+esc(v.err)+'</span>';
@@ -2373,6 +2412,7 @@ function nodeHTML(n,b,E){
     case 'kun':lab='KUN';break;
     case 'haku':{var nr=(b.rivit||[]).length;lab='Hakutaulukko <i>'+nr+' rivi'+(nr===1?'':'ä')+'</i>';break;}
     case 'tee':lab=esc(KK.descAct(P,id).replace(/^\(pois käytöstä\) /,''));break;
+    case 'ajastin':{var dm=KK.timerMs(P,id,ctx());lab=(b.nmSet?esc(b.nm)+' <i>':'Odota <i>')+(KK.isErr(dm)?'⚠':esc(E.linked(id,'k')?'nuolesta':KK.fmtDur(dm)))+'</i>';break;}
     default:lab=esc(b.nm);
   }
   var cap=b.nmSet&&!isUI(b)&&b.k!=='muisti'&&b.k!=='arvo'&&b.k!=='tulos'?'<div class="cap">'+esc(b.nm)+'</div>':'';
@@ -2398,7 +2438,7 @@ function winHTML(n,E){
 /* Ketjuikkuna: punainen reuna, nimi aina näkyvissä, tila ja ▶-napilla kokeilu. */
 function chainHTML(n,E){
   var b=P.b[n.p],col=!!n.col,cs=P.st[b.id]||{},run=!!cs.run;
-  var cnt=col?descendants(n.id).length:0,iss=chainIssues(b.id);
+  var cnt=col?descendants(n.id).length:0,iss=chainIssues(b.id).filter(function(x){return !x.info;});
   var stt=b.off?'<span class="offt">pois päältä</span>':run?'<span class="kst on">käynnissä</span>':(cs.err?'<span class="kst er" title="'+esc(cs.err)+'">⚠ pysähtyi</span>':'');
   return '<div class="lw kt'+(col?' col':'')+(b.off?' off':'')+(run?' running':'')+'" data-nid="'+n.id+'" style="left:'+n.x+'px;top:'+n.y+'px'+(col?'':';width:'+n.w+'px;height:'+n.h+'px')+'">'+
     '<div class="wh"><span class="ktl">⛓ KETJU</span><span class="wname">'+esc(b.nm)+' <span class="wvt">'+esc(b.vt)+'</span>'+(col?' <small>· '+cnt+' sisällä</small>':'')+'</span>'+stt+
@@ -2411,7 +2451,7 @@ function chainHTML(n,E){
 function chainIssues(kid){
   var b=P.b[kid],out=[];if(!b)return out;var steps=KK.chainSteps(P,kid);
   if(!steps.length)return out;
-  if(!KK.chainStarts(P,kid).length)out.push({t:'Ketjulla ei ole alkua: jokaiseen palikkaan tulee viiva. Poista yksi viiva, niin ketju alkaa siitä palikasta.'});
+  if(KK.chainIsRing(P,kid))out.push({info:1,t:'Ketju on kehä: jokaiseen palikkaan tulee viiva, joten se alkaa ylimmästä palikasta. Kehässä pitää olla ajastin.'});
   steps.forEach(function(n){var sb=P.b[n.p];if(sb.k==='tee'&&['aseta','lisaa','valitse','poista','vaihda','tyhjenna','tila','kirjaa','rivi'].indexOf(sb.do)>=0&&!P.b[sb.o])out.push({n:n.id,t:'”'+sb.nm+'”: kohde puuttuu.'});});
   return out;
 }
@@ -2995,19 +3035,20 @@ function lgInsp(b,E,node){
       break;
     case 'tee':h+=teeInsp(b,E)+(node&&KK.chainOfNode(P,node)?'':qaSection(b,'e','Sitten','Tehdään tämän toiminnon jälkeen.'));break;
     case 'ketju':h+=chainStatus(b)+chainInsp(b,E,node);break;
+    case 'ajastin':h+=timerInsp(b,E,node);break;
   }
   if(node&&KK.chainOfNode(P,node))h+=stepInsp(b,node);
   return h;
 }
 /* ---------- Ketjun tarkastelija ---------- */
-var STEPMENU=function(){return Object.keys(KK.DOS).map(function(d){return ['tee:'+d,KK.DOS[d]];});};
+var STEPMENU=function(){return [['ajastin','Ajastin (odota)']].concat(Object.keys(KK.DOS).map(function(d){return ['tee:'+d,KK.DOS[d]];}));};
 function stepSelect(attr,label){return '<select '+attr+'><option value="">'+esc(label)+'</option>'+STEPMENU().map(function(o){return '<option value="'+esc(o[0])+'">'+esc(o[1])+'</option>';}).join('')+'</select>';}
 function chainInsp(b,E,node){
   var order=KK.chainOrder(P,b.id),h='';
   h+='<div class="help" style="margin:0 0 8px">Ketju lähtee käyntiin, kun kohtaan <b>käynnistä</b> tulee tapahtuma (esim. painike painettu) tai siihen tuleva arvo alkaa päteä. Sitten se etenee punaisia viivoja pitkin palikasta toiseen. Jos samasta palikasta lähtee monta viivaa, haarat etenevät rinnakkain.</div>';
   var steps=order.map(function(nid,i){var n=KK.nodeOf(P,nid),sb=n&&P.b[n.p];if(!sb)return '';return '<div class="qa'+(sb.off?' off':'')+'"><span class="qn">'+(i+1)+'</span><button class="qt" data-kgo="'+nid+'" title="Näytä palikka">'+esc(stepText(sb))+'</button><button class="qx" data-kdel="'+nid+'" title="Poista tapahtuma">×</button></div>';}).join('');
   h+='<div class="qas">'+(steps||'<div class="help" style="margin:0 0 6px">Ketjussa ei ole vielä tapahtumia.</div>')+stepSelect('data-kadd="end"','＋ Lisää tapahtuma loppuun…')+(order.length?stepSelect('data-kadd="start"','＋ Lisää tapahtuma alkuun…'):'')+'</div>';
-  var iss=chainIssues(b.id);if(iss.length)h+='<div class="kissl">'+iss.map(function(x){return '<div class="errt">⚠ '+esc(x.t)+'</div>';}).join('')+'</div>';
+  var iss=chainIssues(b.id);if(iss.length)h+='<div class="kissl">'+iss.map(function(x){return x.info?'<div class="help" style="margin:0">ℹ︎ '+esc(x.t)+'</div>':'<div class="errt">⚠ '+esc(x.t)+'</div>';}).join('')+'</div>';
   return section('Tapahtumat järjestyksessä',h);
 }
 /* ▶ käynnistää ketjun nyt (kokeilu), ■ pysäyttää. Tapahtumat tehdään oikeasti. */
@@ -3026,7 +3067,21 @@ function chainStatus(b){
   h+='<div class="help">▶ on kokeilua varten: ketjun tapahtumat tehdään oikeasti, eli arvot ja tilat muuttuvat. Kumoa ei peru niitä, mutta projektien Tyhjennä käyttötiedot palauttaa ne.</div>';
   return section('Tila',h);
 }
-function stepText(sb){if(sb.k==='tee')return KK.descAct(P,sb.id);return sb.nm;}
+function stepText(sb){if(sb.k==='tee')return KK.descAct(P,sb.id);if(sb.k==='ajastin'){var d=KK.timerMs(P,sb.id,ctx());return (sb.nmSet?sb.nm+': ':'Odota ')+(KK.isErr(d)?'⚠ '+d.err:KK.fmtDur(d));}return sb.nm;}
+/* Ajastin: kesto ja yksikkö sekä tila. */
+function hmFull(ms){var d=new Date(ms);return d.getHours()+'.'+('0'+d.getMinutes()).slice(-2)+(d.getSeconds()?'.'+('0'+d.getSeconds()).slice(-2):'');}
+function timerInsp(b,E,node){
+  var lk=E.linked(b.id,'k'),dm=KK.timerMs(P,b.id,ctx());
+  var h=lk?'<div class="help" style="margin:0 0 8px">Kesto tulee nuolesta (kohta ”kesto”), yksikkönä '+esc(KK.YKSN[b.yks])+'.</div>':F('Kesto','<input data-k="kesto" inputmode="decimal" value="'+esc(b.kesto)+'" style="max-width:110px">');
+  h+=fSegs(lk?'Yksikkö':'','yks',b.yks,[['s','sekuntia'],['min','minuuttia'],['h','tuntia'],['vrk','vuorokautta']]);
+  h+='<div class="help">'+(KK.isErr(dm)?'<span class="errt">⚠ '+esc(dm.err)+'</span>':'Odottaa <b>'+esc(KK.fmtDur(dm))+'</b>.')+' Kesto voi olla myös desimaaliluku, esim. 1,5 tuntia.</div>';
+  var inch=node&&KK.chainOfNode(P,node);
+  if(!inch)h+='<div class="help errt">Ajastin toimii ketjun sisällä. Vedä se ketjuikkunaan.</div>';
+  var ch=inch,cs=ch&&P.st[ch.id],tk=cs&&cs.run?(cs.tk||[]).filter(function(t){return t.n===node.id&&t.u!=null;}):[];
+  if(tk.length)h+='<div class="kstat2 on">'+tk.map(function(t){return '<b>Käynnissä: alkoi klo '+esc(hmFull(t.s||t.u-dm))+', valmis klo '+esc(hmFull(t.u))+'</b><div>Jäljellä '+esc(KK.fmtLeft(t.u-Date.now()))+'</div>';}).join('')+'</div>';
+  h+='<div class="help">Kun ketju tulee ajastimeen, se tallentaa aloitusajan ja odottaa. Kun aika on kulunut, ketju jatkuu seuraavaan palikkaan. <b>Kun appi on kiinni, mitään ei tapahdu.</b> Appi tarkistaa ajan, kun se avataan ja käytön aikana: jos aika on jo kulunut, ketju jatkuu heti avattaessa.</div>';
+  return section('Ajastin',h);
+}
 /* Tapahtuman paikka ketjussa: mistä tullaan ja mihin jatketaan. */
 function stepInsp(b,node){
   var ins=P.lg.l.filter(function(l){return l.t===node.id&&KK.isChainLink(P,l);}),outs=KK.chainLinksFrom(P,node.id);

@@ -47,11 +47,12 @@ k.uusi='alusta';KK.press(P,btn.id,C);A.strictEqual(P.st[k.id].n,10);A.deepStrict
 k.uusi='ohita';
 // ketju pois päältä: ei käynnisty
 k.off=true;r0=rows().length;KK.press(P,btn.id,C);A.strictEqual(rows().length,r0);k.off=false;
-// tyhjä ketju ja ketju ilman alkua: selkeä virhe
+// tyhjä ketju: selkeä virhe; kehä alkaa ylimmästä, ja kehä ilman ajastinta pysäytetään
 var k2=KK.addBlock(P,'ketju'),w2=KK.addNode(P,k2.id,0,900);A.strictEqual(KK.chainStart(P,k2.id,C),false);A.ok(/tyhjä/.test(P.st[k2.id].err));
 var x1=KK.addBlock(P,'tee',{do:'ilmoita',tx:'1'}),x2=KK.addBlock(P,'tee',{do:'ilmoita',tx:'2'});var nx1=KK.addNode(P,x1.id,0,940,w2.id),nx2=KK.addNode(P,x2.id,0,1000,w2.id);
 KK.addLink(P,nx1.id,'e',nx2.id,'e');KK.addLink(P,nx2.id,'e',nx1.id,'e');
-A.strictEqual(KK.chainStart(P,k2.id,C),false);A.ok(/ei ole alkua/.test(P.st[k2.id].err));
+A.ok(KK.chainIsRing(P,k2.id));A.deepStrictEqual(KK.chainStarts(P,k2.id).map(function(n){return n.id;}),[nx1.id],'kehä alkaa ylimmästä');
+KK.chainStart(P,k2.id,C);A.strictEqual(P.st[k2.id].run,false);A.ok(/kehää ilman ajastinta/.test(P.st[k2.id].err),'kehä ilman ajastinta pysähtyy');
 // arvo käynnissä ja Miksi?
 A.strictEqual(KK.Ev(P,C).val(k.id),false);P.st[k.id]={run:true,n:1,tk:[{n:a.id,a:0,u:T.getTime()+1000,v:[]}],fl:{}};A.strictEqual(KK.Ev(P,C).val(k.id),true);
 A.ok(/käynnissä: 1 haara/.test(KK.why(P,KK.Ev(P,C),k.id,1).txt));
