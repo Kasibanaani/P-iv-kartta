@@ -498,6 +498,11 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .lw.kt .kiss{color:var(--kc);font-weight:800;font-size:11.5px;flex:none;cursor:help}
 .lw.kt .kempty{position:absolute;left:16px;right:16px;top:50px;font-size:12px;color:var(--label3);line-height:1.4;pointer-events:none}
 .lw.kt.running{box-shadow:0 0 0 3px color-mix(in srgb,var(--kc) 22%,transparent)}
+.lw.kt .kpl{border:0;background:var(--kc);color:#fff;font-size:11px;font-weight:800;width:24px;height:22px;border-radius:7px;flex:none;cursor:pointer;line-height:1}
+.kstat2{border-radius:12px;padding:8px 10px;background:var(--tint);font-size:13px;margin-bottom:8px}
+.kstat2.on{background:color-mix(in srgb,var(--h1) 12%,var(--cell))}.kstat2.on b{color:var(--h1)}
+.kstat2.er{background:var(--s1)}.kstat2.er b,.kstat2.er div{color:var(--h1)}
+.kstat2 div{margin-top:3px;font-size:12.5px}
 .kch{display:inline-flex;align-items:center;gap:2px}
 .kissl{margin-top:8px;font-size:12.5px;display:flex;flex-direction:column;gap:4px}
 .qas select+select{margin-top:6px}
@@ -509,6 +514,9 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .ln.kv .pins.i .pw>em{bottom:15px}.ln.kv .pins.o .pw>em{top:15px}
 .ln.kv:hover .pw>em,.ln.kv.sel .pw>em,.linking .ln.kv .pw>em{display:block}
 .ln.kv .pt.e{border-color:var(--kc)}
+.ln.kv.krun{border-color:var(--kc);box-shadow:0 0 0 3px color-mix(in srgb,var(--kc) 35%,transparent),var(--shadow)}
+.ln.kv.kdone{animation:kflash 1.4s ease-out 1}
+@keyframes kflash{0%{box-shadow:0 0 0 4px color-mix(in srgb,var(--kc) 55%,transparent),var(--shadow)}100%{box-shadow:var(--shadow)}}
 .ln.kv .vtag{right:auto;left:calc(100% + 8px);top:10px}
 #lsvg path.lk.ch{stroke:var(--kc);stroke-width:2.6;opacity:.95}
 #lsvg path.lk.ch.sel{stroke:var(--accent);stroke-width:3.5}
@@ -1297,7 +1305,11 @@ function clearVal(P,id){
   var b=P.b[id];if(!b)return;delete P.st[id];
 }
 function handleLink(P,l,ctx,depth){
-  var t=nodeOf(P,l.t);if(!t)return;var tb=P.b[t.p];if(!tb||tb.off)return;
+  var t=nodeOf(P,l.t);if(!t)return;var tb=P.b[t.p];if(!tb)return;
+  /* Ketju: käynnistä ja pysäytä. Nuoli ulkoa ketjun tapahtumaan käynnistää ketjun siitä kohdasta. */
+  if(tb.k==='ketju'){if(l.tp==='e')chainStart(P,tb.id,ctx,null,depth+1);else if(l.tp==='x')chainStop(P,tb.id,ctx);return;}
+  var tch=chainOfNode(P,t);if(tch){if(!isChainLink(P,l)&&(port(tb,'ins',l.tp)||{}).t==='e')chainStart(P,tch.id,ctx,t.id,depth+1);return;}
+  if(tb.off)return;
   if(tb.k==='tee'&&l.tp==='e')runAction(P,tb.id,ctx,depth+1);
   else if(tb.k==='kun'&&l.tp==='e'){var ev=Ev(P,ctx);if(!ev.has(tb.id,'c')||truth(ev.inp(tb.id,'c')))fire(P,tb.id,'e',ctx,depth+1);}
   else if(tb.k==='ikkuna'&&tb.j==='kun'&&l.tp==='e'){var e2=Ev(P,ctx);if(truth(e2.val(tb.id)))fire(P,tb.id,'e',ctx,depth+1);}
@@ -1394,6 +1406,86 @@ function chainOrder(P,kid){
   while(q.length){var id=q.shift();if(seen[id])continue;seen[id]=1;out.push(id);chainLinksFrom(P,id).forEach(function(l){if(!seen[l.t])q.push(l.t);});}
   chainSteps(P,kid).sort(function(a,b){return a.y-b.y||a.x-b.x;}).forEach(function(n){if(!seen[n.id]){seen[n.id]=1;out.push(n.id);}});
   return out;
+}
+
+/* ---------- Ketjun ajo ----------
+   Ketjussa on haaroja (tk). Jokainen haara on jossakin tapahtumassa. Kun ketju käynnistyy, jokaiseen alkupalikkaan tulee
+   haara. Tapahtuma tehdään, ja haara jatkaa sen viivoja pitkin: jos viivoja on monta, haara jakautuu ja osat etenevät
+   rinnakkain. Odottava tapahtuma (ajastin) pysäyttää vain oman haaransa; ketju jatkuu, kun aika on kulunut, myös silloin
+   kun appi on ollut välillä kiinni (tarkistus appia avattaessa ja käytön aikana). Ketju on valmis, kun viimeinenkin
+   haara on päässyt loppuun. Hätäjarru: kehä ilman odotusta pysäyttää ketjun, ja samoin valtava määrä askelia tai haaroja. */
+var CH_STEPS=5000,CH_TOKENS=2000;
+var CH_ADV={};
+function nowMs(ctx){return (ctx&&ctx.now?ctx.now():new Date()).getTime();}
+function chainErr(P,kid,msg,now){var cs=P.st[kid];if(!cs)return;cs.run=false;cs.tk=[];cs.err=msg;cs.end=now;}
+function chainStart(P,kid,ctx,at,depth){
+  var b=P.b[kid];if(!b||b.k!=='ketju'||b.off)return false;
+  if(CH_ADV[kid])return false; // ketju on jo etenemässä: estetään kehä
+  if((depth||0)>60)return false;
+  var now=nowMs(ctx),cs=P.st[kid];
+  if(cs&&cs.run&&b.uusi!=='alusta')return false;
+  var w=chainNode(P,kid),atn=at?nodeOf(P,at):null;
+  var starts=atn?[atn]:chainStarts(P,kid);
+  cs=P.st[kid]={run:true,n:((cs&&cs.n)||0)+1,t0:now,tk:[],err:'',fl:{}};
+  if(!w||!starts.length){
+    var has=chainSteps(P,kid).length;
+    chainErr(P,kid,has?'Ketjulla ei ole alkua: jokaiseen palikkaan tulee viiva.':'Ketju on tyhjä: siinä ei ole tapahtumia.',now);return false;}
+  starts.forEach(function(n){cs.tk.push({n:n.id,a:now,v:[]});});
+  chainAdvance(P,kid,ctx,depth);
+  return true;
+}
+function chainStop(P,kid,ctx){var cs=P.st[kid];if(!cs||!cs.run)return false;cs.run=false;cs.tk=[];cs.end=nowMs(ctx);cs.stop=true;return true;}
+/* Yhden tapahtuman tekeminen. Palauttaa {p: portti, jota pitkin jatketaan} tai {wait: ms-aikaleima} tai {err}. */
+function stepRun(P,sb,t,ctx,depth,now,seenT){
+  switch(sb.k){
+    case 'tee':runAction(P,sb.id,ctx,(depth||0)+1);return {p:'e',fired:true};
+  }
+  return {p:'e'};
+}
+function chainAdvance(P,kid,ctx,depth){
+  var cs=P.st[kid],b=P.b[kid];if(!cs||!cs.run||!b)return false;
+  var now=nowMs(ctx),w=chainNode(P,kid),changed=false,steps=0,seenT={};
+  CH_ADV[kid]=1;
+  try{
+    var queue=cs.tk.slice(),keep=[];cs.tk=[];
+    while(queue.length){
+      var t=queue.shift(),n=nodeOf(P,t.n),sb=n&&P.b[n.p];
+      if(!n||!sb||!w||n.g!==w.id||!isStep(sb)){changed=true;continue;} // tapahtuma poistettu tai siirretty pois ketjusta
+      if(t.u==null&&t.v.indexOf(n.id)>=0){chainErr(P,kid,'Ketju pysäytettiin: se kiersi kehää ilman ajastinta (palikka ”'+sb.nm+'” tuli vastaan uudelleen samalla hetkellä). Lisää kehään ajastin.',now);return true;}
+      if(++steps>CH_STEPS){chainErr(P,kid,'Ketju pysäytettiin: yli '+CH_STEPS+' tapahtumaa samalla hetkellä.',now);return true;}
+      var r;
+      if(sb.off)r={p:'e',skip:true};
+      else r=stepRun(P,sb,t,ctx,depth,now,seenT);
+      if(r.err){chainErr(P,kid,'”'+sb.nm+'”: '+r.err,now);return true;}
+      if(r.wait!=null){if(t.u==null||t.u!==r.wait){t.u=r.wait;changed=true;}keep.push(t);continue;}
+      if(!cs.run)return true; // tapahtuma pysäytti ketjun
+      changed=true;cs.fl[n.id]=now;
+      if(!r.fired&&!r.skip)fire(P,sb.id,r.p,ctx,(depth||0)+1);
+      if(!P.st[kid]||P.st[kid]!==cs||!cs.run)return true; // ketju käynnistettiin alusta tai pysäytettiin tapahtumassa
+      var nx=chainLinksFrom(P,n.id,r.p),vis=t.u!=null?[]:t.v.concat([n.id]),at=t.u!=null?t.u:t.a;
+      nx.forEach(function(l){queue.push({n:l.t,a:at,v:vis.slice()});});
+      if(queue.length+keep.length>CH_TOKENS){chainErr(P,kid,'Ketju pysäytettiin: yli '+CH_TOKENS+' haaraa yhtä aikaa.',now);return true;}
+    }
+    cs.tk=keep;
+    if(!keep.length){cs.run=false;cs.end=now;changed=true;fire(P,kid,'e',ctx,(depth||0)+1);}
+  }finally{delete CH_ADV[kid];}
+  return changed;
+}
+/* Tarkistus appia avattaessa ja käytön aikana: onko jonkin ketjun odotus päättynyt? */
+function chainPoll(P,ctx){
+  var any=false;
+  Object.keys(P.b).forEach(function(id){var b=P.b[id];if(b.k!=='ketju')return;var cs=P.st[id];if(!cs||!cs.run)return;
+    if(b.off){chainStop(P,id,ctx);any=true;return;}
+    if(chainAdvance(P,id,ctx,0))any=true;});
+  if(any)tick(P,ctx);
+  return any;
+}
+function anyChainRunning(P){return Object.keys(P.st||{}).some(function(id){var b=P.b[id];return b&&b.k==='ketju'&&P.st[id]&&P.st[id].run;});}
+/* Seurantaa varten: missä haarat ovat ja kauanko odotusta on jäljellä. */
+function chainInfo(P,kid,ctx){
+  var cs=P.st[kid]||{},now=nowMs(ctx);
+  return {run:!!cs.run,n:cs.n||0,err:cs.err||'',stop:!!cs.stop,end:cs.end||0,t0:cs.t0||0,
+    tk:(cs.tk||[]).map(function(t){return {n:t.n,u:t.u,left:t.u!=null?Math.max(0,t.u-now):null};}),fl:cs.fl||{}};
 }
 
 /* ---------- Yhteydet: mistä palikka saa arvonsa ja missä sitä käytetään ---------- */
@@ -1506,6 +1598,9 @@ function why(P,E,id,depth,seen){
         var pv=E.prop(t.id,t.p);r.kids.push({id:t.id,nm:P.b[t.id].nm+' .'+t.p,k:P.b[t.id].k,v:pv,ok:typeof pv==='boolean'?pv:null,err:isErr(pv)?pv.err:'',txt:'',kids:[]});});
       break;}
     case 'tee':r.txt=descAct(P,id);break;
+    case 'ketju':{var ci=P.st[id]||{},cn=chainSteps(P,id).length;
+      r.txt=!cn?'Ketju on tyhjä.':ci.run?'Ketju on käynnissä: '+(ci.tk||[]).length+' haara'+((ci.tk||[]).length===1?'':'a')+' menossa.':ci.err?'Ketju pysähtyi: '+ci.err:ci.n?'Ketju ei ole käynnissä. Se on käynnistynyt '+ci.n+' kertaa.':'Ketju ei ole vielä käynnistynyt.';
+      r.ok=!!ci.run;break;}
     default:
       if(K[b.k].g==='ui'){
         var lnm=function(l){var f=E.nid[l.f];if(!f)return '?';var sb=P.b[f.p];var pn=port(sb,'outs',l.fp);return (f.not?'EI ':'')+sb.nm+(l.fp!=='v'&&pn?' ('+pn.n+')':'');};
@@ -1523,7 +1618,8 @@ function why(P,E,id,depth,seen){
   return r;
 }
 
-return {isWin:isWin,isStep:isStep,STEPK:STEPK,chainNode:chainNode,chainOfNode:chainOfNode,chainSteps:chainSteps,isChainLink:isChainLink,chainLinksFrom:chainLinksFrom,chainStarts:chainStarts,chainOrder:chainOrder,
+return {chainStart:chainStart,chainStop:chainStop,chainAdvance:chainAdvance,chainPoll:chainPoll,chainInfo:chainInfo,anyChainRunning:anyChainRunning,CH_STEPS:CH_STEPS,CH_TOKENS:CH_TOKENS,
+  isWin:isWin,isStep:isStep,STEPK:STEPK,chainNode:chainNode,chainOfNode:chainOfNode,chainSteps:chainSteps,isChainLink:isChainLink,chainLinksFrom:chainLinksFrom,chainStarts:chainStarts,chainOrder:chainOrder,
   VER:VER,K:K,KW:KW,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,kaavaToIds:kaavaToIds,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
   ports:ports,port:port,newProject:newProject,addBlock:addBlock,addNode:addNode,addLink:addLink,canLink:canLink,
   removeNode:removeNode,removeBlock:removeBlock,nodeOf:nodeOf,nodesOfBlock:nodesOfBlock,uniqueName:uniqueName,baseName:baseName,
@@ -1558,7 +1654,7 @@ function load(){
 }
 function curProject(){for(var i=0;i<Dt.projects.length;i++)if(Dt.projects[i].id===Dt.cur)return Dt.projects[i];return null;}
 var saveT=null;
-function save(){clearTimeout(saveT);saveT=setTimeout(saveNow,250);}
+function save(){clearTimeout(saveT);saveT=setTimeout(saveNow,250);if(typeof chainTimer==='function')setTimeout(chainTimer,0);}
 var storeOk=true;
 function saveNow(){clearTimeout(saveT);trackChanges();try{localStorage.setItem(LS,JSON.stringify(Dt));storeOk=true;}catch(e){storeOk=false;toast('Tallennus ei onnistunut: selaimen muisti on täynnä. Vie varmuuskopio.');}renderStat();}
 function ctx(){return {now:function(){return new Date();},df:Dt.cfg.df,nav:navTo,toast:toast};}
@@ -1635,9 +1731,9 @@ function startPan(e,vp,getCam,after){
   drag(e,function(m){c.x=x0+m.clientX-sx;c.y=y0+m.clientY-sy;after();},function(){vp.classList.remove('panning');save();});
 }
 function drag(e,move,up){
-  var id=e.pointerId;var tgt=e.target;
+  var id=e.pointerId;var tgt=e.target;S.drg=(S.drg||0)+1;
   function mv(m){if(m.pointerId!==id)return;move(m);}
-  function u(m){if(m.pointerId!==id)return;window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',u);window.removeEventListener('pointercancel',u);up&&up(m);}
+  function u(m){if(m.pointerId!==id)return;window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',u);window.removeEventListener('pointercancel',u);S.drg=Math.max(0,(S.drg||0)-1);up&&up(m);}
   window.addEventListener('pointermove',mv);window.addEventListener('pointerup',u);window.addEventListener('pointercancel',u);
 }
 
@@ -2240,7 +2336,9 @@ function pinsHTML(b,n,kv){
   return h;
 }
 /* Ketjun seuranta: missä tapahtumassa ketju on menossa. */
-function stepCls(n){var ch=KK.chainOfNode(P,n);var cs=ch&&P.st[ch.id];if(!cs||!cs.tk)return '';return cs.tk.some(function(t){return t.n===n.id;})?' krun':'';}
+function stepCls(n){var ch=KK.chainOfNode(P,n);var cs=ch&&P.st[ch.id];if(!cs||!cs.tk)return '';
+  if(cs.tk.some(function(t){return t.n===n.id;}))return ' krun';
+  var f=cs.fl&&cs.fl[n.id];return f&&Date.now()-f<1500?' kdone':'';}
 /* Onko solmu ketjun tapahtuma (pystysuuntaiset kohdat)? */
 function isKV(nid){var n=KK.nodeOf(P,nid);return !!(n&&KK.chainOfNode(P,n));}
 function litText(E,b,key,id){
@@ -2305,6 +2403,7 @@ function chainHTML(n,E){
   return '<div class="lw kt'+(col?' col':'')+(b.off?' off':'')+(run?' running':'')+'" data-nid="'+n.id+'" style="left:'+n.x+'px;top:'+n.y+'px'+(col?'':';width:'+n.w+'px;height:'+n.h+'px')+'">'+
     '<div class="wh"><span class="ktl">⛓ KETJU</span><span class="wname">'+esc(b.nm)+' <span class="wvt">'+esc(b.vt)+'</span>'+(col?' <small>· '+cnt+' sisällä</small>':'')+'</span>'+stt+
     (iss.length&&!col?'<span class="kiss" title="'+esc(iss.map(function(x){return x.t;}).join('\n'))+'">⚠ '+iss.length+'</span>':'')+
+    (b.off?'':'<button class="kpl" data-kplay title="'+(run?'Pysäytä ketju':'Käynnistä ketju nyt (kokeilu)')+'">'+(run?'■':'▶')+'</button>')+
     '<button class="wcol" data-col title="'+(col?'Avaa ketju (tai kaksoisnapauta)':'Tiivistä ketju pieneksi')+'">'+(col?'⤢':'–')+'</button></div>'+pinsHTML(b,n)+
     (col||descendants(n.id).length?'':'<div class="kempty">Vedä tähän tapahtumia, esim. Aseta arvo tai Ajastin. Ketju etenee viivoja pitkin.</div>')+(col?'':'<i class="rs"></i>')+'</div>';
 }
@@ -2452,6 +2551,8 @@ function bindLogicStage(){
     if(e.button===1||(e.button===0&&S.space)){e.preventDefault();startPan(e,vp,camL,function(){applyCam(vp,$('#lworld'),camL());});return;}
     if(e.button!==0)return;
     if(e.target.closest('select,input'))return;
+    var kpl=e.target.closest('[data-kplay]');
+    if(kpl){e.preventDefault();var kn=KK.nodeOf(P,kpl.closest('.lw').getAttribute('data-nid'));if(kn)chainToggle(kn.p);return;}
     var colb=e.target.closest('[data-col]');
     if(colb){e.preventDefault();toggleCol(KK.nodeOf(P,colb.closest('.lw').getAttribute('data-nid')));return;}
     var wmb=e.target.closest('[data-wmb]');
@@ -2893,7 +2994,7 @@ function lgInsp(b,E,node){
       if(b.j==='kun')h+=qaSection(b,'e','Läpi','Tehdään, kun tapahtuma pääsee ikkunan läpi.');
       break;
     case 'tee':h+=teeInsp(b,E)+(node&&KK.chainOfNode(P,node)?'':qaSection(b,'e','Sitten','Tehdään tämän toiminnon jälkeen.'));break;
-    case 'ketju':h+=chainInsp(b,E,node);break;
+    case 'ketju':h+=chainStatus(b)+chainInsp(b,E,node);break;
   }
   if(node&&KK.chainOfNode(P,node))h+=stepInsp(b,node);
   return h;
@@ -2908,6 +3009,22 @@ function chainInsp(b,E,node){
   h+='<div class="qas">'+(steps||'<div class="help" style="margin:0 0 6px">Ketjussa ei ole vielä tapahtumia.</div>')+stepSelect('data-kadd="end"','＋ Lisää tapahtuma loppuun…')+(order.length?stepSelect('data-kadd="start"','＋ Lisää tapahtuma alkuun…'):'')+'</div>';
   var iss=chainIssues(b.id);if(iss.length)h+='<div class="kissl">'+iss.map(function(x){return '<div class="errt">⚠ '+esc(x.t)+'</div>';}).join('')+'</div>';
   return section('Tapahtumat järjestyksessä',h);
+}
+/* ▶ käynnistää ketjun nyt (kokeilu), ■ pysäyttää. Tapahtumat tehdään oikeasti. */
+function chainToggle(kid){
+  var b=P.b[kid];if(!b)return;var c=ctx();
+  if(P.st[kid]&&P.st[kid].run){KK.chainStop(P,kid,c);toast('Ketju ”'+b.nm+'” pysäytettiin.');}
+  else{var cs0=P.st[kid];var n0=cs0&&cs0.n||0;KK.chainStart(P,kid,c,null,0);var cs=P.st[kid]||{};
+    if(cs.err)toast('⚠ '+cs.err);else if(cs.run)toast('Ketju ”'+b.nm+'” käynnistyi.');else if((cs.n||0)>n0)toast('Ketju ”'+b.nm+'” kulki läpi.');}
+  KK.tick(P,c);save();renderStage();renderInsp();chainTimer();
+}
+function chainStatus(b){
+  var ci=KK.chainInfo(P,b.id,ctx()),h='';
+  var t=b.off?'Pois päältä: ketju ei käynnisty.':ci.run?'Käynnissä · '+ci.tk.length+' haara'+(ci.tk.length===1?'':'a')+' menossa':ci.err?'Pysähtyi':ci.n?(ci.stop?'Pysäytetty':'Valmis')+' · käynnistynyt '+ci.n+' kertaa':'Ei ole vielä käynnistynyt';
+  h+='<div class="kstat2'+(ci.run?' on':'')+(ci.err&&!ci.run?' er':'')+'"><b>'+esc(t)+'</b>'+(ci.err&&!ci.run?'<div>'+esc(ci.err)+'</div>':'')+'</div>';
+  h+='<div class="ibs">'+(b.off?'':'<button class="ib nf" data-kplay2="1">'+(ci.run?'■ Pysäytä':'▶ Käynnistä nyt')+'</button>')+'</div>';
+  h+='<div class="help">▶ on kokeilua varten: ketjun tapahtumat tehdään oikeasti, eli arvot ja tilat muuttuvat. Kumoa ei peru niitä, mutta projektien Tyhjennä käyttötiedot palauttaa ne.</div>';
+  return section('Tila',h);
 }
 function stepText(sb){if(sb.k==='tee')return KK.descAct(P,sb.id);return sb.nm;}
 /* Tapahtuman paikka ketjussa: mistä tullaan ja mihin jatketaan. */
@@ -3118,6 +3235,7 @@ $('#insp').addEventListener('change',function(e){
 });
 $('#insp').addEventListener('click',function(e){
   var g=e.target.closest('[data-goto]');if(g){gotoBlock(g.getAttribute('data-goto'));return;}
+  if(e.target.closest('[data-kplay2]')){var kb=selBlock();if(kb&&kb.k==='ketju')chainToggle(kb.id);return;}
   var kgo=e.target.closest('[data-kgo]');if(kgo){var kn=KK.nodeOf(P,kgo.getAttribute('data-kgo'));if(kn){S.sel={t:'n',id:kn.id};S.multi=[];syncSel();renderInsp();}return;}
   var kdel=e.target.closest('[data-kdel]');if(kdel){pushUndo();removeStep(kdel.getAttribute('data-kdel'));afterInsp(true);return;}
   var kunl=e.target.closest('[data-kunl]');if(kunl){pushUndo();var lid=kunl.getAttribute('data-kunl');P.lg.l=P.lg.l.filter(function(l){return l.id!==lid;});afterInsp(true);return;}
@@ -3581,6 +3699,29 @@ $('#ghbtn').addEventListener('click',function(){var p=Dt.projects.filter(functio
   openSettingsGh();});
 document.addEventListener('visibilitychange',function(){if(document.hidden){if(ghOn()&&gh.auto){saveNow();ghFlush();}}else if(P)ghCheck(P);});
 
+/* ---------- Ketjut etenevät, kun appi on auki ----------
+   Odottava ketju (ajastin) tarkistetaan, kun appi avataan, kun se tulee taas näkyviin ja sekunnin välein käytön aikana.
+   Kun appi on kiinni, mitään ei tapahdu taustalla: ketju jatkuu siitä, kun appi seuraavan kerran avataan. */
+function pollChains(){
+  if(!Dt)return false;var cur=false;
+  Dt.projects.forEach(function(p){if(!KK.anyChainRunning(p))return;var c=p===P?ctx():{now:function(){return new Date();},df:Dt.cfg.df};
+    if(KK.chainPoll(p,c)&&p===P)cur=true;});
+  return cur;
+}
+var chT=null;
+function chainTimer(){
+  var any=Dt&&Dt.projects.some(function(p){return KK.anyChainRunning(p);});
+  if(any&&!chT)chT=setInterval(chainTick,1000);else if(!any&&chT){clearInterval(chT);chT=null;}
+}
+function chainTick(){
+  if(!P){chainTimer();return;}
+  var ch=pollChains();
+  if(ch)save();
+  if(!S.drg&&(ch||KK.anyChainRunning(P))){if(showL()&&$('#lvp'))renderLogicStage();if(ch&&showU()&&$('#uvp'))renderUIStage();var sb=selBlock();if(sb&&(sb.k==='ketju'||KK.isStep(sb))&&!($('#insp')&&$('#insp').contains(document.activeElement)))renderInsp();}
+  chainTimer();
+}
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&P){if(pollChains()){save();renderStage();}chainTimer();}});
+
 /* ---------- Päivä vaihtuu ---------- */
 var lastDay=KK.iso(new Date());
 setInterval(function(){var d=KK.iso(new Date());if(d!==lastDay&&P){lastDay=d;KK.tick(P,ctx());save();renderStage();}},30000);
@@ -3590,10 +3731,12 @@ window.addEventListener('beforeunload',saveNow);
 /* ---------- Käynnistys ---------- */
 load();
 if(P){S.vw=P.views[0].id;KK.tick(P,ctx());}
+if(pollChains())saveNow();
 /* Projektin avaus lukittuna: alkukohtaan (kanvaasin koko tiedetään vasta piirron jälkeen). */
 function startAfterOpen(){if(P&&locked()&&viewOf(S.vw)&&viewOf(S.vw).alku&&$('#uvp')){goStart(S.vw);renderUIStage();}}
 renderAll();startAfterOpen();
 renderGh();if(ghOn()){ghCheck(P).then(function(){return ghNew();}).then(function(){ghFlush();});}
+chainTimer();
 return {get data(){return Dt;},get P(){return P;},S:S,gh:gh,ghPush:function(){return ghPush(P);},ghCheck:function(){return ghCheck(P);},ghNew:function(a){return ghNew(a);},ghFlush:ghFlush,ghMeta:ghMeta,exportAll:exportAll,renderAll:renderAll,openExample:openExample,saveNow:saveNow,ev:ev,ctx:ctx};
 })();
 </script>
