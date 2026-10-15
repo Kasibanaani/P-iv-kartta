@@ -80,3 +80,10 @@ Emilin päätös: jokainen palikan arvo ja ominaisuus saa viitteen, jotta sitä 
 - **Ympäristö kaavassa:** `ruutu.leveys`, `ruutu.korkeus`, `näkymä`, `näkymä.numero`, `nyt` (kello), `nyt.tunti`, `nyt.minuutti`, `nyt.sekunti`, `tumma`. Sanat ovat varattuja viitteinä.
 - **Kyllä vihreä, ei sininen** (muuttujat `--kyl`, `--ein`), koska punainen kuuluu ketjuille ja oranssi viitteille.
 
+
+## 8. Appi-appi: maailma (16.10.2026 alkaen)
+
+Emilin päätös 15.10.2026: Clauden maailmaehdotus toteutetaan järjestyksessä. Kanvaasi on maailma, erillistä maailmaikkunaa ei tehdä. Liike-, törmäys- ja kameralogiikka on moottorissa (`KK`), ei käyttöliittymässä, jotta se toimii myöhemmin myös viedyssä apissa.
+
+- **Vaihe 0 (nimenvaihto):** Pajakone → Appi-appi, kansio `appiappi/`, tiedot siirtyvät samasta selaimesta ja GitHubista.
+- **Vaihe 1 (kamera ja maailmanäkymä):** näkymän asetuksissa Maailma ja kamera: rullaus pystyyn / kaikkiin suuntiin / ei, kamera seuraa palikkaa, kuollut alue ympyränä (% ruudusta), pehmeys, maailman rajat Alue-palikasta. Kerrosten rullausvauhti molempiin suuntiin, lukittu kerros on kojelauta. Muokatessa kuollut alue näkyy katkoviivaympyränä laitteen kehyksessä.

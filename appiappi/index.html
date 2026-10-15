@@ -145,6 +145,8 @@ button{cursor:pointer}
 .dupc{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:6px 0}
 .dupc input{width:58px;border:1px solid var(--sep);border-radius:8px;padding:5px 7px;background:var(--tint)}
 .dframe{position:absolute;left:0;top:0;border:2px solid var(--accent);border-radius:44px;box-shadow:0 0 0 100000px rgba(0,0,0,.05);pointer-events:none}
+.dframe.dworld{box-shadow:none;border-style:dashed}
+.dframe .dzone{position:absolute;border:2px dotted var(--accent);border-radius:50%;opacity:.6}
 .dframe span{position:absolute;left:18px;top:-24px;font:600 12px var(--font,system-ui);color:var(--accent);white-space:nowrap}
 .devstage{background:var(--sep2)}
 .devstage .zoomc{display:none}
@@ -1316,6 +1318,45 @@ function laiteBottom(P,vw){var L=laite(P,vw);if(!L)return 0;var m=L.h;
   Object.keys(P.b).forEach(function(id){var b=P.b[id];if(!K[b.k]||K[b.k].g!=='ui'||b.v!==vw||b.k==='merkki'||b.k==='alue')return;if(b.x>=L.w||b.x+b.w<=0)return;if(rvOf(P,b)<100)return;m=Math.max(m,(b.y||0)+(b.h||0));});
   return m;}
 
+/* ---------- Appi-appi 1: maailma ja kamera ----------
+   Laitenäkymän rullaus v.lrul: puuttuva = pystyyn (kuten ennen), 'kaikki' = kaikkiin suuntiin (maailma), 'ei' = ei rullausta.
+   Kamera v.kam = {o: seurattava palikka, ka: kuollut alue % (0 = aina keskellä, 100 = ruudun reunaan asti), pe: pehmeys %
+   (0 = heti, 100 = hidas), ra: maailman rajat (Alue-palikan tunniste; puuttuva = seuratessa ei rajaa, muuten sisällön mukaan)}.
+   Kamera on ruudun vasemman yläkulman kohta maailmassa {x, y}; ruutu {w, h} maailman pikseleinä. Kamerat itse ovat
+   käyttöliittymän tietoa (P.cam, vain selaimessa); moottori laskee niiden liikkeen. Seuraaminen tarkoittaa myös rullausta
+   kaikkiin suuntiin. Kerrosten rullausvauhti (rv) toimii nyt molempiin suuntiin. */
+function lrul(P,vw){var v=viewById(P,vw);if(!v||!laite(P,vw))return '';var k=kamera(P,vw);if(k)return 'kaikki';return v.lrul==='kaikki'||v.lrul==='ei'?v.lrul:'';}
+function kamera(P,vw){var v=viewById(P,vw),k=v&&v.kam;if(!k||typeof k!=='object'||!laite(P,vw))return null;var b=P.b[k.o];if(!b||!K[b.k]||K[b.k].g!=='ui'||b.v!==vw)return null;
+  function pc(x,d){var n=parseNum(x);return isNaN(n)?d:Math.max(0,Math.min(100,n));}
+  var ra=P.b[k.ra];return {o:k.o,ka:pc(k.ka,30),pe:pc(k.pe,40),ra:ra&&ra.k==='alue'&&ra.v===vw?k.ra:''};}
+/* Palikan suorakulmio nyt (ohjattu > asetettu > perusarvo, lisäksi siirto x/y nuolesta). */
+function rectNow(P,ev,b){var x=ev.omiNum(b.id,'x',b.x||0),y=ev.omiNum(b.id,'y',b.y||0),w=ev.omiNum(b.id,'w',b.w||0),h=ev.omiNum(b.id,'h',b.h||0);
+  if(ev.linked(b.id,'dx')){var dx=num(ev.inp(b.id,'dx'));if(isFinite(dx))x+=dx;}if(ev.linked(b.id,'dy')){var dy=num(ev.inp(b.id,'dy'));if(isFinite(dy))y+=dy;}
+  return {x:x,y:y,w:Math.max(0,w),h:Math.max(0,h)};}
+/* Rajat {x0, y0, x1, y1} kameralle: valittu alue, tai (ilman seurantaa) sisällön mukaan: laitteen ruutu ja kaikki palikat, jotka
+   rullautuvat sormen mukana. Seuratessa ilman rajaa = null (maailma jatkuu). */
+function kameraRajat(P,vw,ctx){var L=laite(P,vw);if(!L)return null;var v=viewById(P,vw),k=kamera(P,vw),raId=k?k.ra:(v&&v.kam&&v.kam.ra);
+  var ra=P.b[raId];if(ra&&ra.k==='alue'&&ra.v===vw){var ev=Ev(P,ctx),r=rectNow(P,ev,ra);return {x0:r.x,y0:r.y,x1:r.x+r.w,y1:r.y+r.h};}
+  if(k)return null;
+  var m={x0:0,y0:0,x1:L.w,y1:L.h};
+  Object.keys(P.b).forEach(function(id){var b=P.b[id];if(!K[b.k]||K[b.k].g!=='ui'||b.v!==vw||b.k==='merkki')return;if(rvOf(P,b)<100)return;
+    m.x0=Math.min(m.x0,b.x||0);m.y0=Math.min(m.y0,b.y||0);m.x1=Math.max(m.x1,(b.x||0)+(b.w||0));m.y1=Math.max(m.y1,(b.y||0)+(b.h||0));});
+  return m;}
+/* Pitää ruudun rajojen sisällä. Rajoja pienempi suunta keskitetään. */
+function kameraRajaa(P,vw,cam,scr,ctx){var r=kameraRajat(P,vw,ctx),o={x:num(cam.x)||0,y:num(cam.y)||0};if(!r)return o;
+  function ax(p,len,a,b){if(b-a<=len)return a-(len-(b-a))/2;return Math.max(a,Math.min(b-len,p));}
+  o.x=ax(o.x,scr.w,r.x0,r.x1);o.y=ax(o.y,scr.h,r.y0,r.y1);return o;}
+/* Kamera seuraa palikkaa: palikan keskipiste saa liikkua kuolleen alueen (ympyrä ruudun keskellä, säde = ka % puolikkaasta
+   lyhyemmästä sivusta) sisällä, ja vasta sen reunalla kamera lähtee mukaan. Pehmeys hidastaa kiinniottoa (aikavakio 0,05–1 s).
+   dt = null: heti kohteen kohdalle (avattaessa). Palauttaa uuden kameran {x, y} rajattuna. */
+function kameraSeuraa(P,vw,cam,scr,dt,ctx){var k=kamera(P,vw);if(!k)return kameraRajaa(P,vw,cam,scr,ctx);
+  var ev=Ev(P,ctx),r=rectNow(P,ev,P.b[k.o]),tx=r.x+r.w/2,ty=r.y+r.h/2,cx=(num(cam.x)||0)+scr.w/2,cy=(num(cam.y)||0)+scr.h/2;
+  if(dt==null){cx=tx;cy=ty;}
+  else{var R=k.ka/100*Math.min(scr.w,scr.h)/2,dx=tx-cx,dy=ty-cy,d=Math.sqrt(dx*dx+dy*dy),gx=cx,gy=cy;
+    if(d>R&&d>0){gx=tx-dx/d*R;gy=ty-dy/d*R;}
+    var a=k.pe<=0?1:1-Math.exp(-Math.max(0,num(dt)||0)/(0.05+k.pe/100*0.95));cx+=(gx-cx)*a;cy+=(gy-cy)*a;}
+  var o=kameraRajaa(P,vw,{x:cx-scr.w/2,y:cy-scr.h/2},scr,ctx);o.x=Math.round(o.x*100)/100;o.y=Math.round(o.y*100)/100;return o;}
+
 /* ---------- Projekti ---------- */
 function uid(){return 'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
 function newProject(name){
@@ -1484,6 +1525,13 @@ function repair(P){
     if(v.alku!==undefined){var m=P.b[v.alku];if(!m||m.k!=='merkki'||m.v!==v.id)delete v.alku;}
     if(v.rul!==undefined&&v.rul!=='alue'&&v.rul!=='ei')delete v.rul;
     if(v.laite!==undefined&&!LAITE[v.laite])delete v.laite;
+    /* Appi-appi 1: rullaus kaikkiin suuntiin ja kamera. */
+    if(v.lrul!==undefined&&v.lrul!=='kaikki'&&v.lrul!=='ei')delete v.lrul;
+    if(v.kam!==undefined){var km=v.kam;if(!km||typeof km!=='object'||Array.isArray(km))delete v.kam;else{var ko={};
+      var kb=P.b[km.o];if(kb&&K[kb.k]&&K[kb.k].g==='ui'&&kb.v===v.id)ko.o=km.o;
+      ['ka','pe'].forEach(function(f){var n=parseNum(km[f]);if(!isNaN(n))ko[f]=Math.max(0,Math.min(100,Math.round(n)));});
+      var kra=P.b[km.ra];if(kra&&kra.k==='alue'&&kra.v===v.id)ko.ra=km.ra;
+      if(Object.keys(ko).length)v.kam=ko;else delete v.kam;}}
     if(v.kr!==undefined){if(!Array.isArray(v.kr))delete v.kr;else{var kseen={},kl=[];
       v.kr.forEach(function(k){if(!k||typeof k!=='object')return;var kid=String(k.id||'');if(!/^(pohja|k\d+)$/.test(kid)||kseen[kid])return;kseen[kid]=1;
         var o={id:kid,n:String(k.n||(kid==='pohja'?'Pohja':'Kerros')).slice(0,60)};var kr=parseNum(k.rv);if(!isNaN(kr)&&kr<100)o.rv=Math.max(0,Math.round(kr));if(k.piilo===true)o.piilo=true;if(k.lukko===true)o.lukko=true;kl.push(o);});
@@ -2543,7 +2591,7 @@ function why(P,E,id,depth,seen){
 return {omat:omat,omFind:omFind,omNorm:omNorm,omBase:omBase,omNames:omNames,omActive:omActive,setOmi:setOmi,resetOmi:resetOmi,isOff:isOff,napVaihto:napVaihto,boolKey:boolKey,TIMEU:TIMEU,YKSA:YKSA,ENVW:ENVW,portsBase:portsBase,tattiSet:tattiSet,muutosStart:muutosStart,muutosStop:muutosStop,frame:frame,napExt:napExt,NAP_PITKA:NAP_PITKA,pressDown:pressDown,pressLong:pressLong,pressUp:pressUp,hasOut:hasOut,curveAt:curveAt,KAYRA_PRESETS:KAYRA_PRESETS,kayraPreset:kayraPreset,kayraResize:kayraResize,kayraDec:kayraDec,kayraSpec:kayraSpec,kayraAt:kayraAt,satuN:satuN,satuMuoto:satuMuoto,satuCurve:satuCurve,satuResize:satuResize,satuPreset:satuPreset,SATU_PRESETS:SATU_PRESETS,SATU_MAXN:SATU_MAXN,satuSpec:satuSpec,satuDist:satuDist,satuPick:satuPick,satuPct:satuPct,satuItemTxt:satuItemTxt,satuTop:satuTop,satuRoll:satuRoll,
   chainOpen:chainOpen,parseKlo:parseKlo,nextClock:nextClock,timerLabel:timerLabel,arpaN:arpaN,toistaN:toistaN,setMhLabel:function(f){MHLAB=f;},mhLabel:mhLabel,odotaLim:odotaLim,odotaEv:odotaEv,hasLimit:hasLimit,chainSignal:chainSignal,copyNodes:copyNodes,pasteNodes:pasteNodes,chainList:chainList,haaraVal:haaraVal,chainIssues:chainIssues,FXK:FXK,YKS:YKS,YKSN:YKSN,fmtDur:fmtDur,fmtLeft:fmtLeft,timerMs:timerMs,chainStart:chainStart,chainStop:chainStop,chainAdvance:chainAdvance,chainPoll:chainPoll,chainInfo:chainInfo,anyChainRunning:anyChainRunning,CH_STEPS:CH_STEPS,CH_TOKENS:CH_TOKENS,
   isWin:isWin,isStep:isStep,STEPK:STEPK,chainNode:chainNode,chainOfNode:chainOfNode,chainSteps:chainSteps,isChainLink:isChainLink,chainLinksFrom:chainLinksFrom,chainStarts:chainStarts,chainIsRing:chainIsRing,chainOrder:chainOrder,
-  VER:VER,PAJA:'4',LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,kerrokset:kerrokset,kerrosOf:kerrosOf,rvOf:rvOf,kuvaUrl:kuvaUrl,K:K,KW:KW,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,kaavaToIds:kaavaToIds,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
+  VER:VER,PAJA:'4',LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,kerrokset:kerrokset,kerrosOf:kerrosOf,rvOf:rvOf,kuvaUrl:kuvaUrl,K:K,KW:KW,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,kaavaToIds:kaavaToIds,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
   ports:ports,port:port,newProject:newProject,addBlock:addBlock,addNode:addNode,addLink:addLink,canLink:canLink,
   removeNode:removeNode,removeBlock:removeBlock,nodeOf:nodeOf,nodesOfBlock:nodesOfBlock,uniqueName:uniqueName,baseName:baseName,
   repair:repair,repairData:repairData,Ev:Ev,setVal:setVal,userSet:userSet,press:press,fire:fire,tick:tick,runAction:runAction,clearVal:clearVal,
@@ -2744,7 +2792,7 @@ function activeArea(vw){
   return areasIn(vw)[0]||null;
 }
 function useMode(){return !!P&&showU()&&locked();}
-function canPanUI(){return !useMode()||devOf()||rulOf(S.vw)!=='ei';}
+function canPanUI(){if(!useMode())return true;if(devOf()){var m=KK.lrul(P,S.vw);return m!=='ei'&&!KK.kamera(P,S.vw);}return rulOf(S.vw)!=='ei';}
 /* ---------- Laitemuoto (Pajakone 1) ----------
    Näkymän laite (puhelin, iPad pysty, iPad vaaka): muokatessa laitteen ruutu näkyy kanvaasilla kehyksenä kohdassa (0, 0).
    Käytössä näkymä on laitteen muotoinen: tietokoneella kehyksenä keskellä, kapealla ruudulla (oikea puhelin) koko alueen kokoisena.
@@ -2765,20 +2813,30 @@ function devLayout(){
   return {L:L,s:sc,full:full,w:w,h:h};
 }
 /* Pitää kameran laitteen ruudussa: leveys täyttyy, rullaus vain pystysuunnassa sisällön alareunaan asti. */
-function devClamp(){var d=devLayout();if(!d)return false;var c=camUI(),z=d.s;
+function devClamp(){var d=devLayout();if(!d)return false;var c=camUI(),z=d.s;c.z=z;
+  /* Appi-appi 1: kaikkiin suuntiin (maailma) tai kamera seuraa: rajaus moottorissa. Seuratessa kameran liike tulee kuvasilmukasta. */
+  if(KK.lrul(P,S.vw)==='kaikki'){var cm=KK.kameraRajaa(P,S.vw,{x:-c.x/z,y:-c.y/z},{w:d.w/z,h:d.h/z},ctx());c.x=-cm.x*z;c.y=-cm.y*z;return true;}
+  if(KK.lrul(P,S.vw)==='ei'){c.x=0;c.y=0;return true;}
   var vis=d.h/z,bot=KK.laiteBottom(P,S.vw),minY=-Math.max(0,bot-vis)*z;
-  c.z=z;c.x=0;c.y=Math.min(0,Math.max(minY,c.y));return true;}
+  c.x=0;c.y=Math.min(0,Math.max(minY,c.y));return true;}
+/* Appi-appi 1: kamera seuraa palikkaa. dt = null: heti kohteen kohdalle. Palauttaa, liikkuiko kamera (silmukka jatkuu, kunnes asettuu). */
+function camFollow(dt){if(!P||!useMode()||!KK.kamera(P,S.vw))return false;var d=devLayout();if(!d)return false;var c=camUI(),z=d.s;c.z=z;
+  var o={x:-c.x/z,y:-c.y/z},n=KK.kameraSeuraa(P,S.vw,o,{w:d.w/z,h:d.h/z},dt,ctx());c.x=-n.x*z;c.y=-n.y*z;
+  return Math.abs(n.x-o.x)>0.05||Math.abs(n.y-o.y)>0.05;}
 /* Rullausvauhti: palikka siirtyy rullatessa vain osan kameran liikkeestä (0 = lukittu ruutuun). Vain käytössä laitenäkymässä. */
 function applyRV(){var on=useMode()&&devOf(),um=useMode();var c=camUI(),E=um?ev():null;
   $$('#uels .ue').forEach(function(el){var b=P.b[el.getAttribute('data-id')];var rv=b?(um&&omOn(b)?E.omiNum(b.id,'rv',KK.rvOf(P,b)):KK.rvOf(P,b)):100;
-    var ox=0,oy=on&&rv<100?-c.y/c.z*(1-rv/100):0;
+    /* Appi-appi 1: rullausvauhti (parallaksi) molempiin suuntiin. */
+    var ox=on&&rv<100?-c.x/c.z*(1-rv/100):0,oy=on&&rv<100?-c.y/c.z*(1-rv/100):0;
     /* Pajakone 3d: siirto x / y logiikasta (vain käytössä). */
     if(um&&b){if(E.linked(b.id,'dx')){var dx=KK.num(E.inp(b.id,'dx'));if(isFinite(dx))ox+=dx;}if(E.linked(b.id,'dy')){var dy=KK.num(E.inp(b.id,'dy'));if(isFinite(dy))oy+=dy;}}
     el.style.transform=ox||oy?'translate('+ox.toFixed(2)+'px,'+oy.toFixed(2)+'px)':'';el.classList.toggle('rvlock',!!b&&rv===0&&!!devOf()&&!on);});}
 function drawDevFrame(){var w=$('#uworld');if(!w)return;var f=$('#dframe'),L=editingUI()?devOf():null;
   if(!L){if(f)f.remove();return;}
   if(!f){f=document.createElement('div');f.id='dframe';f.className='dframe';w.insertBefore(f,w.firstChild);}
-  f.style.width=L.w+'px';f.style.height=L.h+'px';f.innerHTML='<span>'+esc(L.n)+' · '+L.w+' × '+L.h+'</span>';}
+  var km=KK.kamera(P,S.vw),R=km?km.ka/100*Math.min(L.w,L.h)/2:0;f.classList.toggle('dworld',KK.lrul(P,S.vw)==='kaikki');
+  f.style.width=L.w+'px';f.style.height=L.h+'px';f.innerHTML='<span>'+esc(L.n)+' · '+L.w+' × '+L.h+(km?' · kamera seuraa: '+esc(P.b[km.o].nm):'')+'</span>'+
+    (km?'<i class="dzone" style="left:'+(L.w/2-R)+'px;top:'+(L.h/2-R)+'px;width:'+2*R+'px;height:'+2*R+'px" title="Kuollut alue: seurattava saa liikkua tässä ennen kuin kamera lähtee mukaan"></i>':'');}
 /* Muokatessa: näytä koko laitteen ruutu (ja palikat) kanvaasilla. */
 function fitDevice(){var vp=$('#uvp'),L=devOf();if(!vp||!L)return;var c=camUI();
   fitAll(vp,c,[{x:0,y:0,w:L.w,h:L.h}].concat(blocks(function(b){return isUI(b)&&b.v===S.vw&&b.x<L.w;}).map(rectOf)));uiCamChanged();}
@@ -2791,7 +2849,7 @@ function clampUI(){if(devClamp())return;if(!useMode()||rulOf(S.vw)!=='alue')retu
 /* Lukittuun käyttöön tultaessa näkymä aukeaa alkukohdastaan, jos sellainen on valittu. */
 function goStart(vw){
   if(!P||!locked())return;var v=viewOf(vw);var c=P.cam[vw]||(P.cam[vw]={x:60,y:60,z:1});delete c.a;
-  if(devOf(vw)){c.x=0;c.y=0;return;}
+  if(devOf(vw)){c.x=0;c.y=0;if(vw===S.vw&&KK.kamera(P,vw))camFollow(null);return;}
   var m=v&&v.alku&&P.b[v.alku];if(!m||m.k!=='merkki'||m.v!==vw)return;
   placeMark(c,m,vpSize());
   setArea(vw,areaAt(vw,markPt(m)));
@@ -3058,6 +3116,8 @@ function renderUIStage(){
   drawDeco(E);
   if(S.navAnim){world.classList.add('anim');setTimeout(function(){world.classList.remove('anim');},520);S.navAnim=false;}
   clampUI();applyCam(vp,world,camUI());applyRV();updRulers();drawMarkFrame();drawDevFrame();
+  /* Appi-appi 1: kamera tarkistaa paikkansa piirron jälkeen (ruudun koko voi muuttua, palikka voi hypätä). */
+  if(!S.frRaf&&!S.inFrame&&useMode()&&KK.kamera(P,S.vw)&&!S.camChk){S.camChk=1;requestAnimationFrame(function(){S.camChk=0;if(!S.frRaf&&camBehind()){S.camSnap=1;runFrames();}});}
   var em=$('#uempty',st);if(em)em.remove();
   if(!list.length&&ed){var d=document.createElement('div');d.className='empty-c';d.id='uempty';d.innerHTML='<b>Tyhjä näkymä</b>Vedä vasemmalta painikkeita, säätimiä, tekstejä ja muita palikoita. Logiikka-välilehdellä kytket ne toisiinsa.';st.appendChild(d);}
   var hint=$('#uhint');if(hint)hint.remove();
@@ -3355,11 +3415,17 @@ function blockedUE(el){return el.classList.contains('dim')||el.classList.contain
 function afterUse(keep){save();renderUIStage();if(S.sel)renderInsp();runFrames();}
 /* Pajakone 3d: kuvasilmukka liikkeille ja muutoksille. Käy vain, kun jokin liikkuu tai tatti on painettuna.
    Näkymä piirretään joka kuvassa, logiikan kanvaasi harvemmin; tallennus vasta, kun liike pysähtyy (ja 2 s välein). */
-function runFrames(){if(S.frRaf||!P)return;if(!KK.frame(P,0,ctx())&&!S.tattiHeld)return;var last=performance.now(),lastL=0,lastS=Date.now();
-  function step(ts){S.frRaf=0;if(!P)return;var dt=Math.max(0,(ts-last)/1000);last=ts;var act=KK.frame(P,dt,ctx());
+/* Appi-appi 1: onko kamera jäljessä seurattavasta (esim. Aseta siirsi palikan hypyllä)? */
+function camBehind(){if(!P||!useMode()||!KK.kamera(P,S.vw))return false;var d=devLayout();if(!d)return false;var c=camUI(),z=d.s,o={x:-c.x/z,y:-c.y/z},n=KK.kameraSeuraa(P,S.vw,o,{w:d.w/z,h:d.h/z},10,ctx());
+  return Math.abs(n.x-o.x)>0.5||Math.abs(n.y-o.y)>0.5;}
+function runFrames(){if(S.frRaf||!P)return;if(!KK.frame(P,0,ctx())&&!S.tattiHeld&&!S.camMv&&!camBehind())return;S.camMv=true;var last=performance.now(),lastL=0,lastS=Date.now();
+  function step(ts){S.frRaf=0;if(!P)return;S.inFrame=true;var dt=Math.max(0,(ts-last)/1000);last=ts;var act=KK.frame(P,dt,ctx());
+    /* Appi-appi 1: kamera seuraa (pehmeästi, joten silmukka jatkuu vielä, kun kohde on pysähtynyt). */
+    /* Ruudun koon muutos: kamera siirtyy heti (S.camSnap; kuollut alue huomioiden). */
+    S.camMv=camFollow(S.camSnap?1000:Math.min(dt,0.25));S.camSnap=0;act=act||S.camMv;
     if(showU()&&$('#uvp'))renderUIStage();if(showL()&&$('#lvp')&&ts-lastL>200){lastL=ts;renderLogicStage();}
     if(Date.now()-lastS>2000){lastS=Date.now();saveQuiet();}
-    if(act||S.tattiHeld)S.frRaf=requestAnimationFrame(step);else{save();if(S.sel)renderInsp();}}
+    S.inFrame=false;if(act||S.tattiHeld)S.frRaf=requestAnimationFrame(step);else{save();if(S.sel)renderInsp();}}
   S.frRaf=requestAnimationFrame(step);}
 function startDecoLine(e,a){
   var vp=$('#uvp'),c=camUI();
@@ -3893,13 +3959,30 @@ function krAction(t){
   if((a=t.getAttribute('data-krx'))){var n=krCount(vw,a);if(n&&!confirm('Poistetaanko kerros? Sen '+n+' palikkaa siirtyvät pohjalle.'))return true;pushUndo();blocks(function(b){return isUI(b)&&b.v===vw&&b.kr===a;}).forEach(function(b){delete b.kr;});v.kr=ks2.filter(function(k){return k.id!==a;});if(S.akr[vw]===a)delete S.akr[vw];afterInsp(true);return true;}
   return false;
 }
+/* Appi-appi 1: maailma ja kamera laitenäkymässä. */
+function worldSection(vw){
+  var v=viewOf(vw);if(!v)return '';var km=v.kam||{},lr=v.lrul||'',seur=KK.kamera(P,vw);
+  var ui=blocks(function(b){return isUI(b)&&b.v===vw&&b.k!=='merkki'&&b.k!=='alue';}),as=areasIn(vw);
+  var h='<div class="f"><label>Rullaus käytössä</label><div class="segs">'+[['','Pystyyn'],['kaikki','Kaikkiin suuntiin'],['ei','Ei rullausta']].map(function(o){return '<button data-vseg="lrul" data-vw="'+vw+'" data-v="'+o[0]+'" class="'+((seur?'kaikki':lr)===o[0]?'on':'')+'"'+(seur&&o[0]!=='kaikki'?' disabled':'')+'>'+o[1]+'</button>';}).join('')+'</div><div class="help">'+
+    (seur?'Kamera seuraa, joten maailma rullautuu kaikkiin suuntiin.':lr==='kaikki'?'Maailma: sormella voi rullata kaikkiin suuntiin palikoiden reunoille asti (tai valitun alueen reunoille).':lr==='ei'?'Ruutu pysyy paikallaan.':'Rullaus vain alaspäin, jos palikoita on ruudun alapuolella.')+'</div></div>';
+  h+=F('Kamera seuraa','<select data-vkam="o" data-vw="'+vw+'"><option value="">ei seuraa</option>'+ui.map(function(o){return '<option value="'+o.id+'"'+(km.o===o.id?' selected':'')+'>'+esc(o.nm)+'</option>';}).join('')+'</select>',
+    'Valitse esimerkiksi hahmo. Kamera pitää sen ruudulla, kun se liikkuu. Sormella ei silloin rullata, joten napautukset jäävät pelille.');
+  if(seur){
+    h+=F('Kuollut alue','<input type="number" min="0" max="100" step="5" data-vkam="ka" data-vw="'+vw+'" value="'+seur.ka+'"> %','Ympyrä ruudun keskellä (katkoviiva muokatessa). 0 = seurattava pysyy aina keskellä, 50 = saa kulkea puoliväliin reunaa kohti ennen kuin kamera lähtee mukaan.');
+    h+=F('Pehmeys','<input type="number" min="0" max="100" step="5" data-vkam="pe" data-vw="'+vw+'" value="'+seur.pe+'"> %','0 = kamera on heti perässä, 100 = ottaa kiinni hitaasti ja liukuen.');
+  }
+  if(seur||lr==='kaikki')h+=F('Maailman rajat','<select data-vkam="ra" data-vw="'+vw+'"><option value="">'+(seur?'ei rajaa':'palikoiden mukaan')+'</option>'+as.map(function(o){return '<option value="'+o.id+'"'+(km.ra===o.id?' selected':'')+'>'+esc(o.nm)+'</option>';}).join('')+'</select>',
+    as.length?'Kamera ei näytä valitun alueen ulkopuolta.':'Rajaksi käy Alue-palikka (Koristeet → Alue): kamera ei näytä sen ulkopuolta.');
+  h+='<div class="help">Kerrokset: rullausvauhti toimii molempiin suuntiin. <b>Lukittu</b> kerros on kojelauta (tatti, pisteet, napit): aseta sen palikat kehyksen sisään. Hitaampi kerros on kaukainen tausta.</div>';
+  return section('Maailma ja kamera ('+esc(v.n)+')',h);
+}
 function viewSection(vw){
   var v=viewOf(vw);if(!v)return '';var r=v.rul||'';
   var lk=v.laite||'',L=KK.laite(P,vw);
   var dh='<div class="f"><label>Laite</label><div class="segs">'+[['','Vapaa']].concat(KK.LAITEJ.map(function(k){return [k,KK.LAITE[k].n];})).map(function(o){return '<button data-vseg="laite" data-vw="'+vw+'" data-v="'+o[0]+'" class="'+(lk===o[0]?'on':'')+'">'+o[1]+'</button>';}).join('')+'</div><div class="help">'+
-    (L?'Laitteen ruutu ('+L.w+' × '+L.h+') näkyy kanvaasilla kehyksenä vasemmassa yläkulmassa. Lukittuna näkymä näkyy laitteen muotoisena, ja sitä rullataan vain alaspäin, jos palikoita on ruudun alapuolella. Kehyksen ulkopuolelle jäävät palikat eivät näy käytössä.':'Vapaa kanvaasi kuten Kytköskartassa. Valitse laite, jos teet näkymän puhelimelle tai iPadille.')+'</div>'+
+    (L?'Laitteen ruutu ('+L.w+' × '+L.h+') näkyy kanvaasilla kehyksenä vasemmassa yläkulmassa. Lukittuna näkymä näkyy laitteen muotoisena. Rullauksen ja kameran valitset alta (Maailma ja kamera). Kehyksen ulkopuolelle jäävät palikat eivät näy käytössä.':'Vapaa kanvaasi kuten Kytköskartassa. Valitse laite, jos teet näkymän puhelimelle tai iPadille.')+'</div>'+
     (L?'<div class="ibs"><button class="ib" data-do="fitdev">Näytä koko ruutu</button></div>':'')+'</div>';
-  if(L)return section('Näkymän laite ('+esc(v.n)+')',dh)+layersSection(vw);
+  if(L)return section('Näkymän laite ('+esc(v.n)+')',dh)+worldSection(vw)+layersSection(vw);
   var ms=blocks(function(o){return o.k==='merkki'&&o.v===vw;}),as=areasIn(vw);
   var h=F('Alkukohta','<select data-vset="alku" data-vw="'+vw+'"><option value="">ei alkukohtaa</option>'+ms.map(function(o){return '<option value="'+o.id+'"'+(v.alku===o.id?' selected':'')+'>'+esc(o.nm)+'</option>';}).join('')+'</select>',
     ms.length?'Lukittu näkymä aukeaa valitusta sijainnista.':'Lisää ensin sijainti: aseta ruutu ja paina alhaalla ⌖ Sijainti.');
@@ -4835,6 +4918,9 @@ $('#insp').addEventListener('change',function(e){
   var t=e.target;
   if(t.hasAttribute('data-krv')){var kv2=viewOf(S.vw);if(!kv2)return;pushUndo();var kk2=ensureKr(kv2).filter(function(k){return k.id===t.getAttribute('data-krv');})[0];if(kk2){if(t.value==='')delete kk2.rv;else kk2.rv=+t.value;}afterInsp(true);return;}
   if(t.hasAttribute('data-krn')){var kv3=viewOf(S.vw);if(kv3){var kk3=ensureKr(kv3).filter(function(k){return k.id===t.getAttribute('data-krn');})[0];if(kk3&&!t.value.trim())t.value=kk3.n;}return;}
+  if(t.hasAttribute('data-vkam')){var vk2=viewOf(t.getAttribute('data-vw'));if(!vk2)return;pushUndo();var f2=t.getAttribute('data-vkam'),x2=t.value;vk2.kam=vk2.kam||{};
+    if(f2==='ka'||f2==='pe'){var n2=parseFloat(String(x2).replace(',','.'));if(isNaN(n2))delete vk2.kam[f2];else vk2.kam[f2]=Math.max(0,Math.min(100,Math.round(n2)));}else if(x2)vk2.kam[f2]=x2;else delete vk2.kam[f2];
+    if(!Object.keys(vk2.kam).length)delete vk2.kam;save();renderStage();renderInsp();return;}
   if(t.hasAttribute('data-vset')){var vv=viewOf(t.getAttribute('data-vw'));if(!vv)return;pushUndo();var vk=t.getAttribute('data-vset');if(t.value)vv[vk]=t.value;else delete vv[vk];save();renderInsp();return;}
   var T=inspTarget();if(!T)return;var b=T.b;
   if(t.getAttribute('data-k')==='valku'&&b){var v4=viewOf(b.v);if(!v4)return;pushUndo();if(t.checked)v4.alku=b.id;else if(v4.alku===b.id)delete v4.alku;save();renderInsp();return;}
@@ -5469,7 +5555,7 @@ renderAll();startAfterOpen();
 if(S.pajaMoved)toast('Pajakone on nyt Appi-appi. '+S.pajaMoved+(S.pajaMoved===1?' projekti siirtyi':' projektia siirtyi')+' tähän itsestään.');
 renderGh();if(ghOn()){ghCheck(P).then(function(){return ghNew();}).then(function(){ghFlush();});}
 chainTimer();
-return {get data(){return Dt;},get P(){return P;},S:S,gh:gh,ghPush:function(){return ghPush(P);},ghCheck:function(){return ghCheck(P);},ghNew:function(a){return ghNew(a);},ghFlush:ghFlush,ghMeta:ghMeta,exportAll:exportAll,renderAll:renderAll,openExample:openExample,saveNow:saveNow,ev:ev,ctx:ctx};
+return {get data(){return Dt;},get P(){return P;},S:S,gh:gh,ghPush:function(){return ghPush(P);},ghCheck:function(){return ghCheck(P);},ghNew:function(a){return ghNew(a);},ghFlush:ghFlush,ghMeta:ghMeta,exportAll:exportAll,renderAll:renderAll,openExample:openExample,saveNow:saveNow,ev:ev,ctx:ctx,runFrames:runFrames,goStart:goStart};
 })();
 </script>
 </body>
