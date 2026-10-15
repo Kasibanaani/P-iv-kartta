@@ -38,7 +38,7 @@ async def main():
             # --- 1. Muokatessa: rullausvauhti paneelissa, lukittu näkyy katkoviivana ---
             await pg.click('.ue[data-id="%s"]'%I['bar']);await pg.wait_for_timeout(120)
             segs=await pg.eval_on_selector_all('#insp [data-seg="rv"]','e=>e.map(x=>x.textContent+(x.classList.contains("on")?"*":""))')
-            print(W,'1 rullausvauhti:',segs);assert segs==['Sormen mukana','50 %','25 %','Lukittu ruutuun*']
+            print(W,'1 rullausvauhti:',segs);assert segs==['Kerroksen mukaan (100 %)','Sormen mukana','50 %','25 %','Lukittu ruutuun*']
             assert await pg.evaluate("document.querySelector('.ue[data-id=\"%s\"]').classList.contains('rvlock')"%I['bar'])
             # --- 2. Lukittu: palkki pysyy, tausta liikkuu puolet, sisältö sormen mukana ---
             await pg.click('#lockbtn');await pg.wait_for_timeout(250)

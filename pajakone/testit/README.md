@@ -92,3 +92,8 @@ Asetuksissa on rakennusympäristön ja projektin käyttönäkymän erilliset val
 ## Pajakone 3a: asettelutyökalut (15.10.2026)
 
 - `selain_34_asettelu.py` – puhelinnäkymä: yhden palikan täysi leveys ja reunat (vasen, oikea, ylä, ala) reunuksella, reunuksen muutos muistetaan (`cfg.lmarg`, `cfg.lgap`); monivalinta: jaa ruudun leveydelle (yhtä leveät, väli), alareunaan ryhmänä; toisen palikan sisään (viimeksi valittu = kehys): keskelle vaaka ja pysty, täytä reunoin, nousee kehyksen eteen; ulkoasun kopiointi ja liittäminen monelle (koko ja värit kaikille, tekstikoko samalle lajille) ja Kumoa; monistus ruudukoksi 2 × 3 ja Kumoa.
+
+## Pajakone 3b: kerrokset (15.10.2026)
+
+- `logiikka_27_laitemuoto.js` (täydennetty) – kerrokset: pohja aina mukana, järjestys alhaalta ylös, palikan kerros ja indeksi, kerroksen vauhti, palikan oma vauhti ohittaa (myös 100), hidas ja lukittu kerros eivät pidennä rullattavaa, repair (tuplat, kelvottomat id:t, vauhti tekstinä, piilo/lukko vain true, pohja lisätään, tuntematon palikan kerros pois, pelkkä oletuspohja pois, lukittu pohja säilyy), tallennus.
+- `selain_35_kerrokset.py` – paneeli (napauta tyhjää): Pohja, ＋ Uusi kerros aktiiviseksi, nimeäminen, vauhti, ↑↓, uusi palikka aktiiviseen kerrokseen, piirtojärjestys kerros ennen z:aa, palikan Kerros-valinta ja Kerroksen mukaan -vauhti, 👁 piilottaa muokatessa, 🔒 estää tarttumisen, ⬚ valitsee kerroksen palikat, lukitussa käytössä kaikki näkyvät ja vauhdit (lukittu 0, tausta 25 %), poisto siirtää palikat pohjalle ja Kumoa, tallennus.
