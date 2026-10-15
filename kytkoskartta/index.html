@@ -2274,7 +2274,10 @@ function renderPal(){
     h+='</div><div class="pt-h">Ikkunat</div><div class="chips">';
     [['and',4],['or',6],['one',7],['min',3],['max',3],['eq',3],['not',1],['cnt',3],['sum',2],['avg',2],['maxv',2],['minv',2]].forEach(function(m){h+=chipHTML('ikkuna',{m:m[0]},KK.WM[m[0]],'( )',m[1]);});
     h+=chipHTML('ikkuna',{m:'and',j:'jos'},'JOS-ikkuna','?',4)+chipHTML('ikkuna',{m:'and',j:'kun'},'KUN-ikkuna','⚡',5);
-    h+='</div><div class="pt-h">Ketju</div><div class="chips">'+chipHTML('ketju',{},'Ketju','⛓',1)+chipHTML('ajastin',{},'Ajastin','⏱',5)+chipHTML('haara',{},'Ehto','◇',4)+chipHTML('odota',{},'Odota, kunnes','⏳',5)+chipHTML('monihaara',{},'Monta haaraa','⑃',4)+chipHTML('arpa',{},'Arpa','⚄',7)+chipHTML('toista',{},'Toista','↻',5)+chipHTML('tee',{do:'aseta'},'Aseta arvo','▶',1)+chipHTML('tee',{do:'tila',ti:'on'},'Aseta tila','▶',1)+chipHTML('tee',{do:'kaynnista'},'Käynnistä ketju','▶',1)+chipHTML('ktulos',{},'Ketjun tulos','★',3)+chipHTML('lopeta',{},'Lopeta ketju','⏹',1)+'</div>';
+    h+='</div><div class="pt-h">Ketju</div><div class="chips">'+chipHTML('ketju',{},'Ketju','⛓',1)+'</div>';
+    h+='<div class="pt-s">Odotus</div><div class="chips">'+chipHTML('ajastin',{},'Ajastin','⏱',5)+chipHTML('odota',{},'Odota, kunnes','⏳',5)+'</div>';
+    h+='<div class="pt-s">Haarat</div><div class="chips">'+chipHTML('haara',{},'Ehto','◇',4)+chipHTML('monihaara',{},'Monta haaraa','⑃',4)+chipHTML('arpa',{},'Arpa','⚄',7)+chipHTML('toista',{},'Toista','↻',5)+'</div>';
+    h+='<div class="pt-s">Tekemiset</div><div class="chips">'+chipHTML('tee',{do:'aseta'},'Aseta arvo','▶',1)+chipHTML('tee',{do:'tila',ti:'on'},'Aseta tila','▶',1)+chipHTML('tee',{do:'kaynnista'},'Käynnistä ketju','▶',1)+chipHTML('tee',{do:'pysayta'},'Pysäytä ketju','▶',1)+chipHTML('ktulos',{},'Ketjun tulos','★',3)+chipHTML('lopeta',{},'Lopeta ketju','⏹',1)+'</div>';
     h+='<div id="kpal">'+chainPalList()+'</div>';
     var soon=FX_SOON.filter(function(k){return K[k];});
     if(soon.length)h+='<div class="pt-s">Tulossa myöhemmin</div><div class="chips">'+soon.map(function(k){return '<div class="chip soon h0" data-soon="'+k+'" title="Tulossa myöhemmin: '+esc(FX_PLAN[k]||'')+'"><span class="ci">'+esc(K[k].ic)+'</span>'+esc(K[k].n)+'</div>';}).join('')+'</div>';
@@ -3484,8 +3487,13 @@ function lgInsp(b,E,node){
   return h;
 }
 /* ---------- Ketjun tarkastelija ---------- */
-var STEPMENU=function(){return [['ajastin','Ajastin (odota aika)'],['odota','Odota, kunnes (ehto tai tapahtuma)'],['haara','Ehto (haarautuu kyllä / ei)'],['monihaara','Monta haaraa (oma haara joka vaihtoehdolle)'],['arpa','Arpa (satunnainen haara)'],['toista','Toista N kertaa'],['ktulos','Ketjun tulos (päätöspuun vastaus)'],['lopeta','Lopeta ketju (kaikki haarat)']].concat(Object.keys(KK.DOS).map(function(d){return ['tee:'+d,KK.DOS[d]];}));};
-function stepSelect(attr,label){return '<select '+attr+'><option value="">'+esc(label)+'</option>'+STEPMENU().map(function(o){return '<option value="'+esc(o[0])+'">'+esc(o[1])+'</option>';}).join('')+'</select>';}
+/* Ketjuun lisättävät tapahtumat ryhmiteltyinä (Odotus ja Haarat kuten paletissa; ketjujen ohjaus ja muut toiminnot erikseen). */
+var STEPMENU=function(){var ctl={kaynnista:1,pysayta:1};return [
+  ['Odotus',[['ajastin','Ajastin (aika tai kellonaika)'],['odota','Odota, kunnes (ehto tai tapahtuma)']]],
+  ['Haarat',[['haara','Ehto (haarautuu kyllä / ei)'],['monihaara','Monta haaraa (oma haara joka vaihtoehdolle)'],['arpa','Arpa (satunnainen haara)'],['toista','Toista N kertaa']]],
+  ['Ketjujen ohjaus',[['tee:kaynnista',KK.DOS.kaynnista],['tee:pysayta',KK.DOS.pysayta],['ktulos','Ketjun tulos (päätöspuun vastaus)'],['lopeta','Lopeta ketju (kaikki haarat)']]],
+  ['Toiminnot',Object.keys(KK.DOS).filter(function(d){return !ctl[d];}).map(function(d){return ['tee:'+d,KK.DOS[d]];})]];};
+function stepSelect(attr,label){return '<select '+attr+'><option value="">'+esc(label)+'</option>'+STEPMENU().map(function(g){return '<optgroup label="'+esc(g[0])+'">'+g[1].map(function(o){return '<option value="'+esc(o[0])+'">'+esc(o[1])+'</option>';}).join('')+'</optgroup>';}).join('')+'</select>';}
 function chainInsp(b,E,node){
   var order=KK.chainOrder(P,b.id),h='';
   h+='<div class="help" style="margin:0 0 8px">Ketju lähtee käyntiin, kun kohtaan <b>käynnistä</b> tulee tapahtuma (esim. painike painettu) tai siihen tuleva arvo alkaa päteä. Sitten se etenee punaisia viivoja pitkin palikasta toiseen. Jos samasta palikasta lähtee monta viivaa, haarat etenevät rinnakkain. Ketjun alussa voi asettaa arvoja ja tiloja muihin palikoihin: <b>＋ Lisää tapahtuma alkuun</b> → Aseta arvo tai Aseta tila.</div>';

@@ -1,7 +1,8 @@
 # Versio 7.6: ajastin kellonaikaan ja ketjun käynnistys projektia avattaessa selaimessa. Kello on testissä siirretty
 # (Playwrightin clock) aamuun 15.10.2026 klo 6.59.40 Suomen aikaa. Ajastimen paneelista Kellonaikaan + 7.00, kuvaus
 # palikassa, virheellinen aika, ▶ ja ketju jatkuu kello 7.00. Ketjun asetus ”Käynnisty, kun projekti avataan”:
-# uudelleenlataus ja projektin vaihto käynnistävät sen. Kuvat versio76_*.png.
+# uudelleenlataus ja projektin vaihto käynnistävät sen. Versio 7.7: paletin ketjuosion ryhmät ja lisäysvalikon ryhmät.
+# Kuvat versio76_*.png.
 import asyncio
 from playwright.async_api import async_playwright
 from yhteinen import *
@@ -57,6 +58,12 @@ async def main():
             r=await rows();print(W,'7 projektin vaihto:',r);assert r==['Herätys','Avattu','Avattu']
             await pg.click('#tabs [data-t="logiikka"]');await pg.wait_for_timeout(250)
             await pg.screenshot(path='versio76_avaus_%d.png'%W)
+            # --- versio 7.7: paletin ketjuosio ja lisäysvalikko ryhmiteltyinä ---
+            ps=await pg.locator('#pal .pt-s').all_inner_texts();print(W,'8 paletin ryhmät:',ps);assert [x for x in ps if x in ('Odotus','Haarat','Tekemiset')]==['Odotus','Haarat','Tekemiset']
+            await pg.click('#lworld [data-nid="%s"] .ktl'%w2);await pg.wait_for_timeout(150)
+            og=await pg.evaluate("[...document.querySelectorAll('#insp select[data-kadd=\"end\"] optgroup')].map(g=>g.label)");print(W,'9 valikon ryhmät:',og);assert og==['Odotus','Haarat','Ketjujen ohjaus','Toiminnot']
+            await pg.select_option('#insp select[data-kadd="end"]','ajastin');await pg.wait_for_timeout(150)
+            n=await P(pg,"KK.chainSteps(P,'%s').map(n=>P.b[n.p].k)"%k2);assert n==['tee','ajastin']
             print(W,'errs',errs);assert not errs
             await b.close()
 asyncio.run(main())
