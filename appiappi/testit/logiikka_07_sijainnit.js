@@ -11,7 +11,7 @@ var m=KK.addBlock(P,'merkki',{kk:'keski',zz:0.8}),a=KK.addBlock(P,'alue');
 A.strictEqual(m.nm,'Sijainti');A.strictEqual(a.nm,'Alue');
 A.strictEqual(KK.addBlock(P,'merkki').nm,'Sijainti 2','toinen sijainti saa oman nimen');
 A.deepStrictEqual(KK.ports(m),{ins:[],outs:[]},'sijainnilla ei ole kytkentäkohtia');
-A.deepStrictEqual(KK.ports(a),{ins:[],outs:[]},'alueella ei ole kytkentäkohtia');
+A.deepStrictEqual(KK.ports(a).ins,[],'alueella ei ole tulokohtia');A.deepStrictEqual(KK.ports(a).outs.map(function(o){return o.p;}),['v','n','e','ulos'],'Appi-appi 2: alueella sisällä, montako, astuttu, poistuttu');
 A.strictEqual(a.w,640);A.strictEqual(a.h,420);
 A.strictEqual(m.kk,'keski');A.strictEqual(m.zz,0.8);
 
