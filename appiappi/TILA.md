@@ -12,11 +12,12 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 - Appi-appi 2: Liike liikuttaa suoraan palikkaa, esteet (palikka tai kerros 🧱, laatikko/ympyrä, liukuu reunaa pitkin), alueet (sisällä, astuttu, poistuttu).
 - Appi-appi 3: hahmo: ohjaus tatti / napautus kohteeseen / auto, huippunopeus, kiihtyminen ja jarrutus käyrällä, liukkaus, kääntyy kulkusuuntaan tai peilaa; ominaisuudet kierto ja peilattu.
 - Appi-appi 4: kuvasarja-animaatio Kuva-palikkaan (kuvat, nopeus, pyörii aina / kun liikkuu / kun nuolen ehto pätee).
+- Appi-appi 5: ruudukko kerroksen ominaisuutena (ruutukoko, tihennys, kohdistus, näkyvyys), napautus ruudun keskelle, Alue ruutu kerrallaan ja napautus alueeseen, ominaisuudet ruutux/ruutuy.
 - Testattu vain tietokoneen Chromiumissa, ei oikealla iPhonella, iPadilla eikä Safarilla.
 
 ## Seuraavaksi
 
-- Maailma jatkuu `VERTAILU.md` kohdan 8 järjestyksessä: 5 ruudukko kerroksen ominaisuudeksi, sitten reitit (Emilin toive: muiden liikkuvien kulkureitit pohjaan). Liike-, törmäys- ja kameralogiikka moottoriin (`KK`).
+- Maailma jatkuu `VERTAILU.md` kohdan 8 järjestyksessä: seuraavaksi reitit (Emilin toive: muiden liikkuvien kulkureitit pohjaan). Liike-, törmäys- ja kameralogiikka moottoriin (`KK`).
 - Jonossa: kerroksen näkyvyys logiikasta, toiveet tekoälylle, pelin tuntu (efektit, ajastin, ennätys), projektin tyyli, vienti käyttäjä-appiksi.
 
 ## Avoimet kysymykset
