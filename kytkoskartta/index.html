@@ -512,6 +512,39 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .ln.kv .kbar>b{display:block;height:100%;background:var(--kc);border-radius:2px;transition:width .9s linear}
 .lw.kt .know{font:700 11.5px ui-monospace,Menlo,monospace;color:var(--kc);white-space:nowrap;flex:none}
 .kstat2 .kn{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;margin-top:3px}.kstat2 .kn b{font:700 12px ui-monospace,Menlo,monospace;color:var(--h1)}
+/* ---------- Versio 6.12: kosketus ja puhelin ---------- */
+#mbar{display:none}
+@media (pointer:coarse){
+  /* Isompi kosketusalue kohtiin, mutta vain palikan ulkopuolelle, jotta palikan napautus ja veto toimivat. */
+  .pt::after{content:'';position:absolute;top:-10px;bottom:-10px}
+  .pins.i .pt::after{left:-18px;right:3px}.pins.o .pt::after{left:3px;right:-18px}
+  .pt.e::after{transform:rotate(-45deg)}
+  .ln.kv .pt::after{left:-12px;right:-12px}
+  .ln.kv .pins.i .pt::after{top:-18px;bottom:6px}.ln.kv .pins.o .pt::after{top:6px;bottom:-18px}
+  /* Sormella tapahtuma on korkeampi, jotta napautus osuu palikkaan eikä sen kohtiin. */
+  .ln.kv .lb{min-height:50px}.ln.kv .pins{gap:52px}
+  .lw .rs{width:30px;height:30px}
+  #lsvg .hit{stroke-width:24}
+  .lw .wcol,.lw.kt .kpl{min-width:30px;min-height:28px}
+  .kon{width:38px;height:24px;border-radius:12px}.kon i{width:20px;height:20px}.kon.on i{left:16px}
+}
+@media (max-width:760px){
+  #top{gap:6px;padding:0 8px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}#top::-webkit-scrollbar{display:none}
+  #top>*{flex:none}#top .kstat{display:none}#projbtn{max-width:120px}
+  #tabs button{padding:6px 10px}#tabs button[data-t="molemmat"]{display:none}
+  #bkbtn,#listbtn{display:none}
+  #pal{position:fixed;left:0;top:52px;bottom:0;width:min(86vw,320px);z-index:45;transform:translateX(-105%);transition:transform .2s;box-shadow:0 10px 40px rgba(0,0,0,.25)}
+  #insp{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;height:min(72vh,640px);z-index:46;border-left:0;border-top:1px solid var(--sep);border-radius:20px 20px 0 0;transform:translateY(105%);transition:transform .2s;box-shadow:0 -10px 40px rgba(0,0,0,.25)}
+  body.palopen #pal{transform:none}body.inspopen #insp{transform:none}
+  #mbar{display:flex;position:fixed;left:50%;bottom:14px;transform:translateX(-50%);gap:8px;z-index:44;background:var(--ap-cell,var(--cell));border:1px solid var(--sep);border-radius:16px;padding:6px;box-shadow:0 6px 24px rgba(0,0,0,.18);max-width:94vw}
+  #mbar .tb{min-height:40px;padding:8px 14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60vw}
+  #mbar #mins.has{background:var(--accent);color:var(--on)}
+  .hidepanels #mbar,body.palopen #mbar,body.inspopen #mbar{display:none}
+  #insp .mclose{position:sticky;top:-14px;z-index:3;display:flex;justify-content:center;margin:-14px -16px 8px;padding:8px;background:var(--tint)}
+  #insp .mclose button{border:0;background:var(--sep);border-radius:10px;padding:6px 18px;font-weight:700;color:var(--label)}
+  .qview{display:none}
+  .zoomc{bottom:76px!important}
+}
 #lsvg path.lk.ch.kno{stroke-dasharray:9 4}
 .ln.kv.kh .pins.o .pw>em{display:block}
 #lsvg path.lk.ch.kd{stroke-width:3.4;opacity:1}
@@ -527,6 +560,8 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .kgo2{flex:1;min-width:0;border:0;background:transparent;text-align:left;padding:0;cursor:pointer;color:var(--label)}
 .kgo2 b{display:block;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.kgo2 small{display:block;font-size:11px;color:var(--label3)}
 .krow.on .kgo2 small{color:var(--h1);font-weight:700}
+.khint{font-size:12.5px;line-height:1.45;color:var(--label2);margin:-4px 2px 12px}
+.qview .qhint{color:var(--label2)}
 .kch{display:inline-flex;align-items:center;gap:2px}
 .kissl{margin-top:8px;font-size:12.5px;display:flex;flex-direction:column;gap:4px}
 .qas select+select{margin-top:6px}
@@ -565,6 +600,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   <section id="stage"></section>
   <aside id="insp"></aside>
 </div>
+<div id="mbar"><button class="tb" id="mpal">＋ Palikat</button><button class="tb" id="mins">Asetukset</button></div>
 <div id="menu"></div>
 <div id="sheetbg"><div id="sheet"></div></div>
 <div id="toast"></div>
@@ -1902,9 +1938,23 @@ function wheel(vp,getCam,after,can){
   },{passive:false});
 }
 function startPan(e,vp,getCam,after){
-  var c=getCam(),sx=e.clientX,sy=e.clientY,x0=c.x,y0=c.y;vp.classList.add('panning');
-  drag(e,function(m){c.x=x0+m.clientX-sx;c.y=y0+m.clientY-sy;after();},function(){vp.classList.remove('panning');save();});
+  var c=getCam(),lx=e.clientX,ly=e.clientY;vp.classList.add('panning');
+  /* Askel kerrallaan: kahden sormen nipistyksen aikana rullaus odottaa, eikä ruutu hyppää, kun toinen sormi nousee. */
+  drag(e,function(m){if(S.pinch){lx=m.clientX;ly=m.clientY;return;}c.x+=m.clientX-lx;c.y+=m.clientY-ly;lx=m.clientX;ly=m.clientY;after();},function(){vp.classList.remove('panning');save();});
 }
+/* Kahden sormen nipistys: zoomaus ja siirto (logiikan kanvaasi). */
+function bindPinch(vp,getCam,after){
+  var T={};
+  function pts(){return Object.keys(T).map(function(k){return T[k];});}
+  function st(){var p=pts();return {d:Math.max(10,Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y)),x:(p[0].x+p[1].x)/2,y:(p[0].y+p[1].y)/2};}
+  vp.addEventListener('pointerdown',function(e){if(e.pointerType!=='touch')return;T[e.pointerId]={x:e.clientX,y:e.clientY};if(pts().length===2)S.pinch=st();},true);
+  window.addEventListener('pointermove',function(e){if(!T[e.pointerId])return;T[e.pointerId]={x:e.clientX,y:e.clientY};
+    if(S.pinch&&pts().length>=2){var n=st(),c=getCam();zoomAt(vp,c,n.d/S.pinch.d,n.x,n.y);c.x+=n.x-S.pinch.x;c.y+=n.y-S.pinch.y;S.pinch=n;after();}},true);
+  function end(e){if(!T[e.pointerId])return;delete T[e.pointerId];if(pts().length<2&&S.pinch){S.pinch=null;save();}}
+  window.addEventListener('pointerup',end,true);window.addEventListener('pointercancel',end,true);
+}
+function isPhone(){return !!(window.matchMedia&&window.matchMedia('(max-width:760px)').matches);}
+function closeDrawers(){document.body.classList.remove('palopen');document.body.classList.remove('inspopen');}
 function drag(e,move,up){
   var id=e.pointerId;var tgt=e.target;S.drg=(S.drg||0)+1;
   function mv(m){if(m.pointerId!==id)return;move(m);}
@@ -2023,10 +2073,20 @@ var PAL_UI=[
   ['Näyttö',[['nayta'],['ilmo'],['lista'],['aika'],['kaavio'],['kalenteri']]],
   ['Koristeet',[['muoto',{laji:'laatikko'},'Laatikko','▢'],['muoto',{laji:'ympyra'},'Ympyrä','◯'],['muoto',{laji:'lappu',hue:3},'Lappu','▤'],['muoto',{laji:'kehys',hue:0},'Kehys','⬚'],['merkki',{kk:'keski'}],['alue']]]
 ];
+/* Vihjetekstit: mitä palikka tekee, selkeällä suomella. Näkyvät paletin vihjeenä, pikakatselussa ja paneelin otsikossa. */
+var HINT={ketju:'Ketju: tapahtumat tehdään peräkkäin punaisia viivoja pitkin. Ketju käynnistyy, kun kohtaan käynnistä tulee tapahtuma tai arvo alkaa päteä.',
+  ajastin:'Odottaa annetun ajan (sekunneista vuorokausiin) ja jatkaa sitten seuraavaan. Aika kuluu myös, kun appi on kiinni, ja ketju jatkuu avattaessa.',
+  haara:'Jatkaa kyllä-haaraan, kun palikka on valittu, ja muuten ei-haaraan.',
+  aseta:'Antaa palikalle uuden arvon: luvun, tekstin, päivämäärän tai toisen palikan arvon.',
+  tila:'Muuttaa painikkeen, valintaruudun, kytkimen tai muistin valituksi tai ei-valituksi.',
+  lisaa:'Kasvattaa luvun tai päivämäärän arvoa. Negatiivinen määrä vähentää.',valitse:'Muuttaa palikan valituksi.',poista:'Muuttaa palikan ei-valituksi.',
+  vaihda:'Vaihtaa valinnan päinvastaiseksi.',tyhjenna:'Palauttaa palikan alkutilaan.',siirry:'Vie käyttönäkymän toiseen näkymään, sijaintiin tai kohtaan.',
+  kirjaa:'Kirjaa aikajanalle merkinnän aikaleiman kanssa.',rivi:'Lisää listaan uuden rivin.',ilmoita:'Näyttää hetken ilmoituksen ruudun yläreunassa.'};
+function hintOf(k,p){if(k==='tee')return HINT[(p&&p.do)||'aseta']||'';if(FX_PLAN[k])return 'Tulossa myöhemmin. '+FX_PLAN[k];return HINT[k]||'';}
 function chipHTML(k,props,label,ic,hue){
-  var data=esc(JSON.stringify({k:k,p:props||{}}));
+  var data=esc(JSON.stringify({k:k,p:props||{}}));var tip=hintOf(k,props);
   var h=hue!=null?hue:(props&&props.hue!=null?props.hue:(K[k].d.hue!=null?K[k].d.hue:0));
-  return '<div class="chip '+hueCls(h)+'" data-make="'+data+'"><span class="ci">'+esc(ic||K[k].ic)+'</span>'+esc(label||K[k].n)+'</div>';
+  return '<div class="chip '+hueCls(h)+'" data-make="'+data+'"'+(tip?' title="'+esc(tip)+'"':'')+'><span class="ci">'+esc(ic||K[k].ic)+'</span>'+esc(label||K[k].n)+'</div>';
 }
 function renderPal(){
   var el=$('#pal'),h='';
@@ -2080,7 +2140,7 @@ function palDown(e){
   e.preventDefault();
   var sx=e.clientX,sy=e.clientY,ghost=null;
   drag(e,function(m){
-    if(!ghost&&Math.hypot(m.clientX-sx,m.clientY-sy)>4){ghost=chip.cloneNode(true);ghost.classList.add('ghost');document.body.appendChild(ghost);}
+    if(!ghost&&Math.hypot(m.clientX-sx,m.clientY-sy)>4){ghost=chip.cloneNode(true);ghost.classList.add('ghost');document.body.appendChild(ghost);if(isPhone())document.body.classList.remove('palopen');}
     if(ghost){ghost.style.left=m.clientX+'px';ghost.style.top=m.clientY+'px';highlightDrop(m.clientX,m.clientY,ghost);}
   },function(m){
     if(ghost)ghost.remove();clearDropHi();
@@ -2091,7 +2151,12 @@ function palDown(e){
     var pt;
     if(ghost&&!inside){var other=$$('#stage .vp').filter(function(v){var q=v.getBoundingClientRect();return m.clientX>=q.left&&m.clientX<=q.right&&m.clientY>=q.top&&m.clientY<=q.bottom;})[0];if(other)toast(want==='lvp'?'Tämä palikka kuuluu logiikan puolelle.':'Tämä palikka kuuluu näkymän puolelle.');return;}
     if(ghost)pt={x:m.clientX,y:m.clientY};else pt={x:r.left+r.width/2+(Math.random()*60-30),y:r.top+r.height/2+(Math.random()*40-20)};
-    if(chip.hasAttribute('data-make')){var d=JSON.parse(chip.getAttribute('data-make'));createAt(d.k,d.p,pt.x,pt.y,!!ghost);}
+    if(isPhone())closeDrawers();
+    if(chip.hasAttribute('data-make')){var d=JSON.parse(chip.getAttribute('data-make'));
+      /* Napautus ketjun tapahtumaan, kun ketju tai sen tapahtuma on valittuna: lisätään suoraan ketjuun. */
+      var ct=!ghost&&KK.STEPK[d.k]?chainTarget():null;
+      if(ct){var spec=d.k==='tee'?'tee:'+(d.p&&d.p.do||'aseta'):d.k;var nn=addChainStep(ct.ch,ct.from?'after':'end',spec,ct.from,'e');if(nn){if(d.p&&d.p.ti)P.b[nn.p].ti=d.p.ti;toast('Lisätty ketjuun ”'+ct.ch.nm+'”.');}return;}
+      createAt(d.k,d.p,pt.x,pt.y,!!ghost);}
     else createInstance(chip.getAttribute('data-inst'),pt.x,pt.y);
   });
 }
@@ -2141,7 +2206,8 @@ function clearDropHi(){$$('.lw.drop').forEach(function(x){x.classList.remove('dr
 /* Palikka, jonka päällä osoitin on (ei raahattava itse). */
 /* Pikakatselu: vakiopaikalla oleva pieni laatikko näyttää hiiren alla olevan palikan nimen, viitteen ja lisätiedon. */
 function qvHTML(b){if(!b)return '<div class="qe">Vie hiiri palikan päälle: nimi, viite ja lisätieto näkyvät tässä.</div>';
-  return '<div class="qh"><b>'+esc(b.nm)+'</b><span class="vtc">'+esc(b.vt)+'</span></div><div class="qk">'+esc(kindName(b))+'</div>'+(b.info&&String(b.info).trim()?'<div class="qi">'+esc(b.info)+'</div>':'');}
+  var hi=hintOf(b.k,b);
+  return '<div class="qh"><b>'+esc(b.nm)+'</b><span class="vtc">'+esc(b.vt)+'</span></div><div class="qk">'+esc(kindName(b))+'</div>'+(b.info&&String(b.info).trim()?'<div class="qi">'+esc(b.info)+'</div>':(hi&&!isUI(b)?'<div class="qi qhint">'+esc(hi)+'</div>':''));}
 function qvShow(el,id){if(!el)return;var b=id?P.b[id]:null;var key=b?b.id+'|'+b.nm+'|'+b.vt+'|'+(b.info||''):'';if(el._k===key&&el.innerHTML)return;el._k=key;el.innerHTML=qvHTML(b);}
 document.addEventListener('mouseover',function(e){if(!P)return;var t=e.target;
   var ln=t.closest&&t.closest('#lworld .ln,#lworld .lw');S.qvL=ln?(KK.nodeOf(P,ln.getAttribute('data-nid'))||{}).p:null;
@@ -2370,7 +2436,7 @@ function bindUIStage(){
     uiCamChanged();save();});
   vp.addEventListener('pointermove',function(e){if(!editingUI())return;var w=toWorld(vp,camUI(),e.clientX,e.clientY);$('#coords').textContent='x '+Math.round(w.x)+' · y '+Math.round(w.y);});
   vp.addEventListener('pointerdown',function(e){
-    blurPanels();setPane('nakyma');
+    blurPanels();setPane('nakyma');if(isPhone())closeDrawers();
     if(e.button===1||(e.button===0&&S.space)){e.preventDefault();if(canPanUI())startPan(e,vp,camUI,uiCamChanged);return;}
     if(e.button!==0)return;
     var el=e.target.closest('.ue');
@@ -2753,6 +2819,7 @@ function marquee(e,kind){
 
 function bindLogicStage(){
   var vp=$('#lvp');
+  bindPinch(vp,camL,function(){applyCam(vp,$('#lworld'),camL());$('#lzpct').textContent=Math.round(camL().z*100)+' %';});
   wheel(vp,camL,function(){applyCam(vp,$('#lworld'),camL());$('#lzpct').textContent=Math.round(camL().z*100)+' %';});
   $('.zoomc',stL()).addEventListener('click',function(e){var z=e.target.getAttribute('data-z');if(!z)return;var c=camL(),r=vp.getBoundingClientRect();
     if(z==='in')zoomAt(vp,c,1.2,r.left+r.width/2,r.top+r.height/2);else if(z==='out')zoomAt(vp,c,1/1.2,r.left+r.width/2,r.top+r.height/2);else if(z==='reset')zoomAt(vp,c,1/c.z,r.left+r.width/2,r.top+r.height/2);
@@ -2765,7 +2832,7 @@ function bindLogicStage(){
     KK.tick(P,ctx());save();renderLogicStage();renderInsp();
   });
   vp.addEventListener('pointerdown',function(e){
-    blurPanels();setPane('logiikka');
+    blurPanels();setPane('logiikka');if(isPhone())closeDrawers();
     if(e.button===1||(e.button===0&&S.space)){e.preventDefault();startPan(e,vp,camL,function(){applyCam(vp,$('#lworld'),camL());});return;}
     if(e.button!==0)return;
     if(e.target.closest('select,input'))return;
@@ -2801,6 +2868,7 @@ function bindLogicStage(){
     var start=group.map(function(g){return [g.x,g.y];});
     var gels=group.map(function(g){return $('#lworld [data-nid="'+g.id+'"]');});
     drag(e,function(m){
+      if(S.pinch)return;
       var dx=(m.clientX-sx)/c.z,dy=(m.clientY-sy)/c.z;if(!moved&&Math.hypot(dx,dy)<3)return;if(!moved){pushUndo();moved=true;}
       group.forEach(function(g,i){g.x=Math.round(start[i][0]+dx);g.y=Math.round(start[i][1]+dy);if(gels[i]){gels[i].style.left=g.x+'px';gels[i].style.top=g.y+'px';}});
       if(!inM){clearDropHi();var r=nel.getBoundingClientRect();var w=windowAt(r.left+Math.min(r.width/2,40),r.top+Math.min(r.height/2,17),n.id);if(w){var we=$('#lworld [data-nid="'+w.id+'"]');if(we)we.classList.add('drop');}
@@ -2923,8 +2991,9 @@ function renderInsp(){
       (chl0?'<div class="ibs"><button class="ib" data-relink="t">Vaihda kohde…</button><button class="ib" data-relink="f">Vaihda lähtö…</button></div>':'')+
       '<div class="ibs"><button class="ib del" data-do="dellink">Poista '+(chl0?'viiva':'nuoli')+'</button></div><div class="help" style="margin-top:10px">Voit myös vetää '+(chl0?'viivan':'nuolen')+' irti sen kärjestä ja pudottaa toiseen kohtaan. ⌫ poistaa.</div>';}
   else{var b=selBlock();h=b?blockInsp(b):guide();}
-  el.innerHTML=h;
+  el.innerHTML=(isPhone()?'<div class="mclose"><button data-mclose title="Sulje">Valmis ⌄</button></div>':'')+h;
   if(focus){var f=$('[data-k="'+focus+'"]',el);if(f)try{f.focus();}catch(e){}}
+  var mb=$('#mins');if(mb){var sb0=selBlock();mb.textContent=sb0?'Asetukset: '+sb0.nm:S.multi.length>1?'Asetukset: '+S.multi.length+' valittu':'Ohjeet';mb.classList.toggle('has',!!sb0||S.multi.length>1);}
 }
 function linkDesc(lid){
   var l=P.lg.l.filter(function(x){return x.id===lid;})[0];if(!l)return '';
@@ -2961,6 +3030,7 @@ function blockInsp(b){
   var vtxt=hasValue(b)?' · nyt: <b'+(KK.isErr(cv)?' class="errt"':'')+'>'+esc(b.k==='lista'?E.val(b.id)+'/'+E.val(b.id,'n'):E.fmt(cv))+'</b>':'';
   if(S.back&&S.back.to===b.id&&P.b[S.back.from])h+='<button class="backb" data-do="back">‹ '+esc(P.b[S.back.from].nm)+'</button>';
   h+='<div class="ih '+hueCls(isUI(b)?E.hue(b.id):({lasku:2,vert:7,jos:4,kun:4,haku:4,tee:1,ikkuna:4,ketju:1,tanaan:5,pvmosa:5}[b.k]||0))+'"><span class="ci">'+esc(icon(b))+'</span><div style="min-width:0;flex:1"><b>'+esc(b.nm)+'</b><small>'+esc(kindName(b))+vtxt+'</small></div></div>';
+  var hi0=!isUI(b)?hintOf(b.k,b):'';if(hi0)h+='<div class="khint">'+esc(hi0)+'</div>';
   h+=section('',fText('Nimi','nm',b.nm,isUI(b)?'Nimi kertoo ajatuksen. Se ei näy käyttäjälle, ellet laita sitä tekstiin.':'Nimetty palikka näkyy Palikat-listassa, ja siihen voi viitata muualta.')+
     F('Viite','<input data-k="vt" class="kfx" value="'+esc(b.vt)+'" spellcheck="false" autocapitalize="off" autocomplete="off">','<span id="vterr" class="errt"></span>Lyhyt nimi kaavoihin ja teksteihin: kaavassa <code>'+esc(b.vt)+' &gt; 7</code>, tekstissä <code>{'+esc(b.vt)+'}</code>. '+(b.vtSet?'Itse asetettu. Tyhjäksi = takaisin nimestä.':'Seuraa nimeä, kunnes kirjoitat oman.'))+
     F('Lisätieto','<textarea data-k="info" rows="2" placeholder="Vapaa selitys, ei vaikuta mihinkään">'+esc(b.info||'')+'</textarea>','Näkyy pikakatselussa, kun viet hiiren palikan päälle.'));
@@ -3313,6 +3383,9 @@ function relinkMenu(end,r){
     var nl=end==='t'?KK.addLink(P,l.f,l.fp,n.id,'e'):KK.addLink(P,n.id,P.b[n.p].k==='haara'?'e':'e',l.t,l.tp);
     S.sel=nl?{t:'l',id:nl.id}:null;KK.tick(P,ctx());save();renderLogicStage();renderInsp();toast('Viiva kytketty uudelleen.');}};})));
 }
+/* Valittu ketju tai ketjun tapahtuma, johon napautettu uusi tapahtuma lisätään. */
+function chainTarget(){if(!P||!S.sel||S.sel.t!=='n'||S.multi.length>1)return null;var n=KK.nodeOf(P,S.sel.id);if(!n)return null;var b=P.b[n.p];
+  if(b&&b.k==='ketju'&&!n.col)return {ch:b,from:null};var ch=KK.chainOfNode(P,n);if(ch)return {ch:ch,from:n.id};return null;}
 /* Ketjun tapahtuman poisto: ketju pysyy yhtenäisenä, eli edellinen kytketään seuraavaan. */
 function removeStep(nid){
   var n=KK.nodeOf(P,nid);if(!n)return;
@@ -3638,6 +3711,9 @@ document.addEventListener('keyup',function(e){if(e.code==='Space')S.space=false;
 $('#tabs').addEventListener('click',function(e){var t=e.target.getAttribute('data-t');if(!t||t===S.tab)return;var was=S.tab;S.tab=t;if(t==='molemmat')S.pane=was==='logiikka'?'logiikka':'nakyma';S.multi=[];if(!(t==='molemmat'&&S.sel))S.sel=null;S.tool=null;$('#stage').innerHTML='';renderAll();});
 $('#lockbtn').addEventListener('click',function(){P.lock=!P.lock;S.sel=null;S.tool=null;if(P.lock)goStart(S.vw);save();$('#stage').innerHTML='';renderAll();if(P.lock&&viewOf(S.vw)&&viewOf(S.vw).alku){goStart(S.vw);renderUIStage();}});
 $('#undobtn').addEventListener('click',undo);
+$('#mpal').addEventListener('click',function(){document.body.classList.remove('inspopen');document.body.classList.toggle('palopen');});
+$('#mins').addEventListener('click',function(){document.body.classList.remove('palopen');document.body.classList.toggle('inspopen');});
+$('#insp').addEventListener('click',function(e){if(e.target.closest('[data-mclose]'))document.body.classList.remove('inspopen');});
 $('#redobtn').addEventListener('click',function(){if(!S.redo.length){toast('Ei tehtävää uudelleen');return;}redo();});
 $('#listbtn').addEventListener('click',function(){if(P)openBlockList();});
 $('#projbtn').addEventListener('click',openProjects);

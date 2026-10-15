@@ -26,7 +26,7 @@ Skripti poimii `index.html`:n lohkot `engine` (moottori) ja `ui` (käyttöliitty
 - `logiikka_19_tallennus.js` – versio 6.11: versiolla 5.2 tallennettu kartta (`vanha_v5_esimerkki.json`, esimerkkiprojekti + kaava, kaavan tulos ja hakutaulukko) aukeaa: arvot ja tilat samat kuin vanhalla moottorilla (`vanha_v5_arvot.json`), korjaus ei muuta rakennetta, vanhaan karttaan voi lisätä ketjun, ajotila ja aikaleima säilyvät JSON-kierroksessa ja ketju jatkuu avattaessa, GitHub-tiedoston muoto, puuttuvat uudet kentät täydentyvät
 - `logiikka_05_versio2.js` – VALITSE, vanhan JOS-palikan (niin- ja muuten-arvo) muunto JOS + VALITSE -pariksi, käytössä / pois käytöstä, virheet näkyviin (jako nollalla, kehä, teksti luvun paikalla), yhteydet, toimintojen kuvaukset, Miksi?, ikkunan tiivistys
 
-## Selaintestit (Chromium, tietokoneleveys 1440 ja 1280 px)
+## Selaintestit (Chromium, tietokoneleveys 1440 ja 1280 px; puhelintesti 390 ja 320 px)
 
 - `selain_01_nakyma.py` – palikat paletista, siirto ja koko, nimi, näkyvyysehto, vaihtoväri, lukitus ja käyttö, näkymät, koristeviiva, kumoa, tallennus
 - `selain_02_logiikka.py` – nuolen veto, valikko palikan päälle pudotettaessa, ikkuna, ikkunan tyyppi, toiminto, nuolen irrotus, elävät arvot
@@ -47,6 +47,7 @@ Skripti poimii `index.html`:n lohkot `engine` (moottori) ja `ui` (käyttöliitty
 - `selain_20_ketjut.py` – versio 6.9: kaksi ketjua paletista ja nimet paneelista, paletin lista Ketjut tässä projektissa tiloineen, päälle / pois otsikon kytkimestä, paletista ja paneelin rastista, pois päältä oleva ei käynnisty mutta toinen käynnistyy, uudelleenkäynnistyksen valinta, siirtyminen listasta; kuvat `versio69_*.png`
 - `selain_21_muokkaus.py` – versio 6.10: ketjun viivan valinta ikkunan sisältä, Vaihda kohde paneelista, poisto ⌫ ja Kumoa, tapahtuman ⌘C / ⌘V samaan ketjuun, Kumoa ja Tee uudelleen (↷-nappi, ⌘Z, ⇧⌘Z, ↷ pois päältä aluksi), koko ketjun kopiointi paneelin napeista; kuvat `versio610_*.png`
 - `selain_22_tallennus.py` – versio 6.11: vanha kartta aukeaa selaimessa (näkymä ja logiikka, käyttö toimii), siihen lisätty ketju säilyy uudelleenlatauksessa, ketju ja ajotila menevät GitHubiin (valepalvelin) ja jatkuvat toisessa selaimessa, varmuuskopiotiedosto tuo ketjun kolmanteen selaimeen; kuvat `versio611_*.png`
+- `selain_23_puhelin.py` – versio 6.12: ketjuikkuna puhelimella sormella (390 ja 320 px, kosketus CDP:n kautta): kanvaasi koko leveydellä, paletti ja paneeli laatikkoina alareunan napeista, ketju ja tapahtumat napautuksella (tapahtuma menee valittuun ketjuun), veto ja koon muutos sormella, viivan veto sormella, kahden sormen zoomaus, paneelin vihjeteksti ja Valmis, ▶ napautuksella; kuvat `versio612_*.png`
 - `selain_04_versio2.py` – pikatoiminnot painikkeen asetuksista, Rinnakkain-näkymä ja valinnan korostus molemmilla puolilla, Miksi? ja Yhteydet, ikkunan tiivistys, monivalinta (⇧-napsautus ja alue), tasaus ja tasavälit, käytössä / pois, virhe palikassa, palikkalista
 
 Tulosteet ja kuvakaappaukset menevät kansioon `tulosteet/`. Testit ajetaan tietokoneselaimessa, eivät oikealla iPadilla.
