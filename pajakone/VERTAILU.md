@@ -1,0 +1,62 @@
+# Master ja Kytköskartta: erot ja yhdistämisen suunnitelma
+
+Kirjoitettu 15.10.2026 Pajakoneen aloittamisen yhteydessä. Lähteet: `master/index.html` (versio 17), `master/TOIVEET.md`, `kytkoskartta/index.html` (versio 8) ja apien Notion-rivit.
+
+**Emilin linjaus 15.10.2026:** Pajakone on uusi appi, joka tehdään Kytköskartan kopiona, ja siihen tuodaan Masterin ominaisuuksia järkevässä järjestyksessä. Master ja Kytköskartta jäävät toistaiseksi ennalleen. Kun appien logiikka on ristiriidassa, **Kytköskartan logiikka voittaa**. Masterista saa ottaa inspiraatiota myös myöhemmin. Vienti erilliseksi käyttäjä-appiksi ei ole vielä ajankohtainen. Masterin projekteja (Headmaze, Duunipeli) ei tarvitse siirtää; ne voi rakentaa uudelleen.
+
+## 1. Yhteinen pohja
+
+Molemmissa on projekteja, joissa on käyttäjälle näkyvä puoli ja logiikkapuoli. Logiikka rakennetaan palikoista, ikkunoista (sulut: JA, TAI, VAIN YKSI, VÄHINTÄÄN N, EI), JOS- ja KUN-palikoista, toiminnoista ja nuolista. Kummassakin on Miksi?-selitys, Kumoa, GitHub-tallennus yksityiseen repoon (`Kasibanaani/master-tiedot`) ja Appipajan ilme 2.0 teemoineen. Kytköskartan logiikkakanvaasi on samaa sukua Masterin Ketjut-kanvaasin kanssa, ja JOS ja KUN tarkoittavat molemmissa samaa (Emilin päätös 14.10.2026).
+
+## 2. Vain Kytköskartassa (tulee Pajakoneeseen sellaisenaan)
+
+- Vapaa näkymäkanvaasi (Freeform-tyyli), monta näkymää, sijainnit, alueet, alkukohta ja rullauksen rajaus.
+- Kaava ja viite (`{viite}`), Kaavan tulos, VALITSE, Hakutaulukko, Päivämäärän osa, Tänään.
+- Tapahtumaketju kaikkine palikoineen: ajastin (kesto ja kellonaika), Ehto, Odota kunnes, Monta haaraa, Arpa, Toista, Ketjun tulos, Lopeta ketju, Käynnistä ja Pysäytä ketju, avautuessa käynnistyvä ketju.
+- Satunnaisluku muotoiltavalla jakaumalla.
+- Näkymäpalikat: lista, aikajana, kaavio, kalenteri, päivämääräkenttä, lukukenttä, ilmoitus, koristeet.
+- Rinnakkain-näkymä, Yhteydet, ☰ Palikat -taulukko, pikakatselu, monivalinta ja tasaus, kopioi ja liitä, pikaluonti, Tee uudelleen, puhelinasettelu alle 760 px.
+
+## 3. Vain Masterissa (ehdokkaat tuotaviksi)
+
+| Masterin ominaisuus | Kytköskartassa nyt | Ehdotus Pajakoneeseen |
+| --- | --- | --- |
+| Puhelinsimulaatio: projekti rakennetaan puhelimen ruudussa | Vapaa kanvaasi ilman laitetta | **Tehty (Pajakone 1):** näkymän laite Vapaa / Puhelin / iPad pysty / iPad vaaka |
+| Ruudut ja puhelimen alapalkki, alapalkista piilotetut näkymät, Palaa takaisin | Näkymät välilehtinä yläreunassa, Siirry näkymään | Puhelinnäkymissä välilehdet alapalkkina laitteen sisällä, näkymän valinta ”ei alapalkissa”, toiminto Palaa takaisin |
+| Maailmat: ruudukkokartta, esteet, alueet (astu, pysähdy, kosketus), hahmon liike ja nopeus, kamera ja zoomaus, SVG-pohjakuva ja kerrokset, kosketettavat muodot, hahmon siirto | Ei vastinetta | Maailma-palikka näkymään. Alueet ja esteet ovat palikoita, joilla on tapahtumat (astuttu, poistuttu) ja arvo (hahmo on alueella), joten ne kytketään nuolilla kuten painikkeet. Kaksi vaihetta: ensin kartta, hahmo ja alueet, sitten kuvat, kerrokset ja kamera |
+| Painikkeen pitkä painallus, irrotus (myös painalluksen kesto), palautuva painike, ”yksi painallus riittää” | Painike: jää pohjaan tai kertapainallus, tapahtuma painettu | Painikkeelle uudet tapahtumat pitkä painallus ja irrotettu sekä käytös ”pohjassa vain painettaessa” |
+| Toiveet tekoälylle (lappu projektiin, ruutuun tai palikkaan, GitHubissa, Toiveet-välilehti) | Ei vastinetta | Tuodaan: toive palikkaan tai näkymään, tekoäly käsittelee ne GitHubista |
+| Päiväkohtaiset tiedot (`cfg.days`: jokaisella päivällä oma tila ja päivänvaihto) ja Seuranta-välilehti | Aikajana ja kalenteri, ei päiväkohtaista tilaa | Myöhemmin, jos tarvitaan Päiväkartan kaltaisia projekteja |
+| Projektin tyyli: valmiit tyylit, paletit, muoto, pinta, fontti, tiheys, painikkeiden ja liikkeen tyyli, palikan korostus | Käyttönäkymän teema ja palikoiden värit | Myöhemmin: projektin muoto, fontti ja tiheys samaan teemavalintaan |
+| Vienti erilliseksi käyttäjä-appiksi (HTML) | Ei vastinetta | Myöhemmin (Emil: ei vielä). Moottori on jo omassa lohkossaan, joten vienti onnistuu samalla tavalla kuin Masterissa |
+| Ajastin-palikka näkyvänä (sekuntikello tai aikaraja, luku tai palkki, toistuva tapahtuma) | Ajastin vain ketjussa | Harkitaan: näkymään ajastin, joka käynnistetään ja pysäytetään toiminnoilla. Ketju kattaa jo osan |
+| Laskuri (+ ja −, rajat) | Lukukenttä, Muisti, Lisää-toiminto | Riittää todennäköisesti. Tarvittaessa lukukenttään + ja − -napit |
+| Minipelit: sade ja kohdelista | Ei vastinetta | Ei tuoda sellaisinaan. Samat pelit rakennetaan maailmalla, ketjuilla ja satunnaisluvulla. Inspiraatioksi |
+| Toiminnon todennäköisyys (p %), ennätys (best), satunnainen valinta (pick) | Arpa, Satunnaisluku | Ennätys on pieni ja hyödyllinen (”aseta, jos suurempi”). Muut hoituvat Arvalla ja Satunnaisluvulla |
+| Kartta-välilehti (suhteet taulukkona), Ketjut Lista-näkymä, Arvot-taulukko | Logiikkakanvaasi, ☰ Palikat | Ei tuoda: kanvaasi ja ☰ Palikat korvaavat |
+| Esimerkkiprojektien kirjasto (16 projektia) | Yksi esimerkkiprojekti | Ei tuoda. Projektit voi rakentaa uudelleen tarvittaessa |
+
+## 4. Ristiriidat ja ratkaisut (Kytköskartta voittaa)
+
+| Asia | Master | Kytköskartta = Pajakone |
+| --- | --- | --- |
+| Ehdot | Ehto-palikka sääntölistoineen (`req`, `suf`) | Ikkunat ja nuolet |
+| Mitä painalluksesta seuraa | Palikan omat toimintolistat (`act`, `lact`, `ract`…) | Nappi on vain nappi; seuraukset ovat erillisiä toimintopalikoita nuolilla |
+| Laukaisin ja lippu | Omat palikkalajit | Muisti, painike (kertapainallus) ja KUN. Maailman alueen ”hahmo on alueella” korvaa laukaisimen `inside`-tilan |
+| Viittaus | `[Nimi]` kaavassa, `{Nimi}` tekstissä, `{r: id}` lukukentässä | Viite `{viite}` kaikkialla, kaava- ja tulos-palikat |
+| Asettelu | Virta (allekkain, leveys %) tai vapaa sijainti | Vapaa sijainti. Laitteen kehys antaa raamit |
+| Navigaatio | Ruudut + alapalkki, näkymät, Palaa takaisin | Näkymät + Siirry. Alapalkki ja Palaa takaisin tuodaan puhelinnäkymiin (vaihe 2) |
+| Tallennus | `master:v1`, GitHub `projektit/` | Pajakoneella omat: `pajakone.v1`, GitHub `pajakone/` |
+
+## 5. Etenemisjärjestys
+
+1. **Pajakone 1 (tehty 15.10.2026):** kopio Kytköskartasta omilla tallennusavaimilla, tuonti Kytköskartasta samasta selaimesta, näkymän laitemuoto (Vapaa, Puhelin, iPad pysty, iPad vaaka).
+2. **Puhelinappin perusta:** alapalkki puhelinnäkymissä, näkymä ilman alapalkkia, Palaa takaisin, painikkeen pitkä painallus, irrotus ja ”pohjassa vain painettaessa”.
+3. **Toiveet tekoälylle** palikkaan ja näkymään (GitHubiin, tekoäly käsittelee).
+4. **Maailma 1:** maailma-palikka, ruudukko, esteet, alueet tapahtumineen, hahmo, ohjaus napauttamalla, nuolinäppäimillä ja sormella, hahmon siirto toiminnolla.
+5. **Maailma 2:** SVG-pohjakuva ja kerrokset, kosketettavat muodot, kamera ja zoomaus, hahmon nopeus palikasta.
+6. **Pelin tuntu:** ketjun efektit (teksti ilmestyy, kuva vaihtuu, animaatio, näkymänvaihto), näkyvä ajastin, ennätys.
+7. **Projektin tyyli** Masterin tyylijärjestelmästä.
+8. **Vienti** erilliseksi käyttäjä-appiksi.
+
+Järjestystä voi muuttaa. Vaiheet 2 ja 3 ovat pieniä, maailma on iso.
