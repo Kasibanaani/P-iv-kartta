@@ -67,3 +67,5 @@ Järjestystä voi muuttaa. Vaiheet 2 ja 3 ovat pieniä, maailma on iso.
 - **Kerrokset:** näkymässä kerroksia, esim. ruutuun lukittu päällyskerros, ja kerroksille oma rullausvauhti (taustakerros liikkuu hitaammin kuin sormi, syvyysvaikutelma). Asiat voivat mennä toistensa ali. Pajakone 2:n rullausvauhti on tämän ensimmäinen pala palikkakohtaisena.
 - **Kuva kosketusalueineen** (kuten Masterin maailman kosketettavat muodot), esim. alapalkki kuvana.
 - **Käyrä laajemmin:** käyrä animaatioihin (muutos ajassa) ja tulevaan ohjailutattiin (kauempana keskeltä = kiihtyvä vaikutus).
+
+**Tehty 15.10.2026 illalla (Pajakone 3):** 3a asettelutyökalut, 3b kerrokset (nimi, järjestys, rullausvauhti, piilotus ja lukitus muokatessa), 3c Kuva-palikka ja näkymätön kosketusalue, 3d Tatti, Muutos ajassa, Liike ja näkymäpalikan siirto logiikasta. Käyrä animaatioon: Muutos ajassa -palikan edistyminen Käyrän syötteeksi. Seuraavana etenemisjärjestyksessä: toiveet tekoälylle ja Maailma (esteet, alueet, törmäykset).
