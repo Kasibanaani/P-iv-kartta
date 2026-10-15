@@ -51,7 +51,7 @@ async def main():
             kid=await pg.evaluate("""(function(){var P=APP.P;var lst=Object.values(P.b).find(b=>b.k==='lista');var k=KK.addBlock(P,'ketju',{nm:'Muistutus'});var w=KK.addNode(P,k.id,40,900);
               var t=KK.addBlock(P,'ajastin',{kesto:4}),r=KK.addBlock(P,'tee',{do:'rivi',o:lst.id,tx:'Muista tauko'});var nt=KK.addNode(P,t.id,60,950,w.id),nr=KK.addNode(P,r.id,60,1020,w.id);KK.addLink(P,nt.id,'e',nr.id,'e');
               var bt=Object.values(P.b).find(b=>b.nm==='Taukonappi');KK.addLink(P,P.lg.n.find(n=>n.p===bt.id).id,'e',w.id,'e');APP.saveNow();return k.id;})()""")
-            await pg.wait_for_timeout(300);await pg.reload();await pg.wait_for_timeout(350)
+            await pg.wait_for_timeout(1500);await pg.reload();await pg.wait_for_timeout(350)
             ks=await P(pg,"[KK.chainList(P).map(c=>c.nm),KK.chainSteps(P,'%s').length]"%kid);print(W,'3 ketju säilyi:',ks)
             assert ks==[['Muistutus'],2]
             # --- 3 GitHub: ketju ja ajotila ---

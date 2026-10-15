@@ -101,7 +101,7 @@ async def main():
             t=await pg.inner_text('.ue[data-id="%s"]'%tid);print(W,'18 teksti kaavasta:',t.strip());assert t.strip().endswith('Uni: 9')
             # --- kaava ikkunassa ---
             await pg.click('#tabs [data-t="logiikka"]');await pg.wait_for_timeout(250)
-            l=pg.locator('#pal .chip[data-make=\'{"k":"ikkuna","p":{"m":"and"}}\']');c0=await l.bounding_box();await veda(pg,[c0['x']+c0['width']/2,c0['y']+c0['height']/2],[lv['x']+lv['width']/2,lv['y']+lv['height']-170]);await pg.wait_for_timeout(150)
+            l=pg.locator('#pal .chip[data-make=\'{"k":"ikkuna","p":{"m":"and"}}\']');await l.scroll_into_view_if_needed();c0=await l.bounding_box();await veda(pg,[c0['x']+c0['width']/2,c0['y']+c0['height']/2],[lv['x']+lv['width']/2,lv['y']+lv['height']-170]);await pg.wait_for_timeout(150)
             wn=await P(pg,"P.lg.n.find(n=>P.b[n.p].nm==='Ja-ikkuna').id");wr=await pg.locator('#lworld [data-nid="%s"]'%wn).bounding_box()
             await paletti(pg,'Kaava',wr['x']+70,wr['y']+wr['height']-40);await pg.wait_for_timeout(150)
             await pg.fill('#insp textarea[data-kaava]','u2 < 6');await pg.wait_for_timeout(100)
