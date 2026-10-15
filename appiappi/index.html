@@ -148,6 +148,7 @@ button{cursor:pointer}
 .dframe.dworld{box-shadow:none;border-style:dashed}
 .ue .hitb{position:absolute;border:1.5px dashed var(--label3);pointer-events:none;z-index:3}
 .ue .hitb.mv{border-color:var(--accent)}
+.tgtm{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border:2px solid var(--accent);border-radius:50%;pointer-events:none;opacity:.7;z-index:1}
 .dframe .dzone{position:absolute;border:2px dotted var(--accent);border-radius:50%;opacity:.6}
 .dframe span{position:absolute;left:18px;top:-24px;font:600 12px var(--font,system-ui);color:var(--accent);white-space:nowrap}
 .devstage{background:var(--sep2)}
@@ -809,7 +810,7 @@ var K={
   /* Pajakone 2: käyrä. Syöte (x) kulkee muotoiltavan käyrän läpi tulokseksi (y): kiihdytyskäyrät, vasteet, myöhemmin animaatiot. */
   /* Pajakone 3d: muutos ajassa ja liike. */
   muutos:{n:'Muutos ajassa',g:'lg',ic:'↗',d:{a:0,b:100,kesto:1,yks:'s',toisto:'kerta'}},
-  liike:{n:'Liike',g:'lg',ic:'➶',d:{vx:'',vy:'',x0:0,y0:0,xmin:'',xmax:'',ymin:'',ymax:''}},
+  liike:{n:'Liike',g:'lg',ic:'➶',d:{vx:'',vy:'',x0:0,y0:0,xmin:'',xmax:'',ymin:'',ymax:'',o:'',ohj:'',tt:'',vm:200,ka:'',kb:'',km:'',liuk:0,kaa:180,kaanny:'',ks:''}},
   kayra:{n:'Käyrä',g:'lg',ic:'∿',d:{a:'',xmin:0,xmax:10,ymin:0,ymax:100,pn:5,pw:[0,25,50,75,100],dec:''}},
   lasku:{n:'Lasku',g:'lg',ic:'+',d:{op:'add',a:'',b:''}},
   vert:{n:'Vertailu',g:'lg',ic:'=',d:{op:'eq',a:'',b:''}},
@@ -881,7 +882,10 @@ function portsBase(b){
     case 'tulos':outs=[V('v','arvo')];break;
     case 'lasku':case 'vert':ins=[V('a','A'),V('b','B')];outs=[V('v','tulos')];break;
     case 'muutos':ins=[E('e','alkaa'),E('x','pysäytä'),V('a','alku'),V('b','loppu'),V('k','kesto')];outs=[V('v','arvo'),V('t','edistyminen'),V('r','käynnissä'),E('e','valmis')];break;
-    case 'liike':ins=[V('vx','nopeus x'),V('vy','nopeus y'),V('c','liikkuu kun'),E('e','alkuun')];outs=[V('v','x'),V('y','y'),V('m','liikkuu'),V('osuu','osuu esteeseen'),V('nop','nopeus'),V('suu','suunta'),E('tor','törmäsi')];break;
+    case 'liike':{var oj=LIIKE_OHJ[b.ohj]?b.ohj:'';ins=oj?[V('vm','huippunopeus')]:[V('vx','nopeus x'),V('vy','nopeus y')];
+      if(oj==='napautus')ins.push(V('tx','kohde x'),V('ty','kohde y'));if(oj==='auto')ins.push(V('kaa','kaasu'),V('ohj','ohjaus'));
+      ins.push(V('c','liikkuu kun'),E('e','alkuun'));outs=[V('v','x'),V('y','y'),V('m','liikkuu'),V('osuu','osuu esteeseen'),V('nop','nopeus'),V('suu','suunta'),E('tor','törmäsi')];
+      if(oj==='napautus')outs.push(V('kx','kohde x'),V('ky','kohde y'),E('per','perillä'));break;}
     case 'pvmosa':ins=[V('a','päivämäärä')];outs=[V('v','tulos')];break;
     case 'jos':ins=[V('c','ehto')];outs=[V('v','pätee'),E('e','NIIN')];if(b.muuten)outs.push(E('m','MUUTEN'));break;
     case 'valitse':ins=[V('c','ehto'),V('a','arvo kun pätee'),V('b','arvo muuten')];outs=[V('v','tulos')];break;
@@ -932,7 +936,8 @@ function omIlme(){return [OM('vari','väri','luku',{al:['vari'],f:'hue',o:1,lim:
   OM('vari2','väri2','luku',{al:['vari2'],f:'hue2',o:1,lim:[1,8],idx:1,d:'vaihtovärin sävy paletista, 1–8'}),
   OM('lpn','läpinäkyvyys','luku',{al:['lapinakyvyys'],f:'lpn',o:1,lim:[0,100],def:0,d:'0 = näkyy kokonaan, 100 = ei näy'}),
   OM('z','järjestys','luku',{al:['jarjestys'],f:'z',o:1,def:0,d:'suurempi on päällä saman kerroksen sisällä'}),
-  OM('rv','rullausvauhti','luku',{f:'rv',o:1,lim:[0,100],d:'laitenäkymässä: 100 = sormen mukana, 0 = lukittu ruutuun'})];}
+  OM('rv','rullausvauhti','luku',{f:'rv',o:1,lim:[0,100],d:'laitenäkymässä: 100 = sormen mukana, 0 = lukittu ruutuun'}),
+  OM('kulma','kierto','luku',{al:['kulma'],f:'kulma',o:1,def:0,d:'kierto asteina myötäpäivään (Appi-appi 3)'}),OM('peili','peilattu','kylla',{al:['peili'],f:'peili',o:1,d:'peilattu vaakasuunnassa kyllä/ei'})];}
 function omTila(){return [OM('näkyy','näkyy','kylla',{al:['nakyy'],q:1,d:'näkyykö palikka nyt'}),OM('tila','tila','teksti',{q:1,d:'näkyy, luettava, harmaa tai piilossa'}),
   OM('teksti','teksti','teksti',{q:1,d:'näkyvä teksti'}),OM('vaihtoväri','vaihtoväri','kylla',{al:['vaihtovari'],q:1,d:'onko vaihtoväri käytössä'})];}
 function omat(b){
@@ -1177,22 +1182,7 @@ function frame(P,dt,ctx){var ev=Ev(P,ctx),act=false,changed=false,done=[],fires=
     return l.filter(function(o){return o.id!==ohita;}).map(function(o){return osumaAlue(o,rect(o));});}
   function lim(v,lo,hi){var a=parseNum(lo),c=parseNum(hi);if(!isNaN(a))v=Math.max(a,v);if(!isNaN(c))v=Math.min(c,v);return v;}
   function r3(v){return Math.round(v*1000)/1000;}
-  Object.keys(P.b).forEach(function(id){var b=P.b[id];if(b.k!=='liike')return;
-    var on=!ev.linked(id,'c')||truth(ev.inp(id,'c')),st=liikeSt(P,id),t=liikeKohde(P,b);
-    var vx=on?num(ev.inp(id,'vx'))||0:0,vy=on?num(ev.inp(id,'vy'))||0:0;
-    var moving=!!(vx||vy),osui=false;
-    if(!moving&&!st.m&&!st.osui)return;
-    var p;
-    if(t){var r=rect(t);p={x:r.x,y:r.y};
-      if(moving){var res=liikuta(t,r,vx*dt,vy*dt,esteet(t.v,t.id));osui=res.osui;
-        var nx=lim(res.x,b.xmin,b.xmax),ny=lim(res.y,b.ymin,b.ymax);
-        if(nx!==r.x||ny!==r.y){setOmi(P,t.id,'x',r3(ev.omiNum(t.id,'x',t.x||0)+nx-r.x));setOmi(P,t.id,'y',r3(ev.omiNum(t.id,'y',t.y||0)+ny-r.y));
-          R[t.id]={x:nx,y:ny,w:r.w,h:r.h};p={x:nx,y:ny};changed=true;}}}
-    else{p=liikePos(P,b);if(moving){p.x=r3(lim(p.x+vx*dt,b.xmin,b.xmax));p.y=r3(lim(p.y+vy*dt,b.ymin,b.ymax));}}
-    var ns={x:r3(p.x),y:r3(p.y),vx:r3(vx),vy:r3(vy),m:moving,osui:osui};
-    if(osui&&!st.osui)fires.push([id,'tor']);
-    if(st.x!==ns.x||st.y!==ns.y||!!st.m!==ns.m||!!st.osui!==ns.osui||st.vx!==ns.vx||st.vy!==ns.vy){P.st[id]=ns;changed=true;}
-    if(moving)act=true;});
+  Object.keys(P.b).forEach(function(id){var b=P.b[id];if(b.k!=='liike')return;if(liikeAskel(P,b,ev,dt,rect,R,esteet,lim,fires))changed=true;if(liikeKay(P,id))act=true;});
   /* Alueet: astuttu ja poistuttu. */
   Object.keys(P.b).forEach(function(id){var a=P.b[id];if(a.k!=='alue')return;
     var cands=a.kuka?[P.b[a.kuka]].filter(function(c){return c&&K[c.k]&&K[c.k].g==='ui'&&c.v===a.v;}):liikkuvat(P,a.v);
@@ -1419,6 +1409,92 @@ function liikuta(b,r,dx,dy,obs){var a=osumaAlue(b,r),x=r.x,y=r.y,osui=false;
   for(var i=0;i<n;i++){x+=dx/n;y+=dy/n;
     for(var it=0;it<4;it++){var moved=false;for(var j=0;j<obs.length;j++){var cur=siirraAlue(a,x-r.x,y-r.y),v=osumaTyonto(cur,obs[j]);if(v){x+=v.x;y+=v.y;osui=true;moved=true;}}if(!moved)break;}}
   return {x:x,y:y,osui:osui};}
+/* ---------- Appi-appi 3: hahmon liike ----------
+   Ohjaustapa b.ohj: '' = nopeus x ja y nuolesta (kuten ennen), 'tatti' = valittu Tatti (b.tt) × huippunopeus, 'napautus' =
+   kulkee napautettuun kohtaan (tai kohde x / y nuolesta, palikan keskipiste), 'auto' = kaasu ja ohjaus (nuolesta tai tatista:
+   kaasu = tatti ylös, ohjaus = tatti sivulle). Huippunopeus b.vm (px/s, myös nuolesta).
+   Vauhti: kiihtyminen b.ka ja jarrutus b.kb sekunteina (tyhjä = heti). Vauhdin muoto b.km: '' suora, valmis muoto
+   (kiihtyy, hidastuu, s) tai Käyrä-palikan tunniste (sen portaat). Tila s = 0–1 matkasta kohti huippunopeutta; vauhti =
+   huippunopeus × muoto(s). Liukkaus b.liuk % (0 = pito täysi): todellinen nopeus seuraa haluttua viiveellä (100 % = 1,5 s),
+   autolla se näkyy sivuluisuna. Este nollaa siihen päin olevan nopeuden.
+   Hahmo: b.kaanny 'kaanny' = kohteen kierto kulkusuuntaan, 'peili' = peilaus vaakaan kulkusuunnan mukaan; b.ks = kuvan oma
+   suunta ('ylos' oletus kääntyvälle, 'oikea' oletus peilaavalle, 'alas', 'vasen'). Auto: kääntyvyys b.kaa astetta sekunnissa
+   täydellä vauhdilla. Käyttötiedot st[id] = {x, y, vx, vy, m, osui, s, vr, h, sf, tx, ty}. */
+var LIIKE_OHJ={tatti:'Tatti',napautus:'Napautus kohteeseen',auto:'Auto'},LIIKE_KS={ylos:0,oikea:90,alas:180,vasen:270};
+function liikeMuoto(P,b){var km=b.km||'',w=null;if(!km||km==='suora')return null;if(KAYRA_PRESETS[km])w=kayraPreset(km,9);else{var kb=P.b[km];if(kb&&kb.k==='kayra'&&Array.isArray(kb.pw))w=kb.pw;}
+  if(!w)return null;return function(t){return Math.max(0,Math.min(1,curveAt(w,Math.max(0,Math.min(1,t)))/100));};}
+function muotoInv(f,y){if(!f)return Math.max(0,Math.min(1,y));if(y<=0)return 0;if(y>=1)return 1;var lo=0,hi=1;for(var i=0;i<26;i++){var m=(lo+hi)/2;if(f(m)<y)lo=m;else hi=m;}return (lo+hi)/2;}
+/* Vauhdin tila s kohti tavoitetta (0–1 huippunopeudesta) kiihtyen tai jarruttaen. */
+function vauhtiS(s,tav,dt,ka,kb,f){var F=f||function(x){return x;},cur=F(s),g=muotoInv(f,tav);
+  if(tav>cur+1e-9)s=ka>0?Math.min(g,s+dt/ka):g;else if(tav<cur-1e-9)s=kb>0?Math.max(g,s-dt/kb):g;return Math.max(0,Math.min(1,s));}
+function liikeKay(P,id){var s=liikeSt(P,id);return !!(s.m||s.s>0||(s.tx!=null&&s.ty!=null)||Math.abs(num(s.vx)||0)>1e-3||Math.abs(num(s.vy)||0)>1e-3);}
+function aikaS(x){var n=parseNum(x);return isNaN(n)||n<=0?0:Math.min(60,n);}
+/* Napautus kohteeseen: käyttöliittymä kertoo napautetun kohdan maailmassa. Koskee näkymän napautus-liikkeitä. */
+function liikeNapautus(P,vw,x,y,ctx){var n=0;Object.keys(P.b).forEach(function(id){var b=P.b[id];if(b.k!=='liike'||b.ohj!=='napautus')return;var t=liikeKohde(P,b);if(!t||t.v!==vw)return;
+  var ev=Ev(P,ctx);if(ev.linked(id,'tx')||ev.linked(id,'ty'))return;var st=liikeSt(P,id),ns={};for(var k in st)ns[k]=st[k];
+  var g=ruutuKohdistus(P,t,x,y);ns.tx=Math.round(g.x*100)/100;ns.ty=Math.round(g.y*100)/100;var pp=liikeNow(P,b,ev);if(ns.x==null){ns.x=pp.x;ns.y=pp.y;}P.st[id]=ns;n++;});return n;}
+/* Vaihe 5 tarkentaa: napautettu kohta ruudun keskelle, jos liikkuvan kerroksessa on ruudukko. */
+function ruutuKohdistus(P,t,x,y){return {x:x,y:y};}
+/* Yksi kuva yhdelle Liike-palikalle. Palauttaa, muuttuiko jokin. */
+function liikeAskel(P,b,ev,dt,rect,R,esteet,lim,fires){var id=b.id,st=liikeSt(P,id),t=liikeKohde(P,b),ohj=LIIKE_OHJ[b.ohj]?b.ohj:'';
+  function r3(v){return Math.round(v*1000)/1000;}
+  var on=!ev.linked(id,'c')||truth(ev.inp(id,'c'));
+  var vm=200;if(ohj){var vmx=ev.inp(id,'vm');vm=vmx===''||vmx==null?200:num(vmx);if(!isFinite(vm)||vm<0)vm=0;}
+  var ka=aikaS(b.ka),kb=aikaS(b.kb),f=liikeMuoto(P,b),liuk=Math.max(0,Math.min(100,num(parseNum(b.liuk))||0));
+  var r=t?rect(t):null,p0=t?{x:r.x,y:r.y}:liikePos(P,b),w=r?r.w:0,h=r?r.h:0;
+  var vx=num(st.vx)||0,vy=num(st.vy)||0,s=num(st.s)||0,head=num(st.h)||0,sf=num(st.sf)||0,tx=st.tx,ty=st.ty,perilla=false,ns={};
+  var dirx=0,diry=0,tm=0,vref=0;
+  /* 1. Haluttu suunta ja vauhti */
+  if(!ohj){var ix=on?num(ev.inp(id,'vx'))||0:0,iy=on?num(ev.inp(id,'vy'))||0:0;tm=Math.sqrt(ix*ix+iy*iy);vref=tm>0?tm:num(st.vr)||0;if(tm>0){dirx=ix/tm;diry=iy/tm;}}
+  else if(ohj==='tatti'||(ohj==='auto'&&b.tt&&!ev.linked(id,'kaa')&&!ev.linked(id,'ohj'))){var tb=P.b[b.tt],js=tb&&tb.k==='tatti'&&P.st[tb.id]&&typeof P.st[tb.id]==='object'?P.st[tb.id]:{x:0,y:0},jx=on?num(js.x)||0:0,jy=on?num(js.y)||0:0,jd=Math.min(1,Math.sqrt(jx*jx+jy*jy));
+    if(ohj==='tatti'){vref=vm;tm=jd*vm;if(jd>0){dirx=jx/Math.sqrt(jx*jx+jy*jy);diry=jy/Math.sqrt(jx*jx+jy*jy);}}
+    else{var kaasu=-jy,ohjaus=jx;}}
+  if(ohj==='napautus'){vref=vm;if(ev.linked(id,'tx')||ev.linked(id,'ty')){var lx=num(ev.inp(id,'tx')),ly=num(ev.inp(id,'ty'));tx=isFinite(lx)?lx:null;ty=isFinite(ly)?ly:null;}
+    if(on&&tx!=null&&ty!=null){var cx=p0.x+w/2,cy=p0.y+h/2,ddx=tx-cx,ddy=ty-cy,dd=Math.sqrt(ddx*ddx+ddy*ddy);
+      if(dd<0.5){perilla=true;}
+      else{dirx=ddx/dd;diry=ddy/dd;var spNow=vref*(f?f(s):s);
+        /* Jarrutusmatka: jarrutus kb sekunnissa huipusta → hidastuvuus vm / kb. */
+        var stop=kb>0&&vm>0?spNow*spNow/(2*vm/kb):0;tm=dd<=stop+1e-6&&spNow>=2?0:vm;}}}
+  if(ohj==='auto'){if(kaasu===undefined){kaasu=on?Math.max(-1,Math.min(1,num(ev.inp(id,'kaa'))||0)):0;ohjaus=on?Math.max(-1,Math.min(1,num(ev.inp(id,'ohj'))||0)):0;}
+    if(!on){kaasu=0;ohjaus=0;}
+    var tf=kaasu>=0?kaasu*vm:kaasu*vm*0.5;vref=vm;
+    /* Suunnanvaihto: ensin jarrutetaan nollaan. */
+    var sgn=sf>0.5?1:sf<-0.5?-1:(tf>0?1:tf<0?-1:0),tavM=sf*tf<0?0:Math.abs(tf);
+    s=vauhtiS(s,vm>0?tavM/vm:0,dt,ka,kb,f);var mag=vm*(f?f(s):s);if(Math.abs(sf)<0.5&&tavM===0)sgn=0;sf=sgn*mag;if(sf*tf<0&&mag<0.5){sf=0;s=0;}
+    var kaa=num(parseNum(b.kaa));if(!isFinite(kaa))kaa=180;head+=ohjaus*kaa*dt*Math.max(-1,Math.min(1,vm>0?sf/(0.3*vm):0));head=((head%360)+360)%360;
+    var hr=head*Math.PI/180;dirx=Math.sin(hr);diry=-Math.cos(hr);
+    var gx=dirx*sf,gy=diry*sf;}
+  else{s=vauhtiS(s,vref>0?Math.min(1,tm/vref):0,dt,ka,kb,f);var sp=vref*(f?f(s):s);if(!ohj&&!(ka>0)&&!(kb>0))sp=tm;
+    if(!(dirx||diry)){var vv=Math.sqrt(vx*vx+vy*vy);if(vv>1e-6){dirx=vx/vv;diry=vy/vv;}else sp=0;}
+    if(ohj==='napautus'&&dt>0&&tx!=null&&!perilla){var cx2=p0.x+w/2,cy2=p0.y+h/2,d2=Math.sqrt((tx-cx2)*(tx-cx2)+(ty-cy2)*(ty-cy2));sp=Math.min(sp,d2/dt);}
+    var gx=dirx*sp,gy=diry*sp;}
+  /* 2. Liukkaus: todellinen nopeus seuraa haluttua. */
+  var tau=liuk/100*1.5,a=tau>0&&dt>0?1-Math.exp(-dt/tau):1;vx+=(gx-vx)*a;vy+=(gy-vy)*a;
+  if(Math.abs(vx)<1e-3)vx=0;if(Math.abs(vy)<1e-3)vy=0;if(perilla&&!liuk){vx=0;vy=0;}
+  /* 3. Siirto ja törmäys */
+  var moving=!!(vx||vy)&&dt>0,osui=false,p=p0,changed=false;
+  if(moving){
+    if(t){var res=liikuta(t,r,vx*dt,vy*dt,esteet(t.v,t.id));osui=res.osui;var nx=lim(res.x,b.xmin,b.xmax),ny=lim(res.y,b.ymin,b.ymax);
+      if(osui||nx!==res.x||ny!==res.y){var avx=(nx-r.x)/dt,avy=(ny-r.y)/dt;vx=avx;vy=avy;if(ohj==='auto'){sf=vx*dirx+vy*diry;}var spA=Math.sqrt(vx*vx+vy*vy);if(vref>0)s=Math.min(s,muotoInv(f,Math.min(1,spA/vref)));}
+      if(nx!==r.x||ny!==r.y){setOmi(P,t.id,'x',r3(ev.omiNum(t.id,'x',t.x||0)+nx-r.x));setOmi(P,t.id,'y',r3(ev.omiNum(t.id,'y',t.y||0)+ny-r.y));R[t.id]={x:nx,y:ny,w:r.w,h:r.h};changed=true;}
+      p={x:nx,y:ny};}
+    else{p={x:r3(lim(p0.x+vx*dt,b.xmin,b.xmax)),y:r3(lim(p0.y+vy*dt,b.ymin,b.ymax))};}}
+  /* 4. Suunta ja hahmon kääntyminen */
+  if(ohj!=='auto'&&(vx||vy)&&Math.sqrt(vx*vx+vy*vy)>1)head=((Math.atan2(vx,-vy)*180/Math.PI)+360)%360;
+  if(t&&b.kaanny==='kaanny'&&(moving||ohj==='auto')){var base=LIIKE_KS[b.ks]!=null?LIIKE_KS[b.ks]:0,kk=Math.round(((head-base)%360+540)%360-180);if(kk===-180)kk=180;
+    if(ev.omiNum(t.id,'kulma',0)!==kk){setOmi(P,t.id,'kulma',kk);changed=true;}}
+  if(t&&b.kaanny==='peili'&&Math.abs(vx)>1){var fr=b.ks==='vasen'?vx>0:vx<0;if(!!ev.omiVal(t.id,'peili')!==fr){setOmi(P,t.id,'peili',fr);changed=true;}}
+  /* 5. Perillä */
+  if(perilla){if(!ev.linked(id,'tx')&&!ev.linked(id,'ty')){tx=null;ty=null;}if(!st.per)fires.push([id,'per']);}
+  var stillMoving=moving&&(Math.abs(p.x-p0.x)>1e-4||Math.abs(p.y-p0.y)>1e-4);
+  ns={x:r3(p.x),y:r3(p.y),vx:r3(vx),vy:r3(vy),m:stillMoving,osui:osui};
+  if(s>1e-6)ns.s=Math.round(s*1e6)/1e6;if(vref>0&&!ohj)ns.vr=r3(vref);if(head)ns.h=Math.round(head*100)/100;if(sf)ns.sf=r3(sf);
+  if(tx!=null&&ty!=null&&!ev.linked(id,'tx')&&!ev.linked(id,'ty')){ns.tx=tx;ns.ty=ty;}if(perilla)ns.per=1;
+  if(!stillMoving&&!osui&&!ns.s&&!(ns.tx!=null)){ns.vx=0;ns.vy=0;delete ns.sf;}
+  if(osui&&!st.osui)fires.push([id,'tor']);
+  var keys={};Object.keys(st).concat(Object.keys(ns)).forEach(function(k){keys[k]=1;});
+  if(Object.keys(keys).some(function(k){return st[k]!==ns[k];})){P.st[id]=ns;changed=true;}
+  return changed;}
 function liikeKohde(P,b){var t=b&&b.o&&P.b[b.o];return t&&K[t.k]&&K[t.k].g==='ui'&&t.k!=='merkki'&&t.k!=='alue'?t:null;}
 /* Onko palikka nyt este (oma asetus tai ohjattu ominaisuus, muuten kerros). */
 function onEste(P,ev,b){if(!b||!K[b.k]||K[b.k].g!=='ui'||b.k==='merkki'||b.k==='alue')return false;
@@ -1564,6 +1640,12 @@ function repair(P){
     if((b.k==='liike'||b.k==='tatti')&&P.st[id]!==undefined){var lst=P.st[id];if(!lst||typeof lst!=='object'||!isFinite(lst.x)||!isFinite(lst.y))delete P.st[id];}
     /* Appi-appi 2: liikkeen kohde, este, osuma-alue ja alueen tunnistettava. */
     if(b.k==='liike'&&b.o!==undefined&&b.o!==''&&!liikeKohde(P,b))b.o='';
+    /* Appi-appi 3: hahmon asetukset. */
+    if(b.k==='liike'){if(b.ohj!==undefined&&b.ohj!==''&&!LIIKE_OHJ[b.ohj])b.ohj='';if(b.tt!==undefined&&b.tt!==''&&!(P.b[b.tt]&&P.b[b.tt].k==='tatti'))b.tt='';
+      if(b.kaanny!==undefined&&b.kaanny!==''&&b.kaanny!=='kaanny'&&b.kaanny!=='peili')b.kaanny='';if(b.ks!==undefined&&b.ks!==''&&LIIKE_KS[b.ks]==null)b.ks='';
+      if(b.km!==undefined&&b.km!==''&&!KAYRA_PRESETS[b.km]&&!(P.b[b.km]&&P.b[b.km].k==='kayra'))b.km='';
+      if(b.liuk!==undefined){var lu=parseNum(b.liuk);b.liuk=isNaN(lu)?0:Math.max(0,Math.min(100,lu));}}
+    if(K[b.k]&&K[b.k].g==='ui'){if(b.peili!==undefined&&b.peili!==true)delete b.peili;if(b.kulma!==undefined){var kul=parseNum(b.kulma);if(isNaN(kul)||kul===0)delete b.kulma;else b.kulma=kul;}}
     if(K[b.k]&&K[b.k].g==='ui'){if(b.este!==undefined&&b.este!==true)delete b.este;if(b.osu!==undefined&&b.osu!=='laatikko'&&b.osu!=='ympyra')delete b.osu;
       if(b.osk!==undefined){var oskn=parseNum(b.osk);if(isNaN(oskn)||oskn===100)delete b.osk;else b.osk=Math.max(10,Math.min(200,Math.round(oskn)));}}
     if(b.k==='alue'&&b.kuka!==undefined){var kku=P.b[b.kuka];if(!kku||!K[kku.k]||K[kku.k].g!=='ui'||kku.k==='merkki'||kku.k==='alue')delete b.kuka;}
@@ -1957,7 +2039,8 @@ function Ev(P,ctx){
       case 'muutos':{var mv=muutosNow(P,b,inp,has,linked,ctx);if(isErr(mv))return mv;if(p==='t')return mv.t;if(p==='r')return mv.run;return mv.v;}
       case 'liike':{var lst=liikeSt(P,id);if(p==='m')return !!lst.m;if(p==='osuu')return !!lst.osui;
         if(p==='nop')return round9(Math.round(Math.sqrt((num(lst.vx)||0)*(num(lst.vx)||0)+(num(lst.vy)||0)*(num(lst.vy)||0))*100)/100);
-        if(p==='suu'){var lvx=num(lst.vx)||0,lvy=num(lst.vy)||0;return lvx||lvy?Math.round(((Math.atan2(lvx,-lvy)*180/Math.PI)+360)%360):(num(lst.h)||0);}
+        if(p==='kx'||p==='ky'){var kv=p==='kx'?lst.tx:lst.ty;return kv==null||!isFinite(kv)?null:kv;}
+        if(p==='suu'){var lvx=num(lst.vx)||0,lvy=num(lst.vy)||0;if(b.ohj==='auto')return Math.round(num(lst.h)||0)%360;return lvx||lvy?Math.round(((Math.atan2(lvx,-lvy)*180/Math.PI)+360)%360):(num(lst.h)||0);}
         var lt=liikeKohde(P,b);if(lt){var lr=rectNow(P,{omiNum:omiNum,linked:linked,inp:inp},lt);return p==='y'?lr.y:lr.x;}var lp=liikePos(P,b);return p==='y'?lp.y:lp.x;}
       case 'alue':{var aa=alueTila(P,id);if(p==='n')return aa.length;return b.kuka?aa.indexOf(b.kuka)>=0:aa.length>0;}
       case 'kayra':{var ksp=kayraSpec(P,id,ctx,{has:has,inp:inp,linked:linked});if(ksp.err)return ERR(ksp.err);return ksp.y;}
@@ -2682,7 +2765,7 @@ function why(P,E,id,depth,seen){
 return {omat:omat,omFind:omFind,omNorm:omNorm,omBase:omBase,omNames:omNames,omActive:omActive,setOmi:setOmi,resetOmi:resetOmi,isOff:isOff,napVaihto:napVaihto,boolKey:boolKey,TIMEU:TIMEU,YKSA:YKSA,ENVW:ENVW,portsBase:portsBase,tattiSet:tattiSet,muutosStart:muutosStart,muutosStop:muutosStop,frame:frame,napExt:napExt,NAP_PITKA:NAP_PITKA,pressDown:pressDown,pressLong:pressLong,pressUp:pressUp,hasOut:hasOut,curveAt:curveAt,KAYRA_PRESETS:KAYRA_PRESETS,kayraPreset:kayraPreset,kayraResize:kayraResize,kayraDec:kayraDec,kayraSpec:kayraSpec,kayraAt:kayraAt,satuN:satuN,satuMuoto:satuMuoto,satuCurve:satuCurve,satuResize:satuResize,satuPreset:satuPreset,SATU_PRESETS:SATU_PRESETS,SATU_MAXN:SATU_MAXN,satuSpec:satuSpec,satuDist:satuDist,satuPick:satuPick,satuPct:satuPct,satuItemTxt:satuItemTxt,satuTop:satuTop,satuRoll:satuRoll,
   chainOpen:chainOpen,parseKlo:parseKlo,nextClock:nextClock,timerLabel:timerLabel,arpaN:arpaN,toistaN:toistaN,setMhLabel:function(f){MHLAB=f;},mhLabel:mhLabel,odotaLim:odotaLim,odotaEv:odotaEv,hasLimit:hasLimit,chainSignal:chainSignal,copyNodes:copyNodes,pasteNodes:pasteNodes,chainList:chainList,haaraVal:haaraVal,chainIssues:chainIssues,FXK:FXK,YKS:YKS,YKSN:YKSN,fmtDur:fmtDur,fmtLeft:fmtLeft,timerMs:timerMs,chainStart:chainStart,chainStop:chainStop,chainAdvance:chainAdvance,chainPoll:chainPoll,chainInfo:chainInfo,anyChainRunning:anyChainRunning,CH_STEPS:CH_STEPS,CH_TOKENS:CH_TOKENS,
   isWin:isWin,isStep:isStep,STEPK:STEPK,chainNode:chainNode,chainOfNode:chainOfNode,chainSteps:chainSteps,isChainLink:isChainLink,chainLinksFrom:chainLinksFrom,chainStarts:chainStarts,chainIsRing:chainIsRing,chainOrder:chainOrder,
-  VER:VER,PAJA:'4',LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,kerrokset:kerrokset,kerrosOf:kerrosOf,rvOf:rvOf,kuvaUrl:kuvaUrl,K:K,KW:KW,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,kaavaToIds:kaavaToIds,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
+  VER:VER,PAJA:'4',LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,kerrokset:kerrokset,kerrosOf:kerrosOf,rvOf:rvOf,kuvaUrl:kuvaUrl,K:K,KW:KW,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,kaavaToIds:kaavaToIds,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
   ports:ports,port:port,newProject:newProject,addBlock:addBlock,addNode:addNode,addLink:addLink,canLink:canLink,
   removeNode:removeNode,removeBlock:removeBlock,nodeOf:nodeOf,nodesOfBlock:nodesOfBlock,uniqueName:uniqueName,baseName:baseName,
   repair:repair,repairData:repairData,Ev:Ev,setVal:setVal,userSet:userSet,press:press,fire:fire,tick:tick,runAction:runAction,clearVal:clearVal,
@@ -3206,7 +3289,7 @@ function renderUIStage(){
   S.lastOrder=order+'|'+S.vw;
   drawDeco(E);
   if(S.navAnim){world.classList.add('anim');setTimeout(function(){world.classList.remove('anim');},520);S.navAnim=false;}
-  clampUI();applyCam(vp,world,camUI());applyRV();updRulers();drawMarkFrame();drawDevFrame();
+  clampUI();applyCam(vp,world,camUI());applyRV();updRulers();drawMarkFrame();drawDevFrame();drawTargets();
   /* Appi-appi 1: kamera tarkistaa paikkansa piirron jälkeen (ruudun koko voi muuttua, palikka voi hypätä). */
   if(!S.frRaf&&!S.inFrame&&useMode()&&KK.kamera(P,S.vw)&&!S.camChk){S.camChk=1;requestAnimationFrame(function(){S.camChk=0;if(!S.frRaf&&camBehind()){S.camSnap=1;runFrames();}});}
   var em=$('#uempty',st);if(em)em.remove();
@@ -3225,6 +3308,8 @@ function decorateUE(el,b,E,ed){
   el.className='ue k-'+b.k+(ed&&KK.kerrosOf(P,b).k.lukko?' krlock':'')+(ed&&b.ohk&&b.ohk.length?' omdrv':'')+' '+hueCls(ed?(E.alt(b.id)?b.hue2:b.hue):E.hue(b.id))+((S.sel&&S.sel.t==='b'&&S.sel.id===b.id)||inMulti('b',b.id)?' sel':'')+(sn&&sn.p===b.id?' sel2':'')+({harmaa:' dim',luettava:' ro',piilossa:' hid'}[stt]||'')+(KK.isErr(E.val(b.id))?' has-err':'');
   el.style.left=ovN(b,E,ed,'x',b.x)+'px';el.style.top=ovN(b,E,ed,'y',b.y)+'px';el.style.width=ovN(b,E,ed,'w',b.w)+'px';el.style.height=ovN(b,E,ed,'h',b.h)+'px';
   /* Pajakone 4: läpinäkyvyys (muokatessa aina vähintään haaleana näkyvissä). */
+  /* Appi-appi 3: kierto ja peilaus (sisältö kääntyy, paikka ja osuma-alue eivät). */
+  var kul=ovN(b,E,ed,'kulma',0),pei=!!ovV(b,E,ed,'peili'),inn=el.querySelector('.in');if(inn)inn.style.transform=(kul?'rotate('+kul+'deg)':'')+(pei?' scaleX(-1)':'');
   var lp=ovN(b,E,ed,'lpn',0);el.style.opacity=lp>0?String(ed?Math.max(0.3,1-lp/100):Math.max(0,1-lp/100)):'';
   var off=!ed&&(stt==='harmaa'||stt==='luettava');$$('input,textarea,select,button',el).forEach(function(x){if(x.closest('.cal'))return;x.disabled=off;});
 }
@@ -3380,6 +3465,13 @@ function fitAll(vp,c,rects){
   c.z=z;c.x=(W-(x2-x1)*z)/2-x1*z;c.y=(H-(y2-y1)*z)/2-y1*z;
 }
 
+/* Appi-appi 3: napautus kohteeseen. Napautus maailmaan (ei painikkeeseen tai kenttään) vie näkymän napautus-liikkeet kohtaan. */
+function napautusTap(e){if(!useMode()||e.target.closest('button,input,textarea,select,[data-act],.cal'))return false;
+  var w=toWorld($('#uvp'),camUI(),e.clientX,e.clientY);if(!KK.liikeNapautus(P,S.vw,w.x,w.y,ctx()))return false;
+  e.preventDefault();KK.tick(P,ctx());renderUIStage();runFrames();return true;}
+function drawTargets(){var w=$('#uworld');if(!w)return;$$('.tgtm',w).forEach(function(x){x.remove();});if(!useMode())return;
+  blocks(function(b){return b.k==='liike'&&b.ohj==='napautus';}).forEach(function(b){var t=KK.liikeKohde(P,b),st=P.st[b.id];if(!t||t.v!==S.vw||!st||st.tx==null||st.ty==null)return;
+    var i=document.createElement('i');i.className='tgtm';i.style.left=st.tx+'px';i.style.top=st.ty+'px';w.appendChild(i);});}
 function bindUIStage(){
   var vp=$('#uvp');
   wheel(vp,camUI,uiCamChanged,canPanUI);
@@ -3395,6 +3487,7 @@ function bindUIStage(){
     if(e.button!==0)return;
     var el=e.target.closest('.ue');
     if(!editingUI()){
+      if(napautusTap(e))return;
       if(!el&&canPanUI())startPan(e,vp,camUI,uiCamChanged);
       return;
     }
@@ -4667,10 +4760,24 @@ function lgInsp(b,E,node){
         '<div class="sdnow"><span>'+(mr===true?'Käynnissä':'Pysähdyksissä')+' · '+Math.round((KK.num(mt)||0)*100)+' %</span><b>'+esc(E.fmt(E.val(b.id)))+'</b></div><div class="ibs"><button class="ib" data-do="muutosgo">▶ Käynnistä kokeeksi</button><button class="ib" data-do="muutosstop">⏹ Pysäytä</button></div>'+
         '<div class="help">Käynnistä tapahtumalla kohtaan <b>alkaa</b> (esim. painike painettu). Arvo kulkee tasaisesti; muodon saat viemällä <b>edistyminen</b> (0–1) Käyrän syötteeksi, jonka x-väli on 0–1. Kaavassa '+esc(b.vt)+'.edistyminen (0–1) ja '+esc(b.vt)+'.kulunut (sekunteina): esim. Käyrän syöte = kulunut, x-väli 0 – kesto.</div>');break;}
     case 'liike':
-      {var lkt=KK.liikeKohde(P,b),lkopt=[['','ei kohdetta (vain arvot x ja y)']].concat(blocks(function(o){return isUI(o)&&o.k!=='merkki'&&o.k!=='alue';}).map(function(o){return [o.id,o.nm+(P.views.length>1?' ('+viewName(o.v)+')':'')];}));
-      h+=section('Liike',fSelect('Liikutettava palikka','o',b.o||'',lkopt,lkt?'Liike siirtää tätä palikkaa suoraan. Esteet pysäyttävät sen, ja se liukuu niiden reunaa pitkin. Alkupaikka on palikan oma paikka.':'Valitse palikka, niin Liike siirtää sitä suoraan (esteet ja alueet toimivat). Ilman kohdetta Liike antaa vain arvot x ja y, jotka voi viedä palikan kohtiin siirto x ja siirto y.')+
-        fValue('Nopeus x (px/s)','vx',b)+fValue('Nopeus y (px/s)','vy',b,'Esim. tatin vaaka × 200. Positiivinen = oikealle tai alas.')+
-        (lkt?'':'<div class="row2">'+fNum('Alku x','x0',b.x0)+fNum('Alku y','y0',b.y0)+'</div>')+'<div class="row2">'+fNum('x vähintään','xmin',b.xmin)+fNum('x enintään','xmax',b.xmax)+'</div><div class="row2">'+fNum('y vähintään','ymin',b.ymin)+fNum('y enintään','ymax',b.ymax)+'</div>'+
+      {var lkt=KK.liikeKohde(P,b),oj=KK.LIIKE_OHJ[b.ohj]?b.ohj:'',lkopt=[['','ei kohdetta (vain arvot x ja y)']].concat(blocks(function(o){return isUI(o)&&o.k!=='merkki'&&o.k!=='alue';}).map(function(o){return [o.id,o.nm+(P.views.length>1?' ('+viewName(o.v)+')':'')];}));
+      var ttopt=[['','valitse tatti']].concat(blocks(function(o){return o.k==='tatti';}).map(function(o){return [o.id,o.nm];})),kyopt=blocks(function(o){return o.k==='kayra';}).map(function(o){return [o.id,'Käyrä: '+o.nm];});
+      var h1=fSelect('Liikutettava palikka','o',b.o||'',lkopt,lkt?'Liike siirtää tätä palikkaa suoraan. Esteet pysäyttävät sen, ja se liukuu niiden reunaa pitkin. Alkupaikka on palikan oma paikka.':'Valitse palikka, niin Liike siirtää sitä suoraan (esteet ja alueet toimivat). Ilman kohdetta Liike antaa vain arvot x ja y, jotka voi viedä palikan kohtiin siirto x ja siirto y.')+
+        fSegs('Ohjaus','ohj',oj,[['','Nopeus x, y'],['tatti','Tatti'],['napautus','Napautus'],['auto','Auto']],
+          oj==='tatti'?'Kulkee tatin suuntaan. Mitä kauempana keskeltä tatti on, sitä kovempaa (enintään huippunopeus).':oj==='napautus'?'Napauta lukitussa näkymässä kohtaa, niin palikka kulkee sinne (rengas näyttää kohteen). Kohde x ja y voivat tulla myös nuolesta. Tapahtuma perillä lähtee, kun keskipiste on kohteessa.':oj==='auto'?'Kaasu vie eteenpäin keulan suuntaan (taakse puolella vauhdilla), ohjaus kääntää. Paikallaan auto ei käänny. Keula alkaa ylöspäin.':'Nopeus x ja y tulevat nuolesta tai kentästä (px/s).');
+      if(!oj)h1+=fValue('Nopeus x (px/s)','vx',b)+fValue('Nopeus y (px/s)','vy',b,'Esim. tatin vaaka × 200. Positiivinen = oikealle tai alas.');
+      else h1+=fValue('Huippunopeus (px/s)','vm',b,'Pikseliä sekunnissa. Voi tulla myös nuolesta (esim. turbo).');
+      if(oj==='tatti'||oj==='auto')h1+=fSelect('Tatti','tt',b.tt||'',ttopt,oj==='auto'?'Tatti ylös = kaasu, alas = jarru ja peruutus, sivulle = ohjaus. Voit myös viedä kaasun ja ohjauksen (−1…1) nuolilla, esim. painikkeista.':ttopt.length<2?'Lisää näkymään Tatti (Ohjaimet → Tatti), esim. kojelautakerrokseen.':'');
+      if(oj==='auto')h1+=fNum('Kääntyvyys (°/s)','kaa',b.kaa==null?180:b.kaa,'Montako astetta auto kääntyy sekunnissa täydellä vauhdilla.');
+      h+=section('Liike',h1);
+      h+=section('Vauhti',fNum('Kiihtyminen (s)','ka',b.ka,'Aika paikaltaan huippunopeuteen. Tyhjä tai 0 = heti.')+fNum('Jarrutus (s)','kb',b.kb,'Aika huippunopeudesta pysähdyksiin. Tyhjä tai 0 = heti.')+
+        fSelect('Vauhdin muoto','km',b.km||'',[['','Suora'],['kiihtyy','Kiihtyy (hidas alku)'],['hidastuu','Hidastuu (nopea alku)'],['s','S-käyrä']].concat(kyopt),'Miten vauhti kasvaa kiihdyttäessä ja laskee jarruttaessa. Oman muodon saat Käyrä-palikasta: sen portaat ovat vauhti (% huipusta) ajan kuluessa.')+
+        fNum('Liukkaus (%)','liuk',b.liuk||0,'0 = pito täysi. Liukkaalla vauhti säilyy pitkään ja suunnan muutos kestää (jää, avaruus). Autolla näkyy sivuluisuna.'));
+      if(lkt){var h3=fSegs('Kääntyminen','kaanny',b.kaanny||'',[['','Ei'],['kaanny','Kulkusuuntaan'],['peili','Peilaa sivuttain']],b.kaanny==='kaanny'?'Palikka kiertyy kulkusuuntaan (osuma-alue ei kierry, joten ympyrä sopii parhaiten).':b.kaanny==='peili'?'Kuva kääntyy peilikuvaksi, kun suunta vaihtuu vasemman ja oikean välillä (sivulta kuvattu hahmo).':'');
+        if(b.kaanny==='kaanny')h3+=fSegs('Kuva katsoo','ks',b.ks||'ylos',[['ylos','Ylös'],['oikea','Oikealle'],['alas','Alas'],['vasen','Vasemmalle']],'Mihin suuntaan palikan kuva katsoo piirrettynä.');
+        if(b.kaanny==='peili')h3+=fSegs('Kuva katsoo','ks',b.ks==='vasen'?'vasen':'oikea',[['oikea','Oikealle'],['vasen','Vasemmalle']]);
+        h+=section('Hahmo',h3);}
+      h+=section('Rajat ja paikka','<div class="row2">'+(lkt?'':fNum('Alku x','x0',b.x0)+fNum('Alku y','y0',b.y0))+'</div><div class="row2">'+fNum('x vähintään','xmin',b.xmin)+fNum('x enintään','xmax',b.xmax)+'</div><div class="row2">'+fNum('y vähintään','ymin',b.ymin)+fNum('y enintään','ymax',b.ymax)+'</div>'+
         '<div class="sdnow"><span>Paikka</span><b>'+esc(E.fmt(E.val(b.id)))+', '+esc(E.fmt(E.val(b.id,'y')))+'</b><button class="ib" data-do="liikealkuun">↺ Alkuun</button></div>'+
         '<div class="help">'+(lkt?'Liikkuu lukitussa näkymässä. ':'Vie <b>x</b> ja <b>y</b> näkymäpalikan kohtiin <b>siirto x</b> ja <b>siirto y</b>, niin palikka liikkuu lukitussa näkymässä. ')+'Kohta <b>liikkuu kun</b> pysäyttää liikkeen, kun ehto ei päde. Tapahtuma kohtaan <b>alkuun</b> palauttaa alkupaikkaan. Rajat ovat valinnaisia (palikan vasen yläkulma). Logiikkaan: <b>liikkuu</b>, <b>osuu esteeseen</b>, <b>nopeus</b>, <b>suunta</b> ja tapahtuma <b>törmäsi</b>.</div>');}break;
     case 'arpa':h+=section('Arpa',fSegs('Vaihtoehtoja','n',String(KK.arpaN(b)),[['2','2'],['3','3'],['4','4'],['5','5'],['6','6']],'Ketju jatkaa yhteen arvottuun haaraan. Jokaisella vaihtoehdolla on sama todennäköisyys. Kuusi vaihtoehtoa on kuin noppa.')+'<div class="help">Esim. peliin: arvo, mikä tapahtuma tulee seuraavaksi, tai vaihtele kannustustekstejä.</div>');break;

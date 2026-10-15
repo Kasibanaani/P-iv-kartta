@@ -7,14 +7,15 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 ## Valmiina
 
 - Pajakone 1–4: laitemuoto, puhelinappin perusta, Käyrä, asettelutyökalut, kerrokset, Kuva, Tatti, Muutos ajassa, Liike, viitattavat ominaisuudet (`VERTAILU.md` kohdat 5–7).
-- Appi-appi 0: nimenvaihto, kansio `appiappi/`.
-- Appi-appi 1: kamera seuraa palikkaa, kuollut alue, pehmeys, maailman rajat, rullaus kaikkiin suuntiin, parallaksi.
-- Appi-appi 2: Liike liikuttaa suoraan palikkaa, esteet (palikka tai kerros, laatikko tai ympyrä, liukuu reunaa pitkin), alueet (astuttu, poistuttu, sisällä).
+- Appi-appi 0: nimenvaihto, kansio `appiappi/`, tiedot siirtyvät.
+- Appi-appi 1: kamera seuraa palikkaa, kuollut alue, pehmeys, maailman rajat, rullaus kaikkiin suuntiin, parallaksi molempiin suuntiin.
+- Appi-appi 2: Liike liikuttaa suoraan palikkaa, esteet (palikka tai kerros 🧱, laatikko/ympyrä, liukuu reunaa pitkin), alueet (sisällä, astuttu, poistuttu).
+- Appi-appi 3: hahmo: ohjaus tatti / napautus kohteeseen / auto, huippunopeus, kiihtyminen ja jarrutus käyrällä, liukkaus, kääntyy kulkusuuntaan tai peilaa; ominaisuudet kierto ja peilattu.
 - Testattu vain tietokoneen Chromiumissa, ei oikealla iPhonella, iPadilla eikä Safarilla.
 
 ## Seuraavaksi
 
-- Maailma jatkuu `VERTAILU.md` kohdan 8 järjestyksessä. Liike-, törmäys- ja kameralogiikka moottoriin (`KK`).
+- Maailma jatkuu `VERTAILU.md` kohdan 8 järjestyksessä: 4 kuvasarja-animaatio Kuva-palikkaan, 5 ruudukko kerroksen ominaisuudeksi, sitten reitit (Emilin toive: muiden liikkuvien kulkureitit pohjaan). Liike-, törmäys- ja kameralogiikka moottoriin (`KK`).
 - Jonossa: kerroksen näkyvyys logiikasta, toiveet tekoälylle, pelin tuntu (efektit, ajastin, ennätys), projektin tyyli, vienti käyttäjä-appiksi.
 
 ## Avoimet kysymykset
