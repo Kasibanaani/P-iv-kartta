@@ -41,7 +41,7 @@ A.strictEqual(V(P,K(P,'')),null,'tyhjä kaava = tyhjä');
 function err(s,re){var v=V(P,K(P,s));A.ok(KK.isErr(v),s);A.ok(re.test(v.err),s+' → '+v.err);}
 err('(uni + 1) > 7',/sulkuja ei käytetä/);err('uni > 7 > 2',/vain yksi vertailu/);err('uni >',/kesken/);err('uni 7',/ylimääräistä/);
 err('unni > 7',/puuttuu: unni/);err('"auki',/lainausmerkki/);err('uni # 2',/tuntematon merkki/);err('uni / 0',/jako nollalla/);
-err('uni.väri',/tuntematon ominaisuus/);err('k1x.näkyy',/puuttuu/);
+err('uni.maku',/tuntematon ominaisuus/);err('k1x.näkyy',/puuttuu/);
 
 // --- Poisto ja palautuminen: viittaus muuttuu puuttuvaksi ja löytyy taas samalla viitteellä ---
 var Q=KK.newProject('poisto');var u=KK.addBlock(Q,'luku',{nm:'Uni',start:9});var kq=K(Q,'uni > 7');A.strictEqual(V(Q,kq),true);

@@ -8,7 +8,7 @@ A.deepStrictEqual([KK.LAITE.puhelinv.w,KK.LAITE.puhelinv.h],[844,390]);
 A.deepStrictEqual([KK.LAITE.puhelin.w,KK.LAITE.puhelin.h],[390,844]);
 A.deepStrictEqual([KK.LAITE.ipad.w,KK.LAITE.ipad.h],[820,1180]);
 A.deepStrictEqual([KK.LAITE.ipadv.w,KK.LAITE.ipadv.h],[1180,820]);
-A.strictEqual(KK.PAJA,'3');
+A.strictEqual(KK.PAJA,'4');
 
 var P=KK.newProject('laite'),vw=P.views[0].id;
 A.strictEqual(KK.laite(P,vw),null,'uusi näkymä on vapaa');

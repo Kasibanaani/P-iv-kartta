@@ -69,3 +69,14 @@ Järjestystä voi muuttaa. Vaiheet 2 ja 3 ovat pieniä, maailma on iso.
 - **Käyrä laajemmin:** käyrä animaatioihin (muutos ajassa) ja tulevaan ohjailutattiin (kauempana keskeltä = kiihtyvä vaikutus).
 
 **Tehty 15.10.2026 illalla (Pajakone 3):** 3a asettelutyökalut, 3b kerrokset (nimi, järjestys, rullausvauhti, piilotus ja lukitus muokatessa), 3c Kuva-palikka ja näkymätön kosketusalue, 3d Tatti, Muutos ajassa, Liike ja näkymäpalikan siirto logiikasta. Käyrä animaatioon: Muutos ajassa -palikan edistyminen Käyrän syötteeksi. Seuraavana etenemisjärjestyksessä: toiveet tekoälylle ja Maailma (esteet, alueet, törmäykset).
+
+## 7. Pajakone 4: viitattavat ominaisuudet (15.10.2026)
+
+Emilin päätös: jokainen palikan arvo ja ominaisuus saa viitteen, jotta sitä voi lukea ja ohjata samalla logiikalla. Kaava on tila (”näin on, kun logiikka pätee”), toiminto tapahtuma (”tee tämä nyt”). Etusija: ohjattu (kaava tai nuoli) > asetettu (toiminto) > perusarvo; Palauta poistaa asetetun. Muokatessa näkymä näyttää perusarvot.
+
+- **Rekisteri** (`omat(b)` moottorissa) on ainoa paikka, jossa palikkalajin ominaisuudet luetellaan. Siitä syntyvät kaavan `palikka.ominaisuus`, ohjauskohdat `o_<avain>` (vain avatut, kenttä `b.ohk`), tarkastelijan Ominaisuudet-osio, toimintojen kohteet (`tee.om`) ja virheen luettelo. Uusi ominaisuus lisätään vain rekisteriin (ja näkymän piirtoon, jos se vaikuttaa ulkonäköön).
+- **Asetetut arvot** ovat käyttötietoa: `P.st['o:'+id]`. Kertapainalluksen kyllä/ei: `P.st['as:'+id]` (asetus `kv: 'vaihto'`). Arvan viimeisin: `P.st['arpa:'+id]`.
+- **Aika:** Arvo-palikan yksikkö (`yks`: s, min, h, px, %). Aika on laskuissa sekunteina ja näkyy omassa yksikössään. Ajastin ja odotuksen aikaraja tulkitsevat aika-arvon nuolesta sekunteina, pelkän luvun omassa yksikössään. Muutos ajassa sai kestolle yksikön ja `.kulunut` (s): Käyrän syöte = kulunut, x-väli 0 – kesto → liike omalla kiihtyvyyskäyrällä.
+- **Ympäristö kaavassa:** `ruutu.leveys`, `ruutu.korkeus`, `näkymä`, `näkymä.numero`, `nyt` (kello), `nyt.tunti`, `nyt.minuutti`, `nyt.sekunti`, `tumma`. Sanat ovat varattuja viitteinä.
+- **Kyllä vihreä, ei sininen** (muuttujat `--kyl`, `--ein`), koska punainen kuuluu ketjuille ja oranssi viitteille.
+
