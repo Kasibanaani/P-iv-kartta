@@ -22,9 +22,9 @@ Molemmissa on projekteja, joissa on käyttäjälle näkyvä puoli ja logiikkapuo
 | Masterin ominaisuus | Kytköskartassa nyt | Ehdotus Pajakoneeseen |
 | --- | --- | --- |
 | Puhelinsimulaatio: projekti rakennetaan puhelimen ruudussa | Vapaa kanvaasi ilman laitetta | **Tehty (Pajakone 1):** näkymän laite Vapaa / Puhelin / iPad pysty / iPad vaaka |
-| Ruudut ja puhelimen alapalkki, alapalkista piilotetut näkymät, Palaa takaisin | Näkymät välilehtinä yläreunassa, Siirry näkymään | Puhelinnäkymissä välilehdet alapalkkina laitteen sisällä, näkymän valinta ”ei alapalkissa”, toiminto Palaa takaisin |
+| Ruudut ja puhelimen alapalkki, alapalkista piilotetut näkymät, Palaa takaisin | Näkymät välilehtinä yläreunassa, Siirry näkymään | **Emil 15.10.2026: ei valmista alapalkkia.** Palkki tehdään tavallisista palikoista (painikkeet + Siirry, myöhemmin kuva kosketusalueineen). **Tehty (Pajakone 2):** rullausvauhti (palikka lukittu ruutuun tai hitaampi tausta) ja toiminto Palaa takaisin |
 | Maailmat: ruudukkokartta, esteet, alueet (astu, pysähdy, kosketus), hahmon liike ja nopeus, kamera ja zoomaus, SVG-pohjakuva ja kerrokset, kosketettavat muodot, hahmon siirto | Ei vastinetta | Maailma-palikka näkymään. Alueet ja esteet ovat palikoita, joilla on tapahtumat (astuttu, poistuttu) ja arvo (hahmo on alueella), joten ne kytketään nuolilla kuten painikkeet. Kaksi vaihetta: ensin kartta, hahmo ja alueet, sitten kuvat, kerrokset ja kamera |
-| Painikkeen pitkä painallus, irrotus (myös painalluksen kesto), palautuva painike, ”yksi painallus riittää” | Painike: jää pohjaan tai kertapainallus, tapahtuma painettu | Painikkeelle uudet tapahtumat pitkä painallus ja irrotettu sekä käytös ”pohjassa vain painettaessa” |
+| Painikkeen pitkä painallus, irrotus (myös painalluksen kesto), palautuva painike, ”yksi painallus riittää” | Painike: jää pohjaan tai kertapainallus, tapahtuma painettu | **Tehty (Pajakone 2):** pitkä painallus, irrotettu, painalluksen kesto ja käytös Pohjassa vain painettaessa |
 | Toiveet tekoälylle (lappu projektiin, ruutuun tai palikkaan, GitHubissa, Toiveet-välilehti) | Ei vastinetta | Tuodaan: toive palikkaan tai näkymään, tekoäly käsittelee ne GitHubista |
 | Päiväkohtaiset tiedot (`cfg.days`: jokaisella päivällä oma tila ja päivänvaihto) ja Seuranta-välilehti | Aikajana ja kalenteri, ei päiväkohtaista tilaa | Myöhemmin, jos tarvitaan Päiväkartan kaltaisia projekteja |
 | Projektin tyyli: valmiit tyylit, paletit, muoto, pinta, fontti, tiheys, painikkeiden ja liikkeen tyyli, palikan korostus | Käyttönäkymän teema ja palikoiden värit | Myöhemmin: projektin muoto, fontti ja tiheys samaan teemavalintaan |
@@ -51,7 +51,7 @@ Molemmissa on projekteja, joissa on käyttäjälle näkyvä puoli ja logiikkapuo
 ## 5. Etenemisjärjestys
 
 1. **Pajakone 1 (tehty 15.10.2026):** kopio Kytköskartasta omilla tallennusavaimilla, tuonti Kytköskartasta samasta selaimesta, näkymän laitemuoto (Vapaa, Puhelin, iPad pysty, iPad vaaka).
-2. **Puhelinappin perusta:** alapalkki puhelinnäkymissä, näkymä ilman alapalkkia, Palaa takaisin, painikkeen pitkä painallus, irrotus ja ”pohjassa vain painettaessa”.
+2. **Puhelinappin perusta (tehty 15.10.2026, Pajakone 2):** valmiin alapalkin sijaan rullausvauhti (lukittu ruutuun / hitaampi), Puhelin vaaka, Palaa takaisin, painikkeen pitkä painallus, irrotus, kesto ja Pohjassa vain painettaessa, Ruudun keskelle, Monista N kpl. Lisäksi Emilin idea **Käyrä-palikka** (syöte → tulos muotoillun käyrän kautta).
 3. **Toiveet tekoälylle** palikkaan ja näkymään (GitHubiin, tekoäly käsittelee).
 4. **Maailma 1:** maailma-palikka, ruudukko, esteet, alueet tapahtumineen, hahmo, ohjaus napauttamalla, nuolinäppäimillä ja sormella, hahmon siirto toiminnolla.
 5. **Maailma 2:** SVG-pohjakuva ja kerrokset, kosketettavat muodot, kamera ja zoomaus, hahmon nopeus palikasta.
@@ -60,3 +60,10 @@ Molemmissa on projekteja, joissa on käyttäjälle näkyvä puoli ja logiikkapuo
 8. **Vienti** erilliseksi käyttäjä-appiksi.
 
 Järjestystä voi muuttaa. Vaiheet 2 ja 3 ovat pieniä, maailma on iso.
+
+## 6. Emilin jatkotoiveet (15.10.2026)
+
+- **Asettelutyökaluja paljon lisää:** palikat nopeasti oikean kokoisiksi ja tarkasti halutun alueen (esim. puhelinruudun) keskelle, tasaiset välit helposti, yhtenäisen näköiset kopiot.
+- **Kerrokset:** näkymässä kerroksia, esim. ruutuun lukittu päällyskerros, ja kerroksille oma rullausvauhti (taustakerros liikkuu hitaammin kuin sormi, syvyysvaikutelma). Asiat voivat mennä toistensa ali. Pajakone 2:n rullausvauhti on tämän ensimmäinen pala palikkakohtaisena.
+- **Kuva kosketusalueineen** (kuten Masterin maailman kosketettavat muodot), esim. alapalkki kuvana.
+- **Käyrä laajemmin:** käyrä animaatioihin (muutos ajassa) ja tulevaan ohjailutattiin (kauempana keskeltä = kiihtyvä vaikutus).

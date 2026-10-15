@@ -28,7 +28,7 @@ async def main():
             await pg.click('#stage');await pg.wait_for_timeout(80)
             segs=await pg.eval_on_selector_all('#insp [data-vseg="laite"]','e=>e.map(x=>x.textContent)')
             print(W,'1 laitevaihtoehdot:',segs)
-            assert segs==['Vapaa','Puhelin','iPad pysty','iPad vaaka']
+            assert segs==['Vapaa','Puhelin','Puhelin vaaka','iPad pysty','iPad vaaka']
             assert not await pg.is_visible('#dframe')
             await pg.click('#insp [data-vseg="laite"][data-v="puhelin"]');await pg.wait_for_timeout(150)
             r=await P(pg,"[P.views[0].laite, KK.laite(P,P.views[0].id)]")

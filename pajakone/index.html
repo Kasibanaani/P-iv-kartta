@@ -120,6 +120,9 @@ button{cursor:pointer}
 .uvp{top:40px}
 .locked-ui .uvp.one{top:0}
 /* Laitemuoto (Pajakone): muokatessa laitteen ruutu kehyksenä kanvaasilla, käytössä laitteen muotoinen ikkuna */
+.ue.rvlock{outline:1.5px dashed var(--vtc);outline-offset:3px}
+.dupc{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:6px 0}
+.dupc input{width:58px;border:1px solid var(--sep);border-radius:8px;padding:5px 7px;background:var(--tint)}
 .dframe{position:absolute;left:0;top:0;border:2px solid var(--accent);border-radius:44px;box-shadow:0 0 0 100000px rgba(0,0,0,.05);pointer-events:none}
 .dframe span{position:absolute;left:18px;top:-24px;font:600 12px var(--font,system-ui);color:var(--accent);white-space:nowrap}
 .devstage{background:var(--sep2)}
@@ -500,6 +503,13 @@ button.sdbox:hover{border-color:var(--accent)}
 .sdg .sdp.act{fill:var(--accent)}
 .sdg .sdpl{fill:var(--vtc);font-size:11.5px;font-weight:700}
 .sdg .sdpv{fill:var(--label);font-size:11.5px;font-weight:700}
+.kdg{cursor:ns-resize}
+.kdg .kdmark{stroke:var(--vtc);stroke-width:1.5;stroke-dasharray:4 3}
+.kdg .kddot{fill:var(--vtc);stroke:var(--cell);stroke-width:2}
+.kdg .kdmt{fill:var(--vtc);font-size:12px;font-weight:700}
+.kdtest{display:flex;align-items:center;gap:12px;margin:6px 0 4px}
+.kdtest input[type=range]{flex:1;--hc:var(--vtc)}
+.kdtest b{font-variant-numeric:tabular-nums;min-width:150px;text-align:right}
 .sdins{display:grid;grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:6px;margin:2px 0 14px}
 .sdins label{display:block;font-size:11px;color:var(--vtc);font-weight:700;margin:0 0 2px 2px}
 .sdins input{width:100%;border:1px solid var(--sep);background:var(--tint);border-radius:9px;padding:5px 7px;outline:none;font-variant-numeric:tabular-nums}
@@ -747,6 +757,8 @@ var K={
   muisti:{n:'Muisti',g:'lg',ic:'▣',d:{v:''}},
   /* Versio 8: satunnaisluku. Väli (pienin–suurin), jakauma tasainen tai muotoiltu painoilla. */
   satu:{n:'Satunnaisluku',g:'lg',ic:'⚂',d:{min:1,max:6,jak:'tasa',pn:5,pw:[50,50,50,50,50]}},
+  /* Pajakone 2: käyrä. Syöte (x) kulkee muotoiltavan käyrän läpi tulokseksi (y): kiihdytyskäyrät, vasteet, myöhemmin animaatiot. */
+  kayra:{n:'Käyrä',g:'lg',ic:'∿',d:{a:'',xmin:0,xmax:10,ymin:0,ymax:100,pn:5,pw:[0,25,50,75,100],dec:''}},
   lasku:{n:'Lasku',g:'lg',ic:'+',d:{op:'add',a:'',b:''}},
   vert:{n:'Vertailu',g:'lg',ic:'=',d:{op:'eq',a:'',b:''}},
   kaava:{n:'Kaava',g:'lg',ic:'ƒ',d:{f:''}},
@@ -780,10 +792,14 @@ var OPS={add:'+',sub:'−',mul:'×',div:'÷'};
 var CMPS={eq:'=',ne:'≠',lt:'<',le:'≤',gt:'>',ge:'≥'};
 var WM={and:'JA',or:'TAI',one:'VAIN YKSI',min:'VÄHINTÄÄN',max:'ENINTÄÄN',eq:'TÄSMÄLLEEN',not:'EI MIKÄÄN',sum:'SUMMA',avg:'KESKIARVO',maxv:'SUURIN',minv:'PIENIN',cnt:'MONTAKO PÄTEE'};
 var PARTS={vk:'Viikkonumero',vkp:'Viikonpäivä',vkpn:'Viikonpäivä numerona',pv:'Päivä',kk:'Kuukausi',v:'Vuosi',ero:'Päiviä tästä päivästä'};
-var DOS={aseta:'Aseta arvo',tila:'Aseta tila',lisaa:'Lisää',valitse:'Valitse',poista:'Poista valinta',vaihda:'Vaihda',tyhjenna:'Tyhjennä',siirry:'Siirry',kirjaa:'Kirjaa aikajanalle',rivi:'Lisää riviksi listaan',ilmoita:'Näytä ilmoitus',kaynnista:'Käynnistä ketju',pysayta:'Pysäytä ketju',arvonta:'Arvo uudelleen'};
+var DOS={aseta:'Aseta arvo',tila:'Aseta tila',lisaa:'Lisää',valitse:'Valitse',poista:'Poista valinta',vaihda:'Vaihda',tyhjenna:'Tyhjennä',siirry:'Siirry',takaisin:'Palaa takaisin',kirjaa:'Kirjaa aikajanalle',rivi:'Lisää riviksi listaan',ilmoita:'Näytä ilmoitus',kaynnista:'Käynnistä ketju',pysayta:'Pysäytä ketju',arvonta:'Arvo uudelleen'};
 var VKP=['sunnuntai','maanantai','tiistai','keskiviikko','torstai','perjantai','lauantai'];
 var KUUT=['tammikuu','helmikuu','maaliskuu','huhtikuu','toukokuu','kesäkuu','heinäkuu','elokuu','syyskuu','lokakuu','marraskuu','joulukuu'];
 var BOOLK={ruutu:1,kytkin:1};
+/* Pajakone 2: painikkeen lisätapahtumat (pitkä painallus, irrotettu, painalluksen kesto). Aina mukana käytöksellä
+   'pida' (pohjassa vain painettaessa), muilla kun asetus ext on päällä. */
+var NAP_PITKA=500;
+function napExt(b){return !!b&&b.k==='nappi'&&(b.ext===true||b.beh==='pida');}
 function isBoolKind(b){return !!b&&(BOOLK[b.k]||(b.k==='nappi'&&b.beh!=='kerta')||b.k==='muisti');}
 
 function ports(b){
@@ -791,7 +807,7 @@ function ports(b){
   if(!K[k])return {ins:ins,outs:outs};
   if(K[k].g==='ui'){
     if(k!=='merkki'&&k!=='alue')ins=[V('nk','näkyy kun'),V('hk','harmaana kun'),V('tx','teksti'),V('vr','vaihtoväri kun')];
-    if(k==='nappi')outs=[V('v',b.beh==='kerta'?'painalluksia':'on valittu'),E('e','painettu')];
+    if(k==='nappi'){outs=[V('v',b.beh==='kerta'?'painalluksia':b.beh==='pida'?'painetaan nyt':'on valittu'),E('e','painettu')];if(napExt(b))outs.push(E('pitka','pitkä painallus'),E('irti','irrotettu'),V('k','painalluksen kesto'));}
     else if(k==='lista')outs=[V('v','rastitettuja'),V('n','rivejä'),V('all','kaikki rastitettu')];
     else if(k==='aika')outs=[V('v','merkintöjä'),V('last','viimeisin päivä')];
     else if(k==='kaavio'||k==='kalenteri'||k==='merkki'||k==='alue')outs=[];
@@ -819,6 +835,7 @@ function ports(b){
     case 'ketju':ins=[E('e','käynnistä'),E('x','pysäytä')];outs=[V('v','käynnissä'),V('t','tulos'),E('e','valmis')];break;
     case 'ktulos':ins=[E('e','alkaa'),V('v','arvo')];outs=[E('e','sitten')];break;
     case 'satu':{ins=[E('e','arvo uudelleen'),V('min','pienin'),V('max','suurin')];if(satuMuoto(b))for(var si=1;si<=satuN(b);si++)ins.push(V('p'+si,'paino '+si));outs=[V('v','luku'),E('e','arvottu')];break;}
+    case 'kayra':{ins=[V('a','syöte (x)'),V('xmin','x alku'),V('xmax','x loppu'),V('ymin','y alku'),V('ymax','y loppu')];for(var ki=1;ki<=satuN(b);ki++)ins.push(V('p'+ki,'porras '+ki));outs=[V('v','tulos (y)')];break;}
     case 'arpa':{ins=[E('e','arvo')];var an=arpaN(b);for(var ai=1;ai<=an;ai++)outs.push(E('a'+ai,String(ai)));break;}
     case 'toista':ins=[E('e','alkaa'),V('k','kerrat')];outs=[E('e','kierros'),E('m','valmis')];break;
     case 'lopeta':ins=[E('e','alkaa')];outs=[];break;
@@ -861,14 +878,16 @@ var SATU_PRESETS={tasa:'Tasainen',keski:'Keskelle',reunat:'Reunoille',nousee:'No
 function satuN(b){var n=Math.round(parseNum(b&&b.pn));return isNaN(n)?5:Math.max(2,Math.min(SATU_MAXN,n));}
 function satuMuoto(b){return !!b&&b.jak==='muoto';}
 /* Pehmeä käyrä painojen w läpi kohdassa t (0–1). Fritsch–Carlson: käyrä ei ylitä eikä alita naapuripisteitä. */
-function satuCurve(w,t){
-  var n=w.length;if(!n)return 0;if(n===1)return Math.max(0,w[0]);
+function satuCurve(w,t){return Math.max(0,curveAt(w,t));}
+/* Sama käyrä ilman nollarajaa (Käyrä-palikka): pisteiden välissä ei koskaan yli- eikä alitusta. */
+function curveAt(w,t){
+  var n=w.length;if(!n)return 0;if(n===1)return w[0];
   t=Math.max(0,Math.min(1,t));var h=1/(n-1),i=Math.min(n-2,Math.floor(t/h+1e-12)),s=Math.max(0,Math.min(1,(t-i*h)/h)),d=[],m=[],k;
   for(k=0;k<n-1;k++)d.push((w[k+1]-w[k])/h);
   for(k=0;k<n;k++)m.push(k===0?d[0]:k===n-1?d[n-2]:(d[k-1]*d[k]<=0?0:(d[k-1]+d[k])/2));
   for(k=0;k<n-1;k++){if(d[k]===0){m[k]=0;m[k+1]=0;continue;}var a=m[k]/d[k],c=m[k+1]/d[k];if(a<0)m[k]=0;if(c<0)m[k+1]=0;var q=a*a+c*c;if(q>9){var tt=3/Math.sqrt(q);m[k]=tt*a*d[k];m[k+1]=tt*c*d[k];}}
   var s2=s*s,s3=s2*s,y=(2*s3-3*s2+1)*w[i]+(s3-2*s2+s)*h*m[i]+(-2*s3+3*s2)*w[i+1]+(s3-s2)*h*m[i+1];
-  return Math.max(0,y);
+  return y;
 }
 /* Painojen määrän muutos säilyttää käyrän muodon: uudet painot luetaan vanhalta käyrältä. */
 function satuResize(w,n){n=Math.max(2,Math.min(SATU_MAXN,Math.round(n)||5));w=(Array.isArray(w)&&w.length?w:[50,50]).map(function(x){x=num(x);return isNaN(x)?50:x;});
@@ -919,6 +938,46 @@ function satuRoll(P,id,ctx,depth){
   var r=typeof ctx.rand==='function'?ctx.rand():Math.random();var x=satuPick(satuDist(sp),r);if(x==null)return null;P.st[id]=x;
   fire(P,id,'e',ctx,(depth||0)+1);return x;
 }
+/* ---------- Käyrä (Pajakone 2) ----------
+   Syöte x (nuolesta tai kentästä) muutetaan tulokseksi y käyrän kautta. x-väli (alku–loppu) vastaa käyrän vasenta ja
+   oikeaa reunaa; välin ulkopuolinen x käyttää lähintä reunaa. Portaat (2–10) ovat tasavälein x-välillä, ja niiden korkeus on
+   prosentteina y-välistä (0 = y alku, 100 = y loppu). Portaiden välissä pehmeä käyrä (sama kuin Satunnaisluvussa, ilman
+   nollarajaa), joka ei koskaan ylitä eikä alita naapuriportaita. Tulos lasketaan tarkasti; desimaalit = '' tarkka, muuten
+   pyöristys 0–4 desimaaliin. Porras voi tulla nuolesta (silloin mikä tahansa luku, myös yli 100 tai alle 0). */
+var KAYRA_PRESETS={suora:'Suora',kiihtyy:'Kiihtyy',hidastuu:'Hidastuu',s:'S-käyrä',kumpu:'Kumpu',laskee:'Laskee'};
+function kayraPreset(nm,n){n=Math.max(2,Math.min(SATU_MAXN,Math.round(n)||5));var o=[];
+  for(var i=0;i<n;i++){var t=i/(n-1),v;
+    switch(nm){case 'kiihtyy':v=100*Math.pow(t,2.2);break;case 'hidastuu':v=100*(1-Math.pow(1-t,2.2));break;case 's':v=100*t*t*(3-2*t);break;
+      case 'kumpu':v=100*Math.sin(Math.PI*t);break;case 'laskee':v=100*(1-t);break;default:v=100*t;}
+    o.push(Math.round(v));}
+  return o;}
+function kayraResize(w,n){n=Math.max(2,Math.min(SATU_MAXN,Math.round(n)||5));w=(Array.isArray(w)&&w.length?w:[0,100]).map(function(x){x=num(x);return isNaN(x)?0:x;});
+  var o=[];for(var i=0;i<n;i++)o.push(Math.max(0,Math.min(100,Math.round(curveAt(w,i/(n-1))))));return o;}
+function kayraDec(b){var d=b&&b.dec;if(d===''||d==null)return null;d=Math.round(+d);return isNaN(d)?null:Math.max(0,Math.min(4,d));}
+/* Nykyinen tilanne: {x0, x1, y0, y1, w (portaat %), lk (porras nuolesta), x (syöte tai null), y (tulos), t (0–1), err}. */
+function kayraSpec(P,id,ctx,ev){
+  var b=P.b[id],r={w:[],lk:[]};if(!b||b.k!=='kayra'){r.err='ei käyrä';return r;}ev=ev||Ev(P,ctx);
+  function end(p,nm,def){if(!ev.has(id,p))return def;var x=ev.inp(id,p);if(isErr(x))return ERR(nm+': '+x.err);var v=num(x);if(x==null||x===''||typeof x==='boolean'||isD(x)||isNaN(v)||!isFinite(v))return ERR(nm+' ei ole luku');return v;}
+  var e=[end('xmin','x alku',0),end('xmax','x loppu',10),end('ymin','y alku',0),end('ymax','y loppu',100)];
+  for(var j=0;j<4;j++)if(isErr(e[j])){r.err=e[j].err;break;}
+  if(!r.err){r.x0=e[0];r.x1=e[1];r.y0=e[2];r.y1=e[3];if(r.x0===r.x1)r.err='x-välin alku ja loppu ovat samat';}
+  var n=satuN(b),pw=Array.isArray(b.pw)?b.pw:[];
+  for(var i=1;i<=n;i++){var lk=ev.linked(id,'p'+i),x;
+    if(lk){var raw=ev.inp(id,'p'+i);x=num(raw);if(isErr(raw)){if(!r.err)r.err='porras '+i+': '+raw.err;x=0;}else if(raw==null||raw===''||isNaN(x)){if(!r.err)r.err='porras '+i+' ei ole luku';x=0;}}
+    else{x=num(pw[i-1]);if(isNaN(x))x=0;}
+    r.w.push(x);r.lk.push(lk);}
+  r.x=null;r.y=null;
+  if(ev.has(id,'a')){var xa=ev.inp(id,'a');
+    if(isErr(xa)){if(!r.err)r.err='syöte: '+xa.err;}
+    else if(xa!=null&&xa!==''){var xv=num(xa);if(typeof xa==='boolean')xv=xa?1:0;if(isD(xa)||isNaN(xv)||!isFinite(xv)){if(!r.err)r.err='syöte ei ole luku';}else r.x=xv;}}
+  if(!r.err&&r.x!=null){var o=kayraAt(r,r.x,kayraDec(b));r.t=o.t;r.y=o.y;}
+  return r;
+}
+/* Käyrän arvo kohdassa x: {t (0–1 x-välillä), f (portaiden asteikolla), y}. */
+function kayraAt(sp,x,dec){
+  var t=(x-sp.x0)/(sp.x1-sp.x0);t=Math.max(0,Math.min(1,t));var f=curveAt(sp.w,t),y=sp.y0+(sp.y1-sp.y0)*f/100;
+  y=dec==null?round9(y):Math.round(y*Math.pow(10,dec))/Math.pow(10,dec);if(Object.is(y,-0))y=0;
+  return {t:t,f:f,y:y};}
 /* Toista: montako kierrosta (nuolesta tai kentästä). */
 function toistaN(P,b,ctx){var ev=Ev(P,ctx),x=ev.linked(b.id,'k')?ev.inp(b.id,'k'):parseLit(b.kerrat);if(isErr(x))return x;var n=num(x);
   if(x==null||x===''||isNaN(n))return ERR('kierrosten määrä ei ole luku');n=Math.round(n);if(n<0)return ERR('kierrosten määrä on negatiivinen');if(n>1000)return ERR('yli 1000 kierrosta');return n;}
@@ -1036,13 +1095,13 @@ function datePart(part,v,now){
    Näkymällä voi olla laite: v.laite = 'puhelin' | 'ipad' | 'ipadv'. Puuttuva = vapaa kanvaasi kuten Kytköskartassa.
    Laitteen ruutu on kanvaasin kohdassa (0, 0) ja sen koko on laitteen leveys × korkeus (CSS-pikseleinä).
    Käytössä ruutu näkyy laitteen muotoisena, ja sitä rullataan vain alaspäin, jos palikoita on ruudun alareunan alapuolella. */
-var LAITE={puhelin:{n:'Puhelin',w:390,h:844},ipad:{n:'iPad pysty',w:820,h:1180},ipadv:{n:'iPad vaaka',w:1180,h:820}};
-var LAITEJ=['puhelin','ipad','ipadv'];
+var LAITE={puhelin:{n:'Puhelin',w:390,h:844},puhelinv:{n:'Puhelin vaaka',w:844,h:390},ipad:{n:'iPad pysty',w:820,h:1180},ipadv:{n:'iPad vaaka',w:1180,h:820}};
+var LAITEJ=['puhelin','puhelinv','ipad','ipadv'];
 function viewById(P,vw){var a=P&&P.views||[];for(var i=0;i<a.length;i++)if(a[i].id===vw)return a[i];return null;}
 function laite(P,vw){var v=viewById(P,vw),L=v&&v.laite&&LAITE[v.laite];return L?{k:v.laite,n:L.n,w:L.w,h:L.h}:null;}
 /* Laitenäkymän sisällön alareuna: alimman palikan alareuna niistä, jotka alkavat ruudun leveyden sisällä. Vähintään ruudun korkeus. */
 function laiteBottom(P,vw){var L=laite(P,vw);if(!L)return 0;var m=L.h;
-  Object.keys(P.b).forEach(function(id){var b=P.b[id];if(!K[b.k]||K[b.k].g!=='ui'||b.v!==vw||b.k==='merkki'||b.k==='alue')return;if(b.x>=L.w||b.x+b.w<=0)return;m=Math.max(m,(b.y||0)+(b.h||0));});
+  Object.keys(P.b).forEach(function(id){var b=P.b[id];if(!K[b.k]||K[b.k].g!=='ui'||b.v!==vw||b.k==='merkki'||b.k==='alue')return;if(b.x>=L.w||b.x+b.w<=0)return;if(typeof b.rv==='number'&&b.rv<100)return;m=Math.max(m,(b.y||0)+(b.h||0));});
   return m;}
 
 /* ---------- Projekti ---------- */
@@ -1164,6 +1223,13 @@ function repair(P){
     if(b.k==='merkki'){if(b.kk!==undefined&&b.kk!=='keski'&&b.kk!=='kulma')delete b.kk;if(b.zz!==undefined&&!(typeof b.zz==='number'&&b.zz>=0.2&&b.zz<=3))delete b.zz;}
     if(b.k==='tee'&&b.tapa!==undefined&&b.tapa!=='heti'&&b.tapa!=='vieri')delete b.tapa;
     if(b.k==='tee'&&b.do==='tila'&&b.ti!=='on'&&b.ti!=='ei')b.ti='on';
+    /* Pajakone 2: rullausvauhti % laitenäkymässä (0 = lukittu ruutuun, puuttuva = 100 = sormen mukana). */
+    if(K[b.k]&&K[b.k].g==='ui'&&b.rv!==undefined){var rvn=parseNum(b.rv);if(isNaN(rvn)||rvn>=100)delete b.rv;else b.rv=Math.max(0,Math.round(rvn));}
+    if(b.k==='nappi'){if(b.beh!=='kerta'&&b.beh!=='pida')b.beh='pohjaan';if(b.ext!==undefined&&b.ext!==true)delete b.ext;}
+    if(b.k==='kayra'){b.pn=satuN(b);var kpw=Array.isArray(b.pw)?b.pw:[],knw=[];
+      for(var kwi=0;kwi<b.pn;kwi++){var kwx=parseNum(kpw[kwi]==null?'':kpw[kwi]);knw.push(isNaN(kwx)?Math.round(100*kwi/(b.pn-1)):Math.max(0,Math.min(100,Math.round(kwx*100)/100)));}b.pw=knw;
+      ['a','xmin','xmax','ymin','ymax'].forEach(function(f){var x=b[f];if(x&&typeof x==='object'&&!isD(x))b[f]=repairRef(P,x);else if(typeof x!=='number'&&typeof x!=='string')b[f]=f==='a'?'':K.kayra.d[f];});
+      if(b.dec!==''&&!(typeof b.dec==='number'&&b.dec>=0&&b.dec<=4&&b.dec===Math.round(b.dec)))b.dec='';}
     if(b.k==='satu'){if(b.jak!=='muoto')b.jak='tasa';b.pn=satuN(b);var spw=Array.isArray(b.pw)?b.pw:[],snw=[];
       for(var swi=0;swi<b.pn;swi++){var swx=parseNum(spw[swi]==null?'':spw[swi]);snw.push(isNaN(swx)?50:Math.max(0,Math.min(100,Math.round(swx))));}b.pw=snw;
       ['min','max'].forEach(function(f){var x=b[f];if(x&&typeof x==='object'&&!isD(x))b[f]=repairRef(P,x);else if(typeof x!=='number'&&typeof x!=='string')b[f]='';});
@@ -1279,7 +1345,7 @@ function refsIn(s){var r=[],m,re=/\{#([a-zA-Z0-9]+)\}/g;while((m=re.exec(String(
    Sulut ja JA/TAI hoidetaan ikkunoilla, joten kaava on yksi vertailu tai lasku. ---------- */
 var IDRE=/^[A-Za-zÅÄÖåäö_][A-Za-z0-9ÅÄÖåäö_]*/;
 var PROPS={tulos:'t','käynnissä':'v',arvo:'arvo','näkyy':'näkyy',tila:'tila',teksti:'teksti','vaihtoväri':'vaihtoväri','rivejä':'n',rivit:'n',kaikki:'all',rastitettuja:'v','merkintöjä':'v',viimeisin:'last'};
-var PROPLIST='arvo, näkyy, tila, teksti, vaihtoväri, tulos; satunnaisluvulla min, max, p1, p2…';
+var PROPLIST='arvo, näkyy, tila, teksti, vaihtoväri, tulos; satunnaisluvulla min, max, p1, p2…; käyrällä x, t, xmin, xmax, ymin, ymax, p1, p2…';
 function kaavaToIds(P,s){
   s=String(s==null?'':s);var vm=byVt(P),nm={};Object.keys(P.b).forEach(function(i){nm[P.b[i].nm.toLowerCase()]=i;});
   var out='',i=0,m;
@@ -1390,6 +1456,11 @@ function Ev(P,ctx){
         if(pq==='min'||pq==='max')return ssp.lo==null?ERR(ssp.err||'väli puuttuu'):pq==='min'?ssp.lo:ssp.hi;
         var pi=+pq.slice(1);if(!ssp.muoto)return ERR('.'+pn+': jakauma on tasainen, joten painoja ei ole');
         if(pi<1||pi>ssp.w.length)return ERR('.'+pn+': painoja on '+ssp.w.length+' (p1–p'+ssp.w.length+')');return ssp.w[pi-1];}}
+    /* Käyrän osa-arvot: .x (syöte), .t (kohta 0–1), välin päät ja portaat .p1, .p2 … */
+    if(b.k==='kayra'&&(pn==='x'||pn==='t'||pn==='xmin'||pn==='xmax'||pn==='ymin'||pn==='ymax'||/^p\d+$/.test(pn))){var ksp2=kayraSpec(P,id,ctx,{has:has,inp:inp,linked:linked});
+      if(pn==='x')return ksp2.x;if(ksp2.err&&!/^p\d+$/.test(pn))return ERR(ksp2.err);
+      if(pn==='t')return ksp2.t==null?null:round9(ksp2.t);if(pn==='xmin')return ksp2.x0;if(pn==='xmax')return ksp2.x1;if(pn==='ymin')return ksp2.y0;if(pn==='ymax')return ksp2.y1;
+      var kpi=+pn.slice(1);if(kpi<1||kpi>ksp2.w.length)return ERR('.'+pn+': portaita on '+ksp2.w.length+' (p1–p'+ksp2.w.length+')');return ksp2.w[kpi-1];}
     if(!q)return ERR('tuntematon ominaisuus .'+pn+' (käytössä: '+PROPLIST+')');
     if(q==='arvo')return val(id,'v');
     var ui=K[b.k].g==='ui';
@@ -1446,7 +1517,7 @@ function Ev(P,ctx){
     /* Piilotetun syötteen arvo: säilyy (oletus), palautuu alkuun (tick) tai jää pois laskuista eli on tyhjä. */
     if(!raw&&b.nka==='pois'&&K[b.k].sub==='ohjain'&&!visible(id))return null;
     switch(b.k){
-      case 'nappi':if(p!=='v')return null;return b.beh==='kerta'?num(stv(id,0)):!!stv(id,false);
+      case 'nappi':if(p==='k'){var nk=P.st['kesto:'+id];return typeof nk==='number'&&isFinite(nk)?nk:0;}if(p!=='v')return null;return b.beh==='kerta'?num(stv(id,0)):!!stv(id,false);
       case 'ruutu':case 'kytkin':return !!stv(id,false);
       case 'saadin':return num(stv(id,num(lit(b.start))));
       case 'teksti':return String(stv(id,''));
@@ -1459,6 +1530,7 @@ function Ev(P,ctx){
       case 'arvo':return lit(b.v);
       case 'muisti':return P.st.hasOwnProperty(id)?P.st[id]:lit(b.v);
       case 'satu':{var sv=P.st[id];return typeof sv==='number'&&isFinite(sv)?sv:null;}
+      case 'kayra':{var ksp=kayraSpec(P,id,ctx,{has:has,inp:inp,linked:linked});if(ksp.err)return ERR(ksp.err);return ksp.y;}
       case 'lasku':return calc(b.op,inp(id,'a'),inp(id,'b'));
       case 'vert':return cmp(b.op,inp(id,'a'),inp(id,'b'),now);
       case 'kaava':return kaavaVal(id);
@@ -1623,6 +1695,7 @@ function runAction(P,id,ctx,depth){
     case 'vaihda':if(tg)setVal(P,o,!truth(ev.val(o)),ctx);break;
     case 'tyhjenna':if(tg)clearVal(P,o);break;
     case 'siirry':if(ctx.nav){var nv={vw:b.vw,o:b.o,x:num(b.x)||0,y:num(b.y)||0};if(b.tapa==='heti')nv.heti=true;ctx.nav(nv);}break;
+    case 'takaisin':if(ctx.nav)ctx.nav({takaisin:true,heti:b.tapa==='heti'});break;
     case 'kirjaa':if(tg&&tg.k==='aika'){var e=Array.isArray(P.st[o])?P.st[o].slice():[];var tx=ev.tpl(b.tx);if(!tx&&vv!==null)tx=ev.fmt(vv);e.push({t:ev.now.getTime(),tx:tx});P.st[o]=e;}break;
     case 'rivi':if(tg&&tg.k==='lista'){var rows=listRows(P,o).map(function(r){return {id:r.id,tx:r.tx,c:r.c,d:r.d};});var t2=ev.tpl(b.tx);if(!t2&&vv!==null&&!isD(vv))t2=ev.fmt(vv);rows.push({id:'r'+(++P.seq),tx:t2||'Uusi rivi',c:false,d:isD(vv)?vv.d:''});P.st[o]={rows:rows};}break;
     case 'ilmoita':if(ctx.toast)ctx.toast(ev.tpl(b.tx)||ev.fmt(vv));break;
@@ -1635,10 +1708,19 @@ function runAction(P,id,ctx,depth){
 function press(P,id,ctx){
   var b=P.b[id];if(!b||b.k!=='nappi')return;
   if(b.beh==='kerta')P.st[id]=num(P.st[id]||0)+1;
-  else setVal(P,id,!P.st[id],ctx);
+  else if(b.beh!=='pida')setVal(P,id,!P.st[id],ctx);
   fire(P,id,'e',ctx,0);
   tick(P,ctx);
 }
+/* Pohjassa vain painettaessa: painaminen alkaa (arvo on valittu, tapahtuma painettu). */
+function pressDown(P,id,ctx){var b=P.b[id];if(!b||b.k!=='nappi'||b.beh!=='pida')return;setVal(P,id,true,ctx);fire(P,id,'e',ctx,0);tick(P,ctx);}
+/* Pitkä painallus: painike on ollut painettuna NAP_PITKA ms. */
+function pressLong(P,id,ctx){var b=P.b[id];if(!b||b.k!=='nappi')return;fire(P,id,'pitka',ctx,0);tick(P,ctx);}
+/* Irrotus: painalluksen kesto talteen (s), 'pida' päästää irti, tapahtuma irrotettu. */
+function pressUp(P,id,ctx,sec){var b=P.b[id];if(!b||b.k!=='nappi')return;sec=num(sec);P.st['kesto:'+id]=isNaN(sec)||sec<0?0:Math.round(sec*1000)/1000;
+  if(b.beh==='pida')setVal(P,id,false,ctx);fire(P,id,'irti',ctx,0);tick(P,ctx);}
+/* Onko painikkeen tapahtumasta nuolia (UI: pitkä painallus estää tavallisen painalluksen vain, jos sitä käytetään). */
+function hasOut(P,id,p){var ns={};P.lg.n.forEach(function(n){if(n.p===id)ns[n.id]=1;});return P.lg.l.some(function(l){return ns[l.f]&&l.fp===p;});}
 function userSet(P,id,v,ctx){setVal(P,id,v,ctx);tick(P,ctx);}
 function tick(P,ctx){
   P.mem=P.mem||{};var mem=P.mem;
@@ -2092,6 +2174,13 @@ function why(P,E,id,depth,seen){
       ['min','max'].forEach(function(p){if(srcOf(p)||(b[p]&&typeof b[p]==='object'&&b[p].r))kidFor(p);});
       if(ssp.muoto)for(var swi=1;swi<=ssp.w.length;swi++)if(srcOf('p'+swi))kidFor('p'+swi);
       break;}
+    case 'kayra':{var kws=kayraSpec(P,id,{now:function(){return E.now;}},E);
+      if(kws.err)r.txt='Käyrässä on virhe: '+kws.err+'.';
+      else if(kws.x==null)r.txt='Syöte puuttuu: vie nuoli kohtaan syöte (x) tai kirjoita syöte. Käyrä muuttaa x-välin '+fiNum(kws.x0)+'–'+fiNum(kws.x1)+' y-väliksi '+fiNum(kws.y0)+'–'+fiNum(kws.y1)+'.';
+      else{var kf=curveAt(kws.w,kws.t);r.txt='Syöte '+fiNum(kws.x)+' on '+fiNum(kws.t*100)+' % x-välistä '+fiNum(kws.x0)+'–'+fiNum(kws.x1)+(kws.x<Math.min(kws.x0,kws.x1)||kws.x>Math.max(kws.x0,kws.x1)?' (välin ulkopuolella, joten käytetään reunaa)':'')+'. Käyrä antaa siinä kohdassa '+fiNum(kf)+' % y-välistä '+fiNum(kws.y0)+'–'+fiNum(kws.y1)+', joten tulos on '+fmt(kws.y,E.df)+'.';}
+      ['a','xmin','xmax','ymin','ymax'].forEach(function(p){if(srcOf(p)||(b[p]&&typeof b[p]==='object'&&b[p].r))kidFor(p);});
+      for(var kwi2=1;kwi2<=kws.w.length;kwi2++)if(srcOf('p'+kwi2))kidFor('p'+kwi2);
+      break;}
     case 'arpa':r.txt='Arpoo yhden '+arpaN(b)+' vaihtoehdosta, kaikilla sama todennäköisyys. Ketju jatkaa arvottuun haaraan.';break;
     case 'toista':{var tn3=toistaN(P,b,{now:function(){return E.now;}});r.txt=isErr(tn3)?'Kierrosten määrä: '+tn3.err+'.':'Ketju kulkee kierros-haaraan '+tn3+' kertaa (haaran lopusta viiva takaisin tähän), sitten valmis-haaraan.';if(E.linked(id,'k'))kidFor('k');break;}
     case 'lopeta':r.txt='Lopettaa koko ketjun heti, myös muut haarat. Ketju on silloin valmis.';break;
@@ -2133,10 +2222,10 @@ function why(P,E,id,depth,seen){
   return r;
 }
 
-return {satuN:satuN,satuMuoto:satuMuoto,satuCurve:satuCurve,satuResize:satuResize,satuPreset:satuPreset,SATU_PRESETS:SATU_PRESETS,SATU_MAXN:SATU_MAXN,satuSpec:satuSpec,satuDist:satuDist,satuPick:satuPick,satuPct:satuPct,satuItemTxt:satuItemTxt,satuTop:satuTop,satuRoll:satuRoll,
+return {napExt:napExt,NAP_PITKA:NAP_PITKA,pressDown:pressDown,pressLong:pressLong,pressUp:pressUp,hasOut:hasOut,curveAt:curveAt,KAYRA_PRESETS:KAYRA_PRESETS,kayraPreset:kayraPreset,kayraResize:kayraResize,kayraDec:kayraDec,kayraSpec:kayraSpec,kayraAt:kayraAt,satuN:satuN,satuMuoto:satuMuoto,satuCurve:satuCurve,satuResize:satuResize,satuPreset:satuPreset,SATU_PRESETS:SATU_PRESETS,SATU_MAXN:SATU_MAXN,satuSpec:satuSpec,satuDist:satuDist,satuPick:satuPick,satuPct:satuPct,satuItemTxt:satuItemTxt,satuTop:satuTop,satuRoll:satuRoll,
   chainOpen:chainOpen,parseKlo:parseKlo,nextClock:nextClock,timerLabel:timerLabel,arpaN:arpaN,toistaN:toistaN,setMhLabel:function(f){MHLAB=f;},mhLabel:mhLabel,odotaLim:odotaLim,odotaEv:odotaEv,hasLimit:hasLimit,chainSignal:chainSignal,copyNodes:copyNodes,pasteNodes:pasteNodes,chainList:chainList,haaraVal:haaraVal,chainIssues:chainIssues,FXK:FXK,YKS:YKS,YKSN:YKSN,fmtDur:fmtDur,fmtLeft:fmtLeft,timerMs:timerMs,chainStart:chainStart,chainStop:chainStop,chainAdvance:chainAdvance,chainPoll:chainPoll,chainInfo:chainInfo,anyChainRunning:anyChainRunning,CH_STEPS:CH_STEPS,CH_TOKENS:CH_TOKENS,
   isWin:isWin,isStep:isStep,STEPK:STEPK,chainNode:chainNode,chainOfNode:chainOfNode,chainSteps:chainSteps,isChainLink:isChainLink,chainLinksFrom:chainLinksFrom,chainStarts:chainStarts,chainIsRing:chainIsRing,chainOrder:chainOrder,
-  VER:VER,PAJA:'1',LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,K:K,KW:KW,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,kaavaToIds:kaavaToIds,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
+  VER:VER,PAJA:'2',LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,K:K,KW:KW,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,kaavaToIds:kaavaToIds,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
   ports:ports,port:port,newProject:newProject,addBlock:addBlock,addNode:addNode,addLink:addLink,canLink:canLink,
   removeNode:removeNode,removeBlock:removeBlock,nodeOf:nodeOf,nodesOfBlock:nodesOfBlock,uniqueName:uniqueName,baseName:baseName,
   repair:repair,repairData:repairData,Ev:Ev,setVal:setVal,userSet:userSet,press:press,fire:fire,tick:tick,runAction:runAction,clearVal:clearVal,
@@ -2279,7 +2368,12 @@ function drag(e,move,up){
 }
 
 /* ---------- Siirtymä (toiminto Siirry) ---------- */
+/* Pajakone 2: Palaa takaisin. Jokainen Siirry tallentaa lähtökohdan (näkymä ja kohta); Palaa takaisin vie viimeisimpään.
+   Käyttäjän oma välilehden vaihto nollaa historian. Historia on vain tämän käyttökerran ajan (ei tallennu). */
+S.hist=[];
 function navTo(n){
+  if(n.takaisin){var hb=S.hist.pop();if(!hb||!viewOf(hb.vw))return;S.vw=hb.vw;var hc=camUI();hc.x=hb.c.x;hc.y=hb.c.y;hc.z=hb.c.z;S.navAnim=!n.heti;return;}
+  if(stU()&&P.cam[S.vw]){var c0=P.cam[S.vw];S.hist.push({vw:S.vw,c:{x:c0.x,y:c0.y,z:c0.z}});if(S.hist.length>50)S.hist.shift();}
   var vw=n.vw,tb=n.o&&P.b[n.o];
   if(tb&&isUI(tb))vw=tb.v;
   if(!vw)vw=S.vw;
@@ -2340,6 +2434,10 @@ function devLayout(){
 function devClamp(){var d=devLayout();if(!d)return false;var c=camUI(),z=d.s;
   var vis=d.h/z,bot=KK.laiteBottom(P,S.vw),minY=-Math.max(0,bot-vis)*z;
   c.z=z;c.x=0;c.y=Math.min(0,Math.max(minY,c.y));return true;}
+/* Rullausvauhti: palikka siirtyy rullatessa vain osan kameran liikkeestä (0 = lukittu ruutuun). Vain käytössä laitenäkymässä. */
+function applyRV(){var on=useMode()&&devOf();var c=camUI();
+  $$('#uels .ue').forEach(function(el){var b=P.b[el.getAttribute('data-id')];var rv=b&&typeof b.rv==='number'?b.rv:100;
+    el.style.transform=on&&rv<100?'translateY('+(-c.y/c.z*(1-rv/100)).toFixed(2)+'px)':'';el.classList.toggle('rvlock',!!b&&rv===0&&!!devOf()&&!on);});}
 function drawDevFrame(){var w=$('#uworld');if(!w)return;var f=$('#dframe'),L=editingUI()?devOf():null;
   if(!L){if(f)f.remove();return;}
   if(!f){f=document.createElement('div');f.id='dframe';f.className='dframe';w.insertBefore(f,w.firstChild);}
@@ -2422,7 +2520,7 @@ var PAL_UI=[
   ['Koristeet',[['muoto',{laji:'laatikko'},'Laatikko','▢'],['muoto',{laji:'ympyra'},'Ympyrä','◯'],['muoto',{laji:'lappu',hue:3},'Lappu','▤'],['muoto',{laji:'kehys',hue:0},'Kehys','⬚'],['merkki',{kk:'keski'}],['alue']]]
 ];
 /* Vihjetekstit: mitä palikka tekee, selkeällä suomella. Näkyvät paletin vihjeenä, pikakatselussa ja paneelin otsikossa. */
-var HINT={satu:'Arpoo kokonaisluvun annetulta väliltä. Luku pysyy samana, kunnes se arvotaan uudelleen. Jakauman voi muotoilla painoilla, ja muut palikat voivat ohjata painoja.',arvonta:'Arpoo satunnaisluvun uudelleen. Satunnaisluvun arvottu-tapahtuma lähtee heti.',arpa:'Arpoo satunnaisen haaran: 2–6 vaihtoehtoa, kaikilla sama todennäköisyys. Peleihin ja vaihteluun.',toista:'Toistaa kierros-haaran N kertaa ja jatkaa sitten valmis-haaraan. Kierroksen lopusta viiva takaisin tähän.',ktulos:'Antaa ketjulle tuloksen, esim. päätöspuun vastauksen. Tuloksen voi näyttää näkymässä ja käyttää kaavoissa.',lopeta:'Lopettaa koko ketjun heti, myös muut haarat. Ketju on silloin valmis.',kaynnista:'Käynnistää toisen ketjun. Valinnalla ”odota” tämä haara jatkaa vasta, kun se on valmis.',pysayta:'Pysäyttää ketjun kaikki haarat.',monihaara:'Haarautuu moneen suuntaan: jokaisella vaihtoehdolla on oma haaransa. Ensimmäinen pätevä ratkaisee, muuten muuten-haara.',odota:'Pysäyttää ketjun haaran, kunnes palikka on valittu, ehto pätee tai tapahtuma tulee. Valinnainen aikaraja vie aika loppui -haaraan.',ketju:'Ketju: tapahtumat tehdään peräkkäin punaisia viivoja pitkin. Ketju käynnistyy, kun kohtaan käynnistä tulee tapahtuma tai arvo alkaa päteä, toinen ketju käynnistää sen tai projekti avataan (asetus).',
+var HINT={kayra:'Muuttaa syötteen (x) tulokseksi (y) muotoillun käyrän kautta: esim. säätimen asento kiihtyväksi vaikutukseksi. Portaiden välissä käyrä on pehmeä, ja tulos lasketaan tarkasti.',satu:'Arpoo kokonaisluvun annetulta väliltä. Luku pysyy samana, kunnes se arvotaan uudelleen. Jakauman voi muotoilla painoilla, ja muut palikat voivat ohjata painoja.',arvonta:'Arpoo satunnaisluvun uudelleen. Satunnaisluvun arvottu-tapahtuma lähtee heti.',arpa:'Arpoo satunnaisen haaran: 2–6 vaihtoehtoa, kaikilla sama todennäköisyys. Peleihin ja vaihteluun.',toista:'Toistaa kierros-haaran N kertaa ja jatkaa sitten valmis-haaraan. Kierroksen lopusta viiva takaisin tähän.',ktulos:'Antaa ketjulle tuloksen, esim. päätöspuun vastauksen. Tuloksen voi näyttää näkymässä ja käyttää kaavoissa.',lopeta:'Lopettaa koko ketjun heti, myös muut haarat. Ketju on silloin valmis.',kaynnista:'Käynnistää toisen ketjun. Valinnalla ”odota” tämä haara jatkaa vasta, kun se on valmis.',pysayta:'Pysäyttää ketjun kaikki haarat.',monihaara:'Haarautuu moneen suuntaan: jokaisella vaihtoehdolla on oma haaransa. Ensimmäinen pätevä ratkaisee, muuten muuten-haara.',odota:'Pysäyttää ketjun haaran, kunnes palikka on valittu, ehto pätee tai tapahtuma tulee. Valinnainen aikaraja vie aika loppui -haaraan.',ketju:'Ketju: tapahtumat tehdään peräkkäin punaisia viivoja pitkin. Ketju käynnistyy, kun kohtaan käynnistä tulee tapahtuma tai arvo alkaa päteä, toinen ketju käynnistää sen tai projekti avataan (asetus).',
   ajastin:'Odottaa annetun ajan (sekunneista vuorokausiin) tai kellonaikaan (esim. 7.00) ja jatkaa sitten seuraavaan. Aika kuluu myös, kun appi on kiinni, ja ketju jatkuu avattaessa.',
   haara:'Jatkaa kyllä-haaraan, kun palikka on valittu, ja muuten ei-haaraan.',
   aseta:'Antaa palikalle uuden arvon: luvun, tekstin, päivämäärän tai toisen palikan arvon.',
@@ -2451,7 +2549,7 @@ function renderPal(){
   }else{
     h+='<div class="pt-h">Palikat</div><input class="psearch" id="psearch" placeholder="Etsi nimellä…" value="'+esc(S.psearch||'')+'"><div class="plist" id="plist"></div>';
     h+='<div class="pt-h">Kaava</div><div class="chips">'+chipHTML('kaava',{},'Kaava','ƒ',3)+chipHTML('tulos',{},'Kaavan tulos','⇐',3)+'</div>';
-    h+='<div class="pt-h">Arvot</div><div class="chips">'+chipHTML('arvo',{},'Arvo','•',0)+chipHTML('muisti',{},'Muisti','▣',0)+chipHTML('satu',{},'Satunnaisluku','⚂',3)+chipHTML('tanaan',{},'Tänään','◷',5)+chipHTML('pvmosa',{part:'vk'},'Päivämäärän osa','◷',5)+'</div>';
+    h+='<div class="pt-h">Arvot</div><div class="chips">'+chipHTML('arvo',{},'Arvo','•',0)+chipHTML('muisti',{},'Muisti','▣',0)+chipHTML('satu',{},'Satunnaisluku','⚂',3)+chipHTML('kayra',{},'Käyrä','∿',3)+chipHTML('tanaan',{},'Tänään','◷',5)+chipHTML('pvmosa',{part:'vk'},'Päivämäärän osa','◷',5)+'</div>';
     h+='<div class="pt-h">Laskut</div><div class="chips">';
     Object.keys(KK.OPS).forEach(function(o){h+='<div class="chip sym h2" data-make="'+esc(JSON.stringify({k:'lasku',p:{op:o}}))+'" title="Lasku">'+KK.OPS[o]+'</div>';});
     h+='</div><div class="pt-h">Vertailut</div><div class="chips">';
@@ -2476,7 +2574,7 @@ function renderPal(){
 }
 function renderPList(){
   var el=$('#plist');if(!el)return;var q=(S.psearch||'').toLowerCase();
-  var list=blocks(function(b){return (isUI(b)&&b.k!=='merkki'&&b.k!=='alue')||b.k==='muisti'||b.k==='arvo'||b.k==='tulos'||b.k==='satu'||b.nmSet;}).filter(function(b){return !q||b.nm.toLowerCase().indexOf(q)>=0||String(b.vt||'').indexOf(q)>=0;});
+  var list=blocks(function(b){return (isUI(b)&&b.k!=='merkki'&&b.k!=='alue')||b.k==='muisti'||b.k==='arvo'||b.k==='tulos'||b.k==='satu'||b.k==='kayra'||b.nmSet;}).filter(function(b){return !q||b.nm.toLowerCase().indexOf(q)>=0||String(b.vt||'').indexOf(q)>=0;});
   list.sort(function(a,b){return (isUI(a)?0:1)-(isUI(b)?0:1)||a.nm.localeCompare(b.nm,'fi');});
   el.innerHTML=list.length?list.map(function(b){
     var cnt=KK.nodesOfBlock(P,b.id).length;
@@ -2619,7 +2717,7 @@ function renderUIStage(){
   S.lastOrder=order+'|'+S.vw;
   drawDeco(E);
   if(S.navAnim){world.classList.add('anim');setTimeout(function(){world.classList.remove('anim');},520);S.navAnim=false;}
-  clampUI();applyCam(vp,world,camUI());updRulers();drawMarkFrame();drawDevFrame();
+  clampUI();applyCam(vp,world,camUI());applyRV();updRulers();drawMarkFrame();drawDevFrame();
   var em=$('#uempty',st);if(em)em.remove();
   if(!list.length&&ed){var d=document.createElement('div');d.className='empty-c';d.id='uempty';d.innerHTML='<b>Tyhjä näkymä</b>Vedä vasemmalta painikkeita, säätimiä, tekstejä ja muita palikoita. Logiikka-välilehdellä kytket ne toisiinsa.';st.appendChild(d);}
   var hint=$('#uhint');if(hint)hint.remove();
@@ -2770,7 +2868,7 @@ function updRulers(){
   ry.innerHTML=h;
   $('#zpct').textContent=Math.round(c.z*100)+' %';
 }
-function uiCamChanged(){clampUI();applyCam($('#uvp'),$('#uworld'),camUI());updRulers();if(!editingUI())$('#zpct').textContent=Math.round(camUI().z*100)+' %';}
+function uiCamChanged(){clampUI();applyCam($('#uvp'),$('#uworld'),camUI());applyRV();updRulers();if(!editingUI())$('#zpct').textContent=Math.round(camUI().z*100)+' %';}
 function fitAll(vp,c,rects){
   if(!rects.length){c.x=60;c.y=60;c.z=1;return;}
   var x1=Infinity,y1=Infinity,x2=-Infinity,y2=-Infinity;rects.forEach(function(r){x1=Math.min(x1,r.x);y1=Math.min(y1,r.y);x2=Math.max(x2,r.x+r.w);y2=Math.max(y2,r.y+r.h);});
@@ -2825,13 +2923,29 @@ function bindUIStage(){
   });
   // käyttötilan vuorovaikutus
   var world=$('#uworld');
+  /* Pajakone 2: painikkeen painaminen alkaa ja loppuu (pohjassa vain painettaessa, pitkä painallus, irrotus, kesto). */
+  world.addEventListener('pointerdown',function(e){
+    if(editingUI()||e.button>0)return;var t=e.target.closest('[data-act="press"]');if(!t)return;var el=t.closest('.ue');if(!el||blockedUE(el))return;
+    var id=el.getAttribute('data-id'),b=P.b[id];if(!b||b.k!=='nappi')return;
+    var t0=Date.now(),done=false,C=ctx();S.longFired=null;
+    if(b.beh==='pida'){KK.pressDown(P,id,C);afterUse();}
+    /* Pitkä painallus piirtää näkymän uudelleen vain, jos siihen on kytketty jotain: muuten tavallinen painallus tulee perille. */
+    var tm=KK.napExt(b)?setTimeout(function(){if(done)return;S.longFired=id;KK.pressLong(P,id,ctx());if(KK.hasOut(P,id,'pitka'))afterUse();else save();},KK.NAP_PITKA):0;
+    /* Irrotus tehdään vasta tavallisen painalluksen (click) jälkeen, jottei uudelleenpiirto vie sitä. */
+    function up(){if(done)return;done=true;clearTimeout(tm);document.removeEventListener('pointerup',up,true);document.removeEventListener('pointercancel',up,true);
+      var dur=(Date.now()-t0)/1000;if(KK.napExt(b)||b.beh==='pida')setTimeout(function(){KK.pressUp(P,id,ctx(),dur);afterUse();},0);}
+    document.addEventListener('pointerup',up,true);document.addEventListener('pointercancel',up,true);
+  });
   world.addEventListener('click',function(e){
     if(editingUI())return;
     var t=e.target.closest('[data-act]');if(!t)return;var el=t.closest('.ue');if(!el)return;var id=el.getAttribute('data-id'),b=P.b[id];if(!b)return;
     if(blockedUE(el)&&!/^cal/.test(t.getAttribute('data-act')))return;
     var act=t.getAttribute('data-act'),C=ctx(),E=ev();
     switch(act){
-      case 'press':KK.press(P,id,C);break;
+      case 'press':
+        if(b.beh==='pida'&&e.detail>0)return;
+        if(S.longFired===id&&KK.hasOut(P,id,'pitka')){S.longFired=null;return;}
+        S.longFired=null;KK.press(P,id,C);break;
       case 'toggle':KK.userSet(P,id,!E.val(id),C);break;
       case 'inc':case 'dec':{var stp=KK.num(KK.parseLit(b.step))||1;KK.userSet(P,id,KK.num(E.val(id))+(act==='inc'?stp:-stp),C);break;}
       case 'today':KK.userSet(P,id,KK.D(KK.iso(new Date())),C);break;
@@ -2870,7 +2984,7 @@ function bindUIStage(){
   // näkymien välilehdet
   $('#vtabs').addEventListener('click',function(e){
     var t=e.target.closest('[data-vw]');
-    if(t){if(t.getAttribute('data-vw')===S.vw)return;S.vw=t.getAttribute('data-vw');S.sel=null;goStart(S.vw);renderUIStage();renderInsp();return;}
+    if(t){if(t.getAttribute('data-vw')===S.vw)return;S.hist=[];S.vw=t.getAttribute('data-vw');S.sel=null;goStart(S.vw);renderUIStage();renderInsp();return;}
     if(e.target.id==='addvw'){pushUndo();var id='v'+(++P.vseq);P.views.push({id:id,n:'Näkymä '+P.views.length+1});P.views[P.views.length-1].n='Näkymä '+P.views.length;S.vw=id;S.sel=null;save();renderAll();}
   });
   $('#vtabs').addEventListener('dblclick',function(e){var t=e.target.closest('[data-vw]');if(!t||!editingUI())return;S.renameVw=t.getAttribute('data-vw');renderVTabs();});
@@ -2937,7 +3051,7 @@ function renderLogicStage(){
   if(!P.lg.n.length){var d=document.createElement('div');d.className='empty-c';d.id='lempty';d.innerHTML='<b>Logiikka on tyhjä</b>Vedä vasemmalta näkymän palikoita, laskuja, vertailuja, ikkunoita ja toimintoja. Yhdistä ne nuolilla oikeasta reunasta vasempaan.';st.appendChild(d);}
 }
 var OPTPINS={nk:1,tx:1,vr:1,'in':1};
-function optPin(b,p){return OPTPINS[p.p]||(b.k==='tee'&&p.p==='v')||(b.k==='kun'&&p.p==='e')||(b.k==='ikkuna'&&p.p==='e')||(b.k==='ketju'&&p.p==='x')||(b.k==='ajastin'&&p.p==='k')||(b.k==='haara'&&p.p==='c')||(b.k==='odota'&&(p.p==='c'||p.p==='x'))||(b.k==='monihaara'&&p.p==='a')||(b.k==='ktulos'&&p.p==='v')||(b.k==='toista'&&p.p==='k')||(b.k==='satu'&&p.p!=='e');}
+function optPin(b,p){return OPTPINS[p.p]||(b.k==='tee'&&p.p==='v')||(b.k==='kun'&&p.p==='e')||(b.k==='ikkuna'&&p.p==='e')||(b.k==='ketju'&&p.p==='x')||(b.k==='ajastin'&&p.p==='k')||(b.k==='haara'&&p.p==='c')||(b.k==='odota'&&(p.p==='c'||p.p==='x'))||(b.k==='monihaara'&&p.p==='a')||(b.k==='ktulos'&&p.p==='v')||(b.k==='toista'&&p.p==='k')||(b.k==='satu'&&p.p!=='e')||(b.k==='kayra'&&p.p!=='a');}
 function pinsHTML(b,n,kv){
   var pr=KK.ports(b),h='';
   var linkedIn={};P.lg.l.forEach(function(l){if(l.t===n.id)linkedIn[l.tp]=1;});
@@ -2994,6 +3108,7 @@ function valChip(E,b,id){
   var pr=KK.ports(b);if(!pr.outs.some(function(p){return p.p==='v';}))return '';
   var v=E.val(id);
   if(b.k==='satu'&&v==null)return '<span class="lv" title="Ei vielä arvottu">–</span>';
+  if(b.k==='kayra'&&v==null)return '<span class="lv" title="Syöte puuttuu">–</span>';
   if(KK.isErr(v))return '<span class="lv err" title="'+esc(v.err)+'">⚠ '+esc(v.err)+'</span>';
   var cls=typeof v==='boolean'?(v?'on':'off'):'';
   var t=E.fmt(v);if(b.k==='lista')t=E.val(id,'v')+'/'+E.val(id,'n');
@@ -3023,13 +3138,14 @@ function nodeHTML(n,b,E){
     case 'ktulos':lab='Tulos: '+litText(E,b,'v',id);break;
     case 'lopeta':lab='Lopeta ketju';break;
     case 'satu':{var nsp=KK.satuSpec(P,id,ctx(),E);lab=(b.nmSet?esc(b.nm):'Satunnaisluku')+' <i>'+(nsp.lo!=null?nsp.lo+'–'+nsp.hi:'⚠')+'</i>'+(nsp.muoto?satuMini(nsp,34,14,'sdmn'):'');break;}
+    case 'kayra':{var ksp=KK.kayraSpec(P,id,ctx(),E);lab=(b.nmSet?esc(b.nm):'Käyrä')+' <i>'+(ksp.err?'⚠':esc(fiN(ksp.x0)+'–'+fiN(ksp.x1)+' → '+fiN(ksp.y0)+'–'+fiN(ksp.y1)))+'</i>'+kayraMini(ksp,34,14,'sdmn');break;}
     case 'arpa':lab='Arpa <i>1–'+KK.arpaN(b)+'</i>';break;
     case 'toista':{var tn=KK.toistaN(P,b,ctx());lab='Toista <i>'+(E.linked(id,'k')?'nuolesta':KK.isErr(tn)?'⚠':tn+' kertaa')+'</i>';break;}
     case 'monihaara':{var hn=(b.haarat||[]).length,src=E.linked(id,'a')?'nuolesta':b.a&&b.a.r&&P.b[b.a.r]?P.b[b.a.r].nm:'';lab=(b.nmSet?esc(b.nm):'Monta haaraa')+' <i>'+(src?esc(src)+' · ':'')+hn+' haara'+(hn===1?'':'a')+'</i>';break;}
     case 'ajastin':{lab=(b.nmSet?esc(b.nm)+' <i>':'Odota <i>')+esc(b.tapa!=='klo'&&E.linked(id,'k')?'nuolesta':KK.timerLabel(P,b,ctx()))+'</i>';break;}
     default:lab=esc(b.nm);
   }
-  var cap=b.nmSet&&!isUI(b)&&b.k!=='muisti'&&b.k!=='arvo'&&b.k!=='tulos'&&b.k!=='satu'?'<div class="cap">'+esc(b.nm)+'</div>':'';
+  var cap=b.nmSet&&!isUI(b)&&b.k!=='muisti'&&b.k!=='arvo'&&b.k!=='tulos'&&b.k!=='satu'&&b.k!=='kayra'?'<div class="cap">'+esc(b.nm)+'</div>':'';
   var dim=isUI(b)&&E.state(id)!=='näkyy'?' ui-dim':'';
   var vtag='<span class="vtag" title="Viite kaavoihin">'+esc(b.vt)+'</span>';
   var err=KK.isErr(E.val(id))?' has-err':'';
@@ -3405,7 +3521,7 @@ function blockInsp(b){
   var cv=hasValue(b)?E.val(b.id):null;
   var vtxt=hasValue(b)?' · nyt: <b'+(KK.isErr(cv)?' class="errt"':'')+'>'+esc(b.k==='lista'?E.val(b.id)+'/'+E.val(b.id,'n'):E.fmt(cv))+'</b>':'';
   if(S.back&&S.back.to===b.id&&P.b[S.back.from])h+='<button class="backb" data-do="back">‹ '+esc(P.b[S.back.from].nm)+'</button>';
-  h+='<div class="ih '+hueCls(isUI(b)?E.hue(b.id):({lasku:2,vert:7,jos:4,kun:4,haku:4,tee:1,ikkuna:4,ketju:1,tanaan:5,pvmosa:5,satu:3}[b.k]||0))+'"><span class="ci">'+esc(icon(b))+'</span><div style="min-width:0;flex:1"><b>'+esc(b.nm)+'</b><small>'+esc(kindName(b))+vtxt+'</small></div></div>';
+  h+='<div class="ih '+hueCls(isUI(b)?E.hue(b.id):({lasku:2,vert:7,jos:4,kun:4,haku:4,tee:1,ikkuna:4,ketju:1,tanaan:5,pvmosa:5,satu:3,kayra:3}[b.k]||0))+'"><span class="ci">'+esc(icon(b))+'</span><div style="min-width:0;flex:1"><b>'+esc(b.nm)+'</b><small>'+esc(kindName(b))+vtxt+'</small></div></div>';
   var hi0=!isUI(b)?hintOf(b.k,b):'';if(hi0)h+='<div class="khint">'+esc(hi0)+'</div>';
   h+=section('',fText('Nimi','nm',b.nm,isUI(b)?'Nimi kertoo ajatuksen. Se ei näy käyttäjälle, ellet laita sitä tekstiin.':'Nimetty palikka näkyy Palikat-listassa, ja siihen voi viitata muualta.')+
     F('Viite','<input data-k="vt" class="kfx" value="'+esc(b.vt)+'" spellcheck="false" autocapitalize="off" autocomplete="off">','<span id="vterr" class="errt"></span>Lyhyt nimi kaavoihin ja teksteihin: kaavassa <code>'+esc(b.vt)+' &gt; 7</code>, tekstissä <code>{'+esc(b.vt)+'}</code>. '+(b.vtSet?'Itse asetettu. Tyhjäksi = takaisin nimestä.':'Seuraa nimeä, kunnes kirjoitat oman.'))+
@@ -3434,8 +3550,10 @@ function uiInsp(b,E){
   if(k!=='merkki'&&k!=='alue'){var txs=linkSrcChips(b,'tx');sp+=fTpl(txLabel,'tx',b,txs.length?'Teksti tulee nyt nuolesta (kohta ”teksti”):':null);
     sp+=txs.length?'<div class="rels">'+txs.join('')+'</div>':'<div class="ibs" style="margin:-2px 0 8px"><button class="ib nf" data-kto="tx" title="Teksti tulee kaavasta, esim. kevyt tai &quot;Unta &quot; + uni + &quot; h&quot;">ƒ Teksti kaavasta</button></div>';}
   switch(k){
-    case 'nappi':qa=qaSection(b,'e','Kun painetaan','Toiminnot tehdään joka painalluksella, ylhäältä alas.');sp+=fSegs('Toiminta','beh',b.beh,[['pohjaan','Jää pohjaan'],['kerta','Kertapainallus']],b.beh==='kerta'?'Arvo on painalluskertojen määrä. Tapahtuma ”painettu” lähtee joka painalluksella.':'Painike pysyy valittuna, kunnes sitä painetaan uudelleen.');
-      if(b.beh==='kerta')sp+=fCheck('Näytä painallusten määrä painikkeessa','laskuri',b.laskuri);break;
+    case 'nappi':qa=qaSection(b,'e','Kun painetaan','Toiminnot tehdään joka painalluksella, ylhäältä alas.');sp+=fSegs('Toiminta','beh',b.beh,[['pohjaan','Jää pohjaan'],['kerta','Kertapainallus'],['pida','Pohjassa vain painettaessa']],b.beh==='kerta'?'Arvo on painalluskertojen määrä. Tapahtuma ”painettu” lähtee joka painalluksella.':b.beh==='pida'?'Arvo on valittu vain niin kauan kuin painiketta painetaan (esim. kaasu pelissä). Tapahtuma ”painettu” lähtee, kun painaminen alkaa, ja ”irrotettu”, kun sormi nousee.':'Painike pysyy valittuna, kunnes sitä painetaan uudelleen.');
+      if(b.beh==='kerta')sp+=fCheck('Näytä painallusten määrä painikkeessa','laskuri',b.laskuri);
+      if(b.beh!=='pida')sp+=fCheck('Pitkä painallus, irrotus ja painalluksen kesto','ext',b.ext);
+      if(KK.napExt(b))sp+='<div class="help">Logiikassa painikkeesta lähtevät myös <b>pitkä painallus</b> (painettuna puoli sekuntia), <b>irrotettu</b> (sormi nousee) ja arvo <b>painalluksen kesto</b> sekunteina. Jos pitkään painallukseen on kytketty jotain, se korvaa tavallisen painalluksen.</div>';break;
     case 'saadin':sp+='<div class="row2">'+fNum('Pienin','min',b.min)+fNum('Suurin','max',b.max)+fNum('Askel','step',b.step)+'</div><div class="row2">'+fNum('Alkuarvo','start',b.start)+fText('Yksikkö','unit',b.unit,'','esim. kg')+'</div>';break;
     case 'teksti':sp+=fText('Vihje tyhjässä kentässä','ph',b.ph)+fNum('Rivejä','rivit',b.rivit);break;
     case 'luku':sp+='<div class="row2">'+fNum('Alkuarvo','start',b.start)+fNum('Askel','step',b.step)+'</div>'+fText('Yksikkö','unit',b.unit);break;
@@ -3489,7 +3607,11 @@ function uiInsp(b,E){
     cs+=lk2?'<div class="help">Vaihtoväri: nuolesta (kohta ”vaihtoväri kun”).</div>':F('Vaihtoväri käytössä','<div class="row2"><select data-vrm="1" style="flex:none;width:96px"><option value="kun"'+(vr.m!=='eikun'?' selected':'')+'>kun pätee</option><option value="eikun"'+(vr.m==='eikun'?' selected':'')+'>kun ei päde</option></select><select data-vrr="1">'+refOptions(vr.r||'',function(o){return o.id!==b.id&&hasValue(o);},'ei koskaan')+'</select></div>');
     h+=section('Väri',cs);
   }
-  h+=section('Paikka ja koko','<div class="row2">'+fNum('X','x',b.x)+fNum('Y','y',b.y)+fNum('Leveys','w',b.w)+fNum('Korkeus','h',b.h)+'</div>'+(P.views.length>1?fSelect('Näkymä','v',b.v,P.views.map(function(v){return [v.id,v.n];})):''));
+  var dL=KK.laite(P,b.v),rvv=typeof b.rv==='number'?b.rv:100;
+  h+=section('Paikka ja koko','<div class="row2">'+fNum('X','x',b.x)+fNum('Y','y',b.y)+fNum('Leveys','w',b.w)+fNum('Korkeus','h',b.h)+'</div>'+(P.views.length>1?fSelect('Näkymä','v',b.v,P.views.map(function(v){return [v.id,v.n];})):'')+
+    (dL?'<div class="f"><label>Laitteen ruudussa</label><div class="algrid two"><button class="ib" data-scr="h">↔ Ruudun keskelle</button><button class="ib" data-scr="v">↕ Ruudun keskelle</button></div></div>'+
+      fSegs('Rullausvauhti','rv',String(rvv),[['100','Sormen mukana'],['50','50 %'],['25','25 %'],['0','Lukittu ruutuun']],rvv===0?'Pysyy ruudulla paikallaan, vaikka näkymää rullataan: esim. oma alapalkki tai otsikko. Tuo eteen, jotta se on muiden päällä.':rvv<100?'Liikkuu rullatessa hitaammin kuin sormi ('+rvv+' %), esim. taustagrafiikka syvyysvaikutelmaan.':'Liikkuu rullatessa sormen mukana.')+fNum('Oma vauhti %','rv',rvv):'')+
+    '<div class="f"><label>Monista</label><div class="dupc"><input id="dupn" value="3" inputmode="numeric"> kpl, väli <input id="dupg" value="10" inputmode="numeric"> px <button class="ib" data-dupd="y">Alle</button><button class="ib" data-dupd="x">Viereen</button></div><div class="help">Tekee samanlaisia kopioita tasavälein. Kopiot saavat omat nimet.</div></div>');
   return h;
 }
 /* Pikatoiminto ”Arvo, kun valittu”: VALITSE-palikka, jonka ehto tulee tästä palikasta. */
@@ -3589,11 +3711,23 @@ function multiInsp(){
   var h='<div class="ih h0"><span class="ci">⧉</span><div><b>'+n+' valittu</b><small>'+(t==='b'?'näkymän palikkaa':'logiikan palikkaa')+'</small></div></div>';
   h+=section('Tasaa','<div class="algrid">'+[['left','⇤ Vasen'],['hc','↔ Keskelle'],['right','Oikea ⇥'],['top','⤒ Ylös'],['vc','↕ Keskelle'],['bottom','Alas ⤓']].map(function(x){return '<button class="ib" data-al="'+x[0]+'">'+x[1]+'</button>';}).join('')+'</div>');
   h+=section('Jaa tasaisesti','<div class="algrid two"><button class="ib" data-al="dh"'+(n<3?' disabled':'')+'>Vaakasuunnassa</button><button class="ib" data-al="dv"'+(n<3?' disabled':'')+'>Pystysuunnassa</button></div>'+(n<3?'<div class="help">Valitse vähintään kolme.</div>':''));
+  if(t==='b'&&KK.laite(P,S.vw))h+=section('Laitteen ruudussa','<div class="algrid two"><button class="ib" data-scr="h">↔ Ruudun keskelle</button><button class="ib" data-scr="v">↕ Ruudun keskelle</button></div><div class="help">Siirtää valitut yhtenä ryhmänä ruudun keskelle. Keskinäiset paikat säilyvät.</div>');
   if(t==='b')h+=section('Koko','<div class="algrid two"><button class="ib" data-al="sw">Sama leveys</button><button class="ib" data-al="sh">Sama korkeus</button></div><div class="help">Koko otetaan viimeksi valitusta: '+esc((P.b[S.sel&&S.sel.id]||{}).nm||'')+'.</div>');
   h+='<div class="ibs">'+(t==='n'?'<button class="ib" data-do="copy">⧉ Kopioi</button>'+(S.clip?'<button class="ib" data-do="paste">Liitä</button>':''):'')+'<button class="ib del" data-do="delmulti">Poista valitut</button></div>';
   h+='<div class="help" style="margin-top:10px">⇧-napsautus lisää tai poistaa valinnasta. ⇧ + veto tyhjästä kohdasta valitsee alueelta. Raahaa mitä tahansa valituista siirtääksesi kaikkia.</div>';
   return h;
 }
+/* Pajakone 2: valitut (tai valittu) laitteen ruudun keskelle vaaka- tai pystysuunnassa ryhmänä. */
+function selUIBlocks(){var ids=S.multi.length?S.multi.filter(function(m){return m.t==='b';}).map(function(m){return m.id;}):(S.sel&&S.sel.t==='b'?[S.sel.id]:[]);return ids.map(function(i){return P.b[i];}).filter(function(b){return b&&isUI(b);});}
+function alignScreen(ax){var bs=selUIBlocks();if(!bs.length)return;var L=KK.laite(P,bs[0].v);if(!L)return;
+  var x1=Math.min.apply(null,bs.map(function(b){return b.x;})),y1=Math.min.apply(null,bs.map(function(b){return b.y;})),x2=Math.max.apply(null,bs.map(function(b){return b.x+b.w;})),y2=Math.max.apply(null,bs.map(function(b){return b.y+b.h;}));
+  var d=ax==='h'?Math.round(L.w/2-(x1+x2)/2):Math.round(L.h/2-(y1+y2)/2);if(!d)return;pushUndo();bs.forEach(function(b){if(ax==='h')b.x+=d;else b.y+=d;});save();renderUIStage();renderInsp();}
+/* Monista N kertaa alle tai viereen tasavälein. */
+function dupMany(dir){var b=S.sel&&S.sel.t==='b'&&P.b[S.sel.id];if(!b||!isUI(b))return;
+  var n=Math.max(1,Math.min(50,Math.round(+(($('#dupn')||{}).value||'').replace(',','.'))||0)),g=Math.round(+(($('#dupg')||{}).value||'10').replace(',','.'));if(!n)return;if(isNaN(g))g=10;
+  pushUndo();var last=b,z=topZ(b.v);for(var i=1;i<=n;i++){var c=KK.clone(b);delete c.id;delete c.nm;delete c.nmSet;delete c.vt;delete c.vtSet;var nb=KK.addBlock(P,b.k,c);
+    if(dir==='y'){nb.x=b.x;nb.y=b.y+i*(b.h+g);}else{nb.x=b.x+i*(b.w+g);nb.y=b.y;}nb.z=++z;last=nb;}
+  S.sel={t:'b',id:last.id};save();renderAll();toast(n+(n===1?' kopio':' kopiota')+' tehty. Kumoa poistaa ne.');}
 function alignMulti(op){
   var items=S.multi.map(function(m){return m.t==='b'?{t:'b',o:P.b[m.id]}:{t:'n',o:KK.nodeOf(P,m.id)};}).filter(function(i){return i.o;});
   if(items.length&&items[0].t==='n'){var ids={};items.forEach(function(i){ids[i.o.id]=1;});items=items.filter(function(i){var c=i.o,g=0;while(c&&c.g&&g++<60){if(ids[c.g])return false;c=KK.nodeOf(P,c.g);}return true;});}
@@ -3737,6 +3871,93 @@ $('#sheet').addEventListener('click',function(e){
   if((x=e.target.closest('[data-sdp]'))){pushUndo();var pre=KK.satuPreset(x.getAttribute('data-sdp'),KK.satuN(b)),sp=KK.satuSpec(P,b.id,ctx());b.pw=pre.map(function(v,i){return sp.lk[i]?(b.pw[i]==null?50:b.pw[i]):v;});S.sdKoe=null;renderSatuSheet();sdCommit();return;}
   if((x=e.target.closest('[data-sd="koe"]'))){var d=KK.satuDist(KK.satuSpec(P,b.id,ctx()));if(!d){toast('Väli on virheellinen, joten koeheittoa ei voi tehdä.');return;}var N=1000,c=d.items.map(function(){return 0;});for(var i=0;i<N;i++)c[sdIdx(d,KK.satuPick(d,Math.random()))]++;S.sdKoe={c:c,n:N};renderSdLive();return;}
 });
+/* ---------- Käyrä (Pajakone 2): paneeli ja käyräikkuna ---------- */
+function fiN(x){return x==null||!isFinite(x)?'–':String(Math.round(x*100)/100).replace('.',',').replace('-','−');}
+function kayraRange(sp){var lo=Math.min(0,Math.min.apply(null,sp.w.concat([0]))),hi=Math.max(100,Math.max.apply(null,sp.w.concat([100])));return {lo:lo,hi:hi};}
+function kayraMini(sp,w,h,cls){
+  if(!sp||!sp.w||!sp.w.length)return '';var rg=kayraRange(sp),n=48,pts=[];
+  for(var i=0;i<=n;i++){var y=(KK.curveAt(sp.w,i/n)-rg.lo)/(rg.hi-rg.lo);pts.push((1+i/n*(w-2)).toFixed(1)+','+(h-1.5-y*(h-3)).toFixed(1));}
+  var mk='';if(sp.t!=null&&!sp.err){var my=(KK.curveAt(sp.w,sp.t)-rg.lo)/(rg.hi-rg.lo);mk='<circle cx="'+(1+sp.t*(w-2)).toFixed(1)+'" cy="'+(h-1.5-my*(h-3)).toFixed(1)+'" r="'+(h>20?3.5:2)+'" style="fill:var(--vtc)"/>';}
+  return '<svg class="'+(cls||'sdmini')+'" viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'" aria-hidden="true" preserveAspectRatio="none"><polyline points="'+pts.join(' ')+'"/>'+mk+'</svg>';
+}
+function kayraLinks(id){var ns={};KK.nodesOfBlock(P,id).forEach(function(n){ns[n.id]=1;});return P.lg.l.filter(function(l){return ns[l.t]&&/^p\d+$/.test(l.tp);}).length;}
+function kayraInsp(b,E){
+  var sp=KK.kayraSpec(P,b.id,ctx(),E),v=E.val(b.id),nl=sp.lk.filter(Boolean).length,dec=KK.kayraDec(b);
+  var h=fValue('Syöte (x)','a',b,'Vie nuoli esim. säätimestä tai kirjoita luku. Tulos lasketaan aina, kun syöte muuttuu.');
+  h+='<div class="row2">'+fValue('x-väli: alku','xmin',b)+fValue('loppu','xmax',b)+'</div>';
+  h+='<div class="row2">'+fValue('y-väli: alku','ymin',b)+fValue('loppu','ymax',b)+'</div>';
+  h+='<div class="help" style="margin-top:-4px">x-välin alku vastaa käyrän vasenta reunaa ja loppu oikeaa. Käyrän alareuna on y-välin alku ja yläreuna loppu. Välin ulkopuolinen syöte käyttää lähintä reunaa.</div>';
+  h+='<button class="sdbox" data-do="kayraed" title="Muokkaa käyrää">'+kayraMini(sp,232,46)+'<div class="help" style="margin:4px 0 0">'+(sp.err?'<span class="errt">'+esc(sp.err)+'</span>':sp.w.length+' porrasta'+(nl?' · '+nl+' nuolesta':''))+'</div></button><div class="ibs"><button class="ib" data-do="kayraed">Muokkaa käyrää…</button></div>';
+  h+=fSegs('Tarkkuus','dec',dec==null?'':String(dec),[['','Tarkka'],['0','Kokonaisluku'],['1','0,1'],['2','0,01']],'Tarkka = käyrän arvo sellaisenaan. Muuten tulos pyöristetään.');
+  h+='<div class="sdnow"><span>'+(sp.x==null?'Syöte puuttuu':'x = '+esc(fiN(sp.x)))+'</span><b>'+(KK.isErr(v)?'⚠':v==null?'–':esc(E.fmt(v)))+'</b></div>';
+  h+='<div class="help">Kaavassa <code>'+esc(b.vt)+'</code> on tulos, <code>'+esc(b.vt)+'.x</code> syöte, <code>'+esc(b.vt)+'.t</code> kohta käyrällä (0–1) ja <code>'+esc(b.vt)+'.p1</code>… portaat. Portaita, välejä ja syötettä voi ohjata logiikasta: vie nuoli tämän palikan päälle ja valitse kohta.</div>';
+  return section('Käyrä',h);
+}
+var KDW=720,KDH=300,KDL=64,KDR=34,KDT=24,KDB=48;
+function kdB(){var b=S.kd&&P&&P.b[S.kd];return b&&b.k==='kayra'?b:null;}
+function kdX(t){return KDL+t*(KDW-KDL-KDR);}
+function kdY(f,rg){return KDT+(1-(f-rg.lo)/(rg.hi-rg.lo))*(KDH-KDT-KDB);}
+function kdYv(sp,f){return sp.y0==null?null:sp.y0+(sp.y1-sp.y0)*f/100;}
+function openKayraSheet(id){var b=P.b[id];if(!b||b.k!=='kayra')return;S.kd=id;S.kdTest=null;
+  openSheet('<div id="kdroot"></div>');$('#sheet').classList.add('wide');renderKayraSheet();}
+function kdGraph(sp,act,tx){
+  var n=sp.w.length,rg=kayraRange(sp),h='<svg id="kdg" class="sdg kdg" viewBox="0 0 '+KDW+' '+KDH+'" role="img" aria-label="Käyrä: vedä portaita ylös ja alas">';
+  [0,25,50,75,100].forEach(function(g){var y=kdY(g,rg);h+='<line class="sdgl" x1="'+KDL+'" x2="'+(KDW-KDR)+'" y1="'+y+'" y2="'+y+'"'+(g%50?' opacity=".45"':'')+'/>'+(g%50?'':'<text class="sdax" x="'+(KDL-12)+'" y="'+(y+4)+'" text-anchor="end">'+esc(fiN(kdYv(sp,g)))+'</text>');});
+  var pts=[],M=200;for(var k=0;k<=M;k++){var t=k/M;pts.push(kdX(t).toFixed(1)+','+kdY(KK.curveAt(sp.w,t),rg).toFixed(1));}
+  h+='<polyline class="sdcrv" points="'+pts.join(' ')+'"/>';
+  for(var i=0;i<n;i++){var t2=n<2?0:i/(n-1),x=kdX(t2),w=sp.w[i],y=kdY(w,rg),lk=sp.lk[i],right=i===n-1;
+    h+='<line class="sdstem" x1="'+x+'" x2="'+x+'" y1="'+KDT+'" y2="'+(KDH-KDB)+'"/>';
+    h+='<circle class="sdp'+(lk?' lk':'')+(act===i?' act':'')+'" data-kdi="'+i+'" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="9"><title>'+esc('Porras '+(i+1)+': y = '+fiN(kdYv(sp,w))+(lk?' (tulee nuolesta)':''))+'</title></circle>';
+    h+='<text class="sdpv" x="'+(x+(right?-14:14)).toFixed(1)+'" y="'+(Math.max(KDT+4,y-8)).toFixed(1)+'" text-anchor="'+(right?'end':'start')+'">'+esc(fiN(kdYv(sp,w)))+'</text>';
+    h+='<text class="sdpl" x="'+x.toFixed(1)+'" y="'+(KDH-26)+'" text-anchor="middle">p'+(i+1)+(lk?' 🔒':'')+'</text>';
+    h+='<text class="sdax" x="'+x.toFixed(1)+'" y="'+(KDH-9)+'" text-anchor="middle">x '+esc(sp.x0==null?'':fiN(sp.x0+t2*(sp.x1-sp.x0)))+'</text>';}
+  if(tx!=null&&sp.x0!=null){var o=KK.kayraAt(sp,tx,null),mx=kdX(o.t),my=kdY(o.f,rg);
+    h+='<line class="kdmark" x1="'+mx.toFixed(1)+'" x2="'+mx.toFixed(1)+'" y1="'+KDT+'" y2="'+(KDH-KDB)+'"/><circle class="kddot" cx="'+mx.toFixed(1)+'" cy="'+my.toFixed(1)+'" r="6"/>';}
+  return h+'</svg>';
+}
+function kdTestX(sp){if(S.kdTest!=null)return S.kdTest;if(sp.x!=null)return Math.max(Math.min(sp.x0,sp.x1),Math.min(Math.max(sp.x0,sp.x1),sp.x));return sp.x0==null?null:(sp.x0+sp.x1)/2;}
+function renderKayraSheet(){
+  var el=$('#kdroot'),b=kdB();if(!el)return;if(!b){closeSheet();return;}
+  var sp=KK.kayraSpec(P,b.id,ctx()),n=sp.w.length;
+  var h='<h2>Käyrä: '+esc(b.nm)+' <span class="vtc" style="font-size:13px;margin-left:8px">'+esc(b.vt)+'</span><button class="tb" data-x="close">Valmis</button></h2>';
+  h+='<div class="sdrow"><span class="sdlab">Välit</span><span class="help" style="margin:0">'+(sp.err&&sp.x0==null?'<span class="errt">'+esc(sp.err)+'</span>':'x '+esc(fiN(sp.x0))+'–'+esc(fiN(sp.x1))+' → y '+esc(fiN(sp.y0))+'–'+esc(fiN(sp.y1))+' (välit muutetaan paneelista)')+'</span></div>';
+  h+='<div class="sdrow"><span class="sdlab">Portaita</span><div class="segs">'+[2,3,4,5,6,7,8,9,10].map(function(k){return '<button data-kdn="'+k+'" class="'+(k===n?'on':'')+'">'+k+'</button>';}).join('')+'</div></div>';
+  h+='<div class="sdrow"><span class="sdlab">Valmiit muodot</span><div class="segs">'+Object.keys(KK.KAYRA_PRESETS).map(function(k){return '<button data-kdp="'+k+'">'+esc(KK.KAYRA_PRESETS[k])+'</button>';}).join('')+'</div></div>';
+  h+='<div id="kdgw"></div>';
+  h+='<div class="sdins">'+sp.w.map(function(w,i){return '<div><label for="kdw'+i+'">p'+(i+1)+(sp.lk[i]?' 🔒':'')+'</label><input id="kdw'+i+'" type="text" inputmode="decimal" data-kdw="'+i+'" value="'+esc(fiN(kdYv(sp,w)))+'"'+(sp.lk[i]?' disabled title="Porras tulee nuolesta"':'')+'></div>';}).join('')+'</div>';
+  var tx=kdTestX(sp);
+  if(sp.x0!=null)h+='<div class="fs"><h4>Kokeile</h4><div class="kdtest"><input type="range" id="kdt" min="'+Math.min(sp.x0,sp.x1)+'" max="'+Math.max(sp.x0,sp.x1)+'" step="'+(Math.abs(sp.x1-sp.x0)/400)+'" value="'+tx+'"><b id="kdtv"></b></div><div class="help">Siirrä säädintä: se on syöte x, ja käyrä näyttää, minkä tuloksen y se antaa. Tämä ei muuta palikan oikeaa syötettä.</div></div>';
+  h+='<div class="help">Vedä portaita ylös ja alas tai kirjoita portaan y-arvo. Portaat ovat tasavälein x-välillä, ja käyrä kulkee pehmeästi niiden kautta niin, ettei se koskaan nouse portaiden yli eikä laske niiden ali. Tulos lasketaan käyrältä tarkasti, vaikka portaita olisi vähän. 🔒 = porras tulee logiikasta nuolella. Kaavassa: <code>'+esc(b.vt)+'.p1</code>…</div>';
+  el.innerHTML=h;renderKdLive();
+}
+function renderKdLive(act){var b=kdB();if(!b)return;var sp=KK.kayraSpec(P,b.id,ctx()),tx=kdTestX(sp);
+  var gw=$('#kdgw');if(gw)gw.innerHTML=kdGraph(sp,act,tx);
+  var rg=$('#kdt');if(rg&&tx!=null&&sp.x0!=null){var lo=Math.min(sp.x0,sp.x1),hi=Math.max(sp.x0,sp.x1);rg.style.setProperty('--p',(hi>lo?(tx-lo)/(hi-lo)*100:0)+'%');}
+  var tv=$('#kdtv');if(tv&&tx!=null&&sp.x0!=null){var o=KK.kayraAt(sp,tx,KK.kayraDec(b));tv.textContent='x '+fiN(tx)+' → y '+fiN(o.y);}}
+function kdSetW(i,pct){var b=kdB();if(!b)return;var n=KK.satuN(b);if(!Array.isArray(b.pw))b.pw=[];while(b.pw.length<n)b.pw.push(0);if(isNaN(pct))return;b.pw[i]=Math.max(0,Math.min(100,Math.round(pct*100)/100));}
+function kdCommit(){KK.tick(P,ctx());save();cancelAnimationFrame(sdT);sdT=requestAnimationFrame(function(){renderStage();renderInsp();});}
+$('#sheet').addEventListener('pointerdown',function(e){
+  var g=e.target.closest&&e.target.closest('#kdg');if(!g)return;var b=kdB();if(!b)return;var sp=KK.kayraSpec(P,b.id,ctx()),n=sp.w.length,rg=kayraRange(sp);
+  var r=g.getBoundingClientRect();function at(m){return {x:(m.clientX-r.left)/r.width*KDW,y:(m.clientY-r.top)/r.height*KDH};}
+  var p0=at(e),best=0;for(var i=1;i<n;i++)if(Math.abs(kdX(i/(n-1))-p0.x)<Math.abs(kdX(best/(n-1))-p0.x))best=i;
+  if(sp.lk[best]){toast('Porras p'+(best+1)+' tulee nuolesta, joten sitä muutetaan logiikassa.');return;}
+  e.preventDefault();pushUndo();
+  function setY(m){var y=at(m).y,f=rg.lo+(1-(y-KDT)/(KDH-KDT-KDB))*(rg.hi-rg.lo);kdSetW(best,f);var inp=$('#sheet input[data-kdw="'+best+'"]');if(inp){var sp2=KK.kayraSpec(P,b.id,ctx());inp.value=fiN(kdYv(sp2,b.pw[best]));}renderKdLive(best);}
+  setY(e);drag(e,setY,function(){renderKdLive();kdCommit();});
+});
+$('#sheet').addEventListener('focusin',function(e){if(e.target.hasAttribute&&e.target.hasAttribute('data-kdw'))pushUndo();});
+$('#sheet').addEventListener('input',function(e){var t=e.target;
+  if(t.id==='kdt'){S.kdTest=+t.value;renderKdLive();return;}
+  if(!t.hasAttribute||!t.hasAttribute('data-kdw'))return;var b=kdB();if(!b)return;var sp=KK.kayraSpec(P,b.id,ctx());
+  var v=parseFloat(String(t.value).replace(',','.').replace('−','-'));if(isNaN(v)||sp.y0==null||sp.y1===sp.y0)return;
+  kdSetW(+t.getAttribute('data-kdw'),(v-sp.y0)/(sp.y1-sp.y0)*100);renderKdLive(+t.getAttribute('data-kdw'));kdCommit();});
+$('#sheet').addEventListener('change',function(e){var t=e.target;if(!t.hasAttribute||!t.hasAttribute('data-kdw'))return;var b=kdB();if(!b)return;var sp=KK.kayraSpec(P,b.id,ctx());t.value=fiN(kdYv(sp,b.pw[+t.getAttribute('data-kdw')]));renderKdLive();});
+$('#sheet').addEventListener('click',function(e){
+  var b=kdB();if(!b||!$('#kdroot'))return;var x;
+  if((x=e.target.closest('[data-kdn]'))){var nn=+x.getAttribute('data-kdn');if(nn===KK.satuN(b))return;var before=kayraLinks(b.id);pushUndo();b.pw=KK.kayraResize(b.pw,nn);b.pn=nn;KK.repair(P);
+    var lost=before-kayraLinks(b.id);if(lost>0)toast('Portaita on nyt '+nn+', joten '+lost+' nuoli'+(lost===1?'':'a')+' poistui. Kumoa palauttaa.');renderKayraSheet();kdCommit();return;}
+  if((x=e.target.closest('[data-kdp]'))){pushUndo();var pre=KK.kayraPreset(x.getAttribute('data-kdp'),KK.satuN(b)),sp=KK.kayraSpec(P,b.id,ctx());b.pw=pre.map(function(v,i){return sp.lk[i]?(b.pw[i]==null?0:b.pw[i]):v;});renderKayraSheet();kdCommit();return;}
+});
 function lgInsp(b,E,node){
   var h='',k=b.k;
   switch(k){
@@ -3771,6 +3992,7 @@ function lgInsp(b,E,node){
     case 'monihaara':h+=mhInsp(b,E,node);break;
     case 'ktulos':h+=section('Ketjun tulos',fValue('Tulos','v',b,'Luku, teksti, päivämäärä tai toisen palikan arvo. Esim. päätöspuun jokaisen haaran loppuun oma tulos: Väsynyt, Pirteä.')+'<div class="help">Ketju muistaa tuloksen, kunnes se käynnistyy uudelleen. Tuloksen saa näkymään ketjun paneelista (Vie tulos näkymään) tai kaavalla <code>'+esc((KK.chainOfNode(P,node)||{}).vt||'ketju')+'.tulos</code>.</div>');break;
     case 'satu':h+=satuInsp(b,E);break;
+    case 'kayra':h+=kayraInsp(b,E);break;
     case 'arpa':h+=section('Arpa',fSegs('Vaihtoehtoja','n',String(KK.arpaN(b)),[['2','2'],['3','3'],['4','4'],['5','5'],['6','6']],'Ketju jatkaa yhteen arvottuun haaraan. Jokaisella vaihtoehdolla on sama todennäköisyys. Kuusi vaihtoehtoa on kuin noppa.')+'<div class="help">Esim. peliin: arvo, mikä tapahtuma tulee seuraavaksi, tai vaihtele kannustustekstejä.</div>');break;
     case 'toista':{var lkk=E.linked(b.id,'k');h+=section('Toista N kertaa',(lkk?'<div class="help" style="margin:0 0 8px">Kierrosten määrä tulee nuolesta (kohta ”kerrat”).</div>':fNum('Montako kertaa','kerrat',b.kerrat))+
       '<div class="help">Ketju kulkee <b>kierros</b>-haaraan näin monta kertaa ja sen jälkeen <b>valmis</b>-haaraan. Vedä kierros-haaran viimeisestä tapahtumasta viiva takaisin tähän palikkaan, niin kierros toistuu. Laskuri alkaa alusta joka kerta, kun ketju käynnistyy, ja kun valmis-haaraan on menty. Kierroksen sisään voi laittaa ajastimen, esim. 3 × (aseta, odota 1 min).</div>');break;}
@@ -4078,9 +4300,9 @@ function teeInsp(b,E){
   if(d==='tila')h+=fSegs('Tila','ti',b.ti==='ei'?'ei':'on',[['on','on valittu'],['ei','ei ole valittu']],'Painike (jää pohjaan), valintaruutu, kytkin tai muisti muuttuu valituksi tai ei-valituksi.');
   if(d==='lisaa')h+=fValue('Määrä','v',b,'Tyhjä = 1. Päivämäärään lisätään päiviä. Negatiivinen luku vähentää.');
   if(d==='siirry'&&!b.o)h+=fSelect('Näkymä','vw',b.vw,[['','tämä näkymä']].concat(P.views.map(function(v){return [v.id,v.n];})))+'<div class="row2">'+fNum('X','x',b.x)+fNum('Y','y',b.y)+'</div><div class="help">Kohta (X, Y) tulee näytön vasempaan yläkulmaan. Koordinaatit näkyvät Näkymän muokkaustilassa.</div>';
-  if(d==='siirry')h+=fSegs('Siirtymä','tapa',b.tapa==='heti'?'heti':'vieri',[['vieri','Vierien'],['heti','Heti']],b.tapa==='heti'?'Ruutu hyppää uuteen kohtaan välittömästi.':'Ruutu vierii uuteen kohtaan noin puolessa sekunnissa.');
+  if(d==='siirry'||d==='takaisin')h+=fSegs('Siirtymä','tapa',b.tapa==='heti'?'heti':'vieri',[['vieri','Vierien'],['heti','Heti']],b.tapa==='heti'?'Ruutu hyppää uuteen kohtaan välittömästi.':'Ruutu vierii uuteen kohtaan noin puolessa sekunnissa.');
   if(d==='kirjaa'||d==='rivi'||d==='ilmoita')h+=fTpl(d==='ilmoita'?'Ilmoitus':'Teksti','tx',b,d==='kirjaa'?'Tulee aikajanalle aikaleiman kanssa. {Nimi} tuo toisen palikan arvon.':null);
-  var hp={aseta:'',tila:'',lisaa:'',valitse:'',poista:'',vaihda:'',tyhjenna:'Palauttaa kohteen alkutilaan.',siirry:'',kirjaa:'',rivi:'',ilmoita:'Ilmoitus näkyy hetken näytön yläreunassa.',arvonta:'Arpoo satunnaisluvulle uuden luvun sen välin ja jakauman mukaan. Satunnaisluvun arvottu-tapahtuma lähtee heti.'}[d];
+  var hp={aseta:'',tila:'',lisaa:'',valitse:'',poista:'',vaihda:'',tyhjenna:'Palauttaa kohteen alkutilaan.',siirry:'',takaisin:'Palaa näkymään ja kohtaan, josta viimeksi siirryttiin Siirry-toiminnolla (esim. Takaisin-painike). Jos aiempaa siirtoa ei ole, mitään ei tapahdu. Välilehden vaihto käsin nollaa historian.',kirjaa:'',rivi:'',ilmoita:'Ilmoitus näkyy hetken näytön yläreunassa.',arvonta:'Arpoo satunnaisluvulle uuden luvun sen välin ja jakauman mukaan. Satunnaisluvun arvottu-tapahtuma lähtee heti.'}[d];
   return section('Toiminto',fCheck('Käytössä','on',!b.off)+h+(hp?'<div class="help">'+hp+'</div>':'')+'<div class="help">Toiminto tehdään, kun siihen tulee tapahtuma (esim. painettu, NIIN, silloin) tai kun siihen tuleva arvo alkaa päteä. Ulos lähtee ”sitten”, josta voi jatkaa seuraavaan toimintoon.</div>');
 }
 
@@ -4115,6 +4337,7 @@ $('#insp').addEventListener('input',function(e){
   if(t.hasAttribute('data-tpl')||t.hasAttribute('data-lit'))val=KK.toIds(P,val);
   if(t.hasAttribute('data-num')&&['x','y','w','h'].indexOf(k)>=0){var x=parseFloat(val.replace(',','.'));if(isNaN(x))return;val=Math.round(x);if(k==='w')val=Math.max(30,val);if(k==='h')val=Math.max(24,val);}
   if(k==='n'){var nn=parseInt(val,10);val=isNaN(nn)?1:Math.max(0,nn);}
+  if(k==='rv'){var rx=parseFloat(String(val).replace(',','.'));if(isNaN(rx))return;rx=Math.max(0,Math.round(rx));if(rx>=100)delete b.rv;else b.rv=rx;afterInsp(false);return;}
   b[k]=val;afterInsp(false);
 });
 $('#insp').addEventListener('change',function(e){
@@ -4185,6 +4408,8 @@ $('#insp').addEventListener('click',function(e){
     else showMenu(rk.left,rk.bottom+4,[{h:'Lisää viitteen perään'}].concat(Object.keys(KPROPS).map(function(x){return {t:'.'+x+'  ·  '+KPROPS[x],f:function(){kaavaInsert('.'+x,0);}};})));
     return;}
   var al=e.target.closest('[data-al]');if(al){alignMulti(al.getAttribute('data-al'));return;}
+  var sc=e.target.closest('[data-scr]');if(sc){alignScreen(sc.getAttribute('data-scr'));return;}
+  var du=e.target.closest('[data-dupd]');if(du){dupMany(du.getAttribute('data-dupd'));return;}
   var mx=e.target.closest('[data-mhadd],[data-mhdel],[data-mhup]');
   if(mx){var mb=selBlock();if(!mb||mb.k!=='monihaara')return;pushUndo();mb.haarat=mb.haarat||[];
     if(mx.hasAttribute('data-mhadd')){var lst=mb.haarat[mb.haarat.length-1];mb.haarat.push({id:'',m:lst?lst.m:'val',o:'',a:lst&&lst.m==='vali'?lst.b:'',b:'',nm:''});}
@@ -4210,6 +4435,8 @@ $('#insp').addEventListener('click',function(e){
     if(k==='zzm'){if(v==='oma'){if(typeof b.zz!=='number')b.zz=Math.round(camUI().z*100)/100;}else delete b.zz;}
     else if(k==='kk'){var p0=markPt(b);b.kk=v;if(v==='keski'){b.x=Math.round(p0.x-b.w/2);b.y=Math.round(p0.y-b.h/2);}else{b.x=Math.round(p0.x);b.y=Math.round(p0.y);}}
     else if(k==='nkm'){b.nk=b.nk||{};b.nk.m=v;if(v==='aina')b.nk={m:'aina'};}
+    else if(k==='dec'&&b.k==='kayra')b.dec=v===''?'':+v;
+    else if(k==='rv'){if(+v>=100)delete b.rv;else b.rv=+v;}
     else if(k==='jak'&&b.k==='satu'){var sdl=satuWeightLinks(b.id);b.jak=v;if(v==='tasa'&&sdl)toast('Painoihin tulleet nuolet ('+sdl+') poistuivat, koska jakauma on tasainen. Kumoa palauttaa ne.');}
     else b[k]=v;
     afterInsp(true);return;}
@@ -4247,6 +4474,7 @@ function doAction(d,T){
     case 'clearst':pushUndo();KK.clearVal(P,b.id);break;
     case 'saturoll':{pushUndo();var srr=KK.satuRoll(P,b.id,ctx());if(KK.isErr(srr))toast('Ei voi arpoa: '+srr.err+'.');break;}
     case 'satued':openSatuSheet(b.id);return;
+    case 'kayraed':openKayraSheet(b.id);return;
     case 'copy':copySel();return;
     case 'paste':pasteClip();return;
     case 'markhere':{pushUndo();var r=screenWorld();var p1=b.kk==='keski'?{x:r.x+r.w/2,y:r.y+r.h/2}:{x:r.x+20/r.z,y:r.y+20/r.z};
@@ -4688,7 +4916,7 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&P){
 /* ---------- Päivä vaihtuu ---------- */
 var lastDay=KK.iso(new Date());
 setInterval(function(){var d=KK.iso(new Date());if(d!==lastDay&&P){lastDay=d;KK.tick(P,ctx());save();renderStage();}},30000);
-window.addEventListener('resize',function(){if(P&&showU()&&useMode()&&devOf()&&$('#uvp')){clampUI();applyCam($('#uvp'),$('#uworld'),camUI());}if(P&&showU())updRulers();if(P&&showL()&&$('#lvp'))drawLinks();});
+window.addEventListener('resize',function(){if(P&&showU()&&useMode()&&devOf()&&$('#uvp')){clampUI();applyCam($('#uvp'),$('#uworld'),camUI());applyRV();}if(P&&showU())updRulers();if(P&&showL()&&$('#lvp'))drawLinks();});
 window.addEventListener('beforeunload',saveNow);
 
 /* ---------- Käynnistys ---------- */

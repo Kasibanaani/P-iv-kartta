@@ -26,12 +26,16 @@ async def gh(route,request):
         N[0]+=1;REPO[p]=[base64.b64decode(b['content']).decode('utf8'),'sha%d'%N[0]]
         return await js(201 if not cur else 200,{'content':{'sha':REPO[p][1]}})
     return await js(405,{})
+# Alkutiedot asetetaan ensimmäisen latauksen jälkeen (sivulta poistuttaessa) ja sivu ladataan uudelleen. (Aiemmin init-skriptillä, joka luki
+# file://-osoitteen localStoragea liian aikaisin: se palautti joskus tyhjää ja kirjoitti alkutiedot tallennettujen päälle.)
 async def uusi(b,init=None,w=1440):
     ctx=await b.new_context(viewport={'width':w,'height':900},accept_downloads=True,reduced_motion='reduce')
     await ctx.route('https://api.github.com/**',gh);pg=await ctx.new_page();errs=[]
     pg.on('pageerror',lambda e:errs.append(str(e)));pg.on('console',lambda m:m.type=='error' and 'Failed to load resource' not in m.text and errs.append(m.text))
-    if init:await pg.add_init_script(init)
-    await pg.goto(U);await pg.wait_for_timeout(350);return ctx,pg,errs
+    await pg.goto(U);await pg.wait_for_timeout(150)
+    # Appi tallentaa sivua poistuttaessa (beforeunload), joten alkutiedot kirjoitetaan vasta sen jälkeen.
+    if init:await pg.evaluate("window.addEventListener('beforeunload',function(){"+init+"})");await pg.reload()
+    await pg.wait_for_timeout(350);return ctx,pg,errs
 async def main():
     async with async_playwright() as p:
         b=await p.chromium.launch()
