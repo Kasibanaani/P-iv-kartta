@@ -97,3 +97,8 @@ Asetuksissa on rakennusympäristön ja projektin käyttönäkymän erilliset val
 
 - `logiikka_27_laitemuoto.js` (täydennetty) – kerrokset: pohja aina mukana, järjestys alhaalta ylös, palikan kerros ja indeksi, kerroksen vauhti, palikan oma vauhti ohittaa (myös 100), hidas ja lukittu kerros eivät pidennä rullattavaa, repair (tuplat, kelvottomat id:t, vauhti tekstinä, piilo/lukko vain true, pohja lisätään, tuntematon palikan kerros pois, pelkkä oletuspohja pois, lukittu pohja säilyy), tallennus.
 - `selain_35_kerrokset.py` – paneeli (napauta tyhjää): Pohja, ＋ Uusi kerros aktiiviseksi, nimeäminen, vauhti, ↑↓, uusi palikka aktiiviseen kerrokseen, piirtojärjestys kerros ennen z:aa, palikan Kerros-valinta ja Kerroksen mukaan -vauhti, 👁 piilottaa muokatessa, 🔒 estää tarttumisen, ⬚ valitsee kerroksen palikat, lukitussa käytössä kaikki näkyvät ja vauhdit (lukittu 0, tausta 25 %), poisto siirtää palikat pohjalle ja Kumoa, tallennus.
+
+## Pajakone 3c: kuva ja kosketusalueet (15.10.2026)
+
+- `logiikka_30_kuva.js` – Kuva (laji `pkuva`, koska `kuva` on ketjun efekti Kuva vaihtuu): oletukset, kohdat (myös `src`), `KK.kuvaUrl` (SVG-teksti data-osoitteeksi, data:image ja http(s) sellaisenaan, javascript:, data:text/html, skripti ja muut tyhjäksi), repair (src, sovitus, painikkeen `ulk`), kuva nuolesta, tallennus.
+- `selain_36_kuva.py` – Kuva paletista, SVG-teksti paneelista latautuu kuvaksi, vaarallinen osoite ei näy, sovitus, kuvatiedosto valitsimella (PNG data-osoitteena, SVG-tiedosto tekstiksi), Poista kuva ja Kumoa; kolme näkymätöntä kosketusaluetta kuvapalkin päällä: muokatessa katkoviiva ja nimi, käytössä läpinäkyvä ilman tekstiä ja painallukset menevät oikeille toiminnoille; kuva nuolesta Arvo-palikasta; tallennus.
