@@ -10,7 +10,7 @@ SETUP="""(function(){var P=APP.P;
  var na=KK.addNode(P,a.id,370,110,w.id),nb=KK.addNode(P,b.id,370,200,w.id),nc=KK.addNode(P,c.id,620,200,w.id);var l=KK.addLink(P,na.id,'e',nb.id,'e');
  APP.renderAll();return [k.id,w.id,na.id,nb.id,nc.id,l.id];})()"""
 async def pt_on(pg,lid):
-    return await pg.evaluate("""(id)=>{var p=document.querySelector('#lsvg path.hit[data-lid="'+id+'"]');var L=p.getTotalLength();var q=p.getPointAtLength(L/2);var m=p.getScreenCTM();return [q.x*m.a+q.y*m.c+m.e,q.x*m.b+q.y*m.d+m.f];}""",lid)
+    return await pg.evaluate("""(id)=>{var p=document.querySelector('#lworld path.hit[data-lid="'+id+'"]');var L=p.getTotalLength();var q=p.getPointAtLength(L/2);var m=p.getScreenCTM();return [q.x*m.a+q.y*m.c+m.e,q.x*m.b+q.y*m.d+m.f];}""",lid)
 async def main():
     async with async_playwright() as p:
         for W in (1440,1280):

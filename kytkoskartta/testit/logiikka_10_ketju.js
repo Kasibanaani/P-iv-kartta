@@ -63,5 +63,5 @@ A.strictEqual(J.lg.l.filter(function(l){return KK.isChainLink(J,l);}).length,2);
 var old=KK.newProject('vanha');var a=KK.addBlock(old,'luku',{start:2}),w=KK.addBlock(old,'ikkuna',{m:'sum'});var ow=KK.addNode(old,w.id,0,0);KK.addNode(old,a.id,10,40,ow.id);
 var before=JSON.stringify(old);KK.repair(old);A.strictEqual(JSON.stringify(old),before,'vanha projekti ei muutu');
 A.strictEqual(KK.Ev(old,C).val(w.id),2);
-var Dt=KK.repairData({app:'kytkoskartta',ver:5,projects:[JSON.parse(before)],cur:''});A.strictEqual(Dt.ver,6);A.strictEqual(Dt.projects.length,1);
+var Dt=KK.repairData({app:'kytkoskartta',ver:5,projects:[JSON.parse(before)],cur:''});A.strictEqual(Dt.ver,KK.VER);A.ok(KK.VER>=6);A.strictEqual(Dt.projects.length,1);
 console.log('logiikka_10_ketju ok');

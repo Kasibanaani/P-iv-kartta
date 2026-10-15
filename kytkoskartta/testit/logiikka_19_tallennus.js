@@ -4,7 +4,7 @@
 var KK=require('./moottori.js'),A=require('assert');
 var old=require('./vanha_v5_esimerkki.json'),want=require('./vanha_v5_arvot.json');
 var NOW=new Date(2026,9,15,9,0,0).getTime();var C={now:function(){return new Date(NOW);},toast:function(){},nav:function(){}};
-var Dt=KK.repairData(JSON.parse(JSON.stringify(old)));A.strictEqual(Dt.ver,6);var P=Dt.projects[0];
+var Dt=KK.repairData(JSON.parse(JSON.stringify(old)));A.strictEqual(Dt.ver,KK.VER);A.ok(KK.VER>=6);var P=Dt.projects[0];
 var E=KK.Ev(P,C);Object.keys(want).forEach(function(id){var b=P.b[id];A.ok(b,'palikka säilyi '+id);var pr=KK.ports(b);
   A.strictEqual(pr.outs.some(function(p){return p.p==='v';})?E.fmt(E.val(id)):null,want[id].v,'arvo '+want[id].nm);
   A.strictEqual(KK.K[b.k].g==='ui'?E.state(id):null,want[id].tila,'tila '+want[id].nm);});
