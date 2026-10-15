@@ -13,11 +13,12 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 - Appi-appi 3: hahmo: ohjaus tatti / napautus kohteeseen / auto, huippunopeus, kiihtyminen ja jarrutus käyrällä, liukkaus, kääntyy kulkusuuntaan tai peilaa; ominaisuudet kierto ja peilattu.
 - Appi-appi 4: kuvasarja-animaatio Kuva-palikkaan (kuvat, nopeus, pyörii aina / kun liikkuu / kun nuolen ehto pätee).
 - Appi-appi 5: ruudukko kerroksen ominaisuutena (ruutukoko, tihennys, kohdistus, näkyvyys), napautus ruudun keskelle, Alue ruutu kerrallaan ja napautus alueeseen, ominaisuudet ruutux/ruutuy.
+- Appi-appi 6: reitit (Emilin toive): Reitti-palikka piirretään napauttamalla, Liike kulkee sitä kerran / edestakaisin / kierroksia, käynnistä- ja pysäytä-tapahtumat.
 - Testattu vain tietokoneen Chromiumissa, ei oikealla iPhonella, iPadilla eikä Safarilla.
 
 ## Seuraavaksi
 
-- Maailma jatkuu `VERTAILU.md` kohdan 8 järjestyksessä: seuraavaksi reitit (Emilin toive: muiden liikkuvien kulkureitit pohjaan). Liike-, törmäys- ja kameralogiikka moottoriin (`KK`).
+- Maailman perusta (VERTAILU.md kohta 8) on valmis. Ehdotuksia jatkoon (tekoälyn, ei Emilin päätös): reitinhaku esteiden ohi, liike ruutu kerrallaan (lautapeli), kerroksen näkyvyys logiikasta, zoomaus käytössä, esimerkkipeli.
 - Jonossa: kerroksen näkyvyys logiikasta, toiveet tekoälylle, pelin tuntu (efektit, ajastin, ennätys), projektin tyyli, vienti käyttäjä-appiksi.
 
 ## Avoimet kysymykset
@@ -27,6 +28,9 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 - Tatin y on positiivinen alaspäin ja suunta 0 = ylös: käykö?
 - Isot kuvatiedostot hidastavat GitHub-tallennusta; SVG on kevyin.
 - Hakutaulukon ja monen haaran rivien rajoja ei voi ohjata ominaisuuksina.
+- Maailma (16.10.): osuma-alue ei kierry palikan mukana (kääntyvälle hahmolle ympyrä toimii parhaiten). Reitillä kulkeva ei törmää esteisiin (kiskoilla), mutta voi olla este muille: käykö?
+- Maailma (16.10.): tekstipohja ei tue muotoa {palikka.ominaisuus} (vanha rajoitus); arvot saa näkyviin Kaavan tuloksella.
+- Ei tarkistettu oikealla iPhonella: tatti ja napautus sormella, kuvasilmukan sujuvuus ja akun kulutus jatkuvassa liikkeessä, isot kuvasarjat.
 
 ## Emilin kommentit
 
