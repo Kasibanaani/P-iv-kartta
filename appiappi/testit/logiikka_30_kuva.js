@@ -3,7 +3,7 @@
 var KK=require('./moottori.js'),A=require('assert');
 var P=KK.newProject('k');var b=KK.addBlock(P,'pkuva',{});
 A.strictEqual(b.nm,'Kuva');A.strictEqual(b.sov,'contain');A.strictEqual(b.src,'');
-A.deepStrictEqual(KK.ports(b).ins.map(function(p){return p.p;}),['nk','hk','tx','vr','dx','dy','src']);A.deepStrictEqual(KK.ports(b).outs,[]);
+A.deepStrictEqual(KK.ports(b).ins.map(function(p){return p.p;}),['nk','hk','tx','vr','dx','dy','src','pk']);A.deepStrictEqual(KK.ports(b).outs,[]);
 A.strictEqual(KK.K.kuva.n,'Kuva vaihtuu','ketjun efekti ennallaan');
 var svg='<svg viewBox="0 0 1 1"><rect width="1" height="1"/></svg>';
 A.ok(KK.kuvaUrl(svg).indexOf('data:image/svg+xml;charset=utf-8,%3Csvg')===0);

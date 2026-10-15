@@ -20,6 +20,7 @@ async def pos(pg,id):
 async def tatti(pg,I,dx,dy,ms):
     tb=await pg.locator('.ue[data-id="%s"] .w-tatti'%I['tj']).bounding_box();cx,cy=tb['x']+tb['width']/2,tb['y']+tb['height']/2
     await pg.mouse.move(cx,cy);await pg.mouse.down();await pg.mouse.move(cx+tb['width']*dx,cy+tb['height']*dy,steps=4);await pg.wait_for_timeout(ms)
+    return tb
 async def main():
     async with async_playwright() as p:
         for W in (1440,390):
@@ -64,9 +65,8 @@ async def main():
             # Napautus painikkeeseen ei liikuta (tatti on painike-alue)
             # --- 3. Auto tatilla ---
             await pg.evaluate("(function(){var b=APP.P.b['%s'];b.ohj='auto';b.vm=200;b.kaa=180;b.ka='';APP.P.st['o:%s']={x:175,y:400};delete APP.P.st['%s'];KK.repair(APP.P);APP.renderAll();})()"%(I['li'],I['hm'],I['li']))
-            await tatti(pg,I,0,-0.45,600);q1=await pos(pg,I['hm'])
-            await pg.mouse.move(*(await keskus(pg,'.ue[data-id="%s"] .w-tatti'%I['tj'])),steps=1)
-            tb=await pg.locator('.ue[data-id="%s"] .w-tatti'%I['tj']).bounding_box();await pg.mouse.move(tb['x']+tb['width']*0.85,tb['y']+tb['height']*0.15,steps=3);await pg.wait_for_timeout(500)
+            tb=await tatti(pg,I,0,-0.45,600);q1=await pos(pg,I['hm'])
+            await pg.mouse.move(tb['x']+tb['width']*0.85,tb['y']+tb['height']*0.15,steps=3);await pg.wait_for_timeout(500)
             su=await P(pg,"E().val('%s','suu')"%I['li']);q2=await pos(pg,I['hm']);await pg.mouse.up();await pg.wait_for_timeout(200)
             print(W,'3 auto: ylös',q1[:2],'käännös suunta',su,q2);assert q1[1]<330 and abs(q1[0]-175)<1 and 30<su<170 and q2[0]>176
             print(W,'errs',errs);assert not errs;await b.close()

@@ -78,7 +78,7 @@ la.vx='0';KK.setOmi(S,ha.id,'x',500);KK.frame(S,0,C);es=KK.Ev(S,C);A.strictEqual
 al.osu='ympyra';KK.setOmi(S,ha.id,'x',100-10+5);KK.setOmi(S,ha.id,'y',-50-10+5);KK.frame(S,0,C);es=KK.Ev(S,C);A.strictEqual(es.val(al.id),false,'ellipsin kulma');
 al.osu='laatikko';KK.frame(S,0,C);es=KK.Ev(S,C);A.strictEqual(es.val(al.id),true,'laatikon kulma');
 // Kaavassa
-A.strictEqual(KK.kaavaToIds(S,'{'+al.vt+'.montako}').length>0,true);
+var kv=LB(S,'kaava',{});kv.f=KK.kaavaToIds(S,al.vt+'.montako');KK.repair(S);A.strictEqual(KK.Ev(S,C).val(kv.id),1,'kaavassa .montako');
 // Korjaus: kuka poistettu, kirjanpito siivotaan
 KK.removeBlock(S,ha.id);KK.repair(S);A.strictEqual(al.kuka,undefined);A.deepStrictEqual(KK.alueTila(S,al.id),[]);
 S.st['al:'+al.id]='rikki';KK.repair(S);A.strictEqual(S.st['al:'+al.id],undefined);
