@@ -20,8 +20,8 @@ async def gh(route,request):
     p=m.group(2)
     if p is None:return await js(200,{'full_name':'Testi/master-tiedot','private':True,'permissions':{'push':True}})
     if request.method=='GET':
-        if p=='pajakone':
-            l=[{'name':k.split('/')[-1],'path':k} for k in REPO if k.startswith('pajakone/')]
+        if p=='appiappi':
+            l=[{'name':k.split('/')[-1],'path':k} for k in REPO if k.startswith('appiappi/')]
             return await js(200 if l else 404,l)
         if p in REPO:return await js(200,{'content':b64(REPO[p][0]),'sha':REPO[p][1]})
         return await js(404,{})
@@ -49,7 +49,7 @@ async def main():
         print('2 muutoksen jälkeen:',await pg.inner_text('#kstat'),'| punainen:',await pg.evaluate("document.querySelector('#kstat').classList.contains('dirty')"))
         async with pg.expect_download() as d:await pg.click('#bkbtn')
         dl=await d.value;txt=open(await dl.path(),encoding='utf8').read();o=json.loads(txt)
-        print('3 varmuuskopio:',dl.suggested_filename.startswith('pajakone-varmuuskopio-'),'| projekteja:',len(o['projects']),'| tila:',await pg.inner_text('#kstat'))
+        print('3 varmuuskopio:',dl.suggested_filename.startswith('appiappi-varmuuskopio-'),'| projekteja:',len(o['projects']),'| tila:',await pg.inner_text('#kstat'))
         await ctx.close()
         # 2 Masterin asetukset samassa selaimessa → käyttöön, automaattinen tallennus
         ctx,pg,errs2=await uusi(b);errs+=errs2
@@ -57,7 +57,7 @@ async def main():
         await pg.goto(U);await pg.wait_for_timeout(300)
         print('4 masterin asetukset käytössä:',await pg.evaluate("APP.gh.repo"),'| tila näkyy:',await pg.is_visible('#ghbtn'))
         await pg.click('#wexample');await pg.wait_for_timeout(3300)
-        pid=await pg.evaluate("APP.P.id");path='pajakone/'+pid+'.json'
+        pid=await pg.evaluate("APP.P.id");path='appiappi/'+pid+'.json'
         f=json.loads(REPO[path][0]) if path in REPO else {}
         print('5 tallennettu GitHubiin:',path in REPO,'| app:',f.get('app'),'| palikoita:',len(f.get('projekti',{}).get('b',{})),'| ei kameroita:', 'cam' not in f.get('projekti',{}) and 'lcam' not in f.get('projekti',{}),'| tila:',await pg.inner_text('#ghbtn'))
         # käyttö tallentuu GitHubiin
@@ -91,7 +91,7 @@ async def main():
         await ctx.close()
         # 5 toinen selain: pelkät asetukset → projekti haetaan itsestään; poistettua ei haeta uudelleen
         ctx,pg,errs2=await uusi(b,1280);errs+=errs2
-        await pg.add_init_script("if(!localStorage.getItem('pajakone:gh'))localStorage.setItem('pajakone:gh',JSON.stringify({repo:'Testi/master-tiedot',token:'github_pat_TESTI',auto:true}))")
+        await pg.add_init_script("if(!localStorage.getItem('appiappi:gh'))localStorage.setItem('appiappi:gh',JSON.stringify({repo:'Testi/master-tiedot',token:'github_pat_TESTI',auto:true}))")
         await pg.goto(U);await pg.wait_for_timeout(500)
         print('14 haettu uuteen selaimeen:',await pg.evaluate("APP.data.projects.map(p=>p.name)"),'| käyttötiedot mukana:',await pg.evaluate("Object.keys(APP.data.projects[0].st).length")==st,'| sama id:',await pg.evaluate("APP.data.projects.some(p=>p.id===%s)"%json.dumps(pid)))
         pg.once('dialog',lambda d:asyncio.ensure_future(d.accept()))

@@ -16,8 +16,8 @@ async def gh(route,request):
     p=m.group(2)
     if p is None:return await js(200,{'full_name':'Testi/master-tiedot','private':True,'permissions':{'push':True}})
     if request.method=='GET':
-        if p=='pajakone':
-            l=[{'name':k.split('/')[-1],'path':k} for k in REPO if k.startswith('pajakone/')];return await js(200 if l else 404,l)
+        if p=='appiappi':
+            l=[{'name':k.split('/')[-1],'path':k} for k in REPO if k.startswith('appiappi/')];return await js(200 if l else 404,l)
         if p in REPO:return await js(200,{'content':b64(REPO[p][0]),'sha':REPO[p][1]})
         return await js(404,{})
     if request.method=='PUT':
@@ -42,7 +42,7 @@ async def main():
         for W in (1440,1280):
             REPO.clear()
             # --- 1 vanha kartta aukeaa ---
-            ctx,pg,errs=await uusi(b,"if(!localStorage.getItem('testi:x')){localStorage.setItem('testi:x','1');localStorage.setItem('pajakone.v1',%s);}"%json.dumps(OLD),W)
+            ctx,pg,errs=await uusi(b,"if(!localStorage.getItem('testi:x')){localStorage.setItem('testi:x','1');localStorage.setItem('appiappi.v1',%s);}"%json.dumps(OLD),W)
             nm=await pg.inner_text('#projbtn');n=await pg.locator('#uels .ue').count();print(W,'1 vanha avautui:',nm.strip(),n);assert 'Esimerkki' in nm and n>=10
             await pg.click('#tabs [data-t="logiikka"]');await pg.wait_for_timeout(300);ln=await pg.locator('#lworld .ln').count();assert ln>=20
             await pg.screenshot(path='versio611_vanha_logiikka_%d.png'%W)
@@ -59,14 +59,14 @@ async def main():
             ks=await P(pg,"[KK.chainList(P).map(c=>c.nm),KK.chainSteps(P,'%s').length]"%kid);print(W,'3 ketju säilyi:',ks)
             assert ks==[['Muistutus'],2]
             # --- 3 GitHub: ketju ja ajotila ---
-            await pg.evaluate("localStorage.setItem('pajakone:gh',JSON.stringify({repo:'Testi/master-tiedot',token:'github_pat_TESTI',auto:true}))")
+            await pg.evaluate("localStorage.setItem('appiappi:gh',JSON.stringify({repo:'Testi/master-tiedot',token:'github_pat_TESTI',auto:true}))")
             await pg.wait_for_timeout(300);await pg.reload();await pg.wait_for_timeout(400)
             await pg.click('#lockbtn');await pg.wait_for_timeout(150);await pg.click('.ue[data-id="%s"] [data-act="press"]'%tid);await pg.wait_for_timeout(3200)
-            pid=await pg.evaluate("APP.P.id");f=REPO.get('pajakone/%s.json'%pid);assert f,'tallentui GitHubiin'
+            pid=await pg.evaluate("APP.P.id");f=REPO.get('appiappi/%s.json'%pid);assert f,'tallentui GitHubiin'
             pj=json.loads(f[0])['projekti'];run=pj['st'][kid]['run'];tk=pj['st'][kid]['tk'];print(W,'4 GitHubissa:',pj['b'][kid]['k'],run,len(tk),'u' in tk[0]);assert pj['b'][kid]['k']=='ketju' and run and 'u' in tk[0]
             await ctx.close()
             # toinen selain hakee projektin GitHubista ja ketju jatkuu
-            ctx2,pg2,errs2=await uusi(b,"if(!localStorage.getItem('testi:y')){localStorage.setItem('testi:y','1');localStorage.setItem('pajakone:gh',JSON.stringify({repo:'Testi/master-tiedot',token:'github_pat_TESTI',auto:false}));}",W)
+            ctx2,pg2,errs2=await uusi(b,"if(!localStorage.getItem('testi:y')){localStorage.setItem('testi:y','1');localStorage.setItem('appiappi:gh',JSON.stringify({repo:'Testi/master-tiedot',token:'github_pat_TESTI',auto:false}));}",W)
             await pg2.wait_for_timeout(1500)
             got=await pg2.evaluate("APP.data.projects.map(p=>[p.name,Object.values(p.b).filter(b=>b.k==='ketju').length])");print(W,'5 toinen selain:',got);assert ['Esimerkki: viikon tehtävät',1] in got
             await pg2.evaluate("(function(){var d=APP.data;d.cur=d.projects.find(p=>p.name.indexOf('Esimerkki')===0).id;APP.saveNow();})()");await pg2.wait_for_timeout(300);await pg2.reload();await pg2.wait_for_timeout(1800)

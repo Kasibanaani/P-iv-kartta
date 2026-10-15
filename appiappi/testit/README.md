@@ -1,8 +1,8 @@
-# Pajakoneen testit
+# Appi-appin testit (entinen Pajakone)
 
-Pajakone on tehty Kytköskartan kopiona (15.10.2026), joten testit 01–26 (logiikka) ja 01–30 (selain) ovat Kytköskartan testejä. Ne on sovitettu Pajakoneen omiin tallennusavaimiin (`pajakone.v1`, `pajakone:gh`, `pajakone:appearance`) ja GitHub-kansioon `pajakone/`. Pajakoneen omat testit alkavat numeroista 27 ja 31.
+Pajakone on tehty Kytköskartan kopiona (15.10.2026), joten testit 01–26 (logiikka) ja 01–30 (selain) ovat Kytköskartan testejä. Ne on sovitettu Pajakoneen omiin tallennusavaimiin (nyt `appiappi.v1`, `appiappi:gh`, `appiappi:appearance`) ja GitHub-kansioon `appiappi/`. Pajakoneen omat testit alkavat numeroista 27 ja 31.
 
-Aja kaikki: `sh pajakone/testit/aja.sh` (vaatii Noden ja Pythonin Playwrightin Chromiumilla).
+Aja kaikki: `sh appiappi/testit/aja.sh` (vaatii Noden ja Pythonin Playwrightin Chromiumilla).
 
 Skripti poimii `index.html`:n lohkot `engine` (moottori) ja `ui` (käyttöliittymä) tiedostoiksi `moottori.js` ja `ui.js`, tarkistaa niiden syntaksin ja ajaa testit.
 
@@ -112,3 +112,5 @@ Asetuksissa on rakennusympäristön ja projektin käyttönäkymän erilliset val
 
 - `logiikka_32_ominaisuudet.js` – ominaisuusrekisteri (`KK.omat`): painikkeen `.kesto` ja ajastimen `.jäljellä` kaavassa (aiemmat aukot), virhe luettelee palikan ominaisuudet; ulkomuoto (x, y, leveys, korkeus, väri 1–8, läpinäkyvyys, järjestys, koko, lihavoitu, tasaus, muoto) perusarvona, toiminnolla (Aseta, Lisää, Aseta tila, Vaihda) ja ohjattuna kohtaan `o_<avain>`; etusija ohjattu > asetettu > perusarvo; Palauta yksi ja kaikki; kehä; käytössä logiikasta (toiminto ohitetaan); säätimen rajat logiikasta ja lukukentän pienin/suurin; listan `rivi2`, `rivi2.rastitettu`, `rivi2.pvm`, `.myöhässä`, `.seuraava`; aikajanan `viimeisin.teksti`, `viimeisin.aika`, `.tänään`; ikkunan `.pätee`, `.jäseniä` ja raja N kaavasta; hakutaulukon `.rivi`; monen haaran `.haara` ja `.haaranimi`; Arvo-palikan yksikkö (2 min = 120 s), Muutos ajassa minuutteina ja `.kulunut`, ajastimen kesto aika-arvosta sekunteina ja pelkästä luvusta omassa yksikössään; kertapainalluksen kyllä ↔ ei (määrä säilyy, VAIN YKSI, Aseta tila, Vaihda, repair); ympäristö `ruutu.leveys`, `näkymä`, `nyt.tunti`, `tumma` ja varatut viitteet; Siirry x kaavasta; monipisteiset tokenit; repair (`ohk`, `o:`, `as:`).
 - `selain_38_ominaisuudet.py` – tietokone (1440 vaalea, 1280 tumma): Ominaisuudet-osio kiinni, viitteet, ƒ tekee kaavan leveydelle, muokatessa perusarvo ja ƒ-merkki, käytössä ohjattu leveys, kertapainallus vaihtaa kyllä/ei ja palautuu ylös, Aseta läpinäkyvyys painalluksesta, `ruutu.leveys` laitenäkymässä, toiminnon Mitä muutetaan -valinta ja kuvaus, kyllä vihreä / ei sininen, Arvon yksikkö, Palauta; puhelin (390 ja 320, kosketus): ohjattu leveys käytössä, kertapainallus, Ominaisuudet-osio paneelissa ilman vaakavieritystä.
+
+- `selain_39_appiappi.py` – Appi-appi 0: nimenvaihto, Pajakoneen tietojen siirto samasta selaimesta (projektit, ilme, GitHub-avain; Pajakoneen tiedot ennalleen) ja GitHubin kansiosta pajakone/ kerran kansioon appiappi/, poistettu ei palaa, vanha osoite ohjaa uuteen

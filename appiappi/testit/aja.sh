@@ -1,5 +1,5 @@
 #!/bin/sh
-# Ajaa Pajakoneen testit. Käyttö: sh pajakone/testit/aja.sh
+# Ajaa Appi-appin testit. Käyttö: sh appiappi/testit/aja.sh
 # Vaatii: node, python3 + playwright (Chromium).
 cd "$(dirname "$0")" || exit 1
 python3 - <<'PY' || exit 1

@@ -23,15 +23,15 @@ async def run():
   # Both sides share the same options, but choosing one does not change the other.
   assert await pg.locator('[data-ap-theme] strong').all_text_contents()==await pg.locator('button[data-view-theme] strong').all_text_contents()
   blocks=await pg.evaluate('JSON.stringify([APP.P.b,APP.P.st,APP.P.mem,APP.P.lg])')
-  editor=await pg.evaluate("localStorage.getItem('pajakone:appearance')")
+  editor=await pg.evaluate("localStorage.getItem('appiappi:appearance')")
   for mode in ['light','dark']:
    await pg.click('[data-view-mode="'+mode+'"]')
    for theme in ['forest','lake','plum','sand','rose','graphite','lagoon','lavender','olive','copper']:
-    editor=await pg.evaluate("localStorage.getItem('pajakone:appearance')")
+    editor=await pg.evaluate("localStorage.getItem('appiappi:appearance')")
     await pg.click('button[data-view-theme="'+theme+'"]')
     assert await pg.get_attribute('html','data-view-theme')==theme
     assert await pg.evaluate('JSON.stringify([APP.P.b,APP.P.st,APP.P.mem,APP.P.lg])')==blocks
-    assert await pg.evaluate("localStorage.getItem('pajakone:appearance')")==editor
+    assert await pg.evaluate("localStorage.getItem('appiappi:appearance')")==editor
     assert await pg.evaluate('APP.P.appearance')=={'mode':mode,'theme':theme}
     await pg.click('[data-ap-mode="'+mode+'"]');await pg.click('[data-ap-theme="'+theme+'"]')
     assert await pg.evaluate("['bg','cell','label','label2','sep','accent','fill','tint'].every(k=>getComputedStyle(document.documentElement).getPropertyValue('--'+k)===getComputedStyle(document.documentElement).getPropertyValue('--ap-'+k))")
@@ -55,7 +55,7 @@ async def run():
    await pg.set_viewport_size({'width':w,'height':844});await pg.click('[data-ap-theme="graphite"]');r=await pg.locator('#sheet').bounding_box();assert r['x']>=0 and r['x']+r['width']<=w+1
   assert not errs,errs
   await ctx.close()
-  for init in ["localStorage.setItem('pajakone:appearance','broken')","Storage.prototype.getItem=function(){throw Error('blocked')};Storage.prototype.setItem=function(){throw Error('blocked')}"]:
+  for init in ["localStorage.setItem('appiappi:appearance','broken')","Storage.prototype.getItem=function(){throw Error('blocked')};Storage.prototype.setItem=function(){throw Error('blocked')}"]:
    c=await b.new_context(viewport={'width':1440,'height':1000});await c.add_init_script(init);q=await c.new_page();await q.goto(U);await q.click('#wexample');await q.click('#setbtn');await q.click('[data-ap-theme="graphite"]');assert await q.get_attribute('html','data-appearance-theme')=='graphite';await c.close()
   await b.close();print('OK: 20 editor + 20 project theme/mode pairs, contrast >=4.5, project data and widget colors unchanged, neutral tools, saved settings, auto mode, existing settings, 390/320 px and blocked/invalid storage.')
 asyncio.run(run())

@@ -102,7 +102,7 @@ async def main():
             await pg.click('#lockbtn');await pg.wait_for_timeout(150)
             # --- 7. Tallennus omalla avaimella; Kytköskartan avainta ei luoda ---
             await pg.evaluate("APP.saveNow&&APP.saveNow()")
-            ks=await pg.evaluate("[!!localStorage.getItem('pajakone.v1'),localStorage.getItem('kytkoskartta.v1')]")
+            ks=await pg.evaluate("[!!localStorage.getItem('appiappi.v1'),localStorage.getItem('kytkoskartta.v1')]")
             assert ks[0] and ks[1] is None,ks
             await pg.reload();await pg.wait_for_timeout(300)
             assert await P(pg,"P.views[0].laite")=='ipadv'
