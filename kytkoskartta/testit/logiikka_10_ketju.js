@@ -7,7 +7,7 @@ var P=KK.newProject('ketju');
 var k=KK.addBlock(P,'ketju');A.strictEqual(k.nm,'Ketju');A.strictEqual(k.uusi,'ohita');A.ok(KK.isWin(k));A.ok(!KK.isStep(k));
 var wn=KK.addNode(P,k.id,100,100);A.strictEqual(wn.w,340);A.strictEqual(wn.h,200);
 A.strictEqual(KK.addNode(P,k.id,0,0),wn,'ketjulla on vain yksi esiintymä kuten ikkunalla');
-var pr=KK.ports(k);A.deepStrictEqual(pr.ins.map(function(p){return p.p+':'+p.t;}),['e:e','x:e']);A.deepStrictEqual(pr.outs.map(function(p){return p.p+':'+p.t;}),['v:v','e:e']);
+var pr=KK.ports(k);A.deepStrictEqual(pr.ins.map(function(p){return p.p+':'+p.t;}),['e:e','x:e']);A.deepStrictEqual(pr.outs.map(function(p){return p.p+':'+p.t;}),['v:v','t:v','e:e'],'versio 7.4: tulos-kohta');
 
 var r=KK.addBlock(P,'ruutu'),s1=KK.addBlock(P,'tee',{do:'valitse',o:r.id}),s2=KK.addBlock(P,'tee',{do:'aseta',o:'',v:'3'}),s3=KK.addBlock(P,'tee',{do:'ilmoita',tx:'hei'});
 var n1=KK.addNode(P,s1.id,120,150,wn.id),n2=KK.addNode(P,s2.id,120,230,wn.id),n3=KK.addNode(P,s3.id,300,230,wn.id);

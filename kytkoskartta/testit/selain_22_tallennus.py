@@ -38,7 +38,7 @@ async def main():
         for W in (1440,1280):
             REPO.clear()
             # --- 1 vanha kartta aukeaa ---
-            ctx,pg,errs=await uusi(b,"if(!sessionStorage.getItem('x')){sessionStorage.setItem('x','1');localStorage.setItem('kytkoskartta.v1',%s);}"%json.dumps(OLD),W)
+            ctx,pg,errs=await uusi(b,"if(!localStorage.getItem('testi:x')){localStorage.setItem('testi:x','1');localStorage.setItem('kytkoskartta.v1',%s);}"%json.dumps(OLD),W)
             nm=await pg.inner_text('#projbtn');n=await pg.locator('#uels .ue').count();print(W,'1 vanha avautui:',nm.strip(),n);assert 'Esimerkki' in nm and n>=10
             await pg.click('#tabs [data-t="logiikka"]');await pg.wait_for_timeout(300);ln=await pg.locator('#lworld .ln').count();assert ln>=20
             await pg.screenshot(path='versio611_vanha_logiikka_%d.png'%W)
@@ -51,22 +51,24 @@ async def main():
             kid=await pg.evaluate("""(function(){var P=APP.P;var lst=Object.values(P.b).find(b=>b.k==='lista');var k=KK.addBlock(P,'ketju',{nm:'Muistutus'});var w=KK.addNode(P,k.id,40,900);
               var t=KK.addBlock(P,'ajastin',{kesto:4}),r=KK.addBlock(P,'tee',{do:'rivi',o:lst.id,tx:'Muista tauko'});var nt=KK.addNode(P,t.id,60,950,w.id),nr=KK.addNode(P,r.id,60,1020,w.id);KK.addLink(P,nt.id,'e',nr.id,'e');
               var bt=Object.values(P.b).find(b=>b.nm==='Taukonappi');KK.addLink(P,P.lg.n.find(n=>n.p===bt.id).id,'e',w.id,'e');APP.saveNow();return k.id;})()""")
-            await pg.reload();await pg.wait_for_timeout(350)
-            ks=await P(pg,"[KK.chainList(P).map(c=>c.nm),KK.chainSteps(P,'%s').length]"%kid);print(W,'3 ketju säilyi:',ks);assert ks==[['Muistutus'],2]
+            await pg.wait_for_timeout(300);await pg.reload();await pg.wait_for_timeout(350)
+            ks=await P(pg,"[KK.chainList(P).map(c=>c.nm),KK.chainSteps(P,'%s').length]"%kid);print(W,'3 ketju säilyi:',ks)
+            assert ks==[['Muistutus'],2]
             # --- 3 GitHub: ketju ja ajotila ---
             await pg.evaluate("localStorage.setItem('kytkoskartta:gh',JSON.stringify({repo:'Testi/master-tiedot',token:'github_pat_TESTI',auto:true}))")
-            await pg.reload();await pg.wait_for_timeout(400)
+            await pg.wait_for_timeout(300);await pg.reload();await pg.wait_for_timeout(400)
             await pg.click('#lockbtn');await pg.wait_for_timeout(150);await pg.click('.ue[data-id="%s"] [data-act="press"]'%tid);await pg.wait_for_timeout(3200)
             pid=await pg.evaluate("APP.P.id");f=REPO.get('kytkoskartta/%s.json'%pid);assert f,'tallentui GitHubiin'
             pj=json.loads(f[0])['projekti'];run=pj['st'][kid]['run'];tk=pj['st'][kid]['tk'];print(W,'4 GitHubissa:',pj['b'][kid]['k'],run,len(tk),'u' in tk[0]);assert pj['b'][kid]['k']=='ketju' and run and 'u' in tk[0]
             await ctx.close()
             # toinen selain hakee projektin GitHubista ja ketju jatkuu
-            ctx2,pg2,errs2=await uusi(b,"if(!sessionStorage.getItem('y')){sessionStorage.setItem('y','1');localStorage.setItem('kytkoskartta:gh',JSON.stringify({repo:'Testi/master-tiedot',token:'github_pat_TESTI',auto:false}));}",W)
+            ctx2,pg2,errs2=await uusi(b,"if(!localStorage.getItem('testi:y')){localStorage.setItem('testi:y','1');localStorage.setItem('kytkoskartta:gh',JSON.stringify({repo:'Testi/master-tiedot',token:'github_pat_TESTI',auto:false}));}",W)
             await pg2.wait_for_timeout(1500)
             got=await pg2.evaluate("APP.data.projects.map(p=>[p.name,Object.values(p.b).filter(b=>b.k==='ketju').length])");print(W,'5 toinen selain:',got);assert ['Esimerkki: viikon tehtävät',1] in got
-            await pg2.evaluate("(function(){var d=APP.data;d.cur=d.projects.find(p=>p.name.indexOf('Esimerkki')===0).id;})()");await pg2.reload();await pg2.wait_for_timeout(1800)
+            await pg2.evaluate("(function(){var d=APP.data;d.cur=d.projects.find(p=>p.name.indexOf('Esimerkki')===0).id;APP.saveNow();})()");await pg2.wait_for_timeout(300);await pg2.reload();await pg2.wait_for_timeout(1800)
             rows=await pg2.evaluate("(function(){var P=APP.data.projects.find(p=>p.name.indexOf('Esimerkki')===0);var l=Object.values(P.b).find(b=>b.k==='lista');return [KK.listRows(P,l.id).map(r=>r.tx).slice(-1)[0],P.st['%s'].run];})()"%kid)
-            print(W,'6 jatkui toisessa selaimessa:',rows);assert rows==['Muista tauko',False]
+            print(W,'6 jatkui toisessa selaimessa:',rows)
+            assert rows==['Muista tauko',False]
             # --- 4 varmuuskopio toiseen selaimeen ---
             async with pg2.expect_download() as d:await pg2.click('#bkbtn')
             fp=await (await d.value).path()

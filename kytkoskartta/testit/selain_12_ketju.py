@@ -70,7 +70,7 @@ async def main():
             await veda(pg,[a['x']+6,a['y']+6],[t['x']+6,t['y']+6])
             st=await P(pg,"P.lg.l.filter(l=>!KK.isChainLink(P,l)).length");ev=await pg.locator('#lsvg path.lk.ev').count();print(W,'10 tavallinen nuoli:',st,ev);assert st==1 and ev==1
             # --- tallennus ja uudelleenavaus ---
-            await pg.evaluate("APP.saveNow()");await pg.reload();await pg.wait_for_timeout(300)
+            await pg.evaluate("APP.saveNow()");await pg.wait_for_timeout(300);await pg.reload();await pg.wait_for_timeout(300)
             if await pg.locator('#tabs [data-t="logiikka"]').count():await pg.click('#tabs [data-t="logiikka"]');await pg.wait_for_timeout(250)
             st=await P(pg,"[Object.values(P.b).filter(b=>b.k==='ketju').length,KK.chainSteps(P,'%s').length,P.lg.l.filter(l=>KK.isChainLink(P,l)).length]"%kid);print(W,'11 uudelleen:',st);assert st==[1,3,2]
             ok=await pg.locator('#lworld .lw.kt').count();assert ok==1

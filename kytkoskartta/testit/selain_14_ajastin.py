@@ -46,7 +46,7 @@ async def main():
             rr=await rows();run=await pg.locator('#lworld .ln.krun').count();print(W,'6 ajan kuluttua:',rr,run);assert rr==['Ennen','Jälkeen'] and run==0
             # --- uudelleenlataus kesken odotuksen ---
             await pg.evaluate("KK.nodeOf(APP.P,'%s')&&(APP.P.b[KK.nodeOf(APP.P,'%s').p].kesto=3)"%(tn,tn))
-            await pg.click('#lworld [data-nid="%s"] [data-kplay]'%wid);await pg.wait_for_timeout(200);await pg.evaluate("APP.saveNow()")
+            await pg.click('#lworld [data-nid="%s"] [data-kplay]'%wid);await pg.wait_for_timeout(200);await pg.evaluate("APP.saveNow()");await pg.wait_for_timeout(300)
             await pg.reload();await pg.wait_for_timeout(400)
             rr=await rows();runv=await P(pg,"P.st['%s'].run"%kid);print(W,'7 latauksen jälkeen:',rr,runv);assert rr==['Ennen','Jälkeen','Ennen'] and runv
             await pg.wait_for_timeout(3200)
