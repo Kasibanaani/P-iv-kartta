@@ -68,6 +68,39 @@ Emilin linjaukset ennen rakentamista (16.10.2026, kaikki tekoälyn suositukset):
 
 **Kokeet:** kohde ei hyppää sormen keskelle; peruutettu kosketus; zoomattu kamera ja lukittu kojelauta; muodon ulkopuolinen napautus; toistuvan rivikortin siirto; lajittelu myös painikkeilla/näppäimistöllä, kun raahaus ei ole mahdollinen.
 
+### Toteutus 16.10.2026 (Appi-appi 19): käyttöraahaus, ensimmäinen osa
+
+Emil antoi luvan tehdä F12:n. Tekniset ratkaisut ovat tekoälyn.
+
+- Näkymäpalikan paneelissa on osio *Käyttöraahaus*. Valinnat: **Raahattava käytössä** (`raah`), **Suunta** (Vapaa / Vain vaaka / Vain pysty, `rax` = `x`|`y`), **Kohdista ruudun keskelle** (`rko`, näkyy vain, kun kerroksella on ruudukko) ja **Pudotus** (Minne vain / Vain alueisiin, `rpa` = `alue`). Merkki, Alue, Toistin ja kortin palikat eivät ole raahattavia.
+- Muokkausraahaus on ennallaan. Käyttöraahaus toimii vain lukittuna.
+- Palikka seuraa osoitinta tartuntakohdasta. Alle 6 px liike on tavallinen napautus, joten raahattava painike painuu yhä, eikä raahaus paina sitä.
+- Liike lasketaan palikan oman ruutumittakaavan kautta, joten zoomaus ja kojelauta eivät vääristä sitä.
+- Toinen sormi (nipistys) tai keskeytynyt kosketus perii raahauksen.
+- **Paikka on käyttötietoa:** pudotus asettaa toiminnon tason x:n ja y:n (`setOmi`). Rakenne ei muutu, ja käyttötietojen tyhjennys palauttaa alkupaikan.
+- **Moottori ratkaisee pudotuksen** (`raahausPaikka`, `raahausPudotus`, `raahausPeruttu` ja `raahausAlku` KK:ssa):
+  - Suunta lukitsee akselin.
+  - Ruudukossa keskipiste kohdistetaan ruudun keskelle.
+  - Kohde on pienin Alue, jonka sisään keskipiste osuu (laatikko tai ympyrä).
+  - Jos pudotus menee vain alueisiin ja alueen ulkopuolelle, palikka palaa paikalleen.
+- **Portit ja tapahtuman tiedot:**
+  - Tapahtumat *raahaus alkoi*, *pudotettu* ja *raahaus peruttu*.
+  - Tapahtuman tiedoissa uudet kentät `tapahtuma.x`, `.y`, `.ruutux` ja `.ruutuy` (ruudut 1:stä alkaen) sekä `tapahtuma.kohde` (Alueen nimi).
+  - Sovellussääntö (luokittelu, tietorivin siirto) rakennetaan ketjussa näiden varaan.
+
+**Ei tehty tässä osassa:**
+- jatkuva *sijainti*-tapahtuma raahauksen aikana
+- kuvan toimintoalueet ja monikulmio- tai vapaamuotoinen alue
+- rivikortin siirto ja lajittelu sekä lajittelu painikkeilla tai näppäimistöllä
+- raahausrajat (min/max) muuten kuin Alueiden kautta
+- vieritys reunalle raahattaessa
+- pudotuskohteen korostus raahauksen aikana
+
+**Ei tarkistettu:**
+- oikea iPhone ja Safari
+- pitkä painallus raahattavassa painikkeessa
+- raahaus liikkuvalla (Liike) palikalla
+
 ## Suhteellinen ja mukautuva asettelu (F13)
 
 **Rakentaja:** ryhmäkohtainen Vapaa/Rivi/Sarake/Ruudukko. Näytä vain valitun tavan asetukset: väli, reunus, tasaus, rivitys, min/max-koko ja sisällön mukaan kasvaminen. Vapaa kanvaasi pysyy ensiluokkaisena; nykyiset kertaluonteiset tasaus- ja monistustyökalut säilyvät.

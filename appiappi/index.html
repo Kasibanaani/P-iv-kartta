@@ -193,6 +193,9 @@ button{cursor:pointer}
 .edit .ue{cursor:move}
 .edit .ue .in{pointer-events:none}
 .edit .ue.sel{outline:2px solid var(--accent);outline-offset:3px;border-radius:12px}
+/* F12: käyttöraahaus */
+.ue.raah{touch-action:none;cursor:grab}
+.ue.raahataan{z-index:50;cursor:grabbing;filter:drop-shadow(0 8px 16px rgba(0,0,0,.25))}
 .edit .ue:hover:not(.sel){outline:1px dashed var(--label3);outline-offset:3px;border-radius:12px}
 .ue .rh{display:none;position:absolute;right:-9px;bottom:-9px;width:14px;height:14px;border-radius:5px;background:var(--cell);border:2px solid var(--accent);cursor:nwse-resize;z-index:3}
 .edit .ue.sel .rh{display:block}
@@ -1039,6 +1042,8 @@ function portsBase(b){
     else if(k==='tatti')outs=[V('v','etäisyys'),V('x','vaaka'),V('y','pysty'),V('s','suunta'),E('e','alkaa'),E('irti','loppuu')];
     else if(k==='ilmo')outs=[V('v','näkyy')];
     else outs=[V('v','arvo')];
+    /* F12: käyttöraahaus */
+    if(b.raah===true&&k!=='merkki'&&k!=='alue')outs.push(E('ral','raahaus alkoi'),E('rpu','pudotettu'),E('rpe','raahaus peruttu'));
     return {ins:ins,outs:outs};
   }
   switch(k){
@@ -1179,7 +1184,7 @@ function omat(b){
     case 'taulu':r=r.filter(function(e){return e.p!=='arvo';});pt('v','rivejä','rivien määrä',['riveja','rivit','arvo']);pt('nro','valittunro','valitun rivin numero (0 = ei valittua)');
       cl('valittu','valittu','arvo','valittu rivi (riviviite)');r.push(OM('valittu.sarake','valittu.<sarake>, <sarake>.summa, .keskiarvo, .suurin, .pienin, .havaintoja, .puuttuvia','arvo',{dyn:1,d:'valitun rivin kenttä ja sarakkeen koosteet'}));break;
     case 'tapaht':r=r.filter(function(e){return e.p!=='arvo';});r.push(OM('uusi','uusi','arvo',{port:'v',al:['arvo'],d:'uusi arvo tapahtumahetkellä'}));pt('vanha','vanha','arvo ennen tapahtumaa');pt('rivi','rivi','tapahtuman rivi (riviviite)');
-      cl('lähde','lähde','teksti','palikka, josta tapahtuma lähti',['lahde']);cl('aika','aika','teksti','tapahtuman kellonaika');cl('päivä','päivä','pvm','tapahtuman päivä',['paiva']);cl('tunniste','tunniste','teksti','tapahtuman tunniste');cl('kohde','kohde','teksti','Liikkeen törmäsi: palikka, johon törmättiin');cl('isku','isku','luku','Liikkeen törmäsi: kuinka kovaa (px/s)');
+      cl('lähde','lähde','teksti','palikka, josta tapahtuma lähti',['lahde']);cl('aika','aika','teksti','tapahtuman kellonaika');cl('päivä','päivä','pvm','tapahtuman päivä',['paiva']);cl('tunniste','tunniste','teksti','tapahtuman tunniste');cl('kohde','kohde','teksti','Liikkeen törmäsi: palikka, johon törmättiin; pudotettu: Alue, johon pudotettiin');cl('x','x','luku','pudotettu: palikan uusi x');cl('y','y','luku','pudotettu: palikan uusi y');cl('ruutux','ruutux','luku','pudotettu: ruudukon ruutu vaakaan (1 = ensimmäinen)');cl('ruutuy','ruutuy','luku','pudotettu: ruudukon ruutu pystyyn (1 = ensimmäinen)');cl('isku','isku','luku','Liikkeen törmäsi: kuinka kovaa (px/s)');
       cl('on','on','kylla','onko tapahtumaa (ei = tapahtuman ulkopuolella)');cl('taulukko','taulukko','teksti','tapahtuman rivin taulukko');r.push(OM('rivi.sarake','rivi.<sarake>','arvo',{dyn:1,d:'tapahtuman rivin kenttä nyt (sarakkeen viite)'}));break;
     /* P3a */
     case 'trivi':r=r.filter(function(e){return e.p!=='arvo';});pt('v','rivi','rivi (riviviite)',['arvo']);cl('nro','nro','luku','rivin numero taulukossa (0 = ei riviä)');cl('on','on','kylla','onko riviä nyt');
@@ -1865,6 +1870,29 @@ function liikeAskel(P,b,ev,dt,rect,R,esteet,lim,fires){var id=b.id,st=liikeSt(P,
   var keys={};Object.keys(st).concat(Object.keys(ns)).forEach(function(k){keys[k]=1;});
   if(Object.keys(keys).some(function(k){return st[k]!==ns[k];})){P.st[id]=ns;changed=true;}
   return changed;}
+/* ---------- F12: käyttöraahaus (Appi-appi 19) ----------
+   Näkymäpalikka, jolla b.raah = true, on lukitussa käytössä raahattava. b.rax = 'x' (vain vaakaan) | 'y' (vain pystyyn) |
+   puuttuva (vapaasti), b.rko = true: pudotus kohdistuu kerroksen ruudukon ruudun keskelle, b.rpa = 'alue': pudotus
+   hyväksytään vain Alue-palikan sisään (muuten palikka jää paikalleen ja tulee raahaus peruttu). Paikka kirjoitetaan
+   käyttötietoon (ominaisuudet x ja y toiminnon tasolla), rakenne ei muutu. Tapahtumat raahaus alkoi, pudotettu ja raahaus
+   peruttu; tapahtuman tiedoissa kohde (pienin Alue, jonka sisään keskipiste osui), x, y, ruutux ja ruutuy. */
+function raahattava(P,b){return !!(b&&b.raah===true&&K[b.k]&&K[b.k].g==='ui'&&b.k!=='merkki'&&b.k!=='alue'&&b.k!=='toistin'&&!tstOf(P,b));}
+function raahausAlueet(P,b,ev,cx,cy){var hit=[];Object.keys(P.b).forEach(function(id){var a=P.b[id];if(a.k!=='alue'||a.v!==b.v||id===b.id)return;var r=rectNow(P,ev,a);if(alueSisalla(a,r,cx,cy))hit.push({a:a,s:r.w*r.h});});
+  hit.sort(function(p,q){return p.s-q.s;});return hit.map(function(h){return h.a;});}
+/* Pudotuksen paikka, kun (x, y) on ehdotettu vasen yläkulma maailmassa. Ei muuta mitään. */
+function raahausPaikka(P,b,x,y,ctx){var ev=Ev(P,ctx),r=rectNow(P,ev,b);if(b.rax==='x')y=r.y;else if(b.rax==='y')x=r.x;
+  var cx=x+r.w/2,cy=y+r.h/2,g=ruudukkoOf(P,b),ru=null;
+  if(g){ru=ruutuAt(g,cx,cy);if(b.rko===true){var k=ruutuKeski(g,ru.x,ru.y);if(b.rax!=='y')cx=k.x;if(b.rax!=='x')cy=k.y;ru=ruutuAt(g,cx,cy);}}
+  var al=raahausAlueet(P,b,ev,cx,cy);
+  return {x:Math.round((cx-r.w/2)*100)/100,y:Math.round((cy-r.h/2)*100)/100,alue:al[0]||null,ok:b.rpa!=='alue'||!!al.length,ruutu:ru,x0:r.x,y0:r.y};}
+function raahausKuori(P,b,ctx,o){var te=mkEv(P,b.id,ctx,null);te.x=o.x;te.y=o.y;if(o.ruutu){te.ruutux=o.ruutu.x+1;te.ruutuy=o.ruutu.y+1;}if(o.alue){te.kohde=o.alue.id;te.kn=o.alue.nm;}return withEv(ctx,te);}
+function raahausAlku(P,id,ctx){var b=P.b[id];if(!raahattava(P,b))return false;var r=rectNow(P,Ev(P,ctx),b);fire(P,id,'ral',raahausKuori(P,b,ctx,{x:r.x,y:r.y}),0);tick(P,ctx);return true;}
+/* Palauttaa paikan tiedot (ok = hyväksytty) tai null, jos palikka ei ole raahattava. */
+function raahausPudotus(P,id,x,y,ctx){var b=P.b[id];if(!raahattava(P,b))return null;var o=raahausPaikka(P,b,x,y,ctx);
+  if(o.ok){setOmi(P,id,'x',o.x);setOmi(P,id,'y',o.y);tick(P,ctx);fire(P,id,'rpu',raahausKuori(P,b,ctx,o),0);}
+  else fire(P,id,'rpe',raahausKuori(P,b,ctx,{x:o.x0,y:o.y0}),0);
+  tick(P,ctx);return o;}
+function raahausPeruttu(P,id,ctx){var b=P.b[id];if(!raahattava(P,b))return;var r=rectNow(P,Ev(P,ctx),b);fire(P,id,'rpe',raahausKuori(P,b,ctx,{x:r.x,y:r.y}),0);tick(P,ctx);}
 /* ---------- Appi-appi 6: reitit ----------
    Reitti-palikan pisteet b.pts = [[x, y], …] palikan vasemmasta yläkulmasta (palikka on pisteiden rajaama laatikko), b.kier =
    suljettu reitti (viimeisestä takaisin ensimmäiseen), b.nak = 'nakyy' näkyy käytössä katkoviivana. Liikkeen ohjaus 'reitti':
@@ -2619,7 +2647,7 @@ function Ev(P,ctx){
       if(sg2[0]==='rivi'&&sg2.length>1){if(!e||!isR(e.rivi))return sg2[sg2.length-1]==='tiedossa'?false:MISS;return rowPath(P,RR(e.rivi.rr,e.rivi.ri),sg2.slice(1),true);}
       switch(pn){case 'uusi':case 'arvo':return e?evOut(e.uusi):null;case 'vanha':return e?evOut(e.vanha):null;case 'rivi':return e&&isR(e.rivi)?RR(e.rivi.rr,e.rivi.ri):null;
         case 'lähde':case 'lahde':return e?(B[e.src]?B[e.src].nm:e.nm||''):null;case 'aika':return e?hmOf(e.at):null;case 'päivä':case 'paiva':return e?D(iso(new Date(e.at))):null;
-        case 'tunniste':return e?e.id:null;case 'on':return !!e;case 'kohde':return e&&e.kohde?(B[e.kohde]?B[e.kohde].nm:e.kn||''):null;case 'isku':return e&&isFinite(e.isku)?e.isku:null;case 'taulukko':return e&&isR(e.rivi)&&B[e.rivi.rr]?B[e.rivi.rr].nm:null;}
+        case 'tunniste':return e?e.id:null;case 'on':return !!e;case 'kohde':return e&&e.kohde?(B[e.kohde]?B[e.kohde].nm:e.kn||''):null;case 'isku':return e&&isFinite(e.isku)?e.isku:null;case 'x':return e&&isFinite(e.x)?e.x:null;case 'y':return e&&isFinite(e.y)?e.y:null;case 'ruutux':return e&&isFinite(e.ruutux)?e.ruutux:null;case 'ruutuy':return e&&isFinite(e.ruutuy)?e.ruutuy:null;case 'taulukko':return e&&isR(e.rivi)&&B[e.rivi.rr]?B[e.rivi.rr].nm:null;}
       return undefined;}
     /* P3a: Rivi (kohde.määrä, kohde.nro, kohde.on) ja Rivijoukko (joukko.rivejä, joukko.eka.nimi, joukko.määrä.summa). */
     if(b.k==='trivi'){var rw=triviRow(id);if(pn==='nro'){if(isErr(rw))return rw;return rw?tIdx(P,rw.rr,rw.ri)+1:0;}if(pn==='on')return isR(rw);if(pn==='rivi'||pn==='arvo')return rw;
@@ -4072,7 +4100,7 @@ function why(P,E,id,depth,seen){
 return {omat:omat,omFind:omFind,omNorm:omNorm,omBase:omBase,omNames:omNames,omActive:omActive,setOmi:setOmi,resetOmi:resetOmi,isOff:isOff,napVaihto:napVaihto,boolKey:boolKey,TIMEU:TIMEU,YKSA:YKSA,ENVW:ENVW,portsBase:portsBase,tattiSet:tattiSet,muutosStart:muutosStart,muutosStop:muutosStop,frame:frame,napExt:napExt,NAP_PITKA:NAP_PITKA,pressDown:pressDown,pressLong:pressLong,pressUp:pressUp,hasOut:hasOut,curveAt:curveAt,KAYRA_PRESETS:KAYRA_PRESETS,kayraPreset:kayraPreset,kayraResize:kayraResize,kayraDec:kayraDec,kayraSpec:kayraSpec,kayraAt:kayraAt,satuN:satuN,satuMuoto:satuMuoto,satuCurve:satuCurve,satuResize:satuResize,satuPreset:satuPreset,SATU_PRESETS:SATU_PRESETS,SATU_MAXN:SATU_MAXN,satuSpec:satuSpec,satuDist:satuDist,satuPick:satuPick,satuPct:satuPct,satuItemTxt:satuItemTxt,satuTop:satuTop,satuRoll:satuRoll,
   chainOpen:chainOpen,LKN:LKN,LKID:LKID,lkReq:lkReq,lkView:lkView,chainLock:chainLock,chainLockDiff:chainLockDiff,parseKlo:parseKlo,nextClock:nextClock,timerLabel:timerLabel,arpaN:arpaN,toistaN:toistaN,setMhLabel:function(f){MHLAB=f;},mhLabel:mhLabel,odotaLim:odotaLim,odotaEv:odotaEv,hasLimit:hasLimit,chainSignal:chainSignal,copyNodes:copyNodes,pasteNodes:pasteNodes,chainList:chainList,haaraVal:haaraVal,chainIssues:chainIssues,FXK:FXK,YKS:YKS,YKSN:YKSN,fmtDur:fmtDur,parseNum:parseNum,fiNum:fiNum,fmtLeft:fmtLeft,timerMs:timerMs,chainStart:chainStart,chainStop:chainStop,chainAdvance:chainAdvance,chainPoll:chainPoll,chainInfo:chainInfo,anyChainRunning:anyChainRunning,CH_STEPS:CH_STEPS,CH_TOKENS:CH_TOKENS,
   isWin:isWin,isStep:isStep,STEPK:STEPK,chainNode:chainNode,chainOfNode:chainOfNode,chainSteps:chainSteps,isChainLink:isChainLink,chainLinksFrom:chainLinksFrom,chainStarts:chainStarts,chainIsRing:chainIsRing,chainOrder:chainOrder,
-  VER:VER,PAJA:'4',LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,reittiPisteet:reittiPisteet,reittiOsat:reittiOsat,reittiHae:reittiHae,liikeRuutuKomento:liikeRuutuKomento,liikePyyhkaisy:liikePyyhkaisy,ruutuAskel:ruutuAskel,RUUTU_SU:RUUTU_SU,reittiKohta:reittiKohta,liikeRun:liikeRun,kuvaKuvat:kuvaKuvat,kelloNow:kelloNow,kelloKomento:kelloKomento,kerrosObj:kerrosObj,zoomAsetus:zoomAsetus,kameraBlk:kameraBlk,zoomNyt:zoomNyt,zoomLukittu:zoomLukittu,zoomAseta:zoomAseta,ZOOM_MIN:ZOOM_MIN,ZOOM_MAX:ZOOM_MAX,MITM:MITM,MITE:MITE,
+  VER:VER,PAJA:'4',LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,raahattava:raahattava,raahausPaikka:raahausPaikka,raahausAlku:raahausAlku,raahausPudotus:raahausPudotus,raahausPeruttu:raahausPeruttu,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,reittiPisteet:reittiPisteet,reittiOsat:reittiOsat,reittiHae:reittiHae,liikeRuutuKomento:liikeRuutuKomento,liikePyyhkaisy:liikePyyhkaisy,ruutuAskel:ruutuAskel,RUUTU_SU:RUUTU_SU,reittiKohta:reittiKohta,liikeRun:liikeRun,kuvaKuvat:kuvaKuvat,kelloNow:kelloNow,kelloKomento:kelloKomento,kerrosObj:kerrosObj,zoomAsetus:zoomAsetus,kameraBlk:kameraBlk,zoomNyt:zoomNyt,zoomLukittu:zoomLukittu,zoomAseta:zoomAseta,ZOOM_MIN:ZOOM_MIN,ZOOM_MAX:ZOOM_MAX,MITM:MITM,MITE:MITE,
 kuvaPyorii:kuvaPyorii,kuvaNro:kuvaNro,SARJA_MAX:SARJA_MAX,ruudukko:ruudukko,ruudukkoOf:ruudukkoOf,ruutuAt:ruutuAt,ruutuKeski:ruutuKeski,kohdista:kohdista,ruutuKohdistus:ruutuKohdistus,alueRuudukko:alueRuudukko,alueRuutu:alueRuutu,alueNapautus:alueNapautus,kerrokset:kerrokset,kerrosOf:kerrosOf,rvOf:rvOf,kuvaUrl:kuvaUrl,K:K,KW:KW,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,kaavaToIds:kaavaToIds,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
   ports:ports,port:port,newProject:newProject,addBlock:addBlock,addNode:addNode,addLink:addLink,canLink:canLink,
   removeNode:removeNode,removeBlock:removeBlock,refsTo:refsTo,brokenRefs:brokenRefs,relink:relink,isGone:isGone,goneName:goneName,scanRefs:scanRefs,nodeOf:nodeOf,nodesOfBlock:nodesOfBlock,uniqueName:uniqueName,baseName:baseName,
@@ -4727,7 +4755,7 @@ function krSuoja(E,ed,list){var els=$('#uels'),old=$('#krsuoja');if(ed||!useMode
 function decorateUE(el,b,E,ed){
   var stt=E.state(b.id,ed);
   var sn=S.sel&&S.sel.t==='n'?KK.nodeOf(P,S.sel.id):null;
-  el.className='ue k-'+b.k+(ed&&KK.kerrosOf(P,b).k.lukko?' krlock':'')+(ed&&b.ohk&&b.ohk.length?' omdrv':'')+' '+hueCls(ed?(E.alt(b.id)?b.hue2:b.hue):E.hue(b.id))+((S.sel&&S.sel.t==='b'&&S.sel.id===b.id)||inMulti('b',b.id)?' sel':'')+(sn&&sn.p===b.id?' sel2':'')+({harmaa:' dim',luettava:' ro',piilossa:' hid'}[stt]||'')+(KK.isErr(E.val(b.id))||(ed&&brk().by[b.id])?' has-err':'')+(ed&&brk().by[b.id]?' brk-ui':'');
+  el.className='ue k-'+b.k+(ed&&KK.kerrosOf(P,b).k.lukko?' krlock':'')+(ed&&b.ohk&&b.ohk.length?' omdrv':'')+(!ed&&KK.raahattava(P,b)?' raah':'')+' '+hueCls(ed?(E.alt(b.id)?b.hue2:b.hue):E.hue(b.id))+((S.sel&&S.sel.t==='b'&&S.sel.id===b.id)||inMulti('b',b.id)?' sel':'')+(sn&&sn.p===b.id?' sel2':'')+({harmaa:' dim',luettava:' ro',piilossa:' hid'}[stt]||'')+(KK.isErr(E.val(b.id))||(ed&&brk().by[b.id])?' has-err':'')+(ed&&brk().by[b.id]?' brk-ui':'');
   el.style.left=ovN(b,E,ed,'x',b.x)+'px';el.style.top=ovN(b,E,ed,'y',b.y)+'px';el.style.width=ovN(b,E,ed,'w',b.w)+'px';el.style.height=ovN(b,E,ed,'h',b.h)+'px';
   /* Pajakone 4: läpinäkyvyys (muokatessa aina vähintään haaleana näkyvissä). */
   /* Appi-appi 3: kierto ja peilaus (sisältö kääntyy, paikka ja osuma-alue eivät). */
@@ -5014,6 +5042,7 @@ function bindUIStage(){
     if(e.button!==0)return;
     var el=e.target.closest('.ue');
     if(!editingUI()){
+      if(kayttoRaahaus(e,el))return;
       if(pyyhkaisyAlku(e))return;
       if(napautusMyohemmin(e)){if(!el&&canPanUI()&&!napautusKaytossa())startPan(e,vp,camUI,uiCamChanged);return;}
       if(napautusTap(e))return;
@@ -5937,6 +5966,7 @@ function uiInsp(b,E){
     cs+=fNum('Läpinäkyvyys (%)','lpn',b.lpn||0,'0 = näkyy kokonaan, 100 = ei näy lainkaan (mutta on paikallaan ja painettavissa). Logiikka voi muuttaa sitä: katso Ominaisuudet.');
     h+=section('Väri',cs);
     h+=esteSection(b);
+    h+=raahausSection(b);
   }
   var dL=KK.laite(P,b.v),rvv=typeof b.rv==='number'?b.rv:'',KSb=KK.kerrokset(P,b.v),kOf=KK.kerrosOf(P,b).k,krv=typeof kOf.rv==='number'?kOf.rv:100,rve=KK.rvOf(P,b);
   h+=section('Paikka ja koko','<div class="row2">'+fNum('X','x',b.x)+fNum('Y','y',b.y)+fNum('Leveys','w',b.w)+fNum('Korkeus','h',b.h)+'</div>'+(P.views.length>1?fSelect('Näkymä','v',b.v,P.views.map(function(v){return [v.id,v.n];})):'')+
@@ -8046,6 +8076,34 @@ function lapImport(arr){if(!Array.isArray(arr))return 0;var n=0;arr.forEach(func
 setInterval(function(){if(Dt&&ghOn()&&!document.hidden&&laput().some(function(l){return l.laji==='viesti';}))lapPull();},90000);
 document.addEventListener('visibilitychange',function(){if(!Dt||!ghOn())return;if(document.hidden){if(Dt.lapGh&&Dt.lapGh.dirty)lapPush();}else lapPull();});
 
+/* ---------- F12: käyttöraahaus (Appi-appi 19) ----------
+   Lukitussa käytössä raahattava palikka seuraa sormea tartuntakohdasta (ei hyppää keskelle). Alle 6 px liike on tavallinen
+   napautus, joten raahattava painike toimii yhä. Liike lasketaan palikan oman ruutumittakaavan kautta, joten zoomaus ja
+   lukittu kerros (kojelauta) eivät vääristä sitä. Toinen sormi (nipistyszoomaus) tai keskeytynyt kosketus perii raahauksen.
+   Pudotuksen paikan (suunta, ruudukko, hyväksytyt alueet) ja tapahtumat ratkaisee moottori. */
+function kayttoRaahaus(e,el){if(!el||e.target.closest('input,textarea,select,.cal,.tsc'))return false;var id=el.getAttribute('data-id'),b=P.b[id];if(!KK.raahattava(P,b))return false;
+  var r=KK.rectNow(P,ev(),b),pid=e.pointerId,x0=e.clientX,y0=e.clientY,on=false,lx=r.x,ly=r.y,k=1,
+    left0=parseFloat(el.style.left)||0,top0=parseFloat(el.style.top)||0;
+  function irti(){window.removeEventListener('pointermove',mv,true);window.removeEventListener('pointerup',up,true);window.removeEventListener('pointercancel',up,true);}
+  function loppu(peru){irti();if(!on||!P)return;on=false;S.drg=false;el.classList.remove('raahataan');
+    function sup(c){c.stopPropagation();c.preventDefault();window.removeEventListener('click',sup,true);}window.addEventListener('click',sup,true);setTimeout(function(){window.removeEventListener('click',sup,true);},0);
+    if(peru)KK.raahausPeruttu(P,id,ctx());else KK.raahausPudotus(P,id,lx,ly,ctx());
+    save();renderUIStage();runFrames();}
+  function mv(m){if(m.pointerId!==pid)return;if(S.upinch){loppu(true);return;}
+    if(!on){if(Math.hypot(m.clientX-x0,m.clientY-y0)<6)return;on=true;S.drg=true;var bw=el.getBoundingClientRect().width;k=el.offsetWidth>0&&bw>0?bw/el.offsetWidth:1;el.classList.add('raahataan');KK.raahausAlku(P,id,ctx());}
+    m.preventDefault();lx=r.x+(m.clientX-x0)/k;ly=r.y+(m.clientY-y0)/k;if(b.rax==='x')ly=r.y;else if(b.rax==='y')lx=r.x;
+    el.style.left=(left0+lx-r.x)+'px';el.style.top=(top0+ly-r.y)+'px';}
+  function up(u){if(u.pointerId!==pid)return;loppu(u.type==='pointercancel');}
+  window.addEventListener('pointermove',mv,true);window.addEventListener('pointerup',up,true);window.addEventListener('pointercancel',up,true);
+  if(!e.target.closest('button'))e.preventDefault();
+  return true;}
+function raahausSection(b){if(b.k==='merkki'||b.k==='alue'||b.k==='toistin'||KK.tstOf(P,b))return '';var on=b.raah===true,g=KK.ruudukkoOf(P,b);
+  var h=fCheck('Raahattava käytössä','raah',on)+'<div class="help">Lukitussa käytössä palikkaa voi siirtää sormella tai hiirellä. Paikka on käyttötietoa: rakenne ei muutu, ja käyttötietojen tyhjennys palauttaa alkupaikan.</div>';
+  if(on){h+=fSegs('Suunta','rax',b.rax||'',[['','Vapaa'],['x','Vain vaaka'],['y','Vain pysty']])+
+    (g?fCheck('Kohdista ruudun keskelle','rko',b.rko===true):'<div class="help">Kun palikan kerroksella on ruudukko, pudotuksen voi kohdistaa ruudun keskelle.</div>')+
+    fSegs('Pudotus','rpa',b.rpa||'',[['','Minne vain'],['alue','Vain alueisiin']],'Vain alueisiin: muualle pudotettu palaa paikalleen, ja tulee tapahtuma raahaus peruttu.')+
+    '<div class="help">Logiikkaan: tapahtumat <b>raahaus alkoi</b>, <b>pudotettu</b> ja <b>raahaus peruttu</b>. Tapahtuman tiedoissa <code>tapahtuma.kohde</code> (Alue, johon pudotettiin), <code>tapahtuma.x</code>, <code>tapahtuma.y</code>'+(g?', <code>tapahtuma.ruutux</code>, <code>tapahtuma.ruutuy</code>':'')+'.</div>';}
+  return '<details class="fs oms" id="raahsec"'+(on?' open':'')+'><summary><h4>Käyttöraahaus</h4></summary>'+h+'</details>';}
 /* ---------- Käynnistys ---------- */
 load();
 if(P){S.vw=P.views[0].id;KK.tick(P,ctx());}
