@@ -137,7 +137,9 @@ Selain: paneelit 1440 ja 1280 px; pelattava koe (esim. pallopeli) käyttönäkym
 - Jouset, nivelet, köydet.
 - Töytäise suuntaan -toiminto (kulma + voima, massa huomioiden); v1:ssä Lisää vauhti riittää.
 
-## 10. Avoimet kysymykset Emilille ennen toteutusta
+## 10. Kysymykset ja Emilin päätös
+
+**Emilin päätös 16.10.2026:** toteutetaan suositusten mukaan (kohdat 1–5 alla: kyllä, kyllä, kyllä 0–200 %, painovoima perään omana vaiheenaan, massaton = puskutraktori). Toteutus odottaa, kunnes toinen samaan aikaan käynnissä ollut rakentaja (Appi-appi 16) on valmis; Emil antaa merkin.
 
 1. Massa ja kimmoisuus esineelle (Este-osio), kitka Liikkeelle? *Suositus: kyllä.*
 2. Kitka erillinen nykyisestä liukkaudesta? *Suositus: kyllä* (perustelu kohdassa 3).
