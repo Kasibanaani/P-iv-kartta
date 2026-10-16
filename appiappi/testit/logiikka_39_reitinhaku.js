@@ -79,4 +79,9 @@ r1.pts.reduce(function(p,q){for(var k=0;k<=20;k++){var x=p[0]+(q[0]-p[0])*k/20,y
 li.kie='joo';KK.repair(P);A.strictEqual(li.kie,undefined,'tuntematon arvo pois');
 lq.kie=true;Q.st[lq.id].pp='rikki';Q.st[lq.id].pk=[1];Q.st[lq.id].tx=600;Q.st[lq.id].ty=50;KK.repair(Q);KK.frame(Q,1/60,C);A.ok(Array.isArray(Q.st[lq.id].pp),'rikkinäinen reitti haetaan uudelleen');
 var Q2=JSON.parse(JSON.stringify(Q));KK.repair(Q2);A.deepStrictEqual(Q2.st[lq.id].pp,Q.st[lq.id].pp,'reitti säilyy tallennuksessa');
+// --- 8. Perillä tarkasti kohteessa myös jarrutettaessa (ennen jäi alle 0,5 px päähän) ---
+[[300,'1'],[800,''],[500,'0.3'],[250,'0.7']].forEach(function(q){[1/60,1/30,0.021].forEach(function(dt){
+  var S=KK.newProject('s');var sv=S.views[0].id;var hs=KK.addBlock(S,'muoto',{v:sv});hs.x=0;hs.y=0;hs.w=40;hs.h=40;
+  var ls=LB(S,'liike',{o:hs.id,ohj:'napautus',vm:String(q[0]),kb:q[1]});KK.repair(S);KK.liikeNapautus(S,sv,237.3,151.7,C);
+  for(var i=0;i<400;i++){T+=dt*1000;KK.frame(S,dt,C);}A.deepStrictEqual(keski(S,hs),{x:237.3,y:151.7},'tarkasti perillä '+q+' '+dt);A.strictEqual(KK.Ev(S,C).val(ls.id,'nop'),0);});});
 console.log('ok');

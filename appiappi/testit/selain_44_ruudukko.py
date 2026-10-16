@@ -56,8 +56,12 @@ async def main():
             assert await pg.locator('#uworld .rgrid').count()==0,'ei näy käytössä oletuksena'
             vb=await pg.locator('#uvp').bounding_box();z=vb['width']/390
             # Napautus vie ruudun keskelle
-            await pg.mouse.click(vb['x']+262*z,vb['y']+213*z);await pg.wait_for_timeout(700)
-            c=await P(pg,"[E().omiNum('%s','x',0)+20,E().omiNum('%s','y',0)+20]"%(I['hm'],I['hm']));print(W,'2 hahmo ruudun keskellä:',c);assert c==[275,225],c
+            await pg.mouse.click(vb['x']+262*z,vb['y']+213*z);await pg.wait_for_timeout(300)
+            for _ in range(30):
+                c=await P(pg,"[E().omiNum('%s','x',0)+20,E().omiNum('%s','y',0)+20]"%(I['hm'],I['hm']))
+                if c==[275,225]:break
+                await pg.wait_for_timeout(100)
+            print(W,'2 hahmo ruudun keskellä:',c);assert c==[275,225],c
             # Napautus alueeseen: ruutu tekstiin
             await pg.mouse.click(vb['x']+130*z,vb['y']+560*z);await pg.wait_for_timeout(700)
             t=await pg.inner_text('.ue[data-id="%s"]'%I['tx']);r=await P(pg,"[E().val('%s','nx'),E().val('%s','ny')]"%(I['al'],I['al']));print(W,'3 napautettu:',t,r);assert r==[3,2] and 'Napautuksia 1' in t
