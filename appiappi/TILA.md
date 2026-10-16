@@ -118,6 +118,7 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 
 ## Suunnitelmat
 
+- **16.10.2026, F25 tilastot ja yhteydet (Emilin idea):** `suunnitelmat/11-tilastot-ja-yhteydet.md`: elämäntapaväittämät ensimmäisenä esimerkkinä, päivätaulukko raakakirjauksista, Yhteys-palikka (ehdollinen vertailu, korrelaatio lajien mukaan, viive, yhdistelmä `B ja C`), myöhemmin järjestys, kaikkien parien näkymä ja osittaiskorrelaatio. Ei toteutettu; neljä avointa kysymystä kohdassa 9.
 - **16.10.2026, F24 massa ja törmäykset (Emilin idea):** `suunnitelmat/09-massa-ja-tormaykset.md`: massa ja kimmoisuus esineelle, kitka ja töytäisyvauhti Liikkeelle, massallisten törmäysten laskenta, logiikan arvot (isku, osui palikkaan, `tapahtuma.kohde`/`.isku`, `vauhti x/y`), tallennus, esimerkit, testit ja rajaukset. Toteutettu Appi-appi 17:ssä (ks. Valmiina). Vain Markdown muuttui, sovellustestejä ei ajettu.
 - **16.10.2026, missio ja manuaalin tehtävänanto:** `MISSIO.md` kokoaa Emilin kuvaaman tarkoituksen, arvot ja kehitysehdotusten arviointitavan. `suunnitelmat/08-manuaalin-tehtavananto.md` määrittelee tulevan kattavan ihmiselle ja tekoälylle sopivan manuaalin rungon, lähteet, tarkistusmenettelyn ja hyväksymiskriteerit. Varsinaista manuaalia ei tehty. Agenttien lukupolku ja yhteiset periaatteet päivitettiin. Vain Markdown-dokumentaatio muuttui; sovelluskoodia ja testejä ei muutettu eikä sovellustestejä ajettu.
 

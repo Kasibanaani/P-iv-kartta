@@ -71,6 +71,7 @@ Numerot vastaavat alkuperäistä ideointikokonaisuutta. Tila on tarkistushetken 
 | F22 | Testitila ja käytön kumoaminen | Nykyinen rakenteen Kumoa ei ole käyttökumoaminen. | [06](suunnitelmat/06-testit-ja-julkaisu.md) |
 | F23 | Luonnos, julkaisu ja käyttäjä-appivienti | Sama moottori; julkaistu rakenne erikseen luonnoksesta ja käyttötiedosta. | [06](suunnitelmat/06-testit-ja-julkaisu.md) |
 | F24 | Massa, kimmoisuus ja kitka (Emilin idea 16.10.2026, lisätty rekisteriin myöhemmin) | Törmäys ei nyt siirrä vauhtia eikä este liiku. Massa ja kimmoisuus esineelle, kitka ja töytäisyvauhti Liikkeelle; vanhat projektit ennallaan. Toteutettu Appi-appi 17 (16.10.2026). | [09](suunnitelmat/09-massa-ja-tormaykset.md) |
+| F25 | Tilastot ja yhteydet (Emilin idea 16.10.2026) | Ei yhteyslaskentaa. Päivätaulukko raakakirjauksista, Yhteys-palikka (ehdollinen vertailu, korrelaatio lajien mukaan, viive, yhdistelmätekijä), havaintomäärä aina näkyvissä. Vaatii F08:n ja F09:n. | [11](suunnitelmat/11-tilastot-ja-yhteydet.md) |
 
 Ketjujen kolme lukitustilaa ovat lisäksi käyttäjän päätetty täsmennys, joka koskee kaikkia näitä ominaisuuksia: [02-ketjujen-lukitus.md](suunnitelmat/02-ketjujen-lukitus.md).
 
