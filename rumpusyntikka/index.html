@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rumpusyntikka</title>
+<style>
+:root{--bg:#F5F3EE;--cell:#FFFEFA;--label:#252B28;--label2:#5E685F;--sep:#DDE2D9;--accent:#39775A;--solid:#39775A;--on-solid:#fff;--fill:#E7F0E7;--fill2:#EDF1EA;--danger:#D70015;--app-shadow:rgba(39,61,34,.055);--shade:rgba(20,30,25,.38);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",system-ui,"Segoe UI",Roboto,Arial,sans-serif;font-size:14px;line-height:1.4}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--label)}
+body{min-height:100vh}
+button{font:inherit;color:inherit;cursor:pointer;min-height:32px;padding:5px 12px;border:1px solid var(--sep);border-radius:11px;background:var(--cell)}
+button:hover{background:var(--fill2)}
+button.solid{background:var(--solid);color:var(--on-solid);border-color:var(--solid);font-weight:600}
+button.danger{color:var(--danger)}
+button:disabled{opacity:.4;cursor:default}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input,select,textarea{font:inherit;color:inherit;background:var(--cell);border:1px solid var(--sep);border-radius:10px;padding:6px 9px}
+.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:10px 20px;background:var(--cell);border-bottom:1px solid var(--sep);box-shadow:0 3px 18px var(--app-shadow)}
+.brand{font-size:21px;font-weight:800;letter-spacing:-.045em;white-space:nowrap}
+#soundBtn{max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.readout{flex:1;min-width:0;display:flex;gap:10px;align-items:baseline;justify-content:center;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden}
+.readout b{font-size:12px;letter-spacing:.06em}
+.readout span{font-size:16px;font-weight:650}
+.readout i{font-style:normal;font-size:12.5px;color:var(--label2);overflow:hidden;text-overflow:ellipsis}
+.acts{display:flex;gap:6px}
+.wrap{padding:16px 20px 28px;max-width:1400px;margin:0 auto}
+.panel{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:start}
+.left{display:flex;flex-direction:column;gap:12px;min-width:0}
+.rowsec{display:flex;gap:12px}
+.sec{background:var(--cell);border:1px solid var(--sep);border-radius:18px;padding:9px 10px 8px;box-shadow:0 6px 22px var(--app-shadow)}
+.sec h3{margin:0 0 4px 4px;font-size:11px;font-weight:700;letter-spacing:.075em;text-transform:uppercase;color:var(--label2)}
+.ctls{display:flex;align-items:flex-start;justify-content:space-between}
+.rowsec>.sec:nth-child(1),.rowsec>.sec:nth-child(3){flex:3}
+.rowsec>.sec:nth-child(2){flex:6}
+.ctl{width:72px;display:flex;flex-direction:column;align-items:center;gap:3px}
+.lab{font-size:10px;font-weight:700;letter-spacing:.03em;text-align:center;line-height:1.15;min-height:2.3em;color:var(--label)}
+.knob{width:50px;height:50px;touch-action:none;cursor:ns-resize;border-radius:50%;user-select:none}
+.knob.sm{width:40px;height:40px}
+.knob svg{width:100%;height:100%;display:block;overflow:visible}
+.kb{fill:var(--fill2);stroke:var(--sep);stroke-width:1.5}
+.trk{fill:none;stroke:var(--sep);stroke-width:3.2;stroke-linecap:round}
+.val{fill:none;stroke:var(--accent);stroke-width:3.2;stroke-linecap:round}
+.ind{stroke:var(--label);stroke-width:2.6;stroke-linecap:round}
+.knob:hover .kb,.knob.drag .kb{fill:var(--fill)}
+.sw{display:flex;flex-direction:column;gap:2px;margin-top:1px}
+.sw button{min-height:0;height:16px;padding:0 6px;font-size:9.5px;font-weight:700;letter-spacing:.03em;border-radius:6px;line-height:14px;min-width:54px;color:var(--label)}
+.sw button[aria-pressed="true"]{background:var(--fill);color:var(--label);border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.seq{display:flex;gap:6px;align-items:flex-start}
+.seqctl{display:flex;flex-direction:column;align-items:center;gap:6px;width:84px;padding-top:2px}
+.seqctl button{width:76px;min-height:30px;padding:3px 4px;font-size:10.5px;font-weight:700;letter-spacing:.03em}
+#runBtn[aria-pressed="true"]{background:var(--solid);color:var(--on-solid);border-color:var(--solid)}
+.steps{flex:1;display:grid;grid-template-columns:repeat(8,minmax(58px,1fr));gap:2px;padding-left:8px;border-left:1px solid var(--sep)}
+.step{display:flex;flex-direction:column;align-items:center;gap:2px}
+.led{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--sep);background:var(--bg)}
+.led.on{background:var(--danger);border-color:var(--danger);box-shadow:0 0 8px var(--danger)}
+.stn{font-size:10px;font-weight:700;color:var(--label2)}
+.rowlab{font-size:9.5px;font-weight:700;letter-spacing:.05em;color:var(--label2);height:14px;line-height:14px}
+.steps .rowlab{grid-column:1/-1;text-align:left;padding-left:4px}
+.bay{padding:9px 8px 10px}
+.jacks{display:grid;grid-template-columns:repeat(3,70px);gap:2px 2px}
+.jk{display:flex;flex-direction:column;align-items:center;gap:3px;padding:3px 0 4px;border-radius:10px}
+.jk .jl{font-size:9px;font-weight:700;letter-spacing:.02em;white-space:nowrap;padding:1px 4px;border-radius:4px;line-height:12px}
+.jk.o .jl{background:var(--label);color:var(--cell)}
+.jack{width:24px;height:24px;border-radius:50%;background:#17191B;border:4px solid var(--fill2);box-shadow:0 0 0 1.5px var(--sep);cursor:grab;touch-action:none}
+.jack:hover,.jack.hot{box-shadow:0 0 0 2.5px var(--accent)}
+.baysep{grid-column:1/-1;height:1px;background:var(--sep);margin:4px 2px}
+#cables{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:3}
+#cables path{fill:none;stroke-width:5;stroke-linecap:round;opacity:.92;pointer-events:stroke;cursor:pointer;filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}
+#cables path.tmp{pointer-events:none;stroke-dasharray:2 7}
+#cables circle{pointer-events:none}
+.hint{margin:10px 4px 0;font-size:12.5px;color:var(--label2)}
+.hint kbd{font:inherit;font-weight:700;padding:0 5px;border:1px solid var(--sep);border-radius:5px;background:var(--cell)}
+.shade{position:fixed;inset:0;z-index:20;background:var(--shade);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;padding:20px}
+.shade[hidden]{display:none}
+.dlg{background:var(--cell);border:1px solid var(--sep);border-radius:24px;padding:24px 26px;width:min(560px,100%);max-height:calc(100vh - 40px);overflow:auto;box-shadow:0 20px 70px rgba(0,0,0,.2)}
+.dlg h2{margin:0 0 12px;font-size:20px;letter-spacing:-.035em}
+.dlg h4{margin:16px 0 6px;font-size:11px;font-weight:700;letter-spacing:.075em;text-transform:uppercase;color:var(--label2)}
+.dlg p,.dlg li{color:var(--label);margin:6px 0}
+.dlg .help{font-size:12.5px;color:var(--label2)}
+.dlg .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.dlg .end{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.dlg textarea{width:100%;min-height:120px;font-family:ui-monospace,Menlo,monospace;font-size:11px}
+.snd{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--sep)}
+.snd span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.snd.cur span{font-weight:700;color:var(--accent)}
+.seg{display:inline-flex;gap:3px;padding:3px;border:1px solid var(--sep);border-radius:12px;background:var(--fill2)}
+.seg button{border:0;border-radius:9px;min-height:28px;background:transparent}
+.seg button[aria-pressed="true"]{background:var(--cell);color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 2px var(--accent)}
+.theme-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.theme-chip{display:flex;align-items:center;gap:6px;min-width:0;min-height:40px;padding:5px 7px;border:1px solid var(--sep);border-radius:11px;background:var(--cell);font-size:13px}
+.theme-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.theme-swatch{width:14px;height:14px;border:1px solid var(--sep);border-radius:5px;flex:none}
+.theme-chip[aria-pressed="true"]{background:var(--fill2);border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:30;background:var(--label);color:var(--cell);padding:8px 16px;border-radius:12px;font-weight:600;font-size:13px}
+.toast[hidden]{display:none}
+.warn{color:var(--danger);font-weight:600}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">Rumpusyntikka</div>
+  <button id="soundBtn" title="Omat äänet">Alkuasetus ▾</button>
+  <div class="readout" id="readout"><i>Vie hiiri säätimen päälle tai vedä sitä ylös ja alas.</i></div>
+  <div class="acts">
+    <button id="wavBtn">Tallenna ääni</button>
+    <button id="backupBtn">Varmuuskopio</button>
+    <button id="apBtn">Ulkoasu</button>
+    <button id="helpBtn">Ohje</button>
+  </div>
+</header>
+<div class="wrap">
+  <div class="panel" id="panel"><svg id="cables"></svg></div>
+  <p class="hint" id="hint">Potikka: vedä ylös ja alas (<kbd>Shift</kbd> = tarkka), rulla tai nuolinäppäimet, kaksoisklikkaus palauttaa. Kaapeli: vedä pistokkeesta toiseen, klikkaa kaapelia poistaaksesi. <kbd>Välilyönti</kbd> käynnistää ja pysäyttää, <kbd>T</kbd> laukaisee, <kbd>A</kbd> siirtää askeleen.</p>
+</div>
+<div class="shade" id="shade" hidden><div class="dlg" id="dlg" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast" hidden></div>
+<script id="engine">
+// Rumpusyntikan äänimoottori. Ei DOMia: sama koodi pyörii AudioWorkletissa, .wav-viennissä ja testeissä.
+// Jännitteet voltteina: ääni ±5 V, verhokäyrät ja velocity 0–8 V, sävel 1 V/oktaavi.
+var RS=(function(){
+'use strict';
+var VER=1,OS=4,STEPS=8;
+// [tunniste, paneelin nimi, oletus, laji]  k = potikka 0…1, b = kaksisuuntainen −1…1, s2/s3 = kytkin
+var PAR=[
+  ['vcoDecay','VCO DECAY',0.3,'k'],['seqPitchMod','SEQ PITCH MOD',1,'s3'],
+  ['vco1Eg','VCO 1 EG AMOUNT',0.5,'b'],['vco1Freq','VCO 1 FREQUENCY',0.3,'k'],['vco1Wave','VCO 1 WAVE',0,'s2'],
+  ['fm','1→2 FM AMOUNT',0,'k'],
+  ['vco2Eg','VCO 2 EG AMOUNT',0,'b'],['vco2Freq','VCO 2 FREQUENCY',0.5,'k'],['vco2Wave','VCO 2 WAVE',0,'s2'],
+  ['sync','HARD SYNC',0,'s2'],
+  ['vco1Lvl','VCO 1 LEVEL',0.8,'k'],['noiseLvl','NOISE / EXT LEVEL',0,'k'],['vco2Lvl','VCO 2 LEVEL',0,'k'],
+  ['vcfMode','VCF MODE',0,'s2'],['cutoff','CUTOFF',0.55,'k'],['res','RESONANCE',0.15,'k'],
+  ['vcfEg','VCF EG AMOUNT',0.3,'b'],['vcfDecay','VCF DECAY',0.35,'k'],['noiseVcf','NOISE / VCF MOD',0,'k'],
+  ['vcaAtk','VCA EG',0,'s2'],['vcaDecay','VCA DECAY',0.45,'k'],['volume','VOLUME',0.7,'k'],
+  ['tempo','TEMPO',0.5,'k']
+];
+var PI={};PAR.forEach(function(p,i){PI[p[0]]=i;});
+// Patch bay: 15 tuloa ja 9 lähtöä, rivit kuten laitteessa (3 per rivi).
+var JACKS=[
+  ['trig','TRIGGER','i'],['vcaCv','VCA CV','i'],['vel','VELOCITY','i'],
+  ['vcaDec','VCA DECAY','i'],['ext','EXT AUDIO','i'],['vcfDec','VCF DECAY','i'],
+  ['noise','NOISE LEVEL','i'],['vcoDec','VCO DECAY','i'],['vcfMod','VCF MOD','i'],
+  ['vco1Cv','VCO 1 CV','i'],['fmAmt','1→2 FM AMT','i'],['vco2Cv','VCO 2 CV','i'],
+  ['tempo','TEMPO','i'],['run','RUN/STOP','i'],['adv','ADV/CLOCK','i'],
+  ['vca','VCA','o'],['vcaEg','VCA EG','o'],['vcfEg','VCF EG','o'],
+  ['vcoEg','VCO EG','o'],['vco1','VCO 1','o'],['vco2','VCO 2','o'],
+  ['trigO','TRIGGER','o'],['velO','VELOCITY','o'],['pitchO','PITCH','o']
+];
+var JI={},INS=[],OUTS=[];
+JACKS.forEach(function(j){if(j[2]==='i'){JI[j[0]]=INS.length;INS.push(j[0]);}else{JI[j[0]]=OUTS.length;OUTS.push(j[0]);}});
+function isIn(id){return JACKS.some(function(j){return j[0]===id&&j[2]==='i';});}
+function isOut(id){return JACKS.some(function(j){return j[0]===id&&j[2]==='o';});}
+
+// ---------- muunnokset potikasta suureeksi (yhteiset näytölle ja äänelle) ----------
+function vcoHz(k){return 4*Math.pow(2,k*11);}               // 4 Hz … 8,2 kHz
+function cutHz(k){return 20*Math.pow(2,k*10);}              // 20 Hz … 20 kHz
+function egOct(b){return (b<0?-1:1)*Math.pow(Math.abs(b),1.5)*7;} // ±7 oktaavia
+function vcfOct(b){return (b<0?-1:1)*Math.pow(Math.abs(b),1.3)*8;}
+function decayS(k){return 0.0025*Math.pow(2,k*9.5);}        // aikavakio 2,5 ms … 1,8 s
+function fmOct(k){return k*k*5;}                             // eksponentiaalinen FM, enintään ±5 oktaavia
+function resK(k){return k*4.3;}                              // > ~4 itseoskilloi
+function stepRate(k){return Math.pow(2,-1.5+k*7);}           // askelta/s 0,35 … 45
+var SEQ_OCT=2.5;                                             // sekvenssin sävelpotikka ±2,5 oktaavia
+
+var LN2=Math.LN2,LOG2E=Math.LOG2E,P2=(function(){var a=[];for(var i=-64;i<=64;i++)a.push(Math.pow(2,i));return a;})();
+// nopea 2^x (suhteellinen virhe ~1e-4)
+function exp2(x){if(x<-63)return 0;if(x>63)x=63;var i=Math.floor(x),f=x-i;return (1+f*(0.6957350+f*(0.2251451+f*0.0791199)))*P2[i+64];}
+function clamp(x,a,b){return x<a?a:x>b?b:x;}
+function sat(x){if(x>3)return 1;if(x<-3)return -1;var x2=x*x;return x*(27+x2)/(27+9*x2);}
+
+function defaults(){
+  var p={};PAR.forEach(function(d){p[d[0]]=d[2];});
+  var pitch=[],vel=[];for(var i=0;i<STEPS;i++){pitch.push(0);vel.push(0.7);}
+  return {p:p,pitch:pitch,vel:vel,cab:[]};
+}
+// Korjaa minkä tahansa tallennetun äänen kelvolliseksi (vanhat ja vajaat muodot).
+function repair(x){
+  var d=defaults();if(!x||typeof x!=='object')return d;
+  var p=x.p&&typeof x.p==='object'?x.p:{};
+  PAR.forEach(function(q){var v=+p[q[0]];if(p[q[0]]===undefined||p[q[0]]===null||!isFinite(v))return;
+    if(q[3]==='k')d.p[q[0]]=clamp(v,0,1);else if(q[3]==='b')d.p[q[0]]=clamp(v,-1,1);else d.p[q[0]]=clamp(Math.round(v),0,q[3]==='s3'?2:1);});
+  ['pitch','vel'].forEach(function(k){if(Array.isArray(x[k]))for(var i=0;i<STEPS;i++){var v=+x[k][i];if(x[k][i]!==undefined&&isFinite(v))d[k][i]=clamp(v,k==='pitch'?-1:0,1);}});
+  var used={};
+  if(Array.isArray(x.cab))x.cab.forEach(function(c){if(Array.isArray(c)&&isOut(c[0])&&isIn(c[1])&&!used[c[1]]){used[c[1]]=1;d.cab.push([c[0],c[1]]);}});
+  return d;
+}
+
+// ---------- desimointisuodin (4x → 1x) ----------
+var FIRN=64,FIR=(function(){var h=[],s=0,fc=0.5/OS*0.86;for(var i=0;i<FIRN;i++){var m=i-(FIRN-1)/2,x=m===0?2*fc:Math.sin(2*Math.PI*fc*m)/(Math.PI*m);
+  var w=0.42-0.5*Math.cos(2*Math.PI*i/(FIRN-1))+0.08*Math.cos(4*Math.PI*i/(FIRN-1));h.push(x*w);s+=x*w;}return h.map(function(v){return v/s;});})();
+
+function polyblep(t,dt){if(t<dt){t/=dt;return t+t-t*t-1;}if(t>1-dt){t=(t-1)/dt;return t*t+t+t+1;}return 0;}
+
+function create(sr){
+  var e={sr:sr,running:false,step:STEPS-1,onStep:null};
+  var P=defaults(),tgt=new Float64Array(PAR.length),cur=new Float64Array(PAR.length);
+  var pitch=P.pitch.slice(),vel=P.vel.slice(),src=new Int32Array(INS.length).fill(-1);
+  var outV=new Float64Array(OUTS.length),inPrev=new Float64Array(INS.length);
+  var smooth=1-Math.exp(-1/(0.004*sr));
+  var envO=0,envF=0,envA=0,stO=0,stF=0,stA=0,curVel=vel[0],curPitch=0,trigT=0,clk=0,pendRun=-1;
+  var p1=0,p2=0,s1=0,s2=0,s3=0,s4=0,nz=22222,buf=new Float64Array(FIRN*2),bi=0,dcx=0,dcy=0;
+  var srOS=sr*OS,atkF=1-Math.exp(-1/(0.0004*sr)),atkS=1-Math.exp(-1/(0.03*sr)),dcR=1-2*Math.PI*8/sr;
+  function I(k){var s=src[k];return s<0?null:outV[s];}
+  function setAll(){for(var i=0;i<PAR.length;i++){tgt[i]=P.p[PAR[i][0]];}}
+  setAll();cur.set(tgt);
+  function fire(){stO=stF=stA=1;trigT=Math.round(0.005*sr);}
+  function advance(){e.step=(e.step+1)%STEPS;curPitch=pitch[e.step];curVel=vel[e.step];fire();if(e.onStep)e.onStep(e.step);}
+  e.load=function(x){P=repair(x);setAll();pitch=P.pitch.slice();vel=P.vel.slice();e.setCables(P.cab);};
+  e.loadNow=function(x){e.load(x);cur.set(tgt);};
+  e.set=function(id,v){var i=PI[id];if(i===undefined)return;tgt[i]=+v;if(PAR[i][3]!=='k'&&PAR[i][3]!=='b')cur[i]=+v;};
+  e.setStep=function(k,i,v){if(k==='pitch')pitch[i]=+v;else vel[i]=+v;};
+  e.setCables=function(list){src.fill(-1);(list||[]).forEach(function(c){if(isOut(c[0])&&isIn(c[1]))src[JI[c[1]]]=JI[c[0]];});};
+  e.run=function(on){on=!!on;if(on===e.running)return;e.running=on;if(on)clk=1;if(e.onRun)e.onRun(on);};
+  e.trigger=function(){curVel=vel[e.step];fire();};
+  e.advance=advance;
+  e.reset=function(){e.step=STEPS-1;clk=0;};
+  e.out=outV;e.vals=cur;
+  var CB=16,cbn=0,cO=0,cF=0,cA=0,b1=0,b2=0,g1=0,g2=0,fmB=0,cutB=0,vF=0,kR=0,rate=0,l1=0,l2=0,nlB=0,nv=0,vol=0,hp=false,w1=false,w2=false,sy=false,sp=1,aA=0;
+  function control(){
+    var c=cur,q=PI,a=1-Math.pow(1-smooth,CB);
+    for(var i=0;i<c.length;i++)c[i]+=(tgt[i]-c[i])*a;
+    cO=-1/(decayS(c[q.vcoDecay])*sr*LN2);cF=-1/(decayS(c[q.vcfDecay])*sr*LN2);cA=-1/(decayS(c[q.vcaDecay])*sr*LN2);
+    b1=Math.log2(vcoHz(c[q.vco1Freq]));b2=Math.log2(vcoHz(c[q.vco2Freq]));g1=egOct(c[q.vco1Eg]);g2=egOct(c[q.vco2Eg]);
+    fmB=c[q.fm];cutB=c[q.cutoff]*10+Math.log2(20);vF=vcfOct(c[q.vcfEg]);kR=resK(c[q.res]);rate=stepRate(c[q.tempo]);
+    l1=c[q.vco1Lvl];l2=c[q.vco2Lvl];nlB=c[q.noiseLvl];nv=c[q.noiseVcf];vol=c[q.volume]*c[q.volume]*1.6;
+    hp=c[q.vcfMode]>0.5;w1=c[q.vco1Wave]>0.5;w2=c[q.vco2Wave]>0.5;sy=c[q.sync]>0.5;sp=c[q.seqPitchMod];aA=c[q.vcaAtk]>0.5?atkS:atkF;
+  }
+  e.process=function(out,n){
+    for(var t=0;t<n;t++){
+      if(cbn<=0){control();cbn=CB;}cbn--;
+      // tulot edellisen näytteen lähdöistä
+      var vTrig=I(0),vRun=I(13),vAdv=I(14);
+      if(vRun!==null){if(vRun>2.5&&inPrev[JI.run]<=2.5)e.run(!e.running);inPrev[JI.run]=vRun;}
+      if(vAdv!==null){if(vAdv>2.5&&inPrev[JI.adv]<=2.5)advance();inPrev[JI.adv]=vAdv;}
+      if(vTrig!==null){if(vTrig>2.5&&inPrev[JI.trig]<=2.5)fire();inPrev[JI.trig]=vTrig;}
+      // sekvensseri
+      if(e.running){var vt=I(12);clk+=(vt===null?rate:rate*exp2(vt/2))/sr;if(clk>=1){clk-=Math.floor(clk);advance();}}
+      var vv=I(2),V=vv===null?curVel:clamp(vv/8,0,1.25);
+      // verhokäyrät: nopea isku, eksponentiaalinen vaimeneminen
+      var x1=I(7),x2=I(5),x3=I(3);
+      if(stO===1){envO+=(1.3-envO)*atkF;if(envO>=1){envO=1;stO=2;}}else if(stO===2){envO*=exp2(x1===null?cO:cO*exp2(-x1/2));if(envO<1e-6){envO=0;stO=0;}}
+      if(stF===1){envF+=(1.3-envF)*atkF;if(envF>=1){envF=1;stF=2;}}else if(stF===2){envF*=exp2(x2===null?cF:cF*exp2(-x2/2));if(envF<1e-6){envF=0;stF=0;}}
+      if(stA===1){envA+=(1.3-envA)*aA;if(envA>=1){envA=1;stA=2;}}else if(stA===2){envA*=exp2(x3===null?cA:cA*exp2(-x3/2));if(envA<1e-6){envA=0;stA=0;}}
+      var eO=envO*V,eF=envF*V,eA=envA*V;
+      // sävel
+      var seqO=curPitch*SEQ_OCT,s1o=sp<0.5?seqO:0,s2o=sp<0.5||sp>1.5?seqO:0;
+      var f1=clamp(exp2(b1+g1*eO+s1o+(I(9)||0)),0.05,srOS*0.45),f2=clamp(exp2(b2+g2*eO+s2o+(I(11)||0)),0.05,srOS*0.45);
+      var fmd=fmOct(clamp(fmB+(I(10)||0)/8,0,1.2));
+      var vm=I(8),nl=clamp(nlB+(I(6)||0)/8,0,1.2),ext=I(4);
+      nz^=nz<<13;nz^=nz>>>17;nz^=nz<<5;var wn0=(nz>>>0)/4294967296*2-1;
+      var fc=clamp(exp2(cutB+vF*eF+nv*(vm===null?wn0*5:vm)),5,srOS*0.4),gg=1-exp2(-2*Math.PI*fc/srOS*LOG2E);
+      var dt1=f1/srOS,f2l=Math.log2(f2),o1=0,o2=0,y=0,nsc=ext===null?0:ext/5;
+      for(var j=0;j<OS;j++){
+        nz^=nz<<13;nz^=nz>>>17;nz^=nz<<5;var wn=ext===null?(nz>>>0)/4294967296*2-1:nsc;
+        p1+=dt1;var wr=false;if(p1>=1){p1-=1;wr=true;}
+        o1=w1?(p1<0.5?1:-1)+polyblep(p1,dt1)-polyblep(p1<0.5?p1+0.5:p1-0.5,dt1):1-4*Math.abs(p1-0.5);
+        var dt2=fmd>0?clamp(exp2(f2l+fmd*o1)/srOS,0,0.45):f2/srOS;
+        p2+=dt2;if(sy&&wr)p2=p1*dt2/dt1;else if(p2>=1)p2-=1;if(p2>=1)p2-=Math.floor(p2);
+        o2=w2?(p2<0.5?1:-1)+polyblep(p2,dt2)-polyblep(p2<0.5?p2+0.5:p2-0.5,dt2):1-4*Math.abs(p2-0.5);
+        var x=(o1*l1+o2*l2+wn*nl)*1.4+wn*1e-5; // pieni kohinapohja: resonanssi pääsee soimaan itsekseen kuten analogisessa
+        var u=sat(x-kR*s4),t1=sat(s1),t2=sat(s2),t3=sat(s3);
+        s1+=gg*(u-t1);s2+=gg*(t1-t2);s3+=gg*(t2-t3);s4+=gg*(t3-sat(s4));
+        y=hp?u-4*s1+6*s2-4*s3+s4:s4;
+        buf[bi]=y;buf[bi+FIRN]=y;bi=bi+1===FIRN?0:bi+1;
+      }
+      var acc=0;for(var m=0;m<FIRN;m++)acc+=FIR[m]*buf[bi+m];
+      var vc=I(1),a=acc*(vc===null?eA:clamp(vc/8,0,1.25))*vol;
+      dcy=a-dcx+dcR*dcy;dcx=a;var o=sat(dcy*0.9);
+      if(!(o===o)||!(s4===s4)){o=0;s1=s2=s3=s4=0;dcx=dcy=0;buf.fill(0);p1=p2=0;}
+      out[t]=o;
+      // lähdöt
+      if(trigT>0)trigT--;
+      outV[0]=o*5;outV[1]=eA*8;outV[2]=eF*8;outV[3]=eO*8;outV[4]=o1*5;outV[5]=o2*5;outV[6]=trigT>0?8:0;outV[7]=curVel*8;outV[8]=curPitch*SEQ_OCT;
+    }
+  };
+  return e;
+}
+
+// Renderöi sekvenssin alusta: kierrokset × 8 askelta + häntä sekunteina.
+function render(patch,sr,loops,tail){
+  var e=create(sr);e.loadNow(patch);var P=repair(patch),r=stepRate(P.p.tempo);
+  var n=Math.ceil((loops*STEPS/r+(tail||0))*sr),out=new Float32Array(n),stopAt=Math.round(loops*STEPS/r*sr)-1;
+  e.run(true);var B=256;
+  for(var i=0;i<n;i+=B){var m=Math.min(B,n-i),blk=out.subarray(i,i+m);if(e.running&&i+m>=stopAt){e.process(blk,Math.max(0,stopAt-i));e.run(false);e.process(blk.subarray(Math.max(0,stopAt-i)),m-Math.max(0,stopAt-i));}else e.process(blk,m);}
+  return out;
+}
+function wav(data,sr){
+  var n=data.length,b=new ArrayBuffer(44+n*2),v=new DataView(b),s=function(o,t){for(var i=0;i<t.length;i++)v.setUint8(o+i,t.charCodeAt(i));};
+  s(0,'RIFF');v.setUint32(4,36+n*2,true);s(8,'WAVEfmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
+  v.setUint32(24,sr,true);v.setUint32(28,sr*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);s(36,'data');v.setUint32(40,n*2,true);
+  for(var i=0;i<n;i++)v.setInt16(44+i*2,Math.round(clamp(data[i],-1,1)*32767),true);
+  return b;
+}
+return {VER:VER,STEPS:STEPS,PAR:PAR,JACKS:JACKS,defaults:defaults,repair:repair,create:create,render:render,wav:wav,
+  vcoHz:vcoHz,cutHz:cutHz,egOct:egOct,vcfOct:vcfOct,decayS:decayS,fmOct:fmOct,stepRate:stepRate,SEQ_OCT:SEQ_OCT,isIn:isIn,isOut:isOut};
+})();
+if(typeof AudioWorkletProcessor!=='undefined'&&typeof registerProcessor==='function'){
+  registerProcessor('rumpusyntikka',class extends AudioWorkletProcessor{
+    constructor(){super();var e=this.e=RS.create(sampleRate),port=this.port;
+      e.onStep=function(i){port.postMessage({t:'step',i:i});};e.onRun=function(on){port.postMessage({t:'run',v:on});};
+      port.onmessage=function(m){var d=m.data;if(d.t==='load')e.load(d.patch);else if(d.t==='p')e.set(d.id,d.v);else if(d.t==='st')e.setStep(d.k,d.i,d.v);
+        else if(d.t==='cab')e.setCables(d.list);else if(d.t==='run')e.run(d.v);else if(d.t==='trig')e.trigger();else if(d.t==='adv')e.advance();else if(d.t==='reset')e.reset();};}
+    process(ins,outs){var o=outs[0];this.e.process(o[0],o[0].length);for(var c=1;c<o.length;c++)o[c].set(o[0]);return true;}
+  });
+}
+</script>
+<script id="ui">
+'use strict';
+var APPIPAJA_THEMES=[{"id":"forest","name":"Metsä","description":"Sammal ja lämmin paperi","light":{"bg":"#F5F3EE","cell":"#FFFEFA","label":"#252B28","label2":"#5E685F","sep":"#DDE2D9","accent":"#39775A","fill":"#E7F0E7","tint":"#EDF1EA"},"dark":{"bg":"#151B18","cell":"#202922","label":"#EEF1E9","label2":"#ACB8AE","sep":"#3B473E","accent":"#A2C9B6","fill":"#2B4032","tint":"#1A251E"}},{"id":"lake","name":"Järvi","description":"Hillitty sininen ja sumu","light":{"bg":"#F1F3F4","cell":"#FDFEFE","label":"#263039","label2":"#586977","sep":"#D9E0E5","accent":"#386EA2","fill":"#E3EDF7","tint":"#E9EFF4"},"dark":{"bg":"#151B22","cell":"#202B35","label":"#EAF0F5","label2":"#ADBCC9","sep":"#3B4A57","accent":"#A8C8E7","fill":"#293E52","tint":"#1A2631"}},{"id":"plum","name":"Luumu","description":"Pehmeä violetti ja pellava","light":{"bg":"#F5F1F3","cell":"#FFFCFE","label":"#322A31","label2":"#705D6D","sep":"#E4DCE2","accent":"#87597E","fill":"#F2E9EF","tint":"#F0E9EE"},"dark":{"bg":"#20191F","cell":"#2C222B","label":"#F4ECF3","label2":"#C2AFC0","sep":"#4B3A48","accent":"#D9B7D1","fill":"#483144","tint":"#291F27"}},{"id":"sand","name":"Hiekka","description":"Okran lämpö ja kerma","light":{"bg":"#F6F2EA","cell":"#FFFDFA","label":"#332D26","label2":"#726453","sep":"#E5DDD0","accent":"#8D642C","fill":"#F3EAD8","tint":"#F0E9DC"},"dark":{"bg":"#211C16","cell":"#2D261D","label":"#F4EEE2","label2":"#C4B7A2","sep":"#4E4334","accent":"#DCC18D","fill":"#493A25","tint":"#2A2219"}},{"id":"rose","name":"Ruusu","description":"Murrettu koralli ja puuteri","light":{"bg":"#F7F1EE","cell":"#FFFDFA","label":"#362C29","label2":"#795F59","sep":"#E7DDD7","accent":"#A05245","fill":"#F5E7E1","tint":"#F1E8E2"},"dark":{"bg":"#241B19","cell":"#302420","label":"#F7ECE7","label2":"#CCB1A6","sep":"#514039","accent":"#E7B2A2","fill":"#51352D","tint":"#2D211D"}},{"id":"graphite","name":"Harmaa","description":"Neutraali tausta puhelimen väreille","light":{"bg":"#F3F3F3","cell":"#FEFEFE","label":"#282828","label2":"#646464","sep":"#DDDDDD","accent":"#595959","fill":"#E9E9E9","tint":"#EEEEEE"},"dark":{"bg":"#191919","cell":"#262626","label":"#EFEFEF","label2":"#B4B4B4","sep":"#444444","accent":"#BFBFBF","fill":"#393939","tint":"#202020"}},{"id":"lagoon","name":"Laguuni","description":"Murrettu turkoosi ja merilasi","light":{"bg":"#EFF4F3","cell":"#FBFEFD","label":"#243330","label2":"#586D67","sep":"#D8E3DF","accent":"#276F6A","fill":"#E0EFEC","tint":"#E7F0ED"},"dark":{"bg":"#15211F","cell":"#21302D","label":"#E9F4F0","label2":"#ACC4BC","sep":"#3C514A","accent":"#9DCEC4","fill":"#2C4640","tint":"#1B2925"}},{"id":"lavender","name":"Laventeli","description":"Hento violetti ja helmiäinen","light":{"bg":"#F3F1F7","cell":"#FEFCFF","label":"#302B3A","label2":"#696175","sep":"#E1DCE9","accent":"#6F5B94","fill":"#ECE6F3","tint":"#ECE8F2"},"dark":{"bg":"#1D1925","cell":"#2A2434","label":"#F0EBF7","label2":"#BFB2D0","sep":"#493E57","accent":"#C4B5E2","fill":"#403350","tint":"#241E2D"}},{"id":"olive","name":"Oliivi","description":"Lehtien vihreä ja vaalea pellava","light":{"bg":"#F3F3EC","cell":"#FEFEF9","label":"#303226","label2":"#656B54","sep":"#DFE2D3","accent":"#616F32","fill":"#EBEFD9","tint":"#ECEFDF"},"dark":{"bg":"#1D2016","cell":"#292E20","label":"#F0F2E4","label2":"#BFC5A5","sep":"#484F35","accent":"#C1CD92","fill":"#3F482C","tint":"#24291C"}},{"id":"copper","name":"Kupari","description":"Pehmeä terrakotta ja lämmin savi","light":{"bg":"#F6F0EA","cell":"#FFFCF8","label":"#372D26","label2":"#776456","sep":"#E7DCCF","accent":"#965F32","fill":"#F4E7D8","tint":"#F1E6DB"},"dark":{"bg":"#241B15","cell":"#32261D","label":"#F5ECE2","label2":"#CCB5A0","sep":"#554232","accent":"#E2BB93","fill":"#513A26","tint":"#2D2118"}}];
+var KEY='rumpusyntikka:v1',APKEY='rumpusyntikka:appearance';
+var $=function(s,r){return (r||document).querySelector(s);},$$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function nf(x,d){return x.toFixed(d).replace('.',',').replace('-','−');}
+
+// ---------- tiedot ----------
+function freshData(){return {app:'rumpusyntikka',ver:RS.VER,nyky:RS.defaults(),nimi:'',omaId:null,muutettu:false,omat:[]};}
+function repairData(x){
+  var d=freshData();if(!x||typeof x!=='object')return d;
+  d.nyky=RS.repair(x.nyky);d.nimi=typeof x.nimi==='string'?x.nimi:'';d.muutettu=!!x.muutettu;
+  if(Array.isArray(x.omat))x.omat.forEach(function(o){if(o&&typeof o==='object')d.omat.push({id:typeof o.id==='string'&&o.id?o.id:uid(),nm:typeof o.nm==='string'&&o.nm.trim()?o.nm.trim():'Nimetön',patch:RS.repair(o.patch),t:+o.t||0});});
+  d.omaId=d.omat.some(function(o){return o.id===x.omaId;})?x.omaId:null;
+  return d;
+}
+var D=freshData(),saveT=0,storageOk=true;
+try{var raw=localStorage.getItem(KEY);if(raw)D=repairData(JSON.parse(raw));}catch(e){storageOk=false;}
+function saveNow(){clearTimeout(saveT);saveT=0;try{localStorage.setItem(KEY,JSON.stringify(D));storageOk=true;}catch(e){storageOk=false;}}
+function save(){clearTimeout(saveT);saveT=setTimeout(saveNow,300);}
+window.addEventListener('pagehide',function(){if(saveT)saveNow();});
+var P=function(){return D.nyky;};
+
+// ---------- ulkoasu ----------
+var appearance={theme:'forest',mode:'auto'},mq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+try{var ap=JSON.parse(localStorage.getItem(APKEY)||'null');if(ap&&APPIPAJA_THEMES.some(function(x){return x.id===ap.theme;}))appearance.theme=ap.theme;if(ap&&['auto','light','dark'].indexOf(ap.mode)>=0)appearance.mode=ap.mode;}catch(e){}
+function isDark(){return appearance.mode==='dark'||appearance.mode==='auto'&&!!(mq&&mq.matches);}
+function applyAppearance(){
+  var t=APPIPAJA_THEMES.filter(function(x){return x.id===appearance.theme;})[0]||APPIPAJA_THEMES[0],dark=isDark(),c=dark?t.dark:t.light,root=document.documentElement;
+  root.setAttribute('data-theme',appearance.mode);root.style.colorScheme=dark?'dark':'light';
+  var v={'--bg':c.bg,'--cell':c.cell,'--label':c.label,'--label2':c.label2,'--sep':c.sep,'--accent':c.accent,'--solid':c.accent,'--on-solid':dark?c.bg:'#FFFFFF','--fill':c.fill,'--fill2':c.tint,
+    '--danger':dark?'#FF453A':'#D70015','--app-shadow':dark?'rgba(0,0,0,.13)':'rgba(39,61,34,.055)','--shade':dark?'rgba(0,0,0,.5)':'rgba(20,30,25,.38)'};
+  Object.keys(v).forEach(function(k){root.style.setProperty(k,v[k]);});
+  var m=document.querySelector('meta[name=theme-color]');if(!m){m=document.createElement('meta');m.name='theme-color';document.head.appendChild(m);}m.content=c.bg;
+  try{localStorage.setItem(APKEY,JSON.stringify(appearance));}catch(e){}
+}
+if(mq){var onMq=function(){if(appearance.mode==='auto')applyAppearance();};if(mq.addEventListener)mq.addEventListener('change',onMq);else if(mq.addListener)mq.addListener(onMq);}
+applyAppearance();
+
+// ---------- ääni ----------
+var AC=null,node=null,spEng=null,audioErr='',running=false,curStep=-1;
+function post(m){if(node)node.port.postMessage(m);else if(spEng)handleLocal(m);}
+function handleLocal(d){var e=spEng;if(d.t==='load')e.load(d.patch);else if(d.t==='p')e.set(d.id,d.v);else if(d.t==='st')e.setStep(d.k,d.i,d.v);else if(d.t==='cab')e.setCables(d.list);else if(d.t==='run')e.run(d.v);else if(d.t==='trig')e.trigger();else if(d.t==='adv')e.advance();}
+function onMsg(d){if(d.t==='step')setStep(d.i);else if(d.t==='run')setRun(d.v);}
+var audioP=null;
+function ensureAudio(){
+  if(AC){if(AC.state!=='running')AC.resume();return audioP;}
+  var C=window.AudioContext||window.webkitAudioContext;if(!C){audioErr='Selain ei tue Web Audiota.';return Promise.resolve(false);}
+  AC=new C({latencyHint:'interactive'});
+  var code=document.getElementById('engine').textContent;
+  var fallback=function(){
+    spEng=RS.create(AC.sampleRate);spEng.loadNow(P());spEng.onStep=function(i){setTimeout(function(){onMsg({t:'step',i:i});});};spEng.onRun=function(v){setTimeout(function(){onMsg({t:'run',v:v});});};
+    var sp=AC.createScriptProcessor(512,0,1);sp.onaudioprocess=function(ev){spEng.process(ev.outputBuffer.getChannelData(0),ev.outputBuffer.length);};sp.connect(AC.destination);window.__sp=sp;return true;
+  };
+  if(AC.audioWorklet&&typeof AudioWorkletNode!=='undefined'){
+    var url=URL.createObjectURL(new Blob([code],{type:'application/javascript'}));
+    audioP=AC.audioWorklet.addModule(url).then(function(){
+      node=new AudioWorkletNode(AC,'rumpusyntikka',{numberOfInputs:0,numberOfOutputs:1,outputChannelCount:[2]});
+      node.port.onmessage=function(m){onMsg(m.data);};node.connect(AC.destination);node.port.postMessage({t:'load',patch:P()});return true;
+    }).catch(function(){return fallback();});
+  }else audioP=Promise.resolve(fallback());
+  AC.resume();
+  return audioP;
+}
+function withAudio(fn){var p=ensureAudio();if(p)p.then(function(ok){if(ok!==false)fn();});}
+
+// ---------- muotoilu ----------
+var NOTES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+function hz(f){return f>=1000?nf(f/1000,f>=10000?1:2)+' kHz':nf(f,f<10?2:f<100?1:0)+' Hz';}
+function note(f){var m=Math.round(69+12*Math.log2(f/440));if(m<0||m>127)return '';return NOTES[m%12]+(Math.floor(m/12)-1);}
+function ms(s){return s>=1?nf(s,2)+' s':nf(s*1000,s<0.1?0:0)+' ms';}
+function pct(v){return Math.round(v*100)+' %';}
+function oct(o){return (o>0?'+':'')+nf(o,2)+' okt';}
+var SWL={seqPitchMod:['VCO 1&2','OFF','VCO 2'],vco1Wave:['TRI','SQR'],vco2Wave:['TRI','SQR'],sync:['OFF','ON'],vcfMode:['LP','HP'],vcaAtk:['FAST','SLOW']};
+var SWI={seqPitchMod:'mihin sekvenssin sävel menee',vco1Wave:'aaltomuoto',vco2Wave:'aaltomuoto',sync:'VCO 2 lukittuu VCO 1:n vaiheeseen',vcfMode:'alipäästö tai ylipäästö',vcaAtk:'VCA-verhokäyrän isku'};
+function fmt(id,v){
+  if(/Decay$/.test(id))return ['kesto ≈ '+ms(RS.decayS(v)*4.6),'aikavakio '+ms(RS.decayS(v))];
+  if(id==='vco1Freq'||id==='vco2Freq'){var f=RS.vcoHz(v);return [hz(f),note(f)];}
+  if(id==='vco1Eg'||id==='vco2Eg')return [oct(RS.egOct(v)),'sävelen siirto iskun huipulla (VCO EG)'];
+  if(id==='vcfEg')return [oct(RS.vcfOct(v)),'cutoffin siirto iskun huipulla'];
+  if(id==='fm')return ['± '+nf(RS.fmOct(v),2)+' okt','VCO 1 heiluttaa VCO 2:n säveltä'];
+  if(id==='cutoff')return [hz(RS.cutHz(v)),''];
+  if(id==='tempo'){var r=RS.stepRate(v);return [nf(r,2)+' askelta/s','≈ '+Math.round(r*15)+' BPM, jos askel on 1/16'];}
+  if(id==='res')return [pct(v),v>0.93?'itseoskilloi':''];
+  if(id==='noiseVcf')return [pct(v),'kohina (tai VCF MOD -tulo) heiluttaa cutoffia'];
+  if(SWL[id])return [SWL[id][Math.round(v)],SWI[id]];
+  var m=/^(pitch|vel):(\d)$/.exec(id);
+  if(m)return m[1]==='pitch'?[oct(v*RS.SEQ_OCT),'askel '+(+m[2]+1)+': sävel']:[pct(v),'askel '+(+m[2]+1)+': velocity (kaikki verhokäyrät)'];
+  return [pct(v),''];
+}
+var PARD={};RS.PAR.forEach(function(p){PARD[p[0]]=p;});
+function label(id){var m=/^(pitch|vel):(\d)$/.exec(id);if(m)return (m[1]==='pitch'?'PITCH ':'VELOCITY ')+(+m[2]+1);return PARD[id]?PARD[id][1]:id;}
+var readT=0;
+function readout(id,v){var r=fmt(id,v);$('#readout').innerHTML='<b>'+esc(label(id))+'</b><span>'+esc(r[0])+'</span>'+(r[1]?'<i>'+esc(r[1])+'</i>':'');}
+function readText(a,b,c){$('#readout').innerHTML='<b>'+esc(a)+'</b>'+(b?'<span>'+esc(b)+'</span>':'')+(c?'<i>'+esc(c)+'</i>':'');}
+
+// ---------- paneeli ----------
+function getV(id){var m=/^(pitch|vel):(\d)$/.exec(id);return m?P()[m[1]][+m[2]]:P().p[id];}
+function defV(id){var m=/^(pitch|vel):(\d)$/.exec(id);return m?(m[1]==='pitch'?0:0.7):PARD[id][2];}
+function isBi(id){return /^pitch:/.test(id)||(PARD[id]&&PARD[id][3]==='b');}
+function setV(id,v,quiet){
+  var bi=isBi(id),sw=PARD[id]&&PARD[id][3].charAt(0)==='s';v=sw?Math.max(0,Math.min(SWL[id].length-1,Math.round(v))):Math.max(bi?-1:0,Math.min(1,v));
+  var m=/^(pitch|vel):(\d)$/.exec(id);
+  if(m){P()[m[1]][+m[2]]=v;post({t:'st',k:m[1],i:+m[2],v:v});}else{P().p[id]=v;post({t:'p',id:id,v:v});}
+  drawCtl(id);if(!quiet)readout(id,v);changed();
+}
+function changed(){if(!D.muutettu){D.muutettu=true;soundLabel();}save();}
+function arc(a0,a1,r){var p=function(a){var t=(a-90)*Math.PI/180;return [24+r*Math.cos(t),24+r*Math.sin(t)];},s=p(a0),e=p(a1),big=Math.abs(a1-a0)>180?1:0,sw=a1>a0?1:0;
+  return 'M'+s[0].toFixed(2)+' '+s[1].toFixed(2)+' A'+r+' '+r+' 0 '+big+' '+sw+' '+e[0].toFixed(2)+' '+e[1].toFixed(2);}
+function knobSvg(){return '<svg viewBox="0 0 48 48"><path class="trk" d="'+arc(-135,135,21)+'"/><path class="val"/><circle class="kb" cx="24" cy="24" r="15.5"/><line class="ind" x1="24" y1="24" x2="24" y2="11"/></svg>';}
+function drawCtl(id){
+  var el=document.querySelector('[data-id="'+id+'"]');if(!el)return;var v=getV(id);
+  if(el.classList.contains('knob')){
+    var bi=isBi(id),a=bi?v*135:-135+v*270,a0=bi?0:-135,path=$('.val',el);
+    if(Math.abs(a-a0)<0.5)path.setAttribute('d','');else path.setAttribute('d',arc(Math.min(a0,a),Math.max(a0,a),21));
+    $('.ind',el).setAttribute('transform','rotate('+a.toFixed(1)+' 24 24)');el.setAttribute('aria-valuenow',v.toFixed(3));el.setAttribute('aria-valuetext',fmt(id,v)[0]);
+  }else $$('button',el).forEach(function(b,i){b.setAttribute('aria-pressed',String(Math.round(v)===i));});
+}
+function knob(id,sm){return '<div class="knob'+(sm?' sm':'')+'" data-id="'+id+'" tabindex="0" role="slider" aria-label="'+esc(label(id))+'" aria-valuemin="'+(isBi(id)?-1:0)+'" aria-valuemax="1">'+knobSvg()+'</div>';}
+function ctl(id){
+  var d=PARD[id],h;
+  if(d[3]==='s2'||d[3]==='s3')h='<div class="sw" data-id="'+id+'" role="group" aria-label="'+esc(d[1])+'">'+SWL[id].map(function(t,i){return '<button data-swi="'+i+'">'+esc(t)+'</button>';}).join('')+'</div>';
+  else h=knob(id);
+  return '<div class="ctl"><div class="lab">'+esc(d[1])+'</div>'+h+'</div>';
+}
+function sec(t,ids,cls){return '<div class="sec'+(cls?' '+cls:'')+'"><h3>'+t+'</h3><div class="ctls">'+ids.map(ctl).join('')+'</div></div>';}
+var JINFO={trig:'Nouseva reuna laukaisee verhokäyrät askelta siirtämättä.',vcaCv:'Korvaa VCA-verhokäyrän: 0–8 V ohjaa voimakkuutta.',vel:'Korvaa sekvenssin velocityn (0–8 V), joka skaalaa kaikki kolme verhokäyrää.',
+  vcaDec:'Pidentää tai lyhentää VCA:n vaimenemista (+2 V ≈ kaksinkertainen).',ext:'Ulkoinen ääni kohinan paikalle mikseriin (NOISE / EXT LEVEL).',vcfDec:'Pidentää tai lyhentää suotimen vaimenemista (+2 V ≈ kaksinkertainen).',
+  noise:'Lisää kohinan tai ulkoisen äänen tasoa (8 V = täysi).',vcoDec:'Pidentää tai lyhentää sävelverhokäyrää (+2 V ≈ kaksinkertainen).',vcfMod:'Suotimen modulaatio, määrä potikasta NOISE / VCF MOD. Ilman kaapelia lähde on kohina.',
+  vco1Cv:'VCO 1:n sävel, 1 V/oktaavi.',fmAmt:'Lisää 1→2 FM -määrää (8 V = täysi).',vco2Cv:'VCO 2:n sävel, 1 V/oktaavi.',tempo:'Sekvensserin nopeus: +2 V = kaksinkertainen.',
+  run:'Nouseva reuna käynnistää tai pysäyttää sekvensserin.',adv:'Nouseva reuna siirtää askeleen ja laukaisee äänen (ulkoinen kello).',
+  vca:'Valmis ääni, sama kuin kaiuttimissa.',vcaEg:'VCA-verhokäyrä × velocity, 0–8 V.',vcfEg:'Suotimen verhokäyrä × velocity, 0–8 V.',vcoEg:'Sävelverhokäyrä × velocity, 0–8 V.',
+  vco1:'VCO 1:n aalto ennen mikseriä, ±5 V.',vco2:'VCO 2:n aalto ennen mikseriä, ±5 V.',trigO:'5 ms pulssi jokaisella iskulla.',velO:'Askeleen velocity, 0–8 V.',pitchO:'Askeleen sävel, ±2,5 V.'};
+function buildPanel(){
+  var h='<div class="left">';
+  h+=sec('Oskillaattorit',['vcoDecay','seqPitchMod','vco1Eg','vco1Freq','vco1Wave','fm','vco2Eg','vco2Freq','vco2Wave','sync']);
+  h+='<div class="rowsec">'+sec('Mikseri',['vco1Lvl','noiseLvl','vco2Lvl'])+sec('Suodin',['vcfMode','cutoff','res','vcfEg','vcfDecay','noiseVcf'])+sec('VCA',['vcaAtk','vcaDecay','volume'])+'</div>';
+  h+='<div class="sec"><h3>Sekvensseri</h3><div class="seq"><div class="seqctl"><div class="ctl"><div class="lab">TEMPO</div>'+knob('tempo')+'</div>'+
+    '<button id="runBtn" aria-pressed="false">RUN/STOP</button><button id="advBtn">ADVANCE</button><button id="trigBtn">TRIGGER</button></div><div class="steps">';
+  var i;for(i=0;i<8;i++)h+='<div class="step"><div class="led" data-led="'+i+'"></div><div class="stn">'+(i+1)+'</div></div>';
+  h+='<div class="rowlab">PITCH</div>';for(i=0;i<8;i++)h+='<div class="step">'+knob('pitch:'+i,true)+'</div>';
+  h+='<div class="rowlab">VELOCITY</div>';for(i=0;i<8;i++)h+='<div class="step">'+knob('vel:'+i,true)+'</div>';
+  h+='</div></div></div></div>';
+  h+='<div class="sec bay"><h3>Patch bay</h3><div class="jacks">';
+  RS.JACKS.forEach(function(j,k){if(k===15)h+='<div class="baysep"></div>';h+='<div class="jk '+j[2]+'"><span class="jl">'+esc(j[1])+'</span><div class="jack" data-jack="'+j[0]+'" tabindex="0" aria-label="'+esc(j[1]+(j[2]==='i'?' (tulo)':' (lähtö)'))+'"></div></div>';});
+  h+='</div></div>';
+  $('#panel').insertAdjacentHTML('afterbegin',h);
+  $$('.knob,.sw').forEach(function(el){drawCtl(el.getAttribute('data-id'));});
+}
+buildPanel();
+
+// potikat
+function knobEl(t){return t&&t.closest?t.closest('.knob'):null;}
+var drag=null;
+$('#panel').addEventListener('pointerdown',function(ev){
+  var k=knobEl(ev.target);if(!k||ev.button>0)return;ev.preventDefault();k.focus();ensureAudio();
+  var id=k.getAttribute('data-id');drag={id:id,y:ev.clientY,v:getV(id),el:k};k.classList.add('drag');k.setPointerCapture(ev.pointerId);readout(id,getV(id));
+});
+$('#panel').addEventListener('pointermove',function(ev){
+  if(!drag)return;var range=isBi(drag.id)?2:1,dy=drag.y-ev.clientY;drag.y=ev.clientY;
+  drag.v=Math.max(isBi(drag.id)?-1:0,Math.min(1,drag.v+dy/(ev.shiftKey?900:180)*range));setV(drag.id,drag.v);
+});
+function endDrag(){if(drag){drag.el.classList.remove('drag');drag=null;}}
+$('#panel').addEventListener('pointerup',endDrag);$('#panel').addEventListener('pointercancel',endDrag);
+$('#panel').addEventListener('wheel',function(ev){var k=knobEl(ev.target);if(!k)return;ev.preventDefault();var id=k.getAttribute('data-id');setV(id,getV(id)-Math.sign(ev.deltaY)*(ev.shiftKey?0.002:0.01)*(isBi(id)?2:1));},{passive:false});
+$('#panel').addEventListener('dblclick',function(ev){var k=knobEl(ev.target);if(!k)return;var id=k.getAttribute('data-id');setV(id,defV(id));});
+$('#panel').addEventListener('keydown',function(ev){
+  var k=knobEl(ev.target);if(!k)return;var id=k.getAttribute('data-id'),v=getV(id),s=isBi(id)?2:1,d={ArrowUp:0.01,ArrowRight:0.01,ArrowDown:-0.01,ArrowLeft:-0.01,PageUp:0.1,PageDown:-0.1}[ev.key];
+  if(d!==undefined){ev.preventDefault();ev.stopPropagation();setV(id,v+d*s*(ev.shiftKey?0.2:1));}
+  else if(ev.key==='Home'){ev.preventDefault();setV(id,isBi(id)?-1:0);}else if(ev.key==='End'){ev.preventDefault();setV(id,1);}
+});
+$('#panel').addEventListener('mouseover',function(ev){
+  if(drag||cdrag)return;var k=knobEl(ev.target);if(k){var id=k.getAttribute('data-id');readout(id,getV(id));return;}
+  var sw=ev.target.closest&&ev.target.closest('.sw');if(sw){var sid=sw.getAttribute('data-id');readout(sid,getV(sid));return;}
+  var j=ev.target.closest&&ev.target.closest('.jack');if(j)jackInfo(j.getAttribute('data-jack'));
+});
+$('#panel').addEventListener('focusin',function(ev){var k=knobEl(ev.target);if(k){var id=k.getAttribute('data-id');readout(id,getV(id));}});
+// kytkimet ja napit
+$('#panel').addEventListener('click',function(ev){
+  var b=ev.target.closest&&ev.target.closest('.sw button');
+  if(b){var id=b.parentNode.getAttribute('data-id');ensureAudio();setV(id,+b.getAttribute('data-swi'));return;}
+  if(ev.target.closest('#runBtn'))toggleRun();else if(ev.target.closest('#advBtn'))advance();else if(ev.target.closest('#trigBtn'))trigger();
+});
+function toggleRun(){withAudio(function(){post({t:'run',v:!running});setRun(!running);});}
+function advance(){withAudio(function(){post({t:'adv'});});}
+function trigger(){withAudio(function(){post({t:'trig'});});}
+function setRun(v){running=!!v;$('#runBtn').setAttribute('aria-pressed',String(running));}
+function setStep(i){curStep=i;$$('.led').forEach(function(l,k){l.classList.toggle('on',k===i);});}
+document.addEventListener('keydown',function(ev){
+  if(!$('#shade').hidden||ev.metaKey||ev.ctrlKey||ev.altKey)return;var t=ev.target.tagName;if(t==='INPUT'||t==='TEXTAREA'||t==='SELECT')return;
+  if(ev.key===' '){if(t==='BUTTON')return;ev.preventDefault();toggleRun();}
+  else if(ev.key==='t'||ev.key==='T')trigger();else if(ev.key==='a'||ev.key==='A')advance();
+});
+
+// ---------- kaapelit ----------
+var CCOL=['#E0533D','#E9A23B','#3E8ED0','#47A66B','#9B6AD6','#D45C9E','#2BA9A0'];
+function jackAt(x,y){var a=document.elementsFromPoint?document.elementsFromPoint(x,y):[document.elementFromPoint(x,y)];for(var i=0;i<a.length;i++){var j=a[i]&&a[i].closest&&a[i].closest('.jack');if(j)return j;}return null;}
+function jackType(id){return RS.isIn(id)?'i':'o';}
+function jackLabel(id){var j=RS.JACKS.filter(function(x){return x[0]===id;})[0];return j?j[1]:id;}
+function jackInfo(id){
+  var c=P().cab,io=jackType(id),n=io==='i'?c.filter(function(x){return x[1]===id;}).map(function(x){return jackLabel(x[0]);}):c.filter(function(x){return x[0]===id;}).map(function(x){return jackLabel(x[1]);});
+  readText(jackLabel(id)+(io==='i'?' (tulo)':' (lähtö)'),n.length?(io==='i'?'← ':'→ ')+n.join(', '):'',JINFO[id]);
+}
+function jackPos(id){var el=document.querySelector('[data-jack="'+id+'"]'),pr=$('#panel').getBoundingClientRect(),r=el.getBoundingClientRect();return [r.left+r.width/2-pr.left,r.top+r.height/2-pr.top];}
+function cablePath(a,b){var dx=b[0]-a[0],dy=b[1]-a[1],sag=Math.min(120,30+Math.sqrt(dx*dx+dy*dy)*0.35);
+  var side=Math.abs(dx)<70?Math.min(70,Math.abs(dy)*0.18)*(a[1]<b[1]?1:-1):0; // pystysuora kaapeli kaartuu sivulle eikä peitä nimiä
+  return 'M'+a[0].toFixed(1)+' '+a[1].toFixed(1)+' C'+(a[0]+dx*0.25+side).toFixed(1)+' '+(a[1]+sag).toFixed(1)+' '+(b[0]-dx*0.25+side).toFixed(1)+' '+(b[1]+sag).toFixed(1)+' '+b[0].toFixed(1)+' '+b[1].toFixed(1);}
+function colorFor(inId){var i=RS.JACKS.findIndex(function(j){return j[0]===inId;});return CCOL[i%CCOL.length];}
+var cdrag=null;
+function drawCables(){
+  var svg=$('#cables'),h='';
+  P().cab.forEach(function(c,i){var a=jackPos(c[0]),b=jackPos(c[1]),col=colorFor(c[1]);
+    h+='<path d="'+cablePath(a,b)+'" stroke="'+col+'" data-cab="'+i+'"><title>'+esc(jackLabel(c[0])+' → '+jackLabel(c[1])+' (klikkaa poistaaksesi)')+'</title></path><circle cx="'+a[0]+'" cy="'+a[1]+'" r="5" fill="'+col+'"/><circle cx="'+b[0]+'" cy="'+b[1]+'" r="5" fill="'+col+'"/>';});
+  if(cdrag&&cdrag.pt)h+='<path class="tmp" d="'+cablePath(jackPos(cdrag.from),cdrag.pt)+'" stroke="var(--accent)"/>';
+  svg.innerHTML=h;
+}
+function setCables(list){P().cab=RS.repair({cab:list}).cab;post({t:'cab',list:P().cab});drawCables();changed();}
+$('#cables').addEventListener('click',function(ev){var p=ev.target.closest('path[data-cab]');if(!p||jackAt(ev.clientX,ev.clientY))return;var i=+p.getAttribute('data-cab'),c=P().cab[i];setCables(P().cab.filter(function(x,k){return k!==i;}));readText('Kaapeli poistettu',jackLabel(c[0])+' → '+jackLabel(c[1]));});
+// pistoke voi olla kaapelin alla, joten se etsitään osoittimen kohdalta eikä kohteesta
+document.addEventListener('pointerdown',function(ev){
+  if(ev.button>0||!$('#shade').hidden)return;var j=jackAt(ev.clientX,ev.clientY);if(!j)return;ev.preventDefault();ev.stopPropagation();ensureAudio();
+  var id=j.getAttribute('data-jack'),from=id;
+  if(jackType(id)==='i'){var ex=P().cab.filter(function(c){return c[1]===id;})[0];if(ex){from=ex[0];setCables(P().cab.filter(function(c){return c[1]!==id;}));}}
+  cdrag={from:from,pt:null};
+},true);
+document.addEventListener('pointermove',function(ev){
+  if(!cdrag)return;var pr=$('#panel').getBoundingClientRect();cdrag.pt=[ev.clientX-pr.left,ev.clientY-pr.top];
+  $$('.jack.hot').forEach(function(x){x.classList.remove('hot');});var j=jackAt(ev.clientX,ev.clientY);
+  if(j&&jackType(j.getAttribute('data-jack'))!==jackType(cdrag.from))j.classList.add('hot');drawCables();
+});
+document.addEventListener('pointerup',function(ev){
+  if(!cdrag)return;var from=cdrag.from;cdrag=null;$$('.jack.hot').forEach(function(x){x.classList.remove('hot');});
+  var j=jackAt(ev.clientX,ev.clientY);
+  if(j){var to=j.getAttribute('data-jack');if(jackType(to)!==jackType(from)){var o=jackType(from)==='o'?from:to,i=jackType(from)==='i'?from:to;
+    setCables(P().cab.filter(function(c){return c[1]!==i;}).concat([[o,i]]));readText('Kaapeli',jackLabel(o)+' → '+jackLabel(i),JINFO[i]);return;}}
+  drawCables();
+});
+window.addEventListener('resize',drawCables);
+
+// ---------- dialogit ----------
+function openDlg(h){$('#dlg').innerHTML=h;$('#shade').hidden=false;var f=$('#dlg input,#dlg button');if(f)f.focus();}
+function closeDlg(){$('#shade').hidden=true;$('#dlg').innerHTML='';}
+$('#shade').addEventListener('pointerdown',function(ev){if(ev.target.id==='shade')closeDlg();});
+document.addEventListener('keydown',function(ev){if(ev.key==='Escape'&&!$('#shade').hidden)closeDlg();});
+var toastT=0;function toast(t){var el=$('#toast');el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(function(){el.hidden=true;},2200);}
+function download(name,blob){var a=document.createElement('a'),u=URL.createObjectURL(blob);a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},4000);}
+function fileName(s){return (s||'aani').toLowerCase().replace(/[åä]/g,'a').replace(/ö/g,'o').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'aani';}
+function clone(x){return JSON.parse(JSON.stringify(x));}
+
+// omat äänet
+function soundLabel(){$('#soundBtn').textContent=(D.nimi||'Nimetön ääni')+(D.muutettu&&D.omaId?' •':'')+' ▾';}
+function loadPatch(patch){D.nyky=RS.repair(clone(patch));post({t:'load',patch:D.nyky});$$('.knob,.sw').forEach(function(el){drawCtl(el.getAttribute('data-id'));});drawCables();}
+function soundsDlg(){
+  var h='<h2>Omat äänet</h2><div class="row"><input id="sndName" placeholder="Nimi" maxlength="60" value="'+esc(D.nimi)+'" style="flex:1"><button class="solid" data-a="saveNew">Tallenna uutena</button></div>';
+  if(D.omaId)h+='<div class="row"><button data-a="saveOver">Päivitä ”'+esc(D.nimi)+'” nykyisillä säädöillä</button></div>';
+  h+='<h4>Tallennetut</h4>';
+  if(!D.omat.length)h+='<p class="help">Ei vielä tallennettuja ääniä. Säädä ääni ja tallenna se nimellä.</p>';
+  D.omat.forEach(function(o){h+='<div class="snd'+(o.id===D.omaId?' cur':'')+'"><span>'+esc(o.nm)+'</span><button data-a="load" data-id="'+o.id+'">Avaa</button><button class="danger" data-a="del" data-id="'+o.id+'">Poista</button></div>';});
+  h+='<h4>Aloita alusta</h4><div class="row"><button data-a="init">Alkuasetus</button><span class="help">Kaikki säädöt oletusarvoihin ja kaapelit pois.</span></div>';
+  if(!storageOk)h+='<p class="warn">Selaimen muistiin ei voi tallentaa. Ota varmuuskopio tiedostona.</p>';
+  h+='<div class="end"><button data-a="close">Valmis</button></div>';openDlg(h);
+}
+function confirmLose(){return !D.muutettu||confirm('Nykyisiä säätöjä ei ole tallennettu omiin ääniin. Korvataanko ne?');}
+$('#dlg').addEventListener('click',function(ev){
+  var b=ev.target.closest('button[data-a]');if(!b)return;var a=b.getAttribute('data-a'),id=b.getAttribute('data-id');
+  if(a==='close')closeDlg();
+  else if(a==='saveNew'){var nm=($('#sndName').value||'').trim()||'Ääni '+(D.omat.length+1);var o={id:uid(),nm:nm,patch:clone(P()),t:Date.now()};D.omat.push(o);D.omaId=o.id;D.nimi=nm;D.muutettu=false;saveNow();soundLabel();soundsDlg();toast('Tallennettu: '+nm);}
+  else if(a==='saveOver'){var s=D.omat.filter(function(o){return o.id===D.omaId;})[0];if(s){s.patch=clone(P());s.t=Date.now();D.muutettu=false;saveNow();soundLabel();soundsDlg();toast('Päivitetty: '+s.nm);}}
+  else if(a==='load'){var l=D.omat.filter(function(o){return o.id===id;})[0];if(l&&confirmLose()){loadPatch(l.patch);D.omaId=l.id;D.nimi=l.nm;D.muutettu=false;saveNow();soundLabel();closeDlg();toast('Avattu: '+l.nm);}}
+  else if(a==='del'){var dd=D.omat.filter(function(o){return o.id===id;})[0];if(dd&&confirm('Poistetaanko ääni ”'+dd.nm+'”?')){D.omat=D.omat.filter(function(o){return o.id!==id;});if(D.omaId===id){D.omaId=null;}saveNow();soundLabel();soundsDlg();}}
+  else if(a==='init'){if(confirmLose()){loadPatch(RS.defaults());D.omaId=null;D.nimi='';D.muutettu=false;saveNow();soundLabel();closeDlg();toast('Alkuasetus');}}
+  else if(a==='wav')makeWav();
+  else if(a==='bkFile')download('rumpusyntikka-varmuuskopio-'+new Date().toISOString().slice(0,10)+'.json',new Blob([JSON.stringify(D,null,1)],{type:'application/json'}));
+  else if(a==='bkText'){$('#bkTa').value=JSON.stringify(D);$('#bkTa').select();}
+  else if(a==='bkImpText')importText($('#bkTa').value);
+  else if(a==='ap-mode'){appearance.mode=b.getAttribute('data-v');applyAppearance();apDlg();}
+  else if(a==='ap-theme'){appearance.theme=b.getAttribute('data-v');applyAppearance();apDlg();}
+});
+$('#soundBtn').addEventListener('click',soundsDlg);
+
+// .wav
+function wavDlg(){
+  openDlg('<h2>Tallenna ääni</h2><p>Sekvenssi soitetaan alusta nykyisillä säädöillä ja tallennetaan .wav-tiedostona (48 kHz, mono). Kesken soiton tehdyt säätöliikkeet eivät tallennu.</p>'+
+    '<div class="row"><label>Kierroksia <select id="wLoops"><option>1</option><option selected>2</option><option>4</option><option>8</option><option>16</option></select></label>'+
+    '<label>Häntä <select id="wTail"><option value="0">ei</option><option value="1" selected>1 s</option><option value="2">2 s</option><option value="4">4 s</option></select></label></div>'+
+    '<p class="help" id="wInfo"></p><div class="end"><button data-a="close">Peruuta</button><button class="solid" data-a="wav" id="wGo">Tee ja lataa</button></div>');
+  var info=function(){var r=RS.stepRate(P().p.tempo),s=+$('#wLoops').value*8/r+ +$('#wTail').value;$('#wInfo').textContent='Kesto '+nf(s,1)+' s.';};
+  $('#wLoops').onchange=info;$('#wTail').onchange=info;info();
+}
+function makeWav(){
+  var loops=+$('#wLoops').value,tail=+$('#wTail').value,b=$('#wGo');b.disabled=true;b.textContent='Tehdään…';
+  setTimeout(function(){
+    var sr=48000,data=RS.render(P(),sr,loops,tail),pk=0;for(var i=0;i<data.length;i++)pk=Math.max(pk,Math.abs(data[i]));
+    window.__lastWav={sec:data.length/sr,peak:pk};
+    download('rumpusyntikka-'+fileName(D.nimi||'aani')+'.wav',new Blob([RS.wav(data,sr)],{type:'audio/wav'}));closeDlg();toast(pk<1e-4?'Tallennettu, mutta ääni on hiljaa':'Ääni tallennettu');
+  },30);
+}
+$('#wavBtn').addEventListener('click',wavDlg);
+
+// varmuuskopio
+function backupDlg(){
+  openDlg('<h2>Varmuuskopio</h2><p>Kaikki omat äänet ja nykyiset säädöt yhdessä tiedostossa. Tiedot ovat vain tämän selaimen muistissa, joten ota kopio talteen.</p>'+
+    '<div class="row"><button class="solid" data-a="bkFile">Lataa varmuuskopio</button><label><button onclick="this.nextElementSibling.click()" type="button">Tuo tiedostosta…</button><input type="file" id="bkIn" accept=".json,application/json,text/plain" hidden></label></div>'+
+    '<h4>Varalla tekstinä</h4><textarea id="bkTa" placeholder="Liitä varmuuskopion teksti tähän"></textarea><div class="row"><button data-a="bkText">Näytä teksti</button><button data-a="bkImpText">Tuo tekstistä</button></div>'+
+    '<p class="help">Tuonti korvaa nykyiset äänet ja säädöt.</p><div class="end"><button data-a="close">Valmis</button></div>');
+  $('#bkIn').onchange=function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){importText(String(r.result));};r.readAsText(f);};
+}
+function importText(t){
+  var x;try{x=JSON.parse(t);}catch(e){alert('Teksti ei ole kelvollinen varmuuskopio.');return;}
+  if(!x||x.app!=='rumpusyntikka'){alert('Tämä ei ole Rumpusyntikan varmuuskopio.');return;}
+  if(!confirm('Korvataanko nykyiset äänet ja säädöt varmuuskopiolla ('+((x.omat||[]).length)+' ääntä)?'))return;
+  D=repairData(x);saveNow();loadPatch(D.nyky);soundLabel();closeDlg();toast('Varmuuskopio tuotu');
+}
+$('#backupBtn').addEventListener('click',backupDlg);
+
+// ulkoasu
+function apDlg(){
+  var h='<h2>Ulkoasu</h2><h4>Tila</h4><div class="seg">'+[['auto','Laitteen mukaan'],['light','Vaalea'],['dark','Tumma']].map(function(m){return '<button data-a="ap-mode" data-v="'+m[0]+'" aria-pressed="'+(appearance.mode===m[0])+'">'+m[1]+'</button>';}).join('')+'</div><h4>Teema</h4><div class="theme-grid">';
+  APPIPAJA_THEMES.forEach(function(t){h+='<button class="theme-chip" data-a="ap-theme" data-v="'+t.id+'" aria-pressed="'+(appearance.theme===t.id)+'"><i class="theme-swatch" style="background:'+t.light.accent+'"></i><span>'+esc(t.name)+'</span></button>';});
+  openDlg(h+'</div><div class="end"><button data-a="close">Valmis</button></div>');
+}
+$('#apBtn').addEventListener('click',apDlg);
+
+// ohje
+$('#helpBtn').addEventListener('click',function(){
+  openDlg('<h2>Ohje</h2><p>Kahden oskillaattorin rumpusyntikka, jonka rakenne ja säätimet noudattavat tunnettua 8-askeleista analogista perkussiosyntikkaa. Ääni on tehty ohjelmallisesti ja viritetty arvioiden, ei mitattu oikeasta laitteesta.</p>'+
+  '<h4>Äänen kulku</h4><p>VCO 1 ja VCO 2 (kolmio tai kantti) → mikseri, jossa myös kohina → 4-napainen ladder-suodin (LP tai HP) → VCA → ulos. Jokaisella iskulla kolme verhokäyrää laukeaa: sävel (VCO DECAY), suodin (VCF DECAY) ja voimakkuus (VCA DECAY).</p>'+
+  '<h4>Tärkeimmät</h4><ul><li><b>VCO 1 EG AMOUNT</b>: sävelen pudotus iskussa. Bassarin ydin.</li><li><b>1→2 FM AMOUNT</b>: VCO 1 heiluttaa VCO 2:ta, metalliset ja kelloiset äänet.</li><li><b>HARD SYNC</b>: VCO 2 lukittuu VCO 1:een. Jos VCO 2 on matalammalla, ääni hiljenee.</li><li><b>NOISE / VCF MOD</b>: kohina heiluttaa suodinta, rosoinen räminä.</li><li><b>VELOCITY</b> askeleittain skaalaa kaikkia kolmea verhokäyrää: hiljainen isku on myös lyhyempi ja tummempi.</li><li><b>SEQ PITCH MOD</b>: sekvenssin PITCH-potikat ohjaavat molempia, ei kumpaakaan tai vain VCO 2:ta.</li><li><b>RESONANCE</b> yläpäässä suodin soi itsekseen.</li></ul>'+
+  '<h4>Sekvensseri</h4><p>RUN/STOP käynnistää ja pysäyttää. ADVANCE siirtää askeleen ja soittaa sen. TRIGGER soittaa nykyisen askeleen siirtämättä. TEMPO on portaaton.</p>'+
+  '<h4>Patch bay</h4><p>Ylemmät 15 ovat tuloja, alemmat 9 (tumma nimi) lähtöjä. Ilman kaapeleita kaikki on valmiiksi kytketty. Kaapeli tuloon ohittaa sisäisen kytkennän. Esimerkkejä: VCO EG → VCA CV (voimakkuus seuraa sävelverhokäyrää), PITCH → 1→2 FM AMT (FM-määrä askeleittain), VCO 1 → VCF MOD (suodin ääninopeudella), TRIGGER → ADV/CLOCK (sekvenssi kulkee kahta askelta kerrallaan).</p>'+
+  '<h4>Tallennus</h4><p>Säädöt tallentuvat selaimeen itsestään. Omat äänet nimellä yläkulman napista. Varmuuskopio tiedostona tai tekstinä.</p><div class="end"><button data-a="close">Valmis</button></div>');
+});
+
+soundLabel();drawCables();
+requestAnimationFrame(drawCables);
+window.__rs={D:function(){return D;},P:P,running:function(){return running;},step:function(){return curStep;},audio:function(){return {ctx:AC&&AC.state,worklet:!!node,fallback:!!spEng};},setV:setV,drawCables:drawCables};
+</script>
+</body>
+</html>

@@ -79,6 +79,7 @@ Vasen kanava → nuotti A ja oikea → nuotti B samassa otossa, eli kaksi rumpu�
 
 ## Vaihe 4: DFAM-henkinen rumpusyntikka
 
+- **16.10.2026: Emil päätti tehdä syntikan omaksi tietokoneapikseen** (`rumpusyntikka/`). Tämä vaihe tarkoittaa nyt sen moottorin kopioimista Rytmikoneen äänityypiksi.
 - Rakenne: kaksi oskillaattoria (kolmio/kantti), niiden välinen FM, kohina, Moog-tyyppinen ladder-suodin (resonanssi, itseoskillointi, yliohjaus), laskevat verhokäyrät sävelelle, suotimelle ja voimakkuudelle, 8 askeleen sekvensseri (sävel ja velocity askeleittain).
 - Suodin kirjoitetaan itse (AudioWorklet), koska selaimen valmis suodin ei kuulosta Moogilta. Tunnettuja digitaalisia malleja on, esim. Huovilaisen malli.
 - Tavoite on DFAM-henkinen, ei identtinen. Sävyn virittää Emil korvillaan, koska tekoäly ei kuule. Viritys tehdään kierroksina: Emil kuuntelee ja kuvailee, tekoäly säätää.
