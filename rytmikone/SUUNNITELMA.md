@@ -1,6 +1,6 @@
 # Rytmikone: visio ja vaiheistus
 
-Työnimi Rytmikone (kansio `rytmikone/`). Laadittu 16.10.2026 Emilin kanssa käydyn pohdinnan pohjalta. **Vaihe 1 on rakennettu 16.10.2026** (ks. `TILA.md`); vaiheet 2–7 ovat suunnitelmaa.
+Työnimi Rytmikone (kansio `rytmikone/`). Laadittu 16.10.2026 Emilin kanssa käydyn pohdinnan pohjalta. **Vaiheet 1 ja 2 on rakennettu 16.10.2026** (ks. `TILA.md`); vaiheet 3–7 ovat suunnitelmaa.
 
 ## Ajatus
 
@@ -58,7 +58,9 @@ Toteutuksessa tehdyt valinnat (tekoälyn, Emil voi muuttaa): äänen sijaan tall
 - MIDI-tiedoston tavut ja delta-ajat. Käyttöliittymä 390 ja 320 px.
 - Oikealla iPhonella ensimmäiseksi: mikrofonin raakatila, toimiiko biisin soitto samalla kun mikrofoni on auki, AirPodsien mikrofonin vaihtuminen, lupakyselyt kotinäytön apissa ja näytön lukittuminen kesken oton.
 
-## Vaihe 2: esikuuntelu ja rumpuäänet
+## Vaihe 2: esikuuntelu ja rumpuäänet (rakennettu 16.10.2026)
+
+Toteutuksessa tehdyt valinnat (tekoälyn, Emil voi muuttaa): äänet ovat nuottikohtaisia ja yhteisiä kaikille projekteille; jokaisella nuotilla on GM-kartan mukainen syntetisoitu perusääni, kunnes Emil valitsee oman (vastaus avoimeen kysymykseen ”perusäänet vai tyhjästä”: perusääni on toiminto, ei sisältöä, ja sen voi vaihtaa). Seitsemän syntetisoitua tyyppiä (bassari, virveli, tomi, hi-hat, pelti, taputus, kello) ja sämple. Sämplet tallentuvat selaimen tietokantaan alkuperäisinä tiedostoina, eivät varmuuskopioon. Esikuuntelu soittaa iskut sellaisinaan (ei kvantisointia), ja .wav sisältää vain rummut.
 
 - Otto soi appissa (biisin kanssa tai ilman) ennen vientiä.
 - Syntetisoidut rummut: bassari (siniaalto, nopeasti putoava sävel), virveli (sävel + suodatettu kohina), hi-hat (kirkas kohina tai 808-tyyliset kanttiaallot). Säädettävät parametrit.

@@ -16,7 +16,7 @@ Henkilökohtaiseen käyttöön tehtyjä selainappeja. Jokainen appi on yksi HTML
 | `kytkoskartta/` | Kytköskartta (tietokoneelle) | https://kasibanaani.github.io/P-iv-kartta/kytkoskartta/ |
 | `appiappi/` | Appi-appi (entinen Pajakone; tietokoneelle ja puhelimelle, Kytköskartan pohjalta, Masterin ominaisuuksia) | https://kasibanaani.github.io/P-iv-kartta/appiappi/ |
 | `pajakone/` | Vanha osoite: ohjaa Appi-appiin | https://kasibanaani.github.io/P-iv-kartta/pajakone/ |
-| `rytmikone/` | Rytmikone (ääni → MIDI-rumpunuotit; vaihe 1, suunnitelma `rytmikone/SUUNNITELMA.md`) | https://kasibanaani.github.io/P-iv-kartta/rytmikone/ |
+| `rytmikone/` | Rytmikone (ääni → MIDI-rumpunuotit, esikuuntelu ja rumpuäänet; vaiheet 1–2, suunnitelma `rytmikone/SUUNNITELMA.md`) | https://kasibanaani.github.io/P-iv-kartta/rytmikone/ |
 | `animaatio/` | Animappi (2D-nukketeatteri, iPad ja kynä, toimii myös tietokoneella) | https://kasibanaani.github.io/P-iv-kartta/animaatio/ |
 
 Uusi appi tulee omaan kansioonsa nimellä `index.html`. Osoite on silloin `https://kasibanaani.github.io/P-iv-kartta/<kansio>/`.

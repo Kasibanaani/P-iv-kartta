@@ -1,4 +1,5 @@
-// Moottorin testit: tunnistus, velocity, verhokäyrän pakkaus, kalibroinnit, MIDI-tiedosto ja tallennusmuodon korjaus.
+// Moottorin testit: tunnistus, velocity, verhokäyrän pakkaus, kalibroinnit, MIDI-tiedosto, tallennusmuodon korjaus,
+// rumpuäänten määrittelyt, esikuuntelun nuotit ja WAV-tiedosto.
 // Moottori luetaan suoraan index.html:n lohkosta <script id="engine">.
 'use strict';
 const fs=require('fs'),path=require('path');
@@ -126,7 +127,7 @@ eq('vlq 0 ja 128',[RK.vlq(0),RK.vlq(128)],[[0],[0x81,0]]);
 
 // ---------- tallennusmuoto ----------
 const nd=RK.newData();
-eq('uusi tieto: yksi projekti, ei viivettä, oletusnuotti 36',[nd.app,nd.ver,nd.projektit.length,nd.viive,nd.uusiNuotti,nd.cur===nd.projektit[0].id],['rytmikone',1,1,null,36,true]);
+eq('uusi tieto: yksi projekti, ei viivettä, oletusnuotti 36',[nd.app,nd.ver,nd.projektit.length,nd.viive,nd.uusiNuotti,nd.cur===nd.projektit[0].id],['rytmikone',2,1,null,36,true]);
 eq('repair: roska -> uusi tieto',[RK.repair(null).projektit.length,RK.repair([1,2]).projektit.length,RK.repair('x').app],[1,1,'rytmikone']);
 const bad={app:'rytmikone',ver:1,cur:'zz',viive:'150',esi:[{nimi:'Koti',s:{portti:-40}},null],projektit:[{id:'a',nimi:'',tempo:'abc',pituus:'1/3',raidat:'x',otot:[{id:'t',env:'<<',nuotti:300,s:{esto:-5}},{id:'t',mukana:false}]},{id:'a'}]};
 const fx=RK.repair(bad);
@@ -136,5 +137,30 @@ const round=RK.repair(JSON.parse(JSON.stringify(Object.assign(RK.newData(),{viiv
 eq('repair: kelvollinen tieto säilyy ennallaan',round.viive,120);
 const pd=RK.newData();pd.projektit[0].otot.push(tk([0.5],36));const back=RK.repair(JSON.parse(JSON.stringify(pd)));
 eq('tallennus ja luku: iskut ja nuotit säilyvät',RK.exportNotes(back.projektit[0]).n,1);
+
+// ---------- vaihe 2: rumpuäänet, esikuuntelu, WAV ----------
+eq('perusäänet GM-kartan mukaan',[36,38,39,42,46,49,56,30,77].map(n=>RK.defaultSound(n).tyyppi),['bassari','virveli','taputus','hihat','hihat','pelti','kello','bassari','tomi']);
+eq('perusääni: avoin hi-hat pitkä, suljettu lyhyt',[RK.defaultSound(42).p.kesto,RK.defaultSound(46).p.kesto],[70,450]);
+check('kartan ulkopuolinen nuotti: tomi nuotin sävelkorkeudella (A4 = 440 Hz)',RK.defaultSound(69).p.savel===440&&RK.defaultSound(120).p.savel===500);
+let allOk=true;for(let n=0;n<128;n++){const d=RK.defaultSound(n);if(JSON.stringify(RK.repairSound(d,n))!==JSON.stringify(d))allOk=false;}
+check('kaikki 128 perusääntä ovat sallituissa rajoissa (korjaus ei muuta niitä)',allOk);
+check('jokaisella äänityypillä on voimakkuus ja oletukset rajoissa',RK.TYYPIT.every(k=>{const p=RK.AANET[k].p;return p.some(x=>x[0]==='voim')&&p.every(x=>x[6]>=x[2]&&x[6]<=x[3]);}));
+eq('korjaus: tuntematon tyyppi -> ei ääntä (perusääni)',[RK.repairSound({tyyppi:'syntikka'},36),RK.repairSound(null,36),RK.repairSound('x',36)],[null,null,null]);
+const rs=RK.repairSound({tyyppi:'bassari',p:{savel:9999,kesto:'abc',napsu:-5}},36);
+eq('korjaus: rajat ja puuttuvat arvot nuotin perusäänestä',[rs.p.savel,rs.p.kesto,rs.p.napsu,rs.p.voim,rs.sample],[150,500,0,80,'']);
+eq('korjaus: tyypin vaihto ottaa tyypin oletukset',RK.repairSound({tyyppi:'hihat'},36).p,{kirkkaus:7000,metalli:50,kesto:70,voim:80});
+eq('korjaus: sämple säilyttää tunnisteen',[RK.repairSound({tyyppi:'sample',sample:'abc',p:{savel:-30}},36).sample,RK.repairSound({tyyppi:'sample',sample:'abc',p:{savel:-30}},36).p.savel],['abc',-24]);
+const v1={app:'rytmikone',ver:1,projektit:[{id:'p',otot:[]}]};const r1=RK.repair(v1);
+eq('vanha tallennus (ver 1): äänet ja sämplet tyhjinä, versio nousee',[r1.ver,r1.aanet,r1.samplet],[2,{},[]]);
+const r2=RK.repair({app:'rytmikone',aanet:{'38':{tyyppi:'taputus'},'abc':{tyyppi:'bassari'},'200':{tyyppi:'bassari'},'1.5':{tyyppi:'bassari'},'40':{tyyppi:'?'}},samplet:[{id:'s1',nimi:'Pelti.wav',kesto:1.5,koko:2000},{id:'s1'},null,{nimi:''}]});
+eq('korjaus: vain kelvolliset nuotit ja äänet säilyvät',Object.keys(r2.aanet),['38']);
+eq('korjaus: sämpleluettelo, tuplat pois',[r2.samplet.length,r2.samplet[0].nimi,r2.samplet[1].nimi],[2,'Pelti.wav','Sämple']);
+eq('oma ääni voittaa perusäänen',[RK.soundFor(r2,38).tyyppi,RK.soundFor(r2,36).tyyppi,RK.soundFor(null,36).tyyppi],['taputus','bassari','bassari']);
+const pn=proj({otot:[tk([0.5,1.5],36),tk([1.0],38,{mukana:false}),tk([0.2,0.8],42,{alku:-0.5})]});
+eq('esikuuntelu: mukana olevat otot aikajärjestyksessä, alkua ennen tulleet pois',RK.playNotes(pn).map(x=>[Math.round(x.t*100)/100,x.n]),[[0.3,42],[0.5,36],[1.5,36]]);
+eq('esikuuntelu: yksi otto soi, vaikka ei ole mukana viennissä',RK.playNotes(pn,null,pn.otot[1].id).map(x=>[Math.round(x.t*100)/100,x.n,x.v]),[[1,38,127]]);
+const wv=RK.wavBytes(new Float32Array([0,1,-1,2,-2,0.5]),44100),dv=new DataView(wv.buffer);
+eq('WAV: otsake ja pituus',[Buffer.from(wv.slice(0,4)).toString(),Buffer.from(wv.slice(8,16)).toString(),dv.getUint32(24,true),dv.getUint16(22,true),dv.getUint16(34,true),dv.getUint32(40,true),wv.length],['RIFF','WAVEfmt ',44100,1,16,12,56]);
+eq('WAV: näytteet ja leikkaus',[0,1,2,3,4,5].map(i=>dv.getInt16(44+i*2,true)),[0,32767,-32768,32767,-32768,16384]);
 
 console.log(ok?'\nKAIKKI OK':'\nVIRHEITÄ');process.exit(ok?0:1);

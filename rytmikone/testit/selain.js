@@ -17,6 +17,8 @@ function wav(file,sec,hits,noise){
 const MIC=path.join(OUT,'mikki.wav'),SONG=path.join(OUT,'biisi.wav');
 wav(MIC,4,[[0.5,0.9],[1.0,0.9],[1.5,0.5],[2.0,0.05]],0.001);
 wav(SONG,2,[[0.2,0.3]],0.0);
+const SAMPLE=path.join(OUT,'sample.wav');wav(SAMPLE,0.3,[[0.0,0.8]],0.0);
+function readWav(f){const b=fs.readFileSync(f);let mx=0;for(let i=44;i+1<b.length;i+=2)mx=Math.max(mx,Math.abs(b.readInt16LE(i)));return {riff:b.toString('latin1',0,4),sr:b.readUInt32LE(24),sec:b.readUInt32LE(40)/2/b.readUInt32LE(24),max:mx};}
 const html=fs.readFileSync(path.join(__dirname,'..','index.html'));
 let checks=0,fails=0;
 async function ok(name,fn){try{await fn();checks++;console.log('ok   '+name);}catch(e){fails++;console.log('FAIL '+name+'\n     '+String(e&&e.message||e).split('\n').slice(0,4).join('\n     '));}}
@@ -35,7 +37,7 @@ function readMidi(u){const b=Buffer.from(u);if(b.toString('latin1',0,4)!=='MThd'
   await pg.goto(URL);await pg.waitForSelector('#recBtn');
   await ok('aloitus: nimi, kolme välilehteä, projekti, ei vaakavieritystä',async()=>{
     assert.equal(await pg.textContent('.brand'),'Rytmikone');
-    assert.deepEqual(await pg.$$eval('#tabs button',b=>b.map(x=>x.textContent)),['Nauhoita','Otot','Asetukset']);
+    assert.deepEqual(await pg.$$eval('#tabs button',b=>b.map(x=>x.textContent)),['Nauhoita','Otot','Äänet','Asetukset']);
     assert.equal(await pg.textContent('#projBtn'),'Projekti 1 ▾');await fits(pg,'aloitus');
     const r=await pg.locator('#recBtn').boundingBox();assert(r.width>=120&&r.height>=120,JSON.stringify(r));
   });
@@ -145,6 +147,98 @@ function readMidi(u){const b=Buffer.from(u);if(b.toString('latin1',0,4)!=='MThd'
     const m2=readMidi(fs.readFileSync(f));assert.deepEqual([m2.fmt,m2.nt,m2.notes],[1,3,n2]);
   });
   await pg.screenshot({path:path.join(OUT,'390_otot.png'),fullPage:true});
+  // ---------- vaihe 2 ----------
+  await ok('esikuuntelu: Kuuntele soittaa mukana olevat otot biisin kanssa, aika etenee, Pysäytä',async()=>{
+    await pg.click('[data-act="play"][data-scope="proj"]');await pg.waitForFunction(()=>__rk.play()&&__rk.play().pos>0.3,null,{timeout:4000});
+    const st=await pg.evaluate(()=>__rk.play()),n=await pg.evaluate(()=>RK.playNotes(__rk.P(),__rk.envOf).length);
+    assert.equal(st.n,n);assert.equal(st.take,null);assert.equal(st.song,true);assert(n>0);
+    assert.equal(await pg.textContent('[data-act="play"]'),'■ Pysäytä');assert(/^\d:\d\d,\d \/ \d:\d\d,\d$/.test(await pg.textContent('#playTime')),await pg.textContent('#playTime'));
+    await pg.click('[data-act="play"]');assert.equal(await pg.evaluate(()=>__rk.play()),null);assert.equal(await pg.textContent('[data-act="play"]'),'▶ Kuuntele');
+  });
+  await ok('esikuuntelu: Biisin kanssa pois -> vain rummut; soitto loppuu itsestään',async()=>{
+    await pg.click('[data-act="playSong"]');assert.equal(await pg.getAttribute('[data-act="playSong"]','aria-pressed'),'false');
+    await pg.click('[data-act="play"]');await pg.waitForFunction(()=>__rk.play());assert.equal((await pg.evaluate(()=>__rk.play())).song,false);
+    const end=(await pg.evaluate(()=>__rk.play())).end;await pg.waitForFunction(()=>!__rk.play(),null,{timeout:(end+3)*1000});
+    await pg.click('[data-act="playSong"]');
+  });
+  await ok('äänitiedosto: .wav tehdään ja ladataan, rummut kuuluvat',async()=>{
+    await pg.click('[data-act="wav"]');await pg.waitForSelector('[data-act="wavDl"]',{timeout:15000});
+    const [dl]=await Promise.all([pg.waitForEvent('download'),pg.click('[data-act="wavDl"]')]);assert.equal(dl.suggestedFilename(),'Projekti 1 rytmi.wav');
+    const f=path.join(OUT,'rytmi.wav');await dl.saveAs(f);const w=readWav(f),last=await pg.evaluate(()=>{const a=RK.playNotes(__rk.P(),__rk.envOf);return a[a.length-1].t;});
+    assert.equal(w.riff,'RIFF');assert.equal(w.sr,44100);assert(Math.abs(w.sec-(last+2.5))<0.05,w.sec+' vs '+last);assert(w.max>2000,'hiljainen: '+w.max);
+    await fits(pg,'otot + wav');
+  });
+  await ok('Äänet: projektin nuotit perusäänillä, ääni-ikkuna, säätö, tyypin vaihto, palautus',async()=>{
+    await pg.click('#tabs [data-tab="snd"]');await fits(pg,'äänet');
+    const rows=await pg.$$eval('#v-snd .card:first-child .list-row .open',b=>b.map(x=>x.textContent));
+    assert.equal(rows.length,2,JSON.stringify(rows));assert(rows[0].startsWith('38')&&rows[0].includes('Virveli · perusääni'),rows[0]);assert(rows[1].includes('Bassari · perusääni'),rows[1]);
+    await pg.click('[data-act="audition"][data-n="36"]');
+    await pg.click('[data-act="sndEdit"][data-n="36"]');assert(await pg.isVisible('#sheet'));
+    assert.equal(await pg.locator('[data-act="sndType"]').count(),8);assert.equal(await pg.getAttribute('[data-act="sndType"][aria-pressed="true"]','data-v'),'bassari');
+    assert.equal(await pg.locator('#sheet input[type=range]').count(),6);assert(await pg.isHidden('#sndReset'));assert.equal(await pg.locator('#sheet .sl .help').count(),0,'oletusarvo ei saa näkyä ohjeena');
+    await pg.$eval('[data-snd="savel"]',e=>{e.value='80';e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));});
+    assert.deepEqual(await pg.evaluate(()=>[__rk.D().aanet[36].tyyppi,__rk.D().aanet[36].p.savel]),['bassari',80]);assert.equal(await pg.textContent('#os-savel'),'80 Hz');assert(await pg.isVisible('#sndReset'));
+    await pg.click('[data-act="sndType"][data-v="tomi"]');assert.deepEqual(await pg.evaluate(()=>Object.keys(__rk.D().aanet[36].p)),['savel','isku','kesto','voim']);
+    assert.equal(await pg.locator('#sheet input[type=range]').count(),4);
+    await pg.click('[data-act="sndReset"]');assert.equal(await pg.evaluate(()=>__rk.D().aanet[36]),undefined);
+    await pg.click('[data-act="sndType"][data-v="hihat"]');await pg.click('#sheet [data-act="sheetClose"]');assert(await pg.isHidden('#shade'));
+    assert((await pg.textContent('#v-snd')).includes('Hi-hat'));
+  });
+  await ok('Äänet: muun nuotin ääni näkyy omana listanaan',async()=>{
+    await pg.selectOption('#sndOther','49');assert.equal(await pg.getAttribute('[data-act="sndType"][aria-pressed="true"]','data-v'),'pelti');
+    await pg.click('[data-act="sndType"][data-v="kello"]');await pg.click('#shade',{position:{x:10,y:10}});assert(await pg.isHidden('#shade'));
+    const t=await pg.textContent('#v-snd');assert(t.includes('Muut omat äänet')&&t.includes('49 · C#2 · Crash')&&t.includes('Kello'),t.slice(0,400));
+  });
+  await ok('jokainen äänityyppi tuottaa äänen, joka vaimenee keston jälkeen; hiljainen isku on hiljaisempi',async()=>{
+    const r=await pg.evaluate(async()=>{const D=__rk.D(),out={};
+      for(const k of RK.TYYPIT.filter(k=>k!=='sample')){D.aanet[60]=RK.repairSound({tyyppi:k},60);const kesto=D.aanet[60].p.kesto,sr=22050;
+        const peak=async v=>{const b=await __rk.renderNotes([{t:0.05,n:60,v}],0.05+kesto/1000+0.4,sr),d=b.getChannelData(0),cut=Math.round((0.05+kesto/1000+0.15)*sr);let p=0,tail=0;for(let i=0;i<d.length;i++){const a=Math.abs(d[i]);if(i<cut){if(a>p)p=a;}else if(a>tail)tail=a;}return [p,tail];};
+        const [p,tail]=await peak(127),[q]=await peak(30);out[k]=[Math.round(p*1000)/1000,Math.round(tail*10000)/10000,Math.round(q*1000)/1000];}
+      delete D.aanet[60];return out;});
+    console.log('     [huippu, hännän huippu, hiljaisen iskun huippu]: '+JSON.stringify(r));
+    Object.keys(r).forEach(k=>{const [p,tail,q]=r[k];assert(p>0.03,k+' liian hiljaa '+p);assert(tail<0.01,k+' ei vaimene '+tail);assert(q<p*0.6,k+' velocity ei vaikuta '+q+'/'+p);});
+  });
+  await ok('sämple: lisäys nuotin ääni-ikkunasta, tallentuu selaimen tietokantaan ja säilyy uudelleenlatauksessa',async()=>{
+    await pg.click('[data-act="sndEdit"][data-n="38"]');await pg.click('[data-act="sndType"][data-v="sample"]');
+    assert((await pg.textContent('#sheet')).includes('Lisää sämple tiedostona'));
+    const [fc]=await Promise.all([pg.waitForEvent('filechooser'),pg.click('[data-act="samplePick"][data-n="38"]')]);await fc.setFiles(SAMPLE);
+    await pg.waitForFunction(()=>__rk.D().samplet.length===1&&__rk.D().aanet[38]&&__rk.D().aanet[38].sample===__rk.D().samplet[0].id,null,{timeout:5000});
+    const sm=await pg.evaluate(()=>__rk.D().samplet[0]);assert.equal(sm.nimi,'sample.wav');assert(sm.kesto>0.25&&sm.kesto<0.35,JSON.stringify(sm));
+    assert.equal(await pg.inputValue('#sndSample'),sm.id);assert(!(await pg.textContent('#sheet')).includes('puuttuu'));
+    await pg.click('#sheet [data-act="sheetClose"]');assert((await pg.textContent('#v-snd')).includes('Sämple: sample.wav'));
+    await pg.waitForTimeout(500);await pg.reload();await pg.waitForSelector('#recBtn');await pg.click('#tabs [data-tab="snd"]');
+    assert.equal(await pg.evaluate(id=>__rk.sbuf(id),sm.id),false,'puskuri ei ole muistissa ennen soittoa');
+    const pk=await pg.evaluate(async()=>{const b=await __rk.renderNotes([{t:0.02,n:38,v:127}],0.5,22050),d=b.getChannelData(0);let p=0;for(const x of d)p=Math.max(p,Math.abs(x));return p;});
+    assert(pk>0.1,'sämple ei soi: '+pk);assert.equal(await pg.evaluate(id=>__rk.sbuf(id),sm.id),true);
+    await pg.waitForFunction(()=>/sample\.wav[\s\S]*kt/.test(document.getElementById('v-snd').textContent),null,{timeout:3000});
+    await fits(pg,'äänet + sämple');
+  });
+  await pg.screenshot({path:path.join(OUT,'390_aanet.png'),fullPage:true});
+  await ok('sämple puuttuu tietokannasta: varoitus ja perusääni',async()=>{
+    await pg.evaluate(()=>{const D=__rk.D();D.samplet.push({id:'eiole',nimi:'kadonnut.wav',kesto:1,koko:1000});D.aanet[39]={tyyppi:'sample',sample:'eiole',p:{savel:0,voim:80}};});
+    await pg.click('#tabs [data-tab="takes"]');await pg.click('#tabs [data-tab="snd"]');await pg.waitForTimeout(300);
+    const t=await pg.textContent('#v-snd');assert(t.includes('Ääni puuttuu tästä selaimesta'),t.slice(0,600));
+    const pk=await pg.evaluate(async()=>{const b=await __rk.renderNotes([{t:0.02,n:39,v:127}],0.5,22050),d=b.getChannelData(0);let p=0;for(const x of d)p=Math.max(p,Math.abs(x));return p;});
+    assert(pk>0.03,'perusääni ei soi: '+pk);
+    await pg.evaluate(()=>{const D=__rk.D();D.samplet.pop();delete D.aanet[39];});
+  });
+  await ok('sämplen poisto palauttaa nuotin perusääneen',async()=>{
+    await pg.click('#tabs [data-tab="takes"]');await pg.click('#tabs [data-tab="snd"]');
+    await pg.click('[data-act="sampleDel"]');assert.deepEqual(await pg.evaluate(()=>[__rk.D().samplet.length,__rk.D().aanet[38]]),[0,undefined]);
+    assert((await pg.textContent('#v-snd')).includes('Virveli · perusääni'));
+  });
+  await ok('editori: Kuuntele soittaa vain tämän oton, toistokohta näkyy, säätö muuttaa soittoa heti',async()=>{
+    await pg.evaluate(()=>{const e=new Float32Array(375*6).fill(-70);for(let k=0;k<10;k++){const i=Math.round((0.3+k*0.5)*375);for(let j=0;j<15;j++)e[i+j]=(k%2?-20:-3)-j;}__rk.addTake(e,{nimi:'Soitto',nuotti:42});});
+    await pg.click('#tabs [data-tab="takes"]');await pg.click('.take .open >> nth=3');await pg.waitForSelector('#editor:not([hidden])');
+    assert.equal(await pg.textContent('#eSound'),'Hi-hat');
+    await pg.click('#editor [data-act="play"]');await pg.waitForFunction(()=>__rk.play()&&__rk.play().pos>0.5);
+    const st=await pg.evaluate(()=>__rk.play()),id=await pg.evaluate(()=>__rk.edit().id);assert.equal(st.take,id);assert.equal(st.n,10);
+    await pg.waitForFunction(()=>!document.getElementById('phead').hidden);
+    await pg.$eval('[data-s="portti"]',e=>{e.value='-8';e.dispatchEvent(new Event('input',{bubbles:true}));});
+    await pg.waitForFunction(()=>__rk.play()&&__rk.play().n===5,null,{timeout:2000});
+    await pg.click('[data-act="edDel"]');assert(await pg.locator('#editor').isHidden());assert.equal(await pg.evaluate(()=>__rk.play()),null);
+    assert.equal(await pg.evaluate(()=>__rk.P().otot.length),3);
+  });
   await ok('tiedot säilyvät uudelleenlatauksessa',async()=>{
     const a=await pg.evaluate(()=>JSON.stringify(__rk.D().projektit));await pg.waitForTimeout(500);await pg.reload();await pg.waitForSelector('#recBtn');
     assert.equal(await pg.evaluate(()=>JSON.stringify(__rk.D().projektit)),a);
@@ -208,7 +302,7 @@ function readMidi(u){const b=Buffer.from(u);if(b.toString('latin1',0,4)!=='MThd'
   await p2.goto(URL);await p2.waitForSelector('#recBtn');
   await p2.evaluate(()=>{const e=new Float32Array(375*30).fill(-70);for(let k=0;k<60;k++){const i=Math.round((0.25+k*0.48)*375);for(let j=0;j<20;j++)e[i+j]=-4-(k%7)*4-j;}
     __rk.addTake(e,{nimi:'Pitkä nimi joka ei saa rikkoa asettelua kapealla ruudulla'});__rk.addTake(e,{nuotti:42});});
-  for(const tab of ['rec','takes','set']){
+  for(const tab of ['rec','takes','snd','set']){
     await ok('320 px tumma: '+tab+' mahtuu leveyteen',async()=>{await p2.click('#tabs [data-tab="'+tab+'"]');await fits(p2,tab);});
     await p2.screenshot({path:path.join(OUT,'320_'+tab+'.png'),fullPage:true});
   }
@@ -219,6 +313,13 @@ function readMidi(u){const b=Buffer.from(u);if(b.toString('latin1',0,4)!=='MThd'
     const tb=await p2.locator('[data-act="edClose"]').boundingBox();assert(tb.height>=44);
   });
   await p2.screenshot({path:path.join(OUT,'320_editori.png')});
+  await ok('320 px: välilehdet ja ääni-ikkuna mahtuvat',async()=>{
+    await p2.click('[data-act="edClose"]');await p2.click('#tabs [data-tab="snd"]');
+    const tabs=await p2.$$eval('#tabs button',b=>b.map(x=>x.scrollWidth<=x.clientWidth+1));assert(tabs.every(Boolean),JSON.stringify(tabs));
+    await p2.click('[data-act="sndEdit"][data-n="36"]');await fits(p2,'ääni-ikkuna');
+    const sw=await p2.evaluate(()=>{const s=document.getElementById('sheet');return s.scrollWidth-s.clientWidth;});assert(sw<=0,'paneeli '+sw);
+  });
+  await p2.screenshot({path:path.join(OUT,'320_aani.png')});
   await ok('ei JavaScript-virheitä (320 px)',async()=>{assert.deepEqual(e2,[]);});
   await browser.close();server.close();
   console.log('\n'+checks+' ok, '+fails+' virhettä');process.exit(fails?1:0);

@@ -9,8 +9,8 @@
 <meta name="apple-mobile-web-app-title" content="Rytmikone">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>
-/* Rytmikone, vaihe 1: ääni -> MIDI-rumpunuotit. Yksi sarake puhelimelle, Appipaja 2.0 -ilme.
-   Välilehdet: Nauhoita (#v-rec), Otot (#v-takes), Asetukset (#v-set). Oton editori on koko ruudun peittävä #editor. */
+/* Rytmikone, vaiheet 1–2: ääni -> MIDI-rumpunuotit, esikuuntelu ja rumpuäänet. Yksi sarake puhelimelle, Appipaja 2.0 -ilme.
+   Välilehdet: Nauhoita (#v-rec), Otot (#v-takes), Äänet (#v-snd), Asetukset (#v-set). Oton editori on koko ruudun peittävä #editor. */
 :root{
   --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",system-ui,"Segoe UI",Roboto,Arial,sans-serif;
   --bg:#F5F3EE;--cell:#FFFEFA;--label:#252B28;--label2:#5E685F;--sep:#DDE2D9;--accent:#39775A;--solid:#39775A;--on-solid:#FFFFFF;
@@ -108,6 +108,14 @@ canvas#wave{display:block;width:100%;height:170px;border-radius:12px;background:
 #eNoteNum{width:64px}
 .list-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--sep)}
 .list-row:first-of-type{border-top:0}
+.list-row .open{flex:1;min-width:0;min-height:44px;padding:2px 0;border:0;background:none;text-align:left}
+.list-row .open b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-row .open span{display:block;font-size:12.5px;color:var(--label2)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.wavebox{position:relative}
+#phead{position:absolute;top:0;bottom:0;left:0;width:2px;margin-left:-1px;background:var(--danger);pointer-events:none}
+.ptime{margin-top:8px;font-variant-numeric:tabular-nums}
+@media (max-width:360px){#tabs button{font-size:13.5px;padding:4px 2px}}
 </style>
 </head>
 <body>
@@ -117,11 +125,12 @@ canvas#wave{display:block;width:100%;height:170px;border-radius:12px;background:
     <button id="projBtn" class="proj lock" data-act="projects" aria-label="Vaihda projektia"></button>
   </header>
   <nav class="seg lock" id="tabs">
-    <button data-tab="rec">Nauhoita</button><button data-tab="takes">Otot</button><button data-tab="set">Asetukset</button>
+    <button data-tab="rec">Nauhoita</button><button data-tab="takes">Otot</button><button data-tab="snd">Äänet</button><button data-tab="set">Asetukset</button>
   </nav>
   <main>
     <section id="v-rec"></section>
     <section id="v-takes" hidden></section>
+    <section id="v-snd" hidden></section>
     <section id="v-set" hidden></section>
   </main>
 </div>
@@ -130,12 +139,14 @@ canvas#wave{display:block;width:100%;height:170px;border-radius:12px;background:
 <div id="toast" class="toast" hidden role="status"></div>
 <input type="file" id="songFile" accept="audio/*" hidden>
 <input type="file" id="importFile" accept="application/json,.json,text/plain" hidden>
+<input type="file" id="sampleFile" accept="audio/*" hidden>
 <script id="engine">
-// Rytmikoneen moottori: ei DOMia. Tunnistus (voimakkuuden ylitys -> isku), velocity, MIDI-tiedosto, tallennusmuoto.
+// Rytmikoneen moottori: ei DOMia. Tunnistus (voimakkuuden ylitys -> isku), velocity, MIDI-tiedosto, rumpuäänten määrittelyt,
+// esikuuntelun nuotit, WAV-tiedosto ja tallennusmuoto. Äänen tuotto (Web Audio) on käyttöliittymän puolella.
 // Verhokäyrä (env) = jokaisen 128 näytteen lohkon huippu desibeleinä. Ääntä itseään ei tallenneta.
 var RK=(function(){
 'use strict';
-var VER=1,KEY='rytmikone:v1',PPQ=480,BLOCK=128,FLOOR=-96;
+var VER=2,KEY='rytmikone:v1',PPQ=480,BLOCK=128,FLOOR=-96;
 var DEF={portti:-36,hiljaisin:-36,kovin:-6,kayra:'tasainen',esto:60,hyst:6,ikkuna:20};
 var KAYRAT={hiljaiset:0.6,tasainen:1,kovat:1.7};
 var KAYRA_NIMET=[['hiljaiset','Korosta hiljaisia'],['tasainen','Tasainen'],['kovat','Korosta kovia']];
@@ -261,16 +272,74 @@ function midi(P,envOf){
   return new Uint8Array(out);
 }
 
+// ---------- rumpuäänet ----------
+// Parametri: [avain, nimi, min, max, askel, yksikkö, oletus]. Yksikkö 'pa' = puolisävelaskel. taso tasoittaa äänityyppien voimakkuudet.
+var VOIM=['voim','Voimakkuus',0,100,1,'%',80];
+var AANET={
+  bassari:{nimi:'Bassari',taso:1,p:[['savel','Sävel',30,150,1,'Hz',52],['isku','Iskun korkeus (puolisävelaskelin)',0,48,1,'pa',24],['pudotus','Sävelen pudotus',5,300,1,'ms',40],['kesto','Kesto',60,2000,10,'ms',500],['napsu','Napsu',0,100,1,'%',25]]},
+  virveli:{nimi:'Virveli',taso:0.8,p:[['savel','Sävel',100,500,1,'Hz',190],['kohina','Kohina',0,100,1,'%',65],['kirkkaus','Kirkkaus',500,8000,50,'Hz',1800],['kesto','Kesto',40,1000,10,'ms',260]]},
+  tomi:{nimi:'Tomi',taso:0.9,p:[['savel','Sävel',50,500,1,'Hz',110],['isku','Iskun korkeus (puolisävelaskelin)',0,24,1,'pa',7],['kesto','Kesto',60,2000,10,'ms',600]]},
+  hihat:{nimi:'Hi-hat',taso:0.45,p:[['kirkkaus','Kirkkaus',2000,14000,100,'Hz',7000],['metalli','Metallisuus',0,100,1,'%',50],['kesto','Kesto',15,2000,5,'ms',70]]},
+  pelti:{nimi:'Pelti',taso:0.4,p:[['kirkkaus','Kirkkaus',1000,12000,100,'Hz',5000],['metalli','Metallisuus',0,100,1,'%',40],['kesto','Kesto',200,6000,50,'ms',2200]]},
+  taputus:{nimi:'Taputus',taso:0.9,p:[['kirkkaus','Kirkkaus',500,4000,50,'Hz',1200],['kesto','Kesto',40,800,10,'ms',200]]},
+  kello:{nimi:'Kello',taso:0.5,p:[['savel','Sävel',200,1500,5,'Hz',560],['kesto','Kesto',30,1500,10,'ms',350]]},
+  sample:{nimi:'Sämple',taso:1,p:[['savel','Sävel (puolisävelaskelin)',-24,24,1,'pa',0]]}
+};
+Object.keys(AANET).forEach(function(k){AANET[k].p.push(VOIM);});
+var TYYPIT=['bassari','virveli','tomi','hihat','pelti','taputus','kello','sample'];
+// Perusääni GM-rumpukartan mukaan. Muut nuotit: matalat bassarina, muut tomina nuotin sävelkorkeudella.
+var PERUS={35:['bassari',{savel:44}],36:['bassari',{}],37:['virveli',{savel:330,kohina:25,kirkkaus:3000,kesto:80}],38:['virveli',{}],39:['taputus',{}],40:['virveli',{kirkkaus:3000,kesto:220}],
+  41:['tomi',{savel:75}],42:['hihat',{}],43:['tomi',{savel:90}],44:['hihat',{kirkkaus:6000,kesto:40}],45:['tomi',{savel:105}],46:['hihat',{kesto:450}],47:['tomi',{savel:125}],48:['tomi',{savel:145}],
+  49:['pelti',{}],50:['tomi',{savel:170}],51:['pelti',{metalli:70,kirkkaus:7000,kesto:1400}],52:['pelti',{metalli:75,kirkkaus:3500,kesto:1800}],53:['kello',{savel:1100,kesto:700}],
+  54:['hihat',{kirkkaus:9000,kesto:140,metalli:20}],55:['pelti',{kirkkaus:6500,kesto:800}],56:['kello',{}],57:['pelti',{kirkkaus:5500,kesto:2400}],59:['pelti',{metalli:70,kirkkaus:7500,kesto:1200}]};
+function typeDefaults(k){var o={};AANET[k].p.forEach(function(d){o[d[0]]=d[6];});return o;}
+function defaultSound(n){
+  var b=PERUS[n],k,o;
+  if(b){k=b[0];o=typeDefaults(k);Object.keys(b[1]).forEach(function(x){o[x]=b[1][x];});}
+  else if(n<35){k='bassari';o=typeDefaults(k);}
+  else{k='tomi';o=typeDefaults(k);o.savel=clamp(Math.round(440*Math.pow(2,(n-69)/12)),50,500);}
+  return {tyyppi:k,p:o,sample:''};
+}
+// Tyypin vaihto tai korjaus: puuttuvat arvot nuotin perusäänestä (jos sama tyyppi), muuten tyypin oletuksista.
+function repairSound(s,n){
+  if(!s||typeof s!=='object'||!AANET.hasOwnProperty(s.tyyppi))return null;
+  var base=defaultSound(n),d=base.tyyppi===s.tyyppi?base.p:typeDefaults(s.tyyppi),src=s.p&&typeof s.p==='object'?s.p:{},p={};
+  AANET[s.tyyppi].p.forEach(function(x){p[x[0]]=clamp(num(src[x[0]],d[x[0]]),x[2],x[3]);});
+  return {tyyppi:s.tyyppi,p:p,sample:s.tyyppi==='sample'?str(s.sample,'',40):''};
+}
+function repairSounds(a){
+  var o={};if(!a||typeof a!=='object'||Array.isArray(a))return o;
+  Object.keys(a).forEach(function(k){var n=+k;if(String(n)===k&&n>=0&&n<=127&&n%1===0){var s=repairSound(a[k],n);if(s)o[n]=s;}});
+  return o;
+}
+function soundFor(D,n){return D&&D.aanet&&D.aanet[n]||defaultSound(n);}
+// Esikuuntelun nuotit aikajärjestyksessä: mukana olevat otot (tai vain otto onlyId mukana-valinnasta riippumatta), iskut nollakohdan jälkeen.
+function playNotes(P,envOf,onlyId){
+  var out=[];
+  P.otot.forEach(function(T){if(onlyId?T.id!==onlyId:!T.mukana)return;
+    takeHits(T,envOf?envOf(T):null).forEach(function(h){if(h.t>=0)out.push({t:h.t,n:T.nuotti,v:h.v});});});
+  return out.sort(function(a,b){return a.t-b.t||a.n-b.n;});
+}
+// 16-bittinen mono-WAV.
+function wavBytes(ch,sr){
+  var n=ch.length,b=new Uint8Array(44+n*2),d=new DataView(b.buffer),w=function(o,x){for(var i=0;i<4;i++)b[o+i]=x.charCodeAt(i);};
+  w(0,'RIFF');d.setUint32(4,36+n*2,true);w(8,'WAVE');w(12,'fmt ');d.setUint32(16,16,true);d.setUint16(20,1,true);d.setUint16(22,1,true);
+  d.setUint32(24,sr,true);d.setUint32(28,sr*2,true);d.setUint16(32,2,true);d.setUint16(34,16,true);w(36,'data');d.setUint32(40,n*2,true);
+  for(var i=0;i<n;i++){var x=ch[i]>1?1:ch[i]<-1?-1:ch[i]||0;d.setInt16(44+i*2,Math.round(x<0?x*32768:x*32767),true);}
+  return b;
+}
+
 // ---------- tallennusmuoto ----------
 // {app:'rytmikone', ver, savedAt, cur, projektit:[{id,nimi,tempo,pituus,raidat,biisi,esilasku,metronomi,otot:[otto]}],
-//  esi:[{id,nimi,s}], viive:null|ms, oletus:säädöt, uusiNuotti}
+//  esi:[{id,nimi,s}], viive:null|ms, oletus:säädöt, uusiNuotti, aanet:{nuotti:{tyyppi,p,sample}}, samplet:[{id,nimi,kesto,koko}]}
+// ver 2 (vaihe 2) lisäsi aanet ja samplet; ver 1 luetaan sellaisenaan (perusäänet). Sämplejen äänet ovat selaimen tietokannassa, eivät tässä.
 // otto: {id,nimi,nuotti,mukana,hz,alku,viive,s,env,luotu,ref:'biisi'|'lasku'|'',kanavat}
 var seq=0;
 function uid(){seq=(seq+1)%1296;return Date.now().toString(36)+seq.toString(36)+Math.random().toString(36).slice(2,6);}
 function str(x,d,max){return typeof x==='string'&&x.trim()?x.slice(0,max||80):d;}
 function newProject(nimi){return {id:uid(),nimi:nimi||'Projekti',tempo:120,pituus:'1/16',raidat:'yksi',biisi:'',esilasku:true,metronomi:false,otot:[]};}
 function newTake(o){o=o||{};return repairTake({id:uid(),nimi:o.nimi,nuotti:o.nuotti,mukana:true,hz:o.hz,alku:o.alku,viive:o.viive,s:o.s,env:o.env,luotu:Date.now(),ref:o.ref,kanavat:o.kanavat},0);}
-function newData(){var p=newProject('Projekti 1');return {app:'rytmikone',ver:VER,savedAt:0,cur:p.id,projektit:[p],esi:[],viive:null,oletus:settings({}),uusiNuotti:36};}
+function newData(){var p=newProject('Projekti 1');return {app:'rytmikone',ver:VER,savedAt:0,cur:p.id,projektit:[p],esi:[],viive:null,oletus:settings({}),uusiNuotti:36,aanet:{},samplet:[]};}
 function repairTake(t,i){
   t=t&&typeof t==='object'?t:{};var env=typeof t.env==='string'&&/^[A-Za-z0-9+/]*={0,2}$/.test(t.env)?t.env:'';
   return {id:str(t.id,uid(),40),nimi:str(t.nimi,'Otto '+(i+1),60),nuotti:clamp(Math.round(num(t.nuotti,36)),0,127),mukana:t.mukana!==false,
@@ -289,7 +358,9 @@ function repair(d){
   var o={app:'rytmikone',ver:VER,savedAt:num(d.savedAt,0),cur:'',projektit:(Array.isArray(d.projektit)?d.projektit:[]).map(repairProject),
     esi:(Array.isArray(d.esi)?d.esi:[]).filter(function(e){return e&&typeof e==='object';}).map(function(e,i){return {id:str(e.id,uid(),40),nimi:str(e.nimi,'Esiasetus '+(i+1),40),s:settings(e.s)};}),
     viive:d.viive===null||d.viive===undefined||!isFinite(+d.viive)?null:clamp(Math.round(+d.viive),-1000,2000),
-    oletus:settings(d.oletus),uusiNuotti:clamp(Math.round(num(d.uusiNuotti,36)),0,127)};
+    oletus:settings(d.oletus),uusiNuotti:clamp(Math.round(num(d.uusiNuotti,36)),0,127),aanet:repairSounds(d.aanet),
+    samplet:(Array.isArray(d.samplet)?d.samplet:[]).filter(function(x){return x&&typeof x==='object';}).map(function(x){return {id:str(x.id,uid(),40),nimi:str(x.nimi,'Sämple',80),kesto:clamp(num(x.kesto,0),0,3600),koko:clamp(Math.round(num(x.koko,0)),0,1e9)};})};
+  var sids={};o.samplet=o.samplet.filter(function(x){if(sids[x.id])return false;sids[x.id]=1;return true;});
   var ids={};o.projektit.forEach(function(p){if(ids[p.id])p.id=uid();ids[p.id]=1;});
   if(!o.projektit.length)o.projektit.push(newProject('Projekti 1'));
   o.cur=o.projektit.some(function(p){return p.id===d.cur;})?d.cur:o.projektit[0].id;
@@ -299,6 +370,7 @@ function repair(d){
 return {VER:VER,KEY:KEY,PPQ:PPQ,BLOCK:BLOCK,FLOOR:FLOOR,DEF:DEF,KAYRAT:KAYRAT,KAYRA_NIMET:KAYRA_NIMET,PITUUDET:PITUUDET,GM:GM,
   clamp:clamp,db:db,noteName:noteName,gmName:gmName,noteLabel:noteLabel,encEnv:encEnv,decEnv:decEnv,settings:settings,detect:detect,velocity:velocity,
   takeHits:takeHits,fitRange:fitRange,noiseGate:noiseGate,median:median,calibrate:calibrate,vlq:vlq,exportNotes:exportNotes,midi:midi,
+  AANET:AANET,TYYPIT:TYYPIT,typeDefaults:typeDefaults,defaultSound:defaultSound,repairSound:repairSound,soundFor:soundFor,playNotes:playNotes,wavBytes:wavBytes,
   uid:uid,newProject:newProject,newTake:newTake,newData:newData,repair:repair};
 })();
 if(typeof module!=='undefined')module.exports=RK;
@@ -310,7 +382,7 @@ if(typeof module!=='undefined')module.exports=RK;
 'use strict';
 var APPIPAJA_THEMES=[{"id":"forest","name":"Metsä","description":"Sammal ja lämmin paperi","light":{"bg":"#F5F3EE","cell":"#FFFEFA","label":"#252B28","label2":"#5E685F","sep":"#DDE2D9","accent":"#39775A","fill":"#E7F0E7","tint":"#EDF1EA"},"dark":{"bg":"#151B18","cell":"#202922","label":"#EEF1E9","label2":"#ACB8AE","sep":"#3B473E","accent":"#A2C9B6","fill":"#2B4032","tint":"#1A251E"}},{"id":"lake","name":"Järvi","description":"Hillitty sininen ja sumu","light":{"bg":"#F1F3F4","cell":"#FDFEFE","label":"#263039","label2":"#586977","sep":"#D9E0E5","accent":"#386EA2","fill":"#E3EDF7","tint":"#E9EFF4"},"dark":{"bg":"#151B22","cell":"#202B35","label":"#EAF0F5","label2":"#ADBCC9","sep":"#3B4A57","accent":"#A8C8E7","fill":"#293E52","tint":"#1A2631"}},{"id":"plum","name":"Luumu","description":"Pehmeä violetti ja pellava","light":{"bg":"#F5F1F3","cell":"#FFFCFE","label":"#322A31","label2":"#705D6D","sep":"#E4DCE2","accent":"#87597E","fill":"#F2E9EF","tint":"#F0E9EE"},"dark":{"bg":"#20191F","cell":"#2C222B","label":"#F4ECF3","label2":"#C2AFC0","sep":"#4B3A48","accent":"#D9B7D1","fill":"#483144","tint":"#291F27"}},{"id":"sand","name":"Hiekka","description":"Okran lämpö ja kerma","light":{"bg":"#F6F2EA","cell":"#FFFDFA","label":"#332D26","label2":"#726453","sep":"#E5DDD0","accent":"#8D642C","fill":"#F3EAD8","tint":"#F0E9DC"},"dark":{"bg":"#211C16","cell":"#2D261D","label":"#F4EEE2","label2":"#C4B7A2","sep":"#4E4334","accent":"#DCC18D","fill":"#493A25","tint":"#2A2219"}},{"id":"rose","name":"Ruusu","description":"Murrettu koralli ja puuteri","light":{"bg":"#F7F1EE","cell":"#FFFDFA","label":"#362C29","label2":"#795F59","sep":"#E7DDD7","accent":"#A05245","fill":"#F5E7E1","tint":"#F1E8E2"},"dark":{"bg":"#241B19","cell":"#302420","label":"#F7ECE7","label2":"#CCB1A6","sep":"#514039","accent":"#E7B2A2","fill":"#51352D","tint":"#2D211D"}},{"id":"graphite","name":"Harmaa","description":"Neutraali tausta puhelimen väreille","light":{"bg":"#F3F3F3","cell":"#FEFEFE","label":"#282828","label2":"#646464","sep":"#DDDDDD","accent":"#595959","fill":"#E9E9E9","tint":"#EEEEEE"},"dark":{"bg":"#191919","cell":"#262626","label":"#EFEFEF","label2":"#B4B4B4","sep":"#444444","accent":"#BFBFBF","fill":"#393939","tint":"#202020"}},{"id":"lagoon","name":"Laguuni","description":"Murrettu turkoosi ja merilasi","light":{"bg":"#EFF4F3","cell":"#FBFEFD","label":"#243330","label2":"#586D67","sep":"#D8E3DF","accent":"#276F6A","fill":"#E0EFEC","tint":"#E7F0ED"},"dark":{"bg":"#15211F","cell":"#21302D","label":"#E9F4F0","label2":"#ACC4BC","sep":"#3C514A","accent":"#9DCEC4","fill":"#2C4640","tint":"#1B2925"}},{"id":"lavender","name":"Laventeli","description":"Hento violetti ja helmiäinen","light":{"bg":"#F3F1F7","cell":"#FEFCFF","label":"#302B3A","label2":"#696175","sep":"#E1DCE9","accent":"#6F5B94","fill":"#ECE6F3","tint":"#ECE8F2"},"dark":{"bg":"#1D1925","cell":"#2A2434","label":"#F0EBF7","label2":"#BFB2D0","sep":"#493E57","accent":"#C4B5E2","fill":"#403350","tint":"#241E2D"}},{"id":"olive","name":"Oliivi","description":"Lehtien vihreä ja vaalea pellava","light":{"bg":"#F3F3EC","cell":"#FEFEF9","label":"#303226","label2":"#656B54","sep":"#DFE2D3","accent":"#616F32","fill":"#EBEFD9","tint":"#ECEFDF"},"dark":{"bg":"#1D2016","cell":"#292E20","label":"#F0F2E4","label2":"#BFC5A5","sep":"#484F35","accent":"#C1CD92","fill":"#3F482C","tint":"#24291C"}},{"id":"copper","name":"Kupari","description":"Pehmeä terrakotta ja lämmin savi","light":{"bg":"#F6F0EA","cell":"#FFFCF8","label":"#372D26","label2":"#776456","sep":"#E7DCCF","accent":"#965F32","fill":"#F4E7D8","tint":"#F1E6DB"},"dark":{"bg":"#241B15","cell":"#32261D","label":"#F5ECE2","label2":"#CCB5A0","sep":"#554232","accent":"#E2BB93","fill":"#513A26","tint":"#2D2118"}}];
 var $=function(id){return document.getElementById(id);};
-var D=load(),TAB='rec',EDIT=null,SONG=null,AC=null,R=null,WL=null,ENVC={},lastExport=null,lastBackup=null,CAL=null,quietInfo='',TEXTBOX='';
+var D=load(),TAB='rec',EDIT=null,SONG=null,AC=null,R=null,WL=null,ENVC={},lastExport=null,lastBackup=null,CAL=null,quietInfo='',TEXTBOX='',PLAY=null,PLAYSONG=true,SNDN=null,WAV=null,WAVING=false;
 
 // ---------- tallennus ----------
 function load(){
@@ -331,6 +403,11 @@ function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&am
 function fmtT(s){var neg=s<0;s=Math.abs(s);var m=Math.floor(s/60),r=s-m*60;return (neg?'−':'')+m+':'+(r<10?'0':'')+r.toFixed(1).replace('.',',');}
 function fmtDb(x){return (x<0?'−':'')+Math.abs(x).toFixed(Math.abs(x%1)>0.01?1:0).replace('.',',')+' dB';}
 function fmtMs(x){return (x<0?'−':'')+Math.abs(Math.round(x))+' ms';}
+function fmtU(v,u){
+  if(u==='db')return fmtDb(v);if(u==='ms')return fmtMs(v);if(u==='%')return Math.round(v)+' %';
+  if(u==='Hz')return v>=1000?String(Math.round(v/100)/10).replace('.',',')+' kHz':Math.round(v)+' Hz';
+  if(u==='pa')return (v>0?'+':v<0?'−':'')+Math.abs(Math.round(v));return String(v);
+}
 var toastT=0;
 function toast(msg){var t=$('toast');t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(function(){t.hidden=true;},Math.min(9000,2500+msg.length*45));}
 function fileName(s){return (String(s).replace(/[\\/:*?"<>|]+/g,'').replace(/\s+/g,' ').trim()||'rytmikone').slice(0,60);}
@@ -436,7 +513,7 @@ function levelPct(d){return Math.max(0,Math.min(100,(d+72)/72*100));}
 
 // ---------- nauhoitus ----------
 function startRec(){
-  if(R)return;var p=P(),song=SONG&&SONG.pid===p.id?SONG:null,a;
+  if(R)return;stopPlay();var p=P(),song=SONG&&SONG.pid===p.id?SONG:null,a;
   try{a=ctx();}catch(e){toast(e.message);return;}
   R={k:'rec',p:p,song:song,zero:null,ref:song?'biisi':(p.esilasku||p.metronomi?'lasku':''),srcs:[],env:[],hits:0,s:copyS(D.oletus)};
   setBusy(true);renderRec();setRecInfo('Avataan mikrofonia…');
@@ -485,7 +562,7 @@ function cancelJob(){
 }
 // Hiljaisuuden kalibrointi: 2 s huoneen ääntä -> portti kohinan yläpuolelle.
 function quietCal(){
-  if(R)return;try{ctx();}catch(e){toast(e.message);return;}
+  if(R)return;stopPlay();try{ctx();}catch(e){toast(e.message);return;}
   var job=R={k:'quiet'};setBusy(true);quietInfo='Ole hiljaa 2 sekuntia…';renderRec();
   capture(null).then(function(h){
     if(R!==job){h.stop();return;}job.h=h;
@@ -497,12 +574,178 @@ function quietCal(){
   },function(e){if(R===job){R=null;setBusy(false);}quietInfo='';renderRec();toast(micErr(e));});
 }
 
+// ---------- rumpuäänet (Web Audio) ----------
+// Sama koodi soittaa esikuuntelun (AudioContext) ja tekee .wav-tiedoston (OfflineAudioContext). Nuotin ääni: RK.soundFor(D, nuotti).
+var NOISE=typeof WeakMap==='function'?new WeakMap():null,SBUF={},MASTER=null;
+function noiseBuf(a){
+  var b=NOISE&&NOISE.get(a);if(b)return b;
+  var n=Math.round(a.sampleRate*2),x=12345;b=a.createBuffer(1,n,a.sampleRate);var d=b.getChannelData(0);
+  for(var i=0;i<n;i++){x=(x*16807)%2147483647;d[i]=x/1073741823.5-1;}
+  if(NOISE)NOISE.set(a,b);return b;
+}
+function egain(a,t,peak,dec){var g=a.createGain(),G=g.gain;G.setValueAtTime(0.0001,t);G.exponentialRampToValueAtTime(Math.max(0.0002,peak),t+0.002);G.exponentialRampToValueAtTime(0.0001,t+0.002+dec);return g;}
+function noiseSrc(a,t,stop){var s=a.createBufferSource();s.buffer=noiseBuf(a);s.loop=true;s.start(t,Math.random()*1.9);s.stop(stop);return s;}
+function noise(a,out,t,amp,dec,type,freq,q){var f=a.createBiquadFilter(),g=egain(a,t,amp,dec);f.type=type;f.frequency.value=freq;if(q)f.Q.value=q;noiseSrc(a,t,t+dec+0.05).connect(f);f.connect(g);g.connect(out);}
+function tone(a,out,t,amp,dec,type,f1,f0,drop){var o=a.createOscillator(),g=egain(a,t,amp,dec);o.type=type;o.frequency.setValueAtTime(f1,t);if(f1!==f0)o.frequency.exponentialRampToValueAtTime(f0,t+drop);o.connect(g);g.connect(out);o.start(t);o.stop(t+dec+0.05);}
+function oscs(a,out,t,stop,type,freqs){freqs.forEach(function(f){var o=a.createOscillator();o.type=type;o.frequency.value=f;o.connect(out);o.start(t);o.stop(stop);});}
+var METAL=[205.3,304.4,369.6,522.7,540,800];
+function synth(a,out,t,s,amp){
+  var p=s.p,dec=(p.kesto||100)/1000,end=t+dec+0.05,ty=s.tyyppi;
+  if(ty==='bassari'){tone(a,out,t,amp,dec,'sine',p.savel*Math.pow(2,p.isku/12),p.savel,p.pudotus/1000);if(p.napsu>0)noise(a,out,t,amp*p.napsu/200,0.012,'highpass',2500);}
+  else if(ty==='virveli'){var k=p.kohina/100;if(k<1)tone(a,out,t,amp*(1-k),dec*0.45,'triangle',p.savel*1.5,p.savel,0.03);if(k>0)noise(a,out,t,amp*k,dec,'highpass',p.kirkkaus);}
+  else if(ty==='tomi'){tone(a,out,t,amp,dec,'sine',p.savel*Math.pow(2,p.isku/12),p.savel,Math.min(0.12,dec*0.3));noise(a,out,t,amp*0.08,0.015,'bandpass',p.savel*4,1);}
+  else if(ty==='hihat'||ty==='pelti'){
+    var m=p.metalli/100,hp=a.createBiquadFilter(),g=egain(a,t,amp,dec);hp.type='highpass';hp.frequency.value=p.kirkkaus;hp.connect(g);g.connect(out);
+    if(m>0){var mg=a.createGain();mg.gain.value=m*0.4;mg.connect(hp);oscs(a,mg,t,end,'square',METAL.map(function(f){return ty==='pelti'?f*1.37:f;}));}
+    if(m<1){var ng=a.createGain();ng.gain.value=1-m;ng.connect(hp);noiseSrc(a,t,end).connect(ng);}
+  }
+  else if(ty==='taputus'){
+    var f=a.createBiquadFilter(),cg=a.createGain(),G=cg.gain;f.type='bandpass';f.frequency.value=p.kirkkaus;f.Q.value=1.4;
+    G.setValueAtTime(0.0001,t);[0,0.01,0.02].forEach(function(d){G.setValueAtTime(amp,t+d);G.exponentialRampToValueAtTime(amp*0.1,t+d+0.009);});
+    G.setValueAtTime(amp*0.8,t+0.03);G.exponentialRampToValueAtTime(0.0001,t+0.03+dec);
+    noiseSrc(a,t,end+0.03).connect(f);f.connect(cg);cg.connect(out);
+  }
+  else if(ty==='kello'){var bp=a.createBiquadFilter(),kg=egain(a,t,amp,dec);bp.type='bandpass';bp.frequency.value=p.savel*1.5;bp.Q.value=1;bp.connect(kg);kg.connect(out);oscs(a,bp,t,end,'square',[p.savel,p.savel*1.4835]);}
+}
+// Yksi isku: velocity -> voimakkuus. Puuttuva sämple soi nuotin perusäänellä.
+function voice(a,out,t,n,v){
+  var s=RK.soundFor(D,n),vel=Math.pow(RK.clamp(v,1,127)/127,1.5),amp;
+  if(s.tyyppi==='sample'){var b=SBUF[s.sample];
+    if(b){amp=s.p.voim/100*vel;if(amp<1e-4)return;var src=a.createBufferSource(),g=a.createGain();src.buffer=b;src.playbackRate.value=Math.pow(2,s.p.savel/12);g.gain.value=amp;src.connect(g);g.connect(out);src.start(t);return;}
+    s=RK.defaultSound(n);}
+  amp=s.p.voim/100*vel*RK.AANET[s.tyyppi].taso;if(amp>=1e-4)synth(a,out,t,s,amp);
+}
+function master(a){
+  if(MASTER&&MASTER.context===a)return MASTER;
+  var g=a.createGain(),c=a.createDynamicsCompressor();g.gain.value=0.9;c.threshold.value=-6;c.knee.value=6;c.ratio.value=8;c.attack.value=0.002;c.release.value=0.2;
+  g.connect(c);c.connect(a.destination);if(a===AC)MASTER=g;return g;
+}
+function audition(n,v){
+  if(R)return;var a;try{a=ctx();}catch(e){toast(e.message);return;}session('playback');
+  prepareSamples([{n:n}]).then(function(){voice(a,master(a),a.currentTime+0.03,n,v||110);});
+}
+
+// ---------- sämplet (selaimen tietokanta) ----------
+// Alkuperäinen tiedosto tallennetaan IndexedDB:hen ({id,nimi,data}); luettelo D.samplet on tallennusmuodossa. HAVE = tietokannassa olevat id:t (null = ei tiedossa).
+var IDB=null,HAVE=null,HAVE_ASKED=false,PICKN=null;
+function idb(){
+  if(!IDB){IDB=new Promise(function(res,rej){
+    if(!window.indexedDB){rej(new Error('Selain ei anna tietokantaa.'));return;}
+    var q=indexedDB.open('rytmikone',1);q.onupgradeneeded=function(){q.result.createObjectStore('samplet',{keyPath:'id'});};
+    q.onsuccess=function(){res(q.result);};q.onerror=function(){rej(q.error||new Error('Tietokanta ei aukea.'));};
+  });IDB.catch(function(){IDB=null;});}
+  return IDB;
+}
+function store(mode,fn){
+  return idb().then(function(db){return new Promise(function(res,rej){
+    var tx=db.transaction('samplet',mode),q=fn(tx.objectStore('samplet'));
+    tx.oncomplete=function(){res(q?q.result:undefined);};tx.onerror=tx.onabort=function(){rej(tx.error||new Error('Tietokanta'));};
+  });});
+}
+function refreshHave(){HAVE_ASKED=true;store('readonly',function(s){return s.getAllKeys();}).then(function(k){HAVE={};(k||[]).forEach(function(x){HAVE[x]=1;});if(TAB==='snd'&&SNDN===null)renderSounds();},function(){});}
+function decode(ab){var a=ctx();return new Promise(function(res,rej){try{var pr=a.decodeAudioData(ab,res,rej);if(pr&&pr.then)pr.then(res,rej);}catch(e){rej(e);}});}
+function sampleBuf(id){
+  if(SBUF[id])return Promise.resolve(SBUF[id]);
+  return store('readonly',function(s){return s.get(id);}).then(function(r){if(!r||!r.data)throw new Error('puuttuu');return decode(r.data.slice(0));}).then(function(b){SBUF[id]=b;return b;});
+}
+function prepareSamples(notes){
+  var ids={};notes.forEach(function(x){var s=RK.soundFor(D,x.n);if(s.tyyppi==='sample'&&s.sample&&!SBUF[s.sample])ids[s.sample]=1;});
+  return Promise.all(Object.keys(ids).map(function(id){return sampleBuf(id).catch(function(){if(HAVE)delete HAVE[id];});}));
+}
+function sampleById(id){for(var i=0;i<D.samplet.length;i++)if(D.samplet[i].id===id)return D.samplet[i];return null;}
+function sampleMissing(id){return !sampleById(id)||!!(HAVE&&!HAVE[id]&&!SBUF[id]);}
+function soundLabel(s){if(s.tyyppi!=='sample')return RK.AANET[s.tyyppi].nimi;var x=sampleById(s.sample);return x?'Sämple: '+x.nimi:'Sämple puuttuu';}
+// Lisää sämplen; jos lisäys aloitettiin nuotin ääni-ikkunasta (PICKN), sämple tulee samalla sen nuotin ääneksi.
+function addSample(f){
+  var n=PICKN;PICKN=null;
+  if(f.size>15*1024*1024){toast('Tiedosto on yli 15 Mt. Lyhennä sämple ja yritä uudelleen.');return;}
+  toast('Ladataan '+f.name+'…');
+  var fr=new FileReader();fr.onerror=function(){toast('Tiedostoa ei voitu lukea.');};
+  fr.onload=function(){var ab=fr.result;
+    decode(ab.slice(0)).then(function(buf){var id=RK.uid();
+      return store('readwrite',function(s){return s.put({id:id,nimi:f.name,data:ab});}).then(function(){
+        SBUF[id]=buf;if(HAVE)HAVE[id]=1;D.samplet.push({id:id,nimi:String(f.name).slice(0,80)||'Sämple',kesto:Math.round(buf.duration*100)/100,koko:f.size});
+        if(n!==null)D.aanet[n]=RK.repairSound({tyyppi:'sample',sample:id},n);
+        save();$('toast').hidden=true;
+        try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(function(){});}catch(e){}
+        if(n!==null&&SNDN===n){soundSheet(n);audition(n,110);}else if(TAB==='snd'&&SNDN===null)renderSounds();
+      },function(){toast('Sämpleä ei voitu tallentaa selaimen muistiin.');});
+    },function(){toast('Sämpleä ei voitu avata. Kokeile wav-, mp3- tai m4a-tiedostoa.');});
+  };fr.readAsArrayBuffer(f);
+}
+function deleteSample(id){
+  var x=sampleById(id);if(!x)return;var uses=Object.keys(D.aanet).filter(function(k){return D.aanet[k].tyyppi==='sample'&&D.aanet[k].sample===id;});
+  if(!confirm('Poistetaanko sämple ”'+x.nimi+'”?'+(uses.length?' Nuotit '+uses.join(', ')+' palaavat perusääneen.':'')))return;
+  uses.forEach(function(k){delete D.aanet[k];});D.samplet=D.samplet.filter(function(y){return y.id!==id;});delete SBUF[id];if(HAVE)delete HAVE[id];save();renderSounds();
+  store('readwrite',function(s){return s.delete(id);}).catch(function(){});
+}
+
+// ---------- esikuuntelu ----------
+// Ajastin varaa iskut 0,25 s eteenpäin. Kun oton säätöjä muutetaan kesken soiton, nuotit lasketaan uudelleen (PLAY.dirty).
+// Aika: 0 = nollakohta (biisin alku). PLAY.t0 = AudioContextin aika, jossa aika on 0.
+function playList(sc){return RK.playNotes(P(),envOf,sc.take||null);}
+function playEnd(job){job.end=Math.max(job.notes.length?job.notes[job.notes.length-1].t+1.2:0,job.song?job.song.buf.duration:0);}
+function startPlay(sc){
+  stopPlay();if(R)return;var a;try{a=ctx();}catch(e){toast(e.message);return;}
+  var p=P(),song=PLAYSONG&&SONG&&SONG.pid===p.id?SONG:null,notes=playList(sc);
+  if(!notes.length&&!song){toast(sc.take?'Otosta ei löytynyt iskuja alun jälkeen.':'Ei soitettavaa: mukana olevista otoista ei löytynyt iskuja.');return;}
+  session('playback');
+  var job=PLAY={sc:sc,notes:notes,song:song,from:Math.max(0,sc.from||0)};playEnd(job);playUi();
+  prepareSamples(notes).then(function(){
+    if(PLAY!==job)return;if(job.from>=job.end-0.3)job.from=0;
+    job.out=a.createGain();job.out.connect(master(a));job.t0=a.currentTime+0.12-job.from;job.until=job.from;
+    if(song&&job.from<song.buf.duration){var s=a.createBufferSource();s.buffer=song.buf;s.connect(a.destination);s.start(job.t0+job.from,job.from);job.src=s;}
+    job.timer=setInterval(function(){playTick(job);},40);playTick(job);playFrame(job);
+  });
+}
+function playTick(job){
+  if(PLAY!==job)return;var a=AC,now=a.currentTime-job.t0,ahead=now+0.25;
+  if(job.dirty){job.dirty=false;job.notes=playList(job.sc);playEnd(job);prepareSamples(job.notes);}
+  for(var i=0;i<job.notes.length;i++){var x=job.notes[i];if(x.t>=ahead)break;if(x.t>=job.until)voice(a,job.out,job.t0+x.t,x.n,x.v);}
+  job.until=ahead;if(now>job.end)stopPlay();
+}
+function stopPlay(){
+  if(!PLAY)return;var job=PLAY;PLAY=null;clearInterval(job.timer);
+  if(job.src){try{job.src.stop();}catch(e){}}
+  if(job.out){var g=job.out.gain,now=AC.currentTime;try{g.cancelScheduledValues(now);g.setValueAtTime(g.value,now);g.linearRampToValueAtTime(0,now+0.03);}catch(e){}setTimeout(function(){try{job.out.disconnect();}catch(e){}},400);}
+  playUi();
+}
+function playPos(){return PLAY&&PLAY.t0!==undefined?AC.currentTime-PLAY.t0:null;}
+function playUi(){
+  Array.prototype.forEach.call(document.querySelectorAll('[data-act="play"]'),function(b){b.textContent=PLAY?'■ Pysäytä':'▶ Kuuntele';});
+  Array.prototype.forEach.call(document.querySelectorAll('[data-act="playSong"]'),function(b){b.setAttribute('aria-pressed',PLAYSONG);});
+  if(!PLAY){var pt=$('playTime'),ph=$('phead');if(pt)pt.textContent='';if(ph)ph.hidden=true;}
+}
+function playFrame(job){
+  if(PLAY!==job)return;var t=playPos(),pt=$('playTime');
+  if(pt)pt.textContent=fmtT(Math.max(0,t))+' / '+fmtT(job.end);
+  if(EDIT)edPlayhead(t);
+  requestAnimationFrame(function(){playFrame(job);});
+}
+function songChip(){return SONG&&SONG.pid===P().id?'<button class="chip" data-act="playSong" aria-pressed="'+PLAYSONG+'">Biisin kanssa</button>':'';}
+// Rummut äänitiedostoksi (ilman biisiä).
+function renderNotes(notes,dur,sr){
+  var OAC=window.OfflineAudioContext||window.webkitOfflineAudioContext;if(!OAC)return Promise.reject(new Error('selain ei osaa tehdä äänitiedostoa'));
+  return prepareSamples(notes).then(function(){
+    var o=new OAC(1,Math.max(1,Math.ceil(dur*sr)),sr),out=master(o);
+    notes.forEach(function(x){voice(o,out,x.t,x.n,x.v);});
+    return new Promise(function(res,rej){var done=false,fin=function(b){if(!done&&b){done=true;res(b);}};o.oncomplete=function(e){fin(e.renderedBuffer);};var pr=o.startRendering();if(pr&&pr.then)pr.then(fin,rej);});
+  });
+}
+function exportWav(){
+  var p=P(),notes=RK.playNotes(p,envOf);if(!notes.length){toast('Ei vietäviä iskuja: mukana olevista otoista ei löytynyt iskuja alun jälkeen.');return;}
+  var dur=notes[notes.length-1].t+2.5;if(dur>11*60){toast('Rytmi on liian pitkä äänitiedostoksi (yli 11 min).');return;}
+  WAVING=true;WAV=null;renderTakes();
+  renderNotes(notes,dur,44100).then(function(b){WAVING=false;WAV={pid:p.id,bytes:RK.wavBytes(b.getChannelData(0),b.sampleRate),name:fileName(p.nimi)+' rytmi.wav'};if(TAB==='takes')renderTakes();},
+    function(e){WAVING=false;if(TAB==='takes')renderTakes();toast('Äänitiedostoa ei saatu tehtyä'+(e&&e.message?': '+e.message:'.'));});
+}
+
 // ---------- näkymät ----------
 function render(){
   $('projBtn').textContent=P().nimi+' ▾';
   Array.prototype.forEach.call(document.querySelectorAll('#tabs button'),function(b){b.setAttribute('aria-pressed',b.dataset.tab===TAB?'true':'false');});
-  ['rec','takes','set'].forEach(function(t){$('v-'+t).hidden=t!==TAB;});
-  if(TAB==='rec')renderRec();else if(TAB==='takes')renderTakes();else renderSet();
+  ['rec','takes','snd','set'].forEach(function(t){$('v-'+t).hidden=t!==TAB;});
+  if(TAB==='rec')renderRec();else if(TAB==='takes')renderTakes();else if(TAB==='snd')renderSounds();else renderSet();
 }
 function renderRec(){
   if(TAB!=='rec')return;var p=P(),song=SONG&&SONG.pid===p.id?SONG:null,rec=R&&R.k==='rec',h='';
@@ -531,9 +774,14 @@ function renderTakes(){
   ['1/32','1/16','1/8'].forEach(function(k){h+='<button data-act="pset" data-k="pituus" data-v="'+k+'" aria-pressed="'+(p.pituus===k)+'">'+k+'</button>';});
   h+='</div></div><div class="field"><span>Raidat</span><div class="seg small grow" role="group"><button data-act="pset" data-k="raidat" data-v="yksi" aria-pressed="'+(p.raidat==='yksi')+'">Yksi raita</button><button data-act="pset" data-k="raidat" data-v="omat" aria-pressed="'+(p.raidat==='omat')+'">Oma per otto</button></div></div>';
   h+='<p class="help">Tempo '+String(p.tempo).replace('.',',')+' BPM (muutos Nauhoita-välilehdellä). Rummut MIDI-kanavalla 10.</p></div>';
+  h+='<div class="card"><h2>Kuuntele</h2><div class="row"><button class="btn solid grow" data-act="play" data-scope="proj">'+(PLAY?'■ Pysäytä':'▶ Kuuntele')+'</button>'+songChip()+'</div><div class="help ptime" id="playTime"></div>';
+  h+='<p class="help">Mukana olevat otot soivat nuottiensa äänillä (Äänet-välilehti).'+(SONG&&SONG.pid===p.id?'':' Lataa biisi Nauhoita-välilehdellä, niin se soi mukana.')+'</p></div>';
   h+='<div class="card"><h2>Vienti</h2><div class="stat"><div><b>'+inc+'/'+p.otot.length+'</b><span>ottoa mukana</span></div><div><b>'+st.n+'</b><span>nuottia</span></div><div><b>'+st.pois+'</b><span>ennen alkua</span></div></div>';
   h+='<div class="row" style="margin-top:12px"><button class="btn solid grow" data-act="export">Vie MIDI</button><button class="btn" data-act="exportDl">Lataa .mid</button></div>';
-  h+='<p class="help">Logicissa: vedä tiedosto raidalle tahdin 1 kohdalle, niin nuotit osuvat biisin alusta. Ennen alkua tulleet iskut jäävät pois.</p></div>';
+  h+='<p class="help">Logicissa: vedä tiedosto raidalle tahdin 1 kohdalle, niin nuotit osuvat biisin alusta. Ennen alkua tulleet iskut jäävät pois.</p>';
+  h+='<button class="btn wide" style="margin-top:12px" data-act="wav"'+(WAVING?' disabled':'')+'>'+(WAVING?'Tehdään äänitiedostoa…':'Tee rytmistä äänitiedosto (.wav)')+'</button>';
+  if(WAV&&WAV.pid===p.id&&!WAVING)h+='<div class="row" style="margin-top:8px"><span class="grow help">Valmis: '+esc(WAV.name)+' ('+String(Math.max(0.1,Math.round(WAV.bytes.length/104857.6)/10)).replace('.',',')+' Mt)</span><button class="btn solid" data-act="wavShare">Jaa</button><button class="btn" data-act="wavDl">Lataa</button></div>';
+  h+='<p class="help">Äänitiedostossa ovat rummut nuottien äänillä, ei biisiä.</p></div>';
   h+='<div class="card"><h2>Otot</h2>';
   if(!p.otot.length)h+='<p class="help">Ei vielä ottoja. Nauhoita ensimmäinen Nauhoita-välilehdellä.</p>';
   p.otot.forEach(function(T){var n=RK.takeHits(T,envOf(T)).length,dur=envOf(T).length/T.hz;
@@ -562,17 +810,57 @@ function renderSet(){
   h+='</div><div class="theme-modes">';[['auto','Laitteen mukaan'],['light','Vaalea'],['dark','Tumma']].forEach(function(m){h+='<button class="chip" data-ap-mode="'+m[0]+'" aria-pressed="'+(appearance.mode===m[0])+'">'+m[1]+'</button>';});
   h+='</div></div>';
   var kb=Math.round(JSON.stringify(D).length*2/1024);
-  h+='<div class="card lock"><h2>Varmuuskopio</h2><p class="help" style="margin:0">Tiedot ovat vain tämän selaimen muistissa ('+kb+' kt). Ääntä ei tallenneta, vain iskujen tunnistukseen tarvittava voimakkuuskäyrä.</p>';
+  h+='<div class="card lock"><h2>Varmuuskopio</h2><p class="help" style="margin:0">Tiedot ovat vain tämän selaimen muistissa ('+kb+' kt). Ääntä ei tallenneta, vain iskujen tunnistukseen tarvittava voimakkuuskäyrä. Sämplejen äänet eivät ole varmuuskopiossa, vain niiden nimet ja nuottien äänivalinnat.</p>';
   h+='<div class="grid2"><button class="btn" data-act="backup">Vie tiedostoon</button><button class="btn" data-act="importPick">Tuo tiedostosta</button><button class="btn" data-act="textOut">Näytä tekstinä</button><button class="btn" data-act="textIn">Tuo tekstistä</button></div>';
   if(TEXTBOX==='out')h+='<textarea id="txt" readonly>'+esc(JSON.stringify(D))+'</textarea><button class="btn wide" data-act="copy">Kopioi</button>';
   if(TEXTBOX==='in')h+='<textarea id="txt" placeholder="Liitä varmuuskopion teksti tähän"></textarea><button class="btn solid wide" data-act="textImport">Tuo</button>';
-  h+='</div><p class="help center" style="margin-top:16px">Rytmikone · vaihe 1 · tallennusmuoto '+RK.VER+'</p>';
+  h+='</div><p class="help center" style="margin-top:16px">Rytmikone · vaihe 2 · tallennusmuoto '+RK.VER+'</p>';
   $('v-set').innerHTML=h;
 }
 
+function soundRow(n){
+  var own=!!D.aanet[n],s=RK.soundFor(D,n),miss=s.tyyppi==='sample'&&sampleMissing(s.sample);
+  return '<div class="list-row"><button class="btn sq" data-act="audition" data-n="'+n+'" aria-label="Kuuntele ääni">▶</button><button class="open" data-act="sndEdit" data-n="'+n+'"><b>'+esc(RK.noteLabel(n))+'</b><span'+(miss?' class="warn"':'')+'>'+esc(soundLabel(s))+(own?'':' · perusääni')+'</span></button></div>';
+}
+function renderSounds(){
+  if(!HAVE_ASKED)refreshHave();
+  var p=P(),used=[],h='';p.otot.forEach(function(T){if(used.indexOf(T.nuotti)<0)used.push(T.nuotti);});
+  var other=Object.keys(D.aanet).map(Number).filter(function(n){return used.indexOf(n)<0;}).sort(function(a,b){return a-b;});
+  h+='<div class="card"><h2>Projektin nuotit</h2>';
+  if(!used.length)h+='<p class="help" style="margin:0">Ei vielä ottoja. Ottojen nuotit tulevat tähän, ja jokaiselle voi valita oman äänen.</p>';
+  used.forEach(function(n){h+=soundRow(n);});
+  h+='<div class="field" style="margin-top:12px"><select id="sndOther" aria-label="Muun nuotin ääni"><option value="">Muun nuotin ääni…</option>';
+  RK.GM.forEach(function(g){h+='<option value="'+g[0]+'">'+esc(RK.noteLabel(g[0]))+'</option>';});
+  h+='</select></div><p class="help">Jokaisella nuotilla on perusääni, kunnes valitset oman. Äänet soivat esikuuntelussa ja äänitiedostossa; MIDI-tiedostoon tulevat vain nuotit.</p></div>';
+  if(other.length){h+='<div class="card"><h2>Muut omat äänet</h2>';other.forEach(function(n){h+=soundRow(n);});h+='</div>';}
+  h+='<div class="card"><h2>Sämplet</h2>';
+  if(!D.samplet.length)h+='<p class="help" style="margin:0">Ei sämplejä.</p>';
+  D.samplet.forEach(function(x){var miss=sampleMissing(x.id);
+    h+='<div class="list-row"><div class="grow"><b>'+esc(x.nimi)+'</b><div class="help'+(miss?' warn':'')+'">'+(miss?'Ääni puuttuu tästä selaimesta: poista ja lisää tiedosto uudelleen.':fmtT(x.kesto)+' · '+Math.max(1,Math.round(x.koko/1024))+' kt')+'</div></div><button class="btn danger" data-act="sampleDel" data-id="'+esc(x.id)+'">Poista</button></div>';});
+  h+='<button class="btn wide" style="margin-top:10px" data-act="samplePick">Lisää sämple</button><p class="help">wav, mp3 tai m4a Tiedostot-apista, enintään 15 Mt. Sämplet tallentuvat tämän selaimen muistiin, eivät varmuuskopioon: säilytä alkuperäiset tiedostot.</p></div>';
+  $('v-snd').innerHTML=h;
+}
+// Nuotin ääni-ikkuna (alhaalta nouseva paneeli). Ensimmäinen muutos tekee perusäänestä nuotin oman äänen.
+function soundSheet(n){
+  SNDN=n;var s=RK.soundFor(D,n),own=!!D.aanet[n],h='<h2>Ääni · '+esc(RK.noteLabel(n))+'</h2><div class="chips">';
+  RK.TYYPIT.forEach(function(k){h+='<button class="chip" data-act="sndType" data-v="'+k+'" aria-pressed="'+(s.tyyppi===k)+'">'+esc(RK.AANET[k].nimi)+'</button>';});h+='</div>';
+  if(s.tyyppi==='sample'){
+    h+='<div class="field" style="margin-top:12px"><select id="sndSample" aria-label="Sämple">';
+    if(!D.samplet.length)h+='<option value="">Ei sämplejä</option>';
+    D.samplet.forEach(function(x){h+='<option value="'+esc(x.id)+'"'+(x.id===s.sample?' selected':'')+'>'+esc(x.nimi)+'</option>';});
+    h+='</select><button class="btn" data-act="samplePick" data-n="'+n+'">Lisää</button></div>';
+    if(sampleMissing(s.sample))h+='<p class="help warn">'+(D.samplet.length?'Sämplen ääni puuttuu tästä selaimesta. Nyt soi perusääni.':'Lisää sämple tiedostona. Siihen asti soi perusääni.')+'</p>';
+  }
+  RK.AANET[s.tyyppi].p.forEach(function(d){h+=slider(d.slice(0,6),s.p[d[0]],'data-snd','os-');});
+  h+='<div class="row" style="margin-top:14px"><button class="btn solid grow" data-act="audition" data-n="'+n+'" data-v="120">▶ Kovaa</button><button class="btn grow" data-act="audition" data-n="'+n+'" data-v="45">▶ Hiljaa</button></div>';
+  h+='<div class="row" style="margin-top:10px"><button class="btn" id="sndReset" data-act="sndReset"'+(own?'':' hidden')+'>Palauta perusääni</button><span class="grow"></span><button class="btn" data-act="sheetClose">Valmis</button></div>';
+  sheet(h);
+}
+function ownSound(n){if(!D.aanet[n])D.aanet[n]=JSON.parse(JSON.stringify(RK.soundFor(D,n)));var r=$('sndReset');if(r)r.hidden=false;return D.aanet[n];}
+
 // ---------- viivekalibrointi ----------
 function startCal(){
-  if(R)return;var a;try{a=ctx();}catch(e){toast(e.message);return;}
+  if(R)return;stopPlay();var a;try{a=ctx();}catch(e){toast(e.message);return;}
   var job=R={k:'cal'};CAL=null;setBusy(true);renderSet();
   capture(null).then(function(h){
     if(R!==job){h.stop();return;}job.h=h;var beat=60/90,t0=a.currentTime+0.5,clicks=[];
@@ -589,7 +877,7 @@ function startCal(){
 }
 // ---------- mikrofonin testi ----------
 function startMic(){
-  if(R)return;try{ctx();}catch(e){toast(e.message);return;}
+  if(R)return;stopPlay();try{ctx();}catch(e){toast(e.message);return;}
   var job=R={k:'mic',ch:0,same:true};setBusy(true);renderSet();
   capture(function(m,h){if(R!==job)return;var L=$('mL'),Rr=$('mR'),info=$('micInfo'),st=$('micSet');
     if(L)L.style.width=levelPct(RK.db(m.l))+'%';if(Rr)Rr.style.width=levelPct(RK.db(m.ch>1?m.r:0))+'%';
@@ -599,16 +887,18 @@ function startMic(){
 }
 
 // ---------- oton editori ----------
-function openEditor(id){var T=takeById(id);if(!T)return;var dur=envOf(T).length/T.hz;EDIT={id:id,v0:0,v1:Math.max(0.5,dur)};$('editor').hidden=false;renderEditor();$('editor').scrollTop=0;document.body.style.overflow='hidden';}
-function closeEditor(){EDIT=null;$('editor').hidden=true;$('editor').innerHTML='';document.body.style.overflow='';saveNow();render();}
+function openEditor(id){var T=takeById(id);if(!T)return;stopPlay();var dur=envOf(T).length/T.hz;EDIT={id:id,v0:0,v1:Math.max(0.5,dur)};$('editor').hidden=false;renderEditor();$('editor').scrollTop=0;document.body.style.overflow='hidden';}
+function closeEditor(){stopPlay();EDIT=null;$('editor').hidden=true;$('editor').innerHTML='';document.body.style.overflow='';saveNow();render();}
 var SL=[['portti','Kohinaportti',-80,-6,0.5,'db','Tätä hiljaisemmat äänet eivät tee nuottia.'],['esto','Uudelleenlaukaisun esto',0,300,5,'ms','Näin pian edellisen iskun jälkeen ei tule uutta.'],
   ['hiljaisin','Hiljaisin isku (velocity 1)',-80,-1,0.5,'db',''],['kovin','Kovin isku (velocity 127)',-79,0,0.5,'db','']];
 var SL2=[['hyst','Hystereesi',0,24,0.5,'db','Kuinka paljon tason pitää laskea portin alle ennen uutta iskua.'],['ikkuna','Mittausikkuna',2,80,1,'ms','Iskun voimakkuus = suurin taso näin pitkältä ajalta iskun alusta.']];
-function slider(d,val,attr){return '<label class="sl"><span class="lab"><span>'+d[1]+'</span><output id="o-'+d[0]+'">'+(d[5]==='db'?fmtDb(val):fmtMs(val))+'</output></span><input type="range" '+attr+'="'+d[0]+'" min="'+d[2]+'" max="'+d[3]+'" step="'+d[4]+'" value="'+val+'">'+(d[6]?'<span class="help">'+d[6]+'</span>':'')+'</label>';}
+function slider(d,val,attr,pre){return '<label class="sl"><span class="lab"><span>'+d[1]+'</span><output id="'+(pre||'o-')+d[0]+'">'+fmtU(val,d[5])+'</output></span><input type="range" '+attr+'="'+d[0]+'" min="'+d[2]+'" max="'+d[3]+'" step="'+d[4]+'" value="'+val+'">'+(d[6]?'<span class="help">'+d[6]+'</span>':'')+'</label>';}
 function renderEditor(){
   var T=takeById(EDIT.id);if(!T){closeEditor();return;}var s=T.s,h='<div class="wrap">';
   h+='<div class="edtop"><button class="btn solid" data-act="edClose">Valmis</button><input type="text" id="eName" maxlength="60" value="'+esc(T.nimi)+'" aria-label="Oton nimi"></div>';
-  h+='<div class="card" style="margin-top:4px"><canvas id="wave" aria-label="Oton voimakkuus ja iskut"></canvas><div class="row" style="margin-top:8px"><button class="btn sq" data-act="zoom" data-z="2" aria-label="Loitonna">−</button><button class="btn" data-act="zoomAll">Koko</button><button class="btn sq" data-act="zoom" data-z="0.5" aria-label="Lähennä">+</button><span class="help grow" id="wTime"></span></div><p class="help">Vedä kuvaa sivulle siirtyäksesi. Pystyviiva = isku, korkeus = velocity. Katkoviiva = portti.</p></div>';
+  h+='<div class="card" style="margin-top:4px"><div class="wavebox"><canvas id="wave" aria-label="Oton voimakkuus ja iskut"></canvas><i id="phead" hidden></i></div><div class="row" style="margin-top:8px"><button class="btn sq" data-act="zoom" data-z="2" aria-label="Loitonna">−</button><button class="btn" data-act="zoomAll">Koko</button><button class="btn sq" data-act="zoom" data-z="0.5" aria-label="Lähennä">+</button><span class="help grow" id="wTime"></span></div>';
+  h+='<div class="row" style="margin-top:8px"><button class="btn solid" data-act="play" data-scope="take">'+(PLAY?'■ Pysäytä':'▶ Kuuntele')+'</button>'+songChip()+'<span class="help grow" id="eSound">'+esc(soundLabel(RK.soundFor(D,T.nuotti)))+'</span></div>';
+  h+='<p class="help">Vedä kuvaa sivulle siirtyäksesi. Pystyviiva = isku, korkeus = velocity. Katkoviiva = portti. Kuuntele soittaa näkyvän kohdan alusta; säätöjen muutos kuuluu heti.</p></div>';
   h+='<div class="card"><div class="stat" id="eStats"></div><div class="field" style="margin-top:12px"><span>Nuotti</span><select id="eNote" aria-label="Nuotti">'+noteOptions(T.nuotti)+'</select><input type="number" id="eNoteNum" min="0" max="127" inputmode="numeric" value="'+T.nuotti+'" aria-label="Nuotin numero"></div>';
   h+='<div class="row" style="margin-top:10px"><button class="chip" data-act="edInc" aria-pressed="'+T.mukana+'">Mukana viennissä</button></div></div>';
   h+='<div class="card"><h2>Tunnistus</h2>';SL.slice(0,2).forEach(function(d){h+=slider(d,s[d[0]],'data-s');});
@@ -628,7 +918,16 @@ function edUpdate(){
   var T=takeById(EDIT.id);if(!T)return;var hits=RK.takeHits(T,envOf(T)),pois=0,lo=127,hi=0;
   hits.forEach(function(x){if(x.t<0)pois++;if(x.v<lo)lo=x.v;if(x.v>hi)hi=x.v;});
   var st=$('eStats');if(st)st.innerHTML='<div><b>'+hits.length+'</b><span>iskua</span></div><div><b>'+(hits.length?lo+'–'+hi:'–')+'</b><span>velocity</span></div><div><b>'+pois+'</b><span>ennen alkua</span></div>';
-  EDIT.hits=hits;drawWave();
+  EDIT.hits=hits;drawWave();if(PLAY)PLAY.dirty=true;
+}
+// Soiton alku editorista: näkyvän kohdan alku (biisin aikana), koko näkymässä nollakohta.
+function edFrom(){var T=takeById(EDIT.id);return T&&EDIT.v0>0.01?Math.max(0,T.alku+EDIT.v0-T.viive/1000):0;}
+function edPlayhead(t){
+  var ph=$('phead'),T=EDIT&&takeById(EDIT.id);if(!ph)return;
+  if(!T||!PLAY||PLAY.sc.take!==EDIT.id||t===null){ph.hidden=true;return;}
+  var et=t-T.alku+T.viive/1000,span=EDIT.v1-EDIT.v0;
+  if(!drag&&et>EDIT.v1&&et<envOf(T).length/T.hz)edSetView(et-span*0.05,span);
+  var x=(et-EDIT.v0)/(EDIT.v1-EDIT.v0);ph.hidden=x<0||x>1;ph.style.left=(x*100)+'%';
 }
 function cssVar(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
 function drawWave(){
@@ -656,7 +955,7 @@ window.addEventListener('resize',function(){if(EDIT)drawWave();});
 
 // ---------- projektit ----------
 function sheet(html){$('sheet').innerHTML=html;$('shade').hidden=false;}
-function closeSheet(){$('shade').hidden=true;$('sheet').innerHTML='';}
+function closeSheet(){$('shade').hidden=true;$('sheet').innerHTML='';if(SNDN!==null){SNDN=null;if(TAB==='snd')renderSounds();}}
 function projectsSheet(){
   var h='<h2>Projektit</h2><div class="plist">';
   D.projektit.forEach(function(p){h+='<button data-act="projPick" data-id="'+esc(p.id)+'" aria-current="'+(p.id===D.cur)+'"><span>'+esc(p.nimi)+'</span><span class="help">'+p.otot.length+' ottoa</span></button>';});
@@ -668,12 +967,12 @@ function importData(text){
   var d;try{d=JSON.parse(text);}catch(e){toast('Teksti ei ole kelvollinen varmuuskopio.');return;}
   if(!d||d.app!=='rytmikone'){toast('Tämä ei ole Rytmikoneen varmuuskopio.');return;}
   if(!confirm('Korvataanko nykyiset tiedot varmuuskopiolla? Nykyiset projektit katoavat, ellei niitä ole viety.'))return;
-  D=RK.repair(d);ENVC={};SONG=null;TEXTBOX='';saveNow();render();toast('Varmuuskopio tuotu: '+D.projektit.length+' projektia.');
+  stopPlay();D=RK.repair(d);ENVC={};SONG=null;WAV=null;TEXTBOX='';saveNow();render();toast('Varmuuskopio tuotu: '+D.projektit.length+' projektia.');
 }
 
 // ---------- tapahtumat ----------
 document.addEventListener('click',function(e){
-  var tb=e.target.closest('#tabs button');if(tb){if(R)return;TAB=tb.dataset.tab;render();return;}
+  var tb=e.target.closest('#tabs button');if(tb){if(R)return;if(TAB!==tb.dataset.tab)stopPlay();TAB=tb.dataset.tab;render();return;}
   var th=e.target.closest('[data-ap-theme]'),md=e.target.closest('[data-ap-mode]');
   if(th||md){if(th)appearance.theme=th.dataset.apTheme;if(md)appearance.mode=md.dataset.apMode;applyAppearance();renderSet();return;}
   if(e.target.id==='shade'){closeSheet();return;}
@@ -687,17 +986,17 @@ document.addEventListener('click',function(e){
   case 'pflag':p[b.dataset.k]=!p[b.dataset.k];save();renderRec();break;
   case 'pset':p[b.dataset.k]=b.dataset.v;save();renderTakes();break;
   case 'edit':openEditor(b.dataset.id);break;
-  case 'inc':var t=takeById(b.dataset.id);if(t){t.mukana=!t.mukana;save();renderTakes();}break;
+  case 'inc':var t=takeById(b.dataset.id);if(t){t.mukana=!t.mukana;if(PLAY)PLAY.dirty=true;save();renderTakes();}break;
   case 'export':case 'exportDl':
     var st=RK.exportNotes(p,envOf);if(!st.n){toast('Ei vietäviä nuotteja: mukana olevista otoista ei löytynyt iskuja alun jälkeen.');break;}
     lastExport=RK.midi(p,envOf);shareOrDownload(new Blob([lastExport],{type:'audio/midi'}),fileName(p.nimi)+'.mid','audio/midi',act==='exportDl');break;
   case 'projects':projectsSheet();break;
   case 'sheetClose':closeSheet();break;
-  case 'projPick':D.cur=b.dataset.id;save();closeSheet();render();break;
-  case 'projNew':var np=RK.newProject('Projekti '+(D.projektit.length+1));D.projektit.push(np);D.cur=np.id;save();closeSheet();TAB='rec';render();break;
+  case 'projPick':stopPlay();D.cur=b.dataset.id;save();closeSheet();render();break;
+  case 'projNew':stopPlay();var np=RK.newProject('Projekti '+(D.projektit.length+1));D.projektit.push(np);D.cur=np.id;save();closeSheet();TAB='rec';render();break;
   case 'projDel':
     if(!confirm('Poistetaanko projekti ”'+p.nimi+'” ja sen '+p.otot.length+' ottoa?'))break;
-    D.projektit=D.projektit.filter(function(x){return x!==p;});if(!D.projektit.length)D.projektit.push(RK.newProject('Projekti 1'));D.cur=D.projektit[0].id;save(true);render();break;
+    stopPlay();D.projektit=D.projektit.filter(function(x){return x!==p;});if(!D.projektit.length)D.projektit.push(RK.newProject('Projekti 1'));D.cur=D.projektit[0].id;save(true);render();break;
   case 'cal':startCal();break;
   case 'calStop':cancelJob();break;
   case 'calSave':if(CAL&&CAL.ok){D.viive=CAL.ms;CAL=null;save();renderSet();toast('Viive tallennettu. Se koskee uusia ottoja; vanhoissa siirron voi muuttaa oton näkymässä.');}break;
@@ -712,6 +1011,18 @@ document.addEventListener('click',function(e){
   case 'textIn':TEXTBOX=TEXTBOX==='in'?'':'in';renderSet();break;
   case 'copy':var ta=$('txt');if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(ta.value).then(function(){toast('Kopioitu.');},function(){ta.select();toast('Valitse ja kopioi teksti itse.');});else{ta.select();toast('Valitse ja kopioi teksti itse.');}break;
   case 'textImport':importData($('txt').value);break;
+  // esikuuntelu ja äänet
+  case 'play':if(PLAY)stopPlay();else startPlay(b.dataset.scope==='take'&&EDIT?{take:EDIT.id,from:edFrom()}:{take:null,from:0});break;
+  case 'playSong':PLAYSONG=!PLAYSONG;if(PLAY){var ps=PLAY.sc,pp=playPos();startPlay({take:ps.take,from:pp===null?ps.from:pp});}else playUi();break;
+  case 'wav':exportWav();break;
+  case 'wavShare':case 'wavDl':if(WAV)shareOrDownload(new Blob([WAV.bytes],{type:'audio/wav'}),WAV.name,'audio/wav',act==='wavDl');break;
+  case 'audition':audition(+b.dataset.n,+b.dataset.v||110);break;
+  case 'sndEdit':soundSheet(+b.dataset.n);break;
+  case 'sndType':if(SNDN!==null){var sn=SNDN,cur=D.aanet[sn],k=b.dataset.v;if(RK.soundFor(D,sn).tyyppi===k){audition(sn,110);break;}var sid=cur&&cur.sample&&sampleById(cur.sample)?cur.sample:(D.samplet.length?D.samplet[D.samplet.length-1].id:'');
+    D.aanet[sn]=RK.repairSound({tyyppi:k,sample:k==='sample'?sid:''},sn);save();soundSheet(sn);if(k!=='sample'||sid)audition(sn,110);}break;
+  case 'sndReset':if(SNDN!==null){delete D.aanet[SNDN];save();soundSheet(SNDN);audition(SNDN,110);}break;
+  case 'samplePick':PICKN=b.dataset.n!==undefined?+b.dataset.n:null;$('sampleFile').value='';$('sampleFile').click();break;
+  case 'sampleDel':deleteSample(b.dataset.id);break;
   // editori
   case 'edClose':closeEditor();break;
   case 'zoom':if(T)edSetView((EDIT.v0+EDIT.v1)/2-(EDIT.v1-EDIT.v0)*(+b.dataset.z)/2,(EDIT.v1-EDIT.v0)*(+b.dataset.z));break;
@@ -726,11 +1037,12 @@ document.addEventListener('click',function(e){
 });
 function edSettingsChanged(T){
   T.s=RK.settings(T.s);D.oletus=copyS(T.s);save();
-  SL.concat(SL2).forEach(function(d){var o=$('o-'+d[0]),r=document.querySelector('[data-s="'+d[0]+'"]');if(o)o.textContent=d[5]==='db'?fmtDb(T.s[d[0]]):fmtMs(T.s[d[0]]);if(r&&+r.value!==T.s[d[0]])r.value=T.s[d[0]];});
+  SL.concat(SL2).forEach(function(d){var o=$('o-'+d[0]),r=document.querySelector('[data-s="'+d[0]+'"]');if(o)o.textContent=fmtU(T.s[d[0]],d[5]);if(r&&+r.value!==T.s[d[0]])r.value=T.s[d[0]];});
   edUpdate();
 }
 document.addEventListener('input',function(e){
   var t=e.target,p=P(),T=EDIT?takeById(EDIT.id):null;
+  if(t.dataset.snd&&SNDN!==null){var so=ownSound(SNDN),k=t.dataset.snd,d=RK.AANET[so.tyyppi].p.filter(function(x){return x[0]===k;})[0];if(d){so.p[k]=+t.value;$('os-'+k).textContent=fmtU(so.p[k],d[5]);save();}return;}
   if(t.dataset.s&&T){T.s[t.dataset.s]=+t.value;edSettingsChanged(T);return;}
   if(t.dataset.t==='viive'&&T){T.viive=+t.value;$('o-viive').textContent=fmtMs(T.viive);save();edUpdate();return;}
   if(t.id==='eName'&&T){T.nimi=t.value.slice(0,60)||'Otto';save();return;}
@@ -738,16 +1050,21 @@ document.addEventListener('input',function(e){
 });
 document.addEventListener('change',function(e){
   var t=e.target,p=P(),T=EDIT?takeById(EDIT.id):null;
-  if(t.id==='tempo'){var v=parseFloat(String(t.value).replace(',','.'));if(isFinite(v))p.tempo=RK.clamp(Math.round(v*10)/10,20,400);save();renderRec();}
+  if(t.dataset.snd&&SNDN!==null){audition(SNDN,110);}
+  else if(t.id==='sndOther'){if(t.value!=='')soundSheet(+t.value);t.value='';}
+  else if(t.id==='sndSample'&&SNDN!==null){if(t.value){ownSound(SNDN).sample=t.value;save();soundSheet(SNDN);audition(SNDN,110);}}
+  else if(t.id==='sampleFile'&&t.files[0]){addSample(t.files[0]);}
+  else if(t.id==='tempo'){var v=parseFloat(String(t.value).replace(',','.'));if(isFinite(v))p.tempo=RK.clamp(Math.round(v*10)/10,20,400);save();renderRec();}
   else if(t.id==='newNote'){D.uusiNuotti=+t.value;save();}
   else if(t.id==='newPreset'){var pr=D.esi.filter(function(x){return x.id===t.value;})[0];if(pr){D.oletus=copyS(pr.s);save();toast('Seuraava otto käyttää esiasetusta ”'+pr.nimi+'”.');}renderRec();}
-  else if(t.id==='eNote'&&T){T.nuotti=+t.value;$('eNoteNum').value=T.nuotti;save();}
-  else if(t.id==='eNoteNum'&&T){var n=Math.round(+t.value);if(isFinite(n)){T.nuotti=RK.clamp(n,0,127);$('eNote').innerHTML=noteOptions(T.nuotti);}t.value=T.nuotti;save();}
+  else if(t.id==='eNote'&&T){T.nuotti=+t.value;$('eNoteNum').value=T.nuotti;save();edNoteChanged(T);}
+  else if(t.id==='eNoteNum'&&T){var n=Math.round(+t.value);if(isFinite(n)){T.nuotti=RK.clamp(n,0,127);$('eNote').innerHTML=noteOptions(T.nuotti);}t.value=T.nuotti;save();edNoteChanged(T);}
   else if(t.id==='ePreset'&&T){var q=D.esi.filter(function(x){return x.id===t.value;})[0];if(q){T.s=copyS(q.s);D.oletus=copyS(q.s);save();renderEditor();toast('Esiasetus ”'+q.nimi+'” käytössä.');}}
   else if(t.id==='viiveIn'){var vv=String(t.value).trim();D.viive=vv===''?null:RK.clamp(Math.round(+vv)||0,-1000,2000);save();renderSet();}
   else if(t.id==='songFile'&&t.files[0]){loadSong(t.files[0]);}
   else if(t.id==='importFile'&&t.files[0]){var fr=new FileReader();fr.onload=function(){importData(String(fr.result));};fr.readAsText(t.files[0]);}
 });
+function edNoteChanged(T){var es=$('eSound');if(es)es.textContent=soundLabel(RK.soundFor(D,T.nuotti));if(PLAY)PLAY.dirty=true;}
 function loadSong(f){
   var a;try{a=ctx();}catch(e){toast(e.message);return;}var pid=P().id;toast('Ladataan '+f.name+'…');
   var fr=new FileReader();fr.onerror=function(){toast('Tiedostoa ei voitu lukea.');};
@@ -757,12 +1074,14 @@ function loadSong(f){
     try{var pr=a.decodeAudioData(fr.result,ok,bad);if(pr&&pr.catch)pr.catch(function(){});}catch(e){bad();}
   };fr.readAsArrayBuffer(f);
 }
-document.addEventListener('visibilitychange',function(){if(document.hidden&&R){if(R.k==='rec')stopRec();else cancelJob();}});
+document.addEventListener('visibilitychange',function(){if(document.hidden)stopPlay();if(document.hidden&&R){if(R.k==='rec')stopRec();else cancelJob();}});
 
 // testikoukku (selaintestit)
 window.__rk={D:function(){return D;},P:P,envOf:envOf,job:function(){return R?R.k:null;},edit:function(){return EDIT;},lastExport:function(){return lastExport;},lastBackup:function(){return lastBackup;},
   addTake:function(env,o){o=o||{};var T=RK.newTake({nimi:o.nimi||'Otto '+(P().otot.length+1),nuotti:o.nuotti===undefined?D.uusiNuotti:o.nuotti,hz:o.hz||375,alku:o.alku||0,viive:o.viive||0,s:o.s||D.oletus,env:RK.encEnv(env),ref:o.ref||''});P().otot.push(T);saveNow();render();return T.id;},
-  song:function(){return SONG?{name:SONG.name,dur:SONG.buf.duration}:null;}};
+  song:function(){return SONG?{name:SONG.name,dur:SONG.buf.duration}:null;},
+  play:function(){return PLAY?{take:PLAY.sc.take,n:PLAY.notes.length,from:PLAY.from,end:PLAY.end,pos:playPos(),song:!!PLAY.song}:null;},
+  wav:function(){return WAV?WAV.bytes:null;},renderNotes:renderNotes,sbuf:function(id){return !!SBUF[id];},sndn:function(){return SNDN;}};
 
 applyAppearance();render();
 })();
