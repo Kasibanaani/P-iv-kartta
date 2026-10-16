@@ -4,6 +4,8 @@ Pajakone on tehty Kytköskartan kopiona (15.10.2026), joten testit 01–26 (logi
 
 Aja kaikki: `sh appiappi/testit/aja.sh` (vaatii Noden ja Pythonin Playwrightin Chromiumilla).
 
+Koko sarja kestää noin 15 minuuttia, eli yli tekoälyn työkalun 10 minuutin aikarajan: aja taustalla tai selaintestit osissa. `selain_49_monitori` (käyvän sekuntikellon ajoitus) kaatui kerran, kun kaksi sarjaa ajettiin yhtä aikaa; yksin ajettuna läpi.
+
 Skripti poimii `index.html`:n lohkot `engine` (moottori) ja `ui` (käyttöliittymä) tiedostoiksi `moottori.js` ja `ui.js`, tarkistaa niiden syntaksin ja ajaa testit.
 
 ## Logiikkatestit (Node)

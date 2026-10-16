@@ -42,7 +42,7 @@
 - Tallennetaanko biisi appiin, ettei sitä tarvitse ladata joka kerta? (Nyt ei: tilaa säästyy.) Sämplejen tietokantaa voisi käyttää samaan.
 - Äänet ovat nyt yhteiset kaikille projekteille (nuotti 36 kuulostaa samalta joka projektissa). Tarvitaanko projektikohtaiset äänisetit?
 - Tarvitaanko biisin ja rumpujen voimakkuuden tasapainotus esikuuntelussa? (Nyt biisi soi täydellä voimakkuudella, rummut omilla voimakkuuksillaan.)
-- Ideaa ei ole kirjattu `master-tiedot/IDEAT.md`:hen (16.10.2026 istunnoilla ei ollut pääsyä siihen repoon).
+- Äänen tallennus: vaiheessa 1 tekoäly päätti tallentaa otosta vain voimakkuuskäyrän, joten ottoa ei voi kuunnella uudelleen. Emil ei ole hyväksynyt tätä. Tallennetaanko itse ääni?
 
 ## Emilin kommentit
 

@@ -4,6 +4,15 @@
 
 2D-nukketeatteri: tuodut kuvat ovat osia, jotka kiinnitetään toisiinsa. Osia liikutetaan kuin nukkea, ja liike nauhoittuu 24 ruutuna sekunnissa moniraitana. Ensisijaisesti iPad ja Apple Pencil, toimii myös tietokoneella hiirellä. Tiedostomuoto Appi-appia varten: `MUOTO.md`.
 
+## Emilin linjaukset (16.10.2026)
+
+- Liikuttamalla nauhoittaminen on tärkein asia: sen pitää olla ”tosi, tosi, tosi yksinkertaista” ja onnistua äärimmäisen helposti.
+- Työkalut selkeitä, ei Procreaten tai Blenderin tasoisia.
+- Tarkka työ saa olettaa (Apple Pencil tai hiiri), joten tarkkuutta vaativia toimintoja saa suunnitella.
+- iPad ensin, mutta ei pelkästään iPadille: tietokoneella täysipainoinen.
+- Mahdollisimman moni asia noudattaa samaa logiikkaa kuin Appi-appi, ja ratkaisuja saa arvioida sitä vasten.
+- Animaatiot halutaan käyttöön Appi-appin apeissa (`MUOTO.md`).
+
 ## Valmiina (versio 1, 16.10.2026)
 
 - **Rakenne Appi-appin mukaan:** vasemmalla osat (kuin paletti), keskellä lava, oikealla tarkastelija, yläpalkissa Rakenna / Animoi (kuin muokkaus / käyttö), Vie, Kumoa ja Tee uudelleen, Asetukset. Appipaja 2.0 -ilme samoilla teemoilla, vaalea, tumma ja laitteen mukaan.

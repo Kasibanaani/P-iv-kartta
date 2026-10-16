@@ -85,6 +85,7 @@ Ketjujen kolme lukitustilaa ovat lisäksi käyttäjän päätetty täsmennys, jo
 - **P3b-täydennys (16.10.2026, Appi-appi 16):** kentän sidonta riviin (muokkauslomake): tavallinen kenttä sidotaan Rivi-palikkaan ja sarakkeeseen, ilman riviä tyhjä ja harmaa, muutos ei lähetä uutta tapahtumaa. Kortin vanha sidonta on erikoistapaus ja toimii ennallaan. Emilin linjaukset: Rivi-palikka + sarake, tyhjä ja harmaa, ei uutta tapahtumaa. Ratkaisut ja rajaukset: [03, Appi-appi 16](suunnitelmat/03-kayttopinta.md#toteutus-16102026-appi-appi-16-kentän-sidonta-riviin-muokkauslomake).
 - **F24 (16.10.2026, Appi-appi 17):** massa, kimmoisuus, kitka ja tönäisy, massalliset törmäykset, törmäsi-tapahtuman kohde ja isku. Ratkaisut: [09, kohta 12](suunnitelmat/09-massa-ja-tormaykset.md#12-toteutus-16102026-appi-appi-17).
 - Ryhmittely, rivien yhteydet (vanhempi–lapsi) ja P4 sekä myöhemmät: ei toteutettu.
+- **Liitäntä Animappiin (toteuttamaton ehdotus):** Animappi vie animaatiot Appi-appia varten; tiedostomuoto ja ehdotetut Appi-appin muutokset (animaatiopalikka, sprite sheet Kuva-palikkaan, kääntöpiste) ovat tiedostossa [`../animaatio/MUOTO.md`](../animaatio/MUOTO.md). Sopimus tiedostomuodosta on yksi ja sama molemmille apeille.
 
 ## Ehdotettu järjestys
 
