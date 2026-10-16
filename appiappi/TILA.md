@@ -1,6 +1,6 @@
 # Appi-appi: tila
 
-**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 16.10.2026 (Appi-appi 11)
+**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 16.10.2026 (Appi-appi 12)
 
 Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- ja iPad-näkymät, maailma ja hahmon liike, myöhemmin vienti omaksi appiksi). Ristiriidoissa Kytköskartan logiikka voittaa. Suunnitelma ja päätökset: `VERTAILU.md`.
 
@@ -20,13 +20,15 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 - Appi-appi 9 (16.10., Emilin päätös: yleiskäyttöiset palat): kerrokset käytössä (⚙ kerrosriviltä: näkyy käytössä, estää alempien käytön, himmennä alemmat, läpinäkyvyys; Kerros-palikka logiikkaan, jolla nuoli, kaava tai toiminto avaa, sulkee ja pitää kerroksia näkyvissä), Sekuntikello, Monitori (luku, palkki, pylväs, rengas, kaari, pisteet; luku, aika tai prosentti) ja efektit Teksti ilmestyy, Kuva vaihtuu, Animaatio ja Näkymänvaihto (myös ketjun ulkopuolella). Ennätys ei saanut omaa toimintoa: Muisti + SUURIN/PIENIN-ikkuna + Aseta riittää, ja ikkuna ohittaa nyt tyhjät.
 - Appi-appi 10 (16.10., Emilin päätökset: kaikki suositukset): zoomaus käytössä. Maailma ja kamera → Zoomaus: *Sormilla* (kahden sormen nipistys, tietokoneella ⌘ + rulla), pienin ja suurin % (oletus 50–300). Kamera-palikka logiikkaan (napista *Ohjaa logiikasta* tai paletista): ominaisuus zoomaus %, lisäksi näkyvä leveys ja korkeus; nuoli, kaava, Aseta, Palauta ja Muutos ajassa (pehmeä zoomaus). Nuoli lukitsee sormet, Aseta ei. Sormet zoomaavat sormien kohdalta, seuratessa hahmo pysyy keskellä; logiikan zoomaus pitää ruudun keskikohdan. Kojelauta (lukittu kerros) ei zoomaudu. Napautus kohteeseen, alueet ja kuollut alue toimivat zoomattuna. Ilman Kamera-palikkaa sormien zoomaus palaa 100 %:iin alkukohdassa.
 - Appi-appi 11 (16.10., suunnitelman P0 + P1a): **F01** tekstiin `{palikka.ominaisuus}` (esim. `{otsikko.näkyy}`, `{pisteet.arvo}`), sama arvo kuin kaavassa; ＋ Viittaus kysyy palikan jälkeen *Arvo* tai ominaisuuden; nimen vaihto ei riko. **D08** viitatun palikan poisto: Delete / Poista näyttää ensin, missä palikkaa käytetään (Peru tai Poista silti; viittaamaton poistuu heti). Poiston jälkeen viittaukset jäävät: ⚠-merkki logiikan palikassa ja näkymän palikassa, teksti ”⚠ kohde poistettu: nimi”, kaavassa `⚠nimi`, Palikat-napissa ⚠-luku ja listassa Viitevirheet. Rivistä palikkaan, jonka paneelista valitaan uusi kohde. Samanniminen uusi palikka ei peri poistettua. Ketju pysähtyy virheeseen, jos toiminnon tai ehdon kohde on poistettu. Kumoa palauttaa kaiken.
-- Tallennus: uusi valinnainen kenttä `pois` (poistettujen nimet, vain kun viittauksia on). Versio edelleen 8; vanhat projektit avautuvat ennallaan.
-- Testattu vain tietokoneen Chromiumissa (kosketus ja nipistys CDP:llä 390 ja 320 px, Appi-appi 11 leveyksillä 1440 ja 1280), ei oikealla iPhonella, iPadilla eikä Safarilla.
+- Appi-appi 12 (16.10., suunnitelman P1b, päätökset D09–D10): **ketjun kolme lukitustilaa.** Ketjun paneeli → Tila → *Lukitus*: 0 Ajantasainen, 1 Lukitse ulkopuolisilta muutoksilta, 2 Lukitse kaikilta muutoksilta. Lukitus koskee vain lukemista: toiminnot muuttavat aina oikeaa tietoa. Tila 1 lukee lukitushetken arvot ja ketjun omat muutokset (myös sen käynnistämän aliketjun ja vaiheen tapahtumanuolista seuraavat), tila 2 vain lukitushetken arvot; lukittuna myös ketjun rakenne (vaiheet, kesto, arvot) on lukitushetken. Ominaisuudet `harjoitus.lukitus` (ohjattava: nuoli, kaava, Aseta, Lisää, Palauta) ja `harjoitus.lukitusnimi`. Ohjaus luetaan aina ajantasaisena; vaihto tulee voimaan seuraavan vaiheen alussa ja ottaa uuden kuvan siitä hetkestä, alkanut vaihe jatkuu. Muu kuin 0, 1 tai 2 on näkyvä virhe (tarkistus, ilmoitus, ketju pysähtyy). Paneeli näyttää suorituksen tilan, kuvan kellonajan ja erot ”ketju: 2 · nyt: 5”; sama Miksi?-selityksessä. Aseta → lukitus -toiminnossa nimivalikko. Toista, ajastimet, odotus ja Pysäytä toimivat kaikissa tiloissa. Kuva säilyy tallennuksen, viennin ja tuonnin yli; jos se puuttuu, ketju pysähtyy eikä jatka salaa ajantasaisena.
+- Samalla: ajantasaisessa ketjussa kesken poistettu odottava vaihe pysäyttää ketjun virheeseen (ennen haara loppui hiljaa).
+- Tallennus: valinnaiset kentät `pois` (Appi-appi 11) sekä ketjun `lk` ja ajotilan `lk`, `snap`, `own`, `par` (README). Versio edelleen 8; vanhat projektit avautuvat ennallaan (oletus 0).
+- Testattu vain tietokoneen Chromiumissa (kosketus ja nipistys CDP:llä 390 ja 320 px, Appi-appi 11–12 leveyksillä 1440 ja 1280), ei oikealla iPhonella, iPadilla eikä Safarilla.
 
 ## Seuraavaksi
 
-- **Kehityssuunnitelma:** `SUUNNITELMA.md` ja `suunnitelmat/`; toteutuma rekisterin alla. P0 ja P1a tehty (Appi-appi 11). **Seuraava kierros: P1b**, ketjun kolme lukitustilaa (`suunnitelmat/02-ketjujen-lukitus.md`), sitten P2 tietotaulukko.
-- Emil kokeilee tietokoneella: ominaisuus tekstiin (＋ Viittaus), viitatun palikan poisto, Viitevirheet ja uusi kohde. Puhelimella: zoomaus sormilla (ruudun ja maailman tuntuma, kojelauta pysyy), valikko kerroksena (painike → Vaihda → kerros näkyy), Sekuntikello Monitoriin, efektit.
+- **Kehityssuunnitelma:** `SUUNNITELMA.md` ja `suunnitelmat/`; toteutuma rekisterin alla. P0 ja P1a tehty (Appi-appi 11), P1b (Appi-appi 12). **Seuraava kierros: P2**, tietotaulukko, tapahtuman tiedot, puuttuva tieto ja tilannekuvat (`suunnitelmat/01-tieto-ja-tapahtumat.md`).
+- Emil kokeilee tietokoneella: ketjun Lukitus (esim. Ajastin → Aseta Lue = Laskuri; ▶, muuta Laskuria odotuksen aikana ja katso paneelin ero ja lopputulos tiloissa 0, 1 ja 2), ominaisuus tekstiin (＋ Viittaus), viitatun palikan poisto, Viitevirheet ja uusi kohde. Puhelimella: zoomaus sormilla (ruudun ja maailman tuntuma, kojelauta pysyy), valikko kerroksena (painike → Vaihda → kerros näkyy), Sekuntikello Monitoriin, efektit.
 - Myöhemmin: esimerkkiprojekti (esim. labyrintti) vain pyynnöstä.
 
 ## Avoimet kysymykset
@@ -49,6 +51,12 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 - Appi-appi 11: ennen palikkaa kirjoitettu kaavan viite (`{?nimi}`) löytyy yhä automaattisesti, kun palikka tehdään, ja vanhojen projektien aiemmin poistetut kaavaviitteet samoin. Vain tästä eteenpäin poistetut eivät sitoudu samannimiseen.
 - Appi-appi 11: logiikan Toiminnolla ei voi poistaa palikkaa, joten suunnitelman ”vahvistus tarvitaan” -paluuarvoa ei rakennettu. Liittäminen toisesta projektista poistaa vieraat viittaukset kuten ennen.
 - Appi-appi 11 ei tarkistettu: Miksi?-selitys tekstin ominaisuusviitteelle, monivalintapoisto selaimessa (moottoritesti on), poisto puhelin- ja iPad-näkymän rakentajassa, ⚠-merkin sijainti hyvin pienissä palikoissa.
+
+- Appi-appi 12: tilassa 2 toiminnon *arvo* tulee lukitushetkestä, mutta Lisää, Vaihda, Valitse ja Lisää rivi käyttävät kohteen nykyistä arvoa (muuten kaksi Lisää 1 -vaihetta tekisivät yhteensä 1 ja muiden kirjoitus hävisi). Käykö?
+- Appi-appi 12: saman ketjun kahta kierrosta ei voi olla käynnissä yhtä aikaa (ketju joko ohittaa uuden käynnistyksen tai aloittaa alusta). Suorituskohtaisuus koskee eri ketjuja ja uutta kierrosta. Tarvitaanko rinnakkaisia kierroksia?
+- Appi-appi 12: jos ketjun yksi haara vaihtaa tilan, rinnakkaisen haaran jo alkanut *Odota, kunnes* -ehto lukee sen jälkeen uutta tilaa (ajastimet ja efektit eivät muutu). Tapahtuman mukana kulkevaa tietoa (D05) ei vielä ole, joten sitä koskeva koe tehdään P2:ssa.
+- Appi-appi 12: lukukuva tallentuu projektiin niin kauan kuin lukittu ketju on käynnissä, eli rakenne on tallennuksessa kahdesti (kuvatiedostot eivät, ne luetaan aina nykyisinä). Ero-luettelo laskee paneelin ollessa auki kaikki arvot kahdesti: nopeutta isossa projektissa ei tarkistettu. Miksi? näyttää eron ketjun paneelissa, ei luetun palikan omassa.
+- Appi-appi 12 ei tarkistettu: lukitus puhelin- ja iPad-näkymän rakentajassa, pitkä lukittu odotus oikeassa käytössä (sulje ja avaa appi kesken).
 
 ## Suunnitelmat
 

@@ -77,7 +77,8 @@ Ketjujen kolme lukitustilaa ovat lisäksi käyttäjän päätetty täsmennys, jo
 
 - **P0 (16.10.2026, Appi-appi 11):** nykytila tarkistettu ennen P1a:ta. Tekstipohjat eivät tukeneet `{palikka.ominaisuus}`-muotoa; poisto siivosi viittaukset hiljaa (kaava muuttui puuttuvaksi ja sitoutui samannimiseen uuteen palikkaan). Moottorin tallennusversio edelleen 8.
 - **P1a (16.10.2026, Appi-appi 11):** F01 tekstien ominaisuusviite ja D08 poiston vaikutuslista, katkenneiden viitteiden säilytys, Viitevirheet-lista ja uuden kohteen valinta toteutettu. Rajaukset ja tarkistamatta jääneet: `TILA.md`.
-- P1b (ketjun kolme lukitustilaa) ja myöhemmät: ei toteutettu.
+- **P1b (16.10.2026, Appi-appi 12):** D09/D10 ketjun kolme lukitustilaa, suorituskohtainen lukukuva ja omat muutokset, vaihto seuraavan vaiheen alussa, näkyvä virhe ja seuranta toteutettu. Tekniset ratkaisut ja poikkeamat: [02, kohta 9](suunnitelmat/02-ketjujen-lukitus.md#9-toteutus-16102026-appi-appi-12); rajaukset `TILA.md`.
+- P2 ja myöhemmät: ei toteutettu.
 
 ## Ehdotettu järjestys
 

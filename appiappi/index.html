@@ -654,6 +654,8 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .lw.kt.running{box-shadow:0 0 0 3px color-mix(in srgb,var(--kc) 22%,transparent)}
 .lw.kt .kpl{border:0;background:var(--kc);color:#fff;font-size:11px;font-weight:800;width:24px;height:22px;border-radius:7px;flex:none;cursor:pointer;line-height:1}
 .kstat2{border-radius:12px;padding:8px 10px;background:var(--tint);font-size:13px;margin-bottom:8px}
+.lkdiff{border-radius:12px;padding:8px 10px;background:var(--tint);font-size:12.5px;margin:6px 0 8px;display:flex;flex-direction:column;gap:4px}
+.lkdiff>div:first-child{color:var(--label2)}.lkdiff .relc{display:inline-flex}
 .kstat2.on{background:color-mix(in srgb,var(--h1) 12%,var(--cell))}.kstat2.on b{color:var(--h1)}
 .kstat2.er{background:var(--s1)}.kstat2.er b,.kstat2.er div{color:var(--h1)}
 .kstat2 div{margin-top:3px;font-size:12.5px}
@@ -1054,7 +1056,10 @@ function omat(b){
     case 'kamera':r=r.filter(function(e){return e.p!=='arvo';});r.push(OM('zoomaus','zoomaus','luku',{f:'zm',o:1,lim:[ZOOM_MIN,ZOOM_MAX],def:100,d:'kameran zoomaus % (100 = laitteen ruutu, 200 = kaksi kertaa lähempänä)'}));
       pt('lev','leveys','näkyvän maailman leveys (laitteen leveys / zoomaus)');pt('kor','korkeus','näkyvän maailman korkeus');break;
     case 'kello':pt('r','käy','onko käynnissä',['kay']);r.push(OM('kulunut','kulunut','arvo',{port:'v',d:'kulunut aika sekunteina'}));break;
-    case 'ketju':pt('t','tulos','ketjun tulos');pt('v','käynnissä','onko käynnissä',['kaynnissa']);r=r.filter(function(e){return e.p!=='arvo';});break;
+    case 'ketju':pt('t','tulos','ketjun tulos');pt('v','käynnissä','onko käynnissä',['kaynnissa']);r=r.filter(function(e){return e.p!=='arvo';});
+      /* P1b: lukitustila 0–2 (tarkka: muu luku on virhe, ei pyöristetä). Luetaan aina ajantasaisena, myös lukitussa ketjussa. */
+      r.push(OM('lukitus','lukitus','luku',{f:'lk',o:1,lim:[0,2],ex:1,def:0,d:'0 = ajantasainen, 1 = lukitse ulkopuolisilta muutoksilta, 2 = lukitse kaikilta muutoksilta'}));
+      cl('lukitusnimi','lukitusnimi','teksti','valitun lukitustilan nimi');break;
     case 'ajastin':pt('j','jäljellä','jäljellä oleva aika sekunteina',['jaljella']);pt('v','käynnissä','odottaako jokin haara ajastimessa',['kaynnissa']);break;
     case 'muutos':pt('t','edistyminen','0–1 alusta loppuun');pt('r','käynnissä','onko käynnissä',['kaynnissa']);cl('kulunut','kulunut','luku','kulunut aika sekunteina (kesto × edistyminen)');break;
     case 'liike':r.push(OM('x','x','arvo',{port:'v',d:'paikka x'}));pt('y','y','paikka y');pt('m','liikkuu','kyllä, kun liikkuu nyt');pt('osuu','osuu','kyllä, kun este pysäyttää tai ohjaa liikettä');pt('nop','nopeus','nopeus pikseliä sekunnissa');pt('suu','suunta','kulkusuunta asteina, 0 = ylös, 90 = oikealle');break;
@@ -1077,6 +1082,7 @@ function omNames(b){return omat(b).map(function(e){return e.n;}).join(', ');}
 function omNorm(e,v){
   if(isErr(v))return v;
   if(e.t==='luku'){if(v==null||v==='')return null;var n=typeof v==='boolean'?(v?1:0):num(v);if(isNaN(n)||!isFinite(n))return ERR(e.n+' ei ole luku');
+    if(e.ex&&(Math.round(n)!==n||(e.lim[0]!=null&&n<e.lim[0])||(e.lim[1]!=null&&n>e.lim[1])))return ERR(e.n+': '+fmt(n)+' ei ole '+e.lim[0]+', '+(e.lim[0]+1)+' tai '+e.lim[1]);
     if(e.lim){if(e.lim[0]!=null)n=Math.max(e.lim[0],n);if(e.lim[1]!=null)n=Math.min(e.lim[1],n);}if(e.idx)n=Math.round(n);return round9(n);}
   if(e.t==='kylla')return truth(v);
   if(e.t==='valinta'){if(v==null||v==='')return null;var s=String(v).trim().toLowerCase(),n2=num(v);
@@ -2087,8 +2093,14 @@ function repair(P){
     cs.tk.forEach(function(t){if(!Array.isArray(t.v))t.v=[];if(t.u!=null&&typeof t.u!=='number')delete t.u;if(typeof t.a!=='number')delete t.a;if(t.hd!=null&&t.hd!==1&&t.hd!==true)delete t.hd;delete t.go;});
     if(!cs.fl||typeof cs.fl!=='object')cs.fl={};if(cs.run&&!cs.tk.length)cs.run=false;
     if(cs.cnt!==undefined&&(!cs.cnt||typeof cs.cnt!=='object'||Array.isArray(cs.cnt)))delete cs.cnt;
-    if(cs.tulos!==undefined&&cs.tulos!==null&&!(typeof cs.tulos==='string'||typeof cs.tulos==='number'||typeof cs.tulos==='boolean'||isD(cs.tulos)))delete cs.tulos;});
-  Object.keys(P.b).forEach(function(id){var b=P.b[id];if(b.k==='ketju'&&b.uusi!=='alusta'&&b.uusi!=='ohita')b.uusi='ohita';if(b.k==='ajastin'&&!YKS[b.yks])b.yks='s';if(b.k==='ajastin'&&b.tapa!==undefined&&b.tapa!=='klo'&&b.tapa!=='kesto')b.tapa='kesto';if(b.k==='ajastin'&&b.klo!==undefined&&typeof b.klo!=='string')b.klo='';if(b.k==='ketju'&&b.avaus!==undefined&&typeof b.avaus!=='boolean')b.avaus=!!b.avaus;if(b.k==='odota'&&!YKS[b.yks])b.yks='min';
+    if(cs.tulos!==undefined&&cs.tulos!==null&&!(typeof cs.tulos==='string'||typeof cs.tulos==='number'||typeof cs.tulos==='boolean'||isD(cs.tulos)))delete cs.tulos;
+    /* P1b: lukitus. Rikkinäistä kuvaa ei korvata ajantasaisella: ketju pysähtyy jatkaessa näkyvään virheeseen. */
+    if(cs.lk!==undefined&&cs.lk!==0&&cs.lk!==1&&cs.lk!==2){cs.lk=1;delete cs.snap;}
+    var sn=cs.snap;if(sn!==undefined&&!(sn&&typeof sn==='object'&&typeof sn.at==='number'&&sn.b&&typeof sn.b==='object'&&!Array.isArray(sn.b)&&sn.lg&&Array.isArray(sn.lg.n)&&Array.isArray(sn.lg.l)&&sn.st&&typeof sn.st==='object'&&!Array.isArray(sn.st)))delete cs.snap;
+    if(cs.ownM!==undefined&&cs.ownM!==1)delete cs.ownM;if(cs.snap&&cs.snap.m!==undefined&&cs.snap.m!==1)delete cs.snap.m;if(!cs.lk){delete cs.snap;delete cs.own;delete cs.ownM;}else if(cs.lk===1&&(!cs.own||typeof cs.own!=='object'||Array.isArray(cs.own)))cs.own={};else if(cs.lk===2)delete cs.own;
+    if(cs.par!==undefined&&(typeof cs.par!=='string'||typeof cs.parN!=='number')){delete cs.par;delete cs.parN;}});
+  Object.keys(P.b).forEach(function(id){var b=P.b[id];if(b.k==='ketju'&&b.uusi!=='alusta'&&b.uusi!=='ohita')b.uusi='ohita';
+    if(b.k==='ketju'&&b.lk!==undefined){var lkn=typeof b.lk==='string'&&/^[012]$/.test(b.lk)?+b.lk:b.lk;if(lkn===1||lkn===2)b.lk=lkn;else delete b.lk;}if(b.k==='ajastin'&&!YKS[b.yks])b.yks='s';if(b.k==='ajastin'&&b.tapa!==undefined&&b.tapa!=='klo'&&b.tapa!=='kesto')b.tapa='kesto';if(b.k==='ajastin'&&b.klo!==undefined&&typeof b.klo!=='string')b.klo='';if(b.k==='ketju'&&b.avaus!==undefined&&typeof b.avaus!=='boolean')b.avaus=!!b.avaus;if(b.k==='odota'&&!YKS[b.yks])b.yks='min';
     if(b.k==='monihaara'){var hs={},hn=0;b.haarat=(Array.isArray(b.haarat)?b.haarat:[]).filter(function(r){return r&&typeof r==='object';}).map(function(r){
       function t(x){return typeof x==='number'?String(x):typeof x==='string'?x:'';}var m=r.m==='val'||r.m==='vali'?r.m:'on';
       return {id:typeof r.id==='string'&&/^h\d+$/.test(r.id)?r.id:'',m:m,o:typeof r.o==='string'&&(P.b[r.o]||isGone(P,r.o))?r.o:'',a:t(r.a),b:t(r.b),nm:t(r.nm)};});
@@ -2348,6 +2360,7 @@ function Ev(P,ctx){
       case 'arpa':{var a=P.st['arpa:'+id];return typeof a==='number'?a:0;}
       case 'haku':{var hr=hakuRow(id);return hr.err?hr.err:hr.i+1;}
       case 'monihaara':{var mr=mhRow(id);if(mr.err)return mr.err;if(key==='haara')return mr.i+1;return mr.i<0?'muuten':mhLabel(b.haarat[mr.i]);}
+      case 'ketju':if(key==='lukitusnimi'){var lkv=omi(id,'lukitus');return isErr(lkv)?lkv:LKN[num(lkv)||0];}break;
     }
     return null;}
   /* Ominaisuuden arvo nyt: ohjattu (nuoli tai kaava kohtaan o_<avain>) > asetettu (toiminto) > perusarvo. */
@@ -2558,7 +2571,7 @@ function Ev(P,ctx){
     if(STRANK[s]<STRANK.harmaa&&greyed(id))s='harmaa';
     return s;
   }  return {layer:layer,layerShown:layerShown,timeSrc:timeSrc,omi:omi,omiNum:omiNum,omiVal:omiVal,omSrc:omSrc,calcProp:calcProp,envVal:envVal,mhRow:mhRow,timerLeft:timerLeft,val:val,inp:inp,has:has,tpl:tpl,text:text,visible:visible,alt:alt,hue:hue,greyed:greyed,state:state,prop:prop,kaava:kaava,targetOf:targetOf,ownerOf:ownerOf,linked:linked,srcVal:srcVal,members:members,hakuRow:hakuRow,shown:function(id){var b=B[id];return b&&b.nka==='pois'?compute(id,'v',true):val(id,'v');},
-    fmt:function(v){return fmt(v,df);},now:now,df:df,outl:outl,inl:inl,nid:nid};
+    fmt:function(v){return fmt(v,df);},now:now,df:df,outl:outl,inl:inl,nid:nid,ctx:ctx};
 }
 
 /* ---------- Tilan muutokset ja tapahtumat ---------- */
@@ -2614,28 +2627,35 @@ function fire(P,id,p,ctx,depth){
   var ns={};P.lg.n.forEach(function(n){if(n.p===id)ns[n.id]=1;});
   P.lg.l.filter(function(l){return ns[l.f]&&l.fp===p&&!isChainLink(P,l);}).forEach(function(l){handleLink(P,l,ctx,depth);});
 }
-function runAction(P,id,ctx,depth){
-  var b=P.b[id];if(!b||b.k!=='tee'||isOff(P,b,ctx))return;ctx=ctx||{};
+/* R (valinnainen): mistä toiminnon arvo luetaan (lukitun ketjun lukukuva). Kirjoitus on aina P:hen, ja kohteen oma
+   nykyinen arvo (Lisää, Vaihda, Valitse, Lisää rivi) luetaan P:stä. */
+function runAction(P,id,ctx,depth,R){
+  var inStep=!!R;R=R||P;var b=R.b[id];if(!b||b.k!=='tee'||isOff(R,b,ctx))return;ctx=ctx||{};
   if(isGone(P,b.o)){if(ctx.toast)ctx.toast('Toiminto ”'+b.nm+'”: kohde poistettu ('+goneName(P,b.o)+').');return;}
-  var ev=Ev(P,ctx),o=b.o,tg=P.b[o],vv=ev.has(id,'v')?ev.inp(id,'v'):null;
+  var ev=Ev(R,ctx),o=b.o,tg=P.b[o],vv=ev.has(id,'v')?ev.inp(id,'v'):null,evL=R===P?ev:null;
+  function cur(){return evL||(evL=Ev(P,ctx));}
+  /* P1b: väärä lukitustila on näkyvä virhe (ei pyöristetä eikä ohiteta hiljaa). */
+  if(tg&&tg.k==='ketju'&&b.om&&(b.do==='aseta'||b.do==='lisaa')){var le=omFind(tg,b.om);if(le&&le.p==='lukitus'){
+    var lv=b.do==='aseta'?vv:round9((num(cur().omi(o,'lukitus'))||0)+(vv===null?1:num(vv)));var ln=omNorm(le,lv);
+    if(isErr(ln)){if(ctx.toast&&!inStep)ctx.toast('Toiminto ”'+b.nm+'”: '+ln.err+'.');return {err:ln.err};}}}
   /* Pajakone 4: toiminto ominaisuuteen (b.om): Aseta, Lisää, Aseta tila ja Vaihda. Palauta poistaa asetetun arvon. */
   var oe=tg&&b.om?omFind(tg,b.om):null;
   if(b.do==='palauta'){if(tg)resetOmi(P,o,b.om||'');fire(P,id,'e',ctx,(depth||0)+1);return;}
   if(oe&&oe.o&&(b.do==='aseta'||b.do==='lisaa'||b.do==='tila'||b.do==='vaihda')){
     if(b.do==='aseta')setOmi(P,o,oe.p,vv);
-    else if(b.do==='lisaa'){var oc=ev.omi(o,oe.p),od=vv===null?1:num(vv);if(isNaN(od))od=0;var ocn=num(oc);if(isErr(oc)||isNaN(ocn))ocn=0;setOmi(P,o,oe.p,round9(ocn+od));}
+    else if(b.do==='lisaa'){var oc=cur().omi(o,oe.p),od=vv===null?1:num(vv);if(isNaN(od))od=0;var ocn=num(oc);if(isErr(oc)||isNaN(ocn))ocn=0;setOmi(P,o,oe.p,round9(ocn+od));}
     else if(b.do==='tila')setOmi(P,o,oe.p,b.ti!=='ei');
-    else setOmi(P,o,oe.p,!truth(ev.omi(o,oe.p)));
+    else setOmi(P,o,oe.p,!truth(cur().omi(o,oe.p)));
     fire(P,id,'e',ctx,(depth||0)+1);return;}
   switch(b.do){
     case 'aseta':if(tg)setVal(P,o,vv,ctx);break;
     case 'tila':if(tg&&isBoolKind(tg))setVal(P,o,b.ti!=='ei',ctx);break;
-    case 'lisaa':if(tg){var cur=ev.val(o);var d=vv===null?1:num(vv);if(isNaN(d))d=0;
-      if(tg.k==='pvm'){var base=isD(cur)?cur.d:iso(ev.now);setVal(P,o,D(addDays(base,d)),ctx);}
-      else setVal(P,o,round9(num(cur)+d),ctx);}break;
-    case 'valitse':if(tg)setVal(P,o,tg.k==='nappi'&&tg.beh==='kerta'&&!napVaihto(tg)?num(ev.val(o))+1:true,ctx);break;
+    case 'lisaa':if(tg){var cv0=cur().val(o);var d=vv===null?1:num(vv);if(isNaN(d))d=0;
+      if(tg.k==='pvm'){var base=isD(cv0)?cv0.d:iso(ev.now);setVal(P,o,D(addDays(base,d)),ctx);}
+      else setVal(P,o,round9(num(cv0)+d),ctx);}break;
+    case 'valitse':if(tg)setVal(P,o,tg.k==='nappi'&&tg.beh==='kerta'&&!napVaihto(tg)?num(cur().val(o))+1:true,ctx);break;
     case 'poista':if(tg)setVal(P,o,false,ctx);break;
-    case 'vaihda':if(tg)setVal(P,o,!truth(ev.val(o)),ctx);break;
+    case 'vaihda':if(tg)setVal(P,o,!truth(cur().val(o)),ctx);break;
     case 'tyhjenna':if(tg)clearVal(P,o);break;
     case 'siirry':if(ctx.nav){var nv={vw:b.vw,o:b.o,x:omActive(P,b,'x')?ev.omiNum(id,'x',0):num(b.x)||0,y:omActive(P,b,'y')?ev.omiNum(id,'y',0):num(b.y)||0};if(b.tapa==='heti')nv.heti=true;ctx.nav(nv);}break;
     case 'takaisin':if(ctx.nav)ctx.nav({takaisin:true,heti:b.tapa==='heti'});break;
@@ -2750,6 +2770,7 @@ function chainIssues(P,kid,ctx){
   var out=[],b=P.b[kid];if(!b)return out;var steps=chainSteps(P,kid),w=chainNode(P,kid);
   if(!steps.length){out.push({info:1,t:'Ketju on tyhjä: vedä tähän tapahtumia, esim. Aseta arvo tai Ajastin.'});return out;}
   var ids={};steps.forEach(function(n){ids[n.id]=1;});
+  var lkq=lkReq(P,kid,ctx);if(isErr(lkq))out.push({t:'Ketjun '+lkq.err+'. Lukitus on 0 (ajantasainen), 1 (lukitse ulkopuolisilta muutoksilta) tai 2 (lukitse kaikilta muutoksilta).'});
   var trig=!!b.avaus||Object.keys(P.b).some(function(i){var o=P.b[i];return o.k==='tee'&&o.do==='kaynnista'&&o.o===kid&&!(ids[(nodesOfBlock(P,i)[0]||{}).id]);})||P.lg.l.some(function(l){return (w&&l.t===w.id&&l.tp==='e')||(ids[l.t]&&!isChainLink(P,l)&&(port(P.b[nodeOf(P,l.t).p],'ins',l.tp)||{}).t==='e');});
   if(!trig)out.push({info:1,t:'Mikään ei vielä käynnistä ketjua: vie nuoli kohtaan ”käynnistä”, esim. painikkeesta tai kaavasta. Kokeilla voi ▶-napilla.'});
   if(b.off)out.push({info:1,t:'Ketju on pois päältä: se ei käynnisty.'});
@@ -2792,6 +2813,70 @@ function chainIssues(P,kid,ctx){
   return out;
 }
 
+/* ---------- P1b: ketjun kolme lukitustilaa (D09, D10) ----------
+   Ketjun ominaisuus lukitus: 0 ajantasainen, 1 lukitse ulkopuolisilta muutoksilta, 2 lukitse kaikilta muutoksilta.
+   Lukitus koskee vain lukemista. Toiminnot kirjoittavat aina oikeaan käyttötietoon (P.st), kaikissa tiloissa.
+   Lukitussa suorituksessa ketjun vaiheet lukevat lukukuvaa cs.snap (rakenne b ja lg sekä käyttötieto st
+   lukitushetkellä) ja tilassa 1 lisäksi tämän suorituksen omat kirjoitukset cs.own (avaimittain, tunnistus
+   alkuperästä, ei arvosta). Omia ovat vaiheen aikana tehdyt muutokset, myös vaiheen tapahtumanuolista seuraavat, ja
+   vaiheen käynnistämien aliketjujen muutokset (cs.par). Toiminnon arvo (kaava, teksti, toiset palikat) luetaan
+   kuvasta; kohteen oma nykyinen arvo (Lisää, Vaihda, Lisää rivi) on oikea käyttötieto, jottei muiden kirjoitus häviä.
+   Ketjujen ajotila (vaihe, odotus, Toista-laskuri, tulos, käynnissä) ei jäädy. Pyydetty tila luetaan ajantasaisena
+   jokaisen uuden vaiheen alussa; vaihto tapahtuu siinä ja ottaa uuden kuvan vaihtohetkestä. Alkanut vaihe jatkuu.
+   Isot kuvatiedostot (data:) eivät kopioidu kuvaan vaan luetaan nykyisinä, jottei tallennus kasva. */
+var LKN=['Ajantasainen','Lukitse ulkopuolisilta muutoksilta','Lukitse kaikilta muutoksilta'],LKID=['live','external','all'];
+var LK_M='\u0001nyt',LK_HIT=0,CH_ORG=[];
+function hms(ms){var d=new Date(ms);return d.getHours()+'.'+p2(d.getMinutes())+'.'+p2(d.getSeconds());}
+function lkCtl(P,k){var b=P.b[k];return !!(b&&b.k==='ketju');}
+function lkClone(x){
+  if(typeof x==='string'){if(x.length>2000&&x.slice(0,5)==='data:'){LK_HIT++;return LK_M;}return x;}
+  if(x===null||typeof x!=='object')return typeof x==='function'?undefined:x;
+  if(Array.isArray(x))return x.map(function(v){var c=lkClone(v);return c===undefined?null:c;});
+  var o={};for(var k in x)if(Object.prototype.hasOwnProperty.call(x,k)){var v=lkClone(x[k]);if(v!==undefined)o[k]=v;}return o;}
+/* Kuvan merkki → nykyinen arvo samasta kohdasta. Muuttumattomat osat jaetaan. */
+function lkLive(s,l){
+  if(s===LK_M)return typeof l==='string'?l:'';
+  if(s===null||typeof s!=='object')return s;
+  var lo=l&&typeof l==='object'?l:null;
+  if(Array.isArray(s)){var ch=false,a=s.map(function(v,i){var r=lkLive(v,lo?lo[i]:undefined);if(r!==v)ch=true;return r;});return ch?a:s;}
+  var o=null;for(var k in s){var r=lkLive(s[k],lo?lo[k]:undefined);if(r!==s[k]){if(!o){o={};for(var k2 in s)o[k2]=s[k2];}o[k]=r;}}return o||s;}
+function lkSnap(P,now){var st={};LK_HIT=0;Object.keys(P.st).forEach(function(k){if(!lkCtl(P,k))st[k]=lkClone(P.st[k]);});var sm=LK_HIT>0;
+  var o={ver:VER,at:now,b:lkClone(P.b),lg:lkClone(P.lg),st:st};if(sm)o.m=1;return o;}
+function lkSet(P,cs,m,now){cs.lk=m;delete cs.ownM;if(m){cs.snap=lkSnap(P,now);cs.own={};}else{delete cs.snap;delete cs.own;}}
+function lkOk(cs){return !cs.lk||!!(cs.snap&&cs.snap.ver===VER);}
+/* Pyydetty tila: ohjattu > asetettu > perusarvo, aina ajantasaisena. Muu kuin 0, 1 tai 2 on virhe. */
+function lkReq(P,kid,ctx){var b=P.b[kid];if(!b||b.k!=='ketju')return 0;
+  var v=omActive(P,b,'lukitus')?Ev(P,ctx).omi(kid,'lukitus'):omNorm(omFind(b,'lukitus'),b.lk);
+  if(isErr(v))return v;return v==null?0:v;}
+/* Lukunäkymä: projekti, jonka rakenne ja käyttötieto ovat lukukuvasta. Ketjujen ajotila on aina nykyinen. */
+function lkView(P,kid){
+  var cs=P.st[kid];if(!cs||!cs.lk||!cs.snap)return P;var sn=cs.snap,c=sn._v;
+  if(!c){c={b:lkLive(sn.b,P.b)};Object.defineProperty(sn,'_v',{value:c,writable:true,configurable:true,enumerable:false});}
+  var st={},k;for(k in sn.st)st[k]=sn.st[k];
+  if(cs.lk===1&&cs.own)for(k in cs.own){var ov=cs.own[k];if(ov&&typeof ov==='object'&&ov['@del']===1)delete st[k];else st[k]=ov;}
+  if(sn.m||cs.ownM)st=lkLive(st,P.st); // kuvatiedostojen merkit nykyisiksi
+  Object.keys(P.st).forEach(function(k3){if(lkCtl(P,k3))st[k3]=P.st[k3];});
+  var V=Object.create(P);V.b=c.b;V.lg=sn.lg;V.st=st;V.lkv=kid;return V;}
+/* Suoritukset, joiden omia muutoksia vaihe tekee: tämä ja sen käynnistäneet (tila 1). */
+function lkOwners(P,kid){var r=[],seen={},k=kid;
+  while(k&&!seen[k]){seen[k]=1;var cs=P.st[k];if(!cs||!cs.run)break;if(cs.lk===1)r.push(cs);
+    if(!cs.par)break;var pc=P.st[cs.par];if(!pc||pc.n!==cs.parN)break;k=cs.par;}
+  return r;}
+function lkSig(P){var o={};Object.keys(P.st).forEach(function(k){if(!lkCtl(P,k))o[k]=JSON.stringify(P.st[k]);});return o;}
+function lkRecord(P,sig,owners){var ch={};
+  Object.keys(P.st).forEach(function(k){if(!lkCtl(P,k)&&sig[k]!==JSON.stringify(P.st[k]))ch[k]=1;});
+  Object.keys(sig).forEach(function(k){if(!P.st.hasOwnProperty(k))ch[k]=1;});
+  Object.keys(ch).forEach(function(k){LK_HIT=0;var v=P.st.hasOwnProperty(k)?lkClone(P.st[k]):{'@del':1},hm=LK_HIT>0;
+    owners.forEach(function(cs){if(cs.run&&cs.lk===1){cs.own=cs.own||{};cs.own[k]=v===undefined?null:v;if(hm)cs.ownM=1;}});});}
+/* Seurantaa ja Miksi?-selitystä varten: palikat, joiden ketjun lukema eroaa nykyisestä käyttötiedosta. */
+function chainLockDiff(P,kid,ctx,max){var cs=P.st[kid];if(!cs||!cs.run||!cs.lk)return [];var R=lkView(P,kid);if(R===P)return [];
+  var eR=Ev(R,ctx),eP=Ev(P,ctx),out=[];max=max||8;
+  Object.keys(P.b).forEach(function(id){var b=P.b[id];if(out.length>=max||!R.b[id]||b.k==='ketju'||!port(b,'outs','v'))return;
+    var a=fmt(eR.val(id),ctx&&ctx.df),z=fmt(eP.val(id),ctx&&ctx.df);if(a!==z)out.push({id:id,nm:b.nm,lukema:a,nyt:z});});
+  return out;}
+function chainLock(P,kid,ctx){var cs=P.st[kid]||{},q=lkReq(P,kid,ctx);
+  return {req:q,lk:cs.run?(cs.lk||0):null,at:cs.run&&cs.lk&&cs.snap?cs.snap.at:null,own:cs.run&&cs.lk===1&&cs.own?Object.keys(cs.own).length:0};}
+
 /* ---------- Ketjun ajo ----------
    Ketjussa on haaroja (tk). Jokainen haara on jossakin tapahtumassa. Kun ketju käynnistyy, jokaiseen alkupalikkaan tulee
    haara. Tapahtuma tehdään, ja haara jatkaa sen viivoja pitkin: jos viivoja on monta, haara jakautuu ja osat etenevät
@@ -2814,6 +2899,10 @@ function chainStart(P,kid,ctx,at,depth){
   if(!w||!starts.length){
     var has=chainSteps(P,kid).length;
     chainErr(P,kid,'Ketju on tyhjä: siinä ei ole tapahtumia.',now);return false;}
+  /* P1b: lukitustila käynnistyksessä; 1 tai 2 ottaa kuvan nyt. Toisen ketjun vaihe, joka käynnistää tämän, on emo. */
+  var lq=lkReq(P,kid,ctx);if(isErr(lq)){chainErr(P,kid,'Ketjun '+lq.err+'.',now);return false;}
+  var par=CH_ORG.length?CH_ORG[CH_ORG.length-1]:null;if(par&&par!==kid&&P.st[par]&&P.st[par].run){cs.par=par;cs.parN=P.st[par].n;}
+  lkSet(P,cs,lq,now);
   starts.forEach(function(n){cs.tk.push({n:n.id,a:now,v:[]});});
   chainAdvance(P,kid,ctx,depth);
   return true;
@@ -2822,7 +2911,8 @@ function chainStart(P,kid,ctx,at,depth){
 function chainOpen(P,ctx){var n=0;Object.keys(P.b).forEach(function(id){var b=P.b[id];if(b.k==='ketju'&&b.avaus&&!isOff(P,b,ctx)&&chainStart(P,id,ctx,null,0))n++;});if(n)tick(P,ctx);return n;}
 function chainStop(P,kid,ctx){var cs=P.st[kid];if(!cs||!cs.run)return false;cs.run=false;cs.tk=[];cs.end=nowMs(ctx);cs.stop=true;return true;}
 /* Yhden tapahtuman tekeminen. Palauttaa {p: portti, jota pitkin jatketaan} tai {wait: ms-aikaleima} tai {err}. */
-function stepRun(P,sb,t,ctx,depth,now,seenT,kid){
+function stepRun(P,sb,t,ctx,depth,now,seenT,kid,R){
+  R=R||P; // R: mistä luetaan (lukukuva tai nykyinen), P: mihin kirjoitetaan
   switch(sb.k){
     case 'tee':
       /* Käynnistä ketju ja odota: haara odottaa, kunnes toinen ketju on valmis (tai pysähtyy). */
@@ -2831,36 +2921,38 @@ function stepRun(P,sb,t,ctx,depth,now,seenT,kid){
         var sc=P.st[sb.o];if(sc&&sc.run){t.hd=1;return {wait:Infinity};}
         return {p:'e',at:t.hd?now:t.a};}
       if(isGone(P,sb.o))return {err:'kohde poistettu: '+goneName(P,sb.o)};
-      runAction(P,sb.id,ctx,(depth||0)+1);return {p:'e',fired:true};
-    case 'haara':{var c=haaraVal(P,sb,ctx);if(c&&c.none)return {err:'valitse, mitä ehto tarkistaa'};if(isErr(c))return {err:'ehdossa on virhe: '+c.err};return {p:truth(c)?'e':'m'};}
-    case 'ktulos':{var ev3=Ev(P,ctx),tv=ev3.has(sb.id,'v')?ev3.inp(sb.id,'v'):null;if(isErr(tv))return {err:'tulos: '+tv.err};
+      if(R!==P&&sb.o&&R.b[sb.o]&&!P.b[sb.o])return {err:'kohde poistettu: '+R.b[sb.o].nm}; // lukukuvassa on, oikeasti ei
+      var ra=runAction(P,sb.id,ctx,(depth||0)+1,R);if(ra&&ra.err)return {err:ra.err};return {p:'e',fired:true};
+    case 'haara':{var c=haaraVal(R,sb,ctx);if(c&&c.none)return {err:'valitse, mitä ehto tarkistaa'};if(isErr(c))return {err:'ehdossa on virhe: '+c.err};return {p:truth(c)?'e':'m'};}
+    case 'ktulos':{var ev3=Ev(R,ctx),tv=ev3.has(sb.id,'v')?ev3.inp(sb.id,'v'):null;if(isErr(tv))return {err:'tulos: '+tv.err};
       var cs3=P.st[kid];if(cs3)cs3.tulos=(typeof tv==='number'&&isNaN(tv))?null:tv;return {p:'e'};}
     case 'lopeta':return {endAll:true};
     case 'arpa':{var rnd=ctx&&typeof ctx.rand==='function'?ctx.rand():Math.random();var an=arpaN(sb);var pick=Math.min(an,Math.floor(rnd*an)+1);P.st['arpa:'+sb.id]=pick;return {p:'a'+pick};}
-    case 'toista':{var tn=toistaN(P,sb,ctx);if(isErr(tn))return {err:tn.err};var csx=P.st[kid];csx.cnt=csx.cnt||{};var c=(csx.cnt[t.n]||0)+1;
+    case 'toista':{var tn=toistaN(R,sb,ctx);if(isErr(tn))return {err:tn.err};var csx=P.st[kid];csx.cnt=csx.cnt||{};var c=(csx.cnt[t.n]||0)+1;
       if(c<=tn){csx.cnt[t.n]=c;return {p:'e',loop:true};}
       delete csx.cnt[t.n];return {p:'m',loop:true};}
-    case 'monihaara':{var mr=Ev(P,ctx).mhRow(sb.id);if(mr.err)return {err:'arvossa on virhe: '+mr.err.err};return {p:mr.i<0?'m':mr.id};}
+    case 'monihaara':{var mr=Ev(R,ctx).mhRow(sb.id);if(mr.err)return {err:'arvossa on virhe: '+mr.err.err};return {p:mr.i<0?'m':mr.id};}
     case 'odota':{
       /* Jatkuu, kun ehto pätee tai kun kohtaan tapahtuma tulee nuoli odotuksen aikana. Valinnainen aikaraja: aika loppui -haara. */
       if(t.go){delete t.go;return {p:'e',at:now};}
-      var cv=haaraVal(P,sb,ctx),none=!!(cv&&cv.none);
-      if(none&&!odotaEv(P,t.n))return {err:'valitse, mitä odotetaan (palikka, ehto nuolesta tai tapahtuma)'};
-      if(isGone(P,sb.o))return {err:'ehto: kohde poistettu: '+goneName(P,sb.o)};
+      var cv=haaraVal(R,sb,ctx),none=!!(cv&&cv.none);
+      if(none&&!odotaEv(R,t.n))return {err:'valitse, mitä odotetaan (palikka, ehto nuolesta tai tapahtuma)'};
+      if(isGone(R,sb.o))return {err:'ehto: kohde poistettu: '+goneName(P,sb.o)};
       if(!none&&!isErr(cv)&&truth(cv))return {p:'e',at:t.hd?now:t.a};
-      if(t.u==null&&!t.hd){var lim=odotaLim(sb,P,ctx);if(isErr(lim))return {err:lim.err};var a0=(seenT[t.n]||t.a==null)?now:Math.min(t.a,now);t.s=a0;if(lim>0)t.u=a0+lim;}
+      if(t.u==null&&!t.hd){var lim=odotaLim(sb,R,ctx);if(isErr(lim))return {err:lim.err};var a0=(seenT[t.n]||t.a==null)?now:Math.min(t.a,now);t.s=a0;if(lim>0)t.u=a0+lim;}
       seenT[t.n]=1;
       if(t.u!=null&&t.u<=now)return {p:'m'};
       t.hd=1;return {wait:t.u!=null?t.u:Infinity};}
     case 'ilmesty':case 'kuva':case 'anim':case 'nvaihto':{
       if(isGone(P,sb.o))return {err:'kohde poistettu: '+goneName(P,sb.o)};
+      if(R!==P&&sb.o&&R.b[sb.o]&&!P.b[sb.o])return {err:'kohde poistettu: '+R.b[sb.o].nm};
       if(t.u==null){var sec=0;
         if(ctx&&typeof ctx.fx==='function'){try{sec=+ctx.fx({k:sb.k,id:sb.id,b:sb,P:P})||0;}catch(e){sec=0;}}
         if(sec>0&&sb.odota!==false){t.s=now;t.u=now+Math.round(Math.min(sec,3600)*1000);}}
       if(t.u!=null&&t.u>now)return {wait:t.u};
       return {p:'e'};}
     case 'ajastin':{
-      if(t.u==null){var d=timerMs(P,sb.id,ctx);if(isErr(d))return {err:d.err};
+      if(t.u==null){var d=timerMs(R,sb.id,ctx);if(isErr(d))return {err:d.err};
         /* Aloitus: hetki, jolloin haara tuli tähän. Jos ajastin on jo tehty tällä tarkistuskerralla (kehä), aloitetaan nyt,
            jotta suljettuna ollut appi ei tee kiinni jääneitä kierroksia. Kellonaika: seuraava kerta aloituksen jälkeen. */
         var a=(seenT[t.n]||t.a==null)?now:Math.min(t.a,now);t.s=a;t.u=sb.tapa==='klo'?nextClock(a,parseKlo(sb.klo)):a+d;}
@@ -2897,34 +2989,46 @@ function timerMs(P,id,ctx){
 }
 function chainAdvance(P,kid,ctx,depth){
   var cs=P.st[kid],b=P.b[kid];if(!cs||!cs.run||!b)return false;
-  var now=nowMs(ctx),w=chainNode(P,kid),changed=false,steps=0,seenT={};
+  var now=nowMs(ctx),R=P,w=null,changed=false,steps=0,seenT={};
+  /* P1b: lukittu suoritus ilman kelvollista kuvaa ei jatka salaa ajantasaisena. */
+  if(!lkOk(cs)){chainErr(P,kid,'Lukituskuva puuttuu tai on vanhasta versiosta, joten ketju ei voi jatkaa lukittuna. Käynnistä se uudelleen.',now);return true;}
   CH_ADV[kid]=1;
   try{
     var queue=cs.tk.slice(),keep=[];cs.tk=[];
     for(var pass=0;pass<50;pass++){
     while(queue.length){
-      var t=queue.shift(),n=nodeOf(P,t.n),sb=n&&P.b[n.p];
-      if(!n||!sb||!w||n.g!==w.id||!isStep(sb)){changed=true;continue;} // tapahtuma poistettu tai siirretty pois ketjusta
+      var t=queue.shift();
+      /* Uuden vaiheen raja: pyydetty lukitustila luetaan nyt (ajantasaisena). Vaihto ottaa uuden kuvan. */
+      var fresh=t.u==null&&!t.hd&&!t.sub;
+      if(fresh){var lq=lkReq(P,kid,ctx);if(isErr(lq)){chainErr(P,kid,'Ketjun '+lq.err+'.',now);return true;}
+        if(lq!==(cs.lk||0)){lkSet(P,cs,lq,now);changed=true;}}
+      R=lkView(P,kid);w=chainNode(R,kid);
+      var n=nodeOf(R,t.n),sb=n&&R.b[n.p];
+      if(!n){chainErr(P,kid,'Ketjun vaihe poistettiin kesken suorituksen, joten ketju pysähtyi. Käynnistä se uudelleen.',now);return true;}
+      if(!sb||!w||n.g!==w.id||!isStep(sb)){changed=true;continue;} // tapahtuma siirretty pois ketjusta
       var sg=CH_SIG[kid];if(sg&&sg[n.id]&&sb.k==='odota')t.go=1;
       if(t.u==null&&!t.hd&&sb.k!=='toista'&&t.v.indexOf(n.id)>=0){chainErr(P,kid,'Ketju pysäytettiin: se kiersi kehää ilman ajastinta (palikka ”'+sb.nm+'” tuli vastaan uudelleen samalla hetkellä). Lisää kehään ajastin.',now);return true;}
       if(++steps>CH_STEPS){chainErr(P,kid,'Ketju pysäytettiin: yli '+CH_STEPS+' tapahtumaa samalla hetkellä.',now);return true;}
       var r,had=t.u!=null||!!t.hd;
-      if(isOff(P,sb,ctx))r={p:'e',skip:true};
-      else r=stepRun(P,sb,t,ctx,depth,now,seenT,kid);
+      /* Vaiheen ja sen tapahtumanuolten muutokset ovat tämän suorituksen omia (tila 1). */
+      var own=lkOwners(P,kid),sig=own.length&&fresh?lkSig(P):null; // jatkuva odotus ei kirjoita: vertailu vasta jatkuessa
+      CH_ORG.push(kid);
+      try{
+        if(isOff(R,sb,ctx))r={p:'e',skip:true};
+        else r=stepRun(P,sb,t,ctx,depth,now,seenT,kid,R);
+        if(!r.err&&!r.endAll&&r.wait==null&&cs.run){changed=true;cs.fl[n.id]=now;if(!r.fired&&!r.skip){if(own.length&&!sig)sig=lkSig(P);fire(P,sb.id,r.p,ctx,(depth||0)+1);}}
+      }finally{CH_ORG.pop();if(sig)lkRecord(P,sig,own);}
       if(r.err){chainErr(P,kid,'”'+sb.nm+'”: '+r.err,now);return true;}
       if(r.endAll){cs.fl[n.id]=now;queue=[];keep=[];changed=true;delete CH_SIG[kid];break;}
       if(r.wait!=null){if(!had)changed=true;keep.push(t);continue;}
-      if(!cs.run)return true; // tapahtuma pysäytti ketjun
-      changed=true;cs.fl[n.id]=now;
-      if(!r.fired&&!r.skip)fire(P,sb.id,r.p,ctx,(depth||0)+1);
       if(!P.st[kid]||P.st[kid]!==cs||!cs.run)return true; // ketju käynnistettiin alusta tai pysäytettiin tapahtumassa
-      var nx=chainLinksFrom(P,n.id,r.p),vis=(t.u!=null||t.hd||r.loop)?[]:t.v.concat([n.id]),at=r.at!=null?r.at:(t.u!=null?t.u:t.a);
+      var nx=chainLinksFrom(R,n.id,r.p),vis=(t.u!=null||t.hd||r.loop)?[]:t.v.concat([n.id]),at=r.at!=null?r.at:(t.u!=null?t.u:t.a);
       nx.forEach(function(l){queue.push({n:l.t,a:at,v:vis.slice()});});
       if(queue.length+keep.length>CH_TOKENS){chainErr(P,kid,'Ketju pysäytettiin: yli '+CH_TOKENS+' haaraa yhtä aikaa.',now);return true;}
     }
     /* Saman hetken tapahtuma (esim. toinen haara ehti merkkiin) vapauttaa jo odottavan haaran. */
     var sg2=CH_SIG[kid];if(!sg2)break;
-    var rel=keep.filter(function(x){var xn=nodeOf(P,x.n);return sg2[x.n]&&xn&&P.b[xn.p]&&P.b[xn.p].k==='odota';});if(!rel.length)break;
+    R=lkView(P,kid);var rel=keep.filter(function(x){var xn=nodeOf(R,x.n);return sg2[x.n]&&xn&&R.b[xn.p]&&R.b[xn.p].k==='odota';});if(!rel.length)break;
     keep=keep.filter(function(x){return rel.indexOf(x)<0;});rel.forEach(function(x){x.go=1;queue.push(x);});delete CH_SIG[kid];
     }
     cs.tk=keep;
@@ -3172,6 +3276,12 @@ function why(P,E,id,depth,seen){
     case 'ketju':{var ci=P.st[id]||{},cn=chainSteps(P,id).length,tu=ci.tulos;
       r.txt=!cn?'Ketju on tyhjä.':ci.run?'Ketju on käynnissä: '+(ci.tk||[]).length+' haara'+((ci.tk||[]).length===1?'':'a')+' menossa.':ci.err?'Ketju pysähtyi: '+ci.err:ci.n?'Ketju ei ole käynnissä. Se on käynnistynyt '+ci.n+' kertaa.':'Ketju ei ole vielä käynnistynyt.';
       if(tu!==undefined&&tu!==null)r.txt+=' Tulos: '+fmt(tu,E.df)+'.';
+      var lkq=lkReq(P,id,E.ctx);
+      if(isErr(lkq))r.txt+=' ⚠ Lukitus: '+lkq.err+'.';
+      else if(ci.run&&ci.lk){r.txt+=' Lukitus: '+LKN[ci.lk]+(ci.snap?' (lukukuva klo '+hms(ci.snap.at)+')':'')+'. Ketju lukee lukitushetken arvoja'+(ci.lk===1?' ja omia muutoksiaan':'')+', mutta toiminnot muuttavat oikeaa käyttötietoa.';
+        var lkd=chainLockDiff(P,id,E.ctx,4);if(lkd.length)r.txt+=' Ketjun lukema ≠ nykyinen käyttötieto: '+lkd.map(function(x){return x.nm+' '+x.lukema+' (nyt '+x.nyt+')';}).join(', ')+'.';}
+      else if(lkq)r.txt+=' Lukitus: '+LKN[lkq]+'.';
+      if(ci.run&&(ci.lk||0)!==lkq&&!isErr(lkq))r.txt+=' Pyydetty tila '+lkq+' ('+LKN[lkq]+') tulee voimaan seuraavan vaiheen alussa.';
       r.ok=!!ci.run;break;}
     default:
       if(K[b.k].g==='ui'){
@@ -3191,7 +3301,7 @@ function why(P,E,id,depth,seen){
 }
 
 return {omat:omat,omFind:omFind,omNorm:omNorm,omBase:omBase,omNames:omNames,omActive:omActive,setOmi:setOmi,resetOmi:resetOmi,isOff:isOff,napVaihto:napVaihto,boolKey:boolKey,TIMEU:TIMEU,YKSA:YKSA,ENVW:ENVW,portsBase:portsBase,tattiSet:tattiSet,muutosStart:muutosStart,muutosStop:muutosStop,frame:frame,napExt:napExt,NAP_PITKA:NAP_PITKA,pressDown:pressDown,pressLong:pressLong,pressUp:pressUp,hasOut:hasOut,curveAt:curveAt,KAYRA_PRESETS:KAYRA_PRESETS,kayraPreset:kayraPreset,kayraResize:kayraResize,kayraDec:kayraDec,kayraSpec:kayraSpec,kayraAt:kayraAt,satuN:satuN,satuMuoto:satuMuoto,satuCurve:satuCurve,satuResize:satuResize,satuPreset:satuPreset,SATU_PRESETS:SATU_PRESETS,SATU_MAXN:SATU_MAXN,satuSpec:satuSpec,satuDist:satuDist,satuPick:satuPick,satuPct:satuPct,satuItemTxt:satuItemTxt,satuTop:satuTop,satuRoll:satuRoll,
-  chainOpen:chainOpen,parseKlo:parseKlo,nextClock:nextClock,timerLabel:timerLabel,arpaN:arpaN,toistaN:toistaN,setMhLabel:function(f){MHLAB=f;},mhLabel:mhLabel,odotaLim:odotaLim,odotaEv:odotaEv,hasLimit:hasLimit,chainSignal:chainSignal,copyNodes:copyNodes,pasteNodes:pasteNodes,chainList:chainList,haaraVal:haaraVal,chainIssues:chainIssues,FXK:FXK,YKS:YKS,YKSN:YKSN,fmtDur:fmtDur,fmtLeft:fmtLeft,timerMs:timerMs,chainStart:chainStart,chainStop:chainStop,chainAdvance:chainAdvance,chainPoll:chainPoll,chainInfo:chainInfo,anyChainRunning:anyChainRunning,CH_STEPS:CH_STEPS,CH_TOKENS:CH_TOKENS,
+  chainOpen:chainOpen,LKN:LKN,LKID:LKID,lkReq:lkReq,lkView:lkView,chainLock:chainLock,chainLockDiff:chainLockDiff,parseKlo:parseKlo,nextClock:nextClock,timerLabel:timerLabel,arpaN:arpaN,toistaN:toistaN,setMhLabel:function(f){MHLAB=f;},mhLabel:mhLabel,odotaLim:odotaLim,odotaEv:odotaEv,hasLimit:hasLimit,chainSignal:chainSignal,copyNodes:copyNodes,pasteNodes:pasteNodes,chainList:chainList,haaraVal:haaraVal,chainIssues:chainIssues,FXK:FXK,YKS:YKS,YKSN:YKSN,fmtDur:fmtDur,fmtLeft:fmtLeft,timerMs:timerMs,chainStart:chainStart,chainStop:chainStop,chainAdvance:chainAdvance,chainPoll:chainPoll,chainInfo:chainInfo,anyChainRunning:anyChainRunning,CH_STEPS:CH_STEPS,CH_TOKENS:CH_TOKENS,
   isWin:isWin,isStep:isStep,STEPK:STEPK,chainNode:chainNode,chainOfNode:chainOfNode,chainSteps:chainSteps,isChainLink:isChainLink,chainLinksFrom:chainLinksFrom,chainStarts:chainStarts,chainIsRing:chainIsRing,chainOrder:chainOrder,
   VER:VER,PAJA:'4',LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,reittiPisteet:reittiPisteet,reittiOsat:reittiOsat,reittiHae:reittiHae,liikeRuutuKomento:liikeRuutuKomento,liikePyyhkaisy:liikePyyhkaisy,ruutuAskel:ruutuAskel,RUUTU_SU:RUUTU_SU,reittiKohta:reittiKohta,liikeRun:liikeRun,kuvaKuvat:kuvaKuvat,kelloNow:kelloNow,kelloKomento:kelloKomento,kerrosObj:kerrosObj,zoomAsetus:zoomAsetus,kameraBlk:kameraBlk,zoomNyt:zoomNyt,zoomLukittu:zoomLukittu,zoomAseta:zoomAseta,ZOOM_MIN:ZOOM_MIN,ZOOM_MAX:ZOOM_MAX,MITM:MITM,MITE:MITE,
 kuvaPyorii:kuvaPyorii,kuvaNro:kuvaNro,SARJA_MAX:SARJA_MAX,ruudukko:ruudukko,ruudukkoOf:ruudukkoOf,ruutuAt:ruutuAt,ruutuKeski:ruutuKeski,kohdista:kohdista,ruutuKohdistus:ruutuKohdistus,alueRuudukko:alueRuudukko,alueRuutu:alueRuutu,alueNapautus:alueNapautus,kerrokset:kerrokset,kerrosOf:kerrosOf,rvOf:rvOf,kuvaUrl:kuvaUrl,K:K,KW:KW,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,kaavaToIds:kaavaToIds,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
@@ -5604,8 +5714,24 @@ function chainStatus(b){
   if(b.avaus)h+='<div class="help">Ketju käynnistyy kerran aina, kun tämä projekti avataan (myös kun appi käynnistyy tähän projektiin).</div>';
   h+=fSegs('Jos ketju käynnistyy uudelleen kesken','uusi',b.uusi==='alusta'?'alusta':'ohita',[['ohita','Jatkaa ennallaan'],['alusta','Aloittaa alusta']],
     b.uusi==='alusta'?'Uusi käynnistys keskeyttää menossa olevan kierroksen ja aloittaa ketjun alusta.':'Uusi käynnistys ohitetaan, kun ketju on jo käynnissä. Menossa oleva kierros jatkuu.');
+  h+=chainLockHTML(b);
   h+='<div class="help">▶ on kokeilua varten: ketjun tapahtumat tehdään oikeasti, eli arvot ja tilat muuttuvat. Kumoa ei peru niitä, mutta projektien Tyhjennä käyttötiedot palauttaa ne.</div>';
   return section('Tila',h);
+}
+/* P1b: ketjun lukitus (0 ajantasainen, 1 ulkopuolisilta, 2 kaikilta). Valikko on perusarvo; ohjaus ja suorituksen tila näkyvät. */
+var LKHELP=['Ketju lukee joka vaiheessa nykyiset arvot. Sekä muiden että ketjun omat muutokset vaikuttavat.',
+  'Ketju lukee lukitushetken arvot ja omat muutoksensa. Käyttäjän ja muiden ketjujen myöhemmät muutokset eivät vaikuta sen lukuihin.',
+  'Ketju lukee vain lukitushetken arvot, ei edes omia muutoksiaan.'];
+function chainLockHTML(b){
+  var c=ctx(),L=KK.chainLock(P,b.id,c),e=KK.omFind(b,'lukitus'),src=e?ev().omSrc(b.id,e):'perus',base=b.lk===1||b.lk===2?b.lk:0;
+  var h=fSelect('Lukitus','lk',String(base),KK.LKN.map(function(n,i){return [String(i),i+' – '+n];}),LKHELP[base]+(base?' Toiminnot muuttavat silti oikeaa tietoa.':'')+' Tila otetaan käynnistyksessä, ja kesken se vaihtuu seuraavan vaiheen alussa. Kaavassa <code>'+esc(b.vt)+'.lukitus</code>; logiikka voi ohjata sitä (Ominaisuudet ⇢ tai ƒ, tai Aseta → lukitus).');
+  if(src!=='perus')h+='<div class="help">'+(src==='nuoli'?'Kaava tai nuoli ohjaa':'Toiminto on asettanut')+' lukituksen nyt'+(KK.isErr(L.req)?', mutta arvo ei kelpaa: <span class="errt">⚠ '+esc(L.req.err)+'</span>. Ketju ei käynnisty eikä jatka ennen korjausta.':': <b>'+L.req+' – '+esc(KK.LKN[L.req])+'</b>. Se voittaa tämän valinnan.')+'</div>';
+  else if(KK.isErr(L.req))h+='<div class="errt">⚠ '+esc(L.req.err)+'</div>';
+  if(L.lk!=null){
+    h+='<div class="help">Tässä suorituksessa: <b>'+L.lk+' – '+esc(KK.LKN[L.lk])+'</b>'+(L.at?', lukukuva klo '+esc(hmFull(L.at)):'')+(L.lk===1?', omia muutoksia '+L.own:'')+'.'+(!KK.isErr(L.req)&&L.req!==L.lk?' Pyydetty '+L.req+' – '+esc(KK.LKN[L.req])+' tulee voimaan seuraavan vaiheen alussa.':'')+'</div>';
+    var d=KK.chainLockDiff(P,b.id,c,6);
+    if(d.length)h+='<div class="lkdiff"><div>Ketjun lukema ≠ nykyinen käyttötieto</div>'+d.map(function(x){return '<div><button class="relc" data-goto="'+x.id+'">'+esc(x.nm)+'</button> ketju: <b>'+esc(x.lukema)+'</b> · nyt: <b>'+esc(x.nyt)+'</b></div>';}).join('')+'</div>';}
+  return h;
 }
 /* Ketjun tulos: viimeisin arvo ja nappi, jolla tuloksen saa näkymään. */
 function chainResult(b,E){
@@ -5858,6 +5984,8 @@ function teeInsp(b,E){
   if(tgo&&OMD[d]){var oo=omOpts(tgo,OMD[d]),valOk=d!=='palauta'&&!!(tfv[d]&&tfv[d](tgo));
     if(oo.length)h+=fSelect(d==='palauta'?'Mikä palautetaan':'Mitä muutetaan','om',b.om||'',(d==='palauta'?[['','kaikki ominaisuudet']]:valOk?[['',d==='tila'||d==='vaihda'?'tila (on valittu / ei)':'arvo']]:[['','— valitse ominaisuus —']]).concat(oo.map(function(e){return [e.p,e.n+(e.d?' – '+e.d:'')];})),
       d==='palauta'?'Poistaa toimintojen asettamat arvot, jolloin perusarvo (tai kaava, jos ominaisuus on ohjattu) on taas voimassa.':b.om?'Ominaisuus pysyy muutettuna, kunnes se palautetaan tai asetetaan uudelleen. Jos ominaisuus on ohjattu kaavalla tai nuolella, se voittaa.':null);}
+  if(d==='aseta'&&tgo&&tgo.k==='ketju'&&b.om==='lukitus'){var lkc=typeof b.v==='string'&&/^[012]$/.test(b.v.trim())?b.v.trim():'';
+    h+=fSelect('Lukitustila','lkv',lkc,(lkc?[]:[['','— valitse tai kirjoita alle —']]).concat(KK.LKN.map(function(n,i){return [String(i),i+' – '+n];})),'Valinta kirjoittaa numeron alle. Arvo voi tulla myös kaavasta tai nuolesta. Muu kuin 0, 1 tai 2 on virhe: ketju pysähtyy ja kertoo sen.');}
   if(d==='aseta')h+=fValue('Uusi arvo','v',b,'Luku, teksti, päivämäärä tai toisen palikan arvo. Tai vie nuoli kohtaan ”arvo”.');
   if(d==='kaynnista'){var inC=S.sel&&S.sel.t==='n'&&KK.chainOfNode(P,KK.nodeOf(P,S.sel.id));
     h+=fCheck('Odota, että ketju on valmis','odota',b.odota)+'<div class="help">'+(b.odota?(inC?'Tämä haara jatkaa vasta, kun käynnistetty ketju on valmis tai pysähtyy.':'Odotus toimii vain ketjun sisällä. Muualla ketju vain käynnistetään.'):'Ketju käynnistetään, ja tämä jatkaa heti. Molemmat etenevät rinnakkain.')+' Jos ketju on jo käynnissä, sen oma asetus ratkaisee: jatkaa ennallaan tai aloittaa alusta.</div>';}
@@ -5952,6 +6080,8 @@ $('#insp').addEventListener('change',function(e){
   if(!b)return;
   if(k3==='on'){pushUndo();b.off=!t.checked;afterInsp(true);return;}
   if(t.type==='checkbox'){pushUndo();b[k3]=t.checked;afterInsp(true);return;}
+  if(t.tagName==='SELECT'&&k3==='lk'&&b.k==='ketju'){pushUndo();if(t.value==='1'||t.value==='2')b.lk=+t.value;else delete b.lk;afterInsp(true);return;}
+  if(t.tagName==='SELECT'&&k3==='lkv'){pushUndo();b.v=t.value;afterInsp(true);return;}
   if(t.tagName==='SELECT'){pushUndo();b[k3]=t.value;
     if(k3==='do'){if(!b.nmSet)b.nm=KK.uniqueName(P,KK.baseName('tee',b),b.id);b.o='';}
     if((k3==='m'||k3==='j')&&b.k==='ikkuna'){if(!b.nmSet)b.nm=KK.uniqueName(P,KK.baseName('ikkuna',b),b.id);}

@@ -92,3 +92,15 @@ Jos kuva puuttuu tai tallennusversio on yhteensopimaton, älä vaihda salaa ajan
 | Vanha projekti ilman lukitusominaisuutta | Nykyiset ketjut ja testit säilyvät, oletus live. |
 
 Selaimessa varmista valikon nimet ja numerot, Ominaisuudet, nuoli/kaava/Aseta/Palauta, virheellinen numero, suorituskohtainen selite ja näppäimistökäyttö. Moottorikokeet käyttävät valekelloa ja määrättyjä tapahtumia.
+
+## 9. Toteutus 16.10.2026 (Appi-appi 12)
+
+Toteutettu kohdat 1–8 seuraavin teknisin ratkaisuin. Koodi: `appiappi/index.html`, moottorin osio *P1b: ketjun kolme lukitustilaa* (`lkReq`, `lkSnap`, `lkView`, `lkOwners`, `lkRecord`, `chainLock`, `chainLockDiff`) sekä `chainStart`, `chainAdvance`, `stepRun` ja `runAction`. Kokeet: `testit/logiikka_46_lukitus.js` (taulukon 12 koetta) ja `testit/selain_53_lukitus.py`.
+
+- Perusarvo ketjun kentässä `lk` (1 tai 2; puuttuva = 0). Ominaisuus `lukitus` on tarkka luku (rekisterin `ex`): muu kuin 0, 1 tai 2 on virhe, ei rajausta. Virhe näkyy tarkistuksessa, Aseta-toiminnon ilmoituksena ja ketjun pysähdyksenä (käynnistys tai seuraavan vaiheen raja).
+- Lukunäkymä on projektin kopio, jonka `b`, `lg` ja `st` tulevat kuvasta (tilassa 1 lisäksi `own`) ja ketjujen ajotila nykyisestä. Kaikki vaiheen luvut (ehto, kesto, aikaraja, Toista-kerrat, toiminnon arvo, tulos) ja tulevien vaiheiden kytkennät luetaan siitä; kirjoitus ja tapahtumanuolet ovat aina nykyiseen projektiin.
+- Omat muutokset tunnistetaan alkuperästä: vaiheen aikana (myös sen tapahtumanuolten jatkotoimissa) muuttuneet käyttötiedon avaimet sekä aliketjun (`par`, `parN`) myöhemmät muutokset. Arvoa ei verrata alkuperään.
+- Suunnitteluratkaisu, joka tarkentaa kohtaa 3: kohteen oma nykyinen arvo Lisää-, Vaihda-, Valitse- ja Lisää rivi -toiminnoissa luetaan oikeasta käyttötiedosta, jotta muiden kirjoitus ei häviä eikä kahdesta Lisää 1:stä tule 1. Toiminnon annettu arvo tulee lukukuvasta.
+- Isot `data:`-kuvatiedostot eivät kopioidu kuvaan (merkki, luetaan nykyisinä), jottei tallennus kasva.
+- Ajantasaisessa suorituksessa kesken poistettu odottava vaihe on virhe. Jo poistettua tulevaa vaihetta ei voi tunnistaa, koska sen kytkentäkin poistuu; poiston vaikutuslista (P1a) varoittaa etukäteen.
+- Rajaukset: saman ketjun kaksi samanaikaista kierrosta ei ole mahdollista nykyisessä appissa (koe 8 tehtiin kahdella ketjulla ja uudelleenkäynnistyksellä). Rinnakkaisen haaran alkanut ehto-odotus lukee tilanvaihdon jälkeen uutta tilaa. Tapahtumatieto (D05) puuttuu vielä, joten taulukon sarake ”Tapahtumatieto” testataan P2:ssa. Kaikki tai ei mitään -paketti ei kuulu tähän.
