@@ -14,11 +14,12 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 - Appi-appi 4: kuvasarja-animaatio Kuva-palikkaan (kuvat, nopeus, pyörii aina / kun liikkuu / kun nuolen ehto pätee).
 - Appi-appi 5: ruudukko kerroksen ominaisuutena (ruutukoko, tihennys, kohdistus, näkyvyys), napautus ruudun keskelle, Alue ruutu kerrallaan ja napautus alueeseen, ominaisuudet ruutux/ruutuy.
 - Appi-appi 6: reitit (Emilin toive): Reitti-palikka piirretään napauttamalla, Liike kulkee sitä kerran / edestakaisin / kierroksia, käynnistä- ja pysäytä-tapahtumat.
+- Appi-appi 7 (16.10., tekoälyn ehdotus): reitinhaku. Liike → Napautus → *Kiertää esteet*: hahmo kiertää seinät lyhintä reittiä, ruudukolla ruutujen keskeltä. Jos kohteeseen ei pääse, menee lähimmäksi ja logiikkaan *ei pääse* = kyllä. Oletuksena pois, vanhat projektit ennallaan.
 - Testattu vain tietokoneen Chromiumissa, ei oikealla iPhonella, iPadilla eikä Safarilla.
 
 ## Seuraavaksi
 
-- Maailman perusta (VERTAILU.md kohta 8) on valmis. Ehdotuksia jatkoon (tekoälyn, ei Emilin päätös): reitinhaku esteiden ohi, liike ruutu kerrallaan (lautapeli), kerroksen näkyvyys logiikasta, zoomaus käytössä, esimerkkipeli.
+- Ehdotuksia jatkoon (tekoälyn, ei Emilin päätös), seuraavana: liike ruutu kerrallaan (lautapeli), sitten kerroksen näkyvyys logiikasta, zoomaus käytössä, esimerkkipeli.
 - Jonossa: kerroksen näkyvyys logiikasta, toiveet tekoälylle, pelin tuntu (efektit, ajastin, ennätys), projektin tyyli, vienti käyttäjä-appiksi.
 
 ## Avoimet kysymykset
@@ -29,7 +30,9 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 - Isot kuvatiedostot hidastavat GitHub-tallennusta; SVG on kevyin.
 - Hakutaulukon ja monen haaran rivien rajoja ei voi ohjata ominaisuuksina.
 - Maailma (16.10.): tekstipohja ei tue muotoa {palikka.ominaisuus} (vanha rajoitus); arvot saa näkyviin Kaavan tuloksella.
-- Ei tarkistettu oikealla iPhonella: tatti ja napautus sormella, kuvasilmukan sujuvuus ja akun kulutus jatkuvassa liikkeessä, isot kuvasarjat.
+- Reitinhaku koskee vain Napautus-ohjausta (myös kohde nuolesta). Tatti ja Auto eivät kierrä esteitä, eikä haettua reittiä näytetä ruudulla. Riittääkö?
+- Ruutuliike (seuraava ehdotus): ohjataanko nuolinapeilla (tapahtumat ylös/alas/vasen/oikea), tatilla vai pyyhkäisyllä, ja liukuuko hahmo ruutuun vai hyppääkö? Ehdotus: kaikki kolme, liukuu.
+- Ei tarkistettu oikealla iPhonella: reitinhaun nopeus isossa maailmassa, tatti ja napautus sormella, kuvasilmukan sujuvuus ja akun kulutus jatkuvassa liikkeessä, isot kuvasarjat.
 
 ## Emilin kommentit
 
