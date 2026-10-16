@@ -42,7 +42,7 @@ Emil voi pitää useita keskusteluja auki yhtä aikaa. Oletus ei muutu: ilman ro
 Rakentajan tarkistus ennen koodin muokkausta, pyytämättä:
 
 1. `git fetch origin main` ja `git log origin/main --since="3 hours ago" -- <appin kansio>`.
-2. Jos kansioon on tullut commiteja tuoreeltaan, toinen rakentaja on todennäköisesti kesken. Pysähdy ja kysy Emililtä: odotetaanko, vaihdetaanko rooli (esim. suunnittelija) vai jatketaanko silti.
+2. Jos kansioon on tullut commiteja tuoreeltaan eikä appin `TILA.md` kerro edellisen työn valmistuneen, toinen rakentaja on todennäköisesti kesken. Pysähdy ja kysy Emililtä: odotetaanko, vaihdetaanko rooli (esim. suunnittelija) vai jatketaanko silti.
 3. Muuten jatka. Tee `git pull --rebase` ennen jokaista pushia.
 
 Muut säännöt:
