@@ -112,6 +112,16 @@ ok('render ja .wav: oikea pituus ja otsake',()=>{
   assert(Math.abs(d.length/SR-expect)<0.01,d.length/SR+' vs '+expect);assert(peak(d)>0.05);
   const w=Buffer.from(RS.wav(d,SR));assert.equal(w.toString('latin1',0,4),'RIFF');assert.equal(w.readUInt32LE(24),SR);assert.equal(w.readUInt32LE(40),d.length*2);
 });
+ok('esimerkkiäänet: kelvollisia, kuuluvia, bassari matala ja hi-hat korkea',()=>{
+  assert(RS.ESIMERKIT.length>=4);
+  for(const e of RS.ESIMERKIT){
+    Object.keys(e.patch.p).forEach(k=>assert(RS.PAR.some(d=>d[0]===k),e.nm+': tuntematon säädin '+k));
+    const r=RS.repair(e.patch);Object.keys(e.patch.p).forEach(k=>assert.equal(r.p[k],e.patch.p[k],e.nm+' '+k));
+    const d=RS.render(e.patch,SR,1,0.3);const pk=peak(d);assert(pk>0.3&&pk<=1,e.nm+' huippu '+pk);
+  }
+  const zc=nm=>{const d=RS.render(RS.ESIMERKIT.find(e=>e.nm===nm).patch,SR,1,0);return zcHz(d,0,d.length/SR);};
+  assert(zc('Bassari')<100,'bassari '+zc('Bassari'));assert(zc('Hi-hat')>3000,'hi-hat '+zc('Hi-hat'));
+});
 ok('nopeus: tieto (ei raja)',()=>{const t=Date.now();RS.render(patch(),SR,1,0.5);const s=8/RS.stepRate(patch().p.tempo)+0.5;console.log('     '+nf((Date.now()-t)/1000/s*100)+' % reaaliajasta tällä koneella');});
 function nf(x){return x.toFixed(1);}
 console.log((fails?'FAIL ':'')+n+' ok, '+fails+' virhettä');

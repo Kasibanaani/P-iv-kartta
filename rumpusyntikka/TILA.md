@@ -11,11 +11,12 @@ Tietokoneelle tehty kahden oskillaattorin rumpusyntikka, jonka rakenne, säätim
 - **Potikat**: veto ylös/alas (Shift = tarkka), rulla, nuolinäppäimet, kaksoisklikkaus palauttaa. Yläpalkissa arvo yksiköissä (Hz ja nuotti, oktaavit, kesto, askelta/s).
 - **Pikanäppäimet**: välilyönti RUN/STOP, T TRIGGER, A ADVANCE.
 - **Omat äänet**: tallenna nimellä, päivitä, avaa, poista, alkuasetus. Nykyiset säädöt tallentuvat itsestään.
+- **Esimerkit** (Omat äänet -valikossa, `RS.ESIMERKIT` moottorissa): Bassari, Virveli, Hi-hat, FM-kello, Rytmikuvio. Lähtökohtia, ei tallenneta omiin ääniin ennen kuin Emil tallentaa. Viritetty paperilla, ei kuunneltu.
 - **Tallenna ääni**: sekvenssi alusta 1–16 kierrosta + häntä .wav-tiedostoksi (48 kHz mono).
 - **Varmuuskopio** tiedostona ja tekstinä, **Ulkoasu** (Appipaja 2.0 -teemat, vaalea/tumma/laitteen mukaan), **Ohje**.
 - **Moottori** (`<script id="engine">`, objekti `RS`, ei DOMia): pyörii AudioWorkletissa (varalla ScriptProcessor). 4x ylinäytteistys, kaistarajattu kantti (polyBLEP), eksponentiaalinen FM, hard sync, 4-napainen ladder tanh-yliohjauksella ja HP-tilalla, kolme isku+vaimeneminen-verhokäyrää, velocity skaalaa kaikki kolme, sekvensseri ja kaapelit näytteen tarkkuudella. Muunnokset potikasta suureeksi: `RS.vcoHz`, `cutHz`, `egOct`, `vcfOct`, `decayS`, `fmOct`, `stepRate`.
 - **Tallennusmuoto 1**: `{app:'rumpusyntikka', ver:1, nyky, nimi, omaId, muutettu, omat:[{id, nm, patch, t}]}`, ääni `patch = {p:{säädin: arvo}, pitch:[8], vel:[8], cab:[[lähtö, tulo]]}`. Korjaus `RS.repair` ja `repairData`.
-- **Testit** `sh rumpusyntikka/testit/aja.sh`: 21 moottoritestiä (mm. sävelpudotus, SEQ PITCH MOD -asennot, FM, sync, suodin, itseoskillointi, kaapelit, ei NaN:ia satunnaissäädöillä) ja 34 selaintestiä (1440 px vaalea, 1280 px tumma) Chromiumissa. Kaikki läpi 16.10.2026.
+- **Testit** `sh rumpusyntikka/testit/aja.sh`: 22 moottoritestiä (mm. sävelpudotus, SEQ PITCH MOD -asennot, FM, sync, suodin, itseoskillointi, kaapelit, ei NaN:ia satunnaissäädöillä) ja 36 selaintestiä (1440 px vaalea, 1280 px tumma) Chromiumissa. Kaikki läpi 16.10.2026.
 
 ## Ei tarkistettu
 
@@ -27,13 +28,12 @@ Tietokoneelle tehty kahden oskillaattorin rumpusyntikka, jonka rakenne, säätim
 
 ## Seuraavaksi
 
-- Emil kuuntelee ja vertaa muistiin ja demovideoihin. Kerro, mikä kuulostaa väärältä ja missä potikan kohdassa (esim. ”bassari liian pehmeä, sävelpudotus liian hidas, FM liian kiltti”), niin säädän alueita ja käyriä. Viritys tehdään kierroksina.
+- Emil kuuntelee esimerkit ja vertaa muistiin ja demovideoihin. Kerro, mikä kuulostaa väärältä ja missä potikan kohdassa (esim. ”bassari liian pehmeä, sävelpudotus liian hidas, FM liian kiltti”), niin säädän alueita ja käyriä. Viritys tehdään kierroksina.
 - Mahdollisia jatkoja (ehdotuksia, ei päätetty): Web MIDI -tulo (tietokoneen Chrome), sekvenssin vienti MIDI-tiedostona, livetallennus säätöliikkeineen, iPad- ja kynäversio, moottorin kopiointi Rytmikoneen äänityypiksi.
 
 ## Avoimet kysymykset
 
 - Lopullinen nimi (työnimi Rumpusyntikka).
-- Tarvitaanko valmiita esimerkkiääniä (bassari, virveli, FM-kello), vai aloitetaanko tyhjästä kuten nyt?
 
 ## Emilin kommentit
 
