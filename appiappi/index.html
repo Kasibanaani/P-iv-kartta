@@ -925,7 +925,10 @@ var K={
   tee:{n:'Toiminto',g:'lg',ic:'▶',d:{do:'aseta',o:'',v:'',vw:'',x:0,y:0,tx:'',off:false}},
   /* P2: tietotaulukko (sarakkeet, lähtöaineisto; käytössä muuttuvat rivit käyttötiedossa) ja tapahtuman tiedot. */
   taulu:{n:'Tietotaulukko',g:'lg',ic:'⊞',d:{sar:[],rv:[]}},
-  tapaht:{n:'Tapahtuman tiedot',g:'lg',ic:'✉',d:{}}
+  tapaht:{n:'Tapahtuman tiedot',g:'lg',ic:'✉',d:{}},
+  /* P3a: rivi (nimetty lähde taulukon riville) ja rivijoukko (suodatus, järjestys). */
+  trivi:{n:'Rivi',g:'lg',ic:'▤',d:{tt:'',ls:'kas'}},
+  joukko:{n:'Rivijoukko',g:'lg',ic:'☷',d:{js:'',su:'nouseva',max:''}}
 };
 var OPS={add:'+',sub:'−',mul:'×',div:'÷'};
 var CMPS={eq:'=',ne:'≠',lt:'<',le:'≤',gt:'>',ge:'≥'};
@@ -981,7 +984,7 @@ function portsBase(b){
     case 'haku':ins=[V('a','arvo')];outs=[V('v','tulos')];break;
     case 'kun':ins=[V('c','ehto'),E('e','tapahtuma')];outs=[E('e','silloin')];break;
     case 'ikkuna':
-      ins=[V('in','mukaan')];if(b.j==='kun')ins.push(E('e','tapahtuma'));
+      ins=[V('in','mukaan')];if(b.riv)ins.push(V('rv','rivit'));if(b.j==='kun')ins.push(E('e','tapahtuma'));
       outs=[V('v','tulos')];
       if(b.j==='jos'){outs.push(E('e','NIIN'));if(b.muuten)outs.push(E('m','MUUTEN'));}
       if(b.j==='kun')outs.push(E('e','läpi'));
@@ -992,14 +995,16 @@ function portsBase(b){
     case 'satu':{ins=[E('e','arvo uudelleen'),V('min','pienin'),V('max','suurin')];if(satuMuoto(b))for(var si=1;si<=satuN(b);si++)ins.push(V('p'+si,'paino '+si));outs=[V('v','luku'),E('e','arvottu')];break;}
     case 'kayra':{ins=[V('a','syöte (x)'),V('xmin','x alku'),V('xmax','x loppu'),V('ymin','y alku'),V('ymax','y loppu')];for(var ki=1;ki<=satuN(b);ki++)ins.push(V('p'+ki,'porras '+ki));outs=[V('v','tulos (y)')];break;}
     case 'arpa':{ins=[E('e','arvo')];var an=arpaN(b);for(var ai=1;ai<=an;ai++)outs.push(E('a'+ai,String(ai)));break;}
-    case 'toista':ins=[E('e','alkaa'),V('k','kerrat')];outs=[E('e','kierros'),E('m','valmis')];break;
+    case 'toista':ins=[E('e','alkaa'),b.tapa==='rivit'?V('rv','rivit'):V('k','kerrat')];outs=[E('e','kierros'),E('m','valmis')];break;
     case 'lopeta':ins=[E('e','alkaa')];outs=[];break;
     case 'ilmesty':case 'kuva':case 'anim':case 'nvaihto':ins=[E('e','alkaa')];outs=[E('e','sitten')];break;
     case 'haara':ins=[E('e','tarkista'),V('c','ehto')];outs=[E('e','kyllä'),E('m','ei')];break;
     case 'monihaara':ins=[E('e','tarkista'),V('a','arvo')];outs=(Array.isArray(b.haarat)?b.haarat:[]).filter(function(r){return r&&r.id;}).map(function(r){return E(r.id,mhLabel(r));});outs.push(E('m','muuten'));break;
     case 'odota':ins=[E('e','alkaa'),V('c','ehto'),E('x','tapahtuma')];outs=[E('e','jatkuu')];if(hasLimit(b))outs.push(E('m','aika loppui'));break;
     case 'ajastin':ins=[E('e','alkaa'),V('k','kesto')];outs=[E('e','kulunut'),V('v','käynnissä'),V('j','jäljellä')];break;
-    case 'taulu':outs=[V('v','rivejä'),V('nro','valitun rivin nro')];break;
+    case 'taulu':outs=[V('v','rivejä'),V('nro','valitun rivin nro'),V('rj','rivit')];break;
+    case 'trivi':outs=[V('v','rivi')];break;
+    case 'joukko':ins=[V('rv','rivit'),V('c','ehto riveittäin'),V('j','järjestä arvon mukaan')];outs=[V('v','rivejä'),V('rj','rivit')];break;
     case 'tapaht':outs=[V('v','uusi'),V('vanha','vanha'),V('rivi','rivi')];break;
   }
   return {ins:ins,outs:outs};
@@ -1087,7 +1092,8 @@ function omat(b){
     case 'muutos':pt('t','edistyminen','0–1 alusta loppuun');pt('r','käynnissä','onko käynnissä',['kaynnissa']);cl('kulunut','kulunut','luku','kulunut aika sekunteina (kesto × edistyminen)');break;
     case 'liike':r.push(OM('x','x','arvo',{port:'v',d:'paikka x'}));pt('y','y','paikka y');pt('m','liikkuu','kyllä, kun liikkuu nyt');pt('osuu','osuu','kyllä, kun este pysäyttää tai ohjaa liikettä');pt('nop','nopeus','nopeus pikseliä sekunnissa');pt('suu','suunta','kulkusuunta asteina, 0 = ylös, 90 = oikealle');break;
     case 'ikkuna':if(b.m==='min'||b.m==='max'||b.m==='eq')r.push(OM('n','raja','luku',{al:['n'],f:'n',o:1,lim:[0,null],d:'N (vähintään, enintään tai täsmälleen)'}));
-      cl('pätee','pätee','luku','montako sisällä pätee',['patee']);cl('jäseniä','jäseniä','luku','montako palikkaa sisällä',['jasenia']);break;
+      cl('pätee','pätee','luku','montako sisällä pätee',['patee']);cl('jäseniä','jäseniä','luku','montako palikkaa sisällä',['jasenia']);
+      if(b.riv){cl('rivejä','rivejä','luku','montako riviä käytiin läpi',['riveja']);cl('havaintoja','havaintoja','luku','montako arvoa on tiedossa');cl('puuttuvia','puuttuvia','luku','montako arvoa puuttuu');}break;
     case 'odota':r.push(OM('raja','aikaraja','luku',{al:['raja'],f:'raja',o:1,lim:[0,null],d:'aikaraja palikan omassa yksikössä (aika-arvo sekunteina)'}));break;
     case 'tee':if(b.do==='siirry'&&!b.o)r.push(OM('x','x','luku',{f:'x',o:1,d:'siirtymän kohta x'}),OM('y','y','luku',{f:'y',o:1,d:'siirtymän kohta y'}));break;
     case 'toista':cl('kierros','kierros','luku','monesko kierros on menossa (0 = ei käynnissä)');break;
@@ -1099,6 +1105,11 @@ function omat(b){
     case 'tapaht':r=r.filter(function(e){return e.p!=='arvo';});r.push(OM('uusi','uusi','arvo',{port:'v',al:['arvo'],d:'uusi arvo tapahtumahetkellä'}));pt('vanha','vanha','arvo ennen tapahtumaa');pt('rivi','rivi','tapahtuman rivi (riviviite)');
       cl('lähde','lähde','teksti','palikka, josta tapahtuma lähti',['lahde']);cl('aika','aika','teksti','tapahtuman kellonaika');cl('päivä','päivä','pvm','tapahtuman päivä',['paiva']);cl('tunniste','tunniste','teksti','tapahtuman tunniste');
       cl('on','on','kylla','onko tapahtumaa (ei = tapahtuman ulkopuolella)');cl('taulukko','taulukko','teksti','tapahtuman rivin taulukko');r.push(OM('rivi.sarake','rivi.<sarake>','arvo',{dyn:1,d:'tapahtuman rivin kenttä nyt (sarakkeen viite)'}));break;
+    /* P3a */
+    case 'trivi':r=r.filter(function(e){return e.p!=='arvo';});pt('v','rivi','rivi (riviviite)',['arvo']);cl('nro','nro','luku','rivin numero taulukossa (0 = ei riviä)');cl('on','on','kylla','onko riviä nyt');
+      r.push(OM('sarake','<sarake>','arvo',{dyn:1,d:'rivin kenttä, esim. kohde.määrä'}));break;
+    case 'joukko':r=r.filter(function(e){return e.p!=='arvo';});pt('v','rivejä','montako riviä joukossa on',['riveja','arvo']);cl('eka','eka','arvo','ensimmäinen rivi (riviviite)',['ensimmäinen','ensimmainen']);cl('vika','vika','arvo','viimeinen rivi (riviviite)',['viimeinen']);
+      r.push(OM('eka.sarake','eka.<sarake>, vika.<sarake>, <sarake>.summa, .keskiarvo, .suurin, .pienin, .havaintoja, .puuttuvia','arvo',{dyn:1,d:'ensimmäisen tai viimeisen rivin kenttä ja joukon koosteet'}));break;
   }
   if(K[k].d&&K[k].d.hasOwnProperty('off'))r.push(OM('kaytossa','käytössä','kylla',{al:['kaytossa'],f:'off',inv:1,o:1,d:'onko palikka käytössä'}));
   return r;
@@ -1375,10 +1386,10 @@ function isErr(v){return !!v&&typeof v==='object'&&typeof v.err==='string';}
 function parseNum(s){if(typeof s==='number')return s;var t=String(s).trim().replace(/\s/g,'').replace(',','.').replace('−','-');if(!/^-?(\d+\.?\d*|\.\d+)$/.test(t))return NaN;return parseFloat(t);}
 function nonEmpty(v){return !(v==null||v===''||(typeof v==='number'&&isNaN(v))||isMiss(v));}
 function num(v){
-if(v==null||v==='')return 0;if(isErr(v)||isMiss(v)||isR(v))return NaN;if(typeof v==='boolean')return v?1:0;if(typeof v==='number')return v;if(isD(v))return utc(v.d)/864e5;return parseNum(v);}
-function truth(v){if(v==null||isErr(v)||isMiss(v))return false;if(isR(v))return true;if(typeof v==='boolean')return v;if(typeof v==='number')return v!==0&&!isNaN(v);if(isD(v))return true;return String(v).trim()!=='';}
+if(v==null||v==='')return 0;if(isErr(v)||isMiss(v)||isR(v)||isRS(v))return NaN;if(typeof v==='boolean')return v?1:0;if(typeof v==='number')return v;if(isD(v))return utc(v.d)/864e5;return parseNum(v);}
+function truth(v){if(v==null||isErr(v)||isMiss(v))return false;if(isR(v))return true;if(isRS(v))return v.ids.length>0;if(typeof v==='boolean')return v;if(typeof v==='number')return v!==0&&!isNaN(v);if(isD(v))return true;return String(v).trim()!=='';}
 function fiNum(x){if(!isFinite(x))return '–';var r=Math.round(x*100)/100;return String(r).replace('.',',').replace('-','−');}
-function fmt(v,df){if(isErr(v))return '⚠ '+v.err;if(v==null||isMiss(v)||(typeof v==='number'&&isNaN(v)))return '–';if(typeof v==='boolean')return v?'kyllä':'ei';if(typeof v==='number')return fiNum(v);if(isD(v))return fmtDate(v.d,df)+(typeof v.ms==='number'?' klo '+hmOf(v.ms):'');if(isR(v))return 'rivi';return String(v);}
+function fmt(v,df){if(isErr(v))return '⚠ '+v.err;if(v==null||isMiss(v)||(typeof v==='number'&&isNaN(v)))return '–';if(typeof v==='boolean')return v?'kyllä':'ei';if(typeof v==='number')return fiNum(v);if(isD(v))return fmtDate(v.d,df)+(typeof v.ms==='number'?' klo '+hmOf(v.ms):'');if(isR(v))return 'rivi';if(isRS(v))return v.ids.length+(v.ids.length===1?' rivi':' riviä');return String(v);}
 function parseLit(x,now){
   if(x==null||x==='')return null;
   if(typeof x==='number'||typeof x==='boolean')return x;
@@ -2071,6 +2082,7 @@ function repair(P){
     if(b.k==='tee'){if(b.om!==undefined&&(typeof b.om!=='string'||!b.om||(P.b[b.o]&&!omFind(P.b[b.o],b.om))))delete b.om;}
     /* P2: tietotaulukko ja taulukkotoiminnon kentät. */
     if(b.k==='taulu')repairTaulu(P,id);
+    if(b.k==='trivi'||b.k==='joukko'||b.k==='ikkuna'||b.k==='toista')repairP3(P,id);
     if(K[b.k]&&K[b.k].g==='ui'&&b.lpn!==undefined){var lpn=parseNum(b.lpn);if(isNaN(lpn)||lpn<=0)delete b.lpn;else b.lpn=Math.min(100,Math.round(lpn));}
     if(b.k==='kaavio'&&b.ymax!==undefined){var ym=parseNum(b.ymax);if(isNaN(ym)||ym<=0)delete b.ymax;else b.ymax=ym;}
     if(b.k==='kayra'){b.pn=satuN(b);var kpw=Array.isArray(b.pw)?b.pw:[],knw=[];
@@ -2134,6 +2146,10 @@ function repair(P){
     cs.tk.forEach(function(t){if(!Array.isArray(t.v))t.v=[];if(t.u!=null&&typeof t.u!=='number')delete t.u;if(typeof t.a!=='number')delete t.a;if(t.hd!=null&&t.hd!==1&&t.hd!==true)delete t.hd;delete t.go;});
     if(!cs.fl||typeof cs.fl!=='object')cs.fl={};if(cs.run&&!cs.tk.length)cs.run=false;
     if(cs.cnt!==undefined&&(!cs.cnt||typeof cs.cnt!=='object'||Array.isArray(cs.cnt)))delete cs.cnt;
+    /* P3a: Toista riveille -luettelot (rivit aloitushetkellä). */
+    if(cs.lst!==undefined){if(!cs.lst||typeof cs.lst!=='object'||Array.isArray(cs.lst))delete cs.lst;else Object.keys(cs.lst).forEach(function(k){var L=cs.lst[k];
+      if(!L||typeof L!=='object'||typeof L.rj!=='string'||!Array.isArray(L.ids)||typeof L.i!=='number'){delete cs.lst[k];return;}L.ids=L.ids.filter(function(x){return typeof x==='string';});L.i=Math.max(0,Math.min(L.ids.length,Math.round(L.i)));
+      if(L.ev0!==undefined){var le=repairEvObj(L.ev0);if(le)L.ev0=le;else delete L.ev0;}});}
     if(cs.tulos!==undefined&&cs.tulos!==null&&!(typeof cs.tulos==='string'||typeof cs.tulos==='number'||typeof cs.tulos==='boolean'||isD(cs.tulos)))delete cs.tulos;
     /* P1b: lukitus. Rikkinäistä kuvaa ei korvata ajantasaisella: ketju pysähtyy jatkaessa näkyvään virheeseen. */
     if(cs.lk!==undefined&&cs.lk!==0&&cs.lk!==1&&cs.lk!==2){cs.lk=1;delete cs.snap;}
@@ -2331,8 +2347,44 @@ var STRANK={'näkyy':0,luettava:1,harmaa:2,piilossa:3};
 function Ev(P,ctx){
   ctx=ctx||{};var now=ctx.now?ctx.now():new Date();var df=ctx.df||'pp.kk.vvvv';
   var B=P.b,memo={},nid={},inl={},outl={};
+  /* P3a: rivikohtainen Ev saa saman verkon (nuolet) ja joukkojen välimuistin ulommalta (ctx._g). */
+  var G=Object.prototype.hasOwnProperty.call(ctx,'_g')&&ctx._g&&ctx._g.P===P?ctx._g:null;
+  if(G){nid=G.nid;inl=G.inl;outl=G.outl;}else{
   P.lg.n.forEach(function(n){nid[n.id]=n;});
   P.lg.l.forEach(function(l){var t=nid[l.t],f=nid[l.f];if(!t||!f)return;var k=t.p+'|'+l.tp;(inl[k]=inl[k]||[]).push(l);var k2=f.p+'|'+l.fp;(outl[k2]=outl[k2]||[]).push(l);});
+  G={P:P,nid:nid,inl:inl,outl:outl,rsc:{}};}
+  /* Rivin oma arviointi: käsiteltävä rivi kontekstiin, oma välimuisti. */
+  function rowEv(tid,rid){var c=Object.create(ctx),o=ctx.rows||{},k;c.rows={};for(k in o)c.rows[k]=o[k];c.rows[tid]=rid;c._g=G;c.now=function(){return now;};return Ev(P,c);}
+  function ctxKey(){return JSON.stringify(ctx.rows||null)+'|'+(ctx.tev?JSON.stringify(ctx.tev):'');}
+  /* Rivit kohtaan rv: Tietotaulukko (kaikki rivit), Rivijoukko tai joukkoarvo nuolesta. null = ei nuolta. */
+  function rowsIn(id){var ls=inl[id+'|rv'];if(!ls||!ls.length)return null;var l=ls[0],f=nid[l.f],sb=f&&B[f.p];if(!sb)return ERR('rivit: lähde puuttuu');
+    if(sb.k==='taulu')return RS(sb.id,tRows(P,sb.id).map(function(r){return r.id;}));
+    if(sb.k==='joukko')return joukkoRows(sb.id);
+    var v=srcVal(l);if(isErr(v))return v;if(isRS(v))return v;return ERR('rivit: tuo nuoli Tietotaulukosta tai Rivijoukosta (nyt ”'+sb.nm+'”)');}
+  function joukkoRows(id){var key=id+'|'+ctxKey();if(G.rsc.hasOwnProperty(key))return G.rsc[key];
+    if(RS_ACT[id])return ERR('kehä: rivijoukon ehto tai järjestys lukee joukkoa itseään');
+    RS_ACT[id]=1;var r;try{r=joukkoCalc(id);}catch(e){r=ERR('rivijoukko: '+(e&&e.message||e));}finally{delete RS_ACT[id];}
+    G.rsc[key]=r;return r;}
+  function joukkoCalc(id){var b=B[id],src=rowsIn(id);
+    if(src==null)return ERR('tuo rivit nuolella Tietotaulukosta tai toisesta Rivijoukosta kohtaan ”rivit”');if(isErr(src))return src;
+    var tid=src.rj,tb=B[tid];if(!tb||tb.k!=='taulu')return isGone(P,tid)?goneErr(tid):ERR('taulukko puuttuu');
+    var hasC=linked(id,'c'),hasJ=linked(id,'j'),kc=null,rows=tRows(P,tid),at={},items=[],i;
+    if(b.js){kc=colById(tb,b.js);if(!kc)return ERR('järjestyksen sarake puuttuu taulukosta ”'+tb.nm+'”');}
+    rows.forEach(function(r,j){if(r)at[r.id]=j;});
+    for(i=0;i<src.ids.length;i++){var rid=src.ids[i],ti=at[rid];if(ti==null)continue;var re=hasC||(hasJ&&!kc)?rowEv(tid,rid):null;
+      if(hasC){var c=re.inp(id,'c');if(isErr(c))return ERR('ehto, rivi '+(ti+1)+': '+c.err);if(!truth(c))continue;}
+      var kv=kc?cellRead(P,tid,rows[ti],kc):hasJ?re.inp(id,'j'):null;if(isErr(kv))return ERR('järjestys, rivi '+(ti+1)+': '+kv.err);
+      items.push({id:rid,k:kc||hasJ?sortKey(P,kv):null,i:i});}
+    if(kc||hasJ){var dn=b.su==='laskeva'?-1:1;items.sort(function(x,y){var q=sortCmp(x.k,y.k);if(q.m!=null)return q.m||x.i-y.i;return q.c*dn||x.i-y.i;});}
+    if(b.max!==''&&b.max!=null){var mx=typeof b.max==='number'?b.max:parseNum(String(b.max));if(!isNaN(mx)&&mx>=0)items=items.slice(0,Math.floor(mx));}
+    return RS(tid,items.map(function(x){return x.id;}));}
+  /* Rivi-palikan rivi nyt: käsiteltävä (konteksti tai Toista riveille), valittu tai tapahtuman. null = ei riviä. */
+  function triviRow(id){var b=B[id],tid=b.tt,tb=B[tid];if(!tb||tb.k!=='taulu')return isGone(P,tid)?goneErr(tid):ERR(tid?'taulukko puuttuu':'valitse rivin taulukko');
+    var ls=b.ls||'kas',rid='';
+    if(ls==='val')rid=tSel(P,tid);
+    else if(ls==='tap'){var e=ctx.tev;if(e&&isR(e.rivi)&&e.rivi.rr===tid)rid=e.rivi.ri;}
+    else{rid=ctx.rows&&typeof ctx.rows[tid]==='string'?ctx.rows[tid]:'';if(!rid&&ctx.tev&&ctx.tev.kr&&typeof ctx.tev.kr[tid]==='string')rid=ctx.tev.kr[tid];}
+    if(!rid)return null;if(tIdx(P,tid,rid)<0)return ERR('rivi on poistettu');return RR(tid,rid);}
   function srcVal(l){var f=nid[l.f];if(!f)return null;var v=val(f.p,l.fp);if(f.not&&!isErr(v)){var po=port(B[f.p],'outs',l.fp);if(po&&po.t==='v')v=!truth(v);}return v;}
   function linked(id,p){return !!(inl[id+'|'+p]&&inl[id+'|'+p].length);}
   /* Pajakone 4: tuleeko kohtaan aika-arvo (sekunteina): Arvo yksikössä s/min/h, Muutos ajassa (kulunut), ajastimen jäljellä. */
@@ -2395,6 +2447,20 @@ function Ev(P,ctx){
         case 'lähde':case 'lahde':return e?(B[e.src]?B[e.src].nm:e.nm||''):null;case 'aika':return e?hmOf(e.at):null;case 'päivä':case 'paiva':return e?D(iso(new Date(e.at))):null;
         case 'tunniste':return e?e.id:null;case 'on':return !!e;case 'taulukko':return e&&isR(e.rivi)&&B[e.rivi.rr]?B[e.rivi.rr].nm:null;}
       return undefined;}
+    /* P3a: Rivi (kohde.määrä, kohde.nro, kohde.on) ja Rivijoukko (joukko.rivejä, joukko.eka.nimi, joukko.määrä.summa). */
+    if(b.k==='trivi'){var rw=triviRow(id);if(pn==='nro'){if(isErr(rw))return rw;return rw?tIdx(P,rw.rr,rw.ri)+1:0;}if(pn==='on')return isR(rw);if(pn==='rivi'||pn==='arvo')return rw;
+      if(isErr(rw))return rw;var sg4=pn.split('.'),tb4=B[b.tt];
+      if(!rw){if(tb4&&!colById(tb4,sg4[0])&&!colByName(tb4,sg4[0]))return colErr(tb4,sg4[0]);return sg4[sg4.length-1]==='tiedossa'?false:MISS;}
+      return rowPath(P,rw,sg4,false);}
+    if(b.k==='joukko'){var rs=joukkoRows(id),sg3=pn.split('.');
+      if(pn==='rivejä'||pn==='riveja'||pn==='arvo')return isErr(rs)?rs:rs.ids.length;
+      if(isErr(rs))return rs;var jt=B[rs.rj],f0=sg3[0];
+      if(JFIX[f0]){var jn=rs.ids.length,jr=!jn?'':f0.charAt(0)==='e'?rs.ids[0]:rs.ids[jn-1],ref=jr?RR(rs.rj,jr):null;if(sg3.length===1)return ref;
+        if(!ref){var cz=colById(jt,sg3[1])||colByName(jt,sg3[1]);if(!cz&&sg3[1]!=='tiedossa')return colErr(jt,sg3[1]);return sg3[sg3.length-1]==='tiedossa'?false:MISS;}
+        return rowPath(P,ref,sg3.slice(1),false);}
+      var c3=colById(jt,f0)||colByName(jt,f0);if(c3&&sg3.length===2&&TAGG[sg3[1]])return tAgg(P,rs.rj,c3,TAGG[sg3[1]],rs.ids);
+      if(c3)return ERR('.'+c3.vt+': valitse rivi (esim. '+b.vt+'.eka.'+c3.vt+') tai kooste (esim. '+b.vt+'.'+c3.vt+'.summa)');
+      return ERR('rivijoukossa ”'+b.nm+'” ei ole ominaisuutta tai saraketta ”'+f0+'” (rivejä, eka, vika; sarakkeet: '+(tSar(jt).map(function(c){return c.vt;}).join(', ')||'ei vielä yhtään')+')');}
     if(b.k==='lista'&&(m=/^rivi(\d+)(?:\.(teksti|rastitettu|pvm))?$/.exec(pn))){var r=listRows(P,id)[+m[1]-1];if(!r)return null;
       if(m[2]==='rastitettu')return !!r.c;if(m[2]==='pvm')return r.d?D(r.d):null;return r.tx;}
     if(b.k==='aika'&&(m=/^viimeisin\.(teksti|aika)$/.exec(pn))){var en=stv(id,[]);if(!Array.isArray(en)||!en.length)return null;var x=en[en.length-1];
@@ -2413,8 +2479,11 @@ function Ev(P,ctx){
         var nx=null;rows.forEach(function(r){if(r.d&&!r.c&&r.d>=td&&(!nx||r.d<nx))nx=r.d;});return nx?D(nx):null;}
       case 'aika':{var en=stv(id,[]),tdy=iso(now);return Array.isArray(en)?en.filter(function(x){return iso(new Date(x.t))===tdy;}).length:0;}
       case 'muutos':{var sp=muutosSpec(b,inp,has,linked);if(isErr(sp))return sp;var mt=val(id,'t');if(isErr(mt))return mt;return round9(sp.k*(num(mt)||0));}
-      case 'ikkuna':{var vs=members(id).map(function(m){var v=val(m.p,'v');return m.not&&!isErr(v)?!truth(v):v;});(inl[id+'|in']||[]).forEach(function(l){vs.push(srcVal(l));});
-        for(var e=0;e<vs.length;e++)if(isErr(vs[e]))return vs[e];return key==='jäseniä'?vs.length:vs.filter(truth).length;}
+      case 'ikkuna':{var W=winVals(id);if(W.err)return W.err;var vs=W.vals;
+        for(var e=0;e<vs.length;e++)if(isErr(vs[e]))return vs[e];
+        if(key==='jäseniä')return W.rows==null?vs.length:members(id).length+(inl[id+'|in']||[]).length;
+        if(key==='rivejä')return W.rows||0;if(key==='havaintoja')return vs.filter(nonEmpty).length;if(key==='puuttuvia')return vs.filter(function(v){return !nonEmpty(v);}).length;
+        return vs.filter(truth).length;}
       case 'toista':{var tn=nodesOfBlock(P,id)[0],ch=tn&&chainOfNode(P,tn),cs=ch&&P.st[ch.id];return cs&&cs.run&&cs.cnt&&cs.cnt[tn.id]?cs.cnt[tn.id]:0;}
       case 'arpa':{var a=P.st['arpa:'+id];return typeof a==='number'?a:0;}
       case 'haku':{var hr=hakuRow(id);return hr.err?hr.err:hr.i+1;}
@@ -2530,7 +2599,9 @@ function Ev(P,ctx){
       case 'ikkuna':return win(id);
       case 'ketju':{var cs=P.st[id];if(p==='t')return cs&&cs.tulos!==undefined?cs.tulos:null;return !!(cs&&cs.run);}
       case 'ajastin':{var lw=timerLeft(id);if(p==='j')return lw==null?null:Math.ceil(lw/1000);return lw!=null;}
-      case 'taulu':return p==='nro'?tIdx(P,id,tSel(P,id))+1:tRows(P,id).length;
+      case 'taulu':if(p==='rj')return RS(id,tRows(P,id).map(function(r){return r.id;}));return p==='nro'?tIdx(P,id,tSel(P,id))+1:tRows(P,id).length;
+      case 'trivi':return triviRow(id);
+      case 'joukko':{var jrs=joukkoRows(id);if(p==='rj'||isErr(jrs))return jrs;return jrs.ids.length;}
       case 'tapaht':{var te=ctx.tev;if(!te)return null;if(p==='rivi')return isR(te.rivi)?RR(te.rivi.rr,te.rivi.ri):null;return evOut(p==='vanha'?te.vanha:te.uusi);}
     }
     return null;
@@ -2571,10 +2642,22 @@ function Ev(P,ctx){
       return !P.lg.l.some(function(l){return l.f===m.id&&l.fp==='v'&&inside[l.t];});
     });
   }
+  /* Ikkunan sisältö: jäsenten ja mukaan-nuolten arvot. P3a: riveille (b.riv) sama sisältö jokaisella rivillä. */
+  function memberVals(id){var vs=members(id).map(function(m){var v=val(m.p,'v');return m.not&&!isErr(v)?!truth(v):v;});(inl[id+'|in']||[]).forEach(function(l){vs.push(srcVal(l));});return vs;}
+  function winVals(id){var b=B[id];if(!b||!b.riv)return {vals:memberVals(id),rows:null};
+    var W=once(id+'|wv',function(){var rs=rowsIn(id);
+      if(rs==null)return {vals:[],rows:0,err:ERR('tuo rivit nuolella kohtaan ”rivit” (Tietotaulukko tai Rivijoukko)')};if(isErr(rs))return {vals:[],rows:0,err:rs};
+      if(RS_ACT['w'+id])return {vals:[],rows:0,err:ERR('kehä: ikkunan sisältö lukee ikkunaa itseään')};RS_ACT['w'+id]=1;
+      try{var out=[];for(var i=0;i<rs.ids.length;i++){var vs=rowEv(rs.rj,rs.ids[i]).memberVals(id);
+          for(var j=0;j<vs.length;j++){if(isErr(vs[j]))return {vals:[],rows:rs.ids.length,err:ERR('rivi '+(tIdx(P,rs.rj,rs.ids[i])+1)+': '+vs[j].err)};out.push(vs[j]);}}
+        return {vals:out,rows:rs.ids.length,rj:rs.rj,ids:rs.ids};}finally{delete RS_ACT['w'+id];}});
+    return W&&!isErr(W)?W:{vals:[],rows:0,err:isErr(W)?W:ERR('ikkunan laskenta epäonnistui')};}
   function win(id){
-    var b=B[id];var vals=members(id).map(function(m){var v=val(m.p,'v');return m.not&&!isErr(v)?!truth(v):v;});
-    (inl[id+'|in']||[]).forEach(function(l){vals.push(srcVal(l));});
+    var b=B[id],W=winVals(id);if(W.err)return W.err;var vals=W.vals;
     for(var e=0;e<vals.length;e++)if(isErr(vals[e]))return vals[e];
+    /* D06 riveille: täydellisyysvaatimus ja kokonaan puuttuva aineisto antavat tuntemattoman (ei 0). */
+    if(W.rows!=null&&(b.m==='sum'||b.m==='avg'||b.m==='maxv'||b.m==='minv')){var okv=vals.filter(nonEmpty).filter(function(x){return !isNaN(num(x));});
+      if(b.vaadi&&okv.length<vals.length)return MISS;if(!okv.length)return b.m==='sum'&&!vals.length?0:MISS;}
     var t=vals.filter(truth).length,n=Math.max(0,Math.round((omActive(P,b,'n')?omiNum(id,'n',0):num(b.n))||0));
     switch(b.m){
       case 'and':return vals.length>0&&t===vals.length;
@@ -2631,7 +2714,7 @@ function Ev(P,ctx){
     if(!visible(id,true))s=b.nkt==='harmaa'?'harmaa':b.nkt==='luku'?'luettava':'piilossa';
     if(STRANK[s]<STRANK.harmaa&&greyed(id))s='harmaa';
     return s;
-  }  return {layer:layer,layerShown:layerShown,timeSrc:timeSrc,omi:omi,omiNum:omiNum,omiVal:omiVal,omSrc:omSrc,calcProp:calcProp,envVal:envVal,mhRow:mhRow,timerLeft:timerLeft,val:val,inp:inp,has:has,tpl:tpl,text:text,visible:visible,alt:alt,hue:hue,greyed:greyed,state:state,prop:prop,kaava:kaava,targetOf:targetOf,ownerOf:ownerOf,linked:linked,srcVal:srcVal,members:members,hakuRow:hakuRow,shown:function(id){var b=B[id];return b&&b.nka==='pois'?compute(id,'v',true):val(id,'v');},
+  }  return {rowsIn:rowsIn,joukkoRows:joukkoRows,winVals:winVals,memberVals:memberVals,rowEv:rowEv,triviRow:triviRow,layer:layer,layerShown:layerShown,timeSrc:timeSrc,omi:omi,omiNum:omiNum,omiVal:omiVal,omSrc:omSrc,calcProp:calcProp,envVal:envVal,mhRow:mhRow,timerLeft:timerLeft,val:val,inp:inp,has:has,tpl:tpl,text:text,visible:visible,alt:alt,hue:hue,greyed:greyed,state:state,prop:prop,kaava:kaava,targetOf:targetOf,ownerOf:ownerOf,linked:linked,srcVal:srcVal,members:members,hakuRow:hakuRow,shown:function(id){var b=B[id];return b&&b.nka==='pois'?compute(id,'v',true):val(id,'v');},
     fmt:fmtE,now:now,df:df,outl:outl,inl:inl,nid:nid,ctx:ctx};
 }
 
@@ -2864,7 +2947,9 @@ function chainIssues(P,kid,ctx){
       else if(tg&&tg.k==='taulu'){var ti=tauluIssue(P,sb,tg);if(ti)out.push({n:n.id,t:nm+': '+ti+'.'});}
       else if((sb.do==='lisaarivi'||sb.do==='poistarivi'||sb.do==='valitserivi')&&tg)out.push({n:n.id,t:nm+': kohde ”'+tg.nm+'” ei ole tietotaulukko.'});}
     if(sb.k==='ajastin'){var d=timerMs(P,sb.id,ctx);if(isErr(d))out.push({n:n.id,t:nm+': '+d.err+'.'});}
-    if(sb.k==='toista'){var tn2=toistaN(P,sb,ctx);if(isErr(tn2))out.push({n:n.id,t:nm+': '+tn2.err+'.'});
+    if(sb.k==='toista'&&sb.tapa==='rivit'){var trs=Ev(P,ctx).rowsIn(sb.id);if(trs==null)out.push({n:n.id,t:nm+': tuo rivit nuolella kohtaan ”rivit” (Tietotaulukko tai Rivijoukko).'});else if(isErr(trs))out.push({n:n.id,t:nm+': rivit: '+trs.err+'.'});
+      else if(!chainLinksFrom(P,n.id,'e').length)out.push({n:n.id,info:1,t:nm+': kierros-haara ei jatku mihinkään. Vie se riveille tehtäviin tapahtumiin ja niiden lopusta viiva takaisin tähän.'});}
+    else if(sb.k==='toista'){var tn2=toistaN(P,sb,ctx);if(isErr(tn2))out.push({n:n.id,t:nm+': '+tn2.err+'.'});
       else{var lp=chainLinksFrom(P,n.id,'e');if(!lp.length)out.push({n:n.id,info:1,t:nm+': kierros-haara ei jatku mihinkään. Vie se toistettaviin tapahtumiin ja niiden lopusta viiva takaisin tähän.'});}}
     if(sb.k==='arpa'){var miss=[];for(var ai=1;ai<=arpaN(sb);ai++)if(!chainLinksFrom(P,n.id,'a'+ai).length)miss.push(ai);if(miss.length)out.push({n:n.id,info:1,t:nm+': vaihtoehto '+miss.join(', ')+' ei jatku mihinkään, joten ketjun haara päättyy, jos se arvotaan.'});}
     if(sb.k==='monihaara'){var hr=sb.haarat||[];if(!hr.length)out.push({n:n.id,t:nm+': lisää ainakin yksi haara.'});
@@ -2965,7 +3050,7 @@ function chainLock(P,kid,ctx){var cs=P.st[kid]||{},q=lkReq(P,kid,ctx);
 var SARL=[['teksti','teksti'],['luku','luku'],['kylla','kyllä/ei'],['pvm','päivämäärä'],['aika','ajankohta'],['valinta','valinta'],['viite','riviviite']];
 var SARK={};SARL.forEach(function(x){SARK[x[0]]=x[1];});
 var TAGG={summa:'sum',keskiarvo:'avg',suurin:'max',pienin:'min',havaintoja:'n',puuttuvia:'miss','virheitä':'err',virheita:'err','täydellinen':'full',taydellinen:'full'};
-var TVAR={valittu:1,valittunro:1,'rivejä':1,riveja:1,rivit:1,tiedossa:1,arvo:1,nro:1};
+var TVAR={valittu:1,valittunro:1,'rivejä':1,riveja:1,rivit:1,tiedossa:1,arvo:1,nro:1,eka:1,vika:1,'ensimmäinen':1,ensimmainen:1,viimeinen:1,on:1};
 var RIVIVAL=[['eka','ensimmäinen'],['seur','seuraava'],['edel','edellinen'],['vika','viimeinen'],['tap','tapahtuman rivi'],['arvo','arvosta (numero tai rivi)'],['ei','ei mitään']];
 var MISS={miss:true};
 function isMiss(v){return !!v&&typeof v==='object'&&v.miss===true;}
@@ -3054,10 +3139,15 @@ function rowPath(P,ref,segs,byName){
   }
   return cur;
 }
+function colErr(tb,sg){return ERR('taulukossa ”'+tb.nm+'” ei ole saraketta ”'+sg+'” (sarakkeet: '+(tSar(tb).map(function(c){return c.vt;}).join(', ')||'ei vielä yhtään')+')');}
 /* Kooste sarakkeesta (D06): puuttuvat ohitetaan ja lasketaan, virhe estää tuloksen, täydellisyysvaatimus erikseen. */
-function tAggInfo(P,tid,col){var rs=tRows(P,tid),ok=[],miss=0,errs=[];rs.forEach(function(r,i){var v=cellRead(P,tid,r,col);if(isErr(v))errs.push(i+1);else if(isMiss(v))miss++;else ok.push(v);});return {ok:ok,miss:miss,errs:errs,rows:rs.length};}
-function tAgg(P,tid,col,kind){
-  var f=tAggInfo(P,tid,col),ok=f.ok,L=col.laji,an={sum:'summa',avg:'keskiarvo',max:'suurin',min:'pienin'}[kind];
+function tAggInfo(P,tid,col,ids){var rs=tRows(P,tid),ok=[],miss=0,errs=[];
+  /* P3a: rivijoukon kooste: vain joukon rivit (virheen rivinumero on taulukon). */
+  if(ids){var at={},n=0;rs.forEach(function(r,j){if(r)at[r.id]=j;});ids.forEach(function(rid){var j=at[rid];if(j==null)return;n++;var v=cellRead(P,tid,rs[j],col);if(isErr(v))errs.push(j+1);else if(isMiss(v))miss++;else ok.push(v);});
+    return {ok:ok,miss:miss,errs:errs,rows:n};}
+  rs.forEach(function(r,i){var v=cellRead(P,tid,r,col);if(isErr(v))errs.push(i+1);else if(isMiss(v))miss++;else ok.push(v);});return {ok:ok,miss:miss,errs:errs,rows:rs.length};}
+function tAgg(P,tid,col,kind,ids){
+  var f=tAggInfo(P,tid,col,ids),ok=f.ok,L=col.laji,an={sum:'summa',avg:'keskiarvo',max:'suurin',min:'pienin'}[kind];
   if(kind==='n')return ok.length;if(kind==='miss')return f.miss;if(kind==='err')return f.errs.length;if(kind==='full')return !f.miss&&!f.errs.length;
   if(f.errs.length)return ERR('.'+an+': sarakkeessa ”'+col.nm+'” on virhe riv'+(f.errs.length>1?'eillä ':'illä ')+f.errs.slice(0,6).join(', '));
   if(col.vaadi&&f.miss)return MISS;
@@ -3069,11 +3159,17 @@ function tAgg(P,tid,col,kind){
   if(L==='pvm'||L==='aika'){var best=ok[0];ok.forEach(function(v){var k=L==='aika'?v.ms:v.d,bk=L==='aika'?best.ms:best.d;if(kind==='max'?k>bk:k<bk)best=v;});return best;}
   return ERR('.'+an+': sarake ”'+col.nm+'” ei ole luku tai päivämäärä');
 }
-/* Kaavan polku taulukon jälkeen tunnisteiksi (tallennus) tai viitteiksi (muokkaus): valittu.määrä ↔ valittu.c2. */
-function pathConv(P,id,path,toId){var b=P.b[id];if(!b||b.k!=='taulu'||!path)return path;var s=String(toId?String(path).toLowerCase():path).split('.'),tb=b,i=0;
+/* Kaavan polku taulukon jälkeen tunnisteiksi (tallennus) tai viitteiksi (muokkaus): valittu.määrä ↔ valittu.c2.
+   P3a: myös Rivi (kohde.määrä ↔ kohde.c2) ja Rivijoukko (joukko.eka.määrä, joukko.määrä.summa). */
+var JFIX={eka:1,vika:1,'ensimmäinen':1,ensimmainen:1,viimeinen:1};
+function pathConv(P,id,path,toId){var b=P.b[id];if(!b||!path)return path;var s=String(toId?String(path).toLowerCase():path).split('.'),tb=null,i=0;
   function find(t,x){return toId?colByName(t,x):colById(t,x);}
-  if(s[0]!=='valittu'){var c0=find(tb,s[0]);if(c0)s[0]=toId?c0.id:c0.vt;return s.join('.');}
-  for(i=1;i<s.length&&tb;i++){var c=find(tb,s[i]);if(!c)break;s[i]=toId?c.id:c.vt;tb=c.laji==='viite'&&c.tt?P.b[c.tt]:null;if(tb&&tb.k!=='taulu')tb=null;}
+  if(b.k==='taulu'){tb=b;if(s[0]!=='valittu'){var c0=find(tb,s[0]);if(c0)s[0]=toId?c0.id:c0.vt;return s.join('.');}i=1;}
+  else if(b.k==='trivi'){tb=P.b[b.tt];if(s[0]==='nro'||s[0]==='on'||s[0]==='rivi'||s[0]==='arvo')return s.join('.');}
+  else if(b.k==='joukko'){tb=P.b[rowTable(P,id)];if(!JFIX[s[0]]){var c1=tb&&tb.k==='taulu'?find(tb,s[0]):null;if(c1)s[0]=toId?c1.id:c1.vt;return s.join('.');}i=1;}
+  else return path;
+  if(tb&&tb.k!=='taulu')tb=null;
+  for(;i<s.length&&tb;i++){var c=find(tb,s[i]);if(!c)break;s[i]=toId?c.id:c.vt;tb=c.laji==='viite'&&c.tt?P.b[c.tt]:null;if(tb&&tb.k!=='taulu')tb=null;}
   return s.join('.');}
 /* Taulukon ominaisuudet viitevalitsimiin: [[nimi, kuvaus]]. */
 function tauluProps(P,b){var r=[['rivejä','rivien määrä'],['valittu','valittu rivi (riviviite)'],['valittunro','valitun rivin numero (0 = ei valittua)']];
@@ -3082,6 +3178,16 @@ function tauluProps(P,b){var r=[['rivejä','rivien määrä'],['valittu','valitt
     if(nn)r.push([c.vt+'.summa',c.nm+': summa (puuttuvat ohitetaan)'],[c.vt+'.keskiarvo',c.nm+': keskiarvo']);
     if(nn||dd)r.push([c.vt+'.suurin',c.nm+': suurin'],[c.vt+'.pienin',c.nm+': pienin']);
     r.push([c.vt+'.havaintoja',c.nm+': montako on täytetty'],[c.vt+'.puuttuvia',c.nm+': montako puuttuu']);});
+  return r;}
+/* P3a: Rivin ja Rivijoukon ominaisuudet viitevalitsimiin. */
+function riviProps(P,b){var tb=P.b[b.tt],r=[['rivi','rivi (riviviite)'],['nro','rivin numero (0 = ei riviä)'],['on','onko riviä nyt']];
+  if(tb&&tb.k==='taulu')tSar(tb).forEach(function(c){r.push([c.vt,c.nm+' ('+SARK[c.laji]+')']);});return r;}
+function joukkoProps(P,b){var tb=P.b[rowTable(P,b.id)],r=[['rivejä','montako riviä joukossa on'],['eka','ensimmäinen rivi (riviviite)'],['vika','viimeinen rivi (riviviite)']];
+  if(tb&&tb.k==='taulu'){tSar(tb).forEach(function(c){r.push(['eka.'+c.vt,'ensimmäisen rivin '+c.nm]);});
+    tSar(tb).forEach(function(c){var nn=c.laji==='luku'||c.laji==='kylla',dd=c.laji==='pvm'||c.laji==='aika';
+      if(nn)r.push([c.vt+'.summa',c.nm+': summa joukon riveistä'],[c.vt+'.keskiarvo',c.nm+': keskiarvo']);
+      if(nn||dd)r.push([c.vt+'.suurin',c.nm+': suurin'],[c.vt+'.pienin',c.nm+': pienin']);
+      r.push([c.vt+'.havaintoja',c.nm+': montako on täytetty'],[c.vt+'.puuttuvia',c.nm+': montako puuttuu']);});}
   return r;}
 
 /* Tapahtuman kuori. */
@@ -3151,13 +3257,16 @@ function tAddRow(P,tid,use){var b=P.b[tid];if(!b)return '';if(use){var s=tUse(P,
 function tDelRow(P,tid,use,rid){var b=P.b[tid];if(!b)return;if(use){var s=tUse(P,tid);s.rows=s.rows.filter(function(r){return r.id!==rid;});if(s.sel===rid)s.sel='';}else b.rv=(b.rv||[]).filter(function(r){return r.id!==rid;});}
 function tMoveRow(P,tid,use,rid,dir){var b=P.b[tid];if(!b)return;var rows=use?tUse(P,tid).rows:(b.rv||[]),i=-1;rows.forEach(function(r,j){if(r.id===rid)i=j;});var j=i+dir;if(i<0||j<0||j>=rows.length)return;var t=rows[i];rows[i]=rows[j];rows[j]=t;}
 /* Sarakkeen poisto: viittaukset kaavoissa ja toiminnoissa (vaikutuslista ennen poistoa, D08). */
-function colRefs(P,tid,cid){var out=[],re=new RegExp('\\{#'+tid+'\\}\\.(?:valittu\\.)?'+cid+'(?![A-Za-z0-9_])|\\{#'+tid+'\\.(?:valittu\\.)?'+cid+'(?![A-Za-z0-9_])');
+function colRefs(P,tid,cid){var out=[],ids=[tid];
+  /* P3a: Rivi ja Rivijoukko lukevat saman taulukon sarakkeita (kohde.c2, joukko.eka.c2, joukko.c2.summa). */
+  Object.keys(P.b).forEach(function(i){var o=P.b[i];if((o.k==='trivi'&&o.tt===tid)||(o.k==='joukko'&&rowTable(P,i)===tid))ids.push(i);});
+  var alt='(?:'+ids.join('|')+')',pre='(?:(?:valittu|eka|vika|ensimmäinen|ensimmainen|viimeinen)\\.)?',re=new RegExp('\\{#'+alt+'\\}\\.'+pre+cid+'(?![A-Za-z0-9_])|\\{#'+alt+'\\.'+pre+cid+'(?![A-Za-z0-9_])');
   Object.keys(P.b).forEach(function(id){var o=P.b[id],hit=false;
     (function scan(x){if(hit||x==null)return;if(typeof x==='string'){if(re.test(x))hit=true;return;}if(typeof x==='object')Object.keys(x).forEach(function(k){scan(x[k]);});})(o.k==='taulu'?null:o);
-    if(o.k==='tee'&&o.o===tid&&(o.sk===cid||(o.kv&&o.kv[cid])))hit=true;if(hit)out.push(id);});return out;}
+    if(o.k==='tee'&&o.o===tid&&(o.sk===cid||(o.kv&&o.kv[cid])))hit=true;if(o.k==='joukko'&&o.js===cid&&rowTable(P,id)===tid)hit=true;if(hit)out.push(id);});return out;}
 function delCol(P,tid,cid){var b=P.b[tid];if(!b)return;b.sar=tSar(b).filter(function(c){return c.id!==cid;});(b.rv||[]).forEach(function(r){if(r.a)delete r.a[cid];});
   var s=P.st[tid];if(s&&Array.isArray(s.rows))s.rows.forEach(function(r){if(r.a)delete r.a[cid];});
-  Object.keys(P.b).forEach(function(id){var o=P.b[id];if(o.k==='tee'&&o.o===tid){if(o.kv)delete o.kv[cid];}});}
+  Object.keys(P.b).forEach(function(id){var o=P.b[id];if(o.k==='tee'&&o.o===tid){if(o.kv)delete o.kv[cid];}if(o.k==='joukko'&&o.js===cid&&rowTable(P,id)===tid)o.js='';});}
 /* Korjaus: sarakkeet, rivit ja käyttötieto. Väärän lajin arvo jää pois (ei arvata). */
 function repairTaulu(P,id){var b=P.b[id],seen={},vts={};
   b.sar=(Array.isArray(b.sar)?b.sar:[]).filter(function(c){return c&&typeof c==='object'&&typeof c.id==='string'&&/^c\d+$/.test(c.id)&&!seen[c.id]&&(seen[c.id]=1);}).map(function(c){
@@ -3179,7 +3288,42 @@ function repairTee(P,b){var tg=P.b[b.o];
   else if(!isGone(P,b.o)){delete b.sk;delete b.rl;delete b.rs;delete b.kv;}
   if(b.vl!==undefined&&b.vl!==true)delete b.vl;if(b.kierto!==undefined&&b.kierto!==true)delete b.kierto;}
 function repairEvObj(e){if(!e||typeof e!=='object'||Array.isArray(e)||typeof e.id!=='string'||typeof e.at!=='number')return null;var o={id:e.id,src:typeof e.src==='string'?e.src:'',nm:typeof e.nm==='string'?e.nm:'',at:e.at};
-  ['vanha','uusi'].forEach(function(k){var c=evCopy(e[k]);if(c!=null&&(typeof c!=='object'||isR(c)||isD(c)))o[k]=c;});if(isR(e.rivi))o.rivi=RR(e.rivi.rr,e.rivi.ri);return o;}
+  ['vanha','uusi'].forEach(function(k){var c=evCopy(e[k]);if(c!=null&&(typeof c!=='object'||isR(c)||isD(c)))o[k]=c;});if(isR(e.rivi))o.rivi=RR(e.rivi.rr,e.rivi.ri);
+  if(e.kr&&typeof e.kr==='object'&&!Array.isArray(e.kr)){var kr={};Object.keys(e.kr).forEach(function(t){if(typeof e.kr[t]==='string'&&e.kr[t])kr[t]=e.kr[t];});if(Object.keys(kr).length)o.kr=kr;}return o;}
+/* ---------- P3a: rivi, rivikohtainen laskenta ja rivijoukko (F03) ----------
+   Rivi (laji trivi) on tavallinen nimetty lähde taulukon riville (esim. kohde): taulukko b.tt ja lähde b.ls:
+   'kas' käsiteltävä rivi, 'val' valittu rivi, 'tap' tapahtuman rivi. Sarakkeet ovat sen ominaisuuksia (kohde.määrä).
+   Käsiteltävä rivi on se, jota Rivijoukko (suodatus, järjestys), ikkuna riveille tai Toista riveille käy parhaillaan
+   läpi. Arvioinnin konteksti ctx.rows = {taulukko: rivi}; jokainen rivi lasketaan omalla Ev:llä (oma välimuisti), joten
+   saman kaavan eri rivien tulokset eivät sekoitu. Toista riveille kuljettaa käsiteltävän rivin tapahtuman kuoressa
+   (ev.kr = {taulukko: rivi}), jotta se säilyy kierroksen vaiheiden ja odotusten yli.
+   Rivijoukko (laji joukko): rivit nuolesta kohtaan rv (Tietotaulukko tai toinen Rivijoukko), ehto kohdasta c
+   riveittäin, järjestys sarakkeen (b.js) tai arvon (kohta j, riveittäin) mukaan, suunta b.su, enintään b.max riviä.
+   Tasatilanteessa ja ilman järjestystä lähteen järjestys säilyy; puuttuva arvo menee loppuun. Tulos on joukko samojen
+   rivien tunnisteita {rj: taulukko, ids: [...]}: rivejä ei kopioida eikä muuteta. Ikkuna riveille (b.riv) laskee
+   sisältönsä jokaisella rivillä ja kokoaa tulokset tavalliseen tapaan (D06: puuttuvat ohitetaan ja lasketaan). */
+function RS(t,ids){return {rj:t,ids:ids};}
+function isRS(v){return !!v&&typeof v==='object'&&typeof v.rj==='string'&&Array.isArray(v.ids);}
+var LSV=[['kas','käsiteltävä rivi'],['val','valittu rivi'],['tap','tapahtuman rivi']];
+/* Taulukko, jonka rivejä palikka käsittelee: Rivi valinnasta, Rivijoukko ja ikkuna nuolesta kohtaan rivit. */
+function rowTable(P,id,seen){var b=P.b[id];if(!b)return '';seen=seen||{};if(seen[id])return '';seen[id]=1;
+  if(b.k==='taulu')return id;if(b.k==='trivi')return typeof b.tt==='string'?b.tt:'';
+  var n=nodesOfBlock(P,id)[0];if(!n)return '';for(var i=0;i<P.lg.l.length;i++){var l=P.lg.l[i];if(l.t===n.id&&l.tp==='rv'){var f=nodeOf(P,l.f);return f?rowTable(P,f.p,seen):'';}}return '';}
+/* Järjestyksen vertailu: puuttuva loppuun (m), muuten c. Lajit: luku < päivämäärä < teksti < kyllä/ei < rivi. */
+function sortKey(P,v){if(v==null||v===''||isMiss(v)||(typeof v==='number'&&isNaN(v)))return null;
+  if(typeof v==='number')return {r:0,x:v};if(isAt(v))return {r:1,x:v.ms};if(isD(v)){var a=ymd(v.d);return {r:1,x:a?new Date(a[0],a[1]-1,a[2]).getTime():0};}
+  if(typeof v==='boolean')return {r:3,x:v?1:0};if(isR(v))return {r:4,s:rLabel(P,v)};var n=parseNum(String(v));if(!isNaN(n)&&!textual(v))return {r:0,x:n};return {r:2,s:String(v)};}
+function sortCmp(a,b){if(!a||!b)return {m:!a&&!b?0:!a?1:-1};if(a.r!==b.r)return {c:a.r-b.r};
+  if(a.s!=null)return {c:a.s.localeCompare(b.s,'fi',{numeric:true,sensitivity:'base'})};return {c:a.x<b.x?-1:a.x>b.x?1:0};}
+/* Kehän esto: joukko tai ikkuna, jonka riveittäinen laskenta lukee sitä itseään. */
+var RS_ACT={};
+function repairP3(P,id){var b=P.b[id];
+  if(b.k==='trivi'){if(typeof b.tt!=='string'||(b.tt&&!(P.b[b.tt]&&P.b[b.tt].k==='taulu')&&!isGone(P,b.tt)))b.tt='';if(!LSV.some(function(x){return x[0]===b.ls;}))b.ls='kas';}
+  if(b.k==='joukko'){if(b.su!=='laskeva')b.su='nouseva';if(typeof b.js!=='string'||!/^(c\d+)?$/.test(b.js))b.js='';
+    if(b.max!==''){var mx=typeof b.max==='number'?b.max:parseNum(String(b.max==null?'':b.max));b.max=isNaN(mx)||mx<0?'':Math.floor(mx);}}
+  if(b.k==='ikkuna'){if(b.riv!==undefined&&b.riv!==true)delete b.riv;if(b.vaadi!==undefined&&b.vaadi!==true)delete b.vaadi;}
+  if(b.k==='toista'&&b.tapa!==undefined&&b.tapa!=='rivit')delete b.tapa;}
+
 /* ---------- Ketjun ajo ----------
    Ketjussa on haaroja (tk). Jokainen haara on jossakin tapahtumassa. Kun ketju käynnistyy, jokaiseen alkupalikkaan tulee
    haara. Tapahtuma tehdään, ja haara jatkaa sen viivoja pitkin: jos viivoja on monta, haara jakautuu ja osat etenevät
@@ -3233,7 +3377,7 @@ function stepRun(P,sb,t,ctx,depth,now,seenT,kid,R){
       var cs3=P.st[kid];if(cs3)cs3.tulos=(typeof tv==='number'&&isNaN(tv))?null:tv;return {p:'e'};}
     case 'lopeta':return {endAll:true};
     case 'arpa':{var rnd=ctx&&typeof ctx.rand==='function'?ctx.rand():Math.random();var an=arpaN(sb);var pick=Math.min(an,Math.floor(rnd*an)+1);P.st['arpa:'+sb.id]=pick;return {p:'a'+pick};}
-    case 'toista':{var tn=toistaN(R,sb,ctx);if(isErr(tn))return {err:tn.err};var csx=P.st[kid];csx.cnt=csx.cnt||{};var c=(csx.cnt[t.n]||0)+1;
+    case 'toista':if(sb.tapa==='rivit')return toistaRivit(P,sb,t,ctx,kid,R);{var tn=toistaN(R,sb,ctx);if(isErr(tn))return {err:tn.err};var csx=P.st[kid];csx.cnt=csx.cnt||{};var c=(csx.cnt[t.n]||0)+1;
       if(c<=tn){csx.cnt[t.n]=c;return {p:'e',loop:true};}
       delete csx.cnt[t.n];return {p:'m',loop:true};}
     case 'monihaara':{var mr=Ev(R,ctx).mhRow(sb.id);if(mr.err)return {err:'arvossa on virhe: '+mr.err.err};return {p:mr.i<0?'m':mr.id};}
@@ -3267,6 +3411,17 @@ function stepRun(P,sb,t,ctx,depth,now,seenT,kid,R){
   }
   return {p:'e'};
 }
+/* P3a: Toista riveille. Rivien tunnisteet otetaan talteen aloitushetkellä (cs.lst), ja ne käydään läpi siinä
+   järjestyksessä. Kierros-tapahtuman rivi on käsiteltävä rivi (tapahtuma.rivi ja Rivi-palikka, lähde käsiteltävä).
+   Kesken poistettu, vielä käsittelemätön rivi pysäyttää ketjun näkyvään virheeseen. Valmis jatkaa alkuperäisellä tapahtumalla. */
+function toistaRivit(P,sb,t,ctx,kid,R){var cs=P.st[kid];cs.cnt=cs.cnt||{};cs.lst=cs.lst||{};var L=cs.lst[t.n];
+  if(!L||typeof L!=='object'){var rs=Ev(R,ctx).rowsIn(sb.id);if(rs==null)return {err:'tuo rivit nuolella kohtaan ”rivit” (Tietotaulukko tai Rivijoukko)'};if(isErr(rs))return {err:'rivit: '+rs.err};
+    L=cs.lst[t.n]={rj:rs.rj,ids:rs.ids.slice(),i:0};var e0=ctx&&ctx.tev?evClone(ctx.tev):null;if(e0)L.ev0=e0;}
+  if(L.i<L.ids.length){var rid=L.ids[L.i];L.i++;cs.cnt[t.n]=L.i;
+    if(!P.b[L.rj]||tIdx(P,L.rj,rid)<0){delete cs.lst[t.n];delete cs.cnt[t.n];return {err:'rivi poistettiin kesken toiston (rivit-luettelon '+L.i+'. rivi)'};}
+    var e=evDerive(P,(ctx&&ctx.tev)||L.ev0,sb.id,ctx,{uusi:RR(L.rj,rid),rivi:RR(L.rj,rid)}),kr={},o=L.ev0&&L.ev0.kr;if(o)for(var k in o)kr[k]=o[k];kr[L.rj]=rid;e.kr=kr;
+    return {p:'e',loop:true,ev:e};}
+  var ev0=L.ev0||cs.ev||null;delete cs.lst[t.n];delete cs.cnt[t.n];return {p:'m',loop:true,ev:ev0?evClone(ev0):null};}
 /* Ehto: nuoli kohtaan ehto, tai valittu palikka (on valittu = kyllä). */
 function odotaEv(P,nid){return P.lg.l.some(function(l){return l.t===nid&&l.tp==='x';});}
 function odotaLim(b,P,ctx){
@@ -3513,8 +3668,24 @@ function why(P,E,id,depth,seen){
       var bools=r.kids.filter(function(k){return k.ok!=null;});
       if(bools.length&&['and','or','one','min','max','eq','not','cnt'].indexOf(b.m)>=0)r.txt+=' · nyt '+bools.filter(function(k){return k.ok;}).length+'/'+bools.length+' pätee';
       if(!r.kids.length)r.txt+=' · ikkuna on tyhjä';
+      /* P3a: riveille: rivien määrä, kattavuus ja ensimmäisten rivien arvot (minkä rivin laskua tarkastellaan). */
+      if(b.riv){var wv=E.winVals(id),wrs=E.rowsIn(id);if(wv.err)r.txt+=' · riveille: '+wv.err.err;
+        else{r.txt+=' · riveille: '+wv.rows+' riv'+(wv.rows===1?'i':'iä')+', arvoja tiedossa '+E.prop(id,'havaintoja')+', puuttuu '+E.prop(id,'puuttuvia');
+          r.kids=r.kids.map(function(k){k.txt=(k.txt?k.txt+' ':'')+'(arvo ilman riviä; lasketaan riveittäin)';return k;});
+          (wrs&&!isErr(wrs)?wrs.ids.slice(0,5):[]).forEach(function(rid){var vs=E.rowEv(wrs.rj,rid).memberVals(id),x=vs.length===1?vs[0]:vs.map(function(q){return E.fmt(q);}).join(', ');
+            r.kids.push({id:wrs.rj,nm:'rivi '+(tIdx(P,wrs.rj,rid)+1)+': '+rLabel(P,RR(wrs.rj,rid)),k:'taulu',v:x,ok:typeof x==='boolean'?x:null,err:isErr(x)?x.err:'',txt:'',kids:[]});});
+          if(wv.rows>5)r.txt+=' (alla 5 ensimmäistä)';}}
       if(b.j==='jos')r.txt+='. JOS-ikkuna: NIIN tehdään, kun tulos alkaa päteä'+(b.muuten?', MUUTEN kun se lakkaa':'')+'.';
       if(b.j==='kun')r.txt+='. KUN-ikkuna päästää tapahtuman läpi, kun tulos pätee.';
+      break;}
+    case 'trivi':{var tb=P.b[b.tt],ln=({kas:'käsiteltävä rivi',val:'valittu rivi',tap:'tapahtuman rivi'})[b.ls]||'käsiteltävä rivi';
+      r.txt=tb?ln+' taulukosta ”'+tb.nm+'”: '+(isR(v)?rLabel(P,v)+' ('+(tIdx(P,v.rr,v.ri)+1)+'.)':isErr(v)?'virhe':(b.ls==='val'?'ei valittua riviä':b.ls==='tap'?'tapahtumalla ei ole tämän taulukon riviä':'ei riviä tässä: käsiteltävä rivi on olemassa vain, kun Rivijoukko, ikkuna riveille tai Toista riveille käy rivejä läpi')):'Valitse rivin taulukko.';break;}
+    case 'joukko':{var jr=E.val(id,'rj'),js=E.rowsIn(id),jtb=P.b[rowTable(P,id)];
+      if(isErr(jr)){r.txt=jr.err;break;}
+      r.txt=jr.ids.length+'/'+(js&&!isErr(js)?js.ids.length:'?')+' riviä'+(jtb?' taulukosta ”'+jtb.nm+'”':'');
+      var hc=E.linked(id,'c'),kc=b.js&&jtb?colById(jtb,b.js):null;if(hc)r.txt+=' · ehto riveittäin';if(kc||E.linked(id,'j'))r.txt+=' · järjestys '+(kc?kc.nm:'arvon mukaan')+(b.su==='laskeva'?' laskevasti':' nousevasti');
+      if(b.max!==''&&b.max!=null)r.txt+=' · enintään '+b.max;
+      if(hc&&js&&!isErr(js))js.ids.slice(0,6).forEach(function(rid){var cv=E.rowEv(js.rj,rid).inp(id,'c');r.kids.push({id:js.rj,nm:'rivi '+(tIdx(P,js.rj,rid)+1)+': '+rLabel(P,RR(js.rj,rid)),k:'taulu',v:cv,ok:isErr(cv)?null:truth(cv),err:isErr(cv)?cv.err:'',txt:'ehto',kids:[]});});
       break;}
     case 'vert':case 'lasku':r.txt=inName('a')+' '+(b.k==='vert'?CMPS[b.op]:OPS[b.op])+' '+inName('b');kidFor('a');kidFor('b');break;
     case 'jos':if(!srcOf('c')){r.txt='Ehto puuttuu: vie nuoli kohtaan ”ehto”.';break;}r.txt='JOS '+inName('c')+' alkaa päteä, NIIN tehdään sen toiminnot'+(b.muuten?'. MUUTEN-toiminnot tehdään, kun se lakkaa päteä.':'.');kidFor('c');break;
@@ -3635,7 +3806,9 @@ kuvaPyorii:kuvaPyorii,kuvaNro:kuvaNro,SARJA_MAX:SARJA_MAX,ruudukko:ruudukko,ruud
   /* P2 */
   SARL:SARL,SARK:SARK,TAGG:TAGG,RIVIVAL:RIVIVAL,MISS:MISS,isMiss:isMiss,isR:isR,RR:RR,isAt:isAt,AT:AT,parseAt:parseAt,tSar:tSar,colById:colById,colByName:colByName,addCol:addCol,setColName:setColName,setColVt:setColVt,
   tRows:tRows,tRow:tRow,tIdx:tIdx,tSel:tSel,tSetSel:tSetSel,tUse:tUse,tUsed:tUsed,rLabel:rLabel,sarNorm:sarNorm,cellRead:cellRead,tAgg:tAgg,tAggInfo:tAggInfo,tauluProps:tauluProps,tauluIssue:tauluIssue,pathConv:pathConv,
-  tEdit:tEdit,tAddRow:tAddRow,tDelRow:tDelRow,tMoveRow:tMoveRow,colRefs:colRefs,delCol:delCol,mkEv:mkEv,withEv:withEv,evClone:evClone};
+  tEdit:tEdit,tAddRow:tAddRow,tDelRow:tDelRow,tMoveRow:tMoveRow,colRefs:colRefs,delCol:delCol,mkEv:mkEv,withEv:withEv,evClone:evClone,
+  /* P3a */
+  RS:RS,isRS:isRS,LSV:LSV,JFIX:JFIX,rowTable:rowTable,riviProps:riviProps,joukkoProps:joukkoProps,repairEvObj:repairEvObj};
 })();
 if(typeof module!=='undefined')module.exports=KK;
 </script>
@@ -4038,6 +4211,8 @@ var HINT={mittari:'Näyttää minkä tahansa luvun reaaliajassa: lukuna, palkkin
   kirjaa:'Kirjaa aikajanalle merkinnän aikaleiman kanssa.',
   taulu:'Taulukko riveinä ja sarakkeina (teksti, luku, kyllä/ei, päivämäärä, ajankohta, valinta, riviviite). Toiminnot lisäävät, valitsevat, muuttavat ja poistavat rivejä. Kaavassa esim. taulukko.valittu.määrä ja taulukko.määrä.summa.',
   tapaht:'Tiedot tapahtumasta, joka käynnisti toiminnon tai ketjun: uusi ja vanha arvo, lähde, aika ja taulukon rivi. Pysyvät tapahtumahetken mukaisina ketjun odotusten yli.',
+  trivi:'Nimetty lähde taulukon riville (esim. kohde): käsiteltävä, valittu tai tapahtuman rivi. Sarakkeet ovat sen ominaisuuksia: kohde.määrä × kohde.hinta laskee jokaisella rivillä oman tuloksensa.',
+  joukko:'Rivijoukko suodattaa ja järjestää taulukon rivejä muuttamatta niitä: rivit nuolesta, ehto ja järjestys riveittäin. Kaavassa joukko.rivejä, joukko.eka.nimi, joukko.määrä.summa.',
   lisaarivi:'Lisää tietotaulukkoon rivin. Kenttien arvot lasketaan kaavoista lisäyshetkellä (tilannekuva).',poistarivi:'Poistaa tietotaulukosta valitun tai tapahtuman rivin.',valitserivi:'Valitsee tietotaulukon rivin: ensimmäinen, seuraava, edellinen, viimeinen, tapahtuman rivi tai numerolla.',rivi:'Lisää listaan uuden rivin.',ilmoita:'Näyttää hetken ilmoituksen ruudun yläreunassa.'};
 function hintOf(k,p){if(k==='tee')return HINT[(p&&p.do)||'aseta']||'';return HINT[k]||'';}
 function chipHTML(k,props,label,ic,hue){
@@ -4061,7 +4236,7 @@ function renderPal(){
     h+='<div class="pt-h">Palikat</div><input class="psearch" id="psearch" placeholder="Etsi nimellä…" value="'+esc(S.psearch||'')+'"><div class="plist" id="plist"></div>';
     h+='<div class="pt-h">Kaava</div><div class="chips">'+chipHTML('kaava',{},'Kaava','ƒ',3)+chipHTML('tulos',{},'Kaavan tulos','⇐',3)+'</div>';
     h+='<div class="pt-h">Arvot</div><div class="chips">'+chipHTML('arvo',{},'Arvo','•',0)+chipHTML('muisti',{},'Muisti','▣',0)+chipHTML('satu',{},'Satunnaisluku','⚂',3)+chipHTML('kayra',{},'Käyrä','∿',3)+chipHTML('tanaan',{},'Tänään','◷',5)+chipHTML('pvmosa',{part:'vk'},'Päivämäärän osa','◷',5)+'</div>';
-    h+='<div class="pt-h">Tieto</div><div class="chips">'+chipHTML('taulu',{nm:'Taulukko'},'Tietotaulukko','⊞',6)+chipHTML('tapaht',{nm:'Tapahtuma'},'Tapahtuman tiedot','✉',5)+'</div>';
+    h+='<div class="pt-h">Tieto</div><div class="chips">'+chipHTML('taulu',{nm:'Taulukko'},'Tietotaulukko','⊞',6)+chipHTML('tapaht',{nm:'Tapahtuma'},'Tapahtuman tiedot','✉',5)+chipHTML('trivi',{nm:'Kohde'},'Rivi','▤',6)+chipHTML('joukko',{nm:'Joukko'},'Rivijoukko','☷',6)+'</div>';
     h+='<div class="pt-h">Laskut</div><div class="chips">';
     Object.keys(KK.OPS).forEach(function(o){h+='<div class="chip sym h2" data-make="'+esc(JSON.stringify({k:'lasku',p:{op:o}}))+'" title="Lasku">'+KK.OPS[o]+'</div>';});
     h+='</div><div class="pt-h">Vertailut</div><div class="chips">';
@@ -4795,7 +4970,7 @@ function unitTxt(b,v,E){if(b&&b.k==='arvo'&&b.yks&&typeof v==='number'){var mu=K
 function valChip(E,b,id){
   if(b.k==='ajastin'){var tl=E.timerLeft(id);return tl==null?'':'<span class="lv on kleft" title="Jäljellä">⏳ '+esc(KK.fmtLeft(tl))+'</span>';}
   if(b.k==='ketju')return '';
-  if(b.k==='toista'){var tnn=KK.nodesOfBlock(P,id)[0],tch=tnn&&KK.chainOfNode(P,tnn),tcs=tch&&P.st[tch.id],tc=tcs&&tcs.run&&tcs.cnt&&tcs.cnt[tnn.id];if(!tc)return '';return '<span class="lv on" title="Kierros">'+tc+'/'+esc(String(KK.toistaN(P,b,ctx())))+'</span>';}
+  if(b.k==='toista'){var tnn=KK.nodesOfBlock(P,id)[0],tch=tnn&&KK.chainOfNode(P,tnn),tcs=tch&&P.st[tch.id],tc=tcs&&tcs.run&&tcs.cnt&&tcs.cnt[tnn.id];if(!tc)return '';var tL=b.tapa==='rivit'&&tcs.lst&&tcs.lst[tnn.id];return '<span class="lv on" title="Kierros">'+tc+'/'+esc(String(tL?tL.ids.length:KK.toistaN(P,b,ctx())))+'</span>';}
   if(KK.isStep(b)&&b.k!=='ajastin'){var on=KK.nodesOfBlock(P,id)[0],ot=on&&tokAtAny(on);if(!ot)return '';return '<span class="lv on kleft" title="Odottaa">⏳ '+esc(ot.u!=null?KK.fmtLeft(ot.u-Date.now()):'odottaa')+'</span>';}
   var pr=KK.ports(b);if(!pr.outs.some(function(p){return p.p==='v';}))return '';
   var v=E.val(id);
@@ -4825,6 +5000,8 @@ function nodeHTML(n,b,E){
     case 'haku':{var nr=(b.rivit||[]).length;lab='Hakutaulukko <i>'+nr+' rivi'+(nr===1?'':'ä')+'</i>';break;}
     case 'taulu':{var tc=KK.tSar(b).length,tr=KK.tRows(P,b.id).length;lab=esc(b.nm)+' <i>'+tc+' sarake'+(tc===1?'':'tta')+' · '+tr+' rivi'+(tr===1?'':'ä')+'</i>';break;}
     case 'tapaht':lab=esc(b.nm)+' <i>tapahtuman tiedot</i>';break;
+    case 'trivi':{var rtb=P.b[b.tt];lab=esc(b.nm)+' <i>'+(rtb?esc(rtb.nm)+' · ':'⚠ ')+esc(({kas:'käsiteltävä',val:'valittu',tap:'tapahtuman'})[b.ls]||'käsiteltävä')+' rivi</i>';break;}
+    case 'joukko':{var jrs=E.val(id,'rj'),jtb=KK.isRS(jrs)&&P.b[jrs.rj];lab=esc(b.nm)+' <i>'+(KK.isRS(jrs)?jrs.ids.length+'/'+(jtb?KK.tRows(P,jtb.id).length:'?')+' riviä':'⚠')+'</i>';break;}
     case 'tee':lab=esc(KK.descAct(P,id).replace(/^\(pois käytöstä\) /,''));break;
     case 'ilmesty':case 'kuva':case 'anim':case 'nvaihto':{var fxt=b.k==='nvaihto'?(P.b[b.o]?P.b[b.o].nm:viewName(b.vw)):(P.b[b.o]?P.b[b.o].nm:'');lab=esc(K[b.k].n)+' <i>'+esc(fxt||'valitse kohde')+'</i>';break;}
     case 'haara':lab=E.linked(id,'c')?'Ehto <i>nuolesta</i>':P.b[b.o]?'Onko <i>'+esc(P.b[b.o].nm)+'</i> valittu?':'Ehto <i>·</i>';break;
@@ -4834,7 +5011,7 @@ function nodeHTML(n,b,E){
     case 'satu':{var nsp=KK.satuSpec(P,id,ctx(),E);lab=(b.nmSet?esc(b.nm):'Satunnaisluku')+' <i>'+(nsp.lo!=null?nsp.lo+'–'+nsp.hi:'⚠')+'</i>'+(nsp.muoto?satuMini(nsp,34,14,'sdmn'):'');break;}
     case 'kayra':{var ksp=KK.kayraSpec(P,id,ctx(),E);lab=(b.nmSet?esc(b.nm):'Käyrä')+' <i>'+(ksp.err?'⚠':esc(fiN(ksp.x0)+'–'+fiN(ksp.x1)+' → '+fiN(ksp.y0)+'–'+fiN(ksp.y1)))+'</i>'+kayraMini(ksp,34,14,'sdmn');break;}
     case 'arpa':lab='Arpa <i>1–'+KK.arpaN(b)+'</i>';break;
-    case 'toista':{var tn=KK.toistaN(P,b,ctx());lab='Toista <i>'+(E.linked(id,'k')?'nuolesta':KK.isErr(tn)?'⚠':tn+' kertaa')+'</i>';break;}
+    case 'toista':{if(b.tapa==='rivit'){var trs=E.rowsIn(id);lab='Toista <i>'+(trs==null?'riveille: tuo rivit':KK.isErr(trs)?'⚠ riveille':'riveille ('+trs.ids.length+')')+'</i>';break;}var tn=KK.toistaN(P,b,ctx());lab='Toista <i>'+(E.linked(id,'k')?'nuolesta':KK.isErr(tn)?'⚠':tn+' kertaa')+'</i>';break;}
     case 'monihaara':{var hn=(b.haarat||[]).length,src=E.linked(id,'a')?'nuolesta':b.a&&b.a.r&&P.b[b.a.r]?P.b[b.a.r].nm:'';lab=(b.nmSet?esc(b.nm):'Monta haaraa')+' <i>'+(src?esc(src)+' · ':'')+hn+' haara'+(hn===1?'':'a')+'</i>';break;}
     case 'ajastin':{lab=(b.nmSet?esc(b.nm)+' <i>':'Odota <i>')+esc(b.tapa!=='klo'&&E.linked(id,'k')?'nuolesta':KK.timerLabel(P,b,ctx()))+'</i>';break;}
     default:lab=esc(b.nm);
@@ -4860,7 +5037,7 @@ function winHTML(n,E){
   var needN=b.m==='min'||b.m==='max'||b.m==='eq';
   var cnt=col?descendants(n.id).length:0;
   return '<div class="lw m-'+b.m+(col?' col':'')+(b.off?' off':'')+'" data-nid="'+n.id+'" style="left:'+n.x+'px;top:'+n.y+'px'+(col?'':';width:'+n.w+'px;height:'+n.h+'px')+'">'+
-    '<div class="wh">'+(b.j?'<span class="wj">'+(b.j==='jos'?'JOS':'KUN')+'</span>':'')+'<button class="wm" data-wmb title="Vaihda ikkunan tyyppi">'+KK.WM[b.m]+' ▾</button>'+(needN?'<input class="wnn" data-wn value="'+esc(b.n)+'">':'')+
+    '<div class="wh">'+(b.j?'<span class="wj">'+(b.j==='jos'?'JOS':'KUN')+'</span>':'')+'<button class="wm" data-wmb title="Vaihda ikkunan tyyppi">'+KK.WM[b.m]+' ▾</button>'+(needN?'<input class="wnn" data-wn value="'+esc(b.n)+'">':'')+(b.riv?'<span class="wj" title="Sisältö lasketaan jokaisella rivillä">riveille</span>':'')+
     '<span class="wname">'+(b.nmSet||col?esc(b.nm):'')+' <span class="wvt">'+esc(b.vt)+'</span>'+(col?' <small>· '+cnt+' sisällä</small>':'')+'</span>'+(b.pakota&&b.m==='one'?'<span class="wj" title="Valinta poistaa muut">⇄</span>':'')+(b.off?'<span class="offt">pois</span>':'')+valChip(E,b,b.id)+
     '<button class="wcol" data-col title="'+(col?'Avaa ikkuna (tai kaksoisnapauta)':'Tiivistä ikkuna pieneksi')+'">'+(col?'⤢':'–')+'</button></div>'+pinsHTML(b,n)+(col?'':'<i class="rs"></i>')+'</div>';
 }
@@ -5927,6 +6104,35 @@ function tapahtInsp(b,E){var v=b.vt;
   return section('Tapahtuman tiedot','<div class="help" style="margin-top:0">Tiedot tapahtumasta, joka käynnisti toiminnon tai ketjun: esim. painallus, kentän muutos tai taulukkotoiminto. Ne pysyvät tapahtumahetken mukaisina myös ketjun odotusten yli, vaikka arvot muuttuisivat.</div>'+
     '<div class="help"><code>'+esc(v)+'.uusi</code> ja <code>'+esc(v)+'.vanha</code> arvo tapahtumahetkellä ja ennen sitä · <code>'+esc(v)+'.lähde</code> mistä tapahtuma lähti · <code>'+esc(v)+'.aika</code>, <code>'+esc(v)+'.päivä</code> · <code>'+esc(v)+'.rivi</code> taulukon rivi (Lisää rivi, Valitse rivi …) · <code>'+esc(v)+'.rivi.<i>sarake</i></code> sen rivin kenttä nyt · <code>'+esc(v)+'.tunniste</code> · <code>'+esc(v)+'.on</code>.</div>'+
     '<div class="help">Tapahtuman ulkopuolella (esim. näkymän tekstissä) arvot ovat tyhjiä. Ketjun käynnistämä aliketju perii tapahtuman. Ketjun lukitus ei muuta tapahtuman tietoja.</div>');}
+/* ---------- P3a: Rivi, Rivijoukko, ikkuna ja Toista riveille (paneelit) ---------- */
+/* Rivivalinnat näkyvät ikkunassa ja Toistassa vasta, kun projektissa on tietotaulukko (peruskäyttö pysyy kevyenä). */
+function hasTaulu(){return Object.keys(P.b).some(function(i){return P.b[i].k==='taulu';});}
+function rowsLine(E,rs,max){if(rs==null)return '<span class="errt">Tuo rivit nuolella kohtaan ”rivit” Tietotaulukosta tai Rivijoukosta.</span>';if(KK.isErr(rs))return '<span class="errt">⚠ '+esc(rs.err)+'</span>';
+  var n=rs.ids.length,sh=rs.ids.slice(0,max||8).map(function(r){return esc(KK.rLabel(P,KK.RR(rs.rj,r)));}).join(', ');return '<b>'+n+' riv'+(n===1?'i':'iä')+'</b>'+(P.b[rs.rj]?' taulukosta ”'+esc(P.b[rs.rj].nm)+'”':'')+(n?': '+sh+(n>(max||8)?' …':''):'');}
+function triviInsp(b,E){var tb=P.b[b.tt],v=esc(b.vt),ls=b.ls||'kas',rw=E.val(b.id);
+  var h=F('Taulukko','<select data-k="tt">'+refOptions(b.tt||'',function(o){return o.k==='taulu';},'— minkä taulukon rivi? —')+'</select>');
+  h+=fSegs('Mikä rivi','ls',ls,KK.LSV,ls==='val'?'Taulukon valittu rivi (Valitse rivi -toiminto).':ls==='tap'?'Rivi, jonka tapahtuma toi mukanaan: esim. Lisää rivi, Valitse rivi tai Toista riveille -kierros. Pysyy tapahtumahetken rivinä ketjun odotusten yli.':'Rivi, jota Rivijoukko, ikkuna riveille tai Toista riveille käy juuri läpi. Sama kaava antaa jokaisella rivillä oman tuloksensa. Muualla (esim. näkymän tekstissä) käsiteltävää riviä ei ole, joten arvo on tyhjä.');
+  h+='<div class="help">Nyt: <b'+(KK.isErr(rw)?' class="errt"':'')+'>'+(KK.isErr(rw)?esc(E.fmt(rw)):KK.isR(rw)?esc(KK.rLabel(P,rw))+' ('+(KK.tIdx(P,rw.rr,rw.ri)+1)+'.)':'ei riviä')+'</b></div>';
+  if(tb&&tb.k==='taulu')h+='<div class="help">Kaavassa '+KK.tSar(tb).map(function(c){return '<code>'+v+'.'+esc(c.vt)+'</code>';}).join(', ')+' · <code>'+v+'.nro</code> rivin numero · <code>'+v+'.on</code> onko riviä. Esim. <code>'+v+'.'+esc((KK.tSar(tb)[1]||KK.tSar(tb)[0]||{vt:'määrä'}).vt)+' * 2</code>. Tekstissä <code>{'+v+'.'+esc((KK.tSar(tb)[0]||{vt:'nimi'}).vt)+'}</code>.</div>';
+  return section('Rivi',h);}
+function joukkoInsp(b,E,node){var rs=E.val(b.id,'rj'),src=E.rowsIn(b.id),tb=P.b[KK.rowTable(P,b.id)],cs=tb&&tb.k==='taulu'?KK.tSar(tb):[],v=esc(b.vt),hasC=E.linked(b.id,'c'),hasJ=E.linked(b.id,'j');
+  var h='<div class="help" style="margin-top:0">Rivit: '+(src==null?rowsLine(E,null):KK.isErr(src)?rowsLine(E,src):'<b>'+src.ids.length+'</b>'+(tb?' taulukosta ”'+esc(tb.nm)+'”':''))+'</div>';
+  h+='<div class="help">Ehto: '+(hasC?'nuolesta kohtaan ”ehto riveittäin”: rivi pääsee joukkoon, kun ehto pätee sillä rivillä (puuttuva tieto ei päde).':'ei ehtoa, kaikki rivit. Vie ehto (esim. kaava <code>kohde.määrä > 0</code>, jossa kohde on Rivi-palikka, lähde käsiteltävä rivi) kohtaan ”ehto riveittäin”.')+'</div>';
+  h+=fSelect('Järjestys','js',b.js||'',[['',hasJ?'arvon mukaan (nuoli kohtaan järjestä)':'lähteen järjestys']].concat(cs.map(function(c){return [c.id,c.nm+' ('+KK.SARK[c.laji]+')'];})),b.js?'Sarake voittaa järjestä-nuolen.':hasJ?'Järjestää arvon mukaan, joka lasketaan jokaisella rivillä.':'');
+  if(b.js||hasJ)h+=fSegs('Suunta','su',b.su||'nouseva',[['nouseva','nouseva (pienin ensin)'],['laskeva','laskeva (suurin ensin)']],'Tasatilanteessa lähteen järjestys säilyy. Puuttuva arvo on aina lopussa.');
+  h+=F('Enintään','<input data-k="max" value="'+esc(b.max==null?'':String(b.max))+'" inputmode="numeric" placeholder="kaikki">','Esim. 3 = kolme ensimmäistä (järjestyksen jälkeen). Tyhjä = kaikki.');
+  h+='<div class="help" id="jres">Tulos: '+rowsLine(E,rs)+'</div>';
+  if(KK.isRS(rs)&&rs.ids.length>1)h+='<div class="help">Monta osumaa: <code>'+v+'.eka</code> on ensimmäinen järjestyksessä, <code>'+v+'.vika</code> viimeinen.</div>';
+  h+='<div class="help">Kaavassa <code>'+v+'.rivejä</code>, <code>'+v+'.eka</code>'+(cs[0]?', <code>'+v+'.eka.'+esc(cs[0].vt)+'</code>':'')+(cs.filter(function(c){return c.laji==='luku';})[0]?', <code>'+v+'.'+esc(cs.filter(function(c){return c.laji==='luku';})[0].vt)+'.summa</code>':'')+'. Vie <b>rivit</b>-kohdasta nuoli ikkunaan (Riveille), Toista riveille -palikkaan tai toiseen Rivijoukkoon. Rivejä ei kopioida eikä muuteta.</div>';
+  return section('Rivijoukko',h);}
+function winRowsHelp(b,E){var W=E.winVals(b.id),rs=E.rowsIn(b.id),vk=b.m==='sum'||b.m==='avg'||b.m==='maxv'||b.m==='minv',h='';
+  h+='<div class="help">Rivit: '+rowsLine(E,rs,5)+'</div>';
+  if(!W.err&&rs&&!KK.isErr(rs))h+='<div class="help">Arvoja '+W.vals.length+': tiedossa <b>'+E.prop(b.id,'havaintoja')+'</b>, puuttuu <b>'+E.prop(b.id,'puuttuvia')+'</b>. Puuttuvat ohitetaan.</div>';
+  if(vk)h+=fCheck('Vaatii täydelliset tiedot (yksikin puuttuva → tuntematon)','vaadi',b.vaadi);
+  h+='<div class="help">Ikkunan sisällä olevat palikat lasketaan jokaisella rivillä: Rivi-palikka (lähde käsiteltävä rivi) antaa kunkin rivin tiedot, esim. kaava <code>kohde.määrä * kohde.hinta</code> SUMMA-ikkunassa tai vertailu MONTAKO PÄTEE -ikkunassa.</div>';
+  return h;}
+function toistaRowsHelp(b,E){var rs=E.rowsIn(b.id);
+  return '<div class="help">Rivit: '+rowsLine(E,rs,6)+'</div><div class="help">Ketju kulkee <b>kierros</b>-haaraan kerran jokaiselle riville ja lopuksi <b>valmis</b>-haaraan. Rivit otetaan talteen, kun toisto alkaa, ja käydään läpi siinä järjestyksessä. Kierroksella rivi on <b>tapahtuman rivi</b> (esim. Aseta arvo tapahtuman rivillä) ja Rivi-palikan <b>käsiteltävä rivi</b>. Jos käsittelemätön rivi poistetaan kesken, ketju pysähtyy virheeseen. Vedä kierros-haaran viimeisestä tapahtumasta viiva takaisin tähän.</div>';}
 /* Sarakkeen kenttä paneelissa (tc_<id>_<kenttä>). */
 function tcInput(b,t,commit){var m=/^tc_(c\d+)_(\w+)$/.exec(t.getAttribute('data-k')||'');if(!m)return false;var c=KK.colById(b,m[1]);if(!c)return true;var f=m[2];
   if(f==='nm'){if(!t.value.trim())return true;KK.setColName(b,c.id,t.value);var vi=$('#insp [data-k="tc_'+c.id+'_vt"]');if(vi&&!c.vtSet)vi.value=c.vt;afterInsp(false);return true;}
@@ -5967,6 +6173,7 @@ function lgInsp(b,E,node){
         fSelect('Toimii myös','j',b.j||'',[['','pelkkänä tuloksena'],['jos','JOS: tapahtumat NIIN ja MUUTEN'],['kun','KUN: päästää tapahtuman läpi']])+
         (b.m==='one'?fCheck('Käytössä valinta poistaa ikkunan muut valinnat','pakota',b.pakota):'')+
         (b.j?fCheck('Käytössä','on',!b.off):'')+(b.j==='jos'?fCheck('MUUTEN-haara: toiminnot, kun tulos lakkaa päteä','muuten',b.muuten):'')+
+        (b.riv||hasTaulu()?fCheck('Riveille: sisältö lasketaan jokaisella rivillä','riv',b.riv):'')+(b.riv?winRowsHelp(b,E):'')+
         '<div class="help">Ikkuna on sulku. Sen tulos yhdistää sisällä olevat palikat, joiden arvoa ei viedä nuolella toiseen saman ikkunan palikkaan. Näin esim. Säädin → ≤ 3 antaa vain vertailun tuloksen. Nuoli kohtaan ”mukaan” tuo lisää arvoja ulkopuolelta.</div>');
       if(b.j==='jos')h+=qaSection(b,'e','NIIN','Tehdään, kun ikkunan tulos alkaa päteä.')+(b.muuten?qaSection(b,'m','MUUTEN','Tehdään, kun tulos lakkaa päteä.'):'');
       if(b.j==='kun')h+=qaSection(b,'e','Läpi','Tehdään, kun tapahtuma pääsee ikkunan läpi.');
@@ -5974,6 +6181,8 @@ function lgInsp(b,E,node){
     case 'tee':h+=teeInsp(b,E)+(node&&KK.chainOfNode(P,node)?'':qaSection(b,'e','Sitten','Tehdään tämän toiminnon jälkeen.'));break;
     case 'taulu':h+=tauluInsp(b,E);break;
     case 'tapaht':h+=tapahtInsp(b,E);break;
+    case 'trivi':h+=triviInsp(b,E);break;
+    case 'joukko':h+=joukkoInsp(b,E,node);break;
     case 'ketju':h+=chainStatus(b)+chainResult(b,E)+chainInsp(b,E,node);break;
     case 'ajastin':h+=timerInsp(b,E,node);break;
     case 'haara':h+=haaraInsp(b,E,node);break;
@@ -6020,7 +6229,7 @@ function lgInsp(b,E,node){
         '<div class="sdnow"><span>Paikka</span><b>'+esc(E.fmt(E.val(b.id)))+', '+esc(E.fmt(E.val(b.id,'y')))+'</b><button class="ib" data-do="liikealkuun">↺ Alkuun</button></div>'+
         '<div class="help">'+(lkt?'Liikkuu lukitussa näkymässä. ':'Vie <b>x</b> ja <b>y</b> näkymäpalikan kohtiin <b>siirto x</b> ja <b>siirto y</b>, niin palikka liikkuu lukitussa näkymässä. ')+'Kohta <b>liikkuu kun</b> pysäyttää liikkeen, kun ehto ei päde. Tapahtuma kohtaan <b>alkuun</b> palauttaa alkupaikkaan. Rajat ovat valinnaisia (palikan vasen yläkulma). Logiikkaan: <b>liikkuu</b>, <b>osuu esteeseen</b>, <b>nopeus</b>, <b>suunta</b> ja tapahtuma <b>törmäsi</b>.</div>');}break;
     case 'arpa':h+=section('Arpa',fSegs('Vaihtoehtoja','n',String(KK.arpaN(b)),[['2','2'],['3','3'],['4','4'],['5','5'],['6','6']],'Ketju jatkaa yhteen arvottuun haaraan. Jokaisella vaihtoehdolla on sama todennäköisyys. Kuusi vaihtoehtoa on kuin noppa.')+'<div class="help">Esim. peliin: arvo, mikä tapahtuma tulee seuraavaksi, tai vaihtele kannustustekstejä.</div>');break;
-    case 'toista':{var lkk=E.linked(b.id,'k');h+=section('Toista N kertaa',(lkk?'<div class="help" style="margin:0 0 8px">Kierrosten määrä tulee nuolesta (kohta ”kerrat”).</div>':fNum('Montako kertaa','kerrat',b.kerrat))+
+    case 'toista':if(b.tapa==='rivit'){h+=section('Toista riveille',fSegs('Toista','tapa','rivit',[['','N kertaa'],['rivit','riveille']])+toistaRowsHelp(b,E));break;}{var lkk=E.linked(b.id,'k');h+=section('Toista N kertaa',(hasTaulu()?fSegs('Toista','tapa','',[['','N kertaa'],['rivit','riveille']]):'')+(lkk?'<div class="help" style="margin:0 0 8px">Kierrosten määrä tulee nuolesta (kohta ”kerrat”).</div>':fNum('Montako kertaa','kerrat',b.kerrat))+
       '<div class="help">Ketju kulkee <b>kierros</b>-haaraan näin monta kertaa ja sen jälkeen <b>valmis</b>-haaraan. Vedä kierros-haaran viimeisestä tapahtumasta viiva takaisin tähän palikkaan, niin kierros toistuu. Laskuri alkaa alusta joka kerta, kun ketju käynnistyy, ja kun valmis-haaraan on menty. Kierroksen sisään voi laittaa ajastimen, esim. 3 × (aseta, odota 1 min).</div>');break;}
     case 'lopeta':h+=section('Lopeta ketju','<div class="help" style="margin:0">Lopettaa koko ketjun heti, myös muut haarat, jotka ovat vielä menossa (esim. odottavat ajastinta). Ketju on silloin valmis: valmis-tapahtuma lähtee, ja tulos säilyy. Hyödyllinen, kun monesta rinnakkaisesta haarasta ensimmäinen ratkaisee.</div>');break;
     case 'ilmesty':case 'kuva':case 'anim':case 'nvaihto':h+=fxInsp(b,E);break;
@@ -6160,7 +6369,7 @@ function chainResult(b,E){
   h+='<div class="ibs"><button class="ib" data-ktvie="1">Vie tulos näkymän palikkaan…</button></div><div class="help">Tulos tyhjenee, kun ketju käynnistyy uudelleen. Kaavassa: <code>'+esc(b.vt)+'.tulos</code>. Käynnissä-tieto: <code>'+esc(b.vt)+'</code>.</div>';
   return section('Tulos',h);
 }
-function stepText(sb,nid){if(sb.k==='tee')return KK.descAct(P,sb.id);if(sb.k==='arpa')return 'Arpa 1–'+KK.arpaN(sb);if(sb.k==='toista'){var tq=KK.toistaN(P,sb,ctx());return 'Toista '+(KK.isErr(tq)?'?':tq)+' kertaa';}if(sb.k==='ktulos')return 'Tulos: '+(sb.v&&sb.v.r&&P.b[sb.v.r]?P.b[sb.v.r].nm:KK.toNames(P,String(sb.v||''))||'nuolesta');if(sb.k==='monihaara')return (sb.nmSet?sb.nm:'Monta haaraa')+' ('+(sb.haarat||[]).length+')';if(sb.k==='odota')return odotaText(sb,nid||(KK.nodesOfBlock(P,sb.id)[0]||{}).id);if(sb.k==='haara')return P.b[sb.o]?'Onko '+P.b[sb.o].nm+' valittu?':sb.nm;if(sb.k==='ajastin'){var d=KK.timerMs(P,sb.id,ctx());return (sb.nmSet?sb.nm+': ':'Odota ')+(KK.isErr(d)?'⚠ '+d.err:KK.timerLabel(P,sb,ctx()));}return sb.nm;}
+function stepText(sb,nid){if(sb.k==='tee')return KK.descAct(P,sb.id);if(sb.k==='arpa')return 'Arpa 1–'+KK.arpaN(sb);if(sb.k==='toista'){if(sb.tapa==='rivit')return 'Toista riveille';var tq=KK.toistaN(P,sb,ctx());return 'Toista '+(KK.isErr(tq)?'?':tq)+' kertaa';}if(sb.k==='ktulos')return 'Tulos: '+(sb.v&&sb.v.r&&P.b[sb.v.r]?P.b[sb.v.r].nm:KK.toNames(P,String(sb.v||''))||'nuolesta');if(sb.k==='monihaara')return (sb.nmSet?sb.nm:'Monta haaraa')+' ('+(sb.haarat||[]).length+')';if(sb.k==='odota')return odotaText(sb,nid||(KK.nodesOfBlock(P,sb.id)[0]||{}).id);if(sb.k==='haara')return P.b[sb.o]?'Onko '+P.b[sb.o].nm+' valittu?':sb.nm;if(sb.k==='ajastin'){var d=KK.timerMs(P,sb.id,ctx());return (sb.nmSet?sb.nm+': ':'Odota ')+(KK.isErr(d)?'⚠ '+d.err:KK.timerLabel(P,sb,ctx()));}return sb.nm;}
 /* Monta haaraa: jokainen rivi on oma haaransa. Ylhäältä alas, ensimmäinen pätevä ratkaisee, muuten muuten-haara. */
 function mhLab(r){if(r.nm&&String(r.nm).trim())return String(r.nm).trim();
   if(r.m==='val')return P.b[r.o]?P.b[r.o].nm:'valittu';var a=KK.toNames(P,String(r.a||'')).trim(),bb=KK.toNames(P,String(r.b||'')).trim();
@@ -6328,7 +6537,7 @@ function kaavaInsp(b,E){
 }
 var KPROPS={arvo:'palikan arvo','näkyy':'kyllä / ei',tila:'näkyy / harmaa / luettava / piilossa',teksti:'näkyvä teksti','vaihtoväri':'kyllä / ei'};
 /* Kaavan ehdotukset pisteen jälkeen: ominaisuusrekisteristä (Pajakone 4). Ympäristön sanat: ruutu., nyt., näkymä. */
-function propsFor(o){if(o.k==='taulu')return KK.tauluProps(P,o);var r=KK.omat(o).map(function(e){return [e.dyn?e.n.split(',')[0].trim():e.n,e.d||''];});return o.k==='tapaht'?r.filter(function(x){return x[0]!=='rivi.<sarake>';}):r;}
+function propsFor(o){if(o.k==='taulu')return KK.tauluProps(P,o);if(o.k==='trivi')return KK.riviProps(P,o);if(o.k==='joukko')return KK.joukkoProps(P,o);var r=KK.omat(o).map(function(e){return [e.dyn?e.n.split(',')[0].trim():e.n,e.d||''];});return o.k==='tapaht'?r.filter(function(x){return x[0]!=='rivi.<sarake>';}):r;}
 var ENVPROPS={ruutu:[['leveys','ruudun leveys (px)'],['korkeus','ruudun korkeus (px)']],nyt:[['kello','kellonaika tekstinä'],['tunti','tunti 0–23'],['minuutti','minuutti 0–59'],['sekunti','sekunti 0–59']],'näkymä':[['numero','auki olevan näkymän numero'],['nimi','auki olevan näkymän nimi']]};
 function kaavaSug(t){
   var el=$('#ksug');if(!el)return;var pos=t.selectionStart==null?t.value.length:t.selectionStart,txt=t.value.slice(0,pos),items=[];
@@ -6442,7 +6651,8 @@ function afterInsp(full){KK.repair(P);KK.tick(P,ctx());save();renderStage();qvRe
 function refreshInspHead(){var b=selBlock();if(!b)return;var hd=$('#insp .ih b');if(hd)hd.textContent=b.nm;
   var E=ev();var sm=$('#insp .ih small');if(sm&&hasValue(b)){var cv=E.val(b.id);sm.innerHTML=esc(kindName(b))+' · nyt: '+(typeof cv==='boolean'?yn(cv):'<b'+(KK.isErr(cv)?' class="errt"':'')+'>'+esc(b.k==='lista'?E.val(b.id)+'/'+E.val(b.id,'n'):E.fmt(cv))+'</b>');}
   var ws=$('#whysec');if(ws)ws.outerHTML=whySection(b,E);
-  var th=$('#tmhelp');if(th&&b.k==='ajastin')th.outerHTML=timerHelp(b);}
+  var th=$('#tmhelp');if(th&&b.k==='ajastin')th.outerHTML=timerHelp(b);
+  var jr=$('#jres');if(jr&&b.k==='joukko')jr.innerHTML='Tulos: '+rowsLine(E,E.val(b.id,'rj'));}
 $('#insp').addEventListener('focusin',function(e){var k=e.target.getAttribute('data-k');if(k&&inspUndoKey!==k+S.sel.id){pushUndo();inspUndoKey=k+S.sel.id;}});
 $('#insp').addEventListener('focusout',function(){inspUndoKey=null;});
 $('#insp').addEventListener('toggle',function(e){if(e.target&&e.target.id==='omsec')S.omOpen=e.target.open;},true);
@@ -6628,7 +6838,7 @@ $('#insp').addEventListener('click',function(e){
     function put(ref){var nv=cur.slice(0,pos)+ref+cur.slice(pos);pushUndo();T.b[key]=KK.toIds(P,nv);afterInsp(true);}
     /* Appi-appi 11: palikan jälkeen valitaan arvo tai ominaisuus ({viite.ominaisuus}), sama kuin kaavassa. */
     var items=[{h:'Lisää arvo palikasta'}].concat(blocks(function(o){return o.id!==T.b.id&&(hasValue(o)||KK.omat(o).some(function(e){return !e.dyn;}));}).sort(function(a,b){return a.nm.localeCompare(b.nm,'fi');}).map(function(o){return {t:o.nm,f:function(){
-      var oms=o.k==='taulu'?KK.tauluProps(P,o).map(function(x){return {n:x[0]};}):KK.omat(o).filter(function(e){return !e.dyn;});if(!oms.length){put('{'+o.nm+'}');return;}
+      var oms=o.k==='taulu'||o.k==='trivi'||o.k==='joukko'?propsFor(o).map(function(x){return {n:x[0]};}):KK.omat(o).filter(function(e){return !e.dyn;});if(!oms.length){put('{'+o.nm+'}');return;}
       var sub=[{h:o.nm+': mitä näytetään?'}];if(hasValue(o))sub.push({t:'Arvo',f:function(){put('{'+o.nm+'}');}});
       oms.forEach(function(e){sub.push({t:'.'+e.n,f:function(){put('{'+o.vt+'.'+e.n+'}');}});});
       setTimeout(function(){showMenu(r.left-120,r.bottom+4,sub);},0);}};}));
