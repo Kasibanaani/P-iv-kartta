@@ -30,6 +30,27 @@ Emil kehittää tekoälyn kanssa omia selainappeja. Hän ei koodaa itse: tekoäl
 - ”Pohdi”, ”älä vielä toteuta”, ”mitä mieltä olet” = vain keskustelu. ”Toteuta” = rakenna, testaa ja vie. Epäselvässä tilanteessa älä rakenna: kerro, mitä tekisit, ja kirjaa kysymys `TILA.md`:hen.
 - Sano oma näkemys ja huonot puolet.
 
+## Rinnakkaiset keskustelut (roolit)
+
+Emil voi pitää useita keskusteluja auki yhtä aikaa. Oletus ei muutu: ilman roolisanaa olet **rakentaja**. Yksi sana Emilin ensimmäisessä viestissä vaihtaa roolin:
+
+- **rakentaja**: muokkaa appin koodia (`index.html`), ajaa testit, vie päähaaraan. Vain yksi rakentaja per appi kerrallaan.
+- **suunnittelija**: kirjoittaa vain suunnitelma- ja ohjetiedostoja (`.md`). Ei koske `index.html`:ään eikä testeihin. Kirjaa päätökset ja avoimet kysymykset suunnitelmaan.
+- **testaaja**: kirjoittaa uusia testejä (`testit/`) ja etsii bugeja lukemalla ja ajamalla. Ei korjaa appia itse, vaan raportoi löydökset Emilille (ne kirjataan suunnitelmaan tai `TILA.md`:n *Löydökset*-alaotsikkoon).
+- **sisältö**: työskentelee vain `master-tiedot`-repossa (projektit, toiveet, idean kirjaus). Ei koske tähän repoon.
+
+Rakentajan tarkistus ennen koodin muokkausta, pyytämättä:
+
+1. `git fetch origin main` ja `git log origin/main --since="3 hours ago" -- <appin kansio>`.
+2. Jos kansioon on tullut commiteja tuoreeltaan, toinen rakentaja on todennäköisesti kesken. Pysähdy ja kysy Emililtä: odotetaanko, vaihdetaanko rooli (esim. suunnittelija) vai jatketaanko silti.
+3. Muuten jatka. Tee `git pull --rebase` ennen jokaista pushia.
+
+Muut säännöt:
+
+- Muu kuin rakentaja ei päivitä appin `TILA.md`:n päätilaa, vain oman alaotsikkonsa (*Suunnitelmat*, *Löydökset*), jottei tule konfliktia.
+- Jos tehtävä ei sovi rooliin (esim. suunnittelijalta pyydetään koodia), sano se ja ehdota, että Emil antaa sen rakentajalle.
+- Sanat ovat sopimus, ei lukko: epäselvässä tilanteessa kysy.
+
 ## Appien tyyli
 
 - Puhelin ensin (iPhone, Safari, kotinäytön kirjanmerkki). Poikkeukset: Master, Kytköskartta ja Appi-appi rakennetaan tietokoneella.
