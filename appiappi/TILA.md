@@ -23,7 +23,22 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 ## Seuraavaksi
 
 - Emil kokeilee puhelimella: valikko kerroksena (painike → Vaihda → kerros näkyy), Sekuntikello Monitoriin, efektit.
-- Ehdotuksia jatkoon (tekoälyn, ei Emilin päätös): zoomaus käytössä (koskee kaikkia koordinaattimuunnoksia, oma kerta), toiveet tekoälylle, esimerkkiprojekti (esim. labyrintti: ruutuliike, Sekuntikello, Monitori, valikkokerros) vain pyynnöstä, projektin tyyli, vienti käyttäjä-appiksi.
+- Seuraava vaihe (tekoälyn ehdotus): **Appi-appi 10, zoomaus käytössä**. Pyyntö uuteen keskusteluun alla.
+- Myöhemmin: toiveet tekoälylle, esimerkkiprojekti (esim. labyrintti) vain pyynnöstä, projektin tyyli, vienti käyttäjä-appiksi.
+
+### Appi-appi 10: zoomaus käytössä (suunnitelma, ei rakennettu)
+
+Nyt lukitussa laitenäkymässä ei voi zoomata. Tavoite:
+- Näkymän asetus (Maailma ja kamera): zoomaus sormilla päälle/pois, pienin ja suurin zoomaus (%).
+- Kameran zoomaus logiikasta yleisellä tavalla (Kerros-palikan malliin, esim. Kamera-palikka, jonka ominaisuus zoomaus %): nuoli, kaava, Aseta, Muutos ajassa pehmeään zoomaukseen.
+- Kaikki sormen paikan muunnokset huomioivat zoomauksen: napautus kohteeseen, ruutu- ja aluenapautus, pyyhkäisy, kuollut alue, maailman rajat, parallaksi, `ruutu.leveys`.
+- Lukittu kerros (kojelauta: tatti, napit, monitorit) ei zoomaudu.
+- Testit 1440, 390 ja 320 px.
+
+Päätettävää ennen rakentamista: zoomauksen keskipiste (seurattava palikka vai sormien väli), zoomaako lukittu kerros (ehdotus: ei), riittääkö yksi Kamera-palikka per näkymä.
+
+Valmis pyyntö uuteen keskusteluun:
+> Toteuta Appi-appi 10: zoomaus käytössä appiappi/TILA.md:n suunnitelman mukaan. Kysy ensin päätettävät asiat, jos ne ovat vielä auki.
 
 ## Avoimet kysymykset
 
