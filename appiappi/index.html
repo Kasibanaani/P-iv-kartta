@@ -808,6 +808,17 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .lapc.ei{color:var(--lt2);border-style:dashed;padding:3px 6px}
 .laprz{position:absolute;right:0;bottom:0;width:22px;height:22px;cursor:nwse-resize;touch-action:none;background:linear-gradient(135deg,transparent 55%,var(--lr) 55%,var(--lr) 63%,transparent 63%,transparent 72%,var(--lr) 72%,var(--lr) 80%,transparent 80%)}
 .lap.pieni .laprz{display:none}
+.lap.ketju .lapx{flex:0 1 auto;height:4.4em;min-height:2em;border-bottom:1px solid var(--lr)}
+.lapk{flex:1 1 auto;min-height:0;overflow-y:auto;padding:6px 8px;display:flex;flex-direction:column;gap:6px;touch-action:pan-y}
+.lapm{max-width:92%;padding:5px 8px;border-radius:10px;font-size:12.5px;line-height:1.4;white-space:pre-wrap;color:var(--lt);background:rgba(255,255,255,.62);align-self:flex-start}
+.lapm.me{align-self:flex-end;background:var(--lh)}.lapm.su{border:1.5px solid var(--ll)}
+.lapmh{font-size:11px;font-weight:700;color:var(--lt2);margin-bottom:1px;white-space:normal}
+.lapok{border:0;border-radius:8px;background:var(--ll);color:#fff;font:inherit;font-size:12px;font-weight:700;padding:4px 10px;margin-top:4px}
+.lapt{border:0;background:transparent;color:var(--ll);font:inherit;font-weight:700;text-decoration:underline;padding:0}
+.lap.ketju .lapv.odottaa{margin:4px 8px 4px}
+.lapy{flex:none;display:flex;gap:4px;align-items:flex-end;padding:0 8px 6px}
+.lapyx{flex:1;min-width:0;resize:none;border:1px solid var(--lr);border-radius:8px;background:rgba(255,255,255,.7);color:var(--lt);font:inherit;font-size:13px;padding:5px 7px;max-height:5em;touch-action:auto}
+.lapy .lapok{margin:0}
 #lapsvg .lapl{fill:none;stroke-width:2.2;stroke-linecap:round}
 #lapsvg .lapl.m{stroke:#A88208}#lapsvg .lapl.v{stroke:#2C6CA8}#lapsvg .lapl.ulos{stroke-dasharray:6 5}
 #lapsvg circle.m{fill:#A88208}#lapsvg circle.v{fill:#2C6CA8}
@@ -815,7 +826,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 @keyframes lapflash{0%,40%{outline:3px solid #D2452F;outline-offset:2px}100%{outline:3px solid transparent;outline-offset:6px}}
 .laptab{width:100%;border-collapse:collapse;font-size:13px}.laptab td{padding:6px 4px;border-top:1px solid var(--sep2);vertical-align:top}.laptab tr{cursor:pointer}.laptab tr:hover td{background:var(--fill)}
 .laptab .lapst{white-space:nowrap;color:var(--label2);font-size:12px}
-@media (pointer:coarse){.lapx{font-size:16px}}
+@media (pointer:coarse){.lapx,.lapyx{font-size:16px}}
 @media (max-width:760px){.lapbtn>span{display:none}.lapbtn{padding:7px 8px}}
 @media (max-width:360px){#top{gap:4px;padding:0 6px}#projbtn{max-width:86px}#tabs button{padding:6px 8px}.lapbtn{padding:7px 6px}}
 </style>
@@ -7761,22 +7772,35 @@ window.addEventListener('beforeunload',saveNow);
    viittaa palikkaan. Tallennus: Dt.laput (selain ja varmuuskopio), Dt.lapPois (poistetut, jottei GitHub tuo niitä takaisin)
    ja GitHubissa yksi tiedosto appiappi/laput/laput.json, jonka tekoäly lukee ja johon se kirjoittaa vastauksen
    (kentät vastaus ja vastattu). Ennen jokaista tallennusta GitHubin versio luetaan ja yhdistetään, joten vastaus ei katoa. */
-var LAPVER=1,LAPPATH=GHDIR+'/laput/laput.json',LAPC={muisti:{ic:'📝',n:'Muistilappu'},viesti:{ic:'✉️',n:'Viestilappu'}};
+var LAPVER=2,LAPPATH=GHDIR+'/laput/laput.json',LAPC={muisti:{ic:'📝',n:'Muistilappu'},viesti:{ic:'✉️',n:'Viestilappu'}};
 var LAPOSIO={nakyma:'Näkymä',logiikka:'Logiikka',molemmat:'Rinnakkain',kaytto:'Käyttö (lukittu näkymä)'};
-var LAPKENTAT=['id','laji','teksti','luotu','muokattu','paivitetty','projekti','projektiNimi','osio','x','y','w','h','pieni','viivat','vastaus','vastattu','luettu'];
+var LAPKENTAT=['id','laji','teksti','luotu','muokattu','paivitetty','projekti','projektiNimi','osio','x','y','w','h','pieni','viivat','viestit','tila','luettu'];
+var LAPLAJI={viesti:'viesti',vastaus:'vastaus',suunnitelma:'suunnitelma (odottaa hyväksyntää)',tehty:'tehty',kysymys:'kysymys',hyvaksynta:'hyväksyntä'};
 var LAPOHJE='Appi-appin rakentajan laput. laji muisti = Emilin oma muistiinpano, laji viesti = viesti tekoälylle. '+
   'projekti = projektin tunniste (sama kuin tiedosto appiappi/<projekti>.json), osio = Appi-appin osio, jossa lappu on. '+
   'viivat = mihin lappu on kiinnitetty viivalla (kuvaus kertoo kohteen, palikan id on projektin P.b-avain), '+
-  'viitteet = tekstin [hakasulkuviitteet] ratkaistuina. Vastaa viestilappuun kirjoittamalla vain kentät vastaus (teksti) '+
-  'ja vastattu (ISO-aika); älä muuta muita kenttiä. Appi lukee vastauksen GitHubista itse.';
+  'viitteet = tekstin [hakasulkuviitteet] ratkaistuina. teksti = Emilin alkuviesti, viestit = keskustelu sen jälkeen. '+
+  'vuoro = kenen vuoro on (ai = tekoälyn, emil = Emilin, tyhjä = ei kenenkään); vastaa vain lappuihin, joiden vuoro on ai. '+
+  'Vastaa lisäämällä viestit-listan loppuun {id, kuka:"ai", laji: vastaus|suunnitelma|tehty|kysymys, teksti, aika (ISO)}; '+
+  'älä muuta muita kenttiä äläkä aiempia viestejä. Appi lukee vastauksen GitHubista itse.';
 var LAP={drag:null,raf:0,ghT:null,busy:false,msg:'',z:10,svg:'',cnt:0};
-function laput(){if(!Array.isArray(Dt.laput))Dt.laput=[];return Dt.laput;}
+function laput(){if(!Array.isArray(Dt.laput))Dt.laput=[];if(Dt.lapVer!==2){Dt.laput=Dt.laput.filter(function(l){return l&&l.id;}).map(lapClean);Dt.lapVer=2;}return Dt.laput;}
 function lapGet(id){var L=laput();for(var i=0;i<L.length;i++)if(L[i].id===id)return L[i];return null;}
 function lapOsio(){return !P?'':(locked()&&S.tab==='nakyma'?'kaytto':S.tab);}
 function lapVisible(l){return !!P&&l.projekti===P.id&&l.osio===lapOsio();}
 function lapNow(){return new Date().toISOString();}
-function lapUnread(l){return l.laji==='viesti'&&!!l.vastaus&&l.luettu!==l.vastattu;}
-function lapDate(l,long){var d=new Date(l.muokattu||l.luotu),n=new Date();if(isNaN(d))return '';
+/* Lapun keskustelu (Appi-appi 18b): teksti on Emilin alkuviesti, viestit kasvavat sen alle. Vuoro: jos viimeisin on Emilin
+   (tai alkuviestiä on muokattu tekoälyn viimeisen viestin jälkeen), vuoro on tekoälyn; muuten Emilin. Valmis lappu ei ole kenenkään vuorolla. */
+function lapLastAI(l){for(var i=(l.viestit||[]).length-1;i>=0;i--)if(l.viestit[i].kuka==='ai')return l.viestit[i];return null;}
+function lapVuoro(l){if(l.laji!=='viesti'||l.tila==='valmis')return '';var v=l.viestit||[],m=v[v.length-1];
+  if(!m)return String(l.teksti||'').trim()?'ai':'';if(m.kuka!=='ai')return 'ai';return (l.muokattu||'')>(m.aika||'')?'ai':'emil';}
+function lapUnread(l){var a=lapLastAI(l);return l.laji==='viesti'&&!!a&&(l.luettu||'')<(a.aika||'');}
+function lapHash(t){var h=5381;t=String(t);for(var i=0;i<t.length;i++)h=((h<<5)+h+t.charCodeAt(i))|0;return (h>>>0).toString(36);}
+function lapMsg(m){if(!m||typeof m!=='object'||m.teksti==null)return null;var kuka=m.kuka==='ai'?'ai':'emil',aika=String(m.aika||'');
+  return {id:String(m.id||('m'+lapHash(kuka+aika+m.teksti))),kuka:kuka,laji:LAPLAJI[m.laji]?m.laji:(kuka==='ai'?'vastaus':'viesti'),teksti:String(m.teksti),aika:aika||lapNow()};}
+function lapStatus(l){if(l.laji!=='viesti')return '';if(l.tila==='valmis')return 'valmis';var v=lapVuoro(l),a=l.viestit[l.viestit.length-1];
+  if(v==='ai')return 'odottaa tekoälyä';if(v==='emil')return lapUnread(l)?'uusi vastaus':a&&a.laji==='suunnitelma'?'suunnitelma odottaa hyväksyntääsi':'sinun vuorosi';return '';}
+function lapDate(l,long){var t=l.muokattu||l.luotu;(l.viestit||[]).forEach(function(m){if(m.aika>t)t=m.aika;});var d=new Date(t),n=new Date();if(isNaN(d))return '';
   var s=d.getDate()+'.'+(d.getMonth()+1)+'.'+(long||d.getFullYear()!==n.getFullYear()?d.getFullYear():'')+' '+hm(d);
   return s;}
 function lapDateTitle(l){var a=new Date(l.luotu),b=new Date(l.muokattu||l.luotu);function f(d){return d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear()+' klo '+hm(d);}
@@ -7786,7 +7810,7 @@ function lapChanged(l,edit){var t=lapNow();if(l){l.paivitetty=t;if(edit)l.muokat
 function lapNew(laji){if(!P){toast('Avaa ensin projekti.');return null;}
   var vw=innerWidth,vh=innerHeight,n=laput().filter(lapVisible).length%6,w=Math.min(240,vw-24),h=Math.min(176,vh-120),t=lapNow();
   var l={id:'l'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),laji:laji==='viesti'?'viesti':'muisti',teksti:'',luotu:t,muokattu:t,paivitetty:t,
-    projekti:P.id,projektiNimi:P.name,osio:lapOsio(),x:Math.max(8,vw-w-18-n*18),y:64+n*18,w:w,h:h,pieni:false,viivat:[]};
+    projekti:P.id,projektiNimi:P.name,osio:lapOsio(),x:Math.max(8,vw-w-18-n*18),y:64+n*18,w:w,h:h,pieni:false,viivat:[],viestit:[],tila:'auki'};
   laput().push(l);lapChanged(l,true);lapRender();
   var x=$('#laput .lap[data-lap="'+l.id+'"] .lapx');if(x)x.focus();return l;}
 function lapDelete(l){var i=laput().indexOf(l);if(i<0)return;laput().splice(i,1);
@@ -7870,9 +7894,14 @@ function lapLoop(){if(LAP.raf)return;LAP.raf=requestAnimationFrame(function step
 function lapFoot(l){var h='';lapRefs(l,P).forEach(function(r){h+=r.b?'<span class="lapc"><button data-lapgo="'+r.b.id+'" title="Siirry palikkaan '+esc(lapDescBlock(r.b))+'">→ '+esc(r.b.nm)+'</button></span>':'<span class="lapc ei" title="Palikkaa tällä nimellä ei löydy tästä projektista">'+esc(r.teksti)+' ?</span>';});
   l.viivat.forEach(function(v){var d=lapDesc(v);h+='<span class="lapc"><button data-lapflash="'+v.id+'" title="'+esc(d)+'">⤴ '+esc(d.replace(/^Palikka /,''))+'</button><button data-lapdelv="'+v.id+'" title="Poista viiva" aria-label="Poista viiva">✕</button></span>';});
   return h;}
-function lapVast(l){if(l.laji!=='viesti')return '';
-  if(l.vastaus)return '<div class="lapv"><b>Tekoäly '+esc(lapDate({muokattu:l.vastattu||l.paivitetty}))+':</b> '+esc(l.vastaus)+'</div>';
-  return '<div class="lapv odottaa">'+(ghOn()?'Tekoäly lukee tämän, kun pyydät. Vastaus tulee tähän.':'Tekoäly näkee tämän, kun GitHub-tallennus on käytössä (Asetukset).')+'</div>';}
+function lapVast(l){if(l.laji!=='viesti')return '';var v=l.viestit,vu=lapVuoro(l),h='';
+  if(v.length){h+='<div class="lapk">'+v.map(function(m,i){var last=i===v.length-1;
+      return '<div class="lapm '+(m.kuka==='ai'?'ai':'me')+(m.laji==='suunnitelma'?' su':'')+'" data-lapm="'+esc(m.id)+'"><div class="lapmh">'+(m.kuka==='ai'?'Tekoäly':'Sinä')+(m.laji!=='viesti'&&m.laji!=='vastaus'?' · '+esc(LAPLAJI[m.laji]):'')+' · '+esc(lapDate({muokattu:m.aika}))+'</div>'+esc(m.teksti)+
+        (last&&m.kuka==='ai'&&m.laji==='suunnitelma'&&vu==='emil'?'<div><button class="lapok" data-lapdo="hyvaksy">Hyväksy suunnitelma</button></div>':'')+'</div>';}).join('')+'</div>';}
+  h+='<div class="lapv odottaa">'+(l.tila==='valmis'?'✓ Valmis. ':vu==='ai'?'Tekoälyn vuoro. '+(ghOn()?'Se vastaa, kun pyydät.':'Tekoäly näkee tämän, kun GitHub-tallennus on käytössä (Asetukset).'):vu==='emil'?'Sinun vuorosi. ':'')+
+    (v.length?'<button class="lapt" data-lapdo="valmis">'+(l.tila==='valmis'?'Avaa uudelleen':'Merkitse valmiiksi')+'</button>':'')+'</div>';
+  if(v.length&&l.tila!=='valmis')h+='<div class="lapy"><textarea class="lapyx" rows="1" placeholder="Vastaa…" title="⌘↵ lähettää"></textarea><button class="lapok" data-lapdo="laheta">Lähetä</button></div>';
+  return h;}
 var LAPLINK='<svg viewBox="0 0 16 16"><path d="M3 13L12 4M7 4h5v5"/></svg>';
 function lapHtml(l){var c=LAPC[l.laji]||LAPC.muisti;
   return '<div class="laph" title="'+c.n+': siirrä vetämällä"><span class="lapi" aria-label="'+c.n+'">'+c.ic+'</span><span class="lapd" title="'+esc(lapDateTitle(l))+'">'+esc(lapDate(l))+'</span>'+
@@ -7886,11 +7915,18 @@ function lapPlace(el,l){var vw=innerWidth,vh=innerHeight;
   if(!l.pieni){l.w=clamp(+l.w||220,150,Math.max(150,vw-8));l.h=clamp(+l.h||160,96,Math.max(96,vh-60));el.style.width=l.w+'px';el.style.height=l.h+'px';}
   else{el.style.width='';el.style.height='';}
   var w=l.pieni?150:l.w;el.style.left=clamp(+l.x||0,Math.min(0,60-w),vw-60)+'px';el.style.top=clamp(+l.y||0,0,vh-34)+'px';}
-function lapSig(l){return [l.pieni,l.vastaus,l.vastattu,lapUnread(l),l.viivat.map(function(v){return v.id;}).join(),ghOn()].join('|');}
+function lapSig(l){return [l.pieni,l.tila,lapVuoro(l),(l.viestit||[]).map(function(m){return m.id;}).join(),lapUnread(l),l.viivat.map(function(v){return v.id;}).join(),ghOn()].join('|');}
 function lapBuild(el,l){var ta=el.querySelector('.lapx'),foc=ta&&document.activeElement===ta,s0=foc?ta.selectionStart:0,s1=foc?ta.selectionEnd:0,sc=ta?ta.scrollTop:0;
-  el.className='lap '+(l.laji==='viesti'?'viesti':'muisti')+(l.pieni?' pieni':'');el.innerHTML=lapHtml(l);el._sig=lapSig(l);
+  var ya=el.querySelector('.lapyx'),yv=ya?ya.value:'',yf=ya&&document.activeElement===ya,k0=el.querySelector('.lapk'),kn=k0?(k0.childElementCount):0,ks=k0?k0.scrollTop:0;
+  el.className='lap '+(l.laji==='viesti'?'viesti':'muisti')+(l.pieni?' pieni':'')+(l.viestit&&l.viestit.length?' ketju':'');el.innerHTML=lapHtml(l);el._sig=lapSig(l);
   var t2=el.querySelector('.lapx');if(t2){t2.scrollTop=sc;if(foc){t2.focus();try{t2.setSelectionRange(s0,s1);}catch(e){}}}
-  if(!l.pieni&&lapUnread(l)){l.luettu=l.vastattu;lapChanged(l,false);lapBadge();}}
+  var y2=el.querySelector('.lapyx');if(y2){y2.value=yv;if(yf)y2.focus();}
+  var k2=el.querySelector('.lapk');if(k2)k2.scrollTop=k2.childElementCount!==kn?k2.scrollHeight:ks;
+  if(k2&&!k0&&el.isConnected&&!l.pieni&&(+l.h||0)<280){l.h=Math.min(280,innerHeight-80);lapPlace(el,l);}
+  var a=lapLastAI(l);if(!l.pieni&&lapUnread(l)){l.luettu=a.aika;lapChanged(l,false);lapBadge();}}
+function lapSend(el,l,laji,teksti){teksti=String(teksti||'').trim();if(!teksti)return;
+  l.viestit.push({id:'e'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),kuka:'emil',laji:laji,teksti:teksti,aika:lapNow()});l.tila='auki';
+  var y=el.querySelector('.lapyx');if(y)y.value='';lapChanged(l,true);lapBuild(el,l);lapPlace(el,l);}
 function lapRender(){var lay=$('#laput');if(!lay||!Dt)return;var vis=laput().filter(lapVisible),keep={};
   vis.forEach(function(l){keep[l.id]=1;var el=lay.querySelector('.lap[data-lap="'+l.id+'"]');
     if(!el){el=document.createElement('div');el.setAttribute('data-lap',l.id);el.style.zIndex=++LAP.z;lay.appendChild(el);lapBuild(el,l);}
@@ -7920,7 +7956,7 @@ $('#laput').addEventListener('pointerdown',function(e){var el=e.target.closest('
   el.style.zIndex=++LAP.z;var b=e.target.closest('[data-lapdo]'),a=b&&b.getAttribute('data-lapdo');
   if(a==='viiva'){e.preventDefault();lapDragStart(e,l,el,'viiva');LAP.drag.t='viiva';return;}
   if(a==='koko'){e.preventDefault();lapDragStart(e,l,el,'koko');return;}
-  if(e.target.closest('button,textarea,.lapv,.lapft'))return;
+  if(e.target.closest('button,textarea,.lapv,.lapft,.lapk,.lapy'))return;
   e.preventDefault();lapDragStart(e,l,el,'siirto');});
 $('#laput').addEventListener('pointermove',lapMove);
 $('#laput').addEventListener('pointerup',lapUp);
@@ -7929,7 +7965,10 @@ $('#laput').addEventListener('pointercancel',lapUp);
 $('#laput').addEventListener('click',function(e){var el=e.target.closest('.lap');if(!el)return;var l=lapGet(el.getAttribute('data-lap'));if(!l)return;
   var b=e.target.closest('[data-lapdo]'),a=b&&b.getAttribute('data-lapdo');
   if(a==='pieni'){l.pieni=!l.pieni;lapChanged(l,false);lapBuild(el,l);lapPlace(el,l);lapLoop();return;}
-  if(a==='pois'){if((l.teksti||l.vastaus)&&!confirm('Poistetaanko '+(l.laji==='viesti'?'viestilappu':'muistilappu')+'? Tekstiä ei saa takaisin.'))return;lapDelete(l);return;}
+  if(a==='laheta'){lapSend(el,l,'viesti',(el.querySelector('.lapyx')||{}).value);return;}
+  if(a==='hyvaksy'){lapSend(el,l,'hyvaksynta','Hyväksyn suunnitelman.');return;}
+  if(a==='valmis'){l.tila=l.tila==='valmis'?'auki':'valmis';lapChanged(l,false);lapBuild(el,l);lapPlace(el,l);return;}
+  if(a==='pois'){if((l.teksti||l.viestit.length)&&!confirm('Poistetaanko '+(l.laji==='viesti'?'viestilappu':'muistilappu')+'? Tekstiä ei saa takaisin.'))return;lapDelete(l);return;}
   var g=e.target.closest('[data-lapgo]');if(g){var id=g.getAttribute('data-lapgo');closeSheet();gotoBlock(id);setTimeout(function(){lapFlash(lapTargetEl({kohde:{t:'palikka',id:id}}));},120);return;}
   var f=e.target.closest('[data-lapflash]');if(f){var v=l.viivat.filter(function(x){return x.id===f.getAttribute('data-lapflash');})[0];if(!v)return;var te=lapTargetEl(v);
     if(lapVisEl(te)){lapFlash(te);}else if(v.kohde.t==='palikka'&&P.b[v.kohde.id]){gotoBlock(v.kohde.id);setTimeout(function(){lapFlash(lapTargetEl(v));},120);}else toast(lapDesc(v)+' (ei nyt näkyvissä)');return;}
@@ -7937,7 +7976,9 @@ $('#laput').addEventListener('click',function(e){var el=e.target.closest('.lap')
 $('#laput').addEventListener('input',function(e){if(!e.target.classList.contains('lapx'))return;var el=e.target.closest('.lap'),l=el&&lapGet(el.getAttribute('data-lap'));if(!l)return;
   l.teksti=e.target.value;lapChanged(l,true);var d=el.querySelector('.lapd');if(d){d.textContent=lapDate(l);d.title=lapDateTitle(l);}
   var ft=el.querySelector('.lapft'),h=lapFoot(l);if(ft&&ft.innerHTML!==h)ft.innerHTML=h;});
-$('#laput').addEventListener('keydown',function(e){if(e.key==='Escape'&&e.target.classList.contains('lapx'))e.target.blur();e.stopPropagation();});
+$('#laput').addEventListener('keydown',function(e){if(e.key==='Escape'&&/lapx|lapyx/.test(e.target.className))e.target.blur();
+  if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)&&e.target.classList.contains('lapyx')){e.preventDefault();var el=e.target.closest('.lap'),l=el&&lapGet(el.getAttribute('data-lap'));if(l)lapSend(el,l,'viesti',e.target.value);}
+  e.stopPropagation();});
 $('#lapmbtn').addEventListener('click',function(){lapNew('muisti');});
 $('#lapvbtn').addEventListener('click',function(){lapNew('viesti');});
 window.addEventListener('resize',function(){if(Dt)lapRender();});
@@ -7945,8 +7986,12 @@ window.addEventListener('resize',function(){if(Dt)lapRender();});
 function lapClean(r){var o={};LAPKENTAT.forEach(function(k){if(r[k]!==undefined)o[k]=r[k];});
   o.laji=o.laji==='viesti'?'viesti':'muisti';o.teksti=String(o.teksti||'');o.luotu=o.luotu||lapNow();o.muokattu=o.muokattu||o.luotu;o.paivitetty=o.paivitetty||o.muokattu;
   o.viivat=(Array.isArray(r.viivat)?r.viivat:[]).filter(function(v){return v&&v.kohde&&v.kohde.t;}).map(function(v){return {id:v.id||('v'+Math.random().toString(36).slice(2,7)),kohde:v.kohde,fx:+v.fx||0.5,fy:+v.fy||0.5,kuvaus:String(v.kuvaus||'')};});
-  if(o.vastaus!=null)o.vastaus=String(o.vastaus);return o;}
-function lapOut(l){var o=lapClean(l),p=Dt.projects.filter(function(x){return x.id===l.projekti;})[0],keep=P;
+  var vs=(Array.isArray(r.viestit)?r.viestit:[]).map(lapMsg).filter(Boolean);
+  if(r.vastaus&&String(r.vastaus).trim()){var va=lapMsg({id:'av'+lapHash(r.vastaus),kuka:'ai',laji:'vastaus',teksti:r.vastaus,aika:r.vastattu||o.paivitetty});
+    if(!vs.some(function(m){return m.id===va.id||(m.kuka==='ai'&&m.teksti===va.teksti);}))vs.unshift(va);}
+  o.viestit=vs;o.tila=o.tila==='valmis'?'valmis':'auki';
+  if(o.luettu==null&&r.vastattu&&r.luettu===r.vastattu)o.luettu=va?va.aika:r.luettu;return o;}
+function lapOut(l){var o=lapClean(l);o.vuoro=lapVuoro(l);o.tilaNimi=lapStatus(l);var p=Dt.projects.filter(function(x){return x.id===l.projekti;})[0],keep=P;
   o.osioNimi=LAPOSIO[l.osio]||l.osio;if(p)o.projektiNimi=p.name;
   o.viitteet=lapRefs(l,p).map(function(r){return r.b?{teksti:r.teksti,palikka:{id:r.b.id,nimi:r.b.nm,viite:r.b.vt,laji:r.b.k}}:{teksti:r.teksti,loytyi:false};});
   if(p){P=p;try{o.viivat.forEach(function(v){if(v.kohde.t!=='ui')v.kuvaus=lapDesc(v);});}catch(e){}P=keep;}
@@ -7956,8 +8001,9 @@ function lapFile(){return {app:'appiappi-laput',ver:LAPVER,savedAt:lapNow(),ohje
 function lapMergeIn(arr){var ch=0,uudet=0,loc={};laput().forEach(function(l){loc[l.id]=l;});var pois=Array.isArray(Dt.lapPois)?Dt.lapPois:[];
   (arr||[]).forEach(function(r){if(!r||typeof r!=='object'||!r.id)return;var l=loc[r.id];
     if(!l){if(pois.indexOf(r.id)>=0)return;laput().push(lapClean(r));ch++;return;}
-    if(r.vastaus&&String(r.vastaus)!==String(l.vastaus||'')){l.vastaus=String(r.vastaus);l.vastattu=r.vastattu||lapNow();ch++;uudet++;}
-    if((r.paivitetty||'')>(l.paivitetty||'')){var c=lapClean(r);['teksti','muokattu','paivitetty','x','y','w','h','pieni','viivat','osio','luettu'].forEach(function(k){if(c[k]!==undefined)l[k]=c[k];});ch++;}});
+    var c=lapClean(r),have={};l.viestit.forEach(function(m){have[m.id]=1;});
+    c.viestit.forEach(function(m){if(have[m.id])return;if(m.kuka==='ai'&&l.viestit.some(function(x){return x.kuka==='ai'&&x.teksti===m.teksti;}))return;l.viestit.push(m);ch++;if(m.kuka==='ai')uudet++;});
+    if((r.paivitetty||'')>(l.paivitetty||'')){['teksti','muokattu','paivitetty','x','y','w','h','pieni','viivat','osio','luettu','tila'].forEach(function(k){if(c[k]!==undefined)l[k]=c[k];});ch++;}});
   return {ch:ch,uudet:uudet};}
 function lapGhSchedule(){clearTimeout(LAP.ghT);if(ghOn()&&gh.auto)LAP.ghT=setTimeout(lapPush,3000);}
 function lapGetRemote(){return ghApi(ghRepoUrl()+'/contents/'+LAPPATH).then(function(r){var o=null;if(r.status===200){try{o=JSON.parse(b64d(r.j.content));}catch(e){}}return {status:r.status,sha:r.j&&r.j.sha,o:o};});}
@@ -7980,13 +8026,13 @@ function lapPull(){if(!ghOn()||LAP.busy)return Promise.resolve(0);Dt.lapGh=Dt.la
 /* Tekoälylle tekstinä (kun GitHub-tallennus ei ole käytössä): sama sisältö kuin GitHubin tiedostossa. */
 function lapCopy(){var t=JSON.stringify(lapFile(),null,1);function ok(){toast('Laput kopioitu. Liitä ne keskusteluun tekoälylle.');}
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,function(){download('appiappi-laput.json',t);});else download('appiappi-laput.json',t);}
-function lapSection(){var L=laput(),nm=L.filter(function(l){return l.laji==='muisti';}).length,nv=L.length-nm,od=L.filter(function(l){return l.laji==='viesti'&&!l.vastaus;}).length,uu=L.filter(lapUnread).length;
-  var h='<div class="fs" id="sec-lap"><h4>Muisti- ja viestilaput</h4><div class="help" style="margin-bottom:8px">'+nm+' muistilappua, '+nv+' viestilappua'+(nv?' ('+od+' odottaa vastausta'+(uu?', '+uu+' uutta vastausta':'')+')':'')+'. '+
-    (ghOn()?'Laput tallentuvat GitHubiin tiedostoon <b>'+esc(ghRepoName()+' / '+LAPPATH)+'</b>. Pyydä tekoälyä ”lue viestilaput”: vastaus tulee lappuun ja keskusteluun.':'GitHub-tallennus ei ole käytössä, joten tekoäly ei näe lappuja itse. Kopioi ne ja liitä keskusteluun.')+'</div>'+
+function lapSection(){var L=laput(),nm=L.filter(function(l){return l.laji==='muisti';}).length,nv=L.length-nm,od=L.filter(function(l){return lapVuoro(l)==='ai';}).length,uu=L.filter(lapUnread).length;
+  var h='<div class="fs" id="sec-lap"><h4>Muisti- ja viestilaput</h4><div class="help" style="margin-bottom:8px">'+nm+' muistilappua, '+nv+' viestilappua'+(nv?' ('+od+' odottaa tekoälyä'+(uu?', '+uu+' uutta vastausta':'')+')':'')+'. '+
+    (ghOn()?'Laput tallentuvat GitHubiin tiedostoon <b>'+esc(ghRepoName()+' / '+LAPPATH)+'</b>. Pyydä tekoälyä ”lue viestilaput”: tekoäly vastaa lappuihin, joissa on sen vuoro, ja keskustelu jatkuu lapussa.':'GitHub-tallennus ei ole käytössä, joten tekoäly ei näe lappuja itse. Kopioi ne ja liitä keskusteluun.')+'</div>'+
     '<div class="ibs">'+(ghOn()?'<button class="ib" data-lapx="hae">Hae vastaukset</button>':'')+'<button class="ib" data-lapx="kopioi">Kopioi laput tekstinä</button></div>'+
     (LAP.msg?'<p class="ghmsg bad">'+esc(LAP.msg)+'</p>':'');
   if(L.length){h+='<table class="laptab"><tbody>'+L.slice().sort(function(a,b){return (b.muokattu||'').localeCompare(a.muokattu||'');}).map(function(l){var p=Dt.projects.filter(function(x){return x.id===l.projekti;})[0];
-      return '<tr data-lapopen="'+l.id+'"><td>'+LAPC[l.laji].ic+'</td><td>'+esc(String(l.teksti||'').replace(/\s+/g,' ').slice(0,70)||'(tyhjä)')+'<div class="lapst">'+esc((p?p.name:'poistettu projekti')+' · '+(LAPOSIO[l.osio]||l.osio))+'</div></td><td class="lapst">'+esc(lapDate(l))+(l.laji==='viesti'?'<br>'+(lapUnread(l)?'<b>uusi vastaus</b>':l.vastaus?'vastattu':'odottaa'):'')+'</td></tr>';}).join('')+'</tbody></table>';}
+      return '<tr data-lapopen="'+l.id+'"><td>'+LAPC[l.laji].ic+'</td><td>'+esc(String(l.teksti||'').replace(/\s+/g,' ').slice(0,70)||'(tyhjä)')+'<div class="lapst">'+esc((p?p.name:'poistettu projekti')+' · '+(LAPOSIO[l.osio]||l.osio))+'</div></td><td class="lapst">'+esc(lapDate(l))+(l.laji==='viesti'?'<br>'+(lapUnread(l)?'<b>uusi vastaus</b>':esc(lapStatus(l))):'')+'</td></tr>';}).join('')+'</tbody></table>';}
   return h+'</div>';}
 $('#sheet').addEventListener('click',function(e){var x=e.target.closest('[data-lapx]');if(x){var a=x.getAttribute('data-lapx');
     if(a==='kopioi')lapCopy();else if(a==='hae'){x.textContent='Haetaan…';lapPull().then(function(n){if($('#sec-lap')){openSettings();var s=$('#sec-lap');if(s)s.scrollIntoView({block:'start'});}if(!n)toast(LAP.msg||'Ei uusia vastauksia.');});}return;}
@@ -8012,7 +8058,7 @@ renderAll();startAfterOpen();
 if(S.pajaMoved)toast('Pajakone on nyt Appi-appi. '+S.pajaMoved+(S.pajaMoved===1?' projekti siirtyi':' projektia siirtyi')+' tähän itsestään.');
 renderGh();if(ghOn()){ghCheck(P).then(function(){return ghNew();}).then(function(){ghFlush();return lapPull();});}
 chainTimer();
-return {get data(){return Dt;},get P(){return P;},S:S,gh:gh,ghPush:function(){return ghPush(P);},ghCheck:function(){return ghCheck(P);},ghNew:function(a){return ghNew(a);},ghFlush:ghFlush,ghMeta:ghMeta,exportAll:exportAll,renderAll:renderAll,laput:{uusi:lapNew,render:lapRender,tiedosto:lapFile,yhdista:lapMergeIn,push:function(){return lapPush();},pull:lapPull,osio:lapOsio},openExample:openExample,saveNow:saveNow,ev:ev,ctx:ctx,runFrames:runFrames,goStart:goStart};
+return {get data(){return Dt;},get P(){return P;},S:S,gh:gh,ghPush:function(){return ghPush(P);},ghCheck:function(){return ghCheck(P);},ghNew:function(a){return ghNew(a);},ghFlush:ghFlush,ghMeta:ghMeta,exportAll:exportAll,renderAll:renderAll,laput:{uusi:lapNew,render:lapRender,tiedosto:lapFile,yhdista:lapMergeIn,push:function(){return lapPush();},pull:lapPull,osio:lapOsio,vuoro:lapVuoro},openExample:openExample,saveNow:saveNow,ev:ev,ctx:ctx,runFrames:runFrames,goStart:goStart};
 })();
 </script>
 </body>

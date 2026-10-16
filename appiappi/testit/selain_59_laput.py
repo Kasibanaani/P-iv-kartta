@@ -103,18 +103,32 @@ async def main():
             # 3 tekoälyn vastaus Näkymä-osiossa: merkki napissa; logiikassa vastaus näkyy ja merkki poistuu
             await tap('#tabs [data-t="nakyma"]')
             assert await pg.locator(M).count()==1 and await pg.locator(V).count()==0
-            r=await pg.evaluate("APP.laput.yhdista([{id:'%s',vastaus:'Laskuri on logiikassa.\\nRivi kaksi.',vastattu:'2026-10-16T19:00:00.000Z'}])"%vid);assert r=={'ch':1,'uudet':1},r
+            r=await pg.evaluate("APP.laput.yhdista([{id:'%s',vastaus:'Laskuri on logiikassa.\\nRivi kaksi.',vastattu:new Date().toISOString()}])"%vid);assert r=={'ch':1,'uudet':1},r
             await pg.evaluate("APP.laput.render()");assert await pg.locator('#lapvbtn .lapdot').is_visible(),'uusi vastaus -merkki'
             await tap('#tabs [data-t="logiikka"]');await pg.wait_for_timeout(100)
-            assert await pg.locator(V+' .lapv',has_text='Laskuri on logiikassa.').count()==1
+            assert await pg.locator(V+' .lapm.ai',has_text='Laskuri on logiikassa.').count()==1,'vanha vastaus-kenttä ketjuun'
             assert await pg.locator('#lapvbtn .lapdot').is_hidden(),'luettu'
-            await pg.screenshot(path='appiappi18_vastaus_%d.png'%W)
+            VU="(function(){var l=APP.data.laput.filter(x=>x.id==='%s')[0];return APP.laput.vuoro(l);})()"%vid
+            assert await pg.evaluate(VU)=='emil'
+            assert await pg.evaluate("APP.laput.yhdista([{id:'%s',vastaus:'Laskuri on logiikassa.\\nRivi kaksi.',vastattu:'2026-10-16T19:00:00.000Z'}])"%vid)=={'ch':0,'uudet':0},'ei tuplaa'
+            # 3b keskustelu: oma vastaus → tekoälyn vuoro; suunnitelma → Hyväksy → tekoälyn vuoro; valmis → ei kenenkään
+            await pg.locator(V+' .lapyx').fill('Laskuri pitäisi näkyä näkymässä.');await tap(V+' [data-lapdo="laheta"]')
+            assert await pg.evaluate(VU)=='ai' and await pg.locator(V+' .lapm.me',has_text='Laskuri pitäisi näkyä').count()==1
+            assert await pg.locator(V+' .lapv',has_text='Tekoälyn vuoro').count()==1
+            await pg.evaluate("APP.laput.yhdista([{id:'%s',viestit:[{id:'a1',kuka:'ai',laji:'suunnitelma',teksti:'Lisään Laskurille Teksti-palikan.',aika:new Date(Date.now()+500).toISOString()}]}]);APP.laput.render()"%vid)
+            await pg.wait_for_timeout(100);assert await pg.evaluate(VU)=='emil'
+            await pg.screenshot(path='appiappi18_ketju_%d.png'%W)
+            await tap(V+' [data-lapdo="hyvaksy"]')
+            vs=[x for x in await pg.evaluate(L) if x['id']==vid][0]['viestit'];assert [m['laji'] for m in vs]==['vastaus','viesti','suunnitelma','hyvaksynta'],vs
+            assert await pg.evaluate(VU)=='ai'
+            await tap(V+' [data-lapdo="valmis"]');assert await pg.evaluate(VU)=='' and await pg.locator(V+' .lapyx').count()==0
+            await tap(V+' [data-lapdo="valmis"]');assert await pg.evaluate(VU)=='ai'
             # poisto: muistilappu 2 pois, viestilapun viiva siihen poistuu
             await tap(M2+' [data-lapdo="pois"]');await pg.wait_for_timeout(150)
             ls=await pg.evaluate(L);assert m2 not in [x['id'] for x in ls] and m2 in await pg.evaluate("APP.data.lapPois")
             vv=[x for x in ls if x['id']==vid][0]['viivat'];assert [x['kohde']['t'] for x in vv]==['palikka','ui'],vv
             # tiedosto tekoälylle
-            f=await pg.evaluate("APP.laput.tiedosto()");assert f['app']=='appiappi-laput' and 'vastaus' in f['ohje'] and len(f['laput'])==2
+            f=await pg.evaluate("APP.laput.tiedosto()");assert f['app']=='appiappi-laput' and 'vuoro' in f['ohje'] and 'viestit' in f['ohje'] and len(f['laput'])==2
             fm=[x for x in f['laput'] if x['id']==mid][0]
             assert fm['osioNimi']=='Näkymä' and fm['projektiNimi']=='Laput' and [x.get('palikka',{}).get('nimi') for x in fm['viitteet']]==['Otsikko',None,'Laskuri'],fm['viitteet']
             # 4 lukittu käyttö on oma osionsa
@@ -166,17 +180,22 @@ async def main():
         assert not [k for k in REPO if k.startswith('appiappi/laput') and k!='appiappi/laput/laput.json']
         assert await pg.evaluate("APP.data.projects.length")==1,'laput-kansio ei ole projekti'
         # tekoäly vastaa tiedostoon (vain vastaus ja vastattu)
-        f['laput'][0]['vastaus']='Lisää painike.';f['laput'][0]['vastattu']='2026-10-16T20:00:00Z'
+        assert f['laput'][0]['vuoro']=='ai' and f['laput'][1]['vuoro']=='',f
+        f['laput'][0]['viestit']=[{'id':'a1','kuka':'ai','laji':'vastaus','teksti':'Lisää painike.','aika':'2099-01-01T00:00:00Z'}]
         N[0]+=1;REPO['appiappi/laput/laput.json']=[json.dumps(f),'sha%d'%N[0]]
         await pg.evaluate("APP.laput.pull()");await pg.wait_for_timeout(400)
-        l0=(await pg.evaluate(L))[0];assert l0['vastaus']=='Lisää painike.',l0
-        assert await pg.locator('#laput .lap.viesti .lapv',has_text='Lisää painike.').count()==1
+        l0=(await pg.evaluate(L))[0];assert l0['viestit'][0]['teksti']=='Lisää painike.',l0
+        assert await pg.locator('#laput .lap.viesti .lapm.ai',has_text='Lisää painike.').count()==1
         # muokkaus omalla laitteella ei hävitä vastausta GitHubista
         await pg.locator('#laput .lap.viesti .lapx').fill('Tee tästä parempi, kiitos');await pg.wait_for_timeout(4200)
         f2=json.loads(REPO['appiappi/laput/laput.json'][0]);v2=[x for x in f2['laput'] if x['laji']=='viesti'][0]
-        assert v2['teksti']=='Tee tästä parempi, kiitos' and v2['vastaus']=='Lisää painike.',v2
+        assert v2['teksti']=='Tee tästä parempi, kiitos' and v2['viestit'][0]['teksti']=='Lisää painike.',v2
+        # oma vastaus lapussa → GitHubiin, vuoro tekoälylle
+        await pg.locator('#laput .lap.viesti .lapyx').fill('Mihin kohtaan?');await pg.click('#laput .lap.viesti [data-lapdo="laheta"]');await pg.wait_for_timeout(4200)
+        v3=[x for x in json.loads(REPO['appiappi/laput/laput.json'][0])['laput'] if x['laji']=='viesti'][0]
+        assert [m['kuka'] for m in v3['viestit']]==['ai','emil'] and v3['vuoro']=='ai',v3
         # poistettu lappu ei palaa GitHubista
-        await pg.click('#laput .lap.muisti [data-lapdo="pois"]');await pg.wait_for_timeout(4200)
+        await pg.evaluate("document.querySelector('#laput .lap.muisti [data-lapdo=pois]').click()");await pg.wait_for_timeout(4200)
         f3=json.loads(REPO['appiappi/laput/laput.json'][0]);assert len(f3['laput'])==1,f3
         await pg.evaluate("APP.laput.yhdista(%s)"%json.dumps(f['laput']));assert len(await pg.evaluate(L))==1
         print('github ok',errs);assert not errs,errs
