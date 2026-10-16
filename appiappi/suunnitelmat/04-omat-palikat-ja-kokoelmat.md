@@ -56,3 +56,37 @@ Jos olemassa olevista palikoista muodostettu yhdistelmä käy kohtuuttomaksi (es
 **Dynaaminen esiintymä:** Luo määrittelystä tuottaa uuden id:n ja oman tilan (F16). Tuhoa esiintymä käyttää viitetarkistusta; esityksen piilottaminen ei tuhoa tietoa. Perusmallin ja esiintymän historia eroavat, vaikka nimi ja kuva ovat samat. Satunnaissiementä/nostojärjestystä voidaan tallentaa, jotta jatkaminen ei tarjoa uutta tulosta jo ratkaistuun tapahtumaan.
 
 **Kokeet:** N nostoa käy N jäsentä kerran; jatko tallennuksesta säilyttää järjestyksen; kaksi saman mallin yksilöä säilyttävät eri tilan; joukon duplikaatti ja listan sallittu duplikaatti eroavat; nollapainot ja tyhjä lähde; kaavojen uudelleenpiirto ei arvo uudestaan. Sääntöjen ei tarvitse tietää kortista tai olennosta.
+
+## Suosikit ja presetit (F26, Emilin idea 16.10.2026)
+
+Emil hyväksyi 16.10.2026 tekoälyn suositukset (D11–D13). Rakennetaan jonossa F12:n toisen osan sekä liukusäätimen korjauksen ja kalenterin vaiheen 1 jälkeen. Ei vielä toteutettu.
+
+### Suosikit (D11)
+
+Palikkavalikon ylimpänä ryhmä **Suosikit**, jos siinä on yksikin palikka; tyhjänä sitä ei näytetä, joten peruskäyttö ei muutu. Palikan saa suosikiksi tähdellä (valikossa palikan rivillä) ja pois samasta tähdestä. Koskee sekä logiikka- että käyttöpuolen palikoita, myös tulevia presettejä.
+
+- Emil valitsee suosikit itse. Ei automaattista "eniten käytetyt" -listaa (ei suosituimmuusjärjestystä). Järjestys on lisäysjärjestys; siirto ylös/alas tarvittaessa myöhemmin.
+- Suosikit eivät kuulu projektiin: ne pätevät kaikissa projekteissa. Tallennus selaimen muistiin omalla versioidulla avaimella, mukana varmuuskopiossa (vienti/tuonti).
+- Poistettu tai tuntematon palikkalaji suosikeissa ohitetaan hiljaa, ei virhettä.
+
+### Presetit (D12, D13)
+
+**Tarkoitus:** mikä tahansa valittu palikkajoukko, logiikka ja käyttöpinta yhdessä tai erikseen, tallennetaan nimettynä presettinä hyllyyn ja liitetään mihin tahansa projektiin. Ei kokorajaa. Presetti ei ole projekti eikä kuulu projektiin.
+
+**Polku:** valitse palikat → *Tallenna presetiksi* → nimi. Palikkavalikossa ryhmä **Presetit** (kuten suosikit, näkyy vain kun hyllyssä on jotain). Napautus liittää presetin nykyiseen projektiin. Hyllyssä: nimeä uudelleen, poista (vahvistus), korvaa nykyisellä valinnalla.
+
+**Irtokopio (D12):** liittämisen jälkeen palikat ovat tavallisia palikoita, joita voi muokata vapaasti. Presetin myöhempi muutos ei koske jo liitettyjä kopioita. Ylläpidettävä, päivittyvä malli on eri asia: Oma palikka (F16, D03/D04). Myöhemmin voi tulla toiminto *Tee presetistä oma palikka*, ei nyt.
+
+**Perusta:** nykyinen kopiointi ja liittäminen (`copyNodes`/`pasteNodes`, osio *Kopiointi ja liittäminen*). Presetti on käytännössä nimetty, pysyvä leike. Puuttuu:
+
+1. **Käyttöpuolen palikat toiseen projektiin.** Nyt liitettäessä toisesta projektista käyttöpuolen palikat jäävät pois (ne liitetään vain samaan projektiin samaan palikkaan). Presetti luo ne uusina: uudet tunnisteet, nimet ja asettelu, ja niiden väliset sekä logiikan viittaukset osoittavat uusiin. Sijainti: nykyiseen näkymään/sivulle, alkuperäiset suhteelliset paikat säilyttäen.
+2. **Ulkoiset viittaukset.** Viittaus palikkaan, joka ei ole presetissä, katkeaa (nykyinen toisen projektin sääntö). Liittämisen jälkeen näytetään lista *Kytke nämä*: mikä palikka ja mikä kohta viittasi minkä nimiseen puuttuvaan. Katkenneet viitteet näkyvät kuten D08:ssa. Ei arvata samannimistä kohdetta automaattisesti.
+3. **Nimet:** samannimiset nimetään automaattisesti uudelleen (nykyinen `uniqueName`).
+4. **Resurssit:** kuvat ja muu presetin palikoiden tarvitsema sisältö kulkee presetin mukana.
+5. **Hylly:** tallentuu mukana palikoiden lajit ja tallennusversio; liitettäessä vanha muoto korjataan samalla `repair`-polulla kuin projektit.
+
+**Säilytys (D13):** selaimen muisti omalla versioidulla avaimella (ei projektin sisällä) ja mukana varmuuskopiossa sekä erillisenä vientinä/tuontina tiedostona. Ei `master-tiedot`-tallennusta tässä vaiheessa.
+
+**Käyttötieto:** presetti tallentaa rakenteen ja asetukset, ei käyttötietoa (muistien arvot, taulukon rivit). Avoin kysymys (toteuttaja kysyy Emililtä): jos palikka on hyödytön ilman sisältöään (esim. taulukon valmiit rivit), tekoälyn ehdotus on oletuksena ilman, valinnalla mukaan.
+
+**Kokeet:** suosikin lisäys/poisto säilyy uudelleenavauksessa ja näkyy toisessa projektissa; tyhjä suosikki-/presettiryhmä ei näy; presetti, jossa logiikkaa ja käyttöpintaa, toiseen projektiin, kaikki viittaukset osoittavat uusiin ja käyttö toimii; ulkoinen viittaus näkyy *Kytke nämä* -listassa eikä sitoudu samannimiseen; kaksi liitäntää samaan projektiin ovat toisistaan riippumattomia; presetin muutos ei muuta aiemmin liitettyä; varmuuskopio sisältää hyllyn ja suosikit; vanha varmuuskopio ilman niitä latautuu; puhelinleveydet 390 ja 320 px.

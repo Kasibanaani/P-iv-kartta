@@ -38,6 +38,9 @@ Päiväys 16.10.2026. Tämä suunnitelma ja sen alidokumentit kirjoitettiin Emil
 | D08 | Viitatun kohteen poistosta varoitetaan, viittaavat kohdat näytetään ja poiston voi perua tai hyväksyä. Jäljelle jäävät katkenneet viitteet näkyvät värillä ja muulla selkeällä merkinnällä. | 01, poistaminen |
 | D09 | Ketjussa kolme tilaa: ei lukitusta, ulkopuolisten muutosten lukitus, kaikkien muutosten lukitus. Asetusta voi ohjata logiikalla. | 02, tilat 0–2 |
 | D10 | Tilan vaihto vaikuttaa seuraavasta alkavasta vaiheesta ja lukitus ottaa vaihtohetken tilanteen. Jo alkanut vaihe jatkuu. | 02, vaihtaminen |
+| D11 | Suosikit: Emil valitsee itse tähdellä, ei automaattista "eniten käytetyt" -listaa; pätevät kaikissa projekteissa. | 04, suosikit |
+| D12 | Presetti liitetään irtokopiona: liitetyt palikat ovat tavallisia, eikä presetin myöhempi muutos koske niitä. Päivittyvä malli on F16. | 04, presetit |
+| D13 | Suosikit ja presettihylly säilyvät selaimessa projektin ulkopuolella ja kulkevat varmuuskopiossa; ei master-tiedotia nyt. | 04, presetit |
 
 D09–D10 korvaavat tässä keskustelussa aiemmin ehdotetun kahden tilan ratkaisun ja ehdotuksen, että jokainen käynnissä oleva ketju aina päättyisi vanhalla logiikalla. D08 korvaa ehdotuksen, että poistaminen tarkoittaisi oletuksena pakollista arkistointia. D02 korvaa ehdotetun oletusvahvistuksen.
 
@@ -72,6 +75,7 @@ Numerot vastaavat alkuperäistä ideointikokonaisuutta. Tila on tarkistushetken 
 | F23 | Luonnos, julkaisu ja käyttäjä-appivienti | Sama moottori; julkaistu rakenne erikseen luonnoksesta ja käyttötiedosta. | [06](suunnitelmat/06-testit-ja-julkaisu.md) |
 | F24 | Massa, kimmoisuus ja kitka (Emilin idea 16.10.2026, lisätty rekisteriin myöhemmin) | Törmäys ei nyt siirrä vauhtia eikä este liiku. Massa ja kimmoisuus esineelle, kitka ja töytäisyvauhti Liikkeelle; vanhat projektit ennallaan. Toteutettu Appi-appi 17 (16.10.2026). | [09](suunnitelmat/09-massa-ja-tormaykset.md) |
 | F25 | Tilastot ja yhteydet (Emilin idea 16.10.2026) | Ei yhteyslaskentaa. Päivätaulukko raakakirjauksista, Yhteys-palikka (ehdollinen vertailu, korrelaatio lajien mukaan, viive, yhdistelmätekijä), havaintomäärä aina näkyvissä. Vaatii F08:n ja F09:n. | [11](suunnitelmat/11-tilastot-ja-yhteydet.md) |
+| F26 | Suosikit ja presetit (Emilin idea 16.10.2026) | Logiikan kopiointi toimii jo projektista toiseen, käyttöpuolen palikat eivät. Suosikit-ryhmä ja projektiriippumaton presettihylly (logiikka + käyttöpinta), irtokopiona. Hyväksytty, jonossa F12:n 2. osan, säätimen ja kalenterin jälkeen. | [04](suunnitelmat/04-omat-palikat-ja-kokoelmat.md#suosikit-ja-presetit-f26-emilin-idea-16102026) |
 
 Ketjujen kolme lukitustilaa ovat lisäksi käyttäjän päätetty täsmennys, joka koskee kaikkia näitä ominaisuuksia: [02-ketjujen-lukitus.md](suunnitelmat/02-ketjujen-lukitus.md).
 
