@@ -52,7 +52,12 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 ## Avoimet kysymykset
 
 - Viestilappujen yöajo: kellonaika (ehdotus klo 3) ja valtuutus. Tekoälyn suositus on, että yöllä toteutetaan vain napilla hyväksytyt suunnitelmat. Kysytty Emililtä 16.10.
-- Appi-appi 19: pitäisikö raahattavan palikan pudotuskohde (Alue) korostua raahauksen aikana? Pitäisikö reunalle raahaaminen vierittää näkymää? Kumpaakaan ei ole tehty.
+- F12:n seuraava rupeama, kysytty Emililtä 16.10. (⭐ = tekoälyn suositus):
+  1. Mitä seuraavaksi: korttien raahaus ja lajittelu ⭐ / sijainti raahauksen aikana / kuvan toimintoalueet?
+  2. Korostuuko pudotusalue raahauksen aikana (⭐ kyllä, hillitty, vain *Vain alueisiin* -valinnalla)?
+  3. Vierittyykö näkymä reunalle raahattaessa (⭐ kyllä, vain kun maailma on ruutua isompi)?
+  4. Mihin lajittelu tallentuu: taulukon rivijärjestys käyttötietona ⭐ vai oma järjestys-sarake?
+  5. Miten lajitellaan ilman raahausta: toiminnot *Siirrä rivi ylös / alas* ⭐ vai valmiit nuolinapit korttiin?
 
 - Kumpi ensin: Emilin oma ostoslista (Emil rakentaa sen itse ja kertoo, missä jäi jumiin: mittaa ymmärrettävyyttä) vai tekoälyn koeapit? Vai molemmat?
 - Appi-appi 9 (rajaus): KESKIARVO-, SUURIN- ja PIENIN-ikkunat ohittavat tyhjät arvot; ennen ne laskettiin nolliksi. Vanhan projektin keskiarvo voi siksi muuttua, jos ikkunassa on ollut tyhjiä.
