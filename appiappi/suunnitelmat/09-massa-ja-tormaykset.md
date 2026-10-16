@@ -1,6 +1,6 @@
 # F24 Massa, kimmoisuus ja kitka: törmäykset, jotka vaikuttavat
 
-16.10.2026. **Emilin idea**, tekoälyn jäsentämä toteutusvalmiiksi. **Ei toteutettu.** Toteutetaan vasta, kun Emil sanoo. Merkinnät: *Emilin idea* = hänen sanomansa, *ehdotus* = tekoälyn suunnitteluratkaisu, *avoin* = Emil päättää ennen rakentamista (kohta 10). Lue ensin [periaatteet](00-periaatteet.md) ja [MISSIO](../MISSIO.md).
+16.10.2026. **Emilin idea**, tekoälyn jäsentämä toteutusvalmiiksi. **Toteutettu Appi-appi 17:ssä** (kohta 12: ratkaisut ja poikkeamat). Merkinnät: *Emilin idea* = hänen sanomansa, *ehdotus* = tekoälyn suunnitteluratkaisu, *avoin* = Emil päättää ennen rakentamista (kohta 10). Lue ensin [periaatteet](00-periaatteet.md) ja [MISSIO](../MISSIO.md).
 
 ## 1. Idea (Emilin idea, tiivistetty)
 
@@ -152,3 +152,21 @@ Selain: paneelit 1440 ja 1280 px; pelattava koe (esim. pallopeli) käyttönäkym
 Yksi Appi-appi-vaihe. Arvio: moottoriin 150–250 riviä, paneeleihin noin 60, uusi testitiedosto. Ei riipu P4:stä eikä muista suunnitelman vaiheista; koskee `frame`a ja `liikeAskel`ia, joten ei samaan aikaan toisen niitä muokkaavan rakentajan kanssa.
 
 Järjestys toteuttajalle, testit jokaisen jälkeen: (a) töytäisyvauhti, kitka ja ominaisuudet `vauhti x/y` (ei vielä törmäyksiä) → (b) pomppu seinästä → (c) massalliset parit, työntö ja alivaiheet → (d) törmäsi, isku ja tapahtuman tiedot → (e) paneelit, ohjetekstit ja ＋ Liike → (f) esimerkkiprojekti vain pyynnöstä.
+
+## 12. Toteutus 16.10.2026 (Appi-appi 17)
+
+Toteutettu kohtien 3–8 mukaan Emilin hyväksymin suosituksin (kohta 10). Testit: `testit/logiikka_52_massa.js` (numero 51 oli jo käytössä) ja `testit/selain_58_massa.py`. Kaikki vanhat testit ajettu.
+
+**Tekniset ratkaisut ja poikkeamat suunnitelmasta:**
+- Kimmoisuus vaikuttaa seinäosumassa myös ilman massaa (pomppulevy pomppaa massattomankin takaisin). Vanhoissa projekteissa kimmoisuus on 0, joten ne liikkuvat ennallaan. Yksi sääntö: *kimmoisuus vaikuttaa aina, massa vain kahden liikkuvan välillä.*
+- `isku` ja `törmäyskohde` ovat Liikkeen ominaisuuksia (kaava, Ominaisuudet-osio), eivät uusia kytkentäkohtia, jottei jokainen Liike-palikka täyty kohdista. Seinäosumakin antaa kohteen ja iskun.
+- `vauhtix`/`vauhtiy` kirjoittavat suoraan Liikkeen käyttötilaan (Aseta, Lisää, Palauta), eivät pysyvään asetettuun arvoon, koska tönäisy hiipuu. Nuoli tai kaava kohtaan vauhtix ohjaa sitä jatkuvasti (kitka ei silloin hiiputa).
+- Kosketus pysyy samana, kun rako on alle 1 px; uusi törmäsi vaatii oikean päällekkäisyyden. Näin jatkuva työntö ei lähetä tapahtumaa joka kuvassa.
+- Puristus: jos massallinen on seinää vasten, massaton tönäisijä pysähtyy sen pintaan (ei mene päälle).
+- Alivaiheet: `ceil(2 · suurin nopeus · dt / (0,5 · pienin osuma-alue))`, enintään 16, vain kun projektissa on massallinen kappale.
+- Paikka kirjoitetaan apurilla `paikkaAseta` (kuvan alun ominaisuus + siirtymä), joten sama palikka voi liikkua kuvassa monta kertaa (alivaiheet, parin korjaus). Yhden siirron kuvassa tulos on sama kuin ennen.
+- Kääntyvä hahmo kääntyy ohjauksen suuntaan; ilman ohjausvauhtia (pallo) kokonaisvauhdin suuntaan.
+- Paneelit: palikan Este ja osuma-alue -osioon Massa ja Kimmoisuus; ＋ Liike tekee Liikkeen ilman ohjausta. Liikkeen Törmäykset-osio on suljettava, ja se aukeaa itsestään, kun kitkaa on muutettu tai kohteella on massa.
+
+**Ei tehty:** kohdan 9 rajaukset; kohdan 7 esimerkin 3 tatin suunta *irti*-hetkellä (tatti nollautuu ennen tapahtumaa) jäi ennalleen; Miksi?-selitys ei vielä kerro tönäisystä; esimerkkiprojekti (vain pyynnöstä).
+

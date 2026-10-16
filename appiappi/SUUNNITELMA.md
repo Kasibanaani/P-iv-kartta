@@ -70,7 +70,7 @@ Numerot vastaavat alkuperäistä ideointikokonaisuutta. Tila on tarkistushetken 
 | F21 | Profiilit ja yhteiskäyttö | Paikallinen tietotilan erottelu ennen jaettuja verkkomuutoksia. | [05](suunnitelmat/05-aika-media-ja-liitannat.md) |
 | F22 | Testitila ja käytön kumoaminen | Nykyinen rakenteen Kumoa ei ole käyttökumoaminen. | [06](suunnitelmat/06-testit-ja-julkaisu.md) |
 | F23 | Luonnos, julkaisu ja käyttäjä-appivienti | Sama moottori; julkaistu rakenne erikseen luonnoksesta ja käyttötiedosta. | [06](suunnitelmat/06-testit-ja-julkaisu.md) |
-| F24 | Massa, kimmoisuus ja kitka (Emilin idea 16.10.2026, lisätty rekisteriin myöhemmin) | Törmäys ei nyt siirrä vauhtia eikä este liiku. Massa ja kimmoisuus esineelle, kitka ja töytäisyvauhti Liikkeelle; vanhat projektit ennallaan. Toteutusvalmis suunnitelma, ei toteutettu; avoimet kysymykset ennen rakentamista. | [09](suunnitelmat/09-massa-ja-tormaykset.md) |
+| F24 | Massa, kimmoisuus ja kitka (Emilin idea 16.10.2026, lisätty rekisteriin myöhemmin) | Törmäys ei nyt siirrä vauhtia eikä este liiku. Massa ja kimmoisuus esineelle, kitka ja töytäisyvauhti Liikkeelle; vanhat projektit ennallaan. Toteutettu Appi-appi 17 (16.10.2026). | [09](suunnitelmat/09-massa-ja-tormaykset.md) |
 
 Ketjujen kolme lukitustilaa ovat lisäksi käyttäjän päätetty täsmennys, joka koskee kaikkia näitä ominaisuuksia: [02-ketjujen-lukitus.md](suunnitelmat/02-ketjujen-lukitus.md).
 
@@ -83,6 +83,7 @@ Ketjujen kolme lukitustilaa ovat lisäksi käyttäjän päätetty täsmennys, jo
 - **P3a (16.10.2026, Appi-appi 14):** F03 Rivi-lähde (käsiteltävä, valittu tai tapahtuman rivi), rivikohtainen laskenta omalla välimuistilla, Rivijoukko (suodatus, järjestys, enintään N, ensimmäinen ja viimeinen osuma, koosteet), ikkuna riveille (D06) ja Toista riveille. Emilin linjaukset: P3 pilkotaan, kooste riveistä ikkunalla. Ratkaisut ja rajaukset: [01, kohta 10](suunnitelmat/01-tieto-ja-tapahtumat.md#10-toteutus-16102026-appi-appi-14-p3a).
 - **P3b (16.10.2026, Appi-appi 15):** F05 toistuva kortti: Toistin-palikka (rivit nuolesta, kortin malli vetämällä ensimmäiseen korttiin, allekkain/vierekkäin/ruudukko), kortin palikat rivin omalla laskennalla, kortin oma tila riveittäin, kentän sidonta sarakkeeseen ja kortin painikkeen tapahtuma kortin rivillä. Emilin linjaukset: uusi Toistin-palikka, sido sarakkeeseen. Ratkaisut ja rajaukset: [03, F05 toteutus](suunnitelmat/03-kayttopinta.md#toteutus-16102026-appi-appi-15-p3b).
 - **P3b-täydennys (16.10.2026, Appi-appi 16):** kentän sidonta riviin (muokkauslomake): tavallinen kenttä sidotaan Rivi-palikkaan ja sarakkeeseen, ilman riviä tyhjä ja harmaa, muutos ei lähetä uutta tapahtumaa. Kortin vanha sidonta on erikoistapaus ja toimii ennallaan. Emilin linjaukset: Rivi-palikka + sarake, tyhjä ja harmaa, ei uutta tapahtumaa. Ratkaisut ja rajaukset: [03, Appi-appi 16](suunnitelmat/03-kayttopinta.md#toteutus-16102026-appi-appi-16-kentän-sidonta-riviin-muokkauslomake).
+- **F24 (16.10.2026, Appi-appi 17):** massa, kimmoisuus, kitka ja tönäisy, massalliset törmäykset, törmäsi-tapahtuman kohde ja isku. Ratkaisut: [09, kohta 12](suunnitelmat/09-massa-ja-tormaykset.md#12-toteutus-16102026-appi-appi-17).
 - Ryhmittely, rivien yhteydet (vanhempi–lapsi) ja P4 sekä myöhemmät: ei toteutettu.
 
 ## Ehdotettu järjestys
