@@ -23,6 +23,7 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 
 ## Seuraavaksi
 
+- **Kehityssuunnitelma 16.10.2026:** `SUUNNITELMA.md` ja `suunnitelmat/` sisältävät 23 kehitysidean toteutuspolun sekä Emilin tarkentamat oletukset, viitteen poiston ja ketjun kolme logiikalla ohjattavaa lukitustilaa. Tässä työssä kirjoitettiin vain dokumentaatio; ominaisuuksia ei toteutettu eikä sovellustestejä ajettu. Ideakokonaisuuksien toteuttaminen edellyttää tehtävän laajuuden mukaista toteutuspyyntöä. Ketjujen aiempi oletus vanhalla logiikalla loppuun ei ole uusi vaatimus: lue ajantasaiset tilat `suunnitelmat/02-ketjujen-lukitus.md`.
 - Emil kokeilee puhelimella: zoomaus sormilla (ruudun ja maailman tuntuma, kojelauta pysyy), valikko kerroksena (painike → Vaihda → kerros näkyy), Sekuntikello Monitoriin, efektit.
 - Seuraava vaihe: ei vielä päätetty. Ehdotukset (tekoäly): toiveet tekoälylle, projektin tyyli tai vienti käyttäjä-appiksi.
 - Myöhemmin: esimerkkiprojekti (esim. labyrintti) vain pyynnöstä.
@@ -49,3 +50,4 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 - (tyhjä)
 
 Arkisto (Pajakone-rivi, ei enää päivitetä): https://app.notion.com/3fa977255eec812f943afd1d8705083e
+
