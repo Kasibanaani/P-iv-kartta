@@ -21,11 +21,12 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 
 ## Seuraavaksi
 
-- Ehdotuksia jatkoon (tekoälyn, ei Emilin päätös), seuraavana: kerroksen näkyvyys logiikasta, sitten zoomaus käytössä, esimerkkipeli (esim. pieni labyrintti ruutuliikkeellä).
-- Jonossa: kerroksen näkyvyys logiikasta, toiveet tekoälylle, pelin tuntu (efektit, ajastin, ennätys), projektin tyyli, vienti käyttäjä-appiksi.
+- Ehdotettu 16.10. (tekoälyn ehdotus, odottaa Emilin päätöstä): yksi kokonaisuus *Peli valmiiksi* = kerroksen näkyvyys logiikasta, ennätys (aseta, jos suurempi / pienempi), näkyvä ajastin, ketjun efektit (ilmesty, liike, kuva vaihtuu, näkymänvaihto) ja esimerkkipeli: pieni labyrintti ruutuliikkeellä uutena projektina `master-tiedot/appiappi/`. Karsintajärjestys, jos aika loppuu: efekteistä kuva ja näkymänvaihto pois.
+- Myöhemmin omina kertoinaan: zoomaus käytössä (koskee kaikkia koordinaattimuunnoksia), toiveet tekoälylle, projektin tyyli, vienti käyttäjä-appiksi.
 
 ## Avoimet kysymykset
 
+- Peli valmiiksi (16.10.): kerroksen näkyvyys = uusi ominaisuus *näkyy käytössä* (nykyinen piilotus koskee vain muokkausta)? Ajastin: sekuntikello ja aikaraja samassa palikassa? Saako esimerkkilabyrintin tehdä?
 - Kerroksen näkyvyyttä ei voi ohjata logiikasta (kerros ei ole palikka); sopisi rekisteriin.
 - Siirto x/y (lisätään paikkaan) ja ominaisuus x/y (korvaa paikan) ovat molemmat käytössä: käykö kaksi tapaa?
 - Tatin y on positiivinen alaspäin ja suunta 0 = ylös: käykö?
