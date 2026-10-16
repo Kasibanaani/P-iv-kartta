@@ -4,11 +4,15 @@ Päiväys 16.10.2026. Tämä suunnitelma ja sen alidokumentit kirjoitettiin Emil
 
 ## Aloita tästä ilman aiempaa projektimuistia
 
-1. Lue repon `AGENTS.md`, tämän appin `TILA.md` ja [periaatteet](suunnitelmat/00-periaatteet.md).
+1. Lue repon `AGENTS.md`, tämän appin [missio](MISSIO.md), `TILA.md` ja [periaatteet](suunnitelmat/00-periaatteet.md).
 2. Katso alla olevasta rekisteristä pyydetyn työn tunniste ja lue sen tarkka dokumentti.
 3. Lue [toteutuspolku](suunnitelmat/07-toteutuspolku.md). Tarkista tarvittava nykykoodi karttatyökalulla ja nykyiset testit. Älä oleta dokumentoidun puutteen olevan yhä puute.
 4. Toteuta vain käyttäjän pyytämä vaihe. Tee tavalliset tekniset valinnat itse näiden periaatteiden mukaan; kysy vain, jos ratkaisu muuttaisi päätettyä toimintaa tai uutta merkittävää käyttäjävalintaa ei voi johtaa ohjeista.
 5. Tarkista hyväksymiskriteerit, vanhat projektit, vienti/tuonti sekä sopivat selainleveydet. Päivitä todellinen tila, ei pelkkää tavoitetta.
+
+## Missio ja tuleva manuaali (16.10.2026)
+
+[MISSIO.md](MISSIO.md) kokoaa käyttäjän tarkoituksen, legovertauksen, johdonmukaisen rakennuskielen, kevyen rakentamisen ja vakaan loppukäytön sekä antaa kehitysehdotuksille arviointitavan. Se ei lisää ominaisuuksia eikä muuta aiempia täsmällisiä päätöksiä. [Manuaalin tehtävänanto](suunnitelmat/08-manuaalin-tehtavananto.md) suunnittelee tulevan kattavan ihmiselle ja tekoälylle sopivan ohjeen. **Varsinaista manuaalia ei ole tässä työssä kirjoitettu.** Rajattu korjaustyö ja kokonaisuutta arvioiva suunnittelutyö käyttävät lähteitä eri laajuudella; tehtävänanto määrittelee kummankin lukutavan.
 
 ## Aineisto ja nykytilan tarkistus
 
@@ -80,3 +84,4 @@ Ketjujen kolme lukitustilaa ovat lisäksi käyttäjän päätetty täsmennys, jo
 P0 nykytilan ja yhteensopivuuden tarkistus → P1 viitteet, poistodiagnostiikka ja ketjun arviointikonteksti → P2 tietotaulukko ja tapahtumat → P3 rivikäsittely ja toistuva käyttöryhmä → P4 historia, aika ja koosteet → P5 omat palikat sekä testitila → P6 laajempi käyttöpinta ja media → P7 liitännät, yhteiskäyttö ja julkaisu.
 
 Järjestys on agentin ehdotus. Pyydetty pienempi ominaisuus voidaan toteuttaa aiemmin, jos riippuvuudet ja yhteensopivuus sen sallivat. Älä tee taustapalvelua, integraatiotunnuksia, testiprojekteja tai julkaisua vain siksi, että ne mainitaan tässä pitkän aikavälin suunnitelmassa.
+

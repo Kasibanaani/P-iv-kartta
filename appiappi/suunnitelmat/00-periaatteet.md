@@ -2,13 +2,15 @@
 
 16.10.2026. Lue tämä ennen yksityiskohtaisia suunnitelmia. Emilin käyttäjälinjaukset ovat sitovia; alla nimetyt tekniset suunnitteluratkaisut ovat niiden toteutusehdotus. [Hakemisto ja päätökset](../SUUNNITELMA.md).
 
+**Tarkennus 16.10.2026:** lue ensin [MISSIO.md](../MISSIO.md), joka kokoaa käyttäjän myöhemmän tarkoitus- ja arvokuvauksen sekä kehityksen arviointitavan. Tämä tiedosto täsmentää sen rinnalla rakennuskieltä ja teknistä perustaa. Tulevan manuaalin työ on rajattu [tehtävänannossa](08-manuaalin-tehtavananto.md); suunnitteludokumentit eivät korvaa tarkistettua käyttömanuaalia.
+
 ## Tarkoitus
 
 Appi-appi on tietokoneella käytettävä visuaalinen rakentamisympäristö. Rakentaja tekee omia sovelluksia järjestämällä käyttöelementtejä ja yhdistämällä logiikkapalikoita. Valmis käyttöpinta voi olla puhelimella, iPadilla tai tietokoneella. Ympäristö ei ole yhden pelin, päiväkirjan, hoitomenetelmän tai muun konseptin moottori. Sovelluskohtainen sisältö ja säännöt kuuluvat rakennettuun projektiin.
 
 ## Käyttäjän linjaukset
 
-1. **Yleiskäyttöisyys.** Lisää pienin tarkoituksenmukainen ilmaisuvoima. Kysy jokaisesta perusominaisuudesta, toimiiko sama rakennusosa ainakin kolmessa toisistaan poikkeavassa käytössä. Tulevat esiasetukset voivat tarjota erityiskäyttöä.
+1. **Yleiskäyttöisyys.** Lisää tarkoituksenmukaista, yhteensopivaa ilmaisuvoimaa. Palikoita saa olla paljon ja ne saavat olla teknisesti kehittyneitä; vältä tarpeettomasti opittavia poikkeuksia. Merkittävän uuden perusosan toisistaan poikkeavat käyttötavat ovat hyödyllinen tarkistus, esimerkiksi kolme sovellusta. Tämä ei ole jokaisen pienen muutoksen mekaaninen kelpoisuusehto. Tulevat esiasetukset voivat tarjota erityiskäyttöä.
 2. **Käyttöpinta ja logiikka erillään.** Painike on vuorovaikutus ja tapahtuman lähde, ei sisäinen sovelluskohtainen toimintolista. Logiikka saa ohjata käyttöpintaa ja käyttöpinta logiikkaa molempiin suuntiin.
 3. **Nykyinen kieli säilyy.** Kaavat, Kaavan tulos, ikkunat, nuolet, ehdot, tapahtumat ja toimintoketjut ovat lähtökohta. Älä lisää toista viittauskieltä, piilotettuja sääntölauseita tai JavaScriptiä vaativaa käyttäjäpolkua.
 4. **Kaava ja toiminto ovat eri asioita.** Kaava kuvaa laskettua tilaa; toiminto muuttaa käyttötietoa tapahtumahetkellä. Kaavan tulos nimeää lasketun arvon. Pelkkä näytön piirto ei suorita toimintoa eikä uutta arvontaa.
@@ -18,6 +20,8 @@ Appi-appi on tietokoneella käytettävä visuaalinen rakentamisympäristö. Rake
 8. **Peruskäyttö pysyy kevyenä.** Näytä rivikäsittely, kontekstin valinta ja muut lisäominaisuudet vasta niitä käytettäessä. Tavallisen painikkeen lisääminen ei avaa tietokanta-asetuksia.
 9. **Ei rinnakkaista toteutusta turhaan.** Ennätys syntyy Muistilla, koostelaskulla ja Aseta-toiminnolla. Valikon voi tehdä kerroksesta ja tavallisista palikoista. Mukava pikaluonti saa tuottaa tämän tavallisen logiikan.
 10. **Valinnat ja järjestys ovat käyttäjän.** Sisältöä ei täytetä oikeaan projektiin pyytämättä. Älä järjestä asioita suosion mukaan. Testisisältö on synteettistä ja erillistä.
+11. **Kevyt rakentaa, vakaa käyttää.** Rakentajan palautettavat teot tapahtuvat suoraan, ilman turhia hyväksyntöjä; todellinen tiedonmenetys tai rikkoutuvat viitteet perustelee vaikutusvaroituksen. Lukittu käyttöpinta sallii vain rakennetun appin tarkoituksenmukaiset muutokset. Tämä ei estä logiikan tai käyttäjän tarkoitettuja syötteitä.
+12. **Ymmärrys kantaa eteenpäin.** Tavoiteltu oppimisen taso on vähitellen opittava, taulukkolaskennasta tuttuja suhteita käyttävä ajattelu. Monimutkaisia kokonaisuuksia saa syntyä yksinkertaisista periaatteista. Paikallinen oikopolku ei saa lisätä kokonaisuuteen epäjohdonmukaista poikkeusta ilman perusteltua tarvetta. Teknologinen uutuus ei itsessään määritä kehityssuuntaa.
 
 ## Nykyinen tekninen malli
 
@@ -39,4 +43,5 @@ Jos pyydetty toteutus edellyttäisi ulkoista palvelua, uusia salaisuuksia tai me
 
 ## Jokaisen vaiheen valmistumiskriteeri
 
-Rakentaja tekee ominaisuuden ilman koodia; käyttö toimii vähintään kolmessa perustellussa sovellusesimerkissä; laskenta näkyy logiikkapinnalla; virheet ja puuttuvat viitteet näkyvät; tallennus/tuonti/migraatio säilyvät; suoritus toimii ilman rakentajan DOMia; asianmukaiset vanhat ja uudet testit läpäisevät. Testitulokset ja laiterajat raportoidaan tosina. Dokumentaation kirjoittaminen ei ole ominaisuuden toteutus.
+Rakentaja tekee ominaisuuden ilman koodia; merkittävän uuden rakennusosan monikäyttöisyys osoitetaan erilaisilla sovellusesimerkeillä (esimerkiksi kolme); laskenta näkyy logiikkapinnalla; virheet ja puuttuvat viitteet näkyvät; tallennus/tuonti/migraatio säilyvät; suoritus toimii ilman rakentajan DOMia; asianmukaiset vanhat ja uudet testit läpäisevät. Testitulokset ja laiterajat raportoidaan tosina. Dokumentaation kirjoittaminen ei ole ominaisuuden toteutus.
+

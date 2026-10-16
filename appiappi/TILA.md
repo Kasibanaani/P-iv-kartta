@@ -50,9 +50,14 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 - Appi-appi 11: logiikan Toiminnolla ei voi poistaa palikkaa, joten suunnitelman ”vahvistus tarvitaan” -paluuarvoa ei rakennettu. Liittäminen toisesta projektista poistaa vieraat viittaukset kuten ennen.
 - Appi-appi 11 ei tarkistettu: Miksi?-selitys tekstin ominaisuusviitteelle, monivalintapoisto selaimessa (moottoritesti on), poisto puhelin- ja iPad-näkymän rakentajassa, ⚠-merkin sijainti hyvin pienissä palikoissa.
 
+## Suunnitelmat
+
+- **16.10.2026, missio ja manuaalin tehtävänanto:** `MISSIO.md` kokoaa Emilin kuvaaman tarkoituksen, arvot ja kehitysehdotusten arviointitavan. `suunnitelmat/08-manuaalin-tehtavananto.md` määrittelee tulevan kattavan ihmiselle ja tekoälylle sopivan manuaalin rungon, lähteet, tarkistusmenettelyn ja hyväksymiskriteerit. Varsinaista manuaalia ei tehty. Agenttien lukupolku ja yhteiset periaatteet päivitettiin. Vain Markdown-dokumentaatio muuttui; sovelluskoodia ja testejä ei muutettu eikä sovellustestejä ajettu.
+
 ## Emilin kommentit
 
 - (tyhjä)
 
 Arkisto (Pajakone-rivi, ei enää päivitetä): https://app.notion.com/3fa977255eec812f943afd1d8705083e
+
 

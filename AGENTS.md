@@ -75,6 +75,8 @@ Muut säännöt:
 
 ## Appi-appi (`appiappi/`)
 
+- Lue ensin `appiappi/MISSIO.md`: se kertoo appin tarkoituksen ja kehitysehdotusten arviointiperusteet. Erota rakentajan suora, helposti muutettava työskentely valmiin käyttöpinnan vakaudesta. Laaja palikkavalikoima on sallittu; vähennä opittavia poikkeuksia, älä hyödyllistä ilmaisuvoimaa vain palikoiden määrän vuoksi.
+- Työskentelyn laajuus: rajattu korjaus/toteutus käyttää tehtävän tarvitsemia manuaali- ja suunnitelmaosia. Käyttäjän pyytämä kokonaiskatselmus tai uuden toimintojen ryhmän suunnittelu edellyttää koko ajantasaisen manuaalin sekä mission ja keskeisten päätösten lukemista. Jos manuaalia ei vielä ole, kokoa vastaava kattava nykytilakuva; suunnitelma ei todista toteutumaa. Manuaalin tuleva tehtävänanto on `appiappi/suunnitelmat/08-manuaalin-tehtavananto.md`; se ei ole vielä manuaali eikä käsky kirjoittaa sitä oma-aloitteisesti.
 - Ennen Appi-appin suunnittelu- tai toteutustyötä lue `appiappi/TILA.md`, `appiappi/SUUNNITELMA.md` ja `appiappi/suunnitelmat/00-periaatteet.md`, sitten vain kyseisen työn tarkka suunnitelma. Hakemisto erottaa käyttäjän päätökset, toteuttamattomat ehdotukset ja jo olemassa olevat ominaisuudet. Dokumentit ovat itsenäinen ohje: aiempaa keskustelua tai Notionia ei tarvitse muistaa. Suunnitelman olemassaolo ei yksin ole lupa rakentaa kaikkia vaiheita. Uusimmat 16.10.2026 ketju- ja viitepäätökset ovat hakemiston kautta löytyvissä suunnitelmissa; `VERTAILU.md` säilyy vanhempien vaiheiden historiana.
 - `<script id="engine">` = moottori (`KK`, ei DOMia; liike-, törmäys- ja kameralogiikka kuuluvat tänne, koska moottori kopioituu viedyille apeille), `<script id="ui">` = käyttöliittymä.
 - Testit: `sh appiappi/testit/aja.sh`, luettelo `appiappi/testit/README.md`. Suunnitelma ja päätökset: `appiappi/VERTAILU.md`.
@@ -85,4 +87,5 @@ Muut säännöt:
 - Appi-appin projektit: `master-tiedot/appiappi/<id>.json`. Appi lukee uudet napista ”Hae uudet projektit” ja hakee uudemman version itse, jos käyttäjällä ei ole tallentamattomia muutoksia. Tee pyynnöstä **uusi** tiedosto uudella id:llä nykyisellä `VER`:llä (muoto koodista: `payload`, `okProj`, `repair`). Älä muokkaa olemassa olevaa projektia ilman erillistä pyyntöä.
 - Masterin projektit `master-tiedot/projektit/<tunniste>.json`. ”Käy masterin toiveet läpi”: lue `master/TOIVEET.md` ja projektit kokonaan, käsittele avoimet toiveet (`t:"wish"`), merkitse tehdyksi ja kirjoita `reply` suomeksi, pushaa. Raportoi jokaisesta toiveesta.
 - Projektitiedot eivät koskaan tule tähän julkiseen repoon.
+
 
