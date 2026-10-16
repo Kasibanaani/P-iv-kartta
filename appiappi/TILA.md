@@ -78,6 +78,7 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 
 ## Suunnitelmat
 
+- **16.10.2026, F24 massa ja törmäykset (Emilin idea):** `suunnitelmat/09-massa-ja-tormaykset.md`: massa ja kimmoisuus esineelle, kitka ja töytäisyvauhti Liikkeelle, massallisten törmäysten laskenta, logiikan arvot (isku, osui palikkaan, `tapahtuma.kohde`/`.isku`, `vauhti x/y`), tallennus, esimerkit, testit ja rajaukset. Ei toteutettu; Emil päättää kohdan 10 avoimet kysymykset ja antaa toteutusluvan. Vain Markdown muuttui, sovellustestejä ei ajettu.
 - **16.10.2026, missio ja manuaalin tehtävänanto:** `MISSIO.md` kokoaa Emilin kuvaaman tarkoituksen, arvot ja kehitysehdotusten arviointitavan. `suunnitelmat/08-manuaalin-tehtavananto.md` määrittelee tulevan kattavan ihmiselle ja tekoälylle sopivan manuaalin rungon, lähteet, tarkistusmenettelyn ja hyväksymiskriteerit. Varsinaista manuaalia ei tehty. Agenttien lukupolku ja yhteiset periaatteet päivitettiin. Vain Markdown-dokumentaatio muuttui; sovelluskoodia ja testejä ei muutettu eikä sovellustestejä ajettu.
 
 ## Emilin kommentit
