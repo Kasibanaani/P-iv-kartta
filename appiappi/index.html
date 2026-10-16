@@ -865,6 +865,8 @@ var K={
      logiikkaan: näkyy, estää alemmat, himmennys, läpinäkyvyys). */
   kello:{n:'Sekuntikello',g:'lg',ic:'⏲',d:{}},
   kerros:{n:'Kerros',g:'lg',ic:'◧',d:{vw:'',kr:'',ohk:['nakyy']}},
+  /* Appi-appi 10: kamera (laitenäkymän zoomaus logiikkaan). */
+  kamera:{n:'Kamera',g:'lg',ic:'⌕',d:{vw:'',ohk:['zoomaus']}},
   liike:{n:'Liike',g:'lg',ic:'➶',d:{vx:'',vy:'',x0:0,y0:0,xmin:'',xmax:'',ymin:'',ymax:'',o:'',ohj:'',tt:'',vm:200,ka:'',kb:'',km:'',liuk:0,kaa:180,kaanny:'',ks:''}},
   kayra:{n:'Käyrä',g:'lg',ic:'∿',d:{a:'',xmin:0,xmax:10,ymin:0,ymax:100,pn:5,pw:[0,25,50,75,100],dec:''}},
   lasku:{n:'Lasku',g:'lg',ic:'+',d:{op:'add',a:'',b:''}},
@@ -939,6 +941,7 @@ function portsBase(b){
     case 'muutos':ins=[E('e','alkaa'),E('x','pysäytä'),V('a','alku'),V('b','loppu'),V('k','kesto')];outs=[V('v','arvo'),V('t','edistyminen'),V('r','käynnissä'),E('e','valmis')];break;
     case 'kello':ins=[E('e','käynnistä'),E('x','pysäytä'),E('n','nollaa'),V('c','käy kun')];outs=[V('v','kulunut'),V('r','käy')];break;
     case 'kerros':outs=[V('v','näkyy')];break;
+    case 'kamera':outs=[V('v','zoomaus'),V('lev','näkyvä leveys'),V('kor','näkyvä korkeus')];break;
     case 'liike':{var oj=LIIKE_OHJ[b.ohj]?b.ohj:'';ins=oj?[V('vm','huippunopeus')]:[V('vx','nopeus x'),V('vy','nopeus y')];
       if(oj==='napautus')ins.push(V('tx','kohde x'),V('ty','kohde y'));if(oj==='auto')ins.push(V('kaa','kaasu'),V('ohj','ohjaus'));if(oj==='ruutu')ins.push(E('yl','ylös'),E('al','alas'),E('va','vasen'),E('oi','oikea'));
       ins.push(V('c','liikkuu kun'),E('e','alkuun'));if(oj==='reitti')ins.push(E('go','käynnistä'),E('stop','pysäytä'));outs=[V('v','x'),V('y','y'),V('m','liikkuu'),V('osuu','osuu esteeseen'),V('nop','nopeus'),V('suu','suunta'),E('tor','törmäsi')];
@@ -1042,6 +1045,8 @@ function omat(b){
   switch(k){
     case 'kerros':r.push(OM('nakyy','näkyy','kylla',{kf:'pk',kinv:1,o:1,d:'näkyykö kerros käytössä'}),OM('estaa','estää','kylla',{kf:'es',o:1,d:'kun kerros näkyy, alempien kerrosten palikoita ei voi käyttää'}),
       OM('himmennys','himmennys','luku',{kf:'him',o:1,lim:[0,100],def:0,d:'kun kerros näkyy, alemmat himmenevät (0–100 %)'}),OM('lpn','läpinäkyvyys','luku',{al:['lapinakyvyys'],kf:'lp',o:1,lim:[0,100],def:0,d:'kerroksen palikat: 0 = näkyy kokonaan, 100 = ei näy'}));break;
+    case 'kamera':r=r.filter(function(e){return e.p!=='arvo';});r.push(OM('zoomaus','zoomaus','luku',{f:'zm',o:1,lim:[ZOOM_MIN,ZOOM_MAX],def:100,d:'kameran zoomaus % (100 = laitteen ruutu, 200 = kaksi kertaa lähempänä)'}));
+      pt('lev','leveys','näkyvän maailman leveys (laitteen leveys / zoomaus)');pt('kor','korkeus','näkyvän maailman korkeus');break;
     case 'kello':pt('r','käy','onko käynnissä',['kay']);r.push(OM('kulunut','kulunut','arvo',{port:'v',d:'kulunut aika sekunteina'}));break;
     case 'ketju':pt('t','tulos','ketjun tulos');pt('v','käynnissä','onko käynnissä',['kaynnissa']);r=r.filter(function(e){return e.p!=='arvo';});break;
     case 'ajastin':pt('j','jäljellä','jäljellä oleva aika sekunteina',['jaljella']);pt('v','käynnissä','odottaako jokin haara ajastimessa',['kaynnissa']);break;
@@ -1792,6 +1797,26 @@ function liikeRuutu(P,b,ev,dt,rect,R,esteet,lim,fires){var id=b.id,st=liikeSt(P,
   if(on&&(mx!=null||rq||tsu))ns.go=1;
   var keys={};Object.keys(st).concat(Object.keys(ns)).forEach(function(k){keys[k]=1;});if(Object.keys(keys).some(function(k){return st[k]!==ns[k];})){P.st[id]=ns;changed=true;}
   return changed;}
+/* ---------- Appi-appi 10: zoomaus ----------
+   Laitenäkymän v.zm = {s: zoomaus sormilla käytössä, min, max (%)}; oletus pois, 50–300 %. Kamera-palikka (laji kamera,
+   b.vw = näkymä) tuo zoomauksen logiikkaan: ominaisuus zoomaus % (perusarvo b.zm, puuttuva = 100). Ensimmäinen samaan näkymään
+   osoittava ratkaisee. Etusija: nuoli tai kaava (lukitsee sormet), sitten toiminnon tai sormien asettama, sitten perusarvo.
+   Ilman Kamera-palikkaa sormien zoomaus on käyttöliittymän tietoa kuten kameran paikka (ui). Lukittu kerros ei zoomaudu. */
+var ZOOM_MIN=10,ZOOM_MAX=1000;
+function zoomRaja(n){return Math.max(ZOOM_MIN,Math.min(ZOOM_MAX,n));}
+function zoomAsetus(P,vw){if(!laite(P,vw))return null;var v=viewById(P,vw),z=v&&v.zm,o={s:false,min:50,max:300};if(!z||typeof z!=='object')return o;
+  o.s=z.s===true;var a=parseNum(z.min),b=parseNum(z.max);if(!isNaN(a))o.min=zoomRaja(a);if(!isNaN(b))o.max=zoomRaja(b);if(o.max<o.min){var t=o.min;o.min=o.max;o.max=t;}return o;}
+function kameraBlk(P,vw){var ks=Object.keys(P.b);for(var i=0;i<ks.length;i++){var b=P.b[ks[i]];if(b&&b.k==='kamera'&&b.vw&&b.vw===vw)return ks[i];}return null;}
+/* Zoomaus nyt prosentteina (vain laitenäkymässä, muuten 100). ui = sormien zoomaus ilman Kamera-palikkaa. */
+function zoomPct(v){var n=num(v);return isErr(v)||v==null||v===''||isNaN(n)||!isFinite(n)?100:zoomRaja(n);}
+function zoomNyt(P,vw,ctx,ui){if(!laite(P,vw))return 100;var id=kameraBlk(P,vw);
+  if(id)return zoomPct(Ev(P,ctx).omiVal(id,'zoomaus'));
+  var u=num(ui);return isFinite(u)&&u>0?zoomRaja(u):100;}
+/* Ohjaako nuoli tai kaava zoomausta (sormilla ei silloin voi zoomata)? */
+function zoomLukittu(P,vw,ctx){var id=kameraBlk(P,vw);return !!id&&Ev(P,ctx).linked(id,'o_zoomaus');}
+/* Sormien zoomaus Kamera-palikalle: asetettu arvo kuten Aseta. Palauttaa false, jos nuoli ohjaa; null, jos palikkaa ei ole. */
+function zoomAseta(P,vw,pct,ctx){var id=kameraBlk(P,vw);if(!id)return null;if(zoomLukittu(P,vw,ctx))return false;
+  var ok=setOmi(P,id,'zoomaus',Math.round(zoomRaja(num(pct)||100)*10)/10);if(ok)tick(P,ctx);return ok;}
 /* ---------- Projekti ---------- */
 function uid(){return 'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
 function newProject(name){
@@ -1920,6 +1945,7 @@ function repair(P){
     /* Appi-appi 9: sekuntikello, kerros ja monitori. */
     if(b.k==='kello'&&P.st[id]!==undefined){var kst=P.st[id];if(!kst||typeof kst!=='object'||!isFinite(kst.acc)||(kst.run&&!isFinite(kst.t0)))delete P.st[id];}
     if(b.k==='kerros'){if(typeof b.vw!=='string')b.vw='';if(typeof b.kr!=='string')b.kr='';}
+    if(b.k==='kamera'){if(typeof b.vw!=='string')b.vw='';if(b.zm!==undefined){var bz=parseNum(b.zm);if(isNaN(bz))delete b.zm;else b.zm=zoomRaja(bz);}}
     if(b.k==='mittari'){if(!MITM.some(function(o){return o[0]===b.muoto;}))b.muoto='palkki';if(!MITE.some(function(o){return o[0]===b.esit;}))b.esit='luku';}
     if((b.k==='liike'||b.k==='tatti')&&P.st[id]!==undefined){var lst=P.st[id];if(!lst||typeof lst!=='object'||!isFinite(lst.x)||!isFinite(lst.y))delete P.st[id];}
     /* Appi-appi 2: liikkeen kohde, este, osuma-alue ja alueen tunnistettava. */
@@ -1992,6 +2018,9 @@ function repair(P){
       ['ka','pe'].forEach(function(f){var n=parseNum(km[f]);if(!isNaN(n))ko[f]=Math.max(0,Math.min(100,Math.round(n)));});
       var kra=P.b[km.ra];if(kra&&kra.k==='alue'&&kra.v===v.id)ko.ra=km.ra;
       if(Object.keys(ko).length)v.kam=ko;else delete v.kam;}}
+    /* Appi-appi 10: zoomaus sormilla (s) ja rajat (min, max %). */
+    if(v.zm!==undefined){var zm=v.zm;if(!zm||typeof zm!=='object'||Array.isArray(zm))delete v.zm;else{var zo={};if(zm.s===true)zo.s=true;
+      ['min','max'].forEach(function(f){var n=parseNum(zm[f]);if(!isNaN(n))zo[f]=zoomRaja(Math.round(n));});if(Object.keys(zo).length)v.zm=zo;else delete v.zm;}}
     if(v.kr!==undefined){if(!Array.isArray(v.kr))delete v.kr;else{var kseen={},kl=[];
       v.kr.forEach(function(k){if(!k||typeof k!=='object')return;var kid=String(k.id||'');if(!/^(pohja|k\d+)$/.test(kid)||kseen[kid])return;kseen[kid]=1;
         var o={id:kid,n:String(k.n||(kid==='pohja'?'Pohja':'Kerros')).slice(0,60)};var kr=parseNum(k.rv);if(!isNaN(kr)&&kr<100)o.rv=Math.max(0,Math.round(kr));if(k.piilo===true)o.piilo=true;if(k.lukko===true)o.lukko=true;if(k.este===true)o.este=true;if(k.pk===true)o.pk=true;if(k.es===true)o.es=true;['him','lp'].forEach(function(f){var hn=parseNum(k[f]);if(!isNaN(hn)&&hn>0)o[f]=Math.min(100,Math.round(hn));});var rkn=parseNum(k.rk);if(!isNaN(rkn)&&rkn>=4){o.rk=Math.min(1000,Math.round(rkn*100)/100);var rtn=parseNum(k.rt);if(!isNaN(rtn)&&rtn>1)o.rt=Math.min(4,Math.round(rtn));if(k.rkk===false)o.rkk=false;if(k.rkn==='aina'||k.rkn==='ei')o.rkn=k.rkn;}kl.push(o);});
@@ -2337,6 +2366,7 @@ function Ev(P,ctx){
       case 'muutos':{var mv=muutosNow(P,b,inp,has,linked,ctx);if(isErr(mv))return mv;if(p==='t')return mv.t;if(p==='r')return mv.run;return mv.v;}
       case 'kello':{var kv=kelloNow(P,b,ctx);return p==='r'?kv.run:kv.v;}
       case 'kerros':return omi(id,'nakyy');
+      case 'kamera':{var kL=laite(P,b.vw),kzv=kL?zoomPct(omiVal(id,'zoomaus')):100;if(p==='lev'||p==='kor')return kL?Math.round((p==='lev'?kL.w:kL.h)*10000/kzv)/100:null;return kzv;}
       case 'liike':{var lst=liikeSt(P,id);if(p==='m')return !!lst.m;if(p==='osuu')return !!lst.osui;
         if(p==='nop')return round9(Math.round(Math.sqrt((num(lst.vx)||0)*(num(lst.vx)||0)+(num(lst.vy)||0)*(num(lst.vy)||0))*100)/100);
         if(p==='kx'||p==='ky'){var kv=p==='kx'?lst.tx:lst.ty;return kv==null||!isFinite(kv)?null:kv;}if(p==='eip')return !!lst.np;
@@ -3056,6 +3086,8 @@ function why(P,E,id,depth,seen){
       r.txt=!fxv?'Valitse '+(b.k==='nvaihto'?'näkymä tai sijainti':'palikka, jolle efekti tehdään')+'.':K[b.k].n+': ”'+fxv+'”, kesto '+fiNum(num(b.kesto)||0)+' s. Ketjussa seuraava tapahtuma '+(b.odota===false?'jatkuu heti':'odottaa efektin loppuun')+'; ketjun ulkopuolella sitten-tapahtuma lähtee heti.';break;}
     case 'kello':{var kcv=E.val(id),kcr=E.val(id,'r');r.txt=(kcr?'Käy: ':'Seis: ')+fmtLeft(Math.floor(num(kcv)||0)*1000)+' ('+fiNum(num(kcv)||0)+' s).'+(E.linked(id,'c')?' Käy, kun ehto pätee.':'');break;}
     case 'kerros':{var kro=kerrosObj(P,b.vw,b.kr);r.txt=!kro?'Valitse kerros.':'Kerros ”'+kro.n+'” '+(truth(E.val(id))?'näkyy':'ei näy')+' käytössä'+(truth(E.omiVal(id,'estaa'))&&truth(E.val(id))?' ja estää alempien kerrosten käytön':'')+'.';if(E.linked(id,'o_nakyy'))kidFor('o_nakyy');break;}
+    case 'kamera':{var kvw=viewById(P,b.vw);r.txt=!kvw?'Valitse näkymä.':!laite(P,b.vw)?'Näkymä ”'+kvw.n+'” ei ole laitenäkymä, joten zoomausta ei ole.':kameraBlk(P,b.vw)!==id?'Näkymällä ”'+kvw.n+'” on jo toinen Kamera-palikka, joka ratkaisee zoomauksen.':
+      'Zoomaus '+fiNum(num(E.val(id))||100)+' % näkymässä ”'+kvw.n+'”'+(E.linked(id,'o_zoomaus')?' (nuolesta; sormilla ei voi zoomata).':P.st['o:'+id]&&P.st['o:'+id].zoomaus!==undefined?' (asetettu toiminnolla tai sormilla).':' (perusarvo).');if(E.linked(id,'o_zoomaus'))kidFor('o_zoomaus');break;}
     case 'ajastin':{var tl=E.timerLeft(id),dm=timerMs(P,id,{now:function(){return E.now;}});
       var inch=nodesOfBlock(P,id).some(function(n){return chainOfNode(P,n);});
       var tlab=b.tapa==='klo'?'kellonaikaan '+fmtKlo(parseKlo(b.klo)):fmtDur(dm);
@@ -3085,7 +3117,7 @@ function why(P,E,id,depth,seen){
 return {omat:omat,omFind:omFind,omNorm:omNorm,omBase:omBase,omNames:omNames,omActive:omActive,setOmi:setOmi,resetOmi:resetOmi,isOff:isOff,napVaihto:napVaihto,boolKey:boolKey,TIMEU:TIMEU,YKSA:YKSA,ENVW:ENVW,portsBase:portsBase,tattiSet:tattiSet,muutosStart:muutosStart,muutosStop:muutosStop,frame:frame,napExt:napExt,NAP_PITKA:NAP_PITKA,pressDown:pressDown,pressLong:pressLong,pressUp:pressUp,hasOut:hasOut,curveAt:curveAt,KAYRA_PRESETS:KAYRA_PRESETS,kayraPreset:kayraPreset,kayraResize:kayraResize,kayraDec:kayraDec,kayraSpec:kayraSpec,kayraAt:kayraAt,satuN:satuN,satuMuoto:satuMuoto,satuCurve:satuCurve,satuResize:satuResize,satuPreset:satuPreset,SATU_PRESETS:SATU_PRESETS,SATU_MAXN:SATU_MAXN,satuSpec:satuSpec,satuDist:satuDist,satuPick:satuPick,satuPct:satuPct,satuItemTxt:satuItemTxt,satuTop:satuTop,satuRoll:satuRoll,
   chainOpen:chainOpen,parseKlo:parseKlo,nextClock:nextClock,timerLabel:timerLabel,arpaN:arpaN,toistaN:toistaN,setMhLabel:function(f){MHLAB=f;},mhLabel:mhLabel,odotaLim:odotaLim,odotaEv:odotaEv,hasLimit:hasLimit,chainSignal:chainSignal,copyNodes:copyNodes,pasteNodes:pasteNodes,chainList:chainList,haaraVal:haaraVal,chainIssues:chainIssues,FXK:FXK,YKS:YKS,YKSN:YKSN,fmtDur:fmtDur,fmtLeft:fmtLeft,timerMs:timerMs,chainStart:chainStart,chainStop:chainStop,chainAdvance:chainAdvance,chainPoll:chainPoll,chainInfo:chainInfo,anyChainRunning:anyChainRunning,CH_STEPS:CH_STEPS,CH_TOKENS:CH_TOKENS,
   isWin:isWin,isStep:isStep,STEPK:STEPK,chainNode:chainNode,chainOfNode:chainOfNode,chainSteps:chainSteps,isChainLink:isChainLink,chainLinksFrom:chainLinksFrom,chainStarts:chainStarts,chainIsRing:chainIsRing,chainOrder:chainOrder,
-  VER:VER,PAJA:'4',LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,reittiPisteet:reittiPisteet,reittiOsat:reittiOsat,reittiHae:reittiHae,liikeRuutuKomento:liikeRuutuKomento,liikePyyhkaisy:liikePyyhkaisy,ruutuAskel:ruutuAskel,RUUTU_SU:RUUTU_SU,reittiKohta:reittiKohta,liikeRun:liikeRun,kuvaKuvat:kuvaKuvat,kelloNow:kelloNow,kelloKomento:kelloKomento,kerrosObj:kerrosObj,MITM:MITM,MITE:MITE,
+  VER:VER,PAJA:'4',LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,reittiPisteet:reittiPisteet,reittiOsat:reittiOsat,reittiHae:reittiHae,liikeRuutuKomento:liikeRuutuKomento,liikePyyhkaisy:liikePyyhkaisy,ruutuAskel:ruutuAskel,RUUTU_SU:RUUTU_SU,reittiKohta:reittiKohta,liikeRun:liikeRun,kuvaKuvat:kuvaKuvat,kelloNow:kelloNow,kelloKomento:kelloKomento,kerrosObj:kerrosObj,zoomAsetus:zoomAsetus,kameraBlk:kameraBlk,zoomNyt:zoomNyt,zoomLukittu:zoomLukittu,zoomAseta:zoomAseta,ZOOM_MIN:ZOOM_MIN,ZOOM_MAX:ZOOM_MAX,MITM:MITM,MITE:MITE,
 kuvaPyorii:kuvaPyorii,kuvaNro:kuvaNro,SARJA_MAX:SARJA_MAX,ruudukko:ruudukko,ruudukkoOf:ruudukkoOf,ruutuAt:ruutuAt,ruutuKeski:ruutuKeski,kohdista:kohdista,ruutuKohdistus:ruutuKohdistus,alueRuudukko:alueRuudukko,alueRuutu:alueRuutu,alueNapautus:alueNapautus,kerrokset:kerrokset,kerrosOf:kerrosOf,rvOf:rvOf,kuvaUrl:kuvaUrl,K:K,KW:KW,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,kaavaToIds:kaavaToIds,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
   ports:ports,port:port,newProject:newProject,addBlock:addBlock,addNode:addNode,addLink:addLink,canLink:canLink,
   removeNode:removeNode,removeBlock:removeBlock,nodeOf:nodeOf,nodesOfBlock:nodesOfBlock,uniqueName:uniqueName,baseName:baseName,
@@ -3336,7 +3368,7 @@ function canPanUI(){if(!useMode())return true;if(devOf()){var m=KK.lrul(P,S.vw);
 /* ---------- Laitemuoto (Pajakone 1) ----------
    Näkymän laite (puhelin, iPad pysty, iPad vaaka): muokatessa laitteen ruutu näkyy kanvaasilla kehyksenä kohdassa (0, 0).
    Käytössä näkymä on laitteen muotoinen: tietokoneella kehyksenä keskellä, kapealla ruudulla (oikea puhelin) koko alueen kokoisena.
-   Käytössä rullataan vain alaspäin ja vain, jos palikoita on ruudun alareunan alapuolella. Zoomausta ei ole. */
+   Käytössä rullataan vain alaspäin ja vain, jos palikoita on ruudun alareunan alapuolella. Zoomaus: Appi-appi 10 (zoomSync). */
 function devOf(vw){return P?KK.laite(P,vw||S.vw):null;}
 function devLayout(){
   var vp=$('#uvp'),st=stU();if(!vp||!st)return null;
@@ -3353,24 +3385,45 @@ function devLayout(){
   return {L:L,s:sc,full:full,w:w,h:h};
 }
 /* Pitää kameran laitteen ruudussa: leveys täyttyy, rullaus vain pystysuunnassa sisällön alareunaan asti. */
-function devClamp(){var d=devLayout();if(!d)return false;var c=camUI(),z=d.s;c.z=z;
+function devClamp(){var d=devLayout();if(!d)return false;var c=camUI(),zf=zoomSync(c,d),z=c.z;
   /* Appi-appi 1: kaikkiin suuntiin (maailma) tai kamera seuraa: rajaus moottorissa. Seuratessa kameran liike tulee kuvasilmukasta. */
   if(KK.lrul(P,S.vw)==='kaikki'){var cm=KK.kameraRajaa(P,S.vw,{x:-c.x/z,y:-c.y/z},{w:d.w/z,h:d.h/z},ctx());c.x=-cm.x*z;c.y=-cm.y*z;return true;}
-  if(KK.lrul(P,S.vw)==='ei'){c.x=0;c.y=0;return true;}
-  var vis=d.h/z,bot=KK.laiteBottom(P,S.vw),minY=-Math.max(0,bot-vis)*z;
-  c.x=0;c.y=Math.min(0,Math.max(minY,c.y));return true;}
+  if(zf===1){
+    if(KK.lrul(P,S.vw)==='ei'){c.x=0;c.y=0;return true;}
+    var vis=d.h/z,bot=KK.laiteBottom(P,S.vw),minY=-Math.max(0,bot-vis)*z;
+    c.x=0;c.y=Math.min(0,Math.max(minY,c.y));return true;}
+  /* Appi-appi 10: zoomattuna pystyrullauksessa voi rullata myös vaakaan laitteen leveydellä; ilman rullausta ruutu pysyy
+     kohdassa, joka 100 %:ssa on keskellä. Rajoja pienempi suunta keskitetään. */
+  var L=d.L,w1=d.w/d.s,h1=d.h/d.s,sw=d.w/z,sh=d.h/z,wx=-c.x/z,wy=-c.y/z;
+  function ax(p,len,a,b){if(b-a<=len)return a-(len-(b-a))/2;return Math.max(a,Math.min(b-len,p));}
+  if(KK.lrul(P,S.vw)==='ei'){wx=ax(w1/2-sw/2,sw,0,Math.max(L.w,w1));wy=ax(h1/2-sh/2,sh,0,Math.max(L.h,h1));}
+  else{wx=ax(wx,sw,0,L.w);wy=ax(wy,sh,0,Math.max(KK.laiteBottom(P,S.vw),h1));}
+  c.x=-wx*z;c.y=-wy*z;return true;}
+/* Appi-appi 10: zoomaus käytössä laitenäkymässä (1 = laitteen ruutu). Kamera-palikan arvo tai sormien zoomaus (c.zm). */
+function zoomF(){if(!P||!useMode()||!devOf())return 1;return KK.zoomNyt(P,S.vw,ctx(),camUI().zm)/100;}
+/* Kameran mittakaava = laitteen sovitus × zoomaus. Kun zoomaus muuttuu muualta (logiikka), ruudun keskikohta pysyy paikallaan.
+   Sormien zoomaus asettaa c.zf itse (sormien välin ympäri). Palauttaa zoomauskertoimen. */
+function zoomSync(c,d){var zf=zoomF(),z=d.s*zf;
+  if(c.zf!==undefined&&Math.abs(c.zf-zf)>1e-9&&c.z>0){var wx=(d.w/2-c.x)/c.z,wy=(d.h/2-c.y)/c.z;c.x=d.w/2-wx*z;c.y=d.h/2-wy*z;}
+  c.zf=zf;c.z=z;return zf;}
 /* Appi-appi 1: kamera seuraa palikkaa. dt = null: heti kohteen kohdalle. Palauttaa, liikkuiko kamera (silmukka jatkuu, kunnes asettuu). */
-function camFollow(dt){if(!P||!useMode()||!KK.kamera(P,S.vw))return false;var d=devLayout();if(!d)return false;var c=camUI(),z=d.s;c.z=z;
+function camFollow(dt){if(!P||!useMode()||!KK.kamera(P,S.vw))return false;var d=devLayout();if(!d)return false;var c=camUI();zoomSync(c,d);var z=c.z;
   var o={x:-c.x/z,y:-c.y/z},n=KK.kameraSeuraa(P,S.vw,o,{w:d.w/z,h:d.h/z},dt,ctx());c.x=-n.x*z;c.y=-n.y*z;
   return Math.abs(n.x-o.x)>0.05||Math.abs(n.y-o.y)>0.05;}
 /* Rullausvauhti: palikka siirtyy rullatessa vain osan kameran liikkeestä (0 = lukittu ruutuun). Vain käytössä laitenäkymässä. */
 function applyRV(){var on=useMode()&&devOf(),um=useMode();var c=camUI(),E=um?ev():null;
+  /* Appi-appi 10: zoomattuna parallaksi lasketaan ruudun keskeltä (100 %:ssa sama kuin ennen), jotta tausta ei liu'u zoomatessa. */
+  var zf=on&&c.zf?c.zf:1,vp=$('#uvp'),s1=c.z/zf,tlx=-c.x/c.z,tly=-c.y/c.z,ax=tlx,ay=tly;
+  if(zf!==1&&vp){ax=tlx+vp.clientWidth/2/c.z-vp.clientWidth/2/s1;ay=tly+vp.clientHeight/2/c.z-vp.clientHeight/2/s1;}
   $$('#uels .ue').forEach(function(el){var b=P.b[el.getAttribute('data-id')];var rv=b?(um&&omOn(b)?E.omiNum(b.id,'rv',KK.rvOf(P,b)):KK.rvOf(P,b)):100;
     /* Appi-appi 1: rullausvauhti (parallaksi) molempiin suuntiin. */
-    var ox=on&&rv<100?-c.x/c.z*(1-rv/100):0,oy=on&&rv<100?-c.y/c.z*(1-rv/100):0;
+    var ox=on&&rv<100?ax*(1-rv/100):0,oy=on&&rv<100?ay*(1-rv/100):0,sc=1;
+    /* Appi-appi 10: lukittu kerros (kojelauta) ei zoomaudu: palikka pysyy laitteen ruudun kohdassaan ja koossaan. */
+    if(on&&rv===0&&zf!==1){var lx=parseFloat(el.style.left)||0,ly=parseFloat(el.style.top)||0;sc=1/zf;ox=lx*(sc-1)+tlx;oy=ly*(sc-1)+tly;}
     /* Pajakone 3d: siirto x / y logiikasta (vain käytössä). */
-    if(um&&b){if(E.linked(b.id,'dx')){var dx=KK.num(E.inp(b.id,'dx'));if(isFinite(dx))ox+=dx;}if(E.linked(b.id,'dy')){var dy=KK.num(E.inp(b.id,'dy'));if(isFinite(dy))oy+=dy;}}
-    el.style.transform=ox||oy?'translate('+ox.toFixed(2)+'px,'+oy.toFixed(2)+'px)':'';el.classList.toggle('rvlock',!!b&&rv===0&&!!devOf()&&!on);});}
+    if(um&&b){if(E.linked(b.id,'dx')){var dx=KK.num(E.inp(b.id,'dx'));if(isFinite(dx))ox+=dx*sc;}if(E.linked(b.id,'dy')){var dy=KK.num(E.inp(b.id,'dy'));if(isFinite(dy))oy+=dy*sc;}}
+    el.style.transform=(ox||oy?'translate('+ox.toFixed(2)+'px,'+oy.toFixed(2)+'px)':'')+(sc!==1?' scale('+sc.toFixed(5)+')':'');el.style.transformOrigin=sc!==1?'0 0':'';
+    el.classList.toggle('rvlock',!!b&&rv===0&&!!devOf()&&!on);});}
 function drawDevFrame(){var w=$('#uworld');if(!w)return;var f=$('#dframe'),L=editingUI()?devOf():null;
   if(!L){if(f)f.remove();return;}
   if(!f){f=document.createElement('div');f.id='dframe';f.className='dframe';w.insertBefore(f,w.firstChild);}
@@ -3389,7 +3442,8 @@ function clampUI(){if(devClamp())return;if(!useMode()||rulOf(S.vw)!=='alue')retu
 /* Lukittuun käyttöön tultaessa näkymä aukeaa alkukohdastaan, jos sellainen on valittu. */
 function goStart(vw){
   if(!P||!locked())return;var v=viewOf(vw);var c=P.cam[vw]||(P.cam[vw]={x:60,y:60,z:1});delete c.a;
-  if(devOf(vw)){c.x=0;c.y=0;if(vw===S.vw&&KK.kamera(P,vw))camFollow(null);return;}
+  /* Appi-appi 10: sormien zoomaus ilman Kamera-palikkaa palaa 100 %:iin kuten kameran paikka alkukohtaan. */
+  if(devOf(vw)){c.x=0;c.y=0;delete c.zm;delete c.zf;if(vw===S.vw&&KK.kamera(P,vw))camFollow(null);return;}
   var m=v&&v.alku&&P.b[v.alku];if(!m||m.k!=='merkki'||m.v!==vw)return;
   placeMark(c,m,vpSize());
   setArea(vw,areaAt(vw,markPt(m)));
@@ -3509,7 +3563,7 @@ function renderPal(){
     if(soon.length)h+='<div class="pt-s">Tulossa myöhemmin</div><div class="chips">'+soon.map(function(k){return '<div class="chip soon h0" data-soon="'+k+'" title="Tulossa myöhemmin: '+esc(FX_PLAN[k]||'')+'"><span class="ci">'+esc(K[k].ic)+'</span>'+esc(K[k].n)+'</div>';}).join('')+'</div>';
     h+='<div class="pt-h">Ehdot</div><div class="chips">'+chipHTML('jos',{},'JOS','?',4)+chipHTML('valitse',{},'VALITSE','⑂',4)+chipHTML('kun',{},'KUN','⚡',4)+chipHTML('haku',{},'Hakutaulukko','⇉',4)+'</div>';
     h+='<div class="pt-h">Liike ja aika</div><div class="chips">'+chipHTML('muutos',{},'Muutos ajassa','↗',5)+chipHTML('liike',{},'Liike','➶',5)+chipHTML('kello',{},'Sekuntikello','⏲',5)+'</div>';
-    h+='<div class="pt-h">Näkymä ja efektit</div><div class="chips">'+chipHTML('kerros',{},'Kerros','◧',6)+chipHTML('ilmesty',{},'Teksti ilmestyy','✎',3)+chipHTML('kuva',{},'Kuva vaihtuu','◫',3)+chipHTML('anim',{},'Animaatio','✦',3)+chipHTML('nvaihto',{},'Näkymänvaihto','⇆',3)+'</div>';
+    h+='<div class="pt-h">Näkymä ja efektit</div><div class="chips">'+chipHTML('kerros',{},'Kerros','◧',6)+chipHTML('kamera',{},'Kamera','⌕',6)+chipHTML('ilmesty',{},'Teksti ilmestyy','✎',3)+chipHTML('kuva',{},'Kuva vaihtuu','◫',3)+chipHTML('anim',{},'Animaatio','✦',3)+chipHTML('nvaihto',{},'Näkymänvaihto','⇆',3)+'</div>';
     h+='<div class="pt-h">Toiminnot</div><div class="chips">';
     Object.keys(KK.DOS).forEach(function(d){h+=chipHTML('tee',{do:d},KK.DOS[d],'▶',1);});
     h+='</div><div class="help" style="margin-top:14px">Vedä nuoli palikan oikeasta reunasta toisen vasempaan reunaan. Palikka ikkunan sisään = sulut. Kaavan voi pudottaa ikkunaan tai näkymän palikan päälle (teksti, näkyy kun, harmaana kun).</div>';
@@ -3575,6 +3629,8 @@ function createAt(k,props,cx,cy,dropped){
     var vp2=$('#lvp'),c2=camL(),w2=toWorld(vp2,c2,cx,cy);
     var b2=KK.addBlock(P,k,props);
     if(b2.k==='satu')KK.satuRoll(P,b2.id,ctx());
+    /* Appi-appi 10: Kamera osoittaa valmiiksi tähän laitenäkymään (tai ensimmäiseen). */
+    if(b2.k==='kamera'&&!b2.vw){var kdv=devOf(S.vw)?S.vw:(P.views.filter(function(v){return KK.laite(P,v.id);})[0]||{}).id;if(kdv)b2.vw=kdv;}
     var n=KK.addNode(P,b2.id,w2.x-60,w2.y-17);
     var win=windowAt(cx,cy,n.id);if(win)n.g=win.id;
     if(KK.isWin(b2)){n.x=Math.round(w2.x-n.w/2);n.y=Math.round(w2.y-20);}
@@ -3903,6 +3959,7 @@ function pyyhkaisyAlku(e){if(!useMode()||e.target.closest('button,input,textarea
   var x0=e.clientX,y0=e.clientY,t0=Date.now(),pid=e.pointerId;
   function up(u){if(u.pointerId!==pid)return;window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',up);if(u.type!=='pointerup'||!P)return;
     var dx=u.clientX-x0,dy=u.clientY-y0;
+    if(S.upinch||(S.pinchT||0)>=t0)return;
     if(Date.now()-t0<800&&Math.max(Math.abs(dx),Math.abs(dy))>=24){var su=Math.abs(dx)>=Math.abs(dy)?(dx>0?'oi':'va'):(dy>0?'al':'yl');
       if(KK.liikePyyhkaisy(P,S.vw,su,ctx())){KK.tick(P,ctx());save();renderUIStage();runFrames();}}
     else napautusTap(u);}
@@ -3927,8 +3984,42 @@ function reittiDrag(e,b,i){var vp=$('#uvp'),moved=false;S.sel={t:'b',id:b.id};S.
 function drawTargets(){var w=$('#uworld');if(!w)return;$$('.tgtm',w).forEach(function(x){x.remove();});if(!useMode())return;
   blocks(function(b){return b.k==='liike'&&b.ohj==='napautus';}).forEach(function(b){var t=KK.liikeKohde(P,b),st=P.st[b.id];if(!t||t.v!==S.vw||!st||st.tx==null||st.ty==null)return;
     var i=document.createElement('i');i.className='tgtm';i.style.left=st.tx+'px';i.style.top=st.ty+'px';w.appendChild(i);});}
+/* Appi-appi 10: zoomaus sormilla käytössä (laitenäkymä, asetus Maailma ja kamera). Ei, jos nuoli tai kaava ohjaa zoomausta. */
+function zoomSormin(){if(!P||!useMode()||!devOf())return false;var a=KK.zoomAsetus(P,S.vw);return !!(a&&a.s)&&!KK.zoomLukittu(P,S.vw,ctx());}
+/* Zoomaa kertoimella f kohdan (cx, cy) ympäri ja siirtää (dx, dy) (sormien välin liike). Seuratessa seurattava pysyy keskellä.
+   Rajat: asetuksen pienin ja suurin (logiikan asettama arvo rajojen ulkopuolella ei hyppää rajalle). */
+function zoomUse(f,cx,cy,dx,dy){var d=devLayout(),vp=$('#uvp');if(!d||!vp)return;var a=KK.zoomAsetus(P,S.vw),c=camUI();zoomSync(c,d);
+  var cur=c.zf*100,np=Math.round(clamp(cur*f,Math.min(a.min,cur),Math.max(a.max,cur))*10)/10;
+  var r=vp.getBoundingClientRect(),seur=!!KK.kamera(P,S.vw),lx=seur?d.w/2:cx-r.left,ly=seur?d.h/2:cy-r.top,nz=d.s*np/100;
+  c.x=lx-(lx-c.x)*(nz/c.z);c.y=ly-(ly-c.y)*(nz/c.z);if(!seur&&canPanUI()){c.x+=dx||0;c.y+=dy||0;}c.z=nz;c.zf=np/100;
+  var ok=KK.zoomAseta(P,S.vw,np,ctx());if(ok===null)c.zm=np;
+  if(ok)renderUIStage();else uiCamChanged();if(seur)runFrames();}
+function bindUsePinch(vp){var T={};
+  function pts(){return Object.keys(T).map(function(k){return T[k];});}
+  function st(){var p=pts();return {d:Math.max(10,Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y)),x:(p[0].x+p[1].x)/2,y:(p[0].y+p[1].y)/2};}
+  vp.addEventListener('pointerdown',function(e){if(e.pointerType!=='touch'||editingUI())return;T[e.pointerId]={x:e.clientX,y:e.clientY};
+    if(pts().length===2&&zoomSormin()){S.pinch=st();S.upinch=1;S.pinchT=Date.now();}},true);
+  window.addEventListener('pointermove',function(e){if(!T[e.pointerId])return;T[e.pointerId]={x:e.clientX,y:e.clientY};
+    if(S.upinch&&S.pinch&&pts().length>=2){var n=st();S.pinchT=Date.now();zoomUse(n.d/S.pinch.d,n.x,n.y,n.x-S.pinch.x,n.y-S.pinch.y);S.pinch=n;}},true);
+  function end(e){if(!T[e.pointerId])return;delete T[e.pointerId];if(pts().length<2&&S.upinch){S.pinch=null;S.upinch=0;S.pinchT=Date.now();save();}}
+  window.addEventListener('pointerup',end,true);window.addEventListener('pointercancel',end,true);
+  /* Safari: sivun oma nipistyszoomaus pois, kun appi zoomaa itse. */
+  vp.addEventListener('gesturestart',function(e){if(zoomSormin())e.preventDefault();});
+  /* Tietokoneella ⌘/Ctrl + rulla tai ohjauslevyn nipistys. */
+  vp.addEventListener('wheel',function(e){if(!(e.ctrlKey||e.metaKey)||!zoomSormin())return;e.preventDefault();e.stopImmediatePropagation();zoomUse(Math.exp(-e.deltaY*0.01),e.clientX,e.clientY,0,0);save();},{capture:true,passive:false});}
+/* Appi-appi 10: kun sormilla voi zoomata, napautus maailmaan tehdään vasta sormen noustessa (ei, jos siitä tuli nipistys
+   tai sormi liikkui), jottei nipistyksen ensimmäinen sormi lähetä hahmoa liikkeelle. */
+function napautusMyohemmin(e){if(e.pointerType!=='touch'||!zoomSormin()||e.target.closest('button,input,textarea,select,[data-act],.cal'))return false;
+  var x0=e.clientX,y0=e.clientY,t0=Date.now(),pid=e.pointerId;
+  function up(u){if(u.pointerId!==pid)return;window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',up);
+    if(u.type!=='pointerup'||!P||S.upinch||(S.pinchT||0)>=t0||Math.hypot(u.clientX-x0,u.clientY-y0)>10)return;napautusTap(u);}
+  window.addEventListener('pointerup',up);window.addEventListener('pointercancel',up);return true;}
+/* Onko näkymässä napautus kohteeseen tai alueen napautus? Silloin yhden sormen veto ei rullaa (kuten ilman zoomausta). */
+function napautusKaytossa(){return blocks(function(b){return b.k==='liike'&&b.ohj==='napautus';}).some(function(b){var t=KK.liikeKohde(P,b);return t&&t.v===S.vw;})||
+  blocks(function(a){return a.k==='alue'&&a.v===S.vw&&(KK.hasOut(P,a.id,'nap')||KK.hasOut(P,a.id,'nx')||KK.hasOut(P,a.id,'ny'));}).length>0;}
 function bindUIStage(){
   var vp=$('#uvp');
+  bindUsePinch(vp);
   wheel(vp,camUI,uiCamChanged,canPanUI);
   $('.zoomc',stU()).addEventListener('click',function(e){var z=e.target.getAttribute('data-z');if(!z)return;var c=camUI(),r=vp.getBoundingClientRect();
     if(z==='mark'){if(editingUI())addMarkHere();return;}if(z==='area'){if(editingUI())addAreaHere();return;}if(!canPanUI())return;
@@ -3945,6 +4036,7 @@ function bindUIStage(){
     var el=e.target.closest('.ue');
     if(!editingUI()){
       if(pyyhkaisyAlku(e))return;
+      if(napautusMyohemmin(e)){if(!el&&canPanUI()&&!napautusKaytossa())startPan(e,vp,camUI,uiCamChanged);return;}
       if(napautusTap(e))return;
       if(!el&&canPanUI())startPan(e,vp,camUI,uiCamChanged);
       return;
@@ -4066,7 +4158,7 @@ function afterUse(keep){save();renderUIStage();if(S.sel)renderInsp();runFrames()
 /* Pajakone 3d: kuvasilmukka liikkeille ja muutoksille. Käy vain, kun jokin liikkuu tai tatti on painettuna.
    Näkymä piirretään joka kuvassa, logiikan kanvaasi harvemmin; tallennus vasta, kun liike pysähtyy (ja 2 s välein). */
 /* Appi-appi 1: onko kamera jäljessä seurattavasta (esim. Aseta siirsi palikan hypyllä)? */
-function camBehind(){if(!P||!useMode()||!KK.kamera(P,S.vw))return false;var d=devLayout();if(!d)return false;var c=camUI(),z=d.s,o={x:-c.x/z,y:-c.y/z},n=KK.kameraSeuraa(P,S.vw,o,{w:d.w/z,h:d.h/z},10,ctx());
+function camBehind(){if(!P||!useMode()||!KK.kamera(P,S.vw))return false;var d=devLayout();if(!d)return false;var c=camUI();zoomSync(c,d);var z=c.z,o={x:-c.x/z,y:-c.y/z},n=KK.kameraSeuraa(P,S.vw,o,{w:d.w/z,h:d.h/z},10,ctx());
   return Math.abs(n.x-o.x)>0.5||Math.abs(n.y-o.y)>0.5;}
 function runFrames(){if(S.frRaf||!P)return;if(!KK.frame(P,0,ctx())&&!S.tattiHeld&&!S.camMv&&!camBehind()&&!fxActive())return;S.camMv=true;var last=performance.now(),lastL=0,lastS=Date.now();
   function step(ts){S.frRaf=0;if(!P)return;S.inFrame=true;var dt=Math.max(0,(ts-last)/1000);last=ts;var act=KK.frame(P,dt,ctx());
@@ -4636,6 +4728,13 @@ function worldSection(vw){
   }
   if(seur||lr==='kaikki')h+=F('Maailman rajat','<select data-vkam="ra" data-vw="'+vw+'"><option value="">'+(seur?'ei rajaa':'palikoiden mukaan')+'</option>'+as.map(function(o){return '<option value="'+o.id+'"'+(km.ra===o.id?' selected':'')+'>'+esc(o.nm)+'</option>';}).join('')+'</select>',
     as.length?'Kamera ei näytä valitun alueen ulkopuolta.':'Rajaksi käy Alue-palikka (Koristeet → Alue): kamera ei näytä sen ulkopuolta.');
+  /* Appi-appi 10: zoomaus. */
+  var za=KK.zoomAsetus(P,vw),kbid=KK.kameraBlk(P,vw),kb=kbid&&P.b[kbid],zl=kb&&KK.Ev(P,ctx()).linked(kbid,'o_zoomaus');
+  if(za){h+='<div class="f"><label>Zoomaus</label><label class="ck"><input type="checkbox" data-vzm="s" data-vw="'+vw+'"'+(za.s?' checked':'')+'> Sormilla (kahden sormen nipistys)</label>'+
+      (za.s?'<div class="row2" style="align-items:flex-start"><div class="f"><label>Pienin (%)</label><input type="number" min="'+KK.ZOOM_MIN+'" max="'+KK.ZOOM_MAX+'" step="10" data-vzm="min" data-vw="'+vw+'" value="'+za.min+'"></div><div class="f"><label>Suurin (%)</label><input type="number" min="'+KK.ZOOM_MIN+'" max="'+KK.ZOOM_MAX+'" step="10" data-vzm="max" data-vw="'+vw+'" value="'+za.max+'"></div></div>':'')+
+      '<div class="help">'+(za.s?(seur?'Seurattava pysyy keskellä zoomatessa. ':lr==='ei'?'Ruutu zoomautuu keskeltä. ':'Zoomaus sormien kohdalta. ')+'Tietokoneella ⌘ + rulla. 100 % = laitteen ruutu. ':'')+
+      '<b>Lukittu</b> kerros (kojelauta) ei zoomaudu.'+(zl?' Nuoli tai kaava ohjaa nyt zoomausta, joten sormilla ei voi zoomata.':'')+'</div>'+
+      '<button class="ib" data-kamlog="'+vw+'">'+(kb?'⌕ Näytä logiikassa ('+esc(kb.nm)+')':'⌕ Ohjaa logiikasta')+'</button></div>';}
   h+='<div class="help">Kerrokset: rullausvauhti toimii molempiin suuntiin. <b>Lukittu</b> kerros on kojelauta (tatti, pisteet, napit): aseta sen palikat kehyksen sisään. Hitaampi kerros on kaukainen tausta.</div>';
   return section('Maailma ja kamera ('+esc(v.n)+')',h);
 }
@@ -5251,6 +5350,7 @@ function lgInsp(b,E,node){
     case 'satu':h+=satuInsp(b,E);break;
     case 'kello':h+=kelloInsp(b,E);break;
     case 'kerros':h+=kerrosInsp(b,E);break;
+    case 'kamera':h+=kameraInsp(b,E);break;
     case 'kayra':h+=kayraInsp(b,E);break;
     case 'muutos':{var mr=E.val(b.id,'r'),mt=E.val(b.id,'t');
       h+=section('Muutos ajassa',fValue('Alku','a',b)+fValue('Loppu','b',b)+(E.linked(b.id,'k')?'<div class="help">Kesto tulee nuolesta (kohta kesto) sekunteina. Aika-arvo (esim. Arvo yksikössä min) muuttuu sekunneiksi itsestään.</div>':'<div class="row2">'+fNum('Kesto','kesto',b.kesto)+fSelect('Yksikkö','yks',b.yks||'s',[['s','sekuntia'],['min','minuuttia'],['h','tuntia']])+'</div>')+
@@ -5317,6 +5417,19 @@ function krSum(vw,k){var o=[];if(k.pk)o.push('piilossa käytössä');if(k.es)o.p
 function krLogiikkaan(vw,kid){var kb=krBlockOf(vw,kid);if(kb){gotoBlock(kb.id);return;}var k=KK.kerrosObj(P,vw,kid);if(!k)return;pushUndo();
   var b=KK.addBlock(P,'kerros',{vw:vw,kr:kid,nm:k.n});var my=40;P.lg.n.forEach(function(n){if(!n.g)my=Math.max(my,n.y+(n.h||34)+50);});KK.addNode(P,b.id,40,my);
   KK.tick(P,ctx());save();renderAll();toast('Kerros-palikka ”'+b.nm+'” tehtiin logiikkaan (viite '+b.vt+').');}
+/* Appi-appi 10: Kamera-palikka logiikkaan näkymän asetuksista (tai siirtyminen olemassa olevaan). */
+function kameraLogiikkaan(vw){var id=KK.kameraBlk(P,vw);if(id){gotoBlock(id);return;}if(!viewOf(vw))return;pushUndo();
+  var b=KK.addBlock(P,'kamera',{vw:vw,nm:'Kamera'+(P.views.length>1?' ('+viewName(vw)+')':'')});var my=40;
+  /* Logiikan kanvaasia ei ehkä ole piirretty (nappi on Näkymä-välilehdellä): korkeus arvioidaan kytkentäkohdista. */
+  P.lg.n.forEach(function(n){var ob=P.b[n.p];if(n.g||!ob||KK.isWin(ob))return;var el=$('#lworld [data-nid="'+n.id+'"]'),pr=KK.ports(ob),
+    h=el?el.offsetHeight:Math.max(n.h||34,24+16*Math.max(pr.ins.length,pr.outs.length));my=Math.max(my,n.y+h+40);});KK.addNode(P,b.id,40,my);
+  KK.tick(P,ctx());save();renderAll();toast('Kamera-palikka ”'+b.nm+'” tehtiin logiikkaan (viite '+b.vt+').');}
+function kameraInsp(b,E){var dv=P.views.filter(function(v){return KK.laite(P,v.id);}),L=KK.laite(P,b.vw),first=KK.kameraBlk(P,b.vw);
+  var h=fSelect('Näkymä','vw',b.vw||'',[['','valitse näkymä']].concat(dv.map(function(v){return [v.id,v.n];})),!dv.length?'Zoomaus toimii laitenäkymässä (puhelin tai iPad). Valitse näkymälle laite Näkymä-välilehdellä.':!L?'Valitse, minkä laitenäkymän kameraa tämä palikka ohjaa.':first!==b.id?'⚠ Tällä näkymällä on jo toinen Kamera-palikka ('+esc(P.b[first].nm)+'), joka ratkaisee zoomauksen.':'');
+  h+=fNum('Zoomaus alussa (%)','zm',b.zm==null?'':b.zm,'Perusarvo. Tyhjä = 100 %. Etusija: nuoli tai kaava, sitten toiminnon tai sormien asettama, sitten tämä.');
+  if(L){var zv=KK.num(E.val(b.id));h+='<div class="help">Nyt '+KK.fmt(zv)+' %: maailmasta näkyy '+KK.fmt(E.val(b.id,'lev'))+' × '+KK.fmt(E.val(b.id,'kor'))+' px.</div>';}
+  h+='<div class="help">Ominaisuus <b>zoomaus</b>: vie nuoli tai kaava (esim. Muutos ajassa 100 → 200 pehmeään lähennykseen) tai käytä toimintoja (painike → Aseta → '+esc(b.nm)+'.zoomaus = 150, Palauta perusarvo). Nuoli lukitsee sormien zoomauksen, Aseta ei. Lukittu kerros (kojelauta) ei zoomaudu. Kaavassa '+esc(b.vt)+'.zoomaus, '+esc(b.vt)+'.leveys ja '+esc(b.vt)+'.korkeus (näkyvän maailman koko).</div>';
+  return section('Kamera',h);}
 function kerrosInsp(b,E){var opts=[['','valitse kerros']];P.views.forEach(function(v){KK.kerrokset(P,v.id).forEach(function(k){opts.push([v.id+'|'+k.id,(P.views.length>1?v.n+' · ':'')+k.n]);});});
   var ko=KK.kerrosObj(P,b.vw,b.kr),cur=ko?b.vw+'|'+b.kr:'';
   var h=F('Kerros','<select data-krsel="1">'+opts.map(function(o){return '<option value="'+esc(o[0])+'"'+(o[0]===cur?' selected':'')+'>'+esc(o[1])+'</option>';}).join('')+'</select>',ko?'':(b.kr?'Kerrosta ei enää ole. Valitse toinen.':'Valitse, minkä näkymän kerrosta tämä palikka ohjaa.'));
@@ -5705,6 +5818,9 @@ $('#insp').addEventListener('change',function(e){
   if(t.hasAttribute('data-vkam')){var vk2=viewOf(t.getAttribute('data-vw'));if(!vk2)return;pushUndo();var f2=t.getAttribute('data-vkam'),x2=t.value;vk2.kam=vk2.kam||{};
     if(f2==='ka'||f2==='pe'){var n2=parseFloat(String(x2).replace(',','.'));if(isNaN(n2))delete vk2.kam[f2];else vk2.kam[f2]=Math.max(0,Math.min(100,Math.round(n2)));}else if(x2)vk2.kam[f2]=x2;else delete vk2.kam[f2];
     if(!Object.keys(vk2.kam).length)delete vk2.kam;save();renderStage();renderInsp();return;}
+  if(t.hasAttribute('data-vzm')){var vz=viewOf(t.getAttribute('data-vw'));if(!vz)return;pushUndo();var fz=t.getAttribute('data-vzm'),zo=vz.zm&&typeof vz.zm==='object'?vz.zm:{};
+    if(fz==='s'){if(t.checked)zo.s=true;else delete zo.s;}else{var nz=parseFloat(String(t.value).replace(',','.'));if(isNaN(nz))delete zo[fz];else zo[fz]=Math.max(KK.ZOOM_MIN,Math.min(KK.ZOOM_MAX,Math.round(nz)));}
+    if(Object.keys(zo).length)vz.zm=zo;else delete vz.zm;save();renderStage();renderInsp();return;}
   if(t.hasAttribute('data-vset')){var vv=viewOf(t.getAttribute('data-vw'));if(!vv)return;pushUndo();var vk=t.getAttribute('data-vset');if(t.value)vv[vk]=t.value;else delete vv[vk];save();renderInsp();return;}
   var T=inspTarget();if(!T)return;var b=T.b;
   if(t.getAttribute('data-k')==='valku'&&b){var v4=viewOf(b.v);if(!v4)return;pushUndo();if(t.checked)v4.alku=b.id;else if(v4.alku===b.id)delete v4.alku;save();renderInsp();return;}
@@ -5806,6 +5922,7 @@ $('#insp').addEventListener('click',function(e){
   if(qx){pushUndo();KK.removeBlock(P,qx.getAttribute('data-qdel'));afterInsp(true);return;}
   var t=e.target.closest('button');if(!t)return;var T=inspTarget();
   if(t.closest('.krr')||t.hasAttribute('data-kradd')){if(krAction(t))return;}
+  if(t.hasAttribute('data-kamlog')){kameraLogiikkaan(t.getAttribute('data-kamlog'));return;}
   if(t.hasAttribute('data-vseg')){var vv=viewOf(t.getAttribute('data-vw'));if(!vv)return;pushUndo();var vval=t.getAttribute('data-v'),vk=t.getAttribute('data-vseg')||'rul';if(vval)vv[vk]=vval;else delete vv[vk];save();renderStage();renderInsp();if(vk==='laite'&&vval&&vv.id===S.vw&&editingUI())fitDevice();return;}
   if(t.hasAttribute('data-seg')){var k=t.getAttribute('data-seg'),v=t.getAttribute('data-v');pushUndo();
     if(k==='dst'&&T&&T.d){T.d.st=v;save();renderStage();renderInsp();return;}

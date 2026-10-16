@@ -144,3 +144,8 @@ Asetuksissa on rakennusympäristön ja projektin käyttönäkymän erilliset val
 - `selain_49_monitori.py` – Monitori paletissa ja paneelissa (muoto, esitys), Sekuntikellon napit paneelissa; lukittuna kuusi monitoria samasta kellosta elävät ja pysähtyvät. Kuvat `appiappi9_monitori_*.png`.
 - `selain_50_efektit.py` – efektit paletissa, Animaatio-paneeli; lukittuna Teksti ilmestyy kirjain kerrallaan ja jää, Animaatio ei siirrä palikkaa, Kuva vaihtuu häivyttäen, Näkymänvaihto ketjusta liukuen (ketju odottaa) ja Palaa takaisin. Kuvat `appiappi9_fx_*.png`.
 - `selain_16_tulevat.py` uudistettu: ei Tulossa-kohtaa, efektin veto luo palikan, kohteeton efekti merkitty ja ketju kulkee ohi.
+
+## Appi-appi 10: zoomaus käytössä (16.10.2026)
+
+- `logiikka_44_zoomaus.js` – näkymän asetus `v.zm` (vain laitenäkymässä, oletus pois ja 50–300 %, väärin päin, rajat 10–1000), sormien zoomaus ilman palikkaa, Kamera-palikka (kohdat, ominaisuudet, perusarvo `zm`, näkyvä leveys ja korkeus), sormet asettavat arvon ja Palauta, Aseta (rajat), kaava `kamera.zoomaus`, nuoli voittaa ja lukitsee sormet, Muutos ajassa pehmeään zoomaukseen, ensimmäinen Kamera-palikka ratkaisee, vapaa näkymä aina 100, Miksi?, korjaus, tallennus ja vanha projekti.
+- `selain_51_zoomaus.py` – (1440: paneelin Zoomaus-asetus, Ohjaa logiikasta, ⌘ + rulla; 390 ja 320: kahden sormen nipistys CDP-kosketuksella) sormien kohta pysyy paikallaan, rajat, kojelauta ei zoomaudu, napautus kohteeseen osuu zoomattuna oikeaan kohtaan, nipistys ei lähetä hahmoa, Kamera-palikka: Aseta painikkeesta (keskikohta pysyy), sormet asettavat arvon, Palauta, nuoli lukitsee sormet, seurattava keskellä zoomatessa, alkukohta palauttaa, pystyrullaus zoomattuna vaakaan. Kuvat `appiappi10_*.png`.

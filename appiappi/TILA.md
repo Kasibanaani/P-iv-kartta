@@ -1,6 +1,6 @@
 # Appi-appi: tila
 
-**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 16.10.2026
+**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 16.10.2026 (Appi-appi 10)
 
 Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- ja iPad-näkymät, maailma ja hahmon liike, myöhemmin vienti omaksi appiksi). Ristiriidoissa Kytköskartan logiikka voittaa. Suunnitelma ja päätökset: `VERTAILU.md`.
 
@@ -18,27 +18,14 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 - Appi-appi 8 (16.10., Emilin päätös): liike ruutu kerrallaan. Liike → Ohjaus Ruutu: nuolinapit (kohdat ylös/alas/vasen/oikea), tatti pidettynä tai pyyhkäisy; hahmo liukuu ruutuun (iso nopeus = hyppy), seinä estää (törmäsi), tapahtuma askel valmis.
 - Korjattu samalla: Napautus kohteeseen jäi jarrutettaessa joskus alle 0,5 px päähän kohteesta; nyt perillä = täsmälleen kohteessa (ruudun keskellä).
 - Appi-appi 9 (16.10., Emilin päätös: yleiskäyttöiset palat): kerrokset käytössä (⚙ kerrosriviltä: näkyy käytössä, estää alempien käytön, himmennä alemmat, läpinäkyvyys; Kerros-palikka logiikkaan, jolla nuoli, kaava tai toiminto avaa, sulkee ja pitää kerroksia näkyvissä), Sekuntikello, Monitori (luku, palkki, pylväs, rengas, kaari, pisteet; luku, aika tai prosentti) ja efektit Teksti ilmestyy, Kuva vaihtuu, Animaatio ja Näkymänvaihto (myös ketjun ulkopuolella). Ennätys ei saanut omaa toimintoa: Muisti + SUURIN/PIENIN-ikkuna + Aseta riittää, ja ikkuna ohittaa nyt tyhjät.
-- Testattu vain tietokoneen Chromiumissa, ei oikealla iPhonella, iPadilla eikä Safarilla.
+- Appi-appi 10 (16.10., Emilin päätökset: kaikki suositukset): zoomaus käytössä. Maailma ja kamera → Zoomaus: *Sormilla* (kahden sormen nipistys, tietokoneella ⌘ + rulla), pienin ja suurin % (oletus 50–300). Kamera-palikka logiikkaan (napista *Ohjaa logiikasta* tai paletista): ominaisuus zoomaus %, lisäksi näkyvä leveys ja korkeus; nuoli, kaava, Aseta, Palauta ja Muutos ajassa (pehmeä zoomaus). Nuoli lukitsee sormet, Aseta ei. Sormet zoomaavat sormien kohdalta, seuratessa hahmo pysyy keskellä; logiikan zoomaus pitää ruudun keskikohdan. Kojelauta (lukittu kerros) ei zoomaudu. Napautus kohteeseen, alueet ja kuollut alue toimivat zoomattuna. Ilman Kamera-palikkaa sormien zoomaus palaa 100 %:iin alkukohdassa.
+- Testattu vain tietokoneen Chromiumissa (kosketus ja nipistys CDP:llä 390 ja 320 px), ei oikealla iPhonella, iPadilla eikä Safarilla.
 
 ## Seuraavaksi
 
-- Emil kokeilee puhelimella: valikko kerroksena (painike → Vaihda → kerros näkyy), Sekuntikello Monitoriin, efektit.
-- Seuraava vaihe (tekoälyn ehdotus): **Appi-appi 10, zoomaus käytössä**. Pyyntö uuteen keskusteluun alla.
-- Myöhemmin: toiveet tekoälylle, esimerkkiprojekti (esim. labyrintti) vain pyynnöstä, projektin tyyli, vienti käyttäjä-appiksi.
-
-### Appi-appi 10: zoomaus käytössä (suunnitelma, ei rakennettu)
-
-Nyt lukitussa laitenäkymässä ei voi zoomata. Tavoite:
-- Näkymän asetus (Maailma ja kamera): zoomaus sormilla päälle/pois, pienin ja suurin zoomaus (%).
-- Kameran zoomaus logiikasta yleisellä tavalla (Kerros-palikan malliin, esim. Kamera-palikka, jonka ominaisuus zoomaus %): nuoli, kaava, Aseta, Muutos ajassa pehmeään zoomaukseen.
-- Kaikki sormen paikan muunnokset huomioivat zoomauksen: napautus kohteeseen, ruutu- ja aluenapautus, pyyhkäisy, kuollut alue, maailman rajat, parallaksi, `ruutu.leveys`.
-- Lukittu kerros (kojelauta: tatti, napit, monitorit) ei zoomaudu.
-- Testit 1440, 390 ja 320 px.
-
-Päätettävää ennen rakentamista: zoomauksen keskipiste (seurattava palikka vai sormien väli), zoomaako lukittu kerros (ehdotus: ei), riittääkö yksi Kamera-palikka per näkymä.
-
-Valmis pyyntö uuteen keskusteluun:
-> Toteuta Appi-appi 10: zoomaus käytössä appiappi/TILA.md:n suunnitelman mukaan. Kysy ensin päätettävät asiat, jos ne ovat vielä auki.
+- Emil kokeilee puhelimella: zoomaus sormilla (ruudun ja maailman tuntuma, kojelauta pysyy), valikko kerroksena (painike → Vaihda → kerros näkyy), Sekuntikello Monitoriin, efektit.
+- Seuraava vaihe: ei vielä päätetty. Ehdotukset (tekoäly): toiveet tekoälylle, projektin tyyli tai vienti käyttäjä-appiksi.
+- Myöhemmin: esimerkkiprojekti (esim. labyrintti) vain pyynnöstä.
 
 ## Avoimet kysymykset
 
@@ -52,7 +39,10 @@ Valmis pyyntö uuteen keskusteluun:
 - Maailma (16.10.): tekstipohja ei tue muotoa {palikka.ominaisuus} (vanha rajoitus); arvot saa näkyviin Kaavan tuloksella.
 - Reitinhaku koskee vain Napautus-ohjausta (myös kohde nuolesta). Tatti ja Auto eivät kierrä esteitä, eikä haettua reittiä näytetä ruudulla. Riittääkö?
 - Ruutuliike: kaksi hahmoa voi astua samaan ruutuun samalla hetkellä (määränpäätä ei varata). Napautus viereiseen ruutuun ei vielä ohjaa. Tarvitaanko?
-- Ei tarkistettu oikealla iPhonella: valikkokerroksen suoja sormella, efektien sujuvuus Safarissa (Web Animations ja erilliset translate/scale/rotate vaativat iOS 14.1+), monitorin päivitys kuvasilmukassa ja akun kulutus käyvällä sekuntikellolla, pyyhkäisy sormella (testattu hiirellä), reitinhaun nopeus isossa maailmassa, tatti ja napautus sormella, kuvasilmukan sujuvuus ja akun kulutus jatkuvassa liikkeessä, isot kuvasarjat.
+- Appi-appi 10: `ruutu.leveys` on edelleen laitteen leveys (kojelauta ei zoomaudu); näkyvä maailma on `kamera.leveys`. Käykö?
+- Appi-appi 10: kun sormilla voi zoomata, napautus kohteeseen tehdään sormen noustessa eikä heti kosketuksessa (muuten nipistyksen ensimmäinen sormi lähettäisi hahmon). Tuntuuko viiveeltä?
+- Appi-appi 10: Kamera-palikalla ei vielä ohjata seurattavaa, kuollutta aluetta eikä kameran paikkaa logiikasta (vain zoomaus). Koristeviiva kojelaudan palikoiden välillä ei pysy kohdallaan zoomattuna.
+- Ei tarkistettu oikealla iPhonella: nipistys oikeilla sormilla ja Safarin oma sivun zoomaus (estetty `gesturestart`-tapahtumalla ja `touch-action`illa, testattu vain Chromiumissa), valikkokerroksen suoja sormella, efektien sujuvuus Safarissa (Web Animations ja erilliset translate/scale/rotate vaativat iOS 14.1+), monitorin päivitys kuvasilmukassa ja akun kulutus käyvällä sekuntikellolla, pyyhkäisy sormella (testattu hiirellä), reitinhaun nopeus isossa maailmassa, tatti ja napautus sormella, kuvasilmukan sujuvuus ja akun kulutus jatkuvassa liikkeessä, isot kuvasarjat.
 
 ## Emilin kommentit
 
