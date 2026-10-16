@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rytmikone</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Rytmikone">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+/* Rytmikone, vaihe 1: ääni -> MIDI-rumpunuotit. Yksi sarake puhelimelle, Appipaja 2.0 -ilme.
+   Välilehdet: Nauhoita (#v-rec), Otot (#v-takes), Asetukset (#v-set). Oton editori on koko ruudun peittävä #editor. */
+:root{
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",system-ui,"Segoe UI",Roboto,Arial,sans-serif;
+  --bg:#F5F3EE;--cell:#FFFEFA;--label:#252B28;--label2:#5E685F;--sep:#DDE2D9;--accent:#39775A;--solid:#39775A;--on-solid:#FFFFFF;
+  --fill:#E7F0E7;--fill2:#EDF1EA;--danger:#D70015;--on-danger:#FFFFFF;--app-shadow:rgba(39,61,34,.055);--shade:rgba(20,30,25,.38);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--label);font-family:var(--font);font-size:16px;line-height:1.4;-webkit-text-size-adjust:100%}
+body{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button:disabled{opacity:.4;cursor:default}
+[hidden]{display:none!important}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px 48px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 0 10px}
+.brand{font-size:21px;font-weight:800;letter-spacing:-.045em}
+.proj{max-width:60%;min-height:40px;padding:0 12px;border:1px solid var(--sep);border-radius:11px;background:var(--cell);font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:3px;padding:3px;background:var(--fill2);border:1px solid var(--sep);border-radius:12px}
+.seg button{min-height:38px;padding:4px 6px;border:0;border-radius:9px;background:transparent;font-size:15px;line-height:1.15}
+.seg button[aria-pressed="true"]{background:var(--cell);color:var(--accent);font-weight:650;box-shadow:0 1px 4px var(--app-shadow),inset 0 0 0 1px var(--sep)}
+.seg.small button{min-height:36px;font-size:14px}
+.card{background:var(--cell);border:1px solid var(--sep);border-radius:18px;padding:14px 16px;margin-top:12px;box-shadow:0 6px 22px var(--app-shadow)}
+h2{margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:.075em;text-transform:uppercase;color:var(--label2)}
+p{margin:8px 0 0}
+.help{font-size:12.5px;color:var(--label2)}
+.warn{color:var(--danger)}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.row+.row,.row+.field,.field+.row,.field+.field{margin-top:10px}
+.grow{flex:1;min-width:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 14px;border:1px solid var(--sep);border-radius:11px;background:var(--fill2);font-size:16px;text-align:center}
+.btn.solid{background:var(--solid);border-color:var(--solid);color:var(--on-solid);font-weight:600}
+.btn.danger{color:var(--danger);background:var(--cell)}
+.btn.wide{width:100%}
+.btn.sq{width:44px;padding:0;font-size:20px}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 13px;border:1px solid var(--sep);border-radius:11px;background:var(--cell);font-size:15px}
+.chip[aria-pressed="true"]{background:var(--fill);border-color:var(--accent);color:var(--accent);font-weight:600;box-shadow:inset 0 0 0 1px var(--accent)}
+.field{display:flex;align-items:center;gap:8px}
+.field>span:first-child{min-width:72px;color:var(--label2);font-size:15px}
+input[type=number],input[type=text],select,textarea{min-height:44px;padding:0 10px;border:1px solid var(--sep);border-radius:10px;background:var(--bg);font-size:16px;min-width:0}
+input[type=number],input.num{width:84px;flex:none}
+select{flex:1;max-width:100%}
+textarea{width:100%;min-height:120px;padding:10px;font-family:ui-monospace,Menlo,monospace;font-size:12px}
+input[type=text]{flex:1}
+.sl{display:block;margin-top:12px}
+.sl .lab{display:flex;justify-content:space-between;gap:8px;font-size:15px}
+.sl output{color:var(--accent);font-weight:600;font-variant-numeric:tabular-nums}
+input[type=range]{display:block;width:100%;height:34px;margin:2px 0 0;accent-color:var(--accent)}
+details{margin-top:12px}
+summary{min-height:36px;display:flex;align-items:center;color:var(--accent);cursor:pointer}
+/* nauhoitus */
+.recbox{display:flex;flex-direction:column;align-items:center;margin-top:18px}
+.rec{width:128px;height:128px;border-radius:50%;border:0;background:var(--danger);color:var(--on-danger);font-size:19px;font-weight:700;box-shadow:0 8px 26px var(--app-shadow),0 0 0 6px var(--cell),0 0 0 7px var(--sep)}
+.rec.on{border-radius:30px;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 8px 26px var(--app-shadow),0 0 0 10px var(--cell),0 0 0 11px var(--danger)}}
+@media (prefers-reduced-motion:reduce){.rec.on{animation:none}}
+.meter{position:relative;width:100%;height:16px;margin-top:18px;border-radius:8px;background:var(--fill2);border:1px solid var(--sep);overflow:hidden}
+.meter i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--accent);transition:width .08s linear}
+.meter b{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--label)}
+.meter.lr{height:12px;margin-top:8px}
+.big{font-size:28px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin-top:12px;text-align:center}
+.center{text-align:center}
+body.busy .lock{pointer-events:none;opacity:.4}
+/* otot */
+.take{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--sep)}
+.take:first-of-type{border-top:0}
+.take .open{flex:1;min-width:0;min-height:48px;padding:4px 0;border:0;background:none;text-align:left}
+.take .open b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.take .open span{display:block;font-size:12.5px;color:var(--label2)}
+.tog{width:44px;height:44px;flex:none;border:1px solid var(--sep);border-radius:11px;background:var(--cell);font-size:18px;color:var(--label2)}
+.tog[aria-pressed="true"]{background:var(--solid);border-color:var(--solid);color:var(--on-solid)}
+.stat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.stat div{padding:8px 4px;border-radius:12px;background:var(--fill2)}
+.stat b{display:block;font-size:clamp(16px,5.2vw,20px);white-space:nowrap;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--label2)}
+/* editori */
+.editor{position:fixed;inset:0;z-index:20;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;padding-top:env(safe-area-inset-top,0px)}
+.edtop{position:sticky;top:0;z-index:2;display:flex;gap:8px;align-items:center;padding:10px 0;background:var(--bg)}
+canvas#wave{display:block;width:100%;height:170px;border-radius:12px;background:var(--fill2);touch-action:pan-y}
+/* alhaalta nouseva paneeli */
+.shade{position:fixed;inset:0;z-index:30;background:var(--shade);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:560px;max-height:85vh;overflow-y:auto;background:var(--cell);border-radius:24px 24px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom,0px));box-shadow:0 20px 70px var(--app-shadow)}
+.plist button{display:flex;width:100%;min-height:48px;align-items:center;justify-content:space-between;padding:0 12px;margin-top:6px;border:1px solid var(--sep);border-radius:11px;background:var(--bg);text-align:left}
+.plist button[aria-current="true"]{border-color:var(--accent);color:var(--accent);font-weight:600}
+.toast{position:fixed;left:16px;right:16px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:40;max-width:528px;margin:0 auto;padding:12px 14px;border-radius:14px;background:var(--label);color:var(--bg);font-size:15px;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+/* ulkoasu */
+.theme-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.theme-chip{display:flex;align-items:center;gap:6px;min-width:0;min-height:40px;padding:5px 7px;border:1px solid var(--sep);border-radius:11px;background:var(--cell);font-size:13px}
+.theme-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.theme-swatch{width:14px;height:14px;border:1px solid var(--sep);border-radius:5px;flex:none}
+.theme-chip[aria-pressed="true"]{background:var(--fill2);border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.theme-modes{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:9px}
+.theme-modes .chip{justify-content:center;padding:0 4px;font-size:13px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.grid2 .btn{padding:0 8px;font-size:15px}
+#eNoteNum{width:64px}
+.list-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--sep)}
+.list-row:first-of-type{border-top:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">Rytmikone</div>
+    <button id="projBtn" class="proj lock" data-act="projects" aria-label="Vaihda projektia"></button>
+  </header>
+  <nav class="seg lock" id="tabs">
+    <button data-tab="rec">Nauhoita</button><button data-tab="takes">Otot</button><button data-tab="set">Asetukset</button>
+  </nav>
+  <main>
+    <section id="v-rec"></section>
+    <section id="v-takes" hidden></section>
+    <section id="v-set" hidden></section>
+  </main>
+</div>
+<div id="editor" class="editor" hidden></div>
+<div id="shade" class="shade" hidden><div class="sheet" id="sheet"></div></div>
+<div id="toast" class="toast" hidden role="status"></div>
+<input type="file" id="songFile" accept="audio/*" hidden>
+<input type="file" id="importFile" accept="application/json,.json,text/plain" hidden>
+<script id="engine">
+// Rytmikoneen moottori: ei DOMia. Tunnistus (voimakkuuden ylitys -> isku), velocity, MIDI-tiedosto, tallennusmuoto.
+// Verhokäyrä (env) = jokaisen 128 näytteen lohkon huippu desibeleinä. Ääntä itseään ei tallenneta.
+var RK=(function(){
+'use strict';
+var VER=1,KEY='rytmikone:v1',PPQ=480,BLOCK=128,FLOOR=-96;
+var DEF={portti:-36,hiljaisin:-36,kovin:-6,kayra:'tasainen',esto:60,hyst:6,ikkuna:20};
+var KAYRAT={hiljaiset:0.6,tasainen:1,kovat:1.7};
+var KAYRA_NIMET=[['hiljaiset','Korosta hiljaisia'],['tasainen','Tasainen'],['kovat','Korosta kovia']];
+var PITUUDET={'1/32':PPQ/8,'1/16':PPQ/4,'1/8':PPQ/2};
+var GM=[[35,'Bassorumpu 2'],[36,'Bassorumpu'],[37,'Sivulyönti'],[38,'Virveli'],[39,'Taputus'],[40,'Virveli 2'],[41,'Matala lattiatomi'],[42,'Suljettu hi-hat'],[43,'Lattiatomi'],[44,'Polkimen hi-hat'],[45,'Matala tomi'],[46,'Avoin hi-hat'],[47,'Matala keskitomi'],[48,'Korkea keskitomi'],[49,'Crash'],[50,'Korkea tomi'],[51,'Ride'],[52,'China'],[53,'Ride-kello'],[54,'Tamburiini'],[55,'Splash'],[56,'Lehmänkello'],[57,'Crash 2'],[59,'Ride 2']];
+
+function clamp(x,a,b){return x<a?a:x>b?b:x;}
+function num(x,d){x=typeof x==='string'&&x.trim()===''?NaN:+x;return isFinite(x)?x:d;}
+function db(a){return a>0?Math.max(FLOOR,20*Math.log10(a)):FLOOR;}
+function noteName(n){return ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'][n%12]+(Math.floor(n/12)-2);}
+function gmName(n){for(var i=0;i<GM.length;i++)if(GM[i][0]===n)return GM[i][1];return '';}
+function noteLabel(n){var g=gmName(n);return n+' · '+noteName(n)+(g?' · '+g:'');}
+
+// ---------- verhokäyrän pakkaus: 0,5 dB tarkkuus, tavu per lohko, base64 ----------
+function b64(u){
+  if(typeof btoa==='function'){var s='';for(var i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s);}
+  return Buffer.from(u).toString('base64');
+}
+function unb64(s){
+  if(typeof atob==='function'){var b=atob(s),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}
+  return new Uint8Array(Buffer.from(s,'base64'));
+}
+function encEnv(arr){var u=new Uint8Array(arr.length);for(var i=0;i<arr.length;i++)u[i]=clamp(Math.round((arr[i]-FLOOR)*2),0,255);return b64(u);}
+function decEnv(s){var u;try{u=unb64(s||'');}catch(e){u=new Uint8Array(0);}var a=new Float32Array(u.length);for(var i=0;i<u.length;i++)a[i]=u[i]/2+FLOOR;return a;}
+
+// ---------- tunnistus ----------
+function settings(s){
+  s=s||{};var o={};
+  o.portti=clamp(num(s.portti,DEF.portti),-90,0);
+  o.hiljaisin=clamp(num(s.hiljaisin,o.portti),-90,-1);
+  o.kovin=clamp(num(s.kovin,DEF.kovin),-89,0);
+  if(o.kovin<o.hiljaisin+1)o.kovin=o.hiljaisin+1;
+  o.kayra=KAYRAT.hasOwnProperty(s.kayra)?s.kayra:DEF.kayra;
+  o.esto=clamp(Math.round(num(s.esto,DEF.esto)),0,1000);
+  o.hyst=clamp(num(s.hyst,DEF.hyst),0,40);
+  o.ikkuna=clamp(Math.round(num(s.ikkuna,DEF.ikkuna)),1,200);
+  return o;
+}
+// Isku alkaa, kun taso nousee portin yli ja ääni on ehtinyt laskea (portti - hystereesi) edellisen iskun jälkeen.
+// Eston aikana noussut ääni kuluttaa virityksen, jottei sama ääni laukaise uudestaan eston päätyttyä.
+// Velocityn huippu = suurin taso mittausikkunassa iskun alusta.
+function detect(env,hz,s){
+  s=settings(s);var hits=[],armed=true,last=-1e12,hold=s.esto/1000*hz,win=Math.max(1,Math.round(s.ikkuna/1000*hz)),re=s.portti-s.hyst;
+  for(var i=0;i<env.length;i++){var v=env[i];
+    if(armed){
+      if(v>=s.portti){armed=false;
+        if(i-last>=hold){var p=v,e=Math.min(env.length,i+win);for(var j=i+1;j<e;j++)if(env[j]>p)p=env[j];hits.push({i:i,peak:p});last=i;}
+      }
+    }else if(v<re)armed=true;
+  }
+  return hits;
+}
+function velocity(peak,s){s=settings(s);var x=clamp((peak-s.hiljaisin)/(s.kovin-s.hiljaisin),0,1);return clamp(Math.round(1+126*Math.pow(x,KAYRAT[s.kayra])),1,127);}
+// Iskun aika sekunteina nollakohdasta (biisin alku tai esilaskennan loppu), viive vähennettynä.
+function takeHits(T,env){
+  env=env||decEnv(T.env);var s=settings(T.s);
+  return detect(env,T.hz,s).map(function(h){return {i:h.i,peak:h.peak,v:velocity(h.peak,s),t:T.alku+h.i/T.hz-T.viive/1000};});
+}
+// Hiljaisin ja kovin isku otoksesta: velocity-alue kattaa otosta löytyneet iskut.
+function fitRange(hits){
+  if(hits.length<2)return null;var lo=Infinity,hi=-Infinity;
+  hits.forEach(function(h){if(h.peak<lo)lo=h.peak;if(h.peak>hi)hi=h.peak;});
+  if(hi-lo<2)return null;return {hiljaisin:Math.floor(lo*2)/2,kovin:Math.ceil(hi*2)/2};
+}
+// Taustakohinan taso (95. persentiili) ja sen yläpuolelle asetettava portti.
+function noiseGate(env){
+  if(!env.length)return null;var a=Array.prototype.slice.call(env).sort(function(x,y){return x-y;});
+  var k=a[Math.min(a.length-1,Math.floor(a.length*0.95))];
+  return {kohina:Math.round(k*2)/2,portti:clamp(Math.round(k+8),-80,-6)};
+}
+function median(a){var b=a.slice().sort(function(x,y){return x-y;}),m=b.length>>1;return b.length%2?b[m]:(b[m-1]+b[m])/2;}
+// Viivekalibrointi: jokaiselle naksulle ensimmäinen isku, joka osuu välille -150…+600 ms. Vähintään 4 osumaa.
+function calibrate(hitTimes,clickTimes){
+  var d=[],used={};
+  clickTimes.forEach(function(c){
+    for(var k=0;k<hitTimes.length;k++){var x=hitTimes[k]-c;if(!used[k]&&x>-0.15&&x<0.6){used[k]=1;d.push(x);break;}}
+  });
+  if(d.length<4)return {ok:false,n:d.length};
+  var m=median(d);return {ok:true,ms:Math.round(m*1000),n:d.length,hajonta:Math.round(median(d.map(function(x){return Math.abs(x-m);}))*1000)};
+}
+
+// ---------- MIDI ----------
+function vlq(n){var b=[n&0x7f];n=Math.floor(n/128);while(n>0){b.unshift((n&0x7f)|0x80);n=Math.floor(n/128);}return b;}
+function utf8(s){var t=new TextEncoder().encode(String(s));return Array.prototype.slice.call(t,0,120);}
+function chunk(id,data){var n=data.length;return [id.charCodeAt(0),id.charCodeAt(1),id.charCodeAt(2),id.charCodeAt(3),(n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255].concat(data);}
+function trackBytes(evs){
+  evs.sort(function(a,b){return a.tick-b.tick||a.o-b.o;});var out=[],t=0;
+  evs.forEach(function(e){var d=vlq(e.tick-t);for(var i=0;i<d.length;i++)out.push(d[i]);for(i=0;i<e.d.length;i++)out.push(e.d[i]);t=e.tick;});
+  out.push(0,0xFF,0x2F,0);return chunk('MTrk',out);
+}
+function meta(type,bytes){return [0xFF,type].concat(vlq(bytes.length),bytes);}
+// Nuotit -> note on/off -tapahtumat. Sama sävel samalla tikillä: kovempi jää. Nuotti päättyy viimeistään saman sävelen seuraavaan iskuun.
+function noteEvents(notes,len){
+  var by={},evs=[];
+  notes.forEach(function(n){(by[n.n]=by[n.n]||[]).push(n);});
+  Object.keys(by).forEach(function(k){
+    var a=by[k].sort(function(x,y){return x.tick-y.tick||y.v-x.v;}),u=[];
+    a.forEach(function(n){if(u.length&&u[u.length-1].tick===n.tick)return;u.push(n);});
+    u.forEach(function(n,i){var end=n.tick+len;if(i+1<u.length&&u[i+1].tick<end)end=u[i+1].tick;
+      evs.push({tick:n.tick,o:1,d:[0x99,n.n,n.v]});evs.push({tick:end,o:0,d:[0x89,n.n,64]});});
+  });
+  return evs;
+}
+// Projektin vietävät nuotit raidoittain. envOf(T) antaa puretun verhokäyrän (käyttöliittymän välimuisti).
+function exportNotes(P,envOf){
+  var f=P.tempo/60*PPQ,tracks=[],pois=0,n=0;
+  P.otot.forEach(function(T){if(!T.mukana)return;var notes=[];
+    takeHits(T,envOf?envOf(T):null).forEach(function(h){if(h.t<0){pois++;return;}notes.push({tick:Math.round(h.t*f),n:T.nuotti,v:h.v});});
+    n+=notes.length;tracks.push({nimi:T.nimi,notes:notes});});
+  return {tracks:tracks,pois:pois,n:n};
+}
+function midi(P,envOf){
+  var x=exportNotes(P,envOf),len=PITUUDET[P.pituus]||PITUUDET['1/16'],us=Math.round(60000000/P.tempo);
+  var head=[{tick:0,o:-3,d:meta(0x03,utf8(P.nimi))},{tick:0,o:-2,d:meta(0x51,[(us>>16)&255,(us>>8)&255,us&255])},{tick:0,o:-1,d:meta(0x58,[4,2,24,8])}];
+  var out;
+  if(P.raidat==='omat'){
+    out=chunk('MThd',[0,1,0,x.tracks.length+1,PPQ>>8,PPQ&255]).concat(trackBytes(head));
+    x.tracks.forEach(function(t){out=out.concat(trackBytes([{tick:0,o:-3,d:meta(0x03,utf8(t.nimi))}].concat(noteEvents(t.notes,len))));});
+  }else{
+    var all=[];x.tracks.forEach(function(t){all=all.concat(t.notes);});
+    out=chunk('MThd',[0,0,0,1,PPQ>>8,PPQ&255]).concat(trackBytes(head.concat(noteEvents(all,len))));
+  }
+  return new Uint8Array(out);
+}
+
+// ---------- tallennusmuoto ----------
+// {app:'rytmikone', ver, savedAt, cur, projektit:[{id,nimi,tempo,pituus,raidat,biisi,esilasku,metronomi,otot:[otto]}],
+//  esi:[{id,nimi,s}], viive:null|ms, oletus:säädöt, uusiNuotti}
+// otto: {id,nimi,nuotti,mukana,hz,alku,viive,s,env,luotu,ref:'biisi'|'lasku'|'',kanavat}
+var seq=0;
+function uid(){seq=(seq+1)%1296;return Date.now().toString(36)+seq.toString(36)+Math.random().toString(36).slice(2,6);}
+function str(x,d,max){return typeof x==='string'&&x.trim()?x.slice(0,max||80):d;}
+function newProject(nimi){return {id:uid(),nimi:nimi||'Projekti',tempo:120,pituus:'1/16',raidat:'yksi',biisi:'',esilasku:true,metronomi:false,otot:[]};}
+function newTake(o){o=o||{};return repairTake({id:uid(),nimi:o.nimi,nuotti:o.nuotti,mukana:true,hz:o.hz,alku:o.alku,viive:o.viive,s:o.s,env:o.env,luotu:Date.now(),ref:o.ref,kanavat:o.kanavat},0);}
+function newData(){var p=newProject('Projekti 1');return {app:'rytmikone',ver:VER,savedAt:0,cur:p.id,projektit:[p],esi:[],viive:null,oletus:settings({}),uusiNuotti:36};}
+function repairTake(t,i){
+  t=t&&typeof t==='object'?t:{};var env=typeof t.env==='string'&&/^[A-Za-z0-9+/]*={0,2}$/.test(t.env)?t.env:'';
+  return {id:str(t.id,uid(),40),nimi:str(t.nimi,'Otto '+(i+1),60),nuotti:clamp(Math.round(num(t.nuotti,36)),0,127),mukana:t.mukana!==false,
+    hz:clamp(num(t.hz,375),50,2000),alku:clamp(num(t.alku,0),-3600,3600),viive:clamp(num(t.viive,0),-1000,2000),s:settings(t.s),env:env,
+    luotu:num(t.luotu,0),ref:['biisi','lasku'].indexOf(t.ref)>=0?t.ref:'',kanavat:clamp(Math.round(num(t.kanavat,1)),1,32)};
+}
+function repairProject(p,i){
+  p=p&&typeof p==='object'?p:{};var ids={};
+  var o={id:str(p.id,uid(),40),nimi:str(p.nimi,'Projekti '+(i+1),60),tempo:clamp(Math.round(num(p.tempo,120)*10)/10,20,400),
+    pituus:PITUUDET[p.pituus]?p.pituus:'1/16',raidat:p.raidat==='omat'?'omat':'yksi',biisi:str(p.biisi,'',200),
+    esilasku:p.esilasku!==false,metronomi:p.metronomi===true,otot:(Array.isArray(p.otot)?p.otot:[]).map(repairTake)};
+  o.otot.forEach(function(t){if(ids[t.id])t.id=uid();ids[t.id]=1;});return o;
+}
+function repair(d){
+  if(!d||typeof d!=='object'||Array.isArray(d))return newData();
+  var o={app:'rytmikone',ver:VER,savedAt:num(d.savedAt,0),cur:'',projektit:(Array.isArray(d.projektit)?d.projektit:[]).map(repairProject),
+    esi:(Array.isArray(d.esi)?d.esi:[]).filter(function(e){return e&&typeof e==='object';}).map(function(e,i){return {id:str(e.id,uid(),40),nimi:str(e.nimi,'Esiasetus '+(i+1),40),s:settings(e.s)};}),
+    viive:d.viive===null||d.viive===undefined||!isFinite(+d.viive)?null:clamp(Math.round(+d.viive),-1000,2000),
+    oletus:settings(d.oletus),uusiNuotti:clamp(Math.round(num(d.uusiNuotti,36)),0,127)};
+  var ids={};o.projektit.forEach(function(p){if(ids[p.id])p.id=uid();ids[p.id]=1;});
+  if(!o.projektit.length)o.projektit.push(newProject('Projekti 1'));
+  o.cur=o.projektit.some(function(p){return p.id===d.cur;})?d.cur:o.projektit[0].id;
+  return o;
+}
+
+return {VER:VER,KEY:KEY,PPQ:PPQ,BLOCK:BLOCK,FLOOR:FLOOR,DEF:DEF,KAYRAT:KAYRAT,KAYRA_NIMET:KAYRA_NIMET,PITUUDET:PITUUDET,GM:GM,
+  clamp:clamp,db:db,noteName:noteName,gmName:gmName,noteLabel:noteLabel,encEnv:encEnv,decEnv:decEnv,settings:settings,detect:detect,velocity:velocity,
+  takeHits:takeHits,fitRange:fitRange,noiseGate:noiseGate,median:median,calibrate:calibrate,vlq:vlq,exportNotes:exportNotes,midi:midi,
+  uid:uid,newProject:newProject,newTake:newTake,newData:newData,repair:repair};
+})();
+if(typeof module!=='undefined')module.exports=RK;
+</script>
+<script id="ui">
+// Käyttöliittymä. Äänen kaappaus: AudioWorklet (128 näytteen lohkon huippu + lohkon kehysnumero), varalla ScriptProcessor.
+// Ajoitus: nollakohta (biisin alku tai esilaskennan loppu) on AudioContextin aikajanalla, samoin kaapatut lohkot.
+(function(){
+'use strict';
+var APPIPAJA_THEMES=[{"id":"forest","name":"Metsä","description":"Sammal ja lämmin paperi","light":{"bg":"#F5F3EE","cell":"#FFFEFA","label":"#252B28","label2":"#5E685F","sep":"#DDE2D9","accent":"#39775A","fill":"#E7F0E7","tint":"#EDF1EA"},"dark":{"bg":"#151B18","cell":"#202922","label":"#EEF1E9","label2":"#ACB8AE","sep":"#3B473E","accent":"#A2C9B6","fill":"#2B4032","tint":"#1A251E"}},{"id":"lake","name":"Järvi","description":"Hillitty sininen ja sumu","light":{"bg":"#F1F3F4","cell":"#FDFEFE","label":"#263039","label2":"#586977","sep":"#D9E0E5","accent":"#386EA2","fill":"#E3EDF7","tint":"#E9EFF4"},"dark":{"bg":"#151B22","cell":"#202B35","label":"#EAF0F5","label2":"#ADBCC9","sep":"#3B4A57","accent":"#A8C8E7","fill":"#293E52","tint":"#1A2631"}},{"id":"plum","name":"Luumu","description":"Pehmeä violetti ja pellava","light":{"bg":"#F5F1F3","cell":"#FFFCFE","label":"#322A31","label2":"#705D6D","sep":"#E4DCE2","accent":"#87597E","fill":"#F2E9EF","tint":"#F0E9EE"},"dark":{"bg":"#20191F","cell":"#2C222B","label":"#F4ECF3","label2":"#C2AFC0","sep":"#4B3A48","accent":"#D9B7D1","fill":"#483144","tint":"#291F27"}},{"id":"sand","name":"Hiekka","description":"Okran lämpö ja kerma","light":{"bg":"#F6F2EA","cell":"#FFFDFA","label":"#332D26","label2":"#726453","sep":"#E5DDD0","accent":"#8D642C","fill":"#F3EAD8","tint":"#F0E9DC"},"dark":{"bg":"#211C16","cell":"#2D261D","label":"#F4EEE2","label2":"#C4B7A2","sep":"#4E4334","accent":"#DCC18D","fill":"#493A25","tint":"#2A2219"}},{"id":"rose","name":"Ruusu","description":"Murrettu koralli ja puuteri","light":{"bg":"#F7F1EE","cell":"#FFFDFA","label":"#362C29","label2":"#795F59","sep":"#E7DDD7","accent":"#A05245","fill":"#F5E7E1","tint":"#F1E8E2"},"dark":{"bg":"#241B19","cell":"#302420","label":"#F7ECE7","label2":"#CCB1A6","sep":"#514039","accent":"#E7B2A2","fill":"#51352D","tint":"#2D211D"}},{"id":"graphite","name":"Harmaa","description":"Neutraali tausta puhelimen väreille","light":{"bg":"#F3F3F3","cell":"#FEFEFE","label":"#282828","label2":"#646464","sep":"#DDDDDD","accent":"#595959","fill":"#E9E9E9","tint":"#EEEEEE"},"dark":{"bg":"#191919","cell":"#262626","label":"#EFEFEF","label2":"#B4B4B4","sep":"#444444","accent":"#BFBFBF","fill":"#393939","tint":"#202020"}},{"id":"lagoon","name":"Laguuni","description":"Murrettu turkoosi ja merilasi","light":{"bg":"#EFF4F3","cell":"#FBFEFD","label":"#243330","label2":"#586D67","sep":"#D8E3DF","accent":"#276F6A","fill":"#E0EFEC","tint":"#E7F0ED"},"dark":{"bg":"#15211F","cell":"#21302D","label":"#E9F4F0","label2":"#ACC4BC","sep":"#3C514A","accent":"#9DCEC4","fill":"#2C4640","tint":"#1B2925"}},{"id":"lavender","name":"Laventeli","description":"Hento violetti ja helmiäinen","light":{"bg":"#F3F1F7","cell":"#FEFCFF","label":"#302B3A","label2":"#696175","sep":"#E1DCE9","accent":"#6F5B94","fill":"#ECE6F3","tint":"#ECE8F2"},"dark":{"bg":"#1D1925","cell":"#2A2434","label":"#F0EBF7","label2":"#BFB2D0","sep":"#493E57","accent":"#C4B5E2","fill":"#403350","tint":"#241E2D"}},{"id":"olive","name":"Oliivi","description":"Lehtien vihreä ja vaalea pellava","light":{"bg":"#F3F3EC","cell":"#FEFEF9","label":"#303226","label2":"#656B54","sep":"#DFE2D3","accent":"#616F32","fill":"#EBEFD9","tint":"#ECEFDF"},"dark":{"bg":"#1D2016","cell":"#292E20","label":"#F0F2E4","label2":"#BFC5A5","sep":"#484F35","accent":"#C1CD92","fill":"#3F482C","tint":"#24291C"}},{"id":"copper","name":"Kupari","description":"Pehmeä terrakotta ja lämmin savi","light":{"bg":"#F6F0EA","cell":"#FFFCF8","label":"#372D26","label2":"#776456","sep":"#E7DCCF","accent":"#965F32","fill":"#F4E7D8","tint":"#F1E6DB"},"dark":{"bg":"#241B15","cell":"#32261D","label":"#F5ECE2","label2":"#CCB5A0","sep":"#554232","accent":"#E2BB93","fill":"#513A26","tint":"#2D2118"}}];
+var $=function(id){return document.getElementById(id);};
+var D=load(),TAB='rec',EDIT=null,SONG=null,AC=null,R=null,WL=null,ENVC={},lastExport=null,lastBackup=null,CAL=null,quietInfo='',TEXTBOX='';
+
+// ---------- tallennus ----------
+function load(){
+  var raw=null;try{raw=localStorage.getItem(RK.KEY);}catch(e){}
+  if(!raw)return RK.newData();
+  try{return RK.repair(JSON.parse(raw));}catch(e){try{localStorage.setItem(RK.KEY+':rikki',raw);}catch(_){}setTimeout(function(){toast('Tallennettu tieto oli rikki. Aloitettiin alusta; vanha tieto säilytettiin erikseen.');},500);return RK.newData();}
+}
+var saveT=0;
+function save(now){clearTimeout(saveT);if(now)return saveNow();saveT=setTimeout(saveNow,350);return true;}
+function saveNow(){clearTimeout(saveT);D.savedAt=Date.now();try{localStorage.setItem(RK.KEY,JSON.stringify(D));return true;}catch(e){toast('Tallennus ei onnistunut: selaimen muisti on täynnä. Vie varmuuskopio ja poista vanhoja ottoja.');return false;}}
+function P(){for(var i=0;i<D.projektit.length;i++)if(D.projektit[i].id===D.cur)return D.projektit[i];return D.projektit[0];}
+function takeById(id){var p=P();for(var i=0;i<p.otot.length;i++)if(p.otot[i].id===id)return p.otot[i];return null;}
+function envOf(T){var c=ENVC[T.id];if(!c||c.s!==T.env){c={s:T.env,a:RK.decEnv(T.env)};ENVC[T.id]=c;}return c.a;}
+function copyS(s){return JSON.parse(JSON.stringify(RK.settings(s)));}
+
+// ---------- apurit ----------
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function fmtT(s){var neg=s<0;s=Math.abs(s);var m=Math.floor(s/60),r=s-m*60;return (neg?'−':'')+m+':'+(r<10?'0':'')+r.toFixed(1).replace('.',',');}
+function fmtDb(x){return (x<0?'−':'')+Math.abs(x).toFixed(Math.abs(x%1)>0.01?1:0).replace('.',',')+' dB';}
+function fmtMs(x){return (x<0?'−':'')+Math.abs(Math.round(x))+' ms';}
+var toastT=0;
+function toast(msg){var t=$('toast');t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(function(){t.hidden=true;},Math.min(9000,2500+msg.length*45));}
+function fileName(s){return (String(s).replace(/[\\/:*?"<>|]+/g,'').replace(/\s+/g,' ').trim()||'rytmikone').slice(0,60);}
+function download(blob,name){var a=document.createElement('a'),u=URL.createObjectURL(blob);a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},4000);}
+function shareOrDownload(blob,name,type,forceDl){
+  if(!forceDl&&navigator.canShare&&navigator.share){try{var f=new File([blob],name,{type:type});if(navigator.canShare({files:[f]})){navigator.share({files:[f],title:name}).catch(function(){});return;}}catch(e){}}
+  download(blob,name);
+}
+function noteOptions(n){
+  var h='',found=false;RK.GM.forEach(function(g){if(g[0]===n)found=true;h+='<option value="'+g[0]+'"'+(g[0]===n?' selected':'')+'>'+esc(RK.noteLabel(g[0]))+'</option>';});
+  if(!found)h='<option value="'+n+'" selected>'+esc(RK.noteLabel(n))+'</option>'+h;return h;
+}
+function sumS(s){return 'portti '+fmtDb(s.portti)+' · esto '+s.esto+' ms';}
+
+// ---------- ulkoasu ----------
+var appearance={theme:'forest',mode:'auto'},mq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+try{var ap=JSON.parse(localStorage.getItem('rytmikone:appearance')||'null');if(ap&&APPIPAJA_THEMES.some(function(x){return x.id===ap.theme;}))appearance.theme=ap.theme;if(ap&&['auto','light','dark'].indexOf(ap.mode)>=0)appearance.mode=ap.mode;}catch(e){}
+function isDark(){return appearance.mode==='dark'||appearance.mode==='auto'&&!!(mq&&mq.matches);}
+function applyAppearance(){
+  var t=APPIPAJA_THEMES.filter(function(x){return x.id===appearance.theme;})[0]||APPIPAJA_THEMES[0],dark=isDark(),c=dark?t.dark:t.light,root=document.documentElement;
+  root.setAttribute('data-theme',appearance.mode);root.style.colorScheme=dark?'dark':'light';
+  var v={'--bg':c.bg,'--cell':c.cell,'--label':c.label,'--label2':c.label2,'--sep':c.sep,'--accent':c.accent,'--solid':c.accent,'--on-solid':dark?c.bg:'#FFFFFF','--fill':c.fill,'--fill2':c.tint,
+    '--danger':dark?'#FF453A':'#D70015','--on-danger':dark?'#1A0503':'#FFFFFF','--app-shadow':dark?'rgba(0,0,0,.13)':'rgba(39,61,34,.055)','--shade':dark?'rgba(0,0,0,.5)':'rgba(20,30,25,.38)'};
+  Object.keys(v).forEach(function(k){root.style.setProperty(k,v[k]);});
+  var m=document.querySelector('meta[name=theme-color]');if(!m){m=document.createElement('meta');m.name='theme-color';document.head.appendChild(m);}m.content=c.bg;
+  try{localStorage.setItem('rytmikone:appearance',JSON.stringify(appearance));}catch(e){}
+  if(EDIT)drawWave();
+}
+if(mq){var onMq=function(){if(appearance.mode==='auto')applyAppearance();};if(mq.addEventListener)mq.addEventListener('change',onMq);else if(mq.addListener)mq.addListener(onMq);}
+
+// ---------- ääni ----------
+function ctx(){
+  if(!AC){var C=window.AudioContext||window.webkitAudioContext;if(!C)throw new Error('Tämä selain ei tue ääntä.');AC=new C({latencyHint:'interactive'});}
+  if(AC.state!=='running'&&AC.resume)AC.resume().catch(function(){});return AC;
+}
+function session(t){try{if(navigator.audioSession)navigator.audioSession.type=t;}catch(e){}}
+function micErr(e){
+  var n=e&&e.name||'';
+  if(n==='NotAllowedError'||n==='SecurityError')return 'Mikrofonin käyttö estettiin. Salli mikrofoni (Safari: aA-valikko → Sivuston asetukset → Mikrofoni) ja yritä uudelleen.';
+  if(n==='NotFoundError')return 'Mikrofonia ei löytynyt.';
+  return 'Mikrofonia ei saatu auki'+(e&&e.message?': '+e.message:'.');
+}
+var WORKLET="class C extends AudioWorkletProcessor{constructor(){super();this.r();this.port.onmessage=()=>this.send(true);}"+
+ "r(){this.p=[];this.f0=-1;this.l=0;this.rr=0;this.ch=0;this.same=true;}"+
+ "send(fl){if(this.p.length||fl)this.port.postMessage({f0:this.f0,p:this.p,l:this.l,r:this.rr,ch:this.ch,same:this.same,flush:!!fl});this.r();}"+
+ "process(ins){const a=ins[0]&&ins[0][0],b=ins[0]&&ins[0][1];if(this.f0<0)this.f0=currentFrame;let m=0;"+
+ "if(a){this.ch=Math.max(this.ch,ins[0].length);for(let i=0;i<a.length;i++){const x=Math.abs(a[i]);if(x>m)m=x;if(x>this.l)this.l=x;"+
+ "if(b){const y=Math.abs(b[i]);if(y>m)m=y;if(y>this.rr)this.rr=y;if(a[i]!==b[i])this.same=false;}}}"+
+ "this.p.push(m);if(this.p.length>=32)this.send(false);return true;}}registerProcessor('rk-cap',C);";
+var wkReady=null;
+function loadWorklet(a){
+  if(!a.audioWorklet||typeof AudioWorkletNode==='undefined')return Promise.resolve(false);
+  if(!wkReady){var u=URL.createObjectURL(new Blob([WORKLET],{type:'application/javascript'}));wkReady=a.audioWorklet.addModule(u).then(function(){return true;},function(){return false;});}
+  return wkReady;
+}
+// Avaa mikrofonin ja alkaa kerätä lohkojen huippuja. onData(viesti, kahva) jokaisesta erästä (~85 ms).
+function capture(onData){
+  var a=ctx();session('play-and-record');
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return Promise.reject(new Error('selain ei anna mikrofonia tällä osoitteella'));
+  return navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false,channelCount:{ideal:2}},video:false}).then(function(stream){
+    return loadWorklet(a).then(function(wk){
+      var src=a.createMediaStreamSource(stream),mute=a.createGain();mute.gain.value=0;mute.connect(a.destination);
+      var h={stream:stream,blocks:[],f0:null,ch:0,same:true,sr:a.sampleRate,approx:!wk,waiting:null};
+      var take=function(m){
+        if(m.p.length){if(h.f0===null)h.f0=m.f0;
+          for(var k=0;k<m.p.length;k++)h.blocks.push(m.p[k]);
+          h.ch=Math.max(h.ch,m.ch);if(m.ch>1&&!m.same)h.same=false;
+          if(onData)onData(m,h);}
+        if(m.flush&&h.waiting){var w=h.waiting;h.waiting=null;w();}
+      };
+      var node;
+      if(wk){node=new AudioWorkletNode(a,'rk-cap',{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[1]});node.port.onmessage=function(e){take(e.data);};}
+      else{node=a.createScriptProcessor(1024,2,1);node.onaudioprocess=function(e){
+        var ib=e.inputBuffer,L=ib.getChannelData(0),Rr=ib.numberOfChannels>1?ib.getChannelData(1):null,p=[],l=0,r=0,same=true;
+        for(var s=0;s<L.length;s+=128){var m=0;for(var i=s;i<s+128&&i<L.length;i++){var x=Math.abs(L[i]);if(x>m)m=x;if(x>l)l=x;if(Rr){var y=Math.abs(Rr[i]);if(y>m)m=y;if(y>r)r=y;if(L[i]!==Rr[i])same=false;}}p.push(m);}
+        take({f0:Math.round(e.playbackTime*h.sr)-L.length,p:p,l:l,r:r,ch:ib.numberOfChannels,same:same});};}
+      src.connect(node);node.connect(mute);
+      h.flush=function(){
+        if(!node.port)return Promise.resolve();
+        return new Promise(function(res){var done=false,fin=function(){if(!done){done=true;res();}};h.waiting=fin;node.port.postMessage('f');setTimeout(fin,250);});
+      };
+      h.stop=function(){
+        try{src.disconnect();}catch(e){}try{node.disconnect();}catch(e){}try{mute.disconnect();}catch(e){}
+        if(node.port)node.port.onmessage=null;else node.onaudioprocess=null;
+        stream.getTracks().forEach(function(t){t.stop();});session('auto');
+      };
+      h.settings=function(){try{return stream.getAudioTracks()[0].getSettings()||{};}catch(e){return {};}};
+      return h;
+    },function(e){stream.getTracks().forEach(function(t){t.stop();});throw e;});
+  });
+}
+function click(a,t,accent){
+  var o=a.createOscillator(),g=a.createGain();o.frequency.value=accent?1760:1175;
+  g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.6,t+0.002);g.gain.exponentialRampToValueAtTime(0.0001,t+0.05);
+  o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+0.07);
+}
+function wake(on){
+  try{if(on&&navigator.wakeLock)navigator.wakeLock.request('screen').then(function(w){WL=w;},function(){});else if(!on&&WL){WL.release();WL=null;}}catch(e){}
+}
+function setBusy(on){document.body.classList.toggle('busy',!!on);}
+function blocksToEnv(h){var e=new Float32Array(h.blocks.length);for(var i=0;i<e.length;i++)e[i]=RK.db(h.blocks[i]);return e;}
+function levelPct(d){return Math.max(0,Math.min(100,(d+72)/72*100));}
+
+// ---------- nauhoitus ----------
+function startRec(){
+  if(R)return;var p=P(),song=SONG&&SONG.pid===p.id?SONG:null,a;
+  try{a=ctx();}catch(e){toast(e.message);return;}
+  R={k:'rec',p:p,song:song,zero:null,ref:song?'biisi':(p.esilasku||p.metronomi?'lasku':''),srcs:[],env:[],hits:0,s:copyS(D.oletus)};
+  setBusy(true);renderRec();setRecInfo('Avataan mikrofonia…');
+  var job=R;
+  capture(function(m,h){if(R!==job)return;for(var k=0;k<m.p.length;k++)job.env.push(RK.db(m.p[k]));
+    var mx=0;for(k=0;k<m.p.length;k++)if(m.p[k]>mx)mx=m.p[k];var lv=$('mLvl');if(lv)lv.style.width=levelPct(RK.db(mx))+'%';
+  }).then(function(h){
+    if(R!==job){h.stop();return;}
+    job.h=h;var now=a.currentTime,beat=60/p.tempo;
+    if(song){
+      job.zero=now+0.4;var s=a.createBufferSource();s.buffer=song.buf;s.connect(a.destination);s.start(job.zero);
+      s.onended=function(){if(R===job)setTimeout(function(){if(R===job)stopRec();},300);};job.srcs.push(s);
+    }else if(p.esilasku||p.metronomi){
+      var t0=now+0.4;
+      if(p.esilasku){for(var k=0;k<4;k++)click(a,t0+k*beat,k===0);job.zero=t0+4*beat;}else job.zero=t0;
+      if(p.metronomi){job.nextBeat=0;var sched=function(){while(job.zero+job.nextBeat*beat<a.currentTime+0.3){var t=job.zero+job.nextBeat*beat;if(t>=a.currentTime-0.01)click(a,t,job.nextBeat%4===0);job.nextBeat++;}};sched();job.metro=setInterval(sched,60);}
+    }
+    job.timer=setInterval(function(){recTick(job);},200);wake(true);recTick(job);
+  },function(e){if(R===job){R=null;setBusy(false);renderRec();}toast(micErr(e));});
+}
+function recTick(job){
+  if(R!==job||!job.h)return;var a=AC,t=job.zero!==null?a.currentTime-job.zero:job.h.blocks.length/(job.h.sr/RK.BLOCK);
+  job.hits=RK.detect(job.env,job.h.sr/RK.BLOCK,job.s).length;
+  var big=$('recTime');if(big)big.textContent=fmtT(t);
+  setRecInfo((job.zero!==null&&t<0?(job.ref==='biisi'?'Biisi alkaa…':'Esilaskenta…'):'Nauhoitetaan')+' · '+job.hits+' iskua');
+  if(job.env.length/(job.h.sr/RK.BLOCK)>600){stopRec();toast('Nauhoitus pysähtyi 10 minuutin kohdalla.');}
+}
+function setRecInfo(s){var e=$('recInfo');if(e)e.textContent=s;}
+function stopRec(){
+  if(!R||R.k!=='rec')return;var job=R;
+  if(!job.h){R=null;setBusy(false);renderRec();return;}
+  if(job.stopping)return;job.stopping=true;
+  clearInterval(job.timer);clearInterval(job.metro);job.srcs.forEach(function(s){try{s.onended=null;s.stop();}catch(e){}});
+  job.h.flush().then(function(){
+    var h=job.h;h.stop();wake(false);R=null;setBusy(false);
+    if(!h.blocks.length){toast('Mikrofonista ei tullut ääntä.');renderRec();return;}
+    var p=job.p,env=blocksToEnv(h),hz=h.sr/RK.BLOCK,alku=job.zero!==null?(h.f0-Math.round(job.zero*h.sr))/h.sr:0;
+    var T=RK.newTake({nimi:'Otto '+(p.otot.length+1),nuotti:D.uusiNuotti,hz:hz,alku:alku,viive:job.zero!==null?(D.viive||0):0,s:job.s,env:RK.encEnv(env),ref:job.ref,kanavat:h.ch||1});
+    p.otot.push(T);save(true);renderRec();openEditor(T.id);
+  });
+}
+function cancelJob(){
+  if(!R)return;var job=R;R=null;clearInterval(job.timer);clearInterval(job.metro);
+  (job.srcs||[]).forEach(function(s){try{s.onended=null;s.stop();}catch(e){}});
+  if(job.h)job.h.stop();wake(false);setBusy(false);render();
+}
+// Hiljaisuuden kalibrointi: 2 s huoneen ääntä -> portti kohinan yläpuolelle.
+function quietCal(){
+  if(R)return;try{ctx();}catch(e){toast(e.message);return;}
+  var job=R={k:'quiet'};setBusy(true);quietInfo='Ole hiljaa 2 sekuntia…';renderRec();
+  capture(null).then(function(h){
+    if(R!==job){h.stop();return;}job.h=h;
+    setTimeout(function(){if(R!==job)return;h.flush().then(function(){
+      h.stop();R=null;setBusy(false);var env=blocksToEnv(h),n=RK.noiseGate(env.subarray(Math.min(env.length,Math.round(0.25*h.sr/RK.BLOCK))));
+      if(!n){quietInfo='Ääntä ei tullut.';}else{D.oletus.portti=n.portti;if(D.oletus.hiljaisin<n.portti)D.oletus.hiljaisin=n.portti;D.oletus=RK.settings(D.oletus);save();
+        quietInfo='Taustakohina '+fmtDb(n.kohina)+' → portti '+fmtDb(n.portti)+'.';}
+      renderRec();});},2000);
+  },function(e){if(R===job){R=null;setBusy(false);}quietInfo='';renderRec();toast(micErr(e));});
+}
+
+// ---------- näkymät ----------
+function render(){
+  $('projBtn').textContent=P().nimi+' ▾';
+  Array.prototype.forEach.call(document.querySelectorAll('#tabs button'),function(b){b.setAttribute('aria-pressed',b.dataset.tab===TAB?'true':'false');});
+  ['rec','takes','set'].forEach(function(t){$('v-'+t).hidden=t!==TAB;});
+  if(TAB==='rec')renderRec();else if(TAB==='takes')renderTakes();else renderSet();
+}
+function renderRec(){
+  if(TAB!=='rec')return;var p=P(),song=SONG&&SONG.pid===p.id?SONG:null,rec=R&&R.k==='rec',h='';
+  h+='<div class="card lock"><h2>Biisi</h2>';
+  if(song)h+='<div class="row"><div class="grow"><b>'+esc(song.name)+'</b><div class="help">'+fmtT(song.buf.duration)+' · soi nauhoittaessa, nuotit alkavat biisin alusta</div></div><button class="btn" data-act="songOff">Poista</button></div>';
+  else h+='<button class="btn wide" data-act="songPick">Lataa biisi</button><p class="help">Valinnainen. Biisi soi nauhoittaessa kuulokkeisiin, ja MIDI-nuotit asettuvat biisin alusta.'+(p.biisi?' Viimeksi: '+esc(p.biisi)+' (lataa uudelleen).':'')+'</p>';
+  h+='<div class="field" style="margin-top:12px"><span>Tempo</span><button class="btn sq" data-act="tempo" data-d="-1" aria-label="Hitaampi">−</button><input type="text" id="tempo" class="num" inputmode="decimal" maxlength="5" value="'+String(p.tempo).replace('.',',')+'" aria-label="Tempo"><button class="btn sq" data-act="tempo" data-d="1" aria-label="Nopeampi">+</button><span class="help">BPM</span></div>';
+  if(!song)h+='<div class="row" style="margin-top:12px"><button class="chip" data-act="pflag" data-k="esilasku" aria-pressed="'+p.esilasku+'">Esilaskenta 4</button><button class="chip" data-act="pflag" data-k="metronomi" aria-pressed="'+p.metronomi+'">Metronomi</button></div>';
+  h+='</div>';
+  h+='<div class="card lock"><h2>Seuraava otto</h2><div class="field"><span>Nuotti</span><select id="newNote" aria-label="Nuotti">'+noteOptions(D.uusiNuotti)+'</select></div>';
+  h+='<div class="field"><span>Säädöt</span><select id="newPreset" aria-label="Säädöt"><option value="">Nykyiset (portti '+esc(fmtDb(D.oletus.portti))+')</option>';
+  D.esi.forEach(function(e){h+='<option value="'+esc(e.id)+'">'+esc(e.nimi)+'</option>';});
+  h+='</select></div><div class="row"><button class="btn" data-act="quiet">Kalibroi hiljaisuus</button><span class="help grow">'+esc(quietInfo||'Mittaa taustakohinan ja asettaa portin sen yläpuolelle.')+'</span></div></div>';
+  h+='<div class="recbox"><button id="recBtn" class="rec'+(rec?' on':'')+'" data-act="rec"'+(R&&!rec?' disabled':'')+'>'+(rec?'Lopeta':'Nauhoita')+'</button>';
+  h+='<div class="big" id="recTime">'+(rec?'0:00,0':'')+'</div><div class="meter" aria-hidden="true"><i id="mLvl"></i><b style="left:'+levelPct(D.oletus.portti)+'%"></b></div>';
+  h+='<p class="help center" id="recInfo">'+(rec?'':esc(song?'Biisi alkaa 0,4 s napautuksen jälkeen.':p.esilasku?'Neljä naksua, sitten nauhoitus alkaa tahdin alusta.':p.metronomi?'Metronomi soi; ensimmäinen naksu on alku.':'Nauhoitus alkaa heti.'))+'</p></div>';
+  var ref=song||p.esilasku||p.metronomi;
+  if(ref)h+='<p class="help center">'+(D.viive===null?'<span class="warn">Viivettä ei ole kalibroitu:</span> iskut voivat olla myöhässä. Kalibroi Asetukset-välilehdellä.':'Viive '+fmtMs(D.viive)+' vähennetään iskuista.')+' Käytä kuulokkeita, ettei mikrofoni kuule '+(song?'biisiä':'naksuja')+'.</p>';
+  if(p.otot.length&&!rec){var T=p.otot[p.otot.length-1];h+='<div class="card lock"><div class="row"><div class="grow"><b>'+esc(T.nimi)+'</b><div class="help">'+esc(RK.noteLabel(T.nuotti))+' · '+RK.takeHits(T,envOf(T)).length+' iskua</div></div><button class="btn" data-act="edit" data-id="'+esc(T.id)+'">Avaa</button></div></div>';}
+  $('v-rec').innerHTML=h;
+}
+function renderTakes(){
+  var p=P(),st=RK.exportNotes(p,envOf),inc=p.otot.filter(function(t){return t.mukana;}).length,h='';
+  h+='<div class="card"><h2>Projekti</h2><div class="field"><span>Nimi</span><input type="text" id="pName" maxlength="60" value="'+esc(p.nimi)+'"></div>';
+  h+='<div class="field"><span>Nuotin pituus</span><div class="seg small grow" role="group">';
+  ['1/32','1/16','1/8'].forEach(function(k){h+='<button data-act="pset" data-k="pituus" data-v="'+k+'" aria-pressed="'+(p.pituus===k)+'">'+k+'</button>';});
+  h+='</div></div><div class="field"><span>Raidat</span><div class="seg small grow" role="group"><button data-act="pset" data-k="raidat" data-v="yksi" aria-pressed="'+(p.raidat==='yksi')+'">Yksi raita</button><button data-act="pset" data-k="raidat" data-v="omat" aria-pressed="'+(p.raidat==='omat')+'">Oma per otto</button></div></div>';
+  h+='<p class="help">Tempo '+String(p.tempo).replace('.',',')+' BPM (muutos Nauhoita-välilehdellä). Rummut MIDI-kanavalla 10.</p></div>';
+  h+='<div class="card"><h2>Vienti</h2><div class="stat"><div><b>'+inc+'/'+p.otot.length+'</b><span>ottoa mukana</span></div><div><b>'+st.n+'</b><span>nuottia</span></div><div><b>'+st.pois+'</b><span>ennen alkua</span></div></div>';
+  h+='<div class="row" style="margin-top:12px"><button class="btn solid grow" data-act="export">Vie MIDI</button><button class="btn" data-act="exportDl">Lataa .mid</button></div>';
+  h+='<p class="help">Logicissa: vedä tiedosto raidalle tahdin 1 kohdalle, niin nuotit osuvat biisin alusta. Ennen alkua tulleet iskut jäävät pois.</p></div>';
+  h+='<div class="card"><h2>Otot</h2>';
+  if(!p.otot.length)h+='<p class="help">Ei vielä ottoja. Nauhoita ensimmäinen Nauhoita-välilehdellä.</p>';
+  p.otot.forEach(function(T){var n=RK.takeHits(T,envOf(T)).length,dur=envOf(T).length/T.hz;
+    h+='<div class="take"><button class="tog" data-act="inc" data-id="'+esc(T.id)+'" aria-pressed="'+T.mukana+'" aria-label="Mukana viennissä">'+(T.mukana?'✓':'')+'</button><button class="open" data-act="edit" data-id="'+esc(T.id)+'"><b>'+esc(T.nimi)+'</b><span>'+esc(RK.noteLabel(T.nuotti))+' · '+n+' iskua · '+fmtT(dur)+'</span></button></div>';});
+  h+='</div><button class="btn danger wide" style="margin-top:16px" data-act="projDel">Poista projekti</button>';
+  $('v-takes').innerHTML=h;
+}
+function renderSet(){
+  var h='',mic=R&&R.k==='mic',cal=R&&R.k==='cal';
+  h+='<div class="card"><h2>Viive</h2><p style="margin:0">'+(D.viive===null?'Ei kalibroitu.':'Viive <b>'+fmtMs(D.viive)+'</b> vähennetään iskuista, kun nauhoitat biisin tai naksujen tahtiin.')+'</p>';
+  h+='<p class="help">Laita samat kuulokkeet kuin nauhoittaessa. Kuulet neljä naksua ja sitten kahdeksan: taputa tai sano ”ta” jokaisen kahdeksan naksun kohdalla.</p>';
+  if(cal)h+='<div class="big" id="calInfo">Kuuntele…</div><button class="btn wide" data-act="calStop">Keskeytä</button>';
+  else{h+='<div class="row" style="margin-top:10px"><button class="btn solid lock" data-act="cal">Kalibroi</button><span class="grow"></span><input type="number" id="viiveIn" class="lock" inputmode="numeric" aria-label="Viive millisekunteina" value="'+(D.viive===null?'':D.viive)+'" placeholder="–"><span class="help">ms</span></div>';
+    if(CAL)h+='<p'+(CAL.ok?'':' class="warn"')+'>'+esc(CAL.text)+'</p>'+(CAL.ok?'<div class="row" style="margin-top:8px"><button class="btn solid lock" data-act="calSave">Käytä '+fmtMs(CAL.ms)+'</button><button class="btn lock" data-act="calDrop">Hylkää</button></div>':'');}
+  h+='</div>';
+  h+='<div class="card"><h2>Mikrofonin testi</h2><p class="help" style="margin:0">Näyttää vasemman ja oikean kanavan tason erikseen ja sen, antaako selain stereoäänen.</p>';
+  if(mic)h+='<div class="meter lr" aria-hidden="true"><i id="mL"></i></div><div class="meter lr" aria-hidden="true"><i id="mR"></i></div><p id="micInfo">Kuunnellaan…</p><p class="help" id="micSet"></p><button class="btn wide" style="margin-top:10px" data-act="micStop">Lopeta testi</button>';
+  else h+='<button class="btn wide lock" style="margin-top:10px" data-act="mic">Testaa mikrofoni</button>';
+  h+='</div>';
+  h+='<div class="card lock"><h2>Esiasetukset</h2>';
+  if(!D.esi.length)h+='<p class="help" style="margin:0">Ei esiasetuksia. Tallenna oton säädöt nimellä oton näkymässä.</p>';
+  D.esi.forEach(function(e){h+='<div class="list-row"><div class="grow"><b>'+esc(e.nimi)+'</b><div class="help">'+esc(sumS(e.s))+'</div></div><button class="btn danger" data-act="presetDel" data-id="'+esc(e.id)+'">Poista</button></div>';});
+  h+='</div>';
+  h+='<div class="card lock"><h2>Oma ulkoasu</h2><div class="theme-grid">';
+  APPIPAJA_THEMES.forEach(function(t){h+='<button class="theme-chip" data-ap-theme="'+t.id+'" aria-pressed="'+(appearance.theme===t.id)+'"><i class="theme-swatch" style="background:'+t.light.accent+'"></i><span>'+esc(t.name)+'</span></button>';});
+  h+='</div><div class="theme-modes">';[['auto','Laitteen mukaan'],['light','Vaalea'],['dark','Tumma']].forEach(function(m){h+='<button class="chip" data-ap-mode="'+m[0]+'" aria-pressed="'+(appearance.mode===m[0])+'">'+m[1]+'</button>';});
+  h+='</div></div>';
+  var kb=Math.round(JSON.stringify(D).length*2/1024);
+  h+='<div class="card lock"><h2>Varmuuskopio</h2><p class="help" style="margin:0">Tiedot ovat vain tämän selaimen muistissa ('+kb+' kt). Ääntä ei tallenneta, vain iskujen tunnistukseen tarvittava voimakkuuskäyrä.</p>';
+  h+='<div class="grid2"><button class="btn" data-act="backup">Vie tiedostoon</button><button class="btn" data-act="importPick">Tuo tiedostosta</button><button class="btn" data-act="textOut">Näytä tekstinä</button><button class="btn" data-act="textIn">Tuo tekstistä</button></div>';
+  if(TEXTBOX==='out')h+='<textarea id="txt" readonly>'+esc(JSON.stringify(D))+'</textarea><button class="btn wide" data-act="copy">Kopioi</button>';
+  if(TEXTBOX==='in')h+='<textarea id="txt" placeholder="Liitä varmuuskopion teksti tähän"></textarea><button class="btn solid wide" data-act="textImport">Tuo</button>';
+  h+='</div><p class="help center" style="margin-top:16px">Rytmikone · vaihe 1 · tallennusmuoto '+RK.VER+'</p>';
+  $('v-set').innerHTML=h;
+}
+
+// ---------- viivekalibrointi ----------
+function startCal(){
+  if(R)return;var a;try{a=ctx();}catch(e){toast(e.message);return;}
+  var job=R={k:'cal'};CAL=null;setBusy(true);renderSet();
+  capture(null).then(function(h){
+    if(R!==job){h.stop();return;}job.h=h;var beat=60/90,t0=a.currentTime+0.5,clicks=[];
+    for(var k=0;k<12;k++){click(a,t0+k*beat,k===0||k===4);if(k>=4)clicks.push(t0+k*beat);}
+    var end=t0+12*beat+0.5;
+    job.timer=setInterval(function(){if(R!==job)return;var i=$('calInfo'),t=a.currentTime;
+      if(i)i.textContent=t<t0+4*beat?'Esilaskenta…':t<t0+12*beat?'Taputa: '+Math.min(8,Math.floor((t-t0)/beat)-3)+'/8':'Lasketaan…';
+      if(t>end){clearInterval(job.timer);h.flush().then(function(){if(R!==job)return;h.stop();R=null;setBusy(false);
+        var env=blocksToEnv(h),hz=h.sr/RK.BLOCK,times=RK.detect(env,hz,D.oletus).map(function(x){return h.f0/h.sr+x.i/hz;}),r=RK.calibrate(times,clicks);
+        if(r.ok)CAL={ok:true,ms:r.ms,text:'Mitattu viive '+fmtMs(r.ms)+' ('+r.n+'/8 taputusta, hajonta ±'+r.hajonta+' ms)'+(r.hajonta>40?'. Hajonta on suuri: kokeile uudelleen.':'.')};
+        else CAL={ok:false,text:'Taputuksia löytyi vain '+r.n+'/8. Tarkista portti (Kalibroi hiljaisuus Nauhoita-välilehdellä) ja taputa selvästi.'};
+        renderSet();});}},100);
+  },function(e){if(R===job){R=null;setBusy(false);}renderSet();toast(micErr(e));});
+}
+// ---------- mikrofonin testi ----------
+function startMic(){
+  if(R)return;try{ctx();}catch(e){toast(e.message);return;}
+  var job=R={k:'mic',ch:0,same:true};setBusy(true);renderSet();
+  capture(function(m,h){if(R!==job)return;var L=$('mL'),Rr=$('mR'),info=$('micInfo'),st=$('micSet');
+    if(L)L.style.width=levelPct(RK.db(m.l))+'%';if(Rr)Rr.style.width=levelPct(RK.db(m.ch>1?m.r:0))+'%';
+    if(info)info.textContent=h.ch<=1?'Selain antaa yhden kanavan (mono).':h.same?(h.approx?'2 kanavaa, mutta samat: todennäköisesti mono.':'2 kanavaa, mutta ne ovat samat (mono kahdesti).'):'2 kanavaa, eri signaalit: stereo toimii ✓';
+    if(st){var s=h.settings();st.textContent='Kaiunpoisto '+(s.echoCancellation?'päällä':'pois')+' · kohinanpoisto '+(s.noiseSuppression?'päällä':'pois')+' · automaattinen taso '+(s.autoGainControl?'päällä':'pois')+' · '+(s.sampleRate||h.sr)+' Hz'+(h.approx?' · varakaappaus':'');}
+  }).then(function(h){if(R!==job){h.stop();return;}job.h=h;},function(e){if(R===job){R=null;setBusy(false);}renderSet();toast(micErr(e));});
+}
+
+// ---------- oton editori ----------
+function openEditor(id){var T=takeById(id);if(!T)return;var dur=envOf(T).length/T.hz;EDIT={id:id,v0:0,v1:Math.max(0.5,dur)};$('editor').hidden=false;renderEditor();$('editor').scrollTop=0;document.body.style.overflow='hidden';}
+function closeEditor(){EDIT=null;$('editor').hidden=true;$('editor').innerHTML='';document.body.style.overflow='';saveNow();render();}
+var SL=[['portti','Kohinaportti',-80,-6,0.5,'db','Tätä hiljaisemmat äänet eivät tee nuottia.'],['esto','Uudelleenlaukaisun esto',0,300,5,'ms','Näin pian edellisen iskun jälkeen ei tule uutta.'],
+  ['hiljaisin','Hiljaisin isku (velocity 1)',-80,-1,0.5,'db',''],['kovin','Kovin isku (velocity 127)',-79,0,0.5,'db','']];
+var SL2=[['hyst','Hystereesi',0,24,0.5,'db','Kuinka paljon tason pitää laskea portin alle ennen uutta iskua.'],['ikkuna','Mittausikkuna',2,80,1,'ms','Iskun voimakkuus = suurin taso näin pitkältä ajalta iskun alusta.']];
+function slider(d,val,attr){return '<label class="sl"><span class="lab"><span>'+d[1]+'</span><output id="o-'+d[0]+'">'+(d[5]==='db'?fmtDb(val):fmtMs(val))+'</output></span><input type="range" '+attr+'="'+d[0]+'" min="'+d[2]+'" max="'+d[3]+'" step="'+d[4]+'" value="'+val+'">'+(d[6]?'<span class="help">'+d[6]+'</span>':'')+'</label>';}
+function renderEditor(){
+  var T=takeById(EDIT.id);if(!T){closeEditor();return;}var s=T.s,h='<div class="wrap">';
+  h+='<div class="edtop"><button class="btn solid" data-act="edClose">Valmis</button><input type="text" id="eName" maxlength="60" value="'+esc(T.nimi)+'" aria-label="Oton nimi"></div>';
+  h+='<div class="card" style="margin-top:4px"><canvas id="wave" aria-label="Oton voimakkuus ja iskut"></canvas><div class="row" style="margin-top:8px"><button class="btn sq" data-act="zoom" data-z="2" aria-label="Loitonna">−</button><button class="btn" data-act="zoomAll">Koko</button><button class="btn sq" data-act="zoom" data-z="0.5" aria-label="Lähennä">+</button><span class="help grow" id="wTime"></span></div><p class="help">Vedä kuvaa sivulle siirtyäksesi. Pystyviiva = isku, korkeus = velocity. Katkoviiva = portti.</p></div>';
+  h+='<div class="card"><div class="stat" id="eStats"></div><div class="field" style="margin-top:12px"><span>Nuotti</span><select id="eNote" aria-label="Nuotti">'+noteOptions(T.nuotti)+'</select><input type="number" id="eNoteNum" min="0" max="127" inputmode="numeric" value="'+T.nuotti+'" aria-label="Nuotin numero"></div>';
+  h+='<div class="row" style="margin-top:10px"><button class="chip" data-act="edInc" aria-pressed="'+T.mukana+'">Mukana viennissä</button></div></div>';
+  h+='<div class="card"><h2>Tunnistus</h2>';SL.slice(0,2).forEach(function(d){h+=slider(d,s[d[0]],'data-s');});
+  h+='<h2 style="margin-top:16px">Velocity</h2><div class="seg small" role="group">';RK.KAYRA_NIMET.forEach(function(k){h+='<button data-act="curve" data-v="'+k[0]+'" aria-pressed="'+(s.kayra===k[0])+'">'+k[1]+'</button>';});h+='</div>';
+  SL.slice(2).forEach(function(d){h+=slider(d,s[d[0]],'data-s');});
+  h+='<button class="btn wide" style="margin-top:12px" data-act="fit">Sovita velocity ottoon</button><p class="help">Asettaa hiljaisimman ja kovimman iskun tämän oton iskuista.</p>';
+  h+='<details><summary>Lisäsäädöt</summary>';SL2.forEach(function(d){h+=slider(d,s[d[0]],'data-s');});h+='</details></div>';
+  h+='<div class="card"><h2>Ajoitus</h2>'+slider(['viive','Siirto (viive)',-200,600,1,'ms',''],T.viive,'data-t');
+  h+='<p class="help">Vähennetään iskujen ajoista. '+(T.ref?'Otto tehtiin '+(T.ref==='biisi'?'biisin':'naksujen')+' tahtiin.':'Otolla ei ollut biisiä eikä naksuja, joten siirtoa ei tarvita.')+(D.viive!==null?' Kalibroitu viive nyt: '+fmtMs(D.viive)+'.':'')+(T.kanavat>1?' Mikrofoni antoi '+T.kanavat+' kanavaa.':'')+'</p></div>';
+  h+='<div class="card"><h2>Esiasetus</h2><div class="field"><select id="ePreset" aria-label="Käytä esiasetusta"><option value="">Käytä esiasetusta…</option>';
+  D.esi.forEach(function(e){h+='<option value="'+esc(e.id)+'">'+esc(e.nimi)+'</option>';});
+  h+='</select></div><div class="field"><input type="text" id="ePresetName" maxlength="40" placeholder="Nimi, esim. paikka tai mikrofoni"><button class="btn" data-act="presetSave">Tallenna</button></div></div>';
+  h+='<button class="btn danger wide" style="margin-top:16px" data-act="edDel">Poista otto</button></div>';
+  $('editor').innerHTML=h;edUpdate();
+}
+function edUpdate(){
+  var T=takeById(EDIT.id);if(!T)return;var hits=RK.takeHits(T,envOf(T)),pois=0,lo=127,hi=0;
+  hits.forEach(function(x){if(x.t<0)pois++;if(x.v<lo)lo=x.v;if(x.v>hi)hi=x.v;});
+  var st=$('eStats');if(st)st.innerHTML='<div><b>'+hits.length+'</b><span>iskua</span></div><div><b>'+(hits.length?lo+'–'+hi:'–')+'</b><span>velocity</span></div><div><b>'+pois+'</b><span>ennen alkua</span></div>';
+  EDIT.hits=hits;drawWave();
+}
+function cssVar(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
+function drawWave(){
+  var c=$('wave');if(!c||!EDIT)return;var T=takeById(EDIT.id);if(!T)return;
+  var env=envOf(T),hz=T.hz,dur=env.length/hz,w=c.clientWidth,hh=c.clientHeight,dpr=window.devicePixelRatio||1;
+  if(!w)return;c.width=Math.round(w*dpr);c.height=Math.round(hh*dpr);var g=c.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,hh);
+  var v0=EDIT.v0,v1=EDIT.v1,span=v1-v0,X=function(t){return (t-v0)/span*w;},Y=function(d){return hh-4-(Math.max(-72,Math.min(0,d))+72)/72*(hh-14);};
+  var lab=cssVar('--label2'),acc=cssVar('--accent'),lab1=cssVar('--label');
+  g.fillStyle=lab;g.globalAlpha=0.45;
+  for(var px=0;px<w;px++){var i0=Math.floor((v0+px/w*span)*hz),i1=Math.max(i0+1,Math.floor((v0+(px+1)/w*span)*hz)),m=-96;
+    for(var i=Math.max(0,i0);i<Math.min(env.length,i1);i++)if(env[i]>m)m=env[i];if(m>-72)g.fillRect(px,Y(m),1,hh-4-Y(m));}
+  g.globalAlpha=1;var s=T.s;
+  var zt=T.viive/1000-T.alku;if(zt>v0&&zt<v1&&(T.ref||T.alku!==0)){g.fillStyle=lab;g.globalAlpha=0.1;g.fillRect(0,0,X(zt),hh);g.globalAlpha=1;g.fillStyle=lab1;g.fillRect(X(zt),0,1.5,hh);g.font='11px '+cssVar('--font');g.fillText('Alku',X(zt)+4,12);}
+  g.strokeStyle=lab1;g.setLineDash([5,4]);g.lineWidth=1;g.beginPath();g.moveTo(0,Y(s.portti)+0.5);g.lineTo(w,Y(s.portti)+0.5);g.stroke();g.setLineDash([]);
+  (EDIT.hits||[]).forEach(function(x){var t=x.i/hz;if(t<v0||t>v1)return;var xx=X(t),yy=hh-4-(x.v/127)*(hh-18);
+    g.fillStyle=x.t<0?lab:acc;g.fillRect(xx-0.75,yy,1.5,hh-4-yy);g.beginPath();g.arc(xx,yy,3,0,Math.PI*2);g.fill();});
+  var wt=$('wTime');if(wt)wt.textContent=fmtT(v0)+' – '+fmtT(v1)+' / '+fmtT(dur);
+}
+function edSetView(v0,span){var T=takeById(EDIT.id),dur=Math.max(0.5,envOf(T).length/T.hz);span=Math.max(0.5,Math.min(dur,span));v0=Math.max(0,Math.min(dur-span,v0));EDIT.v0=v0;EDIT.v1=v0+span;drawWave();}
+var drag=null;
+document.addEventListener('pointerdown',function(e){if(e.target.id!=='wave'||!EDIT)return;drag={x:e.clientX,v0:EDIT.v0,w:e.target.clientWidth};try{e.target.setPointerCapture(e.pointerId);}catch(_){}});
+document.addEventListener('pointermove',function(e){if(!drag||!EDIT)return;var span=EDIT.v1-EDIT.v0;edSetView(drag.v0-(e.clientX-drag.x)/drag.w*span,span);});
+document.addEventListener('pointerup',function(){drag=null;});document.addEventListener('pointercancel',function(){drag=null;});
+window.addEventListener('resize',function(){if(EDIT)drawWave();});
+
+// ---------- projektit ----------
+function sheet(html){$('sheet').innerHTML=html;$('shade').hidden=false;}
+function closeSheet(){$('shade').hidden=true;$('sheet').innerHTML='';}
+function projectsSheet(){
+  var h='<h2>Projektit</h2><div class="plist">';
+  D.projektit.forEach(function(p){h+='<button data-act="projPick" data-id="'+esc(p.id)+'" aria-current="'+(p.id===D.cur)+'"><span>'+esc(p.nimi)+'</span><span class="help">'+p.otot.length+' ottoa</span></button>';});
+  h+='</div><div class="row" style="margin-top:14px"><button class="btn solid grow" data-act="projNew">＋ Uusi projekti</button><button class="btn" data-act="sheetClose">Sulje</button></div>';sheet(h);
+}
+
+// ---------- varmuuskopio ----------
+function importData(text){
+  var d;try{d=JSON.parse(text);}catch(e){toast('Teksti ei ole kelvollinen varmuuskopio.');return;}
+  if(!d||d.app!=='rytmikone'){toast('Tämä ei ole Rytmikoneen varmuuskopio.');return;}
+  if(!confirm('Korvataanko nykyiset tiedot varmuuskopiolla? Nykyiset projektit katoavat, ellei niitä ole viety.'))return;
+  D=RK.repair(d);ENVC={};SONG=null;TEXTBOX='';saveNow();render();toast('Varmuuskopio tuotu: '+D.projektit.length+' projektia.');
+}
+
+// ---------- tapahtumat ----------
+document.addEventListener('click',function(e){
+  var tb=e.target.closest('#tabs button');if(tb){if(R)return;TAB=tb.dataset.tab;render();return;}
+  var th=e.target.closest('[data-ap-theme]'),md=e.target.closest('[data-ap-mode]');
+  if(th||md){if(th)appearance.theme=th.dataset.apTheme;if(md)appearance.mode=md.dataset.apMode;applyAppearance();renderSet();return;}
+  if(e.target.id==='shade'){closeSheet();return;}
+  var b=e.target.closest('[data-act]');if(!b||b.disabled)return;var act=b.dataset.act,p=P(),T=EDIT?takeById(EDIT.id):null;
+  switch(act){
+  case 'rec':if(R&&R.k==='rec')stopRec();else startRec();break;
+  case 'quiet':quietCal();break;
+  case 'songPick':$('songFile').value='';$('songFile').click();break;
+  case 'songOff':SONG=null;renderRec();break;
+  case 'tempo':p.tempo=RK.clamp(Math.round(p.tempo)+(+b.dataset.d),20,400);save();renderRec();break;
+  case 'pflag':p[b.dataset.k]=!p[b.dataset.k];save();renderRec();break;
+  case 'pset':p[b.dataset.k]=b.dataset.v;save();renderTakes();break;
+  case 'edit':openEditor(b.dataset.id);break;
+  case 'inc':var t=takeById(b.dataset.id);if(t){t.mukana=!t.mukana;save();renderTakes();}break;
+  case 'export':case 'exportDl':
+    var st=RK.exportNotes(p,envOf);if(!st.n){toast('Ei vietäviä nuotteja: mukana olevista otoista ei löytynyt iskuja alun jälkeen.');break;}
+    lastExport=RK.midi(p,envOf);shareOrDownload(new Blob([lastExport],{type:'audio/midi'}),fileName(p.nimi)+'.mid','audio/midi',act==='exportDl');break;
+  case 'projects':projectsSheet();break;
+  case 'sheetClose':closeSheet();break;
+  case 'projPick':D.cur=b.dataset.id;save();closeSheet();render();break;
+  case 'projNew':var np=RK.newProject('Projekti '+(D.projektit.length+1));D.projektit.push(np);D.cur=np.id;save();closeSheet();TAB='rec';render();break;
+  case 'projDel':
+    if(!confirm('Poistetaanko projekti ”'+p.nimi+'” ja sen '+p.otot.length+' ottoa?'))break;
+    D.projektit=D.projektit.filter(function(x){return x!==p;});if(!D.projektit.length)D.projektit.push(RK.newProject('Projekti 1'));D.cur=D.projektit[0].id;save(true);render();break;
+  case 'cal':startCal();break;
+  case 'calStop':cancelJob();break;
+  case 'calSave':if(CAL&&CAL.ok){D.viive=CAL.ms;CAL=null;save();renderSet();toast('Viive tallennettu. Se koskee uusia ottoja; vanhoissa siirron voi muuttaa oton näkymässä.');}break;
+  case 'calDrop':CAL=null;renderSet();break;
+  case 'mic':startMic();break;
+  case 'micStop':cancelJob();break;
+  case 'presetDel':D.esi=D.esi.filter(function(x){return x.id!==b.dataset.id;});save();renderSet();break;
+  case 'backup':var txt=JSON.stringify(D);lastBackup=txt;var dd=new Date(),ds=dd.getFullYear()+'-'+String(dd.getMonth()+1).padStart(2,'0')+'-'+String(dd.getDate()).padStart(2,'0');
+    shareOrDownload(new Blob([txt],{type:'application/json'}),'rytmikone-varmuuskopio-'+ds+'.json','application/json',false);break;
+  case 'importPick':$('importFile').value='';$('importFile').click();break;
+  case 'textOut':TEXTBOX=TEXTBOX==='out'?'':'out';renderSet();break;
+  case 'textIn':TEXTBOX=TEXTBOX==='in'?'':'in';renderSet();break;
+  case 'copy':var ta=$('txt');if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(ta.value).then(function(){toast('Kopioitu.');},function(){ta.select();toast('Valitse ja kopioi teksti itse.');});else{ta.select();toast('Valitse ja kopioi teksti itse.');}break;
+  case 'textImport':importData($('txt').value);break;
+  // editori
+  case 'edClose':closeEditor();break;
+  case 'zoom':if(T)edSetView((EDIT.v0+EDIT.v1)/2-(EDIT.v1-EDIT.v0)*(+b.dataset.z)/2,(EDIT.v1-EDIT.v0)*(+b.dataset.z));break;
+  case 'zoomAll':if(T)edSetView(0,1e9);break;
+  case 'edInc':if(T){T.mukana=!T.mukana;b.setAttribute('aria-pressed',T.mukana);save();}break;
+  case 'curve':if(T){T.s.kayra=b.dataset.v;D.oletus=copyS(T.s);save();Array.prototype.forEach.call(b.parentNode.children,function(x){x.setAttribute('aria-pressed',x===b);});edUpdate();}break;
+  case 'fit':if(T){var f=RK.fitRange(RK.takeHits(T,envOf(T)));if(!f){toast('Sovitukseen tarvitaan vähintään kaksi eri voimakkuista iskua.');break;}T.s.hiljaisin=f.hiljaisin;T.s.kovin=f.kovin;edSettingsChanged(T);}break;
+  case 'presetSave':if(T){var nm=$('ePresetName').value.trim();if(!nm){toast('Anna esiasetukselle nimi.');break;}var ex=D.esi.filter(function(x){return x.nimi===nm;})[0];
+    if(ex)ex.s=copyS(T.s);else D.esi.push({id:RK.uid(),nimi:nm,s:copyS(T.s)});save();renderEditor();toast('Esiasetus ”'+nm+'” tallennettu.');}break;
+  case 'edDel':if(T&&confirm('Poistetaanko ”'+T.nimi+'”?')){p.otot=p.otot.filter(function(x){return x!==T;});delete ENVC[T.id];save(true);closeEditor();}break;
+  }
+});
+function edSettingsChanged(T){
+  T.s=RK.settings(T.s);D.oletus=copyS(T.s);save();
+  SL.concat(SL2).forEach(function(d){var o=$('o-'+d[0]),r=document.querySelector('[data-s="'+d[0]+'"]');if(o)o.textContent=d[5]==='db'?fmtDb(T.s[d[0]]):fmtMs(T.s[d[0]]);if(r&&+r.value!==T.s[d[0]])r.value=T.s[d[0]];});
+  edUpdate();
+}
+document.addEventListener('input',function(e){
+  var t=e.target,p=P(),T=EDIT?takeById(EDIT.id):null;
+  if(t.dataset.s&&T){T.s[t.dataset.s]=+t.value;edSettingsChanged(T);return;}
+  if(t.dataset.t==='viive'&&T){T.viive=+t.value;$('o-viive').textContent=fmtMs(T.viive);save();edUpdate();return;}
+  if(t.id==='eName'&&T){T.nimi=t.value.slice(0,60)||'Otto';save();return;}
+  if(t.id==='pName'){p.nimi=t.value.slice(0,60)||'Projekti';$('projBtn').textContent=p.nimi+' ▾';save();return;}
+});
+document.addEventListener('change',function(e){
+  var t=e.target,p=P(),T=EDIT?takeById(EDIT.id):null;
+  if(t.id==='tempo'){var v=parseFloat(String(t.value).replace(',','.'));if(isFinite(v))p.tempo=RK.clamp(Math.round(v*10)/10,20,400);save();renderRec();}
+  else if(t.id==='newNote'){D.uusiNuotti=+t.value;save();}
+  else if(t.id==='newPreset'){var pr=D.esi.filter(function(x){return x.id===t.value;})[0];if(pr){D.oletus=copyS(pr.s);save();toast('Seuraava otto käyttää esiasetusta ”'+pr.nimi+'”.');}renderRec();}
+  else if(t.id==='eNote'&&T){T.nuotti=+t.value;$('eNoteNum').value=T.nuotti;save();}
+  else if(t.id==='eNoteNum'&&T){var n=Math.round(+t.value);if(isFinite(n)){T.nuotti=RK.clamp(n,0,127);$('eNote').innerHTML=noteOptions(T.nuotti);}t.value=T.nuotti;save();}
+  else if(t.id==='ePreset'&&T){var q=D.esi.filter(function(x){return x.id===t.value;})[0];if(q){T.s=copyS(q.s);D.oletus=copyS(q.s);save();renderEditor();toast('Esiasetus ”'+q.nimi+'” käytössä.');}}
+  else if(t.id==='viiveIn'){var vv=String(t.value).trim();D.viive=vv===''?null:RK.clamp(Math.round(+vv)||0,-1000,2000);save();renderSet();}
+  else if(t.id==='songFile'&&t.files[0]){loadSong(t.files[0]);}
+  else if(t.id==='importFile'&&t.files[0]){var fr=new FileReader();fr.onload=function(){importData(String(fr.result));};fr.readAsText(t.files[0]);}
+});
+function loadSong(f){
+  var a;try{a=ctx();}catch(e){toast(e.message);return;}var pid=P().id;toast('Ladataan '+f.name+'…');
+  var fr=new FileReader();fr.onerror=function(){toast('Tiedostoa ei voitu lukea.');};
+  fr.onload=function(){
+    var ok=function(buf){SONG={pid:pid,buf:buf,name:f.name};var pp=D.projektit.filter(function(x){return x.id===pid;})[0];if(pp){pp.biisi=f.name;save();}$('toast').hidden=true;renderRec();},
+        bad=function(){toast('Biisiä ei voitu avata. Kokeile mp3-, m4a- tai wav-tiedostoa.');};
+    try{var pr=a.decodeAudioData(fr.result,ok,bad);if(pr&&pr.catch)pr.catch(function(){});}catch(e){bad();}
+  };fr.readAsArrayBuffer(f);
+}
+document.addEventListener('visibilitychange',function(){if(document.hidden&&R){if(R.k==='rec')stopRec();else cancelJob();}});
+
+// testikoukku (selaintestit)
+window.__rk={D:function(){return D;},P:P,envOf:envOf,job:function(){return R?R.k:null;},edit:function(){return EDIT;},lastExport:function(){return lastExport;},lastBackup:function(){return lastBackup;},
+  addTake:function(env,o){o=o||{};var T=RK.newTake({nimi:o.nimi||'Otto '+(P().otot.length+1),nuotti:o.nuotti===undefined?D.uusiNuotti:o.nuotti,hz:o.hz||375,alku:o.alku||0,viive:o.viive||0,s:o.s||D.oletus,env:RK.encEnv(env),ref:o.ref||''});P().otot.push(T);saveNow();render();return T.id;},
+  song:function(){return SONG?{name:SONG.name,dur:SONG.buf.duration}:null;}};
+
+applyAppearance();render();
+})();
+</script>
+</body>
+</html>

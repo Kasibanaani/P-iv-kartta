@@ -1,6 +1,6 @@
 # Rytmikone: visio ja vaiheistus
 
-Työnimi Rytmikone (kansio `rytmikone/`). **Tila: pelkkä suunnitelma, koodia ei ole.** Laadittu 16.10.2026 Emilin kanssa käydyn pohdinnan pohjalta.
+Työnimi Rytmikone (kansio `rytmikone/`). Laadittu 16.10.2026 Emilin kanssa käydyn pohdinnan pohjalta. **Vaihe 1 on rakennettu 16.10.2026** (ks. `TILA.md`); vaiheet 2–7 ovat suunnitelmaa.
 
 ## Ajatus
 
@@ -21,7 +21,9 @@ Emil kuuntelee kuulokkeilla biisiä ja rummuttaa tai beatboxaa sen tahtiin. Appi
 - Sisältö on Emilin omaa: omat sämplet ja omat esiasetukset nimineen. Syntetisoitujen rumpujen perusääni on toiminto, ei valmiiksi täytettyä sisältöä (avoin kysymys alla).
 - Yksi `index.html`, ei ulkoisia kirjastoja. MIDI-tiedosto, sävelentunnistus ja suodinmallit kirjoitetaan itse.
 
-## Vaihe 1: ääni → rumpunuotit
+## Vaihe 1: ääni → rumpunuotit (rakennettu 16.10.2026)
+
+Toteutuksessa tehdyt valinnat (tekoälyn, Emil voi muuttaa): äänen sijaan tallennetaan voimakkuuskäyrä (128 näytteen lohkojen huiput), jolloin säätöjä voi muuttaa jälkikäteen ilman suurta tilaa; raidat valittavissa (yksi / oma per otto, oletus yksi); nuotin pituus valittavissa (1/32, 1/16, 1/8, oletus 1/16); biisiä ei tallenneta appiin. Kalibroitu viive tallentuu ottoon sen tekohetkellä ja on muutettavissa otoittain.
 
 **Nauhoitus**
 - Mikrofoni pyydetään raakana: kaiunpoisto, kohinanpoisto ja automaattinen tasonsäätö pois (`echoCancellation`, `noiseSuppression`, `autoGainControl` = false). Muuten iPhone tasoittaa voimakkuuserot ja velocity menee pilalle.
@@ -111,10 +113,7 @@ Vasen kanava → nuotti A ja oikea → nuotti B samassa otossa, eli kaksi rumpu�
 ## Avoimet kysymykset
 
 - Lopullinen nimi (työnimi Rytmikone).
-- Tallennetaanko äänitys vai vain nuotit? Äänitys vie tilaa, mutta sillä voi säätää myöhemmin uudelleen.
-- Viedäänkö kerroksittaiset otot yhdelle raidalle (rumpukanava) vai jokainen omalle raidalleen? Ehkä valinta.
-- Rumpunuotin pituus: kiinteä (esim. 1/16) vai äänen pituus.
-- Toimiiko biisin soitto Musiikki- tai Spotify-appista samalla, kun Safari nauhoittaa, vai ladataanko biisi aina appiin?
+- Toimiiko biisin soitto Musiikki- tai Spotify-appista samalla, kun Safari nauhoittaa? (Vaiheessa 1 biisi ladataan appiin.)
 - Ovatko syntetisoitujen rumpujen perusäänet sallittu oletus, vai aloitetaanko tyhjästä?
 
 ## Riskit
