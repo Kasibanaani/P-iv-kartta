@@ -85,6 +85,7 @@ Muut säännöt:
 ## Projektit ja toiveet (`master-tiedot`)
 
 - Appi-appin projektit: `master-tiedot/appiappi/<id>.json`. Appi lukee uudet napista ”Hae uudet projektit” ja hakee uudemman version itse, jos käyttäjällä ei ole tallentamattomia muutoksia. Tee pyynnöstä **uusi** tiedosto uudella id:llä nykyisellä `VER`:llä (muoto koodista: `payload`, `okProj`, `repair`). Älä muokkaa olemassa olevaa projektia ilman erillistä pyyntöä.
+- Appi-appin muisti- ja viestilaput: `master-tiedot/appiappi/laput/laput.json`. ”Lue viestilaput”: lue avoimet viestilaput (`laji:"viesti"` ilman `vastaus`-kenttää), vastaa kirjoittamalla vain `vastaus` ja `vastattu`, pushaa ja vastaa myös keskustelussa. Muoto ja työtapa: `appiappi/suunnitelmat/10-laput.md`. Lapun toive ei ole toteutuslupa.
 - Masterin projektit `master-tiedot/projektit/<tunniste>.json`. ”Käy masterin toiveet läpi”: lue `master/TOIVEET.md` ja projektit kokonaan, käsittele avoimet toiveet (`t:"wish"`), merkitse tehdyksi ja kirjoita `reply` suomeksi, pushaa. Raportoi jokaisesta toiveesta.
 - Projektitiedot eivät koskaan tule tähän julkiseen repoon.
 
