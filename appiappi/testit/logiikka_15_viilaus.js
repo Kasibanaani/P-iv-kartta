@@ -23,8 +23,8 @@ KK.chainStart(P2,k2.id,C);A.strictEqual(P2.st[k2.id].run,false);A.ok(/kehää il
 var P3=KK.newProject('kehä ok');var k3=KK.addBlock(P3,'ketju'),w3=KK.addNode(P3,k3.id,0,0);var x=S(P3,w3,'X',40),tt=S(P3,w3,'T',100,'ajastin');KK.addLink(P3,x.id,'e',tt.id,'e');KK.addLink(P3,tt.id,'e',x.id,'e');
 t=texts(P3,k3).join('\n');A.ok(!/Kehä ilman/.test(t));A.ok(/i Ketju on kehä/.test(t));
 KK.chainStart(P3,k3.id,C);A.strictEqual(P3.st[k3.id].run,true,'toistuva ketju ajastimella on sallittu');
-// tulossa-tieto
-var P4=KK.newProject('fx');var k4=KK.addBlock(P4,'ketju'),w4=KK.addNode(P4,k4.id,0,0);S(P4,w4,'Liike',40,'anim');A.ok(/i ”Liike” tulee myöhemmin/.test(texts(P4,k4).join('\n')));
+// efektin kohde puuttuu (ennen Appi-appi 9: tulossa-tieto)
+var P4=KK.newProject('fx');var k4=KK.addBlock(P4,'ketju'),w4=KK.addNode(P4,k4.id,0,0);S(P4,w4,'Liike',40,'anim');A.ok(/”Liike”: valitse palikka, jolle efekti tehdään/.test(texts(P4,k4).join('\n')),'Appi-appi 9: efektin kohde puuttuu');
 // kaksi ketjua käynnistävät toisensa heti (valmis → käynnistä): ei jää jumiin
 var P5=KK.newProject('pingis');var ka=KK.addBlock(P5,'ketju'),wa=KK.addNode(P5,ka.id,0,0),kb=KK.addBlock(P5,'ketju'),wb=KK.addNode(P5,kb.id,500,0);
 var cnt=KK.addBlock(P5,'muisti',{v:'0'});KK.addNode(P5,cnt.id,0,600);

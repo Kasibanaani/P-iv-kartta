@@ -15,7 +15,7 @@ function mk(){var P=KK.newProject('fx');var k=KK.addBlock(P,'ketju'),w=KK.addNod
 function rows(X){return KK.listRows(X.P,X.lst.id).map(function(r){return r.tx;});}
 // ilman efektiä: ohitetaan
 var X=mk();KK.chainStart(X.P,X.k.id,C);A.deepStrictEqual(rows(X),['ennen','jälkeen']);A.strictEqual(X.P.st[X.k.id].run,false);
-A.ok(/Tulossa/.test(KK.why(X.P,KK.Ev(X.P,C),X.f.id,1).txt));
+A.ok(/Valitse palikka/.test(KK.why(X.P,KK.Ev(X.P,C),X.f.id,1).txt),'Appi-appi 9: efekti ilman kohdetta pyytää valitsemaan palikan');
 // efekti osaa: saa tiedot ja ketju odottaa
 X=mk();var got=[];var CF={now:C.now,toast:C.toast,nav:C.nav,fx:function(q){got.push([q.k,q.id,q.b.tx,!!q.P]);return q.b.kesto;}};
 KK.chainStart(X.P,X.k.id,CF);A.deepStrictEqual(got,[['ilmesty',X.f.id,'Hei',true]]);A.deepStrictEqual(rows(X),['ennen']);A.strictEqual(X.P.st[X.k.id].run,true);

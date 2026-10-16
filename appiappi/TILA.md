@@ -17,17 +17,19 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 - Appi-appi 7 (16.10., tekoälyn ehdotus): reitinhaku. Liike → Napautus → *Kiertää esteet*: hahmo kiertää seinät lyhintä reittiä, ruudukolla ruutujen keskeltä. Jos kohteeseen ei pääse, menee lähimmäksi ja logiikkaan *ei pääse* = kyllä. Oletuksena pois, vanhat projektit ennallaan.
 - Appi-appi 8 (16.10., Emilin päätös): liike ruutu kerrallaan. Liike → Ohjaus Ruutu: nuolinapit (kohdat ylös/alas/vasen/oikea), tatti pidettynä tai pyyhkäisy; hahmo liukuu ruutuun (iso nopeus = hyppy), seinä estää (törmäsi), tapahtuma askel valmis.
 - Korjattu samalla: Napautus kohteeseen jäi jarrutettaessa joskus alle 0,5 px päähän kohteesta; nyt perillä = täsmälleen kohteessa (ruudun keskellä).
+- Appi-appi 9 (16.10., Emilin päätös: yleiskäyttöiset palat): kerrokset käytössä (⚙ kerrosriviltä: näkyy käytössä, estää alempien käytön, himmennä alemmat, läpinäkyvyys; Kerros-palikka logiikkaan, jolla nuoli, kaava tai toiminto avaa, sulkee ja pitää kerroksia näkyvissä), Sekuntikello, Monitori (luku, palkki, pylväs, rengas, kaari, pisteet; luku, aika tai prosentti) ja efektit Teksti ilmestyy, Kuva vaihtuu, Animaatio ja Näkymänvaihto (myös ketjun ulkopuolella). Ennätys ei saanut omaa toimintoa: Muisti + SUURIN/PIENIN-ikkuna + Aseta riittää, ja ikkuna ohittaa nyt tyhjät.
 - Testattu vain tietokoneen Chromiumissa, ei oikealla iPhonella, iPadilla eikä Safarilla.
 
 ## Seuraavaksi
 
-- Ehdotettu 16.10. (tekoälyn ehdotus, odottaa Emilin päätöstä): yksi kokonaisuus *Peli valmiiksi* = kerroksen näkyvyys logiikasta, ennätys (aseta, jos suurempi / pienempi), näkyvä ajastin, ketjun efektit (ilmesty, liike, kuva vaihtuu, näkymänvaihto) ja esimerkkipeli: pieni labyrintti ruutuliikkeellä uutena projektina `master-tiedot/appiappi/`. Karsintajärjestys, jos aika loppuu: efekteistä kuva ja näkymänvaihto pois.
-- Myöhemmin omina kertoinaan: zoomaus käytössä (koskee kaikkia koordinaattimuunnoksia), toiveet tekoälylle, projektin tyyli, vienti käyttäjä-appiksi.
+- Emil kokeilee puhelimella: valikko kerroksena (painike → Vaihda → kerros näkyy), Sekuntikello Monitoriin, efektit.
+- Ehdotuksia jatkoon (tekoälyn, ei Emilin päätös): zoomaus käytössä (koskee kaikkia koordinaattimuunnoksia, oma kerta), toiveet tekoälylle, esimerkkiprojekti (esim. labyrintti: ruutuliike, Sekuntikello, Monitori, valikkokerros) vain pyynnöstä, projektin tyyli, vienti käyttäjä-appiksi.
 
 ## Avoimet kysymykset
 
-- Peli valmiiksi (16.10.): kerroksen näkyvyys = uusi ominaisuus *näkyy käytössä* (nykyinen piilotus koskee vain muokkausta)? Ajastin: sekuntikello ja aikaraja samassa palikassa? Saako esimerkkilabyrintin tehdä?
-- Kerroksen näkyvyyttä ei voi ohjata logiikasta (kerros ei ole palikka); sopisi rekisteriin.
+- Appi-appi 9: kerroksen rullausvauhtia ja järjestystä ei voi vielä ohjata logiikasta (vain näkyy, estää, himmennys, läpinäkyvyys). Tarvitaanko?
+- Appi-appi 9: efekti ketjun ulkopuolella lähettää *sitten*-tapahtuman heti, ei efektin lopussa (ketjussa odotetaan). Riittääkö?
+- Appi-appi 9: Teksti ilmestyy toimii Tekstissä, Muodossa, Ilmoituksessa ja Painikkeessa; tekstikenttiin (syöte) ei.
 - Siirto x/y (lisätään paikkaan) ja ominaisuus x/y (korvaa paikan) ovat molemmat käytössä: käykö kaksi tapaa?
 - Tatin y on positiivinen alaspäin ja suunta 0 = ylös: käykö?
 - Isot kuvatiedostot hidastavat GitHub-tallennusta; SVG on kevyin.
@@ -35,7 +37,7 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 - Maailma (16.10.): tekstipohja ei tue muotoa {palikka.ominaisuus} (vanha rajoitus); arvot saa näkyviin Kaavan tuloksella.
 - Reitinhaku koskee vain Napautus-ohjausta (myös kohde nuolesta). Tatti ja Auto eivät kierrä esteitä, eikä haettua reittiä näytetä ruudulla. Riittääkö?
 - Ruutuliike: kaksi hahmoa voi astua samaan ruutuun samalla hetkellä (määränpäätä ei varata). Napautus viereiseen ruutuun ei vielä ohjaa. Tarvitaanko?
-- Ei tarkistettu oikealla iPhonella: pyyhkäisy sormella (testattu hiirellä), reitinhaun nopeus isossa maailmassa, tatti ja napautus sormella, kuvasilmukan sujuvuus ja akun kulutus jatkuvassa liikkeessä, isot kuvasarjat.
+- Ei tarkistettu oikealla iPhonella: valikkokerroksen suoja sormella, efektien sujuvuus Safarissa (Web Animations ja erilliset translate/scale/rotate vaativat iOS 14.1+), monitorin päivitys kuvasilmukassa ja akun kulutus käyvällä sekuntikellolla, pyyhkäisy sormella (testattu hiirellä), reitinhaun nopeus isossa maailmassa, tatti ja napautus sormella, kuvasilmukan sujuvuus ja akun kulutus jatkuvassa liikkeessä, isot kuvasarjat.
 
 ## Emilin kommentit
 
