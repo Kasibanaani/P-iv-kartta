@@ -59,5 +59,5 @@ run(o.P,0.6);var e=KK.Ev(o.P,C);A.ok(e.omiNum(pel.id,'x',0)>=e.omiNum(o.h.id,'x'
 // --- Repair ---
 o=uusi();o.rt.pts=[[0,0],'x',[NaN,1],[5,5]];o.rt.kier='kyllä';o.rt.nak='joo';o.li.rtt='vino';o.li.rta=true;KK.repair(o.P);
 A.deepStrictEqual([o.rt.pts,o.rt.kier,o.rt.nak,o.li.rtt,o.li.rta],[[[0,0],[5,5]],false,'',undefined,undefined]);
-KK.removeBlock(o.P,o.rt.id);KK.repair(o.P);A.strictEqual(o.li.rt,'');run(o.P,0.2);
+KK.removeBlock(o.P,o.rt.id);KK.repair(o.P);A.strictEqual(o.li.rt,o.rt.id,'D08: viittaus poistettuun jää');run(o.P,0.2);
 console.log('ok reitit');

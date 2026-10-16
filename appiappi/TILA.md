@@ -1,6 +1,6 @@
 # Appi-appi: tila
 
-**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 16.10.2026 (Appi-appi 10)
+**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 16.10.2026 (Appi-appi 11)
 
 Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- ja iPad-näkymät, maailma ja hahmon liike, myöhemmin vienti omaksi appiksi). Ristiriidoissa Kytköskartan logiikka voittaa. Suunnitelma ja päätökset: `VERTAILU.md`.
 
@@ -19,13 +19,14 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 - Korjattu samalla: Napautus kohteeseen jäi jarrutettaessa joskus alle 0,5 px päähän kohteesta; nyt perillä = täsmälleen kohteessa (ruudun keskellä).
 - Appi-appi 9 (16.10., Emilin päätös: yleiskäyttöiset palat): kerrokset käytössä (⚙ kerrosriviltä: näkyy käytössä, estää alempien käytön, himmennä alemmat, läpinäkyvyys; Kerros-palikka logiikkaan, jolla nuoli, kaava tai toiminto avaa, sulkee ja pitää kerroksia näkyvissä), Sekuntikello, Monitori (luku, palkki, pylväs, rengas, kaari, pisteet; luku, aika tai prosentti) ja efektit Teksti ilmestyy, Kuva vaihtuu, Animaatio ja Näkymänvaihto (myös ketjun ulkopuolella). Ennätys ei saanut omaa toimintoa: Muisti + SUURIN/PIENIN-ikkuna + Aseta riittää, ja ikkuna ohittaa nyt tyhjät.
 - Appi-appi 10 (16.10., Emilin päätökset: kaikki suositukset): zoomaus käytössä. Maailma ja kamera → Zoomaus: *Sormilla* (kahden sormen nipistys, tietokoneella ⌘ + rulla), pienin ja suurin % (oletus 50–300). Kamera-palikka logiikkaan (napista *Ohjaa logiikasta* tai paletista): ominaisuus zoomaus %, lisäksi näkyvä leveys ja korkeus; nuoli, kaava, Aseta, Palauta ja Muutos ajassa (pehmeä zoomaus). Nuoli lukitsee sormet, Aseta ei. Sormet zoomaavat sormien kohdalta, seuratessa hahmo pysyy keskellä; logiikan zoomaus pitää ruudun keskikohdan. Kojelauta (lukittu kerros) ei zoomaudu. Napautus kohteeseen, alueet ja kuollut alue toimivat zoomattuna. Ilman Kamera-palikkaa sormien zoomaus palaa 100 %:iin alkukohdassa.
-- Testattu vain tietokoneen Chromiumissa (kosketus ja nipistys CDP:llä 390 ja 320 px), ei oikealla iPhonella, iPadilla eikä Safarilla.
+- Appi-appi 11 (16.10., suunnitelman P0 + P1a): **F01** tekstiin `{palikka.ominaisuus}` (esim. `{otsikko.näkyy}`, `{pisteet.arvo}`), sama arvo kuin kaavassa; ＋ Viittaus kysyy palikan jälkeen *Arvo* tai ominaisuuden; nimen vaihto ei riko. **D08** viitatun palikan poisto: Delete / Poista näyttää ensin, missä palikkaa käytetään (Peru tai Poista silti; viittaamaton poistuu heti). Poiston jälkeen viittaukset jäävät: ⚠-merkki logiikan palikassa ja näkymän palikassa, teksti ”⚠ kohde poistettu: nimi”, kaavassa `⚠nimi`, Palikat-napissa ⚠-luku ja listassa Viitevirheet. Rivistä palikkaan, jonka paneelista valitaan uusi kohde. Samanniminen uusi palikka ei peri poistettua. Ketju pysähtyy virheeseen, jos toiminnon tai ehdon kohde on poistettu. Kumoa palauttaa kaiken.
+- Tallennus: uusi valinnainen kenttä `pois` (poistettujen nimet, vain kun viittauksia on). Versio edelleen 8; vanhat projektit avautuvat ennallaan.
+- Testattu vain tietokoneen Chromiumissa (kosketus ja nipistys CDP:llä 390 ja 320 px, Appi-appi 11 leveyksillä 1440 ja 1280), ei oikealla iPhonella, iPadilla eikä Safarilla.
 
 ## Seuraavaksi
 
-- **Kehityssuunnitelma 16.10.2026:** `SUUNNITELMA.md` ja `suunnitelmat/` sisältävät 23 kehitysidean toteutuspolun sekä Emilin tarkentamat oletukset, viitteen poiston ja ketjun kolme logiikalla ohjattavaa lukitustilaa. Tässä työssä kirjoitettiin vain dokumentaatio; ominaisuuksia ei toteutettu eikä sovellustestejä ajettu. Ideakokonaisuuksien toteuttaminen edellyttää tehtävän laajuuden mukaista toteutuspyyntöä. Ketjujen aiempi oletus vanhalla logiikalla loppuun ei ole uusi vaatimus: lue ajantasaiset tilat `suunnitelmat/02-ketjujen-lukitus.md`.
-- Emil kokeilee puhelimella: zoomaus sormilla (ruudun ja maailman tuntuma, kojelauta pysyy), valikko kerroksena (painike → Vaihda → kerros näkyy), Sekuntikello Monitoriin, efektit.
-- Seuraava vaihe: ei vielä päätetty. Ehdotukset (tekoäly): toiveet tekoälylle, projektin tyyli tai vienti käyttäjä-appiksi.
+- **Kehityssuunnitelma:** `SUUNNITELMA.md` ja `suunnitelmat/`; toteutuma rekisterin alla. P0 ja P1a tehty (Appi-appi 11). **Seuraava kierros: P1b**, ketjun kolme lukitustilaa (`suunnitelmat/02-ketjujen-lukitus.md`), sitten P2 tietotaulukko.
+- Emil kokeilee tietokoneella: ominaisuus tekstiin (＋ Viittaus), viitatun palikan poisto, Viitevirheet ja uusi kohde. Puhelimella: zoomaus sormilla (ruudun ja maailman tuntuma, kojelauta pysyy), valikko kerroksena (painike → Vaihda → kerros näkyy), Sekuntikello Monitoriin, efektit.
 - Myöhemmin: esimerkkiprojekti (esim. labyrintti) vain pyynnöstä.
 
 ## Avoimet kysymykset
@@ -37,13 +38,17 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 - Tatin y on positiivinen alaspäin ja suunta 0 = ylös: käykö?
 - Isot kuvatiedostot hidastavat GitHub-tallennusta; SVG on kevyin.
 - Hakutaulukon ja monen haaran rivien rajoja ei voi ohjata ominaisuuksina.
-- Maailma (16.10.): tekstipohja ei tue muotoa {palikka.ominaisuus} (vanha rajoitus); arvot saa näkyviin Kaavan tuloksella.
 - Reitinhaku koskee vain Napautus-ohjausta (myös kohde nuolesta). Tatti ja Auto eivät kierrä esteitä, eikä haettua reittiä näytetä ruudulla. Riittääkö?
 - Ruutuliike: kaksi hahmoa voi astua samaan ruutuun samalla hetkellä (määränpäätä ei varata). Napautus viereiseen ruutuun ei vielä ohjaa. Tarvitaanko?
 - Appi-appi 10: `ruutu.leveys` on edelleen laitteen leveys (kojelauta ei zoomaudu); näkyvä maailma on `kamera.leveys`. Käykö?
 - Appi-appi 10: kun sormilla voi zoomata, napautus kohteeseen tehdään sormen noustessa eikä heti kosketuksessa (muuten nipistyksen ensimmäinen sormi lähettäisi hahmon). Tuntuuko viiveeltä?
 - Appi-appi 10: Kamera-palikalla ei vielä ohjata seurattavaa, kuollutta aluetta eikä kameran paikkaa logiikasta (vain zoomaus). Koristeviiva kojelaudan palikoiden välillä ei pysy kohdallaan zoomattuna.
 - Ei tarkistettu oikealla iPhonella: nipistys oikeilla sormilla ja Safarin oma sivun zoomaus (estetty `gesturestart`-tapahtumalla ja `touch-action`illa, testattu vain Chromiumissa), valikkokerroksen suoja sormella, efektien sujuvuus Safarissa (Web Animations ja erilliset translate/scale/rotate vaativat iOS 14.1+), monitorin päivitys kuvasilmukassa ja akun kulutus käyvällä sekuntikellolla, pyyhkäisy sormella (testattu hiirellä), reitinhaun nopeus isossa maailmassa, tatti ja napautus sormella, kuvasilmukan sujuvuus ja akun kulutus jatkuvassa liikkeessä, isot kuvasarjat.
+
+- Appi-appi 11: poistetun palikan nuolet ja koristeviivat poistuvat sen mukana (eivät jää roikkumaan); vaikutuslista kertoo ”nuoli poistuu”. Käykö?
+- Appi-appi 11: ennen palikkaa kirjoitettu kaavan viite (`{?nimi}`) löytyy yhä automaattisesti, kun palikka tehdään, ja vanhojen projektien aiemmin poistetut kaavaviitteet samoin. Vain tästä eteenpäin poistetut eivät sitoudu samannimiseen.
+- Appi-appi 11: logiikan Toiminnolla ei voi poistaa palikkaa, joten suunnitelman ”vahvistus tarvitaan” -paluuarvoa ei rakennettu. Liittäminen toisesta projektista poistaa vieraat viittaukset kuten ennen.
+- Appi-appi 11 ei tarkistettu: Miksi?-selitys tekstin ominaisuusviitteelle, monivalintapoisto selaimessa (moottoritesti on), poisto puhelin- ja iPad-näkymän rakentajassa, ⚠-merkin sijainti hyvin pienissä palikoissa.
 
 ## Emilin kommentit
 

@@ -43,10 +43,13 @@ err('(uni + 1) > 7',/sulkuja ei käytetä/);err('uni > 7 > 2',/vain yksi vertail
 err('unni > 7',/puuttuu: unni/);err('"auki',/lainausmerkki/);err('uni # 2',/tuntematon merkki/);err('uni / 0',/jako nollalla/);
 err('uni.maku',/tuntematon ominaisuus/);err('k1x.näkyy',/puuttuu/);
 
-// --- Poisto ja palautuminen: viittaus muuttuu puuttuvaksi ja löytyy taas samalla viitteellä ---
+// --- Poisto (Appi-appi 11, D08): viittaus jää poistettuun, virhe kertoo sen, eikä samanniminen uusi peri sitä ---
 var Q=KK.newProject('poisto');var u=KK.addBlock(Q,'luku',{nm:'Uni',start:9});var kq=K(Q,'uni > 7');A.strictEqual(V(Q,kq),true);
-KK.removeBlock(Q,u.id);A.strictEqual(kq.f,'{?uni} > 7');A.ok(/puuttuu: uni/.test(V(Q,kq).err));A.strictEqual(KK.kaavaToText(Q,kq.f),'uni > 7');
-var u3=KK.addBlock(Q,'luku',{nm:'Uni',start:5});KK.repair(Q);A.strictEqual(kq.f,'{#'+u3.id+'} > 7','sama viite löytyy taas');A.strictEqual(V(Q,kq),false);
+KK.removeBlock(Q,u.id);A.strictEqual(kq.f,'{#'+u.id+'} > 7');A.ok(/kohde poistettu: uni/.test(V(Q,kq).err));A.strictEqual(KK.kaavaToText(Q,kq.f),'⚠uni > 7');
+var u3=KK.addBlock(Q,'luku',{nm:'Uni',start:5});KK.repair(Q);A.strictEqual(kq.f,'{#'+u.id+'} > 7','samanniminen ei peri');
+A.ok(KK.relink(Q,kq.id,u.id,u3.id));A.strictEqual(kq.f,'{#'+u3.id+'} > 7','uusi kohde valitaan');A.strictEqual(V(Q,kq),false);
+// Ennen palikkaa kirjoitettu viite löytyy edelleen, kun palikka tehdään
+kq.f='{?uni2} > 7';KK.repair(Q);A.strictEqual(kq.f,'{?uni2} > 7');var u4=KK.addBlock(Q,'luku',{nm:'Uni2',start:8});KK.repair(Q);A.strictEqual(kq.f,'{#'+u4.id+'} > 7');
 kq.f='{#b999} > 1';KK.repair(Q);A.strictEqual(kq.f,'{?} > 1','tuntematon tunniste');A.ok(KK.isErr(V(Q,kq)));
 // nimen ja viitteen vaihto ei riko kaavaa
 kq.f=KK.kaavaToIds(Q,'uni + 1');KK.setVt(Q,u3.id,'u');A.strictEqual(KK.kaavaToText(Q,kq.f),'u + 1');A.strictEqual(V(Q,kq),6);

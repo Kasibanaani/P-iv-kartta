@@ -44,10 +44,11 @@ A.ok((D.uses[uni.id]||[]).some(function(q){return q.id===own&&q.how==='tulos';})
 A.ok(!(D.uses[own]||[]).some(function(q){return q.id===uni.id;}),'kaava ei "käytä" tulostaan');
 A.ok((D.usedBy[uni.id]||[]).some(function(q){return q.how==='kaava';}),'muut kaavat käyttävät tulosta');
 A.ok(/antaa arvon palikalle ”Uni”/.test(KK.why(P,KK.Ev(P,C),own,2).txt));
-// tuloksen poisto: kaavaan jää puuttuva viite, ja uusi tulos samalla viitteellä löytyy
-KK.removeBlock(P,pis.id);var pk2=Object.values(P.b).filter(function(q){return q.k==='kaava'&&/\{\?pisteet\}/.test(q.f);});A.strictEqual(pk2.length,2,"molemmat kaavat: pisteet = … ja ok = pisteet > 15");
+// tuloksen poisto (Appi-appi 11, D08): kaavoihin jää viittaus poistettuun, uusi tulos valitaan Viitevirheistä
+KK.removeBlock(P,pis.id);var pk2=Object.values(P.b).filter(function(q){return q.k==='kaava'&&q.f.indexOf('{#'+pis.id+'}')>=0;});A.strictEqual(pk2.length,2,"molemmat kaavat: pisteet = … ja ok = pisteet > 15");
 A.ok(KK.isErr(V(P,ok)),'riippuva tulos näyttää virheen');
-var pis2=KK.addBlock(P,'tulos',{nm:'Pisteet'});N(P,pis2);KK.repair(P);A.strictEqual(V(P,pis2),20);A.strictEqual(V(P,ok),true);
+var pis2=KK.addBlock(P,'tulos',{nm:'Pisteet'});N(P,pis2);KK.repair(P);A.strictEqual(V(P,pis2),null,'samanniminen ei peri');
+pk2.forEach(function(q){KK.relink(P,q.id,pis.id,pis2.id);});A.strictEqual(V(P,pis2),20);A.strictEqual(V(P,ok),true);
 // tulos ikkunassa ja näkymäpalikan tekstissä
 var w=KK.addBlock(P,'ikkuna',{m:'sum'});var wn=N(P,w);KK.nodesOfBlock(P,uni.id)[0].g=wn.id;KK.nodesOfBlock(P,pis2.id)[0].g=wn.id;KK.repair(P);A.strictEqual(V(P,w),30);
 var te=KK.addBlock(P,'nayta');te.tx=KK.toIds(P,'Unta {uni} h');A.strictEqual(KK.Ev(P,C).text(te.id),'Unta 10 h');

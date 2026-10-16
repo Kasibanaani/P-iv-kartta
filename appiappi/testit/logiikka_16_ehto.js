@@ -36,5 +36,5 @@ X=mk();X.h.off=true;KK.chainStart(X.P,X.k.id,C);A.deepStrictEqual(rows(X),['kyll
 // kumpikaan haara ei jatku: tieto
 X=mk();X.P.lg.l=X.P.lg.l.filter(function(l){return l.f!==X.nh.id;});A.ok(KK.chainIssues(X.P,X.k.id,C).some(function(x){return x.info&&/kumpikaan haara/.test(x.t);}));
 // tallennus
-X=mk();var J=KK.repair(JSON.parse(JSON.stringify(X.P)));A.strictEqual(J.b[X.h.id].o,X.r.id);J.b[X.r.id]&&KK.removeBlock(J,X.r.id);A.strictEqual(J.b[X.h.id].o,'','poistettu kohde tyhjenee');
+X=mk();var J=KK.repair(JSON.parse(JSON.stringify(X.P)));A.strictEqual(J.b[X.h.id].o,X.r.id);J.b[X.r.id]&&KK.removeBlock(J,X.r.id);A.strictEqual(J.b[X.h.id].o,X.r.id,'poistettu kohde jää näkyväksi virheeksi (D08)');A.ok(KK.isErr(KK.haaraVal(J,J.b[X.h.id],C)));
 console.log('logiikka_16_ehto ok');

@@ -69,6 +69,12 @@ Numerot vastaavat alkuperäistä ideointikokonaisuutta. Tila on tarkistushetken 
 
 Ketjujen kolme lukitustilaa ovat lisäksi käyttäjän päätetty täsmennys, joka koskee kaikkia näitä ominaisuuksia: [02-ketjujen-lukitus.md](suunnitelmat/02-ketjujen-lukitus.md).
 
+## Toteutuma
+
+- **P0 (16.10.2026, Appi-appi 11):** nykytila tarkistettu ennen P1a:ta. Tekstipohjat eivät tukeneet `{palikka.ominaisuus}`-muotoa; poisto siivosi viittaukset hiljaa (kaava muuttui puuttuvaksi ja sitoutui samannimiseen uuteen palikkaan). Moottorin tallennusversio edelleen 8.
+- **P1a (16.10.2026, Appi-appi 11):** F01 tekstien ominaisuusviite ja D08 poiston vaikutuslista, katkenneiden viitteiden säilytys, Viitevirheet-lista ja uuden kohteen valinta toteutettu. Rajaukset ja tarkistamatta jääneet: `TILA.md`.
+- P1b (ketjun kolme lukitustilaa) ja myöhemmät: ei toteutettu.
+
 ## Ehdotettu järjestys
 
 P0 nykytilan ja yhteensopivuuden tarkistus → P1 viitteet, poistodiagnostiikka ja ketjun arviointikonteksti → P2 tietotaulukko ja tapahtumat → P3 rivikäsittely ja toistuva käyttöryhmä → P4 historia, aika ja koosteet → P5 omat palikat sekä testitila → P6 laajempi käyttöpinta ja media → P7 liitännät, yhteiskäyttö ja julkaisu.

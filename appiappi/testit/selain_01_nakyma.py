@@ -71,6 +71,9 @@ async def main():
         await pg.click('#vtabs [data-vw="v1"]');await pg.wait_for_timeout(100)
         # poisto ja kumoa
         await pg.click('.ue.k-kytkin');await pg.keyboard.press('Backspace');await pg.wait_for_timeout(100)
+        # Appi-appi 11: kytkintä käytetään muualla, joten poisto kysyy ensin (vaikutuslista)
+        kys=await pg.evaluate("document.querySelector('#sheetbg').classList.contains('show')");print('14 poisto kysyy:',kys)
+        if kys:await pg.click('#sheet [data-x="delok"]');await pg.wait_for_timeout(150)
         n1=await P(pg,"Object.values(P.b).length");await pg.keyboard.press('Control+z');await pg.wait_for_timeout(150);n2=await P(pg,"Object.values(P.b).length")
         print('14 poisto ja kumoa:',n1,'→',n2);assert n2==n1+1
         await pg.screenshot(path='nakyma_muokkaus.png')

@@ -80,7 +80,7 @@ al.osu='laatikko';KK.frame(S,0,C);es=KK.Ev(S,C);A.strictEqual(es.val(al.id),true
 // Kaavassa
 var kv=LB(S,'kaava',{});kv.f=KK.kaavaToIds(S,al.vt+'.montako');KK.repair(S);A.strictEqual(KK.Ev(S,C).val(kv.id),1,'kaavassa .montako');
 // Korjaus: kuka poistettu, kirjanpito siivotaan
-KK.removeBlock(S,ha.id);KK.repair(S);A.strictEqual(al.kuka,undefined);A.deepStrictEqual(KK.alueTila(S,al.id),[]);
+KK.removeBlock(S,ha.id);KK.repair(S);A.strictEqual(al.kuka,ha.id,'D08: viittaus poistettuun jää');A.ok(KK.isGone(S,ha.id));A.deepStrictEqual(KK.alueTila(S,al.id),[]);
 S.st['al:'+al.id]='rikki';KK.repair(S);A.strictEqual(S.st['al:'+al.id],undefined);
 // --- 12. Vanha Liike ilman kohdetta toimii kuten ennen ---
 var O=KK.newProject('o');var lo=LB(O,'liike',{vx:'10',vy:'-20',x0:5,y0:5});KK.repair(O);run(O,1);var eo=KK.Ev(O,C);
