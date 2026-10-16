@@ -28,7 +28,6 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 - Tatin y on positiivinen alaspäin ja suunta 0 = ylös: käykö?
 - Isot kuvatiedostot hidastavat GitHub-tallennusta; SVG on kevyin.
 - Hakutaulukon ja monen haaran rivien rajoja ei voi ohjata ominaisuuksina.
-- Maailma (16.10.): osuma-alue ei kierry palikan mukana (kääntyvälle hahmolle ympyrä toimii parhaiten). Reitillä kulkeva ei törmää esteisiin (kiskoilla), mutta voi olla este muille: käykö?
 - Maailma (16.10.): tekstipohja ei tue muotoa {palikka.ominaisuus} (vanha rajoitus); arvot saa näkyviin Kaavan tuloksella.
 - Ei tarkistettu oikealla iPhonella: tatti ja napautus sormella, kuvasilmukan sujuvuus ja akun kulutus jatkuvassa liikkeessä, isot kuvasarjat.
 
