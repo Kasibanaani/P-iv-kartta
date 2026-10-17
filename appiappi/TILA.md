@@ -29,6 +29,8 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 1e. **Logiikkapinta F30, kohdat 1–3** (`suunnitelmat/15-logiikkapinta.md`, Emilin idea 17.10.): pistokkeet piiloon (yleinen ja palikkakohtainen valinta), viitteet himmeinä katkoviivoina, Kaava venyy ja sitä kirjoitetaan suoraan palikkaan. Tallennusmuoto laajenee (muistuta varmuuskopiosta).
 1f. **JOS, JA ja TAI kaavaan** (F30 kohta 4): `jos(ehto; kyllä; muuten)`, puolipiste-erotin, sisäkkäinen sallittu; periaatteiden kohta 5 ja palikkasääntö A7 täsmennetään samalla.
 1g. **Kehys** (F30 kohta 5): logiikkapuolen pelkkä visuaalinen ryhmä, reunaviiva, nimi ja valinnainen kevyt sävy; erikoispalikka rekisteriin.
+1h. **Tekstihaku kaavaan** (Emilin hyväksyntä 17.10., koeappien löydös): vertailu *sisältää*, esim. `kohde.nimi sisältää haku`; kirjainkoosta välittämättä, tyhjä haku pätee aina, puuttuva teksti ei päde. Koeappi C:hen hakukenttä vasta pyynnöstä.
+1i. **Tietotaulukolle `eka` ja `vika`** (Emilin hyväksyntä 17.10., koeappien löydös, palikkasääntö A8): `taulu.eka`, `taulu.vika` ja `taulu.vika.sarake` kuten Rivijoukolla; ominaisuusrekisteriin. Rivijoukko-kiertotie (koeappi B) toimii edelleen.
 1. **Testitila F22, suppea** (`suunnitelmat/06-testit-ja-julkaisu.md`): yläpalkkiin *Kokeile*; kokeilu alkaa kopiosta nykyisistä käyttötiedoista; koko kokeilun ajan värillinen raita ja teksti ”Kokeilu”; oikeat tiedot eivät muutu. Ei tässä: kokeilun tulosten siirto oikeaan käyttöön, tallennetut kokeet.
 2. **Animointi F29, vaihe 1** (`suunnitelmat/14-animointi.md`, Emilin idea ja päätökset 17.10.): näkymän palikan paneeliin osio *Animointi* (ilmestyy, katoaa, kesto, pehmeys), projektin oletus, ominaisuudet logiikkaan. Pelkkä visuaali, logiikka ei odota, vain `opacity`/`transform`, Vähennä liikettä noudatetaan. Tallennusmuoto laajenee (muistuta varmuuskopiosta).
 3. **Rakenteinen historia F08** (P4:n alku, `suunnitelmat/01-tieto-ja-tapahtumat.md` kohta 7): Kirjaa-toiminto kirjoittaa tavalliseen Tietotaulukkoon, jossa automaattiset sarakkeet *aika* ja *id*; kirjausta muokataan ja poistetaan kuten taulukon riviä (ei korjaushistoriaa); vanha tekstiaikajana muunnetaan vain napista; päivän raja on projektin asetus, oletus keskiyö. Hyväksymiskokeena koeappi A.
@@ -40,7 +42,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 ## Seuraavaksi
 
-- **Koeapit (Appi-appi 23) toivat esiin, ei korjattu:** kaavassa ei ole tekstihakua (esim. *sisältää*), joten kohdelistassa ei ole hakukenttää; Tietotaulukolla ei ole `eka`/`vika` kuten Rivijoukolla (linjakkuushavainto, A8; B kiertää sen Rivijoukolla); kapeassa kortissa Lukukentän omat −/+ peittävät luvun, joten C näyttää määrän Tekstinä. Tekoälyn ehdotus: *sisältää*-vertailu kaavaan ja `eka`/`vika` taulukolle pieninä töinä. Ei jonossa ilman Emilin lupaa.
+- **Koeapit (Appi-appi 23) toivat esiin:** tekstihaku ja taulukon `eka`/`vika` ovat jonossa (1h, 1i, Emilin hyväksyntä 17.10.). Ei jonossa: kapeassa kortissa Lukukentän omat −/+ peittävät luvun, joten C näyttää määrän Tekstinä.
 - Järjestys: Jono yllä. Kokonaiskuva ja loput paketit (P4–P7): `SUUNNITELMA.md`.
 - **Tekoälyn ehdotus:** `index.html` pilkotaan osiin (build-skripti tai moduulit), jotta kontekstia kuluu vähemmän. Ei tehdä ilman Emilin lupaa.
 - Emil kokeilee, uusin ensin: koeapit C ja B (23, ohje `MUUTOKSET.md`), laput (18), massa ja törmäykset (17), lomake (16), Toistin (15), Rivi ja Rivijoukko, Tietotaulukko, ketjun lukitus, puhelimella zoomaus ja efektit. Vaiheittaiset ohjeet: `MUUTOKSET.md`, Kokeiluohjeet.
