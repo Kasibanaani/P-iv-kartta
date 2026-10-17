@@ -579,6 +579,7 @@ Taulukossa *L* = vain luettava, *O* = ohjattava. Suluissa muut kirjoitusasut.
 | Tietotaulukko | `rivejä` (`arvo`), `valittunro`, `valittu`, `eka` (`ensimmäinen`), `vika` (`viimeinen`) | L | |
 | Tietotaulukko | `valittu.<sarake>`, `eka.<sarake>`, `vika.<sarake>` | L | rivin kenttä |
 | Tietotaulukko | `<sarake>.summa`, `.keskiarvo`, `.suurin`, `.pienin`, `.havaintoja`, `.puuttuvia`, `.virheitä`, `.täydellinen` | L | sarakkeen koosteet |
+| Tietotaulukko (lähteen kanssa) | `haettu`, `hakuvirhe` | L | onnistuneen haun ajankohta; virheteksti tai tyhjä |
 | Tapahtuman tiedot | `uusi` (`arvo`), `vanha`, `rivi`, `lähde`, `aika`, `päivä`, `tunniste`, `kohde`, `x`, `y`, `ruutux`, `ruutuy`, `isku`, `on`, `suunta`, `taulukko`, `rivi.<sarake>` | L | |
 | Rivi | `rivi` (`arvo`), `nro`, `on`, `<sarake>` | L | |
 | Rivijoukko | `rivejä` (`arvo`), `eka`, `vika`, `eka.<sarake>`, `vika.<sarake>`, `<sarake>.summa` … | L | |

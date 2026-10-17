@@ -114,6 +114,6 @@ Terveys, Garmin, omat apit ja taulukot puhuvat samaa muotoa, jolloin Appi-appiin
 
 ## 8. Työjonoon
 
-- **Jonossa (kohta 9):** F32 vaihe 1, *Hae rivitiedosto* (kohta 6). **Emilin päätös 17.10.2026:** yhdistetään avaimella kohdan 6 mukaisesti.
+- **Toteutettu (Appi-appi 43, 17.10.2026):** F32 vaihe 1, *Hae rivitiedosto* (kohta 6), yhdistäminen avaimella Emilin päätöksen mukaan. Poikkeamat kohdasta 6: *appin avautuessa* tehdään olemassa olevalla ketjulla, joka käynnistyy projektin avautuessa (ei uutta asetusta); Hae-toiminnon *sitten* lähtee heti ja tulos tulee taulukon tapahtumina *haettu* ja *hakuvirhe*; Hae nyt (paneeli) kysyy uudet sarakkeet, käytön Hae ohittaa tuntemattomat kentät. Käyttö: manuaali luku 7, *Lähde*.
 - **Ei koodia, Emil voi tehdä milloin vain:** pikakomento Terveys → GitHub (tekoäly kirjoittaa ohjeen pyynnöstä); Garmin Connectin Terveys-yhteyden päälle laitto ja kokeilu, mitkä tiedot siirtyvät.
 - **Ei jonoon:** F31 (odottaa F23:a, P7), yhteinen huone (oma päätös palvelusta), Notion, koko export.xml, Garminin epäviralliset kirjastot.

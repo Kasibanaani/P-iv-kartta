@@ -130,6 +130,7 @@ Jos Kytköskartan, Masterin tai Pajakoneen GitHub-asetukset ovat jo samassa sela
 | Jokainen projekti (rakenne ja käyttötiedot, ei kanvaasin vierityskohtaa) | `appiappi/<projektin tunniste>.json` |
 | Kaikki laput | `appiappi/laput/laput.json` |
 | Presetit, suosikit, asetukset | Eivät mene GitHubiin (vain varmuuskopioon) |
+| Tietotaulukon lähde (luetaan, ei kirjoiteta) | taulukon paneelissa annettu polku, esim. `tuonnit/terveys.json` ([Lähde](07-tieto.md#lähde-rivitiedosto-githubista)) |
 
 Tiedoston nimi on projektin tunniste (esim. `p…`), ei projektin nimi. Nimen vaihto ei siis muuta tiedostoa.
 
@@ -294,7 +295,7 @@ Tämä osio on tekoälylle. Säännöt tulevat repon `AGENTS.md`:n kohdasta *Pro
 | `kuviot` | Valinnainen: tulkin tallennetut kuviot `[{nm (nimi), k (kuvio)}]`, enintään 30, nimi yksilöllinen (jonon 6) |
 | `an` | Valinnainen: projektin animoinnin oletus `{i (ilmestyy), o (katoaa), k (kesto s), p (pehmeys)}`. Näkymäpalikan omat vastaavat kentät `ani`, `ano`, `ank`, `anp`. Puuttuva = töks (F29) |
 
-Kaavat ja tekstien viitteet ovat tiedostossa sisäisessä muodossa `{#palikanId}`, ei nimillä. Tietotaulukon sarakkeet (`sar`) ja lähtörivit (`rv`) ovat rakennetta palikassa; käytössä muuttuneet rivit ovat `st`:ssä. Kirjaushistorian sarakkeella on `auto:'aika'` (laji `aika`) tai `auto:'id'` (laji `teksti`, arvoa ei tallenneta riville); kumpaakin enintään yksi. Aikajanan valinnainen `lh` on historiataulukon tunniste (lähde); omat merkinnät pysyvät `st`:ssä.
+Kaavat ja tekstien viitteet ovat tiedostossa sisäisessä muodossa `{#palikanId}`, ei nimillä. Tietotaulukon sarakkeet (`sar`) ja lähtörivit (`rv`) ovat rakennetta palikassa; käytössä muuttuneet rivit ovat `st`:ssä. Taulukon lähde on palikassa: `lp` (polku repossa) ja `lak` (avain: sarakkeen tunniste tai `-` = ei avainta; puuttuu = tiedoston avain); haun tila on käyttötietoa `st['hk:<taulukon id>']` = `{ok (onnistunut haku ms), at (viimeisin yritys ms), err, n}` (jonon 9). Kirjaushistorian sarakkeella on `auto:'aika'` (laji `aika`) tai `auto:'id'` (laji `teksti`, arvoa ei tallenneta riville); kumpaakin enintään yksi. Aikajanan valinnainen `lh` on historiataulukon tunniste (lähde); omat merkinnät pysyvät `st`:ssä.
 
 Tarkista ennen vientiä: appin oma kelpoisuustarkistus (`okProj`) vaatii `projekti.b` ja `projekti.lg`, ja `repair` poistaa palikat, joiden laji ei ole appin lajiluettelossa.
 

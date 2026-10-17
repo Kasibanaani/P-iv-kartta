@@ -70,6 +70,7 @@ Alla *tyhjä* tarkoittaa, että kenttä on tyhjä eikä kohtaan *arvo* tule nuol
 | **Poista rivi** | Poistaa rivin. | Tietotaulukko. | **Mikä rivi**: *Valittu rivi* / *Tapahtuman rivi*. | Jos poistettu oli valittu, valinta siirtyy seuraavaan. Ilman riviä: virhe. |
 | **Valitse rivi** | Vaihtaa taulukon valitun rivin. | Tietotaulukko. | **Mikä rivi**: ensimmäinen, seuraava, edellinen, viimeinen, tapahtuman rivi, arvosta (numero tai rivi), ei mitään. Seuraavalle ja edelliselle **Lopusta alkuun (ja alusta loppuun)**. | Arvosta: tyhjä = ei valintaa; liian iso numero = virhe. |
 | **Siirrä rivi** | Vaihtaa rivin paikkaa viereisen kanssa. | Tietotaulukko. | **Mikä rivi**, **Suunta**: *Ylös* / *Alas*. | Ensimmäinen ei siirry ylemmäs eikä viimeinen alemmas. |
+| **Hae tiedostosta** | Hakee taulukon lähdetiedoston GitHubista ja yhdistää rivit ([Lähde](07-tieto.md#lähde-rivitiedosto-githubista)). | Tietotaulukko, jolla on lähde. | ei asetuksia (lähde ja avain taulukon paneelissa). | *Sitten* heti, kun haku alkaa; tulos taulukon tapahtumina haettu ja hakuvirhe. Ilman lähdettä tai muuhun kohteeseen: virhe. |
 
 Taulukkotoiminnot kuvataan tarkemmin tietotaulukon luvussa. Niiden virhe (esim. ”taulukossa ei ole valittua riviä”) näkyy ilmoituksena ketjun ulkopuolella ja pysäyttää ketjun ketjun sisällä.
 

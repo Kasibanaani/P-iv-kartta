@@ -28,6 +28,7 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | arpoa | Satunnaisluku (luku) tai Arpa (ketjun haara) | [Satunnaisluku](04-logiikkapalikat.md#satunnaisluku-satu), [Arpa](05-ketjut-ja-toiminnot.md#arpa--arpa) |
 | tehdä sivuja ja siirtyä niiden välillä | näkymät, toiminto Siirry | [Näkymät](02-tyoymparisto.md#näkymät-sivut-ja-siirtyminen) |
 | pitää listaa riveinä | Tietotaulukko | [Tietotaulukko](07-tieto.md#tietotaulukko-taulu) |
+| hakea taulukon rivit tiedostosta GitHubista (terveys, oma appi) | Tietotaulukon Lähde, toiminto Hae tiedostosta | [Lähde](07-tieto.md#lähde-rivitiedosto-githubista) |
 | tuoda tekstiä, Excelin soluja tai CSV:n taulukkoon | Tulkki… (paletti, Tieto) tai taulukkoikkunan ⇄ Liitä tekstiä… | [Tulkki](07-tieto.md#tulkki-teksti-riveiksi-tai-palikoiksi) |
 | tehdä monta Arvoa kerralla tekstistä (`yöuni: 8`) | Tulkki…, Palikoiksi | [Tulkki](07-tieto.md#tulkki-teksti-riveiksi-tai-palikoiksi) |
 | kirjata mitä ja milloin (historia) | Tietotaulukko → Tee kirjaushistoria, toiminto Kirjaa | [Kirjaushistoria](07-tieto.md#kirjaushistoria), [Kirjausappi](07-tieto.md#kirjausappi-mitä-otin-ja-milloin) |

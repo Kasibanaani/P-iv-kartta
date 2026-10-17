@@ -36,6 +36,8 @@ Taulukko, jossa on nimetyt sarakkeet ja rivejä. Kaavat lukevat sen rivejä ja k
 | rivejä | arvo | rivien määrä |
 | valitun rivin nro | arvo | valitun rivin numero (0 = ei valittua) |
 | rivit | arvo (rivijoukko) | kaikki rivit. Viedään nuolella Rivijoukon, Toistimen, ikkunan (Riveille) tai Toista riveille -palikan kohtaan **rivit**. |
+| haettu | tapahtuma | vain kun taulukolla on lähde: haku onnistui ([Lähde](#lähde-rivitiedosto-githubista)). Tapahtuman `uusi` = lisättyjen rivien määrä. |
+| hakuvirhe | tapahtuma | vain kun taulukolla on lähde: haku epäonnistui. Tapahtuman `uusi` = virheteksti. |
 
 - **Asetukset (paneeli):** paneeli avautuu, kun palikka valitaan (puhelimella alapalkin **Asetukset**).
   - Osio **Sarakkeet**: jokaisella sarakkeella rivi, jossa nimikenttä, lajivalikko, ↑ ja ↓ (järjestys) ja × (poisto). Alla rivi *Kaavassa `ostokset.valittu.määrä`, `ostokset.määrä.summa` · viite [kenttä]*: viitteen voi kirjoittaa itse. Lajin mukaan lisäkentät:
@@ -46,6 +48,7 @@ Taulukko, jossa on nimetyt sarakkeet ja rivejä. Kaavat lukevat sen rivejä ja k
     - Painike **＋ Sarake** lisää sarakkeen nimellä *Sarake N* (laji teksti) ja vie kohdistuksen nimeen.
   - Osio **Rivit**: rivien määrä (käyttötieto vai lähtöaineisto), valittu rivi, painikkeet **Avaa taulukko…** ja (kun käyttötietoa on) **Palauta lähtöaineistoon**.
   - Osio **Kirjaushistoria**: nappi **Tee kirjaushistoria** lisää alkuun sarakkeet Aika ja Id (ks. [Kirjaushistoria](#kirjaushistoria)). Kun ne ovat, osio kertoo Kirjaa-toiminnosta, ja osio **Historian haut** näyttää kaavamuodot ja päivän rajan. Automaattisella sarakkeella ei ole lajivalikkoa vaan teksti *ajankohta · automaattinen* tai *tunniste · automaattinen*.
+  - Osio **Lähde**: kenttä **Tiedosto** (polku GitHub-repossa, esim. `tuonnit/terveys.json`). Kun polku on, lisäksi **Avain**, **⤓ Hae nyt** ja viimeisimmän haun tila (ks. [Lähde](#lähde-rivitiedosto-githubista)).
   - Osio **Koosteet**: sarakkeittain täytetyt, puuttuvat ja virheet; luku- ja kyllä/ei-sarakkeille summa ja keskiarvo.
   - Osio **Käyttö logiikassa**: muistilista toiminnoista ja kaavamuodoista.
 - **Sarakelajit:**
@@ -86,10 +89,11 @@ Taulukko, jossa on nimetyt sarakkeet ja rivejä. Kaavat lukevat sen rivejä ja k
 | `loki.viimeisin`, `loki.viimeisin.määrä` | uusin kirjaus (suurin ajankohta) ja sen sarake; vain kun taulukossa on ajankohta-sarake ([Kirjaushistoria](#kirjaushistoria)) |
 | `loki.edellisestä`, `loki.tänään` | minuutteja uusimmasta kirjauksesta; kirjauksia tänään päivän rajan mukaan |
 | `loki.valittu.aika.päivä` | ajankohdan päivä päivän rajan mukaan (myös päivämäärälle: sama päivä) |
+| `terveys.haettu`, `terveys.hakuvirhe` | viimeisimmän onnistuneen haun ajankohta (puuttuu, jos ei vielä haettu) ja viimeisimmän haun virhe (tyhjä = onnistui); vain kun taulukolla on lähde |
 
   Tekstissä samat aaltosulkeissa, esim. `Valittu: {ostokset.valittu.nimi}`. Pelkkä `ostokset.määrä` on virhe, joka ehdottaa `ostokset.valittu.määrä`, `ostokset.eka.määrä` tai `ostokset.määrä.summa`. Summa ja keskiarvo vain luku- ja kyllä/ei-sarakkeille (kyllä = 1, ei = 0).
-- **Ominaisuudet:** rekisterissä (paneelin Ominaisuudet ja viitevalitsin) näkyvät `rivejä`, `valittu`, `valittunro`, `eka`, `vika`, `valittu.<sarake>`, `eka.<sarake>`, `vika.<sarake>` ja koosteet; ajankohta-sarakkeen kanssa lisäksi `viimeisin`, `edellisestä`, `tänään` ja `viimeisin.<sarake>`. Ne ovat luettavia, eivät ohjattavia.
-- **Aika ja tila:** lähtöaineisto on rakennetta; käyttötieto ja valittu rivi säilyvät tallennettuna, kunnes ne palautetaan. Taulukolla ei ole omia tapahtumia (esim. "rivi lisätty"). Tapahtuma lähtee toiminnon **sitten**-kohdasta.
+- **Ominaisuudet:** rekisterissä (paneelin Ominaisuudet ja viitevalitsin) näkyvät `rivejä`, `valittu`, `valittunro`, `eka`, `vika`, `valittu.<sarake>`, `eka.<sarake>`, `vika.<sarake>` ja koosteet; ajankohta-sarakkeen kanssa lisäksi `viimeisin`, `edellisestä`, `tänään` ja `viimeisin.<sarake>`; lähteen kanssa `haettu` ja `hakuvirhe`. Ne ovat luettavia, eivät ohjattavia.
+- **Aika ja tila:** lähtöaineisto on rakennetta; käyttötieto ja valittu rivi säilyvät tallennettuna, kunnes ne palautetaan. Taulukolla ei ole omia tapahtumia rivien muutoksille (esim. "rivi lisätty"): tapahtuma lähtee toiminnon **sitten**-kohdasta. Ainoat taulukon tapahtumat ovat lähteen haun **haettu** ja **hakuvirhe**.
 - **Esimerkki:** Tee Tietotaulukko, nimeä *Ostokset*, lisää sarakkeet Nimi (teksti) ja Määrä (luku). **Avaa taulukko…** → **＋ Rivi** kolmesti, kirjoita Maito 2, Leipä 1, Omena (määrä tyhjä). Tee Kaava `ostokset.määrä.summa`: tulos 3. `ostokset.määrä.puuttuvia` = 1. `ostokset.vika.nimi` = Omena.
   - Toisenlainen käyttö: taulukko *Kirjaus*, jossa riviviitesarake *Tuote* taulukkoon *Tuotteet*. `kirjaus.valittu.tuote.hinta` näyttää aina tuotteen nykyisen hinnan.
 - **Huomio:**
@@ -152,6 +156,32 @@ Appi-appi 40 (jonon 6, F27 kohta 2). Rakentajan työkalu, ei palikka: liität te
 - **Tallennetut kuviot:** **Tallenna kuvio…** kysyy nimen ja tallentaa kuvion projektiin; se näkyy napiksi ★ nimi (× poistaa). Sama nimi korvaa vanhan. Enintään 30.
 - **Rajat:** ei omaa kielioppia, sisäkkäisiä rakenteita eikä elävää tulkintaa (teksti muuttuu → rivit muuttuvat). Palikoiksi vain Arvo, Muisti ja Teksti. Appi ei kutsu tekoälyä: tekoäly voi tuottaa liitettävän tekstin keskustelussa.
 - **Esimerkki (korttipakka):** Tulkki… → Rivejä kuviolla, kuvio `{etu} = {taka}`, Taulukon riveiksi, ＋ Uusi taulukko nimellä *Kortit*, teksti `kissa = cat` ja `koira = dog` omille riveilleen → Hyväksy (2). Syntyy taulukko *Kortit* (sarakkeet etu ja taka), jolle Toistin ja toiminto Valitse rivi tekevät korttipakan.
+
+## Lähde: rivitiedosto GitHubista
+
+Jonon 9 (F32 vaihe 1). Tietotaulukko voi hakea rivinsä tiedostosta, joka on samassa GitHub-repossa kuin projektit (esim. `master-tiedot`). Tiedoston voi kirjoittaa iPhonen pikakomento (terveystiedot), toinen oma appi tai tekoäly. Haku yhdistää rivit taulukon **käyttötietoon**; lähtöaineisto ei muutu.
+
+- **Löytyy:** Tietotaulukon paneeli, osio **Lähde**.
+  - **Tiedosto:** polku repossa, esim. `tuonnit/terveys.json`. Alun `/` jätetään pois. Tyhjä = ei lähdettä. Kun polku on, taulukko saa tapahtumat **haettu** ja **hakuvirhe** sekä ominaisuudet `haettu` ja `hakuvirhe`.
+  - **Avain:** *tiedoston avaimen mukaan* (oletus: tiedoston kenttä `avain`), jokin taulukon sarake tai *ei avainta: korvaa rivit*. Id-saraketta ei voi valita.
+  - **⤓ Hae nyt** hakee heti. Jos tiedostossa on kenttiä, joita taulukossa ei ole, ensin kysytään **Uusia sarakkeita tiedostosta**: rasti ja laji (arvattu arvoista: luku, kyllä/ei, ajankohta, päivämäärä tai teksti) jokaiselle, sitten **Lisää sarakkeet ja hae**, **Hae ilman niitä** tai **Peru**. Sarakkeiden lisäyksen voi kumota (↶ Kumoa); haettuja rivejä ei.
+  - Tila: *Haettu 17.10.2026 klo 7.30. N uutta, N päivittyi, N ennallaan* (ja tarvittaessa *N arvoa ei sopinut sarakkeeseen*, *N riviä ilman avainta ohitettiin*), virhe punaisella aikoineen, ja kentät, joita taulukossa ei ole. Ilman GitHub-asetuksia: *GitHub-yhteys puuttuu*.
+- **Logiikassa:** toiminto **Hae tiedostosta**, kohteena taulukko ([Toiminnot](05-ketjut-ja-toiminnot.md)). Sen *sitten* lähtee heti, kun haku alkaa; tulos tulee taulukon tapahtumina **haettu** tai **hakuvirhe**. Haku käynnistyy painikkeesta, ajastimesta tai ketjusta, joka käynnistyy, kun projekti avataan. Piirto tai kaava ei koskaan hae.
+- **Tiedoston muoto:** rivitiedosto (JSON), pelkkä rivilista tai CSV (otsikkorivi = kenttien nimet).
+
+```
+{"muoto": "rivit", "ver": 1, "lahde": "terveys-pikakomento", "paivitetty": "2026-10-17T07:30:00+03:00",
+ "avain": "paiva",
+ "rivit": [{"paiva": "2026-10-16", "askeleet": 8412, "leposyke": 54},
+           {"paiva": "2026-10-17", "askeleet": 1203, "leposyke": null}]}
+```
+
+  Kentät yhdistetään sarakkeisiin nimen tai viitteen perusteella (kirjainkoko ei ratkaise); tuntemattomat ohitetaan. Arvot muutetaan sarakkeen lajiin kuten taulukkoikkunassa; ISO-aikaleima (`2026-10-16T23:10:00+03:00`) käy ajankohdaksi ja päivämääräksi. `null` ja tyhjä = puuttuva tieto.
+- **Yhdistäminen avaimella:** sama avain päivittää rivin tiedoston sarakkeet, uusi avain lisää rivin. Appin omat sarakkeet (esim. käsin kirjattu mieliala) ja rivit, joita tiedostossa ei enää ole, säilyvät. Tyhjä arvo ei pyyhi. Sama tiedosto kahdesti ei tee tuplia. Rivi ilman avainta ja väärän lajin arvo ohitetaan ja lasketaan tilaan.
+- **Ilman avainta:** jokainen haku **korvaa** käyttötiedon rivit tiedoston riveillä (myös appin omat rivit poistuvat).
+- **Virhe** (tiedostoa ei löydy, ei JSONia, ei rivejä, avainta ei ole, yksikään kenttä ei vastaa saraketta, GitHub-virhe) ei muuta rivejä. `hakuvirhe` kertoo syyn, `haettu` jää edellisen onnistuneen haun ajaksi.
+- **Aika ja tila:** haun tila on käyttötietoa (tallentuu, Kokeilussa kokeilun kopioon). Sama taulukko ei hae kahdesti yhtä aikaa. Haku tehdään vain, kun appi on auki. Yli 1 Mt:n tiedosto haetaan erikseen (ei tarkistettu oikealla GitHubilla).
+- **Esimerkki:** taulukko *Terveys*, sarakkeet paiva (päivämäärä) ja Mieliala (teksti). Lähde `tuonnit/terveys.json` → ⤓ Hae nyt → kysely ehdottaa sarakkeita askeleet ja leposyke (luku) → Lisää sarakkeet ja hae. Kirjoita Mielialaan käsin, hae huomenna uudelleen: mieliala säilyy, uusi päivä tulee riviksi. Painike + toiminto *Hae tiedostosta* hakee käytössä; Teksti `Haettu {terveys.haettu}`.
 
 ## Puuttuva tieto
 Tyhjä kenttä on tallessa puuttuvana. Se näkyy merkkinä `–`.
