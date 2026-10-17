@@ -44,6 +44,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 7. **Jana F28, vaihe 1** (`suunnitelmat/13-jana.md`, Emilin idea 17.10.): logiikan ikkuna, jonka leveys on alku–loppu (oletus 0–10), aika- tai arvokulku (esim. säädin), merkit portaisiin. Kohta tallennetaan arvona (Emilin päätös 17.10.); muut linjaukset tekoälyn suosituksen mukaan: hypyssä väliin jääneet laukeavat, aikajana eteenpäin ja arvojana molempiin suuntiin. Välit (alku–loppu-merkit) myöhemmin erikseen.
 8. **Animointi F29, vaihe 2** (`suunnitelmat/14-animointi.md`): arvo vaihtuu (ristihäivytys, luku rullaa, uusin voittaa) ja Aseta-/nuolihyppäyksen sijainti liukuen, pelkkä visuaali. Vaihe 3 (venytys tai vana) vain kevyeksi mitattuna, ei vielä jonossa.
 9. **Hae rivitiedosto F32, vaihe 1** (`suunnitelmat/16-vienti-ja-tuontiputket.md` kohta 6, Emilin ajatus 17.10.): Tietotaulukolle lähde (tiedosto master-tiedotissa) ja Hae-toiminto; terveysdata, Garmin ja omat apit samalla putkella. Emilin päätös 17.10.: rivit yhdistetään avaimella (sama avain päivittyy, uudet lisätään, appin omat sarakkeet ja vanhat rivit säilyvät; ilman avainta korvaa). Tallennusmuoto laajenee.
+10. **Peliohjain F33, vaihe 1** (`suunnitelmat/17-peliohjain.md`, Emilin idea 17.10.): logiikan Peliohjain-palikka (pelaaja 1–4, kuollut alue, napit sijainnin mukaan, tatit, liipaisimet; tapahtumat painettu, irti, yhdistyi, irtosi), Tatti voi seurata ohjaimen tattia ja Painike ohjaimen nappia. Kyselysilmukka vain, kun ohjain on yhdistetty. Ei tärinää (vaihe 2, iPhonen tuki epävarma). Tallennusmuoto laajenee (uusi laji ja valinnaiset kentät). ⏸ Mikä ohjain Emilillä on: ei estä vaihetta 1, vaikuttaa kokeiluohjeeseen.
 
 ## Seuraavaksi
 
@@ -124,6 +125,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 ## Suunnitelmat
 
+- **17.10.2026, F33 peliohjain (Emilin idea):** `suunnitelmat/17-peliohjain.md`. iPhone tukee Xbox-, PlayStation- ja Nintendo-ohjaimia Safarissa ja kotinäytön web-apissa; ohjain näkyy vasta ensimmäisestä napinpainalluksesta, tärinä iPhonella epävarma. Vaihe 1 jonossa 10. Ei toteutettu; vain Markdown muuttui.
 - **17.10.2026, F29 animointi (Emilin idea):** `suunnitelmat/14-animointi.md`, pelkkä visuaali (D14–D15). Emil hyväksyi linjaukset; vaihe 1 jonossa 3, vaihe 2 jonossa 9. Ei toteutettu.
 - **17.10.2026, F28 jana:** `suunnitelmat/13-jana.md`, jonossa (vaihe 1). Ei toteutettu.
 - **17.10.2026, F27 teksti (Emilin idea):** `suunnitelmat/12-teksti.md`: viite-ehdotukset ja palikan luonti nimestä, tulkki/printteri kuviolla (taulukon rivit tai palikat), Tagit-palikka ja sanaoppi. Emil hyväksyi järjestyksen; kohdat 1–2 jonossa (viite-ehdotukset, tulkki). Ei toteutettu; vain Markdown muuttui.
