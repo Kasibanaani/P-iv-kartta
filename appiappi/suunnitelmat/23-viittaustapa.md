@@ -22,7 +22,7 @@ Asetuksiin (sama paikka kuin rakennusympäristön ilme, lohko `<script id="appea
 
 | Tapa | Kirjoitetaan | Näppäimet (suomalainen asettelu) |
 | --- | --- | --- |
-| `#` (oletus, ⏸ Emilin vahvistus) | `Unta #uni h` | Shift+3 sekä Macissa että PC:ssä |
+| `#` (oletus, Emilin päätös 18.10.) | `Unta #uni h` | Shift+3 sekä Macissa että PC:ssä |
 | `@` | `Unta @uni h` | Alt+2 (Mac), AltGr+2 (PC) |
 | `§` | `Unta §uni h` | Yksi nappi (Escin alla) vain suomalaisella ISO-näppäimistöllä; puhelimessa hankala |
 | `{ }` | `Unta {uni} h` | Nykyinen tapa |
@@ -78,6 +78,6 @@ Ei muutosta kirjoitustapaan: viitteet paljaina kuten nyt. Lisäksi kaava hyväks
 - Selaintesti 1440 ja 1280 px: tavan vaihto Asetuksista näyttää olemassa olevan tekstin uudella tavalla, ehdotukset avautuvat etumerkistä, valinta säilyy uudelleenlatauksessa, vanha projekti ei muutu tiedostona.
 - Manuaali: luku 3 (tekstin viitteet), luku 6 (kaava hyväksyy etumerkin), luku 2 (Asetukset), hakemisto ja versio.
 
-## 6. Avoin kysymys
+## 6. Päätös
 
-- ⏸ **Oletusetumerkki** (kortti Emilille 18.10.): suositus `#`. Vaihtoehdot `@`, `§`, `{ }`. Kaikki ovat valittavissa asetuksista joka tapauksessa; kysymys koskee vain oletusta.
+- **Oletusetumerkki `#`** (Emil valitsi kortilta 18.10. klo 2.22). `@`, `§` ja `{ }` valittavissa asetuksista.
