@@ -1,6 +1,6 @@
 # Appi-appi: tila
 
-**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 17.10.2026 (Appi-appi 22; tila tiivistetty)
+**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 17.10.2026 (Appi-appi 23: koeapit C ja B)
 
 Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- ja iPad-näkymät, maailma ja hahmon liike, myöhemmin vienti omaksi appiksi). Ristiriidoissa Kytköskartan logiikka voittaa. Suunnitelma: `SUUNNITELMA.md` ja `suunnitelmat/`; vanhempien vaiheiden päätökset `VERTAILU.md`. Toteutettujen versioiden yksityiskohdat, tallennuskentät ja kokeiluohjeet: `MUUTOKSET.md`.
 
@@ -12,9 +12,10 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 - Appi-appi 19–20: käyttöraahaus F12, korttien järjestys raahaamalla, Siirrä rivi, pudotusalueen korostus ja reunavieritys (`suunnitelmat/03-kayttopinta.md`).
 - Appi-appi 21: säädin raahautuu vapaasti (Safarin pykälä kerrallaan -vika korjattu); kalenterin päivän valinta, valitun päivän asiat kalenterin alla, `kalenteri.valittu` ja tapahtuma *päivä valittu*.
 - Appi-appi 22: suosikit ja presetit F26 (`suunnitelmat/04-omat-palikat-ja-kokoelmat.md`, toteutus).
+- Appi-appi 23: koeapit C (kohdelista 100 rivillä) ja B (kysymysappi) nykyisillä palikoilla, projekteina `master-tiedot/appiappi/` (*Hae uudet projektit*); tiedostosta tuonti lukee nyt myös GitHub-muotoisen projektitiedoston. Ei uusia palikoita, joten `PALIKKASAANNOT.md`:n rekisteriin ei tullut rivejä.
 - Emilin päätökset 16.10. (Appi-appi 13:n jälkeen): koosteet säilyvät taulukon ominaisuuksina (`taulu.määrä.summa`) myös P3:n ikkunakoosteiden rinnalla; Lisää rivi -kentät pysyvät kaavoina (teksti lainausmerkeissä); taulukolle ei vielä tehdä omia tapahtumia (rivi lisätty, valinta vaihtui); Lisää puuttuvaan kenttään alkaa nollasta ja Vaihda puuttuvasta antaa kyllä (nykyinen toiminta pysyy, tekoälyn suositus).
 - Tallennusversio edelleen 8; vanhat projektit avautuvat ennallaan. Uudet valinnaiset kentät versioittain: `MUUTOKSET.md`, Tallennus (Appi-appi 11–16 myös juuren `README.md`).
-- Testattu vain tietokoneen Chromiumissa (kosketus ja nipistys CDP:llä 390 ja 320 px, Appi-appi 11–13 tietokoneella 1440 ja 1280, Appi-appi 13–22 myös puhelinleveyksillä), ei oikealla iPhonella, iPadilla eikä Safarilla.
+- Testattu vain tietokoneen Chromiumissa (kosketus ja nipistys CDP:llä 390 ja 320 px, Appi-appi 11–13 tietokoneella 1440 ja 1280, Appi-appi 13–23 myös puhelinleveyksillä), ei oikealla iPhonella, iPadilla eikä Safarilla.
 
 ## Jono
 
@@ -22,27 +23,21 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 **Haarat ja tarkistuspisteet (Emil 17.10.2026):** ⏸-merkitty kohta odottaa Emilin päätöstä. Jono ei pysähdy siihen: rakentaja tai vahti ilmoittaa Emilille ja jatkaa seuraavaan kohtaan, joka ei riipu odottavasta. Kohta, josta mikään jonossa ei riipu, on oma haaransa; Emil voi ottaa sen käsittelyyn milloin haluaa. Avoimista haaroista muistutetaan Emiliä säännöllisesti (ajastettu muistutus APPI-APPI-projektin ketjussa *Tilastot ja oppiminen*).
 
-1. **Koeapit C ja B** (`suunnitelmat/07-toteutuspolku.md`) nykyisillä palikoilla: kohdelista 100 rivillä ja kysymysappi. Tallennetaan projekteiksi `master-tiedot/appiappi/` (Emil avaa *Hae uudet projektit*). Pienet puutteet korjataan samassa työssä, isot kirjataan tähän jonoon. Koeappi A tehdään vasta historian (F08) hyväksymiskokeena.
-1b. **Erikoispalikan merkki ✦** (Emilin päätös 17.10., `PALIKKASAANNOT.md` osa B): palikkalajiin kenttä `erik:'syy'` rekisterin riveille, paletti ja tarkastelija näyttävät ✦:n ja syyn selkokielellä, testi pitää rekisterin ja koodin samana. Ei tallennusmuodon muutosta.
-1c. **Ohjaimille tapahtuma *muuttui*** (L1, Emilin päätös 17.10., `kartoitukset/2026-10-17-linjakkuus.md`): Säädin, Tekstikenttä, Lukukenttä, Valintaruutu, Kytkin, Päivämäärä ja Lista lähettävät tapahtuman arvon muuttuessa; Tapahtuman tiedot antaa uuden ja vanhan arvon.
-1d. **Logiikkapalikoiden asetukset kaavaan** (L2, Emilin päätös 17.10.): sisäänmenon nykyinen arvo luettavaksi (`ajastin.kesto`, `satu.min`, `muutos.kesto`, `toista.kerrat`, Käyrän rajat).
-1e. **Logiikkapinta F30, kohdat 1–3** (`suunnitelmat/15-logiikkapinta.md`, Emilin idea 17.10.): pistokkeet piiloon (yleinen ja palikkakohtainen valinta), viitteet himmeinä katkoviivoina, Kaava venyy ja sitä kirjoitetaan suoraan palikkaan. Tallennusmuoto laajenee (muistuta varmuuskopiosta).
-1f. **JOS, JA ja TAI kaavaan** (F30 kohta 4): `jos(ehto; kyllä; muuten)`, puolipiste-erotin, sisäkkäinen sallittu; periaatteiden kohta 5 ja palikkasääntö A7 täsmennetään samalla.
-1g. **Kehys** (F30 kohta 5): logiikkapuolen pelkkä visuaalinen ryhmä, reunaviiva, nimi ja valinnainen kevyt sävy; erikoispalikka rekisteriin.
-2. **Testitila F22, suppea** (`suunnitelmat/06-testit-ja-julkaisu.md`): yläpalkkiin *Kokeile*; kokeilu alkaa kopiosta nykyisistä käyttötiedoista; koko kokeilun ajan värillinen raita ja teksti ”Kokeilu”; oikeat tiedot eivät muutu. Ei tässä: kokeilun tulosten siirto oikeaan käyttöön, tallennetut kokeet.
-3. **Animointi F29, vaihe 1** (`suunnitelmat/14-animointi.md`, Emilin idea ja päätökset 17.10.): näkymän palikan paneeliin osio *Animointi* (ilmestyy, katoaa, kesto, pehmeys), projektin oletus, ominaisuudet logiikkaan. Pelkkä visuaali, logiikka ei odota, vain `opacity`/`transform`, Vähennä liikettä noudatetaan. Tallennusmuoto laajenee (muistuta varmuuskopiosta).
-4. **Rakenteinen historia F08** (P4:n alku, `suunnitelmat/01-tieto-ja-tapahtumat.md` kohta 7): Kirjaa-toiminto kirjoittaa tavalliseen Tietotaulukkoon, jossa automaattiset sarakkeet *aika* ja *id*; kirjausta muokataan ja poistetaan kuten taulukon riviä (ei korjaushistoriaa); vanha tekstiaikajana muunnetaan vain napista; päivän raja on projektin asetus, oletus keskiyö. Hyväksymiskokeena koeappi A.
-5. **⏸ Tarkistuspiste F25** (`suunnitelmat/11-tilastot-ja-yhteydet.md`, Emil 17.10. aamulla): ei rakenneta. Kun F08 on viety, ilmoita Emilille, että F25:n avoimet kysymykset (kohta 9) ovat vuorossa, ja jatka jonon kohtaan 6. Elämäntapaväittämien koeappi ja korrelaatio vasta Emilin vastausten jälkeen.
-6. **Viite-ehdotukset ja palikan luonti nimestä** (F27 kohta 1, `suunnitelmat/12-teksti.md`): ehdotusrivi viitteelle kirjoitettaessa, *Luo Arvo* tuntemattomasta nimestä.
-7. **Tulkki eli printteri** (F27 kohta 2, yhdessä F20:n liimatun taulukon kanssa): teksti kuviolla taulukon riveiksi tai Arvo-palikoiksi, esikatselu ennen hyväksyntää. Tagit ja sanaoppi (kohdat 3–4) vasta F08:n ja F25:n jälkeen erikseen.
-8. **Jana F28, vaihe 1** (`suunnitelmat/13-jana.md`, Emilin idea 17.10.): logiikan ikkuna, jonka leveys on alku–loppu (oletus 0–10), aika- tai arvokulku (esim. säädin), merkit portaisiin. Kohta tallennetaan arvona (Emilin päätös 17.10.); muut linjaukset tekoälyn suosituksen mukaan: hypyssä väliin jääneet laukeavat, aikajana eteenpäin ja arvojana molempiin suuntiin. Välit (alku–loppu-merkit) myöhemmin erikseen.
-9. **Animointi F29, vaihe 2** (`suunnitelmat/14-animointi.md`): arvo vaihtuu (ristihäivytys, luku rullaa, uusin voittaa) ja Aseta-/nuolihyppäyksen sijainti liukuen, pelkkä visuaali. Vaihe 3 (venytys tai vana) vain kevyeksi mitattuna, ei vielä jonossa.
+1. **Testitila F22, suppea** (`suunnitelmat/06-testit-ja-julkaisu.md`): yläpalkkiin *Kokeile*; kokeilu alkaa kopiosta nykyisistä käyttötiedoista; koko kokeilun ajan värillinen raita ja teksti ”Kokeilu”; oikeat tiedot eivät muutu. Ei tässä: kokeilun tulosten siirto oikeaan käyttöön, tallennetut kokeet.
+2. **Animointi F29, vaihe 1** (`suunnitelmat/14-animointi.md`, Emilin idea ja päätökset 17.10.): näkymän palikan paneeliin osio *Animointi* (ilmestyy, katoaa, kesto, pehmeys), projektin oletus, ominaisuudet logiikkaan. Pelkkä visuaali, logiikka ei odota, vain `opacity`/`transform`, Vähennä liikettä noudatetaan. Tallennusmuoto laajenee (muistuta varmuuskopiosta).
+3. **Rakenteinen historia F08** (P4:n alku, `suunnitelmat/01-tieto-ja-tapahtumat.md` kohta 7): Kirjaa-toiminto kirjoittaa tavalliseen Tietotaulukkoon, jossa automaattiset sarakkeet *aika* ja *id*; kirjausta muokataan ja poistetaan kuten taulukon riviä (ei korjaushistoriaa); vanha tekstiaikajana muunnetaan vain napista; päivän raja on projektin asetus, oletus keskiyö. Hyväksymiskokeena koeappi A.
+4. **⏸ Tarkistuspiste F25** (`suunnitelmat/11-tilastot-ja-yhteydet.md`, Emil 17.10. aamulla): ei rakenneta. Kun F08 on viety, ilmoita Emilille, että F25:n avoimet kysymykset (kohta 9) ovat vuorossa, ja jatka jonon kohtaan 5. Elämäntapaväittämien koeappi ja korrelaatio vasta Emilin vastausten jälkeen.
+5. **Viite-ehdotukset ja palikan luonti nimestä** (F27 kohta 1, `suunnitelmat/12-teksti.md`): ehdotusrivi viitteelle kirjoitettaessa, *Luo Arvo* tuntemattomasta nimestä.
+6. **Tulkki eli printteri** (F27 kohta 2, yhdessä F20:n liimatun taulukon kanssa): teksti kuviolla taulukon riveiksi tai Arvo-palikoiksi, esikatselu ennen hyväksyntää. Tagit ja sanaoppi (kohdat 3–4) vasta F08:n ja F25:n jälkeen erikseen.
+7. **Jana F28, vaihe 1** (`suunnitelmat/13-jana.md`, Emilin idea 17.10.): logiikan ikkuna, jonka leveys on alku–loppu (oletus 0–10), aika- tai arvokulku (esim. säädin), merkit portaisiin. Kohta tallennetaan arvona (Emilin päätös 17.10.); muut linjaukset tekoälyn suosituksen mukaan: hypyssä väliin jääneet laukeavat, aikajana eteenpäin ja arvojana molempiin suuntiin. Välit (alku–loppu-merkit) myöhemmin erikseen.
+8. **Animointi F29, vaihe 2** (`suunnitelmat/14-animointi.md`): arvo vaihtuu (ristihäivytys, luku rullaa, uusin voittaa) ja Aseta-/nuolihyppäyksen sijainti liukuen, pelkkä visuaali. Vaihe 3 (venytys tai vana) vain kevyeksi mitattuna, ei vielä jonossa.
 
 ## Seuraavaksi
 
+- **Koeapit (Appi-appi 23) toivat esiin, ei korjattu:** kaavassa ei ole tekstihakua (esim. *sisältää*), joten kohdelistassa ei ole hakukenttää; Tietotaulukolla ei ole `eka`/`vika` kuten Rivijoukolla (linjakkuushavainto, A8; B kiertää sen Rivijoukolla); kapeassa kortissa Lukukentän omat −/+ peittävät luvun, joten C näyttää määrän Tekstinä. Tekoälyn ehdotus: *sisältää*-vertailu kaavaan ja `eka`/`vika` taulukolle pieninä töinä. Ei jonossa ilman Emilin lupaa.
 - Järjestys: Jono yllä. Kokonaiskuva ja loput paketit (P4–P7): `SUUNNITELMA.md`.
 - **Tekoälyn ehdotus:** `index.html` pilkotaan osiin (build-skripti tai moduulit), jotta kontekstia kuluu vähemmän. Ei tehdä ilman Emilin lupaa.
-- Emil kokeilee, uusin ensin: laput (18), massa ja törmäykset (17), lomake (16), Toistin (15), Rivi ja Rivijoukko, Tietotaulukko, ketjun lukitus, puhelimella zoomaus ja efektit. Vaiheittaiset ohjeet: `MUUTOKSET.md`, Kokeiluohjeet.
+- Emil kokeilee, uusin ensin: koeapit C ja B (23, ohje `MUUTOKSET.md`), laput (18), massa ja törmäykset (17), lomake (16), Toistin (15), Rivi ja Rivijoukko, Tietotaulukko, ketjun lukitus, puhelimella zoomaus ja efektit. Vaiheittaiset ohjeet: `MUUTOKSET.md`, Kokeiluohjeet.
 - **Emilin idea 16.10. (ensimmäinen viestilappu):** kalenteripohja: ruudukkokerros, jonka ruudut tarkoittavat päivää ja kellonaikaa, ja asiat raahataan ruutuihin. Ruudun tunnistus on jo olemassa (`ruutux`/`ruutuy` + kaava), käyttöraahaus F12 on tehty (Appi-appi 19–20). Kalenteripohjan voi siis rakentaa nykyisillä palikoilla. Tekoälyn ehdotus on tehdä se F12:n hyväksymiskokeeksi. Ei toteutusta ilman ”toteuta”.
 - Myöhemmin: esimerkkiprojekti (esim. labyrintti) vain pyynnöstä.
 
@@ -102,6 +97,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 - Appi-appi 18 ei tarkistettu: oikea iPhone ja Safari (sormella veto ja kirjoitus, näppäimistö lapun päällä), oikea GitHub (testattu valepalvelimella), tekoälyn vastaus oikeasta keskustelusta, monta kymmentä lappua, iPad-näkymä.
 - Appi-appi 20 Ei tarkistettu: oikea iPhone ja Safarin pitkä painallus (tekstin valinta tai suurennuslasi voi kilpailla), kortin raahaus ruudukkoasettelussa (testattu allekkain), reunavieritys hitaammalla kerroksella (tarkoituksella pois), korostus rullausvauhdiltaan eri kerroksen alueille.
 - Appi-appi 21 Ei tarkistettu: oikea iPhone ja Safari (säätimen korjaus testattu Safarin tapaa jäljitellen), kalenterin päivän napautus kortissa (Toistin).
+- Appi-appi 23 Ei tarkistettu: oikea iPhone ja Safari, oikea GitHub-haku (testattu valepalvelimella), kysymysten vaihto taulukkoikkunasta selaimessa (sisällön vaihto testattu moottorissa).
 - Appi-appi 22 Ei tarkistettu: oikea iPhone ja Safari (nimeäminen käyttää selaimen kysymysikkunaa), isot presetit kuvineen (selaimen muistin raja), presetti, jonka palikat ovat toistimen kortissa.
 
 ## Suunnitelmat
