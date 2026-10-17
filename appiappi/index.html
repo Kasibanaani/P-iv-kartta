@@ -85,6 +85,19 @@ button{cursor:pointer}
 .chip.on{border-color:var(--accent);background:var(--fill)}
 .chip.wide{width:100%}
 .plist{display:flex;flex-direction:column;gap:3px}
+/* F26: suosikit ja presetit */
+#pal .chip[data-make]{position:relative}
+#pal.favedit .chip[data-make]{cursor:pointer}
+#pal.favedit .chip[data-make]::after{content:'☆';position:absolute;top:-7px;right:-6px;width:16px;height:16px;display:grid;place-items:center;font-size:12px;line-height:1;color:var(--label2);background:var(--cell);border:1px solid var(--sep);border-radius:50%}
+#pal.favedit .chip.fav[data-make]::after{content:'★';color:var(--accent);border-color:var(--accent)}
+.favbar{border:1px solid var(--accent);background:var(--fill);border-radius:10px;padding:8px 10px;font-size:12.5px;margin-bottom:10px;display:flex;gap:8px;align-items:center;justify-content:space-between}
+.pt-h .pth-b{float:right;border:0;background:transparent;color:var(--accent);font:inherit;font-size:11px;letter-spacing:0;text-transform:none;cursor:pointer;padding:0 2px}
+.chip.pres{cursor:pointer}
+.pfoot{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.prrow{border:1px solid var(--sep2);border-radius:10px;padding:8px 10px;margin-bottom:8px}
+.prrow small{display:block;color:var(--label2);margin:2px 0 6px}
+.princ{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 8px}.princ span{border:1px solid var(--sep2);border-radius:7px;padding:2px 6px;font-size:12px}
+.prneed{display:flex;align-items:center;gap:8px;justify-content:space-between;border-top:1px solid var(--sep2);padding:6px 0}
 .plist .chip{width:100%;justify-content:flex-start}
 .plist .chip small{margin-left:auto;color:var(--label3);font-weight:500;font-size:11px}
 .psearch{width:100%;border:1px solid var(--sep);background:var(--cell);border-radius:9px;padding:6px 9px;margin-bottom:6px}
@@ -2457,6 +2470,9 @@ function repairData(Dt){
   if(!Dt||typeof Dt!=='object'||!Array.isArray(Dt.projects))Dt={app:'appiappi',ver:VER,projects:[],cur:'',cfg:{}};
   Dt.app='appiappi';Dt.ver=VER;Dt.cfg=Dt.cfg||{};if(!Dt.cfg.df)Dt.cfg.df='pp.kk.vvvv';if(!Dt.cfg.teema)Dt.cfg.teema='auto';if(Dt.cfg.snap==null)Dt.cfg.snap=true;
   Dt.projects=Dt.projects.filter(function(p){return p&&typeof p==='object';}).map(repair);
+  /* F26: suosikit ja presetit projektien ulkopuolella (vanha tallennus ilman niitä kelpaa). */
+  if(Dt.suos!==undefined)Dt.suos=Array.isArray(Dt.suos)?Dt.suos.filter(function(f){return f&&typeof f.k==='string'&&K[f.k];}):[];
+  if(Dt.presetit!==undefined)Dt.presetit=Array.isArray(Dt.presetit)?Dt.presetit.filter(function(o){return o&&typeof o==='object'&&typeof o.id==='string'&&o.b&&typeof o.b==='object';}):[];
   if(!Dt.projects.some(function(p){return p.id===Dt.cur;}))Dt.cur=Dt.projects.length?Dt.projects[0].id:'';
   return Dt;
 }
@@ -3907,6 +3923,77 @@ function pasteNodes(P,clip,dx,dy){
   return made.map(function(n){return n.id;}).filter(function(id){return !!nodeOf(P,id);});
 }
 
+/* ---------- F26: presetit (D12, D13) ----------
+   Presetti on nimetty, projektista riippumaton kopio palikkajoukosta: palikat (b) sellaisinaan, logiikan solmut (n) ja niiden
+   väliset nuolet (l). Liitettäessä kaikki tehdään uusina (irtokopio, D12): uudet tunnisteet, nimet ja viitteet, ja viittaukset
+   presetin sisällä osoittavat uusiin. Viittaus presetin ulkopuolelle (ext {id: {nm, vt, k}}) saa liitettäessä uuden tunnisteen
+   poistettujen muistiin (P.pois), joten se näkyy katkenneena (D08) ja kohteen voi valita Viitevirheet-listasta. Samannimistä
+   kohdetta ei arvata. Ulkopuolelle menneet nuolet (xl) eivät siirry, vaan ne luetellaan. Sisältö (taulukoiden nykyiset rivit
+   ja muistien arvot) tulee mukaan vain valinnalla (sis). Palikan kaikki solmut ja ikkunan sisältö kuuluvat samaan joukkoon. */
+var PRESVER=1;
+function presetSet(P,bids,nids){
+  var B={},N={};
+  function addN(id){if(N[id])return;var n=nodeOf(P,id);if(!n||!P.b[n.p])return;N[id]=1;B[n.p]=1;P.lg.n.forEach(function(m){if(m.g===id)addN(m.id);});}
+  (nids||[]).forEach(addN);(bids||[]).forEach(function(id){if(P.b[id])B[id]=1;});
+  for(var more=true;more;){more=false;P.lg.n.forEach(function(n){if(B[n.p]&&!N[n.id]){addN(n.id);more=true;}});}
+  return {b:Object.keys(B),n:P.lg.n.filter(function(n){return N[n.id];}).map(function(n){return n.id;})};
+}
+/* Mitä joukon ulkopuolelta tarvitaan: [{id: viittaava palikka, to, how, nm}]; nuolet how 'nuoli'. */
+function presetNeeds(P,set){
+  var B={},N={},out=[],seen={};set.b.forEach(function(i){B[i]=1;});set.n.forEach(function(i){N[i]=1;});
+  function add(id,to,how){var k=id+'|'+to+'|'+how;if(seen[k])return;seen[k]=1;var t=P.b[to];out.push({id:id,to:to,how:how,nm:t?t.nm:goneName(P,to),k:t?t.k:''});}
+  set.b.forEach(function(id){scanRefs(clone(P.b[id]),function(r,how){if(!B[r]&&(P.b[r]||isGone(P,r)))add(id,r,how);});});
+  var nid={};P.lg.n.forEach(function(n){nid[n.id]=n;});
+  P.lg.l.forEach(function(l){var f=nid[l.f],t=nid[l.t];if(!f||!t)return;if(N[f.id]&&!N[t.id])add(f.p,t.p,'nuoli');else if(N[t.id]&&!N[f.id])add(t.p,f.p,'nuoli');});
+  return out;
+}
+function presetMake(P,bids,nids,opt){
+  opt=opt||{};var set=presetSet(P,bids,nids),N={};set.n.forEach(function(i){N[i]=1;});
+  var pr={pv:PRESVER,ver:VER,nm:String(opt.nm||'Presetti'),sis:!!opt.sis,b:{},n:[],l:[],ext:{},xl:[],st:{}};
+  set.b.forEach(function(id){var c=clone(P.b[id]);
+    if(c.k==='taulu'){var st=P.st[id];c.rv=!opt.sis?[]:clone(st&&Array.isArray(st.rows)?st.rows:(c.rv||[]));}
+    if(opt.sis&&c.k==='muisti'&&P.st.hasOwnProperty(id))pr.st[id]=clone(P.st[id]);
+    pr.b[id]=c;});
+  P.lg.n.forEach(function(n){if(!N[n.id])return;var c=clone(n);if(c.g&&!N[c.g])c.g='';pr.n.push(c);});
+  P.lg.l.forEach(function(l){if(N[l.f]&&N[l.t])pr.l.push(clone(l));});
+  presetNeeds(P,set).forEach(function(x){
+    if(x.how==='nuoli'){pr.xl.push({id:x.id,nm:x.nm});return;}
+    var t=P.b[x.to],g=t?{nm:t.nm,vt:t.vt,k:t.k}:(P.pois&&P.pois[x.to])||{nm:'?',vt:'',k:''};pr.ext[x.to]={nm:g.nm,vt:g.vt||'',k:g.k||''};});
+  return pr;
+}
+/* Liittää presetin: opt {v: näkymä, x, y: näkymän palikoiden vasen yläkulma, lx, ly: logiikan vasen yläkulma, kr: kerros}.
+   Palauttaa {b: uudet palikat, n: uudet solmut, gone: [{id: uusi palikka, nm: puuttuva}], xl: [nuolien puuttuvat]}. */
+function presetPaste(P,pr,opt){
+  opt=opt||{};var out={b:[],n:[],gone:[],xl:[]};if(!pr||!pr.b)return out;
+  var bmap={},gmap={},nmap={},vw=opt.v||P.views[0].id,lgx=Infinity,lgy=Infinity,ux=Infinity,uy=Infinity,z0=Infinity,zt=0;
+  Object.keys(P.b).forEach(function(i){var o=P.b[i];if(K[o.k].g==='ui'&&o.v===vw)zt=Math.max(zt,o.z||0);});
+  Object.keys(pr.b).forEach(function(id){var o=pr.b[id];if(!o||!K[o.k])return;if(K[o.k].g==='ui'){ux=Math.min(ux,num(o.x)||0);uy=Math.min(uy,num(o.y)||0);z0=Math.min(z0,o.z||0);}});
+  (pr.n||[]).forEach(function(n){if(n.g)return;lgx=Math.min(lgx,num(n.x)||0);lgy=Math.min(lgy,num(n.y)||0);});
+  var dx=isFinite(lgx)?(opt.lx||0)-lgx:0,dy=isFinite(lgy)?(opt.ly||0)-lgy:0;
+  function gone(id){if(gmap[id])return gmap[id];var g=(pr.ext||{})[id]||{nm:'?',vt:'',k:''};var nid='b'+(++P.seq);if(!P.pois||typeof P.pois!=='object')P.pois={};
+    P.pois[nid]={nm:String(g.nm||'?'),vt:String(g.vt||''),k:String(g.k||'')};gmap[id]=nid;return nid;}
+  Object.keys(pr.b).forEach(function(id){var o=pr.b[id];if(!o||!K[o.k])return;
+    var props=clone(o);delete props.id;delete props.k;delete props.kr;var nm=props.nm;
+    if(K[o.k].g==='ui'){props.v=vw;if(opt.kr&&o.k!=='alue'&&o.k!=='merkki')props.kr=opt.kr;props.x=Math.round((opt.x||0)+(num(o.x)||0)-ux);props.y=Math.round((opt.y||0)+(num(o.y)||0)-uy);props.z=zt+1+(o.z||0)-z0;}
+    var nb=addBlock(P,o.k,props);nb.nm=uniqueName(P,nm||nb.nm,nb.id);if(validVt(o.vt)&&!vtOwner(P,o.vt,nb.id))nb.vt=o.vt;else{nb.vt=uniqueVt(P,nb.nm,nb.id);delete nb.vtSet;}
+    bmap[id]=nb.id;out.b.push(nb.id);});
+  out.b.forEach(function(nid){var b=P.b[nid];
+    scanRefs(b,function(r){return bmap[r]||(pr.ext&&pr.ext.hasOwnProperty(r)?gone(r):r);});
+    if(b.tst!==undefined){if(bmap[b.tst])b.tst=bmap[b.tst];else delete b.tst;}
+    if(b.k==='taulu')(b.rv||[]).forEach(function(r){if(r&&r.a)Object.keys(r.a).forEach(function(c){var x=r.a[c];if(isR(x)){if(bmap[x.rr])x.rr=bmap[x.rr];else delete r.a[c];}});});});
+  Object.keys(pr.st||{}).forEach(function(id){var x=clone(pr.st[id]);if(!bmap[id])return;if(isR(x)){if(!bmap[x.rr])return;x.rr=bmap[x.rr];}P.st[bmap[id]]=x;});
+  (pr.n||[]).forEach(function(c){var pid=bmap[c.p];if(!pid)return;
+    var n={id:'n'+(++P.seq),p:pid,x:Math.round((num(c.x)||0)+dx),y:Math.round((num(c.y)||0)+dy),g:''};
+    if(c.w)n.w=c.w;if(c.h)n.h=c.h;if(c.not)n.not=true;if(c.col)n.col=true;n._g=c.g;nmap[c.id]=n;P.lg.n.push(n);out.n.push(n.id);});
+  out.n.forEach(function(id){var n=nodeOf(P,id);var g=nmap[n._g];if(g)n.g=g.id;delete n._g;});
+  (pr.l||[]).forEach(function(l){var f=nmap[l.f],t=nmap[l.t];if(f&&t)addLink(P,f.id,l.fp,t.id,l.tp);});
+  repair(P);
+  Object.keys(gmap).forEach(function(old){var g=gmap[old];out.b.forEach(function(nid){var b=P.b[nid];if(!b)return;var hit=false;scanRefs(clone(b),function(r){if(r===g)hit=true;});if(hit)out.gone.push({id:nid,nm:P.pois[g].vt||P.pois[g].nm});});});
+  out.xl=(pr.xl||[]).map(function(x){return {id:bmap[x.id]||'',nm:x.nm};});
+  out.b=out.b.filter(function(i){return !!P.b[i];});out.n=out.n.filter(function(i){return !!nodeOf(P,i);});
+  return out;
+}
+
 /* ---------- Yhteydet: mistä palikka saa arvonsa ja missä sitä käytetään ---------- */
 var HOW={ehto:'ketjun ehto',nuoli:'nuoli',teksti:'tekstissä',kaava:'kaavassa',tulos:'antaa arvon',nk:'näkyvyys',hk:'harmaana',vr:'vaihtoväri',arvo:'arvona',kohde:'toiminnon kohde',kaavio:'kaaviossa',kalenteri:'kalenterissa'};
 function deps(P){
@@ -4137,7 +4224,7 @@ function why(P,E,id,depth,seen){
 }
 
 return {omat:omat,omFind:omFind,omNorm:omNorm,omBase:omBase,omNames:omNames,omActive:omActive,setOmi:setOmi,resetOmi:resetOmi,isOff:isOff,napVaihto:napVaihto,boolKey:boolKey,TIMEU:TIMEU,YKSA:YKSA,ENVW:ENVW,portsBase:portsBase,tattiSet:tattiSet,muutosStart:muutosStart,muutosStop:muutosStop,frame:frame,napExt:napExt,NAP_PITKA:NAP_PITKA,pressDown:pressDown,pressLong:pressLong,pressUp:pressUp,hasOut:hasOut,curveAt:curveAt,KAYRA_PRESETS:KAYRA_PRESETS,kayraPreset:kayraPreset,kayraResize:kayraResize,kayraDec:kayraDec,kayraSpec:kayraSpec,kayraAt:kayraAt,satuN:satuN,satuMuoto:satuMuoto,satuCurve:satuCurve,satuResize:satuResize,satuPreset:satuPreset,SATU_PRESETS:SATU_PRESETS,SATU_MAXN:SATU_MAXN,satuSpec:satuSpec,satuDist:satuDist,satuPick:satuPick,satuPct:satuPct,satuItemTxt:satuItemTxt,satuTop:satuTop,satuRoll:satuRoll,
-  chainOpen:chainOpen,LKN:LKN,LKID:LKID,lkReq:lkReq,lkView:lkView,chainLock:chainLock,chainLockDiff:chainLockDiff,parseKlo:parseKlo,nextClock:nextClock,timerLabel:timerLabel,arpaN:arpaN,toistaN:toistaN,setMhLabel:function(f){MHLAB=f;},mhLabel:mhLabel,odotaLim:odotaLim,odotaEv:odotaEv,hasLimit:hasLimit,chainSignal:chainSignal,copyNodes:copyNodes,pasteNodes:pasteNodes,chainList:chainList,haaraVal:haaraVal,chainIssues:chainIssues,FXK:FXK,YKS:YKS,YKSN:YKSN,fmtDur:fmtDur,parseNum:parseNum,fiNum:fiNum,fmtLeft:fmtLeft,timerMs:timerMs,chainStart:chainStart,chainStop:chainStop,chainAdvance:chainAdvance,chainPoll:chainPoll,chainInfo:chainInfo,anyChainRunning:anyChainRunning,CH_STEPS:CH_STEPS,CH_TOKENS:CH_TOKENS,
+  chainOpen:chainOpen,LKN:LKN,LKID:LKID,lkReq:lkReq,lkView:lkView,chainLock:chainLock,chainLockDiff:chainLockDiff,parseKlo:parseKlo,nextClock:nextClock,timerLabel:timerLabel,arpaN:arpaN,toistaN:toistaN,setMhLabel:function(f){MHLAB=f;},mhLabel:mhLabel,odotaLim:odotaLim,odotaEv:odotaEv,hasLimit:hasLimit,chainSignal:chainSignal,copyNodes:copyNodes,pasteNodes:pasteNodes,PRESVER:PRESVER,presetSet:presetSet,presetNeeds:presetNeeds,presetMake:presetMake,presetPaste:presetPaste,chainList:chainList,haaraVal:haaraVal,chainIssues:chainIssues,FXK:FXK,YKS:YKS,YKSN:YKSN,fmtDur:fmtDur,parseNum:parseNum,fiNum:fiNum,fmtLeft:fmtLeft,timerMs:timerMs,chainStart:chainStart,chainStop:chainStop,chainAdvance:chainAdvance,chainPoll:chainPoll,chainInfo:chainInfo,anyChainRunning:anyChainRunning,CH_STEPS:CH_STEPS,CH_TOKENS:CH_TOKENS,
   isWin:isWin,isStep:isStep,STEPK:STEPK,chainNode:chainNode,chainOfNode:chainOfNode,chainSteps:chainSteps,isChainLink:isChainLink,chainLinksFrom:chainLinksFrom,chainStarts:chainStarts,chainIsRing:chainIsRing,chainOrder:chainOrder,
   VER:VER,PAJA:'4',LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,raahattava:raahattava,raahausPaikka:raahausPaikka,raahausAlku:raahausAlku,raahausPudotus:raahausPudotus,raahausPeruttu:raahausPeruttu,raahausKohteet:raahausKohteet,tstLahde:tstLahde,tstLajittuu:tstLajittuu,tstSiirra:tstSiirra,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,reittiPisteet:reittiPisteet,reittiOsat:reittiOsat,reittiHae:reittiHae,liikeRuutuKomento:liikeRuutuKomento,liikePyyhkaisy:liikePyyhkaisy,ruutuAskel:ruutuAskel,RUUTU_SU:RUUTU_SU,reittiKohta:reittiKohta,liikeRun:liikeRun,kuvaKuvat:kuvaKuvat,kelloNow:kelloNow,kelloKomento:kelloKomento,kerrosObj:kerrosObj,zoomAsetus:zoomAsetus,kameraBlk:kameraBlk,zoomNyt:zoomNyt,zoomLukittu:zoomLukittu,zoomAseta:zoomAseta,ZOOM_MIN:ZOOM_MIN,ZOOM_MAX:ZOOM_MAX,MITM:MITM,MITE:MITE,
 kuvaPyorii:kuvaPyorii,kuvaNro:kuvaNro,SARJA_MAX:SARJA_MAX,ruudukko:ruudukko,ruudukkoOf:ruudukkoOf,ruutuAt:ruutuAt,ruutuKeski:ruutuKeski,kohdista:kohdista,ruutuKohdistus:ruutuKohdistus,alueRuudukko:alueRuudukko,alueRuutu:alueRuutu,alueNapautus:alueNapautus,kerrokset:kerrokset,kerrosOf:kerrosOf,rvOf:rvOf,kuvaUrl:kuvaUrl,K:K,KW:KW,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,kaavaToIds:kaavaToIds,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
@@ -4571,6 +4658,7 @@ function chipHTML(k,props,label,ic,hue){
 function renderPal(){
   var el=$('#pal'),h='';
   if(split()&&!locked())h+='<div class="seg pks"><button data-pk="nakyma" class="'+(palKind()==='nakyma'?'on':'')+'">Näkymä</button><button data-pk="logiikka" class="'+(palKind()==='logiikka'?'on':'')+'">Logiikka</button></div>';
+  h+=favTopHTML();
   if(palKind()==='nakyma'){
     PAL_UI.forEach(function(sec){
       h+='<div class="pt-h">'+sec[0]+'</div><div class="chips">';
@@ -4606,7 +4694,10 @@ function renderPal(){
     Object.keys(KK.DOS).forEach(function(d){h+=chipHTML('tee',{do:d},KK.DOS[d],'▶',1);});
     h+='</div><div class="help" style="margin-top:14px">Vedä nuoli palikan oikeasta reunasta toisen vasempaan reunaan. Palikka ikkunan sisään = sulut. Kaavan voi pudottaa ikkunaan tai näkymän palikan päälle (teksti, näkyy kun, harmaana kun).</div>';
   }
+  h+=palFootHTML();
+  el.classList.toggle('favedit',!!S.favEdit);
   el.innerHTML=h;
+  if(S.favEdit)$$('#pal .chip[data-make]').forEach(function(c){if(favIdx(c.getAttribute('data-make'))>=0)c.classList.add('fav');});
   if(palKind()==='logiikka')renderPList();
 }
 function renderPList(){
@@ -4650,6 +4741,10 @@ $('#pal').addEventListener('pointerdown',function(e){
   var pk=e.target.closest('[data-pk]');if(pk){S.pane=pk.getAttribute('data-pk');renderPal();if(!S.sel)renderInsp();return;}
   if(e.target.closest('#linetool')){S.tool=S.tool==='viiva'?null:'viiva';renderPal();renderUIStage();return;}
   var qk=e.target.closest('[data-quick]');if(qk){e.preventDefault();openQuick(qk.getAttribute('data-quick'));return;}
+  var fe=e.target.closest('[data-favedit]');if(fe){e.preventDefault();S.favEdit=!S.favEdit;renderPal();return;}
+  if(S.favEdit){var fc=e.target.closest('[data-make]');if(fc){e.preventDefault();favToggle(fc);return;}}
+  var prc=e.target.closest('[data-preset]');if(prc){e.preventDefault();presetInsert(prc.getAttribute('data-preset'));return;}
+  var hyl=e.target.closest('[data-hylly]');if(hyl){e.preventDefault();openHylly();return;}
   var kgb=e.target.closest('[data-kgob]');if(kgb){e.preventDefault();gotoBlock(kgb.getAttribute('data-kgob'));return;}
   var kpp=e.target.closest('[data-konp]');if(kpp){e.preventDefault();chainOnOff(kpp.getAttribute('data-konp'));return;}
   var sn=e.target.closest('[data-soon]');if(sn){e.preventDefault();var sk=sn.getAttribute('data-soon');toast('Tulossa myöhemmin: '+K[sk].n+'. Paikka ketjussa on jo valmiina.');return;}
@@ -5927,14 +6022,14 @@ function blockInsp(b){
   if(isUI(b))h+=uiInsp(b,E);else h+=lgInsp(b,E,node);
   h+=omSection(b,E)+whySection(b,E)+relSection(b);
   var btns='';
-  if(isUI(b)){btns+='<button class="ib" data-do="front">Tuo eteen</button><button class="ib" data-do="toback">Vie taakse</button><button class="ib" data-do="dup">Monista</button>';btns+='<button class="ib" data-do="tologic">Näytä logiikassa</button>';btns+='<button class="ib del" data-do="delblock">Poista palikka</button>';}
+  if(isUI(b)){btns+='<button class="ib" data-do="front">Tuo eteen</button><button class="ib" data-do="toback">Vie taakse</button><button class="ib" data-do="dup">Monista</button>';btns+='<button class="ib" data-do="tologic">Näytä logiikassa</button>';btns+='<button class="ib" data-do="preset">Tallenna presetiksi…</button>';btns+='<button class="ib del" data-do="delblock">Poista palikka</button>';}
   else{
     if(node&&!KK.isWin(b)&&!KK.chainOfNode(P,node))btns+='<button class="ib" data-do="inst">Lisää toinen esiintymä</button>';
-    if(node)btns+='<button class="ib" data-do="copy">⧉ Kopioi</button>'+(S.clip?'<button class="ib" data-do="paste">Liitä</button>':'');
+    if(node)btns+='<button class="ib" data-do="copy">⧉ Kopioi</button>'+(S.clip?'<button class="ib" data-do="paste">Liitä</button>':'')+'<button class="ib" data-do="preset">Tallenna presetiksi…</button>';
     if(node)btns+='<button class="ib del" data-do="delnode">'+(KK.nodesOfBlock(P,b.id).length>1?'Poista tämä esiintymä':'Poista')+'</button>';
     else{if(showL()&&KK.nodesOfBlock(P,b.id).length)btns+='<button class="ib" data-goto="'+b.id+'">Näytä logiikassa</button>';btns+='<button class="ib del" data-do="delblock">Poista</button>';}
   }
-  if(S.sel.t==='n'&&isUI(b)&&node){btns='<button class="ib" data-do="inst">Lisää toinen esiintymä</button><button class="ib" data-do="delnode">Poista logiikasta</button><button class="ib" data-do="toview">Näytä näkymässä</button>';}
+  if(S.sel.t==='n'&&isUI(b)&&node){btns='<button class="ib" data-do="inst">Lisää toinen esiintymä</button><button class="ib" data-do="delnode">Poista logiikasta</button><button class="ib" data-do="toview">Näytä näkymässä</button><button class="ib" data-do="preset">Tallenna presetiksi…</button>';}
   h+='<div class="ibs">'+btns+'</div>';
   if(node&&hasValue(b)&&!KK.isWin(b))h+='<div style="margin-top:12px">'+fCheck('Käänteinen tässä kohdassa (EI): kyllä ↔ ei','nnot',node.not)+'</div>';
   if(node&&KK.isWin(b))h+='<div style="margin-top:12px">'+fCheck('Tiivistetty: sisältö piiloon, ikkuna pieneksi','ncol',node.col)+'</div>';
@@ -6168,7 +6263,7 @@ function multiInsp(){
   if(t==='b'&&KK.laite(P,S.vw))h+=section('Laitteen ruudussa','<div class="algrid two"><button class="ib" data-scr="h">↔ Ruudun keskelle</button><button class="ib" data-scr="v">↕ Ruudun keskelle</button><button class="ib" data-scr="dw">⟷ Jaa ruudun leveydelle</button><button class="ib" data-scr="top">⤒ Yläreunaan</button><button class="ib" data-scr="bot">⤓ Alareunaan</button></div><div class="help">Keskitys ja reunat siirtävät valitut ryhmänä. Jaa ruudun leveydelle tekee valituista yhtä leveät ja asettaa ne vierekkäin reunasta reunaan (esim. alapalkin painikkeet).</div>'+margHTML());
   if(t==='b')h+=section('Ulkoasu','<div class="ibs">'+(S.look?'<button class="ib" data-look="paste">Liitä ulkoasu kaikkiin</button>':'')+'</div><div class="help">'+(S.look?'Liittää kopioidun ulkoasun ('+esc(lookTxt())+') kaikkiin valittuihin.':'Kopioi ensin ulkoasu yhdestä palikasta sen paneelista (Kopioi ulkoasu).')+'</div>');
   if(t==='b')h+=section('Koko','<div class="algrid two"><button class="ib" data-al="sw">Sama leveys</button><button class="ib" data-al="sh">Sama korkeus</button></div><div class="help">Koko otetaan viimeksi valitusta: '+esc((P.b[S.sel&&S.sel.id]||{}).nm||'')+'.</div>');
-  h+='<div class="ibs">'+(t==='n'?'<button class="ib" data-do="copy">⧉ Kopioi</button>'+(S.clip?'<button class="ib" data-do="paste">Liitä</button>':''):'')+'<button class="ib del" data-do="delmulti">Poista valitut</button></div>';
+  h+='<div class="ibs">'+(t==='n'?'<button class="ib" data-do="copy">⧉ Kopioi</button>'+(S.clip?'<button class="ib" data-do="paste">Liitä</button>':''):'')+'<button class="ib" data-do="preset">Tallenna presetiksi…</button><button class="ib del" data-do="delmulti">Poista valitut</button></div>';
   h+='<div class="help" style="margin-top:10px">⇧-napsautus lisää tai poistaa valinnasta. ⇧ + veto tyhjästä kohdasta valitsee alueelta. Raahaa mitä tahansa valituista siirtääksesi kaikkia.</div>';
   return h;
 }
@@ -7397,6 +7492,7 @@ function doAction(d,T){
       KK.repair(P);KK.tick(P,ctx());save();renderAll();toast('Liike-palikka ”'+lb.nm+'” tehtiin logiikkaan: ei ohjausta, liikkuu törmäyksistä ja töytäisyistä.');return;}
     case 'copy':copySel();return;
     case 'paste':pasteClip();return;
+    case 'preset':openPresetSave(null);return;
     case 'markhere':{pushUndo();var r=screenWorld();var p1=b.kk==='keski'?{x:r.x+r.w/2,y:r.y+r.h/2}:{x:r.x+20/r.z,y:r.y+20/r.z};
       b.x=Math.round(b.kk==='keski'?p1.x-b.w/2:p1.x);b.y=Math.round(b.kk==='keski'?p1.y-b.h/2:p1.y);if(typeof b.zz==='number'||b.kk==='keski')b.zz=Math.round(r.z*100)/100;toast('Sijainti päivitettiin tähän ruutuun.');break;}
     case 'markgo':{var hold=S.sel;navTo({o:b.id});S.sel=hold;break;}
@@ -7486,7 +7582,9 @@ function download(name,text){var a=document.createElement('a');a.href=URL.create
 function importText(t){
   var o;try{o=JSON.parse(t);}catch(e){toast('Tekstiä ei voitu lukea. Tarkista, että se on kokonaan mukana.');return;}
   var nl=o&&o.laput?lapImport(o.laput):0;
-  var list=Array.isArray(o.projects)?o.projects:(o&&o.b&&o.lg?[o]:null);if(!list||!list.length){if(nl){lapRender();toast('Tuotu: '+nl+' lappua');return;}toast('Tekstissä ei ole projekteja.');return;}
+  /* F26: presetit ja suosikit varmuuskopiosta tai presettitiedostosta (ei korvaa olemassa olevia). */
+  var npr=o&&Array.isArray(o.presetit)?presetImport(o.presetit):0,nsu=o&&Array.isArray(o.suos)?favImport(o.suos):0;
+  var list=Array.isArray(o.projects)?o.projects:(o&&o.b&&o.lg?[o]:null);if(!list||!list.length){if(nl||npr||nsu){lapRender();closeSheet();renderPal();toast('Tuotu: '+[nl?nl+' lappua':'',npr?npr+' presetti'+(npr>1?'ä':''):'',nsu?nsu+' suosikki'+(nsu>1?'a':''):''].filter(Boolean).join(', '));return;}toast('Tekstissä ei ole projekteja.');return;}
   list.forEach(function(p){p=KK.repair(KK.clone(p));if(Dt.projects.some(function(x){return x.id===p.id;}))p.id='p'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);Dt.projects.push(p);Dt.cur=p.id;});
   P=curProject();S.vw=P.views[0].id;S.sel=null;S.undo=[];KK.tick(P,ctx());save();closeSheet();$('#stage').innerHTML='';renderAll();toast('Tuotu: '+list.length+' projekti'+(list.length>1?'a':''));
 }
@@ -7606,6 +7704,103 @@ $('#wcreate').addEventListener('click',function(){newProject($('#wname').value.t
 $('#wname').addEventListener('keydown',function(e){if(e.key==='Enter')$('#wcreate').click();});
 $('#wexample').addEventListener('click',openExample);
 $('#wimport').addEventListener('click',function(){$('#filein').click();});
+
+/* ---------- F26: suosikit ja presetit (D11–D13) ----------
+   Molemmat ovat projektin ulkopuolella: Dt.suos [{k, p, l, i, h}] ja Dt.presetit [{id, nm, t, …KK.presetMake}]. Ne tallentuvat
+   samaan selaimen muistiin kuin projektit ja kulkevat varmuuskopiossa, mutta eivät GitHubiin. Suosikit valitaan itse tähdellä
+   (järjestys = lisäysjärjestys). Presetti liitetään irtokopiona: tavallisia palikoita, joihin presetin myöhempi muutos ei koske. */
+function favs(){if(!Array.isArray(Dt.suos))Dt.suos=[];return Dt.suos;}
+function presets(){if(!Array.isArray(Dt.presetit))Dt.presetit=[];return Dt.presetit;}
+function favKey(k,p){return k+'|'+JSON.stringify(p||{});}
+function favIdx(make){var d;try{d=JSON.parse(make);}catch(e){return -1;}var key=favKey(d.k,d.p),L=favs();for(var i=0;i<L.length;i++)if(favKey(L[i].k,L[i].p)===key)return i;return -1;}
+function libChanged(){Dt.meta.dirty=(Dt.meta.dirty||0)+1;save();renderPal();}
+function favToggle(chip){var make=chip.getAttribute('data-make'),i=favIdx(make);if(i>=0){favs().splice(i,1);libChanged();return;}
+  var d=JSON.parse(make),ci=chip.querySelector('.ci'),hm=/\bh(\d)\b/.exec(chip.className),txt=chip.textContent.replace(ci?ci.textContent:'','').trim();
+  favs().push({k:d.k,p:d.p||{},l:txt||chip.getAttribute('title')||K[d.k].n,i:ci?ci.textContent:K[d.k].ic,h:hm?+hm[1]:0});libChanged();}
+function favImport(arr){var n=0;arr.forEach(function(f){if(!f||typeof f.k!=='string'||!K[f.k])return;var key=favKey(f.k,f.p);if(favs().some(function(x){return favKey(x.k,x.p)===key;}))return;
+  favs().push({k:f.k,p:f.p&&typeof f.p==='object'?f.p:{},l:String(f.l||K[f.k].n),i:String(f.i||K[f.k].ic),h:+f.h||0});n++;});if(n)Dt.meta.dirty=(Dt.meta.dirty||0)+1;return n;}
+function favTopHTML(){if(!P||locked())return '';var h='';
+  if(S.favEdit)h+='<div class="favbar"><span>Napauta palikkaa: ☆ lisää suosikkeihin, ★ poistaa.</span><button class="ib" data-favedit>Valmis</button></div>';
+  var ui=palKind()==='nakyma',L=favs().filter(function(f){return K[f.k]&&(K[f.k].g==='ui')===ui&&!(f.k==='toistin'&&!hasTaulu());});
+  if(L.length)h+='<div class="pt-h">Suosikit'+(S.favEdit?'':'<button class="pth-b" data-favedit>muokkaa</button>')+'</div><div class="chips">'+L.map(function(f){return chipHTML(f.k,f.p,f.l,f.i,f.h);}).join('')+'</div>';
+  var PR=presets();
+  if(PR.length&&!S.favEdit)h+='<div class="pt-h">Presetit<button class="pth-b" data-hylly>hylly</button></div><div class="chips">'+PR.map(function(pr){var n=Object.keys(pr.b||{}).length;
+    return '<div class="chip pres h5" data-preset="'+esc(pr.id)+'" title="Liitä presetti: '+n+' palikka'+(n===1?'':'a')+'"><span class="ci">❖</span>'+esc(pr.nm)+'</div>';}).join('')+'</div>';
+  return h;}
+/* Napit näkyvät vain, kun tämän puolen suosikit tai presetit ovat tyhjiä; muuten sama toiminto on ryhmän otsikossa. */
+function palFootHTML(){if(!P||locked()||S.favEdit)return '';var ui=palKind()==='nakyma',mine=favs().some(function(f){return K[f.k]&&(K[f.k].g==='ui')===ui;});
+  return '<div class="pfoot">'+(mine?'':'<button class="ib" data-favedit>☆ Valitse suosikit</button>')+(presets().length?'':'<button class="ib" data-hylly>❖ Presetit</button>')+'</div>';}
+function presetGet(id){var L=presets();for(var i=0;i<L.length;i++)if(L[i].id===id)return L[i];return null;}
+function presetClean(o){if(!o||typeof o!=='object'||!o.b||typeof o.b!=='object')return null;var c=KK.clone(o);
+  c.id=typeof c.id==='string'&&c.id?c.id:'pr'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);c.nm=String(c.nm||'Presetti');
+  ['n','l','xl'].forEach(function(f){if(!Array.isArray(c[f]))c[f]=[];});['ext','st'].forEach(function(f){if(!c[f]||typeof c[f]!=='object'||Array.isArray(c[f]))c[f]={};});return c;}
+function presetImport(arr){var n=0;arr.forEach(function(o){var c=presetClean(o);if(!c||presetGet(c.id))return;presets().push(c);n++;});if(n)Dt.meta.dirty=(Dt.meta.dirty||0)+1;return n;}
+/* Tallennus: valitut näkymän palikat ja logiikan solmut; palikan muut solmut ja ikkunan sisältö tulevat mukaan itsestään. */
+function openPresetSave(rep){if(!P||locked())return;var bs=[],ns=[];
+  S.multi.forEach(function(m){if(m.t==='b'&&P.b[m.id])bs.push(m.id);else if(m.t==='n')ns.push(m.id);});
+  if(S.sel&&S.sel.t==='b'&&P.b[S.sel.id]&&bs.indexOf(S.sel.id)<0)bs.push(S.sel.id);if(S.sel&&S.sel.t==='n'&&ns.indexOf(S.sel.id)<0)ns.push(S.sel.id);
+  ns=ns.filter(function(i){return !!KK.nodeOf(P,i);});
+  if(!bs.length&&!ns.length){toast('Valitse ensin palikat, jotka tallennetaan presetiksi.');return;}
+  var old=rep?presetGet(rep):null,set=KK.presetSet(P,bs,ns),nb=set.b.map(function(i){return P.b[i];}).filter(function(b){return b.nmSet||!isUI(b);})[0];
+  S.prs={b:bs,n:ns,rep:old?old.id:null,sis:old?!!old.sis:false,nm:old?old.nm:(nb?nb.nm:'Presetti')};renderPresetSave();}
+function renderPresetSave(){var q=S.prs;if(!q)return;var set=KK.presetSet(P,q.b,q.n),need=KK.presetNeeds(P,set),old=q.rep?presetGet(q.rep):null;
+  var ui=set.b.filter(function(i){return isUI(P.b[i]);}),lg=set.b.filter(function(i){return !isUI(P.b[i]);});
+  function names(ids){return '<div class="princ">'+ids.map(function(i){var b=P.b[i];return '<span>'+esc(icon(b))+' '+esc(b.nm)+'</span>';}).join('')+'</div>';}
+  var h='<h2>'+(old?'Korvaa presetti':'Tallenna presetiksi')+'<button class="tb" data-x="close">Peru</button></h2><div class="qkf">';
+  h+='<div class="fs"><div class="f"><label>Nimi</label><input type="text" id="prnm" value="'+esc(q.nm)+'"></div></div>';
+  h+='<div class="fs"><h4>Mukana '+set.b.length+' palikka'+(set.b.length===1?'':'a')+'</h4>'+(ui.length?'<div class="help">Näkymä</div>'+names(ui):'')+(lg.length?'<div class="help">Logiikka</div>'+names(lg):'')+'</div>';
+  if(need.length){var by={},order=[];need.forEach(function(x){if(!by[x.to]){by[x.to]={nm:x.nm,k:x.k,how:[],from:[]};order.push(x.to);}var g=by[x.to];var hw=x.how==='nuoli'?'nuoli':howTxt(x.how);if(g.how.indexOf(hw)<0)g.how.push(hw);var fb=P.b[x.id];if(fb&&g.from.indexOf(fb.nm)<0)g.from.push(fb.nm);});
+    h+='<div class="fs"><h4>Viittaa näihin, jotka eivät ole mukana</h4>'+order.map(function(to){var g=by[to];return '<div class="prneed"><div><b>'+esc(g.nm)+'</b><small class="muted"> · '+esc(g.how.join(', '))+' · '+esc(g.from.join(', '))+'</small></div>'+(P.b[to]?'<button class="ib" data-prsadd="'+esc(to)+'">＋ Ota mukaan</button>':'<small class="errt">poistettu</small>')+'</div>';}).join('')+
+      '<div class="help">Jos et ota niitä mukaan, ne näkyvät liitettäessä katkenneina viittauksina, ja niille valitaan kohde siinä projektissa. Nuolet ulkopuolelle eivät siirry.</div></div>';}
+  h+='<label class="ck"><input type="checkbox" id="prsis"'+(q.sis?' checked':'')+'> Ota mukaan sisältö: taulukoiden nykyiset rivit ja muistien arvot</label>';
+  h+='<div class="help">Presetti näkyy kaikissa projekteissa palikkavalikon kohdassa Presetit. Liitettäessä siitä tulee tavallisia palikoita; presetin myöhempi muutos ei muuta jo liitettyjä.</div>';
+  h+='<div class="ibs" style="margin-top:12px"><button class="ib nf" data-prsave="1">'+(old?'Korvaa ”'+esc(old.nm)+'”':'Tallenna')+'</button></div></div>';
+  openSheet(h);}
+function presetSave(){var q=S.prs;if(!q)return;var nm=(($('#prnm')||{}).value||'').trim()||'Presetti',sis=!!($('#prsis')&&$('#prsis').checked);
+  var pr=KK.presetMake(P,q.b,q.n,{nm:nm,sis:sis});if(!Object.keys(pr.b).length){toast('Valinnassa ei ole palikoita.');return;}
+  pr.id=q.rep||'pr'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);pr.t=KK.iso(new Date());
+  var L=presets(),i=-1;L.forEach(function(x,j){if(x.id===pr.id)i=j;});if(i>=0)L[i]=pr;else L.push(pr);
+  S.prs=null;closeSheet();if(isPhone())closeDrawers();libChanged();var n=Object.keys(pr.b).length;
+  toast((i>=0?'Presetti korvattu: ':'Tallennettu presetiksi: ')+'”'+nm+'”, '+n+' palikka'+(n===1?'':'a')+'. Löytyy palikkavalikosta kohdasta Presetit.');}
+/* Liittäminen: näkymän palikat näkyvän alueen vasemmalle ylös, logiikka logiikan näkyvälle alueelle tai vapaaseen kohtaan. */
+function presetInsert(id){var pr=presetGet(id);if(!pr||!P)return;if(locked()){toast('Avaa lukitus, niin voit liittää presetin.');return;}
+  pushUndo();var uvp=$('#uvp'),lvp=$('#lvp'),u={x:40,y:40},l;
+  if(uvp){var r=uvp.getBoundingClientRect();u=toWorld(uvp,camUI(),r.left+r.width*0.25,r.top+r.height*0.25);}
+  if(lvp){var r2=lvp.getBoundingClientRect();l=toWorld(lvp,camL(),r2.left+r2.width*0.25,r2.top+r2.height*0.25);}
+  else{var my=40;P.lg.n.forEach(function(n){if(!n.g)my=Math.max(my,n.y+(n.h||34)+50);});l={x:40,y:my};}
+  var res=KK.presetPaste(P,KK.clone(pr),{v:S.vw,x:snapv(u.x),y:snapv(u.y),lx:Math.round(l.x),ly:Math.round(l.y),kr:activeKr()});
+  if(!res.b.length){S.undo.pop();toast('Presettiä ei voitu liittää: siinä ei ole tunnettuja palikoita.');return;}
+  var ui=res.b.filter(function(i){return isUI(P.b[i]);});if(ui.length)KK.tstAssign(P,ui);
+  var tops=res.n.filter(function(i){var n=KK.nodeOf(P,i);return n&&!n.g;});
+  if(ui.length&&showU()){S.multi=ui.length>1?ui.map(function(i){return {t:'b',id:i};}):[];S.sel={t:'b',id:ui[ui.length-1]};}
+  else if(tops.length){S.multi=tops.length>1?tops.map(function(i){return {t:'n',id:i};}):[];S.sel={t:'n',id:tops[tops.length-1]};}
+  if(isPhone())closeDrawers();
+  KK.tick(P,ctx());save();renderAll();
+  if(res.gone.length||res.xl.length)openKytke(pr.nm,res);
+  else toast('Liitetty ”'+pr.nm+'”: '+res.b.length+' palikka'+(res.b.length===1?'':'a')+'.');}
+function openKytke(nm,res){
+  var rows=res.gone.map(function(x){var o=P.b[x.id];return o?'<tr data-goto="'+x.id+'"><td><span class="blic">'+esc(icon(o))+'</span>'+esc(o.nm)+'</td><td class="errt">⚠ puuttuu: <code>'+esc(x.nm)+'</code></td></tr>':'';}).join('')+
+    res.xl.map(function(x){var o=P.b[x.id];return o?'<tr data-goto="'+x.id+'"><td><span class="blic">'+esc(icon(o))+'</span>'+esc(o.nm)+'</td><td>nuoli palikkaan ”'+esc(x.nm)+'” ei siirtynyt</td></tr>':'';}).join('');
+  openSheet('<h2>Kytke nämä<button class="tb" data-x="close">Valmis</button></h2><div class="help" style="margin-bottom:8px">Presetti ”'+esc(nm)+'” liitettiin. Se viittasi palikoihin, jotka eivät olleet mukana. Napauta riviä: pääset palikkaan, ja sen paneelin kohdasta Viitevirheet valitset uuden kohteen tästä projektista. Nuolet vedetään uudelleen.</div><table class="bl"><tbody>'+rows+'</tbody></table>');}
+function openHylly(){if(!P)return;var L=presets(),sel=!!(S.sel||S.multi.length);
+  var h='<h2>Presetit<button class="tb" data-x="close">Valmis</button></h2>';
+  h+=L.length?L.map(function(pr){var n=Object.keys(pr.b||{}).length;return '<div class="prrow"><b>'+esc(pr.nm)+'</b><small>'+n+' palikka'+(n===1?'':'a')+(pr.sis?' · sisältö mukana':'')+(pr.t?' · '+esc(KK.fmtDate(pr.t,Dt.cfg.df)):'')+'</small><div class="ibs">'+
+    '<button class="ib" data-prh="ins" data-id="'+esc(pr.id)+'">Liitä</button><button class="ib" data-prh="ren" data-id="'+esc(pr.id)+'">Nimeä</button>'+(sel?'<button class="ib" data-prh="rep" data-id="'+esc(pr.id)+'">Korvaa valinnalla</button>':'')+
+    '<button class="ib" data-prh="exp" data-id="'+esc(pr.id)+'">Vie tiedostoksi</button><button class="ib del" data-prh="del" data-id="'+esc(pr.id)+'">Poista</button></div></div>';}).join(''):'<div class="help">Hylly on tyhjä. Valitse palikoita (näkymästä, logiikasta tai molemmista) ja paina paneelissa Tallenna presetiksi…</div>';
+  h+='<div class="ibs" style="margin-top:10px"><button class="ib" data-prh="imp">Tuo presetti tiedostosta</button></div>';
+  h+='<div class="help" style="margin-top:8px">Presetit ja suosikit ovat kaikissa projekteissa. Ne tallentuvat tähän selaimeen ja kulkevat varmuuskopiossa (Vie kaikki projektit).</div>';
+  openSheet(h);}
+document.getElementById('sheet').addEventListener('click',function(e){
+  var a=e.target.closest('[data-prsadd]');if(a&&S.prs){var nm=$('#prnm');if(nm)S.prs.nm=nm.value;var ck=$('#prsis');if(ck)S.prs.sis=ck.checked;var to=a.getAttribute('data-prsadd');if(P.b[to]&&S.prs.b.indexOf(to)<0)S.prs.b.push(to);renderPresetSave();return;}
+  if(e.target.closest('[data-prsave]')){presetSave();return;}
+  var x=e.target.closest('[data-prh]');if(!x)return;var act=x.getAttribute('data-prh'),pr=presetGet(x.getAttribute('data-id')||'');
+  if(act==='imp'){$('#filein').click();return;}if(!pr)return;
+  if(act==='ins'){closeSheet();presetInsert(pr.id);}
+  else if(act==='ren'){var v=prompt('Presetin nimi',pr.nm);if(v!=null&&v.trim()){pr.nm=v.trim();libChanged();openHylly();}}
+  else if(act==='rep'){closeSheet();openPresetSave(pr.id);}
+  else if(act==='exp')download('appiappi-presetti-'+pr.nm+'.json',JSON.stringify({app:'appiappi',laji:'presetti',presetit:[pr]},null,1));
+  else if(act==='del'){if(confirm('Poistetaanko presetti ”'+pr.nm+'”? Jo liitetyt palikat eivät muutu.')){presets().splice(presets().indexOf(pr),1);libChanged();openHylly();}}
+});
 
 /* ---------- Esimerkkiprojekti (vain pyynnöstä) ---------- */
 function openExample(){

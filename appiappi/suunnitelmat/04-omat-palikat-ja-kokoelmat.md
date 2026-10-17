@@ -59,7 +59,7 @@ Jos olemassa olevista palikoista muodostettu yhdistelmä käy kohtuuttomaksi (es
 
 ## Suosikit ja presetit (F26, Emilin idea 16.10.2026)
 
-Emil hyväksyi 16.10.2026 tekoälyn suositukset (D11–D13). Rakennetaan jonossa F12:n toisen osan sekä liukusäätimen korjauksen ja kalenterin vaiheen 1 jälkeen. Ei vielä toteutettu.
+Emil hyväksyi 16.10.2026 tekoälyn suositukset (D11–D13). Toteutettu 17.10.2026 (Appi-appi 22), ks. kohta Toteutus.
 
 ### Suosikit (D11)
 
@@ -90,3 +90,17 @@ Palikkavalikon ylimpänä ryhmä **Suosikit**, jos siinä on yksikin palikka; ty
 **Käyttötieto:** presetti tallentaa rakenteen ja asetukset, ei käyttötietoa (muistien arvot, taulukon rivit). Sisältö (esim. taulukon valmiit rivit) ei kulje oletuksena mukana, mutta sen voi valita mukaan (Emilin päätös 17.10.2026).
 
 **Kokeet:** suosikin lisäys/poisto säilyy uudelleenavauksessa ja näkyy toisessa projektissa; tyhjä suosikki-/presettiryhmä ei näy; presetti, jossa logiikkaa ja käyttöpintaa, toiseen projektiin, kaikki viittaukset osoittavat uusiin ja käyttö toimii; ulkoinen viittaus näkyy *Kytke nämä* -listassa eikä sitoudu samannimiseen; kaksi liitäntää samaan projektiin ovat toisistaan riippumattomia; presetin muutos ei muuta aiemmin liitettyä; varmuuskopio sisältää hyllyn ja suosikit; vanha varmuuskopio ilman niitä latautuu; puhelinleveydet 390 ja 320 px.
+
+### Toteutus 17.10.2026 (Appi-appi 22)
+
+Koodi: moottorin osio *F26: presetit* (`presetSet`, `presetNeeds`, `presetMake`, `presetPaste`) ja käyttöliittymän osio *F26: suosikit ja presetit*. Kokeet: `testit/logiikka_56_presetit.js`, `testit/selain_63_presetit.py`.
+
+Ratkaisut ja poikkeamat suunnitelmasta:
+
+- **Tallennuspaikka:** `Dt.suos` ja `Dt.presetit` koko tallennuksessa projektien rinnalla (sama selaimen avain kuin projekteilla ja lapuilla), ei erillistä avainta. Projektien ulkopuolella, varmuuskopiossa mukana, ei GitHubiin. Vanha tallennus ilman niitä kelpaa (`repairData`).
+- **Tähti:** ei tähteä jokaisessa sirussa, vaan muokkaustila *Valitse suosikit*, jossa sirut saavat ☆/★-merkin. Peruskäyttö ei muutu. Suosikit näkyvät omalla puolellaan (näkymän palikat Näkymä-paletissa, logiikan Logiikka-paletissa), koska palikka pudotetaan aina oman lajinsa kanvaasille. Suosikiksi kelpaavat paletin lajisirut (ei projektin omia palikoita eikä Pikaluontia).
+- **Joukko:** valinta näkymästä, logiikasta tai yksittäinen palikka. Mukaan tulevat myös palikan kaikki logiikan solmut ja ikkunan sisältö. Tallennusikkuna listaa ulkopuoliset viittaukset ja nuolet; *＋ Ota mukaan* lisää palikan joukkoon. Näkymää ja logiikkaa ei voi monivalita yhtä aikaa, joten yhdistelmä kootaan ikkunan *Ota mukaan* -napeilla.
+- **Ulkoiset viittaukset:** liitettäessä uudet tunnisteet poistettujen muistiin (`P.pois`), joten ne näkyvät D08:n tapaan katkenneina, ja *Kytke nämä* -lista vie palikkaan, jonka Viitevirheet-kohdasta valitaan kohde. Nuolet ulos eivät siirry, ne luetellaan. Merkkijonoarvot, jotka eivät ole palikoiden tunnisteita (esim. käyrän valmismuoto), säilyvät.
+- **Sisältö:** taulukon nykyiset rivit tallentuvat lähtöaineistoksi, muistin arvo käyttötiedoksi; riviviitteet osoittavat uusiin, ulkopuoliset pudotetaan. Muu käyttötieto (listat, aikajana, painallukset, kortin tila) ei siirry.
+- **Paikka:** näkymän palikat säilyttävät keskinäiset paikkansa, nykyiseen näkymään ja aktiiviseen kerrokseen, päällimmäisiksi; logiikka näkyvän alueen vasempaan yläneljännekseen tai, jos logiikka ei ole näkyvissä, olemassa olevan alle. Kumoa poistaa liitetyt palikat.
+- **Ei tehty:** raahaus paletista (vain napautus), suosikkien järjestäminen, esikatselu, GitHub/`master-tiedot`, *Tee presetistä oma palikka*.
