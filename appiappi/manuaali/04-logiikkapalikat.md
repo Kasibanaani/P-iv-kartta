@@ -302,7 +302,7 @@ Nimetty arvo, jonka antaa kaava muodossa `viite = lauseke`. Tällä saa kaavalle
 - **Löytyy:** logiikan paletti → *Kaava* → **Kaavan tulos**. Toinen tapa: kirjoita Kaavaan `pisteet = a + b`, jolloin paneeliin tulee nappi **＋ Luo kaavan tulos ”pisteet”**.
 - **Sisään:** ei kohtia.
 - **Ulos:** *arvo* (arvo).
-- **Asetukset (paneeli):** näyttää kaavan, josta arvo tulee (napautus vie siihen), tai napin **ƒ Kirjoita kaava tälle**.
+- **Asetukset (paneeli):** näyttää kaavan, josta arvo tulee (napautus vie siihen), tai napin **ƒ Kirjoita kaava tälle**. Osio **Näkymään** → **▢ Tee näkymään** tekee arvolle näyttölaatikon näkymään ([Tee näkymään](06-kaavat.md#tee-näkymään); sama kaikilla arvollisilla logiikkapalikoilla).
 - **Ominaisuudet:** `arvo`.
 - **Kaavassa:** `pisteet` tulos, vertailuun `pisteet == 8`. Tekstissä `{pisteet}`.
 - **Esimerkki:** Kaava `arvio = jos(uni > 7; "levännyt"; "väsynyt")`. Teksti `{arvio}`.

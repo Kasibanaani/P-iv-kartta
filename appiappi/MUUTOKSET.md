@@ -4,6 +4,13 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
 
 ## Versiot
 
+- Appi-appi 48 (17.10., jonon 12b, F38 kohta 2, `suunnitelmat/22-logiikasta-nakymaan.md`, kaista B): **Tee näkymään.**
+  - Arvollisen logiikkapalikan (Kaava, Kaavan tulos, Arvo, Muisti, Lasku, Vertailu, Ikkuna, Satunnaisluku, Sekuntikello, Ketju …; `tnvOk` = ei näkymäpalikka ja `hasValue`) paneeliin osio **Näkymään**: **▢ Tee näkymään** tekee viimeksi auki olleeseen näkymään (`S.vw`) Laatikon (Muoto, 200 × 60), teksti `{#id}`, nimi ”… · näyttö”, viite `…_n` (`uniqueVt`). Paikka: vasempaan reunaan alimman palikan alle (laitenäkymässä x 20 ja vain ruudun leveydeltä), aktiivinen kerros.
+  - **▾** tarjoaa vain sopivat: Laatikko tekstillä, Pelkkä teksti (Teksti), Monitori (arvo nyt luku; nuoli lähteestä kohtaan *arvo*, Monitori saa logiikkasolmun) ja Ilmoitus, joka näkyy kun tämä pätee (arvo nyt kyllä/ei; `nk = {m:'kun', r:lähde}`).
+  - Pikanäppäin **N** logiikassa ja Rinnakkain-tilassa valitulle tai monivalinnalle (allekkain valintajärjestyksessä); monivalinnan paneelissa sama nappi. Logiikkaan jäädään: kupla *▢ Näkymään: Nimi ›* lähdepalikan vieressä noin 1,6 s, napautus vie palikkaan näkymään; Rinnakkain-tilassa näkymäpuoli siirtyy uuteen palikkaan. Yksi ⌘Z kumoaa.
+  - Ei tallennusmuodon muutosta. Testi: `selain_88_tee_nakymaan.py` (1440, 1280; 390 savutestinä). Manuaali: luvut 2 (pikanäppäin), 4 (Kaavan tulos), 6 (*Tee näkymään*), 10 ja 11.
+  - Kokeile tietokoneella: Logiikka-välilehdellä tee Muisti (alkuarvo 7), paneelin alaosasta **▢ Tee näkymään** → kupla välähtää; napauta kuplaa → Näkymä-välilehdellä on laatikko, jossa lukee 7. Takaisin logiikkaan: ⇧-valitse kaksi palikkaa ja paina **N** → kaksi laatikkoa allekkain. ▾ Monitori / Ilmoitus näkyvät vain luvulle / kyllä–ei-arvolle. ⌘Z kumoaa.
+  - Ei tarkistettu: oikea iPhone (rakennuspuoli on tietokone ensin), hyvin pitkä nimi kuplassa (katkeaa …), Toistimen kortin sisälle osuva paikka (palikka liittyy korttiin kuten pudotettu).
 - Appi-appi 47 (17.10., jonon 11, kaista A): **Yläpalkin napit eivät rivity.**
   - Kaikki yläpalkin napit pysyvät yhdellä rivillä eivätkä kutistu; vain projektin nimi lyhenee (vähintään 90 px). Ennen palkki oli täynnä jo 1440 px leveänä, ja napit rivittyivät 2–3 riville palkin alareunan yli (Emilin kuvakaappaus: GitHub-tila).
   - Kun ikkuna on enintään 1800 px, lapunapeissa pelkkä kuvake; enintään 1360 px myös 💾 Varmuuskopio, ☰ Palikat, ↶ Kumoa, 🧪 Kokeile / ⏹ Lopeta kokeilu, 🔒 Lukitse / ✏️ Muokkaa ja ⚙︎ Asetukset pelkkinä kuvakkeina (nimi vihjeessä ja `aria-label`issa); enintään 1020 px tilateksti piiloon ja palkki rullaa tarvittaessa kuten puhelimella. Puhelinnäkymä (≤ 760 px) ennallaan.

@@ -124,6 +124,17 @@ Paneelin osio **Vie tulos jatkuvasti**:
 
 Tulos ohjaa kohdetta niin kauan kuin kaava pätee.
 
+### Tee näkymään
+
+Kun näkymän palikkaa ei vielä ole, sen voi tehdä logiikasta yhdellä napautuksella. Toimii kaikille logiikkapalikoille, joilla on arvo (Kaava, Kaavan tulos, Arvo, Muisti, Lasku, Vertailu, Ikkuna, Satunnaisluku, Sekuntikello, Ketju …), ei näkymäpalikoiden logiikkaesiintymille.
+
+- Paneelin osio **Näkymään** → **▢ Tee näkymään**: tekee **Laatikon** (Muoto, laji laatikko, 200 × 60), jonka teksti on `{viite}`, eli palikka näyttää tämän arvon. Nimi on lähteen nimi + ” · näyttö”, viite lähteen viite + `_n` (numero perään, jos varattu). Molemmat voi vaihtaa kuten aina.
+- **Minne:** näkymään, joka oli viimeksi auki Näkymä-välilehdellä (paneelin ohje kertoo sen nimen), aktiiviseen kerrokseen, vasempaan reunaan alimman palikan alle. Laitenäkymässä vasen reuna on 20 px ja alin palikka lasketaan ruudun leveydeltä; jos ruutu on täynnä, palikka tulee ruudun alle.
+- **Logiikkaan jäädään.** Lähdepalikan viereen välähtää kupla *▢ Näkymään: Nimi · näyttö ›*; sen napautus vie palikan kohdalle Näkymä-välilehdelle. Rinnakkain-tilassa näkymäpuoli siirtyy uuden palikan kohdalle.
+- **▾** napin vieressä: *Laatikko tekstillä*, *Pelkkä teksti* (Teksti-palikka), *Monitori* (vain kun arvo on nyt luku; nuoli tästä Monitorin kohtaan *arvo*, Monitori tulee myös logiikkaan) ja *Ilmoitus, joka näkyy kun tämä pätee* (vain kun arvo on nyt kyllä/ei; Ilmoituksen Näkyvyys = *Näkyy kun* tämä, teksti = lähteen nimi).
+- **Pikanäppäin N** logiikassa (ei kentässä kirjoittaessa): tekee Laatikon valitusta palikasta. Monivalinnalla jokaisesta arvollisesta valitusta tulee Laatikko, allekkain valintajärjestyksessä; monivalinnan paneelissa sama nappi **▢ Tee näkymään (N)**.
+- Laatikko ei tule logiikan kanvaasille: viite riittää, ja Yhteydet näyttää sen. Yksi ⌘Z kumoaa kaiken kerralla.
+
 ### Kun tulos alkaa päteä (kerran)
 
 Osio **Kun tulos alkaa päteä (kerran)** ja valikko **＋ Lisää toiminto…**: toiminto tehdään kerran, kun kaava alkaa päteä (esim. Valitse kytkin). Käyttäjä voi muuttaa kohdetta sen jälkeen, eikä kaava pakota sitä takaisin. Uudelleen vasta, kun kaava on välillä lakannut päteä.
