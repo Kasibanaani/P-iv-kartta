@@ -147,7 +147,7 @@ Kun GitHub-tallennus on päällä, yläpalkissa näkyy tilanappi (myös puhelime
 | Teksti | Merkitys |
 |---|---|
 | GitHub: tallennetaan… | Tallennus käynnissä |
-| GitHub: tallennettu 14.05 | Kaikki tallessa, kellonaika |
+| GitHub ✓ 14.05 | Kaikki tallessa, kellonaika (hiiren alla: *GitHub: tallennettu 14.05*) |
 | GitHub: tallentamatta | Muutoksia odottaa tallennusta |
 | GitHub: 2 tallentamatta | Sama, kun automaattinen tallennus on pois |
 | GitHub: ei vielä tallennettu | Mitään ei ole vielä tallennettu |
@@ -310,7 +310,7 @@ Tarkista ennen vientiä: appin oma kelpoisuustarkistus (`okProj`) vaatii `projek
 4. Palautus tarvittaessa: Projektit → **Tuo tiedostosta** → valitse tiedosto. Projektit tulevat kopioina vanhojen rinnalle (sama tunniste saa uuden), joten poista tarpeeton versio itse.
 
 ### Projekti puhelimesta tietokoneelle
-**GitHubilla (suositus):** ota GitHub-tallennus käyttöön molemmissa (sama Repo ja Avain, katso seuraava resepti). Puhelimella tilanapissa lukee *GitHub: tallennettu …*. Tietokoneella avaa appi: uudet projektit tulevat itsestään, tai Asetukset → **Hae uudet projektit**.
+**GitHubilla (suositus):** ota GitHub-tallennus käyttöön molemmissa (sama Repo ja Avain, katso seuraava resepti). Puhelimella tilanapissa lukee *GitHub ✓ …*. Tietokoneella avaa appi: uudet projektit tulevat itsestään, tai Asetukset → **Hae uudet projektit**.
 
 **Ilman GitHubia:**
 1. Puhelimella: yläpalkin projektin nimi → avaa projekti → **Vie tiedostona** (tai **Vie kaikki projektit**).
@@ -325,7 +325,7 @@ Tarkista ennen vientiä: appin oma kelpoisuustarkistus (`okProj`) vaatii `projek
 4. **Generate token** ja kopioi avain (alkaa `github_pat_`).
 5. Appi-appissa: **⚙︎ Asetukset** → *GitHub-tallennus (yksityinen repo)*. Liitä avain kenttään **Avain**, kirjoita **Repo**-kenttään `omistaja/repon-nimi`.
 6. Paina **Testaa yhteys**. Odotettu: ”Yhteys toimii. Repo … on yksityinen.”
-7. Pidä rasti *Tallenna automaattisesti muutosten jälkeen* päällä. Yläpalkkiin tulee tilanappi, joka hetken päästä näyttää *GitHub: tallennettu …*.
+7. Pidä rasti *Tallenna automaattisesti muutosten jälkeen* päällä. Yläpalkkiin tulee tilanappi, joka hetken päästä näyttää *GitHub ✓* ja kellonajan.
 8. Jotta tekoäly näkee projektit: anna Claude-sovellukselle pääsy repoon GitHubissa (Settings → Applications → Claude → Configure) ja kerro keskustelussa repon nimi.
 9. Toinen laite: toista kohdat 5–7 samalla avaimella (avain on vain kunkin selaimen muistissa).
 

@@ -43,7 +43,7 @@ async def main():
             # 2 kokeilu alkaa: raita, teksti, lukitus käyttöön, napin teksti
             await tap('#koebtn')
             assert await pg.is_visible('#koeraita');rt=await pg.inner_text('#koeraita');assert 'Kokeilu' in rt,rt
-            assert 'Lopeta' in await pg.inner_text('#koebtn')
+            assert 'Lopeta' in await pg.get_attribute('#koebtn','aria-label')  # kapeammalla ikkunalla napissa pelkkä kuvake (jonon 11)
             assert await pg.evaluate("APP.P.lock")==True,'kokeilu avautuu käyttöön'
             bt=await pg.evaluate("document.getElementById('body').getBoundingClientRect().top");assert bt>=80,bt
             # 3 painallukset kokeilussa: 6 -> 8, mutta tallessa ja GitHub-sisällössä 6, lukitus false

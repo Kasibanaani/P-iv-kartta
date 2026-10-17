@@ -32,8 +32,8 @@ Vasemmalta oikealle:
 | **📝 Muistilappu** | uusi muistilappu itselle |
 | **✉️ Viestilappu** | uusi viestilappu tekoälylle; punainen piste = lapussa on uusi vastaus |
 | tilateksti | esim. ”Tallessa tässä selaimessa”, ”Varmuuskopio viemättä”, ”Varmuuskopio viety pp.kk.vvvv” tai ”Tallennus selaimeen ei onnistu” |
-| GitHub-merkki | näkyy vain, kun GitHubissa on uudempi versio projektista (luku [Tallennus](09-tallennus.md)) |
-| **Varmuuskopio** | lataa kaikki projektit tiedostoksi omalle laitteelle |
+| GitHub-tila | näkyy, kun GitHub-tallennus on päällä, esim. ”GitHub ✓ 22.24”; pitkä selitys hiiren alla (luku [Tallennus](09-tallennus.md#tila-yläpalkissa)) |
+| **💾 Varmuuskopio** | lataa kaikki projektit tiedostoksi omalle laitteelle |
 | **☰ Palikat** | kaikki palikat taulukkona; perässä ⚠ ja luku, jos viittauksia poistettuun on |
 | **↶ Kumoa** ja **↷** | kumoa ja tee uudelleen |
 | **🧪 Kokeile** / **⏹ Lopeta kokeilu** | kokeilu kopiolla käyttötiedoista, oikeat tiedot eivät muutu (ks. Kokeilu) |
@@ -41,6 +41,8 @@ Vasemmalta oikealle:
 | **⚙︎ Asetukset** | avaa ikkunan *Asetukset* |
 
 Kumoa ja ↷ piiloutuvat, kun Näkymä-välilehti on lukittu. Lukitse-nappi näkyy vain, kun käyttöpinta on näkyvissä (Näkymä tai Rinnakkain).
+
+**Tietokoneella yläpalkin napit eivät koskaan rivity.** Kun ikkuna on enintään 1800 px leveä, lapunapeissa on pelkkä kuvake. Enintään 1360 px leveällä ikkunalla myös napeista 💾, ☰, ↶, 🧪/⏹, 🔒/✏️ ja ⚙︎ jää pelkkä kuvake; nimi näkyy, kun hiiri on napin päällä. Projektin nimi lyhenee kolmeen pisteeseen ensimmäisenä (vähintään noin 90 px näkyy). Enintään 1020 px leveällä ikkunalla tilateksti piiloutuu, ja jos tila silti loppuu, palkki rullaa sivuttain kuten puhelimella.
 
 **Puhelimella (ruutu enintään 760 px leveä)** yläpalkki rullaa sivuttain, ja siitä puuttuvat Rinnakkain-välilehti, Varmuuskopio, ☰ Palikat ja tilateksti. Lapunapeissa näkyy pelkkä kuvake. Varmuuskopion saa silti Projektit-ikkunan napista *Vie kaikki projektit*.
 
