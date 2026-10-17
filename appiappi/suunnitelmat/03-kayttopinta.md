@@ -101,6 +101,20 @@ Emil antoi luvan tehdä F12:n. Tekniset ratkaisut ovat tekoälyn.
 - pitkä painallus raahattavassa painikkeessa
 - raahaus liikkuvalla (Liike) palikalla
 
+### Toteutus 17.10.2026 (Appi-appi 20): käyttöraahaus, toinen osa
+
+Emilin päätökset 16.10.: korttien raahaus ja lajittelu ensin; pudotusalue korostuu; reunavieritys; järjestys taulukon rivijärjestykseen käyttötietona; ilman raahausta toiminnot Siirrä rivi ylös / alas.
+
+- **Korttien järjestys:** Toistimen valinta *Järjestä raahaamalla* (`tlaj`). Toimii, kun rivit tulevat nuolella suoraan Tietotaulukosta (`tstLahde`); Rivijoukon järjestys on sen oma, joten sen kautta ei lajitella (paneeli kertoo). Moottorin `tstSiirra` siirtää rivin taulukon käyttötiedon (`tUse`) kohtaan ja lähettää toistimen tapahtuman *rivi siirretty* (`rsi`): `tapahtuma.rivi`, `.vanha`, `.uusi` (1 = ensimmäinen). Lähtöaineisto ei muutu; käyttötietojen tyhjennys palauttaa järjestyksen.
+- **Etusija kortissa:** hiirellä yli 6 px veto aloittaa raahauksen; sormella pitkä painallus (0,35 s) ennen liikettä, muuten pyyhkäisy vierittää korttien kehystä tavalliseen tapaan. Kentät ja säätimet eivät aloita raahausta; painike painuu napautuksella eikä raahattaessa. Uusi paikka = lähin korttipaikka kortin keskipisteestä; katkoviiva näyttää sen.
+- **Ilman raahausta:** toiminto *Siirrä rivi* (`siirrarivi`, suunta `rsu` ylös/alas, rivi valittu tai tapahtuman). Rivi vaihtaa paikkaa viereisen kanssa, reunalla ei siirry; sitten-tapahtumassa vanha ja uusi paikka.
+- **Korostus:** *Vain alueisiin* -raahauksessa saman näkymän Alueet piirretään katkoviivoina (`raahausKohteet`), ja alue, johon pudotus osuisi, korostuu. Muulla pudotuksella ei korostusta.
+- **Reunavieritys:** osoitin alle 40 px kehyksen reunasta rullaa kameraa (vauhti kasvaa reunaa kohti), kun näkymää saa rullata (`canPanUI`) ja palikka on tavallisella kerroksella; kameran rajat huomioidaan mittaamalla todellinen siirtymä. Kortin raahaus vierittää korttien kehystä samoin.
+
+**Ei tehty:** sijainti-tapahtuma raahauksen aikana, kuvan toimintoalueet ja muotoillut alueet, lajittelu näppäimistöllä, korttien raahaus toistimesta toiseen, pudotus korttiin (Alue kortin sisällä).
+
+**Ei tarkistettu:** oikea iPhone ja Safari (pitkä painallus voi kilpailla tekstin valinnan kanssa), ruudukkoasettelu (testattu allekkain), korostus hitaamman kerroksen alueille.
+
 ## Suhteellinen ja mukautuva asettelu (F13)
 
 **Rakentaja:** ryhmäkohtainen Vapaa/Rivi/Sarake/Ruudukko. Näytä vain valitun tavan asetukset: väli, reunus, tasaus, rivitys, min/max-koko ja sisällön mukaan kasvaminen. Vapaa kanvaasi pysyy ensiluokkaisena; nykyiset kertaluonteiset tasaus- ja monistustyökalut säilyvät.

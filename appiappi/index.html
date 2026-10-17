@@ -196,6 +196,11 @@ button{cursor:pointer}
 /* F12: käyttöraahaus */
 .ue.raah{touch-action:none;cursor:grab}
 .ue.raahataan{z-index:50;cursor:grabbing;filter:drop-shadow(0 8px 16px rgba(0,0,0,.25))}
+.raahko{position:absolute;pointer-events:none;z-index:40;border:2px dashed var(--accent);background:color-mix(in srgb,var(--accent) 7%,transparent);border-radius:12px;box-sizing:border-box}
+.raahko.ymp{border-radius:50%}
+.raahko.on{border-style:solid;background:color-mix(in srgb,var(--accent) 18%,transparent)}
+.tcard.raahataan{z-index:50;cursor:grabbing;background:rgba(127,127,127,.12);border-radius:12px;filter:drop-shadow(0 8px 16px rgba(0,0,0,.25))}
+.tslot{position:absolute;pointer-events:none;border:2px dashed var(--accent);border-radius:12px;background:color-mix(in srgb,var(--accent) 8%,transparent);box-sizing:border-box}
 .edit .ue:hover:not(.sel){outline:1px dashed var(--label3);outline-offset:3px;border-radius:12px}
 .ue .rh{display:none;position:absolute;right:-9px;bottom:-9px;width:14px;height:14px;border-radius:5px;background:var(--cell);border:2px solid var(--accent);cursor:nwse-resize;z-index:3}
 .edit .ue.sel .rh{display:block}
@@ -1012,7 +1017,7 @@ var OPS={add:'+',sub:'−',mul:'×',div:'÷'};
 var CMPS={eq:'=',ne:'≠',lt:'<',le:'≤',gt:'>',ge:'≥'};
 var WM={and:'JA',or:'TAI',one:'VAIN YKSI',min:'VÄHINTÄÄN',max:'ENINTÄÄN',eq:'TÄSMÄLLEEN',not:'EI MIKÄÄN',sum:'SUMMA',avg:'KESKIARVO',maxv:'SUURIN',minv:'PIENIN',cnt:'MONTAKO PÄTEE'};
 var PARTS={vk:'Viikkonumero',vkp:'Viikonpäivä',vkpn:'Viikonpäivä numerona',pv:'Päivä',kk:'Kuukausi',v:'Vuosi',ero:'Päiviä tästä päivästä'};
-var DOS={aseta:'Aseta arvo',tila:'Aseta tila',lisaa:'Lisää',valitse:'Valitse',poista:'Poista valinta',vaihda:'Vaihda',tyhjenna:'Tyhjennä',siirry:'Siirry',takaisin:'Palaa takaisin',kirjaa:'Kirjaa aikajanalle',rivi:'Lisää riviksi listaan',ilmoita:'Näytä ilmoitus',kaynnista:'Käynnistä ketju',pysayta:'Pysäytä ketju',arvonta:'Arvo uudelleen',palauta:'Palauta perusarvo',lisaarivi:'Lisää rivi',poistarivi:'Poista rivi',valitserivi:'Valitse rivi'};
+var DOS={aseta:'Aseta arvo',tila:'Aseta tila',lisaa:'Lisää',valitse:'Valitse',poista:'Poista valinta',vaihda:'Vaihda',tyhjenna:'Tyhjennä',siirry:'Siirry',takaisin:'Palaa takaisin',kirjaa:'Kirjaa aikajanalle',rivi:'Lisää riviksi listaan',ilmoita:'Näytä ilmoitus',kaynnista:'Käynnistä ketju',pysayta:'Pysäytä ketju',arvonta:'Arvo uudelleen',palauta:'Palauta perusarvo',lisaarivi:'Lisää rivi',poistarivi:'Poista rivi',valitserivi:'Valitse rivi',siirrarivi:'Siirrä rivi'};
 var VKP=['sunnuntai','maanantai','tiistai','keskiviikko','torstai','perjantai','lauantai'];
 var KUUT=['tammikuu','helmikuu','maaliskuu','huhtikuu','toukokuu','kesäkuu','heinäkuu','elokuu','syyskuu','lokakuu','marraskuu','joulukuu'];
 var BOOLK={ruutu:1,kytkin:1};
@@ -1031,7 +1036,7 @@ function portsBase(b){
   var k=b.k,ins=[],outs=[];
   if(!K[k])return {ins:ins,outs:outs};
   if(K[k].g==='ui'){
-    if(k==='toistin')return {ins:[V('nk','näkyy kun'),V('rv','rivit')],outs:[V('v','kortteja')]};
+    if(k==='toistin')return {ins:[V('nk','näkyy kun'),V('rv','rivit')],outs:[V('v','kortteja')].concat(b.tlaj===true?[E('rsi','rivi siirretty')]:[])};
     if(k!=='merkki'&&k!=='alue')ins=[V('nk','näkyy kun'),V('hk','harmaana kun'),V('tx','teksti'),V('vr','vaihtoväri kun'),V('dx','siirto x'),V('dy','siirto y')];
     if(k==='nappi'){outs=[V('v',b.beh==='kerta'?(b.kv==='vaihto'?'on valittu':'painalluksia'):b.beh==='pida'?'painetaan nyt':'on valittu'),E('e','painettu')];if(napExt(b))outs.push(E('pitka','pitkä painallus'),E('irti','irrotettu'),V('k','painalluksen kesto'));}
     else if(k==='lista')outs=[V('v','rastitettuja'),V('n','rivejä'),V('all','kaikki rastitettu')];
@@ -1893,6 +1898,18 @@ function raahausPudotus(P,id,x,y,ctx){var b=P.b[id];if(!raahattava(P,b))return n
   else fire(P,id,'rpe',raahausKuori(P,b,ctx,{x:o.x0,y:o.y0}),0);
   tick(P,ctx);return o;}
 function raahausPeruttu(P,id,ctx){var b=P.b[id];if(!raahattava(P,b))return;var r=rectNow(P,Ev(P,ctx),b);fire(P,id,'rpe',raahausKuori(P,b,ctx,{x:r.x,y:r.y}),0);tick(P,ctx);}
+/* F12, 2. osa (Appi-appi 20): pudotusalueiden korostus ja korttien lajittelu raahaamalla.
+   Kohteet = näkymän Alueet (ei palikka itse), raahauksen aikana korostettaviksi. */
+function raahausKohteet(P,b,ctx){var ev=Ev(P,ctx),out=[];Object.keys(P.b).forEach(function(id){var a=P.b[id];if(a.k!=='alue'||a.v!==b.v||id===b.id)return;var r=rectNow(P,ev,a);out.push({id:id,nm:a.nm,x:r.x,y:r.y,w:r.w,h:r.h,ympyra:osuMuoto(a)==='ympyra'});});return out;}
+/* Toistimen rivien lähde, kun nuoli tulee suoraan Tietotaulukosta (vain silloin järjestys on taulukon järjestys). */
+function tstLahde(P,id){var n=nodesOfBlock(P,id)[0];if(!n)return null;for(var i=0;i<P.lg.l.length;i++){var l=P.lg.l[i];if(l.t===n.id&&l.tp==='rv'){var f=nodeOf(P,l.f),s=f&&P.b[f.p];return s&&s.k==='taulu'?s:null;}}return null;}
+function tstLajittuu(P,T){return !!(T&&T.k==='toistin'&&T.tlaj===true&&tstLahde(P,T.id));}
+/* Siirtää kortin rivin kohtaan to (0 = ensimmäinen) taulukon käyttötiedossa ja lähettää toistimen tapahtuman
+   rivi siirretty (tapahtuma.rivi = siirretty rivi, vanha ja uusi = paikka ennen ja jälkeen, 1 = ensimmäinen). */
+function tstSiirra(P,tid,rid,to,ctx){var T=P.b[tid];if(!tstLajittuu(P,T))return false;var tb=tstLahde(P,tid).id,s=tUse(P,tb),i=-1;
+  s.rows.forEach(function(r,j){if(r.id===rid)i=j;});if(i<0)return false;to=Math.max(0,Math.min(s.rows.length-1,Math.round(num(to)||0)));if(to===i)return false;
+  var r=s.rows.splice(i,1)[0];s.rows.splice(to,0,r);var e=mkEv(P,tid,ctx,{vanha:i+1,uusi:to+1,rivi:RR(tb,rid)}),kr={};kr[tb]=rid;e.kr=kr;
+  fire(P,tid,'rsi',withEv(ctx,e),0);tick(P,ctx);return true;}
 /* ---------- Appi-appi 6: reitit ----------
    Reitti-palikan pisteet b.pts = [[x, y], …] palikan vasemmasta yläkulmasta (palikka on pisteiden rajaama laatikko), b.kier =
    suljettu reitti (viimeisestä takaisin ensimmäiseen), b.nak = 'nakyy' näkyy käytössä katkoviivana. Liikkeen ohjaus 'reitti':
@@ -3152,7 +3169,7 @@ function waitCycle(P,kid){
   return dfs(kid);
 }
 /* Ketjun huomautukset ennen ajoa: virheet (⚠) ja tiedot (info). Kehä ilman ajastinta löytyy jo ennen käynnistystä. */
-var NEEDT={aseta:1,lisaa:1,valitse:1,poista:1,vaihda:1,tyhjenna:1,tila:1,kirjaa:1,rivi:1,kaynnista:1,pysayta:1,arvonta:1,lisaarivi:1,poistarivi:1,valitserivi:1};
+var NEEDT={aseta:1,lisaa:1,valitse:1,poista:1,vaihda:1,tyhjenna:1,tila:1,kirjaa:1,rivi:1,kaynnista:1,pysayta:1,arvonta:1,lisaarivi:1,poistarivi:1,valitserivi:1,siirrarivi:1};
 function chainIssues(P,kid,ctx){
   var out=[],b=P.b[kid];if(!b)return out;var steps=chainSteps(P,kid),w=chainNode(P,kid);
   if(!steps.length){out.push({info:1,t:'Ketju on tyhjä: vedä tähän tapahtumia, esim. Aseta arvo tai Ajastin.'});return out;}
@@ -3180,7 +3197,7 @@ function chainIssues(P,kid,ctx){
       else if(sb.do==='kaynnista'&&sb.o===kid)out.push({n:n.id,t:nm+': ketju ei voi käynnistää itseään. Toistoon tee kehä ajastimen tai Odota, kunnes -palikan kautta.'});
       else if(sb.do==='kaynnista'&&tg&&tg.off)out.push({n:n.id,info:1,t:nm+': ketju ”'+tg.nm+'” on pois päältä, joten se ei käynnisty.'});
       else if(tg&&tg.k==='taulu'){var ti=tauluIssue(P,sb,tg);if(ti)out.push({n:n.id,t:nm+': '+ti+'.'});}
-      else if((sb.do==='lisaarivi'||sb.do==='poistarivi'||sb.do==='valitserivi')&&tg)out.push({n:n.id,t:nm+': kohde ”'+tg.nm+'” ei ole tietotaulukko.'});}
+      else if((sb.do==='lisaarivi'||sb.do==='poistarivi'||sb.do==='valitserivi'||sb.do==='siirrarivi')&&tg)out.push({n:n.id,t:nm+': kohde ”'+tg.nm+'” ei ole tietotaulukko.'});}
     if(sb.k==='ajastin'){var d=timerMs(P,sb.id,ctx);if(isErr(d))out.push({n:n.id,t:nm+': '+d.err+'.'});}
     if(sb.k==='toista'&&sb.tapa==='rivit'){var trs=Ev(P,ctx).rowsIn(sb.id);if(trs==null)out.push({n:n.id,t:nm+': tuo rivit nuolella kohtaan ”rivit” (Tietotaulukko tai Rivijoukko).'});else if(isErr(trs))out.push({n:n.id,t:nm+': rivit: '+trs.err+'.'});
       else if(!chainLinksFrom(P,n.id,'e').length)out.push({n:n.id,info:1,t:nm+': kierros-haara ei jatku mihinkään. Vie se riveille tehtäviin tapahtumiin ja niiden lopusta viiva takaisin tähän.'});}
@@ -3461,6 +3478,9 @@ function tauluDo(P,b,tg,ev,ctx){
     tSetSel(P,tid,to);return out({vanha:cur?RR(tid,cur):null,uusi:to?RR(tid,to):null,rivi:to?RR(tid,to):null});}
   if(d==='poistarivi'){var tr=target();if(tr.err)return tr;var s2=tUse(P,tid),di=tIdx(P,tid,tr.id);s2.rows.splice(di,1);
     if(s2.sel===tr.id)s2.sel=s2.rows[di]?s2.rows[di].id:s2.rows[di-1]?s2.rows[di-1].id:'';return out({vanha:RR(tid,tr.id),rivi:RR(tid,tr.id)});}
+  /* F12, 2. osa: rivi vaihtaa paikkaa viereisen kanssa (ylös tai alas); reunalla ei siirry. Tapahtumassa paikka ennen ja jälkeen. */
+  if(d==='siirrarivi'){var tm=target();if(tm.err)return tm;var s5=tUse(P,tid),mi=tIdx(P,tid,tm.id),mj=mi+(b.rsu==='alas'?1:-1);
+    if(mj>=0&&mj<s5.rows.length){var mr=s5.rows[mi];s5.rows[mi]=s5.rows[mj];s5.rows[mj]=mr;}else mj=mi;return out({vanha:mi+1,uusi:mj+1,rivi:RR(tid,tm.id)});}
   if(d==='tyhjenna'&&!col){var s3=tUse(P,tid);s3.rows=[];s3.sel='';return out({});}
   if(!col)return {err:b.sk?'sarake on poistettu':'valitse sarake'};
   var t=target();if(t.err)return t;var s4=tUse(P,tid),row=s4.rows[tIdx(P,tid,t.id)],old=cellRead(P,tid,row,col),nv2;
@@ -3477,7 +3497,7 @@ function tauluDo(P,b,tg,ev,ctx){
 /* Toiminnon tarkistus ennen ajoa (ketjun huomautukset): virheteksti tai tyhjä. */
 function tauluIssue(P,b,tg){var d=b.do;
   if(d==='lisaarivi'){if(!tSar(tg).length)return 'taulukossa ”'+tg.nm+'” ei ole sarakkeita';return '';}
-  if(d==='valitserivi'||d==='poistarivi')return '';
+  if(d==='valitserivi'||d==='poistarivi'||d==='siirrarivi')return '';
   if(d==='tyhjenna'&&!b.sk)return '';
   if(d!=='aseta'&&d!=='lisaa'&&d!=='vaihda'&&d!=='tyhjenna')return 'toimintoa ”'+(DOS[d]||d)+'” ei voi tehdä taulukkoon';
   var c=b.sk?colById(tg,b.sk):null;if(!c)return b.sk?'sarake on poistettu: valitse uusi':'valitse sarake';
@@ -3519,7 +3539,7 @@ function repairTaulu(P,id){var b=P.b[id],seen={},vts={};
   var s=P.st[id];if(s!==undefined){if(!s||typeof s!=='object'||Array.isArray(s)){delete P.st[id];}else{var o={};if(Array.isArray(s.rows)){o.rows=rows(s.rows,/^[ru]\d+$/);o.sq=Math.max(0,Math.round(num(s.sq)||0));}
     if(typeof s.sel==='string'&&s.sel)o.sel=s.sel;if(Object.keys(o).length)P.st[id]=o;else delete P.st[id];}}}
 function repairTee(P,b){var tg=P.b[b.o];
-  if(tg&&tg.k==='taulu'){if(b.sk!==undefined&&!(typeof b.sk==='string'&&colById(tg,b.sk)))delete b.sk;if(b.rl!==undefined&&b.rl!=='tapahtuma')delete b.rl;
+  if(tg&&tg.k==='taulu'){if(b.sk!==undefined&&!(typeof b.sk==='string'&&colById(tg,b.sk)))delete b.sk;if(b.rl!==undefined&&b.rl!=='tapahtuma')delete b.rl;if(b.rsu!==undefined&&b.rsu!=='alas')delete b.rsu;
     if(b.rs!==undefined&&!RIVIVAL.some(function(x){return x[0]===b.rs;}))delete b.rs;
     if(b.kv!==undefined){if(!b.kv||typeof b.kv!=='object'||Array.isArray(b.kv))delete b.kv;else{Object.keys(b.kv).forEach(function(k){if(typeof b.kv[k]!=='string'||!b.kv[k].trim()||!colById(tg,k))delete b.kv[k];});if(!Object.keys(b.kv).length)delete b.kv;}}}
   else if(!isGone(P,b.o)){delete b.sk;delete b.rl;delete b.rs;delete b.kv;}
@@ -3619,7 +3639,7 @@ function tstAssign(P,ids){var ch=0,ts=Object.keys(P.b).map(function(i){return P.
 function repairP3b(P){
   Object.keys(P.b).forEach(function(id){var b=P.b[id];
     if(b.k==='toistin'){if(!TSU.some(function(x){return x[0]===b.tsu;}))b.tsu='sarake';
-      ['kw','kh','vali'].forEach(function(f){var n=typeof b[f]==='number'?b[f]:parseNum(b[f]==null?'':String(b[f]));b[f]=isNaN(n)||n<0?K.toistin.d[f]:Math.round(n);});if(b.kh<16)b.kh=16;delete b.tst;delete b.tsar;}
+      if(b.tlaj!==undefined&&b.tlaj!==true)delete b.tlaj;['kw','kh','vali'].forEach(function(f){var n=typeof b[f]==='number'?b[f]:parseNum(b[f]==null?'':String(b[f]));b[f]=isNaN(n)||n<0?K.toistin.d[f]:Math.round(n);});if(b.kh<16)b.kh=16;delete b.tst;delete b.tsar;}
     if(b.tst!==undefined&&(typeof b.tst!=='string'||!TST_OK[b.k]||!tstOf(P,b)))delete b.tst;
     if(b.trv!==undefined&&(!TST_SID[b.k]||typeof b.trv!=='string'||!b.trv||!((P.b[b.trv]&&P.b[b.trv].k==='trivi')||isGone(P,b.trv))))delete b.trv;
     if(b.tsar!==undefined&&((!b.tst&&!b.trv)||!TST_SID[b.k]||typeof b.tsar!=='string'||!/^c\d+$/.test(b.tsar)))delete b.tsar;});
@@ -3911,6 +3931,7 @@ function descAct(P,id,df){
   if(tg&&tg.k==='taulu'){var sc=b.sk?colById(tg,b.sk):null,rw=b.rl==='tapahtuma'?'tapahtuman rivi':'valittu rivi',cn=sc?sc.nm:'sarake?',ts;
     switch(b.do){case 'lisaarivi':{var fs=tSar(tg).filter(function(c){return b.kv&&b.kv[c.id];}).map(function(c){return c.nm+' = '+kaavaToText(P,b.kv[c.id]);});ts='Lisää rivi → '+tn+(fs.length?': '+fs.join(', '):'');break;}
       case 'poistarivi':ts='Poista rivi: '+tn+' ('+rw+')';break;
+      case 'siirrarivi':ts='Siirrä rivi '+(b.rsu==='alas'?'alas':'ylös')+': '+tn+' ('+rw+')';break;
       case 'valitserivi':{var rv0=(RIVIVAL.filter(function(x){return x[0]===(b.rs||'seur');})[0]||['',''])[1];ts='Valitse rivi: '+tn+' → '+(b.rs==='arvo'?(lit(b.v)||'arvo nuolesta'):rv0);break;}
       case 'aseta':ts=tn+' ('+rw+'): '+cn+' = '+(lit(b.v)||'arvo nuolesta');break;
       case 'lisaa':ts=tn+' ('+rw+'): '+cn+' + '+(lit(b.v)||'1');break;
@@ -4100,7 +4121,7 @@ function why(P,E,id,depth,seen){
 return {omat:omat,omFind:omFind,omNorm:omNorm,omBase:omBase,omNames:omNames,omActive:omActive,setOmi:setOmi,resetOmi:resetOmi,isOff:isOff,napVaihto:napVaihto,boolKey:boolKey,TIMEU:TIMEU,YKSA:YKSA,ENVW:ENVW,portsBase:portsBase,tattiSet:tattiSet,muutosStart:muutosStart,muutosStop:muutosStop,frame:frame,napExt:napExt,NAP_PITKA:NAP_PITKA,pressDown:pressDown,pressLong:pressLong,pressUp:pressUp,hasOut:hasOut,curveAt:curveAt,KAYRA_PRESETS:KAYRA_PRESETS,kayraPreset:kayraPreset,kayraResize:kayraResize,kayraDec:kayraDec,kayraSpec:kayraSpec,kayraAt:kayraAt,satuN:satuN,satuMuoto:satuMuoto,satuCurve:satuCurve,satuResize:satuResize,satuPreset:satuPreset,SATU_PRESETS:SATU_PRESETS,SATU_MAXN:SATU_MAXN,satuSpec:satuSpec,satuDist:satuDist,satuPick:satuPick,satuPct:satuPct,satuItemTxt:satuItemTxt,satuTop:satuTop,satuRoll:satuRoll,
   chainOpen:chainOpen,LKN:LKN,LKID:LKID,lkReq:lkReq,lkView:lkView,chainLock:chainLock,chainLockDiff:chainLockDiff,parseKlo:parseKlo,nextClock:nextClock,timerLabel:timerLabel,arpaN:arpaN,toistaN:toistaN,setMhLabel:function(f){MHLAB=f;},mhLabel:mhLabel,odotaLim:odotaLim,odotaEv:odotaEv,hasLimit:hasLimit,chainSignal:chainSignal,copyNodes:copyNodes,pasteNodes:pasteNodes,chainList:chainList,haaraVal:haaraVal,chainIssues:chainIssues,FXK:FXK,YKS:YKS,YKSN:YKSN,fmtDur:fmtDur,parseNum:parseNum,fiNum:fiNum,fmtLeft:fmtLeft,timerMs:timerMs,chainStart:chainStart,chainStop:chainStop,chainAdvance:chainAdvance,chainPoll:chainPoll,chainInfo:chainInfo,anyChainRunning:anyChainRunning,CH_STEPS:CH_STEPS,CH_TOKENS:CH_TOKENS,
   isWin:isWin,isStep:isStep,STEPK:STEPK,chainNode:chainNode,chainOfNode:chainOfNode,chainSteps:chainSteps,isChainLink:isChainLink,chainLinksFrom:chainLinksFrom,chainStarts:chainStarts,chainIsRing:chainIsRing,chainOrder:chainOrder,
-  VER:VER,PAJA:'4',LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,raahattava:raahattava,raahausPaikka:raahausPaikka,raahausAlku:raahausAlku,raahausPudotus:raahausPudotus,raahausPeruttu:raahausPeruttu,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,reittiPisteet:reittiPisteet,reittiOsat:reittiOsat,reittiHae:reittiHae,liikeRuutuKomento:liikeRuutuKomento,liikePyyhkaisy:liikePyyhkaisy,ruutuAskel:ruutuAskel,RUUTU_SU:RUUTU_SU,reittiKohta:reittiKohta,liikeRun:liikeRun,kuvaKuvat:kuvaKuvat,kelloNow:kelloNow,kelloKomento:kelloKomento,kerrosObj:kerrosObj,zoomAsetus:zoomAsetus,kameraBlk:kameraBlk,zoomNyt:zoomNyt,zoomLukittu:zoomLukittu,zoomAseta:zoomAseta,ZOOM_MIN:ZOOM_MIN,ZOOM_MAX:ZOOM_MAX,MITM:MITM,MITE:MITE,
+  VER:VER,PAJA:'4',LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,raahattava:raahattava,raahausPaikka:raahausPaikka,raahausAlku:raahausAlku,raahausPudotus:raahausPudotus,raahausPeruttu:raahausPeruttu,raahausKohteet:raahausKohteet,tstLahde:tstLahde,tstLajittuu:tstLajittuu,tstSiirra:tstSiirra,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,reittiPisteet:reittiPisteet,reittiOsat:reittiOsat,reittiHae:reittiHae,liikeRuutuKomento:liikeRuutuKomento,liikePyyhkaisy:liikePyyhkaisy,ruutuAskel:ruutuAskel,RUUTU_SU:RUUTU_SU,reittiKohta:reittiKohta,liikeRun:liikeRun,kuvaKuvat:kuvaKuvat,kelloNow:kelloNow,kelloKomento:kelloKomento,kerrosObj:kerrosObj,zoomAsetus:zoomAsetus,kameraBlk:kameraBlk,zoomNyt:zoomNyt,zoomLukittu:zoomLukittu,zoomAseta:zoomAseta,ZOOM_MIN:ZOOM_MIN,ZOOM_MAX:ZOOM_MAX,MITM:MITM,MITE:MITE,
 kuvaPyorii:kuvaPyorii,kuvaNro:kuvaNro,SARJA_MAX:SARJA_MAX,ruudukko:ruudukko,ruudukkoOf:ruudukkoOf,ruutuAt:ruutuAt,ruutuKeski:ruutuKeski,kohdista:kohdista,ruutuKohdistus:ruutuKohdistus,alueRuudukko:alueRuudukko,alueRuutu:alueRuutu,alueNapautus:alueNapautus,kerrokset:kerrokset,kerrosOf:kerrosOf,rvOf:rvOf,kuvaUrl:kuvaUrl,K:K,KW:KW,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,kaavaToIds:kaavaToIds,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
   ports:ports,port:port,newProject:newProject,addBlock:addBlock,addNode:addNode,addLink:addLink,canLink:canLink,
   removeNode:removeNode,removeBlock:removeBlock,refsTo:refsTo,brokenRefs:brokenRefs,relink:relink,isGone:isGone,goneName:goneName,scanRefs:scanRefs,nodeOf:nodeOf,nodesOfBlock:nodesOfBlock,uniqueName:uniqueName,baseName:baseName,
@@ -4522,7 +4543,7 @@ var HINT={toistin:'Sama kortti jokaiselle riville: kehyksen ensimmäiseen kortti
   tapaht:'Tiedot tapahtumasta, joka käynnisti toiminnon tai ketjun: uusi ja vanha arvo, lähde, aika ja taulukon rivi. Pysyvät tapahtumahetken mukaisina ketjun odotusten yli.',
   trivi:'Nimetty lähde taulukon riville (esim. kohde): käsiteltävä, valittu tai tapahtuman rivi. Sarakkeet ovat sen ominaisuuksia: kohde.määrä × kohde.hinta laskee jokaisella rivillä oman tuloksensa.',
   joukko:'Rivijoukko suodattaa ja järjestää taulukon rivejä muuttamatta niitä: rivit nuolesta, ehto ja järjestys riveittäin. Kaavassa joukko.rivejä, joukko.eka.nimi, joukko.määrä.summa.',
-  lisaarivi:'Lisää tietotaulukkoon rivin. Kenttien arvot lasketaan kaavoista lisäyshetkellä (tilannekuva).',poistarivi:'Poistaa tietotaulukosta valitun tai tapahtuman rivin.',valitserivi:'Valitsee tietotaulukon rivin: ensimmäinen, seuraava, edellinen, viimeinen, tapahtuman rivi tai numerolla.',rivi:'Lisää listaan uuden rivin.',ilmoita:'Näyttää hetken ilmoituksen ruudun yläreunassa.'};
+  lisaarivi:'Lisää tietotaulukkoon rivin. Kenttien arvot lasketaan kaavoista lisäyshetkellä (tilannekuva).',poistarivi:'Poistaa tietotaulukosta valitun tai tapahtuman rivin.',siirrarivi:'Siirtää valitun tai tapahtuman rivin yhden paikan ylös tai alas (esim. kortin ↑- ja ↓-painikkeista).',valitserivi:'Valitsee tietotaulukon rivin: ensimmäinen, seuraava, edellinen, viimeinen, tapahtuman rivi tai numerolla.',rivi:'Lisää listaan uuden rivin.',ilmoita:'Näyttää hetken ilmoituksen ruudun yläreunassa.'};
 function hintOf(k,p){if(k==='tee')return HINT[(p&&p.do)||'aseta']||'';return HINT[k]||'';}
 function chipHTML(k,props,label,ic,hue){
   var data=esc(JSON.stringify({k:k,p:props||{}}));var tip=hintOf(k,props);
@@ -4756,7 +4777,7 @@ function decorateUE(el,b,E,ed){
   var stt=E.state(b.id,ed);
   var sn=S.sel&&S.sel.t==='n'?KK.nodeOf(P,S.sel.id):null;
   el.className='ue k-'+b.k+(ed&&KK.kerrosOf(P,b).k.lukko?' krlock':'')+(ed&&b.ohk&&b.ohk.length?' omdrv':'')+(!ed&&KK.raahattava(P,b)?' raah':'')+' '+hueCls(ed?(E.alt(b.id)?b.hue2:b.hue):E.hue(b.id))+((S.sel&&S.sel.t==='b'&&S.sel.id===b.id)||inMulti('b',b.id)?' sel':'')+(sn&&sn.p===b.id?' sel2':'')+({harmaa:' dim',luettava:' ro',piilossa:' hid'}[stt]||'')+(KK.isErr(E.val(b.id))||(ed&&brk().by[b.id])?' has-err':'')+(ed&&brk().by[b.id]?' brk-ui':'');
-  el.style.left=ovN(b,E,ed,'x',b.x)+'px';el.style.top=ovN(b,E,ed,'y',b.y)+'px';el.style.width=ovN(b,E,ed,'w',b.w)+'px';el.style.height=ovN(b,E,ed,'h',b.h)+'px';
+  if(!el.classList.contains('raahataan')){el.style.left=ovN(b,E,ed,'x',b.x)+'px';el.style.top=ovN(b,E,ed,'y',b.y)+'px';}el.style.width=ovN(b,E,ed,'w',b.w)+'px';el.style.height=ovN(b,E,ed,'h',b.h)+'px';
   /* Pajakone 4: läpinäkyvyys (muokatessa aina vähintään haaleana näkyvissä). */
   /* Appi-appi 3: kierto ja peilaus (sisältö kääntyy, paikka ja osuma-alue eivät). */
   var kul=ovN(b,E,ed,'kulma',0),pei=!!ovV(b,E,ed,'peili'),inn=el.querySelector('.in');if(inn)inn.style.transform=(kul?'rotate('+kul+'deg)':'')+(pei?' scaleX(-1)':'');
@@ -5042,6 +5063,7 @@ function bindUIStage(){
     if(e.button!==0)return;
     var el=e.target.closest('.ue');
     if(!editingUI()){
+      if(korttiRaahaus(e))return;
       if(kayttoRaahaus(e,el))return;
       if(pyyhkaisyAlku(e))return;
       if(napautusMyohemmin(e)){if(!el&&canPanUI()&&!napautusKaytossa())startPan(e,vp,camUI,uiCamChanged);return;}
@@ -6664,7 +6686,7 @@ function tstFill(el,T,E,ed,keepFocus){
   if(inn._uh){inn.innerHTML='';inn._uh=null;}
   var have={},want={};Array.prototype.forEach.call(inn.children,function(c){have[c.getAttribute('data-row')]=c;});
   ids.forEach(function(rid,i){want[rid]=1;var c=have[rid];if(!c){c=document.createElement('div');c.className='tcard';c.setAttribute('data-row',rid);inn.appendChild(c);}
-    var p=L.pos(i);c.style.left=p.x+'px';c.style.top=p.y+'px';c.style.width=L.cw+'px';c.style.height=L.ch+'px';
+    var p=L.pos(i);if(!c.classList.contains('raahataan')){c.style.left=p.x+'px';c.style.top=p.y+'px';}c.style.width=L.cw+'px';c.style.height=L.ch+'px';
     var Er=E.rowEv(rs.rj,rid),mh={};Array.prototype.forEach.call(c.children,function(x){mh[x.getAttribute('data-id')]=x;});
     ms.forEach(function(m){var me=mh[m.id];delete mh[m.id];if(!me){me=document.createElement('div');me.setAttribute('data-id',m.id);me.setAttribute('data-row',rid);c.appendChild(me);}
       if(!(keepFocus&&me.contains(keepFocus))){var uh=ueInner(m,Er,false);if(me._uh!==uh){me.innerHTML=uh;me._uh=uh;}}
@@ -6684,6 +6706,8 @@ function tstInsp(b,E){
   else h+='<div class="sdnow"><span>Kortteja</span><b>'+rs.ids.length+' (taulukko ”'+esc(P.b[rs.rj]?P.b[rs.rj].nm:'?')+'”)</b></div>';
   h+='<div class="sdnow"><span>Kortin malli</span><b>'+(ms.length?esc(ms.map(function(m){return m.nm;}).join(', ')):'tyhjä')+'</b></div>';
   h+=fSegs('Kortit','tsu',b.tsu||'sarake',KK.TSU,b.tsu==='ruudukko'?'Ruudukko: niin monta korttia rinnakkain kuin toistimen leveyteen mahtuu (puhelimella yksi, leveällä näytöllä monta).':b.tsu==='rivi'?'Vierekkäin: kortit vierivät sivusuunnassa.':'Allekkain: kortit vierivät pystysuunnassa.');
+  /* F12, 2. osa: järjestys raahaamalla. */
+  var tla=KK.tstLahde(P,b.id);h+=fCheck('Järjestä raahaamalla','tlaj',b.tlaj===true)+'<div class="help">'+(b.tlaj===true?(tla?'Lukittuna korttia raahataan uuteen paikkaan (sormella pitkä painallus, hiirellä veto), ja taulukon ”'+esc(tla.nm)+'” rivijärjestys muuttuu käyttötiedossa. Logiikkaan tapahtuma <b>rivi siirretty</b>: <code>tapahtuma.rivi</code>, <code>.vanha</code> ja <code>.uusi</code> (paikka, 1 = ensimmäinen). Ilman raahausta: toiminto Siirrä rivi ylös / alas kortin painikkeesta.':'<span class="errt">Järjestys muuttuu vain, kun rivit tulevat nuolella suoraan Tietotaulukosta (Rivijoukko järjestää omalla tavallaan).</span>'):'Käyttäjä voi vaihtaa korttien järjestystä raahaamalla.')+'</div>';
   h+='<div class="row2">'+fNum('Kortin leveys','kw',b.kw)+fNum('Kortin korkeus','kh',b.kh)+fNum('Väli','vali',b.vali)+'</div><div class="help" style="margin-top:-4px">Leveys 0 = toistimen leveys.</div>';
   h+='<div class="help">Vedä palikat katkoviivalla merkittyyn ensimmäiseen korttiin: ne ovat kortin malli, joka toistetaan jokaiselle riville. Muokatessa malli näyttää ensimmäisen rivin arvot ja muut kortit näkyvät haaleina. Toistinta siirrettäessä malli siirtyy mukana; palikka irtoaa, kun sen vetää pois kortista.</div>';
   var tid=KK.rowTable(P,b.id),has=tid&&Object.keys(P.b).some(function(i){var o=P.b[i];return o.k==='trivi'&&o.tt===tid&&(o.ls||'kas')==='kas';});
@@ -7024,7 +7048,7 @@ function teeInsp(b,E){
   var d=b.do,h=fSelect('Toiminto','do',d,Object.keys(KK.DOS).map(function(x){return [x,KK.DOS[x]];}));
   var isT=function(o){return o.k==='taulu';};
   var tfv={kaynnista:function(o){return o.k==='ketju';},pysayta:function(o){return o.k==='ketju';},aseta:function(o){return settable(o)||isT(o);},tila:KK.isBoolKind,lisaa:function(o){return ['saadin','luku','muisti','pvm'].indexOf(o.k)>=0||(o.k==='nappi'&&o.beh==='kerta'&&!KK.napVaihto(o))||isT(o);},valitse:function(o){return KK.isBoolKind(o)||(o.k==='nappi');},poista:KK.isBoolKind,vaihda:function(o){return KK.isBoolKind(o)||isT(o);},
-    lisaarivi:isT,poistarivi:isT,valitserivi:isT,
+    lisaarivi:isT,poistarivi:isT,valitserivi:isT,siirrarivi:isT,
     tyhjenna:function(o){return settable(o)||o.k==='lista'||o.k==='aika'||isT(o);},kirjaa:function(o){return o.k==='aika';},rivi:function(o){return o.k==='lista';},siirry:function(o){return isUI(o);},arvonta:function(o){return o.k==='satu';}};
   /* Pajakone 4: Aseta, Lisää, Aseta tila, Vaihda ja Palauta voivat kohdistua myös ominaisuuteen (b.om). */
   var OMD={aseta:'aseta',lisaa:'lisaa',tila:'tila',vaihda:'vaihda',palauta:'aseta'};
@@ -7036,7 +7060,8 @@ function teeInsp(b,E){
   if(tgo&&tgo.k==='taulu'){var tcs=KK.tSar(tgo),ti=KK.tauluIssue(P,b,tgo);
     if(d==='aseta'||d==='lisaa'||d==='vaihda'||d==='tyhjenna'){var okc=tcs.filter(function(c){return d==='lisaa'?(c.laji==='luku'||c.laji==='pvm'):d==='vaihda'?c.laji==='kylla':true;});
       h+=fSelect('Sarake','sk',b.sk||'',[['',d==='tyhjenna'?'kaikki rivit (tyhjennä taulukko)':'— valitse sarake —']].concat(okc.map(function(c){return [c.id,c.nm+' ('+KK.SARK[c.laji]+')'];})),d==='lisaa'?'Lisää: luku- tai päivämääräsarake. Puuttuvaan lisätään kuin nollaan.':d==='vaihda'?'Vaihda: kyllä/ei-sarake (puuttuva → kyllä).':null);}
-    if(((d==='aseta'||d==='lisaa'||d==='vaihda'||d==='tyhjenna')&&b.sk)||d==='poistarivi')h+=fSegs('Mikä rivi','rl',b.rl==='tapahtuma'?'tapahtuma':'',[['','Valittu rivi'],['tapahtuma','Tapahtuman rivi']],b.rl==='tapahtuma'?'Rivi, jonka tapahtuma kertoo (esim. Lisää rivi- tai Valitse rivi -toiminnon jälkeen tai ketjussa sen käynnistäneen tapahtuman rivi).':'Taulukon valittu rivi (Valitse rivi).');
+    if(((d==='aseta'||d==='lisaa'||d==='vaihda'||d==='tyhjenna')&&b.sk)||d==='poistarivi'||d==='siirrarivi')h+=fSegs('Mikä rivi','rl',b.rl==='tapahtuma'?'tapahtuma':'',[['','Valittu rivi'],['tapahtuma','Tapahtuman rivi']],b.rl==='tapahtuma'?'Rivi, jonka tapahtuma kertoo (esim. Lisää rivi- tai Valitse rivi -toiminnon jälkeen tai ketjussa sen käynnistäneen tapahtuman rivi).':'Taulukon valittu rivi (Valitse rivi).');
+    if(d==='siirrarivi')h+=fSegs('Suunta','rsu',b.rsu==='alas'?'alas':'',[['','Ylös'],['alas','Alas']],'Rivi vaihtaa paikkaa viereisen rivin kanssa. Ensimmäinen ei siirry ylemmäs eikä viimeinen alemmas. Kortin painikkeessa valitse Tapahtuman rivi.');
     if(d==='valitserivi'){h+=fSelect('Mikä rivi','rs',b.rs||'seur',KK.RIVIVAL);if((b.rs||'seur')==='seur'||b.rs==='edel')h+=fCheck('Lopusta alkuun (ja alusta loppuun)','kierto',b.kierto);
       if(b.rs==='arvo')h+=fValue('Rivi','v',b,'Rivin numero (1 = ylin) tai rivi, esim. Kaava, jossa toinen.valittu. Tai vie nuoli kohtaan ”arvo”.');}
     if(d==='lisaarivi'){if(!tcs.length)h+='<div class="help errt">Taulukossa ei ole vielä sarakkeita.</div>';
@@ -7058,7 +7083,7 @@ function teeInsp(b,E){
   if(d==='siirry'&&!b.o)h+=fSelect('Näkymä','vw',b.vw,[['','tämä näkymä']].concat(P.views.map(function(v){return [v.id,v.n];})))+'<div class="row2">'+fNum('X','x',b.x)+fNum('Y','y',b.y)+'</div><div class="help">Kohta (X, Y) tulee näytön vasempaan yläkulmaan. Koordinaatit näkyvät Näkymän muokkaustilassa.</div>';
   if(d==='siirry'||d==='takaisin')h+=fSegs('Siirtymä','tapa',b.tapa==='heti'?'heti':'vieri',[['vieri','Vierien'],['heti','Heti']],b.tapa==='heti'?'Ruutu hyppää uuteen kohtaan välittömästi.':'Ruutu vierii uuteen kohtaan noin puolessa sekunnissa.');
   if(d==='kirjaa'||d==='rivi'||d==='ilmoita')h+=fTpl(d==='ilmoita'?'Ilmoitus':'Teksti','tx',b,d==='kirjaa'?'Tulee aikajanalle aikaleiman kanssa. {Nimi} tuo toisen palikan arvon.':null);
-  var hp={aseta:'',tila:'',lisaa:'',valitse:'',poista:'',vaihda:'',tyhjenna:'Palauttaa kohteen alkutilaan.',siirry:'',takaisin:'Palaa näkymään ja kohtaan, josta viimeksi siirryttiin Siirry-toiminnolla (esim. Takaisin-painike). Jos aiempaa siirtoa ei ole, mitään ei tapahdu. Välilehden vaihto käsin nollaa historian.',kirjaa:'',rivi:'',ilmoita:'Ilmoitus näkyy hetken näytön yläreunassa.',lisaarivi:'Sitten-tapahtuman rivi on uusi rivi (Tapahtuman tiedot: tapahtuma.rivi).',poistarivi:'Jos poistettu rivi oli valittu, valinta siirtyy seuraavaan.',valitserivi:'Sitten-tapahtuman rivi on valittu rivi; vanha ja uusi kertovat valinnan ennen ja jälkeen.',arvonta:'Arpoo satunnaisluvulle uuden luvun sen välin ja jakauman mukaan. Satunnaisluvun arvottu-tapahtuma lähtee heti.'}[d];
+  var hp={aseta:'',tila:'',lisaa:'',valitse:'',poista:'',vaihda:'',tyhjenna:'Palauttaa kohteen alkutilaan.',siirry:'',takaisin:'Palaa näkymään ja kohtaan, josta viimeksi siirryttiin Siirry-toiminnolla (esim. Takaisin-painike). Jos aiempaa siirtoa ei ole, mitään ei tapahdu. Välilehden vaihto käsin nollaa historian.',kirjaa:'',rivi:'',ilmoita:'Ilmoitus näkyy hetken näytön yläreunassa.',lisaarivi:'Sitten-tapahtuman rivi on uusi rivi (Tapahtuman tiedot: tapahtuma.rivi).',poistarivi:'Jos poistettu rivi oli valittu, valinta siirtyy seuraavaan.',siirrarivi:'Sitten-tapahtumassa tapahtuma.vanha ja tapahtuma.uusi ovat rivin paikka ennen ja jälkeen (1 = ensimmäinen).',valitserivi:'Sitten-tapahtuman rivi on valittu rivi; vanha ja uusi kertovat valinnan ennen ja jälkeen.',arvonta:'Arpoo satunnaisluvulle uuden luvun sen välin ja jakauman mukaan. Satunnaisluvun arvottu-tapahtuma lähtee heti.'}[d];
   return section('Toiminto',fCheck('Käytössä','on',!b.off)+h+(hp?'<div class="help">'+hp+'</div>':'')+'<div class="help">Toiminto tehdään, kun siihen tulee tapahtuma (esim. painettu, NIIN, silloin) tai kun siihen tuleva arvo alkaa päteä. Ulos lähtee ”sitten”, josta voi jatkaa seuraavaan toimintoon.</div>');
 }
 
@@ -8082,17 +8107,20 @@ document.addEventListener('visibilitychange',function(){if(!Dt||!ghOn())return;i
    lukittu kerros (kojelauta) eivät vääristä sitä. Toinen sormi (nipistyszoomaus) tai keskeytynyt kosketus perii raahauksen.
    Pudotuksen paikan (suunta, ruudukko, hyväksytyt alueet) ja tapahtumat ratkaisee moottori. */
 function kayttoRaahaus(e,el){if(!el||e.target.closest('input,textarea,select,.cal,.tsc'))return false;var id=el.getAttribute('data-id'),b=P.b[id];if(!KK.raahattava(P,b))return false;
-  var r=KK.rectNow(P,ev(),b),pid=e.pointerId,x0=e.clientX,y0=e.clientY,on=false,lx=r.x,ly=r.y,k=1,
-    left0=parseFloat(el.style.left)||0,top0=parseFloat(el.style.top)||0;
-  function irti(){window.removeEventListener('pointermove',mv,true);window.removeEventListener('pointerup',up,true);window.removeEventListener('pointercancel',up,true);}
-  function loppu(peru){irti();if(!on||!P)return;on=false;S.drg=false;el.classList.remove('raahataan');
-    function sup(c){c.stopPropagation();c.preventDefault();window.removeEventListener('click',sup,true);}window.addEventListener('click',sup,true);setTimeout(function(){window.removeEventListener('click',sup,true);},0);
+  var vp=$('#uvp'),r=KK.rectNow(P,ev(),b),pid=e.pointerId,x0=e.clientX,y0=e.clientY,px=x0,py=y0,on=false,lx=r.x,ly=r.y,k=1,ax=0,ay=0,raf=0,kor=null,
+    left0=parseFloat(el.style.left)||0,top0=parseFloat(el.style.top)||0,rv=KK.rvOf(P,b)>=100;
+  function irti(){cancelAnimationFrame(raf);window.removeEventListener('pointermove',mv,true);window.removeEventListener('pointerup',up,true);window.removeEventListener('pointercancel',up,true);}
+  function loppu(peru){irti();if(!on||!P)return;on=false;S.drg=false;el.classList.remove('raahataan');if(kor)kor.pois();estaKlikki();
     if(peru)KK.raahausPeruttu(P,id,ctx());else KK.raahausPudotus(P,id,lx,ly,ctx());
     save();renderUIStage();runFrames();}
-  function mv(m){if(m.pointerId!==pid)return;if(S.upinch){loppu(true);return;}
-    if(!on){if(Math.hypot(m.clientX-x0,m.clientY-y0)<6)return;on=true;S.drg=true;var bw=el.getBoundingClientRect().width;k=el.offsetWidth>0&&bw>0?bw/el.offsetWidth:1;el.classList.add('raahataan');KK.raahausAlku(P,id,ctx());}
-    m.preventDefault();lx=r.x+(m.clientX-x0)/k;ly=r.y+(m.clientY-y0)/k;if(b.rax==='x')ly=r.y;else if(b.rax==='y')lx=r.x;
-    el.style.left=(left0+lx-r.x)+'px';el.style.top=(top0+ly-r.y)+'px';}
+  function paikka(){lx=r.x+(px-x0)/k+ax;ly=r.y+(py-y0)/k+ay;if(b.rax==='x')ly=r.y;else if(b.rax==='y')lx=r.x;
+    el.style.left=(left0+lx-r.x)+'px';el.style.top=(top0+ly-r.y)+'px';if(kor){var o=KK.raahausPaikka(P,b,lx,ly,ctx());kor.on(o.alue?o.alue.id:'');}}
+  /* Reunavieritys: kamera siirtyy, ja palikka pysyy osoittimen alla. Kameran rajat huomioidaan mittaamalla todellinen siirtymä. */
+  function vieri(){raf=0;if(!on)return;if(rv&&vp&&canPanUI()){var q=vp.getBoundingClientRect(),vx=b.rax==='y'?0:reunaVauhti(px,q.left,q.right),vy=b.rax==='x'?0:reunaVauhti(py,q.top,q.bottom);
+      if(vx||vy){var c=camUI(),bx=c.x,by=c.y;c.x-=vx;c.y-=vy;uiCamChanged();ax-=(c.x-bx)/c.z;ay-=(c.y-by)/c.z;paikka();}}raf=requestAnimationFrame(vieri);}
+  function mv(m){if(m.pointerId!==pid)return;px=m.clientX;py=m.clientY;if(S.upinch){loppu(true);return;}
+    if(!on){if(Math.hypot(px-x0,py-y0)<6)return;on=true;S.drg=true;var bw=el.getBoundingClientRect().width;k=el.offsetWidth>0&&bw>0?bw/el.offsetWidth:1;el.classList.add('raahataan');kor=raahKorostus(b,el);KK.raahausAlku(P,id,ctx());raf=requestAnimationFrame(vieri);}
+    m.preventDefault();paikka();}
   function up(u){if(u.pointerId!==pid)return;loppu(u.type==='pointercancel');}
   window.addEventListener('pointermove',mv,true);window.addEventListener('pointerup',up,true);window.addEventListener('pointercancel',up,true);
   if(!e.target.closest('button'))e.preventDefault();
@@ -8101,9 +8129,42 @@ function raahausSection(b){if(b.k==='merkki'||b.k==='alue'||b.k==='toistin'||KK.
   var h=fCheck('Raahattava käytössä','raah',on)+'<div class="help">Lukitussa käytössä palikkaa voi siirtää sormella tai hiirellä. Paikka on käyttötietoa: rakenne ei muutu, ja käyttötietojen tyhjennys palauttaa alkupaikan.</div>';
   if(on){h+=fSegs('Suunta','rax',b.rax||'',[['','Vapaa'],['x','Vain vaaka'],['y','Vain pysty']])+
     (g?fCheck('Kohdista ruudun keskelle','rko',b.rko===true):'<div class="help">Kun palikan kerroksella on ruudukko, pudotuksen voi kohdistaa ruudun keskelle.</div>')+
-    fSegs('Pudotus','rpa',b.rpa||'',[['','Minne vain'],['alue','Vain alueisiin']],'Vain alueisiin: muualle pudotettu palaa paikalleen, ja tulee tapahtuma raahaus peruttu.')+
+    fSegs('Pudotus','rpa',b.rpa||'',[['','Minne vain'],['alue','Vain alueisiin']],'Vain alueisiin: alueet näkyvät raahatessa katkoviivoina ja kohdealue korostuu; muualle pudotettu palaa paikalleen, ja tulee tapahtuma raahaus peruttu.')+
     '<div class="help">Logiikkaan: tapahtumat <b>raahaus alkoi</b>, <b>pudotettu</b> ja <b>raahaus peruttu</b>. Tapahtuman tiedoissa <code>tapahtuma.kohde</code> (Alue, johon pudotettiin), <code>tapahtuma.x</code>, <code>tapahtuma.y</code>'+(g?', <code>tapahtuma.ruutux</code>, <code>tapahtuma.ruutuy</code>':'')+'.</div>';}
   return '<details class="fs oms" id="raahsec"'+(on?' open':'')+'><summary><h4>Käyttöraahaus</h4></summary>'+h+'</details>';}
+/* ---------- F12, 2. osa (Appi-appi 20): korostus, reunavieritys ja korttien lajittelu ----------
+   Raahauksen jälkeinen napsautus ei paina painiketta. Reunavieritys: osoitin alle 40 px kehyksen reunasta siirtää
+   kameraa (vain kun näkymää saa rullata eikä palikka ole hitaammalla kerroksella) tai korttien kehystä. */
+function estaKlikki(){function sup(c){c.stopPropagation();c.preventDefault();window.removeEventListener('click',sup,true);}window.addEventListener('click',sup,true);setTimeout(function(){window.removeEventListener('click',sup,true);},0);}
+function reunaVauhti(p,a,b){var E=40;if(p<a+E)return -Math.max(2,14*(1-(p-a)/E));if(p>b-E)return Math.max(2,14*(1-(b-p)/E));return 0;}
+/* Pudotusalueet näkyviin raahauksen ajaksi (vain Vain alueisiin -valinnalla). */
+function raahKorostus(b,el){if(b.rpa!=='alue'||!el.parentNode)return null;var ks=KK.raahausKohteet(P,b,ctx()),m={};
+  ks.forEach(function(a){var d=document.createElement('div');d.className='raahko'+(a.ympyra?' ymp':'');d.setAttribute('data-alue',a.id);d.style.left=a.x+'px';d.style.top=a.y+'px';d.style.width=a.w+'px';d.style.height=a.h+'px';el.parentNode.appendChild(d);m[a.id]=d;});
+  return {on:function(id){Object.keys(m).forEach(function(k){m[k].classList.toggle('on',k===id);});},pois:function(){Object.keys(m).forEach(function(k){m[k].remove();});}};}
+/* Kortin raahaus järjestyksen vaihtamiseksi. Hiirellä yli 6 px liike aloittaa, sormella pitkä painallus (0,35 s), jotta
+   tavallinen pyyhkäisy vierittää kortteja. Kortti seuraa osoitinta, katkoviiva näyttää uuden paikan. */
+function korttiRaahaus(e){var card=e.target.closest&&e.target.closest('.tcard');if(!card||!card.getAttribute('data-row')||e.target.closest('input,textarea,select,.k-saadin'))return false;
+  var tel=card.closest('.ue.k-toistin'),T=tel&&P.b[tel.getAttribute('data-id')];if(!KK.tstLajittuu(P,T))return false;
+  var inn=card.parentNode,sc=card.closest('.tsc'),rid=card.getAttribute('data-row'),pid=e.pointerId,x0=e.clientX,y0=e.clientY,px=x0,py=y0,on=false,k=1,raf=0,slot=null,to=-1,
+    l0=parseFloat(card.style.left)||0,t0=parseFloat(card.style.top)||0,sl0=sc?sc.scrollLeft:0,st0=sc?sc.scrollTop:0,kos=e.pointerType==='touch',ajastin=0;
+  function irti(){clearTimeout(ajastin);cancelAnimationFrame(raf);window.removeEventListener('pointermove',mv,true);window.removeEventListener('pointerup',up,true);window.removeEventListener('pointercancel',up,true);document.removeEventListener('touchmove',tm,{passive:false});}
+  function tm(t){if(on)t.preventDefault();}
+  function aloita(){if(on||!P)return;on=true;S.drg=true;var bw=card.getBoundingClientRect().width;k=card.offsetWidth>0&&bw>0?bw/card.offsetWidth:1;card.classList.add('raahataan');
+    slot=document.createElement('div');slot.className='tslot';slot.style.width=card.style.width;slot.style.height=card.style.height;inn.appendChild(slot);paikka();raf=requestAnimationFrame(vieri);}
+  function paikka(){var x=l0+(px-x0)/k+(sc?sc.scrollLeft-sl0:0),y=t0+(py-y0)/k+(sc?sc.scrollTop-st0:0);card.style.left=x+'px';card.style.top=y+'px';
+    var E=ev(),rs=E.rowsIn(T.id),ids=rs&&!KK.isErr(rs)?rs.ids:[],L=KK.tstLayout(T,ids.length,ovN(T,E,false,'w',T.w)),cx=x+L.cw/2,cy=y+L.ch/2,best=-1,bd=Infinity;
+    for(var i=0;i<ids.length;i++){var p=L.pos(i),d=Math.hypot(p.x+L.cw/2-cx,p.y+L.ch/2-cy);if(d<bd){bd=d;best=i;}}
+    to=best;if(best>=0){var q=L.pos(best);slot.style.left=q.x+'px';slot.style.top=q.y+'px';}}
+  function vieri(){raf=0;if(!on)return;if(sc){var r=sc.getBoundingClientRect(),vx=sc.scrollWidth>sc.clientWidth?reunaVauhti(px,r.left,r.right):0,vy=sc.scrollHeight>sc.clientHeight?reunaVauhti(py,r.top,r.bottom):0;
+      if(vx||vy){sc.scrollLeft+=vx;sc.scrollTop+=vy;paikka();}}raf=requestAnimationFrame(vieri);}
+  function loppu(peru){irti();if(!on||!P)return;on=false;S.drg=false;card.classList.remove('raahataan');if(slot)slot.remove();estaKlikki();
+    if(!peru&&to>=0)KK.tstSiirra(P,T.id,rid,to,ctx());save();renderUIStage();runFrames();}
+  function mv(m){if(m.pointerId!==pid)return;px=m.clientX;py=m.clientY;if(S.upinch){loppu(true);return;}
+    if(!on){var d=Math.hypot(px-x0,py-y0);if(kos){if(d>8)irti();return;}if(d<6)return;aloita();}m.preventDefault();paikka();}
+  function up(u){if(u.pointerId!==pid)return;loppu(u.type==='pointercancel');}
+  window.addEventListener('pointermove',mv,true);window.addEventListener('pointerup',up,true);window.addEventListener('pointercancel',up,true);document.addEventListener('touchmove',tm,{passive:false});
+  if(kos)ajastin=setTimeout(aloita,350);else if(!e.target.closest('button'))e.preventDefault();
+  return true;}
 /* ---------- Käynnistys ---------- */
 load();
 if(P){S.vw=P.views[0].id;KK.tick(P,ctx());}
