@@ -1048,6 +1048,8 @@ var DOS={aseta:'Aseta arvo',tila:'Aseta tila',lisaa:'Lisää',valitse:'Valitse',
 var VKP=['sunnuntai','maanantai','tiistai','keskiviikko','torstai','perjantai','lauantai'];
 var KUUT=['tammikuu','helmikuu','maaliskuu','huhtikuu','toukokuu','kesäkuu','heinäkuu','elokuu','syyskuu','lokakuu','marraskuu','joulukuu'];
 var BOOLK={ruutu:1,kytkin:1};
+/* Appi-appi 25 (L1): ohjaimet, joilla on tapahtuma muuttui. Painike, Kalenteri ja Tatti lähettävät omat tapahtumansa. */
+var MUUTTUU={saadin:1,teksti:1,luku:1,ruutu:1,kytkin:1,pvm:1,lista:1};
 /* Pajakone 2: painikkeen lisätapahtumat (pitkä painallus, irrotettu, painalluksen kesto). Aina mukana käytöksellä
    'pida' (pohjassa vain painettaessa), muilla kun asetus ext on päällä. */
 var NAP_PITKA=500;
@@ -1075,6 +1077,8 @@ function portsBase(b){
     else if(k==='tatti')outs=[V('v','etäisyys'),V('x','vaaka'),V('y','pysty'),V('s','suunta'),E('e','alkaa'),E('irti','loppuu')];
     else if(k==='ilmo')outs=[V('v','näkyy')];
     else outs=[V('v','arvo')];
+    /* Appi-appi 25 (L1): syöttävä ohjain lähettää tapahtuman muuttui, kun käyttäjä muuttaa arvoa (muuttui()). */
+    if(MUUTTUU[k])outs.push(E('mu','muuttui'));
     /* F12: käyttöraahaus */
     if(b.raah===true&&k!=='merkki'&&k!=='alue')outs.push(E('ral','raahaus alkoi'),E('rpu','pudotettu'),E('rpe','raahaus peruttu'));
     return {ins:ins,outs:outs};
@@ -3125,7 +3129,16 @@ function pressUp(P,id,ctx,sec){var b=P.b[id];if(!b||b.k!=='nappi')return;sec=num
   if(b.beh==='pida')setVal(P,id,false,ctx);fire(P,id,'irti',cardCtx(P,id,ctx),0);tick(P,tstBase(ctx));}
 /* Onko painikkeen tapahtumasta nuolia (UI: pitkä painallus estää tavallisen painalluksen vain, jos sitä käytetään). */
 function hasOut(P,id,p){var ns={};P.lg.n.forEach(function(n){if(n.p===id)ns[n.id]=1;});return P.lg.l.some(function(l){return ns[l.f]&&l.fp===p;});}
-function userSet(P,id,v,ctx){var old=evAuto(P,id,ctx),base=tstBase(ctx);setVal(P,id,v,ctx);var c=Object.create(base&&typeof base==='object'?base:{});c.chg={id:id,vanha:old?old.uusi:null};tick(P,c);}
+/* Käyttäjän muutos. hiljaa: ei muuttui-tapahtumaa (Tekstikenttä lähettää sen vasta, kun kirjoitus päättyy). */
+function userSet(P,id,v,ctx,hiljaa){var old=evAuto(P,id,ctx),base=tstBase(ctx),vo=old?old.uusi:null;setVal(P,id,v,ctx);if(!hiljaa)muuttui(P,id,vo,ctx);var c=Object.create(base&&typeof base==='object'?base:{});c.chg={id:id,vanha:vo};tick(P,c);}
+/* Appi-appi 25 (L1): tapahtuma muuttui, kun käyttäjän muutos vaihtoi arvon (aina: myös saman arvon kanssa, esim. listan
+   uusi rivi). Logiikan Aseta ja valitun rivin vaihtuminen eivät lähetä sitä, joten muuttui → Aseta samaan ei kierrä.
+   Tapahtuman tiedot: uusi, vanha ja kortissa rivi. */
+function muuttui(P,id,vanha,ctx,aina){var b=P.b[id];if(!b||!MUUTTUU[b.k]||!port(b,'outs','mu')||isOff(P,b,ctx))return false;var uusi=(evAuto(P,id,ctx)||{}).uusi;
+  if(vanha===undefined)vanha=null;if(uusi===undefined)uusi=null;if(!aina&&samaArvo(vanha,uusi))return false;
+  fire(P,id,'mu',cardEv(P,id,ctx,{vanha:vanha,uusi:uusi}),0);return true;}
+function samaArvo(a,b){if(a===b)return true;if(isD(a)&&isD(b))return a.d===b.d;if(typeof a==='number'&&typeof b==='number')return isNaN(a)&&isNaN(b);
+  if(a==null||b==null||typeof a!=='object'||typeof b!=='object')return false;try{return JSON.stringify(a)===JSON.stringify(b);}catch(e){return false;}}
 function tick(P,ctx){
   P.mem=P.mem||{};var mem=P.mem;
   /* Pois päältä laitettu ketju pysähtyy heti. */
@@ -4235,7 +4248,7 @@ return {omat:omat,omFind:omFind,omNorm:omNorm,omBase:omBase,omNames:omNames,omAc
 kuvaPyorii:kuvaPyorii,kuvaNro:kuvaNro,SARJA_MAX:SARJA_MAX,ruudukko:ruudukko,ruudukkoOf:ruudukkoOf,ruutuAt:ruutuAt,ruutuKeski:ruutuKeski,kohdista:kohdista,ruutuKohdistus:ruutuKohdistus,alueRuudukko:alueRuudukko,alueRuutu:alueRuutu,alueNapautus:alueNapautus,kerrokset:kerrokset,kerrosOf:kerrosOf,rvOf:rvOf,kuvaUrl:kuvaUrl,K:K,KW:KW,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,kaavaToIds:kaavaToIds,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
   ports:ports,port:port,newProject:newProject,addBlock:addBlock,addNode:addNode,addLink:addLink,canLink:canLink,
   removeNode:removeNode,removeBlock:removeBlock,refsTo:refsTo,brokenRefs:brokenRefs,relink:relink,isGone:isGone,goneName:goneName,scanRefs:scanRefs,nodeOf:nodeOf,nodesOfBlock:nodesOfBlock,uniqueName:uniqueName,baseName:baseName,
-  repair:repair,repairData:repairData,Ev:Ev,setVal:setVal,userSet:userSet,press:press,kalenteriValitse:kalenteriValitse,fire:fire,tick:tick,runAction:runAction,clearVal:clearVal,
+  repair:repair,repairData:repairData,Ev:Ev,setVal:setVal,userSet:userSet,muuttui:muuttui,MUUTTUU:MUUTTUU,press:press,kalenteriValitse:kalenteriValitse,fire:fire,tick:tick,runAction:runAction,clearVal:clearVal,
   listRows:listRows,toNames:toNames,toIds:toIds,refsIn:refsIn,isBoolKind:isBoolKind,
   iso:iso,addDays:addDays,diffDays:diffDays,isoWeek:isoWeek,weekday:weekday,fmtDate:fmtDate,parseDate:parseDate,
   fmt:fmt,num:num,truth:truth,isD:isD,D:D,parseLit:parseLit,calc:calc,cmp:cmp,datePart:datePart,clone:clone,
@@ -5284,7 +5297,7 @@ function bindUIStage(){
       case 'today':KK.userSet(P,id,KK.D(KK.iso(new Date())),C);break;
       case 'rowchk':case 'rowdel':{var rid=t.closest('[data-row]').getAttribute('data-row');var rows=KK.listRows(P,id).map(function(r){return {id:r.id,tx:r.tx,c:r.c,d:r.d};});
         if(act==='rowchk')rows.forEach(function(r){if(r.id===rid)r.c=!r.c;});else rows=rows.filter(function(r){return r.id!==rid;});
-        P.st[id]={rows:rows};KK.tick(P,C);break;}
+        var lv=E.val(id);P.st[id]={rows:rows};KK.muuttui(P,id,lv,C,true);KK.tick(P,C);break;}
       case 'pvsel':KK.kalenteriValitse(P,id,t.getAttribute('data-d'),C);break;
       case 'calprev':S.calm[id]=(S.calm[id]||0)-1;break;
       case 'calnext':S.calm[id]=(S.calm[id]||0)+1;break;
@@ -5303,20 +5316,22 @@ function bindUIStage(){
     if(editingUI())return;var t=e.target.closest('[data-act]');if(!t)return;var el=t.closest('.ue');if(!el||blockedUE(el))return;var id=el.getAttribute('data-id');
     var act=t.getAttribute('data-act');
     if(act==='range'){KK.userSet(P,id,parseFloat(t.value),cardC(el,id));afterUse();}
-    else if(act==='text'){KK.userSet(P,id,t.value,cardC(el,id));afterUse(true);}
+    else if(act==='text'){var tc=cardC(el,id);if(!('_alku' in t))t._alku=cardE(tc).val(id);KK.userSet(P,id,t.value,tc,true);afterUse(true);}
   });
   world.addEventListener('change',function(e){
     if(editingUI())return;var t=e.target.closest('[data-act]');if(!t)return;var el=t.closest('.ue');if(!el||blockedUE(el))return;var id=el.getAttribute('data-id'),b=P.b[id];
     var act=t.getAttribute('data-act'),C=cardC(el,id);
     if(act==='num'){var x=KK.parseLit(t.value);KK.userSet(P,id,typeof x==='number'?x:b&&b.trv&&KK.isBound(P,b)&&!t.value.trim()?null:0,C);t.blur();afterUse();}
     else if(act==='date'){var d=KK.parseDate(t.value,new Date());if(t.value.trim()&&!d){toast('Päivämäärää ei tunnistettu. Kirjoita esim. 24.12.2026, 24.12. tai +5.');}KK.userSet(P,id,d||'',C);t.blur();afterUse();}
-    else if(act==='rowdate'){var rid=t.closest('[data-row]').getAttribute('data-row');var dd=KK.parseDate(t.value,new Date());var rows=KK.listRows(P,id).map(function(r){return {id:r.id,tx:r.tx,c:r.c,d:r.d};});rows.forEach(function(r){if(r.id===rid)r.d=dd||'';});P.st[id]={rows:rows};KK.tick(P,C);t.blur();afterUse();}
+    else if(act==='rowdate'){var rid=t.closest('[data-row]').getAttribute('data-row');var dd=KK.parseDate(t.value,new Date());var rows=KK.listRows(P,id).map(function(r){return {id:r.id,tx:r.tx,c:r.c,d:r.d};});rows.forEach(function(r){if(r.id===rid)r.d=dd||'';});var lv=cardE(C).val(id);P.st[id]={rows:rows};KK.muuttui(P,id,lv,C,true);KK.tick(P,C);t.blur();afterUse();}
+    /* Appi-appi 25: Tekstikenttä lähettää muuttui, kun kirjoitus päättyy (kenttä menettää kohdistuksen tai Enter). */
+    else if(act==='text'&&('_alku' in t)){var va=t._alku;delete t._alku;if(KK.muuttui(P,id,va,C)){KK.tick(P,C);afterUse(true);}}
   });
   world.addEventListener('keydown',function(e){
     if(editingUI())return;var t=e.target;var bel=t.closest&&t.closest('.ue');if(bel&&blockedUE(bel))return;
     if(t.getAttribute('data-act')==='rowadd'&&e.key==='Enter'&&t.value.trim()){
       var id=t.closest('.ue').getAttribute('data-id');var rows=KK.listRows(P,id).map(function(r){return {id:r.id,tx:r.tx,c:r.c,d:r.d};});
-      rows.push({id:'r'+(++P.seq),tx:t.value.trim(),c:false,d:''});P.st[id]={rows:rows};KK.tick(P,ctx());t.value='';t.blur();afterUse();
+      var lv=ev().val(id);rows.push({id:'r'+(++P.seq),tx:t.value.trim(),c:false,d:''});P.st[id]={rows:rows};KK.muuttui(P,id,lv,ctx(),true);KK.tick(P,ctx());t.value='';t.blur();afterUse();
       var again=$('.ue[data-id="'+id+'"] .ladd');if(again)again.focus();
     }
     if((t.getAttribute('data-act')==='num'||t.getAttribute('data-act')==='date')&&e.key==='Enter')t.blur();
@@ -5851,7 +5866,7 @@ function linkDesc(lid){
 }
 function guide(){
   if(palKind()==='nakyma')return viewSection(S.vw)+'<div class="guide"><h3>Näkymä</h3><p>Täällä asettelet sen, mitä käyttäjä näkee: painikkeet, säätimet, tekstit, listat, kaaviot ja koristeet. Raahaa ja muuta kokoa kulmasta. Ruudukko kohdistaa 10 px:n välein. <span class="kbd">⇧</span> pois päältä.</p><p>Jokaisella palikalla on <b>nimi</b>, jolla siihen viitataan. Nimi ei näy käyttäjälle, ellet laita sitä tekstiin.</p><p><b>🔒 Lukitse</b> tekee näkymästä valmiin appin: palikat pysyvät paikoillaan ja niitä vain käytetään.</p><p>Koordinaatit näkyvät vasemmassa alakulmassa. Toiminto <b>Siirry</b> voi viedä näkymään, kohtaan, sijaintiin tai alueeseen. Aseta ruutu ja paina alhaalla <b>⌖ Sijainti</b>, niin piste tulee ruudun keskelle.</p><p><b>Rinnakkain</b> näyttää näkymän ja logiikan vierekkäin. Valittu palikka korostuu molemmilla puolilla.</p><p><span class="kbd">⇧</span>-napsautus valitsee monta, <span class="kbd">⇧</span> + veto tyhjästä valitsee alueelta. Monivalinnan voi tasata oikealta.</p><p><span class="kbd">⌫</span> poistaa · <span class="kbd">⌘D</span> monistaa · nuolinäppäimet siirtävät · <span class="kbd">⌘Z</span> kumoaa · välilyönti + veto liikuttaa kanvaasia.</p></div>';
-  return '<div class="guide"><h3>Logiikka</h3><p>Vedä palikat kanvaasille ja yhdistä ne <b>nuolilla</b>: palikan oikean reunan pisteestä toisen palikan vasemman reunan pisteeseen. Pyöreä piste on <b>arvo</b>, punainen salmiakki on <b>tapahtuma</b>.</p><p><b>Ikkunat</b> ovat sulkuja: JA vaatii, että kaikki sisällä pätee. TAI tyytyy yhteen. VAIN YKSI hyväksyy täsmälleen yhden. SUMMA laskee sisällön luvut yhteen. Ikkunoita voi laittaa sisäkkäin.</p><p><b>JOS</b>: kun ehto alkaa päteä, NIIN-toiminnot tehdään kerran. MUUTEN-haara (valinnainen) tehdään, kun ehto lakkaa päteä. <b>VALITSE</b> antaa arvon A tai B ehdon mukaan, mutta ei tee mitään.</p><p>Nuoli arvosta toimintoon: toiminto tehdään, kun arvo <b>alkaa päteä</b>. Tapahtumanuoli (painettu, NIIN, sitten) ajaa toiminnon heti.</p><p>Valitse palikka: oikealla näkyy <b>Miksi?</b> (mikä pätee ja mikä ei) ja <b>Yhteydet</b>. Ikkunan voi tiivistää pieneksi –-napista.</p><p>Vihreä nuoli = arvo pätee juuri nyt. Arvot ovat eläviä: kokeile näkymässä ja katso täältä.</p><p>Sama palikka saa olla kanvaasilla monessa kohdassa, jotta nuolet pysyvät lyhyinä.</p><p><b>Kaava</b> (ƒ): kirjoita esim. <span class="kbd">uni &gt; 7</span>. Jokaisella palikalla on lyhyt <b>viite</b> (näkyy palikan kulmassa), jolla siihen viitataan kaavassa ja tekstissä {viite}. Kaavan voi pudottaa ikkunaan (ikkuna hoitaa sulut) tai näkymän palikan päälle: teksti, näkyy kun tai harmaana kun.</p><p>Jos palikalle tulee monta näkyvyyssääntöä, <b>rajoittavin voittaa</b>: piilossa, sitten harmaana, sitten vain luettava.</p><p><b>Ketju</b> (⛓, punainen ikkuna): sen sisällä palikat ovat tapahtumia, jotka tehdään peräkkäin punaisia viivoja pitkin. Uusi tapahtuma kytkeytyy itsestään edelliseen. Samasta palikasta voi lähteä monta haaraa, ja ne etenevät rinnakkain.</p></div>';
+  return '<div class="guide"><h3>Logiikka</h3><p>Vedä palikat kanvaasille ja yhdistä ne <b>nuolilla</b>: palikan oikean reunan pisteestä toisen palikan vasemman reunan pisteeseen. Pyöreä piste on <b>arvo</b>, punainen salmiakki on <b>tapahtuma</b>.</p><p><b>Ikkunat</b> ovat sulkuja: JA vaatii, että kaikki sisällä pätee. TAI tyytyy yhteen. VAIN YKSI hyväksyy täsmälleen yhden. SUMMA laskee sisällön luvut yhteen. Ikkunoita voi laittaa sisäkkäin.</p><p><b>JOS</b>: kun ehto alkaa päteä, NIIN-toiminnot tehdään kerran. MUUTEN-haara (valinnainen) tehdään, kun ehto lakkaa päteä. <b>VALITSE</b> antaa arvon A tai B ehdon mukaan, mutta ei tee mitään.</p><p>Nuoli arvosta toimintoon: toiminto tehdään, kun arvo <b>alkaa päteä</b>. Tapahtumanuoli (painettu, muuttui, NIIN, sitten) ajaa toiminnon heti.</p><p>Valitse palikka: oikealla näkyy <b>Miksi?</b> (mikä pätee ja mikä ei) ja <b>Yhteydet</b>. Ikkunan voi tiivistää pieneksi –-napista.</p><p>Vihreä nuoli = arvo pätee juuri nyt. Arvot ovat eläviä: kokeile näkymässä ja katso täältä.</p><p>Sama palikka saa olla kanvaasilla monessa kohdassa, jotta nuolet pysyvät lyhyinä.</p><p><b>Kaava</b> (ƒ): kirjoita esim. <span class="kbd">uni &gt; 7</span>. Jokaisella palikalla on lyhyt <b>viite</b> (näkyy palikan kulmassa), jolla siihen viitataan kaavassa ja tekstissä {viite}. Kaavan voi pudottaa ikkunaan (ikkuna hoitaa sulut) tai näkymän palikan päälle: teksti, näkyy kun tai harmaana kun.</p><p>Jos palikalle tulee monta näkyvyyssääntöä, <b>rajoittavin voittaa</b>: piilossa, sitten harmaana, sitten vain luettava.</p><p><b>Ketju</b> (⛓, punainen ikkuna): sen sisällä palikat ovat tapahtumia, jotka tehdään peräkkäin punaisia viivoja pitkin. Uusi tapahtuma kytkeytyy itsestään edelliseen. Samasta palikasta voi lähteä monta haaraa, ja ne etenevät rinnakkain.</p></div>';
 }
 /* ---------- Kerrokset (Pajakone 3b): paneeli ---------- */
 S.akr={};S.krk={};
