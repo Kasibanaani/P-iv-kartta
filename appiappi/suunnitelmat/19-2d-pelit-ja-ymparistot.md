@@ -102,11 +102,42 @@ Käyttöesimerkit: liikkuvan vihollisen heikko kohta (vain ylärivi litistää),
 
 Linjakkuus: nimet `napautettux/y` kuten Alueella (A9), ominaisuudet `ruudukko.sarakkeet`, `ruudukko.rivit` rekisteriin (A2), tapahtuma *ruutu napautettu* (A4). Ei erikoispalikkaa. **Tallennusmuoto laajenee** (valinnainen palikan kenttä, ehdotus `org: {s, r, n}`).
 
-## 6. Pikseliulkoasu (vaihe E) ⏸
+## 6. Pikseliulkoasu ja omat piirretyt palikat (vaiheet E1 ja E2)
 
-- **Pikselikuva:** pieni piirtoruudukko (8, 16 tai 32 px) laattalajin ilmeeksi ja Kuva-palikalle. Värit = projektin kahdeksan palettiväriä + läpinäkyvä, joten pikselikuvat seuraavat teemaa ja F34:n palettia. Piirto samalla siveltimellä kuin laatat. Tallennus tiiviinä merkkijonona (yksi merkki per pikseli, 16 × 16 = 256 merkkiä).
-- **Näkymän asetus Pikselitarkka:** kuvat skaalautuvat teräväreunaisina (`image-rendering: pixelated`), paikat ja kamera pyöristyvät kokonaisiin maailman pikseleihin, zoomaus kokonaislukuportain. Halpa ja nopea.
-- ⏸ Kysymys Emilille: tarkoittaako pikseliulkoasu **(a) omien pikselikuvien piirtämistä appissa ja terävää esitystä** (*suositus*, molemmat yllä) vai (b) vain terävää esitystä muualla tehdyille kuville? Vaihe ei estä muita.
+**Emilin päätös 17.10.:** suositus (a), eli omat pikselikuvat appissa ja terävä esitys. Lisäksi Emil haluaa piirtää itse palikoita: piirtoruudukko, jossa ruutuja klikataan tai maalataan hiirellä painaen pikseleiksi (yksi keino monista). Piirretyn asian voi tehdä painikkeeksi tai muuksi säätimeksi niin, että painikkeen toiminnot ja visuaaliset mahdollisuudet koskevat sitä, ja jokaiselle tilalle (ei painettu, painettu jne.) voi piirtää oman kuvan. Valmiin voi tallentaa luetteloon. Nykyiset mahdollisuudet säilyvät ehdottomasti.
+
+**Mitä on jo (tarkistettu koodista 17.10.):** Kuva-palikka näyttää SVG:n, kuvatiedoston tai osoitteen, ja kuvasarjalla saa animaation (Appi-appi 4). Painikkeella on vain teksti ja kaksi väriä (`tx`, `hue`, `hue2`), ei kuvaa eikä tilakohtaista ilmettä. Suosikit ja presetit (F26) tallentavat valmiin palikan tai yhdistelmän pysyvästi palettiin kaikkiin projekteihin (selaimeen ja varmuuskopioon). **Piirtoruudukkoa ei ole.**
+
+### Vaihe E1: piirtoruudukko, piirroskirjasto ja Pikselitarkka
+
+- **Piirtoruudukko** (ikkuna): koko 8, 16, 32 tai 64 pikseliä (myös suorakulmainen, esim. 32 × 16). Työkalut kuten laattojen maalauksessa: kynä (klik tai painaen maalaus), oikea painike pyyhkii, Täyttö, viiva vaihto-näppäimellä, peilaus vaakaan. Yksi veto = yksi Kumoa. Taustalla ruudukko ja pieni esikatselu oikeassa koossa.
+- **Värit:** projektin kahdeksan palettiväriä kolmena sävynä (vaalea, perus, tumma) + läpinäkyvä. Koska piirros viittaa paletin paikkaan eikä kiinteään väriin, se seuraa teemaa, tummaa tilaa ja F34:n paletteja. Kiinteä oma väri tulee F34:n mukana.
+- **Piirroskirjasto:** piirrokset tallentuvat projektiin nimellä (`P.px`), ja palikat viittaavat niihin. Kun piirrosta muokkaa, kaikki sitä käyttävät palikat ja laatat muuttuvat (30 kolikkoa, yksi piirros). Piirroksen saa myös kopioksi toiseen projektiin presetin mukana.
+- **Mistä aukeaa:** Kuva-palikan paneelista (*✎ Piirrä*), laattalajista ja rakennuslaatikosta (*＋ Piirrä uusi palikka*: piirroksesta tulee Kuva-palikka kanvaasille).
+- **Pikselitarkka** näkymän asetuksena: terävät reunat (`image-rendering: pixelated`), paikat ja kamera kokonaisiin pikseleihin, zoomaus kokonaislukuportain.
+- Tallennus tiiviinä merkkijonona (yksi merkki per pikseli, 32 × 32 = 1024 merkkiä).
+
+### Vaihe E2: piirretty ilme ohjaimille ja muille näkymäpalikoille
+
+- **Yhteinen osio Ilme** jokaiselle näkymäpalikalle (A5, ei uusi palikka): *Tavallinen* (nykyinen, oletus) tai *Piirros*. Piirros korvaa palikan pohjan ja reunan; teksti voi jäädä päälle tai pois. Kaikki muu pysyy: toiminta, tapahtumat, näkyy kun, harmaana kun, siirto, animointi (F29), käyttöraahaus.
+- **Tilakohtaiset piirrokset** ohjaimille, kukin valinnainen; puuttuva tila käyttää perusta ja nykyistä yleistä tehostetta:
+
+| Palikka | Tilat |
+|---|---|
+| Painike | perus, painettu (pohjassa), valittu (päällä/vaihto), harmaana |
+| Kytkin, Valintaruutu | pois, päällä, harmaana |
+| Säädin | kisko, täytetty osa, nuppi |
+| Tatti | pohja, nuppi |
+| Monitori | pohja, täyttö (palkki leikataan arvon mukaan) |
+| Muut (Teksti, Muoto, Kuva …) | perus, vaihtoväri |
+
+- **Yleinen painallusanimaatio säilyy valinnaisena:** jos painettu-tilalle on piirros, oletuksena kuva vaihtuu eikä yleistä tummennusta tehdä; rasti *myös yleinen painallus* pitää molemmat. F29:n ilmestyminen, katoaminen ja arvon vaihto toimivat piirretyllekin.
+- **Ominaisuus `ilme`** (piirroksen nimi) on kaavalla luettava ja toiminnolla asetettava (A2): Aseta ilme = vaihda hahmon asentoa, Kuvasarjan tapaan animaatio logiikalla.
+- **Luetteloon pysyvästi:** piirretty Painike tallennetaan suosikiksi tai presetiksi (F26, jo olemassa), ja se ilmestyy palettiin ja rakennuslaatikon *Omat*-hyllyyn kaikissa projekteissa. Piirrokset kulkevat presetin mukana. Uutta palikkalajia ei tarvita: pixel art -painike on Painike, jolla on piirretty ilme.
+
+**Muut piirtotavat** säilyvät ja jäävät myöhemmäksi: SVG- ja kuvatiedostot Kuvaan (nyt), vapaa vektorikynä ja muodoista kokoaminen (ei suunniteltu, vasta pyynnöstä).
+
+**Linjakkuus:** Ilme on näkymäpalikan yhteinen ominaisuus, ei erikoispalikka; tilat ovat ohjaimen omia, olemassa olevia tiloja (painettu, valittu, harmaana), joten uusia käsitteitä ei tule. **Tallennusmuoto laajenee:** projektin `P.px` (piirrokset) ja palikan `il` (ilme: `{t: tila → piirros}`), näkymän `pxt`. Ehdotettuja avaimia, tarkista käytössä olevat.
 
 ## 7. Rakennuslaatikko: kelluva paletti (vaihe F)
 
@@ -153,7 +184,8 @@ Muualle kuin peleihin sama laatikko kelpaa: pohjapiirros laatoista, kalenteriruu
 | B | Hyppy (korkeus, ilmaohjaus, lyhyt hyppy, tuplahyppy, armoaika, ennakko) | **laajenee** (Liike `hk`, `ilo`, `lh`, `hil`) | hypyn huippu = korkeus ±2 % kaikilla fps:illä; juoksuhyppy pidempi; ei hyppyä ilmassa ilman tuplahyppyä |
 | C | Laattakartta, lajit, maalaus klik klik, laattaeste, taso | **laajenee** (uusi laji `laatat`, kentät `rk`, `lw`, `lh2`, `lj`, `rt` (ruudut tiiviinä)) | maalaus ja Kumoa; liikkuja ei jää saumaan; 200×200 kartta ei hidasta (kuva < 4 ms koneella); Headmaze-sokkelo laatoilla |
 | D | Laattojen astuttu/poistuttu, `alla` = laji, Maalaa laatta | **laajenee** (lajin `il`, käyttötieto `lt:`) | kolikko katoaa ja laskuri kasvaa; Palauta palauttaa kartan |
-| E ⏸ | Pikselikuva ja Pikselitarkka | **laajenee** (lajin/Kuvan `px`, näkymän `pxt`) | terävä esitys; kuva seuraa paletin vaihtoa |
+| E1 | Piirtoruudukko, piirroskirjasto, Pikselitarkka (Kuva ja laatat) | **laajenee** (`P.px`, näkymän `pxt`) | piirto, täyttö ja Kumoa; muokkaus päivittää kaikki käyttäjät; kuva seuraa paletin vaihtoa |
+| E2 | Ilme: Piirros kaikille näkymäpalikoille, ohjainten tilakohtaiset piirrokset, `ilme`-ominaisuus | **laajenee** (palikan `il`) | painettu/valittu/harmaana-kuvat vaihtuvat; ilman piirrosta ennallaan; preset kantaa piirrokset |
 | F | Kelluva rakennuslaatikko ja valmiit presetit | ei (presetit selaimen muistissa kuten F26) | auki pysyvä, raahattava, klik klik -lisäys, Esc |
 | G | Liikkuvat tasot | ei (todennäköisesti) | hahmo kulkee tason mukana |
 | H | Palikan oma ruudukko (kohta 5b), riippumaton muista vaiheista | **laajenee** (`org`) | ruutu oikein liikkuvassa, venytetyssä ja kierretyssä palikassa; osumaruutu törmäyksessä; pudotusruutu |
@@ -164,5 +196,5 @@ Avainten nimet ovat ehdotuksia; rakentaja tarkistaa, ettei avain ole jo toisessa
 
 ## 11. Kysymykset Emilille
 
-1. ⏸ Pikseliulkoasu (vaihe E): (a) omat pikselikuvat + terävä esitys (*suositus*) vai (b) vain terävä esitys?
+1. Pikseliulkoasu: **Emil valitsi suosituksen (a)** 17.10., ja lisäksi omat piirretyt palikat (kohta 6).
 2. Ei estä mitään: siirretäänkö 2D-vaiheet jonossa värien (F34) ja pienten korjausten edelle? *Suositus:* ei, pienet korjaukset ensin; vaihe A voi alkaa heti, kun tallennusmuodon vuoro vapautuu.
