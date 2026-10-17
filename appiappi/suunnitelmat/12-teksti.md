@@ -1,6 +1,6 @@
 # F27 Teksti: viitteet ilman sulkuja, tekstin tulkinta ja tagit
 
-17.10.2026. **Emilin idea**, tekoälyn jäsentämä keskustelun pohjalta. Emil hyväksyi järjestyksen 17.10.2026 (”Joo toi on ok”). **Kohta 1 toteutettu (Appi-appi 37, 17.10.2026; ks. `MUUTOKSET.md`).** Kohta 2 on jonossa (`TILA.md`, *Jono*); kohdat 3–4 vasta F08:n ja F25:n jälkeen erillisellä päätöksellä. Merkinnät: *Emilin idea* = hänen sanomansa, *ehdotus* = tekoälyn suunnitteluratkaisu, *avoin* = päätetään ennen rakentamista. Lue ensin [periaatteet](00-periaatteet.md), [03 F15](03-kayttopinta.md) ja [05 F20](05-aika-media-ja-liitannat.md).
+17.10.2026. **Emilin idea**, tekoälyn jäsentämä keskustelun pohjalta. Emil hyväksyi järjestyksen 17.10.2026 (”Joo toi on ok”). **Kohta 1 toteutettu (Appi-appi 37, 17.10.2026; ks. `MUUTOKSET.md`). Kohta 2 toteutettu (Appi-appi 40, 17.10.2026).** kohdat 3–4 vasta F08:n ja F25:n jälkeen erillisellä päätöksellä. Merkinnät: *Emilin idea* = hänen sanomansa, *ehdotus* = tekoälyn suunnitteluratkaisu, *avoin* = päätetään ennen rakentamista. Lue ensin [periaatteet](00-periaatteet.md), [03 F15](03-kayttopinta.md) ja [05 F20](05-aika-media-ja-liitannat.md).
 
 ## Idea (Emilin idea, tiivistetty)
 
@@ -26,7 +26,9 @@
 - **Luo palikka:** kaavassa tuntematon nimi saa napin *Luo Arvo ”yöuni”*. Uusi Arvo saa nimen ja viitteen kirjoitetusta sanasta, arvo tyhjä. Sama vaihtoehto Viitevirheiden ”uusi kohde” -valintaan.
 - **Kokeet:** ehdotus näkyy ja napautus tekee viitteen; tavallinen sana ei muutu; luotu palikka näkyy logiikassa ja kaava toimii heti; varattu sana (`tänään`, `nyt`) ei tarjoa luontia; kumoa poistaa luodun palikan. Puhelinleveydet 390 ja 320 px.
 
-## 2. Tulkki eli printteri (ehdotus, jonossa; tehdään yhdessä F20:n ensimmäisen vaiheen kanssa)
+## 2. Tulkki eli printteri (toteutettu, Appi-appi 40, yhdessä F20:n ensimmäisen vaiheen kanssa)
+
+**Toteuma:** ikkuna avautuu paletista (Tieto → Tulkki…) ja taulukkoikkunasta; kuviot tallennetaan projektiin nimellä (avoimet kohdat suosituksen mukaan). Taulukkokohde käyttää avainta F32:n päätöksen mukaisesti (sama avain päivittää, tyhjä ei pyyhi). Rivit menevät lähtöaineistoon, jotta Kumoa kattaa ne. Elävä tulkinta ei tehty. Käyttöohje: [manuaali, Tulkki](../manuaali/07-tieto.md#tulkki-teksti-riveiksi-tai-palikoiksi).
 
 **Ajatus:** sääntö on kuvio, esim. `{nimi}: {arvo}` tai `{etu} = {taka}`. Jokainen rivi luetaan kuvion mukaan. Tekstipohja (F15) tuottaa tekstiä kuviosta; tulkki lukee tekstiä samalla kuviolla. Erotin on se, mitä kuviossa kenttien välissä lukee. Kuvion kenttänimet ovat tulkin omia, joten päällekkäisyys muiden nimien kanssa ei haittaa.
 

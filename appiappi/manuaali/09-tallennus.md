@@ -291,6 +291,7 @@ Tämä osio on tekoälylle. Säännöt tulevat repon `AGENTS.md`:n kohdasta *Pro
 | `lock` | Avautuuko lukittuna käyttöön |
 | `appearance`, `pois` | Valinnaiset: käyttönäkymän ilme, poistettujen viittauskohteiden muisti |
 | `praja` | Valinnainen: päivän raja tunteina 1–12 (puuttuu = keskiyö). Kirjaushistorian päivä (F08) |
+| `kuviot` | Valinnainen: tulkin tallennetut kuviot `[{nm (nimi), k (kuvio)}]`, enintään 30, nimi yksilöllinen (jonon 6) |
 | `an` | Valinnainen: projektin animoinnin oletus `{i (ilmestyy), o (katoaa), k (kesto s), p (pehmeys)}`. Näkymäpalikan omat vastaavat kentät `ani`, `ano`, `ank`, `anp`. Puuttuva = töks (F29) |
 
 Kaavat ja tekstien viitteet ovat tiedostossa sisäisessä muodossa `{#palikanId}`, ei nimillä. Tietotaulukon sarakkeet (`sar`) ja lähtörivit (`rv`) ovat rakennetta palikassa; käytössä muuttuneet rivit ovat `st`:ssä. Kirjaushistorian sarakkeella on `auto:'aika'` (laji `aika`) tai `auto:'id'` (laji `teksti`, arvoa ei tallenneta riville); kumpaakin enintään yksi. Aikajanan valinnainen `lh` on historiataulukon tunniste (lähde); omat merkinnät pysyvät `st`:ssä.

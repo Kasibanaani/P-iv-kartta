@@ -591,6 +591,10 @@ textarea.fld{resize:none;flex:1}
 .tdt td{padding:3px 4px;border-bottom:1px solid var(--sep2);vertical-align:middle}
 .tdt tr:last-child td{border-bottom:0}
 .tdt tr.on td{background:var(--tint)}
+.tkm{margin:2px 0 8px;gap:6px}.tksv{display:inline-flex;gap:2px}
+.tkt td{vertical-align:top;word-break:break-word}.tkt .tkb{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:7px;background:var(--sep2);color:var(--label)}
+.tkt .tk-uusi .tkb{background:var(--accent);color:var(--on)}.tkt .tk-virhe .tkb{background:transparent;border:1px solid currentColor}.tkt .tk-ennallaan td{color:var(--label2)}
+#tkt{width:100%;box-sizing:border-box;font-family:ui-monospace,Menlo,monospace;font-size:13px}
 .tdt input,.tdt select{width:100%;min-width:90px;box-sizing:border-box;border:1px solid var(--sep);border-radius:8px;padding:5px 7px;background:var(--bg);color:var(--label);font:inherit}
 .tdt input.bad,.tdt select.bad{border-color:var(--h1);box-shadow:0 0 0 1px var(--h1)}
 .tdt .tdn{color:var(--label3);font-size:12px;text-align:right;width:1%}
@@ -2354,6 +2358,8 @@ function repair(P){
   P.lg=P.lg||{n:[],l:[]};P.lg.n=P.lg.n||[];P.lg.l=P.lg.l||[];
   /* Appi-appi 27 (F30): logiikan näkymäasetukset. pin 'h' = pistokkeet piilossa, vit 'ei' tai 'kaikki' (puuttuva = valitulle). */
   if(P.lg.pin!=='h')delete P.lg.pin;
+  /* Jonon 6: tulkin tallennetut kuviot [{nm, k}] (valinnainen). */
+  if(P.kuviot!==undefined){var kus={};P.kuviot=Array.isArray(P.kuviot)?P.kuviot.filter(function(x){if(!x||typeof x.nm!=='string'||typeof x.k!=='string'||!x.nm.trim()||!x.k.trim()||kus[x.nm.toLowerCase()])return false;kus[x.nm.toLowerCase()]=1;return true;}).map(function(x){return {nm:x.nm,k:x.k};}).slice(-30):[];if(!P.kuviot.length)delete P.kuviot;}
   /* F08: päivän raja (tunnit 1–12; puuttuu = keskiyö). */
   if(P.praja!==undefined){var prj=Math.floor(num(P.praja));if(prj>=1&&prj<=12)P.praja=prj;else delete P.praja;}
   /* F29: projektin animoinnin oletus {i ilmestyy, o katoaa, k kesto, p pehmeys}; puuttuva = töks. */
@@ -4124,6 +4130,131 @@ function chainInfo(P,kid,ctx){
     tk:(cs.tk||[]).map(function(t){return {n:t.n,u:t.u,left:t.u!=null?Math.max(0,t.u-now):null};}),fl:cs.fl||{}};
 }
 
+/* ---------- Jonon 6 (F27 kohta 2, F20 vaihe 1): tulkki eli printteri ----------
+   Teksti luetaan riveittäin kuviolla (esim. {nimi}: {arvo} tai {etu} = {taka}) tai taulukkona (sarkain, pilkku tai
+   puolipiste; Excel, Sheets, CSV) ja siitä tulee taulukon rivejä tai Arvo-, Muisti- ja Teksti-palikoita. Kuvion
+   kenttien välissä oleva teksti on erotin; vain sen ensimmäinen esiintymä jakaa, joten viimeinen kenttä saa loput.
+   tulkSuunnitelma ei muuta projektia (esikatselu); tulkSovella tekee saman suunnitelman. Rivit menevät taulukon
+   lähtöaineistoon, joten Kumoa perii. Avaimella sama avain päivittää rivin (tyhjä kenttä ei pyyhi), muut lisätään.
+   Kuviot voi tallentaa projektiin nimellä (P.kuviot [{nm, k}], valinnainen). */
+var TULK_LAJIT={arvo:'arvo',muisti:'muisti',teksti:'nayta'};
+function tulkKuvio(k){k=String(k==null?'':k);var re=/\{([^{}]*)\}/g,m,i=0,f=[],s=[];
+  while((m=re.exec(k))){var n=m[1].trim();if(!n)return {err:'Kuviossa on tyhjä kenttä {}.'};
+    if(f.some(function(x){return x.toLowerCase()===n.toLowerCase();}))return {err:'Kenttä {'+n+'} on kuviossa kahdesti.'};
+    s.push(k.slice(i,m.index));f.push(n);i=re.lastIndex;}
+  s.push(k.slice(i));
+  if(!f.length)return {err:'Kuviossa ei ole kenttiä. Kirjoita kentät aaltosulkuihin, esim. {nimi}: {arvo}.'};
+  for(var j=1;j<f.length;j++)if(s[j]==='')return {err:'Kenttien {'+f[j-1]+'} ja {'+f[j]+'} välissä pitää olla erotin, esim. : tai =.'};
+  return {f:f,s:s};}
+/* Erotin rivistä kohdasta from alkaen: [kohta, pituus]. Pelkkä väli kuviossa = mikä tahansa määrä välejä. */
+function tulkErotin(t,sep,from){var e=sep.trim();if(!e){var m=/\s+/.exec(t.slice(from));return m?[from+m.index,m[0].length]:null;}var i=t.indexOf(e,from);return i<0?null:[i,e.length];}
+function tulkRivi(ku,line){var s=ku.s,f=ku.f,t=String(line).trim(),a={},pre=s[0].trim(),post=s[s.length-1].trim(),p=0,end=t.length;
+  if(pre){if(t.slice(0,pre.length)!==pre)return {err:'rivi ei ala ”'+pre+'”'};p=pre.length;}
+  if(post){if(end-post.length<p||t.slice(end-post.length)!==post)return {err:'rivi ei pääty ”'+post+'”'};end-=post.length;}
+  t=t.slice(0,end);
+  for(var j=0;j<f.length;j++){if(j===f.length-1){a[f[j]]=t.slice(p).trim();break;}
+    var h=tulkErotin(t,s[j+1],p);if(!h)return {err:s[j+1].trim()?'erotinta ”'+s[j+1].trim()+'” ei löydy':'kenttiä on liian vähän'};
+    a[f[j]]=t.slice(p,h[0]).trim();p=h[0]+h[1];}
+  return {a:a};}
+/* Taulukkoteksti riveiksi: BOM, lainausmerkit (myös rivinvaihto ja "" kentän sisällä), sarkain, pilkku tai puolipiste.
+   Erotin tyhjä = arvataan ensimmäiseltä riviltä (sarkain, sitten yleisempi puolipisteestä ja pilkusta). */
+function tulkCsv(text,sep){text=String(text==null?'':text).replace(/^﻿/,'').replace(/\r\n?/g,'\n');
+  if(!sep){var l0=text.split('\n')[0]||'';sep=l0.indexOf('\t')>=0?'\t':l0.split(';').length>l0.split(',').length?';':',';}
+  var rows=[],row=[],c='',q=false,qd=false,line=1,start=1,i,ch;
+  function cell(){row.push(qd?c:c.trim());c='';qd=false;}
+  for(i=0;i<text.length;i++){ch=text[i];
+    if(q){if(ch==='"'){if(text[i+1]==='"'){c+='"';i++;}else q=false;}else{c+=ch;if(ch==='\n')line++;}continue;}
+    if(ch==='"'&&!qd&&c.trim()===''){q=true;qd=true;c='';continue;}
+    if(ch===sep){cell();continue;}
+    if(ch==='\n'){cell();rows.push({c:row,n:start});row=[];line++;start=line;continue;}
+    c+=ch;}
+  if(c!==''||qd||row.length){cell();rows.push({c:row,n:start,auki:q});}
+  return {sep:sep,rows:rows};}
+function tulkTyhja(cs){return cs.every(function(x){return String(x).trim()==='';});}
+/* Teksti kentiksi. o: {tapa:'kuvio'|'taulukko', kuvio, erotin, ots (ensimmäinen rivi otsikot, oletus kyllä), teksti}.
+   Palauttaa {f: kenttien nimet, r: [{n rivinumero, tx, a: {kenttä: teksti}, err}], tyhjia} tai {err}. */
+function tulkLue(o){o=o||{};var r=[],ty=0,f;
+  if(o.tapa==='taulukko'){var cv=tulkCsv(o.teksti,o.erotin),rs=cv.rows.filter(function(x){if(tulkTyhja(x.c)){ty++;return false;}return true;});
+    if(!rs.length)return {err:'Ei rivejä.'};
+    var w=Math.max.apply(null,rs.map(function(x){return x.c.length;})),seen={};
+    if(o.ots!==false){var h=rs.shift();f=[];for(var i=0;i<h.c.length;i++){var n=String(h.c[i]).trim()||'Sarake '+(i+1),b=n,j=2;while(seen[n.toLowerCase()])n=b+' '+(j++);seen[n.toLowerCase()]=1;f.push(n);}}
+    else{f=[];for(var k=0;k<w;k++)f.push('Sarake '+(k+1));}
+    rs.forEach(function(x){var a={},er='';x.c.forEach(function(v,i){if(i<f.length)a[f[i]]=v;else if(String(v).trim()!==''&&!er)er='kenttiä on enemmän ('+x.c.length+') kuin otsikoita ('+f.length+')';});
+      if(x.auki)er='lainausmerkki jää auki';r.push({n:x.n,tx:x.c.join(cv.sep==='\t'?' → ':cv.sep+' '),a:a,err:er});});
+    return {f:f,r:r,tyhjia:ty,sep:cv.sep};}
+  var ku=tulkKuvio(o.kuvio);if(ku.err)return {err:ku.err};
+  String(o.teksti==null?'':o.teksti).replace(/^﻿/,'').replace(/\r\n?/g,'\n').split('\n').forEach(function(l,i){if(!l.trim()){ty++;return;}
+    var x=tulkRivi(ku,l);r.push({n:i+1,tx:l.trim(),a:x.a||{},err:x.err||''});});
+  if(!r.length)return {err:'Ei rivejä.'};
+  return {f:ku.f,r:r,tyhjia:ty};}
+/* Uuden sarakkeen laji arvoista: luku, kyllä/ei, päivämäärä tai teksti. */
+function tulkLaji(vs){vs=vs.filter(function(v){return String(v).trim()!=='';});if(!vs.length)return 'teksti';
+  if(vs.every(function(v){return !isNaN(parseNum(v));}))return 'luku';
+  if(vs.every(function(v){var t=String(v).trim().toLowerCase();return t==='kyllä'||t==='kylla'||t==='ei';}))return 'kylla';
+  if(vs.every(function(v){return /^\s*(\d{1,2}\.\d{1,2}\.\d{4}|\d{4}-\d{2}-\d{2})\s*$/.test(v);}))return 'pvm';
+  return 'teksti';}
+function tulkSama(a,b){return JSON.stringify(a)===JSON.stringify(b);}
+function tulkKentta(f,n){n=String(n).toLowerCase();for(var i=0;i<f.length;i++)if(f[i].toLowerCase()===n)return f[i];return '';}
+/* Palikan haku nimellä tai viitteellä (kirjainkoko ei ratkaise). */
+function tulkPalikka(P,nm){var l=String(nm).trim().toLowerCase(),ks=Object.keys(P.b),i;
+  for(i=0;i<ks.length;i++){var o=P.b[ks[i]];if(o.k!=='ryhma'&&String(o.nm).toLowerCase()===l)return o;}
+  return validVt(l)?vtOwner(P,l):null;}
+/* Esikatselu. o lisäksi: kohde 'rivit' (tt: taulukon id tai '' = uusi, avain: kenttä tai '') tai 'palikat'
+   (laji: oletuslaji arvo/muisti/teksti). Rivin tila: uusi, muuttuu, ennallaan tai virhe (syy). */
+function tulkSuunnitelma(P,o,now){o=o||{};now=now||new Date();var L=tulkLue(o);if(L.err)return {err:L.err};
+  var out={kohde:o.kohde==='palikat'?'palikat':'rivit',f:L.f,rivit:[],tyhjia:L.tyhjia,uusia:0,muuttuu:0,ennallaan:0,virheita:0,ohit:[],uudetSar:[]};
+  function done(x,t,syy){x.tila=t;if(syy)x.syy=syy;out[{uusi:'uusia',muuttuu:'muuttuu',ennallaan:'ennallaan',virhe:'virheita'}[t]]++;out.rivit.push(x);}
+  if(out.kohde==='palikat'){var fn=tulkKentta(L.f,'nimi'),fa=tulkKentta(L.f,'arvo'),fl=tulkKentta(L.f,'laji'),dl=TULK_LAJIT[o.laji]?o.laji:'arvo',tehty={};
+    if(!fn)return {err:'Palikoiksi tarvitaan kenttä {nimi}. Esim. kuvio {nimi}: {arvo}.'};
+    out.ohit=L.f.filter(function(x){return x!==fn&&x!==fa&&x!==fl;});
+    L.r.forEach(function(r){var x={n:r.n,tx:r.tx};if(r.err)return done(x,'virhe',r.err);
+      var nm=String(r.a[fn]||'').trim(),v=fa?String(r.a[fa]==null?'':r.a[fa]).trim():'',lj=fl?String(r.a[fl]||'').trim().toLowerCase():'';
+      if(!nm)return done(x,'virhe','nimi puuttuu');if(lj&&!TULK_LAJIT[lj])return done(x,'virhe','laji ”'+r.a[fl]+'” ei käy (arvo, muisti tai teksti)');
+      x.nm=nm;x.v=v;var key=nm.toLowerCase(),prev=tehty[key];
+      if(prev){if(lj&&prev.k!==TULK_LAJIT[lj])return done(x,'virhe','sama nimi aiemmalla rivillä eri lajina');x.k=prev.k;x.id=prev.id;x.uusi=prev.uusi;prev.v=v;return done(x,prev.v0===v&&!prev.uusi?'ennallaan':'muuttuu');}
+      var b=tulkPalikka(P,nm);
+      if(b){if(!(b.k in {arvo:1,muisti:1,nayta:1}))return done(x,'virhe','nimi on jo palikalla ”'+b.nm+'” ('+K[b.k].n+')');
+        if(lj&&TULK_LAJIT[lj]!==b.k)return done(x,'virhe','”'+b.nm+'” on jo '+K[b.k].n+'-palikka');
+        var v0=String(b.k==='nayta'?b.tx:b.v==null?'':b.v);x.k=b.k;x.id=b.id;tehty[key]={k:b.k,id:b.id,v0:v0,v:v};return done(x,v0===v?'ennallaan':'muuttuu');}
+      x.k=TULK_LAJIT[lj||dl];tehty[key]={k:x.k,uusi:true,v:v};x.uusi=true;done(x,'uusi');});
+    return out;}
+  /* Taulukon riveiksi. */
+  var tb=o.tt&&P.b[o.tt]&&P.b[o.tt].k==='taulu'?P.b[o.tt]:null,map={},seq=0;out.tt=tb?tb.id:'';out.kaytossa=!!(tb&&tUsed(P,tb.id));
+  L.f.forEach(function(fd){var c=tb?colByName(tb,fd):null;if(!c){c={id:'?'+(++seq),nm:fd,laji:tulkLaji(L.r.filter(function(r){return !r.err;}).map(function(r){return r.a[fd]==null?'':r.a[fd];})),uusi:true};out.uudetSar.push({nm:fd,laji:c.laji});}map[fd]=c;});
+  var ak=o.avain?tulkKentta(L.f,o.avain):'',ac=ak?map[ak]:null,rows=tb?clone(Array.isArray(tb.rv)?tb.rv:[]):[],nid=0;
+  if(o.avain&&!ak)return {err:'Avainkenttää ”'+o.avain+'” ei ole tekstissä.'};
+  out.avain=ak;
+  L.r.forEach(function(r){var x={n:r.n,tx:r.tx};if(r.err)return done(x,'virhe',r.err);var a={},er='';
+    L.f.forEach(function(fd){var c=map[fd],raw=r.a[fd];if(er||raw==null||String(raw).trim()==='')return;if(c.auto==='id')return;var v=sarNorm(P,c,String(raw).trim(),now);if(isErr(v)){er=v.err;return;}if(v!=null)a[c.id]=v;});
+    if(er)return done(x,'virhe',er);x.a=a;
+    if(ac){var kv=ac.auto==='id'?String(r.a[ak]||'').trim():a[ac.id];if(kv==null||kv==='')return done(x,'virhe','avain ”'+ak+'” puuttuu');
+      var hit=null;rows.forEach(function(w){if(!hit&&(ac.auto==='id'?w.id===kv:w.a&&tulkSama(w.a[ac.id],kv)))hit=w;});
+      if(hit){x.ri=hit.id;var ch=Object.keys(a).some(function(k){return !(hit.a&&tulkSama(hit.a[k],a[k]));});hit.a=hit.a||{};Object.keys(a).forEach(function(k){hit.a[k]=a[k];});return done(x,ch?'muuttuu':'ennallaan');}
+      if(ac.auto==='id')return done(x,'virhe','riviä ”'+kv+'” ei ole');}
+    x.ri='?'+(++nid);rows.push({id:x.ri,a:a});done(x,'uusi');});
+  return out;}
+/* Tekee esikatselun mukaiset muutokset. o lisäksi: nimi (uusi taulukko), x, y (logiikan paikka), vw, nx, ny (näkymän
+   paikka Teksti-palikoille). Palauttaa suunnitelman, jossa tt (taulukko) ja ids (luodut palikat), tai {err}. */
+function tulkSovella(P,o,now){now=now||new Date();var pl=tulkSuunnitelma(P,o,now);if(pl.err)return pl;var x0=num(o.x)||0,y0=num(o.y)||0,ids=[];
+  if(pl.kohde==='palikat'){var vw=o.vw&&P.views.some(function(v){return v.id===o.vw;})?o.vw:P.views[0].id,ln=0,un=0,made={};
+    pl.rivit.forEach(function(x){if(x.tila==='virhe'||x.tila==='ennallaan')return;var id=x.id||made[x.nm.toLowerCase()],b=id&&P.b[id];
+      if(!b){if(x.k==='nayta'){b=addBlock(P,'nayta',{nm:x.nm,v:vw,tx:x.v});b.x=Math.round(num(o.nx)||20);b.y=Math.round((num(o.ny)||20)+52*(un++));}
+        else{b=addBlock(P,x.k,{nm:x.nm,v:x.v});addNode(P,b.id,x0,y0+50*(ln++),'');}b.nmSet=true;made[x.nm.toLowerCase()]=b.id;ids.push(b.id);return;}
+      if(b.k==='nayta')b.tx=x.v;else b.v=x.v;});
+    repair(P);pl.ids=ids;return pl;}
+  var tb=pl.tt?P.b[pl.tt]:null;
+  if(!tb){tb=addBlock(P,'taulu',{});setName(P,tb.id,String(o.nimi||'').trim()||'Taulukko');addNode(P,tb.id,x0,y0,'');ids.push(tb.id);}
+  var cmap={};pl.f.forEach(function(fd){var c=colByName(tb,fd);if(!c){var u=pl.uudetSar.filter(function(s){return s.nm===fd;})[0];c=addCol(tb,fd,u?u.laji:'teksti');}cmap[fd]=c;});
+  /* Esikatselun väliaikaiset sarakkeet (?1 …) ovat nyt oikeita: sama suunnitelma uudelleen oikeilla tunnisteilla. */
+  var re=tulkSuunnitelma(P,Object.assign({},o,{tt:tb.id}),now);
+  var real={};function rowOf(id){id=real[id]||id;return (tb.rv||[]).filter(function(r){return r.id===id;})[0];}
+  re.rivit.forEach(function(x){if(x.tila==='uusi')real[x.ri]=tAddRow(P,tb.id,false,now);if(x.tila!=='uusi'&&x.tila!=='muuttuu')return;
+    var w=rowOf(x.ri);if(w){w.a=w.a||{};Object.keys(x.a).forEach(function(k){w.a[k]=x.a[k];});}});
+  repair(P);pl.tt=tb.id;pl.ids=ids;return pl;}
+/* Tallennetut kuviot. */
+function kuviot(P){return Array.isArray(P.kuviot)?P.kuviot:[];}
+function kuvioTallenna(P,nm,k){nm=String(nm||'').trim();k=String(k||'');if(!nm||!k.trim())return false;var ks=kuviot(P).filter(function(x){return x.nm.toLowerCase()!==nm.toLowerCase();});ks.push({nm:nm,k:k});P.kuviot=ks.slice(-30);return true;}
+function kuvioPoista(P,nm){var ks=kuviot(P).filter(function(x){return x.nm!==nm;});if(ks.length)P.kuviot=ks;else delete P.kuviot;}
 /* ---------- Kopiointi ja liittäminen (versio 6.10) ----------
    Kopio ottaa valitut logiikan solmut sisältöineen (ikkunan tai ketjun sisällä olevat mukaan) ja niiden väliset nuolet.
    Liitettäessä logiikan palikat tehdään uusina (uudet tunnisteet, nimet ja viitteet), ja näkymän palikoista tulee uusi
@@ -4484,7 +4615,7 @@ function why(P,E,id,depth,seen){
 return {omat:omat,omFind:omFind,omNorm:omNorm,omBase:omBase,omNames:omNames,omActive:omActive,setOmi:setOmi,resetOmi:resetOmi,isOff:isOff,napVaihto:napVaihto,boolKey:boolKey,TIMEU:TIMEU,YKSA:YKSA,ENVW:ENVW,portsBase:portsBase,tattiSet:tattiSet,muutosStart:muutosStart,muutosStop:muutosStop,frame:frame,napExt:napExt,NAP_PITKA:NAP_PITKA,pressDown:pressDown,pressLong:pressLong,pressUp:pressUp,hasOut:hasOut,curveAt:curveAt,KAYRA_PRESETS:KAYRA_PRESETS,kayraPreset:kayraPreset,kayraResize:kayraResize,kayraDec:kayraDec,kayraSpec:kayraSpec,kayraAt:kayraAt,satuN:satuN,satuMuoto:satuMuoto,satuCurve:satuCurve,satuResize:satuResize,satuPreset:satuPreset,SATU_PRESETS:SATU_PRESETS,SATU_MAXN:SATU_MAXN,satuSpec:satuSpec,satuDist:satuDist,satuPick:satuPick,satuPct:satuPct,satuItemTxt:satuItemTxt,satuTop:satuTop,satuRoll:satuRoll,
   chainOpen:chainOpen,LKN:LKN,LKID:LKID,lkReq:lkReq,lkView:lkView,chainLock:chainLock,chainLockDiff:chainLockDiff,parseKlo:parseKlo,nextClock:nextClock,timerLabel:timerLabel,arpaN:arpaN,toistaN:toistaN,setMhLabel:function(f){MHLAB=f;},mhLabel:mhLabel,odotaLim:odotaLim,odotaEv:odotaEv,hasLimit:hasLimit,chainSignal:chainSignal,copyNodes:copyNodes,pasteNodes:pasteNodes,PRESVER:PRESVER,presetSet:presetSet,presetNeeds:presetNeeds,presetMake:presetMake,presetPaste:presetPaste,chainList:chainList,haaraVal:haaraVal,chainIssues:chainIssues,FXK:FXK,YKS:YKS,YKSN:YKSN,fmtDur:fmtDur,parseNum:parseNum,fiNum:fiNum,fmtLeft:fmtLeft,timerMs:timerMs,chainStart:chainStart,chainStop:chainStop,chainAdvance:chainAdvance,chainPoll:chainPoll,chainInfo:chainInfo,anyChainRunning:anyChainRunning,CH_STEPS:CH_STEPS,CH_TOKENS:CH_TOKENS,
   isWin:isWin,isStep:isStep,STEPK:STEPK,chainNode:chainNode,chainOfNode:chainOfNode,chainSteps:chainSteps,isChainLink:isChainLink,chainLinksFrom:chainLinksFrom,chainStarts:chainStarts,chainIsRing:chainIsRing,chainOrder:chainOrder,
-  ANTAVAT:ANTAVAT,ANPEH:ANPEH,VER:VER,PAJA:'39',LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,raahattava:raahattava,raahausPaikka:raahausPaikka,raahausAlku:raahausAlku,raahausPudotus:raahausPudotus,raahausPeruttu:raahausPeruttu,raahausKohteet:raahausKohteet,tstLahde:tstLahde,tstLajittuu:tstLajittuu,tstSiirra:tstSiirra,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,reittiPisteet:reittiPisteet,reittiOsat:reittiOsat,reittiHae:reittiHae,liikeRuutuKomento:liikeRuutuKomento,liikePyyhkaisy:liikePyyhkaisy,ruutuAskel:ruutuAskel,RUUTU_SU:RUUTU_SU,reittiKohta:reittiKohta,liikeRun:liikeRun,kuvaKuvat:kuvaKuvat,kelloNow:kelloNow,kelloKomento:kelloKomento,kerrosObj:kerrosObj,zoomAsetus:zoomAsetus,kameraBlk:kameraBlk,zoomNyt:zoomNyt,zoomLukittu:zoomLukittu,zoomAseta:zoomAseta,ZOOM_MIN:ZOOM_MIN,ZOOM_MAX:ZOOM_MAX,MITM:MITM,MITE:MITE,
+  ANTAVAT:ANTAVAT,ANPEH:ANPEH,VER:VER,PAJA:'40',LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,raahattava:raahattava,raahausPaikka:raahausPaikka,raahausAlku:raahausAlku,raahausPudotus:raahausPudotus,raahausPeruttu:raahausPeruttu,raahausKohteet:raahausKohteet,tstLahde:tstLahde,tstLajittuu:tstLajittuu,tstSiirra:tstSiirra,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,reittiPisteet:reittiPisteet,reittiOsat:reittiOsat,reittiHae:reittiHae,liikeRuutuKomento:liikeRuutuKomento,liikePyyhkaisy:liikePyyhkaisy,ruutuAskel:ruutuAskel,RUUTU_SU:RUUTU_SU,reittiKohta:reittiKohta,liikeRun:liikeRun,kuvaKuvat:kuvaKuvat,kelloNow:kelloNow,kelloKomento:kelloKomento,kerrosObj:kerrosObj,zoomAsetus:zoomAsetus,kameraBlk:kameraBlk,zoomNyt:zoomNyt,zoomLukittu:zoomLukittu,zoomAseta:zoomAseta,ZOOM_MIN:ZOOM_MIN,ZOOM_MAX:ZOOM_MAX,MITM:MITM,MITE:MITE,
 kuvaPyorii:kuvaPyorii,kuvaNro:kuvaNro,SARJA_MAX:SARJA_MAX,ruudukko:ruudukko,ruudukkoOf:ruudukkoOf,ruutuAt:ruutuAt,ruutuKeski:ruutuKeski,kohdista:kohdista,ruutuKohdistus:ruutuKohdistus,alueRuudukko:alueRuudukko,alueRuutu:alueRuutu,alueNapautus:alueNapautus,kerrokset:kerrokset,kerrosOf:kerrosOf,rvOf:rvOf,kuvaUrl:kuvaUrl,K:K,KW:KW,KVALEND:KVALEND,KHAS:KHAS,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,kaavaToIds:kaavaToIds,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
   pinsHidden:pinsHidden,refPairs:refPairs,
   ports:ports,port:port,newProject:newProject,addBlock:addBlock,addNode:addNode,addLink:addLink,canLink:canLink,
@@ -4500,6 +4631,8 @@ kuvaPyorii:kuvaPyorii,kuvaNro:kuvaNro,SARJA_MAX:SARJA_MAX,ruudukko:ruudukko,ruud
   /* P3a */
   TST_OK:TST_OK,TST_SID:TST_SID,TSU:TSU,tstOf:tstOf,isBound:isBound,tstMembers:tstMembers,tstRowOf:tstRowOf,stKey:stKey,tstCtx:tstCtx,tstLayout:tstLayout,tstCard0:tstCard0,tstAssign:tstAssign,
   colAuto:colAuto,histCol:histCol,histDay:histDay,pRaja:pRaja,tLatest:tLatest,tHistToday:tHistToday,histMake:histMake,ajLahde:ajLahde,tplToKaava:tplToKaava,ajMuunna:ajMuunna,
+  /* Jonon 6: tulkki */
+  tulkKuvio:tulkKuvio,tulkRivi:tulkRivi,tulkCsv:tulkCsv,tulkLue:tulkLue,tulkLaji:tulkLaji,tulkSuunnitelma:tulkSuunnitelma,tulkSovella:tulkSovella,kuviot:kuviot,kuvioTallenna:kuvioTallenna,kuvioPoista:kuvioPoista,TULK_LAJIT:TULK_LAJIT,
   RS:RS,isRS:isRS,LSV:LSV,JFIX:JFIX,rowTable:rowTable,riviProps:riviProps,joukkoProps:joukkoProps,repairEvObj:repairEvObj};
 })();
 if(typeof module!=='undefined')module.exports=KK;
@@ -4960,7 +5093,7 @@ function renderPal(){
     h+='<div class="pt-h">Palikat</div><input class="psearch" id="psearch" placeholder="Etsi nimellä…" value="'+esc(S.psearch||'')+'"><div class="plist" id="plist"></div>';
     h+='<div class="pt-h">Kaava</div><div class="chips">'+chipHTML('kaava',{},'Kaava','ƒ',3)+chipHTML('tulos',{},'Kaavan tulos','⇐',3)+'</div>';
     h+='<div class="pt-h">Arvot</div><div class="chips">'+chipHTML('arvo',{},'Arvo','•',0)+chipHTML('muisti',{},'Muisti','▣',0)+chipHTML('satu',{},'Satunnaisluku','⚂',3)+chipHTML('kayra',{},'Käyrä','∿',3)+chipHTML('tanaan',{},'Tänään','◷',5)+chipHTML('pvmosa',{part:'vk'},'Päivämäärän osa','◷',5)+'</div>';
-    h+='<div class="pt-h">Tieto</div><div class="chips">'+chipHTML('taulu',{nm:'Taulukko'},'Tietotaulukko','⊞',6)+chipHTML('tapaht',{nm:'Tapahtuma'},'Tapahtuman tiedot','✉',5)+chipHTML('trivi',{nm:'Kohde'},'Rivi','▤',6)+chipHTML('joukko',{nm:'Joukko'},'Rivijoukko','☷',6)+'</div>';
+    h+='<div class="pt-h">Tieto</div><div class="chips">'+chipHTML('taulu',{nm:'Taulukko'},'Tietotaulukko','⊞',6)+chipHTML('tapaht',{nm:'Tapahtuma'},'Tapahtuman tiedot','✉',5)+chipHTML('trivi',{nm:'Kohde'},'Rivi','▤',6)+chipHTML('joukko',{nm:'Joukko'},'Rivijoukko','☷',6)+'<div class="chip qk h6" data-quick="tulkki" title="Liitä tekstiä: rivit kuviolla tai taulukkona (Excel, Sheets, CSV) taulukon riveiksi tai Arvo-, Muisti- ja Teksti-palikoiksi. Esikatselu ennen hyväksyntää."><span class="ci">⇄</span>Tulkki…</div></div>';
     h+='<div class="pt-h">Laskut</div><div class="chips">';
     Object.keys(KK.OPS).forEach(function(o){h+='<div class="chip sym h2" data-make="'+esc(JSON.stringify({k:'lasku',p:{op:o}}))+'" title="Lasku">'+KK.OPS[o]+'</div>';});
     h+='</div><div class="pt-h">Vertailut</div><div class="chips">';
@@ -6954,7 +7087,7 @@ function renderTauluSheet(){var el=$('#tdroot'),b=tdB();if(!el||!b)return;var us
     rows.forEach(function(r,i){h+='<tr data-trow="'+esc(r.id)+'"'+(use&&r.id===sel?' class="on"':'')+'>'+(use?'<td><button class="tdsel'+(r.id===sel?' on':'')+'" data-tdx="sel" title="Valitse rivi">'+(r.id===sel?'●':'○')+'</button></td>':'')+'<td class="tdn">'+(i+1)+'</td>'+
       cs.map(function(c){return '<td>'+tdCell(P,b,c,r,use)+'</td>';}).join('')+'<td class="tdb"><button data-tdx="up" title="Ylös">↑</button><button data-tdx="down" title="Alas">↓</button><button data-tdx="del" title="Poista rivi">×</button></td></tr>';});
     h+='</tbody></table></div><div id="tderr" class="help errt"></div>';}
-  h+='<div class="ibs">'+(cs.length?'<button class="ib" data-tdx="add">＋ Rivi</button>':'')+(used?'<button class="ib" data-tdx="reset">Palauta lähtöaineistoon</button>':'')+'</div>';
+  h+='<div class="ibs">'+(cs.length?'<button class="ib" data-tdx="add">＋ Rivi</button>':'')+(use?'':'<button class="ib" data-tdx="tulkki" title="Liitä tekstiä tai taulukko (Excel, Sheets, CSV) riveiksi, esikatselu ensin">⇄ Liitä tekstiä…</button>')+(used?'<button class="ib" data-tdx="reset">Palauta lähtöaineistoon</button>':'')+'</div>';
   h+='<div class="help">Tyhjä kenttä on <b>puuttuva tieto</b>: se ei ole 0 eikä ei. Koosteet ohittavat sen ja kertovat, montako puuttuu. Väärän lajin arvoa (esim. pelkkä − lukuun) ei kirjoiteta: kenttä näkyy punaisena.</div>';
   el.innerHTML=h;}
 function tdAfter(full){KK.tick(P,ctx());save();renderStage();qvRefresh();if(full){renderTauluSheet();renderInsp();}else refreshInspHead();}
@@ -6968,6 +7101,7 @@ function tdSet(t,full){var b=tdB();if(!b)return;var pr=t.getAttribute('data-tcel
 $('#sheet').addEventListener('click',function(e){var x=e.target.closest('[data-tdx]'),sg=e.target.closest('[data-seg="tduse"]');var b=tdB();if(!b)return;
   if(sg){S.td.use=sg.getAttribute('data-v')==='1';renderTauluSheet();return;}if(!x)return;var a=x.getAttribute('data-tdx'),tr=x.closest('[data-trow]'),rid=tr?tr.getAttribute('data-trow'):'',use=!!S.td.use;
   if(a==='close'){closeSheet();S.td=null;renderInsp();return;}
+  if(a==='tulkki'){openTulkki({tt:b.id,sheet:true});return;}
   if(!use&&a!=='sel'&&a!=='reset')pushUndo();
   if(a==='add'){var nid=KK.tAddRow(P,b.id,use);tdAfter(true);var f=$('#sheet [data-trow="'+nid+'"] [data-tcell]');if(f)f.focus();return;}
   if(a==='del')KK.tDelRow(P,b.id,use,rid);else if(a==='up'||a==='down')KK.tMoveRow(P,b.id,use,rid,a==='up'?-1:1);
@@ -8129,6 +8263,7 @@ $('#sheet').addEventListener('click',function(e){var b=e.target.closest('[data-c
    Jos vaihtoehdoille annetaan luvut, jokaisesta tulee VALITSE-palikka SUMMA-ikkunaan. Uutta palikkalajia ei ole. */
 var QTAPA={yksi:'Valitse yksi',monta:'Valitse monta',min:'Vähintään N',max:'Enintään N'};
 function openQuick(kind){
+  if(kind==='tulkki'){openTulkki();return;}
   if(!P||locked())return;
   S.qk={kind:kind,tapa:'yksi',laji:'nappi',asettelu:kind==='kylla'?'rinn':'alle'};
   function segs(k,opts){return '<div class="f"><label>'+opts.label+'</label><div class="segs">'+opts.o.map(function(o){return '<button data-q="'+k+'" data-v="'+o[0]+'" class="'+(S.qk[k]===o[0]?'on':'')+'">'+esc(o[1])+'</button>';}).join('')+'</div></div>';}
@@ -8213,6 +8348,95 @@ $('#wname').addEventListener('keydown',function(e){if(e.key==='Enter')$('#wcreat
 $('#wexample').addEventListener('click',openExample);
 $('#wimport').addEventListener('click',function(){$('#filein').click();});
 
+/* ---------- Jonon 6 (F27 kohta 2, F20 vaihe 1): tulkki eli printteri ----------
+   Rakentajan työkalu: teksti liitetään, valitaan kuvio tai taulukko ja kohde, katsotaan esikatselu ja hyväksytään.
+   Avautuu logiikan paletista (Tieto → Tulkki…) ja taulukkoikkunasta (Liitä tekstiä…). Kertaluontoinen: teksti ei jää
+   projektiin, vain tallennetut kuviot. Hyväksyntä on yksi Kumoa-askel. */
+var TULK_MALLIT=[['{nimi}: {arvo}','nimi: arvo'],['{etu} = {taka}','etu = taka'],['{laji} {nimi}: {arvo}','laji nimi: arvo']];
+var TULK_TILA={uusi:'uusi',muuttuu:'muuttuu',ennallaan:'ennallaan',virhe:'virhe'};
+function openTulkki(opt){if(!P||locked())return;opt=opt||{};var tt=opt.tt&&P.b[opt.tt]&&P.b[opt.tt].k==='taulu'?opt.tt:'';
+  S.tk={tapa:'kuvio',kuvio:'{nimi}: {arvo}',erotin:'',ots:true,kohde:tt?'rivit':'palikat',tt:tt,nimi:'',avain:'',laji:'arvo',teksti:'',from:tt&&opt.sheet?tt:''};
+  if(tt)S.tk.kuvio='{etu} = {taka}';
+  openSheet('<div id="tkroot"></div>');$('#sheet').classList.add('wide');renderTulkki();var t=$('#tkt');if(t)t.focus();}
+function tkSegs(label,k,v,opts){return F(label,'<div class="segs">'+opts.map(function(o){return '<button data-tks="'+k+'" data-v="'+esc(o[0])+'" class="'+(String(v)===String(o[0])?'on':'')+'">'+esc(o[1])+'</button>';}).join('')+'</div>');}
+function renderTulkki(){var el=$('#tkroot'),q=S.tk;if(!el||!q)return;
+  var h='<h2>⇄ Tulkki<button class="tb" data-tkx="close">Peru</button></h2>';
+  h+='<div class="help" style="margin-top:0">Liitä tekstiä: jokaisesta rivistä tulee taulukon rivi tai palikka. Esikatselu näyttää ensin, mitä tapahtuu.</div>';
+  var a=tkSegs('Teksti on','tapa',q.tapa,[['kuvio','Rivejä kuviolla'],['taulukko','Taulukko (Excel, Sheets, CSV)']]);
+  if(q.tapa==='kuvio'){
+    a+=F('Kuvio','<input id="tkk" class="kfx" value="'+esc(q.kuvio)+'" spellcheck="false" autocapitalize="off" placeholder="{nimi}: {arvo}">','Kentät aaltosulkuihin. Kenttien välissä oleva teksti on erotin: vain sen ensimmäinen kohta rivillä jakaa, joten viimeinen kenttä saa loput.');
+    var ks=KK.kuviot(P);
+    a+='<div class="chips tkm">'+TULK_MALLIT.map(function(m){return '<button class="ib nf" data-tkm="'+esc(m[0])+'">'+esc(m[1])+'</button>';}).join('')+
+      ks.map(function(x){return '<span class="tksv"><button class="ib nf" data-tkm="'+esc(x.k)+'" title="'+esc(x.k)+'">★ '+esc(x.nm)+'</button><button class="ib nf del" data-tkdel="'+esc(x.nm)+'" title="Poista tallennettu kuvio">×</button></span>';}).join('')+
+      '<button class="ib nf" data-tkx="save" title="Tallenna kuvio projektiin nimellä">Tallenna kuvio…</button></div>';
+  }else{
+    a+=tkSegs('Erotin','erotin',q.erotin,[['','Arvaa'],['\t','Sarkain'],[',','Pilkku'],[';','Puolipiste']]);
+    a+='<label class="ck"><input type="checkbox" id="tkots"'+(q.ots?' checked':'')+'> Ensimmäinen rivi on otsikot (sarakkeiden nimet)</label>';
+    a+='<div class="help">Excelistä ja Sheetsistä kopioidut solut tulevat sarkaimella. Lainausmerkeissä oleva kenttä voi sisältää erottimen ja rivinvaihdon.</div>';
+  }
+  a+=F('Teksti','<textarea id="tkt" rows="7" spellcheck="false" placeholder="'+(q.tapa==='kuvio'?'esim.&#10;yöuni: 8&#10;mieliala: hyvä':'liitä solut tai CSV tähän')+'">'+esc(q.teksti)+'</textarea>')+
+    '<div class="ibs" style="margin-top:4px"><button class="ib nf" data-tkx="file">Avaa tiedosto…</button><input type="file" id="tkfile" accept=".csv,.tsv,.txt,text/plain,text/csv" style="display:none"></div>';
+  h+=section('Lähde',a);
+  var b=tkSegs('Mihin','kohde',q.kohde,[['rivit','Taulukon riveiksi'],['palikat','Palikoiksi']]);
+  if(q.kohde==='rivit'){
+    b+=F('Taulukko','<select id="tktt"><option value="">＋ Uusi taulukko</option>'+blocks(function(o){return o.k==='taulu';}).map(function(o){return '<option value="'+esc(o.id)+'"'+(o.id===q.tt?' selected':'')+'>'+esc(o.nm)+'</option>';}).join('')+'</select>');
+    if(!q.tt)b+=F('Uuden taulukon nimi','<input id="tknm" value="'+esc(q.nimi)+'" placeholder="Taulukko">');
+    b+='<div id="tkav"></div>';
+  }else b+=tkSegs('Laji, kun rivillä ei ole kenttää {laji}','laji',q.laji,[['arvo','Arvo'],['muisti','Muisti'],['teksti','Teksti']])+
+    '<div class="help">Kenttä <code>{nimi}</code> on palikan nimi ja <code>{arvo}</code> sen arvo (tyhjä, jos puuttuu). Sama nimi päivittää olemassa olevan palikan eikä tee tuplaa. Arvo ja Muisti tulevat logiikkaan, Teksti nykyiseen näkymään.</div>';
+  h+=section('Kohde',b);
+  h+='<div id="tkpre"></div>';
+  el.innerHTML=h;tkPreview();}
+function tkOpts(){var q=S.tk;return {tapa:q.tapa,kuvio:q.kuvio,erotin:q.erotin,ots:q.ots,teksti:q.teksti,kohde:q.kohde,tt:q.tt,nimi:q.nimi,avain:q.avain,laji:q.laji};}
+function tkPreview(){var q=S.tk,el=$('#tkpre');if(!q||!el)return;var o=tkOpts(),now=new Date();o.avain='';var pl=q.teksti.trim()?KK.tulkSuunnitelma(P,o,now):null,h='';
+  var fs=pl&&!pl.err?pl.f:[];if(q.avain&&fs.map(function(x){return x.toLowerCase();}).indexOf(q.avain.toLowerCase())<0)q.avain='';
+  if(pl&&!pl.err&&q.avain&&q.kohde==='rivit')pl=KK.tulkSuunnitelma(P,tkOpts(),now);
+  var av=$('#tkav');if(av){
+    av.innerHTML=F('Yhdistä avaimella','<select id="tkavs"><option value="">ei: lisää kaikki uusina riveinä</option>'+fs.map(function(x){return '<option'+(x.toLowerCase()===String(q.avain).toLowerCase()?' selected':'')+'>'+esc(x)+'</option>';}).join('')+'</select>',
+      'Kun avain on valittu, rivi, jolla on sama avain, päivittyy (tyhjä kenttä ei pyyhi), ja muut lisätään. Taulukon omat sarakkeet ja rivit säilyvät.');}
+  if(!pl){el.innerHTML=section('Esikatselu','<div class="help" style="margin-top:0">Liitä teksti, niin esikatselu näkyy tässä.</div>')+'<div class="ibs"><button class="ib" disabled>Hyväksy</button></div>';return;}
+  if(pl.err){el.innerHTML=section('Esikatselu','<div class="help errt" style="margin-top:0">⚠ '+esc(pl.err)+'</div>')+'<div class="ibs"><button class="ib" disabled>Hyväksy</button></div>';return;}
+  var sum=[];if(pl.uusia)sum.push('<b>'+pl.uusia+'</b> uutta');if(pl.muuttuu)sum.push('<b>'+pl.muuttuu+'</b> muuttuu');if(pl.ennallaan)sum.push(pl.ennallaan+' ennallaan');if(pl.virheita)sum.push('<span class="errt">'+pl.virheita+' virhettä (ohitetaan)</span>');if(pl.tyhjia)sum.push(pl.tyhjia+' tyhjää riviä ohitetaan');
+  h+='<div class="help tksum" style="margin-top:0">'+(sum.join(' · ')||'Ei muutoksia')+'</div>';
+  if(pl.kohde==='rivit'){var tb=pl.tt?P.b[pl.tt]:null;
+    if(pl.uudetSar.length)h+='<div class="help">'+(tb?'Taulukkoon tulee uudet sarakkeet':'Sarakkeet')+': '+pl.uudetSar.map(function(c){return '<b>'+esc(c.nm)+'</b> ('+esc(KK.SARK[c.laji])+')';}).join(', ')+'.</div>';
+    if(pl.kaytossa)h+='<div class="help">Rivit menevät lähtöaineistoon. Taulukolla on myös käyttötietoa, jota appi näyttää nyt: uudet rivit näkyvät käytössä, kun palautat lähtöaineistoon.</div>';}
+  else if(pl.ohit.length)h+='<div class="help">Kentät '+pl.ohit.map(function(x){return '{'+esc(x)+'}';}).join(', ')+' ohitetaan (palikoille käyvät nimi, arvo ja laji).</div>';
+  var MAX=200,rs=pl.rivit.slice(0,MAX);
+  h+='<div class="tdwrap"><table class="tdt tkt"><thead><tr><th>Rivi</th><th>Tila</th><th>'+(pl.kohde==='rivit'?'Teksti':'Palikka')+'</th></tr></thead><tbody>'+rs.map(function(x){
+    var c=pl.kohde==='palikat'&&x.tila!=='virhe'?esc(KK.K[x.k].n)+' <b>'+esc(x.nm)+'</b> = '+(x.v===''?'<i>tyhjä</i>':esc(x.v)):esc(x.tx);
+    return '<tr class="tk-'+x.tila+'"><td class="tdn">'+x.n+'</td><td><span class="tkb">'+TULK_TILA[x.tila]+'</span></td><td>'+c+(x.syy?'<div class="errt">'+esc(x.syy)+'</div>':'')+'</td></tr>';}).join('')+'</tbody></table></div>';
+  if(pl.rivit.length>MAX)h+='<div class="help">… ja '+(pl.rivit.length-MAX)+' riviä lisää.</div>';
+  var n=pl.uusia+pl.muuttuu;
+  el.innerHTML=section('Esikatselu',h)+'<div class="ibs"><button class="ib" data-tkx="ok"'+(n?'':' disabled')+'>Hyväksy'+(n?' ('+n+')':'')+'</button></div>';}
+function tkApply(){var q=S.tk;if(!q)return;var o=tkOpts(),pl0=KK.tulkSuunnitelma(P,o,new Date());if(pl0.err||!(pl0.uusia+pl0.muuttuu))return;
+  pushUndo();var my=40;P.lg.n.forEach(function(n){if(!n.g)my=Math.max(my,n.y+(n.h||34)+50);});o.x=40;o.y=my;o.vw=S.vw;
+  var vp=$('#uvp');if(vp){var st=vp.getBoundingClientRect(),w0=toWorld(vp,camUI(),st.left+st.width*0.3,st.top+st.height*0.25);o.nx=snapv(w0.x);o.ny=snapv(w0.y);}
+  var pl=KK.tulkSovella(P,o,new Date());if(pl.err){toast(pl.err);return;}
+  var from=q.from;S.tk=null;closeSheet();document.body.classList.remove('palopen');
+  if(pl.kohde==='rivit'){var tb=P.b[pl.tt];S.sel={t:'b',id:tb.id};S.multi=[];
+    toast((pl.uusia?pl.uusia+' riviä lisättiin':'')+(pl.uusia&&pl.muuttuu?', ':'')+(pl.muuttuu?pl.muuttuu+' muuttui':'')+' taulukossa ”'+tb.nm+'”.'+(pl.virheita?' '+pl.virheita+' virheellistä ohitettiin.':''));}
+  else{var ids=pl.ids;if(ids.length){S.sel={t:'b',id:ids[ids.length-1]};S.multi=ids.length>1?ids.map(function(i){return {t:'b',id:i};}):[];}
+    toast((pl.uusia?pl.uusia+' palikkaa luotiin':'')+(pl.uusia&&pl.muuttuu?', ':'')+(pl.muuttuu?pl.muuttuu+' muuttui':'')+'.'+(pl.virheita?' '+pl.virheita+' virheellistä ohitettiin.':''));}
+  KK.tick(P,ctx());save();renderAll();
+  if(from&&P.b[from])openTauluSheet(from);}
+function tkClose(){var from=S.tk&&S.tk.from;S.tk=null;closeSheet();if(from&&P.b[from])openTauluSheet(from);}
+$('#sheet').addEventListener('click',function(e){if(!S.tk||!$('#tkroot'))return;var q=S.tk;
+  var sg=e.target.closest('[data-tks]');if(sg){q[sg.getAttribute('data-tks')]=sg.getAttribute('data-v');renderTulkki();return;}
+  var m=e.target.closest('[data-tkm]');if(m){q.kuvio=m.getAttribute('data-tkm');var i=$('#tkk');if(i)i.value=q.kuvio;tkPreview();return;}
+  var d=e.target.closest('[data-tkdel]');if(d){pushUndo();KK.kuvioPoista(P,d.getAttribute('data-tkdel'));save();renderTulkki();return;}
+  var x=e.target.closest('[data-tkx]');if(!x)return;var a=x.getAttribute('data-tkx');
+  if(a==='close')tkClose();
+  else if(a==='ok')tkApply();
+  else if(a==='file')$('#tkfile').click();
+  else if(a==='save'){var ku=KK.tulkKuvio(q.kuvio);if(ku.err){toast(ku.err);return;}var nm=prompt('Kuvion nimi (tallentuu projektiin):',q.kuvio);if(!nm||!nm.trim())return;pushUndo();KK.kuvioTallenna(P,nm,q.kuvio);save();renderTulkki();toast('Kuvio ”'+nm.trim()+'” tallennettiin projektiin.');}});
+$('#sheet').addEventListener('input',function(e){if(!S.tk||!$('#tkroot'))return;var t=e.target,q=S.tk;
+  if(t.id==='tkt')q.teksti=t.value;else if(t.id==='tkk')q.kuvio=t.value;else if(t.id==='tknm'){q.nimi=t.value;return;}else return;tkPreview();});
+$('#sheet').addEventListener('change',function(e){if(!S.tk||!$('#tkroot'))return;var t=e.target,q=S.tk;
+  if(t.id==='tktt'){q.tt=t.value;q.avain='';renderTulkki();}
+  else if(t.id==='tkavs'){q.avain=t.value;tkPreview();}
+  else if(t.id==='tkots'){q.ots=t.checked;tkPreview();}
+  else if(t.id==='tkfile'&&t.files&&t.files[0]){var f=t.files[0],r=new FileReader();r.onload=function(){q.teksti=String(r.result||'');if(/\.(csv|tsv)$/i.test(f.name))q.tapa='taulukko';renderTulkki();};r.readAsText(f);t.value='';}});
 /* ---------- F26: suosikit ja presetit (D11–D13) ----------
    Molemmat ovat projektin ulkopuolella: Dt.suos [{k, p, l, i, h}] ja Dt.presetit [{id, nm, t, …KK.presetMake}]. Ne tallentuvat
    samaan selaimen muistiin kuin projektit ja kulkevat varmuuskopiossa, mutta eivät GitHubiin. Suosikit valitaan itse tähdellä

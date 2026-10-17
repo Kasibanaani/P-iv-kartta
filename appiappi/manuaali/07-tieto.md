@@ -63,7 +63,7 @@ Taulukko, jossa on nimetyt sarakkeet ja rivejä. Kaavat lukevat sen rivejä ja k
   Lajin vaihto muuntaa olemassa olevat arvot. Jos osa ei sovi uuteen lajiin, appi kysyy *N arvoa ei sovi lajiin ... ja poistuu. Jatketaanko?* Kun vaihdetaan valintaan, vaihtoehdot kerätään sarakkeen nykyisistä teksteistä.
 
 - **Taulukkoikkuna (Avaa taulukko…):** leveä ikkuna, jossa rivit ja sarakkeet. Kentän muutos tulee heti voimaan. Väärän lajin arvoa ei kirjoiteta: kenttä muuttuu punaiseksi ja alla lukee *⚠ ... (ei kirjoitettu)*.
-  - Jokaisella rivillä ↑ ja ↓ (siirto) ja × (poisto). Alhaalla **＋ Rivi** (näkyy, kun sarakkeita on) ja käyttötiedon ollessa **Palauta lähtöaineistoon**.
+  - Jokaisella rivillä ↑ ja ↓ (siirto) ja × (poisto). Alhaalla **＋ Rivi** (näkyy, kun sarakkeita on), **⇄ Liitä tekstiä…** ([Tulkki](#tulkki-teksti-riveiksi-tai-palikoiksi); vain lähtöaineiston puolella) ja käyttötiedon ollessa **Palauta lähtöaineistoon**.
   - Kun käyttötietoa on, ylhäällä valinta **Lähtöaineisto (N)** / **Käyttötieto nyt (N)**. Valitsemasi puoli on se, jota muokkaat.
   - Valitun rivin sarake ●/○ näkyy vain **Käyttötieto nyt** -puolella. Napautus valitsee rivin, uusi napautus poistaa valinnan.
   - Sulje painikkeella **Valmis**.
@@ -127,6 +127,31 @@ Historia on tavallinen Tietotaulukko, jonka rivit ovat kirjauksia: mitä, kuinka
 - **Vanha tekstiaikajana:** Aikajanan paneelin **Muunna historiaksi** (ks. [Aikajana](03-nakymapalikat.md#aikajana-aika)). Muunnos tehdään vain napista.
 
 ---
+
+## Tulkki: teksti riveiksi tai palikoiksi
+
+Appi-appi 40 (jonon 6, F27 kohta 2). Rakentajan työkalu, ei palikka: liität tekstiä, ja jokaisesta rivistä tulee taulukon rivi tai palikka. Esikatselu näyttää ensin, mitä tapahtuu; mitään ei muutu ennen **Hyväksy**-napautusta. Kertaluontoinen: liitetty teksti ei jää projektiin.
+
+- **Löytyy:** Logiikan paletti, ryhmä **Tieto** → **Tulkki…** (⇄). Taulukkoikkunasta **⇄ Liitä tekstiä…**: silloin kohde on valmiiksi se taulukko, kuvio `{etu} = {taka}`, ja hyväksynnän jälkeen palataan taulukkoikkunaan.
+- **Teksti on:**
+  - **Rivejä kuviolla:** kuvio on tekstiä, jossa kentät ovat aaltosuluissa, esim. `{nimi}: {arvo}` tai `{etu} = {taka}`. Kenttien välissä oleva teksti on erotin (kenttien väliin on pakko kirjoittaa jotain). Rivillä vain erottimen **ensimmäinen** kohta jakaa, joten viimeinen kenttä saa loput (`klo: 9:30` → nimi *klo*, arvo *9:30*). Välit erottimen ympärillä eivät ratkaise (`yöuni:8` käy). Kuvion alku- ja loppuosan pitää löytyä riviltä (`- {etu} ({taka})`). Pelkkä väli kuviossa (`{a} {b}`) jakaa mistä tahansa määrästä välejä. Valmiit kuviot napeissa: *nimi: arvo*, *etu = taka*, *laji nimi: arvo*.
+  - **Taulukko (Excel, Sheets, CSV):** erotin **Arvaa** (sarkain, jos ensimmäisellä rivillä on sarkain, muuten yleisempi puolipisteestä ja pilkusta), **Sarkain**, **Pilkku** tai **Puolipiste**. Excelistä ja Sheetsistä kopioidut solut tulevat sarkaimella. Lainausmerkeissä oleva kenttä voi sisältää erottimen, rivinvaihdon ja `""` (lainausmerkki). Ruksi **Ensimmäinen rivi on otsikot** (oletus): otsikot ovat kenttien nimet; ilman sitä kentät ovat *Sarake 1*, *Sarake 2* …
+  - **Avaa tiedosto…** lukee tekstitiedoston kenttään (`.csv`- ja `.tsv`-tiedosto vaihtaa tavaksi Taulukko).
+- **Mihin: Taulukon riveiksi.** Valitse taulukko tai **＋ Uusi taulukko** (nimi kentästä, oletus *Taulukko*; uusi taulukko tulee logiikkaan muiden alle).
+  - Kentät yhdistetään sarakkeisiin nimen tai viitteen perusteella (kirjainkoko ei ratkaise). Puuttuvasta kentästä tulee uusi sarake; esikatselu kertoo sen nimen ja lajin. Laji päätellään arvoista: luku (myös desimaalipilkku), kyllä/ei, päivämäärä (`1.10.2026` tai `2026-10-01`) tai teksti.
+  - Arvot muutetaan sarakkeen lajiin kuten taulukkoikkunassa. Väärän lajin arvo tekee rivistä virheen, joka ohitetaan.
+  - **Yhdistä avaimella** (oletus ei): ilman avainta kaikki rivit lisätään uusina. Avaimella rivi, jolla on sama avain, päivittyy ja muut lisätään; tyhjä kenttä liitetyssä tekstissä ei pyyhi olemassa olevaa arvoa, ja taulukon omat sarakkeet ja rivit säilyvät. Saman avaimen toinen rivi samassa tekstissä päivittää ensimmäisen. Kirjaushistorian *Id*-sarake kelpaa avaimeksi (vain olemassa olevat rivit; tuntematon tunniste on virhe).
+  - Rivit menevät **lähtöaineistoon**. Jos taulukolla on käyttötietoa, esikatselu sanoo, että uudet rivit näkyvät käytössä vasta, kun palautat lähtöaineistoon. Kirjaushistorian automaattinen *Aika* täyttyy lisäyshetkellä, kun teksti ei anna sitä.
+- **Mihin: Palikoiksi.** Kenttä `{nimi}` on pakollinen, `{arvo}` valinnainen (puuttuu = tyhjä) ja `{laji}` valinnainen (`arvo`, `muisti` tai `teksti`). Ilman lajia käytetään valintaa **Laji** (Arvo, Muisti, Teksti; oletus Arvo). Muut kentät ohitetaan, ja esikatselu kertoo ne.
+  - `yöuni: 8` → Arvo, nimi ja viite *yöuni*, arvo 8. `yöuni:` → Arvo, arvo tyhjä.
+  - Arvo ja Muisti tulevat logiikkaan muiden alle, Teksti (näkymäpalikka) nykyiseen näkymään. Arvon kenttään menee teksti sellaisenaan (Muistille alkuarvo, Tekstille teksti).
+  - Sama nimi (tai viite) päivittää olemassa olevan Arvon, Muistin tai Tekstin eikä tee tuplaa; kirjainkoko ei ratkaise. Virhe, jos nimi on jo muulla palikalla tai rivin laji on eri kuin olemassa olevan. Samassa tekstissä myöhempi rivi voittaa.
+  - Kaava, joka odotti tuntematonta nimeä (`yöuni * 2`), sitoutuu luotuun palikkaan ja toimii heti.
+- **Esikatselu:** yhteenveto (*N uutta · N muuttuu · N ennallaan · N virhettä (ohitetaan) · N tyhjää riviä ohitetaan*) ja jokainen rivi numeroineen ja tilansa kanssa: **uusi**, **muuttuu**, **ennallaan** tai **virhe** syineen (esim. *erotinta ”=” ei löydy*, *nimi puuttuu*, *lainausmerkki jää auki*, *kenttiä on enemmän kuin otsikoita*). Tyhjät rivit ohitetaan. Yli 200 riviä: loput lasketaan mutta ei listata. **Hyväksy (N)** on harmaana, kun mitään ei muutu.
+- **Kumoa:** hyväksyntä on yksi ↶ Kumoa -askel (luodut palikat, taulukko, rivit ja uudet sarakkeet).
+- **Tallennetut kuviot:** **Tallenna kuvio…** kysyy nimen ja tallentaa kuvion projektiin; se näkyy napiksi ★ nimi (× poistaa). Sama nimi korvaa vanhan. Enintään 30.
+- **Rajat:** ei omaa kielioppia, sisäkkäisiä rakenteita eikä elävää tulkintaa (teksti muuttuu → rivit muuttuvat). Palikoiksi vain Arvo, Muisti ja Teksti. Appi ei kutsu tekoälyä: tekoäly voi tuottaa liitettävän tekstin keskustelussa.
+- **Esimerkki (korttipakka):** Tulkki… → Rivejä kuviolla, kuvio `{etu} = {taka}`, Taulukon riveiksi, ＋ Uusi taulukko nimellä *Kortit*, teksti `kissa = cat` ja `koira = dog` omille riveilleen → Hyväksy (2). Syntyy taulukko *Kortit* (sarakkeet etu ja taka), jolle Toistin ja toiminto Valitse rivi tekevät korttipakan.
 
 ## Puuttuva tieto
 Tyhjä kenttä on tallessa puuttuvana. Se näkyy merkkinä `–`.
