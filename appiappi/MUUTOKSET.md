@@ -4,6 +4,10 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
 
 ## Versiot
 
+- Appi-appi 46 (17.10., jonon 12, kaista B): **Palikat-palstan rivit yksirivisiksi.**
+  - Logiikan vasemman palstan Palikat-lista (`#plist`, `renderPList`): rivillä kuvake ja nimi (`.pn`, yksi rivi, pitkä nimi katkeaa …:hin). Oranssi viite, näkymä tai ”logiikka” ja esiintymien määrä siirtyivät rivin `title`-vihjeeseen (”univiime · logiikka · 2×”). Haku viitteellä toimii yhä; kanvaasin viitenimi (`.vtag`) ennallaan.
+  - Ei tallennusmuodon muutosta. Testi: `selain_86_palstarivit.py` (1440, 1280, 390 savutestinä). Manuaali: luku 2.
+  - Ei tarkistettu: kosketuslaitteella vihje ei näy (viite näkyy kanvaasilla ja paneelissa), iPhone.
 - Appi-appi 45 (17.10., jonon 10, F33 vaihe 1, `suunnitelmat/17-peliohjain.md`, kaista B): **Peliohjain.** Tallennusmuoto laajeni valinnaisilla kentillä (versio yhä 8).
   - Logiikan palikka **Peliohjain** (`pohj`, paletti *Liike ja aika*): Pelaaja 1–4, Kuollut alue 0–0,5 (oletus 0,15, säteittäin, yli menevä osa skaalataan 0…1). Ulos *yhdistetty*, *vaaka*, *pysty*, *etäisyys*, *suunta* (vasen tatti, samat nimet kuin Tatilla) sekä tapahtumat *painettu*, *irti* (tiedoissa `tapahtuma.nappi`), *yhdistyi*, *irtosi*. Ominaisuudet luettavia: oikea tatti, 16 nappia sijainnin mukaan (alanappi = Xbox A / PS ✕ / Nintendo B …), liipaisimet 0–1, `nimi`. Paneelissa elävä esikatselu (myös muokatessa, ilman logiikkaa) ja merkkitaulukko; Miksi?.
   - Tatti: *Peliohjain* ei / vasen / oikea tatti ja pelaaja; seuraa `tattiSet`-tilaa, alkaa/loppuu kuten sormella, sormi voittaa. Painike: *Peliohjaimen nappi* ja pelaaja; sama polku kuin napautus (`press`, `pressDown`, `pressUp`, `pressLong`), painettu napin alas mennessä, ilme `.padin` pohjassa, piilossa / harmaana / toisessa näkymässä ei reagoi.

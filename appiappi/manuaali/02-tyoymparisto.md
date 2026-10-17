@@ -180,7 +180,7 @@ Paletti näyttää vain sen puolen palikat, joka on auki: Näkymä-välilehdell�
 
 **Haku**: logiikan paletin kenttä *Etsi nimellä…* suodattaa vain Palikat-listaa (projektin omat palikat nimen tai viitteen mukaan). Palikkalajeja ei voi hakea; ne etsitään ryhmistä.
 
-**Palikat-lista (logiikka)**: näkymän palikat (paitsi sijainnit) ja nimetyt logiikkapalikat sekä muistit, arvot, tulokset, satunnaisluvut ja käyrät. Rivillä näkyy viite, näkymän nimi tai ”logiikka” ja montako kertaa palikka on jo logiikkakanvaasilla (esim. ”2×”). **Näkymän palikka saadaan logiikkaan vain tästä listasta** (tai paneelin napista *Näytä logiikassa*). Sama palikka saa olla logiikassa monessa kohdassa: jokainen veto tekee uuden **esiintymän**. Ikkunasta voi olla vain yksi esiintymä, joten ikkunan veto vain valitsee sen.
+**Palikat-lista (logiikka)**: näkymän palikat (paitsi sijainnit) ja nimetyt logiikkapalikat sekä muistit, arvot, tulokset, satunnaisluvut ja käyrät. Rivillä näkyy kuvake ja nimi yhdellä rivillä; pitkä nimi katkeaa kolmeen pisteeseen. Viite, näkymän nimi tai ”logiikka” ja montako kertaa palikka on jo logiikkakanvaasilla (esim. ”univiime · logiikka · 2×”) näkyvät vihjeessä, kun hiiri on rivin päällä. Kanvaasilla viite näkyy palikan yläpuolella kuten ennenkin. **Näkymän palikka saadaan logiikkaan vain tästä listasta** (tai paneelin napista *Näytä logiikassa*). Sama palikka saa olla logiikassa monessa kohdassa: jokainen veto tekee uuden **esiintymän**. Ikkunasta voi olla vain yksi esiintymä, joten ikkunan veto vain valitsee sen.
 
 ### Palikan lisääminen
 
