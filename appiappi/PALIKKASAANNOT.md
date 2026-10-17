@@ -34,23 +34,20 @@ Rakentaja käy listan läpi omaa työtään vasten. Jos jokin kohta ei toteudu, 
 **Erikoispalikka** on palikka, joka poikkeaa tarkoituksella jostain osan A säännöstä. Niitä saa olla, mutta ne eivät saa olla piilossa.
 
 - **Dokumentissa:** jokaisella erikoispalikalla on rivi alla olevassa rekisterissä: mistä säännöstä se poikkeaa ja miksi. Uusi erikoispalikka tai uusi poikkeus vaatii suunnitelman perustelun ja Emilin hyväksynnän; rakentaja ei tee poikkeusta omin päin, vaan kirjaa kysymyksen `TILA.md`:hen.
-- **Appissa (ehdotus, ei rakennettu):** palikkalajin määrittelyyn `K` kenttä `erik:'lyhyt syy'`. Paletti ja tarkastelija näyttävät erikoispalikalle tunnuksen ✦ ja syyn selkokielellä, ja testi tarkistaa, että jokaisella `erik`-lajilla on rivi tässä rekisterissä ja päinvastoin.
+- **Appissa (jonossa, kohta 1b; ei vielä rakennettu):** palikkalajin määrittelyyn `K` kenttä `erik:'lyhyt syy'`. Paletti ja tarkastelija näyttävät erikoispalikalle tunnuksen ✦ ja syyn selkokielellä, ja testi tarkistaa, että jokaisella `erik`-lajilla on rivi tässä rekisterissä ja päinvastoin.
 
 ### Rekisteri
 
-Tila: **ehdokas** = havaittu koodista 17.10.2026 (`portsBase`, `omat`), ei vielä arvioitu; **hyväksytty** = poikkeus todettu tarkoitukselliseksi; **korjattava** = poikkeus on vahinko.
+Tila: **ehdokas** = havaittu, arvioimatta; **arvioitu** = kartoitus pitää poikkeusta tarkoituksellisena (Emil voi kumota); **päätetty** = Emilin tai periaatteiden päätös; **korjattava** = poikkeus on vahinko. Arvio: [linjakkuuskartoitus 1](kartoitukset/2026-10-17-linjakkuus.md).
 
 | Palikka (laji) | Poikkeus | Syy | Tila |
 |---|---|---|---|
-| Sijainti (`merkki`), Alue (`alue`) | Ei näkymäpalikan yhteisiä kohtia eikä käyttöraahausta (A5) | Merkki ja alue ovat paikkoja, eivät näkyvää sisältöä | ehdokas |
-| Kaavio, Monitori, Reitti (`kaavio`, `mittari`, `reitti`) | Ei ulostuloja (A4) | Pelkkä esitys | ehdokas |
-| Toistin (`toistin`) | Vain kohdat *näkyy kun* ja *rivit* (A5) | Kortit ovat sen sisällä | ehdokas |
-| Kuva (`pkuva`) | Sisäinen nimi poikkeaa (A1) | `kuva` on varattu efektille *Kuva vaihtuu* | ehdokas |
-| Efektit (`ilmesty`, `kuva`, `anim`, `nvaihto`) | Toimivat vain ketjussa; ketjun ulkopuolella *sitten* lähtee heti | Ketjun tapahtumia | ehdokas |
-| Kaavan tulos (`tulos`) | Saa arvonsa vain kaavan `tulos = …` kautta | Nimeää lasketun arvon | ehdokas |
-| Kerros, Kamera (`kerros`, `kamera`) | Logiikkapalikka, joka ohjaa näkymää; kaikkia ominaisuuksia ei voi ohjata (TILA, avoimet kysymykset) | Näkymän kerros ja zoomaus logiikkaan | ehdokas |
-
-Ensimmäinen linjakkuuskartoitus käy rekisterin läpi ja täydentää sen.
+| Ketjun palikat (`ch`: Ajastin, Ehto, Odota kunnes, Arpa, Toista, Ketjun tulos, Lopeta ketju, Monta haaraa, efektit) | Lajiryhmä: etenevät ketjun viivoja pitkin. Efekti ketjun ulkopuolella lähettää *sitten* heti. | Tapahtumaketju (versio 6) | arvioitu |
+| Kaavan tulos (`tulos`) | Saa arvonsa vain kaavan `tulos = …` kautta | Nimeää lasketun arvon | päätetty (periaatteet 4) |
+| Sijainti (`merkki`), Alue (`alue`) | Ei näkymäpalikan yhteisiä kohtia eikä käyttöraahausta (A5) | Paikkoja, ei näkyvää sisältöä | arvioitu |
+| Kaavio, Monitori, Reitti, Kuva (`kaavio`, `mittari`, `reitti`, `pkuva`) | Ei arvoa ulos (A4) | Pelkkä esitys; Monitorin arvo on ohjattava ominaisuus | arvioitu |
+| Toistin (`toistin`) | Vain kohdat *näkyy kun* ja *rivit* (A5) | Kortit ovat sen sisällä. Harmaana, vaihtoväri ja siirto puuttuvat ilman syytä (L5). | osin korjattava |
+| Kerros, Kamera (`kerros`, `kamera`) | Logiikkapalikka ohjaa näkymää; osa ominaisuuksista ei ohjattavissa | Näkymän kerros ja zoomaus logiikkaan; laajuus `TILA.md`:n avoimissa kysymyksissä | arvioitu |
 
 ## Suunnitelman kohta Linjakkuus
 
@@ -64,4 +61,4 @@ Suunnittelija huomioi linjan yhdessä suunnitelmassa, mutta ei näe, miten monta
 - kun jonosta on viety viisi kohtaa edellisen kartoituksen jälkeen,
 - aina kun Emil pyytää.
 
-Kartoitus tuottaa löydökset ja ehdotukset, ei koodimuutoksia. Viimeisin kartoitus kirjataan `TILA.md`:hen. **Viimeisin: ei vielä tehty.**
+Kartoitus tuottaa löydökset ja ehdotukset, ei koodimuutoksia. Viimeisin kartoitus kirjataan `TILA.md`:hen. **Viimeisin:** [17.10.2026](kartoitukset/2026-10-17-linjakkuus.md).
