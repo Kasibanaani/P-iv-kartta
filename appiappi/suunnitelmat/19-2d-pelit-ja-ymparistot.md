@@ -81,11 +81,11 @@ Lisäksi (ei välttämätön, mutta tekee rakentamisesta mukavaa): kelluva raken
 - **Kaavaan:** `kartta.määrä.<laji>` (montako laattaa; kolikoita jäljellä), `kartta.leveys`, `kartta.korkeus` (ruutuina).
 
 **Vaihe D: laattojen vuorovaikutus**
-- Laattakartan tapahtumat **astuttu** ja **poistuttu** (kuten Alueella; vain lajeille, joilla rasti *ilmoittaa*), tiedot `laji`, `x`, `y` (ruutu), `kuka`. Kolikko, piikit, maali, portti.
+- Laattakartan tapahtumat **astuttu** ja **poistuttu** (kuten Alueella; vain lajeille, joilla rasti *ilmoittaa*), tiedot `laji`, `ruutux`, `ruutuy` (ruutu; kartoitus 6: `x`/`y` ovat tapahtumissa pikseleitä), `kuka`. Kolikko, piikit, maali, portti.
 - **Liikkeen `alla`** antaa laatan lajin (jää, laava, trampoliini). *Törmäsi* laattaan: `tapahtuma.kohde` = laji, `tapahtuma.puoli` kertoo, osuiko pää.
 - **Toiminto Maalaa laatta** (kartta, x, y, laji tai tyhjä): rikkoutuva tiili, kerätty kolikko, ovi aukeaa. Muutos on käyttötietoa (kuten taulukon rivit), joten Palauta palauttaa kartan rakentajan maalaamaksi.
 
-**Headmaze koetapauksena:** 119 Muotoa → yksi 15 × 15 Laattakartta (laji Seinä) ja 12 porttia → laji Portti (läpi, ilmoittaa). Portin *astuttu* + Jonon 15d *Vie palikka* = teleportti kahdella palikalla. Painovoimaa ei tarvita: laatat palvelevat myös ylhäältä kuvattuja pelejä, kalenteriruudukkoa ja pohjapiirroksia.
+**Headmaze koetapauksena:** 119 Muotoa → yksi 15 × 15 Laattakartta (laji Seinä) ja 12 porttia → laji Portti (läpi, ilmoittaa). Portin *astuttu* + jonon 15 (d) *Vie palikka* = teleportti kahdella palikalla. Painovoimaa ei tarvita: laatat palvelevat myös ylhäältä kuvattuja pelejä, kalenteriruudukkoa ja pohjapiirroksia.
 
 ## 5b. Palikan oma ruudukko
 
@@ -170,8 +170,8 @@ Muualle kuin peleihin sama laatikko kelpaa: pohjapiirros laatoista, kalenteriruu
 | Vaihe | Sisältö | Tallennusmuoto | Hyväksyntä (testi) |
 |---|---|---|---|
 | A | Painovoima Alueelle, Liikkeen painovoima %, maassa, alla, laskeutui, irtosi, `puoli`, `voima`, kitka vain maassa, ohjaus poikittain, kiinteä askel | **laajenee** (Alue `pv`, `pvs`, `ilv`; Liike `pvk`) | putoaa oikein 30/60/120 fps (±2 %); maassa vain alustalla; käännetty painovoima; vanhat liiketestit ennallaan |
-| B | Hyppy (korkeus, ilmaohjaus, lyhyt hyppy, tuplahyppy, armoaika, ennakko) | **laajenee** (Liike `hk`, `ilo`, `lh`, `hil`) | hypyn huippu = korkeus ±2 % kaikilla fps:illä; juoksuhyppy pidempi; ei hyppyä ilmassa ilman tuplahyppyä |
-| C | Laattakartta, lajit, maalaus klik klik, laattaeste, taso | **laajenee** (uusi laji `laatat`, kentät `rk`, `lw`, `lh2`, `lj`, `rt` (ruudut tiiviinä)) | maalaus ja Kumoa; liikkuja ei jää saumaan; 200×200 kartta ei hidasta (kuva < 4 ms koneella); Headmaze-sokkelo laatoilla |
+| B | Hyppy (korkeus, ilmaohjaus, lyhyt hyppy, tuplahyppy, armoaika, ennakko) | **laajenee** (Liike `hyk`, `ilo`, `hyl`, `hyi`; kartoitus 6: `hk`, `lh` ja `hil` ovat jo käytössä) | hypyn huippu = korkeus ±2 % kaikilla fps:illä; juoksuhyppy pidempi; ei hyppyä ilmassa ilman tuplahyppyä |
+| C | Laattakartta, lajit, maalaus klik klik, laattaeste, taso | **laajenee** (uusi laji `laatat`, kentät `rk`, `lw`, `lh2`, `lj`, `lrt` (ruudut tiiviinä; kartoitus 6: `rt` on Liikkeen reitti)) | maalaus ja Kumoa; liikkuja ei jää saumaan; 200×200 kartta ei hidasta (kuva < 4 ms koneella); Headmaze-sokkelo laatoilla |
 | D | Laattojen astuttu/poistuttu, `alla` = laji, Maalaa laatta | **laajenee** (lajin `il`, käyttötieto `lt:`) | kolikko katoaa ja laskuri kasvaa; Palauta palauttaa kartan |
 | E1 | Piirtoruudukko, piirroskirjasto, Pikselitarkka (Kuva ja laatat) | **laajenee** (`P.px`, näkymän `pxt`) | piirto, täyttö ja Kumoa; muokkaus päivittää kaikki käyttäjät; kuva seuraa paletin vaihtoa |
 | E2 | Ilme: Piirros kaikille näkymäpalikoille, ohjainten tilakohtaiset piirrokset, `ilme`-ominaisuus | **laajenee** (palikan `il`) | painettu/valittu/harmaana-kuvat vaihtuvat; ilman piirrosta ennallaan; preset kantaa piirrokset |

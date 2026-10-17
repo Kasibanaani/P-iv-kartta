@@ -35,7 +35,7 @@ Kaksi erillistä asiaa, kuten nytkin: **teema** (pinnat, teksti, korostus) ja **
 ## 3. Tallennus
 
 - Palikat tallentavat yhä vain numeron 1–8: **palikoihin ei muutosta**, ja paletin vaihto värittää koko projektin kerralla (tämä on numeron hyöty, ei kannata luopua).
-- **Projektin tallennusmuoto laajenee valinnaisilla kentillä**: `P.appearance.oma = '#RRGGBB'` (kun `theme === 'oma'`), `P.appearance.pal = {t:'kolmikko', c:'#RRGGBB', x:[null,'#…',…]}` (tapa, lähtöväri, korvatut paikat). Puuttuva `pal` = Sateenkaari, eli vanhat projektit pysyvät ennallaan; `repair` korjaa tuntemattoman tavan ja virheelliset heksat. Versio `VER` nostetaan vientihetkellä.
+- **Projektin tallennusmuoto laajenee valinnaisilla kentillä**: `P.appearance.oma = '#RRGGBB'` (kun `theme === 'oma'`), `P.appearance.pal = {t:'kolmikko', c:'#RRGGBB', x:[null,'#…',…]}` (tapa, lähtöväri, korvatut paikat). Puuttuva `pal` = Sateenkaari, eli vanhat projektit pysyvät ennallaan; `repair` korjaa tuntemattoman tavan ja virheelliset heksat. Versio `VER` pysyy 8, koska kentät ovat valinnaisia (kartoitus 6).
 - Rakennusympäristön valinta samoilla kentillä selaimen muistiin (`appiappi:appearance`), ei tallennusmuotoa.
 
 ## 4. Vaiheet

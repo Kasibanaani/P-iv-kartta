@@ -6,9 +6,9 @@
 
 **Ehdotus: jokaisen näkymäpalikan yhteinen osio Oma ruudukko** (A5: yhteinen ominaisuus, ei uusi palikka):
 - **Sarakkeet × rivit** (esim. 3 × 3), ruudut jakavat palikan koon tasan. Ruudukko kulkee, kasvaa ja kiertyy palikan mukana, koska se lasketaan palikan omasta suorakulmiosta (kierretyssä palikassa napautus muunnetaan palikan koordinaatteihin). Näkyy: muokatessa (oletus) / aina / ei.
-- **Napautus:** palikka lähettää tapahtuman **ruutu napautettu**, tiedot `tapahtuma.x`, `tapahtuma.y` (1 = vasen yläruutu), ja ominaisuudet `napautettux`, `napautettuy` (samat nimet kuin Alueella).
-- **Kosketus muilta:** kun liikkuja törmää ruudukolliseen palikkaan, *törmäsi*-tietoihin (ja myöhemmin 2D-suunnitelman *laskeutui*-tietoihin) tulee `tapahtuma.kohdex`, `tapahtuma.kohdey`: mihin kohteen ruutuun osui (osumakohta lasketaan kiertämättömästä osuma-alueesta, koska osuma-alue ei kierry).
-- **Pudotus:** käyttöraahauksessa (F12) palikan päälle pudotettu tietää ruudun (`tapahtuma.x/y` pudotuksessa): lautapeli, liikkuva inventaario, kalenteripohja.
+- **Napautus:** palikka lähettää tapahtuman **ruutu napautettu**, tiedot `tapahtuma.ruutux`, `tapahtuma.ruutuy` (1 = vasen yläruutu; kartoitus 6: `tapahtuma.x`/`y` ovat muualla pikseleitä), ja ominaisuudet `napautettux`, `napautettuy` (samat nimet kuin Alueella).
+- **Kosketus muilta:** kun liikkuja törmää ruudukolliseen palikkaan, *törmäsi*-tietoihin (ja myöhemmin 2D-suunnitelman *laskeutui*-tietoihin) tulee `tapahtuma.ruutux`, `tapahtuma.ruutuy`: mihin kohteen ruutuun osui (kartoitus 6: ei `kohdex`/`kohdey`, koska ne ovat Liikkeen kohdepiste pikseleinä) (osumakohta lasketaan kiertämättömästä osuma-alueesta, koska osuma-alue ei kierry).
+- **Pudotus:** käyttöraahauksessa (F12) palikan päälle pudotettu tietää ruudun (`tapahtuma.ruutux/ruutuy` pudotuksessa, kuten jo kerroksen ruudukossa): lautapeli, liikkuva inventaario, kalenteripohja.
 - 2D-suunnitelman ([19](19-2d-pelit-ja-ymparistot.md)) Laattakartan ruudukko noudattaa samaa sääntöä, mutta tämä ei riipu siitä.
 
 Käyttöesimerkit: numeronäppäimistö yhtenä Kuvana (3 × 4 ruutua), lautapelin lauta, joka liukuu paikalleen, kartta- tai pohjapiirroskuva, jonka huoneita napautetaan, liikkuvan kohteen eri osat (pää, keho, jalat = 1 × 3).
