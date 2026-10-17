@@ -57,6 +57,12 @@ button{cursor:pointer}
 .ghhelp summary{cursor:pointer;font-weight:600;font-size:13px;margin-top:10px}.ghhelp p{font-size:12.5px;color:var(--label2);margin:6px 0}
 #redobtn{min-width:34px;padding:7px 9px}#redobtn:disabled{opacity:.4}
 #lockbtn.locked{background:var(--fill);color:var(--accent)}
+/* F22: testitila. Raita yläpalkin alla koko kokeilun ajan; runko siirtyy sen alle. */
+#koeraita{position:fixed;left:0;right:0;top:52px;height:30px;z-index:29;display:flex;align-items:center;gap:10px;padding:0 14px;background:var(--s2);color:var(--label);border-bottom:3px solid var(--h2);font-size:13px}
+#koeraita[hidden]{display:none}#koeraita i{font-style:normal}#koeraita b{color:var(--label)}#koeraita span{flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:var(--label)}
+#koeraita .tb{padding:3px 10px;min-height:24px;background:var(--cell);color:var(--label)}
+body.koe #body{top:85px}
+#koebtn.on{background:var(--s2);color:var(--label);box-shadow:inset 0 0 0 2px var(--h2)}
 
 /* ---------- Runko ---------- */
 #body{position:fixed;left:0;right:0;top:52px;bottom:0;display:flex}
@@ -543,7 +549,7 @@ textarea.fld{resize:none;flex:1}
 .ln .vtag{position:absolute;right:9px;top:-16px;font:700 10.5px ui-monospace,Menlo,monospace;color:var(--vtc);white-space:nowrap;pointer-events:none}
 .vtc{color:var(--vtc);font-weight:700}
 .qview{position:absolute;right:14px;top:12px;z-index:7;width:260px;background:var(--cell);border:1px solid var(--sep);border-radius:12px;box-shadow:var(--shadow);padding:8px 11px;font-size:12.5px;line-height:1.4;pointer-events:none;height:88px;box-sizing:border-box;overflow:hidden}
-.uqv{top:52px}
+.uqv{top:52px}body.koe .uqv{top:85px}
 .qview .qh{display:flex;align-items:baseline;gap:7px;min-width:0}
 .qview .qh b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .qview .qh .vtc{font:700 11.5px ui-monospace,Menlo,monospace;flex:none}
@@ -761,6 +767,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   #insp .mclose button{border:0;background:var(--sep);border-radius:10px;padding:6px 18px;font-weight:700;color:var(--label)}
   .qview{display:none}
   .zoomc{bottom:76px!important}
+  body.koe #pal{top:85px}#koeraita{padding:0 8px}#koeraita span i{display:none}
 }
 #lsvg path.lk.ch.kno{stroke-dasharray:9 4}
 .ln.kv.kh .pins.o .pw>em{display:block}
@@ -898,9 +905,11 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   <button class="tb" id="listbtn" title="Kaikki palikat taulukkona">☰ Palikat</button>
   <button class="tb" id="undobtn" title="Kumoa (⌘Z)">↶ Kumoa</button>
   <button class="tb" id="redobtn" title="Tee uudelleen (⇧⌘Z)">↷</button>
+  <button class="tb" id="koebtn" title="Kokeile projektia kopiolla käyttötiedoista: oikeat tiedot eivät muutu">🧪 Kokeile</button>
   <button class="tb" id="lockbtn" title="Lukitse näkymä käyttöön tai avaa muokattavaksi">🔒 Lukitse</button>
   <button class="tb" id="setbtn" title="Asetukset">⚙︎ Asetukset</button>
 </div>
+<div id="koeraita" hidden><b>Kokeilu</b><span>Oikeat tiedot eivät muutu.<i> Rakenteen muutokset jäävät voimaan.</i></span><button class="tb" id="koeend">Lopeta</button></div>
 <div id="body">
   <aside id="pal"></aside>
   <section id="stage"></section>
@@ -4410,7 +4419,30 @@ function curProject(){for(var i=0;i<Dt.projects.length;i++)if(Dt.projects[i].id=
 var saveT=null;
 function save(){clearTimeout(saveT);saveT=setTimeout(saveNow,250);if(typeof chainTimer==='function')setTimeout(chainTimer,0);}
 var storeOk=true;
-function saveNow(){clearTimeout(saveT);trackChanges();try{localStorage.setItem(LS,JSON.stringify(Dt));storeOk=true;}catch(e){storeOk=false;toast('Tallennus ei onnistunut: selaimen muisti on täynnä. Vie varmuuskopio.');}renderStat();}
+function saveNow(){clearTimeout(saveT);trackChanges();try{localStorage.setItem(LS,JSON.stringify(Dt,koeRep));storeOk=true;}catch(e){storeOk=false;toast('Tallennus ei onnistunut: selaimen muisti on täynnä. Vie varmuuskopio.');}renderStat();}
+/* ---------- F22: testitila (Kokeile), suppea ----------
+   Kokeilu käyttää kopiota projektin käyttötiedoista (st, mem), käyttönäkymän kameroista ja lukituksesta. Oikeat arvot
+   ovat S.koe.r:ssä; kaikki tallennus (selaimen muisti, GitHub, varmuuskopio, vienti) kirjoittaa ne kokeilun sijaan, joten
+   kokeilu ei koskaan päädy oikeaksi tiedoksi ja häviää, jos appi suljetaan kesken. Rakenteen muutokset ovat oikeita.
+   Kokeilu päättyy napista tai kun toinen projekti avataan. */
+var KOEK={st:1,mem:1,cam:1,lock:1};
+function koeReal(p,k,v){return S.koe&&KOEK[k]&&p&&typeof p==='object'&&p.lg&&p.id===S.koe.id?S.koe.r[k]:v;}
+function koeRep(k,v){return koeReal(this,k,v);}
+function koeOn(){if(!P||S.koe)return;
+  S.koe={id:P.id,r:{st:P.st,mem:P.mem,cam:P.cam,lock:P.lock},tab:S.tab};
+  P.st=KK.clone(P.st||{});P.mem=KK.clone(P.mem||{});P.cam=KK.clone(P.cam||{});P.lock=true;
+  if(S.tab==='logiikka')S.tab='nakyma';S.sel=null;S.multi=[];S.tool=null;S.hist=[];
+  KK.tick(P,ctx());save();$('#stage').innerHTML='';renderAll();goStart(S.vw);renderUIStage();
+  toast('Kokeilu alkoi. Kokeile vapaasti: oikeat tiedot eivät muutu.');}
+function koeOff(quiet){var k=S.koe;if(!k)return;S.koe=null;
+  var p=Dt.projects.filter(function(x){return x.id===k.id;})[0];
+  if(p){p.st=k.r.st;p.mem=k.r.mem;p.cam=k.r.cam;if(k.r.lock===undefined)delete p.lock;else p.lock=k.r.lock;}
+  if(quiet)return;
+  if(p&&p===P){S.tab=k.tab;S.sel=null;S.multi=[];S.tool=null;S.hist=[];KK.tick(P,ctx());}
+  save();$('#stage').innerHTML='';renderAll();toast('Kokeilu päättyi. Oikeat tiedot ovat ennallaan.');}
+function renderKoe(){var on=!!S.koe;document.body.classList.toggle('koe',on);
+  var kb=$('#koebtn');if(kb){kb.classList.toggle('on',on);kb.innerHTML=on?'⏹ Lopeta kokeilu':'🧪 Kokeile';}
+  var r=$('#koeraita');if(r)r.hidden=!on;}
 /* ---------- Ketjun efektit (versio 6.5: vain rakenne) ----------
    Tuleva efekti lisätään rekisteriin: FX.ilmesty = function(q){ …piirrä käyttönäkymään…; return kesto sekunteina; }.
    q = {k: laji, id: tapahtuman tunniste, b: tapahtumapalikka asetuksineen, P: projekti}. Palauta 0, jos ketjun ei
@@ -4735,6 +4767,8 @@ function drawMarkFrame(){
 
 /* ---------- Koko näkymä ---------- */
 function renderAll(){
+  if(S.koe&&(!P||P.id!==S.koe.id))koeOff(true);
+  renderKoe();
   lapRender();
   APP_APPEARANCE.project(P,Dt.cfg.teema);
   if(!P){$('#welcome').classList.add('show');document.body.classList.add('hidepanels');$('#stage').innerHTML='';$('#pal').innerHTML='';$('#insp').innerHTML='';return;}
@@ -7755,6 +7789,8 @@ document.addEventListener('keyup',function(e){if(e.code==='Space')S.space=false;
    YLÄPALKKI, PROJEKTIT, ASETUKSET
    ===================================================================== */
 $('#tabs').addEventListener('click',function(e){var t=e.target.getAttribute('data-t');if(!t||t===S.tab)return;var was=S.tab;S.tab=t;if(t==='molemmat')S.pane=was==='logiikka'?'logiikka':'nakyma';S.multi=[];if(!(t==='molemmat'&&S.sel))S.sel=null;S.tool=null;$('#stage').innerHTML='';renderAll();});
+$('#koebtn').addEventListener('click',function(){if(S.koe)koeOff();else koeOn();});
+$('#koeend').addEventListener('click',function(){koeOff();});
 $('#lockbtn').addEventListener('click',function(){P.lock=!P.lock;S.sel=null;S.tool=null;if(P.lock)goStart(S.vw);save();$('#stage').innerHTML='';renderAll();if(P.lock&&viewOf(S.vw)&&viewOf(S.vw).alku){goStart(S.vw);renderUIStage();}});
 $('#undobtn').addEventListener('click',undo);
 $('#mpal').addEventListener('click',function(){document.body.classList.remove('inspopen');document.body.classList.toggle('palopen');});
@@ -7785,8 +7821,8 @@ $('#sheet').addEventListener('click',function(e){
     case 'delok':{var dr=S.delRun;S.delRun=null;closeSheet();if(dr)dr();break;}
     case 'new':{var nm=$('#newpname').value.trim()||'Uusi projekti';newProject(nm);closeSheet();break;}
     case 'rename':{var v=$('#renp').value.trim();if(v){P.name=v;save();renderAll();openProjects();}break;}
-    case 'copy':{var c=KK.clone(P);c.id='p'+Date.now().toString(36);c.name=P.name+' (kopio)';Dt.projects.push(c);Dt.cur=c.id;P=c;save();closeSheet();$('#stage').innerHTML='';renderAll();break;}
-    case 'export':download(P.name+'.appiappi.json',JSON.stringify({app:'appiappi',ver:KK.VER,projects:[P]},null,1));break;
+    case 'copy':{var c=JSON.parse(JSON.stringify(P,koeRep));c.id='p'+Date.now().toString(36);c.name=P.name+' (kopio)';Dt.projects.push(c);Dt.cur=c.id;P=c;save();closeSheet();$('#stage').innerHTML='';renderAll();break;}
+    case 'export':download(P.name+'.appiappi.json',JSON.stringify({app:'appiappi',ver:KK.VER,projects:[P]},koeRep,1));break;
     case 'exportall':exportAll();break;
     case 'reset':if(confirm('Tyhjennetäänkö projektin käyttötiedot? Rakenne säilyy.')){P.st={};P.mem={};KK.tick(P,ctx());save();closeSheet();renderAll();}break;
     case 'delete':if(confirm('Poistetaanko projekti ”'+P.name+'” pysyvästi?'+(ghOn()?' GitHubiin tallennettu kopio säilyy, ja sen saa takaisin asetusten kohdasta Hae uudet projektit.':''))){if(Dt.meta.ghGone.indexOf(P.id)<0)Dt.meta.ghGone.push(P.id);Dt.projects=Dt.projects.filter(function(p){return p!==P;});Dt.cur=Dt.projects.length?Dt.projects[0].id:'';P=curProject();S.undo=[];save();closeSheet();$('#stage').innerHTML='';renderAll();}break;
@@ -8103,8 +8139,8 @@ var ghBadRe=/Avain|oikeutta|löydy|yhteyttä|virheellä|ei ole Appi-appin/;
 function ghMeta(p){if(!p._gh||typeof p._gh!=='object')p._gh={sha:'',at:'',dirty:false,remote:false};return p._gh;}
 /* GitHubiin = kaikki paitsi kamerat ja kirjanpito. Täysi = kaikki paitsi kamerat ja kirjanpito (varmuuskopion tila). */
 var NOSTRUCT={cam:1,lcam:1,_gh:1};
-function structOf(p){var c={};for(var k in p)if(!NOSTRUCT[k])c[k]=p[k];return JSON.stringify(c);}
-function fullOf(p){var c={};for(var k in p)if(k!=='cam'&&k!=='lcam'&&k!=='_gh')c[k]=p[k];return JSON.stringify(c);}
+function structOf(p){var c={};for(var k in p)if(!NOSTRUCT[k])c[k]=koeReal(p,k,p[k]);return JSON.stringify(c);}
+function fullOf(p){var c={};for(var k in p)if(k!=='cam'&&k!=='lcam'&&k!=='_gh')c[k]=koeReal(p,k,p[k]);return JSON.stringify(c);}
 function ghInitHashes(){H={};Dt.projects.forEach(function(p){H[p.id]={s:structOf(p),f:fullOf(p)};var g=ghMeta(p);if(!g.sha)g.dirty=true;});}
 /* Kutsutaan jokaisessa tallennuksessa: huomaa rakenteen ja käyttötietojen muutokset */
 function trackChanges(){var any=false;
@@ -8123,7 +8159,7 @@ function ghPush(p,force){if(!ghOn()||!p||ghBusy)return Promise.resolve(false);va
     if(r.status===409||r.status===422){g.remote=true;ghMsg='Projektista ”'+p.name+'” on GitHubissa uudempi versio, esimerkiksi tekoälyn muutokset. Hae se tai tallenna omasi sen päälle.';}
     else ghMsg=ghErr(r.status);
     saveQuiet();renderGh();return false;});}
-function saveQuiet(){try{localStorage.setItem(LS,JSON.stringify(Dt));}catch(e){}}
+function saveQuiet(){try{localStorage.setItem(LS,JSON.stringify(Dt,koeRep));}catch(e){}}
 function okProj(o){return o&&(o.app==='appiappi'||o.app==='pajakone'||o.app==='kytkoskartta')&&o.projekti&&typeof o.projekti==='object'&&o.projekti.b&&o.projekti.lg;}
 /* Hakee projektin GitHubista käyttötietoineen. Kamerat ja tunniste säilyvät. Kumoa palauttaa edellisen rakenteen. */
 function ghPull(p,quiet){if(!ghOn()||!p)return Promise.resolve(false);ghBusy=true;renderGh();
@@ -8195,7 +8231,7 @@ function renderStat(){var s=$('#kstat');if(!s||!Dt)return;var d=(Dt.meta&&Dt.met
   s.title=d?'Varmuuskopiotiedostoa ei ole viety viimeisten muutosten jälkeen.'+(ghOn()?' Kaikki on silti tallessa GitHubissa.':''):'';
   s.textContent=!storeOk?'Tallennus selaimeen ei onnistu':(d?'Varmuuskopio viemättä':(le?'Varmuuskopio viety '+KK.fmtDate(le,Dt.cfg.df):'Tallessa tässä selaimessa'));}
 /* Varmuuskopio omalle laitteelle: kaikki projektit käyttötietoineen. Avain ei tule mukaan. */
-function exportAll(){download('appiappi-varmuuskopio-'+KK.iso(new Date())+'.json',JSON.stringify(Dt,null,1));Dt.meta.lastExport=KK.iso(new Date());Dt.meta.dirty=0;saveQuiet();renderStat();}
+function exportAll(){download('appiappi-varmuuskopio-'+KK.iso(new Date())+'.json',JSON.stringify(Dt,koeRep,1));Dt.meta.lastExport=KK.iso(new Date());Dt.meta.dirty=0;saveQuiet();renderStat();}
 /* Asetusten osio */
 function ghSection(){
   return '<div class="fs" id="sec-gh"><h4>GitHub-tallennus (yksityinen repo)</h4>'+

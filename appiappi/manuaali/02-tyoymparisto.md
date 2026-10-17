@@ -8,7 +8,7 @@ Kuvaus perustuu koodiin (Appi-appi 31, commit 77461d2). Puhelimen kosketusta on 
 
 | Osa | Missä | Mitä siinä on |
 |---|---|---|
-| Yläpalkki | ylhäällä | Projekti ▾, välilehdet, laput, tila, Varmuuskopio, ☰ Palikat, Kumoa, Lukitse, Asetukset |
+| Yläpalkki | ylhäällä | Projekti ▾, välilehdet, laput, tila, Varmuuskopio, ☰ Palikat, Kumoa, Kokeile, Lukitse, Asetukset |
 | Paletti | vasemmalla (puhelimella laatikko) | palikat, joita lisätään kanvaasille |
 | Kanvaasi | keskellä | Näkymä (käyttöpinta) tai Logiikka tai molemmat rinnakkain |
 | Paneeli (tarkastelija) | oikealla (puhelimella alhaalta nouseva laatikko) | valitun palikan, nuolen tai näkymän asetukset |
@@ -36,6 +36,7 @@ Vasemmalta oikealle:
 | **Varmuuskopio** | lataa kaikki projektit tiedostoksi omalle laitteelle |
 | **☰ Palikat** | kaikki palikat taulukkona; perässä ⚠ ja luku, jos viittauksia poistettuun on |
 | **↶ Kumoa** ja **↷** | kumoa ja tee uudelleen |
+| **🧪 Kokeile** / **⏹ Lopeta kokeilu** | kokeilu kopiolla käyttötiedoista, oikeat tiedot eivät muutu (ks. Kokeilu) |
 | **🔒 Lukitse** / **✏️ Muokkaa** | vaihtaa käyttöpinnan muokkauksen ja käytön välillä |
 | **⚙︎ Asetukset** | avaa ikkunan *Asetukset* |
 
@@ -90,6 +91,18 @@ Käyttöpinnalla on kaksi tilaa:
 Lukitus on projektin tila ja tallentuu. Näkymä-välilehdellä lukittuna paletti, paneeli, Kumoa ja puhelimen alapalkki piiloutuvat. Rinnakkain-tilassa lukitus koskee vain näkymän puolta: näkymää käytetään, ja logiikkaa voi samalla muokata ja seurata (paletti näyttää silloin logiikan palikat). Logiikka-välilehdellä lukitus ei näy.
 
 Lukitessa näkymä siirtyy alkukohtaansa, jos sellainen on valittu (ks. Näkymät).
+
+## Kokeilu (🧪 Kokeile)
+
+Kokeilussa appia käytetään oikeasti, mutta kopiolla käyttötiedoista: oikeat tiedot eivät muutu (Appi-appi 33).
+
+- **Aloitus:** yläpalkin **🧪 Kokeile**. Kokeilu alkaa kopiosta projektin nykyisistä käyttötiedoista (kirjoitetut tekstit, valinnat, laskurit, taulukon rivit, ketjujen ajotila). Näkymä lukittuu käyttöön, ja Logiikka-välilehdeltä siirrytään Näkymään.
+- **Koko kokeilun ajan** yläpalkin alla on oranssi raita: **Kokeilu** – *Oikeat tiedot eivät muutu.* (tietokoneella lisäksi *Rakenteen muutokset jäävät voimaan.*) ja nappi **Lopeta**. Yläpalkin nappi on silloin **⏹ Lopeta kokeilu**.
+- **Kokeilussa** painikkeet, kentät, ketjut, taulukot ja kaavat toimivat tavallisesti (myös `taulu.eka` ja `taulu.vika` lukevat kokeilun rivejä). **✏️ Muokkaa** ja **🔒 Lukitse** toimivat kokeilun sisällä.
+- **Lopetus:** raidan **Lopeta** tai **⏹ Lopeta kokeilu**. Oikeat käyttötiedot palaavat, samoin lukitus ja välilehti, jotka olivat ennen kokeilua. Toisen projektin avaus lopettaa kokeilun samalla tavalla.
+- **Mikä ei muutu:** selaimen muistiin, GitHubiin, varmuuskopioon, projektin vientiin ja Kopioi-toiminnon kopioon menevät aina oikeat käyttötiedot. Jos appi suljetaan kesken kokeilun, kokeilu häviää.
+- **Mikä jää:** rakenteen muutokset (palikat, nimet, asetukset, nuolet) kokeilun aikana ovat oikeita muutoksia.
+- **Ei ole:** kokeilun tulosten siirto oikeaan käyttöön, aloitus tyhjästä, tallennetut kokeet, testikello ja suoritus vaihe kerrallaan.
 
 ## Näkymät (sivut) ja siirtyminen
 

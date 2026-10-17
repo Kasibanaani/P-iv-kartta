@@ -30,6 +30,7 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | tunnistaa törmäyksen tai alueeseen astumisen | Este, Liikkeen *törmäsi*, Alue | [Maailma ja liike](08-maailma-ja-liike.md) |
 | tehdä puhelimen muotoisen näkymän | Näkymän laite: Puhelin | [Laitemuoto](02-tyoymparisto.md#laitemuoto-vapaa-puhelin-ipad) |
 | käyttää valmista appia | 🔒 Lukitse | [Muokkaus ja käyttö](02-tyoymparisto.md#muokkaus-ja-käyttö--lukitse) |
+| kokeilla appia niin, etteivät oikeat tiedot muutu | 🧪 Kokeile | [Kokeilu](02-tyoymparisto.md#kokeilu--kokeile) |
 | tallentaa ja siirtää laitteelta toiselle | automaattinen tallennus, GitHub, vienti | [Tallennus](09-tallennus.md) |
 | ottaa varmuuskopion | Varmuuskopio tai Vie kaikki projektit | [Varmuuskopio ennen isoa muutosta](09-tallennus.md#varmuuskopio-ennen-isoa-muutosta) |
 | selvittää, miksi arvo on mikä on | paneelin Miksi? ja Yhteydet | [Miksi?](02-tyoymparisto.md#miksi), [Yhteydet](02-tyoymparisto.md#yhteydet) |

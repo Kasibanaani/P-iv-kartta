@@ -62,6 +62,8 @@ Projektissa on kaksi osaa:
 
 **Kumoa** (↶) koskee rakennetta. Käytössä syntyneet käyttötiedot eivät kuulu kumottaviin muutoksiin (Kumoa palauttaa rakenteen ja jättää käyttötiedot ennalleen).
 
+**Kokeile** (yläpalkki, luku [Työympäristö](02-tyoymparisto.md#kokeilu--kokeile)) käyttää kopiota käyttötiedoista (`st`, `mem`), käyttönäkymän kameroista ja lukituksesta. Kaikki tallennus (selaimen muisti, GitHub, varmuuskopio, vienti) kirjoittaa kokeilun aikana oikeat arvot, joten kokeilu ei tallennu eikä jää voimaan, jos appi suljetaan kesken.
+
 Kanvaasin vierityskohta ja zoomaus (`cam`, `lcam`) ovat laitekohtaisia: ne eivät mene GitHubiin.
 
 ## Vienti ja tuonti

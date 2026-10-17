@@ -1,6 +1,6 @@
 # Appi-appin käyttömanuaali
 
-Tämä on Appi-appin käyttö- ja toimintamanuaali ihmiselle ja tekoälylle. Se kuvaa vain sitä, mikä appissa on nyt toteutettu (Appi-appi 32, 17.10.2026). Suunnitelmat ovat kansiossa `../suunnitelmat/`, eivät tässä.
+Tämä on Appi-appin käyttö- ja toimintamanuaali ihmiselle ja tekoälylle. Se kuvaa vain sitä, mikä appissa on nyt toteutettu (Appi-appi 33, 17.10.2026). Suunnitelmat ovat kansiossa `../suunnitelmat/`, eivät tässä.
 
 Appi: https://kasibanaani.github.io/P-iv-kartta/appiappi/
 
