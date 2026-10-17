@@ -38,6 +38,8 @@ F10 ja F19–F21. Pitkän aikavälin toteutusehdotuksia, ei lupa kytkeä palvelu
 
 **Tuontilajit:** projektirakenne, sisältöpaketti ja käyttötieto ovat erilliset valinnat. Sisältöpaketti voi vaihtaa kysymykset, ohjeet tai kielen muuttamatta logiikkaa. Vaihto ei ylikirjoita henkilökohtaista etenemistä tunnisteiden säilyessä. JSON-/tekstimuutospaketti sisältää lähtöversion ja rajatut operaatiot; tarkistus näyttää lisätyt/muutetut/poistetut kohteet ennen soveltamista. Tekoälyn tuottama paketti ei ohita validointia eikä kirjoita käyttäjän puolesta suoraan oikeaan tilaan.
 
+**Terveysdata, Garmin ja omat apit (17.10.2026):** yhteinen rivitiedosto ja Tietotaulukon lähde, [16](16-vienti-ja-tuontiputket.md) (F32).
+
 **Notion ja tekoäly:** myöhemmät sovittimet käyttävät samaa lähdesopimusta. Palvelun avaimia ei sisällytetä julkiseen HTML:ään, projektiin, lokiin tai snapshotiin. Palvelin-/valtuutusratkaisu ja kulut ratkaistaan konkreettisen integraation yhteydessä käyttäjän pyynnön laajuudessa. Puheentunnistus on tekstisyötteen sovitin; tuloksen hyväksyminen ja jatkotoimet pysyvät näkyvässä logiikassa.
 
 **Muut siirrot:** kalenteritiedosto, linkkiparametrit/QR ja rajattu tekstituonti ovat samaa tarkistettua dataa käyttäviä sovittimia. Linkki ei saa suorittaa mielivaltaista koodia tai ohittaa sallittuja muutoskohteita. Ilmoitukset ja taustahaku eivät sisälly paikallisen tiedostotuonnin vaiheeseen.
