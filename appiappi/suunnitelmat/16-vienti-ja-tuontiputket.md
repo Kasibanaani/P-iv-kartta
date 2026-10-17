@@ -99,7 +99,7 @@ Terveys, Garmin, omat apit ja taulukot puhuvat samaa muotoa, jolloin Appi-appiin
 ## 6. Appi-appin puoli: Hae rivitiedosto (F32 vaihe 1, ehdotus)
 
 - Tietotaulukon asetus **Lähde**: tyhjä (nykyinen, käsin) tai *tiedosto master-tiedotissa* + polku. Toiminto **Hae** (logiikka: napista, appin avautuessa tai ajastimella) hakee tiedoston ja tuo rivit.
-- Yhdistäminen avaimella: uusi avain lisää rivin, sama avain päivittää tiedoston sarakkeet, appin omat sarakkeet (esim. käsin kirjattu mieliala) säilyvät, eikä tiedostosta puuttuva rivi katoa. Ilman avainta: korvaa.
+- Yhdistäminen avaimella (**Emilin päätös 17.10.2026**): uusi avain lisää rivin, sama avain päivittää tiedoston sarakkeet, appin omat sarakkeet (esim. käsin kirjattu mieliala) säilyvät, eikä tiedostosta puuttuva rivi katoa. Ilman avainta: korvaa.
 - Tila ominaisuuksina: `taulu.haettu` (aika), `taulu.hakuvirhe`; tapahtumat *haettu* ja *hakuvirhe* (F20: valmis/virhe jatkaa ketjua). Piirto tai kaava ei koskaan hae verkosta.
 - Uudet sarakkeet tiedostosta: esikatselu kysyy ennen kuin taulukkoon tulee uusia sarakkeita (F20: sarakkeiden kohdistus).
 - Hyväksymiskoe: synteettinen terveys.json valepalvelimelta; sama tiedosto kahdesti ei kahdenna rivejä; vanha rivi säilyy; virhe ei tyhjennä taulukkoa; vanha projekti avautuu.
@@ -114,6 +114,6 @@ Terveys, Garmin, omat apit ja taulukot puhuvat samaa muotoa, jolloin Appi-appiin
 
 ## 8. Työjonoon
 
-- **Jonoon nyt (⏸, Emilin päätös):** F32 vaihe 1, *Hae rivitiedosto* (kohta 6). Avoin kysymys: yhdistetäänkö avaimella (suositus) vai korvataanko aina koko taulukko.
+- **Jonossa (kohta 9):** F32 vaihe 1, *Hae rivitiedosto* (kohta 6). **Emilin päätös 17.10.2026:** yhdistetään avaimella kohdan 6 mukaisesti.
 - **Ei koodia, Emil voi tehdä milloin vain:** pikakomento Terveys → GitHub (tekoäly kirjoittaa ohjeen pyynnöstä); Garmin Connectin Terveys-yhteyden päälle laitto ja kokeilu, mitkä tiedot siirtyvät.
 - **Ei jonoon:** F31 (odottaa F23:a, P7), yhteinen huone (oma päätös palvelusta), Notion, koko export.xml, Garminin epäviralliset kirjastot.
