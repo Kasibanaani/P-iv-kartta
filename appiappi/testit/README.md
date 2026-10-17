@@ -4,7 +4,7 @@ Pajakone on tehty Kytköskartan kopiona (15.10.2026), joten testit 01–26 (logi
 
 Aja kaikki: `sh appiappi/testit/aja.sh` (vaatii Noden ja Pythonin Playwrightin Chromiumilla).
 
-Koko sarja kestää noin 15 minuuttia, eli yli tekoälyn työkalun 10 minuutin aikarajan: aja taustalla tai selaintestit osissa. `selain_49_monitori` (käyvän sekuntikellon ajoitus) kaatui kerran, kun kaksi sarjaa ajettiin yhtä aikaa; yksin ajettuna läpi.
+Koko sarja kestää noin 20 minuuttia, eli yli tekoälyn työkalun 10 minuutin aikarajan: aja taustalla tai selaintestit osissa. `selain_49_monitori` (käyvän sekuntikellon ajoitus) kaatui kerran, kun kaksi sarjaa ajettiin yhtä aikaa; yksin ajettuna läpi.
 
 Skripti poimii `index.html`:n lohkot `engine` (moottori) ja `ui` (käyttöliittymä) tiedostoiksi `moottori.js` ja `ui.js`, tarkistaa niiden syntaksin ja ajaa testit.
 
@@ -208,6 +208,7 @@ Asetuksissa on rakennusympäristön ja projektin käyttönäkymän erilliset val
 - `logiikka_65_taulu_eka.js` – Tietotaulukon `eka` ja `vika` (Appi-appi 31, jonon 1i): tyhjä taulukko puuttuu, väärä sarake virhe, pitkät nimet, riviviite, siirto ja poisto, käyttötietojen rivi, valittu erillään, sarakkeen nimen vaihto, rekisteri ja viitevalitsin, Rivijoukko-kiertotie sama
 - `selain_71_sisaltaa.py` – (1440, 1280, 390 ja 320 px) näkymän teksti Kaavan tuloksesta, paneelin kaava, ohje ja Miksi?, tyhjä haku, ehdotus `sisältää` arvon jälkeen eikä kaavan alussa; kuvat `appiappi30_*.png`
 - `selain_72_taulu_eka.py` – Tietotaulukon `eka` ja `vika` selaimessa (Appi-appi 31) 1440, 1280, 390 ja 320 px: näkymän teksti `{ostokset.vika.nimi}`, uusi rivi muuttaa viimeisen, kaavan paneeli, taulukon paneelin ohje, ei sivuvirheitä
+- `selain_73_paneelit.py` – savutesti (Appi-appi 32, kartoitus 2 T1–T2) 1440 ja 390 px: jokaisen `K`-lajin paneeli Näkymä- ja Logiikka-välilehdellä ilman sivuvirheitä, Miksi? näkyy kun moottorilla on selitys (teksti paneelista, ei koodista), toisto vihjeen kanssa karsittu (Lopeta ketju), VALITSE- ja Toiminto Valitse -vihjeet erikseen; kuvat `appiappi32_*.png`
 - `logiikka_63_ryhma.js` – Ryhmä (Appi-appi 29, F30 kohta 5): ei kohtia, arvoa eikä ominaisuuksia, ikkuna, kaava ja ketju toimivat ryhmässä ennallaan, ryhmä ryhmässä käy mutta ikkunasta ja ketjusta korjaus siirtää pois, sävyn korjaus ja JSON-kierros, kopioi ja liitä sisältöineen, poisto jättää sisällön
 - `selain_70_ryhma.py` – (1440, 1280, 390 ja 320 px) ryhmä liikuttaa sisältöään, palikka ja ikkuna pudotetaan ryhmään, ryhmä ei mene ikkunaan, sävy ja nimi paneelista, tiivistys, paletin veto (tietokone), tallennus; kuvat `appiappi29_*.png`
 - `selain_68_logiikkapinta.py` – (1440, 1280, 390 ja 320 px) kulman Pistokkeet ja Viitteet, piilotettu pistoke ei osu ja nuoli himmenee, palikan oma pistokeasetus paneelista, viitteiden katkoviivat valitulle / kaikille / ei, Kaavan venytys kulmasta (sormella CDP:llä), suora kirjoitus (ehdotus, virhe, Enter, Esc, napautus muualle, yksi Kumoa-askel) ja uudelleenlataus; kuvat `appiappi27_*.png`
