@@ -48,6 +48,10 @@ Käyttöpalikka: rajattu lista napautettavia valintoja (monivalinta) tekstin rin
 
 Ei semantiikkaa vaan sanalaskentaa: kuinka usein tagi on totta, kun teksti sisältää sanan. Suomen taivutuksen vuoksi sanoja verrataan alkuosan perusteella (esim. 5 ensimmäistä kirjainta). Ehdotukset näytetään havaintomäärän kanssa, eikä niitä merkitä todeksi itsestään. Suuntaa antava vielä parin sadan tekstin jälkeenkin; hauska kokeilu, ei luotettava luokittelija.
 
+## 5. Suomenkielinen sääntö (idea, F30)
+
+Emilin idea 17.10.: sääntö suomeksi (”jos …, niin …”) kirjoitustapana, joka rakentaa tavalliset palikat. Sanasto on sama kuin tulkin kuviot ja sanaoppi. Suunnitelma ja avoin kysymys: [15-logiikkapinta.md, kohta 6](15-logiikkapinta.md).
+
 ## Avoimet
 
 - Missä tulkki asuu: logiikan paletissa omana työkalunaan vai taulukon ikkunassa? (ehdotus: molemmista sama ikkuna)
