@@ -36,12 +36,13 @@ Vakavuus: **iso** = rikkoo usein tarvittavaa sääntöä, **keski** = opittava p
 | T1 | keski | **Testit vahvistavat selityksiä, joita käyttäjä ei näe** (M1): esim. `selain_37_liike.py` lukee `KK.why` -tekstin sivun koodista eikä paneelista; logiikkatestit 20, 21, 24, 26 ja 28 samoin. Testi on vihreä, vaikka rakentaja ei näe tekstiä. | 1j:n testi tarkistaa Miksi?-osion paneelista. |
 | T2 | keski | **Ei yhtäkään testiä, joka avaisi kaikkien lajien paneelit.** Lajikohtaisia aukkoja: JOS ja Tänään ilman selaintestiä, Päivämäärän osa ilman selaintestiä ja yhdellä logiikkatestillä, Kaavio vain esimerkkiprojektin kautta (`selain_03`) eikä yhtään logiikkatestiä sarjoista, Monitori, Arpa, Ketjun tulos ja Lopeta ketju yhdellä testillä kumpaakin lajia. | 1j:hen kevyt savutesti: jokainen `K`-laji paletista tai `addBlock`illa, paneeli auki 1440 ja 390 px, ei sivuvirheitä, Miksi? näkyy kun selitys on. Kartoituksen apuskripti tekee jo tämän 1440:llä. |
 | T3 | pieni | 37/68 selaintestiä ajaa puhelinleveydet. Vanhat Kytköskartan testit (01–30) ovat tietokoneleveyksillä. | Riittää puhelinsavutestiksi T2:n kanssa. |
-| T4 | pieni | Koko sarja: ks. *Testiajo* alla. README:n arvio ”noin 15 minuuttia” on vanha. | Päivitetään README:hen ajoaika; ei jonoon. |
+| T4 | pieni | Koko sarja kestää nyt noin 20 minuuttia. README:n arvio ”noin 15 minuuttia” on vanha. | Päivitetään README:hen ajoaika; ei jonoon. |
 
 ### Testiajo 17.10.2026
 
 - Logiikkatestit: 61/61 läpi (Node).
-- Selaintestit (68 kpl, Chromium): ajo kesken tätä kirjoitettaessa; tulos lisätään tähän.
+- Selaintestit: 68/68 läpi (Chromium, tietokone). `selain_39_appiappi` kaatui ensin, koska ajoin kopion pelkästä `appiappi/`-kansiosta: testi tarvitsee viereisen `pajakone/`-kansion (vanhan osoitteen ohjaus). Kun kansio oli mukana, testi meni läpi. Tämä on testiympäristön asia, ei vika.
+- Koko sarja kesti noin 20 minuuttia (11.26–11.46), eli yli tekoälyn työkalun 10 minuutin rajan. Siksi se on ajettava taustalla.
 
 ## Edellisen kartoituksen löydökset nyt
 
