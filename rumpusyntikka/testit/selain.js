@@ -78,6 +78,9 @@ async function cable(pg,a,b){const [x,y]=await center(pg,'[data-jack="'+a+'"]'),
       await pg.click('#soundBtn');await pg.click('[data-a="ex"][data-i="0"]');
       assert.equal((await pg.textContent('#soundBtn')).trim(),'Bassari ▾');const p=await pg.evaluate(()=>__rs.P());assert.equal(p.p.vco1Eg,0.55);assert.deepEqual(p.vel,[1,0,0.45,0,1,0,0.3,0.6]);
       assert.equal(await pg.evaluate(()=>__rs.D().omat.length),1,'esimerkki ei mene omiin ääniin');
+      await pg.click('#soundBtn');await pg.click('[data-a="res"][data-i="2"]');
+      assert.equal((await pg.textContent('#soundBtn')).trim(),'Bassari ja virveli ▾');assert.deepEqual(await pg.evaluate(()=>__rs.P().cab),[['pitchO','noise']]);
+      assert.equal(await pg.$$eval('#cables path[data-cab]',x=>x.length),1);
       await pg.click('#soundBtn');await pg.click('.snd [data-a="load"]');
     });
     await ok('Tallenna ääni: .wav latautuu ja siinä on ääntä',async()=>{

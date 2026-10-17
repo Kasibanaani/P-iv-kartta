@@ -122,6 +122,24 @@ ok('esimerkkiäänet: kelvollisia, kuuluvia, bassari matala ja hi-hat korkea',()
   const zc=nm=>{const d=RS.render(RS.ESIMERKIT.find(e=>e.nm===nm).patch,SR,1,0);return zcHz(d,0,d.length/SR);};
   assert(zc('Bassari')<100,'bassari '+zc('Bassari'));assert(zc('Hi-hat')>3000,'hi-hat '+zc('Hi-hat'));
 });
+ok('tunnetut reseptit: kellotaulu → potikka, kelvollisia ja kuuluvia',()=>{
+  assert.equal(RS.klo(7),0);assert.equal(RS.klo(12),0.5);assert.equal(RS.klo(17),1);assert.equal(RS.kb(12),0);assert.equal(RS.kb(15),0.6);
+  assert(RS.RESEPTIT.length>=8);
+  for(const e of RS.RESEPTIT){assert(e.kuv,e.nm+': kuvaus puuttuu');
+    const r=RS.repair(e.patch);Object.keys(e.patch.p).forEach(k=>assert.equal(r.p[k],e.patch.p[k],e.nm+' '+k));
+    assert.equal(r.cab.length,(e.patch.cab||[]).length,e.nm+' kaapelit');
+    const pk=peak(RS.render(e.patch,SR,1,0.3));assert(pk>0.3&&pk<=1,e.nm+' huippu '+pk);}
+});
+ok('resepti Bassari ja virveli: virveliaskeleella enemmän kohinaa',()=>{
+  const e=RS.RESEPTIT.find(x=>x.nm==='Bassari ja virveli'),d=RS.render(e.patch,SR,1,0),st=SR/RS.stepRate(e.patch.p.tempo===undefined?RS.defaults().p.tempo:e.patch.p.tempo);
+  const hf=(a,b)=>{let s=0;for(let i=a+1;i<b;i++)s+=(d[i]-d[i-1])**2;return s;};
+  assert(hf(Math.round(2*st),Math.round(3*st))>hf(0,Math.round(st))*3,'virveli ei kohise');
+});
+ok('resepti Svengi: askelten kestot vuorottelevat',()=>{
+  const e=RS.RESEPTIT.find(x=>x.nm.indexOf('Svengi')===0),t=[];let n=0;const en=RS.create(SR);en.loadNow(e.patch);en.onStep=()=>t.push(n);en.run(true);
+  const b=new Float32Array(1);for(n=0;n<SR*3;n++)en.process(b,1);const dd=t.slice(1,5).map((x,i)=>x-t[i]);
+  assert(dd[0]>dd[1]*1.3&&dd[2]>dd[3]*1.3,'kestot '+dd);
+});
 ok('nopeus: tieto (ei raja)',()=>{const t=Date.now();RS.render(patch(),SR,1,0.5);const s=8/RS.stepRate(patch().p.tempo)+0.5;console.log('     '+nf((Date.now()-t)/1000/s*100)+' % reaaliajasta tällä koneella');});
 function nf(x){return x.toFixed(1);}
 console.log((fails?'FAIL ':'')+n+' ok, '+fails+' virhettä');
