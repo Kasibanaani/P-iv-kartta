@@ -2,7 +2,7 @@
 
 18.10.2026 (Suomen aikaa). **Emilin toive** (viesti 18.10. klo 1.50): työnkulku, jossa rakennetaan ensin kaavat ja niiden tulokset logiikkaan, ja sitten yhdellä napautuksella ”printataan” tuloksesta näkymään peruspalikka, jonka tekstinä on viite tulokseen. Logiikkaan jäädään, pieni välähdys kertoo, että palikka tehtiin. Lisäksi: tekstiä kirjoitetaan suoraan näkymän palikkaan (Apple Freeformin tapaan, Appi-appin omalla ilmeellä), muokatessa palikassa näkyy sekä viite että arvo, peruspalikan muotoa voi säätää muuttamatta muuta, ja sama peruspalikka voi olla pelkkä teksti, painike tai tyhjä laatikko ja raahattava.
 
-Suunnittelija kirjoitti tämän; **ei toteutettu**. Jonon kohdat 12b–12d ja 14b–14c (`TILA.md`).
+Suunnittelija kirjoitti tämän; **ei toteutettu**. Jonon kohdat 12b–12e ja 14b–14c (`TILA.md`).
 
 ## 1. Miten se toimii nyt (koodista tarkistettu, Appi-appi 47)
 
@@ -59,9 +59,9 @@ Laatikosta painike ilman kiertotietä. Yleinen ominaisuus (A5, A8), ei uusi pali
 - Ei Painikkeelle eikä Tekstille: kohdan 5 jälkeen peruspalikka on Laatikko, jonka muoto on säädettävä. Painikkeen ulkoasun muutos kuuluu 20b:n Ilmeeseen (Piirros), joka toimii näiden päällä: Piirros korvaa pohjan ja reunan, Kulmat ja laji jäävät tavalliseen ilmeeseen.
 - **Tallennusmuoto:** valinnainen `kr` (pikseleinä); puuttuva = 16.
 
-## 7. Muut pikaluonnit logiikasta näkymään (tekoälyn ehdotuksia, ei jonossa)
+## 7. Muut pikaluonnit logiikasta näkymään (tekoälyn ehdotuksia, Emil hyväksyi 18.10., jonon 12e)
 
-Sama periaate (A8: pikaluonti tuottaa tavallista, avattavaa logiikkaa) voisi koskea muitakin. Ei rakenneta ennen Emilin valintaa; ne tulisivat ▾-valikkoon kohdan 2 jatkoksi:
+Sama periaate (A8: pikaluonti tuottaa tavallista, avattavaa logiikkaa) koskee muitakin. Emil hyväksyi kaikki 18.10.; ne tulevat ▾-valikkoon kohdan 2 jatkoksi (jonon 12e, 12b:n jälkeen):
 
 - **Toiminto → Painike:** tee näkymään painike, jonka *painettu* → *tee kun*.
 - **Ketju → Käynnistysnappi** (painettu → käynnistä); **Satunnaisluku → Arvo uudelleen -nappi**.
