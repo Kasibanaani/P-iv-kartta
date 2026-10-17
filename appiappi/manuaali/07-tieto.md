@@ -1,0 +1,326 @@
+# Tieto: taulukot, rivit ja toistuvat kortit
+
+Tämä luku kertoo, miten Appi-appissa pidetään tietoa riveinä ja sarakkeina (kuin taulukkolaskennassa), miten rivejä luetaan kaavoissa, suodatetaan ja järjestetään, ja miten jokaiselle riville näytetään oma kortti näkymässä.
+
+Palikat lyhyesti:
+
+| Palikka | Missä | Mihin |
+|---|---|---|
+| Tietotaulukko (`taulu`) | Logiikka → Tieto | Rivit ja sarakkeet. Toiminnot muuttavat rivejä. |
+| Tapahtuman tiedot (`tapaht`) | Logiikka → Tieto | Mitä tapahtuma toi mukanaan: uusi ja vanha arvo, rivi, aika. |
+| Rivi (`trivi`) | Logiikka → Tieto | Nimetty lähde yhdelle riville (käsiteltävä, valittu tai tapahtuman). |
+| Rivijoukko (`joukko`) | Logiikka → Tieto | Suodattaa ja järjestää rivejä muuttamatta niitä. |
+| Toistin ✦ (`toistin`) | Näkymä → Näyttö | Sama kortti jokaiselle riville. |
+
+Paletin Tieto-ryhmässä palikat ovat oletusnimillä **Taulukko**, **Tapahtuma**, **Kohde** ja **Joukko**, joten viitteet kaavoihin ovat aluksi `taulukko`, `tapahtuma`, `kohde` ja `joukko`. Nimen voi vaihtaa paneelin yläosasta; viite seuraa nimeä, ellei sitä ole kirjoitettu itse kenttään **Viite**. Tämän luvun esimerkeissä taulukon nimi on *Ostokset* (viite `ostokset`) ja sarakkeet *Nimi* (`nimi`), *Määrä* (`määrä`) ja *Hinta* (`hinta`).
+
+Peruskäsitteet:
+
+- **Lähtöaineisto** on rakentajan kirjoittamat rivit. Se on osa rakennetta.
+- **Käyttötieto** on rivit sellaisina kuin ne ovat käytön jälkeen. Ensimmäinen muutos käytössä (toiminto, raahaus, sidottu kenttä) kopioi lähtöaineiston käyttötiedoksi, ja siitä eteenpäin muutokset menevät kopioon. Lähtöaineisto säilyy. **Palauta lähtöaineistoon** tai projektin **Tyhjennä käyttötiedot** palauttaa sen.
+- **Valittu rivi** on taulukon yksi rivi kerrallaan (tai ei mitään). Se on käyttötietoa.
+- **Riviviite** on arvo, joka osoittaa yhteen riviin (esim. `ostokset.valittu`). Sen kautta luetaan rivin tiedot aina ajantasaisina. Rivi tunnistetaan sisäisellä tunnisteella, ei rivinumerolla, joten järjestyksen muutos ei sekoita viitteitä.
+- **Puuttuva tieto** on tyhjä kenttä. Se ei ole 0 eikä ei (ks. oma kohta alempana).
+
+---
+
+## Tietotaulukko (`taulu`)
+Taulukko, jossa on nimetyt sarakkeet ja rivejä. Kaavat lukevat sen rivejä ja koosteita, ja toiminnot lisäävät, valitsevat, muuttavat, siirtävät ja poistavat rivejä.
+
+- **Löytyy:** Logiikka-välilehti, paletin ryhmä **Tieto** → **Tietotaulukko** (⊞). Tietokoneella vedä tai napauta palettia vasemmalla; puhelimella alapalkin **＋ Palikat**.
+- **Sisään:** ei kohtia.
+- **Ulos:**
+
+| Kohta | Laji | Mitä antaa |
+|---|---|---|
+| rivejä | arvo | rivien määrä |
+| valitun rivin nro | arvo | valitun rivin numero (0 = ei valittua) |
+| rivit | arvo (rivijoukko) | kaikki rivit. Viedään nuolella Rivijoukon, Toistimen, ikkunan (Riveille) tai Toista riveille -palikan kohtaan **rivit**. |
+
+- **Asetukset (paneeli):** paneeli avautuu, kun palikka valitaan (puhelimella alapalkin **Asetukset**).
+  - Osio **Sarakkeet**: jokaisella sarakkeella rivi, jossa nimikenttä, lajivalikko, ↑ ja ↓ (järjestys) ja × (poisto). Alla rivi *Kaavassa `ostokset.valittu.määrä`, `ostokset.määrä.summa` · viite [kenttä]*: viitteen voi kirjoittaa itse. Lajin mukaan lisäkentät:
+    - *valinta*: vaihtoehdot pilkulla (esim. `pieni, iso`).
+    - *riviviite*: **— minkä taulukon rivi? —** -valikko.
+    - *luku*: yksikkö (valinnainen, esim. kg).
+    - luku, kyllä/ei, päivämäärä ja ajankohta: valintaruutu **Koosteet vaativat täydelliset tiedot (yksikin puuttuva → tuntematon)**.
+    - Painike **＋ Sarake** lisää sarakkeen nimellä *Sarake N* (laji teksti) ja vie kohdistuksen nimeen.
+  - Osio **Rivit**: rivien määrä (käyttötieto vai lähtöaineisto), valittu rivi, painikkeet **Avaa taulukko…** ja (kun käyttötietoa on) **Palauta lähtöaineistoon**.
+  - Osio **Koosteet**: sarakkeittain täytetyt, puuttuvat ja virheet; luku- ja kyllä/ei-sarakkeille summa ja keskiarvo.
+  - Osio **Käyttö logiikassa**: muistilista toiminnoista ja kaavamuodoista.
+- **Sarakelajit:**
+
+| Laji (valikossa) | Mitä kenttään käy | Huom. |
+|---|---|---|
+| teksti | mikä tahansa teksti | |
+| luku | luku, esim. `2` tai `1,5` | pelkkä `−` tai teksti on virhe |
+| kyllä/ei | valikko –, kyllä, ei | |
+| päivämäärä | `pp.kk.vvvv` | |
+| ajankohta | `16.10.2026 9.30`, pelkkä `9.30` (tänään) tai `nyt` | |
+| valinta | yksi sarakkeen vaihtoehdoista | |
+| riviviite | toisen taulukon rivi valikosta | lukee rivin ajantasaiset tiedot |
+
+  Lajin vaihto muuntaa olemassa olevat arvot. Jos osa ei sovi uuteen lajiin, appi kysyy *N arvoa ei sovi lajiin ... ja poistuu. Jatketaanko?* Kun vaihdetaan valintaan, vaihtoehdot kerätään sarakkeen nykyisistä teksteistä.
+
+- **Taulukkoikkuna (Avaa taulukko…):** leveä ikkuna, jossa rivit ja sarakkeet. Kentän muutos tulee heti voimaan. Väärän lajin arvoa ei kirjoiteta: kenttä muuttuu punaiseksi ja alla lukee *⚠ ... (ei kirjoitettu)*.
+  - Jokaisella rivillä ↑ ja ↓ (siirto) ja × (poisto). Alhaalla **＋ Rivi** (näkyy, kun sarakkeita on) ja käyttötiedon ollessa **Palauta lähtöaineistoon**.
+  - Kun käyttötietoa on, ylhäällä valinta **Lähtöaineisto (N)** / **Käyttötieto nyt (N)**. Valitsemasi puoli on se, jota muokkaat.
+  - Valitun rivin sarake ●/○ näkyy vain **Käyttötieto nyt** -puolella. Napautus valitsee rivin, uusi napautus poistaa valinnan.
+  - Sulje painikkeella **Valmis**.
+- **Kaavassa:** (sarakkeen kohdalla sen viite, esim. `määrä`)
+
+| Kaava | Antaa |
+|---|---|
+| `ostokset.rivejä` | rivien määrä |
+| `ostokset.valittu` | valittu rivi (riviviite), tyhjä jos ei valittua |
+| `ostokset.valittunro` | valitun rivin numero (0 = ei valittua) |
+| `ostokset.valittu.määrä` | valitun rivin Määrä |
+| `ostokset.eka`, `ostokset.vika` | ensimmäinen ja viimeinen rivi (riviviite). Myös `ensimmäinen` ja `viimeinen`. |
+| `ostokset.eka.nimi`, `ostokset.vika.määrä` | ensimmäisen tai viimeisen rivin sarake |
+| `ostokset.määrä.summa` | summa (puuttuvat ohitetaan) |
+| `.keskiarvo`, `.suurin`, `.pienin` | keskiarvo, suurin, pienin. Suurin ja pienin toimivat myös päivämäärille ja ajankohdille. |
+| `.havaintoja`, `.puuttuvia`, `.virheitä` | montako täytetty, puuttuu, virheellistä |
+| `.täydellinen` | kyllä, jos sarakkeessa ei ole puuttuvia eikä virheitä |
+| `ostokset.valittu.määrä.tiedossa` | kyllä/ei: onko kenttä täytetty |
+| `kirjaus.valittu.tuote.hinta` | riviviitesarakkeen (*Tuote*) kautta toisen taulukon sarake |
+
+  Tekstissä samat aaltosulkeissa, esim. `Valittu: {ostokset.valittu.nimi}`. Pelkkä `ostokset.määrä` on virhe, joka ehdottaa `ostokset.valittu.määrä`, `ostokset.eka.määrä` tai `ostokset.määrä.summa`. Summa ja keskiarvo vain luku- ja kyllä/ei-sarakkeille (kyllä = 1, ei = 0).
+- **Ominaisuudet:** rekisterissä (paneelin Ominaisuudet ja viitevalitsin) näkyvät `rivejä`, `valittu`, `valittunro`, `eka`, `vika`, `valittu.<sarake>`, `eka.<sarake>`, `vika.<sarake>` ja koosteet. Ne ovat luettavia, eivät ohjattavia.
+- **Aika ja tila:** lähtöaineisto on rakennetta; käyttötieto ja valittu rivi säilyvät tallennettuna, kunnes ne palautetaan. Taulukolla ei ole omia tapahtumia (esim. "rivi lisätty"). Tapahtuma lähtee toiminnon **sitten**-kohdasta.
+- **Esimerkki:** Tee Tietotaulukko, nimeä *Ostokset*, lisää sarakkeet Nimi (teksti) ja Määrä (luku). **Avaa taulukko…** → **＋ Rivi** kolmesti, kirjoita Maito 2, Leipä 1, Omena (määrä tyhjä). Tee Kaava `ostokset.määrä.summa`: tulos 3. `ostokset.määrä.puuttuvia` = 1. `ostokset.vika.nimi` = Omena.
+  - Toisenlainen käyttö: taulukko *Kirjaus*, jossa riviviitesarake *Tuote* taulukkoon *Tuotteet*. `kirjaus.valittu.tuote.hinta` näyttää aina tuotteen nykyisen hinnan.
+- **Huomio:**
+  - Sarakkeen nimen voi vaihtaa vapaasti: kaavat tallentuvat sarakkeen sisäisellä tunnisteella eivätkä katkea. Poikkeus: `tapahtuma.rivi.<sarake>` etsii sarakkeen viitteellä (ks. Tapahtuman tiedot).
+  - **Sarakkeen poisto** (× sarakkeen rivillä): jos kentissä on tietoa tai saraketta käytetään, appi kysyy *Poistetaanko sarake ”Määrä”? N kentän tieto poistuu. Saraketta käytetään: ... Niihin jää virhe ”sarake puuttuu”, kunnes korjaat ne.* Luettelossa ovat kaavat, toiminnot, Rivin ja Rivijoukon kaavat, joukon järjestyssarake sekä sarakkeeseen sidotut kentät (lomake ja kortti). Poiston jälkeen ilmoitus *Sarake poistettu. Korjattavaa: ...*. Toiminnon sarakevalinta tyhjenee.
+  - Taulukkoikkunan muutokset lähtöaineistoon voi kumota (↶ Kumoa); käyttötiedon muutoksia ei kumota.
+  - Uudessa taulukossa (ei käyttötietoa) taulukkoikkunassa ei voi valita riviä. Rivi valitaan toiminnolla **Valitse rivi** tai kortista.
+  - Koosteet ovat taulukon ominaisuuksia. Riveittäin laskettu kooste (esim. määrä × hinta yhteensä) tehdään ikkunalla **Riveille** (ks. alla).
+
+---
+
+## Puuttuva tieto
+Tyhjä kenttä on tallessa puuttuvana. Se näkyy merkkinä `–`.
+
+- Se ei ole 0 eikä ei. Lasku sen kanssa on tuntematon (`ostokset.valittu.määrä * 2` on tyhjä, vertailu `> 1` ei päde).
+- Koosteet (`.summa`, `.keskiarvo` …) ohittavat puuttuvat ja kertovat niiden määrän (`.puuttuvia`). Jos sarakkeessa on valittu **Koosteet vaativat täydelliset tiedot**, yksikin puuttuva tekee summasta ja keskiarvosta tuntemattoman.
+- Kaikkien kenttien puuttuessa summa ja keskiarvo ovat tyhjiä; aivan tyhjän taulukon summa on 0.
+- Virheellinen kenttä (esim. riviviite poistettuun riviin) estää koosteen ja näkyy virheenä rivinumeroineen.
+- `.tiedossa` kertoo, onko kenttä täytetty.
+- Toiminto **Lisää** puuttuvaan kenttään alkaa nollasta (päivämäärässä tästä päivästä), **Vaihda** puuttuvasta antaa kyllä.
+- Lisää rivi -toiminnon tyhjä kenttä = puuttuu.
+- Vanhojen palikoiden (Arvo, Muisti …) tyhjä toimii ennallaan; puuttuva on taulukon käsite.
+
+---
+
+## Rivikonteksti: milloin rivi on olemassa
+
+Kolme tapaa osoittaa "tämä rivi":
+
+| Rivi | Olemassa milloin | Mistä tulee |
+|---|---|---|
+| **valittu rivi** | aina, kun taulukossa on valinta | Valitse rivi -toiminto, taulukkoikkunan ●, Lisää rivi + **Valitse uusi rivi** |
+| **tapahtuman rivi** | vain tapahtuman ketjussa: toiminnon tai ketjun käynnistäneessä tapahtumassa | Lisää rivi, Valitse rivi, Poista rivi, Siirrä rivi ja sarakkeeseen kirjoittava toiminto (sitten-tapahtuma); kortin painike; Toista riveille -kierros; toistimen **rivi siirretty** |
+| **käsiteltävä rivi** | vain kun jokin käy rivejä läpi | Rivijoukon ehto ja järjestys, ikkuna **Riveille**, **Toista riveille** -kierros, Toistimen kortti |
+
+Käsiteltävä rivi on siis olemassa vain:
+1. Rivijoukon **ehto riveittäin**- ja **järjestä arvon mukaan** -kohtiin tulevassa laskennassa (jokaiselle riville erikseen).
+2. Ikkunan sisällä, kun ikkunassa on **Riveille** päällä.
+3. Toista riveille -palikan **kierros**-haarassa (kulkee tapahtuman mukana myös ajastimen ja odotuksen yli).
+4. Toistimen kortin palikoissa (kortin rivi).
+
+Muualla, esim. näkymän tavallisessa tekstissä tai logiikan kanvaasilla ikkunan ulkopuolella, käsiteltävää riviä ei ole: Rivi-palikka on tyhjä (`–`) ja sidottu kenttä harmaa. Ikkunan sisällä oleva kaava näyttää kanvaasilla `–`; oikeat riveittäiset arvot näkyvät ikkunan **Miksi?**-selityksessä. Jokainen rivi lasketaan erikseen, joten saman kaavan eri rivien tulokset eivät sekoitu.
+
+---
+
+## Tapahtuman tiedot (`tapaht`)
+Antaa tiedot tapahtumasta, joka käynnisti toiminnon tai ketjun. Tiedot ovat tapahtumahetken mukaisia ja pysyvät samoina ketjun odotusten yli, vaikka arvot muuttuisivat.
+
+- **Löytyy:** Logiikka → **Tieto** → **Tapahtuman tiedot** (✉), oletusnimi *Tapahtuma*, viite `tapahtuma`.
+- **Ulos:** uusi (arvo), vanha (arvo), rivi (riviviite).
+- **Asetukset (paneeli):** ei kenttiä, vain ohje.
+- **Kaavassa:**
+
+| Kaava | Antaa |
+|---|---|
+| `tapahtuma.uusi` (myös `.arvo`) | arvo tapahtumahetkellä |
+| `tapahtuma.vanha` | arvo ennen tapahtumaa |
+| `tapahtuma.rivi` | taulukon rivi (riviviite) |
+| `tapahtuma.rivi.määrä` | sen rivin kenttä nyt |
+| `tapahtuma.taulukko` | rivin taulukon nimi |
+| `tapahtuma.lähde` | palikan nimi, josta tapahtuma lähti |
+| `tapahtuma.aika`, `tapahtuma.päivä` | kellonaika (h.mm) ja päivä |
+| `tapahtuma.tunniste`, `tapahtuma.on` | tunniste ja onko tapahtumaa |
+| `tapahtuma.kohde`, `.isku`, `.x`, `.y`, `.ruutux`, `.ruutuy` | törmäyksen ja napautuksen tiedot (muut luvut) |
+
+- **Aika ja tila:** tiedot tallentuvat ketjun ajoon ja säilyvät odotusten ja appin sulkemisen yli. Ketjun käynnistämä aliketju perii tapahtuman.
+- **Esimerkki:** Painike → Lisää rivi (Ostokset) → sitten → Näytä ilmoitus, tekstinä `Lisättiin {tapahtuma.rivi.nimi}`.
+  - Valitse rivi -toiminnon jälkeen `tapahtuma.vanha` ja `tapahtuma.uusi` ovat valinta ennen ja jälkeen; Siirrä rivin jälkeen ne ovat rivin paikka (1 = ensimmäinen).
+- **Huomio:** tapahtuman ulkopuolella (esim. näkymän tekstissä) arvot ovat tyhjiä. `tapahtuma.rivi.<sarake>` etsii sarakkeen sen **viitteellä**, koska taulukko selviää vasta tapahtumasta: jos sarakkeen viite vaihtuu, kaava antaa virheen (joka luettelee sarakkeet) ja se korjataan käsin (TILA.md, Appi-appi 13).
+
+---
+
+## Rivi (`trivi`)
+Nimetty lähde yhdelle taulukon riville. Sarakkeet ovat sen ominaisuuksia, joten `kohde.määrä * kohde.hinta` laskee kullakin rivillä oman tuloksensa.
+
+- **Löytyy:** Logiikka → **Tieto** → **Rivi** (▤), oletusnimi *Kohde*, viite `kohde`. Pikanapit: Toistimen paneelin **＋ Rivi-palikka kortin riville** (tekee *Kohde*-palikan, käsiteltävä rivi) ja kentän paneelin **＋ Rivi-palikka valittuun riviin** (tekee *Valinta*-palikan, valittu rivi).
+- **Ulos:** rivi (riviviite).
+- **Asetukset (paneeli):** osio **Rivi**:
+  - **Taulukko**: valikko **— minkä taulukon rivi? —**.
+  - **Mikä rivi**: **käsiteltävä rivi** (oletus), **valittu rivi**, **tapahtuman rivi**.
+  - **Nyt:** näyttää, mikä rivi on juuri nyt (tai *ei riviä*).
+- **Kaavassa:** `kohde.nimi`, `kohde.määrä` (sarakkeet), `kohde.nro` (rivin numero, 0 = ei riviä), `kohde.on` (onko riviä), `kohde.rivi` (riviviite), `kohde.määrä.tiedossa`. Tekstissä `{kohde.nimi}`.
+- **Aika ja tila:** ei omaa tilaa. Arvo riippuu kontekstista (ks. Rivikonteksti).
+- **Esimerkki:** Rivi *Kohde* (Ostokset, käsiteltävä rivi) ja Kaava `kohde.määrä * kohde.hinta` ikkunassa **SUMMA**, **Riveille** päällä, rivit nuolella Ostoksista: tulos on ostosten yhteishinta.
+  - Toisenlainen käyttö: Rivi *Valinta* (valittu rivi), näkymän tekstissä `{valinta.nimi}`.
+- **Huomio:** käsiteltävä ja tapahtuman rivi ovat näkymässä kortin ulkopuolella aina tyhjiä. Lomakkeeseen sopii valittu rivi. Jos rivi on poistettu, arvo on virhe *rivi on poistettu*.
+
+---
+
+## Rivijoukko (`joukko`)
+Suodattaa ja järjestää taulukon rivejä muuttamatta niitä. Tulos on joukko samoja rivejä (ei kopioita).
+
+- **Löytyy:** Logiikka → **Tieto** → **Rivijoukko** (☷), oletusnimi *Joukko*, viite `joukko`.
+- **Sisään:**
+
+| Kohta | Laji | Mitä tekee |
+|---|---|---|
+| rivit | arvo | nuoli Tietotaulukon tai toisen Rivijoukon kohdasta **rivit** (pakollinen) |
+| ehto riveittäin | arvo | lasketaan jokaisella rivillä; rivi pääsee joukkoon, kun ehto pätee (puuttuva ei päde) |
+| järjestä arvon mukaan | arvo | lasketaan jokaisella rivillä, järjestää sen mukaan |
+
+- **Ulos:** rivejä (määrä), rivit (viedään eteenpäin).
+- **Asetukset (paneeli):** osio **Rivijoukko**:
+  - **Järjestys**: *lähteen järjestys* (tai *arvon mukaan*, jos järjestä-nuoli on) tai sarake. Sarake voittaa järjestä-nuolen.
+  - **Suunta** (kun järjestys on): **nouseva (pienin ensin)** / **laskeva (suurin ensin)**. Tasatilanteessa lähteen järjestys säilyy, puuttuva arvo on aina lopussa.
+  - **Enintään**: esim. 3 = kolme ensimmäistä järjestyksen jälkeen. Tyhjä = kaikki.
+  - **Tulos:** montako riviä ja ensimmäisten nimet.
+- **Kaavassa:** `joukko.rivejä`, `joukko.eka`, `joukko.vika`, `joukko.eka.nimi`, `joukko.vika.nimi`, `joukko.määrä.summa` (ja muut koosteet kuten taulukolla, vain joukon riveistä).
+- **Aika ja tila:** lasketaan aina uudelleen. Ei tallenna mitään.
+- **Esimerkki:** Ostokset → rivit → Joukko. Kaava `kohde.määrä > 0` (kohde = Rivi, käsiteltävä rivi) nuolella kohtaan **ehto riveittäin**. Järjestys: Nimi. `joukko.rivejä` kertoo, montako ostosta on jäljellä.
+  - Toisenlainen käyttö: järjestys Määrä, laskeva, Enintään 1: `joukko.eka.nimi` on suurin määrä.
+- **Huomio:** joukko, jonka ehto lukee joukkoa itseään, antaa virheen *kehä*. Järjestä-nuolella eniten ensin: anna arvoksi esim. `0 - kohde.määrä`.
+
+---
+
+## Ikkuna riveille
+Tavallinen ikkuna (Logiikka → Ikkunat), jossa valinta **Riveille: sisältö lasketaan jokaisella rivillä**. Valinta näkyy ikkunan paneelissa vasta, kun projektissa on Tietotaulukko.
+
+- Kun valinta on päällä, ikkunaan tulee kohta **rivit**: vie siihen nuoli taulukon tai Rivijoukon kohdasta rivit.
+- Ikkunan sisällä olevat palikat lasketaan jokaisella rivillä (Rivi-palikka, käsiteltävä rivi) ja tulokset yhdistetään valitulla tavalla: SUMMA, KESKIARVO, SUURIN, PIENIN, MONTAKO PÄTEE, JA, TAI …
+- Puuttuvat ohitetaan; paneeli näyttää *tiedossa* ja *puuttuu*. Valinta **Vaatii täydelliset tiedot (yksikin puuttuva → tuntematon)** SUMMA-, KESKIARVO-, SUURIN- ja PIENIN-ikkunoille.
+- Kaavassa ikkunan `.rivejä`, `.havaintoja`, `.puuttuvia`.
+- Huomio: jos ikkunassa on monta palikkaa, kaikkien arvot kootaan yhteen (SUMMA laskee molemmat kaavat kaikilta riveiltä). Tavallisesti ikkunaan laitetaan yksi kaava tai vertailu (avoin kysymys TILA.md:ssä).
+
+## Toista riveille
+Ketjun **Toista**-palikan paneelissa valinta **Toista**: **N kertaa** / **riveille** (näkyy, kun projektissa on Tietotaulukko).
+
+- Riveille-tavassa kohta *kerrat* vaihtuu kohdaksi **rivit**: nuoli taulukosta tai Rivijoukosta.
+- Ketju kulkee **kierros**-haaraan kerran jokaiselle riville ja lopuksi **valmis**-haaraan. Vedä kierros-haaran viimeisestä tapahtumasta viiva takaisin Toista-palikkaan.
+- Rivit otetaan talteen, kun toisto alkaa. Kierroksella rivi on **tapahtuman rivi** (esim. Aseta arvo, Mikä rivi: Tapahtuman rivi) ja Rivi-palikan **käsiteltävä rivi**.
+- Jos käsittelemätön rivi poistetaan kesken, ketju pysähtyy virheeseen.
+
+---
+
+## Toistin ✦ (`toistin`)
+Näkymän kehys, joka näyttää saman kortin jokaiselle riville. Kortin malli tehdään kerran; rivin lisäys tai poisto lisää tai poistaa kortin itsestään.
+
+✦ Poikkeus: vain kohdat **näkyy kun** ja **rivit**, koska kortit ovat sen sisällä.
+
+- **Löytyy:** Näkymä-välilehti, paletin ryhmä **Näyttö** → **Toistin** (⧉). Näkyy paletissa vasta, kun projektissa on Tietotaulukko.
+- **Sisään:** näkyy kun (arvo), rivit (arvo: nuoli Tietotaulukon tai Rivijoukon kohdasta rivit). Nuoli vedetään Logiikka-välilehdellä; paneelin **Näytä logiikassa** vie toistimeen.
+- **Ulos:** kortteja (arvo: korttien määrä). Kun **Järjestä raahaamalla** on päällä: tapahtuma **rivi siirretty**.
+- **Asetukset (paneeli):** osio **Toistin**:
+  - **Kortteja** N (taulukko ...) ja **Kortin malli** (mallin palikoiden nimet).
+  - **Kortit**: **allekkain** (oletus, vierii pystyyn), **vierekkäin** (vierii sivuttain), **ruudukko** (niin monta rinnakkain kuin leveyteen mahtuu).
+  - **Järjestä raahaamalla** (ks. alla).
+  - **Kortin leveys** (0 = toistimen leveys), **Kortin korkeus** (oletus 64), **Väli** (oletus 8).
+  - **＋ Rivi-palikka kortin riville** (näkyy, jos taulukolle ei vielä ole käsiteltävän rivin Rivi-palikkaa).
+- **Kortin palikat (malli):** vedä palikka katkoviivalla merkittyyn **ensimmäiseen korttiin**. Palikka kuuluu malliin, kun sen keskikohta on ensimmäisen kortin sisällä. Muokatessa malli näyttää ensimmäisen rivin arvot ja muut kortit näkyvät haaleina (enintään 60). Toistinta siirrettäessä malli tulee mukana. Palikka irtoaa, kun sen vetää pois kortista, tai paneelin osion **Kortissa** painikkeella **Irrota kortista**. **Valitse toistin** valitsee kehyksen.
+  - Korttiin käyvät: Painike, Valintaruutu, Kytkin, Säädin, Tekstikenttä, Lukukenttä, Päivämäärä, Teksti, Monitori, Kuva ja Muoto. Muut (esim. Lista, Kalenteri, Tatti, toinen Toistin) eivät liity malliin.
+  - Kortin tekstit ja kaavat lukevat kortin riviä Rivi-palikan (käsiteltävä rivi) kautta, esim. `{kohde.nimi}`.
+  - Kortin painike lähettää tapahtuman, jonka rivi on kortin rivi: taulukkotoiminnossa valitse **Mikä rivi: Tapahtuman rivi**.
+  - Kenttä (Tekstikenttä, Lukukenttä, Valintaruutu, Kytkin, Säädin, Päivämäärä) sidotaan sarakkeeseen kentän paneelin osiosta **Kortissa**: **Rivi** = *kortin rivi*, **Arvo sarakkeesta** = sarake. Sidottu kenttä näyttää ja muuttaa rivin saraketta suoraan; sama rivi näyttää saman arvon kaikkialla. Sitomaton kenttä tai rasti on kortin oma (rivikohtainen) arvo.
+- **Korttien järjestys raahaamalla:** paneelissa **Järjestä raahaamalla**. Lukitussa näkymässä korttia raahataan uuteen paikkaan: hiirellä vetämällä, sormella pitkällä painalluksella (noin 0,35 s), joten tavallinen pyyhkäisy vierittää yhä kortteja. Taulukon rivijärjestys muuttuu käyttötiedossa (lähtöaineisto säilyy). Toimii vain, kun rivit tulevat nuolella **suoraan Tietotaulukosta**; Rivijoukon kanssa paneeli kertoo, ettei järjestys muutu. Tapahtumassa **rivi siirretty**: `tapahtuma.rivi`, `tapahtuma.vanha` ja `tapahtuma.uusi` (paikka, 1 = ensimmäinen).
+- **Kaavassa:** toistimen arvo on korttien määrä.
+- **Aika ja tila:** kortin oma tila (sitomaton kenttä, rasti, painallukset) on käyttötietoa rivikohtaisesti; rivin poisto poistaa sen. Rivin järjestyksen muutos ei siirrä tilaa toiselle riville.
+- **Esimerkki:** ks. resepti *Ostoslista taulukolla ja toistimella*.
+  - Toisenlainen käyttö: kaksi toistinta eri näkymissä samoista riveistä (toinen ruudukkona): sidottu määrä on yhteinen, sitomaton rasti kummankin oma.
+- **Huomio:**
+  - Toistin toistimen sisällä, efektit ja Tyhjennä yksittäiseen korttiin, kortin palikan oma kerros eivät ole mahdollisia (TILA.md, Appi-appi 15 ei tehty). Kaikki kortit piirretään (ei virtualisointia); selaimessa kokeiltu 40, moottorissa 100 riviä.
+  - Kortin lukukenttä ja lomakkeen lukukenttä eroavat: tyhjennetty lukukenttä kirjoittaa kortissa nollan, lomakkeessa puuttuvan; Tyhjennä-toiminto ei tyhjennä kortin kenttää (avoin kysymys TILA.md:ssä).
+  - Kapeassa kortissa Lukukentän omat −/+ voivat peittää luvun; näytä määrä silloin Tekstinä.
+
+---
+
+## Muokkauslomake (kenttä sidottuna riviin)
+Tavallinen kenttä missä tahansa näkymässä voidaan sitoa taulukon riviin, jolloin se näyttää ja muuttaa rivin saraketta (Appi-appi 16).
+
+- **Missä:** Tekstikentän, Lukukentän, Valintaruudun, Kytkimen, Säätimen tai Päivämäärän paneelissa osio **Rivin sarake** (näkyy, kun projektissa on Tietotaulukko).
+- **Kentät:** **Rivi** (*ei sidottu* tai Rivi-palikka listasta, esim. *Valinta (Ostokset · valittu rivi)*) ja **Arvo sarakkeesta** (sarake). Painike **＋ Rivi-palikka valittuun riviin** tekee Rivi-palikan *Valinta* (ensimmäisen taulukon valittu rivi) ja sitoo siihen; valitse vielä sarake.
+- **Toiminta:** kenttä näyttää rivin sarakkeen ja muutos kirjoittaa riville heti (käyttötietoon). Rivi vaihdetaan tavallisella **Valitse rivi** -toiminnolla (esim. kortin painike → Tapahtuman rivi, tai Seuraava). Ilman riviä (ei valittua, rivi poistettu) kenttä on tyhjä ja harmaa eikä kirjoita.
+- Logiikan Aseta, Lisää, Vaihda ja Tyhjennä kenttään kirjoittavat riville.
+- Rivin vaihtuminen ei ole käyttäjän muutos: kentän tapahtuma **muuttui** lähtee vain käyttäjän muutoksesta.
+- **Rajat:** ei uutta riviä suoraan lomakkeesta (tee Lisää rivi -toiminnolla, ks. resepti), ei tallenna/peru-vaihetta (muutos heti voimaan), ei valintalistaa valinta-sarakkeelle, ei sidontaa suoraan Rivijoukon ensimmäiseen riviin. Aseta kenttään, jolla ei ole riviä, ei kirjoita mitään eikä kerro siitä. Käsiteltävän tai tapahtuman rivin Rivi-palikka on lomakkeessa aina harmaa.
+
+---
+
+## Rivitoiminnot (lyhyesti)
+Toiminto-palikka (Logiikka, tai painikkeen paneelin **Kun painetaan** → **＋ Lisää toiminto…**), **Kohde** = Tietotaulukko. Täysi toimintojen taulukko on ketjuluvussa.
+
+| Toiminto | Paneelin kentät | Mitä tekee | Sitten-tapahtuma |
+|---|---|---|---|
+| **Lisää rivi** | kenttä jokaiselle sarakkeelle (kaavoja), **Valitse uusi rivi** | lisää rivin loppuun; arvot lasketaan lisäyshetkellä (tilannekuva). Teksti lainausmerkeissä `"Maito"`, `tänään`, `nyt`, viite palikkaan, `tapahtuma.uusi`. Virheellinen kenttä → riviä ei lisätä, virhe näkyy ilmoituksena. | rivi = uusi rivi |
+| **Valitse rivi** | **Mikä rivi**: ensimmäinen, seuraava (oletus), edellinen, viimeinen, tapahtuman rivi, arvosta (numero tai rivi), ei mitään. Seuraavalla ja edellisellä **Lopusta alkuun (ja alusta loppuun)**. Arvosta: kenttä **Rivi** tai nuoli kohtaan arvo. | vaihtaa valitun rivin | rivi = valittu; vanha ja uusi = valinta ennen ja jälkeen |
+| **Poista rivi** | **Mikä rivi**: Valittu rivi / Tapahtuman rivi | poistaa rivin; jos se oli valittu, valinta siirtyy seuraavaan | rivi = poistettu |
+| **Siirrä rivi** | **Mikä rivi**, **Suunta**: Ylös / Alas | vaihtaa paikkaa viereisen kanssa; reunalla ei siirry | vanha ja uusi = paikka |
+| **Aseta arvo**, **Lisää**, **Vaihda**, **Tyhjennä** | **Sarake**, **Mikä rivi** (+ Uusi arvo / Määrä) | muuttaa yhden kentän. Lisää: luku- tai päivämääräsarake. Vaihda: kyllä/ei-sarake. Tyhjennä ilman saraketta (*kaikki rivit*) tyhjentää koko taulukon. | rivi, vanha, uusi |
+
+Valittu rivi -tilassa toiminto antaa virheen, jos valittua riviä ei ole. Kortin painikkeessa käytä aina **Tapahtuman rivi**.
+
+---
+
+## Lista ja Aikajana suhteessa taulukkoon
+Lista (Näkymä → Näyttö → **Lista**) ja Aikajana (**Aikajana**) ovat vanhempia, yksinkertaisia näyttöjä, eivät Tietotaulukoita.
+
+- **Lisää riviksi listaan** lisää Listaan tekstirivin, **Kirjaa aikajanalle** lisää Aikajanalle merkinnän aikaleimalla. Molemmissa kenttä **Teksti**, jossa `{viite}` toimii.
+- Kaavassa Listalla esim. `lista.rivi2`, `lista.rivi2.rastitettu`, `lista.rivi2.pvm`, Aikajanalla `aikajana.viimeisin.teksti` ja `.viimeisin.aika` (viite palikan mukaan).
+- Listan ja Aikajanan rivit eivät käy Rivijoukon, Toistimen, ikkunan Riveille tai Toista riveille -palikan **rivit**-kohtaan (virhe: *tuo nuoli Tietotaulukosta tai Rivijoukosta*). Sarakkeita, koosteita tai riviviitteitä niillä ei ole.
+- Kun tarvitset sarakkeita, laskentaa tai kortteja, käytä Tietotaulukkoa. Kirjaa-toiminnon siirto Tietotaulukkoon on suunniteltu (F08), ei rakennettu.
+
+---
+
+## Reseptit
+
+### Ostoslista taulukolla ja toistimella
+1. **Logiikka**-välilehti → paletti **Tieto** → **Tietotaulukko**. Paneelissa nimeksi *Ostokset*.
+2. **＋ Sarake** kahdesti: ensimmäinen *Nimi* (teksti), toinen *Määrä*, laji **luku**.
+3. **Avaa taulukko…** → **＋ Rivi** ja kirjoita esim. Maito 2, Leipä 1. **Valmis**.
+4. **Näkymä**-välilehti → paletti **Näyttö** → **Toistin**. Paneelissa **Kortit: allekkain**, kortin korkeus esim. 56.
+5. Logiikka-välilehdellä vedä nuoli Ostokset-palikan kohdasta **rivit** Toistimen kohtaan **rivit** (veto kohdan pisteestä toisen kohdan pisteeseen; nuolen teko tarkemmin logiikkaluvussa). Kortteja on nyt 2.
+6. Valitse Toistin ja paina paneelista **＋ Rivi-palikka kortin riville**: logiikkaan tulee *Kohde*.
+7. Näkymässä vedä **Teksti** katkoviivalla merkittyyn ensimmäiseen korttiin ja kirjoita tekstiksi `{kohde.nimi}: {kohde.määrä}`. Muut kortit näyttävät haaleina omat rivinsä.
+8. Vedä korttiin **Painike**, teksti `+`. Painikkeen paneelissa **Kun painetaan** → **＋ Lisää toiminto…** → **Lisää**. Toiminnon paneelissa **Kohde**: Ostokset, **Sarake**: Määrä, **Mikä rivi**: Tapahtuman rivi, Määrä tyhjä (= 1).
+9. **🔒 Lukitse** ja paina jonkin kortin `+`: vain sen rivin määrä kasvaa.
+
+### Uuden rivin lisääminen lomakkeesta painikkeella
+1. Näkymään **Tekstikenttä**, nimi *Uusi* (viite `uusi`), ja **Painike** tekstillä *Lisää*.
+2. Painikkeen paneeli → **Kun painetaan** → **＋ Lisää toiminto…** → **Lisää rivi**. **Kohde**: Ostokset.
+3. Sarakkeen *Nimi* kenttään `uusi`, sarakkeen *Määrä* kenttään `1`. Valitse halutessasi **Valitse uusi rivi**.
+4. Toiminnon paneelin **Sitten** → **＋ Lisää toiminto…** → **Tyhjennä**, **Kohde**: Uusi (kenttä tyhjenee lisäyksen jälkeen).
+5. Lukitse, kirjoita kenttään *Kahvi* ja paina *Lisää*: taulukkoon tulee rivi ja Toistimeen kortti. Tyhjän nimen estämiseksi tee lisäys ketjuna, jossa ensin **Ehto** (nimi ei tyhjä) ja vasta sitten Lisää rivi, ks. ketjuluku (näin tehty koeappi C:ssä).
+6. Lomake samaan riviin: lisää toinen Tekstikenttä, paneelin **Rivin sarake** → **＋ Rivi-palikka valittuun riviin**, **Arvo sarakkeesta**: Nimi. Koska **Valitse uusi rivi** on päällä, kenttä näyttää juuri lisätyn rivin, ja sitä voi korjata.
+
+### Laske taulukon sarakkeen summa
+1. Logiikkaan **Kaava** ja kirjoita `ostokset.määrä.summa`. Tulos näkyy palikassa.
+2. Näkymään Teksti `Yhteensä {ostokset.määrä.summa} kpl`.
+3. Montako puuttuu: `ostokset.määrä.puuttuvia`. Jos haluat tyhjän tuloksen aina kun jokin puuttuu, valitse sarakkeen kohdalla **Koosteet vaativat täydelliset tiedot**.
+4. Riveittäin laskettu summa (määrä × hinta): Logiikka → Ikkunat → ikkuna, **Miten sisältö yhdistyy**: SUMMA, valitse **Riveille**, nuoli Ostokset → rivit ikkunan kohtaan **rivit**, ikkunan sisään Kaava `kohde.määrä * kohde.hinta` (Kohde = Rivi, käsiteltävä rivi). Ikkunan tulos on yhteishinta.
+
+### Näytä vain ostamattomat, eniten ensin
+1. Logiikka → **Tieto** → **Rivijoukko**. Nuoli Ostokset → **rivit** → Joukko **rivit**.
+2. Kaava `kohde.määrä > 0` nuolella Joukon kohtaan **ehto riveittäin**.
+3. Joukon paneelissa **Järjestys**: Määrä, **Suunta**: laskeva.
+4. Vie Toistimen rivit nuolella Joukosta (ei suoraan taulukosta). Huom: silloin **Järjestä raahaamalla** ei muuta järjestystä.
+
+---
+
+Tämän luvun kehityshavainnot (ristiriidat ja puutteet): [Versio ja tunnetut rajat](11-versio-ja-rajat.md#tieto).

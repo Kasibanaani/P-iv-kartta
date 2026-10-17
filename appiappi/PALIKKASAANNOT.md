@@ -8,7 +8,7 @@
 |---|---|
 | Rakentaja, rajattu työ (palikka, korjaus, jonon kohta) | Tämä + `TILA.md` + työn oma suunnitelma. Missio vain, jos työ tuo uuden käsitteen tai poikkeaa alla olevista säännöistä. |
 | Suunnittelija, uusi suunnitelma | Missio + periaatteet + tämä. Suunnitelmaan kohta **Linjakkuus** (ks. alla). |
-| Linjakkuuskartoitus (koko metsä) | Missio kokonaan + nykytilakuva koodista (manuaali, kun sellainen on) + tämä. Milloin: ks. loppu. |
+| Linjakkuuskartoitus (koko metsä) | Missio kokonaan + [manuaali](manuaali/README.md) ja koodi (manuaali ei todista, tarkista epäselvä koodista) + tämä. Milloin: ks. loppu. |
 
 ## A. Jokaisen palikan säännöt
 
@@ -28,6 +28,7 @@ Rakentaja käy listan läpi omaa työtään vasten. Jos jokin kohta ei toteudu, 
 12. **Moottori ilman DOMia.** Laskenta, liike, törmäys ja kamera ovat moottorissa (`<script id="engine">`), koska moottori kopioituu viedyille apeille.
 13. **Tallennus kestää.** Uudet kentät nimetään ja ovat valinnaisia; vanha muoto aukeaa (`repair`); vanhaa avainta ei oteta uuteen merkitykseen.
 14. **Testi.** Uusi palikka tai toiminto saa oman testinsä; testisisältö on synteettistä.
+15. **Manuaali.** Käyttäjälle näkyvä muutos päivitetään samassa työssä [manuaaliin](manuaali/README.md): uusi palikka saa merkinnän luvun palikkakaavalla (mitä tekee, sisään/ulos, asetukset, ominaisuudet, kaavassa, esimerkki), erikoispalikka ✦:llä. Muuttuneet painikkeiden nimet ja kaavan syntaksi korjataan kaikkialle, missä ne mainitaan (`grep -rn` manuaalikansiossa).
 
 ## B. Erikoispalikat
 

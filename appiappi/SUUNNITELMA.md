@@ -10,9 +10,9 @@ Päiväys 16.10.2026. Tämä suunnitelma ja sen alidokumentit kirjoitettiin Emil
 4. Toteuta vain käyttäjän pyytämä vaihe. Tee tavalliset tekniset valinnat itse näiden periaatteiden mukaan; kysy vain, jos ratkaisu muuttaisi päätettyä toimintaa tai uutta merkittävää käyttäjävalintaa ei voi johtaa ohjeista.
 5. Tarkista hyväksymiskriteerit, vanhat projektit, vienti/tuonti sekä sopivat selainleveydet. Päivitä todellinen tila, ei pelkkää tavoitetta.
 
-## Missio ja tuleva manuaali (16.10.2026)
+## Missio ja manuaali (16.10.2026, manuaali 17.10.2026)
 
-[MISSIO.md](MISSIO.md) kokoaa käyttäjän tarkoituksen, legovertauksen, johdonmukaisen rakennuskielen, kevyen rakentamisen ja vakaan loppukäytön sekä antaa kehitysehdotuksille arviointitavan. Se ei lisää ominaisuuksia eikä muuta aiempia täsmällisiä päätöksiä. [Manuaalin tehtävänanto](suunnitelmat/08-manuaalin-tehtavananto.md) suunnittelee tulevan kattavan ihmiselle ja tekoälylle sopivan ohjeen. **Varsinaista manuaalia ei ole tässä työssä kirjoitettu.** Rajattu korjaustyö ja kokonaisuutta arvioiva suunnittelutyö käyttävät lähteitä eri laajuudella; tehtävänanto määrittelee kummankin lukutavan.
+[MISSIO.md](MISSIO.md) kokoaa käyttäjän tarkoituksen, legovertauksen, johdonmukaisen rakennuskielen, kevyen rakentamisen ja vakaan loppukäytön sekä antaa kehitysehdotuksille arviointitavan. Se ei lisää ominaisuuksia eikä muuta aiempia täsmällisiä päätöksiä. [Manuaalin tehtävänanto](suunnitelmat/08-manuaalin-tehtavananto.md) suunnittelee tulevan kattavan ihmiselle ja tekoälylle sopivan ohjeen. Manuaali kirjoitettiin 17.10.2026: [`manuaali/`](manuaali/README.md). Rajattu korjaustyö ja kokonaisuutta arvioiva suunnittelutyö käyttävät lähteitä eri laajuudella; tehtävänanto määrittelee kummankin lukutavan.
 
 ## Aineisto ja nykytilan tarkistus
 
