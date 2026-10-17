@@ -60,6 +60,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 20. **⏸ 2D-pelit F35, vaihe E: pikseliulkoasu** (suunnitelma 19 kohta 6; **tallennusmuodon muutos**): pikselikuvat appissa + näkymän Pikselitarkka. Odottaa Emilin vastausta (a omat pikselikuvat + terävä esitys, suositus / b vain terävä esitys). Ei estä vaiheita F ja G.
 21. **2D-pelit F35, vaihe F: kelluva rakennuslaatikko** (suunnitelma 19 kohta 7): auki pysyvä, raahattava paletti, klik klik -lisäys, hyllyt Rakenne, Laatat, Hahmot, Alueet, Esineet, Näkymä (F26-presettejä, ei uutta palikkaa). Ei tallennusmuotoa.
 22. **2D-pelit F35, vaihe G: liikkuvat tasot** (suunnitelma 19 kohta 8): maassa oleva kulkee alustansa mukana. Todennäköisesti ei tallennusmuotoa.
+23. **2D-pelit F35, vaihe H: palikan oma ruudukko** (Emil 17.10.; suunnitelma 19 kohta 5b; **tallennusmuodon muutos**, valinnainen `org`): jokaiselle näkymäpalikalle valinnainen sarakkeet × rivit -ruudukko, joka kulkee, venyy ja kiertyy palikan mukana; tapahtuma *ruutu napautettu* (`tapahtuma.x/y`), `napautettux/y`, törmäsi- ja laskeutui-tietoihin osuttu ruutu `kohdex/y`, pudotuksessa ruutu. Ei riipu vaiheista A–G, joten voi mennä jonossa aiemmin, jos Emil haluaa.
 
 ## Seuraavaksi
 

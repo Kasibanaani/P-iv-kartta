@@ -87,6 +87,21 @@ Lisäksi (ei välttämätön, mutta tekee rakentamisesta mukavaa): kelluva raken
 
 **Headmaze koetapauksena:** 119 Muotoa → yksi 15 × 15 Laattakartta (laji Seinä) ja 12 porttia → laji Portti (läpi, ilmoittaa). Portin *astuttu* + Jonon 15d *Vie palikka* = teleportti kahdella palikalla. Painovoimaa ei tarvita: laatat palvelevat myös ylhäältä kuvattuja pelejä, kalenteriruudukkoa ja pohjapiirroksia.
 
+## 5b. Palikan oma ruudukko (vaihe H)
+
+**Emilin kysymys 17.10.:** maailman ruudukko toimii kosketuskohtana missä ruudussa vain; saako liikkuvalle palikalle oman, siinä kiinni pysyvän ruudukon? **Nyt ei.** Ruudukko on kerroksen ominaisuus ja ankkuroitu kanvaasin kohtaan (0, 0) (`ruudukko`, `alueRuutu`). Alue osaa kertoa napautetun ruudun, mutta vain kerroksen ruudukossa, eikä Aluetta voi kiinnittää liikkuvaan palikkaan. Ilman ruudukkoa Alue antaa napautuksen pikseleinä kulmastaan, mikä on lähin nykyinen kiertotie.
+
+**Ehdotus: jokaisen näkymäpalikan yhteinen osio Oma ruudukko** (A5: yhteinen ominaisuus, ei uusi palikka):
+- **Sarakkeet × rivit** (esim. 3 × 3), ruudut jakavat palikan koon tasan. Ruudukko kulkee, kasvaa ja kiertyy palikan mukana, koska se lasketaan palikan omasta suorakulmiosta (kierretyssä palikassa napautus muunnetaan palikan koordinaatteihin). Näkyy: muokatessa (oletus) / aina / ei.
+- **Napautus:** palikka lähettää tapahtuman **ruutu napautettu**, tiedot `tapahtuma.x`, `tapahtuma.y` (1 = vasen yläruutu), ja ominaisuudet `napautettux`, `napautettuy` (samat nimet kuin Alueella).
+- **Kosketus muilta:** kun liikkuja törmää tai laskeutuu ruudukolliseen palikkaan, *törmäsi*- ja *laskeutui*-tietoihin tulee `tapahtuma.kohdex`, `tapahtuma.kohdey`: mihin kohteen ruutuun osui (osumakohta lasketaan kiertämättömästä osuma-alueesta, koska osuma-alue ei kierry).
+- **Pudotus:** käyttöraahauksessa (F12) palikan päälle pudotettu tietää ruudun (`tapahtuma.x/y` pudotuksessa): lautapeli, liikkuva inventaario, kalenteripohja.
+- Laattakartalla (vaihe C) on jo oma ruudukkonsa, ja se kulkee palikan mukana samalla säännöllä: liikkuva Laattakartta = liikkuva laattarakennelma.
+
+Käyttöesimerkit: liikkuvan vihollisen heikko kohta (vain ylärivi litistää), numeronäppäimistö yhtenä Kuvana (3 × 4 ruutua), lautapelin lauta, joka liukuu paikalleen, hahmon ”osumalaatikot” (pää, keho, jalat = 1 × 3).
+
+Linjakkuus: nimet `napautettux/y` kuten Alueella (A9), ominaisuudet `ruudukko.sarakkeet`, `ruudukko.rivit` rekisteriin (A2), tapahtuma *ruutu napautettu* (A4). Ei erikoispalikkaa. **Tallennusmuoto laajenee** (valinnainen palikan kenttä, ehdotus `org: {s, r, n}`).
+
 ## 6. Pikseliulkoasu (vaihe E) ⏸
 
 - **Pikselikuva:** pieni piirtoruudukko (8, 16 tai 32 px) laattalajin ilmeeksi ja Kuva-palikalle. Värit = projektin kahdeksan palettiväriä + läpinäkyvä, joten pikselikuvat seuraavat teemaa ja F34:n palettia. Piirto samalla siveltimellä kuin laatat. Tallennus tiiviinä merkkijonona (yksi merkki per pikseli, 16 × 16 = 256 merkkiä).
@@ -141,6 +156,7 @@ Muualle kuin peleihin sama laatikko kelpaa: pohjapiirros laatoista, kalenteriruu
 | E ⏸ | Pikselikuva ja Pikselitarkka | **laajenee** (lajin/Kuvan `px`, näkymän `pxt`) | terävä esitys; kuva seuraa paletin vaihtoa |
 | F | Kelluva rakennuslaatikko ja valmiit presetit | ei (presetit selaimen muistissa kuten F26) | auki pysyvä, raahattava, klik klik -lisäys, Esc |
 | G | Liikkuvat tasot | ei (todennäköisesti) | hahmo kulkee tason mukana |
+| H | Palikan oma ruudukko (kohta 5b), riippumaton muista vaiheista | **laajenee** (`org`) | ruutu oikein liikkuvassa, venytetyssä ja kierretyssä palikassa; osumaruutu törmäyksessä; pudotusruutu |
 
 Avainten nimet ovat ehdotuksia; rakentaja tarkistaa, ettei avain ole jo toisessa käytössä (A13). Versio pysyy 8 kuten tähänkin asti valinnaisilla kentillä. Jokainen tallennusmuotoa laajentava vaihe pitää kaistasäännön mukaisen tallennusmuodon vuoron.
 
