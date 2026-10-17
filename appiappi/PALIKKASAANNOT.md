@@ -39,7 +39,7 @@ Rakentaja käy listan läpi omaa työtään vasten. Jos jokin kohta ei toteudu, 
 
 ### Rekisteri
 
-Tila: **ehdokas** = havaittu, arvioimatta; **arvioitu** = kartoitus pitää poikkeusta tarkoituksellisena (Emil voi kumota); **päätetty** = Emilin tai periaatteiden päätös; **korjattava** = poikkeus on vahinko. Arvio: [linjakkuuskartoitus 1](kartoitukset/2026-10-17-linjakkuus.md); [kartoitus 2](kartoitukset/2026-10-17-linjakkuus-2.md) ei muuttanut rivejä; [kartoitus 3](kartoitukset/2026-10-17-linjakkuus-3.md) tarkisti Ryhmän rivin.
+Tila: **ehdokas** = havaittu, arvioimatta; **arvioitu** = kartoitus pitää poikkeusta tarkoituksellisena (Emil voi kumota); **päätetty** = Emilin tai periaatteiden päätös; **korjattava** = poikkeus on vahinko. Arvio: [linjakkuuskartoitus 1](kartoitukset/2026-10-17-linjakkuus.md); [kartoitus 2](kartoitukset/2026-10-17-linjakkuus-2.md) ei muuttanut rivejä; [kartoitus 3](kartoitukset/2026-10-17-linjakkuus-3.md) tarkisti Ryhmän rivin. [Kartoitus 4](kartoitukset/2026-10-17-linjakkuus-4.md) ei muuttanut rivejä.
 
 | Palikka (laji) | Poikkeus | Syy | Tila |
 |---|---|---|---|
@@ -63,4 +63,4 @@ Suunnittelija huomioi linjan yhdessä suunnitelmassa, mutta ei näe, miten monta
 - kun jonosta on viety viisi kohtaa edellisen kartoituksen jälkeen,
 - aina kun Emil pyytää.
 
-Kartoitus tuottaa löydökset ja ehdotukset, ei koodimuutoksia. Viimeisin kartoitus kirjataan `TILA.md`:hen. **Viimeisin:** [17.10.2026, kartoitus 3](kartoitukset/2026-10-17-linjakkuus-3.md) (aiemmat: [kartoitus 2](kartoitukset/2026-10-17-linjakkuus-2.md), [kartoitus 1](kartoitukset/2026-10-17-linjakkuus.md)).
+Kartoitus tuottaa löydökset ja ehdotukset, ei koodimuutoksia. Viimeisin kartoitus kirjataan `TILA.md`:hen. **Viimeisin:** [17.10.2026, kartoitus 4](kartoitukset/2026-10-17-linjakkuus-4.md) (aiemmat: [kartoitus 3](kartoitukset/2026-10-17-linjakkuus-3.md), [kartoitus 2](kartoitukset/2026-10-17-linjakkuus-2.md), [kartoitus 1](kartoitukset/2026-10-17-linjakkuus.md)).
