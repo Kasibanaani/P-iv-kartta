@@ -334,6 +334,15 @@ textarea.fld{resize:none;flex:1}
 .cal .cg .td{background:var(--hc);color:var(--cell);font-weight:800}
 .cal .cg .mk::after{content:"";position:absolute;bottom:3px;width:5px;height:5px;border-radius:50%;background:var(--h1)}
 .cal .cg .td.mk::after{background:var(--cell)}
+.cal .cg [data-d]{cursor:pointer}
+.cal .cg .sel{box-shadow:inset 0 0 0 2px var(--hc);font-weight:800}
+.cal .cg .td.sel{box-shadow:inset 0 0 0 2px var(--hc),inset 0 0 0 4px var(--cell)}
+.cal .cl{flex:0 1 auto;max-height:42%;overflow:auto;margin-top:6px;padding-top:6px;border-top:1px solid var(--sep);font-size:13px}
+.cal .clh{font-weight:700;font-size:12px;color:var(--label2);margin-bottom:3px}
+.cal .cli{display:flex;gap:8px;padding:2px 0;line-height:1.3}
+.cal .cli i{font-style:normal;color:var(--label3);font-variant-numeric:tabular-nums}
+.cal .cli.c span{text-decoration:line-through;color:var(--label3)}
+.cal .cle{color:var(--label3)}
 #udeco line,#udeco path{stroke-linecap:round}
 #udeco .dl{pointer-events:stroke;cursor:pointer}
 .ln-hit{stroke:transparent;stroke-width:14;fill:none;pointer-events:stroke;cursor:pointer}
@@ -1042,7 +1051,8 @@ function portsBase(b){
     else if(k==='lista')outs=[V('v','rastitettuja'),V('n','rivejä'),V('all','kaikki rastitettu')];
     else if(k==='aika')outs=[V('v','merkintöjä'),V('last','viimeisin päivä')];
     else if(k==='alue'){outs=[V('v','sisällä'),V('n','montako sisällä'),E('e','astuttu'),E('ulos','poistuttu'),V('nx','napautettu x'),V('ny','napautettu y'),E('nap','napautettu')];if(b.rkr)outs.push(V('rx','ruutu x'),V('ry','ruutu y'),E('rv','ruutu vaihtui'));}
-    else if(k==='kaavio'||k==='kalenteri'||k==='merkki'||k==='reitti'||k==='mittari')outs=[];
+    else if(k==='kalenteri')outs=[V('v','valittu päivä'),E('e','päivä valittu')];
+    else if(k==='kaavio'||k==='merkki'||k==='reitti'||k==='mittari')outs=[];
     else if(k==='pkuva'){ins.push(V('src','kuva'),V('pk','pyörii kun'));outs=[];}
     else if(k==='tatti')outs=[V('v','etäisyys'),V('x','vaaka'),V('y','pysty'),V('s','suunta'),E('e','alkaa'),E('irti','loppuu')];
     else if(k==='ilmo')outs=[V('v','näkyy')];
@@ -1156,7 +1166,7 @@ function omat(b){
       case 'reitti':cl('pituus','pituus','luku','reitin pituus pikseleinä');cl('pisteitä','pisteitä','luku','reitin pisteiden määrä',['pisteita']);break;
       case 'pkuva':r.push(OM('fps','kuvanopeus','luku',{f:'fps',o:1,lim:[0,60],def:8,d:'kuvasarjan nopeus kuvaa sekunnissa (Appi-appi 4)'}));cl('kuvanro','kuvanro','luku','monesko kuvasarjan kuva näkyy (1 = pääkuva)');cl('pyörii','pyörii','kylla','pyöriikö kuvasarja nyt',['pyorii']);break;
       case 'kaavio':r.push(OM('ymax','asteikko','luku',{f:'ymax',o:1,lim:[0,null],d:'asteikon yläraja (tyhjä = suurimman arvon mukaan)'}));break;
-      case 'kalenteri':r.push(OM('kk','kuukausi','pvm',{f:'kk',o:1,d:'päivämäärä, jonka kuukausi näytetään (tyhjä = tämä kuu)'}));break;
+      case 'kalenteri':r.push(OM('kk','kuukausi','pvm',{f:'kk',o:1,d:'päivämäärä, jonka kuukausi näytetään (tyhjä = tämä kuu)'}),OM('valittu','valittu','arvo',{port:'v',d:'käytössä napautettu päivä (tyhjä = ei valintaa)'}));break;
       case 'mittari':r.push(OM('arvo','arvo','luku',{f:'va',o:1,d:'näytettävä luku'}),OM('min','pienin','luku',{f:'min',o:1,d:'asteikon alku'}),OM('max','suurin','luku',{f:'max',o:1,d:'asteikon loppu (palkki täynnä)'}),
         OM('muoto','muoto','valinta',{f:'muoto',o:1,opt:MITM,d:'luku, palkki, pylväs, rengas, kaari tai pisteet (myös 1–6)'}),OM('esitys','esitys','valinta',{f:'esit',o:1,opt:MITE,d:'luku, aika (m:ss) tai prosentti (myös 1–3)'}),
         OM('paksuus','paksuus','luku',{f:'paks',o:1,lim:[1,50],def:12,d:'palkin, renkaan ja kaaren paksuus (% koosta)'}));break;
@@ -2808,6 +2818,7 @@ function Ev(P,ctx){
       case 'luku':{var x=stv(id,null),lv=x===null?(omActive(P,b,'start')?omiNum(id,'start',0):num(lit(b.start))):num(x);var lmn=omiNum(id,'min',null),lmx=omiNum(id,'max',null);
         if(lmn!=null&&lv<lmn)lv=lmn;if(lmx!=null&&lv>lmx)lv=lmx;return lv;}
       case 'pvm':{var s=stv(id,null);if(s===null){var st=lit(b.start);return isD(st)?st:null;}return s?D(s):null;}
+      case 'kalenteri':{var ks=stv(id,null);return ks?D(ks):null;}
       case 'nayta':case 'muoto':return text(id);
       case 'ilmo':return visible(id);
       case 'lista':{var rows=listRows(P,id);var c=rows.filter(function(r){return r.c;}).length;if(p==='n')return rows.length;if(p==='all')return rows.length>0&&c===rows.length;return c;}
@@ -2987,7 +2998,7 @@ function setVal(P,id,v,ctx){
       var x=num(v);if(isNaN(x))x=mn;P.st[sk]=Math.min(Math.max(x,Math.min(mn,mx)),Math.max(mn,mx));break;}
     case 'luku':{var y=num(v);if(isNaN(y))y=0;var le=Ev(P,ctx),lmn=le.omiNum(id,'min',null),lmx=le.omiNum(id,'max',null);if(lmn!=null&&y<lmn)y=lmn;if(lmx!=null&&y>lmx)y=lmx;P.st[sk]=y;break;}
     case 'teksti':P.st[sk]=v==null?'':(typeof v==='string'?v:fmt(v,ctx&&ctx.df));break;
-    case 'pvm':P.st[sk]=isD(v)?v.d:(v==null||v===''?'':(parseDate(v,now)||''));break;
+    case 'pvm':case 'kalenteri':P.st[sk]=isD(v)?v.d:(v==null||v===''?'':(parseDate(v,now)||''));break;
     case 'muisti':P.st[sk]=(typeof v==='number'&&isNaN(v))?null:v;break;
     default:return;
   }
@@ -3074,6 +3085,13 @@ function press(P,id,ctx){
   if(sk!=null){if(b.beh==='kerta'){P.st[sk]=num(P.st[sk]||0)+1;if(napVaihto(b)){P.st[ak]=!P.st[ak];if(P.st[ak]&&sk===id)enforceOne(P,id);}}
     else if(b.beh!=='pida')setVal(P,id,!P.st[sk],ctx);}
   fire(P,id,'e',cardEv(P,id,ctx,{vanha:old?old.uusi:null,uusi:(evAuto(P,id,ctx)||{}).uusi}),0);
+  tick(P,tstBase(ctx));
+}
+/* Appi-appi 21: kalenterin päivän napautus. Sama päivä uudelleen poistaa valinnan; valinta lähettää tapahtuman päivä valittu. */
+function kalenteriValitse(P,id,d,ctx){
+  var b=P.b[id];if(!b||b.k!=='kalenteri')return;var ev=Ev(P,ctx),cur=ev.val(id),pois=isD(cur)&&cur.d===d;
+  var old=evAuto(P,id,ctx);setVal(P,id,pois?null:D(d),ctx);
+  if(!pois)fire(P,id,'e',cardEv(P,id,ctx,{vanha:old?old.uusi:null,uusi:(evAuto(P,id,ctx)||{}).uusi}),0);
   tick(P,tstBase(ctx));
 }
 function cardCtx(P,id,ctx){return ctx&&ctx._tst?cardEv(P,id,ctx,evAuto(P,id,ctx)||{}):ctx;}
@@ -4125,7 +4143,7 @@ return {omat:omat,omFind:omFind,omNorm:omNorm,omBase:omBase,omNames:omNames,omAc
 kuvaPyorii:kuvaPyorii,kuvaNro:kuvaNro,SARJA_MAX:SARJA_MAX,ruudukko:ruudukko,ruudukkoOf:ruudukkoOf,ruutuAt:ruutuAt,ruutuKeski:ruutuKeski,kohdista:kohdista,ruutuKohdistus:ruutuKohdistus,alueRuudukko:alueRuudukko,alueRuutu:alueRuutu,alueNapautus:alueNapautus,kerrokset:kerrokset,kerrosOf:kerrosOf,rvOf:rvOf,kuvaUrl:kuvaUrl,K:K,KW:KW,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,kaavaToIds:kaavaToIds,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
   ports:ports,port:port,newProject:newProject,addBlock:addBlock,addNode:addNode,addLink:addLink,canLink:canLink,
   removeNode:removeNode,removeBlock:removeBlock,refsTo:refsTo,brokenRefs:brokenRefs,relink:relink,isGone:isGone,goneName:goneName,scanRefs:scanRefs,nodeOf:nodeOf,nodesOfBlock:nodesOfBlock,uniqueName:uniqueName,baseName:baseName,
-  repair:repair,repairData:repairData,Ev:Ev,setVal:setVal,userSet:userSet,press:press,fire:fire,tick:tick,runAction:runAction,clearVal:clearVal,
+  repair:repair,repairData:repairData,Ev:Ev,setVal:setVal,userSet:userSet,press:press,kalenteriValitse:kalenteriValitse,fire:fire,tick:tick,runAction:runAction,clearVal:clearVal,
   listRows:listRows,toNames:toNames,toIds:toIds,refsIn:refsIn,isBoolKind:isBoolKind,
   iso:iso,addDays:addDays,diffDays:diffDays,isoWeek:isoWeek,weekday:weekday,fmtDate:fmtDate,parseDate:parseDate,
   fmt:fmt,num:num,truth:truth,isD:isD,D:D,parseLit:parseLit,calc:calc,cmp:cmp,datePart:datePart,clone:clone,
@@ -4705,6 +4723,8 @@ function offerLink(n,tnode,x,y){
    ===================================================================== */
 function renderUIStage(){
   var st=stU(),ae=document.activeElement;var keepFocus=ae&&st.contains(ae)&&/^(INPUT|TEXTAREA)$/.test(ae.tagName)?ae:null;
+  /* Appi-appi 21: Safari ei kohdista liukusäädintä. Painettuna oleva säädin säilytetään kuin kohdistettu kenttä, ettei piirto vaihda sitä kesken vedon. */
+  if(!keepFocus&&S.rngHeld&&st.contains(S.rngHeld))keepFocus=S.rngHeld;
   if(!$('#uvp')){
     st.innerHTML='<div id="vtabs"></div><div class="vp uvp" id="uvp"><div class="world" id="uworld"><svg class="lay" id="udeco"></svg><div id="uels"></div></div></div>'+
       '<div class="qview uqv" id="uqv"></div><div class="ruler rx" id="rx"></div><div class="ruler ry" id="ry"></div><div class="coords" id="coords">x 0 · y 0</div>'+
@@ -4915,20 +4935,36 @@ function calMarks(b,E){
   });
   return m;
 }
+/* Appi-appi 21: valitun päivän asiat lähteistä: listan rivit, aikajanan merkinnät kellonaikoineen (ajan mukaan) ja päivämääräpalikat. */
+function calItems(b,E,d){
+  var r=[];
+  (b.lahteet||[]).forEach(function(id){var s=P.b[id];if(!s)return;
+    if(s.k==='lista')KK.listRows(P,id).forEach(function(x){if(x.d===d)r.push({tx:x.tx||'(tyhjä rivi)',c:!!x.c,lh:s.nm});});
+    else if(s.k==='aika')(Array.isArray(P.st[id])?P.st[id]:[]).forEach(function(x){var t=new Date(x.t);if(KK.iso(t)!==d)return;
+      r.push({tx:x.tx||s.nm,klo:('0'+t.getHours()).slice(-2)+':'+('0'+t.getMinutes()).slice(-2),t:x.t,lh:s.nm});});
+    else{var v=E.val(id);if(KK.isD(v)&&v.d===d)r.push({tx:s.nm});}
+  });
+  return r.sort(function(a,c){return (a.t==null?-1:a.t)-(c.t==null?-1:c.t);});
+}
 function calHTML(b,E,tx){
   var now=E.now,off=S.calm[b.id]||0;var y=now.getFullYear(),mo=now.getMonth()+off;
   /* Pajakone 4: näytettävä kuukausi logiikasta (ominaisuus kuukausi); nuolinapit selaavat siitä eteenpäin. */
   if(!editingUI()&&omOn(b)){var ck=E.omiVal(b.id,'kk');if(KK.isD(ck)){var ca=ck.d.split('-');y=+ca[0];mo=+ca[1]-1+off;}}var first=new Date(y,mo,1);y=first.getFullYear();mo=first.getMonth();
-  var marks=calMarks(b,E),today=KK.iso(now);
+  var marks=calMarks(b,E),today=KK.iso(now),sv=E.val(b.id),sel=KK.isD(sv)?sv.d:'';
   var h='<div class="card cal"><div class="ch"><b>'+(tx?tx+' · ':'')+KK.KUUT[mo]+' '+y+'</b><button data-act="calprev">‹</button><button data-act="caltoday" title="Tämä kuu">•</button><button data-act="calnext">›</button></div><div class="cg"><div class="hd">vk</div>';
   ['ma','ti','ke','to','pe','la','su'].forEach(function(d){h+='<div class="hd">'+d+'</div>';});
   var start=new Date(y,mo,1);var wd=(start.getDay()+6)%7;start.setDate(1-wd);
   for(var w=0;w<6;w++){
     var ds=KK.iso(start);h+='<div class="wk">'+KK.isoWeek(ds)+'</div>';
-    for(var i=0;i<7;i++){var d=KK.iso(start);var cl=(start.getMonth()!==mo?'o ':'')+(d===today?'td ':'')+(marks[d]?'mk':'');h+='<div class="'+cl+'" title="'+esc((marks[d]||[]).join(', '))+'">'+start.getDate()+'</div>';start.setDate(start.getDate()+1);}
+    for(var i=0;i<7;i++){var d=KK.iso(start);var cl=(start.getMonth()!==mo?'o ':'')+(d===today?'td ':'')+(d===sel?'sel ':'')+(marks[d]?'mk':'');h+='<div class="'+cl+'" data-act="pvsel" data-d="'+d+'" title="'+esc((marks[d]||[]).join(', '))+'">'+start.getDate()+'</div>';start.setDate(start.getDate()+1);}
     if(start.getMonth()!==mo&&w>=3)break;
   }
-  return h+'</div></div>';
+  h+='</div>';
+  if(sel&&b.cls!==false){var it=calItems(b,E,sel),sd=new Date(sel+'T12:00:00');
+    h+='<div class="cl"><div class="clh">'+['su','ma','ti','ke','to','pe','la'][sd.getDay()]+' '+sd.getDate()+'.'+(sd.getMonth()+1)+'.'+(sd.getFullYear()!==now.getFullYear()?sd.getFullYear():'')+'</div>';
+    h+=it.length?it.map(function(x){return '<div class="cli'+(x.c?' c':'')+'">'+(x.klo?'<i>'+x.klo+'</i>':'')+'<span>'+esc(x.tx)+'</span></div>';}).join(''):'<div class="cle">Ei merkintöjä</div>';
+    h+='</div>';}
+  return h+'</div>';
 }
 function rectOf(b){return {x:b.x,y:b.y,w:b.w,h:b.h};}
 function edgePt(r,tx,ty){
@@ -5148,6 +5184,7 @@ function bindUIStage(){
       case 'rowchk':case 'rowdel':{var rid=t.closest('[data-row]').getAttribute('data-row');var rows=KK.listRows(P,id).map(function(r){return {id:r.id,tx:r.tx,c:r.c,d:r.d};});
         if(act==='rowchk')rows.forEach(function(r){if(r.id===rid)r.c=!r.c;});else rows=rows.filter(function(r){return r.id!==rid;});
         P.st[id]={rows:rows};KK.tick(P,C);break;}
+      case 'pvsel':KK.kalenteriValitse(P,id,t.getAttribute('data-d'),C);break;
       case 'calprev':S.calm[id]=(S.calm[id]||0)-1;break;
       case 'calnext':S.calm[id]=(S.calm[id]||0)+1;break;
       case 'caltoday':S.calm[id]=0;break;
@@ -5155,6 +5192,12 @@ function bindUIStage(){
     }
     afterUse();
   });
+  /* Appi-appi 21: muistetaan painettuna oleva säädin (renderUIStage). Irrotus piirtää säätimen kerran ajan tasalle. */
+  function rngDown(e){var t=e.target;if(t&&t.tagName==='INPUT'&&t.type==='range'&&!editingUI())S.rngHeld=t;}
+  function rngUp(){if(!S.rngHeld)return;S.rngHeld=null;if(P)renderUIStage();}
+  world.addEventListener('pointerdown',rngDown,true);world.addEventListener('touchstart',rngDown,{capture:true,passive:true});
+  world.addEventListener('change',function(e){if(e.target===S.rngHeld)rngUp();});
+  ['pointerup','touchend','touchcancel','mouseup'].forEach(function(t){window.addEventListener(t,function(){if(S.rngHeld)setTimeout(rngUp,0);},true);});
   world.addEventListener('input',function(e){
     if(editingUI())return;var t=e.target.closest('[data-act]');if(!t)return;var el=t.closest('.ue');if(!el||blockedUE(el))return;var id=el.getAttribute('data-id');
     var act=t.getAttribute('data-act');
@@ -5932,7 +5975,7 @@ function uiInsp(b,E){
     case 'mittari':sp+=mittariInsp(b);break;
     case 'toistin':sp+=tstInsp(b,E);break;
     case 'kaavio':sp+=fSegs('Laji','laji',b.laji,[['pylvas','Pylväät'],['vaaka','Vaakapalkit'],['rengas','Rengas']])+(b.laji==='rengas'?'':fNum('Asteikon yläraja','ymax',b.ymax==null?'':b.ymax,'Tyhjä = suurimman luvun mukaan. Kiinteä yläraja pitää pylväät vertailukelpoisina.'))+fRefList('Luvut','sarjat',b,function(o){return hasValue(o)&&o.id!==b.id;},'Kaavio näyttää palikoiden nykyiset arvot. Nimet tulevat palikoiden nimistä.');break;
-    case 'kalenteri':sp+=fRefList('Merkitse päivät','lahteet',b,function(o){return o.k==='pvm'||o.k==='lista'||o.k==='aika'||(hasValue(o)&&!isUI(o));},'Päivämääräpalikat, listojen päivämäärät ja aikajanan merkinnät näkyvät pisteinä.');break;
+    case 'kalenteri':sp+=fRefList('Merkitse päivät','lahteet',b,function(o){return o.k==='pvm'||o.k==='lista'||o.k==='aika'||(hasValue(o)&&!isUI(o));},'Päivämääräpalikat, listojen päivämäärät ja aikajanan merkinnät näkyvät pisteinä.')+fCheck('Näytä valitun päivän asiat','cls',b.cls!==false)+'<div class="help">Käytössä päivän napautus valitsee sen (uusi napautus poistaa valinnan). Valitun päivän asiat näkyvät kalenterin alla. Logiikassa <b>valittu päivä</b> (kaavassa <code>'+esc(b.vt||'kalenteri')+'.valittu</code>) ja tapahtuma <b>päivä valittu</b>.</div>';break;
     case 'merkki':{var vv=viewOf(b.v),pz=typeof b.zz==='number'?Math.round(b.zz*100)+' %':'';
       sp+=fSegs('Kohta ruudulla','kk',b.kk==='keski'?'keski':'kulma',[['keski','Keskelle'],['kulma','Vasempaan yläkulmaan']],
         b.kk==='keski'?'Siirryttäessä tämä piste tulee ruudun keskelle. Pienemmällä tai isommalla näytöllä reunat jäävät pois tai tulevat lisää tasaisesti joka puolelta.':'Siirryttäessä tämä piste tulee ruudun vasempaan yläkulmaan (pieni reunus). Isommalla näytöllä oikealle ja alas näkyy enemmän.');
@@ -6024,7 +6067,7 @@ function makeValitse(b,val){
   KK.addLink(P,src.id,'v',vn.id,'c');
   return va;
 }
-function settable(o){return ['nappi','ruutu','kytkin','saadin','teksti','luku','pvm','muisti'].indexOf(o.k)>=0;}
+function settable(o){return ['nappi','ruutu','kytkin','saadin','teksti','luku','pvm','kalenteri','muisti'].indexOf(o.k)>=0;}
 
 /* Pikatoiminnot: ”Kun painetaan: …” suoraan palikan asetuksista. Tallentuu tavallisiksi
    toimintopalikoiksi ja nuoliksi, joten sama logiikka näkyy myös logiikkakanvaasilla. */
