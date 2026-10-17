@@ -1,6 +1,6 @@
 # F25 Tilastot ja yhteydet: mikä liittyy mihinkin ajan yli
 
-16.10.2026. **Emilin idea**, tekoälyn jäsentämä keskustelun pohjalta. **Ei toteutettu.** Suunnitelma ei ole rakentamislupa; Emil päättää vaiheet erikseen. Merkinnät: *Emilin idea / vastaus* = hänen sanomansa, *ehdotus* = tekoälyn suunnitteluratkaisu, *avoin* = päätetään ennen rakentamista (kohta 9). Lue ensin [periaatteet](00-periaatteet.md), [01 kohta 7 (F08)](01-tieto-ja-tapahtumat.md) ja [03 F09](03-kayttopinta.md).
+16.10.2026. **Emilin idea**, tekoälyn jäsentämä keskustelun pohjalta. **Ei toteutettu. Tauolla (Emil 17.10.2026):** korrelaatiopuolta ei tehdä vielä; Emil miettii kohdan 9 kysymyksiä, ja suunnitelma käsitellään uudelleen tarkistuspisteessä (kohta 10). Suunnitelma ei ole rakentamislupa; Emil päättää vaiheet erikseen. Merkinnät: *Emilin idea / vastaus* = hänen sanomansa, *ehdotus* = tekoälyn suunnitteluratkaisu, *avoin* = päätetään ennen rakentamista (kohta 9). Lue ensin [periaatteet](00-periaatteet.md), [01 kohta 7 (F08)](01-tieto-ja-tapahtumat.md) ja [03 F09](03-kayttopinta.md).
 
 ## 1. Idea (Emilin idea, tiivistetty)
 
@@ -61,14 +61,22 @@ Koska raakakirjaus säilyttää kellonajan, järjestyksen voi johtaa uudeksi pä
 
 Havaintomäärä näkyy aina tuloksen vieressä. Samanaikaisuus ei ole syy, ja luettava kuvaus sanoo "esiintyi yhdessä", ei "aiheuttaa". Vähäisen aineiston tulos merkitään, ei piiloteta.
 
-## 9. Päätökset (Emil 17.10.2026, tekoälyn suositusten mukaan)
+## 9. Avoimet kysymykset (auki, Emil miettii)
 
-1. Päivä on kirjattu, kun sille on ensimmäinen kirjaus; silloin painamaton tekijä tarkoittaa "ei". Ilman kirjauksia päivä puuttuu.
-2. Päivän raja on projektin asetus, oletus keskiyö (sama asetus kuin historiassa F08).
-3. Luotettavuusraja kohdan 5 mukaan: alle 10 parillista päivää tai alle 3 päivää kummassakin ryhmässä = liian vähän.
-4. Elämäntapaväittämistä tehdään koeappi nykyisillä palikoilla heti F08:n jälkeen (`TILA.md`, Jono).
+Emil 17.10.2026 aamulla: kysymykset jäävät auki, ja ne käydään läpi uudelleen tarkistuspisteessä. Tämä korvaa 17.10. yöllä kirjatun "suositusten mukaan" -päätöksen tämän suunnitelman osalta. Tekoälyn suositukset säilyvät ehdotuksina:
+
+1. Miten päivä merkitään kirjatuksi, jotta painamaton tarkoittaa "ei" eikä "puuttuu" (kohta 4.5)? *Ehdotus:* päivä on kirjattu, kun sille on ensimmäinen kirjaus; ilman kirjauksia päivä puuttuu.
+2. Mikä on päivän raja, kun valvotaan yli puolenyön? *Ehdotus:* projektin asetus, oletus keskiyö. Huom.: F08 rakentaa tämän asetuksen joka tapauksessa (`TILA.md`, Jono), joten tässä kysytään vain F25:n käyttämä oletus.
+3. Käyvätkö luotettavuusrajat (kohta 5)? *Ehdotus:* alle 10 parillista päivää tai alle 3 päivää kummassakin ryhmässä = liian vähän.
+4. Tehdäänkö elämäntapaväittämistä ensin koeappi nykyisillä palikoilla? *Ehdotus:* kyllä, heti F08:n jälkeen.
+
+Emil voi lisätä tähän uusia kysymyksiä tai vastata milloin vain; vastaus kirjataan tähän päivämäärän kanssa.
 
 ## 10. Toteutusjärjestys (ehdotus)
+
+Riippumaton osa etenee jonossa ilman tätä suunnitelmaa: F08 rakenteinen historia on jonossa omana kohtanaan (`TILA.md`, Jono), koska sitä tarvitaan muuhunkin. Kaikki sen jälkeinen odottaa tarkistuspistettä.
+
+**Tarkistuspiste (Emil 17.10.2026):** kun F08 on viety päähaaraan, tätä suunnitelmaa ei rakenneta automaattisesti. Rakentaja tai jonon vahti ilmoittaa Emilille, että F25 on vuorossa uudelleenkäsittelyyn, ja liittää kohdan 9 kysymykset. Jono jatkaa sillä välin seuraavaan kohtaan, joka ei riipu F25:stä. Vasta Emilin vastausten jälkeen kohdat 2–5 alla saavat toteutusluvan.
 
 1. F08 rakenteinen historia: raakakirjaus kellonaikoineen ([01](01-tieto-ja-tapahtumat.md) kohta 7).
 2. Päivätaulukko raakakirjauksista: koostetapa sarakkeittain ja puuttuvan päivän sääntö.
