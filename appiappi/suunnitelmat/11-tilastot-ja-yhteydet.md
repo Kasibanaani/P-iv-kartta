@@ -61,12 +61,12 @@ Koska raakakirjaus säilyttää kellonajan, järjestyksen voi johtaa uudeksi pä
 
 Havaintomäärä näkyy aina tuloksen vieressä. Samanaikaisuus ei ole syy, ja luettava kuvaus sanoo "esiintyi yhdessä", ei "aiheuttaa". Vähäisen aineiston tulos merkitään, ei piiloteta.
 
-## 9. Avoimet kysymykset
+## 9. Päätökset (Emil 17.10.2026, tekoälyn suositusten mukaan)
 
-1. Miten päivä merkitään kirjatuksi, jotta painamaton tarkoittaa "ei" eikä "puuttuu" (kohta 4.5)? Ehdotus: päivän ensimmäinen kirjaus tai erillinen "päivä valmis" -painike, rakentajan valinta.
-2. Mikä on päivän raja (keskiyö vai esim. klo 4), kun valvotaan yli puolenyön?
-3. Luotettavuusrajojen luvut (kohta 5): käykö ehdotus?
-4. Tehdäänkö elämäntapaväittämistä ensin koeappi nykyisillä palikoilla F08:n hyväksymiskokeeksi, kuten toteutuspolussa koeapit C ja B?
+1. Päivä on kirjattu, kun sille on ensimmäinen kirjaus; silloin painamaton tekijä tarkoittaa "ei". Ilman kirjauksia päivä puuttuu.
+2. Päivän raja on projektin asetus, oletus keskiyö (sama asetus kuin historiassa F08).
+3. Luotettavuusraja kohdan 5 mukaan: alle 10 parillista päivää tai alle 3 päivää kummassakin ryhmässä = liian vähän.
+4. Elämäntapaväittämistä tehdään koeappi nykyisillä palikoilla heti F08:n jälkeen (`TILA.md`, Jono).
 
 ## 10. Toteutusjärjestys (ehdotus)
 
