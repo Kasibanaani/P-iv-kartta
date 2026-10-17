@@ -39,7 +39,7 @@ Toiminto tekee yhden muutoksen kerran, kun siihen tulee tapahtuma. Sen jälkeen 
 - **Arvo-kenttä (Uusi arvo, Määrä):** kaksi osaa vierekkäin: tekstikenttä *luku, teksti tai pvm* ja valikko *tai palikka…*.
   - Kenttään kelpaa luku (`3`, `1,5`, `-2`), teksti, `kyllä` / `ei`, päivämäärä (`24.12.2026`, `tänään`, `huomenna`, `eilen`) ja teksti, jossa on viittauksia `{Nimi}`.
   - Valikosta valittu palikka antaa arvonsa toimintohetkellä.
-  - **Kenttä ei ole kaava.** Laskettu arvo (esim. `pisteet * 2`) tehdään Kaava-palikalla, josta vedetään nuoli Toiminnon kohtaan *arvo*. Silloin paneelissa lukee ”Arvo tulee nuolesta.”
+  - **Kenttä ei ole kaava.** Laskettu arvo (esim. `pisteet * 2`) tehdään Kaava-palikalla, jonka nuoli tulee Toiminnon kohtaan *arvo*. Nopein tapa on kentän alla oleva nappi **ƒ Arvo kaavasta** (Appi-appi 39): se tekee Kaavan, vetää nuolen kohtaan *arvo* ja avaa kaavan kirjoitettavaksi. Silloin paneelissa lukee ”Arvo tulee nuolesta.”, eikä nappia enää näy.
   - Poikkeus: **Lisää rivi** -toiminnon sarakekentät ovat oikeita kaavoja (ks. taulukko).
 - **Ominaisuudet:** `käytössä` (ohjattava: toiminnon voi kytkeä pois kaavalla tai nuolella). Siirry-toiminnolla ilman kohdetta myös `x` ja `y` (ohjattavat).
 - **Aika ja tila:** toiminto ei muista mitään itse. Se kirjoittaa kohteen käyttötietoon, joka säilyy tallennuksessa. Kumoa ei peru toimintojen tekemiä muutoksia (Kumoa koskee rakennetta).

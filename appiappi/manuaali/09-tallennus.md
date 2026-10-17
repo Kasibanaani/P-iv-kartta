@@ -41,7 +41,7 @@ Kaikki projektit hoidetaan yläpalkin vasemmasta reunasta: nappi, jossa lukee av
 | Avaa toinen projekti | Napauta projektin riviä listassa. Rivillä näkyy nimi ja ”N palikkaa · N näkymää”. Avoin projekti on korostettu |
 | Uusi projekti | Kirjoita kenttään *Uuden projektin nimi* ja paina **Luo** (tyhjä nimi = ”Uusi projekti”) |
 | Nimeä uudelleen | Kohdassa *Tämä projekti: …* muuta nimi ja paina **Nimeä** |
-| Kopio | **Monista**: tekee kopion nimellä ”… (kopio)” käyttötietoineen ja avaa sen |
+| Kopio | **Monista**: tekee kopion nimellä ”… (kopio)” käyttötietoineen ja avaa sen. Kopio tallentuu GitHubiin uutena tiedostona. |
 | Vie yksi projekti | **Vie tiedostona** (katso Vienti ja tuonti) |
 | Nollaa käyttö | **Tyhjennä käyttötiedot** (katso seuraava osio) |
 | Poista | **Poista projekti**, vahvista. Ei voi kumota |
@@ -96,7 +96,7 @@ Tuonti tunnistaa nämä muodot:
 - GitHub-muotoinen projektitiedosto `{app, ver, savedAt, projekti}` (esim. tekoälyn tekemä tai `master-tiedot`-reposta ladattu),
 - pelkkä projekti.
 
-Tuonti **lisää**, se ei korvaa. Jos samalla tunnisteella on jo projekti, tuotu saa uuden tunnisteen, ja molemmat jäävät. Laput, presetit ja suosikit lisätään vain, jos niitä ei vielä ole. Viimeinen tuotu projekti avautuu, ja appi kertoo ”Tuotu: N projektia”.
+Tuonti **lisää**, se ei korvaa. Jos samalla tunnisteella on jo projekti, tuotu saa uuden tunnisteen, ja molemmat jäävät. Laput, presetit ja suosikit lisätään vain, jos niitä ei vielä ole. Viimeinen tuotu projekti avautuu, ja appi kertoo ”Tuotu: N projektia”. Tuotu projekti tallentuu GitHubiin kuin uusi (vanha GitHub-kirjanpito ei kulje tiedoston mukana): jos samalla tunnisteella on jo tiedosto GitHubissa, tilanappiin tulee *GitHubissa uudempi*, ja valitset itse, kumpi jää (ks. *Uudemman version haku ja ristiriidat*).
 
 Virheilmoitukset: ”Tekstiä ei voitu lukea. Tarkista, että se on kokonaan mukana.” (rikkinäinen tai vajaa teksti) ja ”Tekstissä ei ole projekteja.”
 

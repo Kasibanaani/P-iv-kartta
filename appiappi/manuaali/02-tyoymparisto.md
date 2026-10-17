@@ -52,7 +52,7 @@ Avaa **projektin nimi ▾** yläpalkin vasemmasta reunasta. Ikkunassa *Projektit
 - **Uusi projekti**: kirjoita kenttään *Uuden projektin nimi* ja paina **Luo**. Ilman nimeä tulee ”Uusi projekti”. Uusi projekti aukeaa Näkymä-välilehdelle.
 - **Tämä projekti: nimi**:
   - **Nimeä**: kirjoita uusi nimi kenttään ja paina Nimeä.
-  - **Monista**: tekee kopion nimellä ”nimi (kopio)” ja avaa sen.
+  - **Monista**: tekee kopion nimellä ”nimi (kopio)” ja avaa sen. Kopio tallentuu GitHubiin omaksi uudeksi tiedostokseen.
   - **Vie tiedostona**: lataa tämän projektin tiedostoksi (`nimi.appiappi.json`).
   - **Tyhjennä käyttötiedot**: kysyy varmistuksen ja tyhjentää kirjoitetut tekstit, valinnat, listojen rivit ja aikajanan merkinnät. Rakenne säilyy. Kumoa ei palauta käyttötietoja.
   - **Poista projekti**: kysyy varmistuksen ja poistaa pysyvästi. Jos GitHub-tallennus on päällä, GitHubin kopio säilyy, ja sen saa takaisin asetusten napista *Hae uudet projektit*.
@@ -72,7 +72,7 @@ Avaa **projektin nimi ▾** yläpalkin vasemmasta reunasta. Ikkunassa *Projektit
 | Muisti- ja viestilaput | lappujen määrät, lista, *Hae vastaukset*, *Kopioi laput tekstinä* (ks. Laput) |
 | GitHub-tallennus | Repo, Avain, automaattinen tallennus, *Tallenna nyt*, *Hae GitHubista*, *Hae uudet projektit*, *Testaa yhteys* (luku [Tallennus](09-tallennus.md)) |
 
-Alimpana näkyy versio (Appi-appi ja moottorin versio).
+Alimpana näkyy versio: Appi-appi-numero ja tallennusmuodon versio, esim. ”Appi-appi 39 (entinen Pajakone, tallennusmuoto 8, …)”.
 
 ## Välilehdet: Näkymä, Logiikka ja Rinnakkain
 
@@ -98,7 +98,7 @@ Lukitessa näkymä siirtyy alkukohtaansa, jos sellainen on valittu (ks. Näkymä
 Kokeilussa appia käytetään oikeasti, mutta kopiolla käyttötiedoista: oikeat tiedot eivät muutu (Appi-appi 33).
 
 - **Aloitus:** yläpalkin **🧪 Kokeile**. Kokeilu alkaa kopiosta projektin nykyisistä käyttötiedoista (kirjoitetut tekstit, valinnat, laskurit, taulukon rivit, ketjujen ajotila). Näkymä lukittuu käyttöön, ja Logiikka-välilehdeltä siirrytään Näkymään.
-- **Koko kokeilun ajan** yläpalkin alla on oranssi raita: **Kokeilu** – *Oikeat tiedot eivät muutu.* (tietokoneella lisäksi *Rakenteen muutokset jäävät voimaan.*) ja nappi **Lopeta**. Yläpalkin nappi on silloin **⏹ Lopeta kokeilu**.
+- **Koko kokeilun ajan** yläpalkin alla on oranssi raita: **Kokeilu** – *Oikeat tiedot eivät muutu. Rakenteen muutokset jäävät voimaan.* ja nappi **Lopeta**. Kapealla näytöllä (puhelin) raidassa lukee lyhyesti *Vain rakenne tallentuu ⓘ*. Raidan tekstin napautus kertoo ilmoituksena, mitä kokeilu palauttaa ja mikä jää voimaan. Yläpalkin nappi on silloin **⏹ Lopeta kokeilu**.
 - **Kokeilussa** painikkeet, kentät, ketjut, taulukot ja kaavat toimivat tavallisesti (myös `taulu.eka` ja `taulu.vika` lukevat kokeilun rivejä). **✏️ Muokkaa** ja **🔒 Lukitse** toimivat kokeilun sisällä.
 - **Lopetus:** raidan **Lopeta** tai **⏹ Lopeta kokeilu**. Oikeat käyttötiedot palaavat, samoin lukitus ja välilehti, jotka olivat ennen kokeilua. Toisen projektin avaus lopettaa kokeilun samalla tavalla.
 - **Mikä ei muutu:** selaimen muistiin, GitHubiin, varmuuskopioon, projektin vientiin ja Kopioi-toiminnon kopioon menevät aina oikeat käyttötiedot. Jos appi suljetaan kesken kokeilun, kokeilu häviää.
@@ -396,6 +396,7 @@ Osio *Miksi?* selittää, miksi palikan arvo on mikä on: yläteksti ja puu osis
 ## Kumoa ja tee uudelleen
 
 - **↶ Kumoa** (⌘Z / Ctrl+Z) ja **↷** (⇧⌘Z tai ⌘Y). Ilman kumottavaa tulee ”Ei kumottavaa”.
+- Lukitulla Näkymä-välilehdellä (myös kokeilussa) Kumoa ei toimi: napit ovat piilossa, eivätkä ⌘Z ja ⌘Y tee mitään.
 - Kumoa koskee **rakennetta**: palikat, nuolet, asetukset, paikat, näkymät. Se ei palauta käyttötietoja (kirjoitetut tekstit, valinnat, listojen rivit), eikä Pistokkeet- ja Viitteet-valintoja.
 - Historiassa on enintään 80 askelta. Uusi muutos tyhjentää Tee uudelleen -historian. Projektin vaihto tyhjentää molemmat. Kumoaminen poistaa valinnan.
 - Kumoa palauttaa myös poistetun palikan viittauksineen.
@@ -484,8 +485,8 @@ Tietokoneella. ⌘ = Macin Command, Windowsissa Ctrl. Oikotiet eivät toimi, kun
 
 | Näppäin | Toiminto | Missä |
 |---|---|---|
-| ⌘Z | Kumoa | kaikkialla |
-| ⇧⌘Z tai ⌘Y | Tee uudelleen | kaikkialla |
+| ⌘Z | Kumoa | kaikkialla paitsi lukitulla Näkymä-välilehdellä |
+| ⇧⌘Z tai ⌘Y | Tee uudelleen | kaikkialla paitsi lukitulla Näkymä-välilehdellä |
 | ⌘C | Kopioi valitut | Logiikka ja Rinnakkain (logiikan palikat) |
 | ⌘V | Liitä | Logiikka ja Rinnakkain |
 | ⌘D | Monista (näkymä) tai toinen esiintymä (logiikka) | valittu palikka |

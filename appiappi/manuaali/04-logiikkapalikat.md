@@ -86,7 +86,7 @@ Kiinteä arvo, jonka kirjoitat itse: luku, teksti, kyllä/ei tai päivämäärä
 - **Kaavassa:** `viite` antaa arvon.
 - **Aika ja tila:** ei käyttötietoa.
 - **Esimerkki:** Arvo nimeltä *Raja*, arvo `7`. Kaavassa `uni > raja`.
-- **Huomio:** Yksikkö sekuntia, minuuttia tai tuntia tekee arvosta ajan: laskuissa se on sekunteina (Arvo `2`, yksikkö minuuttia = 120). Pikseliä ja prosenttia näkyvät vain perässä. Toiminnot (Aseta arvo, Lisää) eivät voi muuttaa Arvoa; muuttuvaan arvoon käytä Muistia.
+- **Huomio:** Yksikkö sekuntia, minuuttia tai tuntia tekee arvosta ajan: laskuissa se on sekunteina (Arvo `2`, yksikkö minuuttia = 120). Pikseliä ja prosenttia näkyvät vain perässä. Toiminnot (Aseta arvo, Lisää) eivät voi muuttaa Arvoa; muuttuvaan arvoon käytä Muistia. Paneelissa lukee sama: ”Toiminnot eivät muuta Arvoa. Jos arvo muuttuu käytössä (esim. pisteet), käytä Muistia.”
 
 ## Muisti (`muisti`)
 

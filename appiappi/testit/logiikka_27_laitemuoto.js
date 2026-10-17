@@ -8,7 +8,10 @@ A.deepStrictEqual([KK.LAITE.puhelinv.w,KK.LAITE.puhelinv.h],[844,390]);
 A.deepStrictEqual([KK.LAITE.puhelin.w,KK.LAITE.puhelin.h],[390,844]);
 A.deepStrictEqual([KK.LAITE.ipad.w,KK.LAITE.ipad.h],[820,1180]);
 A.deepStrictEqual([KK.LAITE.ipadv.w,KK.LAITE.ipadv.h],[1180,820]);
-A.strictEqual(KK.PAJA,'4');
+// Asetusten versioteksti (kartoitus 4, P13): KK.PAJA = TILA.md:n Valmiina-listan suurin Appi-appi-numero.
+var tila=require('fs').readFileSync(__dirname+'/../TILA.md','utf8'),suurin=0;
+tila.replace(/^- Appi-appi (\d+)(?:[a-z]*–(\d+))?/gm,function(m,a,b){suurin=Math.max(suurin,+a,+(b||0));});
+A.ok(suurin>=37);A.strictEqual(KK.PAJA,String(suurin),'KK.PAJA ('+KK.PAJA+') ei vastaa TILA.md:n uusinta versiota '+suurin);
 
 var P=KK.newProject('laite'),vw=P.views[0].id;
 A.strictEqual(KK.laite(P,vw),null,'uusi näkymä on vapaa');
