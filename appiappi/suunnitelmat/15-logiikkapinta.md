@@ -1,6 +1,6 @@
 # F30 Logiikkapinnan näkymä ja kaavan laajennus
 
-17.10.2026. **Emilin idea** (viesti 17.10. klo 9.06), tekoälyn jäsentämä. Merkinnät: *Emilin linjaus* = hänen sanansa, *ehdotus* = tekoälyn suositus, jonka Emilin jonopäätös kattaa, ellei kohtaa ole merkitty ⏸. **Kohdat 1–3 toteutettu Appi-appi 27:ssä, kohta 4 Appi-appi 28:ssa** (17.10.2026, toteutuksen täsmennykset kohtien lopussa); kohta 5 jonossa.
+17.10.2026. **Emilin idea** (viesti 17.10. klo 9.06), tekoälyn jäsentämä. Merkinnät: *Emilin linjaus* = hänen sanansa, *ehdotus* = tekoälyn suositus, jonka Emilin jonopäätös kattaa, ellei kohtaa ole merkitty ⏸. **Kohdat 1–3 toteutettu Appi-appi 27:ssä, kohta 4 Appi-appi 28:ssa ja kohta 5 Appi-appi 29:ssä** (17.10.2026, toteutuksen täsmennykset kohtien lopussa).
 
 ## Emilin linjaukset
 
@@ -50,11 +50,12 @@
 - Kaava pysyy tilana: `jos` valitsee arvon, se ei tee toimintoa. Tapahtumat ja toiminnot kuuluvat edelleen JOS-ikkunalle ja Toiminnolle.
 - *Toteutus (Appi-appi 28):* sana on funktio vain, kun sitä seuraa sulku (`jos(`, välilyönti sallittu); ilman sulkua sama sana on palikan viite, joten esim. palikka, jonka viite on `ja`, toimii ennallaan. `jos` laskee vain valitun osan (valitsematta jääneen osan virhe ei näy), `ja` ja `tai` laskevat kaikki osat, jotta virhe näkyy. Puuttuva tai tyhjä ehto ei päde (sama kuin ikkunoissa). Tyhjä osa käy (`jos(a;;b)`). Jokaisessa funktion osassa saa olla yksi vertailu; kaavan ylimmällä tasolla samoin. Pelkät sulut ovat edelleen virhe (`(a + 1) * 2`): laskujärjestys pysyy yksiselitteisenä ilman sulkuja, ja Miksi? voi kirjoittaa ehdon takaisin tekstiksi. Pilkku osien välissä antaa ohjeen käyttää puolipistettä; `jos(a; 1,2)` on desimaaliluku 1,2. Miksi? kertoo jokaisesta lasketusta `jos`-funktiosta, päteekö ehto ja kumpi osa valittiin (vain Kaava-palikalle; näkymäpalikoiden kaavakohdissa funktio toimii, mutta selitys ei kerro haarasta). Kirjoitettaessa ehdotusrivi tarjoaa `jos(`, `ja(` ja `tai(` kahden kirjaimen jälkeen.
 
-## 5. Ryhmäkehys (jonossa)
+## 5. Ryhmäkehys (toteutettu, Appi-appi 29)
 
 - Uusi logiikkapuolen palikka **Kehys**: ei logiikkaa, ei pistokkeita, ei arvoa. Vain reunaviiva, valinnainen nimi ja valinnainen kevyt sävy. Läpinäkyvyys on oletuksena täysi, tai sävyn voi valita valmiista vaaleista paletin väreistä.
 - Kehyksen sisään raahattu palikka liikkuu kehyksen mukana kuten ikkunassa, mutta kehys ei vaikuta laskentaan.
 - **Erikoispalikka** (PALIKKASAANNOT, osa B): ei arvoa eikä tapahtumia, koska se on rakentajan merkintä kuten lappu. Rekisteriin tulee rivi toteutuksen yhteydessä.
+- *Toteutus (Appi-appi 29):* nimeksi **Ryhmä** (kartoitus 2, M3; *Kehys* on jo näkymän koriste). Ryhmä on säiliö kuten ikkuna (veto, kasvu, tiivistys), mutta moottori ei näe sitä: sisältö on kuin ylimmällä tasolla. Siksi ryhmä on vain ylimmällä tasolla tai toisessa ryhmässä, ei ikkunassa eikä ketjussa (muuten sen sisältö putoaisi ikkunan laskennasta). Sävy on valinnainen (`sav` 0–7), oletuksena läpinäkyvä. Nimi näkyy, kun se on kirjoitettu. Poisto jättää sisällön. Ei Viite-kenttää paneelissa.
 
 ## 6. Suomenkielinen sääntö (idea, ei jonossa)
 
@@ -71,4 +72,4 @@
 - A2/A5: pistokkeiden ja viitteiden asetukset ovat näkymäasetuksia, eivät palikan ominaisuuksia, joten niitä ei ohjata logiikalla.
 - A7: JOS, JA ja TAI kaavassa poikkeavat ”vain ikkunat” -säännöstä Emilin nimenomaisella päätöksellä. PALIKKASAANNOT A7 päivitetään toteutuksen yhteydessä.
 - A8: monta reittiä samaan asiaan säilyy, eikä mitään poisteta.
-- B: Kehys on uusi erikoispalikka.
+- B: Ryhmä (ent. Kehys) on uusi erikoispalikka; rivi rekisterissä (Appi-appi 29).

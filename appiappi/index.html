@@ -409,6 +409,10 @@ textarea.fld{resize:none;flex:1}
 .pins.i .pt em{right:15px}.pins.o .pt em{left:15px}
 .ln:hover .pt em,.lw>.wh:hover~.pins .pt em,.ln.sel .pt em,.lw.sel>.pins .pt em,.linking .pt em{display:block}
 .lw{position:absolute;border-radius:18px;border:1.5px solid color-mix(in srgb,var(--wc) 45%,transparent);background:color-mix(in srgb,var(--wc) 7%,transparent);z-index:1}
+.lw.ry{--wc:var(--label3);border:1.5px solid var(--sep2);background:transparent}
+.lw.ry.sv{--wc:var(--hc);border-color:color-mix(in srgb,var(--hc) 40%,transparent);background:color-mix(in srgb,var(--hs) 55%,transparent)}
+.lw.ry.col{background:var(--cell)}.lw.ry .ryn{color:var(--label3);font-weight:600}
+.sw8 .ry0{background:var(--cell);color:var(--label3);font-weight:700}
 .lw.sel{border-color:var(--accent);box-shadow:0 0 0 2.5px color-mix(in srgb,var(--accent) 30%,transparent)}
 .lw.drop{background:color-mix(in srgb,var(--wc) 16%,transparent);border-style:dashed}
 .lw>.wh{position:absolute;left:0;right:0;top:0;height:34px;display:flex;align-items:center;gap:6px;padding:0 10px 0 12px;cursor:grab}
@@ -1034,6 +1038,10 @@ var K={
   ikkuna:{n:'Ikkuna',g:'lg',ic:'( )',d:{m:'and',n:1,j:'',pakota:false,muuten:false,off:false}},
   /* Versio 6: tapahtumaketju. Ketju on ikkuna, jonka sisällä palikat ovat tapahtumia, ja ne etenevät viivoja pitkin. */
   ketju:{n:'Ketju',g:'lg',ic:'⛓',d:{uusi:'ohita',off:false}},
+  /* Appi-appi 29 (F30 kohta 5): ryhmä. Pelkkä rakentajan merkintä: reunaviiva, valinnainen nimi ja sävy (sav 0–7). Ei arvoa,
+     ei kohtia eikä laskentaa. Sisältö liikkuu ryhmän mukana, mutta moottorille ryhmän sisällä oleva on kuin ylimmällä tasolla,
+     siksi ryhmä on vain ylimmällä tasolla tai toisessa ryhmässä (ei ikkunan eikä ketjun sisällä). */
+  ryhma:{n:'Ryhmä',g:'lg',ic:'▭',erik:'Rakentajan merkintä: ei arvoa, ei kohtia eikä laskentaa. Sisältö toimii kuin ryhmää ei olisi.',d:{}},
   ajastin:{n:'Ajastin',g:'lg',ic:'⏱',ch:1,d:{kesto:10,yks:'s',tapa:'kesto',klo:'',off:false}},
   haara:{n:'Ehto',g:'lg',ic:'◇',ch:1,d:{o:'',off:false}},
   /* Versio 7: ketju päätöspuuksi ja peleihin. */
@@ -1296,7 +1304,7 @@ function resetOmi(P,id,key){if(!key){delete P.st['fxt:'+id];delete P.st['fxk:'+i
 /* Palikka pois käytöstä: kenttä off, tai ominaisuus käytössä ohjattuna tai asetettuna. */
 function isOff(P,b,ctx){if(!b)return true;if(!omActive(P,b,'kaytossa'))return !!b.off;var v=Ev(P,ctx).omi(b.id,'kaytossa');return isErr(v)?!!b.off:!truth(v);}
 /* Ikkunan kaltaiset: tavallinen ikkuna (sulut) ja ketju. Niillä on yksi esiintymä, leveys ja korkeus, ja palikoita voi laittaa sisään. */
-function isWin(b){return !!b&&(b.k==='ikkuna'||b.k==='ketju');}
+function isWin(b){return !!b&&(b.k==='ikkuna'||b.k==='ketju'||b.k==='ryhma');}
 /* Ketjun palikat eli tapahtumat: ne etenevät ketjun sisällä viivoja pitkin. */
 var STEPK={tee:1,ajastin:1,haara:1,odota:1,monihaara:1,ktulos:1,lopeta:1,arpa:1,toista:1,ilmesty:1,kuva:1,anim:1,nvaihto:1};
 /* Efektit: tapahtumat, jotka näkyvät käyttönäkymässä (teksti ilmestyy, kuva vaihtuu, animaatio, näkymänvaihto).
@@ -2204,6 +2212,7 @@ function addNode(P,pid,x,y,g){
   var n={id:'n'+(++P.seq),p:pid,x:Math.round(x||0),y:Math.round(y||0),g:g||''};
   if(b.k==='ikkuna'){n.w=260;n.h=150;}
   if(b.k==='ketju'){n.w=340;n.h=200;}
+  if(b.k==='ryhma'){n.w=300;n.h=180;}
   P.lg.n.push(n);return n;
 }
 function nodeOf(P,nid){for(var i=0;i<P.lg.n.length;i++)if(P.lg.n[i].id===nid)return P.lg.n[i];return null;}
@@ -2313,6 +2322,7 @@ function repair(P){
     if(b.vr&&b.vr.r&&!P.b[b.vr.r]&&!isGone(P,b.vr.r))b.vr=null;
     if(b.hk!==undefined&&!(b.hk&&typeof b.hk==='object'&&b.hk.r&&(P.b[b.hk.r]||isGone(P,b.hk.r))))delete b.hk;
     if(b.k==='kaava'&&typeof b.f!=='string')b.f='';
+    if(b.k==='ryhma'&&b.sav!==undefined&&!(b.sav===Math.floor(b.sav)&&b.sav>=0&&b.sav<=7))delete b.sav;
     if(b.sarjat)b.sarjat=b.sarjat.filter(function(s){return s&&(P.b[s.r]||isGone(P,s.r));});
     if(b.lahteet)b.lahteet=b.lahteet.filter(function(r){return P.b[r]||isGone(P,r);});
     if(b.vw&&!vids[b.vw])b.vw='';
@@ -2453,7 +2463,7 @@ function repair(P){
   var seenWin={};
   P.lg.n=P.lg.n.filter(function(n){
     var b=P.b[n.p];if(!b)return false;
-    if(isWin(b)){if(seenWin[b.id])return false;seenWin[b.id]=1;n.w=n.w||(b.k==='ketju'?340:260);n.h=n.h||(b.k==='ketju'?200:150);}
+    if(isWin(b)){if(seenWin[b.id])return false;seenWin[b.id]=1;n.w=n.w||(b.k==='ketju'?340:b.k==='ryhma'?300:260);n.h=n.h||(b.k==='ketju'?200:b.k==='ryhma'?180:150);}
     /* Appi-appi 27: venytetyn Kaavan koko solmussa (kw, kh). */
     ['kw','kh'].forEach(function(k){if(n[k]!==undefined&&!(b.k==='kaava'&&typeof n[k]==='number'&&n[k]>0))delete n[k];});
     return true;
@@ -2462,6 +2472,8 @@ function repair(P){
   P.lg.n.forEach(function(n){var g=nids[n.g];if(n.g&&(!g||!isWin(P.b[g.p])||g===n))n.g='';});
   // ketjua ei laiteta toisen ketjun sisään
   P.lg.n.forEach(function(n){var g=nids[n.g];if(g&&P.b[n.p].k==='ketju'&&P.b[g.p].k==='ketju')n.g='';});
+  // Appi-appi 29: ryhmä vain ylimmällä tasolla tai toisessa ryhmässä
+  P.lg.n.forEach(function(n){var g=nids[n.g];if(g&&P.b[n.p].k==='ryhma'&&P.b[g.p].k!=='ryhma')n.g='';});
   // sisäkkäisyyden kehät pois
   P.lg.n.forEach(function(n){var seen={},c=n;while(c&&c.g){if(seen[c.id]){n.g='';break;}seen[c.id]=1;c=nids[c.g];}});
   P.lg.l.forEach(function(l){var f=nids[l.f];var fb=f&&P.b[f.p];if(fb&&l.fp==='m'&&(fb.k==='jos'||fb.k==='ikkuna'))fb.muuten=true;});
@@ -4734,7 +4746,7 @@ var PAL_UI=[
   ['Koristeet',[['muoto',{laji:'laatikko'},'Laatikko','▢'],['muoto',{laji:'ympyra'},'Ympyrä','◯'],['muoto',{laji:'lappu',hue:3},'Lappu','▤'],['muoto',{laji:'kehys',hue:0},'Kehys','⬚'],['merkki',{kk:'keski'}],['alue'],['reitti',{},'Reitti','〰']]]
 ];
 /* Vihjetekstit: mitä palikka tekee, selkeällä suomella. Näkyvät paletin vihjeenä, pikakatselussa ja paneelin otsikossa. */
-var HINT={toistin:'Sama kortti jokaiselle riville: kehyksen ensimmäiseen korttiin vedetyt palikat toistetaan, kun rivit tuodaan nuolella Tietotaulukosta tai Rivijoukosta. Rivin muuttuessa korttien määrä muuttuu itsestään.',
+var HINT={ryhma:'Kokoaa palikoita yhteen reunaviivan sisään, nimellä ja halutessa sävyllä. Ei laske mitään: sisältö toimii kuin ryhmää ei olisi, mutta liikkuu ryhmän mukana.',toistin:'Sama kortti jokaiselle riville: kehyksen ensimmäiseen korttiin vedetyt palikat toistetaan, kun rivit tuodaan nuolella Tietotaulukosta tai Rivijoukosta. Rivin muuttuessa korttien määrä muuttuu itsestään.',
   mittari:'Näyttää minkä tahansa luvun reaaliajassa: lukuna, palkkina, pylväänä, renkaana, kaarena tai pisteinä (esim. aika, pisteet, elämät, nopeus). Arvo tulee nuolesta tai kaavasta.',
   kello:'Mittaa kulunutta aikaa sekunteina: käynnistä, pysäytä ja nollaa tapahtumilla, tai anna ehto (käy kun). Kulunut aika elää reaaliajassa, esim. Monitoriin.',
   kerros:'Näkymän kerros logiikkaan: näkyy, estää alempien käytön, himmennys ja läpinäkyvyys. Esim. valikko, joka avautuu painikkeesta ja estää muun käytön.',
@@ -4788,6 +4800,7 @@ function renderPal(){
     h+='</div><div class="pt-h">Ikkunat</div><div class="chips">';
     [['and',4],['or',6],['one',7],['min',3],['max',3],['eq',3],['not',1],['cnt',3],['sum',2],['avg',2],['maxv',2],['minv',2]].forEach(function(m){h+=chipHTML('ikkuna',{m:m[0]},KK.WM[m[0]],'( )',m[1]);});
     h+=chipHTML('ikkuna',{m:'and',j:'jos'},'JOS-ikkuna','?',4)+chipHTML('ikkuna',{m:'and',j:'kun'},'KUN-ikkuna','⚡',5);
+    h+='</div><div class="pt-s">Järjestys</div><div class="chips">'+chipHTML('ryhma',{},'Ryhmä','▭',0);
     h+='</div><div class="pt-h">Ketju</div><div class="chips">'+chipHTML('ketju',{},'Ketju','⛓',1)+'</div>';
     h+='<div class="pt-s">Odotus</div><div class="chips">'+chipHTML('ajastin',{},'Ajastin','⏱',5)+chipHTML('odota',{},'Odota, kunnes','⏳',5)+'</div>';
     h+='<div class="pt-s">Haarat</div><div class="chips">'+chipHTML('haara',{},'Ehto','◇',4)+chipHTML('monihaara',{},'Monta haaraa','⑃',4)+chipHTML('arpa',{},'Arpa','⚄',7)+chipHTML('toista',{},'Toista','↻',5)+'</div>';
@@ -5497,7 +5510,7 @@ function renderLogicStage(){
   if(S.kEdit&&!$('#kedit'))S.kEdit=null;S.depC=null;$('#lviewc').innerHTML=lviewHTML();
   var E=ev(),els=$('#lels'),h='';var H=S.hidden=hiddenSet();S.issC={};
   var wins=P.lg.n.filter(function(n){return KK.isWin(P.b[n.p])&&!H[n.id];}).sort(function(a,b){return depthOf(a)-depthOf(b);});
-  wins.forEach(function(n){h+=P.b[n.p].k==='ketju'?chainHTML(n,E):winHTML(n,E);});
+  wins.forEach(function(n){var wk=P.b[n.p].k;h+=wk==='ketju'?chainHTML(n,E):wk==='ryhma'?ryhmaHTML(n):winHTML(n,E);});
   P.lg.n.forEach(function(n){var b=P.b[n.p];if(b&&!KK.isWin(b)&&!H[n.id])h+=nodeHTML(n,b,E);});
   els.innerHTML=h;S.issC=null;
   applyCam($('#lvp'),$('#lworld'),camL());
@@ -5648,6 +5661,14 @@ function winHTML(n,E){
     '<span class="wname">'+(b.nmSet||col?esc(b.nm):'')+' <span class="wvt">'+esc(b.vt)+'</span>'+(col?' <small>· '+cnt+' sisällä</small>':'')+'</span>'+(b.pakota&&b.m==='one'?'<span class="wj" title="Valinta poistaa muut">⇄</span>':'')+(b.off?'<span class="offt">pois</span>':'')+valChip(E,b,b.id)+
     '<button class="wcol" data-col title="'+(col?'Avaa ikkuna (tai kaksoisnapauta)':'Tiivistä ikkuna pieneksi')+'">'+(col?'⤢':'–')+'</button></div>'+pinsHTML(b,n,false,hid)+(col?'':'<i class="rs"></i>')+'</div>';
 }
+/* Appi-appi 29: ryhmä. Reunaviiva, nimi (tai himmeä Ryhmä) ja valinnainen sävy; ei kohtia eikä arvoa. */
+function ryhmaHTML(n){
+  var b=P.b[n.p],col=!!n.col,sv=typeof b.sav==='number';
+  var cnt=col?descendants(n.id).length:0;
+  return '<div class="lw ry'+(sv?' sv '+hueCls(b.sav):'')+(col?' col':'')+'" data-nid="'+n.id+'" style="left:'+n.x+'px;top:'+n.y+'px'+(col?'':';width:'+n.w+'px;height:'+n.h+'px')+'">'+
+    '<div class="wh"><span class="wname'+(b.nmSet?'':' ryn')+'">'+esc(b.nmSet?b.nm:'Ryhmä')+(col?' <small>· '+cnt+' sisällä</small>':'')+'</span>'+
+    '<button class="wcol" data-col title="'+(col?'Avaa ryhmä (tai kaksoisnapauta)':'Tiivistä ryhmä pieneksi')+'">'+(col?'⤢':'–')+'</button></div>'+(col?'':'<i class="rs"></i>')+'</div>';
+}
 /* Ketjuikkuna: punainen reuna, nimi aina näkyvissä, tila ja ▶-napilla kokeilu. */
 function chainHTML(n,E){
   var b=P.b[n.p],col=!!n.col,cs=P.st[b.id]||{},run=!!cs.run;
@@ -5726,9 +5747,9 @@ function nodeRect(n){
 function windowAt(cx,cy,exclude){
   var vp=$('#lvp');if(!vp)return null;var w=toWorld(vp,camL(),cx,cy);
   var ex={};if(exclude){ex[exclude]=1;descendants(exclude).forEach(function(n){ex[n.id]=1;});}
-  var xn=exclude&&KK.nodeOf(P,exclude),xk=xn&&P.b[xn.p]&&P.b[xn.p].k==='ketju';
+  var xn=exclude&&KK.nodeOf(P,exclude),xk=xn&&P.b[xn.p]&&P.b[xn.p].k==='ketju',xr=xn&&P.b[xn.p]&&P.b[xn.p].k==='ryhma';
   var best=null,bd=-1,H=S.hidden||{};
-  P.lg.n.forEach(function(n){var b=P.b[n.p];if(!b||!KK.isWin(b)||ex[n.id]||n.col||H[n.id])return;if(xk&&b.k==='ketju')return;
+  P.lg.n.forEach(function(n){var b=P.b[n.p];if(!b||!KK.isWin(b)||ex[n.id]||n.col||H[n.id])return;if(xk&&b.k==='ketju')return;if(xr&&b.k!=='ryhma')return;
     if(w.x>=n.x&&w.x<=n.x+n.w&&w.y>=n.y&&w.y<=n.y+n.h){var d=depthOf(n);if(d>bd){bd=d;best=n;}}});
   return best;
 }
@@ -6156,12 +6177,12 @@ function blockInsp(b){
   h+='<div class="ih '+hueCls(isUI(b)?E.hue(b.id):({lasku:2,vert:7,jos:4,kun:4,haku:4,tee:1,ikkuna:4,ketju:1,tanaan:5,pvmosa:5,satu:3,kayra:3}[b.k]||0))+'"><span class="ci">'+esc(icon(b))+'</span><div style="min-width:0;flex:1"><b>'+esc(b.nm)+'</b><small>'+esc(kindName(b))+vtxt+'</small></div></div>';
   if(K[b.k]&&K[b.k].erik)h+='<div class="erik"><b>✦ Erikoispalikka.</b> '+esc(K[b.k].erik)+'</div>';
   var hi0=!isUI(b)?hintOf(b.k,b):'';if(hi0)h+='<div class="khint">'+esc(hi0)+'</div>';
-  h+=section('',fText('Nimi','nm',b.nm,isUI(b)?'Nimi kertoo ajatuksen. Se ei näy käyttäjälle, ellet laita sitä tekstiin.':'Nimetty palikka näkyy Palikat-listassa, ja siihen voi viitata muualta.')+
-    F('Viite','<input data-k="vt" class="kfx" value="'+esc(b.vt)+'" spellcheck="false" autocapitalize="off" autocomplete="off">','<span id="vterr" class="errt"></span>Lyhyt nimi kaavoihin ja teksteihin: kaavassa <code>'+esc(b.vt)+' &gt; 7</code>, tekstissä <code>{'+esc(b.vt)+'}</code>. '+(b.vtSet?'Itse asetettu. Tyhjäksi = takaisin nimestä.':'Seuraa nimeä, kunnes kirjoitat oman.'))+
+  h+=section('',fText('Nimi','nm',b.nm,isUI(b)?'Nimi kertoo ajatuksen. Se ei näy käyttäjälle, ellet laita sitä tekstiin.':b.k==='ryhma'?'Kirjoitettu nimi näkyy ryhmän ylälaidassa ja Palikat-listassa.':'Nimetty palikka näkyy Palikat-listassa, ja siihen voi viitata muualta.')+
+    (b.k==='ryhma'?'':F('Viite','<input data-k="vt" class="kfx" value="'+esc(b.vt)+'" spellcheck="false" autocapitalize="off" autocomplete="off">','<span id="vterr" class="errt"></span>Lyhyt nimi kaavoihin ja teksteihin: kaavassa <code>'+esc(b.vt)+' &gt; 7</code>, tekstissä <code>{'+esc(b.vt)+'}</code>. '+(b.vtSet?'Itse asetettu. Tyhjäksi = takaisin nimestä.':'Seuraa nimeä, kunnes kirjoitat oman.')))+
     F('Lisätieto','<textarea data-k="info" rows="2" placeholder="Vapaa selitys, ei vaikuta mihinkään">'+esc(b.info||'')+'</textarea>','Näkyy pikakatselussa, kun viet hiiren palikan päälle.'));
   BRK=null;h+=brkSection(b);
   if(isUI(b))h+=uiInsp(b,E);else h+=lgInsp(b,E,node);
-  if(node&&!KK.chainOfNode(P,node)&&b.k!=='ketju')h+=section('Ulkonäkö logiikassa',fSegs('Pistokkeet','lpin',b.lpin||'',[['','Kuten muut ('+(P.lg.pin==='h'?'piilossa':'näkyvät')+')'],['n','Näkyvät'],['h','Piilossa']],
+  if(node&&!KK.chainOfNode(P,node)&&b.k!=='ketju'&&b.k!=='ryhma')h+=section('Ulkonäkö logiikassa',fSegs('Pistokkeet','lpin',b.lpin||'',[['','Kuten muut ('+(P.lg.pin==='h'?'piilossa':'näkyvät')+')'],['n','Näkyvät'],['h','Piilossa']],
     'Piilotus ei poista nuolia: ne näkyvät himmeinä ja toimivat. Uuden nuolen voi pudottaa palikan päälle, ja valikko kysyy kohdan. Yleinen valinta on logiikan vasemmassa alakulmassa.')+
     '<div class="ibs"><button class="ib" data-lpinall="1">Sama kaikille tämän lajin palikoille</button></div>');
   h+=omSection(b,E)+whySection(b,E)+relSection(b);
@@ -6176,7 +6197,7 @@ function blockInsp(b){
   if(S.sel.t==='n'&&isUI(b)&&node){btns='<button class="ib" data-do="inst">Lisää toinen esiintymä</button><button class="ib" data-do="delnode">Poista logiikasta</button><button class="ib" data-do="toview">Näytä näkymässä</button><button class="ib" data-do="preset">Tallenna presetiksi…</button>';}
   h+='<div class="ibs">'+btns+'</div>';
   if(node&&hasValue(b)&&!KK.isWin(b))h+='<div style="margin-top:12px">'+fCheck('Käänteinen tässä kohdassa (EI): kyllä ↔ ei','nnot',node.not)+'</div>';
-  if(node&&KK.isWin(b))h+='<div style="margin-top:12px">'+fCheck('Tiivistetty: sisältö piiloon, ikkuna pieneksi','ncol',node.col)+'</div>';
+  if(node&&KK.isWin(b))h+='<div style="margin-top:12px">'+fCheck('Tiivistetty: sisältö piiloon, '+(b.k==='ryhma'?'ryhmä':'ikkuna')+' pieneksi','ncol',node.col)+'</div>';
   return h;
 }
 function uiInsp(b,E){
@@ -6819,6 +6840,9 @@ function lgInsp(b,E,node){
     case 'valitse':h+=section('VALITSE',fValue('Arvo, kun ehto pätee','a',b,'Tyhjä = kyllä.')+fValue('Arvo muuten','b',b,'Tyhjä = ei. Vie ehto nuolella kohtaan ”ehto”. VALITSE ei tee mitään, se vain antaa arvon.'));break;
     case 'haku':h+=hakuInsp(b,E);break;
     case 'kun':h+=section('KUN',fCheck('Käytössä','on',!b.off)+'<div class="help">Ilman tapahtumanuolta KUN laukeaa, kun ehto alkaa päteä. Tapahtumanuolen kanssa se päästää tapahtuman läpi vain, jos ehto pätee juuri silloin.</div>')+qaSection(b,'e','Silloin','Tehdään, kun KUN laukeaa.');break;
+    case 'ryhma':{var sh='<div class="sw8"><button class="ry0'+(typeof b.sav==='number'?'':' on')+'" data-sw="sav" data-v="-1" title="Ei sävyä">∅</button>';
+      for(var ri=0;ri<8;ri++)sh+='<button class="h'+ri+(b.sav===ri?' on':'')+'" data-sw="sav" data-v="'+ri+'" title="Sävy '+(ri+1)+'"></button>';
+      h+=section('Ryhmä',F('Sävy',sh+'</div>')+'<div class="help">Vedä palikoita, ikkunoita ja ketjuja ryhmän sisään, niin ne liikkuvat sen mukana. Ryhmä ei vaikuta laskentaan. Ryhmän voi laittaa toiseen ryhmään, mutta ei ikkunaan eikä ketjuun. Poisto jättää sisällön paikalleen.</div>');break;}
     case 'ikkuna':
       h+=section('Ikkuna',fSelect('Miten sisältö yhdistyy','m',b.m,Object.keys(KK.WM).map(function(m){return [m,KK.WM[m]];}))+((b.m==='min'||b.m==='max'||b.m==='eq')?fNum('Montako','n',b.n):'')+
         fSelect('Toimii myös','j',b.j||'',[['','pelkkänä tuloksena'],['jos','JOS: tapahtumat NIIN ja MUUTEN'],['kun','KUN: päästää tapahtuman läpi']])+
@@ -7594,7 +7618,7 @@ $('#insp').addEventListener('click',function(e){
     afterInsp(true);return;}
   if(t.hasAttribute('data-sw')){var k2=t.getAttribute('data-sw'),v2=+t.getAttribute('data-v');pushUndo();
     if(k2==='dhue'&&T&&T.d){T.d.hue=v2;save();renderStage();renderInsp();return;}
-    if(T&&T.b){T.b[k2]=v2;afterInsp(true);}return;}
+    if(T&&T.b){if(v2<0)delete T.b[k2];else T.b[k2]=v2;afterInsp(true);}return;}
   if(t.hasAttribute('data-ksm')&&T&&T.b&&Array.isArray(T.b.sarja)){var ka=t.getAttribute('data-ksm'),ki=+t.getAttribute('data-i'),sa=T.b.sarja;if(!(ki>=0&&ki<sa.length))return;pushUndo();
     if(ka==='x')sa.splice(ki,1);else{var kj=ka==='u'?ki-1:ki+1;if(kj<0||kj>=sa.length)return;var tmp=sa[ki];sa[ki]=sa[kj];sa[kj]=tmp;}afterInsp(true);return;}
   if(t.hasAttribute('data-rlrm')&&T&&T.b){pushUndo();var kk=t.getAttribute('data-rlrm');T.b[kk].splice(+t.getAttribute('data-i'),1);afterInsp(true);return;}

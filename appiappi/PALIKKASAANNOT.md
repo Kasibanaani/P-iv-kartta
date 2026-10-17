@@ -48,6 +48,7 @@ Tila: **ehdokas** = havaittu, arvioimatta; **arvioitu** = kartoitus pitää poik
 | Kaavio, Monitori, Reitti, Kuva (`kaavio`, `mittari`, `reitti`, `pkuva`) | Ei arvoa ulos (A4) | Pelkkä esitys; Monitorin arvo on ohjattava ominaisuus | arvioitu |
 | Toistin (`toistin`) | Vain kohdat *näkyy kun* ja *rivit* (A5) | Kortit ovat sen sisällä. Harmaana, vaihtoväri ja siirto puuttuvat ilman syytä (L5). | osin korjattava |
 | Kerros, Kamera (`kerros`, `kamera`) | Logiikkapalikka ohjaa näkymää; osa ominaisuuksista ei ohjattavissa | Näkymän kerros ja zoomaus logiikkaan; laajuus `TILA.md`:n avoimissa kysymyksissä | arvioitu |
+| Ryhmä (`ryhma`) | Ei arvoa, ei kohtia, ei tapahtumia eikä ominaisuuksia (A2, A4, A10). Vain ylimmällä tasolla tai toisessa ryhmässä. | Rakentajan merkintä kuten lappu: kokoaa ja nimeää, ei laske. Sisältö toimii kuin ryhmää ei olisi (Appi-appi 29, F30 kohta 5). | päätetty (suunnitelma 15, Emilin jonopäätös) |
 
 ## Suunnitelman kohta Linjakkuus
 
