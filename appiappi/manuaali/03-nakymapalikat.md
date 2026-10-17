@@ -41,7 +41,7 @@ Paneeli on ylhäältä alas suunnilleen tässä järjestyksessä:
 | **Arvo, kun valittu** | Painike (ei kertapainallus), Valintaruutu, Kytkin. |
 | **Näkyvyys** | Näkyy kun, harmaana kun, syy. |
 | **Väri** | Väri, vaihtoväri, vaihtovärin ehto, läpinäkyvyys. |
-| **Animointi** | Ilmestyy, katoaa, kesto, pehmeys (kiinni, kun mitään ei ole valittu). Ks. alla. |
+| **Animointi** | Ilmestyy, katoaa, kesto, pehmeys, arvo vaihtuu, paikka vaihtuu (kiinni, kun mitään ei ole valittu). Ks. alla. |
 | **Este ja osuma-alue** | Este, osuma-alue, massa, kimmoisuus (luku [Maailma ja liike](08-maailma-ja-liike.md)). |
 | **Käyttöraahaus** | Raahattava käytössä (kiinni oletuksena). |
 | **Paikka ja koko** | X, Y, Leveys, Korkeus; Näkymä (jos näkymiä on monta); laitenäkymässä *Laitteen ruudussa* -napit ja *Rullausvauhti*; *Kerros* (jos kerroksia on monta); *Monista* (N kpl alle/viereen tai ruudukoksi). |
@@ -84,21 +84,27 @@ Muokkaustilassa piilotettu palikka näkyy haaleana, jotta sitä voi muokata.
 
 ## Animointi-osio
 
-Miltä palikka näyttää, kun se tulee näkyviin tai katoaa (Appi-appi F29, vaihe 1). Avattava osio *Väri*-osion alla; kiinni, kun mitään ei ole valittu.
+Miltä palikka näyttää, kun se tulee näkyviin, katoaa, vaihtaa arvoa tai siirtyy (Appi-appi F29, vaiheet 1 ja 2). Avattava osio *Väri*-osion alla; kiinni, kun mitään ei ole valittu.
 
 - **Ilmestyy:** *Projektin oletus* (suluissa, mikä se on), *töks*, *häivytys*, *liuku ylhäältä*, *liuku alhaalta*, *liuku vasemmalta*, *liuku oikealta*, *kasvu*, *pomppu*.
 - **Katoaa:** *Projektin oletus*, *Sama kuin ilmestyy* tai jokin samoista tavoista. Katoaminen on ilmestymisen peilikuva: *liuku ylhäältä* katoaa ylös.
 - **Kesto (s):** tyhjä = projektin oletus (ilman oletusta 0,25 s). 0 = töks, enintään 10 s. Pilkku käy (`0,4`).
 - **Pehmeys:** *Oletus*, *Pehmeä* (hidastuu loppua kohti), *Tasainen*, *Joustava* (menee hiukan yli ja palaa).
+- **Arvo vaihtuu** (Appi-appi 42): *Projektin oletus*, *töks*, *ristihäivytys* (vanha sisältö häipyy, uusi tulee tilalle), *luku rullaa* (vanha liukuu pois ja uusi tulee tilalle; kasvava luku ylöspäin, pienenevä alaspäin). Vain palikoilla, jotka näyttävät arvon: Teksti, Muoto ja Monitori (kaikki kolme tapaa), Kuva, Painike ja Ilmoitus (töks ja ristihäivytys). Syötekentillä (Tekstikenttä, Lukukenttä, Säädin, Valintaruutu …) ei ole tätä kohtaa. Luku rullaa hakee suunnan ensimmäisestä luvusta tekstissä; ilman lukua se rullaa ylöspäin.
+- **Paikka vaihtuu** (Appi-appi 42): *Projektin oletus*, *töks*, *liukuu*. Kun Aseta-toiminto, nuoli tai kaava siirtää palikan (`x`, `y`), palikka liukuu vanhasta kohdasta uuteen. Kaikilla näkymäpalikoilla.
+- Kesto ja pehmeys ovat yhteiset kaikille neljälle.
 
 Projektin oletus asetetaan kohdassa **⚙︎ Asetukset → Projektin animointi** (luku [Työympäristö](02-tyoymparisto.md)). Ilman oletusta ja omaa valintaa palikka on töks, kuten ennen.
 
 Säännöt:
 - **Pelkkä näyttö.** Animaatio ei muuta palikan paikkaa, kokoa, osuma-aluetta eikä mitään logiikan arvoa. `.näkyy` vaihtuu heti: piilotettu palikka ei ota napautuksia, vaikka se vielä häipyy, ja näkyviin tuleva painike toimii heti.
 - **Keskeytys kääntyy:** jos palikka tulee takaisin kesken katoamisen (tai päinvastoin), animaatio kääntyy siitä kohdasta, ei hyppää.
-- Koskee näkyvyyden muutoksia: *näkyy kun* (asetus, nuoli tai kaava), käytössä piilotettu kerros ja Kerros-palikka. Ei koske harmaaksi muuttumista, arvon vaihtumista, liikettä, raahausta eikä kameraa (vaihe 2 tuo arvon vaihtumisen myöhemmin).
+- Ilmestyy ja katoaa koskevat näkyvyyden muutoksia: *näkyy kun* (asetus, nuoli tai kaava), käytössä piilotettu kerros ja Kerros-palikka. Ei koske harmaaksi muuttumista.
+- **Paikka:** oikea paikka (`x`, `y`, osuma-alue, törmäykset) on uusi heti; vain kuva liukuu perässä. Liikkeen ohjaama palikka, käyttöraahaus, kamera ja Toistimen kortin palikat eivät liu'u.
+- **Uusin voittaa:** jos arvo tai paikka vaihtuu uudestaan ennen kuin edellisestä muutoksesta on kulunut kesto, uusi näkyy heti ilman animaatiota. Siksi jatkuva muutos (Muutos ajassa, Sekuntikello, Liike) pysyy töksinä eikä puuroudu.
+- Arvo vaihtuu ei animoi siirtymää muokkauksesta käyttöön eikä palikan ilmestymistä (silloin ilmestyy-tapa).
 - Toistimen korttien palikat animoituvat samoin, mutta muut kortit eivät liu'u tilalle.
-- Ketjun efekti (Animaatio, Teksti ilmestyy, Kuva vaihtuu) voittaa sillä kertaa: se keskeyttää palikan oman animaation.
+- Ketjun efekti (Animaatio, Teksti ilmestyy, Kuva vaihtuu) voittaa sillä kertaa: se keskeyttää palikan oman animaation, ja efektin aikana arvo ja paikka vaihtuvat töksinä.
 - **Vähennä liikettä** (iPhonen asetus *Käyttöapu → Liike*): kaikki palikoiden animoinnit ovat töks. Ketjun efekteistä jää silloin vain häivytys: Animaatio-efektin liike ei näy, ja Kuva vaihtuu- ja Näkymänvaihto-efektien liuku on häivytys.
 - Toimii vain käytössä (🔒 tai 🧪), ei muokatessa.
 
@@ -163,6 +169,8 @@ Kaikilla näkymäpalikoilla (paitsi Sijainti, Alue, Toistin) on nämä:
 | `.animointi.katoaa` | valinta | kyllä | `sama kuin ilmestyy` (oletus) tai jokin ilmestymisen tavoista (numerolla 1 = sama, 2–9 tavat; ohjaus hyväksyy myös `sama`) |
 | `.animointi.kesto` | luku 0–10 | kyllä | sekunteina, oletus 0,25; 0 = töks |
 | `.animointi.pehmeys` | valinta | kyllä | `pehmeä` (oletus), `tasainen`, `joustava` |
+| `.animointi.arvo` | valinta | kyllä | vain Teksti, Muoto, Monitori: `töks` (oletus), `ristihäivytys`, `luku rullaa` (1–3); Kuva, Painike, Ilmoitus: `töks`, `ristihäivytys` (1–2). Projektin oletus *luku rullaa* on näillä ristihäivytys |
+| `.animointi.paikka` | valinta | kyllä | `töks` (oletus), `liukuu` (1–2) |
 | `.ruutux`, `.ruutuy` | luku | ei (laskettu) | keskipisteen ruutu kerroksen ruudukossa (1 = ensimmäinen); tyhjä ilman ruudukkoa |
 
 Näkyvyyttä, tilaa, tekstiä ja vaihtoväriä ei ohjata Ominaisuuksista vaan omista kohdistaan (*näkyy kun*, *harmaana kun*, *teksti*, *vaihtoväri kun*). Monet ominaisuudet hyväksyvät myös muita nimiä (esim. `vari`, `lapinakyvyys`, `kulma`).

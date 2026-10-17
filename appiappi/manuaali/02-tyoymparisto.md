@@ -66,7 +66,7 @@ Avaa **projektin nimi ▾** yläpalkin vasemmasta reunasta. Ikkunassa *Projektit
 |---|---|
 | Rakennusympäristön ilme | *Vaalea ja tumma tila*: Laitteen mukaan, Vaalea, Tumma. *Väriteema*: Metsä, Järvi, Luumu, Hiekka, Ruusu, Harmaa, Laguuni, Laventeli, Oliivi, Kupari. Koskee kaikkia projekteja tässä selaimessa. |
 | Projektin käyttönäkymän ilme | samat valinnat, mutta vain tälle projektille; kulkee projektin mukana. Kumoa peruu. |
-| Projektin animointi | *Ilmestyy*, *Katoaa*, *Kesto (s)*, *Pehmeys*: tämän projektin näkymäpalikoiden oletus, kun palikalle ei ole valittu omaa (luku [Näkymäpalikat](03-nakymapalikat.md), Animointi-osio). Tyhjä = töks. Kulkee projektin mukana. |
+| Projektin animointi | *Ilmestyy*, *Katoaa*, *Kesto (s)*, *Pehmeys*, *Arvo vaihtuu*, *Paikka vaihtuu*: tämän projektin näkymäpalikoiden oletus, kun palikalle ei ole valittu omaa (luku [Näkymäpalikat](03-nakymapalikat.md), Animointi-osio). Tyhjä = töks. Kulkee projektin mukana. |
 | Päivämäärät | *Muoto*: pp.kk.vvvv tai pp.kk.vv; *Päivän raja (tämä projekti)*: keskiyö (oletus) tai klo 1.00–6.00. Raja koskee kirjaushistoriaa ([Tieto](07-tieto.md#kirjaushistoria)). |
 | Muokkaus | *Kohdista ruudukkoon*: Kyllä / Ei (10 px:n ruudukko raahattaessa) |
 | Muisti- ja viestilaput | lappujen määrät, lista, *Hae vastaukset*, *Kopioi laput tekstinä* (ks. Laput) |
