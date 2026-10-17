@@ -27,7 +27,7 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | tehdä sivuja ja siirtyä niiden välillä | näkymät, toiminto Siirry | [Näkymät](02-tyoymparisto.md#näkymät-sivut-ja-siirtyminen) |
 | pitää listaa riveinä | Tietotaulukko | [Tietotaulukko](07-tieto.md#tietotaulukko-taulu) |
 | kirjata mitä ja milloin (historia) | Tietotaulukko → Tee kirjaushistoria, toiminto Kirjaa | [Kirjaushistoria](07-tieto.md#kirjaushistoria), [Kirjausappi](07-tieto.md#kirjausappi-mitä-otin-ja-milloin) |
-| laskea päivän kirjaukset tai ajan edellisestä | `loki.tänään`, `loki.edellisestä`, Rivijoukko ehdolla `kirjaus.aika.päivä = tänään` | [Kirjaushistoria](07-tieto.md#kirjaushistoria) |
+| laskea päivän kirjaukset tai ajan edellisestä | `loki.tänään`, `loki.edellisestä`, Rivijoukko ehdolla `kirjaus.aika.päivä = nyt.päivä` | [Kirjaushistoria](07-tieto.md#kirjaushistoria) |
 | siirtää yön kirjaukset edelliselle päivälle | ⚙︎ Asetukset → Päivän raja | [Kirjaushistoria](07-tieto.md#kirjaushistoria) |
 | muuttaa vanhan aikajanan taulukoksi | Aikajanan paneeli → Muunna historiaksi | [Aikajana](03-nakymapalikat.md#aikajana-aika) |
 | näyttää jokaiselle riville kortin | Toistin | [Toistin](07-tieto.md#toistin--toistin) |
@@ -174,6 +174,7 @@ Kokeiltavat vaiheohjeet lukujen lopussa.
 | pikaluonti | valmis rakenne yhdellä napilla (vaihtoehtoryhmä, kyllä/ei-kysymys) |
 | preset | tallennettu palikkayhdistelmä, joka lisätään kuin palikka |
 | projekti | yksi appi: näkymät, logiikka ja käyttötieto |
+| päivän raja, `nyt.päivä` | kellonaika (1–6), jolloin kirjaushistorian päivä vaihtuu; `nyt.päivä` ja `aika.päivä` noudattavat sitä, `tänään` on aina kalenteripäivä |
 | puuttuva tieto | taulukon tyhjä kenttä; laskussa tuntematon (eri kuin tyhjä = 0) |
 | rivikonteksti | käsiteltävä rivi joukon, ikkunan riveille, Toista riveille tai kortin sisällä |
 | tapahtuma, tapahtumakohta | hetki; punainen salmiakki palikan reunassa |

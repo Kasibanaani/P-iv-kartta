@@ -235,14 +235,14 @@ Laskee kahden arvon yhteen, erotuksen, tulon tai osamäärän.
 
 Vertaa kahta arvoa. Tulos on kyllä tai ei.
 
-- **Löytyy:** logiikan paletti → *Vertailut* → **=**, **≠**, **<**, **≤**, **>**, **≥**.
+- **Löytyy:** logiikan paletti → *Vertailut* → **=**, **≠**, **<**, **≤**, **>**, **≥**. *sisältää* valitaan paneelista (paletissa vain merkit).
 - **Sisään:** *A*, *B* (arvoja).
 - **Ulos:** *tulos* (kyllä/ei).
-- **Asetukset (paneeli):** **Vertailu** (= ≠ < ≤ > ≥), **A**, **B** (kenttä tai *tai palikka…*).
+- **Asetukset (paneeli):** **Vertailu** (= ≠ < ≤ > ≥ *sisältää*), **A**, **B** (kenttä tai *tai palikka…*).
 - **Ominaisuudet:** `arvo`.
 - **Säännöt:** luvut lukuina, päivämäärät päivinä (teksti kuten `24.12.2026` tulkitaan päivämääräksi, kun toinen puoli on päivämäärä), tekstit aakkosjärjestyksessä kirjainkoosta välittämättä (`Kalle` = `kalle`). Tyhjä = tyhjä on kyllä; tyhjä < luku on ei.
 - **Esimerkki:** Säädin → A, B = `3`, vertailu ≤. Tulos → Teksti *näkyy kun*.
-- **Huomio:** Tekstihaku (*sisältää*) on vain kaavassa: `nimi sisältää haku`.
+- **sisältää:** löytyykö B:n teksti A:sta, kirjainkoosta välittämättä, kuten kaavan `nimi sisältää haku`. Tyhjä B pätee aina, tyhjä A ei koskaan. Kanvaasilla palikan merkki on ∋.
 
 ## Kaava (`kaava`)
 

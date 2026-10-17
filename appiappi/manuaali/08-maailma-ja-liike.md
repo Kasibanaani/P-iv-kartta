@@ -245,12 +245,15 @@ Kaikki luettavia kaavassa (`liike.avain`); ohjattavat merkitty.
 | `vauhtix`, `vauhtiy` (ohjattavia, ei Ruudussa; myös `vauhti x`, `vauhti y`) | töytäisyvauhti px/s |
 | `isku` (ei Ruudussa) | viimeisimmän törmäyksen voimakkuus px/s |
 | `törmäyskohde` (ei Ruudussa) | palikka, johon viimeksi törmäsi (nimi) |
+| `kohdex`, `kohdey` (Napautus; myös `kohde x`, `kohde y` ominaisuusvalikossa) | nykyinen kohde |
+| `eipääse` (Napautus + Kiertää esteet; myös `eipaase`) | kyllä, kun kohteeseen ei ole reittiä |
+| `edistyminen` (Reitti) | 0–1 reitin alusta loppuun |
 
-Kohdat edistyminen, kohde x, kohde y ja ei pääse saa vain nuolella, ei kaavassa (ks. Havainnot).
+Nämä neljä ovat kaavassa vain silloin, kun vastaava nuolikohta on (sama ohjaustapa ja asetus); muuten *tuntematon ominaisuus*.
 
 ### Kaavassa
 
-`liike` antaa x:n. Esim. `liike.nopeus > 100`, `liike.suunta`, `liike.isku`.
+`liike` antaa x:n. Esim. `liike.nopeus > 100`, `liike.suunta`, `liike.isku`, `liike.kohdex`, `liike.edistyminen >= 0,5`.
 
 ### Aika ja tila
 

@@ -2,8 +2,8 @@
 
 ## Tarkistettu versio
 
-- **Appi:** Appi-appi 37, tallennusversio 8 (`VER`), repo `Kasibanaani/P-iv-kartta`, kansio `appiappi/`.
-- **Kirjoitettu:** 17.10.2026 koodista commitilla `77461d2` (Appi-appi 31). Ennen vientiä tarkistettiin muutos Appi-appi 32 (`f2cd3db`: Miksi? kaikille palikoille, VALITSE-palikan oma ohje) ja päivitettiin sitä koskevat kohdat. Appi-appi 33 (testitila Kokeile) lisättiin rakentajan työssä: luvut 2, 9 ja 10, koodin ja testin `selain_74_testitila.py` mukaan. Appi-appi 34 (jonon 1k: ryhmän viite, kaavan tuntematon nimi heti, Miksi?-lauseet) lisättiin rakentajan työssä: luvut 2, 4 ja 6. Appi-appi 35 (animointi vaihe 1) lisättiin rakentajan työssä: luvut 2, 3, 9 ja 10, koodin ja testien `logiikka_67_animointi.js` ja `selain_75_animointi.py` mukaan. Appi-appi 36 (rakenteinen historia F08) lisättiin rakentajan työssä: luvut 2, 3, 5, 6, 7, 9 ja 10, koodin ja testien `logiikka_68_historia.js` ja `selain_76_historia.py` mukaan; reseptin *Kirjausappi* kaavat ajettiin moottorilla. Appi-appi 37 (jonon 5: viite-ehdotukset ja Luo Arvo) lisättiin rakentajan työssä: luvut 4, 6 ja 10, koodin ja testien `logiikka_69_luo_arvo.js` ja `selain_77_viite_ehdotukset.py` mukaan. Muutokset tämän jälkeen: katso `TILA.md` ja `MUUTOKSET.md`.
+- **Appi:** Appi-appi 38, tallennusversio 8 (`VER`), repo `Kasibanaani/P-iv-kartta`, kansio `appiappi/`.
+- **Kirjoitettu:** 17.10.2026 koodista commitilla `77461d2` (Appi-appi 31). Ennen vientiä tarkistettiin muutos Appi-appi 32 (`f2cd3db`: Miksi? kaikille palikoille, VALITSE-palikan oma ohje) ja päivitettiin sitä koskevat kohdat. Appi-appi 33 (testitila Kokeile) lisättiin rakentajan työssä: luvut 2, 9 ja 10, koodin ja testin `selain_74_testitila.py` mukaan. Appi-appi 34 (jonon 1k: ryhmän viite, kaavan tuntematon nimi heti, Miksi?-lauseet) lisättiin rakentajan työssä: luvut 2, 4 ja 6. Appi-appi 35 (animointi vaihe 1) lisättiin rakentajan työssä: luvut 2, 3, 9 ja 10, koodin ja testien `logiikka_67_animointi.js` ja `selain_75_animointi.py` mukaan. Appi-appi 36 (rakenteinen historia F08) lisättiin rakentajan työssä: luvut 2, 3, 5, 6, 7, 9 ja 10, koodin ja testien `logiikka_68_historia.js` ja `selain_76_historia.py` mukaan; reseptin *Kirjausappi* kaavat ajettiin moottorilla. Appi-appi 37 (jonon 5: viite-ehdotukset ja Luo Arvo) lisättiin rakentajan työssä: luvut 4, 6 ja 10, koodin ja testien `logiikka_69_luo_arvo.js` ja `selain_77_viite_ehdotukset.py` mukaan. Appi-appi 38 (jonon 1l: `nyt.päivä`, valinnat näkyvällä nimellä, päivämäärä + teksti, Liikkeen kohdat kaavaan, Vertailun sisältää) lisättiin rakentajan työssä: luvut 3, 4, 6, 7, 8 ja 10, koodin ja testien `logiikka_70_kaavan_sanat.js` ja `selain_78_kaavan_sanat.py` mukaan; havainnoista poistettiin korjatut (Kaavat: päivämäärä + teksti, valintojen sisäinen arvo; Maailma: Liikkeen nuolikohdat). Muutokset tämän jälkeen: katso `TILA.md` ja `MUUTOKSET.md`.
 - **Miten tarkistettiin:** jokainen luku on kirjoitettu lukemalla käyttöliittymän ja moottorin koodia (nimet suoraan koodin merkkijonoista) sekä testien kuvauksia. Kaavakielestä ajettiin noin 150 kaavaa moottorilla (Node), ja maailman ja liikkeen kaavanimet tarkistettiin samoin. Aloitusluvun esimerkki *Vesilasit* tehtiin vaihe vaiheelta oikeassa käyttöliittymässä (Chromium, 1440 px). Muiden lukujen reseptejä **ei ole ajettu** selaimessa: ne on koottu koodista.
 - **Ei tarkistettu oikealla iPhonella, iPadilla eikä Safarilla.** Puhelinkäyttö on kuvattu koodista ja testeistä, jotka ajavat kosketusta tietokoneen selaimessa 390 ja 320 px leveänä. Oikean laitteen tuntuma (sormella veto, näppäimistö, Safarin oma zoomaus) on varmistamatta.
 - Kohdat, joita kirjoittaja ei voinut varmistaa, on merkitty tekstiin ”(ei tarkistettu)”.
@@ -66,13 +66,11 @@ Kirjoittaessa löytyneet ristiriidat, puutteet ja yllätykset. Nämä eivät ole
 
 ### Kaavat
 
-1. **Päivämäärä + teksti hukkaa tekstin.** `"Tänään on " + tänään` antaa pelkän päivämäärän 17.10.2026; `24.12.2026 + "x"` antaa 24.12.2026. Laskussa päivämäärään lisätään tekstin "lukuarvo" 0 ilman virhettä. Vastaa koodia (`calc`: päivämäärä ensin), mutta käyttäjä odottaa yhdistämistä tai virhettä. Ohjeteksti lupaa tekstin yhdistämisen `+`:lla.
-2. **Teksti `"ei"` on ehtona tosi.** `jos("ei"; 1; 2)` = 1, koska ei-tyhjä teksti pätee. Avainsana `ei` ilman lainausmerkkejä toimii oikein. Helppo virhe, kun Tekstikentän sisältöä käytetään ehtona.
-3. **Valintaominaisuudet palauttavat sisäisen arvon:** `otsikko.tasaus` = `left`, `muoto.muoto` = `ympyra` (ilman ä:tä). `otsikko.tasaus = "vasen"` ei päde, vaikka ohjaukseen kelpaa sana *vasen*. Koko toimii sattumalta (`m` = `"M"`).
-4. **Kummallinen virheilmoitus pilkuista funktion ulkopuolella:** `1,5,2` antaa `tuntematon merkki ”1”`. Funktion sisällä sama virhe saa hyvän ilmoituksen (puolipiste).
-5. **Tyhjä ohjaus ohittaa toiminnon asettaman arvon:** kun ominaisuus on ohjattu nuolella ja kaava antaa tyhjän, käytetään perusarvoa, ei toiminnon asettamaa. Ominaisuudet-osion ohjeteksti kuvaa etusijan ilman tätä poikkeusta.
-6. **Ohjeen sana "tyhjä" vs. puuttuva:** kaavan ohjeteksti ei erota tyhjää (laskussa 0) ja taulukon puuttuvaa (laskussa tuntematon); ero näkyy vain tuloksissa.
-7. Ei tarkistettu selaimessa tässä luvussa: ehdotusrivin ja valikoiden tarkka ulkoasu puhelimella; kuvaus perustuu koodiin. Moottorin tulokset on ajettu nodella.
+1. **Teksti `"ei"` on ehtona tosi.** `jos("ei"; 1; 2)` = 1, koska ei-tyhjä teksti pätee. Avainsana `ei` ilman lainausmerkkejä toimii oikein. Helppo virhe, kun Tekstikentän sisältöä käytetään ehtona.
+2. **Kummallinen virheilmoitus pilkuista funktion ulkopuolella:** `1,5,2` antaa `tuntematon merkki ”1”`. Funktion sisällä sama virhe saa hyvän ilmoituksen (puolipiste).
+3. **Tyhjä ohjaus ohittaa toiminnon asettaman arvon:** kun ominaisuus on ohjattu nuolella ja kaava antaa tyhjän, käytetään perusarvoa, ei toiminnon asettamaa. Ominaisuudet-osion ohjeteksti kuvaa etusijan ilman tätä poikkeusta.
+4. **Ohjeen sana "tyhjä" vs. puuttuva:** kaavan ohjeteksti ei erota tyhjää (laskussa 0) ja taulukon puuttuvaa (laskussa tuntematon); ero näkyy vain tuloksissa.
+5. Ei tarkistettu selaimessa tässä luvussa: ehdotusrivin ja valikoiden tarkka ulkoasu puhelimella; kuvaus perustuu koodiin. Moottorin tulokset on ajettu nodella.
 
 ### Tieto
 
@@ -84,7 +82,6 @@ Kirjoittaessa löytyneet ristiriidat, puutteet ja yllätykset. Nämä eivät ole
 
 ### Maailma ja liike
 
-- **Liikkeen nuolikohtia ei voi lukea kaavassa:** Liikkeen ulostulot **edistyminen** (Reitti), **kohde x**, **kohde y** (Napautus) ja **ei pääse** eivät ole ominaisuusrekisterissä. Kaava `liike.edistyminen` antaa virheen ”tuntematon ominaisuus” (tarkistettu moottorin kopiolla). Niitä saa vain nuolella. Muut Liikkeen ulostulot (x, y, liikkuu, osuu, nopeus, suunta) toimivat kaavassa.
 - **Alkukohta laitenäkymässä:** Sijainnin paneelissa näkyy valintaruutu **Näkymän alkukohta** myös laitenäkymässä, mutta laitenäkymä aukeaa aina laitteen ruudun alusta (`goStart` ohittaa alkukohdan). Laitenäkymän asetuksissa ei ole Alkukohta-valikkoa.
 - **Alueen ohjeteksti:** Alueen paneelin ohje mainitsee vain vapaan näkymän rullauksen **Alueen sisällä**; laitenäkymässä vastaava on **Maailman rajat** (Maailma ja kamera), jota ohje ei mainitse.
 - **Paletin vihje vanhentunut:** Liike-palikan paletin vihje neuvoo viemään x:n ja y:n kohtiin siirto x ja siirto y, vaikka nykyinen pääreitti on **Liikutettava palikka** (jolla esteet, alueet ja törmäykset toimivat).

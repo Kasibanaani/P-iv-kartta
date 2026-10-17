@@ -119,9 +119,10 @@ Historia on tavallinen Tietotaulukko, jonka rivit ovat kirjauksia: mitä, kuinka
 | `loki.edellisestä` | kokonaisia minuutteja uusimmasta kirjauksesta (tyhjässä taulukossa puuttuu) |
 | `loki.tänään` | kirjauksia tänään päivän rajan mukaan |
 | `kirjaus.aika.päivä` | Rivi-palikan (käsiteltävä rivi) kirjauksen päivä päivän rajan mukaan; myös `loki.valittu.aika.päivä` |
+| `nyt.päivä` | tämä päivä päivän rajan mukaan (vertailuun: `kirjaus.aika.päivä = nyt.päivä`) |
 
-  Aikavälin rivit, määrä aikavälillä ja viimeisin ehdolla tehdään **Rivijoukolla**: ehto riveittäin esim. `kirjaus.aika.päivä = tänään` tai `kirjaus.aika >= kalenteri` (Rivi-palikka *Kirjaus*, käsiteltävä rivi), järjestys Aika-sarakkeen mukaan laskevasti ja *enintään 1* antaa viimeisimmän ehdolla (`joukko.eka`). Määrä: `joukko.rivejä`, summa `joukko.määrä.summa`. Ilman ajankohta-saraketta `viimeisin`, `edellisestä` ja `tänään` ovat virhe *ei ole aika-saraketta*.
-- **Päivän raja:** ⚙︎ Asetukset → Päivämäärät → *Päivän raja (tämä projekti)*: keskiyö (oletus) tai klo 1.00–6.00. Rajalla 4 klo 2.30 tehty kirjaus kuuluu edelliseen päivään: `aika.päivä`, `loki.tänään`, Kalenterin merkinnät ja Aikajanan *tänään* noudattavat rajaa. Kaavan `tänään` on aina kalenteripäivä, joten klo 0–4 välillä `kirjaus.aika.päivä = tänään` ei osu eiliseen yöhön (ei vielä erillistä ”historian tänään” -sanaa).
+  Aikavälin rivit, määrä aikavälillä ja viimeisin ehdolla tehdään **Rivijoukolla**: ehto riveittäin esim. `kirjaus.aika.päivä = nyt.päivä` tai `kirjaus.aika >= kalenteri` (Rivi-palikka *Kirjaus*, käsiteltävä rivi), järjestys Aika-sarakkeen mukaan laskevasti ja *enintään 1* antaa viimeisimmän ehdolla (`joukko.eka`). Määrä: `joukko.rivejä`, summa `joukko.määrä.summa`. Ilman ajankohta-saraketta `viimeisin`, `edellisestä` ja `tänään` ovat virhe *ei ole aika-saraketta*.
+- **Päivän raja:** ⚙︎ Asetukset → Päivämäärät → *Päivän raja (tämä projekti)*: keskiyö (oletus) tai klo 1.00–6.00. Rajalla 4 klo 2.30 tehty kirjaus kuuluu edelliseen päivään: `aika.päivä`, `loki.tänään`, Kalenterin merkinnät ja Aikajanan *tänään* noudattavat rajaa. `nyt.päivä` on tämä päivä samalla rajalla, joten vertaa kirjauksia siihen: `kirjaus.aika.päivä = nyt.päivä`. Kaavan `tänään` on aina kalenteripäivä (Päivämäärä-palikan *Tänään*, kalenterin korostus), joten klo 0–4 välillä `kirjaus.aika.päivä = tänään` ei osu eiliseen yöhön. Ilman rajaa molemmat ovat sama päivä. Taulukon paneelin osio *Historian haut* neuvoo saman.
 - **Samasta lähteestä:** Aikajanan **Lähde** ja Kalenterin **Merkitse päivät** hyväksyvät historiataulukon; Toistin näyttää rivit kortteina; koosteet ja Rivijoukko laskevat samoista riveistä. Mitään ei kopioida, joten yksi kirjaus näkyy kaikissa kerran.
 - **Vanha tekstiaikajana:** Aikajanan paneelin **Muunna historiaksi** (ks. [Aikajana](03-nakymapalikat.md#aikajana-aika)). Muunnos tehdään vain napista.
 
@@ -326,7 +327,7 @@ Lista (Näkymä → Näyttö → **Lista**) ja Aikajana (**Aikajana**) ovat vanh
 2. Näkymään Painike *Kahvi*. *Kun painetaan* → ＋ Lisää toiminto… → **Kirjaa**, kohde Loki. Kentät: Kohde `"Kahvi"`, Määrä `1`, Aika tyhjä.
 3. Teksti: `Tänään {loki.tänään}, viimeksi {loki.viimeisin.kohde} ({loki.edellisestä} min sitten)`.
 4. Aikajana, Lähde *Loki*: kirjaukset uusin ylimpänä. Kalenteri, Merkitse päivät *Loki*: päivät pisteinä, päivän napautus listaa kirjaukset kellonaikoineen.
-5. Päivän kooste: Rivi *Kirjaus* (taulukko Loki), Rivijoukko *Päivä* (rivit Lokista, ehto Kaava `kirjaus.aika.päivä = tänään`), teksti `{päivä.määrä.summa} kpl tänään`. Älä nimeä joukkoa *Tänään*: `tänään` on kaavan avainsana.
+5. Päivän kooste: Rivi *Kirjaus* (taulukko Loki), Rivijoukko *Päivä* (rivit Lokista, ehto Kaava `kirjaus.aika.päivä = nyt.päivä`), teksti `{päivä.määrä.summa} kpl tänään`. Älä nimeä joukkoa *Tänään*: `tänään` on kaavan avainsana.
 6. Väärä kirjaus: avaa taulukko ja korjaa tai poista rivi. Tyhjä määrä on puuttuva, ei 0: summa ohittaa sen.
 - Tilannekuva vs. elävä: jos Kohde on riviviite tuotetaulukkoon ja kirjaukseen kopioidaan hinta, `loki.viimeisin.hinta` pysyy kirjaushetken hintana ja `loki.viimeisin.tuote.hinta` seuraa nykyistä.
 

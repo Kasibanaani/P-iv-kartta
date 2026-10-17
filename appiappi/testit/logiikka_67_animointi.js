@@ -20,17 +20,18 @@ KK.repair(P);
 function has(b,n){return KK.omat(b).some(function(e){return e.n===n;});}
 ['animointi.ilmestyy','animointi.katoaa','animointi.kesto','animointi.pehmeys'].forEach(function(n){A.ok(has(N.b,n),'nappi: '+n);A.ok(has(T.b,n),'teksti: '+n);A.ok(!has(M.b,n),'muisti ei: '+n);A.ok(!has(S,n),'sijainti ei: '+n);});
 // Perusarvot
-A.strictEqual(kv(P,'nappi.animointi.ilmestyy'),'toks');A.strictEqual(kv(P,'nappi.animointi.katoaa'),'sama');
-A.strictEqual(kv(P,'nappi.animointi.kesto'),0.25);A.strictEqual(kv(P,'nappi.animointi.pehmeys'),'pehmea');
+// 1l (P3): kaava lukee valinnan näkyvällä nimellä (töks, häivytys …), ei sisäisellä avaimella.
+A.strictEqual(kv(P,'nappi.animointi.ilmestyy'),'töks');A.strictEqual(kv(P,'nappi.animointi.katoaa'),'sama kuin ilmestyy');
+A.strictEqual(kv(P,'nappi.animointi.kesto'),0.25);A.strictEqual(kv(P,'nappi.animointi.pehmeys'),'pehmeä');
 // Projektin oletus ja palikan oma
-P.an={i:'haivytys',k:1};A.strictEqual(kv(P,'nappi.animointi.ilmestyy'),'haivytys');A.strictEqual(kv(P,'otsikko.animointi.kesto'),1);
+P.an={i:'haivytys',k:1};A.strictEqual(kv(P,'nappi.animointi.ilmestyy'),'häivytys');A.strictEqual(kv(P,'otsikko.animointi.kesto'),1);
 N.b.ani='pomppu';N.b.ank=0.5;A.strictEqual(kv(P,'nappi.animointi.ilmestyy'),'pomppu','oma voittaa');A.strictEqual(kv(P,'nappi.animointi.kesto'),0.5);
-A.strictEqual(kv(P,'otsikko.animointi.ilmestyy'),'haivytys','muut käyttävät oletusta');
+A.strictEqual(kv(P,'otsikko.animointi.ilmestyy'),'häivytys','muut käyttävät oletusta');
 // Aseta: ohjattava, kesto rajataan, nimellä ja numerolla
 A.ok(KK.setOmi(P,T.b.id,'animointi.kesto',3));A.strictEqual(kv(P,'otsikko.animointi.kesto'),3);
 A.ok(KK.setOmi(P,T.b.id,'animointi.kesto',25));A.strictEqual(kv(P,'otsikko.animointi.kesto'),10,'enintään 10 s');
-A.ok(KK.setOmi(P,T.b.id,'animointi.ilmestyy','liuku ylhäältä'));A.strictEqual(kv(P,'otsikko.animointi.ilmestyy'),'ylhaalta');
-A.ok(KK.setOmi(P,T.b.id,'animointi.ilmestyy',2));A.strictEqual(kv(P,'otsikko.animointi.ilmestyy'),'haivytys','numerolla');
+A.ok(KK.setOmi(P,T.b.id,'animointi.ilmestyy','liuku ylhäältä'));A.strictEqual(kv(P,'otsikko.animointi.ilmestyy'),'liuku ylhäältä');
+A.ok(KK.setOmi(P,T.b.id,'animointi.ilmestyy',2));A.strictEqual(kv(P,'otsikko.animointi.ilmestyy'),'häivytys','numerolla');
 A.ok(!KK.setOmi(P,T.b.id,'animointi.ilmestyy','lentää'),'tuntematon tapa ei asetu');
 KK.resetOmi(P,T.b.id,'animointi.kesto');A.strictEqual(kv(P,'otsikko.animointi.kesto'),1,'Palauta: takaisin oletukseen');
 // Nuoli: yksi Arvo monen palikan kestoksi
@@ -49,5 +50,5 @@ var R2=KK.repair({b:{},lg:{n:[],l:[]},an:'roska'});A.ok(!('an' in R2),'roska poi
 var R3=KK.repair({b:{},lg:{n:[],l:[]},an:{i:'',x:1,k:2}});A.deepStrictEqual(R3.an,{k:2});
 var old=JSON.parse(fs.readFileSync(__dirname+'/vanha_v5_esimerkki.json','utf8'));var OP=KK.repair(old.projects?old.projects[0]:old);
 var ui=Object.keys(OP.b).filter(function(i){return OP.b[i].v&&KK.omFind(OP.b[i],'animointi.ilmestyy');})[0];A.ok(ui,'vanhassa on näkymän palikka');
-A.strictEqual(E(OP).prop(ui,'animointi.ilmestyy'),'toks','vanha = töks');A.ok(!OP.an&&OP.b[ui].ani===undefined,'ei uusia kenttiä itsestään');
+A.strictEqual(E(OP).prop(ui,'animointi.ilmestyy'),'töks','vanha = töks');A.ok(!OP.an&&OP.b[ui].ani===undefined,'ei uusia kenttiä itsestään');
 console.log('logiikka_67_animointi ok');

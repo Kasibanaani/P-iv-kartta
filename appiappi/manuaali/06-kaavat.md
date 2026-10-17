@@ -308,15 +308,18 @@ Päivämäärän osat (viikko, viikonpäivä, kuukausi …) saa Päivämäärä-
 | `nyt.tunti` | 0–23 | luku |
 | `nyt.minuutti` | 0–59 | luku |
 | `nyt.sekunti` | 0–59 | luku |
+| `nyt.päivä` (`nyt.paiva`) | tämä päivä **päivän rajan mukaan** (⚙︎ Asetukset → Päivämäärät): rajalla 4 kello 2.00 vielä eilinen | päivämäärä |
 | `ruutu.leveys` | ruudun leveys pikseleinä | luku |
 | `ruutu.korkeus` | ruudun korkeus pikseleinä | luku |
 | `näkymä` tai `näkymä.nimi` | auki olevan näkymän nimi | teksti |
 | `näkymä.numero` | auki olevan näkymän numero | luku |
 | `tumma` | onko tumma teema käytössä | kyllä/ei |
 
-Väärät muodot antavat virheen, joka luettelee oikeat: `nyt.x ei ole käytössä (nyt.kello, nyt.tunti, nyt.minuutti, nyt.sekunti)`, `ruutu: käytössä ruutu.leveys ja ruutu.korkeus`, `näkymä.x: käytössä näkymä ja näkymä.numero`, `tumma on kyllä/ei ilman ominaisuutta`.
+Väärät muodot antavat virheen, joka luettelee oikeat: `nyt.x ei ole käytössä (nyt.kello, nyt.tunti, nyt.minuutti, nyt.sekunti, nyt.päivä)`, `ruutu: käytössä ruutu.leveys ja ruutu.korkeus`, `näkymä.x: käytössä näkymä ja näkymä.numero`, `tumma on kyllä/ei ilman ominaisuutta`.
 
 `nyt` on kellonaika tekstinä (`9.30`), ei laskettava aika. Tunteja ja minuutteja vertaa luvuilla: `nyt.tunti >= 18`.
+
+`tänään` vai `nyt.päivä`? `tänään` on aina kalenteripäivä (vaihtuu keskiyöllä). `nyt.päivä` noudattaa projektin päivän rajaa samalla säännöllä kuin kirjauksen `aika.päivä`, joten historian ehto kirjoitetaan `kirjaus.aika.päivä = nyt.päivä` (luku [Tieto](07-tieto.md#kirjaushistoria)). Ilman päivän rajaa ne ovat sama päivä. Huom. `loki.tänään` (taulukon ominaisuus) on kirjausten määrä tänään, ei päivämäärä.
 
 (Huom. Tietotaulukon *Lisää rivi* -toiminnon kentissä `nyt` tallentaa ajankohdan. Ei tarkistettu tässä luvussa tarkemmin.)
 
@@ -339,7 +342,7 @@ Väärät muodot antavat virheen, joka luettelee oikeat: `nyt.x ei ole käytöss
 
 Luvut yhdistyvät suomalaisessa muodossa (2,5), kyllä/ei sanoina.
 
-**Rajoitus:** päivämäärää ei voi yhdistää tekstiin `+`-merkillä. `"Tänään on " + tänään` antaa pelkän päivämäärän 17.10.2026 ilman tekstiä, koska `+` päivämäärän kanssa tarkoittaa päivien lisäämistä. Kiertotie: kirjoita teksti näkymäpalikan tekstiin ja viittaa Tänään-palikkaan: `Tänään on {päivä}` (ks. Tekstiin upotetut viitteet).
+Päivämäärä ja teksti yhdistyvät tekstiksi päivämäärän näkyvässä muodossa (asetus *Muoto*): `"Tänään on " + tänään` = Tänään on 17.10.2026, `tänään + " oli hyvä"` = 17.10.2026 oli hyvä. Päivämäärä + luku (myös lukua muistuttava teksti `"2"`) siirtää päivää: `tänään + 1` = 18.10.2026.
 
 ### Tyhjä ja puuttuva arvo
 
@@ -437,7 +440,7 @@ Palikan arvon lisäksi kaava voi lukea palikan **ominaisuuksia** pisteellä: `na
 - Ilman pistettä viite antaa palikan arvon: `uni` = `uni.arvo`.
 - Väärä nimi antaa virheen, joka luettelee palikan kaikki ominaisuudet: `tuntematon ominaisuus .foo (palikalla ”Uni” on: arvo, näkyy, tila, …)`.
 - Polku voi olla monta osaa taulukoissa: `ostokset.valittu.nimi`, `ostokset.määrä.summa`, `ostokset.vika.määrä.tiedossa`.
-- Valintaominaisuudet palauttavat sisäisen arvon: `otsikko.koko` = `m`, `otsikko.tasaus` = `left`. Vertaa koko kirjaimella (`otsikko.koko = "M"` pätee, kirjainkoolla ei väliä), mutta tasausta ei suomeksi (`otsikko.tasaus = "vasen"` ei päde). Ks. Havainnot.
+- Valintaominaisuudet palauttavat näkyvän nimen, saman kuin paneelissa: `otsikko.koko` = `M`, `otsikko.tasaus` = `vasen`, `pallo.muoto` = `ympyrä`, `nappi.animointi.ilmestyy` = `häivytys`. Vertaa nimellä (`otsikko.tasaus = "vasen"`, kirjainkoolla ei väliä). Ohjaus (nuoli, Aseta) hyväksyy näkyvän nimen, vanhan sisäisen nimen (`left`, `ympyra`) tai järjestysnumeron.
 
 ### Ominaisuusrekisteri
 
@@ -735,6 +738,7 @@ Oletus: `uni` = 6 (Säädin), `nimi` = "Maija Meikäläinen" (Tekstikenttä), `o
 | päivämäärä | `24.12.` | 24.12.2026 |
 | `nyt` | `nyt` | 9.30 |
 | `nyt.tunti` / `.minuutti` / `.sekunti` | `nyt.tunti` | 9 |
+| `nyt.päivä` | `nyt.päivä` | 17.10.2026 (päivän rajan mukaan) |
 | `ruutu.leveys` / `.korkeus` | `ruutu.leveys` | esim. 390 |
 | `näkymä` / `näkymä.numero` | `näkymä` | esim. Koti |
 | `tumma` | `tumma` | kyllä/ei |
@@ -751,6 +755,7 @@ Oletus: `uni` = 6 (Säädin), `nimi` = "Maija Meikäläinen" (Tekstikenttä), `o
 | `/` `÷` `:` | `10 : 4` | 2,5 |
 | `+` tekstiin | `"Unta " + uni + " h"` | Unta 6 h |
 | `+` päivään | `tänään + 5` | 22.10.2026 |
+| `+` päivä tekstiin | `"Tänään on " + tänään` | Tänään on 17.10.2026 |
 | `-` päivien väli | `24.12.2026 - tänään` | 68 |
 | jako nollalla | `uni / 0` | ⚠ jako nollalla |
 

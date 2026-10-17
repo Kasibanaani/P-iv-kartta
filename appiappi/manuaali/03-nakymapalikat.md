@@ -159,10 +159,10 @@ Kaikilla näkymäpalikoilla (paitsi Sijainti, Alue, Toistin) on nämä:
 | `.este` | kyllä/ei | kyllä | liikkuvat palikat eivät mene läpi |
 | `.massa` | luku | kyllä | paino törmäyksissä |
 | `.kimmoisuus` | luku 0–200 | kyllä | 0 = tömähtää, 100 = pomppaa |
-| `.animointi.ilmestyy` | valinta | kyllä | `toks`, `haivytys`, `ylhaalta`, `alhaalta`, `vasemmalta`, `oikealta`, `kasvu`, `pomppu` (myös näkyvä nimi, esim. `"häivytys"` tai `"liuku ylhäältä"`, tai numero 1–8) |
-| `.animointi.katoaa` | valinta | kyllä | `sama` (oletus) tai jokin ilmestymisen tavoista (numerolla 1 = sama, 2–9 tavat) |
+| `.animointi.ilmestyy` | valinta | kyllä | kaavassa näkyvällä nimellä: `töks`, `häivytys`, `liuku ylhäältä`, `liuku alhaalta`, `liuku vasemmalta`, `liuku oikealta`, `kasvu`, `pomppu`. Ohjaus hyväksyy myös numeron 1–8 ja vanhat sisäiset nimet (`haivytys`, `ylhaalta` …) |
+| `.animointi.katoaa` | valinta | kyllä | `sama kuin ilmestyy` (oletus) tai jokin ilmestymisen tavoista (numerolla 1 = sama, 2–9 tavat; ohjaus hyväksyy myös `sama`) |
 | `.animointi.kesto` | luku 0–10 | kyllä | sekunteina, oletus 0,25; 0 = töks |
-| `.animointi.pehmeys` | valinta | kyllä | `pehmea` (oletus), `tasainen`, `joustava` |
+| `.animointi.pehmeys` | valinta | kyllä | `pehmeä` (oletus), `tasainen`, `joustava` |
 | `.ruutux`, `.ruutuy` | luku | ei (laskettu) | keskipisteen ruutu kerroksen ruudukossa (1 = ensimmäinen); tyhjä ilman ruudukkoa |
 
 Näkyvyyttä, tilaa, tekstiä ja vaihtoväriä ei ohjata Ominaisuuksista vaan omista kohdistaan (*näkyy kun*, *harmaana kun*, *teksti*, *vaihtoväri kun*). Monet ominaisuudet hyväksyvät myös muita nimiä (esim. `vari`, `lapinakyvyys`, `kulma`).
