@@ -22,11 +22,13 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 1. **Koeapit C ja B** (`suunnitelmat/07-toteutuspolku.md`) nykyisillä palikoilla: kohdelista 100 rivillä ja kysymysappi. Tallennetaan projekteiksi `master-tiedot/appiappi/` (Emil avaa *Hae uudet projektit*). Pienet puutteet korjataan samassa työssä, isot kirjataan tähän jonoon. Koeappi A tehdään vasta historian (F08) hyväksymiskokeena.
 2. **Testitila F22, suppea** (`suunnitelmat/06-testit-ja-julkaisu.md`): yläpalkkiin *Kokeile*; kokeilu alkaa kopiosta nykyisistä käyttötiedoista; koko kokeilun ajan värillinen raita ja teksti ”Kokeilu”; oikeat tiedot eivät muutu. Ei tässä: kokeilun tulosten siirto oikeaan käyttöön, tallennetut kokeet.
-3. **Rakenteinen historia F08** (P4:n alku, `suunnitelmat/01-tieto-ja-tapahtumat.md` kohta 7): Kirjaa-toiminto kirjoittaa tavalliseen Tietotaulukkoon, jossa automaattiset sarakkeet *aika* ja *id*; kirjausta muokataan ja poistetaan kuten taulukon riviä (ei korjaushistoriaa); vanha tekstiaikajana muunnetaan vain napista; päivän raja on projektin asetus, oletus keskiyö. Hyväksymiskokeena koeappi A.
-4. **Elämäntapaväittämien koeappi** F25:n pohjaksi (`suunnitelmat/11-tilastot-ja-yhteydet.md`) heti historian jälkeen, nykyisillä palikoilla.
-5. **Viite-ehdotukset ja palikan luonti nimestä** (F27 kohta 1, `suunnitelmat/12-teksti.md`): ehdotusrivi viitteelle kirjoitettaessa, *Luo Arvo* tuntemattomasta nimestä.
-6. **Tulkki eli printteri** (F27 kohta 2, yhdessä F20:n liimatun taulukon kanssa): teksti kuviolla taulukon riveiksi tai Arvo-palikoiksi, esikatselu ennen hyväksyntää. Tagit ja sanaoppi (kohdat 3–4) vasta F08:n ja F25:n jälkeen erikseen.
-7. **Jana F28, vaihe 1** (`suunnitelmat/13-jana.md`, Emilin idea 17.10.): logiikan ikkuna, jonka leveys on alku–loppu (oletus 0–10), aika- tai arvokulku (esim. säädin), merkit portaisiin. Kohta tallennetaan arvona (Emilin päätös 17.10.); muut linjaukset tekoälyn suosituksen mukaan: hypyssä väliin jääneet laukeavat, aikajana eteenpäin ja arvojana molempiin suuntiin. Välit (alku–loppu-merkit) myöhemmin erikseen.
+3. **Animointi F29, vaihe 1** (`suunnitelmat/14-animointi.md`, Emilin idea ja päätökset 17.10.): näkymän palikan paneeliin osio *Animointi* (ilmestyy, katoaa, kesto, pehmeys), projektin oletus, ominaisuudet logiikkaan. Pelkkä visuaali, logiikka ei odota, vain `opacity`/`transform`, Vähennä liikettä noudatetaan. Tallennusmuoto laajenee (muistuta varmuuskopiosta).
+4. **Rakenteinen historia F08** (P4:n alku, `suunnitelmat/01-tieto-ja-tapahtumat.md` kohta 7): Kirjaa-toiminto kirjoittaa tavalliseen Tietotaulukkoon, jossa automaattiset sarakkeet *aika* ja *id*; kirjausta muokataan ja poistetaan kuten taulukon riviä (ei korjaushistoriaa); vanha tekstiaikajana muunnetaan vain napista; päivän raja on projektin asetus, oletus keskiyö. Hyväksymiskokeena koeappi A.
+5. **Elämäntapaväittämien koeappi** F25:n pohjaksi (`suunnitelmat/11-tilastot-ja-yhteydet.md`) heti historian jälkeen, nykyisillä palikoilla.
+6. **Viite-ehdotukset ja palikan luonti nimestä** (F27 kohta 1, `suunnitelmat/12-teksti.md`): ehdotusrivi viitteelle kirjoitettaessa, *Luo Arvo* tuntemattomasta nimestä.
+7. **Tulkki eli printteri** (F27 kohta 2, yhdessä F20:n liimatun taulukon kanssa): teksti kuviolla taulukon riveiksi tai Arvo-palikoiksi, esikatselu ennen hyväksyntää. Tagit ja sanaoppi (kohdat 3–4) vasta F08:n ja F25:n jälkeen erikseen.
+8. **Jana F28, vaihe 1** (`suunnitelmat/13-jana.md`, Emilin idea 17.10.): logiikan ikkuna, jonka leveys on alku–loppu (oletus 0–10), aika- tai arvokulku (esim. säädin), merkit portaisiin. Kohta tallennetaan arvona (Emilin päätös 17.10.); muut linjaukset tekoälyn suosituksen mukaan: hypyssä väliin jääneet laukeavat, aikajana eteenpäin ja arvojana molempiin suuntiin. Välit (alku–loppu-merkit) myöhemmin erikseen.
+9. **Animointi F29, vaihe 2** (`suunnitelmat/14-animointi.md`): arvo vaihtuu (ristihäivytys, luku rullaa, uusin voittaa) ja Aseta-/nuolihyppäyksen sijainti liukuen, pelkkä visuaali. Vaihe 3 (venytys tai vana) vain kevyeksi mitattuna, ei vielä jonossa.
 
 ## Seuraavaksi
 
@@ -96,6 +98,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 ## Suunnitelmat
 
+- **17.10.2026, F29 animointi (Emilin idea):** `suunnitelmat/14-animointi.md`, pelkkä visuaali (D14–D15). Emil hyväksyi linjaukset; vaihe 1 jonossa 3, vaihe 2 jonossa 9. Ei toteutettu.
 - **17.10.2026, F28 jana:** `suunnitelmat/13-jana.md`, jonossa (vaihe 1). Ei toteutettu.
 - **17.10.2026, F27 teksti (Emilin idea):** `suunnitelmat/12-teksti.md`: viite-ehdotukset ja palikan luonti nimestä, tulkki/printteri kuviolla (taulukon rivit tai palikat), Tagit-palikka ja sanaoppi. Emil hyväksyi järjestyksen; kohdat 1–2 jonossa (viite-ehdotukset, tulkki). Ei toteutettu; vain Markdown muuttui.
 - **16.10.2026, F25 tilastot ja yhteydet (Emilin idea):** `suunnitelmat/11-tilastot-ja-yhteydet.md`: elämäntapaväittämät, päivätaulukko, Yhteys-palikka. Ei toteutettu; Emilin päätökset 17.10. kohdassa 9, koeappi jonossa.

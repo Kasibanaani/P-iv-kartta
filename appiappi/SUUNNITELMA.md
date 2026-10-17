@@ -41,6 +41,8 @@ Päiväys 16.10.2026. Tämä suunnitelma ja sen alidokumentit kirjoitettiin Emil
 | D11 | Suosikit: Emil valitsee itse tähdellä, ei automaattista "eniten käytetyt" -listaa; pätevät kaikissa projekteissa. | 04, suosikit |
 | D12 | Presetti liitetään irtokopiona: liitetyt palikat ovat tavallisia, eikä presetin myöhempi muutos koske niitä. Päivittyvä malli on F16. | 04, presetit |
 | D13 | Suosikit ja presettihylly säilyvät selaimessa projektin ulkopuolella ja kulkevat varmuuskopiossa; ei master-tiedotia nyt. | 04, presetit |
+| D14 | Palikan animointi on pelkkä visuaali (17.10.2026): se ei muuta sijaintia, ruutua, kokoa, törmäyksiä eikä logiikan arvoja. Logiikka ei odota animaatiota: `näkyy` vaihtuu heti, häipyvä palikka ei ota napautuksia, tuleva ottaa heti. | 14, päätökset 2–3 |
+| D15 | Animoinnissa keveys ensin (17.10.2026): ei aitoa liikeblurria; venytys tai vana vain, jos pysyy kevyenä. Jatkuva liike ei saa animointia, nopeassa arvossa uusin voittaa, muiden liukuminen tilalle toistaiseksi pois, Vähennä liikettä noudatetaan. | 14, päätökset 1, 5–9 |
 
 D09–D10 korvaavat tässä keskustelussa aiemmin ehdotetun kahden tilan ratkaisun ja ehdotuksen, että jokainen käynnissä oleva ketju aina päättyisi vanhalla logiikalla. D08 korvaa ehdotuksen, että poistaminen tarkoittaisi oletuksena pakollista arkistointia. D02 korvaa ehdotetun oletusvahvistuksen.
 
@@ -78,6 +80,7 @@ Numerot vastaavat alkuperäistä ideointikokonaisuutta. Tila on tarkistushetken 
 | F26 | Suosikit ja presetit (Emilin idea 16.10.2026) | Toteutettu Appi-appi 22 (17.10.2026): oma Suosikit-ryhmä paletissa ja projektiriippumaton presettihylly (näkymä + logiikka), liitetään irtokopiona; puuttuvat viittaukset katkenneina ja Kytke nämä -listana. | [04](suunnitelmat/04-omat-palikat-ja-kokoelmat.md#suosikit-ja-presetit-f26-emilin-idea-16102026) |
 | F27 | Teksti (Emilin idea 17.10.2026) | Kaavat käyttävät jo viitettä ilman sulkuja, tekstipohjat eivät. Viite-ehdotukset ja palikan luonti nimestä, tulkki/printteri kuviolla (taulukon rivit tai palikat; F20:n liimauksen kanssa), myöhemmin Tagit-palikka ja sanaoppi. Kohdat 1–2 jonossa. | [12](suunnitelmat/12-teksti.md) |
 | F28 | Jana (Emilin idea 17.10.2026) | Ketju ajoittaa suhteellisesti, säädinkynnykset vaativat KUN-ehdon per raja. Logiikan ikkuna, jonka leveys on alku–loppu: merkit loksahtavat portaaseen, laukeavat ajassa tai arvon (säädin) kulkiessa; hyppy-, suunta- ja kierrossäännöt. Vaihe 1 jonossa, välit myöhemmin. | [13](suunnitelmat/13-jana.md) |
+| F29 | Animointi (Emilin idea 17.10.2026) | Animointi on vain ketjun efekteissä. Jokaiseen näkymän palikkaan sama osio: ilmestyy, katoaa, kesto, pehmeys, myöhemmin arvo vaihtuu; projektin oletus, logiikalla ohjattava; pelkkä visuaali (D14–D15). Vaihe 1 jonossa, vaihe 2 myöhemmin. | [14](suunnitelmat/14-animointi.md) |
 
 Ketjujen kolme lukitustilaa ovat lisäksi käyttäjän päätetty täsmennys, joka koskee kaikkia näitä ominaisuuksia: [02-ketjujen-lukitus.md](suunnitelmat/02-ketjujen-lukitus.md).
 
