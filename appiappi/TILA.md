@@ -62,6 +62,9 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 20b. **2D-pelit F35, vaihe E2: piirretty ilme ohjaimille** (Emil 17.10.; suunnitelma 19 kohta 6; **tallennusmuodon muutos**, palikan `il`): näkymäpalikan yhteinen osio Ilme (Tavallinen / Piirros), ohjainten tilakohtaiset piirrokset (Painike perus/painettu/valittu/harmaana, Kytkin, Valintaruutu, Säädin kisko/täyttö/nuppi, Tatti, Monitori), yleinen painallus valinnaisena, ominaisuus `ilme`; luetteloon F26-suosikkina/presettinä piirroksineen. Nykyinen ulkoasu oletuksena ennallaan.
 21. **2D-pelit F35, vaihe F: kelluva rakennuslaatikko** (suunnitelma 19 kohta 7): auki pysyvä, raahattava paletti, klik klik -lisäys, hyllyt Rakenne, Laatat, Hahmot, Alueet, Esineet, Näkymä (F26-presettejä, ei uutta palikkaa). Ei tallennusmuotoa.
 22. **2D-pelit F35, vaihe G: liikkuvat tasot** (suunnitelma 19 kohta 8): maassa oleva kulkee alustansa mukana. Todennäköisesti ei tallennusmuotoa.
+23. **Palikkajoukko F37, vaihe 1: Joukko ja jäsenyys** (Emilin kysymys 18.10.; `suunnitelmat/21-palikkajoukko.md` kohdat 3, 4 ja 6.1; **tallennusmuodon muutos**, uusi laji `joukko`): logiikan Joukko-palikka (arvo = jäsenten määrä), jäsenet käsin (pudotus Joukon päälle, paneeli, palikan osio *Joukot*) ja säännöllä (laji, näkymä/kerros, ehto `jäsen…`; myöhemmin tehty palikka liittyy heti), pois suljetut, käsin valitun kopio kuuluu samoihin joukkoihin, sirut ja korostus, `jäseniä`, `jäsenet`, Toiminto kohteena Joukko tekee jokaiselle jäsenelle. Nimi Joukko ja paikkamerkki `jäsen` oletuksina (kohta 7). Ei erikoispalikka.
+24. **Palikkajoukko F37, vaihe 2: säännöt jäsenille** (suunnitelma 21 kohta 5; **tallennusmuodon muutos**): Joukon *＋ Sääntö* (ominaisuus = kaava jäsenelle, esim. `näkyy = jäsen.y < 600`), etusija jäsenen oma ohjaus > joukon sääntö > toiminto > perusarvo, ristiriita näkyy.
+25. **Palikkajoukko F37, vaihe 3: Jäsenille ja jäsenten tapahtumat** (suunnitelma 21 kohta 6.3; **tallennusmuodon muutos**): ikkunan valinta *Jäsenille* (kuten *Riveille*), ketjun *Toista jäsenille*, Joukon tapahtumat *jäsen napautettu*, *jäsen törmäsi* ym. tiedolla `tapahtuma.jäsen`. Hyödyttää 2D-vaihetta D; Emil voi siirtää aiemmaksi.
 
 ## Seuraavaksi
 
@@ -155,6 +158,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 ## Suunnitelmat
 
+- **18.10.2026, F37 palikkajoukko (Emilin kysymys):** `suunnitelmat/21-palikkajoukko.md`. Ryhmä on vain kehys, ikkuna kokoaa monesta yhden; uusi Joukko-palikka tekee yhdestä säännöstä monta (käsin tai säännöllä valitut jäsenet, `jäsen` kaavassa kuten käsiteltävä rivi). Ei automaattisia esiintymiä ikkunaan. Vaiheet jonossa 23–25. Ei toteutettu; vain Markdown muuttui.
 - **17.10.2026, F34 vapaat värit ja paletit (Emilin toive):** `suunnitelmat/18-varit-ja-paletit.md`. Teema ja palikkapaletti mistä tahansa itse valitusta väristä; paletti = tapa × lähtöväri, paikat korvattavissa. Vaihe 1 jonossa 14. Ei toteutettu.
 - **17.10.2026, F33 peliohjain (Emilin idea):** `suunnitelmat/17-peliohjain.md`. iPhone tukee Xbox-, PlayStation- ja Nintendo-ohjaimia Safarissa ja kotinäytön web-apissa; ohjain näkyy vasta ensimmäisestä napinpainalluksesta, tärinä iPhonella epävarma. Vaihe 1 jonossa 10. Ei toteutettu; vain Markdown muuttui.
 - **17.10.2026, F29 animointi (Emilin idea):** `suunnitelmat/14-animointi.md`, pelkkä visuaali (D14–D15). Emil hyväksyi linjaukset; vaihe 1 jonossa 3, vaihe 2 jonossa 9. Ei toteutettu.
