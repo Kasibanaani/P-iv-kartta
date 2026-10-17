@@ -1,6 +1,6 @@
 # F30 Logiikkapinnan näkymä ja kaavan laajennus
 
-17.10.2026. **Emilin idea** (viesti 17.10. klo 9.06), tekoälyn jäsentämä. Merkinnät: *Emilin linjaus* = hänen sanansa, *ehdotus* = tekoälyn suositus, jonka Emilin jonopäätös kattaa, ellei kohtaa ole merkitty ⏸. Ei toteutettu.
+17.10.2026. **Emilin idea** (viesti 17.10. klo 9.06), tekoälyn jäsentämä. Merkinnät: *Emilin linjaus* = hänen sanansa, *ehdotus* = tekoälyn suositus, jonka Emilin jonopäätös kattaa, ellei kohtaa ole merkitty ⏸. **Kohdat 1–3 toteutettu Appi-appi 27:ssä** (17.10.2026, toteutuksen täsmennykset kohtien lopussa); kohdat 4–5 jonossa.
 
 ## Emilin linjaukset
 
@@ -19,7 +19,7 @@
 - Kaava hylkää tarkoituksella sulut ja sallii yhden vertailun: ”sulkuja ei käytetä kaavassa: laita osat ikkunaan” (periaatteet, kohta 5).
 - Logiikkapuolella ei ole pelkkää visuaalista ryhmää. Rakentajan laput (Appi-appi 18) ovat muistiinpanoja, eivät kehyksiä.
 
-## 1. Pistokkeet piiloon (jonossa)
+## 1. Pistokkeet piiloon (toteutettu, Appi-appi 27)
 
 - Logiikkakanvaasin kulmassa on pieni valinta **Pistokkeet: näkyvät / piilossa**. Kun pistokkeet ovat piilossa, valinta näkyy korostettuna (”Pistokkeet piilossa”), joten tila ei unohdu. Napautus vaihtaa tilan takaisin.
 - **Palikan oma asetus** voittaa yleisen: *Pistokkeet: kuten muut / näkyvät / piilossa* (tarkastelijassa, Ulkonäkö). Näin Kaava voi olla ilman ja JOS-ikkuna pistokkeiden kanssa. *Ehdotus:* ei lajikohtaista asetustaulukkoa, koska se olisi raskas. Palikan asetukseen tulee nappi *Sama kaikille tämän lajin palikoille*.
@@ -27,18 +27,19 @@
 - Ketjun sisällä pistokkeet näkyvät aina (linjaus 2).
 - Tallennus: valinnainen kenttä projektin logiikkanäkymälle ja palikalle. Vanha projekti näyttää pistokkeet kuten ennen. Muistuta varmuuskopiosta.
 
-## 2. Viitteet himmeinä katkoviivoina (jonossa)
+## 2. Viitteet himmeinä katkoviivoina (toteutettu, Appi-appi 27)
 
 - Sama kulman valikko: **Viitteet: ei / valitulle / kaikille**. *Ehdotus:* oletus on *valitulle*. Valitun palikan kaavan viittaamat palikat ja sitä käyttävät palikat saavat himmeän katkonuolen. Se on kevyt ja kertoo vastauksen ”mistä tämä tulee”.
 - Kaava → Kaavan tulos -katkoviiva piirtyy aina kuten nyt (Emil haluaa tämän nimenomaan).
 - Katkoviiva on pelkkä näyttö. Sitä ei voi valita, poistaa eikä tallentaa, ja se lasketaan samasta tiedosta kuin Yhteydet-osio.
 - Ero näkyy heti: itse piirretty nuoli on vahva ja yhtenäinen, automaattinen viite on himmeä ja katkoviivainen.
 
-## 3. Kaava venyy ja sitä kirjoitetaan suoraan (jonossa)
+## 3. Kaava venyy ja sitä kirjoitetaan suoraan (toteutettu, Appi-appi 27)
 
 - Kaavapalikkaa voi venyttää kulmasta kuten ikkunaa. Palikka näyttää koko kaavan rivitettynä, ja kun pistokkeet ovat piilossa, tila menee tekstille.
 - Kaksoisnapautus (tai napautus valitussa palikassa) avaa kirjoituksen suoraan palikkaan. Samat viite-ehdotukset ja virheilmoitukset kuin tarkastelijassa. Enter tai napautus muualle tallentaa, Esc peruu.
 - Koko tallentuu palikan solmuun (valinnainen leveys ja korkeus).
+- *Toteutus (Appi-appi 27):* kulman valinnat ovat logiikan vasemmassa alakulmassa kahtena nappina; napautus vaihtaa (Viitteet kiertää ei → valitulle → kaikille). Piilotetusta palikasta näkyvät vain kytkettyjen kohtien nuolet, ja ne ovat himmeitä. Ikkunat noudattavat samaa valintaa, ketjuikkuna ja ketjun tapahtumat eivät. Katkoviivat: kaava, teksti, arvo, näkyy/harmaana/vaihtoväri kun, ehto, kaavio ja kalenteri; ei nuolella jo yhdistettyä paria, ei kaavan tulosta (oma viivansa) eikä toiminnon kohdetta (toiminto kirjoittaa, ei lue). Venytyskulma näkyy, kun Kaava on valittuna; kaksoisnapautus kulmaan palauttaa koon. Suora kirjoitus on yksi Kumoa-askel. Ketjun sisällä Kaava ei veny eikä avaa suoraa kirjoitusta (ketjussa kaavat ovat vain nuolen päässä).
 
 ## 4. JOS kaavaan (jonossa; muuttaa periaatetta 5)
 

@@ -1,6 +1,6 @@
 # Appi-appi: tila
 
-**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 17.10.2026 (Appi-appi 26: logiikkapalikoiden asetukset kaavalle)
+**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 17.10.2026 (Appi-appi 27: logiikkapinta, pistokkeet piiloon, viitteet katkoviivoina, venyvä Kaava)
 
 Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- ja iPad-näkymät, maailma ja hahmon liike, myöhemmin vienti omaksi appiksi). Ristiriidoissa Kytköskartan logiikka voittaa. Suunnitelma: `SUUNNITELMA.md` ja `suunnitelmat/`; vanhempien vaiheiden päätökset `VERTAILU.md`. Toteutettujen versioiden yksityiskohdat, tallennuskentät ja kokeiluohjeet: `MUUTOKSET.md`.
 
@@ -16,9 +16,10 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 - Appi-appi 24: erikoispalikoiden ✦-merkki (jonon 1b): paletti, pikakatselu ja palikan paneeli näyttävät ✦:n ja poikkeuksen syyn; `K`-lajin kenttä `erik`, testi pitää sen ja `PALIKKASAANNOT.md`:n rekisterin samoina. Animaation ikoni ✦ → ✺. Ei tallennusmuodon muutosta.
 - Appi-appi 25: ohjainten tapahtuma *muuttui* (jonon 1c, L1): Säädin, Tekstikenttä, Lukukenttä, Valintaruutu, Kytkin, Päivämäärä ja Lista; vain käyttäjän muutos, Tekstikenttä kirjoituksen lopuksi, tiedoissa uusi ja vanha. Ei tallennusmuodon muutosta.
 - Appi-appi 26: logiikkapalikoiden asetukset kaavalle (jonon 1d, L2): `ajastin.kesto` (s), `muutos.alku/.loppu/.kesto`, `toista.kerrat`, Satunnaisluvun `.min/.max/.p1…` ja Käyrän rajat, syöte, kohta ja portaat rekisterissä ja Ominaisuudet-osiossa. Vain luettavia; ohjaus sisäänmenon nuolella. Ei tallennusmuodon muutosta.
+- Appi-appi 27: logiikkapinta (jonon 1e, F30 kohdat 1–3): kulman *Pistokkeet* ja *Viitteet*, palikan oma pistokeasetus voittaa (ketjussa aina näkyvissä), viitteet himmeinä katkoviivoina (valitulle/kaikille/ei), Kaava venyy ja sitä kirjoitetaan suoraan palikkaan. Tallennusmuoto laajeni valinnaisilla kentillä (`lg.pin`, `lg.vit`, `lpin`, `kw`, `kh`), versio ennallaan.
 - Emilin päätökset 16.10. (Appi-appi 13:n jälkeen): koosteet säilyvät taulukon ominaisuuksina (`taulu.määrä.summa`) myös P3:n ikkunakoosteiden rinnalla; Lisää rivi -kentät pysyvät kaavoina (teksti lainausmerkeissä); taulukolle ei vielä tehdä omia tapahtumia (rivi lisätty, valinta vaihtui); Lisää puuttuvaan kenttään alkaa nollasta ja Vaihda puuttuvasta antaa kyllä (nykyinen toiminta pysyy, tekoälyn suositus).
 - Tallennusversio edelleen 8; vanhat projektit avautuvat ennallaan. Uudet valinnaiset kentät versioittain: `MUUTOKSET.md`, Tallennus (Appi-appi 11–16 myös juuren `README.md`).
-- Testattu vain tietokoneen Chromiumissa (kosketus ja nipistys CDP:llä 390 ja 320 px, Appi-appi 11–13 tietokoneella 1440 ja 1280, Appi-appi 13–26 myös puhelinleveyksillä), ei oikealla iPhonella, iPadilla eikä Safarilla.
+- Testattu vain tietokoneen Chromiumissa (kosketus ja nipistys CDP:llä 390 ja 320 px, Appi-appi 11–13 tietokoneella 1440 ja 1280, Appi-appi 13–27 myös puhelinleveyksillä), ei oikealla iPhonella, iPadilla eikä Safarilla.
 
 ## Jono
 
@@ -26,7 +27,6 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 **Haarat ja tarkistuspisteet (Emil 17.10.2026):** ⏸-merkitty kohta odottaa Emilin päätöstä. Jono ei pysähdy siihen: rakentaja tai vahti ilmoittaa Emilille ja jatkaa seuraavaan kohtaan, joka ei riipu odottavasta. Kohta, josta mikään jonossa ei riipu, on oma haaransa; Emil voi ottaa sen käsittelyyn milloin haluaa. Avoimista haaroista muistutetaan Emiliä säännöllisesti (ajastettu muistutus APPI-APPI-projektin ketjussa *Tilastot ja oppiminen*).
 
-1e. **Logiikkapinta F30, kohdat 1–3** (`suunnitelmat/15-logiikkapinta.md`, Emilin idea 17.10.): pistokkeet piiloon (yleinen ja palikkakohtainen valinta), viitteet himmeinä katkoviivoina, Kaava venyy ja sitä kirjoitetaan suoraan palikkaan. Tallennusmuoto laajenee (muistuta varmuuskopiosta).
 1f. **JOS, JA ja TAI kaavaan** (F30 kohta 4): `jos(ehto; kyllä; muuten)`, puolipiste-erotin, sisäkkäinen sallittu; periaatteiden kohta 5 ja palikkasääntö A7 täsmennetään samalla.
 1g. **Kehys** (F30 kohta 5): logiikkapuolen pelkkä visuaalinen ryhmä, reunaviiva, nimi ja valinnainen kevyt sävy; erikoispalikka rekisteriin.
 1h. **Tekstihaku kaavaan** (Emilin hyväksyntä 17.10., koeappien löydös): vertailu *sisältää*, esim. `kohde.nimi sisältää haku`; kirjainkoosta välittämättä, tyhjä haku pätee aina, puuttuva teksti ei päde. Koeappi C:hen hakukenttä vasta pyynnöstä.
@@ -42,6 +42,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 ## Seuraavaksi
 
+- **Linjakkuuskartoitus 2 on vuorossa ennen seuraavaa rakennustyötä** (`PALIKKASAANNOT.md`: viisi jonon kohtaa viety edellisen jälkeen: koeapit 23, ✦ 24, 1c 25, 1d 26, 1e 27). Löydökset ja ehdotukset, ei koodia.
 - **Koeapit (Appi-appi 23) toivat esiin:** tekstihaku ja taulukon `eka`/`vika` ovat jonossa (1h, 1i, Emilin hyväksyntä 17.10.). Ei jonossa: kapeassa kortissa Lukukentän omat −/+ peittävät luvun, joten C näyttää määrän Tekstinä.
 - Järjestys: Jono yllä. Kokonaiskuva ja loput paketit (P4–P7): `SUUNNITELMA.md`.
 - **Tekoälyn ehdotus:** `index.html` pilkotaan osiin (build-skripti tai moduulit), jotta kontekstia kuluu vähemmän. Ei tehdä ilman Emilin lupaa.
@@ -105,6 +106,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 - Appi-appi 20 Ei tarkistettu: oikea iPhone ja Safarin pitkä painallus (tekstin valinta tai suurennuslasi voi kilpailla), kortin raahaus ruudukkoasettelussa (testattu allekkain), reunavieritys hitaammalla kerroksella (tarkoituksella pois), korostus rullausvauhdiltaan eri kerroksen alueille.
 - Appi-appi 21 Ei tarkistettu: oikea iPhone ja Safari (säätimen korjaus testattu Safarin tapaa jäljitellen), kalenterin päivän napautus kortissa (Toistin).
 - Appi-appi 23 Ei tarkistettu: oikea iPhone ja Safari, oikea GitHub-haku (testattu valepalvelimella), kysymysten vaihto taulukkoikkunasta selaimessa (sisällön vaihto testattu moottorissa).
+- Appi-appi 27 Ei tarkistettu: oikea iPhone ja Safari (kirjoituskenttä palikan päällä näppäimistön kanssa, venytyskulma sormella), iPad-näkymä, iso projekti *Viitteet: kaikille* -tilassa (viivat lasketaan jokaisessa vedossa).
 - Appi-appi 26 Ei tarkistettu: oikea iPhone ja Safari (pelkkä luku ja paneelin rivit, ei uutta kosketusta).
 - Appi-appi 25 Ei tarkistettu: oikea iPhone ja Safari (Tekstikentän muuttui lähtee, kun kenttä menettää kohdistuksen: näppäimistön *Valmis*), ohjain Toistimen kortissa selaimessa.
 - Appi-appi 24 Ei tarkistettu: oikea iPhone ja Safari. Puhelimessa paletin vihjettä ei näe, joten syy näkyy vasta palikan paneelissa.
@@ -118,7 +120,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 - **16.10.2026, F25 tilastot ja yhteydet (Emilin idea):** `suunnitelmat/11-tilastot-ja-yhteydet.md`: elämäntapaväittämät, päivätaulukko, Yhteys-palikka. Ei toteutettu. **Tauolla 17.10.:** kohdan 9 kysymykset auki, uudelleenkäsittely tarkistuspisteessä F08:n jälkeen (Jono 5).
 - **16.10.2026, F24 massa ja törmäykset:** `suunnitelmat/09-massa-ja-tormaykset.md`, toteutettu Appi-appi 17.
 - **17.10.2026, palikkasäännöt ja linjakkuuskartoitus 1:** `PALIKKASAANNOT.md` (rakentajan aina luettava tarkistuslista, erikoispalikoiden rekisteri) ja `kartoitukset/2026-10-17-linjakkuus.md`: linja pitää pääosin; isot löydökset L1 (syöttävät ohjaimet eivät lähetä *muuttui*-tapahtumaa) ja L2 (logiikkapalikoiden asetukset eivät näy kaavalle). Ehdotuksia, ei toteutettu. Kartoitus katsoi vain palikoiden kohdat ja ominaisuudet koodista, ei käyttöliittymää eikä testejä.
-- **17.10.2026, F30 logiikkapinta (Emilin idea):** `suunnitelmat/15-logiikkapinta.md`. Kohdat 1–5 jonossa (1e–1g); suomenkielinen sääntö (kohta 6) ja paletin piilotus avoimina. Ei toteutettu.
+- **17.10.2026, F30 logiikkapinta (Emilin idea):** `suunnitelmat/15-logiikkapinta.md`. Kohdat 1–3 toteutettu (Appi-appi 27), kohdat 4–5 jonossa (1f–1g); suomenkielinen sääntö (kohta 6) ja paletin piilotus avoimina.
 - **16.10.2026, missio ja manuaalin tehtävänanto:** `MISSIO.md` ja `suunnitelmat/08-manuaalin-tehtavananto.md`. Varsinaista manuaalia ei ole kirjoitettu.
 
 ## Emilin kommentit
