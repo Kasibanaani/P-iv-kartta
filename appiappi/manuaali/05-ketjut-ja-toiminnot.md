@@ -50,9 +50,9 @@ Alla *tyhjä* tarkoittaa, että kenttä on tyhjä eikä kohtaan *arvo* tule nuol
 
 | Toiminto | Mitä tekee | Kohteeksi käy | Kentät | Tyhjä tai kelvoton arvo |
 |---|---|---|---|---|
-| **Aseta arvo** | Asettaa kohteen arvoksi annetun arvon. | Painike, Valintaruutu, Kytkin, Säädin, Tekstikenttä, Lukukenttä, Päivämäärä, Kalenteri, Muisti; Tietotaulukko (sarake); minkä tahansa palikan ohjattava ominaisuus; Ketjun `lukitus`. | **Uusi arvo**. Taulukolle **Sarake** ja **Mikä rivi**. Ketjun lukitukselle lisäksi valikko **Lukitustila**. | Tyhjä tyhjentää: Tekstikenttä tyhjäksi, Valintaruutu ja Kytkin *ei*, Säädin ja Lukukenttä 0, Päivämäärä tyhjäksi, Muisti tyhjäksi, taulukon kenttä puuttuvaksi. Säädin ja Lukukenttä rajataan omaan min–max-väliinsä. |
+| **Aseta arvo** | Asettaa kohteen arvoksi annetun arvon. | Painike, Valintaruutu, Kytkin, Säädin, Tekstikenttä, Lukukenttä, Päivämäärä, Kalenteri, Muisti; Tietotaulukko (sarake); minkä tahansa palikan ohjattava ominaisuus; Ketjun `lukitus`; Jana (siirtää kohdan, rasti **Ilman laukaisua**). | **Uusi arvo**. Taulukolle **Sarake** ja **Mikä rivi**. Ketjun lukitukselle lisäksi valikko **Lukitustila**. | Tyhjä tyhjentää: Tekstikenttä tyhjäksi, Valintaruutu ja Kytkin *ei*, Säädin ja Lukukenttä 0, Päivämäärä tyhjäksi, Muisti tyhjäksi, taulukon kenttä puuttuvaksi. Säädin ja Lukukenttä rajataan omaan min–max-väliinsä. |
 | **Aseta tila** | Tekee kohteesta valitun tai ei-valitun. | Valittavat: Painike (ei kertapainallus määränä), Valintaruutu, Kytkin, Muisti; kyllä/ei-ominaisuus. | **Tila**: *on valittu* (oletus) / *ei ole valittu*. | Ei arvokenttää. |
-| **Lisää** | Lisää kohteen nykyiseen arvoon määrän. | Säädin, Lukukenttä, Muisti, Päivämäärä, kertapainallus (painallusten määrä); taulukon luku- tai päivämääräsarake; luku-ominaisuus. | **Määrä**. | Tyhjä = 1. Negatiivinen vähentää. Kelvoton määrä = 0. Päivämäärään lisätään päiviä (tyhjä päivämäärä lasketaan tästä päivästä). Puuttuvaan taulukon kenttään lisätään kuin nollaan. |
+| **Lisää** | Lisää kohteen nykyiseen arvoon määrän. | Säädin, Lukukenttä, Muisti, Päivämäärä, kertapainallus (painallusten määrä); taulukon luku- tai päivämääräsarake; luku-ominaisuus; Jana (siirtää kohtaa). | **Määrä**. | Tyhjä = 1. Negatiivinen vähentää. Kelvoton määrä = 0. Päivämäärään lisätään päiviä (tyhjä päivämäärä lasketaan tästä päivästä). Puuttuvaan taulukon kenttään lisätään kuin nollaan. |
 | **Valitse** | Tekee kohteesta valitun. Kertapainalluksella lisää yhden painalluksen. | Valittavat palikat ja Painike. | Ei kenttiä. | – |
 | **Poista valinta** | Tekee kohteesta ei-valitun. | Valittavat palikat. | Ei kenttiä. | – |
 | **Vaihda** | Vaihtaa kyllä ↔ ei. | Valittavat palikat; taulukon kyllä/ei-sarake (puuttuva → kyllä); kyllä/ei-ominaisuus. | Taulukolle Sarake ja Mikä rivi. | – |
@@ -62,8 +62,8 @@ Alla *tyhjä* tarkoittaa, että kenttä on tyhjä eikä kohtaan *arvo* tule nuol
 | **Kirjaa** | Aikajanalle: merkintä aikaleiman kanssa. Tietotaulukkoon: uusi rivi, jonka aika on kirjaushetki ([kirjaushistoria](07-tieto.md#kirjaushistoria)). | Aikajana (omat merkinnät); Tietotaulukko, jossa on ajankohta-sarake. | Aikajanalle **Teksti** (`{Nimi}` toimii). Taulukkoon kenttä jokaiselle sarakkeelle kuten Lisää rivi (ei Id:tä); aika-kentän ohje *(tyhjä = nyt)*. Ilman aika-saraketta nappi **Tee taulukosta kirjaushistoria**. | Aikajana: tyhjä teksti → arvo nuolesta. Taulukko ilman ajankohta-saraketta: virhe *ei ole aika-saraketta*, riviä ei lisätä. Sitten-tapahtuman rivi = uusi kirjaus. |
 | **Lisää riviksi listaan** | Lisää Listaan uuden rivin. | Lista. | **Teksti**. | Tyhjä teksti: arvo nuolesta; muuten ”Uusi rivi”. Jos arvo on päivämäärä, se tulee rivin päivämääräksi. |
 | **Näytä ilmoitus** | Näyttää hetken ilmoituksen näytön yläreunassa. | Ei kohdetta. | **Ilmoitus** (`{Nimi}` toimii). | Tyhjä teksti: näytetään arvo nuolesta (ilman sitä ”–”, ei tarkistettu selaimessa). |
-| **Käynnistä ketju** | Käynnistää ketjun alusta. | Ketju. | **Odota, että ketju on valmis** (rasti, toimii vain ketjun sisällä). | – |
-| **Pysäytä ketju** | Pysäyttää ketjun kaikki haarat. Pysäytetty ketju ei anna valmis-tapahtumaa. | Ketju. | – | – |
+| **Käynnistä ketju** | Käynnistää ketjun tai [janan](#jana-jana) alusta. | Ketju, Jana. | **Odota, että ketju on valmis** (rasti, toimii vain ketjun sisällä). | – |
+| **Pysäytä ketju** | Pysäyttää ketjun kaikki haarat tai janan. Pysäytetty ketju ei anna valmis-tapahtumaa. | Ketju, Jana. | – | – |
 | **Arvo uudelleen** | Arpoo Satunnaisluvulle uuden luvun. Satunnaisluvun *arvottu*-tapahtuma lähtee heti. | Satunnaisluku. | – | – |
 | **Palauta perusarvo** | Poistaa toimintojen asettamat ominaisuusarvot, jolloin perusarvo (tai kaava, jos ominaisuus on ohjattu) on taas voimassa. Palauttaa myös efektien jättämän tekstin ja kuvan. | Palikka, jolla on ominaisuuksia. | **Mikä palautetaan**: *kaikki ominaisuudet* tai yksi. | – |
 | **Lisää rivi** | Lisää Tietotaulukkoon rivin. | Tietotaulukko. | Kenttä jokaiselle sarakkeelle: **kaava** (`3`, `"Maito"`, `tänään`, `nyt`, `tapahtuma.uusi`, viite). **Valitse uusi rivi** (rasti). | Tyhjä kenttä = puuttuu. Jos jokin kenttä on virheellinen, riviä ei lisätä. Sitten-tapahtuman rivi on uusi rivi. |
@@ -141,6 +141,43 @@ Vaiheen poisto keskeltä (× luettelossa tai ⌫) kytkee edellisen ja seuraavan 
 **Mistä ketju alkaa.** Alkuvaiheita ovat vaiheet, joihin ei tule ketjun viivaa; jokaisesta lähtee oma haara. Jos jokaiseen vaiheeseen tulee viiva (kehä), ketju alkaa ylimmästä. Nuoli ulkoa suoraan ketjun vaiheen saapumiskohtaan käynnistää ketjun siitä vaiheesta.
 
 **Huomautukset ennen ajoa** (paneeli ja otsikon ⚠): esim. ”Ketju on tyhjä…”, ”Mikään ei vielä käynnistä ketjua…”, ”Kehä ilman ajastinta: A → B → A…”, ”valitse kohde”, ”ketju ei voi käynnistää itseään”, ”Ketjut odottavat toisiaan…”, haara joka ei jatku mihinkään.
+
+---
+
+## Jana (`jana`)
+
+Jana on ikkuna, jonka leveys on alku–loppu (esim. 0–10 s). Sisään vedetyt Toiminnot ja efektit ovat **merkkejä**: kukin tehdään, kun janan kohta ohittaa sen. Jana kulkee joko ajassa (käynnistä, pysäytä, jatka) tai arvon mukaan (esim. Säätimestä). Toteutettu Appi-appi 41:ssä (F28 vaihe 1, `suunnitelmat/13-jana.md`); ei erikoispalikka.
+
+- **Löytyy:** Logiikka → paletti → **Ketju** → siru **Jana** (Ketju-sirun vieressä). Uusi jana on 480 × 150.
+- **Merkki:** Toiminto (`tee`) tai efekti janan sisällä. Palikan **vasen reuna** on sen kohta. Raahatessa palikka loksahtaa portaaseen ja kohta näkyy sen yllä; pudotettu merkki saa kohdan, ja sen nimilappu näkyy merkin yllä. Samaan kohtaan mahtuu monta allekkain; ylin tehdään ensin. Tarkan kohdan voi kirjoittaa merkin paneeliin (**Kohta janalla**), mikä on puhelimella tarkempaa kuin raahaus. Muut palikat ja ikkunat eivät mene janaan, ja jana voi olla vain logiikan päätasolla tai Ryhmässä.
+- **Ulkoasu:** otsikossa ⟼ JANA, nimi, tila (*käynnissä*, kohta yksikköineen, *pois päältä*) ja ▶/■-nappi (aikajanalla). Asteikossa viiva joka portaalla (tiheä harvenee) ja luvut; kulkeva kohta näkyy pystyviivana. Laukeava merkki välähtää. Alueen ulkopuolelle jäänyt merkki näyttää ”· ulkopuolella” eikä laukea (sitä ei poisteta). Jana kasvaa vain alaspäin, kun merkkejä tulee lisää. Tiivistys kuten muissa ikkunoissa.
+
+**Pistokkeet**
+
+| Kulku | Sisään | Ulos |
+|---|---|---|
+| Aika | **käynnistä** (alusta), **pysäytä**, **jatka** (pysähtyneestä kohdasta), **alku**, **loppu** | **kohta**, **osuus**, **käynnissä**, **alkoi**, **valmis** (Kerran) tai **kierros** (Toista, Edestakaisin) |
+| Arvo | **kohta** (esim. Säädin), **päällä**, **alku**, **loppu** | **kohta**, **osuus** |
+
+**Paneeli (osio Jana)**
+
+- **Kulku**: *Aika* (oletus) / *Arvo*. Aikajanan kohta lasketaan käynnistyshetkestä, joten se on oikein myös, kun appi avataan uudelleen. Arvojanan kohta tulee nuolesta kohtaan *kohta* tai Aseta arvo -toiminnosta.
+- **Alku**, **Loppu** (oletus 0 ja 10; voi tulla nuolesta, luku). Loppu voi olla pienempi kuin alku (jana kulkee taaksepäin).
+- **Yksikkö**: ei yksikköä, sekuntia (oletus), minuuttia, tuntia, vuorokautta. Aikajanalla ilman yksikköä yksi askel on sekunti. Tunti- ja vuorokausijanalla ohje muistuttaa, ettei appi tee mitään suljettuna eikä lähetä ilmoituksia.
+- **Porras** (oletus 1): merkit loksahtavat sen välein. Nolla tai kelvoton = 1.
+- **Hypyssä**: *Väliin jääneet* (oletus) / *Vain viimeinen* / *Ei mitään*. Hyppy = kohta muuttuu kerralla yli portaan (napautus säätimen raidalle, Aseta arvo) tai appi oli välillä kiinni (aikajanalla yli sekunnin tauko). Tavallisessa kulussa merkit tehdään aina järjestyksessä.
+- **Laukeaa**: *Oletus* (aikajanalla eteenpäin, arvojanalla molempiin) / *Eteenpäin* / *Molempiin suuntiin*. Merkki laukeaa uudestaan vasta, kun kohta on käynyt sen toisella puolella.
+- **Kierros** (vain aika): *Kerran* (pysähtyy loppuun, tapahtuma *valmis*) / *Toista* (lopusta alkuun, tapahtuma *kierros*) / *Edestakaisin* (alusta loppuun ja takaisin, *kierros* kummassakin päässä). Toistuva jana kulkee, kunnes se pysäytetään.
+- Tilarivi (*Käynnissä*, *Pysähdyksissä*, *Kohta nyt* · osuus %, ja kohta), aikajanalla napit **▶ Käynnistä alusta**, **⏵ Jatka**, **⏹ Pysäytä**, huomautukset (alku ja loppu samat, tyhjä jana, merkkejä alueen ulkopuolella, arvojanalla ei nuolta).
+- Yleiset: nimi, viite, **Pois käytöstä** (pois päältä oleva aikajana pysähtyy).
+
+**Kaavassa** (viite esim. `jana`): `jana.kohta` (myös pelkkä `jana`), `jana.osuus` (0–100), `jana.käynnissä`, `jana.alku`, `jana.loppu`. Merkkinä olevan Toiminnon kaavassa `tapahtuma.uusi` on merkin kohta ja `tapahtuma.suunta` on 1 eteenpäin ja −1 taaksepäin (tarvitsee Tapahtuman tiedot -palikan, kuten muutkin tapahtumakentät).
+
+**Toiminnot janalle:** **Käynnistä** ja **Pysäytä** käyvät janalle kuten ketjulle (”Käynnistä jana”); ketjun sisällä rasti **Odota** odottaa, että jana on valmis. **Aseta arvo** siirtää janan kohdan ja **Lisää** siirtää sitä määrän verran; kohdan ohittamat merkit laukeavat hyppysäännön mukaan. Rasti **Ilman laukaisua** siirtää kohdan laukaisematta mitään. Jana voi käynnistää toisen janan merkillä.
+
+**Miksi?** janasta kertoo kohdan ja tilan; merkistä, minkä janan merkki se on ja milloin se viimeksi laukesi.
+
+**Rajat:** merkki tehdään vain, kun appi on auki (kun appi avataan, väliin jääneet hyppysäännön mukaan). Yksi jana ei voi käynnistää itseään loputtomasti (syvyysraja). Jana ei ole aikajana-palikka (kirjaukset); nimet ovat eri.
 
 ---
 

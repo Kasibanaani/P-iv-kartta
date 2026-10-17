@@ -23,6 +23,7 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | yhdistää monta ehtoa | Ikkuna (JA, TAI, VÄHINTÄÄN…) tai `ja(;)`, `tai(;)` | [Ikkuna](04-logiikkapalikat.md#ikkuna-ikkuna) |
 | tehdä jotain ehdon alkaessa päteä | JOS (NIIN-tapahtuma) tai KUN | [JOS](04-logiikkapalikat.md#jos-jos), [KUN](04-logiikkapalikat.md#kun-kun) |
 | odottaa ja tehdä vaiheittain | Ketju ja Ajastin | [Ketju](05-ketjut-ja-toiminnot.md#tapahtumaketju-ketju-ketju) |
+| tehdä asioita aikataulussa (0 s, 2 s, 5 s…) tai säätimen kohdissa | Jana: Toiminnot janalle kohtiinsa | [Jana](05-ketjut-ja-toiminnot.md#jana-jana) |
 | arpoa | Satunnaisluku (luku) tai Arpa (ketjun haara) | [Satunnaisluku](04-logiikkapalikat.md#satunnaisluku-satu), [Arpa](05-ketjut-ja-toiminnot.md#arpa--arpa) |
 | tehdä sivuja ja siirtyä niiden välillä | näkymät, toiminto Siirry | [Näkymät](02-tyoymparisto.md#näkymät-sivut-ja-siirtyminen) |
 | pitää listaa riveinä | Tietotaulukko | [Tietotaulukko](07-tieto.md#tietotaulukko-taulu) |
@@ -96,6 +97,7 @@ Kaikki palikkalajit. Laji on sisäinen tunniste (tallennustiedostossa `k`). ✦ 
 | [Ikkuna](04-logiikkapalikat.md#ikkuna-ikkuna) | `ikkuna` | Logiikka | Logiikkapalikat |
 | [Ryhmä ✦](04-logiikkapalikat.md#ryhmä--ryhma) | `ryhma` | Logiikka | Logiikkapalikat |
 | [Ketju](05-ketjut-ja-toiminnot.md#tapahtumaketju-ketju-ketju) | `ketju` | Logiikka | Toiminnot ja ketjut |
+| [Jana](05-ketjut-ja-toiminnot.md#jana-jana) | `jana` | Logiikka | Toiminnot ja ketjut |
 | [Ajastin ✦](05-ketjut-ja-toiminnot.md#ajastin--ajastin) | `ajastin` | Logiikka | Toiminnot ja ketjut |
 | [Ehto ✦](05-ketjut-ja-toiminnot.md#ehto--haara) | `haara` | Logiikka | Toiminnot ja ketjut |
 | [Odota, kunnes ✦](05-ketjut-ja-toiminnot.md#odota-kunnes--odota) | `odota` | Logiikka | Toiminnot ja ketjut |

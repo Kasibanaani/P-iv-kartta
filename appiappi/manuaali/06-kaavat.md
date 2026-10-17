@@ -574,11 +574,12 @@ Taulukossa *L* = vain luettava, *O* = ohjattava. Suluissa muut kirjoitusasut.
 | Arpa | `viimeisin` | L | viimeksi arvottu (0 = ei vielä) |
 | Toista | `kierros`, `kerrat` | L | `kerrat` vain kun ei riveille |
 | Monta haaraa | `haara`, `haaranimi` | L | ensimmäinen pätevä haara (0 = muuten) |
+| Jana | `kohta` (`arvo`), `osuus`, `käynnissä`, `alku`, `loppu` | L | osuus 0–100 |
 | Toiminto (Siirry ilman kohdetta) | `x`, `y` | O | siirtymän kohta |
 | Tietotaulukko | `rivejä` (`arvo`), `valittunro`, `valittu`, `eka` (`ensimmäinen`), `vika` (`viimeinen`) | L | |
 | Tietotaulukko | `valittu.<sarake>`, `eka.<sarake>`, `vika.<sarake>` | L | rivin kenttä |
 | Tietotaulukko | `<sarake>.summa`, `.keskiarvo`, `.suurin`, `.pienin`, `.havaintoja`, `.puuttuvia`, `.virheitä`, `.täydellinen` | L | sarakkeen koosteet |
-| Tapahtuman tiedot | `uusi` (`arvo`), `vanha`, `rivi`, `lähde`, `aika`, `päivä`, `tunniste`, `kohde`, `x`, `y`, `ruutux`, `ruutuy`, `isku`, `on`, `taulukko`, `rivi.<sarake>` | L | |
+| Tapahtuman tiedot | `uusi` (`arvo`), `vanha`, `rivi`, `lähde`, `aika`, `päivä`, `tunniste`, `kohde`, `x`, `y`, `ruutux`, `ruutuy`, `isku`, `on`, `suunta`, `taulukko`, `rivi.<sarake>` | L | |
 | Rivi | `rivi` (`arvo`), `nro`, `on`, `<sarake>` | L | |
 | Rivijoukko | `rivejä` (`arvo`), `eka`, `vika`, `eka.<sarake>`, `vika.<sarake>`, `<sarake>.summa` … | L | |
 | Ryhmä | (ei ominaisuuksia) | | viittaus antaa tyhjän |
