@@ -1,6 +1,6 @@
 # F30 Logiikkapinnan näkymä ja kaavan laajennus
 
-17.10.2026. **Emilin idea** (viesti 17.10. klo 9.06), tekoälyn jäsentämä. Merkinnät: *Emilin linjaus* = hänen sanansa, *ehdotus* = tekoälyn suositus, jonka Emilin jonopäätös kattaa, ellei kohtaa ole merkitty ⏸. **Kohdat 1–3 toteutettu Appi-appi 27:ssä** (17.10.2026, toteutuksen täsmennykset kohtien lopussa); kohdat 4–5 jonossa.
+17.10.2026. **Emilin idea** (viesti 17.10. klo 9.06), tekoälyn jäsentämä. Merkinnät: *Emilin linjaus* = hänen sanansa, *ehdotus* = tekoälyn suositus, jonka Emilin jonopäätös kattaa, ellei kohtaa ole merkitty ⏸. **Kohdat 1–3 toteutettu Appi-appi 27:ssä, kohta 4 Appi-appi 28:ssa** (17.10.2026, toteutuksen täsmennykset kohtien lopussa); kohta 5 jonossa.
 
 ## Emilin linjaukset
 
@@ -41,13 +41,14 @@
 - Koko tallentuu palikan solmuun (valinnainen leveys ja korkeus).
 - *Toteutus (Appi-appi 27):* kulman valinnat ovat logiikan vasemmassa alakulmassa kahtena nappina; napautus vaihtaa (Viitteet kiertää ei → valitulle → kaikille). Piilotetusta palikasta näkyvät vain kytkettyjen kohtien nuolet, ja ne ovat himmeitä. Ikkunat noudattavat samaa valintaa, ketjuikkuna ja ketjun tapahtumat eivät. Katkoviivat: kaava, teksti, arvo, näkyy/harmaana/vaihtoväri kun, ehto, kaavio ja kalenteri; ei nuolella jo yhdistettyä paria, ei kaavan tulosta (oma viivansa) eikä toiminnon kohdetta (toiminto kirjoittaa, ei lue). Venytyskulma näkyy, kun Kaava on valittuna; kaksoisnapautus kulmaan palauttaa koon. Suora kirjoitus on yksi Kumoa-askel. Ketjun sisällä Kaava ei veny eikä avaa suoraa kirjoitusta (ketjussa kaavat ovat vain nuolen päässä).
 
-## 4. JOS kaavaan (jonossa; muuttaa periaatetta 5)
+## 4. JOS kaavaan (toteutettu, Appi-appi 28; muuttaa periaatetta 5)
 
 - Muoto suomalaisen Excelin tapaan: `jos(uni > 7; "hyvä"; "huono")`. Erotin on puolipiste, koska pilkku on desimaalimerkki. Pienet ja isot kirjaimet käyvät. Muuten-osa on valinnainen (puuttuva = tyhjä).
 - Sisäkkäinen JOS käy. JOS:n sisällä on oma vertailunsa, joten yhden vertailun raja koskee jatkossa vain kaavan ylintä tasoa.
 - *Ehdotus:* samalla `ja(…; …)` ja `tai(…; …)`, koska ilman niitä ensimmäinen JOS ohjaa käyttäjän taas ikkunaan. Muita funktioita ei tule ilman erillistä pyyntöä.
 - Periaatteiden kohta 5 täsmennetään: ikkunat ovat edelleen yhdistelyn päätapa, mutta kaavan funktiot JOS, JA ja TAI ovat Emilin hyväksymä toinen reitti. Selitykset (Miksi?) näyttävät, kumpi haara valittiin.
 - Kaava pysyy tilana: `jos` valitsee arvon, se ei tee toimintoa. Tapahtumat ja toiminnot kuuluvat edelleen JOS-ikkunalle ja Toiminnolle.
+- *Toteutus (Appi-appi 28):* sana on funktio vain, kun sitä seuraa sulku (`jos(`, välilyönti sallittu); ilman sulkua sama sana on palikan viite, joten esim. palikka, jonka viite on `ja`, toimii ennallaan. `jos` laskee vain valitun osan (valitsematta jääneen osan virhe ei näy), `ja` ja `tai` laskevat kaikki osat, jotta virhe näkyy. Puuttuva tai tyhjä ehto ei päde (sama kuin ikkunoissa). Tyhjä osa käy (`jos(a;;b)`). Jokaisessa funktion osassa saa olla yksi vertailu; kaavan ylimmällä tasolla samoin. Pelkät sulut ovat edelleen virhe (`(a + 1) * 2`): laskujärjestys pysyy yksiselitteisenä ilman sulkuja, ja Miksi? voi kirjoittaa ehdon takaisin tekstiksi. Pilkku osien välissä antaa ohjeen käyttää puolipistettä; `jos(a; 1,2)` on desimaaliluku 1,2. Miksi? kertoo jokaisesta lasketusta `jos`-funktiosta, päteekö ehto ja kumpi osa valittiin (vain Kaava-palikalle; näkymäpalikoiden kaavakohdissa funktio toimii, mutta selitys ei kerro haarasta). Kirjoitettaessa ehdotusrivi tarjoaa `jos(`, `ja(` ja `tai(` kahden kirjaimen jälkeen.
 
 ## 5. Ryhmäkehys (jonossa)
 
@@ -63,7 +64,7 @@
 
 - ⏸ **Suomenkielinen sääntö:** tehdäänkö kirjoitustapana, joka rakentaa tavalliset palikat (suositus), vai omana palikkana, joka tulkitsee lauseen joka kerta? Suunnitellaan F27:n tulkin jälkeen.
 - **Paletin piilotus:** halutaanko myös, että paletista voi piilottaa palikkalajeja, joita ei käytä (”Näytä paletissa”)? Piilotettu laji toimisi projekteissa edelleen. Ei jonossa ennen Emilin vastausta.
-- Ehdotus kohdassa 4: tulevatko JA ja TAI samalla kuin JOS? (oletus kyllä, Emil voi kumota)
+- ~~Ehdotus kohdassa 4: tulevatko JA ja TAI samalla kuin JOS?~~ Tulivat (oletus, Appi-appi 28). Emil voi kumota.
 
 ## Linjakkuus
 
