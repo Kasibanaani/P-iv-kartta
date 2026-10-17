@@ -52,6 +52,8 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 6. **Testitila F22, suppea** (`suunnitelmat/06-testit-ja-julkaisu.md`): yläpalkkiin *Kokeile*; kokeilu alkaa kopiosta nykyisistä käyttötiedoista; koko kokeilun ajan värillinen raita ja teksti ”Kokeilu”; oikeat tiedot eivät muutu. Ei tässä: kokeilun tulosten siirto oikeaan käyttöön, tallennetut kokeet.
 7. **Rakenteinen historia F08** (P4:n alku, `suunnitelmat/01-tieto-ja-tapahtumat.md` kohta 7): Kirjaa-toiminto kirjoittaa tavalliseen Tietotaulukkoon, jossa automaattiset sarakkeet *aika* ja *id*; kirjausta muokataan ja poistetaan kuten taulukon riviä (ei korjaushistoriaa); vanha tekstiaikajana muunnetaan vain napista; päivän raja on projektin asetus, oletus keskiyö. Hyväksymiskokeena koeappi A.
 8. **Elämäntapaväittämien koeappi** F25:n pohjaksi (`suunnitelmat/11-tilastot-ja-yhteydet.md`) heti historian jälkeen, nykyisillä palikoilla.
+9. **Viite-ehdotukset ja palikan luonti nimestä** (F27 kohta 1, `suunnitelmat/12-teksti.md`): ehdotusrivi viitteelle kirjoitettaessa, *Luo Arvo* tuntemattomasta nimestä.
+10. **Tulkki eli printteri** (F27 kohta 2, yhdessä F20:n liimatun taulukon kanssa): teksti kuviolla taulukon riveiksi tai Arvo-palikoiksi, esikatselu ennen hyväksyntää. Tagit ja sanaoppi (kohdat 3–4) vasta F08:n ja F25:n jälkeen erikseen.
 
 ## Seuraavaksi
 
@@ -130,6 +132,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 ## Suunnitelmat
 
+- **17.10.2026, F27 teksti (Emilin idea):** `suunnitelmat/12-teksti.md`: viite-ehdotukset ja palikan luonti nimestä, tulkki/printteri kuviolla (taulukon rivit tai palikat), Tagit-palikka ja sanaoppi. Emil hyväksyi järjestyksen; kohdat 1–2 jonossa 9–10. Ei toteutettu; vain Markdown muuttui.
 - **16.10.2026, F25 tilastot ja yhteydet (Emilin idea):** `suunnitelmat/11-tilastot-ja-yhteydet.md`: elämäntapaväittämät ensimmäisenä esimerkkinä, päivätaulukko raakakirjauksista, Yhteys-palikka (ehdollinen vertailu, korrelaatio lajien mukaan, viive, yhdistelmä `B ja C`), myöhemmin järjestys, kaikkien parien näkymä ja osittaiskorrelaatio. Ei toteutettu; neljä avointa kysymystä kohdassa 9.
 - **16.10.2026, F24 massa ja törmäykset (Emilin idea):** `suunnitelmat/09-massa-ja-tormaykset.md`: massa ja kimmoisuus esineelle, kitka ja töytäisyvauhti Liikkeelle, massallisten törmäysten laskenta, logiikan arvot (isku, osui palikkaan, `tapahtuma.kohde`/`.isku`, `vauhti x/y`), tallennus, esimerkit, testit ja rajaukset. Toteutettu Appi-appi 17:ssä (ks. Valmiina). Vain Markdown muuttui, sovellustestejä ei ajettu.
 - **16.10.2026, missio ja manuaalin tehtävänanto:** `MISSIO.md` kokoaa Emilin kuvaaman tarkoituksen, arvot ja kehitysehdotusten arviointitavan. `suunnitelmat/08-manuaalin-tehtavananto.md` määrittelee tulevan kattavan ihmiselle ja tekoälylle sopivan manuaalin rungon, lähteet, tarkistusmenettelyn ja hyväksymiskriteerit. Varsinaista manuaalia ei tehty. Agenttien lukupolku ja yhteiset periaatteet päivitettiin. Vain Markdown-dokumentaatio muuttui; sovelluskoodia ja testejä ei muutettu eikä sovellustestejä ajettu.
