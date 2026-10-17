@@ -236,7 +236,7 @@ Antaa tiedot tapahtumasta, joka käynnisti toiminnon tai ketjun. Tiedot ovat tap
 | `tapahtuma.aika`, `tapahtuma.päivä` | kellonaika (h.mm) ja päivä |
 | `tapahtuma.tunniste`, `tapahtuma.on` | tunniste ja onko tapahtumaa |
 | `tapahtuma.kohde`, `.isku`, `.x`, `.y`, `.ruutux`, `.ruutuy` | törmäyksen ja napautuksen tiedot (muut luvut) |
-| `tapahtuma.nappi` | Peliohjaimen *painettu* ja *irti*: napin nimi, esim. `alanappi` |
+| `tapahtuma.nappi` | Peliohjaimen *painettu* ja *irrotettu*: napin nimi, esim. `alanappi` |
 | `tapahtuma.suunta` | janan merkissä 1 eteenpäin, −1 taaksepäin ([Jana](05-ketjut-ja-toiminnot.md#jana-jana)); `tapahtuma.uusi` on silloin merkin kohta |
 
 - **Aika ja tila:** tiedot tallentuvat ketjun ajoon ja säilyvät odotusten ja appin sulkemisen yli. Ketjun käynnistämä aliketju perii tapahtuman.

@@ -4,6 +4,14 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
 
 ## Versiot
 
+- Appi-appi 49 (17.10., jonon 1o, kaista A, `kartoitukset/2026-10-17-linjakkuus-6.md` S1–S4, S7): **Kartoitus 6:n korjaukset.**
+  - Peliohjaimen tapahtuma *irti* on nyt **irrotettu** kuten Painikkeella (sisäinen kohta `ir` ennallaan, joten nuolet säilyvät).
+  - Yleinen ilmoitus: kun paneelin asetus muuttaa palikan kohtia ja korjaus poistaa niihin menneet nuolet, ilmoitus ”Asetus muutti palikan kohtia, joten N nuolta poistui. Kumoa palauttaa.” (`repairL`, `lostToast` `afterInsp`issa). Koskee Tietotaulukon Lähdettä (polun tyhjennys poisti *haettu*/*hakuvirhe*-nuolet hiljaa), Toistimen tapaa, Ikkunan lajia, Janan kulkua (44:n `blockLinks`-erityiskoodi poistettu) ja muita paneelin asetuksia. Satunnaisluvun jakauman oma viesti säilyy.
+  - Liikkeen ominaisuudet `kiihtyminen` ja `jarrutus` (s, ei Ruudussa), `liukkaus` (%, ei Ruudussa eikä Reitissä) ja `kääntyvyys` (°/s, Auto) rekisterissä ohjattavina kuten kitka: kaava, nuoli `o_…`, Aseta, Lisää, Palauta. Perusarvo tulee paneelin kentästä (`ka`, `kb`, `liuk`, `kaa`), uusia kenttiä ei tullut.
+  - Kuvasilmukka: `frame` palauttaa käynnissä, jos Sekuntikello, Muutos ajassa tai Jana käy kuvan lopussa (`aikaKay`), joten kello, joka alkaa käydä samassa kuvassa kuin viimeinen liike pysähtyy, ei jää odottamaan napautusta. Käy kun -ehto tarkistetaan myös tickin lopussa (tapahtuman muuttama ehto käynnistää kellon heti). Kuvasilmukka käynnistää ketjujen sekuntipoll(in)in, kun ketju alkaa (Ajastin), ja ketjun muutos herättää kuvasilmukan.
+  - Lukitussa käytössä näkymän välilehden vaihto tekee `tick`in, joten KUN `näkymä = "Sokkelo"` laukeaa vaihdossa. Uutta tapahtumaa ei tullut.
+  - Testit paikalliselta palvelimelta: `aja.sh` käynnistää `python3 -m http.server`, `yhteinen.py`:n `U` osoittaa siihen (`APPI_URL`; yksittäin ajettuna oma palvelin).
+  - Ei tallennusmuodon muutosta. Testit: `logiikka_77_korjaukset_1o.js`, `selain_89_korjaukset_1o.py` (1440, 1280, 390 savutestinä). Manuaali: luvut 4, 6, 7, 8, 9 ja 11.
 - Appi-appi 48 (17.10., jonon 12b, F38 kohta 2, `suunnitelmat/22-logiikasta-nakymaan.md`, kaista B): **Tee näkymään.**
   - Arvollisen logiikkapalikan (Kaava, Kaavan tulos, Arvo, Muisti, Lasku, Vertailu, Ikkuna, Satunnaisluku, Sekuntikello, Ketju …; `tnvOk` = ei näkymäpalikka ja `hasValue`) paneeliin osio **Näkymään**: **▢ Tee näkymään** tekee viimeksi auki olleeseen näkymään (`S.vw`) Laatikon (Muoto, 200 × 60), teksti `{#id}`, nimi ”… · näyttö”, viite `…_n` (`uniqueVt`). Paikka: vasempaan reunaan alimman palikan alle (laitenäkymässä x 20 ja vain ruudun leveydeltä), aktiivinen kerros.
   - **▾** tarjoaa vain sopivat: Laatikko tekstillä, Pelkkä teksti (Teksti), Monitori (arvo nyt luku; nuoli lähteestä kohtaan *arvo*, Monitori saa logiikkasolmun) ja Ilmoitus, joka näkyy kun tämä pätee (arvo nyt kyllä/ei; `nk = {m:'kun', r:lähde}`).

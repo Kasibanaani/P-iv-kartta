@@ -322,7 +322,7 @@ Päivämäärän osat (viikko, viikonpäivä, kuukausi …) saa Päivämäärä-
 | `nyt.päivä` (`nyt.paiva`) | tämä päivä **päivän rajan mukaan** (⚙︎ Asetukset → Päivämäärät): rajalla 4 kello 2.00 vielä eilinen | päivämäärä |
 | `ruutu.leveys` | ruudun leveys pikseleinä | luku |
 | `ruutu.korkeus` | ruudun korkeus pikseleinä | luku |
-| `näkymä` tai `näkymä.nimi` | auki olevan näkymän nimi | teksti |
+| `näkymä` tai `näkymä.nimi` | auki olevan näkymän nimi; lukitussa käytössä logiikka lasketaan heti välilehteä vaihdettaessa, joten KUN `näkymä = "Peli"` laukeaa vaihdossa | teksti |
 | `näkymä.numero` | auki olevan näkymän numero | luku |
 | `tumma` | onko tumma teema käytössä | kyllä/ei |
 
@@ -574,6 +574,9 @@ Taulukossa *L* = vain luettava, *O* = ohjattava. Suluissa muut kirjoitusasut.
 | Kamera | `leveys`, `korkeus` | L | näkyvän maailman koko |
 | Liike | `x`, `y`, `liikkuu`, `osuu`, `nopeus`, `suunta` | L | |
 | Liike | `kitka` | O | 0–100 % (ei ruutuliikkeessä) |
+| Liike | `kiihtyminen`, `jarrutus` | O | sekunteina, 0 = heti (ei ruutuliikkeessä) |
+| Liike | `liukkaus` | O | 0–100 % (ei ruutuliikkeessä eikä reitillä) |
+| Liike | `kääntyvyys` (`kaantyvyys`) | O | °/s (vain Auto) |
 | Liike | `vauhtix`, `vauhtiy` | O | töytäisyvauhti px/s (ei ruutuliikkeessä) |
 | Liike | `isku`, `törmäyskohde` | L | viimeisin törmäys (ei ruutuliikkeessä) |
 | Hakutaulukko | `rivi` | L | osuneen rivin numero (0 = ei osunut) |

@@ -15,6 +15,13 @@ for f in logiikka_*.js; do
   if node "$f" > "tulosteet_$f.txt" 2>&1; then echo "ok    $f"; else echo "VIRHE $f"; cat "tulosteet_$f.txt"; virheet=1; fi
 done
 mkdir -p tulosteet && mv tulosteet_*.txt tulosteet/
+# Jonon 1o: selaintestit paikalliselta palvelimelta (ei file://), ks. yhteinen.py.
+PORTTI=$(python3 -c "import socket;s=socket.socket();s.bind(('127.0.0.1',0));print(s.getsockname()[1]);s.close()")
+python3 -m http.server "$PORTTI" --bind 127.0.0.1 --directory ../.. >/dev/null 2>&1 &
+PALVELIN=$!
+trap 'kill $PALVELIN 2>/dev/null' EXIT
+for i in 1 2 3 4 5 6 7 8 9 10; do python3 -c "import urllib.request;urllib.request.urlopen('http://127.0.0.1:$PORTTI/appiappi/index.html')" 2>/dev/null && break; sleep 0.3; done
+export APPI_URL="http://127.0.0.1:$PORTTI"
 cd tulosteet || exit 1
 for f in ../selain_*.py; do
   n=$(basename "$f")

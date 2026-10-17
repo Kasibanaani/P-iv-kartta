@@ -1,7 +1,19 @@
 # Selaintestien yhteiset apurit.
 import os, json
 D=os.path.dirname(os.path.abspath(__file__))
-U='file://'+os.path.abspath(os.path.join(D,'..','index.html'))
+# Jonon 1o (kartoitus 6): sivu avataan paikalliselta palvelimelta, ei file://-osoitteesta. Tiedostosta ajettu Chromium
+# näki selaimen muistin joskus tyhjänä uudelleenlatauksen jälkeen (selain_83_hae jumittui). aja.sh käynnistää palvelimen
+# ja antaa osoitteen APPI_URL:ssa; yksittäin ajettuna testi käynnistää oman palvelimen repon juuresta.
+def _palvelin():
+    import http.server, threading
+    root=os.path.abspath(os.path.join(D,'..','..'))
+    class Q(http.server.SimpleHTTPRequestHandler):
+        def __init__(self,*a,**k):super().__init__(*a,directory=root,**k)
+        def log_message(self,*a):pass
+    srv=http.server.ThreadingHTTPServer(('127.0.0.1',0),Q)
+    threading.Thread(target=srv.serve_forever,daemon=True).start()
+    return 'http://127.0.0.1:%d'%srv.server_address[1]
+U=(os.environ.get('APPI_URL') or _palvelin()).rstrip('/')+'/appiappi/index.html'
 async def avaa(p,w=1440,h=900,dark=False,rm='reduce'):
     b=await p.chromium.launch();errs=[]
     ctx=await b.new_context(viewport={'width':w,'height':h},color_scheme='dark' if dark else 'light',reduced_motion=rm)

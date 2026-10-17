@@ -167,7 +167,7 @@ Mittaa kulunutta aikaa sekunteina. Käynnistys, pysäytys ja nollaus tapahtumill
 - **Asetukset (paneeli):** ei kenttiä. Tilarivi (*Käy*/*Seis* ja aika) ja napit **▶ Käynnistä**, **⏸ Pysäytä**, **↺ Nollaa**.
 - **Ominaisuudet** (luettavia): `arvo`, `kulunut`, `käy`.
 - **Kaavassa:** `kello.kulunut > 60`.
-- **Aika ja tila:** aika on käyttötietoa ja kuluu kellon mukaan myös, kun appi on kiinni.
+- **Aika ja tila:** aika on käyttötietoa ja kuluu kellon mukaan myös, kun appi on kiinni. Käyvä kello pitää näkymän ja logiikan päivittymässä, joten esim. KUN `kello.kulunut >= 60` laukeaa ajallaan ilman napautusta, myös kun kello alkaa käydä liikkeen pysähtyessä.
 - **Esimerkki:** Peliaika: Painike → *käynnistä*, toinen → *pysäytä*. *kulunut* → Monitori (esitys *Aika m:ss*).
 - **Huomio:** *kulunut* on aika-arvo; Vertailu Arvoon, jonka yksikkö on minuuttia, toimii oikein (molemmat sekunteina).
 
@@ -185,7 +185,7 @@ Xbox-, PlayStation- tai Nintendo-ohjain syötteeksi (selaimen Gamepad API). Ei n
 | vaaka, pysty | arvo | vasen tatti −1…1, oikealle ja alas + |
 | etäisyys | arvo | vasen tatti keskeltä 0–1 |
 | suunta | arvo | vasen tatti asteina, 0 = ylös |
-| painettu, irti | tapahtuma | mikä tahansa nappi alas / ylös; tapahtuman tiedoissa `nappi` (esim. `alanappi`) |
+| painettu, irrotettu | tapahtuma | mikä tahansa nappi alas / ylös; tapahtuman tiedoissa `nappi` (esim. `alanappi`) |
 | yhdistyi, irtosi | tapahtuma | ohjain tuli / lähti |
 
 - **Asetukset (paneeli):** **Pelaaja** 1–4 (oletus 1; ensimmäinen yhdistetty ohjain on pelaaja 1) ja **Kuollut alue** 0–0,5 (oletus 0,15: tatin pieni lepovärinä alle rajan on 0, yli menevä osa skaalataan 0…1). Paneelissa elävä esikatselu: yhdistetty-tila, ohjaimen nimi, painetut napit syttyvät ja tattien arvot. Esikatselu toimii myös muokatessa, mutta logiikka ei silloin reagoi ohjaimeen.

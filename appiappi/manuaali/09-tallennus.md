@@ -62,6 +62,8 @@ Projektissa on kaksi osaa:
 
 **Kumoa** (↶) koskee rakennetta. Käytössä syntyneet käyttötiedot eivät kuulu kumottaviin muutoksiin (Kumoa palauttaa rakenteen ja jättää käyttötiedot ennalleen).
 
+**Asetus, joka poistaa nuolia:** kun paneelin asetus poistaa palikalta kohtia (esim. Tietotaulukon *Lähde*-polku tyhjennetään, jolloin *haettu* ja *hakuvirhe* katoavat, tai Janan *Kulku* vaihtuu, Toistimen tapa tai Ikkunan laji muuttuu), niihin menneet nuolet poistuvat ja ilmoitus kertoo: *Asetus muutti palikan kohtia, joten N nuolta poistui. Kumoa palauttaa.* Kohtaa takaisin tuova asetus ei tuo nuolia; **Kumoa** tuo.
+
 **Kokeile** (yläpalkki, luku [Työympäristö](02-tyoymparisto.md#kokeilu--kokeile)) käyttää kopiota käyttötiedoista (`st`, `mem`), käyttönäkymän kameroista ja lukituksesta. Kaikki tallennus (selaimen muisti, GitHub, varmuuskopio, vienti) kirjoittaa kokeilun aikana oikeat arvot, joten kokeilu ei tallennu eikä jää voimaan, jos appi suljetaan kesken.
 
 Kanvaasin vierityskohta ja zoomaus (`cam`, `lcam`) ovat laitekohtaisia: ne eivät mene GitHubiin.
@@ -304,7 +306,7 @@ Tarkista ennen vientiä: appin oma kelpoisuustarkistus (`okProj`) vaatii `projek
 ## Reseptit
 
 ### Varmuuskopio ennen isoa muutosta
-1. Tietokoneella: paina yläpalkin **Varmuuskopio**. Puhelimella: napauta yläpalkista projektin nimeä → kohdassa *Varmuuskopio ja tuonti* **Vie kaikki projektit**.
+1. Tietokoneella: paina yläpalkin **💾 Varmuuskopio** (kapeassa ikkunassa napissa on pelkkä 💾). Puhelimella: napauta yläpalkista projektin nimeä → kohdassa *Varmuuskopio ja tuonti* **Vie kaikki projektit**.
 2. Tiedosto `appiappi-varmuuskopio-<päivä>.json` latautuu. Siirrä se talteen (esim. iCloud Driveen).
 3. Tietokoneella yläpalkin tila muuttuu: *Varmuuskopio viety <päivä>*.
 4. Palautus tarvittaessa: Projektit → **Tuo tiedostosta** → valitse tiedosto. Projektit tulevat kopioina vanhojen rinnalle (sama tunniste saa uuden), joten poista tarpeeton versio itse.

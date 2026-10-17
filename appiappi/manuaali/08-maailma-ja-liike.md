@@ -176,7 +176,7 @@ Valitaan paneelin osiossa **Liike**, kohta **Ohjaus**:
 | alkuun | tapahtuma | kaikki | palauttaa alkupaikkaan, nopeus nollaan |
 | käynnistä, pysäytä | tapahtuma | Reitti | reitillä kulku käyntiin ja seis |
 
-Lisäksi Ominaisuudet-osiosta voi avata ohjattavat kohdat `kitka`, `vauhtix` ja `vauhtiy` (ks. Ominaisuudet).
+Lisäksi Ominaisuudet-osiosta voi avata ohjattavat kohdat `kitka`, `vauhtix`, `vauhtiy`, `kiihtyminen`, `jarrutus`, `liukkaus` ja (Auto) `kääntyvyys` (ks. Ominaisuudet).
 
 ### Ulos
 
@@ -205,11 +205,11 @@ Lisäksi Ominaisuudet-osiosta voi avata ohjattavat kohdat `kitka`, `vauhtix` ja 
 - **Huippunopeus (px/s)** (muut ohjaustavat): oletus 200. Ruudussa se on liukumisnopeus; iso luku (esim. 10000) hyppää suoraan ruutuun.
 - **Tatti** (Tatti, Auto ja Ruutu): valikosta näkymän Tatti. Jos tattia ei ole, ohje käskee lisäämään sen (Ohjaimet → Tatti).
 - **Kiertää esteet** (Napautus, kun liikutettava palikka on valittu): ks. Reitinhaku.
-- **Kääntyvyys (°/s)** (Auto): oletus 180. Montako astetta auto kääntyy sekunnissa täydellä vauhdilla.
+- **Kääntyvyys (°/s)** (Auto): oletus 180. Montako astetta auto kääntyy sekunnissa täydellä vauhdilla. Ohjattava (`kääntyvyys`).
 - **Reitti**, **Kulku** ja **Alkaa heti, kun näkymä on käytössä** (Reitti): ks. Liike reittiä pitkin.
 - **Askel (px)**, **Tatti** ja **Pyyhkäisy ohjaa** (Ruutu): ks. Liike ruutu kerrallaan.
 
-**Osio Vauhti** (ei Ruudussa)
+**Osio Vauhti** (ei Ruudussa). Kentät ovat perusarvoja: `kiihtyminen`, `jarrutus` ja `liukkaus` ovat ohjattavia ominaisuuksia (nuoli, kaava, Aseta, Lisää, Palauta), esim. tallin renkaat: **Aseta** → Liike → `liukkaus` 60.
 
 - **Kiihtyminen (s):** aika paikaltaan huippunopeuteen. Tyhjä tai 0 = heti. Enintään 60 s.
 - **Jarrutus (s):** aika huippunopeudesta pysähdyksiin. Tyhjä tai 0 = heti. Napautuksessa ja kerran kulkevalla reitillä jarrutus alkaa ajoissa ennen kohdetta.
@@ -242,6 +242,9 @@ Kaikki luettavia kaavassa (`liike.avain`); ohjattavat merkitty.
 | `nopeus` | px/s |
 | `suunta` | asteina |
 | `kitka` (ohjattava, ei Ruudussa) | 0–100 %, oletus 50 |
+| `kiihtyminen`, `jarrutus` (ohjattavia, ei Ruudussa) | sekunteina 0–60, oletus 0 = heti; perusarvo osiosta Vauhti |
+| `liukkaus` (ohjattava, ei Ruudussa eikä Reitissä) | 0–100 %, oletus 0 |
+| `kääntyvyys` (ohjattava, Auto; myös `kaantyvyys`) | °/s, oletus 180 |
 | `vauhtix`, `vauhtiy` (ohjattavia, ei Ruudussa; myös `vauhti x`, `vauhti y`) | töytäisyvauhti px/s |
 | `isku` (ei Ruudussa) | viimeisimmän törmäyksen voimakkuus px/s |
 | `törmäyskohde` (ei Ruudussa) | palikka, johon viimeksi törmäsi (nimi) |
