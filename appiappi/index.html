@@ -1254,7 +1254,8 @@ function omat(b){
     case 'haku':cl('rivi','rivi','luku','osuneen rivin numero (0 = ei osunut)');break;
     case 'monihaara':cl('haara','haara','luku','ensimmäinen pätevä haara numerona (0 = muuten)');cl('haaranimi','haaranimi','teksti','pätevän haaran nimi');break;
     case 'taulu':r=r.filter(function(e){return e.p!=='arvo';});pt('v','rivejä','rivien määrä',['riveja','rivit','arvo']);pt('nro','valittunro','valitun rivin numero (0 = ei valittua)');
-      cl('valittu','valittu','arvo','valittu rivi (riviviite)');r.push(OM('valittu.sarake','valittu.<sarake>, <sarake>.summa, .keskiarvo, .suurin, .pienin, .havaintoja, .puuttuvia','arvo',{dyn:1,d:'valitun rivin kenttä ja sarakkeen koosteet'}));break;
+      cl('valittu','valittu','arvo','valittu rivi (riviviite)');cl('eka','eka','arvo','ensimmäinen rivi (riviviite)',['ensimmäinen','ensimmainen']);cl('vika','vika','arvo','viimeinen rivi (riviviite)',['viimeinen']);
+      r.push(OM('valittu.sarake','valittu.<sarake>, eka.<sarake>, vika.<sarake>, <sarake>.summa, .keskiarvo, .suurin, .pienin, .havaintoja, .puuttuvia','arvo',{dyn:1,d:'valitun, ensimmäisen tai viimeisen rivin kenttä ja sarakkeen koosteet'}));break;
     case 'tapaht':r=r.filter(function(e){return e.p!=='arvo';});r.push(OM('uusi','uusi','arvo',{port:'v',al:['arvo'],d:'uusi arvo tapahtumahetkellä'}));pt('vanha','vanha','arvo ennen tapahtumaa');pt('rivi','rivi','tapahtuman rivi (riviviite)');
       cl('lähde','lähde','teksti','palikka, josta tapahtuma lähti',['lahde']);cl('aika','aika','teksti','tapahtuman kellonaika');cl('päivä','päivä','pvm','tapahtuman päivä',['paiva']);cl('tunniste','tunniste','teksti','tapahtuman tunniste');cl('kohde','kohde','teksti','Liikkeen törmäsi: palikka, johon törmättiin; pudotettu: Alue, johon pudotettiin');cl('x','x','luku','pudotettu: palikan uusi x');cl('y','y','luku','pudotettu: palikan uusi y');cl('ruutux','ruutux','luku','pudotettu: ruudukon ruutu vaakaan (1 = ensimmäinen)');cl('ruutuy','ruutuy','luku','pudotettu: ruudukon ruutu pystyyn (1 = ensimmäinen)');cl('isku','isku','luku','Liikkeen törmäsi: kuinka kovaa (px/s)');
       cl('on','on','kylla','onko tapahtumaa (ei = tapahtuman ulkopuolella)');cl('taulukko','taulukko','teksti','tapahtuman rivin taulukko');r.push(OM('rivi.sarake','rivi.<sarake>','arvo',{dyn:1,d:'tapahtuman rivin kenttä nyt (sarakkeen viite)'}));break;
@@ -2772,10 +2773,13 @@ function Ev(P,ctx){
   function dynProp(id,b,pn){var m;
     /* P2: taulukon polut (valittu.<sarake>…, <sarake>.<kooste>) ja tapahtuman tiedot. */
     if(b.k==='taulu'){var sg=pn.split('.');
-      if(sg.length===1){if(pn==='rivejä'||pn==='riveja'||pn==='rivit')return tRows(P,id).length;if(pn==='valittu'){var s0=tSel(P,id);return s0?RR(id,s0):null;}
+      if(sg.length===1){if(pn==='rivejä'||pn==='riveja'||pn==='rivit')return tRows(P,id).length;if(pn==='valittu'){var s0=tSel(P,id);return s0?RR(id,s0):null;}if(JFIX[pn]){var te=tEnd(P,id,pn);return te?RR(id,te):null;}
         if(pn==='valittunro')return tIdx(P,id,tSel(P,id))+1;var c1=colById(b,pn)||colByName(b,pn);
-        if(c1)return ERR('.'+c1.vt+': valitse rivi (esim. '+b.vt+'.valittu.'+c1.vt+') tai kooste (esim. '+b.vt+'.'+c1.vt+'.summa)');return undefined;}
+        if(c1)return ERR('.'+c1.vt+': valitse rivi (esim. '+b.vt+'.valittu.'+c1.vt+' tai '+b.vt+'.eka.'+c1.vt+') tai kooste (esim. '+b.vt+'.'+c1.vt+'.summa)');return undefined;}
       if(sg[0]==='valittu'){var sl=tSel(P,id);if(!sl)return sg[sg.length-1]==='tiedossa'?false:MISS;return rowPath(P,RR(id,sl),sg.slice(1),false);}
+      /* Jono 1i: taulu.eka ja taulu.vika kuten Rivijoukolla; tyhjässä taulukossa puuttuu (sarakevirhe näkyy silti). */
+      if(JFIX[sg[0]]){var tr=tEnd(P,id,sg[0]);if(!tr){var cz=colById(b,sg[1])||colByName(b,sg[1]);if(!cz&&sg[1]!=='tiedossa')return colErr(b,sg[1]);return sg[sg.length-1]==='tiedossa'?false:MISS;}
+        return rowPath(P,RR(id,tr),sg.slice(1),false);}
       var c2=colById(b,sg[0])||colByName(b,sg[0]);if(c2&&sg.length===2&&TAGG[sg[1]])return tAgg(P,id,c2,TAGG[sg[1]]);
       if(c2)return ERR('.'+c2.vt+'.'+sg.slice(1).join('.')+': kooste on summa, keskiarvo, suurin, pienin, havaintoja, puuttuvia, virheitä tai täydellinen');
       return ERR('taulukossa ”'+b.nm+'” ei ole saraketta ”'+sg[0]+'” (sarakkeet: '+(tSar(b).map(function(c){return c.vt;}).join(', ')||'ei vielä yhtään')+')');}
@@ -3483,6 +3487,8 @@ function tRows(P,id){var s=P.st[id];if(s&&typeof s==='object'&&Array.isArray(s.r
 function tIdx(P,id,rid){var rs=tRows(P,id);for(var i=0;i<rs.length;i++)if(rs[i]&&rs[i].id===rid)return i;return -1;}
 function tRow(P,id,rid){var i=tIdx(P,id,rid);return i<0?null:tRows(P,id)[i];}
 function tUsed(P,id){var s=P.st[id];return !!(s&&typeof s==='object'&&Array.isArray(s.rows));}
+/* Jono 1i: ensimmäisen tai viimeisen rivin tunniste ('' = ei rivejä). */
+function tEnd(P,id,w){var rs=tRows(P,id).filter(function(r){return r&&typeof r.id==='string';});if(!rs.length)return '';return (w==='eka'||w==='ensimmäinen'||w==='ensimmainen')?rs[0].id:rs[rs.length-1].id;}
 function tSel(P,id){var s=P.st[id],r=s&&typeof s==='object'&&typeof s.sel==='string'?s.sel:'';return r&&tIdx(P,id,r)>=0?r:'';}
 /* Käyttötiedon rivit kirjoitettaviksi: ensimmäinen muutos kopioi lähtöaineiston. */
 function tUse(P,id){var s=P.st[id],b=P.b[id];if(!s||typeof s!=='object'||Array.isArray(s))s={};
@@ -3561,7 +3567,7 @@ function tAgg(P,tid,col,kind,ids){
 var JFIX={eka:1,vika:1,'ensimmäinen':1,ensimmainen:1,viimeinen:1};
 function pathConv(P,id,path,toId){var b=P.b[id];if(!b||!path)return path;var s=String(toId?String(path).toLowerCase():path).split('.'),tb=null,i=0;
   function find(t,x){return toId?colByName(t,x):colById(t,x);}
-  if(b.k==='taulu'){tb=b;if(s[0]!=='valittu'){var c0=find(tb,s[0]);if(c0)s[0]=toId?c0.id:c0.vt;return s.join('.');}i=1;}
+  if(b.k==='taulu'){tb=b;if(s[0]!=='valittu'&&!JFIX[s[0]]){var c0=find(tb,s[0]);if(c0)s[0]=toId?c0.id:c0.vt;return s.join('.');}i=1;}
   else if(b.k==='trivi'){tb=P.b[b.tt];if(s[0]==='nro'||s[0]==='on'||s[0]==='rivi'||s[0]==='arvo')return s.join('.');}
   else if(b.k==='joukko'){tb=P.b[rowTable(P,id)];if(!JFIX[s[0]]){var c1=tb&&tb.k==='taulu'?find(tb,s[0]):null;if(c1)s[0]=toId?c1.id:c1.vt;return s.join('.');}i=1;}
   else return path;
@@ -3570,7 +3576,9 @@ function pathConv(P,id,path,toId){var b=P.b[id];if(!b||!path)return path;var s=S
   return s.join('.');}
 /* Taulukon ominaisuudet viitevalitsimiin: [[nimi, kuvaus]]. */
 function tauluProps(P,b){var r=[['rivejä','rivien määrä'],['valittu','valittu rivi (riviviite)'],['valittunro','valitun rivin numero (0 = ei valittua)']];
+  r.push(['eka','ensimmäinen rivi (riviviite)'],['vika','viimeinen rivi (riviviite)']);
   tSar(b).forEach(function(c){r.push(['valittu.'+c.vt,'valitun rivin '+c.nm+' ('+SARK[c.laji]+')']);});
+  tSar(b).forEach(function(c){r.push(['eka.'+c.vt,'ensimmäisen rivin '+c.nm],['vika.'+c.vt,'viimeisen rivin '+c.nm]);});
   tSar(b).forEach(function(c){var nn=c.laji==='luku'||c.laji==='kylla',dd=c.laji==='pvm'||c.laji==='aika';
     if(nn)r.push([c.vt+'.summa',c.nm+': summa (puuttuvat ohitetaan)'],[c.vt+'.keskiarvo',c.nm+': keskiarvo']);
     if(nn||dd)r.push([c.vt+'.suurin',c.nm+': suurin'],[c.vt+'.pienin',c.nm+': pienin']);
@@ -4771,7 +4779,7 @@ var HINT={ryhma:'Kokoaa palikoita yhteen reunaviivan sisään, nimellä ja halut
   lisaa:'Kasvattaa luvun tai päivämäärän arvoa. Negatiivinen määrä vähentää.',valitse:'Muuttaa palikan valituksi.',poista:'Muuttaa palikan ei-valituksi.',
   vaihda:'Vaihtaa valinnan päinvastaiseksi.',tyhjenna:'Palauttaa palikan alkutilaan.',siirry:'Vie käyttönäkymän toiseen näkymään, sijaintiin tai kohtaan.',
   kirjaa:'Kirjaa aikajanalle merkinnän aikaleiman kanssa.',
-  taulu:'Taulukko riveinä ja sarakkeina (teksti, luku, kyllä/ei, päivämäärä, ajankohta, valinta, riviviite). Toiminnot lisäävät, valitsevat, muuttavat ja poistavat rivejä. Kaavassa esim. taulukko.valittu.määrä ja taulukko.määrä.summa.',
+  taulu:'Taulukko riveinä ja sarakkeina (teksti, luku, kyllä/ei, päivämäärä, ajankohta, valinta, riviviite). Toiminnot lisäävät, valitsevat, muuttavat ja poistavat rivejä. Kaavassa esim. taulukko.valittu.määrä, taulukko.vika.määrä ja taulukko.määrä.summa.',
   tapaht:'Tiedot tapahtumasta, joka käynnisti toiminnon tai ketjun: uusi ja vanha arvo, lähde, aika ja taulukon rivi. Pysyvät tapahtumahetken mukaisina ketjun odotusten yli.',
   trivi:'Nimetty lähde taulukon riville (esim. kohde): käsiteltävä, valittu tai tapahtuman rivi. Sarakkeet ovat sen ominaisuuksia: kohde.määrä × kohde.hinta laskee jokaisella rivillä oman tuloksensa.',
   joukko:'Rivijoukko suodattaa ja järjestää taulukon rivejä muuttamatta niitä: rivit nuolesta, ehto ja järjestys riveittäin. Kaavassa joukko.rivejä, joukko.eka.nimi, joukko.määrä.summa.',
@@ -6778,7 +6786,7 @@ function tauluInsp(b,E){var cs=KK.tSar(b),used=KK.tUsed(P,b.id),rows=KK.tRows(P,
     var s='';if(nn){var sm=E.prop(b.id,c.id+'.summa'),ka=E.prop(b.id,c.id+'.keskiarvo');s=' · summa <b'+(KK.isErr(sm)?' class="errt"':'')+'>'+esc(E.fmt(sm))+'</b> · keskiarvo <b>'+esc(E.fmt(ka))+'</b>';}
     ag+='<div class="help" style="margin:2px 0">'+esc(c.nm)+': '+parts.join(', ')+s+'</div>';});
   if(cs.length)out+=section('Koosteet',ag+'<div class="help">Koosteet ohittavat puuttuvat ja kertovat niiden määrän (<code>.havaintoja</code>, <code>.puuttuvia</code>). Virheellinen rivi (esim. poistettuun riviin osoittava viite) estää tuloksen ja näkyy virheenä.</div>');
-  out+=section('Käyttö logiikassa','<div class="help">Toiminnot: <b>Lisää rivi</b>, <b>Valitse rivi</b>, <b>Poista rivi</b> sekä Aseta arvo, Lisää, Vaihda ja Tyhjennä valitun tai tapahtuman rivin kenttään. Lisää rivi kopioi kenttiin arvot lisäyshetkellä (tilannekuva), riviviite lukee ajantasaisen rivin. Tekstissä esim. <code>{'+esc(b.vt)+'.valittu'+(cs[0]?'.'+esc(cs[0].vt):'')+'}</code>.</div>');
+  out+=section('Käyttö logiikassa','<div class="help">Toiminnot: <b>Lisää rivi</b>, <b>Valitse rivi</b>, <b>Poista rivi</b> sekä Aseta arvo, Lisää, Vaihda ja Tyhjennä valitun tai tapahtuman rivin kenttään. Lisää rivi kopioi kenttiin arvot lisäyshetkellä (tilannekuva), riviviite lukee ajantasaisen rivin. Tekstissä esim. <code>{'+esc(b.vt)+'.valittu'+(cs[0]?'.'+esc(cs[0].vt):'')+'}</code>.</div><div class="help">Ensimmäinen ja viimeinen rivi: <code>'+esc(b.vt)+'.eka</code> ja <code>'+esc(b.vt)+'.vika</code>'+(cs[0]?', esim. <code>'+esc(b.vt)+'.vika.'+esc(cs[0].vt)+'</code>':'')+'. Tyhjässä taulukossa ne puuttuvat.</div>');
   return out;}
 function tapahtInsp(b,E){var v=b.vt;
   return section('Tapahtuman tiedot','<div class="help" style="margin-top:0">Tiedot tapahtumasta, joka käynnisti toiminnon tai ketjun: esim. painallus, kentän muutos tai taulukkotoiminto. Ne pysyvät tapahtumahetken mukaisina myös ketjun odotusten yli, vaikka arvot muuttuisivat.</div>'+
