@@ -1,6 +1,6 @@
 # F29 Animointi: näkymän palikan oma tapa ilmestyä, kadota ja muuttua
 
-17.10.2026. **Emilin idea**, tekoälyn jäsentämä. Emil hyväksyi 17.10. kaikki alla olevat linjaukset tekoälyn suositusten mukaan ja pyysi vaiheet jonoon (`TILA.md`, *Jono*). **Ei toteutettu.** [Hakemisto](../SUUNNITELMA.md), [käyttöpinta](03-kayttopinta.md), [aika ja Animappi](05-aika-media-ja-liitannat.md), [Jana](13-jana.md).
+17.10.2026. **Emilin idea**, tekoälyn jäsentämä. Emil hyväksyi 17.10. kaikki alla olevat linjaukset tekoälyn suositusten mukaan ja pyysi vaiheet jonoon (`TILA.md`, *Jono*). **Vaihe 1 toteutettu (Appi-appi 35, 17.10.2026); vaiheet 2–3 ei.** [Hakemisto](../SUUNNITELMA.md), [käyttöpinta](03-kayttopinta.md), [aika ja Animappi](05-aika-media-ja-liitannat.md), [Jana](13-jana.md).
 
 ## Idea (Emilin idea, tiivistetty)
 
@@ -58,7 +58,7 @@ Samat nimet ja vaihtoehdot kaikissa palikoissa. Palikka, jolle tapa ei sovi (esi
 
 ## Vaiheet
 
-1. **Vaihe 1: ilmestyminen ja katoaminen** (jonossa). Paneelin osio *Animointi* (ilmestyy, katoaa, kesto, pehmeys), projektin oletus, ominaisuudet logiikkaan, Vähennä liikettä, keskeytys kääntyy. Koskee näkyvyyden muutoksia (palikan näkyvyysasetus, nuoli, kerroksen näkyvyys, Kerros-palikka).
+1. **Vaihe 1: ilmestyminen ja katoaminen** (toteutettu Appi-appi 35: kentät `ani`, `ano`, `ank`, `anp`, projektin `an`; Toistimen korttien palikat tulivat ilmaiseksi; efekteihin Vähennä liikettä). Paneelin osio *Animointi* (ilmestyy, katoaa, kesto, pehmeys), projektin oletus, ominaisuudet logiikkaan, Vähennä liikettä, keskeytys kääntyy. Koskee näkyvyyden muutoksia (palikan näkyvyysasetus, nuoli, kerroksen näkyvyys, Kerros-palikka).
    - Testit: piilotus asettaa `näkyy`=ei heti ja napautus ei osu häipyvään palikkaan; näkyviin tuleva ottaa napautuksen heti; keskeytys ei hyppää; oikea sijainti ei muutu animaation aikana; ominaisuus `animointi.kesto` nuolesta toimii; vanha projekti ilman kenttää = töks; 390 ja 320 px.
    - Ei tässä: arvon vaihtuminen, sijainnin hyppäys, venytys, muiden liukuminen, Toistimen kortit (ellei tule ilmaiseksi).
 2. **Vaihe 2: arvon vaihtuminen ja sijainnin hyppäys** (jonossa, myöhemmin). *Arvo vaihtuu*: ristihäivytys (teksti, kuva, luku), luku rullaa; uusin voittaa. Aseta- tai nuolihyppäyksen sijainnin muutos liukuen (visuaalinen, oikea sijainti heti; ei koske Liikettä, raahausta eikä kameraa). Tarkista suhde Kuva vaihtuu- ja Teksti ilmestyy -efekteihin: efekti voittaa sillä kertaa.

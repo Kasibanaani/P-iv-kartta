@@ -229,6 +229,8 @@ body.koe #body{top:85px}
 .edit .ue.sel .nmtag,.edit.shownames .ue .nmtag{display:block}
 .ue.hid{display:none}
 .edit .ue.hid{display:flex;opacity:.38;filter:grayscale(.7)}
+/* F29: katoava palikka näkyy animaation ajan, mutta ei ota kosketuksia (logiikka ei odota animaatiota). */
+.ue.hid.anout{display:flex}.ue.anout,.ue.anout *{pointer-events:none!important}
 .ue.dim{pointer-events:none}
 .ue.dim>.in{opacity:.4;filter:grayscale(1)}
 .edit .ue.dim{pointer-events:auto}
@@ -1191,6 +1193,15 @@ function omIlme(){return [OM('vari','väri','luku',{al:['vari'],f:'hue',o:1,lim:
   OM('z','järjestys','luku',{al:['jarjestys'],f:'z',o:1,def:0,d:'suurempi on päällä saman kerroksen sisällä'}),
   OM('rv','rullausvauhti','luku',{f:'rv',o:1,lim:[0,100],d:'laitenäkymässä: 100 = sormen mukana, 0 = lukittu ruutuun'}),
   OM('kulma','kierto','luku',{al:['kulma'],f:'kulma',o:1,def:0,d:'kierto asteina myötäpäivään (Appi-appi 3)'}),OM('peili','peilattu','kylla',{al:['peili'],f:'peili',o:1,d:'peilattu vaakasuunnassa kyllä/ei'})];}
+/* F29 vaihe 1 (Appi-appi animointi): näkymän palikan tapa ilmestyä ja kadota. Pelkkä visuaali: oikea tila muuttuu heti.
+   Kentät palikassa: ani (ilmestyy), ano (katoaa, oletus sama), ank (kesto s), anp (pehmeys). Puuttuva kenttä = projektin
+   oletus P.an {i,o,k,p}, sekin puuttuu = töks. Piirto on käyttöliittymässä (anUpd); moottori antaa vain arvot. */
+var ANTAVAT=[['toks','töks'],['haivytys','häivytys'],['ylhaalta','liuku ylhäältä'],['alhaalta','liuku alhaalta'],['vasemmalta','liuku vasemmalta'],['oikealta','liuku oikealta'],['kasvu','kasvu'],['pomppu','pomppu']];
+var ANPEH=[['pehmea','pehmeä'],['tasainen','tasainen'],['joustava','joustava']];
+function omAnim(){return [OM('anin','animointi.ilmestyy','valinta',{f:'ani',pan:'i',o:1,opt:ANTAVAT,def:'toks',d:'miten palikka tulee näkyviin: töks, häivytys, liuku ylhäältä, alhaalta, vasemmalta tai oikealta, kasvu tai pomppu (myös 1–8)'}),
+  OM('anout','animointi.katoaa','valinta',{f:'ano',pan:'o',o:1,opt:[['sama','sama kuin ilmestyy']].concat(ANTAVAT),def:'sama',d:'miten palikka katoaa: sama kuin ilmestyy tai jokin ilmestymisen tavoista'}),
+  OM('ankesto','animointi.kesto','luku',{f:'ank',pan:'k',o:1,lim:[0,10],def:0.25,d:'ilmestymisen ja katoamisen kesto sekunteina, 0 = töks'}),
+  OM('anpeh','animointi.pehmeys','valinta',{f:'anp',pan:'p',o:1,opt:ANPEH,def:'pehmea',d:'pehmeä, tasainen tai joustava'})];}
 function omTila(){return [OM('näkyy','näkyy','kylla',{al:['nakyy'],q:1,d:'näkyykö palikka nyt'}),OM('tila','tila','teksti',{q:1,d:'näkyy, luettava, harmaa tai piilossa'}),
   OM('teksti','teksti','teksti',{q:1,d:'näkyvä teksti'}),OM('vaihtoväri','vaihtoväri','kylla',{al:['vaihtovari'],q:1,d:'onko vaihtoväri käytössä'})];}
 function omat(b){
@@ -1202,7 +1213,7 @@ function omat(b){
   if(K[k].g==='ui'){
     if(k==='merkki')return r.concat(omGeo());
     if(k==='alue'){pt('n','montako','montako tunnistettavaa on sisällä');pt('nx','napautettux','viimeksi napautettu ruutu tai kohta x');pt('ny','napautettuy','viimeksi napautettu ruutu tai kohta y');if(b.rkr){pt('rx','ruutux','tunnistettavan ruutu x alueen sisällä (1 = vasen)');pt('ry','ruutuy','tunnistettavan ruutu y alueen sisällä (1 = ylin)');}r=r.filter(function(e){return e.p!=='arvo';});r.unshift(OM('sisällä','sisällä','arvo',{port:'v',al:['sisalla'],d:'onko tunnistettava sisällä (kyllä/ei)'}));return r.concat(omGeo(),omKoko());}
-    r=r.concat(omTila(),omGeo(),omKoko(),omIlme(),[OM('este','este','kylla',{f:'este',o:1,d:'liikkuvat palikat eivät mene läpi (kyllä/ei)'}),OM('massa','massa','luku',{f:'mas',o:1,lim:[0,null],d:'paino törmäyksissä (tyhjä tai 0 = ei massaa: ei reagoi, mutta tönäisee massallisia). Vain suhteilla on väliä (F24)'}),OM('kimmoisuus','kimmoisuus','luku',{f:'kim',o:1,lim:[0,200],def:0,d:'0 = tömähtää, 100 = pomppaa täysin, yli 100 = pomppulevy (%)'}),OM('ruutux','ruutux','luku',{calc:1,d:'keskipisteen ruutu x kerroksen ruudukossa (1 = ensimmäinen)'}),OM('ruutuy','ruutuy','luku',{calc:1,d:'keskipisteen ruutu y kerroksen ruudukossa (1 = ylin)'})]);
+    r=r.concat(omTila(),omGeo(),omKoko(),omIlme(),[OM('este','este','kylla',{f:'este',o:1,d:'liikkuvat palikat eivät mene läpi (kyllä/ei)'}),OM('massa','massa','luku',{f:'mas',o:1,lim:[0,null],d:'paino törmäyksissä (tyhjä tai 0 = ei massaa: ei reagoi, mutta tönäisee massallisia). Vain suhteilla on väliä (F24)'}),OM('kimmoisuus','kimmoisuus','luku',{f:'kim',o:1,lim:[0,200],def:0,d:'0 = tömähtää, 100 = pomppaa täysin, yli 100 = pomppulevy (%)'}),OM('ruutux','ruutux','luku',{calc:1,d:'keskipisteen ruutu x kerroksen ruudukossa (1 = ensimmäinen)'}),OM('ruutuy','ruutuy','luku',{calc:1,d:'keskipisteen ruutu y kerroksen ruudukossa (1 = ylin)'})],omAnim());
     switch(k){
       case 'nappi':if(b.beh==='kerta')cl('painalluksia','painalluksia','luku','painallusten määrä');if(napExt(b))pt('k','kesto','painalluksen kesto sekunteina');break;
       case 'saadin':r.push(OM('min','pienin','luku',{f:'min',o:1,d:'säätimen pienin arvo'}),OM('max','suurin','luku',{f:'max',o:1,d:'säätimen suurin arvo'}),
@@ -1299,7 +1310,9 @@ function omBase(P,b,e,litf){
   /* Appi-appi 9: kerroksen ominaisuuden perusarvo on kerroksen omassa asetuksessa (näkymän v.kr). */
   if(e.kf){var ko=kerrosObj(P,b.vw,b.kr),kx=ko?ko[e.kf]:undefined;if(e.kinv)return !kx;if(e.t==='kylla')return !!kx;var kn=num(kx);return kx==null||kx===''||isNaN(kn)?(e.def!==undefined?e.def:null):kn;}
   if(e.p==='rv'&&b.rv===undefined)return rvOf(P,b);
-  var x=b[e.f];if(e.inv)return !x;if(e.idx)return Math.max(0,Math.min(7,Math.round(num(x)||0)))+1;
+  var x=b[e.f];if(e.inv)return !x;
+  /* F29: animoinnin perusarvo tulee projektin oletuksesta, kun palikalla ei ole omaa. */
+  if(e.pan&&(x===undefined||x===null||x==='')&&P&&P.an&&P.an[e.pan]!=null&&P.an[e.pan]!=='')x=P.an[e.pan];if(e.idx)return Math.max(0,Math.min(7,Math.round(num(x)||0)))+1;
   if(x===undefined||x===null||x==='')return e.def!==undefined?e.def:(e.t==='luku'?null:e.t==='kylla'?false:'');
   if(e.t==='luku'){var v=litf?litf(x):parseLit(x);if(isErr(v))return v;var n=num(v);return isNaN(n)?(e.def!==undefined?e.def:null):n;}
   if(e.t==='kylla')return !!x;return x;
@@ -2324,7 +2337,9 @@ function repair(P){
   if(P.pois)Object.keys(P.pois).forEach(function(i){var g=P.pois[i];if(!g||typeof g!=='object'||P.b[i]){delete P.pois[i];return;}P.pois[i]={nm:String(g.nm==null?'':g.nm),vt:typeof g.vt==='string'?g.vt:'',k:typeof g.k==='string'?g.k:''};});
   P.lg=P.lg||{n:[],l:[]};P.lg.n=P.lg.n||[];P.lg.l=P.lg.l||[];
   /* Appi-appi 27 (F30): logiikan näkymäasetukset. pin 'h' = pistokkeet piilossa, vit 'ei' tai 'kaikki' (puuttuva = valitulle). */
-  if(P.lg.pin!=='h')delete P.lg.pin;if(P.lg.vit!=='ei'&&P.lg.vit!=='kaikki')delete P.lg.vit;
+  if(P.lg.pin!=='h')delete P.lg.pin;
+  /* F29: projektin animoinnin oletus {i ilmestyy, o katoaa, k kesto, p pehmeys}; puuttuva = töks. */
+  if(P.an!==undefined){if(!P.an||typeof P.an!=='object'||Array.isArray(P.an))delete P.an;else{Object.keys(P.an).forEach(function(k){if(['i','o','k','p'].indexOf(k)<0||P.an[k]==null||P.an[k]==='')delete P.an[k];});if(!Object.keys(P.an).length)delete P.an;}}if(P.lg.vit!=='ei'&&P.lg.vit!=='kaikki')delete P.lg.vit;
   P.deco=P.deco||[];P.st=P.st||{};P.mem=P.mem||{};P.cam=P.cam||{};P.lcam=P.lcam||{x:40,y:40,z:1};
   if(!P.views||!P.views.length)P.views=[{id:'v1',n:'Näkymä 1'}];
   P.seq=P.seq||0;P.vseq=P.vseq||P.views.length;
@@ -4386,7 +4401,7 @@ function why(P,E,id,depth,seen){
 return {omat:omat,omFind:omFind,omNorm:omNorm,omBase:omBase,omNames:omNames,omActive:omActive,setOmi:setOmi,resetOmi:resetOmi,isOff:isOff,napVaihto:napVaihto,boolKey:boolKey,TIMEU:TIMEU,YKSA:YKSA,ENVW:ENVW,portsBase:portsBase,tattiSet:tattiSet,muutosStart:muutosStart,muutosStop:muutosStop,frame:frame,napExt:napExt,NAP_PITKA:NAP_PITKA,pressDown:pressDown,pressLong:pressLong,pressUp:pressUp,hasOut:hasOut,curveAt:curveAt,KAYRA_PRESETS:KAYRA_PRESETS,kayraPreset:kayraPreset,kayraResize:kayraResize,kayraDec:kayraDec,kayraSpec:kayraSpec,kayraAt:kayraAt,satuN:satuN,satuMuoto:satuMuoto,satuCurve:satuCurve,satuResize:satuResize,satuPreset:satuPreset,SATU_PRESETS:SATU_PRESETS,SATU_MAXN:SATU_MAXN,satuSpec:satuSpec,satuDist:satuDist,satuPick:satuPick,satuPct:satuPct,satuItemTxt:satuItemTxt,satuTop:satuTop,satuRoll:satuRoll,
   chainOpen:chainOpen,LKN:LKN,LKID:LKID,lkReq:lkReq,lkView:lkView,chainLock:chainLock,chainLockDiff:chainLockDiff,parseKlo:parseKlo,nextClock:nextClock,timerLabel:timerLabel,arpaN:arpaN,toistaN:toistaN,setMhLabel:function(f){MHLAB=f;},mhLabel:mhLabel,odotaLim:odotaLim,odotaEv:odotaEv,hasLimit:hasLimit,chainSignal:chainSignal,copyNodes:copyNodes,pasteNodes:pasteNodes,PRESVER:PRESVER,presetSet:presetSet,presetNeeds:presetNeeds,presetMake:presetMake,presetPaste:presetPaste,chainList:chainList,haaraVal:haaraVal,chainIssues:chainIssues,FXK:FXK,YKS:YKS,YKSN:YKSN,fmtDur:fmtDur,parseNum:parseNum,fiNum:fiNum,fmtLeft:fmtLeft,timerMs:timerMs,chainStart:chainStart,chainStop:chainStop,chainAdvance:chainAdvance,chainPoll:chainPoll,chainInfo:chainInfo,anyChainRunning:anyChainRunning,CH_STEPS:CH_STEPS,CH_TOKENS:CH_TOKENS,
   isWin:isWin,isStep:isStep,STEPK:STEPK,chainNode:chainNode,chainOfNode:chainOfNode,chainSteps:chainSteps,isChainLink:isChainLink,chainLinksFrom:chainLinksFrom,chainStarts:chainStarts,chainIsRing:chainIsRing,chainOrder:chainOrder,
-  VER:VER,PAJA:'4',LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,raahattava:raahattava,raahausPaikka:raahausPaikka,raahausAlku:raahausAlku,raahausPudotus:raahausPudotus,raahausPeruttu:raahausPeruttu,raahausKohteet:raahausKohteet,tstLahde:tstLahde,tstLajittuu:tstLajittuu,tstSiirra:tstSiirra,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,reittiPisteet:reittiPisteet,reittiOsat:reittiOsat,reittiHae:reittiHae,liikeRuutuKomento:liikeRuutuKomento,liikePyyhkaisy:liikePyyhkaisy,ruutuAskel:ruutuAskel,RUUTU_SU:RUUTU_SU,reittiKohta:reittiKohta,liikeRun:liikeRun,kuvaKuvat:kuvaKuvat,kelloNow:kelloNow,kelloKomento:kelloKomento,kerrosObj:kerrosObj,zoomAsetus:zoomAsetus,kameraBlk:kameraBlk,zoomNyt:zoomNyt,zoomLukittu:zoomLukittu,zoomAseta:zoomAseta,ZOOM_MIN:ZOOM_MIN,ZOOM_MAX:ZOOM_MAX,MITM:MITM,MITE:MITE,
+  ANTAVAT:ANTAVAT,ANPEH:ANPEH,VER:VER,PAJA:'4',LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,raahattava:raahattava,raahausPaikka:raahausPaikka,raahausAlku:raahausAlku,raahausPudotus:raahausPudotus,raahausPeruttu:raahausPeruttu,raahausKohteet:raahausKohteet,tstLahde:tstLahde,tstLajittuu:tstLajittuu,tstSiirra:tstSiirra,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,reittiPisteet:reittiPisteet,reittiOsat:reittiOsat,reittiHae:reittiHae,liikeRuutuKomento:liikeRuutuKomento,liikePyyhkaisy:liikePyyhkaisy,ruutuAskel:ruutuAskel,RUUTU_SU:RUUTU_SU,reittiKohta:reittiKohta,liikeRun:liikeRun,kuvaKuvat:kuvaKuvat,kelloNow:kelloNow,kelloKomento:kelloKomento,kerrosObj:kerrosObj,zoomAsetus:zoomAsetus,kameraBlk:kameraBlk,zoomNyt:zoomNyt,zoomLukittu:zoomLukittu,zoomAseta:zoomAseta,ZOOM_MIN:ZOOM_MIN,ZOOM_MAX:ZOOM_MAX,MITM:MITM,MITE:MITE,
 kuvaPyorii:kuvaPyorii,kuvaNro:kuvaNro,SARJA_MAX:SARJA_MAX,ruudukko:ruudukko,ruudukkoOf:ruudukkoOf,ruutuAt:ruutuAt,ruutuKeski:ruutuKeski,kohdista:kohdista,ruutuKohdistus:ruutuKohdistus,alueRuudukko:alueRuudukko,alueRuutu:alueRuutu,alueNapautus:alueNapautus,kerrokset:kerrokset,kerrosOf:kerrosOf,rvOf:rvOf,kuvaUrl:kuvaUrl,K:K,KW:KW,KVALEND:KVALEND,KHAS:KHAS,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,kaavaToIds:kaavaToIds,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
   pinsHidden:pinsHidden,refPairs:refPairs,
   ports:ports,port:port,newProject:newProject,addBlock:addBlock,addNode:addNode,addLink:addLink,canLink:canLink,
@@ -4474,7 +4489,9 @@ var FX_PLAN={ilmesty:'Teksti ilmestyy näkymän palikkaan kirjain kerrallaan, sa
    näkymänvaihto ovat pelkkää näyttöä. S.fxA[id] = käynnissä oleva tekstiefekti (vain näytössä, ei tallennu). */
 S.fxA={};
 function fxSec(b){var s=KK.num(b.kesto);return isFinite(s)&&s>0?Math.min(s,3600):0;}
-function fxEl(id){return document.querySelector('#uels .ue[data-id="'+id+'"]');}
+function fxEl(id){var el=document.querySelector('#uels .ue[data-id="'+id+'"]');if(el&&el._anA){var sh=el._shn;anStop(el);el._shn=sh;}return el;}
+/* F29: Vähennä liikettä efekteissä: liike pois, häivytys jää. */
+function fxRM(fr){if(!reducedMotion())return fr;var o=fr.filter(function(x){return x.opacity!=null;}).map(function(x){var y={opacity:x.opacity};if(x.offset!=null)y.offset=x.offset;return y;});return o.length>1?o:null;}
 function fxActive(){var now=performance.now(),any=false;Object.keys(S.fxA).forEach(function(id){if(now-S.fxA[id].t0>S.fxA[id].ms)delete S.fxA[id];else any=true;});return any;}
 function fxKick(){setTimeout(function(){if(P&&useMode())runFrames();},0);}
 function fxAfter(f){requestAnimationFrame(function(){requestAnimationFrame(f);});}
@@ -4497,18 +4514,18 @@ FX.ilmesty=function(q){var b=q.b,o=q.P.b[b.o];if(!o||!isUI(o))return 0;var sec=f
 FX.kuva=function(q){var b=q.b,o=q.P.b[b.o];if(!o||o.k!=='pkuva')return 0;var sec=fxSec(b),el=fxEl(o.id),old=el&&el.querySelector('.in'),snap=old&&sec>0&&b.siirtyma!=='heti'?old.cloneNode(true):null;
   var src=String(b.src==null?'':b.src).trim();if(src)q.P.st['fxk:'+o.id]=src;else delete q.P.st['fxk:'+o.id];
   if(snap)fxAfter(function(){var e2=fxEl(o.id);if(!e2)return;var inn=e2.querySelector('.in'),d={duration:sec*1000,easing:'ease-in-out'},ov=e2.style.overflow,a1;snap.classList.add('fxold');e2.appendChild(snap);
-    if(b.siirtyma==='liuku'){e2.style.overflow='hidden';a1=snap.animate([{translate:'0 0'},{translate:'-100% 0'}],d);if(inn)inn.animate([{translate:'100% 0'},{translate:'0 0'}],d);}
+    if(b.siirtyma==='liuku'&&!reducedMotion()){e2.style.overflow='hidden';a1=snap.animate([{translate:'0 0'},{translate:'-100% 0'}],d);if(inn)inn.animate([{translate:'100% 0'},{translate:'0 0'}],d);}
     else{a1=snap.animate([{opacity:1},{opacity:0}],d);if(inn)inn.animate([{opacity:0},{opacity:1}],d);}
     a1.onfinish=function(){snap.remove();e2.style.overflow=ov;};});
   return sec;};
 FX.anim=function(q){var b=q.b,o=q.P.b[b.o];if(!o||!isUI(o))return 0;var sec=fxSec(b),fa=FXANIM[b.laji]||FXANIM.pomppu;
-  if(sec>0)fxAfter(function(){var el=fxEl(o.id);if(el)el.animate(fa[1](el.offsetHeight),{duration:sec*1000,easing:'ease-in-out'});});return sec;};
+  if(sec>0)fxAfter(function(){var el=fxEl(o.id),fr=el&&fxRM(fa[1](el.offsetHeight));if(fr)el.animate(fr,{duration:sec*1000,easing:'ease-in-out'});});return sec;};
 FX.nvaihto=function(q){var b=q.b,tb=q.P.b[b.o],vw=tb&&tb.k==='merkki'?tb.v:b.vw;if(!viewOf(vw))return 0;var sec=fxSec(b),sm=FXSIIRTO[b.siirtyma]?b.siirtyma:'liuku';
   var vp=$('#uvp'),world=$('#uworld'),snap=null;
   if(vp&&world&&useMode()&&sec>0&&sm!=='heti'){snap=document.createElement('div');snap.className='fxnv';snap.style.background=getComputedStyle(vp).backgroundColor;var wc=world.cloneNode(true);wc.removeAttribute('id');$$('[id]',wc).forEach(function(x){x.removeAttribute('id');});snap.appendChild(wc);}
   if(tb&&tb.k==='merkki')navTo({o:tb.id,heti:true});else{navTo({vw:vw,x:0,y:0,heti:true});if(stU())goStart(vw);}
   if(snap)fxAfter(function(){var vp2=$('#uvp'),els=$('#uels');if(!vp2||!els)return;vp2.appendChild(snap);var W=vp2.clientWidth,H=vp2.clientHeight,d={duration:sec*1000,easing:'ease-in-out'},a;
-    var mv={liuku:[-W,0],liukuoik:[W,0],ylos:[0,-H],alas:[0,H]}[sm];
+    var mv=reducedMotion()?null:{liuku:[-W,0],liukuoik:[W,0],ylos:[0,-H],alas:[0,H]}[sm];
     if(mv){a=snap.animate([{translate:'0 0'},{translate:mv[0]+'px '+mv[1]+'px'}],d);els.animate([{translate:(-mv[0])+'px '+(-mv[1])+'px'},{translate:'0 0'}],d);}
     else a=snap.animate([{opacity:1},{opacity:0}],d);
     a.onfinish=function(){snap.remove();};});
@@ -5079,13 +5096,40 @@ function krSuoja(E,ed,list){var els=$('#uels'),old=$('#krsuoja');if(ed||!useMode
 function decorateUE(el,b,E,ed){
   var stt=E.state(b.id,ed);
   var sn=S.sel&&S.sel.t==='n'?KK.nodeOf(P,S.sel.id):null;
-  el.className='ue k-'+b.k+(ed&&KK.kerrosOf(P,b).k.lukko?' krlock':'')+(ed&&b.ohk&&b.ohk.length?' omdrv':'')+(!ed&&KK.raahattava(P,b)?' raah':'')+' '+hueCls(ed?(E.alt(b.id)?b.hue2:b.hue):E.hue(b.id))+((S.sel&&S.sel.t==='b'&&S.sel.id===b.id)||inMulti('b',b.id)?' sel':'')+(sn&&sn.p===b.id?' sel2':'')+({harmaa:' dim',luettava:' ro',piilossa:' hid'}[stt]||'')+(KK.isErr(E.val(b.id))||(ed&&brk().by[b.id])?' has-err':'')+(ed&&brk().by[b.id]?' brk-ui':'');
+  el.className='ue k-'+b.k+(ed&&KK.kerrosOf(P,b).k.lukko?' krlock':'')+(ed&&b.ohk&&b.ohk.length?' omdrv':'')+(!ed&&KK.raahattava(P,b)?' raah':'')+' '+hueCls(ed?(E.alt(b.id)?b.hue2:b.hue):E.hue(b.id))+((S.sel&&S.sel.t==='b'&&S.sel.id===b.id)||inMulti('b',b.id)?' sel':'')+(sn&&sn.p===b.id?' sel2':'')+({harmaa:' dim',luettava:' ro',piilossa:' hid'}[stt]||'')+(KK.isErr(E.val(b.id))||(ed&&brk().by[b.id])?' has-err':'')+(ed&&brk().by[b.id]?' brk-ui':'')+(!ed&&el._anOut?' anout':'');
   if(!el.classList.contains('raahataan')){el.style.left=ovN(b,E,ed,'x',b.x)+'px';el.style.top=ovN(b,E,ed,'y',b.y)+'px';}el.style.width=ovN(b,E,ed,'w',b.w)+'px';el.style.height=ovN(b,E,ed,'h',b.h)+'px';
   /* Pajakone 4: läpinäkyvyys (muokatessa aina vähintään haaleana näkyvissä). */
   /* Appi-appi 3: kierto ja peilaus (sisältö kääntyy, paikka ja osuma-alue eivät). */
   var kul=ovN(b,E,ed,'kulma',0),pei=!!ovV(b,E,ed,'peili'),inn=el.querySelector('.in');if(inn)inn.style.transform=(kul?'rotate('+kul+'deg)':'')+(pei?' scaleX(-1)':'');
   var lp=ovN(b,E,ed,'lpn',0);if(!ed){var klp=KK.num(E.layer(b.v,b.kr,'lpn'))||0;if(klp>0)lp=100-(100-lp)*(100-Math.min(100,klp))/100;}el.style.opacity=lp>0?String(ed?Math.max(0.3,1-lp/100):Math.max(0,1-lp/100)):'';
   var off=!ed&&(stt==='harmaa'||stt==='luettava');$$('input,textarea,select,button',el).forEach(function(x){if(x.closest('.cal'))return;x.disabled=off;});
+  if(ed||!useMode())anStop(el);else anUpd(el,b,E,stt);
+}
+/* ---------- F29 vaihe 1: ilmestyminen ja katoaminen ----------
+   Pelkkä visuaali: tila (näkyy, piilossa) on jo muuttunut, animaatio vain näyttää muutoksen. Vain opacity ja transform
+   selaimen omalla animaatiolla (ei omaa silmukkaa). Katoava palikka pysyy näkyvissä luokalla anout ilman kosketuksia.
+   Suunnan vaihtuessa kesken sama animaatio kääntyy nykyisestä kohdasta. Vähennä liikettä = töks. */
+var ANEAS={pehmea:'cubic-bezier(.2,.8,.2,1)',tasainen:'linear',joustava:'cubic-bezier(.34,1.56,.64,1)'};
+function reducedMotion(){try{return !!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(e){return false;}}
+/* Palikan animointiasetus: ohjattu tai asetettu arvo käytössä; tuntematon tapa (virhe) = töks. */
+function anVal(b,E,key){var e=KK.omFind(b,key);if(!e)return null;if(omOn(b)){var v=E.omi(b.id,key);if(KK.isErr(v))return null;if(v!=null&&v!=='')return v;}return KK.omBase(P,b,e,null);}
+function anSpec(b,E,dir){if(reducedMotion())return null;var k=anVal(b,E,'anin');if(dir==='out'){var o=anVal(b,E,'anout');if(o&&o!=='sama')k=o;}
+  if(!k||k==='toks'||!KK.ANTAVAT.some(function(x){return x[0]===k;}))return null;
+  var s=KK.num(anVal(b,E,'ankesto'));if(isNaN(s))s=0.25;s=Math.max(0,Math.min(10,s));if(!(s>0))return null;
+  return {k:k,ms:s*1000,ease:ANEAS[anVal(b,E,'anpeh')]||ANEAS.pehmea};}
+function anFrames(k,el){var op=el.style.opacity===''?1:+el.style.opacity,h=el.offsetHeight||40,w=el.offsetWidth||40,dy=Math.min(48,Math.max(16,h*0.5)),dx=Math.min(48,Math.max(16,w*0.5));
+  var from={ylhaalta:'translateY(-'+dy+'px)',alhaalta:'translateY('+dy+'px)',vasemmalta:'translateX(-'+dx+'px)',oikealta:'translateX('+dx+'px)',kasvu:'scale(.6)'}[k];
+  if(k==='pomppu')return [{opacity:0,transform:'scale(.3)'},{opacity:op,transform:'scale(1.08)',offset:.6},{opacity:op,transform:'scale(.97)',offset:.82},{opacity:op,transform:'none'}];
+  return from?[{opacity:0,transform:from},{opacity:op,transform:'none'}]:[{opacity:0},{opacity:op}];}
+function anStop(el){if(el._anA){var a=el._anA;el._anA=null;a.cancel();}if(el._anOut){el._anOut=false;el.classList.remove('anout');}el._shn=undefined;}
+function anUpd(el,b,E,stt){
+  var shn=stt!=='piilossa',was=el._shn;el._shn=shn;if(was===undefined||was===shn)return;
+  var dir=shn?'in':'out',a=el._anA;
+  if(a&&a.playState==='running'){a.reverse();el._anDir=dir;el._anOut=dir==='out';el.classList.toggle('anout',el._anOut);return;}
+  var sp=anSpec(b,E,dir);if(!sp||!el.animate)return;
+  el._anDir=dir;el._anOut=dir==='out';if(el._anOut)el.classList.add('anout');
+  a=el._anA=el.animate(anFrames(sp.k,el),{duration:sp.ms,easing:sp.ease,fill:'both',direction:dir==='out'?'reverse':'normal'});
+  a.onfinish=function(){if(el._anA!==a)return;el._anA=null;a.cancel();if(el._anDir==='out'){el._anOut=false;el.classList.remove('anout');}};
 }
 function renderVTabs(){
   var el=$('#vtabs'),ed=editingUI();
@@ -6234,6 +6278,19 @@ function omSection(b,E){
   }).join('');
   return '<details class="fs oms" id="omsec"'+(S.omOpen?' open':'')+'><summary><h4>Ominaisuudet'+(nOn?' <span class="omb on">'+nOn+' ohjattu</span>':'')+(nSet?' <span class="omb set">'+nSet+' asetettu</span>':'')+'</h4></summary><div class="help" style="margin:0 0 6px">Kaikki, mihin kaava voi viitata. Ohjattavissa (ƒ ⇢) arvo voi tulla kaavasta tai nuolesta, ja toiminnot Aseta, Lisää ja Palauta voivat muuttaa sitä. Etusija: kaava tai nuoli, sitten toiminnon asettama, sitten tämän paneelin perusarvo. Muokatessa näkymä näyttää perusarvot, käytössä nykyiset.</div>'+rows+'</details>';
 }
+/* F29 vaihe 1: näkymän palikan animointi (ilmestyy, katoaa, kesto, pehmeys). Kiinni, kun mitään ei ole valittu. */
+S.anOpen=false;
+function anLab(opt,v){for(var i=0;i<opt.length;i++)if(opt[i][0]===v)return opt[i][1];return opt[0][1];}
+function anPd(key,opt,def){var v=P.an&&P.an[key];return v!=null&&v!==''?(opt?anLab(opt,v):KK.fiNum(v)+' s'):def;}
+function anSection(b){
+  var A=KK.ANTAVAT,set=b.ani||b.ano||(b.ank!=null&&b.ank!=='')||b.anp,open=S.anOpen||!!set||anOhj(b);
+  var h=fSelect('Ilmestyy','ani',b.ani||'',[['','Projektin oletus ('+anPd('i',A,'töks')+')']].concat(A))+
+    fSelect('Katoaa','ano',b.ano||'',[['','Projektin oletus ('+anPd('o',[['sama','sama kuin ilmestyy']].concat(A),'sama kuin ilmestyy')+')'],['sama','Sama kuin ilmestyy']].concat(A))+
+    fNum('Kesto (s)','ank',b.ank==null?'':String(b.ank).replace('.',','),'Tyhjä = projektin oletus ('+anPd('k',null,'0,25 s')+'). 0 = töks, enintään 10 s.')+
+    fSegs('Pehmeys','anp',b.anp||'',[['','Oletus']].concat(KK.ANPEH.map(function(x){return [x[0],x[1].charAt(0).toUpperCase()+x[1].slice(1)];})))+
+    '<div class="help">Pelkkä näyttö: logiikka ei odota animaatiota. Piilotettu palikka lakkaa ottamasta kosketuksia heti, ja näkyviin tuleva toimii heti. Puhelimen Vähennä liikettä -asetus tekee kaikista töksiä. Logiikka voi ohjata näitä (Ominaisuudet: animointi.ilmestyy, .katoaa, .kesto, .pehmeys). Projektin oletus: Asetukset.</div>';
+  return '<details class="fs oms" id="ansec"'+(open?' open':'')+'><summary><h4>Animointi</h4></summary>'+h+'</details>';}
+function anOhj(b){return !!b&&Array.isArray(b.ohk)&&b.ohk.some(function(k){return /^an/.test(k);});}
 function omOpenPort(b,key){var e=KK.omFind(b,key);if(!e||!e.o)return false;b.ohk=Array.isArray(b.ohk)?b.ohk:[];if(b.ohk.indexOf(e.p)<0)b.ohk.push(e.p);
   if(!KK.nodesOfBlock(P,b.id).length){var my=40;P.lg.n.forEach(function(n){if(!n.g)my=Math.max(my,n.y+(n.h||34)+50);});KK.addNode(P,b.id,320,my);}return true;}
 function blockInsp(b){
@@ -6357,6 +6414,7 @@ function uiInsp(b,E){
     cs+=lk2?'<div class="help">Vaihtoväri: nuolesta (kohta ”vaihtoväri kun”).</div>':F('Vaihtoväri käytössä','<div class="row2"><select data-vrm="1" style="flex:none;width:96px"><option value="kun"'+(vr.m!=='eikun'?' selected':'')+'>kun pätee</option><option value="eikun"'+(vr.m==='eikun'?' selected':'')+'>kun ei päde</option></select><select data-vrr="1">'+refOptions(vr.r||'',function(o){return o.id!==b.id&&hasValue(o);},'ei koskaan')+'</select></div>');
     cs+=fNum('Läpinäkyvyys (%)','lpn',b.lpn||0,'0 = näkyy kokonaan, 100 = ei näy lainkaan (mutta on paikallaan ja painettavissa). Logiikka voi muuttaa sitä: katso Ominaisuudet.');
     h+=section('Väri',cs);
+    h+=anSection(b);
     h+=esteSection(b);
     h+=raahausSection(b);
   }
@@ -7509,7 +7567,7 @@ function refreshInspHead(){var b=selBlock();if(!b)return;var hd=$('#insp .ih b')
   var jr=$('#jres');if(jr&&b.k==='joukko')jr.innerHTML='Tulos: '+rowsLine(E,E.val(b.id,'rj'));}
 $('#insp').addEventListener('focusin',function(e){var k=e.target.getAttribute('data-k');if(k&&inspUndoKey!==k+S.sel.id){pushUndo();inspUndoKey=k+S.sel.id;}});
 $('#insp').addEventListener('focusout',function(){inspUndoKey=null;});
-$('#insp').addEventListener('toggle',function(e){if(e.target&&e.target.id==='omsec')S.omOpen=e.target.open;if(e.target&&e.target.id==='fyssec')S.fysOpen=e.target.open;},true);
+$('#insp').addEventListener('toggle',function(e){if(e.target&&e.target.id==='omsec')S.omOpen=e.target.open;if(e.target&&e.target.id==='fyssec')S.fysOpen=e.target.open;if(e.target&&e.target.id==='ansec')S.anOpen=e.target.open;},true);
 /* Kaavan ehdotukset: painallus ei vie kohdistusta kaavakentästä. */
 $('#insp').addEventListener('pointerdown',function(e){var k=e.target.closest('[data-ksug]');if(!k)return;e.preventDefault();kaavaInsert(k.getAttribute('data-ksug'),+k.getAttribute('data-rep')||0);});
 $('#insp').addEventListener('keydown',function(e){var t=e.target;if(t.hasAttribute&&t.hasAttribute('data-kaava')&&e.key==='Enter'){e.preventDefault();t.blur();}});
@@ -7531,6 +7589,7 @@ $('#insp').addEventListener('input',function(e){
   if(t.hasAttribute('data-num')&&['x','y','w','h'].indexOf(k)>=0){var x=parseFloat(val.replace(',','.'));if(isNaN(x))return;val=Math.round(x);if(k==='w')val=Math.max(30,val);if(k==='h')val=Math.max(24,val);}
   if(k==='n'){var nn=parseInt(val,10);val=isNaN(nn)?1:Math.max(0,nn);}
   if((k==='kw'||k==='kh'||k==='vali')&&b.k==='toistin'){var tn=parseFloat(String(val).replace(',','.'));if(isNaN(tn)||tn<0)return;b[k]=Math.round(k==='kh'?Math.max(16,tn):tn);afterInsp(false);return;}
+  if(k==='ank'){if(String(val).trim()===''){delete b.ank;afterInsp(false);return;}var an=parseFloat(String(val).replace(',','.'));if(isNaN(an))return;b.ank=Math.max(0,Math.min(10,an));afterInsp(false);return;}
   if(k==='rv'){if(String(val).trim()===''){delete b.rv;afterInsp(false);return;}var rx=parseFloat(String(val).replace(',','.'));if(isNaN(rx))return;b.rv=Math.max(0,Math.min(100,Math.round(rx)));afterInsp(false);return;}
   b[k]=val;afterInsp(false);
 });
@@ -7581,6 +7640,7 @@ $('#insp').addEventListener('change',function(e){
   if(k3==='on'){pushUndo();b.off=!t.checked;afterInsp(true);return;}
   if(t.type==='checkbox'){pushUndo();b[k3]=t.checked;afterInsp(true);return;}
   if(t.tagName==='SELECT'&&k3==='lk'&&b.k==='ketju'){pushUndo();if(t.value==='1'||t.value==='2')b.lk=+t.value;else delete b.lk;afterInsp(true);return;}
+  if(t.tagName==='SELECT'&&(k3==='ani'||k3==='ano')){pushUndo();if(t.value)b[k3]=t.value;else delete b[k3];afterInsp(true);return;}
   if(t.tagName==='SELECT'&&k3==='lkv'){pushUndo();b.v=t.value;afterInsp(true);return;}
   if(t.tagName==='SELECT'&&k3==='tsar'){pushUndo();if(t.value)b.tsar=t.value;else delete b.tsar;KK.repair(P);afterInsp(true);return;}
   if(t.tagName==='SELECT'&&k3==='trv'){pushUndo();if(t.value)b.trv=t.value;else delete b.trv;
@@ -7684,6 +7744,7 @@ $('#insp').addEventListener('click',function(e){
     else if(k==='dec'&&b.k==='kayra')b.dec=v===''?'':+v;
     else if(k==='rv'){if(v==='')delete b.rv;else b.rv=Math.max(0,Math.min(100,+v));}
     else if(k==='lpin'){if(v)b.lpin=v;else delete b.lpin;}
+    else if(k==='anp'){if(v)b.anp=v;else delete b.anp;}
     else if(k==='jak'&&b.k==='satu'){var sdl=satuWeightLinks(b.id);b.jak=v;if(v==='tasa'&&sdl)toast('Painoihin tulleet nuolet ('+sdl+') poistuivat, koska jakauma on tasainen. Kumoa palauttaa ne.');}
     else b[k]=v;
     afterInsp(true);return;}
@@ -7880,12 +7941,21 @@ function openSettings(){
   var h='<h2>Asetukset<button class="tb" data-x="close">Valmis</button></h2>'+
    '<div class="fs"><h4>Rakennusympäristön ilme</h4><div id="appearance-settings"></div></div>'+
    '<div class="fs"><h4>Projektin käyttönäkymän ilme</h4><div id="view-appearance-settings"></div></div>'+
+   anSettings()+
    '<div class="fs"><h4>Päivämäärät</h4>'+fSegsS('Muoto','df',c.df,[['pp.kk.vvvv','14.10.2026'],['pp.kk.vv','14.10.26']])+'<div class="help">Viikkonumero on aina suomalainen (ISO 8601): viikko alkaa maanantaina.</div></div>'+
    '<div class="fs"><h4>Muokkaus</h4>'+fSegsS('Kohdista ruudukkoon','snap',c.snap?'1':'0',[['1','Kyllä'],['0','Ei']])+'<div class="help">Vaihto-näppäin (⇧) ohittaa kohdistuksen raahatessa.</div></div>'+
    lapSection()+ghSection()+'<div class="help">Appi-appi '+KK.PAJA+' (entinen Pajakone, moottori '+KK.VER+', Kytköskartan pohjalta). Tiedot ovat tämän selaimen muistissa'+(ghOn()?' ja GitHubissa.':'.')+'</div>';
   openSheet(h);APP_APPEARANCE.mount($('#appearance-settings'));
   APP_APPEARANCE.mountView($('#view-appearance-settings'),P,c.teema,function(k,v){if(!P)return;pushUndo();P.appearance=P.appearance||{};P.appearance[k]=v;save();renderAll();});
 }
+/* F29: projektin animoinnin oletus (P.an). Palikka käyttää tätä, kunnes sille valitaan oma. Puuttuva = töks. */
+function anSettings(){if(!P)return '';var a=P.an||{},A=KK.ANTAVAT;function sel(k,opts){return '<select data-pan="'+k+'">'+opts.map(function(o){return '<option value="'+esc(o[0])+'"'+(String(a[k]||'')===o[0]?' selected':'')+'>'+esc(o[1])+'</option>';}).join('')+'</select>';}
+  return '<div class="fs" id="anset"><h4>Projektin animointi</h4>'+F('Ilmestyy',sel('i',[['','töks (oletus)']].concat(A.slice(1))))+F('Katoaa',sel('o',[['','sama kuin ilmestyy']].concat(A)))+
+    F('Kesto (s)','<input data-pan="k" inputmode="decimal" value="'+esc(a.k==null?'':String(a.k).replace('.',','))+'" placeholder="0,25">')+F('Pehmeys',sel('p',[['','pehmeä (oletus)']].concat(KK.ANPEH.slice(1))))+
+    '<div class="help">Näkymän palikoiden tapa ilmestyä ja kadota, kun niille ei ole valittu omaa (palikan osio Animointi). Pelkkä näyttö: logiikka ei odota.</div></div>';}
+$('#sheet').addEventListener('change',function(e){var t=e.target;if(!t.hasAttribute||!t.hasAttribute('data-pan')||!P)return;var k=t.getAttribute('data-pan'),v=String(t.value).trim();pushUndo();
+  P.an=P.an&&typeof P.an==='object'?P.an:{};if(k==='k'){var n=parseFloat(v.replace(',','.'));if(v===''||isNaN(n))delete P.an.k;else P.an.k=Math.max(0,Math.min(10,n));}else if(v)P.an[k]=v;else delete P.an[k];
+  if(!Object.keys(P.an).length)delete P.an;save();renderAll();});
 function fSegsS(label,k,v,opts){return '<div class="f"><label>'+label+'</label><div class="segs">'+opts.map(function(o){return '<button data-cfg="'+k+'" data-v="'+o[0]+'" class="'+(String(v)===String(o[0])?'on':'')+'">'+esc(o[1])+'</button>';}).join('')+'</div></div>';}
 $('#sheet').addEventListener('click',function(e){var b=e.target.closest('[data-cfg]');if(!b)return;var k=b.getAttribute('data-cfg'),v=b.getAttribute('data-v');Dt.cfg[k]=k==='snap'?v==='1':v;save();renderAll();openSettings();});
 

@@ -23,7 +23,7 @@ SETUP="""(function(){var P=APP.P,v=P.views[0];v.laite='puhelin';var vw=v.id;P.vi
 async def main():
     async with async_playwright() as p:
         for W in (1440,1280,390,320):
-            b,pg,errs=await avaa(p,W,900)
+            b,pg,errs=await avaa(p,W,900,rm='no-preference')  # F29: efektien liike vain ilman Vähennä liikettä
             await pg.fill('#wname','Efektit');await pg.click('#wcreate');await pg.wait_for_timeout(150)
             I=await pg.evaluate(SETUP)
             if W>500:

@@ -66,6 +66,7 @@ Avaa **projektin nimi ▾** yläpalkin vasemmasta reunasta. Ikkunassa *Projektit
 |---|---|
 | Rakennusympäristön ilme | *Vaalea ja tumma tila*: Laitteen mukaan, Vaalea, Tumma. *Väriteema*: Metsä, Järvi, Luumu, Hiekka, Ruusu, Harmaa, Laguuni, Laventeli, Oliivi, Kupari. Koskee kaikkia projekteja tässä selaimessa. |
 | Projektin käyttönäkymän ilme | samat valinnat, mutta vain tälle projektille; kulkee projektin mukana. Kumoa peruu. |
+| Projektin animointi | *Ilmestyy*, *Katoaa*, *Kesto (s)*, *Pehmeys*: tämän projektin näkymäpalikoiden oletus, kun palikalle ei ole valittu omaa (luku [Näkymäpalikat](03-nakymapalikat.md), Animointi-osio). Tyhjä = töks. Kulkee projektin mukana. |
 | Päivämäärät | *Muoto*: pp.kk.vvvv tai pp.kk.vv |
 | Muokkaus | *Kohdista ruudukkoon*: Kyllä / Ei (10 px:n ruudukko raahattaessa) |
 | Muisti- ja viestilaput | lappujen määrät, lista, *Hae vastaukset*, *Kopioi laput tekstinä* (ks. Laput) |
@@ -350,7 +351,7 @@ Ylhäältä alas:
 3. Erikoispalikalla laatikko **✦ Erikoispalikka.** ja syy. Logiikkapalikalla vihjeteksti.
 4. **Nimi**, **Viite** (ei Ryhmällä) ja **Lisätieto** (vapaa selitys, näkyy pikakatselussa, ei vaikuta mihinkään).
 5. **⚠ Viitevirheet**, jos palikka viittaa poistettuun (ks. Poisto).
-6. Lajin omat osiot. Näkymäpalikoilla tavallisesti *Sisältö*, pikatoiminnot (*Kun painetaan*, *Kun valitaan*), *Arvo, kun valittu*, *Näkyvyys*, *Väri*, *Käyttöraahaus*, *Paikka ja koko* ja *Ulkoasu*. Logiikkapalikoilla lajin asetukset ja *Ulkonäkö logiikassa*.
+6. Lajin omat osiot. Näkymäpalikoilla tavallisesti *Sisältö*, pikatoiminnot (*Kun painetaan*, *Kun valitaan*), *Arvo, kun valittu*, *Näkyvyys*, *Väri*, *Animointi*, *Käyttöraahaus*, *Paikka ja koko* ja *Ulkoasu*. Logiikkapalikoilla lajin asetukset ja *Ulkonäkö logiikassa*.
 7. **Ominaisuudet** (avattava osio): kaikki, mihin kaava voi viitata, viitteineen. Napauta viitettä: se kopioituu. Ohjattavilla ominaisuuksilla napit ƒ (arvo kaavasta), ⇢ (kohta logiikkaan nuolta varten), × (sulje kohta) ja *asetettu ↺* (palauta). Yksityiskohdat ominaisuusluvussa.
 8. **Miksi?** (kun palikalle on selitys, ks. alla) ja **Yhteydet**.
 9. Napit, esim. näkymäpalikalla **Tuo eteen**, **Vie taakse**, **Monista**, **Näytä logiikassa**, **Tallenna presetiksi…**, **Poista palikka**; logiikkapalikalla **Lisää toinen esiintymä**, **⧉ Kopioi**, **Liitä**, **Tallenna presetiksi…**, **Poista** tai **Poista tämä esiintymä**. Kun näkymäpalikka on valittu logiikassa: **Lisää toinen esiintymä**, **Poista logiikasta**, **Näytä näkymässä**, **Tallenna presetiksi…**.

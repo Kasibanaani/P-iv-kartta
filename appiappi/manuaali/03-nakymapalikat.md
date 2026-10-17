@@ -41,6 +41,7 @@ Paneeli on ylhäältä alas suunnilleen tässä järjestyksessä:
 | **Arvo, kun valittu** | Painike (ei kertapainallus), Valintaruutu, Kytkin. |
 | **Näkyvyys** | Näkyy kun, harmaana kun, syy. |
 | **Väri** | Väri, vaihtoväri, vaihtovärin ehto, läpinäkyvyys. |
+| **Animointi** | Ilmestyy, katoaa, kesto, pehmeys (kiinni, kun mitään ei ole valittu). Ks. alla. |
 | **Este ja osuma-alue** | Este, osuma-alue, massa, kimmoisuus (luku [Maailma ja liike](08-maailma-ja-liike.md)). |
 | **Käyttöraahaus** | Raahattava käytössä (kiinni oletuksena). |
 | **Paikka ja koko** | X, Y, Leveys, Korkeus; Näkymä (jos näkymiä on monta); laitenäkymässä *Laitteen ruudussa* -napit ja *Rullausvauhti*; *Kerros* (jos kerroksia on monta); *Monista* (N kpl alle/viereen tai ruudukoksi). |
@@ -80,6 +81,28 @@ Kun näkyvyydelle on ehto, avautuvat:
 Jos sääntöjä on monta, rajoittavin voittaa: piilossa, sitten harmaana, sitten vain luettava. Jos palikan kerros on piilotettu käytössä, palikka on piilossa.
 
 Muokkaustilassa piilotettu palikka näkyy haaleana, jotta sitä voi muokata.
+
+## Animointi-osio
+
+Miltä palikka näyttää, kun se tulee näkyviin tai katoaa (Appi-appi F29, vaihe 1). Avattava osio *Väri*-osion alla; kiinni, kun mitään ei ole valittu.
+
+- **Ilmestyy:** *Projektin oletus* (suluissa, mikä se on), *töks*, *häivytys*, *liuku ylhäältä*, *liuku alhaalta*, *liuku vasemmalta*, *liuku oikealta*, *kasvu*, *pomppu*.
+- **Katoaa:** *Projektin oletus*, *Sama kuin ilmestyy* tai jokin samoista tavoista. Katoaminen on ilmestymisen peilikuva: *liuku ylhäältä* katoaa ylös.
+- **Kesto (s):** tyhjä = projektin oletus (ilman oletusta 0,25 s). 0 = töks, enintään 10 s. Pilkku käy (`0,4`).
+- **Pehmeys:** *Oletus*, *Pehmeä* (hidastuu loppua kohti), *Tasainen*, *Joustava* (menee hiukan yli ja palaa).
+
+Projektin oletus asetetaan kohdassa **⚙︎ Asetukset → Projektin animointi** (luku [Työympäristö](02-tyoymparisto.md)). Ilman oletusta ja omaa valintaa palikka on töks, kuten ennen.
+
+Säännöt:
+- **Pelkkä näyttö.** Animaatio ei muuta palikan paikkaa, kokoa, osuma-aluetta eikä mitään logiikan arvoa. `.näkyy` vaihtuu heti: piilotettu palikka ei ota napautuksia, vaikka se vielä häipyy, ja näkyviin tuleva painike toimii heti.
+- **Keskeytys kääntyy:** jos palikka tulee takaisin kesken katoamisen (tai päinvastoin), animaatio kääntyy siitä kohdasta, ei hyppää.
+- Koskee näkyvyyden muutoksia: *näkyy kun* (asetus, nuoli tai kaava), käytössä piilotettu kerros ja Kerros-palikka. Ei koske harmaaksi muuttumista, arvon vaihtumista, liikettä, raahausta eikä kameraa (vaihe 2 tuo arvon vaihtumisen myöhemmin).
+- Toistimen korttien palikat animoituvat samoin, mutta muut kortit eivät liu'u tilalle.
+- Ketjun efekti (Animaatio, Teksti ilmestyy, Kuva vaihtuu) voittaa sillä kertaa: se keskeyttää palikan oman animaation.
+- **Vähennä liikettä** (iPhonen asetus *Käyttöapu → Liike*): kaikki palikoiden animoinnit ovat töks. Ketjun efekteistä jää silloin vain häivytys: Animaatio-efektin liike ei näy, ja Kuva vaihtuu- ja Näkymänvaihto-efektien liuku on häivytys.
+- Toimii vain käytössä (🔒 tai 🧪), ei muokatessa.
+
+Logiikka voi ohjata näitä kuten muitakin ominaisuuksia (taulukko alla): esim. yksi Arvo *3* nuolella monen palikan kohtaan *animointi.kesto*. Tuntematon tapa (esim. `"lentää"`) on näkyvä virhe, ja palikka on silloin töks.
 
 ## Väri-osio
 
@@ -136,6 +159,10 @@ Kaikilla näkymäpalikoilla (paitsi Sijainti, Alue, Toistin) on nämä:
 | `.este` | kyllä/ei | kyllä | liikkuvat palikat eivät mene läpi |
 | `.massa` | luku | kyllä | paino törmäyksissä |
 | `.kimmoisuus` | luku 0–200 | kyllä | 0 = tömähtää, 100 = pomppaa |
+| `.animointi.ilmestyy` | valinta | kyllä | `toks`, `haivytys`, `ylhaalta`, `alhaalta`, `vasemmalta`, `oikealta`, `kasvu`, `pomppu` (myös näkyvä nimi, esim. `"häivytys"` tai `"liuku ylhäältä"`, tai numero 1–8) |
+| `.animointi.katoaa` | valinta | kyllä | `sama` (oletus) tai jokin ilmestymisen tavoista (numerolla 1 = sama, 2–9 tavat) |
+| `.animointi.kesto` | luku 0–10 | kyllä | sekunteina, oletus 0,25; 0 = töks |
+| `.animointi.pehmeys` | valinta | kyllä | `pehmea` (oletus), `tasainen`, `joustava` |
 | `.ruutux`, `.ruutuy` | luku | ei (laskettu) | keskipisteen ruutu kerroksen ruudukossa (1 = ensimmäinen); tyhjä ilman ruudukkoa |
 
 Näkyvyyttä, tilaa, tekstiä ja vaihtoväriä ei ohjata Ominaisuuksista vaan omista kohdistaan (*näkyy kun*, *harmaana kun*, *teksti*, *vaihtoväri kun*). Monet ominaisuudet hyväksyvät myös muita nimiä (esim. `vari`, `lapinakyvyys`, `kulma`).

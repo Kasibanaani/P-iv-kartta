@@ -14,6 +14,7 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | antaa laskulle nimen | `nimi = lauseke` ja ＋ Luo kaavan tulos | [Kaavan tulos](04-logiikkapalikat.md#kaavan-tulos--tulos) |
 | valita kahdesta arvosta ehdolla | `jos(ehto; a; b)` tai VALITSE | [Funktiot jos, ja, tai](06-kaavat.md#funktiot-jos-ja-tai) |
 | näyttää tai piilottaa palikan ehdolla | Näkyvyys-osio tai nuoli kohtaan *näkyy kun* | [Näkyvyys-osio](03-nakymapalikat.md#näkyvyys-osio) |
+| animoida palikan ilmestymisen tai katoamisen | Animointi-osio (palikka) tai ⚙︎ Asetukset → Projektin animointi | [Animointi-osio](03-nakymapalikat.md#animointi-osio) |
 | harmaannuttaa palikan | *Harmaana* tai kohta *harmaana kun* | [Näkyvyys-osio](03-nakymapalikat.md#näkyvyys-osio) |
 | tehdä jotain painalluksesta | Painikkeen *Kun painetaan* → ＋ Lisää toiminto… | [Toiminto](05-ketjut-ja-toiminnot.md#toiminto-tee) |
 | kasvattaa laskuria | Muisti + toiminto Lisää | [Laskuri, joka muistaa](04-logiikkapalikat.md#4-laskuri-joka-muistaa) |

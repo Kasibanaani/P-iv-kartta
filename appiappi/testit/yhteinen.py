@@ -2,9 +2,9 @@
 import os, json
 D=os.path.dirname(os.path.abspath(__file__))
 U='file://'+os.path.abspath(os.path.join(D,'..','index.html'))
-async def avaa(p,w=1440,h=900,dark=False):
+async def avaa(p,w=1440,h=900,dark=False,rm='reduce'):
     b=await p.chromium.launch();errs=[]
-    ctx=await b.new_context(viewport={'width':w,'height':h},color_scheme='dark' if dark else 'light',reduced_motion='reduce')
+    ctx=await b.new_context(viewport={'width':w,'height':h},color_scheme='dark' if dark else 'light',reduced_motion=rm)
     pg=await ctx.new_page();pg.on('pageerror',lambda e:errs.append(str(e)));pg.on('console',lambda m:m.type=='error' and errs.append(m.text))
     await pg.goto(U);await pg.wait_for_timeout(250)
     return b,pg,errs

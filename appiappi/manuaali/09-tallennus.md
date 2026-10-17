@@ -290,6 +290,7 @@ Tämä osio on tekoälylle. Säännöt tulevat repon `AGENTS.md`:n kohdasta *Pro
 | `mem` | Vanha käyttötiedon kenttä, tyhjennetään yhdessä `st`:n kanssa; uusissa `{}` |
 | `lock` | Avautuuko lukittuna käyttöön |
 | `appearance`, `pois` | Valinnaiset: käyttönäkymän ilme, poistettujen viittauskohteiden muisti |
+| `an` | Valinnainen: projektin animoinnin oletus `{i (ilmestyy), o (katoaa), k (kesto s), p (pehmeys)}`. Näkymäpalikan omat vastaavat kentät `ani`, `ano`, `ank`, `anp`. Puuttuva = töks (F29) |
 
 Kaavat ja tekstien viitteet ovat tiedostossa sisäisessä muodossa `{#palikanId}`, ei nimillä. Tietotaulukon sarakkeet (`sar`) ja lähtörivit (`rv`) ovat rakennetta palikassa; käytössä muuttuneet rivit ovat `st`:ssä.
 
