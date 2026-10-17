@@ -1,6 +1,6 @@
 # F33 Peliohjain: Xbox-, PlayStation- ja Nintendo-ohjain Appi-appin syötteeksi
 
-17.10.2026. **Emilin idea** (viesti 17.10. klo 16.58): ”Tuki ohjaimelle, kuten Xbox, PlayStation tai Nintendo.” Tekoälyn jäsentämä suunnitelma. Merkinnät: *ehdotus* = tekoälyn suositus; ⏸ = odottaa Emilin päätöstä. **Ei toteutettu.** [Hakemisto](../SUUNNITELMA.md), [käyttöpinta](03-kayttopinta.md), [palikkasäännöt](../PALIKKASAANNOT.md).
+17.10.2026. **Emilin idea** (viesti 17.10. klo 16.58): ”Tuki ohjaimelle, kuten Xbox, PlayStation tai Nintendo.” Tekoälyn jäsentämä suunnitelma. Merkinnät: *ehdotus* = tekoälyn suositus; ⏸ = odottaa Emilin päätöstä. **Vaihe 1 toteutettu** (Appi-appi 45, 17.10.2026: kohdat 3.1–3.3, testattu valeohjaimella tietokoneen Chromiumissa); vaiheet 2–4 eivät. [Hakemisto](../SUUNNITELMA.md), [käyttöpinta](03-kayttopinta.md), [palikkasäännöt](../PALIKKASAANNOT.md).
 
 ## 1. Mitä iPhone oikeasti tukee (selvitetty 17.10.2026)
 

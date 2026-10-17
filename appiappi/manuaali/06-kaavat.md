@@ -554,6 +554,9 @@ Taulukossa *L* = vain luettava, *O* = ohjattava. Suluissa muut kirjoitusasut.
 | Muutos ajassa | `alku`, `loppu`, `kesto`, `kulunut` | L | |
 | Muutos ajassa | `edistyminen`, `käynnissä` | L | 0–1; kyllä/ei |
 | Sekuntikello | `kulunut`, `käy` (`kay`) | L | sekunteina; kyllä/ei |
+| Peliohjain | `yhdistetty`, `nimi`, `vaaka`, `pysty`, `etäisyys`, `suunta`, `oikeavaaka`, `oikeapysty` | L | vasen tatti kuten Tatilla |
+| Peliohjain | `alanappi`, `oikeanappi`, `vasennappi`, `ylänappi` (`ylanappi`), `vasenolka`, `oikeaolka`, `ylös` (`ylos`), `alas`, `vasen`, `oikea`, `valikko`, `valinta`, `vasenpainallus`, `oikeapainallus` | L | kyllä/ei |
+| Peliohjain | `vasenliipaisin`, `oikealiipaisin` | L | 0–1 |
 | Kerros | `näkyy`, `estää` | O | kyllä/ei |
 | Kerros | `himmennys`, `läpinäkyvyys` | O | 0–100 |
 | Kamera | `zoomaus` | O | % (100 = laitteen ruutu) |

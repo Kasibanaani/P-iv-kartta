@@ -82,6 +82,7 @@ Kaikki palikkalajit. Laji on sisäinen tunniste (tallennustiedostossa `k`). ✦ 
 | [Satunnaisluku](04-logiikkapalikat.md#satunnaisluku-satu) | `satu` | Logiikka | Logiikkapalikat |
 | [Muutos ajassa](04-logiikkapalikat.md#muutos-ajassa-muutos) | `muutos` | Logiikka | Logiikkapalikat |
 | [Sekuntikello](04-logiikkapalikat.md#sekuntikello-kello) | `kello` | Logiikka | Logiikkapalikat |
+| [Peliohjain](04-logiikkapalikat.md#peliohjain-pohj) | `pohj` | Logiikka | Logiikkapalikat |
 | [Kerros ✦](04-logiikkapalikat.md#kerros--kerros) | `kerros` | Logiikka | Logiikkapalikat |
 | [Kamera ✦](04-logiikkapalikat.md#kamera--kamera) | `kamera` | Logiikka | Logiikkapalikat |
 | [Liike](08-maailma-ja-liike.md#liike-liike) | `liike` | Logiikka | Maailma ja liike |

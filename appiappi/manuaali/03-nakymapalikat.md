@@ -247,6 +247,7 @@ Painettava nappi. Se voi jäädä pohjaan kuin katkaisija, laskea painalluksia t
   - **Ulkoasu:** *Painike* tai *Näkymätön kosketusalue* (ei näy käytössä mutta toimii; muokatessa katkoviiva). Aseta kuvan päälle ja paina *Tuo eteen*: kuvasta tulee painettava.
 - **Kun painetaan (osio):** pikatoiminnot. Valitse *＋ Lisää toiminto…* -valikosta esim. *Aseta arvo*, *Lisää*, *Vaihda*, *Siirry*, *Näytä ilmoitus*, *Kirjaa*. Appi tekee logiikkaan Toiminto-palikan ja nuolen *painettu → tee kun* ja avaa toiminnon paneelin (yläreunassa paluunappi ‹ Painikkeen nimi). Toiminnot tehdään ylhäältä alas; × poistaa.
 - **Arvo, kun valittu (osio, ei Kertapainallus):** kirjoita luku tai teksti ja paina Enter. Appi tekee VALITSE-palikan, jonka tulos on tämä arvo, kun painike on valittu (muuten tyhjä, laskuissa 0). Esim. pisteet SUMMA-ikkunaan.
+- **Peliohjaimen nappi** (paneeli, osio Sisältö): *ei* (oletus) tai ohjaimen nappi (esim. *alanappi (Xbox A, PS ✕, Nintendo B)*) ja **Pelaaja** 1–4. Käytössä ohjaimen nappi painaa painiketta kuin sormi: *painettu* lähtee heti napin mennessä alas, painike näkyy painettuna niin kauan kuin nappi on pohjassa, *Pohjassa vain painettaessa*, *pitkä painallus*, *irrotettu* ja kesto toimivat. Piilossa, harmaana tai muussa kuin auki olevassa näkymässä oleva painike ei reagoi. Jos usealla painikkeella on sama nappi, kaikki reagoivat (Miksi? luettelee ne). Ks. [Peliohjain](04-logiikkapalikat.md#peliohjain-pohj).
 - **Ominaisuudet:** yhteiset; lisäksi `painike.painalluksia` (Kertapainallus) ja `painike.kesto` (lisätapahtumien kanssa).
 - **Kaavassa:** `painike` antaa arvon: kyllä/ei tai Kertapainalluksessa määrän.
 - **Aika ja tila:** arvo ja määrä ovat käyttötietoa (säilyvät, kun appi suljetaan). Toiminto *Tyhjennä* nollaa. Toiminnot *Valitse*, *Poista valinta*, *Vaihda*, *Aseta tila* muuttavat arvoa; Kertapainalluksen määrään *Valitse* lisää yhden.
@@ -334,7 +335,7 @@ Ohjailutatti: nuppia vedetään sormella, ja se palaa keskelle, kun sormi nousee
 | **alkaa** | tapahtuma | nuppiin tartutaan |
 | **loppuu** | tapahtuma | sormi nousee |
 
-- **Asetukset:** ei omia asetuksia (paneelissa on tekstikenttä ilman otsikkoa; teksti ei näy tatissa).
+- **Asetukset:** **Peliohjain** *ei* (oletus) / *vasen tatti* / *oikea tatti* ja **Pelaaja** 1–4: tatti seuraa peliohjaimen tattia (kuollut alue saman pelaajan Peliohjain-palikasta, muuten 0,15), nuppi liikkuu ruudulla ja *alkaa*/*loppuu* lähtevät kuten sormella. Sormi voittaa, kun se koskee tattia. Piilotettu tatti seuraa silti, esim. *näkyy kun* `ohjain.yhdistetty = ei`. Ks. [Peliohjain](04-logiikkapalikat.md#peliohjain-pohj). Muuten ei omia asetuksia (paneelissa on tekstikenttä ilman otsikkoa; teksti ei näy tatissa).
 - **Ominaisuudet:** yhteiset; lisäksi `.vaaka`, `.pysty`, `.suunta`, `.etäisyys`.
 - **Kaavassa:** `tatti` = etäisyys.
 - **Aika ja tila:** irrotettaessa kaikki arvot palaavat nollaan.

@@ -171,6 +171,41 @@ Mittaa kulunutta aikaa sekunteina. Käynnistys, pysäytys ja nollaus tapahtumill
 - **Esimerkki:** Peliaika: Painike → *käynnistä*, toinen → *pysäytä*. *kulunut* → Monitori (esitys *Aika m:ss*).
 - **Huomio:** *kulunut* on aika-arvo; Vertailu Arvoon, jonka yksikkö on minuuttia, toimii oikein (molemmat sekunteina).
 
+## Peliohjain (`pohj`)
+
+Xbox-, PlayStation- tai Nintendo-ohjain syötteeksi (selaimen Gamepad API). Ei näy käyttäjälle.
+
+- **Löytyy:** logiikan paletti → *Liike ja aika* → **Peliohjain**.
+- **Sisään:** ei mitään.
+- **Ulos:**
+
+| Kohta | Laji | Mitä |
+|---|---|---|
+| yhdistetty | arvo | kyllä/ei (palikan arvo) |
+| vaaka, pysty | arvo | vasen tatti −1…1, oikealle ja alas + |
+| etäisyys | arvo | vasen tatti keskeltä 0–1 |
+| suunta | arvo | vasen tatti asteina, 0 = ylös |
+| painettu, irti | tapahtuma | mikä tahansa nappi alas / ylös; tapahtuman tiedoissa `nappi` (esim. `alanappi`) |
+| yhdistyi, irtosi | tapahtuma | ohjain tuli / lähti |
+
+- **Asetukset (paneeli):** **Pelaaja** 1–4 (oletus 1; ensimmäinen yhdistetty ohjain on pelaaja 1) ja **Kuollut alue** 0–0,5 (oletus 0,15: tatin pieni lepovärinä alle rajan on 0, yli menevä osa skaalataan 0…1). Paneelissa elävä esikatselu: yhdistetty-tila, ohjaimen nimi, painetut napit syttyvät ja tattien arvot. Esikatselu toimii myös muokatessa, mutta logiikka ei silloin reagoi ohjaimeen.
+- **Napit sijainnin mukaan** (samat nimet kaikilla merkeillä):
+
+| Appi-appi | Xbox | PlayStation | Nintendo |
+|---|---|---|---|
+| alanappi | A | ✕ | B |
+| oikeanappi | B | ○ | A |
+| vasennappi | X | □ | Y |
+| ylänappi | Y | △ | X |
+
+  Lisäksi `vasenolka`, `oikeaolka` (LB/RB, L1/R1, L/R), `vasenliipaisin`, `oikealiipaisin` (LT/RT, L2/R2, ZL/ZR; 0–1, painallus = 0,5 tai yli), `ylös`, `alas`, `vasen`, `oikea` (ristiohjain), `valikko` (Menu/Options/+), `valinta` (View/Create/−), `vasenpainallus`, `oikeapainallus` (tatin painallus).
+- **Ominaisuudet** (luettavia, ei asetettavia: arvot tulevat laitteesta): `yhdistetty`, `nimi`, `vaaka`, `pysty`, `etäisyys`, `suunta`, `oikeavaaka`, `oikeapysty` ja jokainen nappi yllä (kyllä/ei, liipaisimet luku). Muut nimet ilman pisteitä: `ylanappi`, `ylos`, `etaisyys`.
+- **Kaavassa:** `ohjain.vaaka * 200` (samat nimet kuin Tatilla), `ohjain.alanappi`, `ohjain.oikealiipaisin > 0,5`.
+- **Yksi nappi tapahtumaksi:** KUN-palikka ehdolla `ohjain.alanappi`, tai *painettu* → JOS `tapahtuma.nappi = "alanappi"`.
+- **Aika ja tila:** toimii, kun näkymä on käytössä (lukittu tai Kokeile). Ohjaimen tila ei tallennu. Kun ohjain irtoaa, sivu menee taustalle tai näkymä avataan muokattavaksi, kaikki napit ja tatit palaavat lepoon (*irtosi*, Tatti *loppuu*).
+- **Esimerkki:** Tatin paneelissa *Peliohjain: vasen tatti*, niin vanha Tatti + Liike -peli liikkuu ohjaimella. Hyppypainikkeen paneelissa *Peliohjaimen nappi: alanappi*.
+- **Huomio:** selain näkee ohjaimen vasta, kun sen nappia painetaan sivun ollessa auki. Kotinapin ja jakonapin ottaa laite itse. Tärinää ei ole (suunnitelman vaihe 2). Oikealla ohjaimella ja iPhonella ei ole kokeiltu (ei tarkistettu).
+
 ## Kerros ✦ (`kerros`)
 
 Tuo näkymän kerroksen logiikkaan: näkyykö kerros käytössä, estääkö se alempien käytön, himmennys ja läpinäkyvyys. Esim. valikko, joka avautuu painikkeesta ja estää muun käytön.

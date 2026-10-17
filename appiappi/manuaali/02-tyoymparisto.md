@@ -174,7 +174,7 @@ Paletti näyttää vain sen puolen palikat, joka on auki: Näkymä-välilehdell�
 | Ikkunat | JA, TAI ja muut ikkunat, JOS-ikkuna, KUN-ikkuna; alaryhmä *Järjestys*: Ryhmä |
 | Ketju | Ketju; alaryhmät *Odotus* (Ajastin, Odota, kunnes), *Haarat* (Ehto, Monta haaraa, Arpa, Toista), *Tekemiset* (Aseta arvo, Aseta tila, Käynnistä ketju, Pysäytä ketju, Ketjun tulos, Lopeta ketju) ja projektin ketjujen lista |
 | Ehdot | JOS, VALITSE, KUN, Hakutaulukko |
-| Liike ja aika | Muutos ajassa, Liike, Sekuntikello |
+| Liike ja aika | Muutos ajassa, Liike, Sekuntikello, Peliohjain |
 | Näkymä ja efektit | Kerros, Kamera, Teksti ilmestyy, Kuva vaihtuu, Animaatio, Näkymänvaihto |
 | Toiminnot | kaikki toiminnot: Aseta arvo, Aseta tila, Lisää, Valitse, Poista valinta, Vaihda, Tyhjennä, Siirry, Palaa takaisin, Kirjaa, Lisää riviksi listaan, Näytä ilmoitus, Käynnistä ketju, Pysäytä ketju, Arvo uudelleen, Palauta perusarvo, Lisää rivi, Poista rivi, Valitse rivi, Siirrä rivi |
 
