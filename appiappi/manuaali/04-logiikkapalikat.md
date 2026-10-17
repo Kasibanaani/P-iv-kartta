@@ -394,9 +394,9 @@ Rakentajan merkintä: kokoaa palikoita reunaviivan sisään, nimellä ja halutes
 
 - **Löytyy:** logiikan paletti → *Ikkunat* → alaotsikko *Järjestys* → **Ryhmä**.
 - **Sisään / Ulos:** ei kohtia.
-- **Asetukset (paneeli):** **Nimi** (kirjoitettu nimi näkyy ryhmän ylälaidassa), **Lisätieto**, **Sävy** (∅ = ei sävyä, tai yksi kahdeksasta väristä). Viite-kenttää ei ole.
+- **Asetukset (paneeli):** **Nimi** (kirjoitettu nimi näkyy ryhmän ylälaidassa), **Lisätieto**, **Sävy** (∅ = ei sävyä, tai yksi kahdeksasta väristä). Viite-kenttää ei ole: ryhmällä ei ole viitettä, eikä sen nimi estä muita palikoita saamasta samaa nimeä tai viitettä (ryhmä *Uni* ja Arvo *Uni* → Arvon viite on `uni`).
 - **Käyttö:** vedä palikoita, ikkunoita ja ketjuja ryhmän sisään; ne liikkuvat ryhmän mukana. Koko muutetaan kulmasta, tiivistys –-napista tai valinnalla *Tiivistetty*.
-- **Huomio:** Ryhmän voi laittaa vain ylimmälle tasolle tai toiseen ryhmään, ei ikkunaan eikä ketjuun. Poisto jättää sisällön paikalleen. Kopioi ja liitä vie ryhmän sisältöineen.
+- **Huomio:** Ryhmän voi laittaa vain ylimmälle tasolle tai toiseen ryhmään, ei ikkunaan eikä ketjuun. Poisto jättää sisällön paikalleen. Kopioi ja liitä vie ryhmän sisältöineen. Vanhassa projektissa (ennen jonon kohtaa 1k) ryhmällä saattoi olla viite; kaava tai teksti, joka yhä osoittaa ryhmään, näyttää `⚠ Ryhmä ei ole arvo`. Kirjoita kaavaan oikean palikan viite.
 
 ## Muualla kuvatut logiikan palikat
 

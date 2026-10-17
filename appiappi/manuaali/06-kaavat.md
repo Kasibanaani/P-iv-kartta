@@ -254,7 +254,7 @@ Kaavassa on kolme funktiota. Osat erotetaan **puolipisteellä** `;`, koska pilkk
 - Tyhjä osa on tyhjä arvo: `jos(uni > 5;; 2)` antaa tyhjän, kun ehto pätee. ja- ja tai-funktioissa tyhjät osat ohitetaan.
 - `ja` ja `tai` ottavat yhden tai useamman osan: `ja(kyllä)` = kyllä, `tai(ei; ei; kyllä)` = kyllä.
 - Funktion tuloksen saa verrata: `ja(uni > 5; uni < 8) = kyllä`.
-- jos laskee vain valitun osan: virhe valitsematta jääneessä osassa ei näy. ja ja tai laskevat kaikki osat, joten virhe missä tahansa osassa näkyy.
+- jos laskee vain valitun osan: laskuvirhe (esim. jako nollalla) valitsematta jääneessä osassa ei näy. Tuntematon nimi on kuitenkin virhe heti, osasta riippumatta: `jos(uni > 7; "hyvä"; unii)` → `⚠ puuttuu: unii`, vaikka ehto pätee. ja ja tai laskevat kaikki osat, joten virhe missä tahansa osassa näkyy.
 - Puuttuva tai virheellinen ehto ei päde: jos valitsee muuten-osan (virheellinen ehto antaa virheen).
 - **Ei muita funktioita.** Ei esimerkiksi summa(), pyöristä(), pituus() tai ei(). Monen arvon yhdistäminen tehdään ikkunoilla (SUMMA, KESKIARVO …), tekstin pituus ominaisuudella (`nimi.pituus`), ja *ei* kirjoitetaan `jos(ehto; ei; kyllä)` tai vertailulla `ehto = ei`.
 
@@ -384,7 +384,8 @@ Laskuvirheet (kaava luettiin, mutta arvoa ei voi laskea):
 
 | Virhe | Syy |
 |---|---|
-| `puuttuu: kissa` | sanaa ei tunneta viitteeksi (unohtuivatko lainausmerkit?) |
+| `puuttuu: kissa` | sanaa ei tunneta viitteeksi (unohtuivatko lainausmerkit?); näkyy heti, myös jos-funktion valitsematta jääneessä osassa |
+| `Ryhmä ei ole arvo` | vanhan projektin kaava tai teksti osoittaa Ryhmään; kirjoita oikean palikan viite |
 | `kohde poistettu: uni` | viitattu palikka on poistettu |
 | `jako nollalla` | `uni / 0` |
 | `”x” ei ole luku` | `"x" * 2` |
