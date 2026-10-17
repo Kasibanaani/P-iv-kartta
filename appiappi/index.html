@@ -1206,15 +1206,23 @@ function omat(b){
       /* P1b: lukitustila 0–2 (tarkka: muu luku on virhe, ei pyöristetä). Luetaan aina ajantasaisena, myös lukitussa ketjussa. */
       r.push(OM('lukitus','lukitus','luku',{f:'lk',o:1,lim:[0,2],ex:1,def:0,d:'0 = ajantasainen, 1 = lukitse ulkopuolisilta muutoksilta, 2 = lukitse kaikilta muutoksilta'}));
       cl('lukitusnimi','lukitusnimi','teksti','valitun lukitustilan nimi');break;
-    case 'ajastin':pt('j','jäljellä','jäljellä oleva aika sekunteina',['jaljella']);pt('v','käynnissä','odottaako jokin haara ajastimessa',['kaynnissa']);break;
-    case 'muutos':pt('t','edistyminen','0–1 alusta loppuun');pt('r','käynnissä','onko käynnissä',['kaynnissa']);cl('kulunut','kulunut','luku','kulunut aika sekunteina (kesto × edistyminen)');break;
+    case 'ajastin':pt('j','jäljellä','jäljellä oleva aika sekunteina',['jaljella']);pt('v','käynnissä','odottaako jokin haara ajastimessa',['kaynnissa']);
+      cl('kesto','kesto','luku',b.tapa==='klo'?'aika seuraavaan kellonaikaan sekunteina':'odotuksen kesto sekunteina (kentästä tai nuolesta)');break;
+    case 'muutos':cl('alku','alku','luku','arvo alussa (kentästä tai nuolesta)');cl('loppu','loppu','luku','arvo lopussa (kentästä tai nuolesta)');cl('kesto','kesto','luku','kesto sekunteina (kentästä tai nuolesta)');
+      pt('t','edistyminen','0–1 alusta loppuun');pt('r','käynnissä','onko käynnissä',['kaynnissa']);cl('kulunut','kulunut','luku','kulunut aika sekunteina (kesto × edistyminen)');break;
     case 'liike':r.push(OM('x','x','arvo',{port:'v',d:'paikka x'}));pt('y','y','paikka y');pt('m','liikkuu','kyllä, kun liikkuu nyt');pt('osuu','osuu','kyllä, kun este pysäyttää tai ohjaa liikettä');pt('nop','nopeus','nopeus pikseliä sekunnissa');if(b.ohj!=='ruutu'){r.push(OM('kitka','kitka','luku',{f:'kit',o:1,lim:[0,100],def:50,d:'kuinka nopeasti törmäyksestä tai töytäisystä saatu vauhti hiipuu: 0 = ei koskaan, 100 = heti (%)'}),OM('ux','vauhtix','luku',{al:['vauhti x'],lst:'ux',o:1,d:'töytäisyvauhti vaakaan (px/s), esim. lyönti: Lisää 300'}),OM('uy','vauhtiy','luku',{al:['vauhti y'],lst:'uy',o:1,d:'töytäisyvauhti pystyyn (px/s), alas +'}));cl('isku','isku','luku','viimeisimmän törmäyksen voimakkuus (lähestymisnopeus px/s)');cl('törmäyskohde','törmäyskohde','teksti','palikka, johon viimeksi törmäsi',['tormayskohde']);}pt('suu','suunta','kulkusuunta asteina, 0 = ylös, 90 = oikealle');break;
     case 'ikkuna':if(b.m==='min'||b.m==='max'||b.m==='eq')r.push(OM('n','raja','luku',{al:['n'],f:'n',o:1,lim:[0,null],d:'N (vähintään, enintään tai täsmälleen)'}));
       cl('pätee','pätee','luku','montako sisällä pätee',['patee']);cl('jäseniä','jäseniä','luku','montako palikkaa sisällä',['jasenia']);
       if(b.riv){cl('rivejä','rivejä','luku','montako riviä käytiin läpi',['riveja']);cl('havaintoja','havaintoja','luku','montako arvoa on tiedossa');cl('puuttuvia','puuttuvia','luku','montako arvoa puuttuu');}break;
     case 'odota':r.push(OM('raja','aikaraja','luku',{al:['raja'],f:'raja',o:1,lim:[0,null],d:'aikaraja palikan omassa yksikössä (aika-arvo sekunteina)'}));break;
     case 'tee':if(b.do==='siirry'&&!b.o)r.push(OM('x','x','luku',{f:'x',o:1,d:'siirtymän kohta x'}),OM('y','y','luku',{f:'y',o:1,d:'siirtymän kohta y'}));break;
-    case 'toista':cl('kierros','kierros','luku','monesko kierros on menossa (0 = ei käynnissä)');break;
+    case 'toista':cl('kierros','kierros','luku','monesko kierros on menossa (0 = ei käynnissä)');if(b.tapa!=='rivit')cl('kerrat','kerrat','luku','montako kierrosta (kentästä tai nuolesta)');break;
+    /* Appi-appi 26 (L2): sisäänmenojen nykyiset arvot (kenttä tai nuoli) luettaviksi; ohjaus sisäänmenon nuolella, ei o_-kohtaa. */
+    case 'satu':cl('min','min','luku','välin pienin kokonaisluku',['pienin']);cl('max','max','luku','välin suurin kokonaisluku',['suurin']);
+      if(satuMuoto(b))for(var si=1;si<=satuN(b);si++)cl('p'+si,'p'+si,'luku','paino '+si+(si===1?' (välin pienimmän kohdalla)':''));break;
+    case 'kayra':cl('x','x','luku','syöte nyt (tyhjä = ei syötettä)');cl('t','t','luku','kohta käyrällä 0–1',['kohta']);
+      cl('xmin','xmin','luku','x-välin alku',['xalku']);cl('xmax','xmax','luku','x-välin loppu',['xloppu']);cl('ymin','ymin','luku','y-välin alku',['yalku']);cl('ymax','ymax','luku','y-välin loppu',['yloppu']);
+      for(var ki=1;ki<=satuN(b);ki++)cl('p'+ki,'p'+ki,'luku','porras '+ki+' (% y-välistä)');break;
     case 'arpa':cl('viimeisin','viimeisin','luku','viimeksi arvottu vaihtoehto (0 = ei vielä)');break;
     case 'haku':cl('rivi','rivi','luku','osuneen rivin numero (0 = ei osunut)');break;
     case 'monihaara':cl('haara','haara','luku','ensimmäinen pätevä haara numerona (0 = muuten)');cl('haaranimi','haaranimi','teksti','pätevän haaran nimi');break;
@@ -1467,7 +1475,7 @@ function frame(P,dt,ctx){var ev=Ev(P,ctx),act=false,changed=false,done=[],fires=
     fires.forEach(function(f){var c2=ctx;if(f[2]){var te=mkEv(P,f[0],ctx,null);te.kohde=f[2].kohde;te.kn=P.b[f[2].kohde]?P.b[f[2].kohde].nm:'';te.isku=Math.round((num(f[2].isku)||0)*100)/100;c2=withEv(ctx,te);}fire(P,f[0],f[1],c2,0);});tick(P,ctx);}
   return act;}
 /* Toista: montako kierrosta (nuolesta tai kentästä). */
-function toistaN(P,b,ctx){var ev=Ev(P,ctx),x=ev.linked(b.id,'k')?ev.inp(b.id,'k'):parseLit(b.kerrat);if(isErr(x))return x;var n=num(x);
+function toistaN(P,b,ctx,ev){ev=ev||Ev(P,ctx);var x=ev.linked(b.id,'k')?ev.inp(b.id,'k'):parseLit(b.kerrat);if(isErr(x))return x;var n=num(x);
   if(x==null||x===''||isNaN(n))return ERR('kierrosten määrä ei ole luku');n=Math.round(n);if(n<0)return ERR('kierrosten määrä on negatiivinen');if(n>1000)return ERR('yli 1000 kierrosta');return n;}
 /* Odota, kunnes: onko aikaraja annettu (tyhjä tai 0 = ei rajaa). */
 function hasLimit(b){var x=b&&b.raja;if(x==null||x==='')return false;var n=parseNum(x);return !(n===0);}
@@ -2732,13 +2740,15 @@ function Ev(P,ctx){
       case 'lista':{var rows=listRows(P,id),td=iso(now);if(key==='myöhässä')return rows.filter(function(r){return r.d&&!r.c&&r.d<td;}).length;
         var nx=null;rows.forEach(function(r){if(r.d&&!r.c&&r.d>=td&&(!nx||r.d<nx))nx=r.d;});return nx?D(nx):null;}
       case 'aika':{var en=stv(id,[]),tdy=iso(now);return Array.isArray(en)?en.filter(function(x){return iso(new Date(x.t))===tdy;}).length:0;}
-      case 'muutos':{var sp=muutosSpec(b,inp,has,linked);if(isErr(sp))return sp;var mt=val(id,'t');if(isErr(mt))return mt;return round9(sp.k*(num(mt)||0));}
+      case 'muutos':{var sp=muutosSpec(b,inp,has,linked);if(isErr(sp))return sp;if(key==='alku')return sp.a;if(key==='loppu')return sp.b;if(key==='kesto')return sp.k;var mt=val(id,'t');if(isErr(mt))return mt;return round9(sp.k*(num(mt)||0));}
       case 'ikkuna':{var W=winVals(id);if(W.err)return W.err;var vs=W.vals;
         for(var e=0;e<vs.length;e++)if(isErr(vs[e]))return vs[e];
         if(key==='jäseniä')return W.rows==null?vs.length:members(id).length+(inl[id+'|in']||[]).length;
         if(key==='rivejä')return W.rows||0;if(key==='havaintoja')return vs.filter(nonEmpty).length;if(key==='puuttuvia')return vs.filter(function(v){return !nonEmpty(v);}).length;
         return vs.filter(truth).length;}
-      case 'toista':{var tn=nodesOfBlock(P,id)[0],ch=tn&&chainOfNode(P,tn),cs=ch&&P.st[ch.id];return cs&&cs.run&&cs.cnt&&cs.cnt[tn.id]?cs.cnt[tn.id]:0;}
+      case 'toista':if(key==='kerrat')return toistaN(P,b,ctx,{linked:linked,inp:inp});{var tn=nodesOfBlock(P,id)[0],ch=tn&&chainOfNode(P,tn),cs=ch&&P.st[ch.id];return cs&&cs.run&&cs.cnt&&cs.cnt[tn.id]?cs.cnt[tn.id]:0;}
+      case 'ajastin':if(key==='kesto'){var tms=timerMs(P,id,ctx,{linked:linked,inp:inp,timeSrc:timeSrc});return isErr(tms)?tms:round9(tms/1000);}break;
+      case 'satu':case 'kayra':return prop(id,key);
       case 'arpa':{var a=P.st['arpa:'+id];return typeof a==='number'?a:0;}
       case 'haku':{var hr=hakuRow(id);return hr.err?hr.err:hr.i+1;}
       case 'monihaara':{var mr=mhRow(id);if(mr.err)return mr.err;if(key==='haara')return mr.i+1;return mr.i<0?'muuten':mhLabel(b.haarat[mr.i]);}
@@ -3812,10 +3822,10 @@ function fmtKlo(k){return k?k.h+'.'+p2(k.m):'';}
 function nextClock(ms,k){var d=new Date(ms);d.setHours(k.h,k.m,0,0);if(d.getTime()<=ms)d.setDate(d.getDate()+1);d.setHours(k.h,k.m,0,0);return d.getTime();}
 /* Ajastimen lyhyt kuvaus: ”10 s” tai ”klo 7.00”. */
 function timerLabel(P,b,ctx){if(b.tapa==='klo'){var k=parseKlo(b.klo);return k?'klo '+fmtKlo(k):'klo ?';}var d=timerMs(P,b.id,ctx);return isErr(d)?'⚠':fmtDur(d);}
-function timerMs(P,id,ctx){
+function timerMs(P,id,ctx,ev0){
   var b=P.b[id];
   if(b&&b.tapa==='klo'){var kk=parseKlo(b.klo);if(!kk)return ERR(String(b.klo||'').trim()?'kellonaika ”'+b.klo+'” ei kelpaa (esim. 7.00)':'kirjoita kellonaika, esim. 7.00');var nw=nowMs(ctx);return nextClock(nw,kk)-nw;}
-  var ev=Ev(P,ctx),lk=ev.linked(id,'k'),x=lk?ev.inp(id,'k'):parseLit(b.kesto);
+  var ev=ev0||Ev(P,ctx),lk=ev.linked(id,'k'),x=lk?ev.inp(id,'k'):parseLit(b.kesto);
   if(isErr(x))return x;var n=num(x);
   if(x==null||x===''||isNaN(n))return ERR('kesto ei ole luku');
   if(n<=0)return ERR('kesto on nolla');
