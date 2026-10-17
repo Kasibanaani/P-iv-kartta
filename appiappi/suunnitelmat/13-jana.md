@@ -40,7 +40,7 @@
 
 **Merkit.** Janaan raahattu tapahtumapalikka (samat kuin ketjussa: Aseta, Lisää, Käynnistä/Pysäytä ketju tai jana, efektit jne.) on merkki. Sen **vasen reuna** on sen kohta. Raahatessa kohta loksahtaa portaaseen ja luku (”7 s”) näkyy palikan yläpuolella. Pystysijainti on vapaa: samassa kohdassa voi olla monta merkkiä, ja ne ajetaan ylhäältä alas. Paneelissa kohdan voi kirjoittaa myös numerona (puhelimella tarkempi kuin raahaus).
 
-**Sudenkuoppa 1, kohta tallennetaan arvona.** Merkki ”7 s” pysyy 7 sekunnissa, vaikka loppu muuttuu 10:stä 20:een; se vain siirtyy kuvassa vasemmalle. Ikkunan venytys ei muuta arvoja. Jos merkki jää alueen ulkopuolelle, se näkyy reunassa haaleana (”12 s, alueen ulkopuolella”) eikä laukea; sitä ei poisteta. *Vaihtoehto Emilille:* kohta suhteena (70 %), jolloin lopun muutos venyttää koko janan (tempo). Suositus on arvo, koska ”7 sekuntia” on Emilin oma esimerkki ja suhteen saa myöhemmin lisävalintana.
+**Sudenkuoppa 1, kohta tallennetaan arvona.** Merkki ”7 s” pysyy 7 sekunnissa, vaikka loppu muuttuu 10:stä 20:een; se vain siirtyy kuvassa vasemmalle. Ikkunan venytys ei muuta arvoja. Jos merkki jää alueen ulkopuolelle, se näkyy reunassa haaleana (”12 s, alueen ulkopuolella”) eikä laukea; sitä ei poisteta. **Emilin päätös 17.10.2026: arvossa.** Kohta suhteena (tempo) voi tulla myöhemmin lisävalinnaksi (vaihe 3).
 
 **Sudenkuoppa 2, hypyt.** Kun kohta muuttuu, laukaistaan kaikki merkit, jotka jäivät vanhan ja uuden kohdan väliin, kohtajärjestyksessä (samaan kohtaan ylhäältä alas). Asetus *Hypyssä*: laukaise väliin jääneet (oletus) / vain viimeinen / ei mitään. Rakentajan toiminto *Siirrä janan kohta* (ilman laukaisua tai laukaisten) on erikseen.
 

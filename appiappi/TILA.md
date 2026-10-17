@@ -68,7 +68,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 7. **Elämäntapaväittämien koeappi** F25:n pohjaksi (`suunnitelmat/11-tilastot-ja-yhteydet.md`) heti historian jälkeen, nykyisillä palikoilla.
 8. **Viite-ehdotukset ja palikan luonti nimestä** (F27 kohta 1, `suunnitelmat/12-teksti.md`): ehdotusrivi viitteelle kirjoitettaessa, *Luo Arvo* tuntemattomasta nimestä.
 9. **Tulkki eli printteri** (F27 kohta 2, yhdessä F20:n liimatun taulukon kanssa): teksti kuviolla taulukon riveiksi tai Arvo-palikoiksi, esikatselu ennen hyväksyntää. Tagit ja sanaoppi (kohdat 3–4) vasta F08:n ja F25:n jälkeen erikseen.
-10. **Jana F28, vaihe 1** (`suunnitelmat/13-jana.md`, Emilin idea 17.10.): logiikan ikkuna, jonka leveys on alku–loppu (oletus 0–10), aika- tai arvokulku (esim. säädin), merkit portaisiin. Linjaukset tekoälyn suosituksen mukaan: kohta tallennetaan arvona, hypyssä väliin jääneet laukeavat, aikajana eteenpäin ja arvojana molempiin suuntiin. Välit (alku–loppu-merkit) myöhemmin erikseen.
+10. **Jana F28, vaihe 1** (`suunnitelmat/13-jana.md`, Emilin idea 17.10.): logiikan ikkuna, jonka leveys on alku–loppu (oletus 0–10), aika- tai arvokulku (esim. säädin), merkit portaisiin. Kohta tallennetaan arvona (Emilin päätös 17.10.); muut linjaukset tekoälyn suosituksen mukaan: hypyssä väliin jääneet laukeavat, aikajana eteenpäin ja arvojana molempiin suuntiin. Välit (alku–loppu-merkit) myöhemmin erikseen.
 
 ## Seuraavaksi
 
