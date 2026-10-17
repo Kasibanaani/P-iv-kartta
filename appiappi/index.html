@@ -1171,8 +1171,8 @@ function portsBase(b){
       break;
     case 'tee':ins=[E('e','tee kun'),V('v','arvo')];outs=[E('e','sitten')];break;
     case 'ketju':ins=[E('e','käynnistä'),E('x','pysäytä')];outs=[V('v','käynnissä'),V('t','tulos'),E('e','valmis')];break;
-    case 'jana':if(b.kulku==='arvo'){ins=[V('kd','kohta'),V('on','päällä'),V('a','alku'),V('b','loppu')];outs=[V('v','kohta'),V('os','osuus')];}
-      else{ins=[E('e','käynnistä'),E('x','pysäytä'),E('j','jatka'),V('a','alku'),V('b','loppu')];outs=[V('v','kohta'),V('os','osuus'),V('r','käynnissä'),E('al','alkoi')];outs.push(b.kierros==='toista'||b.kierros==='edestakaisin'?E('ki','kierros'):E('e','valmis'));}break;
+    case 'jana':if(b.kulku==='arvo'){ins=[V('kd','kohta'),V('on','päällä'),V('a','alku'),V('b','loppu')];outs=[V('v','kohta'),V('os','edistyminen')];}
+      else{ins=[E('e','käynnistä'),E('x','pysäytä'),E('j','jatka'),V('a','alku'),V('b','loppu')];outs=[V('v','kohta'),V('os','edistyminen'),V('r','käynnissä'),E('al','alkoi'),E('ki','kierros'),E('e','valmis')];}break; // 1n: aina sekä kierros että valmis, jottei Kierroksen vaihto poista nuolta
     case 'ktulos':ins=[E('e','alkaa'),V('v','arvo')];outs=[E('e','sitten')];break;
     case 'satu':{ins=[E('e','arvo uudelleen'),V('min','pienin'),V('max','suurin')];if(satuMuoto(b))for(var si=1;si<=satuN(b);si++)ins.push(V('p'+si,'paino '+si));outs=[V('v','luku'),E('e','arvottu')];break;}
     case 'kayra':{ins=[V('a','syöte (x)'),V('xmin','x alku'),V('xmax','x loppu'),V('ymin','y alku'),V('ymax','y loppu')];for(var ki=1;ki<=satuN(b);ki++)ins.push(V('p'+ki,'porras '+ki));outs=[V('v','tulos (y)')];break;}
@@ -1290,8 +1290,8 @@ function omat(b){
       /* P1b: lukitustila 0–2 (tarkka: muu luku on virhe, ei pyöristetä). Luetaan aina ajantasaisena, myös lukitussa ketjussa. */
       r.push(OM('lukitus','lukitus','luku',{f:'lk',o:1,lim:[0,2],ex:1,def:0,d:'0 = ajantasainen, 1 = lukitse ulkopuolisilta muutoksilta, 2 = lukitse kaikilta muutoksilta'}));
       cl('lukitusnimi','lukitusnimi','teksti','valitun lukitustilan nimi');break;
-    case 'jana':r=r.filter(function(e){return e.p!=='arvo';});r.push(OM('kohta','kohta','arvo',{port:'v',al:['arvo'],d:'janan kohta nyt (alusta loppuun)'}));pt('os','osuus','kohta prosentteina alusta loppuun (0–100)');
-      if(b.kulku!=='arvo')pt('r','käynnissä','kulkeeko aikajana nyt',['kaynnissa']);cl('alku','alku','luku','janan alku (kentästä tai nuolesta)');cl('loppu','loppu','luku','janan loppu (kentästä tai nuolesta)');break;
+    case 'jana':r=r.filter(function(e){return e.p!=='arvo';});r.push(OM('kohta','kohta','arvo',{port:'v',al:['arvo'],d:'janan kohta nyt (alusta loppuun)'}));pt('os','edistyminen','0–1 alusta loppuun');
+      if(b.kulku!=='arvo')pt('r','käynnissä','kulkeeko aikajana nyt',['kaynnissa']);else cl('käynnissä','käynnissä','kylla','arvojana ei kulje ajassa, joten aina ei',['kaynnissa']);cl('alku','alku','luku','janan alku (kentästä tai nuolesta)');cl('loppu','loppu','luku','janan loppu (kentästä tai nuolesta)');break;
     case 'ajastin':pt('j','jäljellä','jäljellä oleva aika sekunteina',['jaljella']);pt('v','käynnissä','odottaako jokin haara ajastimessa',['kaynnissa']);
       cl('kesto','kesto','luku',b.tapa==='klo'?'aika seuraavaan kellonaikaan sekunteina':'odotuksen kesto sekunteina (kentästä tai nuolesta)');break;
     case 'muutos':cl('alku','alku','luku','arvo alussa (kentästä tai nuolesta)');cl('loppu','loppu','luku','arvo lopussa (kentästä tai nuolesta)');cl('kesto','kesto','luku','kesto sekunteina (kentästä tai nuolesta)');
@@ -2955,7 +2955,7 @@ function Ev(P,ctx){
       case 'arpa':{var a=P.st['arpa:'+id];return typeof a==='number'?a:0;}
       case 'haku':{var hr=hakuRow(id);return hr.err?hr.err:hr.i+1;}
       case 'monihaara':{var mr=mhRow(id);if(mr.err)return mr.err;if(key==='haara')return mr.i+1;return mr.i<0?'muuten':mhLabel(b.haarat[mr.i]);}
-      case 'jana':{var jsp=janaSpec(P,id,ctx,{has:has,inp:inp,linked:linked});if(isErr(jsp))return jsp;return key==='alku'?jsp.a:key==='loppu'?jsp.b:null;}
+      case 'jana':{var jsp=janaSpec(P,id,ctx,{has:has,inp:inp,linked:linked});if(isErr(jsp))return jsp;return key==='alku'?jsp.a:key==='loppu'?jsp.b:key==='käynnissä'?false:null;}
       case 'ketju':if(key==='lukitusnimi'){var lkv=omi(id,'lukitus');return isErr(lkv)?lkv:LKN[num(lkv)||0];}break;
       case 'liike':{var lsk=liikeSt(P,id);if(key==='isku')return num(lsk.isku)||0;if(key==='törmäyskohde')return lsk.osk?(B[lsk.osk]?B[lsk.osk].nm:lsk.okn||''):'';}break;
     }
@@ -3481,6 +3481,7 @@ function chainIssues(P,kid,ctx){
       else if(sb.do==='arvonta'&&tg&&satuSpec(P,tg.id,ctx).err)out.push({n:n.id,t:nm+': satunnaisluvussa ”'+tg.nm+'” on virhe: '+satuSpec(P,tg.id,ctx).err+'.'});
       else if((sb.do==='kaynnista'||sb.do==='pysayta')&&tg&&tg.k!=='ketju'&&tg.k!=='jana')out.push({n:n.id,t:nm+': kohde ”'+tg.nm+'” ei ole ketju eikä jana.'});
       else if((sb.do==='kaynnista'||sb.do==='pysayta')&&tg&&tg.k==='jana'&&tg.kulku==='arvo')out.push({n:n.id,info:1,t:nm+': jana ”'+tg.nm+'” kulkee arvon mukaan, joten sitä ei käynnistetä eikä pysäytetä.'});
+      else if(sb.do==='kaynnista'&&sb.odota&&tg&&tg.k==='jana'&&(tg.kierros==='toista'||tg.kierros==='edestakaisin'))out.push({n:n.id,info:1,t:nm+': jana ”'+tg.nm+'” toistuu, joten Odota ei pääty, ellei sitä pysäytetä.'});
       else if(sb.do==='kaynnista'&&sb.o===kid)out.push({n:n.id,t:nm+': ketju ei voi käynnistää itseään. Toistoon tee kehä ajastimen tai Odota, kunnes -palikan kautta.'});
       else if(sb.do==='kaynnista'&&tg&&tg.off)out.push({n:n.id,info:1,t:nm+': ketju ”'+tg.nm+'” on pois päältä, joten se ei käynnisty.'});
       else if(tg&&tg.k==='taulu'){var ti=tauluIssue(P,sb,tg);if(ti)out.push({n:n.id,t:nm+': '+ti+'.'});}
@@ -4485,8 +4486,8 @@ function janaArvo(P,ctx){var any=false,ev=null;Object.keys(P.b).forEach(function
 function janaNow(P,id,ctx,ev){var sp=janaSpec(P,id,ctx,ev);if(isErr(sp))return sp;var s=janaSt(P,id),k;
   if(!sp.aika){if(ev&&ev.linked(id,'kd')){var x=ev.inp(id,'kd');if(isErr(x))return x;k=num(x);if(isNaN(k))k=typeof s.k==='number'?s.k:sp.a;}else k=typeof s.k==='number'?s.k:sp.a;}
   else k=janaPos(sp,num(s.d)||0);
-  var os=sp.hi>sp.lo?Math.max(0,Math.min(100,(k-sp.a)/(sp.b-sp.a)*100)):0;
-  return {k:round9(k),os:Math.round(os*100)/100,run:!!(sp.aika&&s.run),sp:sp};}
+  var os=sp.hi>sp.lo?Math.max(0,Math.min(1,(k-sp.a)/(sp.b-sp.a))):0;
+  return {k:round9(k),os:Math.round(os*1e6)/1e6,run:!!(sp.aika&&s.run),sp:sp};}
 function anyJanaRunning(P){return Object.keys(P.st||{}).some(function(id){var b=P.b[id],s=P.st[id];return b&&b.k==='jana'&&s&&s.run;});}
 /* Seurantaa ja huomautuksia varten. */
 function janaIssues(P,id,ctx){var out=[],b=P.b[id];if(!b)return out;var sp=janaSpec(P,id,ctx);
@@ -4494,7 +4495,7 @@ function janaIssues(P,id,ctx){var out=[],b=P.b[id];if(!b)return out;var sp=janaS
   if(!(sp.L>0))out.push({t:'Alku ja loppu ovat samat: janalla ei ole pituutta.'});
   var ms=janaMarks(P,id);if(!ms.length)out.push({info:1,t:'Jana on tyhjä: vedä tähän Toimintoja tai efektejä. Palikan vasen reuna on sen kohta.'});
   var ulk=ms.filter(function(m){return m.p<sp.lo-1e-9||m.p>sp.hi+1e-9;});if(ulk.length)out.push({info:1,t:ulk.length+' merkki'+(ulk.length===1?' on':'ä on')+' alueen ulkopuolella, joten '+(ulk.length===1?'se ei laukea':'ne eivät laukea')+'.'});
-  if(!sp.aika&&!Ev(P,ctx).linked(id,'kd'))out.push({info:1,t:'Arvojanan kohta tulee nuolesta kohtaan ”kohta” (esim. Säädin) tai Aseta arvo -toiminnosta.'});
+  if(!sp.aika&&!Ev(P,ctx).linked(id,'kd'))out.push({info:1,t:'Arvojana saa asemansa nuolesta (esim. Säädin, vie se janan vasempaan reunaan kohtaan ”kohta”) tai Aseta arvo -toiminnosta.'});
   return out;}
 
 /* ---------- Kopiointi ja liittäminen (versio 6.10) ----------
@@ -4869,7 +4870,7 @@ function why(P,E,id,depth,seen){
 return {omat:omat,omFind:omFind,omNorm:omNorm,omBase:omBase,omNames:omNames,omActive:omActive,setOmi:setOmi,resetOmi:resetOmi,isOff:isOff,napVaihto:napVaihto,boolKey:boolKey,TIMEU:TIMEU,YKSA:YKSA,ENVW:ENVW,portsBase:portsBase,tattiSet:tattiSet,muutosStart:muutosStart,muutosStop:muutosStop,frame:frame,napExt:napExt,NAP_PITKA:NAP_PITKA,pressDown:pressDown,pressLong:pressLong,pressUp:pressUp,hasOut:hasOut,curveAt:curveAt,KAYRA_PRESETS:KAYRA_PRESETS,kayraPreset:kayraPreset,kayraResize:kayraResize,kayraDec:kayraDec,kayraSpec:kayraSpec,kayraAt:kayraAt,satuN:satuN,satuMuoto:satuMuoto,satuCurve:satuCurve,satuResize:satuResize,satuPreset:satuPreset,SATU_PRESETS:SATU_PRESETS,SATU_MAXN:SATU_MAXN,satuSpec:satuSpec,satuDist:satuDist,satuPick:satuPick,satuPct:satuPct,satuItemTxt:satuItemTxt,satuTop:satuTop,satuRoll:satuRoll,
   chainOpen:chainOpen,LKN:LKN,LKID:LKID,lkReq:lkReq,lkView:lkView,chainLock:chainLock,chainLockDiff:chainLockDiff,parseKlo:parseKlo,nextClock:nextClock,timerLabel:timerLabel,arpaN:arpaN,toistaN:toistaN,setMhLabel:function(f){MHLAB=f;},mhLabel:mhLabel,odotaLim:odotaLim,odotaEv:odotaEv,hasLimit:hasLimit,chainSignal:chainSignal,copyNodes:copyNodes,pasteNodes:pasteNodes,PRESVER:PRESVER,presetSet:presetSet,presetNeeds:presetNeeds,presetMake:presetMake,presetPaste:presetPaste,chainList:chainList,haaraVal:haaraVal,chainIssues:chainIssues,FXK:FXK,YKS:YKS,YKSN:YKSN,fmtDur:fmtDur,parseNum:parseNum,fiNum:fiNum,fmtLeft:fmtLeft,timerMs:timerMs,chainStart:chainStart,chainStop:chainStop,chainAdvance:chainAdvance,chainPoll:chainPoll,chainInfo:chainInfo,anyChainRunning:anyChainRunning,CH_STEPS:CH_STEPS,CH_TOKENS:CH_TOKENS,
   isWin:isWin,isStep:isStep,STEPK:STEPK,chainNode:chainNode,chainOfNode:chainOfNode,chainSteps:chainSteps,isChainLink:isChainLink,chainLinksFrom:chainLinksFrom,chainStarts:chainStarts,chainIsRing:chainIsRing,chainOrder:chainOrder,
-  ANTAVAT:ANTAVAT,ANPEH:ANPEH,ANARVO:ANARVO,ANPAIKKA:ANPAIKKA,VER:VER,PAJA:'43',LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,raahattava:raahattava,raahausPaikka:raahausPaikka,raahausAlku:raahausAlku,raahausPudotus:raahausPudotus,raahausPeruttu:raahausPeruttu,raahausKohteet:raahausKohteet,tstLahde:tstLahde,tstLajittuu:tstLajittuu,tstSiirra:tstSiirra,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,reittiPisteet:reittiPisteet,reittiOsat:reittiOsat,reittiHae:reittiHae,liikeRuutuKomento:liikeRuutuKomento,liikePyyhkaisy:liikePyyhkaisy,ruutuAskel:ruutuAskel,RUUTU_SU:RUUTU_SU,reittiKohta:reittiKohta,liikeRun:liikeRun,kuvaKuvat:kuvaKuvat,kelloNow:kelloNow,kelloKomento:kelloKomento,kerrosObj:kerrosObj,zoomAsetus:zoomAsetus,kameraBlk:kameraBlk,zoomNyt:zoomNyt,zoomLukittu:zoomLukittu,zoomAseta:zoomAseta,ZOOM_MIN:ZOOM_MIN,ZOOM_MAX:ZOOM_MAX,MITM:MITM,MITE:MITE,
+  ANTAVAT:ANTAVAT,ANPEH:ANPEH,ANARVO:ANARVO,ANPAIKKA:ANPAIKKA,VER:VER,PAJA:'44',LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,raahattava:raahattava,raahausPaikka:raahausPaikka,raahausAlku:raahausAlku,raahausPudotus:raahausPudotus,raahausPeruttu:raahausPeruttu,raahausKohteet:raahausKohteet,tstLahde:tstLahde,tstLajittuu:tstLajittuu,tstSiirra:tstSiirra,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,reittiPisteet:reittiPisteet,reittiOsat:reittiOsat,reittiHae:reittiHae,liikeRuutuKomento:liikeRuutuKomento,liikePyyhkaisy:liikePyyhkaisy,ruutuAskel:ruutuAskel,RUUTU_SU:RUUTU_SU,reittiKohta:reittiKohta,liikeRun:liikeRun,kuvaKuvat:kuvaKuvat,kelloNow:kelloNow,kelloKomento:kelloKomento,kerrosObj:kerrosObj,zoomAsetus:zoomAsetus,kameraBlk:kameraBlk,zoomNyt:zoomNyt,zoomLukittu:zoomLukittu,zoomAseta:zoomAseta,ZOOM_MIN:ZOOM_MIN,ZOOM_MAX:ZOOM_MAX,MITM:MITM,MITE:MITE,
 kuvaPyorii:kuvaPyorii,kuvaNro:kuvaNro,SARJA_MAX:SARJA_MAX,ruudukko:ruudukko,ruudukkoOf:ruudukkoOf,ruutuAt:ruutuAt,ruutuKeski:ruutuKeski,kohdista:kohdista,ruutuKohdistus:ruutuKohdistus,alueRuudukko:alueRuudukko,alueRuutu:alueRuutu,alueNapautus:alueNapautus,kerrokset:kerrokset,kerrosOf:kerrosOf,rvOf:rvOf,kuvaUrl:kuvaUrl,K:K,KW:KW,KVALEND:KVALEND,KHAS:KHAS,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,kaavaToIds:kaavaToIds,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
   pinsHidden:pinsHidden,refPairs:refPairs,
   ports:ports,port:port,newProject:newProject,addBlock:addBlock,addNode:addNode,addLink:addLink,canLink:canLink,
@@ -6377,16 +6378,16 @@ function janaToggle(id){var b=P.b[id];if(!b)return;var c=ctx(),s=P.st[id];
   else{KK.janaStart(P,id,c,0);var s2=P.st[id]||{};if(s2.err)toast('⚠ Jana ”'+b.nm+'”: '+s2.err);else if(s2.run)toast('Jana ”'+b.nm+'” käynnistyi.');}
   KK.tick(P,c);save();renderStage();renderInsp();chainTimer();runFrames();}
 function janaInsp(b,E){var c=ctx(),sp=KK.janaSpec(P,b.id,c),arvo=b.kulku==='arvo',s=P.st[b.id]||{},jn=E.val(b.id);
-  var h=fSegs('Kulku','kulku',arvo?'arvo':'aika',[['aika','Aika'],['arvo','Arvo']],arvo?'Kohta tulee nuolesta kohtaan ”kohta” (esim. Säädin) tai Aseta arvo -toiminnosta. Merkit laukeavat, kun arvo ohittaa ne.':'Käynnistä kulkee alusta loppuun ajassa. Kohta lasketaan käynnistyshetkestä, joten se on oikein myös, kun appi avataan uudelleen.')+
+  var h=fSegs('Kulku','kulku',arvo?'arvo':'aika',[['aika','Aika'],['arvo','Arvo']],arvo?'Janan asema tulee nuolesta (esim. Säädin) tai Aseta arvo -toiminnosta. Merkit laukeavat, kun arvo ohittaa ne.':'Käynnistä kulkee alusta loppuun ajassa. Kohta lasketaan käynnistyshetkestä, joten se on oikein myös, kun appi avataan uudelleen.')+
     fValue('Alku','a',b)+fValue('Loppu','b',b)+'<div class="row2">'+fSelect('Yksikkö','yks',b.yks||'',KK.JANA_YKS)+fNum('Porras','porras',b.porras)+'</div>'+
     '<div class="help">Porras: merkit loksahtavat sen välein, ja asteikossa on viiva joka portaalla (tiheä asteikko harvenee).'+(!arvo&&(b.yks==='h'||b.yks==='vrk')?' Appi ei tee mitään suljettuna eikä lähetä ilmoituksia: kun appi avataan, kohta on oikein ja väliin jääneet merkit laukeavat hyppysäännön mukaan.':'')+'</div>'+
     fSegs('Hypyssä','hyppy',b.hyppy||'kaikki',[['kaikki','Väliin jääneet'],['viimeinen','Vain viimeinen'],['ei','Ei mitään']],'Hyppy: kohta muuttuu kerralla yli portaan (napautus säätimen raidalle, Aseta arvo) tai appi oli välillä kiinni.')+
     fSegs('Laukeaa','suunta',b.suunta||'',[['','Oletus ('+(arvo?'molempiin':'eteenpäin')+')'],['eteen','Eteenpäin'],['molemmat','Molempiin suuntiin']],'Merkki laukeaa uudestaan vasta, kun kohta on käynyt sen toisella puolella. Toiminnossa tapahtuma.suunta on 1 eteenpäin ja −1 taaksepäin.');
-  if(!arvo)h+=fSegs('Kierros','kierros',b.kierros||'kerta',[['kerta','Kerran'],['toista','Toista'],['edestakaisin','Edestakaisin']],b.kierros==='toista'?'Alkaa lopusta taas alusta ja lähettää kierros-tapahtuman, kunnes se pysäytetään.':b.kierros==='edestakaisin'?'Kulkee alusta loppuun ja takaisin, kierros-tapahtuma kummassakin päässä.':'Pysähtyy loppuun ja lähettää tapahtuman valmis.');
-  h+='<div class="sdnow"><span>'+(KK.isErr(sp)?'⚠ '+esc(sp.err):(s.run?'Käynnissä':arvo?'Kohta nyt':'Pysähdyksissä'))+(KK.isErr(jn)?'':' · '+esc(KK.fmt(E.val(b.id,'os')))+' %')+'</span><b>'+(KK.isErr(jn)?'⚠':esc(janaLab(jn,b)))+'</b></div>';
+  if(!arvo)h+=fSegs('Kierros','kierros',b.kierros||'kerta',[['kerta','Kerran'],['toista','Toista'],['edestakaisin','Edestakaisin']],b.kierros==='toista'?'Alkaa lopusta taas alusta ja lähettää kierros-tapahtuman, kunnes se pysäytetään. Valmis ei laukea, koska jana ei pääty (nuoli siihen säilyy).':b.kierros==='edestakaisin'?'Kulkee alusta loppuun ja takaisin, kierros-tapahtuma kummassakin päässä. Valmis ei laukea, koska jana ei pääty (nuoli siihen säilyy).':'Pysähtyy loppuun ja lähettää tapahtuman valmis. Kierros laukeaa vain toistuvalla janalla (nuoli siihen säilyy).');
+  h+='<div class="sdnow"><span>'+(KK.isErr(sp)?'⚠ '+esc(sp.err):(s.run?'Käynnissä':arvo?'Kohta nyt':'Pysähdyksissä'))+(KK.isErr(jn)?'':' · '+esc(KK.fmt(Math.round((+E.val(b.id,'os')||0)*1000)/10))+' %')+'</span><b>'+(KK.isErr(jn)?'⚠':esc(janaLab(jn,b)))+'</b></div>';
   if(!arvo)h+='<div class="ibs"><button class="ib" data-do="janago">▶ Käynnistä alusta</button><button class="ib" data-do="janajatka">⏵ Jatka</button><button class="ib" data-do="janastop">⏹ Pysäytä</button></div>';
   KK.janaIssues(P,b.id,c).forEach(function(x){h+='<div class="help'+(x.info?'':' errt')+'">'+(x.info?'':'⚠ ')+esc(x.t)+'</div>';});
-  h+='<div class="help">Vedä janaan Toimintoja (Aseta, Lisää, Käynnistä ketju tai jana…) tai efektejä: palikan vasen reuna on sen kohta, ja samaan kohtaan mahtuu monta allekkain (ylin ensin). Tarkan kohdan voi kirjoittaa merkin paneeliin. Kaavassa '+esc(b.vt)+'.kohta, '+esc(b.vt)+'.osuus (0–100)'+(arvo?'':' ja '+esc(b.vt)+'.käynnissä')+'.</div>';
+  h+='<div class="help">Vedä janaan Toimintoja (Aseta, Lisää, Käynnistä ketju tai jana…) tai efektejä: palikan vasen reuna on sen kohta, ja samaan kohtaan mahtuu monta allekkain (ylin ensin). Tarkan kohdan voi kirjoittaa merkin paneeliin. Kaavassa '+esc(b.vt)+'.kohta, '+esc(b.vt)+'.edistyminen (0–1) ja '+esc(b.vt)+'.käynnissä'+(arvo?' (arvojanalla aina ei)':'')+'.</div>';
   return section('Jana',h);}
 /* Merkin paneeli: kohta janalla numerona (puhelimella tarkempi kuin raahaus). */
 function janaMarkSection(node){var jb=KK.janaOfNode(P,node);if(!jb)return '';var sp=janaSp(jb.id),k=typeof node.jk==='number'?node.jk:(sp?sp.a:0),out=sp&&(k<sp.lo-1e-9||k>sp.hi+1e-9);
@@ -7269,6 +7270,8 @@ function satuMini(sp,w,h,cls){
   for(var i=0;i<=n;i++){var y=KK.satuCurve(sp.w,i/n)/mx;pts.push((1+i/n*(w-2)).toFixed(1)+','+(h-1.5-y*(h-3)).toFixed(1));}
   return '<svg class="'+(cls||'sdmini')+'" viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'" aria-hidden="true" preserveAspectRatio="none"><polyline points="'+pts.join(' ')+'"/></svg>';
 }
+/* 1n: palikan nuolet (sisään ja ulos), jotta asetuksen vaihto voi kertoa poistuneista. */
+function blockLinks(id){var ns={};KK.nodesOfBlock(P,id).forEach(function(n){ns[n.id]=1;});return P.lg.l.filter(function(l){return ns[l.t]||ns[l.f];}).length;}
 function satuWeightLinks(id){var ns={};KK.nodesOfBlock(P,id).forEach(function(n){ns[n.id]=1;});return P.lg.l.filter(function(l){return ns[l.t]&&/^p\d+$/.test(l.tp);}).length;}
 function satuInsp(b,E){
   var sp=KK.satuSpec(P,b.id,ctx(),E),d=KK.satuDist(sp),sv=E.val(b.id),mu=KK.satuMuoto(b),nl=sp.lk.filter(Boolean).length;
@@ -8432,6 +8435,7 @@ $('#insp').addEventListener('click',function(e){
     else if(k==='rv'){if(v==='')delete b.rv;else b.rv=Math.max(0,Math.min(100,+v));}
     else if(k==='lpin'){if(v)b.lpin=v;else delete b.lpin;}
     else if(k==='anp'){if(v)b.anp=v;else delete b.anp;}
+    else if(k==='kulku'&&b.k==='jana'){var jl0=blockLinks(b.id);b.kulku=v;KK.repair(P);var jlost=jl0-blockLinks(b.id);if(jlost>0)toast('Kulku on nyt '+(v==='arvo'?'Arvo':'Aika')+', joten '+jlost+(jlost===1?' nuoli':' nuolta')+' poistui. Kumoa palauttaa.');}
     else if(k==='jak'&&b.k==='satu'){var sdl=satuWeightLinks(b.id);b.jak=v;if(v==='tasa'&&sdl)toast('Painoihin tulleet nuolet ('+sdl+') poistuivat, koska jakauma on tasainen. Kumoa palauttaa ne.');}
     else b[k]=v;
     afterInsp(true);return;}

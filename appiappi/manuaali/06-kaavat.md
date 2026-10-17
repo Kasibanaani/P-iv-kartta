@@ -574,7 +574,7 @@ Taulukossa *L* = vain luettava, *O* = ohjattava. Suluissa muut kirjoitusasut.
 | Arpa | `viimeisin` | L | viimeksi arvottu (0 = ei vielä) |
 | Toista | `kierros`, `kerrat` | L | `kerrat` vain kun ei riveille |
 | Monta haaraa | `haara`, `haaranimi` | L | ensimmäinen pätevä haara (0 = muuten) |
-| Jana | `kohta` (`arvo`), `osuus`, `käynnissä`, `alku`, `loppu` | L | osuus 0–100 |
+| Jana | `kohta` (`arvo`), `edistyminen`, `käynnissä`, `alku`, `loppu` | L | edistyminen 0–1; arvojanalla `käynnissä` aina ei |
 | Toiminto (Siirry ilman kohdetta) | `x`, `y` | O | siirtymän kohta |
 | Tietotaulukko | `rivejä` (`arvo`), `valittunro`, `valittu`, `eka` (`ensimmäinen`), `vika` (`viimeinen`) | L | |
 | Tietotaulukko | `valittu.<sarake>`, `eka.<sarake>`, `vika.<sarake>` | L | rivin kenttä |

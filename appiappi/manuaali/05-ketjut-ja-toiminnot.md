@@ -157,24 +157,28 @@ Jana on ikkuna, jonka leveys on alku–loppu (esim. 0–10 s). Sisään vedetyt 
 
 | Kulku | Sisään | Ulos |
 |---|---|---|
-| Aika | **käynnistä** (alusta), **pysäytä**, **jatka** (pysähtyneestä kohdasta), **alku**, **loppu** | **kohta**, **osuus**, **käynnissä**, **alkoi**, **valmis** (Kerran) tai **kierros** (Toista, Edestakaisin) |
-| Arvo | **kohta** (esim. Säädin), **päällä**, **alku**, **loppu** | **kohta**, **osuus** |
+| Aika | **käynnistä** (alusta), **pysäytä**, **jatka** (pysähtyneestä kohdasta), **alku**, **loppu** | **kohta**, **edistyminen**, **käynnissä**, **alkoi**, **kierros**, **valmis** |
+| Arvo | **kohta** (esim. Säädin), **päällä**, **alku**, **loppu** | **kohta**, **edistyminen** |
+
+Aikajanalla on aina sekä *kierros* että *valmis*, joten Kierroksen vaihto ei poista nuolia: *valmis* lähtee vain Kerran-janalta, kun se pääsee loppuun, ja *kierros* vain toistuvalta janalta. Kulun vaihto Aika ↔ Arvo poistaa nuolet kohdista, joita toisella kululla ei ole (esim. *käynnistä*, *valmis*); ilmoitus kertoo määrän, ja Kumoa palauttaa ne.
 
 **Paneeli (osio Jana)**
 
-- **Kulku**: *Aika* (oletus) / *Arvo*. Aikajanan kohta lasketaan käynnistyshetkestä, joten se on oikein myös, kun appi avataan uudelleen. Arvojanan kohta tulee nuolesta kohtaan *kohta* tai Aseta arvo -toiminnosta.
+- **Kulku**: *Aika* (oletus) / *Arvo*. Aikajanan kohta lasketaan käynnistyshetkestä, joten se on oikein myös, kun appi avataan uudelleen. Arvojanan asema tulee nuolesta (sisäänmeno *kohta*) tai Aseta arvo -toiminnosta.
 - **Alku**, **Loppu** (oletus 0 ja 10; voi tulla nuolesta, luku). Loppu voi olla pienempi kuin alku (jana kulkee taaksepäin).
 - **Yksikkö**: ei yksikköä, sekuntia (oletus), minuuttia, tuntia, vuorokautta. Aikajanalla ilman yksikköä yksi askel on sekunti. Tunti- ja vuorokausijanalla ohje muistuttaa, ettei appi tee mitään suljettuna eikä lähetä ilmoituksia.
 - **Porras** (oletus 1): merkit loksahtavat sen välein. Nolla tai kelvoton = 1.
 - **Hypyssä**: *Väliin jääneet* (oletus) / *Vain viimeinen* / *Ei mitään*. Hyppy = kohta muuttuu kerralla yli portaan (napautus säätimen raidalle, Aseta arvo) tai appi oli välillä kiinni (aikajanalla yli sekunnin tauko). Tavallisessa kulussa merkit tehdään aina järjestyksessä.
 - **Laukeaa**: *Oletus* (aikajanalla eteenpäin, arvojanalla molempiin) / *Eteenpäin* / *Molempiin suuntiin*. Merkki laukeaa uudestaan vasta, kun kohta on käynyt sen toisella puolella.
-- **Kierros** (vain aika): *Kerran* (pysähtyy loppuun, tapahtuma *valmis*) / *Toista* (lopusta alkuun, tapahtuma *kierros*) / *Edestakaisin* (alusta loppuun ja takaisin, *kierros* kummassakin päässä). Toistuva jana kulkee, kunnes se pysäytetään.
-- Tilarivi (*Käynnissä*, *Pysähdyksissä*, *Kohta nyt* · osuus %, ja kohta), aikajanalla napit **▶ Käynnistä alusta**, **⏵ Jatka**, **⏹ Pysäytä**, huomautukset (alku ja loppu samat, tyhjä jana, merkkejä alueen ulkopuolella, arvojanalla ei nuolta).
+- **Kierros** (vain aika): *Kerran* (pysähtyy loppuun, tapahtuma *valmis*) / *Toista* (lopusta alkuun, tapahtuma *kierros*) / *Edestakaisin* (alusta loppuun ja takaisin, *kierros* kummassakin päässä). Toistuva jana kulkee, kunnes se pysäytetään, eikä sen *valmis* laukea; ohje kertoo tämän.
+- Tilarivi (*Käynnissä*, *Pysähdyksissä*, *Kohta nyt* · edistyminen prosentteina, ja kohta), aikajanalla napit **▶ Käynnistä alusta**, **⏵ Jatka**, **⏹ Pysäytä**, huomautukset (alku ja loppu samat, tyhjä jana, merkkejä alueen ulkopuolella, arvojanalla ei nuolta).
 - Yleiset: nimi, viite, **Pois käytöstä** (pois päältä oleva aikajana pysähtyy).
 
-**Kaavassa** (viite esim. `jana`): `jana.kohta` (myös pelkkä `jana`), `jana.osuus` (0–100), `jana.käynnissä`, `jana.alku`, `jana.loppu`. Merkkinä olevan Toiminnon kaavassa `tapahtuma.uusi` on merkin kohta ja `tapahtuma.suunta` on 1 eteenpäin ja −1 taaksepäin (tarvitsee Tapahtuman tiedot -palikan, kuten muutkin tapahtumakentät).
+**Kaavassa** (viite esim. `jana`): `jana.kohta` (myös pelkkä `jana`), `jana.edistyminen` (0–1, kuten Muutos ajassa ja Liikkeen reitti; vie se suoraan Käyrään, jonka x-väli on 0–1), `jana.käynnissä` (arvojanalla aina *ei*), `jana.alku`, `jana.loppu`. Merkkinä olevan Toiminnon kaavassa `tapahtuma.uusi` on merkin kohta ja `tapahtuma.suunta` on 1 eteenpäin ja −1 taaksepäin (tarvitsee Tapahtuman tiedot -palikan, kuten muutkin tapahtumakentät).
 
-**Toiminnot janalle:** **Käynnistä** ja **Pysäytä** käyvät janalle kuten ketjulle (”Käynnistä jana”); ketjun sisällä rasti **Odota** odottaa, että jana on valmis. **Aseta arvo** siirtää janan kohdan ja **Lisää** siirtää sitä määrän verran; kohdan ohittamat merkit laukeavat hyppysäännön mukaan. Rasti **Ilman laukaisua** siirtää kohdan laukaisematta mitään. Jana voi käynnistää toisen janan merkillä.
+**Toiminnot janalle:** **Käynnistä** ja **Pysäytä** käyvät janalle kuten ketjulle (”Käynnistä jana”); ketjun sisällä rasti **Odota** odottaa, että jana on valmis. Toistuva jana ei valmistu itsestään, joten ketjun huomautus kertoo, ettei Odota pääty, ellei janaa pysäytetä. **Aseta arvo** siirtää janan kohdan ja **Lisää** siirtää sitä määrän verran; kohdan ohittamat merkit laukeavat hyppysäännön mukaan. Rasti **Ilman laukaisua** siirtää kohdan laukaisematta mitään. Jana voi käynnistää toisen janan merkillä.
+
+**Asetukset ovat rakennetta, eivät ominaisuuksia:** porras, yksikkö, kulku, hypyssä, laukeaa ja kierros valitaan paneelista, eikä niitä voi lukea kaavassa tai ohjata logiikalla. Alku ja loppu ovat luettavia ja ohjattavia, koska niillä on oma sisäänmeno.
 
 **Miksi?** janasta kertoo kohdan ja tilan; merkistä, minkä janan merkki se on ja milloin se viimeksi laukesi.
 

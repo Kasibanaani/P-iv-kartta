@@ -23,10 +23,10 @@ function step(P,ms){at(NOW+ms);KK.frame(P,ms/1000,C);}
 var P=KK.newProject('jana');var J=jana(P);
 A.ok(KK.isWin(J.b));A.strictEqual(J.n.w,480);
 A.deepStrictEqual(KK.ports(J.b).ins.map(function(p){return p.p;}),['e','x','j','a','b']);
-A.deepStrictEqual(KK.ports(J.b).outs.map(function(p){return p.p;}),['v','os','r','al','e']);
-J.b.kierros='toista';A.deepStrictEqual(KK.ports(J.b).outs.map(function(p){return p.p;}),['v','os','r','al','ki']);J.b.kierros='kerta';
+A.deepStrictEqual(KK.ports(J.b).outs.map(function(p){return p.p;}),['v','os','r','al','ki','e']);
+J.b.kierros='toista';A.deepStrictEqual(KK.ports(J.b).outs.map(function(p){return p.p;}),['v','os','r','al','ki','e']);J.b.kierros='kerta';
 J.b.kulku='arvo';A.deepStrictEqual(KK.ports(J.b).ins.map(function(p){return p.p;}),['kd','on','a','b']);A.deepStrictEqual(KK.ports(J.b).outs.map(function(p){return p.p;}),['v','os']);J.b.kulku='aika';
-A.ok(['kohta','osuus','käynnissä','alku','loppu','käytössä'].every(function(n){return KK.omat(J.b).some(function(e){return e.n===n;});}),'omat');
+A.ok(['kohta','edistyminen','käynnissä','alku','loppu','käytössä'].every(function(n){return KK.omat(J.b).some(function(e){return e.n===n;});}),'omat');
 A.strictEqual(v(P,J.b.id),0);
 
 // 2. Aikajana: merkit 0, 3, 3 (päällekkäin, ylempi ensin) ja 10 s; valmis lopussa
@@ -40,7 +40,7 @@ A.strictEqual(P.st[alk.b.id],1,'alkoi');
 step(P,2900);A.deepStrictEqual(W(),[]);A.ok(Math.abs(v(P,J.b.id)-2.9)<1e-6);A.strictEqual(E(P).val(J.b.id,'r'),true);
 step(P,200);var w3=W();A.deepStrictEqual(w3.sort(),['kolmeAla@103','kolmeYla@103']);
 A.deepStrictEqual(KK.janaCross(KK.janaMarks(P,J.b.id),KK.janaSpec(P,J.b.id,C),2.9,3.1,false).map(function(m){return P.b[m.n.p].nm;}),['kolmeYla','kolmeAla'],'samassa kohdassa ylhäältä alas');
-A.strictEqual(E(P).val(J.b.id,'os'),31);
+A.strictEqual(E(P).val(J.b.id,'os'),0.31);
 step(P,6000);A.deepStrictEqual(W(),[]);step(P,1000);A.deepStrictEqual(W(),['kymmenen@110']);
 A.strictEqual(P.st[val.b.id],1,'valmis');A.strictEqual(E(P).val(J.b.id,'r'),false);A.strictEqual(v(P,J.b.id),10);
 step(P,5000);A.deepStrictEqual(W(),[]);A.strictEqual(P.st[val.b.id],1,'ei toista valmista');
@@ -82,7 +82,7 @@ KK.userSet(P5,S5.b.id,10,C);A.deepStrictEqual(W5(),['kaksi@102','viisi@105','kah
 // järjestys hypyssä: janaCross
 A.deepStrictEqual(KK.janaCross(KK.janaMarks(P5,J5.b.id),KK.janaSpec(P5,J5.b.id,C),0,10,false).map(function(m){return m.p;}),[2,5,8]);
 A.deepStrictEqual(KK.janaCross(KK.janaMarks(P5,J5.b.id),KK.janaSpec(P5,J5.b.id,C),10,0,false).map(function(m){return m.p;}),[8,5,2]);
-A.strictEqual(v(P5,J5.b.id),10);A.strictEqual(E(P5).val(J5.b.id,'os'),100);
+A.strictEqual(v(P5,J5.b.id),10);A.strictEqual(E(P5).val(J5.b.id,'os'),1);
 // vain eteenpäin
 J5.b.suunta='eteen';KK.userSet(P5,S5.b.id,0,C);A.deepStrictEqual(W5(),[]);
 // päällä-ehto pois: kohta seuraa hiljaa
