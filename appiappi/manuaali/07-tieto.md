@@ -45,6 +45,7 @@ Taulukko, jossa on nimetyt sarakkeet ja rivejä. Kaavat lukevat sen rivejä ja k
     - luku, kyllä/ei, päivämäärä ja ajankohta: valintaruutu **Koosteet vaativat täydelliset tiedot (yksikin puuttuva → tuntematon)**.
     - Painike **＋ Sarake** lisää sarakkeen nimellä *Sarake N* (laji teksti) ja vie kohdistuksen nimeen.
   - Osio **Rivit**: rivien määrä (käyttötieto vai lähtöaineisto), valittu rivi, painikkeet **Avaa taulukko…** ja (kun käyttötietoa on) **Palauta lähtöaineistoon**.
+  - Osio **Kirjaushistoria**: nappi **Tee kirjaushistoria** lisää alkuun sarakkeet Aika ja Id (ks. [Kirjaushistoria](#kirjaushistoria)). Kun ne ovat, osio kertoo Kirjaa-toiminnosta, ja osio **Historian haut** näyttää kaavamuodot ja päivän rajan. Automaattisella sarakkeella ei ole lajivalikkoa vaan teksti *ajankohta · automaattinen* tai *tunniste · automaattinen*.
   - Osio **Koosteet**: sarakkeittain täytetyt, puuttuvat ja virheet; luku- ja kyllä/ei-sarakkeille summa ja keskiarvo.
   - Osio **Käyttö logiikassa**: muistilista toiminnoista ja kaavamuodoista.
 - **Sarakelajit:**
@@ -82,9 +83,12 @@ Taulukko, jossa on nimetyt sarakkeet ja rivejä. Kaavat lukevat sen rivejä ja k
 | `.täydellinen` | kyllä, jos sarakkeessa ei ole puuttuvia eikä virheitä |
 | `ostokset.valittu.määrä.tiedossa` | kyllä/ei: onko kenttä täytetty |
 | `kirjaus.valittu.tuote.hinta` | riviviitesarakkeen (*Tuote*) kautta toisen taulukon sarake |
+| `loki.viimeisin`, `loki.viimeisin.määrä` | uusin kirjaus (suurin ajankohta) ja sen sarake; vain kun taulukossa on ajankohta-sarake ([Kirjaushistoria](#kirjaushistoria)) |
+| `loki.edellisestä`, `loki.tänään` | minuutteja uusimmasta kirjauksesta; kirjauksia tänään päivän rajan mukaan |
+| `loki.valittu.aika.päivä` | ajankohdan päivä päivän rajan mukaan (myös päivämäärälle: sama päivä) |
 
   Tekstissä samat aaltosulkeissa, esim. `Valittu: {ostokset.valittu.nimi}`. Pelkkä `ostokset.määrä` on virhe, joka ehdottaa `ostokset.valittu.määrä`, `ostokset.eka.määrä` tai `ostokset.määrä.summa`. Summa ja keskiarvo vain luku- ja kyllä/ei-sarakkeille (kyllä = 1, ei = 0).
-- **Ominaisuudet:** rekisterissä (paneelin Ominaisuudet ja viitevalitsin) näkyvät `rivejä`, `valittu`, `valittunro`, `eka`, `vika`, `valittu.<sarake>`, `eka.<sarake>`, `vika.<sarake>` ja koosteet. Ne ovat luettavia, eivät ohjattavia.
+- **Ominaisuudet:** rekisterissä (paneelin Ominaisuudet ja viitevalitsin) näkyvät `rivejä`, `valittu`, `valittunro`, `eka`, `vika`, `valittu.<sarake>`, `eka.<sarake>`, `vika.<sarake>` ja koosteet; ajankohta-sarakkeen kanssa lisäksi `viimeisin`, `edellisestä`, `tänään` ja `viimeisin.<sarake>`. Ne ovat luettavia, eivät ohjattavia.
 - **Aika ja tila:** lähtöaineisto on rakennetta; käyttötieto ja valittu rivi säilyvät tallennettuna, kunnes ne palautetaan. Taulukolla ei ole omia tapahtumia (esim. "rivi lisätty"). Tapahtuma lähtee toiminnon **sitten**-kohdasta.
 - **Esimerkki:** Tee Tietotaulukko, nimeä *Ostokset*, lisää sarakkeet Nimi (teksti) ja Määrä (luku). **Avaa taulukko…** → **＋ Rivi** kolmesti, kirjoita Maito 2, Leipä 1, Omena (määrä tyhjä). Tee Kaava `ostokset.määrä.summa`: tulos 3. `ostokset.määrä.puuttuvia` = 1. `ostokset.vika.nimi` = Omena.
   - Toisenlainen käyttö: taulukko *Kirjaus*, jossa riviviitesarake *Tuote* taulukkoon *Tuotteet*. `kirjaus.valittu.tuote.hinta` näyttää aina tuotteen nykyisen hinnan.
@@ -94,6 +98,32 @@ Taulukko, jossa on nimetyt sarakkeet ja rivejä. Kaavat lukevat sen rivejä ja k
   - Taulukkoikkunan muutokset lähtöaineistoon voi kumota (↶ Kumoa); käyttötiedon muutoksia ei kumota.
   - Uudessa taulukossa (ei käyttötietoa) taulukkoikkunassa ei voi valita riviä. Rivi valitaan toiminnolla **Valitse rivi** tai kortista.
   - Koosteet ovat taulukon ominaisuuksia. Riveittäin laskettu kooste (esim. määrä × hinta yhteensä) tehdään ikkunalla **Riveille** (ks. alla).
+
+---
+
+## Kirjaushistoria
+Historia on tavallinen Tietotaulukko, jonka rivit ovat kirjauksia: mitä, kuinka paljon ja milloin. Sama taulukko käy listaksi (Toistin), Aikajanalle, Kalenteriin ja koosteisiin.
+
+- **Tee kirjaushistoria:** taulukon paneelin osio **Kirjaushistoria** → **Tee kirjaushistoria**, tai Kirjaa-toiminnon paneelin **Tee taulukosta kirjaushistoria**. Alkuun tulee kaksi automaattista saraketta:
+  - **Aika** (ajankohta): täyttyy kirjaushetkellä, kun Kirjaa- tai Lisää rivi -toiminnon aika-kenttä on tyhjä, ja kun rakentaja lisää rivin taulukkoikkunassa. Aikaa voi korjata kuten muuta kenttää.
+  - **Id** (tunniste): rivin pysyvä tunniste (`u1`, `u2` …; rakennusrivit `r1` …). Ei muokattavissa; taulukkoikkunassa harmaana tekstinä. Kaavassa `loki.vika.id`.
+  Toinen painallus ei kahdenna sarakkeita. Sarakkeet voi nimetä uudelleen ja poistaa kuten muutkin.
+- **Kirjaa:** toiminto **Kirjaa**, kohde taulukko. Kentät kuten Lisää rivi (kaavoja; arvot kopioidaan kirjaushetkellä, tilannekuva). Kirjaa toimii myös taulukkoon, jossa on tavallinen ajankohta-sarake: ensimmäinen ajankohta-sarake saa kirjaushetken. Ilman ajankohta-saraketta Kirjaa antaa virheen.
+- **Muokkaus ja poisto:** kirjaus on tavallinen rivi. Sitä muokataan taulukkoikkunassa, lomakkeella tai toiminnoilla ja poistetaan Poista rivi -toiminnolla. Korjaus- tai poistohistoriaa ei pidetä.
+- **Historian haut (kaavassa):**
+
+| Kaava | Antaa |
+|---|---|
+| `loki.viimeisin` | uusin kirjaus (riviviite): suurin aika, ei taulukon viimeinen rivi. Tyhjässä taulukossa tyhjä. |
+| `loki.viimeisin.määrä` | uusimman kirjauksen sarake |
+| `loki.edellisestä` | kokonaisia minuutteja uusimmasta kirjauksesta (tyhjässä taulukossa puuttuu) |
+| `loki.tänään` | kirjauksia tänään päivän rajan mukaan |
+| `kirjaus.aika.päivä` | Rivi-palikan (käsiteltävä rivi) kirjauksen päivä päivän rajan mukaan; myös `loki.valittu.aika.päivä` |
+
+  Aikavälin rivit, määrä aikavälillä ja viimeisin ehdolla tehdään **Rivijoukolla**: ehto riveittäin esim. `kirjaus.aika.päivä = tänään` tai `kirjaus.aika >= kalenteri` (Rivi-palikka *Kirjaus*, käsiteltävä rivi), järjestys Aika-sarakkeen mukaan laskevasti ja *enintään 1* antaa viimeisimmän ehdolla (`joukko.eka`). Määrä: `joukko.rivejä`, summa `joukko.määrä.summa`. Ilman ajankohta-saraketta `viimeisin`, `edellisestä` ja `tänään` ovat virhe *ei ole aika-saraketta*.
+- **Päivän raja:** ⚙︎ Asetukset → Päivämäärät → *Päivän raja (tämä projekti)*: keskiyö (oletus) tai klo 1.00–6.00. Rajalla 4 klo 2.30 tehty kirjaus kuuluu edelliseen päivään: `aika.päivä`, `loki.tänään`, Kalenterin merkinnät ja Aikajanan *tänään* noudattavat rajaa. Kaavan `tänään` on aina kalenteripäivä, joten klo 0–4 välillä `kirjaus.aika.päivä = tänään` ei osu eiliseen yöhön (ei vielä erillistä ”historian tänään” -sanaa).
+- **Samasta lähteestä:** Aikajanan **Lähde** ja Kalenterin **Merkitse päivät** hyväksyvät historiataulukon; Toistin näyttää rivit kortteina; koosteet ja Rivijoukko laskevat samoista riveistä. Mitään ei kopioida, joten yksi kirjaus näkyy kaikissa kerran.
+- **Vanha tekstiaikajana:** Aikajanan paneelin **Muunna historiaksi** (ks. [Aikajana](03-nakymapalikat.md#aikajana-aika)). Muunnos tehdään vain napista.
 
 ---
 
@@ -268,6 +298,7 @@ Toiminto-palikka (Logiikka, tai painikkeen paneelin **Kun painetaan** → **＋ 
 
 | Toiminto | Paneelin kentät | Mitä tekee | Sitten-tapahtuma |
 |---|---|---|---|
+| **Kirjaa** | kuten Lisää rivi (ei Id-kenttää); aika-kenttä tyhjänä = nyt | lisää kirjauksen loppuun ja täyttää ajan ([Kirjaushistoria](#kirjaushistoria)). Taulukossa oltava ajankohta-sarake. | rivi = uusi kirjaus |
 | **Lisää rivi** | kenttä jokaiselle sarakkeelle (kaavoja), **Valitse uusi rivi** | lisää rivin loppuun; arvot lasketaan lisäyshetkellä (tilannekuva). Teksti lainausmerkeissä `"Maito"`, `tänään`, `nyt`, viite palikkaan, `tapahtuma.uusi`. Virheellinen kenttä → riviä ei lisätä, virhe näkyy ilmoituksena. | rivi = uusi rivi |
 | **Valitse rivi** | **Mikä rivi**: ensimmäinen, seuraava (oletus), edellinen, viimeinen, tapahtuman rivi, arvosta (numero tai rivi), ei mitään. Seuraavalla ja edellisellä **Lopusta alkuun (ja alusta loppuun)**. Arvosta: kenttä **Rivi** tai nuoli kohtaan arvo. | vaihtaa valitun rivin | rivi = valittu; vanha ja uusi = valinta ennen ja jälkeen |
 | **Poista rivi** | **Mikä rivi**: Valittu rivi / Tapahtuman rivi | poistaa rivin; jos se oli valittu, valinta siirtyy seuraavaan | rivi = poistettu |
@@ -281,14 +312,23 @@ Valittu rivi -tilassa toiminto antaa virheen, jos valittua riviä ei ole. Kortin
 ## Lista ja Aikajana suhteessa taulukkoon
 Lista (Näkymä → Näyttö → **Lista**) ja Aikajana (**Aikajana**) ovat vanhempia, yksinkertaisia näyttöjä, eivät Tietotaulukoita.
 
-- **Lisää riviksi listaan** lisää Listaan tekstirivin, **Kirjaa aikajanalle** lisää Aikajanalle merkinnän aikaleimalla. Molemmissa kenttä **Teksti**, jossa `{viite}` toimii.
+- **Lisää riviksi listaan** lisää Listaan tekstirivin, **Kirjaa** lisää Aikajanalle merkinnän aikaleimalla. Molemmissa kenttä **Teksti**, jossa `{viite}` toimii.
 - Kaavassa Listalla esim. `lista.rivi2`, `lista.rivi2.rastitettu`, `lista.rivi2.pvm`, Aikajanalla `aikajana.viimeisin.teksti` ja `.viimeisin.aika` (viite palikan mukaan).
 - Listan ja Aikajanan rivit eivät käy Rivijoukon, Toistimen, ikkunan Riveille tai Toista riveille -palikan **rivit**-kohtaan (virhe: *tuo nuoli Tietotaulukosta tai Rivijoukosta*). Sarakkeita, koosteita tai riviviitteitä niillä ei ole.
-- Kun tarvitset sarakkeita, laskentaa tai kortteja, käytä Tietotaulukkoa. Kirjaa-toiminnon siirto Tietotaulukkoon on suunniteltu (F08), ei rakennettu.
+- Kun tarvitset sarakkeita, laskentaa tai kortteja, käytä Tietotaulukkoa: Kirjaa kirjoittaa myös taulukkoon ([Kirjaushistoria](#kirjaushistoria)), ja vanhan aikajanan voi muuntaa napista **Muunna historiaksi**. Aikajana voi näyttää historiataulukkoa (Lähde).
 
 ---
 
 ## Reseptit
+
+### Kirjausappi: mitä otin ja milloin
+1. Logiikkaan Tietotaulukko *Loki*, sarakkeet Kohde (teksti) ja Määrä (luku). Paneelin **Tee kirjaushistoria**: alkuun Aika ja Id.
+2. Näkymään Painike *Kahvi*. *Kun painetaan* → ＋ Lisää toiminto… → **Kirjaa**, kohde Loki. Kentät: Kohde `"Kahvi"`, Määrä `1`, Aika tyhjä.
+3. Teksti: `Tänään {loki.tänään}, viimeksi {loki.viimeisin.kohde} ({loki.edellisestä} min sitten)`.
+4. Aikajana, Lähde *Loki*: kirjaukset uusin ylimpänä. Kalenteri, Merkitse päivät *Loki*: päivät pisteinä, päivän napautus listaa kirjaukset kellonaikoineen.
+5. Päivän kooste: Rivi *Kirjaus* (taulukko Loki), Rivijoukko *Päivä* (rivit Lokista, ehto Kaava `kirjaus.aika.päivä = tänään`), teksti `{päivä.määrä.summa} kpl tänään`. Älä nimeä joukkoa *Tänään*: `tänään` on kaavan avainsana.
+6. Väärä kirjaus: avaa taulukko ja korjaa tai poista rivi. Tyhjä määrä on puuttuva, ei 0: summa ohittaa sen.
+- Tilannekuva vs. elävä: jos Kohde on riviviite tuotetaulukkoon ja kirjaukseen kopioidaan hinta, `loki.viimeisin.hinta` pysyy kirjaushetken hintana ja `loki.viimeisin.tuote.hinta` seuraa nykyistä.
 
 ### Ostoslista taulukolla ja toistimella
 1. **Logiikka**-välilehti → paletti **Tieto** → **Tietotaulukko**. Paneelissa nimeksi *Ostokset*.

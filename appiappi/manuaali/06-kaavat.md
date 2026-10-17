@@ -630,7 +630,7 @@ Toiminto-palikan paneelissa, kun **Kohde** on palikka, jolla on ohjattavia omina
 
 Näkymäpalikoiden teksteihin voi upottaa toisen palikan arvon aaltosulkeilla: `Unta {uni} h` näyttää *Unta 6 h*.
 
-**Missä toimii:** kaikkien näkymäpalikoiden tekstikentät (Painikkeen teksti, Teksti, Otsikko, Ilmoituksen teksti …), Arvo-palikan arvo, Hakutaulukon tulokset ja Muuten-kenttä, Monta haaraa -rivit, toimintojen *Kirjaa aikajanalle*, *Lisää riviksi listaan* ja *Näytä ilmoitus* tekstit sekä Teksti ilmestyy -efekti.
+**Missä toimii:** kaikkien näkymäpalikoiden tekstikentät (Painikkeen teksti, Teksti, Otsikko, Ilmoituksen teksti …), Arvo-palikan arvo, Hakutaulukon tulokset ja Muuten-kenttä, Monta haaraa -rivit, toimintojen *Kirjaa* (aikajanalle), *Lisää riviksi listaan* ja *Näytä ilmoitus* tekstit sekä Teksti ilmestyy -efekti.
 
 **Miten kirjoitetaan:**
 

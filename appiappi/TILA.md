@@ -1,6 +1,6 @@
 # Appi-appi: tila
 
-**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 17.10.2026 (Appi-appi 35: animointi vaihe 1)
+**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 17.10.2026 (Appi-appi 36: rakenteinen historia F08)
 
 Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- ja iPad-näkymät, maailma ja hahmon liike, myöhemmin vienti omaksi appiksi). Ristiriidoissa Kytköskartan logiikka voittaa. Suunnitelma: `SUUNNITELMA.md` ja `suunnitelmat/`; vanhempien vaiheiden päätökset `VERTAILU.md`. Toteutettujen versioiden yksityiskohdat, tallennuskentät ja kokeiluohjeet: `MUUTOKSET.md`.
 
@@ -25,6 +25,7 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 - Appi-appi 33: testitila *Kokeile* (jonon 1, F22 suppea): kokeilu kopiolla käyttötiedoista, raita *Kokeilu* koko ajan, oikeat tiedot (selain, GitHub, varmuuskopio) eivät muutu, suljettu appi ei jätä kokeilua; rakenteen muutokset jäävät. Ei tallennusmuodon muutosta.
 - Appi-appi 34: ryhmän viite ja näkyvät virheet (jonon 1k, kartoitus 3: N1, N2, N4): Ryhmä ei saa viitettä eikä vie nimeä tai viitettä muilta, ryhmään osoittava vanha kaava tai teksti näyttää ⚠ Ryhmä ei ole arvo; tuntematon nimi jos-funktion valitsematta jääneessä osassa on virhe heti (laskuvirheet laiskoja); Miksi?-tekstien puuttuvan syötteen lause yhtenäinen (Lasku, Vertailu, Päivämäärän osa, Toiminto, Rivijoukko). Ei tallennusmuodon muutosta.
 - Appi-appi 35: animointi F29 vaihe 1 (jonon 2, kaista B): näkymäpalikan osio *Animointi* (ilmestyy, katoaa, kesto, pehmeys), projektin oletus Asetuksissa, ominaisuudet `animointi.*` logiikkaan; pelkkä näyttö, `näkyy` vaihtuu heti, keskeytys kääntyy, Vähennä liikettä = töks (myös efekteistä liike pois). Tallennusmuoto laajeni (valinnaiset `ani`, `ano`, `ank`, `anp`, projektin `an`), versio 8.
+- Appi-appi 36: rakenteinen historia F08 (jonon 3, kaista B): Tietotaulukon *Tee kirjaushistoria* (automaattiset Aika ja Id), toiminto *Kirjaa* taulukkoon, haut `viimeisin`, `edellisestä`, `tänään`, `aika.päivä`, päivän raja Asetuksissa, Aikajanan lähde ja Kalenterin merkinnät historiataulukosta, *Muunna historiaksi*. Tallennusmuoto laajeni (valinnaiset `auto`, `lh`, `praja`).
 - Emilin päätökset 16.10. (Appi-appi 13:n jälkeen): koosteet säilyvät taulukon ominaisuuksina (`taulu.määrä.summa`) myös P3:n ikkunakoosteiden rinnalla; Lisää rivi -kentät pysyvät kaavoina (teksti lainausmerkeissä); taulukolle ei vielä tehdä omia tapahtumia (rivi lisätty, valinta vaihtui); Lisää puuttuvaan kenttään alkaa nollasta ja Vaihda puuttuvasta antaa kyllä (nykyinen toiminta pysyy, tekoälyn suositus).
 - Tallennusversio edelleen 8; vanhat projektit avautuvat ennallaan. Uudet valinnaiset kentät versioittain: `MUUTOKSET.md`, Tallennus (Appi-appi 11–16 myös juuren `README.md`).
 - Testattu vain tietokoneen Chromiumissa (kosketus ja nipistys CDP:llä 390 ja 320 px, Appi-appi 11–13 tietokoneella 1440 ja 1280, Appi-appi 13–33 myös puhelinleveyksillä), ei oikealla iPhonella, iPadilla eikä Safarilla.
@@ -37,8 +38,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 **Haarat ja tarkistuspisteet (Emil 17.10.2026):** ⏸-merkitty kohta odottaa Emilin päätöstä. Jono ei pysähdy siihen: rakentaja tai vahti ilmoittaa Emilille ja jatkaa seuraavaan kohtaan, joka ei riipu odottavasta. Kohta, josta mikään jonossa ei riipu, on oma haaransa; Emil voi ottaa sen käsittelyyn milloin haluaa. Avoimista haaroista muistutetaan Emiliä säännöllisesti (ajastettu muistutus APPI-APPI-projektin ketjussa *Tilastot ja oppiminen*).
 
-3. **[työn alla, kaista B 17.10.; tallennusmuodon muutosvuoro kaistalla B]** **Rakenteinen historia F08** (P4:n alku, `suunnitelmat/01-tieto-ja-tapahtumat.md` kohta 7): Kirjaa-toiminto kirjoittaa tavalliseen Tietotaulukkoon, jossa automaattiset sarakkeet *aika* ja *id*; kirjausta muokataan ja poistetaan kuten taulukon riviä (ei korjaushistoriaa); vanha tekstiaikajana muunnetaan vain napista; päivän raja on projektin asetus, oletus keskiyö. Hyväksymiskokeena koeappi A.
-4. **⏸ Tarkistuspiste F25** (`suunnitelmat/11-tilastot-ja-yhteydet.md`, Emil 17.10. aamulla): ei rakenneta. Kun F08 on viety, ilmoita Emilille, että F25:n avoimet kysymykset (kohta 9) ovat vuorossa, ja jatka jonon kohtaan 5. Elämäntapaväittämien koeappi ja korrelaatio vasta Emilin vastausten jälkeen.
+4. **⏸ Tarkistuspiste F25** (`suunnitelmat/11-tilastot-ja-yhteydet.md`, Emil 17.10. aamulla): ei rakenneta. F08 viety 17.10. (Appi-appi 36) ja Emilille ilmoitettu, että F25:n avoimet kysymykset (kohta 9) ovat vuorossa; odottaa vastauksia. Jono jatkaa kohdasta 5. Elämäntapaväittämien koeappi ja korrelaatio vasta Emilin vastausten jälkeen.
 5. **[työn alla, kaista A 17.10.; ei muuta tallennusmuotoa]** **Viite-ehdotukset ja palikan luonti nimestä** (F27 kohta 1, `suunnitelmat/12-teksti.md`): ehdotusrivi viitteelle kirjoitettaessa, *Luo Arvo* tuntemattomasta nimestä.
 6. **Tulkki eli printteri** (F27 kohta 2, yhdessä F20:n liimatun taulukon kanssa): teksti kuviolla taulukon riveiksi tai Arvo-palikoiksi, esikatselu ennen hyväksyntää. Tagit ja sanaoppi (kohdat 3–4) vasta F08:n ja F25:n jälkeen erikseen.
 7. **Jana F28, vaihe 1** (`suunnitelmat/13-jana.md`, Emilin idea 17.10.): logiikan ikkuna, jonka leveys on alku–loppu (oletus 0–10), aika- tai arvokulku (esim. säädin), merkit portaisiin. Kohta tallennetaan arvona (Emilin päätös 17.10.); muut linjaukset tekoälyn suosituksen mukaan: hypyssä väliin jääneet laukeavat, aikajana eteenpäin ja arvojana molempiin suuntiin. Välit (alku–loppu-merkit) myöhemmin erikseen.
@@ -48,7 +48,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 ## Seuraavaksi
 
-- **Linjakkuuskartoitus 3 tehty 17.10.** (`kartoitukset/2026-10-17-linjakkuus-3.md`): linja pitää, kartoitus 2:n M1, M2 ja T1–T2 korjattu. Sen löydökset N1, N2 ja N4 korjattu (Appi-appi 34, jonon 1k). Laskuri 3/5 (Appi-appi 33 F22, 34 1k, 35 F29 vaihe 1). Seuraava kartoitus tarkistaa F22:n ja käyttötietojen päällekkäisyyden (K2). ⏸ Emilin päätös yhä auki: VALITSE-palikan nimi (kartoitus 2, M3); Appi-appi 32 käytti suositusta (nimi pysyi, vihje sanoo ”sama kuin kaavan jos”).
+- **Linjakkuuskartoitus 3 tehty 17.10.** (`kartoitukset/2026-10-17-linjakkuus-3.md`): linja pitää, kartoitus 2:n M1, M2 ja T1–T2 korjattu. Sen löydökset N1, N2 ja N4 korjattu (Appi-appi 34, jonon 1k). Laskuri 4/5 (Appi-appi 33 F22, 34 1k, 35 F29 vaihe 1, 36 F08). Seuraava kartoitus tarkistaa F22:n ja käyttötietojen päällekkäisyyden (K2). ⏸ Emilin päätös yhä auki: VALITSE-palikan nimi (kartoitus 2, M3); Appi-appi 32 käytti suositusta (nimi pysyi, vihje sanoo ”sama kuin kaavan jos”).
 - **Koeapit (Appi-appi 23) toivat esiin:** tekstihaku (Appi-appi 30) ja taulukon `eka`/`vika` (Appi-appi 31) tehty. Ei jonossa: kapeassa kortissa Lukukentän omat −/+ peittävät luvun, joten C näyttää määrän Tekstinä.
 - Järjestys: Jono yllä. Kokonaiskuva ja loput paketit (P4–P7): `SUUNNITELMA.md`.
 - **Tekoälyn ehdotus:** `index.html` pilkotaan osiin (build-skripti tai moduulit), jotta kontekstia kuluu vähemmän. Ei tehdä ilman Emilin lupaa.
@@ -58,6 +58,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 ## Avoimet kysymykset
 
+- Appi-appi 36 (F08): päivän raja koskee vain historiaa (`aika.päivä`, `taulu.tänään`, kalenterin historiamerkinnät). Kaavan `tänään` on kalenteripäivä, joten rajalla 4 klo 0–4 `kirjaus.aika.päivä = tänään` ei osu eilisillan kirjauksiin. Tekoälyn ehdotus: taulukolle ominaisuus `taulu.päivä` (historian nykyinen päivä), ei `tänään`-sanan merkityksen muutosta. Ei rakennettu.
 - Appi-appi 28: pelkät sulut laskussa (`(a + 1) * 2`) ovat yhä virhe; sulut käyvät vain funktioissa `jos`, `ja` ja `tai`. Sallitaanko ne? Tekoälyn suositus: ei ennen kuin tulee oikea tarve (ilman niitä laskujärjestys on yksiselitteinen).
 - Viestilappujen yöajo: kellonaika (ehdotus klo 3) ja valtuutus. Tekoälyn suositus on, että yöllä toteutetaan vain napilla hyväksytyt suunnitelmat. Kysytty Emililtä 16.10.
 - Appi-appi 9 (rajaus): KESKIARVO-, SUURIN- ja PIENIN-ikkunat ohittavat tyhjät arvot; ennen ne laskettiin nolliksi. Vanhan projektin keskiarvo voi siksi muuttua, jos ikkunassa on ollut tyhjiä.
@@ -113,6 +114,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 - Appi-appi 20 Ei tarkistettu: oikea iPhone ja Safarin pitkä painallus (tekstin valinta tai suurennuslasi voi kilpailla), kortin raahaus ruudukkoasettelussa (testattu allekkain), reunavieritys hitaammalla kerroksella (tarkoituksella pois), korostus rullausvauhdiltaan eri kerroksen alueille.
 - Appi-appi 21 Ei tarkistettu: oikea iPhone ja Safari (säätimen korjaus testattu Safarin tapaa jäljitellen), kalenterin päivän napautus kortissa (Toistin).
 - Appi-appi 23 Ei tarkistettu: oikea iPhone ja Safari, oikea GitHub-haku (testattu valepalvelimella), kysymysten vaihto taulukkoikkunasta selaimessa (sisällön vaihto testattu moottorissa).
+- Appi-appi 36 Ei tarkistettu: oikea iPhone ja Safari; iPad-näkymä; Muunna historiaksi oikealla vanhalla projektilla (testattu synteettisellä); iso historia (satoja tai tuhansia kirjauksia) ja sen nopeus Safarissa (viimeisin ja tänään käyvät kaikki rivit läpi joka laskennassa); kesäajan vaihde päivän rajan kanssa.
 - Appi-appi 35 Ei tarkistettu: oikea iPhone ja Safari (sujuvuus monella palikalla, Vähennä liikettä -asetus), iPad-näkymä, efektien Vähennä liikettä selaintestissä (vain koodissa), viety appi (vientiä ei ole).
 - Appi-appi 34 Ei tarkistettu: oikea iPhone ja Safari; vanhan projektin ryhmäviite testattu vain moottorilla (synteettinen projekti), ei oikealla vanhalla projektilla.
 - Appi-appi 33 Ei tarkistettu: oikea iPhone ja Safari (raita ja yläpalkin vieritys), iPad-näkymä, GitHub-tallennus kokeilun aikana oikeaa palvelinta vasten, pitkä kokeilu käyvillä ajastinketjuilla.

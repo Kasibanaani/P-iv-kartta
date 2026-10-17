@@ -67,7 +67,7 @@ Avaa **projektin nimi ▾** yläpalkin vasemmasta reunasta. Ikkunassa *Projektit
 | Rakennusympäristön ilme | *Vaalea ja tumma tila*: Laitteen mukaan, Vaalea, Tumma. *Väriteema*: Metsä, Järvi, Luumu, Hiekka, Ruusu, Harmaa, Laguuni, Laventeli, Oliivi, Kupari. Koskee kaikkia projekteja tässä selaimessa. |
 | Projektin käyttönäkymän ilme | samat valinnat, mutta vain tälle projektille; kulkee projektin mukana. Kumoa peruu. |
 | Projektin animointi | *Ilmestyy*, *Katoaa*, *Kesto (s)*, *Pehmeys*: tämän projektin näkymäpalikoiden oletus, kun palikalle ei ole valittu omaa (luku [Näkymäpalikat](03-nakymapalikat.md), Animointi-osio). Tyhjä = töks. Kulkee projektin mukana. |
-| Päivämäärät | *Muoto*: pp.kk.vvvv tai pp.kk.vv |
+| Päivämäärät | *Muoto*: pp.kk.vvvv tai pp.kk.vv; *Päivän raja (tämä projekti)*: keskiyö (oletus) tai klo 1.00–6.00. Raja koskee kirjaushistoriaa ([Tieto](07-tieto.md#kirjaushistoria)). |
 | Muokkaus | *Kohdista ruudukkoon*: Kyllä / Ei (10 px:n ruudukko raahattaessa) |
 | Muisti- ja viestilaput | lappujen määrät, lista, *Hae vastaukset*, *Kopioi laput tekstinä* (ks. Laput) |
 | GitHub-tallennus | Repo, Avain, automaattinen tallennus, *Tallenna nyt*, *Hae GitHubista*, *Hae uudet projektit*, *Testaa yhteys* (luku [Tallennus](09-tallennus.md)) |
@@ -176,7 +176,7 @@ Paletti näyttää vain sen puolen palikat, joka on auki: Näkymä-välilehdell�
 | Ehdot | JOS, VALITSE, KUN, Hakutaulukko |
 | Liike ja aika | Muutos ajassa, Liike, Sekuntikello |
 | Näkymä ja efektit | Kerros, Kamera, Teksti ilmestyy, Kuva vaihtuu, Animaatio, Näkymänvaihto |
-| Toiminnot | kaikki toiminnot: Aseta arvo, Aseta tila, Lisää, Valitse, Poista valinta, Vaihda, Tyhjennä, Siirry, Palaa takaisin, Kirjaa aikajanalle, Lisää riviksi listaan, Näytä ilmoitus, Käynnistä ketju, Pysäytä ketju, Arvo uudelleen, Palauta perusarvo, Lisää rivi, Poista rivi, Valitse rivi, Siirrä rivi |
+| Toiminnot | kaikki toiminnot: Aseta arvo, Aseta tila, Lisää, Valitse, Poista valinta, Vaihda, Tyhjennä, Siirry, Palaa takaisin, Kirjaa, Lisää riviksi listaan, Näytä ilmoitus, Käynnistä ketju, Pysäytä ketju, Arvo uudelleen, Palauta perusarvo, Lisää rivi, Poista rivi, Valitse rivi, Siirrä rivi |
 
 **Haku**: logiikan paletin kenttä *Etsi nimellä…* suodattaa vain Palikat-listaa (projektin omat palikat nimen tai viitteen mukaan). Palikkalajeja ei voi hakea; ne etsitään ryhmistä.
 

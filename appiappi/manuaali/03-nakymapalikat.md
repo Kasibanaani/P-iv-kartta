@@ -237,7 +237,7 @@ Painettava nappi. Se voi jäädä pohjaan kuin katkaisija, laskea painalluksia t
   - **Näytä painallusten määrä painikkeessa** (vain Kertapainallus): määrä sulkeisiin tekstin perään.
   - **Pitkä painallus, irrotus ja painalluksen kesto:** lisää kolme lisäkohtaa. *Pohjassa vain painettaessa* -tilassa ne ovat aina mukana, joten valinta puuttuu.
   - **Ulkoasu:** *Painike* tai *Näkymätön kosketusalue* (ei näy käytössä mutta toimii; muokatessa katkoviiva). Aseta kuvan päälle ja paina *Tuo eteen*: kuvasta tulee painettava.
-- **Kun painetaan (osio):** pikatoiminnot. Valitse *＋ Lisää toiminto…* -valikosta esim. *Aseta arvo*, *Lisää*, *Vaihda*, *Siirry*, *Näytä ilmoitus*, *Kirjaa aikajanalle*. Appi tekee logiikkaan Toiminto-palikan ja nuolen *painettu → tee kun* ja avaa toiminnon paneelin (yläreunassa paluunappi ‹ Painikkeen nimi). Toiminnot tehdään ylhäältä alas; × poistaa.
+- **Kun painetaan (osio):** pikatoiminnot. Valitse *＋ Lisää toiminto…* -valikosta esim. *Aseta arvo*, *Lisää*, *Vaihda*, *Siirry*, *Näytä ilmoitus*, *Kirjaa*. Appi tekee logiikkaan Toiminto-palikan ja nuolen *painettu → tee kun* ja avaa toiminnon paneelin (yläreunassa paluunappi ‹ Painikkeen nimi). Toiminnot tehdään ylhäältä alas; × poistaa.
 - **Arvo, kun valittu (osio, ei Kertapainallus):** kirjoita luku tai teksti ja paina Enter. Appi tekee VALITSE-palikan, jonka tulos on tämä arvo, kun painike on valittu (muuten tyhjä, laskuissa 0). Esim. pisteet SUMMA-ikkunaan.
 - **Ominaisuudet:** yhteiset; lisäksi `painike.painalluksia` (Kertapainallus) ja `painike.kesto` (lisätapahtumien kanssa).
 - **Kaavassa:** `painike` antaa arvon: kyllä/ei tai Kertapainalluksessa määrän.
@@ -389,11 +389,13 @@ Merkinnät aikaleimoineen, uusin ylimpänä.
 - **Löytyy:** Näkymä → Näyttö → *Aikajana*.
 - **Sisään:** yhteiset.
 - **Ulos:** **merkintöjä** (luku, arvo), **viimeisin päivä** (päivämäärä).
-- **Asetukset:** **Otsikko** (oletus ”Aikajana”), nappi **Tyhjennä merkinnät**.
-- **Merkinnät tulevat** vain toiminnolla **Kirjaa aikajanalle** (esim. Painikkeen *Kun painetaan* → *Kirjaa aikajanalle*, kohde tämä aikajana, *Teksti*). Käyttäjä ei voi kirjoittaa aikajanaan suoraan eikä poistaa yksittäistä merkintää.
+- **Asetukset:** **Otsikko** (oletus ”Aikajana”), **Lähde**: *Omat merkinnät (N)* (oletus) tai historiataulukko (Tietotaulukko, jossa on ajankohta-sarake). Omilla merkinnöillä napit **Tyhjennä merkinnät** ja, kun merkintöjä on, **Muunna historiaksi**.
+- **Merkinnät tulevat** omilla merkinnöillä vain toiminnolla **Kirjaa** (esim. Painikkeen *Kun painetaan* → *Kirjaa*, kohde tämä aikajana, *Teksti*). Käyttäjä ei voi kirjoittaa aikajanaan suoraan eikä poistaa yksittäistä merkintää.
+- **Lähde historiataulukko:** aikajana näyttää taulukon kirjaukset uusin ylimpänä: otsikkona rivin nimi (ensimmäinen tekstisarake), alla muut täytetyt kentät (*Määrä 1 · la 17.10.2026 klo 9.30 · vk 42*). Kirjaukset tulevat Kirjaa-toiminnolla taulukkoon, ja niitä muokataan taulukossa. Kirjaa-toiminnon kohteeksi ei voi valita aikajanaa, jolla on lähde. Arvot (`.merkintöjä`, `.viimeisin`, `.tänään`, `.viimeisin.teksti`, `.viimeisin.aika`) lasketaan silloin taulukon kirjauksista; päivä ja tänään päivän rajan mukaan.
+- **Muunna historiaksi** (vain napista, ei koskaan itsestään): tekee uuden Tietotaulukon *‹nimi› historia* (sarakkeet Aika, Id, Teksti), kopioi merkinnät sen riveiksi, asettaa sen aikajanan lähteeksi ja vaihtaa tämän aikajanan Kirjaa-toiminnot kirjaamaan taulukkoon (Teksti muuttuu kaavaksi, esim. `"Tauko · jaksaminen " + jaksaminen`). Vanhat merkinnät jäävät aikajanaan omiksi merkinnöikseen: Lähde-valikosta *Omat merkinnät* näyttää ne taas. Kumoa perii muunnoksen.
 - **Ominaisuudet:** yhteiset; lisäksi `.merkintöjä`, `.viimeisin` (päivä), `.tänään` (tänään kirjattuja), `.viimeisin.teksti`, `.viimeisin.aika` (kellonaika, esim. 7.05).
 - **Kaavassa:** `aikajana` = merkintöjen määrä.
-- **Esimerkki:** Painike ”Otin lääkkeen” → Kirjaa aikajanalle; Teksti ”Viimeksi {aikajana.viimeisin.aika}”.
+- **Esimerkki:** Painike ”Otin lääkkeen” → Kirjaa; Teksti ”Viimeksi {aikajana.viimeisin.aika}”. Rakenteinen versio: ks. [Kirjausappi](07-tieto.md#kirjausappi-mitä-otin-ja-milloin).
 
 ## Kaavio ✦ (`kaavio`)
 Pylväs-, vaakapalkki- tai rengaskaavio valittujen palikoiden nykyisistä luvuista.
@@ -446,7 +448,7 @@ Kuukausinäkymä viikkonumeroineen. Merkitsee päivät, joilla on asioita, ja k�
 - **Löytyy:** Näkymä → Näyttö → *Kalenteri*.
 - **Sisään:** yhteiset.
 - **Ulos:** **valittu päivä** (päivämäärä tai tyhjä), **päivä valittu** (tapahtuma).
-- **Asetukset:** **Otsikko**, **Merkitse päivät**: *＋ Lisää palikka…* (Päivämäärä-palikat, Listat, Aikajanat ja logiikan palikat, joilla on arvo), **Näytä valitun päivän asiat** (oletus päällä).
+- **Asetukset:** **Otsikko**, **Merkitse päivät**: *＋ Lisää palikka…* (Päivämäärä-palikat, Listat, Aikajanat, historiataulukot eli Tietotaulukot, joissa on ajankohta-sarake, ja logiikan palikat, joilla on arvo). Historiataulukon kirjaus merkitsee päivänsä päivän rajan mukaan, ja valitun päivän listassa se näkyy kellonaikoineen rivin nimellä, **Näytä valitun päivän asiat** (oletus päällä).
 - **Käytössä:** ‹ ja › selaavat kuukausia, • palaa tähän kuuhun. Päivän napautus valitsee sen; saman päivän uusi napautus poistaa valinnan. Valitun päivän asiat näkyvät kalenterin alla. Merkityn päivän pisteen asiat näkyvät tietokoneella vihjeenä hiiren alla.
 - **Ominaisuudet:** yhteiset; lisäksi `.kuukausi` (ohjattava: päivämäärä, jonka kuukausi näytetään; tyhjä = tämä kuu) ja `.valittu`.
 - **Kaavassa:** `kalenteri.valittu`.

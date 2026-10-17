@@ -24,6 +24,10 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | arpoa | Satunnaisluku (luku) tai Arpa (ketjun haara) | [Satunnaisluku](04-logiikkapalikat.md#satunnaisluku-satu), [Arpa](05-ketjut-ja-toiminnot.md#arpa--arpa) |
 | tehdä sivuja ja siirtyä niiden välillä | näkymät, toiminto Siirry | [Näkymät](02-tyoymparisto.md#näkymät-sivut-ja-siirtyminen) |
 | pitää listaa riveinä | Tietotaulukko | [Tietotaulukko](07-tieto.md#tietotaulukko-taulu) |
+| kirjata mitä ja milloin (historia) | Tietotaulukko → Tee kirjaushistoria, toiminto Kirjaa | [Kirjaushistoria](07-tieto.md#kirjaushistoria), [Kirjausappi](07-tieto.md#kirjausappi-mitä-otin-ja-milloin) |
+| laskea päivän kirjaukset tai ajan edellisestä | `loki.tänään`, `loki.edellisestä`, Rivijoukko ehdolla `kirjaus.aika.päivä = tänään` | [Kirjaushistoria](07-tieto.md#kirjaushistoria) |
+| siirtää yön kirjaukset edelliselle päivälle | ⚙︎ Asetukset → Päivän raja | [Kirjaushistoria](07-tieto.md#kirjaushistoria) |
+| muuttaa vanhan aikajanan taulukoksi | Aikajanan paneeli → Muunna historiaksi | [Aikajana](03-nakymapalikat.md#aikajana-aika) |
 | näyttää jokaiselle riville kortin | Toistin | [Toistin](07-tieto.md#toistin--toistin) |
 | suodattaa tai järjestää rivejä | Rivijoukko | [Rivijoukko](07-tieto.md#rivijoukko-joukko) |
 | laskea sarakkeen summan | `taulu.sarake.summa` tai SUMMA-ikkuna riveille | [Laske taulukon sarakkeen summa](07-tieto.md#laske-taulukon-sarakkeen-summa) |

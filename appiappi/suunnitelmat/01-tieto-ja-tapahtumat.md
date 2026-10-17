@@ -82,6 +82,18 @@ Historiahaut: viimeisin, viimeisin ehdolla, määrä aikavälillä, aikavälin r
 
 **Valmis:** yhdestä lähteestä lista, aikajana ja päivän kooste; päivämäärävalinta suodattaa samaa tietoa; yhteiskäyttö ei kahdenna samaa tapahtumaa.
 
+### Toteutus 17.10.2026 (Appi-appi 36)
+
+Emilin jonolinjaukset: Kirjaa kirjoittaa tavalliseen Tietotaulukkoon, jossa automaattiset sarakkeet aika ja id; kirjausta muokataan ja poistetaan kuten riviä (ei korjaushistoriaa); vanha tekstiaikajana muunnetaan vain napista; päivän raja on projektin asetus, oletus keskiyö. Koodi: moottorin osio *P2* (kohta *F08: kirjaushistoria*), käyttöliittymän taulukko-, toiminto-, aikajana- ja kalenteripaneelit.
+
+- **Ei uutta palikkaa.** Historia = Tietotaulukko, jonka sarakkeella on `auto:'aika'` (ajankohta, täyttyy lisäyshetkellä, kun kenttä on tyhjä) tai `auto:'id'` (näyttää rivin pysyvän tunnisteen, ei tallenneta kenttään, ei muokattavissa). Paneelin nappi *Tee kirjaushistoria* lisää ne alkuun. Toiminto *Kirjaa aikajanalle* nimettiin *Kirjaa*; kohteena taulukko se on Lisää rivi, jonka aika täyttyy (automaattinen aika-sarake tai ensimmäinen ajankohta-sarake), ilman ajankohtaa näkyvä virhe. Suunnitelman kohdeviite ja laji ovat tavallisia sarakkeita (esim. riviviite tai valinta), eivät pakollisia kenttiä.
+- **Haut:** `taulu.viimeisin` (suurin aika, tasatilanteessa myöhempi rivi) ja `.viimeisin.<sarake>`, `taulu.edellisestä` (kokonaisia minuutteja uusimmasta), `taulu.tänään` (kirjauksia tänään päivän rajan mukaan) ja ajankohdan perään `.päivä`. Viimeisin ehdolla, määrä aikavälillä ja aikavälin rivit: Rivijoukko (ehto riveittäin, järjestys Aika laskeva, enintään 1). Ei uutta kieltä (A7).
+- **Päivän raja:** projektin `praja` (tunnit 1–12, puuttuu = keskiyö), Asetuksissa keskiyö tai klo 1–6. Koskee `aika.päivä`, `taulu.tänään`, Kalenterin historiamerkintöjä ja historiaa näyttävän Aikajanan arvoja. Kaavan `tänään` pysyy kalenteripäivänä (avoin kysymys `TILA.md`:ssä).
+- **Esitykset samasta lähteestä:** Aikajanan valinnainen lähde `lh` (historiataulukko): kirjaukset uusin ensin, arvot taulukosta; Kalenterin *Merkitse päivät* hyväksyy historiataulukon. Toistin ja Rivijoukko toimivat ennallaan. Kopioita ei synny, joten sama kirjaus ei kahdennu.
+- **Muunnos:** Aikajanan *Muunna historiaksi* tekee taulukon (Aika, Id, Teksti), kopioi merkinnät käyttötiedoksi, asettaa lähteen ja vaihtaa aikajanan Kirjaa-toimintojen kohteen; mallipohjateksti muuttuu kaavaksi (`"teksti " + viite`). Vanhat merkinnät jäävät aikajanaan.
+- **Koeappi A:** katettu testillä (`logiikka_68_historia.js`): kohde riviviitteenä, määrä ja aika; tilannekuvakenttä pysyy ja elävä viite muuttuu; puuttuva määrä ei ole nolla; päivän rivit Rivijoukolla. Ei erillistä projektitiedostoa `master-tiedot`iin.
+- **Ei tehty:** korjaus- ja poistohistoria (Emilin linjaus: ei), F09 rivejä ottava Kaavio ja aikasarjat, kirjauksen tapahtumatunnisteen tallennus (yhteiskäyttö ratkaistiin yhdellä lähteellä), päivän rajan vaikutus kaavan `tänään`-sanaan, F25 (tauolla).
+
 ## 8. Viitatun kohteen poistaminen (D08)
 
 **Käyttäjän päätös:** poisto sallitaan myös viitattuun kohteeseen, kun vaikutukset on näytetty ja käyttäjä jatkaa. Pakollista arkistointia ei lisätä poistamisen tilalle. Arkistointi voi olla erillinen toiminto.

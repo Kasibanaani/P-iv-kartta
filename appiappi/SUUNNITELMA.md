@@ -104,7 +104,8 @@ Ketjujen kolme lukitustilaa ovat lisäksi käyttäjän päätetty täsmennys, jo
 - **Säädin ja kalenteri (17.10.2026, Appi-appi 21, viestilappujen toiveet):** säädin raahautuu vapaasti (Safarin kohdistusvika korjattu), kalenterin päivän valinta, valitun päivän asiat, `kalenteri.valittu` ja tapahtuma *päivä valittu*. Yksityiskohdat ja rajaukset: `MUUTOKSET.md`.
 - **F26 (17.10.2026, Appi-appi 22, D11–D13):** suosikit ja presetit. Ratkaisut ja poikkeamat: [04, F26 toteutus](suunnitelmat/04-omat-palikat-ja-kokoelmat.md#toteutus-17102026-appi-appi-22).
 - **F22 suppea (17.10.2026, Appi-appi 33, jonon kohta 1):** testitila *Kokeile*: kopio käyttötiedoista, jatkuva raita, oikeat tiedot eivät muutu missään tallennuksessa. Tallennetut kokeet, testikello, siemen, vaiheittainen suoritus ja tulosten siirto: ei toteutettu ([06](suunnitelmat/06-testit-ja-julkaisu.md)).
-- Ryhmittely, rivien yhteydet (vanhempi–lapsi) ja P4 sekä myöhemmät: ei toteutettu.
+- **F08 (17.10.2026, Appi-appi 36, jonon kohta 3, P4:n alku):** rakenteinen historia: Kirjaa tavalliseen Tietotaulukkoon, automaattiset sarakkeet aika ja id, historian haut, päivän raja projektin asetuksena, Aikajana ja Kalenteri samasta lähteestä, vanhan aikajanan muunnos napista. Ratkaisut ja rajaukset: [01, kohta 7](suunnitelmat/01-tieto-ja-tapahtumat.md#toteutus-17102026-appi-appi-36).
+- Ryhmittely, rivien yhteydet (vanhempi–lapsi) ja P4:n loput (F09 aikasarjat, F10, F15) sekä myöhemmät: ei toteutettu.
 - **Liitäntä Animappiin (toteuttamaton ehdotus):** Animappi vie animaatiot Appi-appia varten; tiedostomuoto ja ehdotetut Appi-appin muutokset (animaatiopalikka, sprite sheet Kuva-palikkaan, kääntöpiste) ovat tiedostossa [`../animaatio/MUOTO.md`](../animaatio/MUOTO.md). Sopimus tiedostomuodosta on yksi ja sama molemmille apeille.
 
 ## Ehdotettu järjestys
