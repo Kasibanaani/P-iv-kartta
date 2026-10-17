@@ -1,6 +1,6 @@
 # Appi-appi: tila
 
-**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 17.10.2026 (Appi-appi 29: Ryhmä logiikassa)
+**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 17.10.2026 (Appi-appi 30: tekstihaku sisältää)
 
 Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- ja iPad-näkymät, maailma ja hahmon liike, myöhemmin vienti omaksi appiksi). Ristiriidoissa Kytköskartan logiikka voittaa. Suunnitelma: `SUUNNITELMA.md` ja `suunnitelmat/`; vanhempien vaiheiden päätökset `VERTAILU.md`. Toteutettujen versioiden yksityiskohdat, tallennuskentät ja kokeiluohjeet: `MUUTOKSET.md`.
 
@@ -19,9 +19,10 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 - Appi-appi 27: logiikkapinta (jonon 1e, F30 kohdat 1–3): kulman *Pistokkeet* ja *Viitteet*, palikan oma pistokeasetus voittaa (ketjussa aina näkyvissä), viitteet himmeinä katkoviivoina (valitulle/kaikille/ei), Kaava venyy ja sitä kirjoitetaan suoraan palikkaan. Tallennusmuoto laajeni valinnaisilla kentillä (`lg.pin`, `lg.vit`, `lpin`, `kw`, `kh`), versio ennallaan.
 - Appi-appi 28: kaavaan `jos(ehto; kyllä; muuten)`, `ja(…; …)` ja `tai(…; …)` (jonon 1f, F30 kohta 4); puolipiste-erotin, sisäkkäinen sallittu, Miksi? kertoo valitun osan. Periaatteiden kohta 5 ja sääntö A7 täsmennetty. Ei tallennusmuodon muutosta.
 - Appi-appi 29: logiikan **Ryhmä** (jonon 1g, F30 kohta 5; nimi kartoituksen 2 suosituksella, ei Kehys): reunaviiva, nimi ja valinnainen sävy, sisältö liikkuu mukana, ei laskentaa. Vain ylimmällä tasolla tai toisessa ryhmässä. Erikoispalikka, rivi rekisterissä. Tallennukseen laji `ryhma` ja valinnainen `sav`, versio ennallaan.
+- Appi-appi 30: kaavaan tekstihaku `a sisältää b` (jonon 1h): vertailu kuten `=`, kirjainkoosta välittämättä, tyhjä haku pätee aina, puuttuva teksti ei päde; ehdotusrivi ja ohje. Koeappi C:hen ei hakukenttää (vasta pyynnöstä). Ei tallennusmuodon muutosta.
 - Emilin päätökset 16.10. (Appi-appi 13:n jälkeen): koosteet säilyvät taulukon ominaisuuksina (`taulu.määrä.summa`) myös P3:n ikkunakoosteiden rinnalla; Lisää rivi -kentät pysyvät kaavoina (teksti lainausmerkeissä); taulukolle ei vielä tehdä omia tapahtumia (rivi lisätty, valinta vaihtui); Lisää puuttuvaan kenttään alkaa nollasta ja Vaihda puuttuvasta antaa kyllä (nykyinen toiminta pysyy, tekoälyn suositus).
 - Tallennusversio edelleen 8; vanhat projektit avautuvat ennallaan. Uudet valinnaiset kentät versioittain: `MUUTOKSET.md`, Tallennus (Appi-appi 11–16 myös juuren `README.md`).
-- Testattu vain tietokoneen Chromiumissa (kosketus ja nipistys CDP:llä 390 ja 320 px, Appi-appi 11–13 tietokoneella 1440 ja 1280, Appi-appi 13–29 myös puhelinleveyksillä), ei oikealla iPhonella, iPadilla eikä Safarilla.
+- Testattu vain tietokoneen Chromiumissa (kosketus ja nipistys CDP:llä 390 ja 320 px, Appi-appi 11–13 tietokoneella 1440 ja 1280, Appi-appi 13–30 myös puhelinleveyksillä), ei oikealla iPhonella, iPadilla eikä Safarilla.
 
 ## Jono
 
@@ -29,7 +30,6 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 **Haarat ja tarkistuspisteet (Emil 17.10.2026):** ⏸-merkitty kohta odottaa Emilin päätöstä. Jono ei pysähdy siihen: rakentaja tai vahti ilmoittaa Emilille ja jatkaa seuraavaan kohtaan, joka ei riipu odottavasta. Kohta, josta mikään jonossa ei riipu, on oma haaransa; Emil voi ottaa sen käsittelyyn milloin haluaa. Avoimista haaroista muistutetaan Emiliä säännöllisesti (ajastettu muistutus APPI-APPI-projektin ketjussa *Tilastot ja oppiminen*).
 
-1h. **Tekstihaku kaavaan** (Emilin hyväksyntä 17.10., koeappien löydös): vertailu *sisältää*, esim. `kohde.nimi sisältää haku`; kirjainkoosta välittämättä, tyhjä haku pätee aina, puuttuva teksti ei päde. Koeappi C:hen hakukenttä vasta pyynnöstä.
 1i. **Tietotaulukolle `eka` ja `vika`** (Emilin hyväksyntä 17.10., koeappien löydös, palikkasääntö A8): `taulu.eka`, `taulu.vika` ja `taulu.vika.sarake` kuten Rivijoukolla; ominaisuusrekisteriin. Rivijoukko-kiertotie (koeappi B) toimii edelleen.
 1j. **Miksi? kaikille ja paneelien savutesti** (linjakkuuskartoitus 2: M1, M2, T1, T2; `kartoitukset/2026-10-17-linjakkuus-2.md`): Miksi?-osio näkyy aina, kun moottorilla on palikalle selitys (nyt 23 lajin selitys on kirjoitettu mutta piilossa, esim. Käyrä, Monta haaraa, Liike), toistoa otsikon vihjeen kanssa saa karsia; VALITSE-palikalle oma vihje (nyt se näyttää Toiminto Valitse -vihjeen, koska avain on sama); uusi testi avaa jokaisen `K`-lajin paneelin 1440 ja 390 px, ei sivuvirheitä, Miksi? näkyy kun selitys on. Ei tallennusmuodon muutosta.
 1. **Testitila F22, suppea** (`suunnitelmat/06-testit-ja-julkaisu.md`): yläpalkkiin *Kokeile*; kokeilu alkaa kopiosta nykyisistä käyttötiedoista; koko kokeilun ajan värillinen raita ja teksti ”Kokeilu”; oikeat tiedot eivät muutu. Ei tässä: kokeilun tulosten siirto oikeaan käyttöön, tallennetut kokeet.
@@ -43,8 +43,8 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 ## Seuraavaksi
 
-- **Linjakkuuskartoitus 2 tehty 17.10.** (`kartoitukset/2026-10-17-linjakkuus-2.md`): linja pitää; isoin löydös on piilossa oleva Miksi? (jonoon 1j). Seuraava kartoitus viiden jonon kohdan jälkeen (laskuri: 2/5, Appi-appi 28–29). ⏸ Emilin päätös: VALITSE-palikan nimi (M3). Kysymys on nyt ajankohtainen, koska kaavassa on `jos(;;)` (Appi-appi 28); palikkaa ei nimetty uudelleen.
-- **Koeapit (Appi-appi 23) toivat esiin:** tekstihaku ja taulukon `eka`/`vika` ovat jonossa (1h, 1i, Emilin hyväksyntä 17.10.). Ei jonossa: kapeassa kortissa Lukukentän omat −/+ peittävät luvun, joten C näyttää määrän Tekstinä.
+- **Linjakkuuskartoitus 2 tehty 17.10.** (`kartoitukset/2026-10-17-linjakkuus-2.md`): linja pitää; isoin löydös on piilossa oleva Miksi? (jonoon 1j). Seuraava kartoitus viiden jonon kohdan jälkeen (laskuri: 3/5, Appi-appi 28–30). ⏸ Emilin päätös: VALITSE-palikan nimi (M3). Kysymys on nyt ajankohtainen, koska kaavassa on `jos(;;)` (Appi-appi 28); palikkaa ei nimetty uudelleen.
+- **Koeapit (Appi-appi 23) toivat esiin:** tekstihaku tehty (Appi-appi 30), taulukon `eka`/`vika` jonossa (1i). Ei jonossa: kapeassa kortissa Lukukentän omat −/+ peittävät luvun, joten C näyttää määrän Tekstinä.
 - Järjestys: Jono yllä. Kokonaiskuva ja loput paketit (P4–P7): `SUUNNITELMA.md`.
 - **Tekoälyn ehdotus:** `index.html` pilkotaan osiin (build-skripti tai moduulit), jotta kontekstia kuluu vähemmän. Ei tehdä ilman Emilin lupaa.
 - Emil kokeilee, uusin ensin: koeapit C ja B (23, ohje `MUUTOKSET.md`), laput (18), massa ja törmäykset (17), lomake (16), Toistin (15), Rivi ja Rivijoukko, Tietotaulukko, ketjun lukitus, puhelimella zoomaus ja efektit. Vaiheittaiset ohjeet: `MUUTOKSET.md`, Kokeiluohjeet.
