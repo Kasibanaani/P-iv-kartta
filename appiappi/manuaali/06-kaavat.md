@@ -78,8 +78,9 @@ Poiston jälkeen viittaukset eivät katoa, vaan ne muistavat poistetun kohteen:
 - Yläpalkin **☰ Palikat** -napissa näkyy merkki **⚠ n** (montako katkennutta viittausta).
 - Palikat-listan ylimpänä on osio **⚠ Viitevirheet (n)** sarakkein Palikka, Missä, Käyttö, Virhe (*⚠ Kohde poistettu: uni*). Rivin napautus vie palikkaan.
 - Viittaavan palikan paneelissa on osio **⚠ Viitevirheet**: *⚠ Kohde poistettu: `uni`* (käytöt suluissa) ja valikko **Valitse uusi kohde…**. Kun valitset uuden kohteen, kaikki tämän palikan viittaukset poistettuun korjautuvat siihen (ilmoitus *Viittaus korjattu: …*).
+- Valikon ensimmäinen vaihtoehto on **＋ Luo Arvo ”uni”** (Appi-appi 37), kun poistettuun viitataan kaavassa, tekstissä tai arvona ja viite on vapaa. Se tekee uuden tyhjän Arvo-palikan poistetun viitteen nimellä ja korjaa tämän palikan viittaukset siihen. Toimintojen kohteille ja nuolille vaihtoehtoa ei ole.
 
-**Tärkeää:** samanniminen uusi palikka ei peri poistettua. Jos poistat palikan *Uni* ja teet uuden *Uni*-palikan (viite `uni`), vanhat kaavat näyttävät yhä `⚠uni`. Korjaa joko valitsemalla uusi kohde Viitevirheistä tai kirjoittamalla kaavaan viite uudelleen (poista `⚠`-merkki ja kirjoita `uni`).
+**Tärkeää:** samanniminen uusi palikka ei peri poistettua. Jos poistat palikan *Uni* ja teet uuden *Uni*-palikan (viite `uni`), vanhat kaavat näyttävät yhä `⚠uni`. Korjaa joko valitsemalla uusi kohde Viitevirheistä (myös **＋ Luo Arvo**) tai kirjoittamalla kaavaan viite uudelleen (poista `⚠`-merkki ja kirjoita `uni`).
 
 Jos muokkaat kaavaa, jossa on `⚠uni`, ja jätät merkinnän paikalleen, kaava säilyttää viittauksen poistettuun kohteeseen (Kumoa palauttaa sen yhä).
 
@@ -646,6 +647,8 @@ Näkymäpalikoiden teksteihin voi upottaa toisen palikan arvon aaltosulkeilla: `
 4. Jos palikalla on ominaisuuksia, valikko *Nimi: mitä näytetään?*: **Arvo** tai **.ominaisuus**.
 5. Appi lisää `{Nimi}` tai `{viite.ominaisuus}` kursorin kohtaan.
 
+**Ehdotuksella (Appi-appi 37):** kirjoita palikan viitteen tai nimen alku (vähintään kaksi merkkiä) ja napauta kentän alle tulevaa ehdotusta `{viite}`. Ks. [Ehdotusrivi teksteissä](#ehdotusrivi-teksteissä-ja-toimintojen-kentissä-appi-appi-37).
+
 **Säännöt:**
 
 - Teksti tallentuu tunnisteilla, joten nimen ja viitteen vaihto ei riko sitä. Muokatessa kentässä näkyy `{Nimi}` (tai `{viite}`, jos nimi on jonkun toisen palikan viite).
@@ -669,7 +672,18 @@ Mitä ehdotetaan:
 - **Ominaisuudet:** heti viitteen ja pisteen jälkeen (`uni.`) palikan ominaisuudet, joiden nimi alkaa kirjoitetulla, kuvauksineen. Myös `nyt.`, `ruutu.` ja `näkymä.` ehdottavat omat osansa.
 - **Funktiot:** kahden kirjaimen jälkeen `jos(`, `ja(`, `tai(` (sulku mukaan) kuvauksineen.
 - **sisältää:** kahden kirjaimen jälkeen (`si`), kun edellä on arvo.
+- **＋ Luo Arvo ”nimi”** (Appi-appi 37): kun kaavassa on nimi, jota mikään palikka ei käytä viitteenä (`⚠ puuttuu: yöuni`), ehdotusrivillä on katkoreunainen nappi **＋ Luo Arvo ”yöuni”**. Napautus tekee logiikkaan uuden Arvo-palikan, jonka nimi ja viite on sana ja arvo tyhjä, kaavan viereen. Kaava kytkeytyy siihen heti; arvon annat Arvon paneelissa. Kumoa poistaa luodun palikan (yksi askel). Paneelissa nappi näkyy heti, kun avaat kaavan, jossa on tuntematon nimi. Juuri kirjoitettavalle sanalle nappi tulee vasta, kun sanassa on vähintään kaksi merkkiä eikä mikään palikka sovi siihen. Nappia ei tule varatulle sanalle (`tänään`, `nyt`, `ei` …), funktion nimelle, `sisältää`-sanalle, nimelle pisteen kanssa (`kello.tunti`) eikä kaavan tuloksen nimelle (`summa = …`, sille on **＋ Luo kaavan tulos**).
 - Lainausmerkkien sisällä ei ehdoteta mitään.
+
+### Ehdotusrivi teksteissä ja toimintojen kentissä (Appi-appi 37)
+
+Kun kirjoitat tekstikenttään sanaa, joka alkaa palikan viitteellä tai nimellä, kentän alle tulee ehdotus `{viite}` (pienellä palikan nimi). Napautus muuttaa kirjoitetun sanan viittaukseksi: `Unta un` → `Unta {uni}`. Tekstiä ei muuteta itsestään: ilman napautusta sana jää tavalliseksi tekstiksi.
+
+- Ehdotus tulee, kun sanassa on vähintään kaksi merkkiä ja kursori on sanan lopussa, tai heti aaltosulun jälkeen (`{u` → `{uni}`).
+- Enintään 8 palikkaa, joilla on arvo; ensin viitteen alulla osuvat. Palikka itse ja ryhmät jäävät pois.
+- **Missä:** näkymäpalikoiden tekstit (Teksti, Painikkeen teksti, Otsikko …), Arvo-palikan arvo, Teksti ilmestyy -efektin teksti, toimintojen tekstit (*Kirjaa aikajanalle*, *Lisää riviksi listaan*, *Näytä ilmoitus*) ja toiminnon *Uusi arvo* tai *Määrä*, Hakutaulukon rivit ja Muuten-kenttä, Monta haaraa -rivit.
+- **Lisää rivi -toiminnon sarakekentät** ovat kaavoja: niissä ehdotukset ja **＋ Luo Arvo** toimivat kuten Kaavassa (viite ilman aaltosulkeita).
+- Ehdotusrivi tyhjenee, kun kenttä menettää kohdistuksen.
 
 ### Viitevalitsin: ＋ Viite ja ＋ Ominaisuus
 

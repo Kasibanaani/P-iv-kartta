@@ -1,6 +1,6 @@
 # Appi-appi: tila
 
-**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 17.10.2026 (Appi-appi 36: rakenteinen historia F08)
+**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 17.10.2026 (Appi-appi 37: viite-ehdotukset ja Luo Arvo)
 
 Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- ja iPad-näkymät, maailma ja hahmon liike, myöhemmin vienti omaksi appiksi). Ristiriidoissa Kytköskartan logiikka voittaa. Suunnitelma: `SUUNNITELMA.md` ja `suunnitelmat/`; vanhempien vaiheiden päätökset `VERTAILU.md`. Toteutettujen versioiden yksityiskohdat, tallennuskentät ja kokeiluohjeet: `MUUTOKSET.md`.
 
@@ -26,9 +26,10 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 - Appi-appi 34: ryhmän viite ja näkyvät virheet (jonon 1k, kartoitus 3: N1, N2, N4): Ryhmä ei saa viitettä eikä vie nimeä tai viitettä muilta, ryhmään osoittava vanha kaava tai teksti näyttää ⚠ Ryhmä ei ole arvo; tuntematon nimi jos-funktion valitsematta jääneessä osassa on virhe heti (laskuvirheet laiskoja); Miksi?-tekstien puuttuvan syötteen lause yhtenäinen (Lasku, Vertailu, Päivämäärän osa, Toiminto, Rivijoukko). Ei tallennusmuodon muutosta.
 - Appi-appi 35: animointi F29 vaihe 1 (jonon 2, kaista B): näkymäpalikan osio *Animointi* (ilmestyy, katoaa, kesto, pehmeys), projektin oletus Asetuksissa, ominaisuudet `animointi.*` logiikkaan; pelkkä näyttö, `näkyy` vaihtuu heti, keskeytys kääntyy, Vähennä liikettä = töks (myös efekteistä liike pois). Tallennusmuoto laajeni (valinnaiset `ani`, `ano`, `ank`, `anp`, projektin `an`), versio 8.
 - Appi-appi 36: rakenteinen historia F08 (jonon 3, kaista B): Tietotaulukon *Tee kirjaushistoria* (automaattiset Aika ja Id), toiminto *Kirjaa* taulukkoon, haut `viimeisin`, `edellisestä`, `tänään`, `aika.päivä`, päivän raja Asetuksissa, Aikajanan lähde ja Kalenterin merkinnät historiataulukosta, *Muunna historiaksi*. Tallennusmuoto laajeni (valinnaiset `auto`, `lh`, `praja`).
+- Appi-appi 37: viite-ehdotukset ja Luo Arvo (jonon 5, F27 kohta 1): kaavan tuntemattomalle nimelle ehdotusrivin ＋ Luo Arvo (myös Viitevirheiden uusi kohde), tekstipohjissa ja toiminnon arvossa ehdotus `{viite}` napautuksella; teksti ei muutu itsestään. Ei tallennusmuodon muutosta.
 - Emilin päätökset 16.10. (Appi-appi 13:n jälkeen): koosteet säilyvät taulukon ominaisuuksina (`taulu.määrä.summa`) myös P3:n ikkunakoosteiden rinnalla; Lisää rivi -kentät pysyvät kaavoina (teksti lainausmerkeissä); taulukolle ei vielä tehdä omia tapahtumia (rivi lisätty, valinta vaihtui); Lisää puuttuvaan kenttään alkaa nollasta ja Vaihda puuttuvasta antaa kyllä (nykyinen toiminta pysyy, tekoälyn suositus).
 - Tallennusversio edelleen 8; vanhat projektit avautuvat ennallaan. Uudet valinnaiset kentät versioittain: `MUUTOKSET.md`, Tallennus (Appi-appi 11–16 myös juuren `README.md`).
-- Testattu vain tietokoneen Chromiumissa (kosketus ja nipistys CDP:llä 390 ja 320 px, Appi-appi 11–13 tietokoneella 1440 ja 1280, Appi-appi 13–33 myös puhelinleveyksillä), ei oikealla iPhonella, iPadilla eikä Safarilla.
+- Testattu vain tietokoneen Chromiumissa (kosketus ja nipistys CDP:llä 390 ja 320 px, Appi-appi 11–13 tietokoneella 1440 ja 1280, Appi-appi 13–37 myös puhelinleveyksillä), ei oikealla iPhonella, iPadilla eikä Safarilla.
 
 ## Jono
 
@@ -39,7 +40,6 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 **Haarat ja tarkistuspisteet (Emil 17.10.2026):** ⏸-merkitty kohta odottaa Emilin päätöstä. Jono ei pysähdy siihen: rakentaja tai vahti ilmoittaa Emilille ja jatkaa seuraavaan kohtaan, joka ei riipu odottavasta. Kohta, josta mikään jonossa ei riipu, on oma haaransa; Emil voi ottaa sen käsittelyyn milloin haluaa. Avoimista haaroista muistutetaan Emiliä säännöllisesti (ajastettu muistutus APPI-APPI-projektin ketjussa *Tilastot ja oppiminen*).
 
 4. **⏸ Tarkistuspiste F25** (`suunnitelmat/11-tilastot-ja-yhteydet.md`, Emil 17.10. aamulla): ei rakenneta. F08 viety 17.10. (Appi-appi 36) ja Emilille ilmoitettu, että F25:n avoimet kysymykset (kohta 9) ovat vuorossa; odottaa vastauksia. Jono jatkaa kohdasta 5. Elämäntapaväittämien koeappi ja korrelaatio vasta Emilin vastausten jälkeen.
-5. **[työn alla, kaista A 17.10.; ei muuta tallennusmuotoa]** **Viite-ehdotukset ja palikan luonti nimestä** (F27 kohta 1, `suunnitelmat/12-teksti.md`): ehdotusrivi viitteelle kirjoitettaessa, *Luo Arvo* tuntemattomasta nimestä.
 6. **Tulkki eli printteri** (F27 kohta 2, yhdessä F20:n liimatun taulukon kanssa): teksti kuviolla taulukon riveiksi tai Arvo-palikoiksi, esikatselu ennen hyväksyntää. Tagit ja sanaoppi (kohdat 3–4) vasta F08:n ja F25:n jälkeen erikseen.
 7. **Jana F28, vaihe 1** (`suunnitelmat/13-jana.md`, Emilin idea 17.10.): logiikan ikkuna, jonka leveys on alku–loppu (oletus 0–10), aika- tai arvokulku (esim. säädin), merkit portaisiin. Kohta tallennetaan arvona (Emilin päätös 17.10.); muut linjaukset tekoälyn suosituksen mukaan: hypyssä väliin jääneet laukeavat, aikajana eteenpäin ja arvojana molempiin suuntiin. Välit (alku–loppu-merkit) myöhemmin erikseen.
 8. **Animointi F29, vaihe 2** (`suunnitelmat/14-animointi.md`): arvo vaihtuu (ristihäivytys, luku rullaa, uusin voittaa) ja Aseta-/nuolihyppäyksen sijainti liukuen, pelkkä visuaali. Vaihe 3 (venytys tai vana) vain kevyeksi mitattuna, ei vielä jonossa.
@@ -48,7 +48,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 ## Seuraavaksi
 
-- **Linjakkuuskartoitus 3 tehty 17.10.** (`kartoitukset/2026-10-17-linjakkuus-3.md`): linja pitää, kartoitus 2:n M1, M2 ja T1–T2 korjattu. Sen löydökset N1, N2 ja N4 korjattu (Appi-appi 34, jonon 1k). Laskuri 4/5 (Appi-appi 33 F22, 34 1k, 35 F29 vaihe 1, 36 F08). Seuraava kartoitus tarkistaa F22:n ja käyttötietojen päällekkäisyyden (K2). ⏸ Emilin päätös yhä auki: VALITSE-palikan nimi (kartoitus 2, M3); Appi-appi 32 käytti suositusta (nimi pysyi, vihje sanoo ”sama kuin kaavan jos”).
+- **Linjakkuuskartoitus 3 tehty 17.10.** (`kartoitukset/2026-10-17-linjakkuus-3.md`): linja pitää, kartoitus 2:n M1, M2 ja T1–T2 korjattu. Sen löydökset N1, N2 ja N4 korjattu (Appi-appi 34, jonon 1k). Laskuri 5/5 (Appi-appi 33 F22, 34 1k, 35 F29 vaihe 1, 36 F08, 37 jonon 5): **seuraavaksi linjakkuuskartoitus 4** ennen uutta rakennusta kummallakaan kaistalla (sisällytä manuaalin luvun 11 Havainnot). Seuraava kartoitus tarkistaa F22:n ja käyttötietojen päällekkäisyyden (K2). ⏸ Emilin päätös yhä auki: VALITSE-palikan nimi (kartoitus 2, M3); Appi-appi 32 käytti suositusta (nimi pysyi, vihje sanoo ”sama kuin kaavan jos”).
 - **Koeapit (Appi-appi 23) toivat esiin:** tekstihaku (Appi-appi 30) ja taulukon `eka`/`vika` (Appi-appi 31) tehty. Ei jonossa: kapeassa kortissa Lukukentän omat −/+ peittävät luvun, joten C näyttää määrän Tekstinä.
 - Järjestys: Jono yllä. Kokonaiskuva ja loput paketit (P4–P7): `SUUNNITELMA.md`.
 - **Tekoälyn ehdotus:** `index.html` pilkotaan osiin (build-skripti tai moduulit), jotta kontekstia kuluu vähemmän. Ei tehdä ilman Emilin lupaa.
@@ -114,6 +114,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 - Appi-appi 20 Ei tarkistettu: oikea iPhone ja Safarin pitkä painallus (tekstin valinta tai suurennuslasi voi kilpailla), kortin raahaus ruudukkoasettelussa (testattu allekkain), reunavieritys hitaammalla kerroksella (tarkoituksella pois), korostus rullausvauhdiltaan eri kerroksen alueille.
 - Appi-appi 21 Ei tarkistettu: oikea iPhone ja Safari (säätimen korjaus testattu Safarin tapaa jäljitellen), kalenterin päivän napautus kortissa (Toistin).
 - Appi-appi 23 Ei tarkistettu: oikea iPhone ja Safari, oikea GitHub-haku (testattu valepalvelimella), kysymysten vaihto taulukkoikkunasta selaimessa (sisällön vaihto testattu moottorissa).
+- Appi-appi 37 Ei tarkistettu: oikea iPhone ja Safari (ehdotusrivi näppäimistön kanssa; napautus ei saisi sulkea näppäimistöä), iPad-näkymä, ehdotusten nopeus isossa projektissa (lasketaan jokaisella näppäilyllä).
 - Appi-appi 36 Ei tarkistettu: oikea iPhone ja Safari; iPad-näkymä; Muunna historiaksi oikealla vanhalla projektilla (testattu synteettisellä); iso historia (satoja tai tuhansia kirjauksia) ja sen nopeus Safarissa (viimeisin ja tänään käyvät kaikki rivit läpi joka laskennassa); kesäajan vaihde päivän rajan kanssa.
 - Appi-appi 35 Ei tarkistettu: oikea iPhone ja Safari (sujuvuus monella palikalla, Vähennä liikettä -asetus), iPad-näkymä, efektien Vähennä liikettä selaintestissä (vain koodissa), viety appi (vientiä ei ole).
 - Appi-appi 34 Ei tarkistettu: oikea iPhone ja Safari; vanhan projektin ryhmäviite testattu vain moottorilla (synteettinen projekti), ei oikealla vanhalla projektilla.

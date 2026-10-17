@@ -11,6 +11,8 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | kytkeä palikat yhteen | nuoli logiikassa lähtökohdasta tulokohtaan | [Nuolen vetäminen](02-tyoymparisto.md#nuolen-vetäminen) |
 | näyttää arvon tekstissä | `{viite}` tekstikentässä | [Teksti ja upotetut viitteet](03-nakymapalikat.md#teksti-ja-upotetut-viitteet) |
 | laskea jotain | Kaava tai Lasku | [Kaavat](06-kaavat.md#kaavan-syntaksi), [Lasku](04-logiikkapalikat.md#lasku-lasku) |
+| tehdä arvon nimestä, jonka kirjoitin kaavaan | ehdotusrivin ＋ Luo Arvo ”nimi” | [Ehdotusrivi](06-kaavat.md#ehdotusrivi) |
+| muuttaa tekstin sanan viittaukseksi | kirjoita alku ja napauta ehdotusta `{viite}` | [Ehdotusrivi teksteissä](06-kaavat.md#ehdotusrivi-teksteissä-ja-toimintojen-kentissä-appi-appi-35) |
 | antaa laskulle nimen | `nimi = lauseke` ja ＋ Luo kaavan tulos | [Kaavan tulos](04-logiikkapalikat.md#kaavan-tulos--tulos) |
 | valita kahdesta arvosta ehdolla | `jos(ehto; a; b)` tai VALITSE | [Funktiot jos, ja, tai](06-kaavat.md#funktiot-jos-ja-tai) |
 | näyttää tai piilottaa palikan ehdolla | Näkyvyys-osio tai nuoli kohtaan *näkyy kun* | [Näkyvyys-osio](03-nakymapalikat.md#näkyvyys-osio) |

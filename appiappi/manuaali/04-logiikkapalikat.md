@@ -78,7 +78,7 @@ Logiikan palikan paneelissa on aina **Nimi**, **Viite** (lyhyt nimi kaavoihin, s
 
 Kiinteä arvo, jonka kirjoitat itse: luku, teksti, kyllä/ei tai päivämäärä. Arvo ei muutu käytössä.
 
-- **Löytyy:** logiikan paletti → *Arvot* → **Arvo**.
+- **Löytyy:** logiikan paletti → *Arvot* → **Arvo**. Toinen tapa (Appi-appi 37): kirjoita Kaavaan nimi, jota ei vielä ole (`yöuni > 7`), ja napauta ehdotusrivin **＋ Luo Arvo ”yöuni”**: Arvo syntyy kaavan viereen nimellä ja viitteellä `yöuni`, arvo tyhjä.
 - **Sisään:** ei kohtia.
 - **Ulos:** *arvo* (arvo).
 - **Asetukset (paneeli):** osio *Arvo*: tekstikenttä (esim. `3`, `Valmis`, `24.12.2026`, `kyllä`); nappi **＋ Viittaus** lisää `{Nimi}`-viittauksen toisen palikan arvoon. **Yksikkö**: luku (oletus), sekuntia, minuuttia, tuntia, pikseliä, prosenttia.
@@ -251,7 +251,7 @@ Lyhyt lauseke, joka lasketaan jatkuvasti, esim. `uni > 7`, `tänään + 5` tai `
 - **Löytyy:** logiikan paletti → *Kaava* → **Kaava**. Näkymäpalikan paneelissa myös napit **ƒ Teksti kaavasta**, **ƒ Näkyy, kun kaava pätee** ja **ƒ Harmaana, kun kaava pätee**, sekä Ominaisuudet-rivin **ƒ**: ne tekevät Kaavan ja nuolen valmiiksi.
 - **Sisään:** ei kohtia (viittaukset kirjoitetaan kaavaan).
 - **Ulos:** *tulos* (arvo).
-- **Asetukset (paneeli):** kaavakenttä, ehdotusrivi (viitteet, ominaisuudet pisteen jälkeen, `jos(`, `ja(`, `tai(`, `sisältää`), tulosrivi (*Nyt: …* tai virhe), napit **＋ Viite** ja **＋ Ominaisuus**. Osio *Vie tulos jatkuvasti*: nappi **Vie tulos näkymän palikkaan…** (näkyy kun, harmaana kun, vaihtoväri kun tai teksti). Osio *Kun tulos alkaa päteä (kerran)*: **＋ Lisää toiminto…**.
+- **Asetukset (paneeli):** kaavakenttä, ehdotusrivi (viitteet, ominaisuudet pisteen jälkeen, `jos(`, `ja(`, `tai(`, `sisältää`, tuntemattomalle nimelle **＋ Luo Arvo**), tulosrivi (*Nyt: …* tai virhe), napit **＋ Viite** ja **＋ Ominaisuus**. Osio *Vie tulos jatkuvasti*: nappi **Vie tulos näkymän palikkaan…** (näkyy kun, harmaana kun, vaihtoväri kun tai teksti). Osio *Kun tulos alkaa päteä (kerran)*: **＋ Lisää toiminto…**.
 - **Suoraan kirjoittaminen (Appi-appi 27):** kaksoisnapautus Kaavaan tai napautus jo valittuun Kaavaan avaa kirjoituskentän palikan kohdalle. Enter tai napautus muualle tallentaa, Esc peruu; koko muokkaus on yksi Kumoa-askel. Ketjun sisällä ei toimi.
 - **Venyvä Kaava (Appi-appi 27):** valitun Kaavan oikeassa alakulmassa on venytyskulma (puhelimessa hieman sisempänä). Venytetty Kaava näyttää koko kaavan rivitettynä. Kaksoisnapautus kulmaan palauttaa koon. Ketjussa ei veny.
 - **Pudotus:** Kaavan voi raahata ikkunaan (ikkuna hoitaa sulut) tai näkymän palikan päälle logiikassa (teksti, näkyy kun, harmaana kun).

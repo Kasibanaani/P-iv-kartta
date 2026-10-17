@@ -1,6 +1,6 @@
 # F27 Teksti: viitteet ilman sulkuja, tekstin tulkinta ja tagit
 
-17.10.2026. **Emilin idea**, tekoälyn jäsentämä keskustelun pohjalta. Emil hyväksyi järjestyksen 17.10.2026 (”Joo toi on ok”). **Ei toteutettu.** Kohdat 1–2 ovat jonossa (`TILA.md`, *Jono*); kohdat 3–4 vasta F08:n ja F25:n jälkeen erillisellä päätöksellä. Merkinnät: *Emilin idea* = hänen sanomansa, *ehdotus* = tekoälyn suunnitteluratkaisu, *avoin* = päätetään ennen rakentamista. Lue ensin [periaatteet](00-periaatteet.md), [03 F15](03-kayttopinta.md) ja [05 F20](05-aika-media-ja-liitannat.md).
+17.10.2026. **Emilin idea**, tekoälyn jäsentämä keskustelun pohjalta. Emil hyväksyi järjestyksen 17.10.2026 (”Joo toi on ok”). **Kohta 1 toteutettu (Appi-appi 37, 17.10.2026; ks. `MUUTOKSET.md`).** Kohta 2 on jonossa (`TILA.md`, *Jono*); kohdat 3–4 vasta F08:n ja F25:n jälkeen erillisellä päätöksellä. Merkinnät: *Emilin idea* = hänen sanomansa, *ehdotus* = tekoälyn suunnitteluratkaisu, *avoin* = päätetään ennen rakentamista. Lue ensin [periaatteet](00-periaatteet.md), [03 F15](03-kayttopinta.md) ja [05 F20](05-aika-media-ja-liitannat.md).
 
 ## Idea (Emilin idea, tiivistetty)
 
@@ -19,7 +19,7 @@
 - Tietotaulukko, Toistin, Rivi ja Valitse rivi ovat olemassa, joten korttipakka syntyy taulukosta.
 - Valintaruutu on yksittäinen kyllä/ei; monivalintaa rajatusta listasta ei ole.
 
-## 1. Viite-ehdotukset ja palikan luonti nimestä (ehdotus, jonossa)
+## 1. Viite-ehdotukset ja palikan luonti nimestä (toteutettu, Appi-appi 37)
 
 - **Ehdotusrivi:** tekstipohjaa tai kaavaa kirjoitettaessa nimi, joka vastaa palikan viitettä tai nimeä, näkyy ehdotuksena näppäimistön yläpuolella (kuten puhelimen sanaehdotus). Napautus muuttaa sanan viitteeksi (`{uni}` tekstipohjassa, `uni` kaavassa). Kirjoitettua tekstiä ei muuteta itsestään.
 - **Kentät, jotka olettavat viitteen:** kaava ja toiminnon arvo ovat jo tällaisia. Tekstipohjassa oletus pysyy tekstinä, koska muuten tavallinen sana muuttuisi yllättäen viitteeksi.
