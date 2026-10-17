@@ -34,7 +34,7 @@ Rakentaja käy listan läpi omaa työtään vasten. Jos jokin kohta ei toteudu, 
 **Erikoispalikka** on palikka, joka poikkeaa tarkoituksella jostain osan A säännöstä. Niitä saa olla, mutta ne eivät saa olla piilossa.
 
 - **Dokumentissa:** jokaisella erikoispalikalla on rivi alla olevassa rekisterissä: mistä säännöstä se poikkeaa ja miksi. Uusi erikoispalikka tai uusi poikkeus vaatii suunnitelman perustelun ja Emilin hyväksynnän; rakentaja ei tee poikkeusta omin päin, vaan kirjaa kysymyksen `TILA.md`:hen.
-- **Appissa (jonossa, kohta 1b; ei vielä rakennettu):** palikkalajin määrittelyyn `K` kenttä `erik:'lyhyt syy'`. Paletti ja tarkastelija näyttävät erikoispalikalle tunnuksen ✦ ja syyn selkokielellä, ja testi tarkistaa, että jokaisella `erik`-lajilla on rivi tässä rekisterissä ja päinvastoin.
+- **Appissa (Appi-appi 24):** palikkalajin määrittelyssä `K` kenttä `erik:'lyhyt syy'` (ketjun palikoille yhteinen silmukka `ch`-merkinnän perusteella). Paletti, pikakatselu ja paneeli näyttävät erikoispalikalle tunnuksen ✦ ja syyn selkokielellä. Testi `logiikka_58_erikoispalikat.js` tarkistaa, että jokaisella `erik`-lajilla on rivi tässä rekisterissä ja päinvastoin: kun lisäät rivin, lisää `erik` koodiin samassa työssä. Rekisterin ensimmäisessä sarakkeessa lajit `koodina`; `ch` tarkoittaa kaikkia ketjun palikoita.
 
 ### Rekisteri
 
