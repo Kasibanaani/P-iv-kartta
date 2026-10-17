@@ -105,6 +105,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 - **17.10.2026, F27 teksti (Emilin idea):** `suunnitelmat/12-teksti.md`: viite-ehdotukset ja palikan luonti nimestä, tulkki/printteri kuviolla (taulukon rivit tai palikat), Tagit-palikka ja sanaoppi. Emil hyväksyi järjestyksen; kohdat 1–2 jonossa (viite-ehdotukset, tulkki). Ei toteutettu; vain Markdown muuttui.
 - **16.10.2026, F25 tilastot ja yhteydet (Emilin idea):** `suunnitelmat/11-tilastot-ja-yhteydet.md`: elämäntapaväittämät, päivätaulukko, Yhteys-palikka. Ei toteutettu. **Tauolla 17.10.:** kohdan 9 kysymykset auki, uudelleenkäsittely tarkistuspisteessä F08:n jälkeen (Jono 5).
 - **16.10.2026, F24 massa ja törmäykset:** `suunnitelmat/09-massa-ja-tormaykset.md`, toteutettu Appi-appi 17.
+- **17.10.2026, palikkasäännöt:** `PALIKKASAANNOT.md`: rakentajan aina luettava tarkistuslista, erikoispalikoiden rekisteri (7 ehdokasta, arvioimatta) ja linjakkuuskartoituksen ajankohdat. Erikoispalikan merkki appiin (`erik`, ✦) on ehdotus, ei rakennettu. Linjakkuuskartoitusta ei ole vielä tehty.
 - **16.10.2026, missio ja manuaalin tehtävänanto:** `MISSIO.md` ja `suunnitelmat/08-manuaalin-tehtavananto.md`. Varsinaista manuaalia ei ole kirjoitettu.
 
 ## Emilin kommentit

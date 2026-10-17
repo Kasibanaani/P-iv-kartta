@@ -4,7 +4,7 @@ Päiväys 16.10.2026. Tämä suunnitelma ja sen alidokumentit kirjoitettiin Emil
 
 ## Aloita tästä ilman aiempaa projektimuistia
 
-1. Lue repon `AGENTS.md`, tämän appin [missio](MISSIO.md), `TILA.md` ja [periaatteet](suunnitelmat/00-periaatteet.md).
+1. Lue repon `AGENTS.md`, tämän appin [missio](MISSIO.md), `TILA.md`, [palikkasäännöt](PALIKKASAANNOT.md) ja [periaatteet](suunnitelmat/00-periaatteet.md).
 2. Katso alla olevasta rekisteristä pyydetyn työn tunniste ja lue sen tarkka dokumentti.
 3. Lue [toteutuspolku](suunnitelmat/07-toteutuspolku.md). Tarkista tarvittava nykykoodi karttatyökalulla ja nykyiset testit. Älä oleta dokumentoidun puutteen olevan yhä puute.
 4. Toteuta vain käyttäjän pyytämä vaihe. Tee tavalliset tekniset valinnat itse näiden periaatteiden mukaan; kysy vain, jos ratkaisu muuttaisi päätettyä toimintaa tai uutta merkittävää käyttäjävalintaa ei voi johtaa ohjeista.

@@ -91,6 +91,6 @@ Katselmus saa ehdottaa myös ominaisuuden selkeyttämistä, yhdistämistä, doku
 
 ## Dokumenttien suhde
 
-Tämä missio kertoo miksi ja millä perusteella kehitetään. [Yhteiset periaatteet](suunnitelmat/00-periaatteet.md) kertovat nykyisen rakennuskielen ja toteutusrajat. [Kehityssuunnitelma](SUUNNITELMA.md) erottaa päätökset, ehdotukset ja toteutuman. Tuleva manuaali kertoo tarkistetun toiminnan ja käytön. [Manuaalin tehtävänanto](suunnitelmat/08-manuaalin-tehtavananto.md) määrittelee sen tekemisen; se ei ole vielä manuaali.
+Tämä missio kertoo miksi ja millä perusteella kehitetään. [Palikkasäännöt](PALIKKASAANNOT.md) tiivistävät sen jokaisen rakentajan tarkistuslistaksi ja pitävät erikoispalikoiden rekisteriä. [Yhteiset periaatteet](suunnitelmat/00-periaatteet.md) kertovat nykyisen rakennuskielen ja toteutusrajat. [Kehityssuunnitelma](SUUNNITELMA.md) erottaa päätökset, ehdotukset ja toteutuman. Tuleva manuaali kertoo tarkistetun toiminnan ja käytön. [Manuaalin tehtävänanto](suunnitelmat/08-manuaalin-tehtavananto.md) määrittelee sen tekemisen; se ei ole vielä manuaali.
 
 Käyttäjän uusi nimenomainen ohje voi täsmentää näitä kaikkia. Ristiriitaa ei ratkaista esittämällä suunnitelmaa toteutuneena tai piilottamalla poikkeusta erikoistapaukseen.
