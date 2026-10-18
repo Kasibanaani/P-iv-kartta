@@ -60,6 +60,7 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | ohjata koneen näppäimistöllä (nuolet, välilyönti) | Peliohjain, pelaaja 1 | [Peliohjain](04-logiikkapalikat.md#peliohjain-pohj) |
 | tunnistaa törmäyksen tai alueeseen astumisen | Este, Liikkeen *törmäsi*, Alue | [Maailma ja liike](08-maailma-ja-liike.md) |
 | tehdä tasoloikan painovoiman (putoaminen, maassa, laskeutuminen, painovoiman kääntö) | Alueen osio Painovoima, Liikkeen *maassa*, *laskeutui*, `tapahtuma.puoli` | [Painovoima ja maassa](08-maailma-ja-liike.md#painovoima-ja-maassa) |
+| maalata seinät, lattiat ja tasot ruudukkoon (sokkelo, tasoloikka, pohjapiirros) | Laattakartta, Maalaa | [Laattakartta](08-maailma-ja-liike.md#laattakartta-laatat) |
 | hypätä (korkeus, lyhyt hyppy, tuplahyppy, armoaika, ennakko) | Liikkeen kohta *hyppää*, osio Hyppy, tapahtuma *hyppäsi* | [Hyppy](08-maailma-ja-liike.md#hyppy) |
 | tehdä syvyyttä (tausta pienempänä ja hitaampana, lähestyvä palikka) | kerrosrivin syvyys, palikan *Oma syvyys*, ominaisuudet `syvyys` ja `näkyväkoko`, Kerros-palikan `syvyys` | [Kerrokset käytössä](08-maailma-ja-liike.md#kerrokset-käytössä) |
 | tehdä puhelimen muotoisen näkymän | Näkymän laite: Puhelin | [Laitemuoto](02-tyoymparisto.md#laitemuoto-vapaa-puhelin-ipad) |
@@ -100,6 +101,7 @@ Kaikki palikkalajit. Laji on sisäinen tunniste (tallennustiedostossa `k`). ✦ 
 | [Sijainti ✦](08-maailma-ja-liike.md#sijainti--merkki) | `merkki` | Näkymä | Maailma ja liike |
 | [Alue ✦](08-maailma-ja-liike.md#alue--alue) | `alue` | Näkymä | Maailma ja liike |
 | [Reitti ✦](08-maailma-ja-liike.md#reitti--reitti) | `reitti` | Näkymä | Maailma ja liike |
+| [Laattakartta](08-maailma-ja-liike.md#laattakartta-laatat) | `laatat` | Näkymä | Maailma ja liike |
 | [Arvo](04-logiikkapalikat.md#arvo-arvo) | `arvo` | Logiikka | Logiikkapalikat |
 | [Muisti](04-logiikkapalikat.md#muisti-muisti) | `muisti` | Logiikka | Logiikkapalikat |
 | [Satunnaisluku](04-logiikkapalikat.md#satunnaisluku-satu) | `satu` | Logiikka | Logiikkapalikat |

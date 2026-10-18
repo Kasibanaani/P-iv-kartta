@@ -524,6 +524,36 @@ Liikkeen paneeli, Ohjaus **Reitti**:
 
 ---
 
+## Laattakartta (`laatat`)
+
+Laattakartta on ruudukko, johon maalataan laattoja klik klik: seinät, lattiat, tasot ja koristeet. Yksi palikka on yksi kartta, joten sillä on näkymäpalikan tavalliset asiat (paikka, kerros, näkyy kun, siirto, animointi). Kiinteät laatat ovat esteitä kuten Este-palikat, mutta moottori hakee vain liikkujan kohdalla olevat ruudut, joten iso kartta ei hidasta. Appi-appi 81 (2D-pelien vaihe C).
+
+- **Löytyy:** Näkymä-välilehti, paletti **Koristeet → Laattakartta**. Uusi kartta on 16 × 10 ruutua, ruutukoko 32 px, lajit *Seinä* (kiinteä, väri 1) ja *Koriste* (läpi, väri 5).
+- **Sisään:** näkymäpalikan yhteiset kohdat (näkyy kun, harmaana kun, vaihtoväri kun, siirto x/y). **Ulos:** **laattoja** (maalattujen laattojen määrä).
+- **Asetukset (paneeli), osio Sisältö:**
+  - **Maalaa**: aloittaa maalauksen (nappi muuttuu muotoon **● Maalataan…**, uusi napautus lopettaa).
+  - **Ruutukoko px** (4–256), **Sarakkeet** ja **Rivit** (1–200). Palikan koko on sarakkeet × ruutukoko. Kulman venytys ja *Paikka ja koko* -kentät pyöristyvät kokonaisiin ruutuihin; pois jääneet laatat poistuvat (Kumoa palauttaa).
+  - **Laattalajit:** jokaisella nimi, laattojen määrä, tapa **kiinteä** / **läpi** / **taso**, väri paletista 1–8 ja (kiinteällä ja tasolla) **Kimmoisuus %** (0 = tömähtää, 100 = pomppaa, yli 100 = pomppulevy). **×** poistaa lajin ja pyyhkii sen laatat. **＋ Uusi laji** (enintään 35).
+- **Ominaisuudet:** `sarakkeet`, `rivit`, `ruutukoko` (luettavia), `määrä` (kaikki laatat), `määrä.<lajin nimi>`, lisäksi näkymäpalikan tavalliset (näkyy, paikka, koko, väri ym.). Laattakartalla ei ole omaa `este`-, `massa`- eikä `kimmoisuus`-ominaisuutta: ne ovat lajeilla. `leveys` ja `korkeus` ovat pikseleinä kuten muillakin.
+- **Kaavassa:** `@kartta.määrä.seinä`, `@kartta.määrä` (lajin nimi pienellä, ä ja ö käyvät myös a:na ja o:na, välilyönti = `_`), `@kartta.sarakkeet`.
+
+### Maalaus
+
+1. Valitse kartta ja paina **Maalaa**. Näkymän alalaitaan tulee työkalurivi: lajit, **⌫ Pyyhi**, siveltimet **1**, **2×2**, **3×3** ja **Täyttö** sekä **Valmis**.
+2. Napauta tai vedä kartalla. **Ensimmäinen ruutu päättää:** jos se on jo valittua lajia, veto pyyhkii, muuten maalaa.
+3. Tietokoneella **oikea painike pyyhkii**, numerot **1–9** valitsevat lajin ja **⇧ + napautus** vetää suoran viivan edellisestä ruudusta.
+4. **Täyttö** täyttää yhtenäisen samanlaisen alueen (tyhjän tai saman lajin) valitulla lajilla.
+5. Yksi veto tai täyttö on yksi **Kumoa**. **Esc** tai **Valmis** lopettaa. Napautus kartan ulkopuolelle valitsee ja rullaa kuten ennen.
+
+### Laattojen tavat
+
+- **Kiinteä:** este liikkuville palikoille (Liikkeen kohteet), kaikilla ohjaustavoilla. Liikkuja liukuu reunaa pitkin; vierekkäisten laattojen sauma ei pysäytä eikä lähetä uutta *törmäsi*-tapahtumaa. Reitinhaku (Napautus, *Kiertää esteet*) ja Ruutu kerrallaan -liike näkevät kiinteät laatat. *Törmäsi*-tietojen `tapahtuma.kohde` ja Liikkeen `alla` = kartan nimi.
+- **Läpi:** koriste, ei estä.
+- **Taso:** läpi alhaalta ja sivulta, mutta päälle voi pudota ja sen päällä voi seistä (hyppy tason läpi ylös). Ylös = ruudun ylös myös käännetyssä painovoimassa. Ruutu kerrallaan -liikkeelle ja reitinhaulle taso ei ole este.
+- Piilossa oleva kartta ei estä.
+
+Huomio: alas painamalla tason läpi pudottaminen, laatan lajin tunnistus (*astuttu*, `alla` = laji), Maalaa laatta -toiminto ja laatan oma kitka eivät ole vielä tehty (vaihe D). Tekninen: `rk`, `lw`, `lh2`, `lj` (`c`, `n`, `hue`, `t`, `kim`), `lrt` (rivit merkkijonoina, `.` = tyhjä).
+
 ## Reitinhaku esteiden ohi
 
 Napautus-liike voi kiertää esteet lyhintä reittiä.

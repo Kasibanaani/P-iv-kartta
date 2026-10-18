@@ -494,7 +494,7 @@ Ominaisuus on joko **vain luettava** (lasketaan palikan tilasta, esim. `nimi.pit
 
 **Kaikilla logiikan palikoilla, joilla on Käytössä-valinta** (JOS, KUN, Ikkuna, Ketju, Ajastin, Ehto, Odota kunnes, Arpa, Toista, Ketjun tulos, Lopeta ketju, Monta haaraa, efektit, Toiminto): `käytössä` (ohjattava, kyllä/ei).
 
-**Näkymän palikoilla** (Painike, Valintaruutu, Kytkin, Säädin, Tekstikenttä, Lukukenttä, Tatti, Päivämäärä, Teksti, Ilmoitus, Lista, Aikajana, Kaavio, Monitori, Kuva, Kalenteri, Muoto, Reitti, Toistin):
+**Näkymän palikoilla** (Painike, Valintaruutu, Kytkin, Säädin, Tekstikenttä, Lukukenttä, Tatti, Päivämäärä, Teksti, Ilmoitus, Lista, Aikajana, Kaavio, Monitori, Kuva, Kalenteri, Muoto, Reitti, Laattakartta, Toistin):
 
 | Ominaisuus | Muut kirjoitusasut | Laji | Luettava / ohjattava | Merkitys |
 |---|---|---|---|---|
@@ -567,6 +567,8 @@ Taulukossa *L* = vain luettava, *O* = ohjattava. Suluissa muut kirjoitusasut.
 | Kalenteri | `kuukausi` (`kk`) | O | päivämäärä, jonka kuukausi näytetään |
 | Kalenteri | `valittu` | L | käytössä napautettu päivä |
 | Reitti | `pituus`, `pisteitä` (`pisteita`) | L | pituus pikseleinä, pisteiden määrä |
+| Laattakartta | `sarakkeet`, `rivit`, `ruutukoko` | L | koko ruutuina, ruudun koko px |
+| Laattakartta | `määrä`, `määrä.<laji>` (`maara`) | L | kaikki laatat, lajin laatat (esim. `@kartta.määrä.kolikko`); ei `este`-, `massa`- eikä `kimmoisuus`-ominaisuutta (ne ovat lajeilla) |
 
 **Paikat (ei yleisiä näkymän ominaisuuksia):**
 

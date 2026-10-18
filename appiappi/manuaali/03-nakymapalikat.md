@@ -535,6 +535,9 @@ Suorakulmio tai ellipsi, joka tunnistaa, kun liikkuva palikka on sen sisällä, 
 ## Reitti ✦ (`reitti`)
 Piirretty viiva, jota pitkin Liike voi kulkea. ✦ Pelkkä esitys: ei anna arvoa ulos. Ominaisuudet `.pituus` ja `.pisteitä`. Katso luku [Maailma ja liike](08-maailma-ja-liike.md).
 
+## Laattakartta (`laatat`)
+Ruudukko, johon maalataan laattoja klik klik (Maalaa): kiinteät laatat ovat esteitä, taso päästää alhaalta läpi, koriste ei estä. Arvo ulos = laattojen määrä, kaavassa `@kartta.määrä.seinä`. Enintään 200 × 200 ruutua. Katso luku [Maailma ja liike](08-maailma-ja-liike.md#laattakartta-laatat).
+
 ## Reseptit
 
 ### Painike, joka näyttää montako kertaa painettu
