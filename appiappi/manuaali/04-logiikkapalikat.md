@@ -165,7 +165,7 @@ Mittaa kulunutta aikaa sekunteina. Käynnistys, pysäytys ja nollaus tapahtumill
 
 - **Ulos:** *kulunut* (arvo, sekunteja), *käy* (kyllä/ei).
 - **Asetukset (paneeli):** ei kenttiä. Tilarivi (*Käy*/*Seis* ja aika) ja napit **▶ Käynnistä**, **⏸ Pysäytä**, **↺ Nollaa**.
-- **Ominaisuudet** (luettavia): `arvo`, `kulunut`, `käy`.
+- **Ominaisuudet** (luettavia): `arvo`, `kulunut`, `käy` (myös `käynnissä`, kuten muilla aikapalikoilla: kyllä, kun kello käy; pysäytettynä ei).
 - **Kaavassa:** `kello.kulunut > 60`.
 - **Aika ja tila:** aika on käyttötietoa ja kuluu kellon mukaan myös, kun appi on kiinni. Käyvä kello pitää näkymän ja logiikan päivittymässä, joten esim. KUN `kello.kulunut >= 60` laukeaa ajallaan ilman napautusta, myös kun kello alkaa käydä liikkeen pysähtyessä.
 - **Esimerkki:** Peliaika: Painike → *käynnistä*, toinen → *pysäytä*. *kulunut* → Monitori (esitys *Aika m:ss*).

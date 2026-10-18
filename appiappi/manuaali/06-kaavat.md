@@ -470,6 +470,7 @@ Palikan arvon lisäksi kaava voi lukea palikan **ominaisuuksia** pisteellä: `na
 - Ominaisuuden voi kirjoittaa sen nimellä (`uni.pienin`) tai sisäisellä avaimella (`uni.min`); molemmat toimivat. Myös ääkköset ilman pisteitä (`uni.nakyy`).
 - Ilman pistettä viite antaa palikan arvon: `uni` = `uni.arvo`.
 - Väärä nimi antaa virheen, joka luettelee palikan kaikki ominaisuudet: `tuntematon ominaisuus .foo (palikalla ”Uni” on: arvo, näkyy, tila, …)`.
+- Sanat kuten `käynnissä`, `tulos`, `rastitettuja`, `merkintöjä` ja `rivejä` toimivat vain palikoilla, joilla ne ovat ominaisuuksia (esim. `muutos.käynnissä`, `ketju.tulos`, `lista.rastitettuja`). Muilla ne antavat saman virheen: `säädin.käynnissä` ja `liike.käynnissä` ovat virheitä, eivät palikan arvoa (Appi-appi 58).
 - Polku voi olla monta osaa taulukoissa: `ostokset.valittu.nimi`, `ostokset.määrä.summa`, `ostokset.vika.määrä.tiedossa`.
 - Valintaominaisuudet palauttavat näkyvän nimen, saman kuin paneelissa: `otsikko.koko` = `M`, `otsikko.tasaus` = `vasen`, `pallo.muoto` = `ympyrä`, `nappi.animointi.ilmestyy` = `häivytys`. Vertaa nimellä (`otsikko.tasaus = "vasen"`, kirjainkoolla ei väliä). Ohjaus (nuoli, Aseta) hyväksyy näkyvän nimen, vanhan sisäisen nimen (`left`, `ympyra`) tai järjestysnumeron.
 
@@ -586,7 +587,7 @@ Taulukossa *L* = vain luettava, *O* = ohjattava. Suluissa muut kirjoitusasut.
 | Käyrä | `x`, `t` (`kohta`), `xmin` (`xalku`), `xmax` (`xloppu`), `ymin` (`yalku`), `ymax` (`yloppu`), `p1`… | L | syöte, kohta 0–1, välit, portaat |
 | Muutos ajassa | `alku`, `loppu`, `kesto`, `kulunut` | L | |
 | Muutos ajassa | `edistyminen`, `käynnissä` | L | 0–1; kyllä/ei |
-| Sekuntikello | `kulunut`, `käy` (`kay`) | L | sekunteina; kyllä/ei |
+| Sekuntikello | `kulunut`, `käy` (`kay`, `käynnissä`) | L | sekunteina; kyllä/ei |
 | Peliohjain | `yhdistetty`, `nimi`, `vaaka`, `pysty`, `etäisyys`, `suunta`, `oikeavaaka`, `oikeapysty` | L | vasen tatti kuten Tatilla |
 | Peliohjain | `alanappi`, `oikeanappi`, `vasennappi`, `ylänappi` (`ylanappi`), `vasenolka`, `oikeaolka`, `ylös` (`ylos`), `alas`, `vasen`, `oikea`, `valikko`, `valinta`, `vasenpainallus`, `oikeapainallus` | L | kyllä/ei |
 | Peliohjain | `vasenliipaisin`, `oikealiipaisin` | L | 0–1 |

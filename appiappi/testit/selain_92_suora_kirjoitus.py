@@ -1,7 +1,7 @@
 # Jonon 12d (F38 kohta 4): suora kirjoitus näkymän palikkaan. Kaksoisnapautus tai Enter valitussa avaa palikan oman tekstin
 # kirjoitettavaksi samalla fontilla ja paikalla; viitteet näkyvät {Nimi}, { tuo ehdotukset, Enter tai napautus muualle
 # tallentaa, ⇧Enter rivi (Laatikko ja Teksti), Esc peruu, yksi ⌘Z kumoaa, paneelin kenttä päivittyy samaan. Nuolesta
-# tuleva teksti ei avaudu (kupla vie lähteeseen). Uusi Laatikko ja Teksti paletista aukeavat heti kirjoitukseen; Laatikko
+# tuleva teksti ei avaudu (kupla vie lähteeseen; Kaavasta "kaavasta", muusta "nuolesta", jonon 1q). Uusi Laatikko ja Teksti paletista aukeavat heti kirjoitukseen; Laatikko
 # myös Näyttö-ryhmän ensimmäisenä. Lukittuna ei kirjoitusta. Tietokone 1440 ja 1280, 390 savutestinä (kaksi napautusta). Ei oikeaa iPhonea.
 import asyncio, os, re
 from playwright.async_api import async_playwright
@@ -14,7 +14,9 @@ SETUP="""(function(){var P=APP.P,v1=P.views[0].id;
  KK.addLink(P,KK.addNode(P,k.id,60,60).id,'v',KK.addNode(P,t.id,400,60).id,'tx');
  var n=KK.addBlock(P,'nappi',{v:v1,tx:'Paina'});n.x=60;n.y=340;
  var l=KK.addBlock(P,'luku',{v:v1,tx:''});l.x=360;l.y=100;
- KK.repair(P);KK.tick(P,APP.ctx());APP.renderAll();return {a:a.id,t:t.id,n:n.id,l:l.id,m:m.id};})()"""
+ var u=KK.addBlock(P,'nayta',{v:v1,tx:''});u.x=360;u.y=260;
+ KK.addLink(P,KK.nodesOfBlock(P,m.id)[0].id,'v',KK.addNode(P,u.id,400,180).id,'tx');
+ KK.repair(P);KK.tick(P,APP.ctx());APP.renderAll();return {a:a.id,t:t.id,n:n.id,l:l.id,m:m.id,u:u.id};})()"""
 def S(i,x=''):return '#uels .ue[data-id="%s"]%s'%(i,x)
 async def ta(pg):
     return await pg.evaluate("()=>{var t=document.querySelector('#uels textarea.tedit');if(!t)return null;return {v:t.value,f:document.activeElement===t,id:t.closest('.ue').getAttribute('data-id'),s:[t.selectionStart,t.selectionEnd],fs:getComputedStyle(t).fontSize};}")
@@ -71,6 +73,11 @@ async def main():
             bub=await pg.inner_text('.tnvb');assert 'Teksti tulee kaavasta: Tervehdys' in bub,bub
             await pg.click('.tnvb');await pg.wait_for_timeout(300)
             assert await pg.evaluate("APP.S.tab")=='logiikka';await pg.click('#tabs [data-t="nakyma"]');await pg.wait_for_timeout(250)
+            # 5b) Jonon 1q (kartoitus 7, S2): muusta kuin Kaavasta tuleva nuoli: kupla sanoo "nuolesta"
+            await pg.dblclick(S(I['u']));await pg.wait_for_timeout(200)
+            assert await ta(pg) is None
+            bub=await pg.inner_text('.tnvb');assert 'Teksti tulee nuolesta: Unipisteet' in bub,bub
+            await pg.evaluate("document.querySelectorAll('.tnvb').forEach(function(x){x.remove();})")
             # 6) Enter valitussa Painikkeessa avaa; ⇧Enter tallentaa (ei riviä painikkeeseen)
             await pg.click(S(I['n']));await pg.wait_for_timeout(150);await pg.keyboard.press('Enter');await pg.wait_for_timeout(150)
             r=await ta(pg);assert r and r['id']==I['n'] and r['v']=='Paina',r
