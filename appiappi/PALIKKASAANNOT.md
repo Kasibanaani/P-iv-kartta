@@ -16,7 +16,7 @@ Rakentaja käy listan läpi omaa työtään vasten. Jos jokin kohta ei toteudu, 
 
 1. **Nimi kertoo tekemisen**, ei sovellusta: näyttää, vertaa, muistaa, valitsee, odottaa, liikuttaa, tuottaa tapahtuman. Sovelluskohtainen merkitys syntyy sisällöstä ja kytkennöistä.
 2. **Ominaisuudet yhteen rekisteriin.** Jokainen rakentajalle merkityksellinen arvo kirjataan `omat(b)`:hen. Silloin se on samalla kertaa käsin asetettava (perusarvo), kaavalla luettava (`palikka.ominaisuus`), logiikalla ohjattava (`o:1` → kohta `o_<avain>`) ja Aseta-, Lisää- ja Palauta-toimintojen kohde. Jos jokin jää ohjattavuuden ulkopuolelle, syy kirjataan. Logiikkapalikan asetus, jolla on oma sisäänmeno (kesto, kerrat, välin päät), kirjataan luettavaksi (`calc`) ja ohjataan sisäänmenon nuolella, ei `o_`-kohdalla (Appi-appi 26, kartoituksen L3).
-3. **Sama etusija kaikkialla:** ohjattu (nuoli tai kaava) > toiminnon asettama > perusarvo. Yhdellä ominaisuudella on yksi jatkuva ohjaus, ja ristiriita näkyy.
+3. **Sama etusija kaikkialla:** ohjattu (oma nuoli tai kaava) > joukon ohjaus (Joukko-palikan nuoli tai sääntö, Appi-appi 62) > toiminnon asettama > perusarvo. Yhdellä ominaisuudella on yksi jatkuva ohjaus, ja ristiriita näkyy.
 4. **Tapahtumat sisään ja ulos.** Kun palikalla on aikaa, tilaa tai vuorovaikutusta, se lähettää tapahtumat (alkoi, valmis, painettu, törmäsi…) ja ottaa ohjauksen tapahtumina (käynnistä, pysäytä, nollaa, alkuun). Jatkuvat arvot ovat arvokohtia, hetket tapahtumakohtia.
 5. **Näkymäpalikka on yhteistä kieltä:** yhteiset kohdat (näkyy kun, harmaana kun, teksti, vaihtoväri kun, siirto x/y), yhteiset ominaisuudet (tila, paikka, koko, ilme) ja käyttöraahaus. Painike on vuorovaikutus ja tapahtuman lähde, ei sisäinen toimintolista.
 6. **Kaava on tila, toiminto on hetki.** Kaava kuvaa, mitä on, kun logiikka pätee; toiminto muuttaa käyttötietoa tapahtumahetkellä. Piirto ei koskaan suorita toimintoa eikä arvo uudelleen.
@@ -49,6 +49,7 @@ Tila: **ehdokas** = havaittu, arvioimatta; **arvioitu** = kartoitus pitää poik
 | Kaavio, Monitori, Reitti, Kuva (`kaavio`, `mittari`, `reitti`, `pkuva`) | Ei arvoa ulos (A4) | Pelkkä esitys; Monitorin arvo on ohjattava ominaisuus | arvioitu |
 | Toistin (`toistin`) | Vain kohdat *näkyy kun* ja *rivit* (A5) | Kortit ovat sen sisällä. Harmaana, vaihtoväri ja siirto puuttuvat ilman syytä (L5). | osin korjattava |
 | Kerros, Kamera (`kerros`, `kamera`) | Logiikkapalikka ohjaa näkymää; osa ominaisuuksista ei ohjattavissa | Näkymän kerros ja zoomaus logiikkaan; laajuus `TILA.md`:n avoimissa kysymyksissä | arvioitu |
+| Joukko (`pjoukko`) | Ei omaa viitettä (nimi on `#joukko`), yksi per joukko, kiinteät kohdat ja tapahtumat; kentissä sana `jäsen` | Joukon säännöt, ei oma arvo; jäsen-sana vastaa rivin sarakkeita Rivijoukossa (Appi-appi 62) | päätetty (suunnitelma 25 kohdat 3.4 ja 8) |
 | Ryhmä (`ryhma`) | Ei arvoa, ei kohtia, ei tapahtumia eikä ominaisuuksia (A2, A4, A10). Vain ylimmällä tasolla tai toisessa ryhmässä. | Rakentajan merkintä kuten lappu: kokoaa ja nimeää, ei laske. Sisältö toimii kuin ryhmää ei olisi (Appi-appi 29, F30 kohta 5). | päätetty (suunnitelma 15, Emilin jonopäätös) |
 
 ## Suunnitelman kohta Linjakkuus

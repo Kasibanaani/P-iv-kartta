@@ -16,5 +16,5 @@ A.deepStrictEqual(Object.keys(koodi_lajit).sort(),Object.keys(md_lajit).sort(),'
 A.ok(KK.K.ajastin.erik&&KK.K.anim.erik&&/heti/.test(KK.K.anim.erik),'ketjun palikat ja efektin syy');
 A.notStrictEqual(KK.K.anim.ic,'✦','Animaatio-ikoni ei sekoitu merkkiin');
 // Ei tallennusmuodon muutosta: erik ei päädy palikkaan
-var P=KK.newProject('X');var b=KK.addBlock(P,'tulos',{});A.ok(!('erik' in b),'erik ei tallennu palikkaan');A.strictEqual(KK.VER,10);
+var P=KK.newProject('X');var b=KK.addBlock(P,'tulos',{});A.ok(!('erik' in b),'erik ei tallennu palikkaan');A.ok(KK.VER>=10);
 console.log('ok erikoispalikat',Object.keys(koodi_lajit).length,'lajia');

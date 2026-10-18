@@ -170,7 +170,7 @@ Paletti näyttää vain sen puolen palikat, joka on auki: Näkymä-välilehdell�
 | Palikat | hakukenttä *Etsi nimellä…* ja lista projektin näkymäpalikoista ja nimetyistä logiikkapalikoista (ks. alla) |
 | Kaava | Kaava, Kaavan tulos |
 | Arvot | Arvo, Muisti, Satunnaisluku, Käyrä, Tänään, Päivämäärän osa |
-| Tieto | Tietotaulukko, Tapahtuman tiedot, Rivi, Rivijoukko ja työkalu **Tulkki…** (teksti, Excelin solut tai CSV taulukon riveiksi tai palikoiksi; ks. [Tulkki](07-tieto.md#tulkki-teksti-riveiksi-tai-palikoiksi)) |
+| Tieto | Tietotaulukko, Tapahtuman tiedot, Rivi, Rivijoukko, Joukko (⁂, [Joukko-palikka](07-tieto.md#joukko-palikka-pjoukko-appi-appi-62)) ja työkalu **Tulkki…** (teksti, Excelin solut tai CSV taulukon riveiksi tai palikoiksi; ks. [Tulkki](07-tieto.md#tulkki-teksti-riveiksi-tai-palikoiksi)) |
 | Laskut | laskumerkit |
 | Vertailut | vertailumerkit |
 | Ikkunat | JA, TAI ja muut ikkunat, JOS-ikkuna, KUN-ikkuna; alaryhmä *Järjestys*: Ryhmä |

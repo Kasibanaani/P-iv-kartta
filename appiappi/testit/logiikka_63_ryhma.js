@@ -36,7 +36,7 @@ A.strictEqual(V(w.id),true,'ikkuna ennallaan korjauksen jälkeen');
 r.sav=3;r2.sav=9;r3.sav='x';r4.sav=-1;KK.repair(P);
 A.strictEqual(r.sav,3);A.ok(!('sav' in r2)&&!('sav' in r3)&&!('sav' in r4),'väärä sävy pois');
 var Q=KK.repair(JSON.parse(JSON.stringify(P)));A.strictEqual(Q.b[r.id].sav,3);A.strictEqual(KK.nodeOf(Q,wn.id).g,rn.id,'jäsenyys säilyy');
-A.strictEqual(KK.VER,10,'tallennusversio 10 (jonon 15c)');
+A.ok(KK.VER>=10,'tallennusversio vähintään 10 (jonon 15c)');
 
 // Kopioi ja liitä: ryhmä sisältöineen
 var clip=KK.copyNodes(P,[rn.id]);A.ok(clip.n.length>=8,'ryhmä ja sen sisältö: '+clip.n.length);

@@ -8,7 +8,7 @@ function N(P,b,x,y){return KK.addNode(P,b.id,x||0,y||0,'');}
 function E(P){return KK.Ev(P,C);}
 function V(P,b){return E(P).val(b.id);}
 function K(P,s){var k=KK.addBlock(P,'kaava');k.f=KK.kaavaToIds(P,s);N(P,k);KK.repair(P);return k;}
-A.strictEqual(KK.VER,10,'tallennusversio 10');
+A.ok(KK.VER>=10,'tallennusversio vähintään 10');
 
 // Tunnus-kentän luku
 var r=KK.tunnusLue('@uni #Unipisteet #terveys #unipisteet');A.strictEqual(r.vt,'uni');A.deepStrictEqual(r.tags,['unipisteet','terveys']);A.strictEqual(r.err,'');
@@ -130,7 +130,7 @@ A.deepStrictEqual(q2b.jkt,[KK.jkFind(Q2,'unipisteet')],'presetti: tagit nimen mu
 // Tallennus ja vanha muoto: version 9 tallennus aukeaa, virheelliset kentät pois, version 9 lukituskuva jatkaa
 var raw=JSON.parse(JSON.stringify(P));raw.jkr.jx={nm:'Huono nimi!'};raw.jkr.j999999={nm:'unipisteet'};raw.b[a.id].jkt=[J,'jeiole',J];raw.st['jk:jeiole']={};raw.st['jk:'+J]={b1:'x'};
 var R=KK.repair(raw);A.ok(!R.jkr.jx&&!R.jkr.j999999,'virheelliset ja tuplanimet pois');A.deepStrictEqual(R.b[a.id].jkt,[J]);A.ok(!R.st['jk:jeiole']&&!R.st['jk:'+J]);A.ok(R.seq>=+J.slice(1));
-var D=KK.repairData({app:'appiappi',ver:9,projects:[JSON.parse(JSON.stringify(KK.newProject('vanha')))],cur:''});A.strictEqual(D.ver,10);A.ok(!D.projects[0].jkr);
+var D=KK.repairData({app:'appiappi',ver:9,projects:[JSON.parse(JSON.stringify(KK.newProject('vanha')))],cur:''});A.strictEqual(D.ver,KK.VER);A.ok(!D.projects[0].jkr);
 var L=KK.newProject('lukko');var lv=KK.addBlock(L,'arvo',{nm:'V',v:'2'});N(L,lv);KK.setTunnus(L,lv.id,'#pisteet');KK.repair(L);
 A.ok(KK.lkSnap(L,NOW).jkr&&KK.lkSnap(L,NOW).jkr[KK.jkFind(L,'pisteet')],'lukituskuvassa joukkorekisteri');
 
