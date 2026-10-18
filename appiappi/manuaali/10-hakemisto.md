@@ -16,17 +16,18 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | tehdä logiikan tuloksesta näkymään palikan yhdellä napautuksella | paneelin ▢ Tee näkymään tai N | [Tee näkymään](06-kaavat.md#tee-näkymään) |
 | tehdä Toiminnolle painike, Ketjulle käynnistysnappi, Muistille syöttökenttä, taulukolle Toistin tai Sekuntikellolle napit | paneelin Tee näkymään ▾ | [Tee näkymään](06-kaavat.md#tee-näkymään) |
 | laskea jotain | Kaava tai Lasku | [Kaavat](06-kaavat.md#kaavan-syntaksi), [Lasku](04-logiikkapalikat.md#lasku-lasku) |
+| muuttaa laskujärjestystä | sulut: `(sarake - 1) * 80` | [Laskutoimitukset](06-kaavat.md#laskutoimitukset) |
 | tehdä arvon nimestä, jonka kirjoitin kaavaan | ehdotusrivin ＋ Luo Arvo ”nimi” | [Ehdotusrivi](06-kaavat.md#ehdotusrivi) |
 | muuttaa tekstin sanan viittaukseksi | kirjoita `@` tai alku ja napauta ehdotusta `@viite` | [Ehdotusrivi teksteissä](06-kaavat.md#ehdotusrivi-teksteissä-ja-toimintojen-kentissä-appi-appi-35) |
 | antaa laskulle nimen | `nimi = lauseke` ja ＋ Luo kaavan tulos | [Kaavan tulos](04-logiikkapalikat.md#kaavan-tulos--tulos) |
-| valita kahdesta arvosta ehdolla | `jos(ehto; a; b)` tai VALITSE | [Funktiot jos, ja, tai](06-kaavat.md#funktiot-jos-ja-tai) |
+| valita kahdesta arvosta ehdolla | `jos (ehto) a muuten b` tai VALITSE | [Jos, ja, tai](06-kaavat.md#jos-ja-tai) |
 | näyttää tai piilottaa palikan ehdolla | Näkyvyys-osio tai nuoli kohtaan *näkyy kun* | [Näkyvyys-osio](03-nakymapalikat.md#näkyvyys-osio) |
 | animoida palikan ilmestymisen tai katoamisen | Animointi-osio (palikka) tai ⚙︎ Asetukset → Projektin animointi | [Animointi-osio](03-nakymapalikat.md#animointi-osio) |
 | häivyttää tai rullata arvon vaihtuessa, liu'uttaa palikan uuteen paikkaan | Animointi-osion *Arvo vaihtuu* ja *Paikka vaihtuu* | [Animointi-osio](03-nakymapalikat.md#animointi-osio) |
 | harmaannuttaa palikan | *Harmaana* tai kohta *harmaana kun* | [Näkyvyys-osio](03-nakymapalikat.md#näkyvyys-osio) |
 | tehdä jotain painalluksesta | Painikkeen *Kun painetaan* → ＋ Lisää toiminto… | [Toiminto](05-ketjut-ja-toiminnot.md#toiminto-tee) |
 | kasvattaa laskuria | Muisti + toiminto Lisää | [Laskuri, joka muistaa](04-logiikkapalikat.md#4-laskuri-joka-muistaa) |
-| yhdistää monta ehtoa | Ikkuna (JA, TAI, VÄHINTÄÄN…) tai `ja(;)`, `tai(;)` | [Ikkuna](04-logiikkapalikat.md#ikkuna-ikkuna) |
+| yhdistää monta ehtoa | Ikkuna (JA, TAI, VÄHINTÄÄN…) tai kaavassa `a ja b`, `a tai b` | [Ikkuna](04-logiikkapalikat.md#ikkuna-ikkuna) |
 | tehdä jotain ehdon alkaessa päteä | JOS (NIIN-tapahtuma) tai KUN | [JOS](04-logiikkapalikat.md#jos-jos), [KUN](04-logiikkapalikat.md#kun-kun) |
 | odottaa ja tehdä vaiheittain | Ketju ja Ajastin | [Ketju](05-ketjut-ja-toiminnot.md#tapahtumaketju-ketju-ketju) |
 | tehdä asioita aikataulussa (0 s, 2 s, 5 s…) tai säätimen kohdissa | Jana: Toiminnot janalle kohtiinsa | [Jana](05-ketjut-ja-toiminnot.md#jana-jana) |
@@ -145,7 +146,7 @@ Kokeiltavat vaiheohjeet lukujen lopussa.
 - [Ajastettu muistutus 10 s päästä](05-ketjut-ja-toiminnot.md#ajastettu-muistutus-10-s-päästä) (Toiminnot ja ketjut)
 - [Haarautuva kysymys (Ehto)](05-ketjut-ja-toiminnot.md#haarautuva-kysymys-ehto) (Toiminnot ja ketjut)
 - [Odota vastausta enintään minuutti](05-ketjut-ja-toiminnot.md#odota-vastausta-enintään-minuutti) (Toiminnot ja ketjut)
-- [Ehdollinen teksti jos-funktiolla](06-kaavat.md#ehdollinen-teksti-jos-funktiolla) (Kaavat)
+- [Ehdollinen teksti jos:lla](06-kaavat.md#ehdollinen-teksti-joslla) (Kaavat)
 - [Hae tekstistä sisältää-vertailulla](06-kaavat.md#hae-tekstistä-sisältää-vertailulla) (Kaavat)
 - [Laskettu tulos nimellä (Kaavan tulos)](06-kaavat.md#laskettu-tulos-nimellä-kaavan-tulos) (Kaavat)
 - [Väri vaihtuu kaavalla (ohjattu ominaisuus)](06-kaavat.md#väri-vaihtuu-kaavalla-ohjattu-ominaisuus) (Kaavat)

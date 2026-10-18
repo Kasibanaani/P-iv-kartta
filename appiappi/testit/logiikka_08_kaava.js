@@ -39,7 +39,7 @@ A.strictEqual(V(P,K(P,'uni ≥ 8')),true);A.strictEqual(V(P,K(P,'uni != 8')),fal
 A.strictEqual(V(P,K(P,'')),null,'tyhjä kaava = tyhjä');
 // virheet selvällä suomella
 function err(s,re){var v=V(P,K(P,s));A.ok(KK.isErr(v),s);A.ok(re.test(v.err),s+' → '+v.err);}
-err('(uni + 1) > 7',/sulkuja ei käytetä/);err('uni > 7 > 2',/vain yksi vertailu/);err('uni >',/kesken/);err('uni 7',/ylimääräistä/);
+A.strictEqual(V(P,K(P,'(uni + 1) > 7')),true,'jonon 12g: sulut ryhmittelevät');err('uni > 7 > 2',/vain yksi vertailu/);err('uni >',/kesken/);err('uni 7',/ylimääräistä/);
 err('unni > 7',/puuttuu: unni/);err('"auki',/lainausmerkki/);err('uni # 2',/tuntematon merkki/);err('uni / 0',/jako nollalla/);
 err('uni.maku',/tuntematon ominaisuus/);err('k1x.näkyy',/puuttuu/);
 

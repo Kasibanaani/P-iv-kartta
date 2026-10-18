@@ -153,7 +153,7 @@ Osio **Kun tulos alkaa päteä (kerran)** ja valikko **＋ Lisää toiminto…**
 ### Yleiset säännöt
 
 - **Välilyönnit** saa jättää pois tai lisätä vapaasti (`uni>7` = `uni > 7`), paitsi viitteen ja pisteen väliin (`uni .näkyy` on virhe).
-- **Kirjainkoko:** viitteet, avainsanat ja funktiot eivät välitä kirjainkoosta (`Uni`, `JOS(`, `Tänään` käyvät).
+- **Kirjainkoko:** viitteet ja avainsanat eivät välitä kirjainkoosta (`Uni`, `JOS`, `Tänään` käyvät).
 - **Alun `=`** ohitetaan (taulukkolaskennan tapa): `= 10 / 4` antaa 2,5.
 - **Sana ilman lainausmerkkejä on aina viite** (tai avainsana). `kissa` ilman lainausmerkkejä → `⚠ puuttuu: kissa`. Teksti kirjoitetaan lainausmerkkeihin: `"kissa"`.
 - **Etumerkki käy (Appi-appi 54):** tekstistä tuttu `@uni` (tai `§uni`) kelpaa kaavassa ja tarkoittaa samaa kuin `uni`; kaava näytetään paljain viittein (`@uni + 3` → `uni + 3`).
@@ -214,9 +214,10 @@ Potenssia, jakojäännöstä ja pyöristystä ei ole.
 1. Etumerkki `-` (koskee heti seuraavaa arvoa): `-uni + 10` = (−uni) + 10. `2 * -3` = −6, `5 - -5` = 10.
 2. Kerto- ja jakolasku vasemmalta oikealle: `10 / 2 / 5` = 1.
 3. Yhteen- ja vähennyslasku vasemmalta oikealle: `1 - 2 - 3` = −4, `1 + 2 * 3` = 7.
-4. Vertailu viimeisenä: `uni > 5 + 1` tarkoittaa uni > 6.
+4. Vertailu: `uni > 5 + 1` tarkoittaa uni > 6.
+5. `ja`, sitten `tai`, viimeisenä `jos` (ks. [Jos, ja, tai](#jos-ja-tai)).
 
-**Sulkuja ei voi käyttää laskujen ryhmittelyyn.** `(1 + 2) * 3` → `⚠ kaava: sulkuja ei käytetä kaavassa muuten kuin jos(…), ja(…) ja tai(…): laita osat ikkunaan`. Jos laskujärjestys pitää muuttaa, tee osasta oma Kaava ja viittaa siihen: Kaava *osa* = `1 + 2`, toinen kaava `osa * 3`.
+**Sulut ryhmittelevät** (Appi-appi 55): `(1 + 2) * 3` = 9, `(sarake - 1) * 80 + 28`. Sulkuja saa olla sisäkkäin. Sulut eivät tee mitään muuta: kaavassa ei ole funktioita. Virheet: `sulku jäi auki: lisää )`, `sulku ) ilman avaavaa (`, `tyhjät sulut: …`.
 
 ### Vertailut
 
@@ -232,7 +233,7 @@ Potenssia, jakojäännöstä ja pyöristystä ei ole.
 
 **Eivät kelpaa:** `=>` ja `=<` (virhe `odotettiin arvoa, ei merkkiä`). Kirjoita `>=` ja `<=`.
 
-**Yksi vertailu kerrallaan.** `1 < uni < 8` ja `uni > 5 = kyllä` antavat virheen `vain yksi vertailu kerrallaan: yhdistä ja(…; …) tai tai(…; …), tai laita loput ikkunaan`. Kirjoita `ja(uni > 1; uni < 8)`. Jokaisen funktion osan sisällä saa olla oma vertailunsa.
+**Yksi vertailu kerrallaan.** `1 < uni < 8` ja `uni > 5 = kyllä` antavat virheen `vain yksi vertailu kerrallaan: yhdistä sanalla ja, esim. uni > 5 ja uni < 9`. Kirjoita `uni > 1 ja uni < 8`, tai sulut: `(uni > 5) = kyllä`.
 
 **Miten arvoja verrataan:**
 
@@ -252,43 +253,53 @@ Potenssia, jakojäännöstä ja pyöristystä ei ole.
 - Tyhjä tai puuttuva teksti ei sisällä mitään: `tyhjä sisältää "a"` = ei.
 - Luvut käsitellään tekstinä: `uni sisältää 6` = kyllä, kun uni on 6.
 - Kirjoitusasu `sisaltaa` käy.
-- *Ei sisällä*: `jos(nimi sisältää "x"; ei; kyllä)`.
+- *Ei sisällä*: `(nimi sisältää "x") = ei` tai `jos (nimi sisältää "x") ei muuten kyllä`.
 - `sisältää` on vertailu, joten samassa osassa ei voi olla toista vertailua.
 - Sana `sisältää` on vertailu vain arvon jälkeen. Muualla se on tavallinen viite (`sisältää` yksinään → `⚠ puuttuu: sisältää`).
 - Riveistä ei voi hakea: `⚠ sisältää etsii tekstistä, ei riveistä: hae sarakkeesta, esim. rivi.nimi sisältää haku`.
 
-### Funktiot jos, ja, tai
+### Jos, ja, tai
 
-Kaavassa on kolme funktiota. Osat erotetaan **puolipisteellä** `;`, koska pilkku on desimaalimerkki.
+Appi-appi 55 (jonon 12g): kaavassa ei ole funktioita. Ehto kirjoitetaan sanoin, ja sulut vain ryhmittelevät. Kaavan `jos` on **VALITSE-palikka kaavana** (valitsee arvon). JOS-palikka on eri asia: se antaa *pätee*-arvon ja NIIN-tapahtuman.
 
-| Funktio | Merkitys | Esimerkki (uni = 6) | Tulos |
+| Kirjoitat | Merkitys | Esimerkki (uni = 6) | Tulos |
 |---|---|---|---|
-| `jos(ehto; kyllä-osa; muuten-osa)` | jos ehto pätee, kyllä-osa, muuten muuten-osa | `jos(uni > 5; "hyvä"; "huono")` | hyvä |
-| `jos(ehto; kyllä-osa)` | muuten-osa puuttuu = tyhjä | `jos(uni > 7; "hyvä")` | – |
-| `ja(ehto; ehto; …)` | pätee, kun kaikki pätevät | `ja(uni > 5; uni < 8)` | kyllä |
-| `tai(ehto; ehto; …)` | pätee, kun yksikin pätee | `tai(uni > 7; uni < 2)` | ei |
+| `jos (ehto) a muuten b` | ehto pätee → a, muuten b | `jos (uni > 5) "hyvä" muuten "huono"` | hyvä |
+| `jos ehto niin a muuten b` | sama ilman sulkuja | `jos uni > 5 niin "hyvä" muuten "huono"` | hyvä |
+| `jos (ehto) a` | muuten-osa puuttuu = tyhjä | `jos (uni > 7) "hyvä"` | – |
+| `… muuten jos …` | ketju | `jos (uni > 7) "iso" muuten jos (uni > 5) "keski" muuten "pieni"` | keski |
+| `a ja b` | pätee, kun kaikki pätevät | `uni > 5 ja uni < 8` | kyllä |
+| `a tai b` | pätee, kun yksikin pätee | `uni > 7 tai uni < 2` | ei |
 
-- Funktion nimi ilman sulkuja on virhe: `jos uni > 5` → `funktion osat sulkuihin: jos(ehto; kyllä; muuten)`.
-- Funktion nimen ja sulun väliin saa jättää välin: `jos (uni > 5; 1; 2)` käy.
-- Sisäkkäinen jos käy: `jos(uni > 7; "levännyt"; jos(uni > 5; "ok"; "väsynyt"))`.
-- Tyhjä osa on tyhjä arvo: `jos(uni > 5;; 2)` antaa tyhjän, kun ehto pätee. ja- ja tai-funktioissa tyhjät osat ohitetaan.
-- `ja` ja `tai` ottavat yhden tai useamman osan: `ja(kyllä)` = kyllä, `tai(ei; ei; kyllä)` = kyllä.
-- Funktion tuloksen saa verrata: `ja(uni > 5; uni < 8) = kyllä`.
-- jos laskee vain valitun osan: laskuvirhe (esim. jako nollalla) valitsematta jääneessä osassa ei näy. Tuntematon nimi on kuitenkin virhe heti, osasta riippumatta: `jos(uni > 7; "hyvä"; unii)` → `⚠ puuttuu: unii`, vaikka ehto pätee. ja ja tai laskevat kaikki osat, joten virhe missä tahansa osassa näkyy.
+- **Kumpi muoto tahansa.** Kenttä säilyttää kirjoitetun muodon. Sulkumuodossa ehto on suluissa ja kyllä-osa alkaa heti sulun jälkeen. `niin`-muodossa ehdon saa kirjoittaa ilman sulkuja, ja ehdossa saa olla omia sulkuja: `jos (sarake + 1) * 2 > 7 niin 1 muuten 2`.
+- **Kyllä-osa jatkuu `muuten`-sanaan**, muuten-osa kaavan loppuun tai sulkevaan sulkuun. Sisäkkäinen jos kyllä-osassa: `muuten` kuuluu lähimmälle jos:lle, joten selvyyden vuoksi sulut: `jos (a) (jos (b) 1 muuten 2) muuten 3`.
+- **Laskun tai vertailun keskellä jos sulkuihin:** `2 * (jos (iso) 10 muuten 1)`, `"Uni: " + (jos (uni > 7) "hyvä" muuten "huono")`. Ilman sulkuja virhe `laskun tai vertailun keskellä jos sulkuihin: 2 * (jos (ehto) a muuten b)`.
+- **Järjestys:** laskut > vertailut > `ja` > `tai` > `jos`. `kyllä tai ei ja ei` = kyllä tai (ei ja ei) = kyllä. Sulut muuttavat järjestyksen: `(kyllä tai ei) ja ei` = ei. Sanoja saa ketjuttaa: `a ja b ja c`, `a tai b tai c`.
+- **Ehdon vastakohta** (*ei*): `(ehto) = ei` tai `jos (ehto) ei muuten kyllä`.
+- jos laskee vain valitun osan: laskuvirhe (esim. jako nollalla) valitsematta jääneessä osassa ei näy. Tuntematon nimi on kuitenkin virhe heti, osasta riippumatta: `jos (uni > 7) "hyvä" muuten unii` → `⚠ puuttuu: unii`, vaikka ehto pätee. `ja` ja `tai` laskevat kaikki osat, joten virhe missä tahansa osassa näkyy.
 - Puuttuva tai virheellinen ehto ei päde: jos valitsee muuten-osan (virheellinen ehto antaa virheen).
-- **Ei muita funktioita.** Ei esimerkiksi summa(), pyöristä(), pituus() tai ei(). Monen arvon yhdistäminen tehdään ikkunoilla (SUMMA, KESKIARVO …), tekstin pituus ominaisuudella (`nimi.pituus`), ja *ei* kirjoitetaan `jos(ehto; ei; kyllä)` tai vertailulla `ehto = ei`.
+- **Varatut sanat:** `jos`, `muuten`, `niin`, `ja`, `tai` eivät kelpaa viitteeksi. Palikka, jonka viite oli jokin niistä, sai avattaessa uuden viitteen (esim. `ja_2`); kaavat säilyivät, koska ne tallentavat palikan tunnisteen. JOS-palikan oletusviite on `jos_2`.
+- **Ei funktioita.** Ei esimerkiksi summa(), pyöristä() tai pituus(). Monen arvon yhdistäminen tehdään ikkunoilla (SUMMA, KESKIARVO …), tekstin pituus ominaisuudella (`nimi.pituus`).
 
-Funktioiden virheet:
+**Vanha muoto muuttuu itsestään.** Ennen Appi-appi 55:tä kaavassa oli funktiot `jos(ehto; kyllä; muuten)`, `ja(…; …)` ja `tai(…; …)`. Avattaessa ne muuttuvat uuteen muotoon kaikkialla (Kaava, Toiminnon ja Lisää rivi -kentät, käynnissä olevan lukitun ketjun lukituskuva, presetit ja suosikit), sisäkkäiset mukaan lukien, ja tulos pysyy samana. Liitetty tai tekoälyn kirjoittama vanha muoto muunnetaan kirjoitettaessa; kenttä näyttää uuden muodon, kun siitä poistutaan. Esimerkkejä:
 
-- `jos tarvitsee ehdon ja kyllä-osan: jos(ehto; kyllä; muuten), muuten-osa on valinnainen`
-- `jos-funktiossa on enintään kolme osaa: jos(ehto; kyllä; muuten)`
-- `jos: ehto puuttuu`
-- `ja tarvitsee ehdot: ja(ehto; ehto)` (samoin tai)
-- `erota osat puolipisteellä, esim. jos(uni > 7; "hyvä"; "huono"): pilkku on desimaalimerkki`
-- `puolipiste erottaa funktion osat: jos(ehto; kyllä; muuten)` (puolipiste funktion ulkopuolella)
-- `sulku jäi auki: lisää loppuun )`
-- `sulku ) ilman avaavaa jos(, ja( tai tai(`
-- `odotettiin puolipistettä tai sulkua )`
+| Vanha | Uusi |
+|---|---|
+| `jos(uni > 7; "hyvä"; "huono")` | `jos (uni > 7) "hyvä" muuten "huono"` |
+| `jos(uni > 7; "a"; jos(uni > 5; "b"; "c"))` | `jos (uni > 7) "a" muuten jos (uni > 5) "b" muuten "c"` |
+| `jos(uni > 7; 10; 20) + 1` | `(jos (uni > 7) 10 muuten 20) + 1` |
+| `ja(a > 1; tai(b; c))` | `a > 1 ja (b tai c)` |
+| `jos(uni > 5;; 2)` | `jos (uni > 5) tyhjä muuten 2` |
+| `ja(kyllä)` | `kyllä ja kyllä` |
+
+Virheet:
+
+- `ehto sulkuihin tai niin perään: jos (ehto) kyllä muuten ei, tai jos ehto niin kyllä muuten ei`
+- `jos: kyllä-osa puuttuu ehdon jälkeen: …`, `muuten-osa jäi tyhjäksi`
+- `muuten ilman jos: …`, `niin kuuluu jos-ehdon perään: …`, `ja tarvitsee ehdon molemmille puolille: …` (samoin tai)
+- `pilkku on desimaalimerkki (2,5); yhdistä ehdot näin: uni > 7 ja ikä < 50`
+- `puolipistettä ei käytetä: jos (ehto) kyllä muuten ei · ehto ja ehto · ehto tai ehto` (vanha muoto, jota ei saatu muunnettua, esim. sulku auki)
+- `sulku jäi auki: lisää )`, `sulku ) ilman avaavaa (`, `odotettiin arvoa ennen sulkua )`
 
 ### Päivämäärät
 
@@ -379,7 +390,7 @@ Kaavassa on kaksi eri "ei arvoa" -tilaa:
 - Näytetään `–`.
 - Lasku sen kanssa on tuntematon: `ostokset.eka.määrä + 1` = –.
 - `= tyhjä` pätee: `ostokset.eka.määrä = tyhjä` = kyllä. `≠` vastaavasti.
-- Suuruusvertailu on tuntematon (`–`), ja ehtona tuntematon ei päde: `jos(ostokset.eka.määrä > 0; "on"; "ei")` = ei.
+- Suuruusvertailu on tuntematon (`–`), ja ehtona tuntematon ei päde: `jos (ostokset.eka.määrä > 0) "on" muuten "ei"` = ei.
 - `.tiedossa` kertoo, onko arvo olemassa: `ostokset.eka.määrä.tiedossa` = ei.
 
 Tarkemmin taulukoiden puuttuvasta tiedosta Tietotaulukon luvussa.
@@ -397,17 +408,17 @@ Kirjoitusvirheet (kaavaa ei voi lukea):
 | `kaava jäi kesken` | `5 +` | lisää arvo |
 | `odotettiin arvoa, ei merkkiä` | `+ 5`, `uni => 5` | `5`, `uni >= 5` |
 | `ylimääräistä kaavan lopussa` | `5 5`, `1 000`, `"a" "b"` | lisää laskumerkki |
-| `sulkuja ei käytetä kaavassa muuten kuin jos(…), ja(…) ja tai(…): laita osat ikkunaan` | `(1 + 2)` | tee välikaava |
-| `vain yksi vertailu kerrallaan: …` | `1 < 2 < 3` | `ja(1 < 2; 2 < 3)` |
-| `funktion osa jäi tyhjäksi` | | täytä osa |
+| `sulku jäi auki: lisää )` | `(1 + 2` | `(1 + 2)` |
+| `vain yksi vertailu kerrallaan: …` | `1 < 2 < 3` | `1 < 2 ja 2 < 3` |
+| `laskun tai vertailun keskellä jos sulkuihin: …` | `2 * jos (a) 1` | `2 * (jos (a) 1)` |
 | `”31.2.2026” ei ole päivämäärä` | `31.2.2026` | oikea päivä |
-| funktiovirheet | ks. Funktiot | |
+| jos-, ja- ja tai-virheet | ks. [Jos, ja, tai](#jos-ja-tai) | |
 
 Laskuvirheet (kaava luettiin, mutta arvoa ei voi laskea):
 
 | Virhe | Syy |
 |---|---|
-| `puuttuu: kissa` | sanaa ei tunneta viitteeksi (unohtuivatko lainausmerkit?); näkyy heti, myös jos-funktion valitsematta jääneessä osassa |
+| `puuttuu: kissa` | sanaa ei tunneta viitteeksi (unohtuivatko lainausmerkit?); näkyy heti, myös jos:n valitsematta jääneessä osassa |
 | `Ryhmä ei ole arvo` | vanhan projektin kaava tai teksti osoittaa Ryhmään; kirjoita oikean palikan viite |
 | `kohde poistettu: uni` | viitattu palikka on poistettu |
 | `jako nollalla` | `uni / 0` |
@@ -442,7 +453,7 @@ Kaava voi antaa arvonsa nimetylle **Kaavan tulos** -palikalle: kaava `summa = un
 - Jos vasemmalla on muu palikka, `=` on vertailu: `uni = 7` antaa kyllä tai ei. Paneeli kertoo: *Uni ei ole kaavan tulos, joten = vertaa ja tulos on kyllä tai ei. Arvon voi antaa vain Kaavan tulos -palikalle.*
 - `summa.arvo = 5` on aina vertailu.
 - **Vain yksi kaava voi antaa arvon.** Ensin tehty kaava voittaa. Myöhempi kaava näyttää virheen `⚠ ”summa” saa arvonsa jo kaavasta ”Kaava”`, ja Kaavan tuloksen paneelissa lukee *Myös ”Kaava 2” yrittää antaa arvon. Ensin tehty kaava voittaa.*
-- Oikealla puolella saa olla mikä tahansa kaava, myös jos: `arvio = jos(uni > 7; "levännyt"; "väsynyt")`.
+- Oikealla puolella saa olla mikä tahansa kaava, myös jos: `arvio = jos (uni > 7) "levännyt" muuten "väsynyt"`.
 - Kaavan oma tulos on sama arvo, ja paneelissa näkyy **Antaa arvon:** ja nappi ⇐ Summa.
 
 ### Tuloksen luonti kaavasta
@@ -711,7 +722,7 @@ Mitä ehdotetaan:
 
 - **Viitteet:** kun kirjoitat sanaa, enintään 8 palikkaa, joiden viite alkaa kirjoitetulla tai joiden nimessä se esiintyy. Ensin viitteen alulla osuvat. Napissa viite ja pienellä palikan nimi. Kaava itse ja palikat ilman arvoa jäävät pois.
 - **Ominaisuudet:** heti viitteen ja pisteen jälkeen (`uni.`) palikan ominaisuudet, joiden nimi alkaa kirjoitetulla, kuvauksineen. Myös `nyt.`, `ruutu.` ja `näkymä.` ehdottavat omat osansa.
-- **Funktiot:** kahden kirjaimen jälkeen `jos(`, `ja(`, `tai(` (sulku mukaan) kuvauksineen.
+- **Sanat:** kahden kirjaimen jälkeen kaavan alussa `jos (` (sulku mukaan), arvon jälkeen `ja`, `tai`, `niin` ja `muuten` kuvauksineen.
 - **sisältää:** kahden kirjaimen jälkeen (`si`), kun edellä on arvo.
 - **＋ Luo Arvo ”nimi”** (Appi-appi 37): kun kaavassa on nimi, jota mikään palikka ei käytä viitteenä (`⚠ puuttuu: yöuni`), ehdotusrivillä on katkoreunainen nappi **＋ Luo Arvo ”yöuni”**. Napautus tekee logiikkaan uuden Arvo-palikan, jonka nimi ja viite on sana ja arvo tyhjä, kaavan viereen. Kaava kytkeytyy siihen heti; arvon annat Arvon paneelissa. Kumoa poistaa luodun palikan (yksi askel). Paneelissa nappi näkyy heti, kun avaat kaavan, jossa on tuntematon nimi. Juuri kirjoitettavalle sanalle nappi tulee vasta, kun sanassa on vähintään kaksi merkkiä eikä mikään palikka sovi siihen. Nappia ei tule varatulle sanalle (`tänään`, `nyt`, `ei` …), funktion nimelle, `sisältää`-sanalle, nimelle pisteen kanssa (`kello.tunti`) eikä kaavan tuloksen nimelle (`summa = …`, sille on **＋ Luo kaavan tulos**).
 - Lainausmerkkien sisällä ei ehdoteta mitään.
@@ -748,12 +759,12 @@ Kaava- ja Kaavan tulos -palikan paneelin alaosassa on osio **Miksi?**, joka kert
 **Kaavalla:**
 
 - Ensimmäinen rivi: *Kaava: uni > 7.* Virheen kanssa: *Kaava: … · virhe.* Tulos-kaavalla: *· antaa arvon palikalle ”Summa”* (ja jos toinen kaava omistaa tuloksen: *, mutta ensin tehty kaava ”Kaava” antaa jo arvon*). Tyhjä: *Kaava on tyhjä. Kirjoita esim. uni > 7.*
-- Jokaisesta lasketusta jos-funktiosta: *Ehto ”uni > 7” pätee, joten jos valitsi kyllä-osan.* tai *… ei päde, joten jos valitsi muuten-osan.*
+- Jokaisesta lasketusta jos:sta: *Ehto ”uni > 7” pätee, joten jos valitsi kyllä-osan.* tai *… ei päde, joten jos valitsi muuten-osan.*
 - Alla jokainen kaavan käyttämä palikka tai ominaisuus omalla rivillään: merkki ✓ (pätee), ✗ (ei päde), ⚠ (virhe) tai • (arvo), nimi ja nykyinen arvo. Ominaisuus näkyy muodossa *Otsikko .näkyy*. Rivin napautus vie palikkaan. Selitys menee neljä tasoa syvälle (kaavan lähteiden lähteet).
 
 **Kaavan tuloksella:** *Arvo tulee kaavasta: summa = uni + 1.* ja kaava riveineen alla. Ilman kaavaa: *Mikään kaava ei vielä anna arvoa. Kirjoita kaavaan esim. summa = a + b.*
 
-Rajoitus: Miksi? kertoo jos-funktion valinnan vain Kaava-palikalle.
+Rajoitus: Miksi? kertoo jos:n valinnan vain Kaava-palikalle. Ehto näytetään sulkuineen vain, kun laskujärjestys niitä tarvitsee.
 
 ---
 
@@ -812,16 +823,19 @@ Oletus: `uni` = 6 (Säädin), `nimi` = "Maija Meikäläinen" (Tekstikenttä), `o
 | päivä | `tänään < 1.11.` | kyllä |
 | tyhjä | `tyhjä = 0` | ei |
 
-### Funktiot
+### Jos, ja, tai ja sulut
 
-| Funktio | Esimerkki | Tulos |
+| Kirjoitus | Esimerkki | Tulos |
 |---|---|---|
-| `jos(ehto; kyllä; muuten)` | `jos(uni > 5; "hyvä"; "huono")` | hyvä |
-| `jos(ehto; kyllä)` | `jos(uni > 7; "hyvä")` | – |
-| sisäkkäinen jos | `jos(uni > 7; "iso"; jos(uni > 5; "keski"; "pieni"))` | keski |
-| `ja(…; …)` | `ja(uni > 5; uni < 8)` | kyllä |
-| `tai(…; …)` | `tai(uni > 7; uni < 2)` | ei |
-| ei sisällä | `jos(nimi sisältää "x"; ei; kyllä)` | kyllä |
+| sulut | `(uni - 1) * 2` | 10 |
+| `jos (ehto) a muuten b` | `jos (uni > 5) "hyvä" muuten "huono"` | hyvä |
+| `jos ehto niin a muuten b` | `jos uni > 5 niin "hyvä" muuten "huono"` | hyvä |
+| `jos (ehto) a` | `jos (uni > 7) "hyvä"` | – |
+| muuten jos | `jos (uni > 7) "iso" muuten jos (uni > 5) "keski" muuten "pieni"` | keski |
+| `a ja b` | `uni > 5 ja uni < 8` | kyllä |
+| `a tai b` | `uni > 7 tai uni < 2` | ei |
+| jos laskussa | `2 * (jos (uni > 5) 10 muuten 1)` | 20 |
+| ei sisällä | `(nimi sisältää "x") = ei` | kyllä |
 
 ### Tulos ja tekstit
 
@@ -836,9 +850,9 @@ Oletus: `uni` = 6 (Säädin), `nimi` = "Maija Meikäläinen" (Tekstikenttä), `o
 
 | Kirjoitus | Miksi | Tilalle |
 |---|---|---|
-| `(1 + 2) * 3` | ei sulkuja | välikaava |
-| `1 < uni < 8` | yksi vertailu | `ja(1 < uni; uni < 8)` |
-| `jos(uni > 5, 1, 2)` | pilkku | `jos(uni > 5; 1; 2)` |
+| `1 < uni < 8` | yksi vertailu | `1 < uni ja uni < 8` |
+| `jos (uni > 5) 1, 2` | pilkku | `jos (uni > 5) 1 muuten 2` |
+| `jos uni > 5 1` | ehto ilman sulkuja ja niin-sanaa | `jos (uni > 5) 1` |
 | `uni => 5` | väärä merkki | `uni >= 5` |
 | `1 000` | tuhaterotin | `1000` |
 | `2026-05-01` | lasku | `1.5.2026` |
@@ -851,17 +865,17 @@ Oletus: `uni` = 6 (Säädin), `nimi` = "Maija Meikäläinen" (Tekstikenttä), `o
 
 ## Reseptit
 
-### Ehdollinen teksti jos-funktiolla
+### Ehdollinen teksti jos:lla
 
 Teksti, joka sanoo *Levännyt*, kun unta on yli 7 tuntia, muuten *Väsynyt*.
 
 1. Näkymässä on Säädin *Uni* (viite `uni`) ja Teksti-palikka *Arvio*.
 2. Valitse *Arvio*. Paneelissa tekstikentän alla napauta **ƒ Teksti kaavasta**.
-3. Appi tekee Kaava-palikan ja avaa sen. Kirjoita `jos(uni > 7; "Levännyt"; "Väsynyt")`.
+3. Appi tekee Kaava-palikan ja avaa sen. Kirjoita `jos (uni > 7) "Levännyt" muuten "Väsynyt"`.
 4. Kentän alla näkyy esim. **Nyt: Väsynyt**. Siirrä säädintä käyttönäkymässä: teksti vaihtuu.
 5. Paluu Teksti-palikkaan: paneelin yläosan **‹ Arvio**.
 
-Kolme vaihtoehtoa: `jos(uni > 7; "Levännyt"; jos(uni > 5; "Ok"; "Väsynyt"))`.
+Kolme vaihtoehtoa: `jos (uni > 7) "Levännyt" muuten jos (uni > 5) "Ok" muuten "Väsynyt"`.
 
 ### Hae tekstistä sisältää-vertailulla
 
@@ -884,7 +898,7 @@ Taulukon riveille sama toimii Rivijoukon ehtona: `rivi.nimi sisältää haku` (k
 
 1. Valitse Teksti-palikka *Otsikko*. Avaa paneelin **Ominaisuudet**-osio.
 2. Rivillä `otsikko.väri` napauta **ƒ**.
-3. Kirjoita kaavaan `jos(uni > 7; 4; 1)`.
+3. Kirjoita kaavaan `jos (uni > 7) 4 muuten 1`.
 4. Käytössä otsikon väri on paletin väri 4, kun uni on yli 7, muuten väri 1. Ominaisuudet-osiossa rivillä näkyy **ƒ** ja otsikossa *1 ohjattu*.
 
 ---

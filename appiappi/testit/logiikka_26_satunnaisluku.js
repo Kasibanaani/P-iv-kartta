@@ -118,7 +118,7 @@ var bad=mk();bad.b.jak='outo';bad.b.pn='15';bad.b.pw=['20','x',150,-5];bad.b.min
 A.strictEqual(bad.b.jak,'tasa');A.strictEqual(bad.b.pn,10);A.deepStrictEqual(bad.b.pw,[20,50,100,0,50,50,50,50,50,50]);A.strictEqual(bad.b.min,'');A.strictEqual(bad.b.max,'');A.ok(!bad.P.st.hasOwnProperty(bad.b.id));
 var noDefaults={id:'b9',k:'satu',nm:'Noppa',vt:'noppa'};var P5=KK.newProject('v');P5.b.b9=noDefaults;P5.lg.n.push({id:'n9',p:'b9',x:0,y:0,g:''});KK.repair(P5);A.strictEqual(P5.b.b9.max,6);A.deepStrictEqual(P5.b.b9.pw,[50,50,50,50,50]);
 X=mk({jak:'muoto',pn:4,pw:[5,10,20,40],min:0,max:30});RV=0.8;KK.satuRoll(X.P,X.b.id,C);var J=JSON.parse(JSON.stringify({app:'kytkoskartta',ver:KK.VER,projects:[X.P]}));var Dt=KK.repairData(J);var P2=Dt.projects[0];
-A.deepStrictEqual(P2.b[X.b.id].pw,[5,10,20,40]);A.strictEqual(KK.Ev(P2,C).val(X.b.id),KK.Ev(X.P,C).val(X.b.id),'arvottu luku säilyy tallennuksessa');A.strictEqual(Dt.ver,8);
+A.deepStrictEqual(P2.b[X.b.id].pw,[5,10,20,40]);A.strictEqual(KK.Ev(P2,C).val(X.b.id),KK.Ev(X.P,C).val(X.b.id),'arvottu luku säilyy tallennuksessa');A.strictEqual(Dt.ver,KK.VER);
 // Kopioi ja liitä
 var cp=KK.copyNodes(X.P,[X.n.id]);var made=KK.pasteNodes(X.P,cp,40,40);var nb=Object.keys(X.P.b).filter(function(i){return i!==X.b.id&&X.P.b[i].k==='satu';});A.strictEqual(nb.length,1);A.deepStrictEqual(X.P.b[nb[0]].pw,[5,10,20,40]);A.notStrictEqual(X.P.b[nb[0]].vt,X.b.vt);
 // Vanha projekti ilman satunnaislukua ennallaan

@@ -117,7 +117,7 @@ A.strictEqual(KK.Ev(P2,C).val(X.lue.id),1,'oma muutos kuvasta tallennuksen yli')
 // kuva puuttuu tai on vanhasta versiosta → näkyvä este, ei salaa ajantasaiseksi
 X=mk(2);X.ajastin(10);X.aseta(X.lue,'1');X.run();var J3=JSON.parse(JSON.stringify(X.P));delete J3.st[X.k.id].snap;var P3=KK.repair(J3);A.strictEqual(P3.st[X.k.id].lk,2);
 NOW+=10000;KK.chainPoll(P3,C);A.strictEqual(P3.st[X.k.id].run,false);A.ok(/Lukituskuva puuttuu/.test(P3.st[X.k.id].err));A.strictEqual(KK.Ev(P3,C).val(X.lue.id),null);
-X=mk(2);X.ajastin(10);X.run();var J4=JSON.parse(JSON.stringify(X.P));J4.st[X.k.id].snap.ver=KK.VER-1;var P4=KK.repair(J4);NOW+=10000;KK.chainPoll(P4,C);A.ok(/vanhasta versiosta/.test(P4.st[X.k.id].err));
+X=mk(2);X.ajastin(10);X.run();var J4=JSON.parse(JSON.stringify(X.P));J4.st[X.k.id].snap.ver=7;var P4=KK.repair(J4);NOW+=10000;KK.chainPoll(P4,C);A.ok(/vanhasta versiosta/.test(P4.st[X.k.id].err));
 // rikkinäinen tila korjataan
 var J5=JSON.parse(J);J5.st[X.k.id]={run:true,tk:[{n:'x',a:1}],lk:7,snap:'roska',own:[1],par:5};var P5=KK.repair(J5);var c5=P5.st[X.k.id];A.strictEqual(c5.lk,1);A.strictEqual(c5.snap,undefined);A.deepStrictEqual(c5.own,{});A.strictEqual(c5.par,undefined);
 var J6=JSON.parse(J);var kb6=Object.values(J6.b).filter(function(b){return b.k==='ketju';})[0];kb6.lk=5;A.strictEqual(KK.repair(J6).b[kb6.id].lk,undefined,'väärä perusarvo pois');kb6.lk='2';A.strictEqual(KK.repair(JSON.parse(JSON.stringify(J6))).b[kb6.id].lk,2);

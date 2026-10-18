@@ -1,6 +1,7 @@
 # Appi-appi 28 (F30 kohta 4): jos, ja ja tai kaavassa selaimessa (1440 ja 1280 hiirellä, 390 ja 320 kosketuksella).
-# Kaavan tulos jos-funktiosta näkyy näkymän tekstissä, paneelin kaava ja tulos, ehdotus jos( kirjoitettaessa,
-# pilkkuvirheen ohje, Miksi? kertoo kumpi osa valittiin, suora kirjoitus palikkaan (tietokone). Ei oikeaa iPhonea.
+# Kaavan tulos jos-rakenteesta näkyy näkymän tekstissä, paneelin kaava ja tulos, ehdotus jos ( kirjoitettaessa,
+# pilkkuvirheen ohje, Miksi? kertoo kumpi osa valittiin, suora kirjoitus palikkaan (tietokone). Jonon 12g: vanha
+# jos(;;) muuttuu uuteen muotoon (jos (ehto) a muuten b). Ei oikeaa iPhonea.
 import asyncio
 from playwright.async_api import async_playwright
 from yhteinen import *
@@ -28,7 +29,7 @@ async def main():
             await pg.wait_for_timeout(200)
             await pg.evaluate("APP.S.sel={t:'b',id:'%s'};APP.S.multi=[];APP.renderAll()"%I['k']);await pg.wait_for_timeout(200)
             ta='#insp textarea[data-kaava]'
-            v=await pg.input_value(ta);print(W,'2 kaava:',v);assert v=='arvio = jos(uni > 7; "levännyt"; "väsynyt")'
+            v=await pg.input_value(ta);print(W,'2 kaava:',v);assert v=='arvio = jos (uni > 7) "levännyt" muuten "väsynyt"',v
             r=await pg.inner_text('#kres');assert 'levännyt' in r,r
             w=await pg.inner_text('#whysec');print(W,'2 Miksi?:',w.replace('\n',' ')[:200]);assert 'Ehto ”uni > 7” pätee, joten jos valitsi kyllä-osan' in w
             # 3 muutos paneelissa: sisäkkäinen jos ja ja(…)
@@ -37,12 +38,12 @@ async def main():
             assert await P(pg,"E().val(B('Arvio').id)")=='paljon'
             # 4 pilkku erottimena: selvä ohje
             await pg.fill(ta,'jos(uni > 7, 1, 2)');await pg.wait_for_timeout(150)
-            r=await pg.inner_text('#kres');print(W,'4 virhe:',r);assert 'puolipisteellä' in r
-            # 5 ehdotus jos( kirjoitettaessa
+            r=await pg.inner_text('#kres');print(W,'4 virhe:',r);assert 'desimaalimerkki' in r
+            # 5 ehdotus jos ( kirjoitettaessa
             await pg.fill(ta,'jo');await pg.focus(ta);await pg.press(ta,'End');await pg.wait_for_timeout(150)
-            s=pg.locator('#ksug [data-ksug="jos("]');assert await s.count()==1,'ehdotus jos('
+            s=pg.locator('#ksug [data-ksug="jos ("]');assert await s.count()==1,'ehdotus jos ('
             await s.dispatch_event('pointerdown');await pg.wait_for_timeout(150)
-            v=await pg.input_value(ta);print(W,'5 ehdotus:',v);assert v=='jos('
+            v=await pg.input_value(ta);print(W,'5 ehdotus:',v);assert v=='jos (',v
             await pg.fill(ta,'jos(uni > 9; "a"; "b")');await pg.wait_for_timeout(150)
             w=await pg.inner_text('#whysec');assert 'ei päde, joten jos valitsi muuten-osan' in w,w
             await pg.screenshot(path='appiappi28_paneeli_%d.png'%W)
@@ -53,7 +54,7 @@ async def main():
                 await pg.fill('#kedit textarea','tai(uni > 9; uni < 3)');await pg.wait_for_timeout(150)
                 r=await pg.inner_text('#kres2');print(W,'6 suora:',r);assert 'ei päde' in r
                 await pg.press('#kedit textarea','Enter');await pg.wait_for_timeout(150)
-                f=await P(pg,"KK.kaavaToText(P,P.b['%s'].f)"%I['k']);assert f=='tai(uni > 9; uni < 3)',f
+                f=await P(pg,"KK.kaavaToText(P,P.b['%s'].f)"%I['k']);assert f=='uni > 9 tai uni < 3',f
                 await pg.screenshot(path='appiappi28_suora_%d.png'%W)
             print(W,'errs',errs);assert not errs,errs
             await ctx.close()

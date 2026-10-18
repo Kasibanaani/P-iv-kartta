@@ -38,7 +38,7 @@ async def main():
                     if tab=='logiikka' and k in PIILOSSA and not r['why']:puuttuu.append((k,r['txt'],r['hint']))
                     if tab=='logiikka' and k in TOISTO:assert not r['why'] and r['txt'],(W,k,r)
                     if tab=='logiikka' and k=='valitse':
-                        print(W,'VALITSE-vihje:',r['hint']);assert 'jos(' in r['hint'] and 'valituksi' not in r['hint'],r['hint']
+                        print(W,'VALITSE-vihje:',r['hint']);assert 'jos (' in r['hint'] and 'valituksi' not in r['hint'],r['hint']
             print(W,'puuttuu',puuttuu);assert not puuttuu,puuttuu
             print(W,'paneeleja',len(ids),'× 2 välilehteä; Miksi? näkyy:',len(nayt),sorted(nayt))
             # Toiminto Valitse pitää oman vihjeensä.

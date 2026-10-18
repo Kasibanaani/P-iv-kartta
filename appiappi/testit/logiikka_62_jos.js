@@ -1,6 +1,6 @@
-// Appi-appi 28 (F30 kohta 4): jos(ehto; kyllä; muuten), ja(…; …) ja tai(…; …) kaavassa. Puolipiste-erotin, sisäkkäinen
-// jos, muuten-osa valinnainen, vain valittu osa lasketaan, puuttuva ehto ei päde, yksi vertailu tasoa kohden,
-// virheet selvällä suomella, Kaavan tulos ja Miksi? (kumpi osa valittiin). Pelkät sulut ovat edelleen virhe.
+// Appi-appi 28 (F30 kohta 4): jos, ja ja tai kaavassa. Jonon 12g: vanha muoto jos(ehto; kyllä; muuten), ja(…; …), tai(…; …)
+// muuttuu kirjoitettaessa uuteen (jos (ehto) kyllä muuten ei, a ja b, a tai b), ja laskenta pysyy samana: sisäkkäinen
+// jos, muuten-osa valinnainen, vain valittu osa lasketaan, puuttuva ehto ei päde, Kaavan tulos ja Miksi?. Uusi muoto: logiikka_80_kaava_sulut.js.
 var KK=require('./moottori.js'),A=require('assert');
 var T=new Date(2026,9,17,12,0);var C={now:function(){return T;},toast:function(){},nav:function(){}};
 function N(P,b){return KK.addNode(P,b.id,0,0,'');}
@@ -13,7 +13,7 @@ var ika=KK.addBlock(P,'luku',{nm:'Ikä'});N(P,ika);KK.repair(P);KK.userSet(P,ika
 
 // Perusmuoto, kirjainkoko, muuten-osa valinnainen
 var k1=K(P,'jos(uni > 7; "hyvä"; "huono")');A.strictEqual(V(P,k1),'hyvä');
-A.strictEqual(KK.kaavaToText(P,k1.f),'jos(uni > 7; "hyvä"; "huono")','teksti säilyy');
+A.strictEqual(KK.kaavaToText(P,k1.f),'jos (uni > 7) "hyvä" muuten "huono"','vanha muoto muuttuu uudeksi');
 KK.userSet(P,uni.id,6,C);A.strictEqual(V(P,k1),'huono');
 A.strictEqual(V(P,K(P,'JOS(uni > 7; 1)')),null,'muuten puuttuu = tyhjä');
 A.strictEqual(V(P,K(P,'Jos (uni < 7; 2,5; 0)')),2.5,'isot kirjaimet, välilyönti ennen sulkua, desimaalipilkku');
@@ -43,24 +43,24 @@ A.ok(KK.isErr(V(P,K(P,'tai(kyllä; 1 / 0)'))),'ja/tai näyttävät virheen');
 var tul=KK.addBlock(P,'tulos',{nm:'Arvio'});N(P,tul);var kt=K(P,'arvio = jos(uni > 7; "levännyt"; "väsynyt")');
 A.strictEqual(V(P,kt),'levännyt');A.strictEqual(V(P,tul),'levännyt','kaavan tulos');
 
-// Samanniminen palikka: ilman sulkua viite, sulun kanssa funktio
-var ja=KK.addBlock(P,'luku',{nm:'Ja'});N(P,ja);KK.repair(P);A.strictEqual(ja.vt,'ja');KK.userSet(P,ja.id,5,C);
-var kj=K(P,'ja > 3');A.strictEqual(kj.f,'{#'+ja.id+'} > 3');A.strictEqual(V(P,kj),true,'viite');
-A.strictEqual(V(P,K(P,'ja(ja > 3; uni > 7)')),true,'funktio ja viite samassa');
+// Jonon 12g: ja on varattu sana, joten Ja-niminen palikka saa viitteen ja_2
+var ja=KK.addBlock(P,'luku',{nm:'Ja'});N(P,ja);KK.repair(P);A.strictEqual(ja.vt,'ja_2');KK.userSet(P,ja.id,5,C);
+var kj=K(P,'ja_2 > 3');A.strictEqual(kj.f,'{#'+ja.id+'} > 3');A.strictEqual(V(P,kj),true,'viite');
+A.strictEqual(V(P,K(P,'ja(ja_2 > 3; uni > 7)')),true,'vanha ja ja viite samassa');
 
 // Virheet selvällä suomella
 function err(s,re){var v=V(P,K(P,s));A.ok(KK.isErr(v),s);A.ok(re.test(v.err),s+' → '+v.err);}
-err('(uni + 1) > 7',/sulkuja ei käytetä/);err('(uni + 1) > 7',/ikkunaan/);
-err('jos(uni > 7, 1, 2)',/puolipisteellä/);A.strictEqual(V(P,K(P,'jos(uni > 7;1,2)')),1.2,'pilkku ilman välilyöntiä on desimaali');
-err('jos(uni > 7; 1',/jäi auki/);err('uni + 1)',/ilman avaavaa/);err('uni; 2',/puolipiste/);
-err('jos(uni > 7)',/kyllä-osan/);err('jos(uni > 7; 1; 2; 3)',/enintään kolme/);err('ja()',/tarvitsee ehdot/);
-err('jos(; 1; 2)',/ehto puuttuu/);err('uni > 7 > 2',/vain yksi vertailu/);err('jos(uni > 7 > 2; 1)',/vain yksi vertailu/);
-err('jos uni > 7',/sulkuihin/);
+A.strictEqual(V(P,K(P,'(uni + 1) > 7')),true,'sulut ryhmittelevät (12g)');
+err('jos(uni > 7, 1, 2)',/desimaalimerkki/);A.strictEqual(V(P,K(P,'jos(uni > 7;1,2)')),1.2,'pilkku ilman välilyöntiä on desimaali');
+err('jos(uni > 7; 1',/puolipistettä ei käytetä/);err('uni + 1)',/ilman avaavaa/);err('uni; 2',/puolipiste/);
+err('jos(uni > 7)',/kyllä-osa puuttuu/);err('jos(uni > 7; 1; 2; 3)',/puolipistettä ei käytetä/);err('ja()',/tyhjät sulut|tarvitsee ehdon/);
+err('jos(; 1; 2)',/puolipistettä ei käytetä/);err('uni > 7 > 2',/vain yksi vertailu/);err('jos(uni > 7 > 2; 1)',/vain yksi vertailu/);
+err('jos uni > 7',/sulkuihin tai niin/);
 
 // Miksi?: kumpi osa valittiin, myös sisäkkäin
 KK.userSet(P,uni.id,6,C);var E=KK.Ev(P,C),w=KK.why(P,E,k2.id,2,{});
 A.ok(/Ehto ”uni >= 8” ei päde, joten jos valitsi muuten-osan/.test(w.txt),w.txt);
 A.ok(/Ehto ”uni >= 6” pätee, joten jos valitsi kyllä-osan/.test(w.txt),w.txt);
 A.ok(KK.Ev(P,C).josTrace(kt.id).length===1,'kaavan tulos: jäljitys');
-A.deepStrictEqual(KK.Ev(P,C).josTrace(K(P,'uni + 1').id),[],'ei jos-funktiota');
+A.deepStrictEqual(KK.Ev(P,C).josTrace(K(P,'uni + 1').id),[],'ei jos-rakennetta');
 console.log('ok jos, ja, tai');

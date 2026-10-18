@@ -238,17 +238,17 @@ Emilin yksityisessä repossa `master-tiedot` on kansiossa `appiappi/` valmiita k
 ```
 {
  "app": "appiappi",
- "ver": 8,
+ "ver": 9,
  "savedAt": "2026-10-17T08:50:02.497Z",
  "projekti": { "id": "...", "name": "...", "seq": ..., "views": [...], "vseq": ..., "b": {...}, "lg": {"n": [...], "l": [...]}, "deco": [], "st": {}, "mem": {}, "lock": false }
 }
 ```
 
-- `ver` on moottorin versio `KK.VER` (nyt **8**, `var VER=8` moottorin alussa). Uudet valinnaiset kentät eivät ole nostaneet versiota.
+- `ver` on moottorin versio `KK.VER` (nyt **9**, `var VER=9` moottorin alussa). Uudet valinnaiset kentät eivät nosta versiota. Versio 9 (Appi-appi 55) muutti kaavan kieltä: vanhat `jos(;;)`, `ja(;)`, `tai(;)` muunnetaan avattaessa (`repair`, myös lukittujen ketjujen lukituskuvat, presetit ja suosikit), ja varattu viite (`jos`, `muuten`, `niin`, `ja`, `tai`) saa uuden (`ja_2`). Versio 9 -kaava ei aukea oikein vanhassa appissa. Tekoäly kirjoittaa uudet kaavat uudessa muodossa (luku 6, *Jos, ja, tai*).
 - Appi lukee myös tiedostot, joissa `app` on `pajakone` tai `kytkoskartta`.
 - Kelpoisuus (`okProj`): `app` on jokin yllä olevista, ja `projekti` on olio, jossa on `b` ja `lg`.
 
-**Yhden projektin vienti** (*Vie tiedostona*): `{app:'appiappi', ver:8, projects:[projekti]}`.
+**Yhden projektin vienti** (*Vie tiedostona*): `{app:'appiappi', ver:9, projects:[projekti]}`.
 
 **Varmuuskopio** (*Vie kaikki projektit*): koko tallennus `{app, ver, projects:[…], cur, cfg, meta, laput, lapPois, lapGh, lapVer, suos, presetit}`.
 

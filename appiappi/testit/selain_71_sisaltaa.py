@@ -29,7 +29,7 @@ async def main():
             await pg.wait_for_timeout(200)
             await pg.evaluate("APP.S.sel={t:'b',id:'%s'};APP.S.multi=[];APP.renderAll()"%I['k']);await pg.wait_for_timeout(200)
             ta='#insp textarea[data-kaava]'
-            v=await pg.input_value(ta);print(W,'2 kaava:',v);assert v=='osuma = jos(nimi sisältää haku; "löytyi"; "ei löytynyt")'
+            v=await pg.input_value(ta);print(W,'2 kaava:',v);assert v=='osuma = jos (nimi sisältää haku) "löytyi" muuten "ei löytynyt"',v
             assert 'löytyi' in await pg.inner_text('#kres')
             assert 'sisältää' in await pg.inner_text('#insp'),'ohjeessa tekstihaku'
             w=await pg.inner_text('#whysec');print(W,'2 Miksi?:',w.replace('\n',' ')[:200]);assert 'Ehto ”nimi sisältää haku” pätee' in w,w

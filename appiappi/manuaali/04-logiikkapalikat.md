@@ -281,17 +281,17 @@ Vertaa kahta arvoa. Tulos on kyllä tai ei.
 
 ## Kaava (`kaava`)
 
-Lyhyt lauseke, joka lasketaan jatkuvasti, esim. `uni > 7`, `tänään + 5` tai `jos(uni > 7; "hyvä"; "huono")`. Kaavakieli kuvataan omassa luvussaan.
+Lyhyt lauseke, joka lasketaan jatkuvasti, esim. `uni > 7`, `tänään + 5` tai `jos (uni > 7) "hyvä" muuten "huono"`. Kaavakieli kuvataan omassa luvussaan.
 
 - **Löytyy:** logiikan paletti → *Kaava* → **Kaava**. Näkymäpalikan paneelissa myös napit **ƒ Teksti kaavasta**, **ƒ Näkyy, kun kaava pätee** ja **ƒ Harmaana, kun kaava pätee**, sekä Ominaisuudet-rivin **ƒ**: ne tekevät Kaavan ja nuolen valmiiksi.
 - **Sisään:** ei kohtia (viittaukset kirjoitetaan kaavaan).
 - **Ulos:** *tulos* (arvo).
-- **Asetukset (paneeli):** kaavakenttä, ehdotusrivi (viitteet, ominaisuudet pisteen jälkeen, `jos(`, `ja(`, `tai(`, `sisältää`, tuntemattomalle nimelle **＋ Luo Arvo**), tulosrivi (*Nyt: …* tai virhe), napit **＋ Viite** ja **＋ Ominaisuus**. Osio *Vie tulos jatkuvasti*: nappi **Vie tulos näkymän palikkaan…** (näkyy kun, harmaana kun, vaihtoväri kun tai teksti). Osio *Kun tulos alkaa päteä (kerran)*: **＋ Lisää toiminto…**.
+- **Asetukset (paneeli):** kaavakenttä, ehdotusrivi (viitteet, ominaisuudet pisteen jälkeen, `jos (`, `ja`, `tai`, `niin`, `muuten`, `sisältää`, tuntemattomalle nimelle **＋ Luo Arvo**), tulosrivi (*Nyt: …* tai virhe), napit **＋ Viite** ja **＋ Ominaisuus**. Osio *Vie tulos jatkuvasti*: nappi **Vie tulos näkymän palikkaan…** (näkyy kun, harmaana kun, vaihtoväri kun tai teksti). Osio *Kun tulos alkaa päteä (kerran)*: **＋ Lisää toiminto…**.
 - **Suoraan kirjoittaminen (Appi-appi 27):** kaksoisnapautus Kaavaan tai napautus jo valittuun Kaavaan avaa kirjoituskentän palikan kohdalle. Enter tai napautus muualle tallentaa, Esc peruu; koko muokkaus on yksi Kumoa-askel. Ketjun sisällä ei toimi.
 - **Venyvä Kaava (Appi-appi 27):** valitun Kaavan oikeassa alakulmassa on venytyskulma (puhelimessa hieman sisempänä). Venytetty Kaava näyttää koko kaavan rivitettynä. Kaksoisnapautus kulmaan palauttaa koon. Ketjussa ei veny.
 - **Pudotus:** Kaavan voi raahata ikkunaan (ikkuna hoitaa sulut) tai näkymän palikan päälle logiikassa (teksti, näkyy kun, harmaana kun).
 - **Ominaisuudet:** `arvo`.
-- **Huomio:** Sana ilman lainausmerkkejä on aina viite. Pelkät sulut laskussa (`(a + 1) * 2`) ovat virhe; sulut käyvät vain funktioissa `jos`, `ja`, `tai`. Isommat yhdistelmät tehdään ikkunoilla. Kaava `x = …`, jossa x on Kaavan tulos -palikan viite, antaa arvon sille (ks. alla); muuten `=` vertaa.
+- **Huomio:** Sana ilman lainausmerkkejä on aina viite. Sulut ryhmittelevät (`(a + 1) * 2`), ja ehto kirjoitetaan sanoin: `jos (ehto) a muuten b`, `a ja b`, `a tai b` (Appi-appi 55; vanha `jos(;;)` muuttuu itsestään). Kaavassa ei ole funktioita. Isommat yhdistelmät myös ikkunoilla. Kaava `x = …`, jossa x on Kaavan tulos -palikan viite, antaa arvon sille (ks. alla); muuten `=` vertaa.
 
 ## Kaavan tulos ✦ (`tulos`)
 
@@ -305,7 +305,7 @@ Nimetty arvo, jonka antaa kaava muodossa `viite = lauseke`. Tällä saa kaavalle
 - **Asetukset (paneeli):** näyttää kaavan, josta arvo tulee (napautus vie siihen), tai napin **ƒ Kirjoita kaava tälle**. Osio **Näkymään** → **▢ Tee näkymään** tekee arvolle näyttölaatikon näkymään ([Tee näkymään](06-kaavat.md#tee-näkymään); sama kaikilla arvollisilla logiikkapalikoilla).
 - **Ominaisuudet:** `arvo`.
 - **Kaavassa:** `pisteet` tulos, vertailuun `pisteet == 8`. Tekstissä `{pisteet}`.
-- **Esimerkki:** Kaava `arvio = jos(uni > 7; "levännyt"; "väsynyt")`. Teksti `{arvio}`.
+- **Esimerkki:** Kaava `arvio = jos (uni > 7) "levännyt" muuten "väsynyt"`. Teksti `{arvio}`.
 - **Huomio:** Vain yksi kaava voi antaa arvon: ensin tehty voittaa, ja paneeli varoittaa muista. Ilman kaavaa arvo on tyhjä.
 
 ## Tänään (`tanaan`)
@@ -343,7 +343,7 @@ Kun ehto **alkaa päteä**, NIIN-toiminnot tehdään kerran. Valinnainen MUUTEN-
 - **Ominaisuudet:** `arvo`, `käytössä` (ohjattava).
 - **Aika ja tila:** NIIN tehdään uudelleen vasta, kun ehto on välillä lakannut päteä. Jos ehto pätee jo, kun projekti avataan, NIIN ei lähde.
 - **Esimerkki:** ks. resepti *Näytä viesti vain kun ehto pätee*.
-- **Huomio:** JOS ei pakota tilaa: jos haluat, että jokin näkyy *niin kauan kuin* ehto pätee, vie ehto suoraan näkymäpalikan kohtaan *näkyy kun*. Pois käytöstä oleva JOS ei lähetä tapahtumia. Kaavan `jos(…)` on eri asia: se valitsee arvon eikä tee mitään.
+- **Huomio:** JOS ei pakota tilaa: jos haluat, että jokin näkyy *niin kauan kuin* ehto pätee, vie ehto suoraan näkymäpalikan kohtaan *näkyy kun*. Pois käytöstä oleva JOS ei lähetä tapahtumia. Kaavan `jos (…) … muuten …` on eri asia: se on VALITSE-palikka kaavana, valitsee arvon eikä tee mitään.
 
 ## VALITSE (`valitse`)
 
@@ -355,7 +355,7 @@ Antaa arvon A, kun ehto pätee, muuten arvon B. Ei tee mitään, vain antaa arvo
 - **Asetukset (paneeli):** **Arvo, kun ehto pätee** (tyhjä = kyllä), **Arvo muuten** (tyhjä = ei). Kenttä tai *tai palikka…*.
 - **Ominaisuudet:** `arvo`.
 - **Esimerkki:** Kytkin → *ehto*, A = `Päivä`, B = `Yö` → Teksti *teksti*. Toinen käyttö: VALITSE kahden kuvan SVG-tekstin välillä → Kuva-palikan kohta *kuva*.
-- **Huomio:** Sama kaavana: `jos(kytkin; "Päivä"; "Yö")`.
+- **Huomio:** Sama kaavana: `jos (kytkin) "Päivä" muuten "Yö"`.
 
 ## Hakutaulukko (`haku`)
 

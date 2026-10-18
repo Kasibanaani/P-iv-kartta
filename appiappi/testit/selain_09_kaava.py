@@ -106,9 +106,11 @@ async def main():
             await paletti(pg,'Kaava',wr['x']+70,wr['y']+wr['height']-40);await pg.wait_for_timeout(150)
             await pg.fill('#insp textarea[data-kaava]','u2 < 6');await pg.wait_for_timeout(100)
             r=await P(pg,"[E().members(B('Ja-ikkuna').id).length,E().val(B('Ja-ikkuna').id)]");print(W,'19 kaava ikkunassa:',r);assert r==[1,True]
-            # sulkuvirhe näkyy selvällä suomella
+            # jonon 12g: sulut ryhmittelevät; auki jäänyt sulku näkyy selvällä suomella
             await pg.fill('#insp textarea[data-kaava]','(u2 + 1) < 6');await pg.wait_for_timeout(100)
-            res=await pg.inner_text('#kres');print(W,'20 virhe:',res);assert 'ikkunaan' in res
+            res=await pg.inner_text('#kres');print(W,'20 sulut:',res);assert 'Nyt:' in res and '⚠' not in res,res
+            await pg.fill('#insp textarea[data-kaava]','(u2 + 1 < 6');await pg.wait_for_timeout(100)
+            res=await pg.inner_text('#kres');print(W,'20 virhe:',res);assert 'sulku jäi auki' in res,res
             await pg.fill('#insp textarea[data-kaava]','u2 < 6');await pg.wait_for_timeout(100)
             # viite näkyy logiikan palikan kulmassa
             vtags=await pg.locator('#lworld .vtag').all_inner_texts();print(W,'21 viitteet kulmissa:',sorted(vtags));assert 'jatka' in vtags and 'kevyt' in vtags

@@ -74,7 +74,7 @@ Avaa **projektin nimi ▾** yläpalkin vasemmasta reunasta. Ikkunassa *Projektit
 | Muisti- ja viestilaput | lappujen määrät, lista, *Hae vastaukset*, *Kopioi laput tekstinä* (ks. Laput) |
 | GitHub-tallennus | Repo, Avain, automaattinen tallennus, *Tallenna nyt*, *Hae GitHubista*, *Hae uudet projektit*, *Testaa yhteys* (luku [Tallennus](09-tallennus.md)) |
 
-Alimpana näkyy versio: Appi-appi-numero ja tallennusmuodon versio, esim. ”Appi-appi 39 (entinen Pajakone, tallennusmuoto 8, …)”.
+Alimpana näkyy versio: Appi-appi-numero ja tallennusmuodon versio, esim. ”Appi-appi 39 (entinen Pajakone, tallennusmuoto 9, …)”.
 
 ## Välilehdet: Näkymä, Logiikka ja Rinnakkain
 

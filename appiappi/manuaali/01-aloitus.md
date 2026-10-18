@@ -45,9 +45,9 @@ Vaiheet on kokeiltu tietokoneen Chromiumissa 1440 px leveänä (17.10.2026, Appi
 
 **3. Teksti, jossa on viite.** Ryhmästä *Näyttö* vedä **Teksti** säätimen alle. Kirjoita paneelin kenttään **Teksti**: `Joit {lasit} lasia.` Aaltosulkeet hakevat toisen palikan arvon tekstiin.
 
-**4. Kaava ja Kaavan tulos.** Vaihda yläpalkista välilehdelle **Logiikka**. Paletin ryhmästä *Kaava* lisää **Kaava**. Kirjoita paneelin kaavakenttään `jaljella = jos(lasit >= 8; 0; 8 - lasit)` ja paina Enter. Paneeli sanoo *⚠ puuttuu: jaljella* ja tarjoaa napin **＋ Luo kaavan tulos ”jaljella”**: paina sitä. Nyt on olemassa nimetty arvo `jaljella`, ja paneelissa lukee *Nyt: 8*. (Kaavan voi kirjoittaa myös suoraan palikkaan kaksoisnapauttamalla sitä.)
+**4. Kaava ja Kaavan tulos.** Vaihda yläpalkista välilehdelle **Logiikka**. Paletin ryhmästä *Kaava* lisää **Kaava**. Kirjoita paneelin kaavakenttään `jaljella = jos (lasit >= 8) 0 muuten 8 - lasit` ja paina Enter. Paneeli sanoo *⚠ puuttuu: jaljella* ja tarjoaa napin **＋ Luo kaavan tulos ”jaljella”**: paina sitä. Nyt on olemassa nimetty arvo `jaljella`, ja paneelissa lukee *Nyt: 8*. (Kaavan voi kirjoittaa myös suoraan palikkaan kaksoisnapauttamalla sitä.)
 
-Kaava luetaan näin: jos lasit on vähintään 8, jäljellä on 0, muuten 8 miinus lasit. Puolipiste erottaa osat. Pelkkä `jaljella = 8 - lasit` toimisi myös, mutta näyttäisi yli tavoitteen mentäessä negatiivisen luvun.
+Kaava luetaan näin: jos lasit on vähintään 8, jäljellä on 0, muuten 8 miinus lasit. Ehto on suluissa, ja `muuten` aloittaa toisen vaihtoehdon. Pelkkä `jaljella = 8 - lasit` toimisi myös, mutta näyttäisi yli tavoitteen mentäessä negatiivisen luvun.
 
 **5. Toinen teksti.** Palaa välilehdelle **Näkymä**. Lisää **Teksti** ja kirjoita: `Tavoitteeseen {jaljella} lasia.`
 
@@ -72,7 +72,7 @@ Paluu muokkaukseen: **✏️ Muokkaa**. Säätimen asento on käyttötietoa ja s
 |---|---|---|
 | 2 | Näkymäpalikka, Nimi ja Viite | [Näkymäpalikat](03-nakymapalikat.md), [Työympäristö](02-tyoymparisto.md#nimi-ja-viite) |
 | 3 | Viite tekstissä `{…}` | [Kaavat](06-kaavat.md) |
-| 4 | Kaava, `jos(;;)`, Kaavan tulos | [Kaavat](06-kaavat.md), [Logiikkapalikat](04-logiikkapalikat.md#kaavan-tulos--tulos) |
+| 4 | Kaava, `jos (…) … muuten …`, Kaavan tulos | [Kaavat](06-kaavat.md), [Logiikkapalikat](04-logiikkapalikat.md#kaavan-tulos--tulos) |
 | 6 | Ehdollinen näkyvyys | [Näkymäpalikat: Näkyvyys-osio](03-nakymapalikat.md#näkyvyys-osio) |
 | 7 | Tapahtuma ja Toiminto | [Toiminnot ja ketjut](05-ketjut-ja-toiminnot.md) |
 | 8 | Muokkaus ja käyttö, käyttötieto | [Työympäristö](02-tyoymparisto.md#muokkaus-ja-käyttö--lukitse), [Tallennus](09-tallennus.md) |
