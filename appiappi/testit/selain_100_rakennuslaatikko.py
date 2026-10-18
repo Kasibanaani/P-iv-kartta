@@ -24,11 +24,11 @@ async def main():
                 n=await pg.evaluate("APP.rl.lisaa('seina',{x:100,y:100})");assert n==1
                 await pg.screenshot(path='rakennuslaatikko_%d.png'%W)
                 print(W,'ok','errs',errs);await b.close();continue
-            # 1 avaus palikkavalikosta: näkyy, kuusi hyllyä, Rakenne oletuksena
+            # 1 avaus palikkavalikosta: näkyy, seitsemän hyllyä (Laatat Appi-appi 84), Rakenne oletuksena
             await pg.locator('#pal [data-rlauki]').click();await pg.wait_for_timeout(150)
             assert await pg.evaluate("!document.querySelector('#rlbox').hidden")
             tabs=await pg.evaluate("[...document.querySelectorAll('#rlbox [data-rlhy]')].map(e=>e.textContent)")
-            assert tabs==['Rakenne','Hahmot','Alueet','Esineet','Näkymä','Omat'],tabs
+            assert tabs==['Rakenne','Laatat','Hahmot','Alueet','Esineet','Näkymä','Omat'],tabs
             # 2 klik klik: Seinä valitaan, kolme klikkausta = kolme estettä klikkauskohtiin (keskipiste, 10 px kohdistus)
             await pg.locator('#rlbox [data-rli="seina"]').click();await pg.wait_for_timeout(120)
             assert await pg.evaluate("APP.S.rl.pick")=='seina'

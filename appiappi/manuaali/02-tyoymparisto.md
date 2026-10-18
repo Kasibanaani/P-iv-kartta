@@ -470,10 +470,11 @@ Auki pysyvä, kelluva laatikko näkymäkanvaasin päällä (Appi-appi 61). Siit�
 
 - **Avaa ja sulje:** Näkymä-välilehden paletti → *Pikaluonti* → **Rakennuslaatikko** (sama sirun napautus sulkee). Laatikon otsikon **✕** piilottaa sen. Laatikko näkyy vain muokatessa Näkymä- tai Rinnakkain-välilehdellä; lukittuna ja Logiikka-välilehdellä se on piilossa ja palaa, kun palaat muokkaamaan.
 - **Siirrä:** vedä otsikosta (*Rakennuslaatikko*). **Koko:** vedä oikeasta alakulmasta.
-- **Hyllyt:** välilehdet **Rakenne**, **Hahmot**, **Alueet**, **Esineet**, **Näkymä** ja **Omat**.
+- **Hyllyt:** välilehdet **Rakenne**, **Laatat** (Appi-appi 84), **Hahmot**, **Alueet**, **Esineet**, **Näkymä** ja **Omat**.
 - **Klik klik:** napauta kohdetta (se korostuu ja osoitin muuttuu ristiksi näkymän päällä). Jokainen klikkaus näkymään lisää yhden niin, että pääpalikan keskipiste tulee klikkauskohtaan. Lopeta **Esc**:llä tai napauttamalla samaa kohdetta uudestaan. Ruudukko kohdistaa kuten paletista lisätessä.
 - **Raahaus:** vedä kohde laatikosta kanvaasille: lisää yhden pudotuskohtaan.
 - **Kumoa** (⌘Z) peruu yhden lisäyksen kerrallaan.
+- **Laatat-hylly maalaa** (Appi-appi 84): kartan kohteiden alla rivi *Maalaa: kartan nimi* ja kartan lajit sekä **Pyyhi**. Kartta on se, jota maalataan, tai valittu kartta, tai näkymän ensimmäinen. Lajin napautus aloittaa tavallisen maalauksen tällä lajilla (näkymän alalaitaan työkalurivi, ks. [Maalaus](08-maailma-ja-liike.md#maalaus)); saman lajin napautus lopettaa. Ilman karttaa hylly neuvoo lisäämään sellaisen.
 - Lisätty pääpalikka jää valituksi. Logiikka menee Logiikka-kanvaasin alaosaan omaan Ryhmäänsä (nimetty pääpalikan mukaan), joten monta lisäystä ei kasaa palikoita päällekkäin.
 - **muokkaa** (otsikossa): valmiin kohteen **✕** piilottaa sen tästä laatikosta, piilotetun **↺** palauttaa; **valmis** lopettaa. Palikoihin tämä ei koske.
 - Laatikon paikka, koko, valittu hylly, auki/kiinni ja piilotetut kohteet muistetaan **tässä selaimessa** (ei projektissa, ei varmuuskopiossa eikä GitHubissa).
@@ -486,10 +487,17 @@ Auki pysyvä, kelluva laatikko näkymäkanvaasin päällä (Appi-appi 61). Siit�
 | Rakenne | Lattia | Laatikko 400 × 32, Este |
 | Rakenne | Pallo | Ympyrä 40 × 40, Este, massa 1, kimmoisuus 80 %, ja Liike ilman ohjausta (lennähtää törmäyksestä) |
 | Rakenne | Työnnettävä laatikko | Laatikko 60 × 60, Este, massa 3, ja Liike ilman ohjausta (liukuu työnnettäessä, kitka pysäyttää) |
+| Laatat | Laattakartta | Tyhjä Laattakartta 16 × 10 ruutua (ruutu 32 px), lajit Seinä ja Koriste kuten paletista |
+| Laatat | Tasoloikkakartta | Tyhjä Laattakartta 30 × 16 ruutua, lajit **Seinä** (kiinteä), **Taso** (läpi alhaalta), **Pomppu** (kiinteä, kimmoisuus 150 %) ja **Koriste** (läpi) |
 | Hahmot | Pelaaja: tatti | Ympyrä *Pelaaja* 48 × 48, Tatti sen alla ja Liike (ohjaus Tatti, 200 px/s). Isossa maailmassa siirrä tatti lukittuun kerrokseen ([Kerrokset käytössä](08-maailma-ja-liike.md#kerrokset-käytössä)). |
 | Hahmot | Pelaaja: napautus | Ympyrä *Pelaaja* ja Liike (ohjaus Napautus, Kiertää esteet, 200 px/s) |
+| Hahmot | Pelaaja: tasoloikka | Laatikko *Pelaaja* 40 × 56, Tatti (*Peliohjain: vasen tatti*) ja Painike *Hyppää* (Pohjassa vain painettaessa, *Peliohjaimen nappi: alanappi*), Liike (ohjaus Tatti, 240 px/s, Hypyn korkeus 160, Ilmaohjaus 60 %) ja nuolet *painettu* → **hyppää**, *irrotettu* → **lopeta hyppy**. Koneella lukittuna nuolet tai A/D kävelevät ja välilyönti hyppää. Jos näkymässä ei vielä ole painovoima-Aluetta, tulee Alue *Painovoima* 1200 × 800 (2000 px/s²) hahmon ympärille. Lattia: Rakenne- tai Laatat-hylly. |
+| Hahmot | Lentäjä | Ympyrä *Lentäjä* ja Tatti (peliohjaimen vasen tatti), Liike (ohjaus Tatti, 200 px/s, **Painovoima 0 %**): lentää painovoima-Alueella kaikkiin suuntiin |
 | Hahmot | Vihollinen edestakaisin | Ympyrä *Vihollinen* (Este), Reitti 240 px sen keskeltä oikealle ja Liike (ohjaus Reitti, Edestakaisin, 120 px/s). Reitin pisteitä voi siirtää. |
 | Alueet | Alue | Alue 200 × 160 |
+| Alueet | Painovoima-alue | Alue *Painovoima* 1200 × 800, painovoima 2000 px/s² alas ([Painovoima ja maassa](08-maailma-ja-liike.md#painovoima-ja-maassa)) |
+| Alueet | Vesi | Laatikko *Vesi* 320 × 160 ja sen päälle Alue *Vesi: alue*, painovoima 400 ja ilmanvastus 60 %: hahmo vajoaa hitaasti |
+| Alueet | Tikkaat | Laatikko *Tikkaat* 48 × 240 ja sen päälle Alue *Tikkaat: alue*, painovoima 0: tatti ylös ja alas liikuttaa taas |
 | Alueet | Maali | Alue *Maali* 120 × 120 ja Ilmoitus ”Maali!”, jonka *näkyy kun* tulee Maalin *sisällä*-kohdasta |
 | Alueet | Aloituskohta | Sijainti *Aloitus* |
 | Esineet | Kolikko | Ympyrä *Kolikko* 28 × 28, Alue sen ympärillä Tunnuksella `#kolikot` ja Kaava `kolikkoalue.joukot sisältää "kolikot"` → kolikon *näkyy kun*. Ensimmäinen kolikko tekee lisäksi yhteisen osan Ryhmään *Kolikot*: Joukko-palikka `#kolikot` (Jäsenten laji Alue), *jäsen astuttu* → Poista joukosta (Tapahtuman jäsen) ja Lisää Pisteet 1. Seuraavat kolikot liittyvät samaan Ryhmään. Kolikko katoaa, kun liikkuvan keskipiste tulee sen alueelle (Appi-appi 66, [Jäsenten tapahtumat](07-tieto.md#jäsenten-tapahtumat-appi-appi-63)). |
@@ -501,7 +509,9 @@ Auki pysyvä, kelluva laatikko näkymäkanvaasin päällä (Appi-appi 61). Siit�
 
 **Pisteet ja Elämät yhteisinä:** Kolikko ja Pistenäyttö käyttävät Muistia, jonka viite on `pisteet`, ja Elämät Muistia, jonka viite on `elämät`. Jos sellaista ei vielä ole, se tehdään (ilmoitus kertoo: ”Uusi logiikkaan: Pisteet”). Jos on, kohde käyttää sitä: Kolikot-Ryhmään tulee Pisteistä uusi esiintymä (2×), ei uutta muistia. Haku on vain viitteellä; samanniminen muulla viitteellä ei kelpaa.
 
-**Rajat:** laattojen, painovoiman ja hypyn kohteet tulevat 2D-vaiheiden mukana; nyt niitä ei ole (painovoima itsessään on Alueen osiossa Painovoima). Hyllyjä ei voi nimetä uudelleen eikä omia lisätä; omat kohteet tehdään presetteinä (Omat-hylly). Kolikko ei palaa itsestään: kerätyt palaavat joukkoon *Palauta perusarvo*- tai Tyhjennä käyttötiedot -napista tai toiminnolla Lisää joukkoon. Appi-appi 61–64 teki kolikolle oman Muistin *Kolikko: kerätty*; vanhat kolikot toimivat ennallaan.
+**Vesi ja Tikkaat päällimmäisinä:** painovoimassa päällimmäinen Alue ratkaisee, joten laatikko asettaa Veden ja Tikkaiden Alueen näkymän painovoima-Alueiden päälle (muut Alueet menevät pohjalle kuten ennen). Laatikon Muoto menee pohjalle, joten hahmo näkyy sen edessä.
+
+**Rajat:** Laatat-hyllyssä ei ole siveltimiä (ne ovat maalauksen työkalurivillä) eikä omia laattoja; Painelaatta, Kuolema-alue ja Kameran rajat, Avain ja ovi sekä Portti puuttuvat (laattojen *astuttu* tulee vaiheessa D, palikan vienti kohtaan jonon 15 (d)); Pikselitarkka tulee vaiheessa E1. Kamera ei ala seurata pelaajaa itsestään: valitse se näkymän osiosta *Maailma ja kamera*. Hyllyjä ei voi nimetä uudelleen eikä omia lisätä; omat kohteet tehdään presetteinä (Omat-hylly). Kolikko ei palaa itsestään: kerätyt palaavat joukkoon *Palauta perusarvo*- tai Tyhjennä käyttötiedot -napista tai toiminnolla Lisää joukkoon. Appi-appi 61–64 teki kolikolle oman Muistin *Kolikko: kerätty*; vanhat kolikot toimivat ennallaan.
 
 ## Kerrokset (lyhyesti)
 

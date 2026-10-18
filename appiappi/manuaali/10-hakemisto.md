@@ -75,6 +75,8 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | kumota | Kumoa (vain rakenne, ei käyttötietoja) | [Kumoa](02-tyoymparisto.md#kumoa-ja-tee-uudelleen) |
 | käyttää samaa rakennetta uudestaan | suosikit, presetit, kopioi ja liitä | [Suosikit ja presetit](02-tyoymparisto.md#suosikit-ja-presetit) |
 | lisätä monta samaa nopeasti (seiniä, kolikoita, hahmoja) | Rakennuslaatikko, klik klik | [Rakennuslaatikko](02-tyoymparisto.md#rakennuslaatikko) |
+| aloittaa tasoloikan nopeasti (hahmo, hyppy, painovoima, vesi, tikkaat) | Rakennuslaatikko → Hahmot → Pelaaja: tasoloikka; Alueet → Painovoima-alue, Vesi, Tikkaat | [Rakennuslaatikko](02-tyoymparisto.md#rakennuslaatikko) |
+| maalata laattoja rakennuslaatikosta | Rakennuslaatikko → Laatat → kartta, sitten laji | [Rakennuslaatikko](02-tyoymparisto.md#rakennuslaatikko), [Maalaus](08-maailma-ja-liike.md#maalaus) |
 
 ## Palikat
 

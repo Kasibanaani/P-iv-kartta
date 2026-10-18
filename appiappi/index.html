@@ -1010,7 +1010,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .rlh .rlsp{flex:1}.rlh .rlm{border:0;background:transparent;color:var(--accent);font-weight:650;font-size:12px;padding:2px 4px;cursor:pointer}.rlh .tb{padding:2px 8px}
 .rltabs{display:flex;flex-wrap:wrap;margin:8px 8px 0;flex:none}.rltabs button{padding:4px 8px;font-size:12px;flex:1 1 auto}
 .rlb{flex:1;overflow:auto;padding:8px 10px 10px}.rlb .chips{display:flex;flex-wrap:wrap;gap:6px}.rlb .ibs{margin-top:10px}
-.rli{cursor:pointer}.rli.on{outline:2px solid var(--accent);outline-offset:1px}.rli.rlpois{opacity:.5}
+.rli,.rlli{cursor:pointer}.rli.on,.rlli.on{outline:2px solid var(--accent);outline-offset:1px}.rlllab{margin-top:8px}.rli.rlpois{opacity:.5}
 .rlx{border:0;background:transparent;color:var(--label2);padding:0 0 0 4px;font-size:12px;line-height:1;cursor:pointer}
 .rlhint{margin-top:10px;font-size:12px}
 body.rlpick #uvp{cursor:crosshair}body.rlpick #uvp .ue{cursor:crosshair}
@@ -1933,7 +1933,7 @@ function frame0(P,dt,ctx){var ev=Ev(P,ctx),act=false,changed=false,done=[],fires
     var acc=(PVACC&&PVACC.get(P)||0)+dt,nS=Math.floor(acc/PV_DT+1e-9);if(nS>PV_MAX){nS=PV_MAX;acc=nS*PV_DT;}acc-=nS*PV_DT;if(PVACC)PVACC.set(P,Math.max(0,acc));
     steps=[];for(var si=0;si<nS;si++)steps.push(PV_DT);
     /* Ei kokonaista askelta (esim. 240 Hz tai silmukan alku): ei liikettä, mutta ilmassa oleva pitää silmukan käynnissä. */
-    if(!nS)Object.keys(P.b).forEach(function(id){var b=P.b[id];if(b.k!=='liike')return;if(liikeKay(P,id)){act=true;return;}if(b.ohj==='ruutu'||b.ohj==='reitti'||liikeSt(P,id).ma)return;
+    if(!nS)Object.keys(P.b).forEach(function(id){var b=P.b[id];if(b.k!=='liike')return;if(liikeKay(P,id)||liikeHaluaa(P,b,ev,id)){act=true;return;}if(b.ohj==='ruutu'||b.ohj==='reitti'||liikeSt(P,id).ma)return;
       var t=liikeKohde(P,b),g=t&&FY.pvOf(t);if(g&&g.g>0&&ev.omiNum(id,'painovoima',100)>0)act=true;});}
   for(var sj=0;sj<steps.length;sj++){var sdt=steps[sj],nA=fysAlivaiheet(P,FY,rect,sdt),lastS=sj===steps.length-1;
     for(var ai=0;ai<nA;ai++){var last=lastS&&ai===nA-1;if(FY.gv)FY.rat=pvRatsut(P);
@@ -2483,6 +2483,13 @@ function muotoInv(f,y){if(!f)return Math.max(0,Math.min(1,y));if(y<=0)return 0;i
 /* Vauhdin tila s kohti tavoitetta (0–1 huippunopeudesta) kiihtyen tai jarruttaen. */
 function vauhtiS(s,tav,dt,ka,kb,f){var F=f||function(x){return x;},cur=F(s),g=muotoInv(f,tav);
   if(tav>cur+1e-9)s=ka>0?Math.min(g,s+dt/ka):g;else if(tav<cur-1e-9)s=kb>0?Math.max(g,s-dt/kb):g;return Math.max(0,Math.min(1,s));}
+/* Appi-appi 84: haluaako levossa oleva Liike liikkua (ohjaus antaa vauhtia). Painovoimassa silmukan ensimmäinen kuva (dt 0) ei
+   ota askelta, joten maassa seisova näppäimistön tai peliohjaimen tatilla (ei sormea, S.tattiHeld) tai kaavalla ohjattu jäi paikalleen. */
+function liikeHaluaa(P,b,ev,id){if(ev.linked(id,'c')&&!truth(ev.inp(id,'c')))return false;var o=b.ohj||'';
+  if(!o)return !!(num(ev.inp(id,'vx'))||num(ev.inp(id,'vy')));
+  if(o==='tatti'||o==='auto'){var tb=P.b[b.tt],js=tb&&tb.k==='tatti'?P.st[tb.id]:null;if(js&&typeof js==='object'&&(num(js.x)||num(js.y)))return true;
+    if(o==='auto')return !!(num(ev.inp(id,'kaa'))||num(ev.inp(id,'ohj')));}
+  return false;}
 function liikeKay(P,id){var s=liikeSt(P,id);return !!(s.m||s.go||s.s>0||(s.tx!=null&&s.ty!=null)||Math.abs(num(s.vx)||0)>1e-3||Math.abs(num(s.vy)||0)>1e-3||Math.abs(num(s.ux)||0)>1e-3||Math.abs(num(s.uy)||0)>1e-3);}
 function aikaS(x){var n=parseNum(x);return isNaN(n)||n<=0?0:Math.min(60,n);}
 /* Napautus kohteeseen: käyttöliittymä kertoo napautetun kohdan maailmassa. Koskee näkymän napautus-liikkeitä. */
@@ -6065,7 +6072,7 @@ function why(P,E,id,depth,seen){
 return {tapKaytossa:tapKaytossa,NAPK:NAPK,napPorts:napPorts,napOn:napOn,napautus:napautus,PALTAVAT:PALTAVAT,repairAp:repairAp,jkPick:jkPick,JK_OHI:JK_OHI,jkKohtaNimi:jkKohtaNimi,jkLiikkuva:jkLiikkuva,jkTapahtumat:jkTapahtumat,JKTAP:JKTAP,jkFire:jkFire,toistaJasenet:toistaJasenet,jkVoi:jkVoi,jkPjOf:jkPjOf,jkPjMap:jkPjMap,jkOtaOn:jkOtaOn,jkOtaMatch:jkOtaMatch,jkKohta:jkKohta,JKKOHT:JKKOHT,JKKP:JKKP,siirtoOf:siirtoOf,PADN:PADN,PADM:PADM,PAD_KUOLLUT:PAD_KUOLLUT,ohjainSet:ohjainSet,padNow:padNow,PADKEY:PADKEY,PADKEYN:PADKEYN,nappTila:nappTila,padYhdista:padYhdista,padPel:padPel,padKuollut:padKuollut,padNimi:padNimi,padPainetut:padPainetut,padKaytossa:padKaytossa,padPohjassa:padPohjassa,omat:omat,omBatch:omBatch,geoNum:geoNum,omFind:omFind,omNorm:omNorm,omBase:omBase,omNames:omNames,omActive:omActive,setOmi:setOmi,resetOmi:resetOmi,isOff:isOff,napVaihto:napVaihto,boolKey:boolKey,TIMEU:TIMEU,YKSA:YKSA,ENVW:ENVW,portsBase:portsBase,tattiSet:tattiSet,muutosStart:muutosStart,muutosStop:muutosStop,frame:frame,aikaKay:aikaKay,napExt:napExt,NAP_PITKA:NAP_PITKA,pressDown:pressDown,pressLong:pressLong,pressUp:pressUp,hasOut:hasOut,curveAt:curveAt,KAYRA_PRESETS:KAYRA_PRESETS,kayraPreset:kayraPreset,kayraResize:kayraResize,kayraDec:kayraDec,kayraSpec:kayraSpec,kayraAt:kayraAt,satuN:satuN,satuMuoto:satuMuoto,satuCurve:satuCurve,satuResize:satuResize,satuPreset:satuPreset,SATU_PRESETS:SATU_PRESETS,SATU_MAXN:SATU_MAXN,satuSpec:satuSpec,satuDist:satuDist,satuPick:satuPick,satuPct:satuPct,satuItemTxt:satuItemTxt,satuTop:satuTop,satuRoll:satuRoll,
   chainOpen:chainOpen,LKN:LKN,LKID:LKID,lkReq:lkReq,lkView:lkView,chainLock:chainLock,chainLockDiff:chainLockDiff,parseKlo:parseKlo,nextClock:nextClock,timerLabel:timerLabel,arpaN:arpaN,toistaN:toistaN,setMhLabel:function(f){MHLAB=f;},mhLabel:mhLabel,odotaLim:odotaLim,odotaEv:odotaEv,hasLimit:hasLimit,chainSignal:chainSignal,copyNodes:copyNodes,pasteNodes:pasteNodes,copyBlocks:copyBlocks,pasteBlocks:pasteBlocks,PRESVER:PRESVER,presetSet:presetSet,presetNeeds:presetNeeds,presetMake:presetMake,presetPaste:presetPaste,chainList:chainList,haaraVal:haaraVal,chainIssues:chainIssues,FXK:FXK,YKS:YKS,YKSN:YKSN,fmtDur:fmtDur,parseNum:parseNum,fiNum:fiNum,fmtLeft:fmtLeft,timerMs:timerMs,chainStart:chainStart,chainStop:chainStop,chainAdvance:chainAdvance,chainPoll:chainPoll,chainInfo:chainInfo,anyChainRunning:anyChainRunning,CH_STEPS:CH_STEPS,CH_TOKENS:CH_TOKENS,
   isWin:isWin,isStep:isStep,STEPK:STEPK,chainNode:chainNode,chainOfNode:chainOfNode,chainSteps:chainSteps,isChainLink:isChainLink,chainLinksFrom:chainLinksFrom,chainStarts:chainStarts,chainIsRing:chainIsRing,chainOrder:chainOrder,
-  ANTAVAT:ANTAVAT,LT_MAX:LT_MAX,LT_MERKIT:LT_MERKIT,LT_TAVAT:LT_TAVAT,ltRepair:ltRepair,ltLajiMap:ltLajiMap,ltSolu:ltSolu,ltMaarat:ltMaarat,ltNimi:ltNimi,ltLajiNimella:ltLajiNimella,ltEsteet:ltEsteet,SY_MIN:SY_MIN,syNorm:syNorm,syKoko:syKoko,krSy:krSy,syMuunnos:syMuunnos,kerrosMuunnos:kerrosMuunnos,syOf:syOf,syOma:syOma,pinnalla:pinnalla,palikkaMuunnos:palikkaMuunnos,ANPEH:ANPEH,ANARVO:ANARVO,ANPAIKKA:ANPAIKKA,VER:VER,PAJA:'83',PV_SN:PV_SN,pvAlueet:pvAlueet,pvKohde:pvKohde,hyppyJaljella:hyppyJaljella,liikeHyppyKomento:liikeHyppyKomento,PV_SUUNNAT:PV_SUUNNAT,LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,rvMuunnos:rvMuunnos,kerrosPiste:kerrosPiste,kerrosPiirto:kerrosPiirto,raahattava:raahattava,raahausPaikka:raahausPaikka,raahausAlku:raahausAlku,raahausPudotus:raahausPudotus,raahausPeruttu:raahausPeruttu,raahausKohteet:raahausKohteet,tstLahde:tstLahde,tstLajittuu:tstLajittuu,tstSiirra:tstSiirra,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikuta0:liikuta0,rectNow0:rectNow0,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,reittiPisteet:reittiPisteet,reittiOsat:reittiOsat,reittiHae:reittiHae,liikeRuutuKomento:liikeRuutuKomento,liikePyyhkaisy:liikePyyhkaisy,ruutuAskel:ruutuAskel,RUUTU_SU:RUUTU_SU,reittiKohta:reittiKohta,liikeRun:liikeRun,kuvaKuvat:kuvaKuvat,kelloNow:kelloNow,kelloKomento:kelloKomento,kerrosObj:kerrosObj,zoomAsetus:zoomAsetus,kameraBlk:kameraBlk,zoomNyt:zoomNyt,zoomLukittu:zoomLukittu,zoomAseta:zoomAseta,ZOOM_MIN:ZOOM_MIN,ZOOM_MAX:ZOOM_MAX,MITM:MITM,MITE:MITE,
+  ANTAVAT:ANTAVAT,LT_MAX:LT_MAX,LT_MERKIT:LT_MERKIT,LT_TAVAT:LT_TAVAT,ltRepair:ltRepair,ltLajiMap:ltLajiMap,ltSolu:ltSolu,ltMaarat:ltMaarat,ltNimi:ltNimi,ltLajiNimella:ltLajiNimella,ltEsteet:ltEsteet,SY_MIN:SY_MIN,syNorm:syNorm,syKoko:syKoko,krSy:krSy,syMuunnos:syMuunnos,kerrosMuunnos:kerrosMuunnos,syOf:syOf,syOma:syOma,pinnalla:pinnalla,palikkaMuunnos:palikkaMuunnos,ANPEH:ANPEH,ANARVO:ANARVO,ANPAIKKA:ANPAIKKA,VER:VER,PAJA:'84',PV_SN:PV_SN,pvAlueet:pvAlueet,pvKohde:pvKohde,hyppyJaljella:hyppyJaljella,liikeHyppyKomento:liikeHyppyKomento,PV_SUUNNAT:PV_SUUNNAT,LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,rvMuunnos:rvMuunnos,kerrosPiste:kerrosPiste,kerrosPiirto:kerrosPiirto,raahattava:raahattava,raahausPaikka:raahausPaikka,raahausAlku:raahausAlku,raahausPudotus:raahausPudotus,raahausPeruttu:raahausPeruttu,raahausKohteet:raahausKohteet,tstLahde:tstLahde,tstLajittuu:tstLajittuu,tstSiirra:tstSiirra,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikuta0:liikuta0,rectNow0:rectNow0,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,reittiPisteet:reittiPisteet,reittiOsat:reittiOsat,reittiHae:reittiHae,liikeRuutuKomento:liikeRuutuKomento,liikePyyhkaisy:liikePyyhkaisy,ruutuAskel:ruutuAskel,RUUTU_SU:RUUTU_SU,reittiKohta:reittiKohta,liikeRun:liikeRun,kuvaKuvat:kuvaKuvat,kelloNow:kelloNow,kelloKomento:kelloKomento,kerrosObj:kerrosObj,zoomAsetus:zoomAsetus,kameraBlk:kameraBlk,zoomNyt:zoomNyt,zoomLukittu:zoomLukittu,zoomAseta:zoomAseta,ZOOM_MIN:ZOOM_MIN,ZOOM_MAX:ZOOM_MAX,MITM:MITM,MITE:MITE,
 kuvaPyorii:kuvaPyorii,kuvaNro:kuvaNro,SARJA_MAX:SARJA_MAX,ruudukko:ruudukko,ruudukkoOf:ruudukkoOf,ruutuAt:ruutuAt,ruutuKeski:ruutuKeski,kohdista:kohdista,ruutuKohdistus:ruutuKohdistus,alueRuudukko:alueRuudukko,alueRuutu:alueRuutu,alueNapautus:alueNapautus,kerrokset:kerrokset,kerrosOf:kerrosOf,rvOf:rvOf,kuvaUrl:kuvaUrl,K:K,KW:KW,KVALEND:KVALEND,KHAS:KHAS,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,jkReg:jkReg,lkSnap:lkSnap,jkNameErr:jkNameErr,jkOn:jkOn,jkNm:jkNm,jkFind:jkFind,jkList:jkList,jkHas:jkHas,jkLuo:jkLuo,jkNimea:jkNimea,jkUses:jkUses,jkPoista:jkPoista,jkEhto:jkEhto,jkIndex:jkIndex,jkTuo:jkTuo,jkNames:jkNames,jkIds:jkIds,jkKaanna:jkKaanna,jkSyy:jkSyy,kaavaJkMiss:kaavaJkMiss,JKAGG:JKAGG,JKSUG:JKSUG,jkAgg:jkAgg,tunnusLue:tunnusLue,tunnusTeksti:tunnusTeksti,tunnusVirhe:tunnusVirhe,setTunnus:setTunnus,kaavaToIds:kaavaToIds,FVAL:FVAL,isFx:isFx,arvoKentta:arvoKentta,fvalVanha:fvalVanha,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,kaavaVanha:kaavaVanha,kaavaAstText:kaavaAstText,KRES:KRES,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
   pinsHidden:pinsHidden,refPairs:refPairs,
   ports:ports,port:port,newProject:newProject,addBlock:addBlock,addNode:addNode,addLink:addLink,canLink:canLink,
@@ -6811,6 +6818,7 @@ function renderUIStage0(){
   else if(S.tool==='reitti'&&!ed)S.tool=null;
   if(S.tool==='laatat'&&ed)ltBar(st);else if(S.tool==='laatat'&&!ed)S.tool=null;
   vp.classList.toggle('ltmaal',ed&&S.tool==='laatat');
+  if(S.rl&&S.rl.auki&&S.rl.hy==='laatat')renderRL();
 }
 /* Appi-appi 2: osuma-alue katkoviivana muokatessa (esteet ja liikkuvat). */
 function hitboxHTML(b){if(b.k==='merkki'||b.k==='alue')return '';var kr=KK.kerrosOf(P,b).k,mover=blocks(function(o){return o.k==='liike'&&o.o===b.id;}).length;
@@ -10938,9 +10946,12 @@ document.getElementById('sheet').addEventListener('click',function(e){
    tavallista, avattavaa logiikkaa omassa Ryhmässään) ja Omat-hyllyssä F26:n presetit. Pisteet ja Elämät haetaan viitteellä
    (pisteet, elämät) ja tehdään vain, jos niitä ei vielä ole; muuten käytetään samaa Muistia uutena esiintymänä. Laatikon tila (auki,
    paikka, koko, hylly, piilotetut valmiit) on vain tämän selaimen muistissa (localStorage), ei projektissa eikä varmuuskopiossa:
-   tallennusmuoto ei muutu. Laattojen, painovoiman ja hypyn hyllysisältö tulee vaiheiden A–E mukana. */
+   tallennusmuoto ei muutu. Laattojen, painovoiman ja hypyn hyllysisältö tulee vaiheiden A–E mukana.
+   Jonon 21 jatko (Appi-appi 84): Laatat-hylly (kaksi karttaa ja valitun tai ainoan kartan lajit, jotka aloittavat tavallisen
+   maalauksen S.tool 'laatat'), Hahmot tasoloikka ja lentäjä, Alueet painovoima, vesi ja tikkaat. Vesi ja tikkaat nostetaan
+   näkymän painovoima-Alueiden päälle (z), koska päällimmäinen Alue ratkaisee; muut Alueet menevät pohjalle kuten ennen. */
 var RL_KEY='appiappi.rakennuslaatikko.1';
-var RL_HY=[['rakenne','Rakenne'],['hahmot','Hahmot'],['alueet','Alueet'],['esineet','Esineet'],['nakyma','Näkymä'],['omat','Omat']];
+var RL_HY=[['rakenne','Rakenne'],['laatat','Laatat'],['hahmot','Hahmot'],['alueet','Alueet'],['esineet','Esineet'],['nakyma','Näkymä'],['omat','Omat']];
 var RL_IT=[
   {id:'seina',hy:'rakenne',nm:'Seinä',ic:'▮',h:0,t:'Laatikko, joka on este: liikkuvat palikat eivät mene läpi.',tee:function(G){G.ui('muoto',{laji:'laatikko',hue:0,este:true,nm:'Seinä'},0,0,40,160);}},
   {id:'lattia',hy:'rakenne',nm:'Lattia',ic:'▬',h:0,t:'Leveä matala laatikko, joka on este.',tee:function(G){G.ui('muoto',{laji:'laatikko',hue:0,este:true,nm:'Lattia'},0,0,400,32);}},
@@ -10948,15 +10959,36 @@ var RL_IT=[
     tee:function(G){var b=G.ui('muoto',{laji:'ympyra',hue:2,este:true,mas:1,kim:80,nm:'Pallo'},0,0,40,40);G.lg('liike',{o:b.id,nm:b.nm+': liike'},0,0);}},
   {id:'tyonto',hy:'rakenne',nm:'Työnnettävä laatikko',ic:'▣',h:5,t:'Painava laatikko (massa 3) ja Liike ilman ohjausta: liukuu, kun sitä työnnetään, ja pysähtyy kitkaan.',
     tee:function(G){var b=G.ui('muoto',{laji:'laatikko',hue:5,este:true,mas:3,nm:'Laatikko'},0,0,60,60);G.lg('liike',{o:b.id,nm:b.nm+': liike'},0,0);}},
+  {id:'laattakartta',hy:'laatat',nm:'Laattakartta',ic:'▩',h:0,t:'Tyhjä 16 × 10 ruudun kartta (ruutu 32 px), lajit Seinä (kiinteä) ja Koriste (läpi). Lisäyksen jälkeen lajit tulevat tähän hyllyyn: napauta lajia ja maalaa.',
+    tee:function(G){G.ui('laatat',{nm:'Laattakartta'},0,0,512,320);}},
+  {id:'tasokartta',hy:'laatat',nm:'Tasoloikkakartta',ic:'▦',h:3,t:'Tyhjä 30 × 16 ruudun kartta (ruutu 32 px), lajit Seinä (kiinteä), Taso (läpi alhaalta), Pomppu (kimmoisuus 150 %) ja Koriste (läpi).',
+    tee:function(G){G.ui('laatat',{nm:'Tasoloikkakartta',lw:30,lh2:16,lj:[{c:'1',n:'Seinä',hue:0,t:'kiintea'},{c:'2',n:'Taso',hue:3,t:'taso'},{c:'3',n:'Pomppu',hue:4,t:'kiintea',kim:150},{c:'4',n:'Koriste',hue:5,t:'lapi'}],lrt:[]},0,0,960,512);}},
   {id:'pelaaja_tatti',hy:'hahmot',nm:'Pelaaja: tatti',ic:'🕹',h:6,t:'Hahmo ja Tatti sen alla. Liike (ohjaus Tatti, 200 px/s) kuljettaa hahmoa tatin suuntaan. Isossa maailmassa siirrä tatti lukittuun kerrokseen.',
     tee:function(G){var b=G.ui('muoto',{laji:'ympyra',hue:6,nm:'Pelaaja'},0,0,48,48),t=G.ui('tatti',{nm:'Tatti'},-46,90,140,140);
       G.lg('liike',{o:b.id,ohj:'tatti',tt:t.id,vm:200,nm:b.nm+': liike'},0,0);}},
   {id:'pelaaja_nap',hy:'hahmot',nm:'Pelaaja: napautus',ic:'☝',h:6,t:'Hahmo, joka kävelee lukitussa näkymässä napautettuun kohtaan ja kiertää esteet.',
     tee:function(G){var b=G.ui('muoto',{laji:'ympyra',hue:6,nm:'Pelaaja'},0,0,48,48);G.lg('liike',{o:b.id,ohj:'napautus',kie:true,vm:200,nm:b.nm+': liike'},0,0);}},
+  /* Tasoloikka: tatti ja Hyppää-painike seuraavat myös peliohjainta ja koneella näppäimiä (nuolet, välilyönti). Painovoima-Alue
+     tehdään, jos näkymässä ei vielä ole yhtään. */
+  {id:'tasoloikka',hy:'hahmot',nm:'Pelaaja: tasoloikka',ic:'⤴',h:6,t:'Hahmo, joka kävelee tatilla tai nuolinäppäimillä ja hyppää painikkeesta tai välilyönnillä (lyhyt painallus = matala hyppy). Painovoima-alue tehdään, jos näkymässä ei vielä ole. Lisää lattia Rakenne- tai Laatat-hyllystä.',
+    tee:function(G){var b=G.ui('muoto',{laji:'laatikko',hue:6,nm:'Pelaaja'},0,0,40,56),t=G.ui('tatti',{nm:'Tatti',pad:'vasen'},-150,110,140,140),
+        n=G.ui('nappi',{tx:'Hyppää',beh:'pida',padn:'alanappi',hue:6,nm:'Hyppää'},90,150,120,56);
+      if(!rlPvAlueet(S.vw).length){G.ui('alue',{nm:'Painovoima',pv:2000},-580,-300,1200,800);G.uusi.push('Painovoima-alue');}
+      var l=G.lg('liike',{o:b.id,ohj:'tatti',tt:t.id,vm:240,hyk:160,ilo:60,nm:b.nm+': liike'},300,0),q=G.lgx(n,0,0);
+      G.link(q,'e',l,'hyp');G.link(q,'irti',l,'hyx');}},
+  {id:'lentaja',hy:'hahmot',nm:'Lentäjä',ic:'✈',h:7,t:'Hahmo ja Tatti kuten Pelaaja: tatti, mutta painovoima ei koske siihen (Liikkeen painovoima 0 %): lentää painovoima-alueella kaikkiin suuntiin.',
+    tee:function(G){var b=G.ui('muoto',{laji:'ympyra',hue:7,nm:'Lentäjä'},0,0,44,44),t=G.ui('tatti',{nm:'Tatti',pad:'vasen'},-48,90,140,140);
+      G.lg('liike',{o:b.id,ohj:'tatti',tt:t.id,vm:200,pvk:0,nm:b.nm+': liike'},0,0);}},
   {id:'vihollinen',hy:'hahmot',nm:'Vihollinen edestakaisin',ic:'⇄',h:1,t:'Hahmo, joka on este ja kulkee 240 px:n Reittiä edestakaisin (120 px/s). Reitin pisteitä voi siirtää.',
     tee:function(G){var b=G.ui('muoto',{laji:'ympyra',hue:1,este:true,nm:'Vihollinen'},0,0,40,40),r=G.ui('reitti',{nm:b.nm+': reitti',pts:[[0,4],[240,4]]},20,16,240,8);
       G.lg('liike',{o:b.id,ohj:'reitti',rt:r.id,rtt:'edestakaisin',vm:120,nm:b.nm+': liike'},0,0);}},
   {id:'alue',hy:'alueet',nm:'Alue',ic:'⛶',h:0,t:'Näkymätön alue, joka tietää, kun liikkuva on sen sisällä (sisällä, astuttu, poistuttu).',tee:function(G){G.ui('alue',{nm:'Alue'},0,0,200,160);}},
+  {id:'painovoima',hy:'alueet',nm:'Painovoima-alue',ic:'⇣',h:6,t:'Alue, jonka painovoima on 2000 px/s² alas: Liikkeen kohteet putoavat ja seisovat maassa. Iso alue = koko maailma; suunta ja voima Alueen paneelin osiosta Painovoima.',
+    tee:function(G){G.ui('alue',{nm:'Painovoima',pv:2000},0,0,1200,800);}},
+  {id:'vesi',hy:'alueet',nm:'Vesi',ic:'≈',h:5,t:'Sininen Muoto ja sen päällä Alue, jossa painovoima on pieni (400) ja ilmanvastus 60 %: hahmo vajoaa hitaasti. Alue menee näkymän painovoima-alueiden päälle, joten se ratkaisee.',
+    tee:function(G){var m=G.ui('muoto',{laji:'laatikko',hue:5,nm:'Vesi'},0,0,320,160);m.z=bottomZ(S.vw)-1;G.ui('alue',{nm:'Vesi: alue',pv:400,ilv:60,pinta:1},0,0,320,160);}},
+  {id:'tikkaat',hy:'alueet',nm:'Tikkaat',ic:'☷',h:2,t:'Kapea Muoto ja sen päällä Alue, jossa painovoima on 0: tikkailla tatti ylös ja alas liikuttaa taas. Alue menee näkymän painovoima-alueiden päälle.',
+    tee:function(G){var m=G.ui('muoto',{laji:'laatikko',hue:2,nm:'Tikkaat'},0,0,48,240);m.z=bottomZ(S.vw)-1;G.ui('alue',{nm:'Tikkaat: alue',pv:0,pinta:1},0,0,48,240);}},
   {id:'maali',hy:'alueet',nm:'Maali',ic:'⚑',h:4,t:'Alue ja Ilmoitus ”Maali!”, joka näkyy, kun liikkuva on alueella.',
     tee:function(G){var a=G.ui('alue',{nm:'Maali'},0,0,120,120),i=G.ui('ilmo',{tx:'Maali!',hue:4,nm:'Maali-ilmoitus'},-60,-70,240,56);G.link(G.lgx(a,0,0),'v',G.lgx(i,260,0),'nk');}},
   {id:'aloitus',hy:'alueet',nm:'Aloituskohta',ic:'⌖',h:1,t:'Sijainti: siihen siirrytään Siirry-toiminnolla, ja sen voi valita näkymän alkukohdaksi.',tee:function(G){G.ui('merkki',{nm:'Aloitus'},0,0,36,36);}},
@@ -10981,6 +11013,8 @@ var RL_IT=[
   {id:'elamat',hy:'nakyma',nm:'Elämät',ic:'♥',h:1,t:'Monitori pisteinä (♥, enintään 5) ja Muisti Elämät, alkuarvo 3. Vähennä toiminnolla Lisää, määrä -1.',
     tee:function(G){var mo=G.ui('mittari',{nm:'Elämänäyttö',muoto:'pisteet',min:0,max:5,sym:'♥',hue:1},0,0,200,48),m=G.muisti('Elämät',3,0,0,true);G.link(m,'v',G.lgx(mo,260,0),'o_arvo');}}
 ];
+/* Näkymän Alueet, joilla on painovoima (myös 0 = tikkaat). */
+function rlPvAlueet(vw){return blocks(function(o){return o.k==='alue'&&o.v===vw&&o.pv!=null&&o.pv!=='';});}
 function rlTila(){if(S.rl)return S.rl;var o={};try{o=JSON.parse(localStorage.getItem(RL_KEY)||'{}')||{};}catch(e){o={};}
   function n(v,d){v=+v;return isFinite(v)?v:d;}
   S.rl={auki:o.auki===true,x:n(o.x,-1),y:n(o.y,-1),w:n(o.w,300),h:n(o.h,260),hy:RL_HY.some(function(q){return q[0]===o.hy;})?o.hy:'rakenne',
@@ -11005,10 +11039,19 @@ function renderRL(){var el=$('#rlbox');if(!el)return;var r=rlTila();if(!rlOn()){
     h+='<div class="ibs"><button class="ib" data-rl="tallenna">＋ Valinta presetiksi</button>'+(L.length?'<button class="ib" data-rl="hylly">Presetit…</button>':'')+'</div>';}
   else{var vis=RL_IT.filter(function(it){return it.hy===r.hy&&r.piilo.indexOf(it.id)<0;}),pois=RL_IT.filter(function(it){return it.hy===r.hy&&r.piilo.indexOf(it.id)>=0;});
     h+=vis.map(function(it){return rlChipHTML(it,false);}).join('')+(r.muok?pois.map(function(it){return rlChipHTML(it,true);}).join(''):'')+'</div>';
-    if(!vis.length&&!r.muok)h+='<div class="help">Hylly on tyhjä. Piilotetut saa takaisin kohdasta muokkaa.</div>';}
+    if(!vis.length&&!r.muok)h+='<div class="help">Hylly on tyhjä. Piilotetut saa takaisin kohdasta muokkaa.</div>';
+    if(r.hy==='laatat'&&!r.muok)h+=rlLajitHTML();}
   var pk=r.pick&&rlItem(r.pick);
   h+='<div class="help rlhint">'+(pk?'<b>'+esc(pk.nm)+'</b>: klikkaa näkymää, jokainen klikkaus lisää yhden. Esc tai sama nappi lopettaa.':r.muok?'✕ piilottaa valmiin kohteen tästä laatikosta, ↺ palauttaa. Palikat eivät muutu.':'Napauta kohdetta ja klikkaa näkymää (klik klik), tai vedä kohde näkymään.')+'</div></div>';
-  el.innerHTML=h;document.body.classList.toggle('rlpick',!!pk);}
+  if(el._h!==h){el._h=h;el.innerHTML=h;}document.body.classList.toggle('rlpick',!!pk);}
+/* Laatat-hylly: maalattavan, valitun tai näkymän ensimmäisen Laattakartan lajit. Laji aloittaa tavallisen maalauksen (S.tool 'laatat'). */
+function rlKartta(){var b=S.tool==='laatat'&&P.b[S.ltid];if(b&&b.k==='laatat'&&b.v===S.vw)return b;b=S.sel&&S.sel.t==='b'&&P.b[S.sel.id];if(b&&b.k==='laatat'&&b.v===S.vw)return b;
+  return blocks(function(o){return o.k==='laatat'&&o.v===S.vw;})[0]||null;}
+function rlLajitHTML(){var b=rlKartta();if(!b)return '<div class="help">Lisää kartta, niin sen lajit tulevat tähän maalattaviksi.</div>';
+  var on=S.tool==='laatat'&&S.ltid===b.id;
+  function c(l){var o=on&&S.ltc===l.c;return '<div class="chip rlli '+hueCls(l.hue)+(o?' on':'')+'" data-rllt="'+esc(l.c)+'" title="'+(o?'Lopeta maalaus':'Maalaa tätä lajia')+'"><span class="ci">'+(l.t==='taso'?'▔':l.t==='lapi'?'░':'■')+'</span>'+esc(l.n||'laji')+'</div>';}
+  return '<div class="help rlllab">Maalaa: <b>'+esc(b.nm)+'</b></div><div class="chips" data-rllk="'+esc(b.id)+'">'+(b.lj||[]).map(c).join('')+
+    '<div class="chip rlli'+(on&&S.ltc===''?' on':'')+'" data-rllt="" title="Pyyhi laattoja"><span class="ci">⌫</span>Pyyhi</div></div>';}
 /* Lisäys maailman kohtaan w (pääpalikan keskipiste). Palauttaa lisättyjen palikoiden määrän. */
 function rlInsert(id,w){var it=rlItem(id);if(!it||!P||locked())return 0;pushUndo();S.multi=[];var akr=activeKr();
   if(it.pr){var pr=it.pr,x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;Object.keys(pr.b||{}).forEach(function(i){var o=pr.b[i];if(!o||!K[o.k]||K[o.k].g!=='ui')return;
@@ -11022,7 +11065,9 @@ function rlInsert(id,w){var it=rlItem(id);if(!it||!P||locked())return 0;pushUndo
   var G={n:0,uusi:[]};
   G.ui=function(k,props,dx,dy,bw,bh){var p=KK.clone(props||{});p.v=S.vw;if(akr!=='pohja'&&k!=='alue'&&k!=='merkki')p.kr=akr;var b=KK.addBlock(P,k,p);b.w=bw;b.h=bh;
     if(!G.main){b.x=snapB(b,w.x-bw/2);b.y=snapB(b,w.y-bh/2);G.main=b;}else{b.x=Math.round(G.main.x+dx);b.y=Math.round(G.main.y+dy);}
-    if(k==='alue')b.z=bottomZ(S.vw)-1;KK.tstAssign(P,[b.id]);G.n++;return b;};
+    if(k==='alue'){var pz=p.pinta?rlPvAlueet(S.vw).filter(function(a){return a!==b;}):[];delete b.pinta;
+      b.z=pz.length?Math.max.apply(null,pz.map(function(a){return num0(a.z);}))+1:bottomZ(S.vw)-1;}
+    KK.tstAssign(P,[b.id]);G.n++;return b;};
   /* Logiikka omaan Ryhmään logiikan alaosaan, jotta klik klik ei kasaa solmuja päällekkäin. */
   G.grp=function(){if(G.g)return G.g;var my=40;P.lg.n.forEach(function(n){if(!n.g)my=Math.max(my,n.y+(n.h||60)+50);});
     var r=KK.addBlock(P,'ryhma',{});KK.setName(P,r.id,G.nimi||(G.main?G.main.nm:it.nm));G.g=KK.addNode(P,r.id,40,my);G.mx=0;G.my=0;G.col={};return G.g;};
@@ -11057,6 +11102,8 @@ function rlBind(){var el=$('#rlbox');if(!el||el._b)return;el._b=1;
     var hy=e.target.closest('[data-rlhy]');if(hy){e.preventDefault();r.hy=hy.getAttribute('data-rlhy');r.pick=null;rlSave();renderRL();return;}
     var b=e.target.closest('[data-rl]');if(b){e.preventDefault();var a=b.getAttribute('data-rl');
       if(a==='kiinni')rlToggle(false);else if(a==='muok'){r.muok=!r.muok;r.pick=null;renderRL();}else if(a==='tallenna')openPresetSave();else if(a==='hylly')openHylly();return;}
+    var lt=e.target.closest('[data-rllt]');if(lt&&e.button===0){e.preventDefault();var kb=P.b[lt.parentNode.getAttribute('data-rllk')],c=lt.getAttribute('data-rllt');if(!kb)return;
+      if(S.tool==='laatat'&&S.ltid===kb.id&&S.ltc===c)S.tool=null;else{S.tool='laatat';S.ltid=kb.id;S.ltc=c;S.sel={t:'b',id:kb.id};}r.pick=null;renderAll();return;}
     var px=e.target.closest('[data-rlpiilo]');if(px){e.preventDefault();e.stopPropagation();var id=px.getAttribute('data-rlpiilo'),i=r.piilo.indexOf(id);if(i>=0)r.piilo.splice(i,1);else r.piilo.push(id);rlSave();renderRL();return;}
     var ch=e.target.closest('[data-rli]');if(ch&&e.button===0){e.preventDefault();if(r.muok)return;rlChipDown(e,ch);return;}
     if(e.target.closest('[data-rlveto]')&&e.button===0){e.preventDefault();var sx=e.clientX-r.x,sy=e.clientY-r.y;
