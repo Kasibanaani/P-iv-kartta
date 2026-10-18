@@ -47,6 +47,7 @@
     "viitteet": [ { "teksti": "[Pallo]", "palikka": {"id","nimi","viite","laji"} } | { "teksti", "loytyi": false } ],
     "viestit": [ { "id", "kuka": "ai" | "emil", "laji": "vastaus" | "suunnitelma" | "tehty" | "kysymys" | "viesti" | "hyvaksynta", "teksti", "aika": ISO } ],
     "tila": "auki" | "valmis", "luettu": ISO (Emil on nähnyt tekoälyn viestit tähän asti),
+    "kiire": true (valinnainen, Appi-appi 78; puuttuu, kun lappu ei ole kiireellinen),
     "vuoro": "ai" | "emil" | "", "tilaNimi": "odottaa tekoälyä" … } ] }
 ```
 
@@ -54,6 +55,7 @@
 
 ### Tekoälyn työtapa (”lue viestilaput”)
 
+0. **Kiireelliset ensin (Appi-appi 78, Emilin lappu 18.10.):** jokainen Appi-appi-työ, myös muu kuin ”lue viestilaput”, katsoo aluksi tiedostosta laput, joilla `kiire: true` ja `vuoro: "ai"`, ja vastaa niihin kohdan 3 mukaan ennen omaa tehtäväänsä. Vastaus ei ole rakennuslupa (kohta 4). Rakentaja ei keskeytä omaa työtään lapun toiveen vuoksi.
 1. Lue `master-tiedot/appiappi/laput/laput.json`. Käsittele vain laput, joiden `vuoro` on `"ai"`. Muistilaput ovat Emilin omia, niitä luetaan vain pyydettäessä tai taustaksi.
 2. Kohde selviää viivojen `kuvaus`-tekstistä ja `viitteet`-kentästä. Palikan tiedot: `master-tiedot/appiappi/<projekti>.json`, `projekti.b[<id>]`. Käyttöliittymän kohde (`t:"ui"`) on Appi-appin oma kohta, ei projektin.
 3. Vastaa lisäämällä lapun `viestit`-listan loppuun yksi viesti `{"id": "a<aikaleima>", "kuka": "ai", "laji": …, "teksti": …, "aika": <nyt ISO>}` (suomeksi, tavallinen teksti, rivinvaihdot sallittu). Älä muuta muita kenttiä tai aiempia viestejä, älä poista lappuja. Vie muutos. Vastaa myös keskustelussa, jos Emil niin pyytää. Hyväksytty suunnitelma (Emilin viimeisin viesti lajia `hyvaksynta`) on toteutuslupa juuri sille suunnitelmalle.

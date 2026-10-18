@@ -513,12 +513,15 @@ Laput ovat rakentajan omia muistiinpanoja (📝 muistilappu) ja tekoälylle osoi
 | Osa | Mitä tekee |
 |---|---|
 | otsikkorivi | vedä siirtääksesi; näyttää kuvakkeen ja päivämäärän (vihjeessä tehty ja muokattu) |
+| **salama (Kiire)** | merkitsee lapun kiireelliseksi: salama täyttyy ja lapun reuna muuttuu oranssinpunaiseksi; uudelleen poistaa. Tekoäly katsoo jokaisen Appi-appi-työn alussa kiireelliset viestilaput, joiden vuoro on sen, ja vastaa niihin (vastaus ei ole rakennuslupa). Ei muuta vuoroa |
 | **↗ (viivanappi)** | vedä siitä viiva palikkaan, logiikan ikkunaan, toiseen lappuun tai mihin tahansa käyttöliittymän kohtaan (myös avoimen asetusikkunan kenttään) |
 | **väkänen** | pienentää lapun (teksti piiloon, päivämäärä näkyy); uudelleen avaa |
 | **✕** | poistaa lapun (kysyy varmistuksen, jos tekstiä on; ei palaudu) |
 | tekstikenttä | vapaa teksti. `[palikan nimi]` tai `[viite]` hakasuluissa viittaa palikkaan |
 | alapalkin sirut | **→ nimi** siirtyy viitattuun palikkaan; **⤴ kohde** välähdyttää viivan kohteen (tai vie palikkaan); **✕** poistaa viivan; `[nimi] ?` = palikkaa ei löydy |
 | oikea alakulma | vedä muuttaaksesi kokoa |
+
+**Näytä kaikki / Piilota kaikki** (Appi-appi 79): kummankin lappunapin vieressä on silmänappi, kun tässä osiossa on sen lajin lappuja. Silmä piilottaa kaikki sen lajin laput (kaikissa projekteissa ja osioissa); napissa näkyy sitten yliviivattu silmä ja tämän osion piilotettujen määrä, esim. *(3)*. Napautus näyttää ne taas. Uusi lappu näkyy aina, vaikka laji olisi piilossa. Valinta on tämän selaimen asetus: se säilyy uudelleenlatauksessa, mutta ei tallennu projektiin, varmuuskopioon eikä GitHubiin, eikä se poista lappuja. Piilotetun viestilapun uusi vastaus näkyy silti punaisena pisteenä ✉️-napissa.
 
 Viivat seuraavat kohdetta, kun kanvaasia rullataan. Jos kohde on näkyvän alueen ulkopuolella, viiva on katkoviiva reunaan asti.
 

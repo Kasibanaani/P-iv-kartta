@@ -205,8 +205,10 @@ Asetukset → osio **Muisti- ja viestilaput**:
 Kun GitHub-tallennus on päällä:
 - Laput tallentuvat tiedostoon `appiappi/laput/laput.json` noin 3 sekuntia muutoksen jälkeen (jos automaattinen tallennus on päällä) ja kun appi siirtyy taustalle.
 - Appi hakee vastaukset itse käynnistyessä, palatessa näkyviin ja 90 sekunnin välein, kun appi on auki ja viestilappuja on.
-- Yhdistäminen: tekoälyn uudet viestit tulevat aina mukaan; muu tieto (teksti, paikka, koko) uudemman muokkauksen mukaan. Poistettu lappu ei palaa.
+- Yhdistäminen: tekoälyn uudet viestit tulevat aina mukaan; muu tieto (teksti, paikka, koko, ⚡ kiire) uudemman muokkauksen mukaan. Poistettu lappu ei palaa.
 - Uusi vastaus näkyy ilmoituksena ”Tekoäly vastasi viestilappuun.” ja merkkinä ✉️-napissa.
+
+Lappujen *Näytä kaikki / Piilota kaikki* on vain tämän selaimen asetus (ei tiedostossa eikä varmuuskopiossa).
 
 Lappujen tuonti: *Tuo tekstistä* tai *Tuo tiedostosta* lisää puuttuvat laput, jos tekstissä on `laput`.
 
