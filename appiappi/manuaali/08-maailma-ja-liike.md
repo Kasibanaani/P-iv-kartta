@@ -387,8 +387,8 @@ Painovoima on **Alueen** ominaisuus (jonon 16, 2D-pelien vaihe A): alue vetää 
 - **Ohjaus vain poikittain:** painovoimassa ohjauksen pystyosa ei liikuta (Nopeus y, tatti ylös); pystysuunta kuuluu painovoimalle. Vino tatti antaa poikittaisen osansa. Tatin pystyasento on yhä luettavissa (`tatti.pysty`), esim. kyykkyyn.
 - **Kitka vain maassa** ja vain maan suuntaiseen töytäisyyn; ilmassa vain ilmanvastus. Heitetty esine lentää siis paraabelin.
 - **Maassa** = jokin askeleen osumista tulee painovoimaa vastaan (enintään noin 45° kalteva pinta; käytännössä laatikon tai ympyrän päällä). Myös Liikkeen raja (esim. y enintään) on maa, silloin `alla` on tyhjä. Toisen kappaleen (massallinen laatikko omalla Liikkeellään) päällä seisominen toimii.
-- **laskeutui** lähtee, kun kappale tulee maahan, ja **irtosi maasta**, kun se lähtee maasta. Tiedoissa `tapahtuma.kohde` (alusta), `tapahtuma.isku` (putoamisvauhti osumahetkellä, askeleen tarkkuudella) ja `tapahtuma.voima` (massallisella (1 + kimmoisuus) × isku × massa, massattomalla = isku; toisen kappaleen päällä impulssi).
-- **Painovoimassa törmäsi lähtee kohteittain:** maassa kävelevä saa törmäsi-tapahtuman myös, kun osuu seinään tai viholliseen (ilman painovoimaa törmäsi lähtee kuten ennen, kun osuminen alkaa).
+- **laskeutui** lähtee, kun kappale tulee maahan, ja **irtosi maasta**, kun se lähtee maasta, myös kun se poistuu painovoima-Alueelta tai painovoima asetetaan tyhjäksi (silloin `maassa` = ei; Appi-appi 75). Tiedoissa `tapahtuma.kohde` (alusta), `tapahtuma.isku` (putoamisvauhti osumahetkellä, askeleen tarkkuudella) ja `tapahtuma.voima` (massallisella (1 + kimmoisuus) × isku × massa, massattomalla = isku; toisen kappaleen päällä impulssi).
+- **Painovoimassa törmäsi lähtee kohteittain:** maassa kävelevä saa törmäsi-tapahtuman myös, kun osuu seinään tai viholliseen (ilman painovoimaa törmäsi lähtee kuten ennen, kun osuminen alkaa). **Alustan vaihtuminen ei ole törmäys** (Appi-appi 75): kun maassa kävelevä siirtyy laatalta toiselle (lattia monesta Muodosta), törmäsi ei lähde; vaihdosta kertoo `alla`. Laskeutuminen, seinä ja katto lähettävät törmäsin kuten ennen.
 - **Törmäsi-tietoihin `tapahtuma.puoli` ja `tapahtuma.voima`:** painovoimassa puoli on *ylhäältä* (osui päältä, esim. litistys), *alhaalta* (pää osui) tai *sivulta*; ilman painovoimaa *ylhäältä*, *alhaalta*, *vasemmalta* tai *oikealta* ruudun suhteen. Voima = impulssi (massa × vauhdin muutos; ilman massaa = isku).
 - **Painovoiman kääntö:** toiminto **Aseta** → Alue → `suunta` (ylös), tai **Aseta** → `painovoima`. Hahmon maassa-tieto ja ohjaus kääntyvät mukana. Suunta kaavassa ja toiminnossa: `alas`, `ylös`, `vasen`, `oikea` tai 1–4.
 - **Hyppy:** Liikkeen kohta **hyppää** (ks. Hyppy alla). Vanha kiertotie **Aseta** → `vauhtiy` toimii yhä.
@@ -399,14 +399,14 @@ Painovoima on **Alueen** ominaisuus (jonon 16, 2D-pelien vaihe A): alue vetää 
 
 **Esimerkki:** Näkymään Alue *Maailma* (koko näkymä, Painovoima 2000), sen alareunaan Laatikko *Lattia* (Este) ja ylös Laatikko *Pelaaja* (Este). Logiikkaan Liike, Liikutettava palikka Pelaaja, Ohjaus Tatti. Lukitse: pelaaja putoaa lattialle, `liike.maassa` = kyllä, `liike.alla` = Lattia. Hyppy: ks. seuraava osio.
 
-**Rajat:** ei kaltevia pintoja (osuma-alue on laatikko tai ympyrä), ei liikkuvia tasoja (alusta ei kanna mukanaan, jonon 22), alueelta poistuminen ei lähetä *irtosi maasta* -tapahtumaa.
+**Rajat:** ei kaltevia pintoja (osuma-alue on laatikko tai ympyrä), ei liikkuvia tasoja (alusta ei kanna mukanaan, jonon 22).
 
 ## Hyppy
 
 Liike hyppää painovoimaa vastaan (jonon 17, 2D-pelien vaihe B). Toimii vain painovoima-Alueella (ilman painovoimaa *hyppää* ei tee mitään), Ohjauksella Nopeus x, y, Tatti, Napautus tai Auto (ei Reitti eikä Ruutu).
 
 1. Vedä nuoli kohtaan **hyppää**, esim. Painikkeesta, jonka toiminta on *Pohjassa vain painettaessa* (painettu → hyppää, irrotettu → **lopeta hyppy**), Peliohjaimen napista tai näppäimestä.
-2. Liikkeen paneelin osio **Hyppy** (Painovoima-osion alla; auki, kun *hyppää*-kohtaan on nuoli tai asetuksia on muutettu):
+2. Liikkeen paneelin osio **Hyppy** (Painovoima-osion alla; auki, kun *hyppää*- tai *lopeta hyppy* -kohtaan on nuoli tai asetuksia on muutettu). Jos nuoli on, mutta näkymässä ei ole painovoima-Aluetta, osio näkyy yksinään ja kertoo ensimmäisellä rivillä **Painovoima puuttuu: lisää Alueelle painovoima** (Appi-appi 75):
    - **Hypyn korkeus (px)**: tyhjä = 3 × liikutettavan korkeus. Paneeli näyttää ponnistuksen ja ilma-ajan (”= ponnistus 800 px/s, ilmassa 0,8 s”). Ponnistus lasketaan √(2 × painovoima × korkeus), joten korkeus pysyy samana, vaikka painovoimaa muutetaan.
    - **Ilmaohjaus (%)** (oletus 100): 100 = ohjaus ilmassa kuten maassa, 60 = tasoloikkamainen, 0 = lähtövauhti ratkaisee (puhdas lentorata). Koskee myös reunalta putoamista.
    - **Lyhyt hyppy** (oletus päällä): *lopeta hyppy* nousun aikana leikkaa nousuvauhdin 40 %:iin. Lyhyt painallus = matala hyppy, pitkä = täysi.

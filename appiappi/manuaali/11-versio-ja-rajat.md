@@ -2,8 +2,8 @@
 
 ## Tarkistettu versio
 
-- **Appi:** Appi-appi 74, tallennusversio 12 (`VER`), repo `Kasibanaani/P-iv-kartta`, kansio `appiappi/`.
-- **Kirjoitettu:** 17.10.2026 koodista commitilla `77461d2` (Appi-appi 31). Sen jälkeen jokainen rakentaja on päivittänyt muuttuneet kohdat samassa työssä; versiokohtaiset tiedot ja mitä kussakin tarkistettiin ovat `appiappi/MUUTOKSET.md`:ssä. **Viimeksi tarkistettu:** Appi-appi 74 (18.10.2026, jonon 25: ⇢-nappi, kopioi ja liitä näkymässä, numerointi), luku 2 (Palikat-lista, Kopioi ja liitä, näppäimet), luku 3 (paneelin napit) ja tämä luku.
+- **Appi:** Appi-appi 75, tallennusversio 12 (`VER`), repo `Kasibanaani/P-iv-kartta`, kansio `appiappi/`.
+- **Kirjoitettu:** 17.10.2026 koodista commitilla `77461d2` (Appi-appi 31). Sen jälkeen jokainen rakentaja on päivittänyt muuttuneet kohdat samassa työssä; versiokohtaiset tiedot ja mitä kussakin tarkistettiin ovat `appiappi/MUUTOKSET.md`:ssä. **Viimeksi tarkistettu:** Appi-appi 75 (18.10.2026, jonon 1v: kartoitus 11:n korjaukset), luku 8 (Painovoima ja maassa: alustan vaihtuminen, irtosi maasta Alueelta poistuessa; Hyppy: osio ilman painovoimaa), luku 2 (Kopioi ja liitä: toisesta projektista) ja tämä luku.
 - **Miten tarkistettiin:** jokainen luku on kirjoitettu lukemalla käyttöliittymän ja moottorin koodia (nimet suoraan koodin merkkijonoista) sekä testien kuvauksia. Kaavakielestä ajettiin noin 150 kaavaa moottorilla (Node), ja maailman ja liikkeen kaavanimet tarkistettiin samoin. Aloitusluvun esimerkki *Vesilasit* tehtiin vaihe vaiheelta oikeassa käyttöliittymässä (Chromium, 1440 px). Muiden lukujen reseptejä **ei ole ajettu** selaimessa: ne on koottu koodista.
 - **Ei tarkistettu oikealla iPhonella, iPadilla eikä Safarilla.** Puhelinkäyttö on kuvattu koodista ja testeistä, jotka ajavat kosketusta tietokoneen selaimessa 390 ja 320 px leveänä. Oikean laitteen tuntuma (sormella veto, näppäimistö, Safarin oma zoomaus) on varmistamatta.
 - Kohdat, joita kirjoittaja ei voinut varmistaa, on merkitty tekstiin ”(ei tarkistettu)”.
