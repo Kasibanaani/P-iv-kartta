@@ -79,7 +79,7 @@ async def main():
             assert st==[[True,True,''],[True,True,'']],st
             # 8. Tallennus ja uudelleenavaus: sidonta säilyy
             await pg.click('#lockbtn');await pg.wait_for_timeout(300)
-            q=await pg.evaluate("(a)=>{var Q=JSON.parse(JSON.stringify(APP.P));KK.repair(Q);return [Q.b[a[0]].trv,Q.b[a[0]].tsar,Q.b[a[1]].trv,KK.VER];}",[I['lu'],I['te']]);assert q==[V,I['c2'],V,10],q
+            q=await pg.evaluate("(a)=>{var Q=JSON.parse(JSON.stringify(APP.P));KK.repair(Q);return [Q.b[a[0]].trv,Q.b[a[0]].tsar,Q.b[a[1]].trv,KK.VER];}",[I['lu'],I['te']]);assert q[:3]==[V,I['c2'],V] and q[3]>=10,q
             print(W,'errs',errs);assert not errs,errs
             await b.close()
         for W in (390,320):

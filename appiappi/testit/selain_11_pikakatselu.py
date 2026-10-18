@@ -22,7 +22,7 @@ async def main():
                 l=pg.locator('#pal .chip[data-make*=\'"k":"kaava"\']').first;c0=await l.bounding_box()
                 await veda(pg,[c0['x']+c0['width']/2,c0['y']+c0['height']/2],[lv['x']+200,lv['y']+200]);await pg.wait_for_timeout(150)
                 await pg.fill('#insp textarea[data-kaava]','uni > 7');await pg.wait_for_timeout(100)
-                l=pg.locator('#pal .chip[data-make=\'{"k":"ikkuna","p":{"m":"and"}}\']');c0=await l.bounding_box()
+                l=pg.locator('#pal .chip[data-make=\'{"k":"ikkuna","p":{"m":"and"}}\']');await l.scroll_into_view_if_needed();c0=await l.bounding_box()
                 await veda(pg,[c0['x']+c0['width']/2,c0['y']+c0['height']/2],[lv['x']+300,lv['y']+420]);await pg.wait_for_timeout(150)
                 await paletti(pg,'Uni',lv['x']+200,lv['y']+300);await pg.wait_for_timeout(150)
                 n=await pg.locator('#lworld .ln').count();v=await pg.locator('#lworld .ln .vtag').count();w=await pg.locator('#lworld .lw .wvt').count()

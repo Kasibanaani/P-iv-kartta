@@ -130,7 +130,7 @@ Kaikki palikkalajit. Laji on sisäinen tunniste (tallennustiedostossa `k`). ✦ 
 | [Tapahtuman tiedot](07-tieto.md#tapahtuman-tiedot-tapaht) | `tapaht` | Logiikka | Tieto |
 | [Rivi](07-tieto.md#rivi-trivi) | `trivi` | Logiikka | Tieto |
 | [Rivijoukko](07-tieto.md#rivijoukko-joukko) | `joukko` | Logiikka | Tieto |
-| [Joukko](07-tieto.md#joukko-palikka-pjoukko-appi-appi-62) | `pjoukko` | Logiikka | Tieto |
+| [Joukko ✦](07-tieto.md#joukko-palikka-pjoukko-appi-appi-62) | `pjoukko` | Logiikka | Tieto |
 
 ## Reseptit
 

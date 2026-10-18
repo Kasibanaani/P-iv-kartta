@@ -12,7 +12,7 @@ Palikat lyhyesti:
 | Rivijoukko (`joukko`) | Logiikka → Tieto | Suodattaa ja järjestää rivejä muuttamatta niitä. |
 | Toistin ✦ (`toistin`) | Näkymä → Näyttö | Sama kortti jokaiselle riville. |
 | Joukko `#nimi` | Tunnus-kenttä, paletti → Joukot | Kokoaa palikoita: `#kolikot.summa`, toiminto kaikille jäsenille. |
-| Joukko-palikka (`pjoukko`) | Logiikka → Tieto, paletti → Joukot ⁂ | Joukon säännöt: Ota mukaan, Vain jos, säännöt jäsenille (Appi-appi 62). |
+| Joukko-palikka ✦ (`pjoukko`) | Logiikka → Tieto, paletti → Joukot ⁂ | Joukon säännöt: Ota mukaan, Vain jos, säännöt jäsenille (Appi-appi 62). |
 
 Paletin Tieto-ryhmässä palikat ovat oletusnimillä **Taulukko**, **Tapahtuma**, **Kohde** ja **Suodatus** (Rivijoukko, Appi-appi 60; ennen *Joukko*, eri asia kuin [palikoiden joukot `#nimi`](#palikoiden-joukot-nimi-appi-appi-57)), joten viitteet kaavoihin ovat aluksi `taulukko`, `tapahtuma`, `kohde` ja `suodatus`. Vanhat Rivijoukot pitävät nimensä. Nimen voi vaihtaa paneelin yläosasta; viite seuraa nimeä, ellei sitä ole kirjoitettu itse kenttään **Viite**. Tämän luvun esimerkeissä taulukon nimi on *Ostokset* (viite `ostokset`) ja sarakkeet *Nimi* (`nimi`), *Määrä* (`määrä`) ja *Hinta* (`hinta`).
 
