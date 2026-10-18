@@ -238,17 +238,17 @@ Emilin yksityisessä repossa `master-tiedot` on kansiossa `appiappi/` valmiita k
 ```
 {
  "app": "appiappi",
- "ver": 9,
+ "ver": 10,
  "savedAt": "2026-10-17T08:50:02.497Z",
  "projekti": { "id": "...", "name": "...", "seq": ..., "views": [...], "vseq": ..., "b": {...}, "lg": {"n": [...], "l": [...]}, "deco": [], "st": {}, "mem": {}, "lock": false }
 }
 ```
 
-- `ver` on moottorin versio `KK.VER` (nyt **9**, `var VER=9` moottorin alussa). Uudet valinnaiset kentät eivät nosta versiota. Versio 9 (Appi-appi 55) muutti kaavan kieltä: vanhat `jos(;;)`, `ja(;)`, `tai(;)` muunnetaan avattaessa (`repair`, myös lukittujen ketjujen lukituskuvat, presetit ja suosikit), ja varattu viite (`jos`, `muuten`, `niin`, `ja`, `tai`) saa uuden (`ja_2`). Versio 9 -kaava ei aukea oikein vanhassa appissa. Tekoäly kirjoittaa uudet kaavat uudessa muodossa (luku 6, *Jos, ja, tai*).
+- `ver` on moottorin versio `KK.VER` (nyt **10**, `var VER=10` moottorin alussa). Uudet valinnaiset kentät eivät nosta versiota. Versio 10 (Appi-appi 57) lisäsi joukot: projektin `jkr` (`{tunniste: {nm}}`, poistettu mutta yhä viitattu `{nm, x:1}`), palikan `jkt` (tagit) ja `jkk` (avatut *kuuluu kun* -kohdat), Toiminnon `oj` (kohde joukko) ja `jo` (Lisää joukkoon / Poista joukosta), kaavoissa ja teksteissä `{%tunniste}` sekä käyttötiedossa `st['jk:tunniste']` (toimintojen jäsenyysmuutokset). Vanha versio 9 -tallennus aukeaa ennallaan; vanha appi ei osaa joukkoja. Versio 9 (Appi-appi 55) muutti kaavan kieltä: vanhat `jos(;;)`, `ja(;)`, `tai(;)` muunnetaan avattaessa (`repair`, myös lukittujen ketjujen lukituskuvat, presetit ja suosikit), ja varattu viite (`jos`, `muuten`, `niin`, `ja`, `tai`) saa uuden (`ja_2`). Versio 9 -kaava ei aukea oikein vanhassa appissa. Tekoäly kirjoittaa uudet kaavat uudessa muodossa (luku 6, *Jos, ja, tai*).
 - Appi lukee myös tiedostot, joissa `app` on `pajakone` tai `kytkoskartta`.
 - Kelpoisuus (`okProj`): `app` on jokin yllä olevista, ja `projekti` on olio, jossa on `b` ja `lg`.
 
-**Yhden projektin vienti** (*Vie tiedostona*): `{app:'appiappi', ver:9, projects:[projekti]}`.
+**Yhden projektin vienti** (*Vie tiedostona*): `{app:'appiappi', ver:10, projects:[projekti]}`.
 
 **Varmuuskopio** (*Vie kaikki projektit*): koko tallennus `{app, ver, projects:[…], cur, cfg, meta, laput, lapPois, lapGh, lapVer, suos, presetit}`.
 

@@ -68,7 +68,7 @@ Käyttötietoa ovat arvot, jotka syntyvät käytössä: Muistin sisältö, arvot
 
 ### Paneelin yhteiset osat
 
-Logiikan palikan paneelissa on aina **Nimi**, **Viite** (lyhyt nimi kaavoihin, seuraa nimeä kunnes kirjoitat oman; pienet kirjaimet, numerot ja _, ei ala numerolla) ja **Lisätieto**. Lisäksi useimmilla: *Ulkonäkö logiikassa* (Pistokkeet: kuten muut / näkyvät / piilossa), *Ominaisuudet*, *Miksi?* (osalla lajeista, ks. alla) ja *Yhteydet* (mistä palikka saa arvonsa ja missä sitä käytetään).
+Logiikan palikan paneelissa on aina **Nimi**, **Tunnus** (viite ja joukot `#nimi`; viite on lyhyt nimi kaavoihin, seuraa nimeä kunnes kirjoitat oman; pienet kirjaimet, numerot ja _, ei ala numerolla) ja **Lisätieto**. Lisäksi useimmilla: *Ulkonäkö logiikassa* (Pistokkeet: kuten muut / näkyvät / piilossa), *Ominaisuudet*, *Miksi?* (osalla lajeista, ks. alla) ja *Yhteydet* (mistä palikka saa arvonsa ja missä sitä käytetään).
 
 **Miksi?** näkyy aina, kun palikalle on selitys (Appi-appi 32 lähtien käytännössä kaikilla logiikkapalikoilla). Se kertoo, mikä osa pätee ja mikä ei, tai miksi arvo on mikä on (esim. Käyrällä ”Syöte puuttuu…”).
 
@@ -450,7 +450,7 @@ Rakentajan merkintä: kokoaa palikoita reunaviivan sisään, nimellä ja halutes
 5. Valitse näkymässä Teksti ja kirjoita sen tekstiksi `Summa: {summa}`.
 6. Kokeile: muuta lukuja (tai lukitse näkymä **🔒 Lukitse**). Teksti päivittyy heti.
 
-Sama ilman Laskua: Kaava, jossa Lukukenttien viitteet plus-merkillä, esim. `a + b` (viite näkyy kunkin Lukukentän paneelin **Viite**-kentässä), ja paneelin nappi **Vie tulos näkymän palikkaan…** → Teksti → teksti.
+Sama ilman Laskua: Kaava, jossa Lukukenttien viitteet plus-merkillä, esim. `a + b` (viite näkyy kunkin Lukukentän paneelin **Tunnus**-kentässä), ja paneelin nappi **Vie tulos näkymän palikkaan…** → Teksti → teksti.
 
 ### 2. Näytä viesti vain kun ehto pätee (JOS)
 

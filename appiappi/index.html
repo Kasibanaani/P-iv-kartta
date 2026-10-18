@@ -77,6 +77,7 @@ body.koe #body{top:85px}
 .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--sep);background:var(--cell);border-radius:9px;padding:6px 9px;font-size:13px;font-weight:550;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none}
 .chip:hover{border-color:var(--accent);box-shadow:var(--shadow)}
 .chip .ek,.qk .ek{color:var(--label2);font-size:12px;margin-left:2px}
+.jkchips{display:flex;flex-direction:column;gap:6px;margin:-4px 0 10px}.jkc{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;padding:5px 8px;border:1px solid var(--sep);border-radius:8px;color:var(--label2)}.jkc b{color:var(--label);font-family:ui-monospace,Menlo,monospace}.jkc.on{border-color:var(--accent)}.jkc .jkw{flex:1;min-width:120px}.jkc .ib{padding:4px 8px;font-size:12px}.jkc .ib.on{border-color:var(--accent);color:var(--accent)}.jkrow{display:flex;align-items:center;flex-wrap:wrap;gap:4px 6px;font-size:13px;padding:3px 0}.jkrow b{font-family:ui-monospace,Menlo,monospace;overflow-wrap:anywhere}.jkrow span{flex:1;white-space:nowrap;color:var(--label2);font-size:12px}.jkrow .jkbt{display:flex;gap:4px;margin-left:auto;font-style:normal}.jkrow .ib{padding:3px 8px;font-size:12px}
 .erik{font-size:12px;line-height:1.4;margin:-4px 0 10px;padding:6px 9px;border:1px dashed var(--sep);border-radius:8px;color:var(--label2)}
 .chip .ci{width:20px;height:20px;border-radius:6px;display:inline-grid;place-items:center;font-size:12px;font-weight:800;background:var(--hs);color:var(--hc)}
 .chip.sym{min-width:38px;justify-content:center;font-size:16px;font-weight:700;padding:4px 8px}
@@ -1032,7 +1033,7 @@ return {mount:mount,mountView:mountView,project:project};
 /* Pajakone (Kytköskartan pohjalta) – moottori. Puhdas logiikka ilman DOMia: testataan Nodella (testit/logiikka_*.js). */
 var KK=(function(){
 'use strict';
-var VER=9;
+var VER=10;
 function V(p,n){return {p:p,n:n,t:'v'};}
 function E(p,n){return {p:p,n:n,t:'e'};}
 
@@ -1133,7 +1134,7 @@ var OPS={add:'+',sub:'−',mul:'×',div:'÷'};
 var CMPS={eq:'=',ne:'≠',lt:'<',le:'≤',gt:'>',ge:'≥',has:'sisältää'};
 var WM={and:'JA',or:'TAI',one:'VAIN YKSI',min:'VÄHINTÄÄN',max:'ENINTÄÄN',eq:'TÄSMÄLLEEN',not:'EI MIKÄÄN',sum:'SUMMA',avg:'KESKIARVO',maxv:'SUURIN',minv:'PIENIN',cnt:'MONTAKO PÄTEE'};
 var PARTS={vk:'Viikkonumero',vkp:'Viikonpäivä',vkpn:'Viikonpäivä numerona',pv:'Päivä',kk:'Kuukausi',v:'Vuosi',ero:'Päiviä tästä päivästä'};
-var DOS={aseta:'Aseta arvo',tila:'Aseta tila',lisaa:'Lisää',valitse:'Valitse',poista:'Poista valinta',vaihda:'Vaihda',tyhjenna:'Tyhjennä',siirry:'Siirry',takaisin:'Palaa takaisin',kirjaa:'Kirjaa',rivi:'Lisää riviksi listaan',ilmoita:'Näytä ilmoitus',kaynnista:'Käynnistä ketju',pysayta:'Pysäytä ketju',arvonta:'Arvo uudelleen',palauta:'Palauta perusarvo',lisaarivi:'Lisää rivi',poistarivi:'Poista rivi',valitserivi:'Valitse rivi',siirrarivi:'Siirrä rivi',hae:'Hae tiedostosta'};
+var DOS={aseta:'Aseta arvo',tila:'Aseta tila',lisaa:'Lisää',valitse:'Valitse',poista:'Poista valinta',vaihda:'Vaihda',tyhjenna:'Tyhjennä',siirry:'Siirry',takaisin:'Palaa takaisin',kirjaa:'Kirjaa',rivi:'Lisää riviksi listaan',ilmoita:'Näytä ilmoitus',kaynnista:'Käynnistä ketju',pysayta:'Pysäytä ketju',arvonta:'Arvo uudelleen',palauta:'Palauta perusarvo',lisaarivi:'Lisää rivi',poistarivi:'Poista rivi',valitserivi:'Valitse rivi',siirrarivi:'Siirrä rivi',hae:'Hae tiedostosta',joukkoon:'Lisää joukkoon',joukosta:'Poista joukosta'};
 var VKP=['sunnuntai','maanantai','tiistai','keskiviikko','torstai','perjantai','lauantai'];
 var KUUT=['tammikuu','helmikuu','maaliskuu','huhtikuu','toukokuu','kesäkuu','heinäkuu','elokuu','syyskuu','lokakuu','marraskuu','joulukuu'];
 var BOOLK={ruutu:1,kytkin:1};
@@ -1149,7 +1150,9 @@ function napVaihto(b){return !!b&&b.k==='nappi'&&b.beh==='kerta'&&b.kv==='vaihto
 function isBoolKind(b){return !!b&&(BOOLK[b.k]||(b.k==='nappi'&&(b.beh!=='kerta'||b.kv==='vaihto'))||b.k==='muisti');}
 
 /* Kohdat: perusosa (palikkalajin omat) ja ominaisuuksien avatut ohjauskohdat o_<avain> (Pajakone 4, ks. omat). */
-function ports(b){var r=portsBase(b);if(b&&Array.isArray(b.ohk)&&b.ohk.length){var es=omat(b);b.ohk.forEach(function(key){for(var i=0;i<es.length;i++)if(es[i].p===key&&es[i].o){r.ins.push(V('o_'+key,es[i].n));return;}});}return r;}
+function ports(b){var r=portsBase(b);if(b&&Array.isArray(b.ohk)&&b.ohk.length){var es=omat(b);b.ohk.forEach(function(key){for(var i=0;i<es.length;i++)if(es[i].p===key&&es[i].o){r.ins.push(V('o_'+key,es[i].n));return;}});}
+  /* Jonon 15c: avattu tagin kohta kuuluu #x kun (jk_<id>); nimi tulee näkyviin käyttöliittymässä (portName). */
+  if(b&&Array.isArray(b.jkk))b.jkk.forEach(function(j){if(jkHas(b,j)){var pv=V('jk_'+j,'kuuluu joukkoon kun');pv.j=j;r.ins.push(pv);}});return r;}
 function portsBase(b){
   var k=b.k,ins=[],outs=[];
   if(!K[k])return {ins:ins,outs:outs};
@@ -1279,7 +1282,10 @@ function omBatch(f,m){if(OMC)return f();OMC=m||new Map();try{return f();}finally
 function omat(b){
   if(OMC&&b){var c=OMC.get(b);if(c)return c.es;var es=omat0(b);OMC.set(b,{es:es,f:Object.create(null)});return es;}
   return omat0(b);}
-function omat0(b){
+/* Jonon 15c: jokaisella palikalla (paitsi Ryhmällä) luettava joukot. Ei o-kohtaa: jäsenyyttä ohjataan tagikohtaisesti
+   (kuuluu #x kun, jk_<id>) ja toiminnoilla Lisää joukkoon / Poista joukosta, jotta muut tagit eivät korvaudu (suunnitelma 25 kohta 3.4). */
+function omat0(b){var r=omatK(b);if(b&&K[b.k]&&b.k!=='ryhma')r.push(OM('joukot','joukot','teksti',{calc:1,d:'joukot, joihin palikka nyt kuuluu, pilkuin (esim. pisteet, terveys)'}));return r;}
+function omatK(b){
   if(!b||!K[b.k])return [];var k=b.k,r=[];
   function pt(p,n,d,al){r.push(OM(p,n,'arvo',{port:p,d:d,al:al}));}
   function cl(p,n,t,d,al){r.push(OM(p,n,t,{calc:1,d:d,al:al}));}
@@ -1422,7 +1428,9 @@ function omActive(P,b,key){if(!b)return false;var so=P.st['o:'+b.id];return (Arr
 function setOmi(P,id,key,v){var b=P.b[id],e=b&&omFind(b,key);if(!e||!e.o)return false;var nv=omNorm(e,v);if(isErr(nv))return false;
   if(e.lst){var ls0=liikeSt(P,id),ls1={};for(var lk in ls0)ls1[lk]=ls0[lk];if(nv)ls1[e.lst]=round9(nv);else delete ls1[e.lst];if(ls1.x==null){var lp=liikeNow(P,b,Ev(P));ls1.x=lp.x;ls1.y=lp.y;}P.st[id]=ls1;return true;}
   var so=P.st['o:'+id];if(!so||typeof so!=='object')so=P.st['o:'+id]={};if(nv===null)delete so[e.p];else so[e.p]=nv;if(!Object.keys(so).length)delete P.st['o:'+id];return true;}
-function resetOmi(P,id,key){if(!key){delete P.st['fxt:'+id];delete P.st['fxk:'+id];}if(key){var lb=P.b[id],le=lb&&omFind(lb,key);if(le&&le.lst){var lst=P.st[id];if(lst&&typeof lst==='object')delete lst[le.lst];return;}}var so=P.st['o:'+id];if(!so||typeof so!=='object')return;if(key){var b=P.b[id],e=b&&omFind(b,key);delete so[e?e.p:key];}else so={};if(!Object.keys(so).length)delete P.st['o:'+id];else P.st['o:'+id]=so;}
+function resetOmi(P,id,key){if(!key){delete P.st['fxt:'+id];delete P.st['fxk:'+id];
+  /* Jonon 15c: toimintojen jäsenyysmuutokset pois, joten tagit ovat taas voimassa. */
+  Object.keys(P.st).forEach(function(k){var so=P.st[k];if(k.slice(0,3)==='jk:'&&so&&typeof so==='object'&&so.hasOwnProperty(id)){delete so[id];if(!Object.keys(so).length)delete P.st[k];}});}if(key){var lb=P.b[id],le=lb&&omFind(lb,key);if(le&&le.lst){var lst=P.st[id];if(lst&&typeof lst==='object')delete lst[le.lst];return;}}var so=P.st['o:'+id];if(!so||typeof so!=='object')return;if(key){var b=P.b[id],e=b&&omFind(b,key);delete so[e?e.p:key];}else so={};if(!Object.keys(so).length)delete P.st['o:'+id];else P.st['o:'+id]=so;}
 /* Palikka pois käytöstä: kenttä off, tai ominaisuus käytössä ohjattuna tai asetettuna. */
 function isOff(P,b,ctx){if(!b)return true;if(!omActive(P,b,'kaytossa'))return !!b.off;var v=Ev(P,ctx).omi(b.id,'kaytossa');return isErr(v)?!!b.off:!truth(v);}
 /* Ikkunan kaltaiset: tavallinen ikkuna (sulut) ja ketju. Niillä on yksi esiintymä, leveys ja korkeus, ja palikoita voi laittaa sisään. */
@@ -2525,6 +2533,27 @@ function removeBlock(P,id){
   P.deco=P.deco.filter(function(d){return d.a!==id&&d.b!==id;});
   repair(P);
 }
+/* Jonon 15c: joukkorekisteri (P.jkr), tagit (b.jkt), avatut kohdat (b.jkk), Toiminnon kohde (b.oj) ja joukko (b.jo),
+   käyttötieto (P.st['jk:'+id]). Tuntematon #nimi kaavassa ({%?nimi}) löytyy, kun samanniminen joukko tehdään. */
+function repairJk(P){
+  if(P.jkr!==undefined){if(!P.jkr||typeof P.jkr!=='object'||Array.isArray(P.jkr))delete P.jkr;else{var seen={},mx=0;Object.keys(P.jkr).forEach(function(j){var g=P.jkr[j],nm=g&&typeof g.nm==='string'?g.nm.toLowerCase():'';
+      if(!JKIDRE.test(j)||!JKRE.test(nm)||(!g.x&&seen[nm])){delete P.jkr[j];return;}if(!g.x)seen[nm]=1;P.jkr[j]=g.x?{nm:nm,x:1}:{nm:nm};mx=Math.max(mx,+j.slice(1));});
+    if(!(P.seq>=mx))P.seq=mx;if(!Object.keys(P.jkr).length)delete P.jkr;}}
+  var R=jkReg(P);
+  function heal(x){return x.indexOf('{%?')<0?x:x.replace(/\{%\?([^{}]*)\}/g,function(m,n){var j=jkFind(P,n);return j?'{%'+j+'}':m;});}
+  Object.keys(P.b).forEach(function(id){var b=P.b[id];
+    if(b.jkt!==undefined){var t=Array.isArray(b.jkt)&&b.k!=='ryhma'?b.jkt.filter(function(j,i,a){return typeof j==='string'&&!!R[j]&&!R[j].x&&a.indexOf(j)===i;}):[];if(t.length)b.jkt=t;else delete b.jkt;}
+    if(b.jkk!==undefined){var kk=Array.isArray(b.jkk)?b.jkk.filter(function(j,i,a){return jkHas(b,j)&&a.indexOf(j)===i;}):[];if(kk.length)b.jkk=kk;else delete b.jkk;}
+    if(b.oj!==undefined){if(b.k!=='tee'||typeof b.oj!=='string'||!R[b.oj])delete b.oj;else b.o='';}
+    if(b.jo!==undefined&&(b.k!=='tee'||typeof b.jo!=='string'||!R[b.jo]))delete b.jo;
+    if(b.k==='kaava'&&typeof b.f==='string')b.f=heal(b.f);
+    if(b.k==='tee'&&b.kv&&typeof b.kv==='object')Object.keys(b.kv).forEach(function(c){if(typeof b.kv[c]==='string')b.kv[c]=heal(b.kv[c]);});});
+  Object.keys(P.st).forEach(function(k){if(k.slice(0,3)!=='jk:')return;var j=k.slice(3),so=P.st[k];
+    if(!R[j]||R[j].x||!so||typeof so!=='object'||Array.isArray(so)){delete P.st[k];return;}
+    Object.keys(so).forEach(function(id){if(!P.b[id]||typeof so[id]!=='boolean')delete so[id];});if(!Object.keys(so).length)delete P.st[k];});
+  /* Poistettu joukko jää rekisteriin vain, jos siihen vielä viitataan (kuten P.pois). */
+  Object.keys(R).forEach(function(j){if(R[j].x&&!jkUses(P,j).length)delete R[j];});if(P.jkr&&!Object.keys(P.jkr).length)delete P.jkr;
+}
 function repairRef(P,x){if(x&&typeof x==='object'&&x.r&&!P.b[x.r]&&!isGone(P,x.r))return '';return x;}
 function repair(P){
   if(!P||typeof P!=='object')return P;
@@ -2633,6 +2662,7 @@ function repair(P){
   Object.keys(P.b).forEach(function(id){var b=P.b[id];if(b.k==='ryhma'){if(typeof b.vt!=='string')b.vt='';delete b.vtSet;return;}if(validVt(b.vt)&&!seenVt[b.vt])seenVt[b.vt]=1;else needVt.push(id);});
   needVt.forEach(function(id){var b=P.b[id],base=slugVt(b.nm),v=base,i=2;while(!validVt(v)||seenVt[v])v=vtNext(base,i++);b.vt=v;seenVt[v]=1;if(b.vtSet)delete b.vtSet;});
   Object.keys(P.b).forEach(function(id){if(P.b[id].k==='tee')repairTee(P,P.b[id]);});
+  repairJk(P);
   /* Kaavat: kadonneen palikan tunniste muuttuu puuttuvaksi, ja puuttuva löytyy taas, kun samalla viitteellä on palikka. */
   var vtm=byVt(P);
   function healK(f){return f.replace(/\{#([a-zA-Z0-9]+)\}/g,function(m,i){return P.b[i]||isGone(P,i)?m:'{?}';}).replace(/\{\?([^{}]*)\}/g,function(m,n){var i=vtm[String(n).toLowerCase()];return i?'{#'+i+'}':m;});}
@@ -2640,7 +2670,7 @@ function repair(P){
   /* Jonon 12g (versio 9): vanhat jos(;;), ja(;), tai(;) uuteen muotoon palikoissa ja käynnissä olevien lukittujen ketjujen
      lukituskuvissa. Version 8 kuva nostetaan versioon 9 muunnettuna, jotta lukittu ketju jatkaa (kartoitus 7, U4). */
   kaavaVanhaB(P.b);
-  if(P.st&&typeof P.st==='object')Object.keys(P.st).forEach(function(k){var cs=P.st[k];if(cs&&cs.snap&&typeof cs.snap==='object'&&cs.snap.b&&(cs.snap.ver===VER||cs.snap.ver===8)){kaavaVanhaB(cs.snap.b);cs.snap.ver=VER;}});
+  if(P.st&&typeof P.st==='object')Object.keys(P.st).forEach(function(k){var cs=P.st[k];if(cs&&cs.snap&&typeof cs.snap==='object'&&cs.snap.b&&cs.snap.ver>=8&&cs.snap.ver<=VER){kaavaVanhaB(cs.snap.b);cs.snap.ver=VER;}});
   Object.keys(P.b).forEach(function(id){var b=P.b[id];if(b.k!=='kaava')return;
     b.f=b.f.replace(/\{#([a-zA-Z0-9]+)\}/g,function(m,i){return P.b[i]||isGone(P,i)?m:'{?}';}).replace(/\{\?([^{}]*)\}/g,function(m,n){var i=vtm[String(n).toLowerCase()];return i?'{#'+i+'}':m;});});
   /* Tekstien {viite}/{Nimi}, jota ei vielä ollut kirjoitettaessa, löytyy, kun palikka tehdään. */
@@ -2799,14 +2829,17 @@ function repairData(Dt){
    Poistettu kohde näkyy muokatessa {⚠viite} ja palaa tallennettaessa samaan tunnisteeseen (ei samannimiseen uuteen). */
 var TPLRE=/\{#([a-zA-Z0-9]+)(?:\.([^{}]+))?\}/g;
 function tplRe(){return new RegExp(TPLRE.source,'g');}
-function toNames(P,s,t){t=refTapa(t);var vm=byVt(P);if(t!=='{')return prefNames(P,String(s||''),t,vm);return String(s||'').replace(tplRe(),function(m,i,p){var o=P.b[i];
+/* Jonon 15c: joukkoviitteet {%id} näkyvät #nimi kaikilla tavoilla (jkNames, jkIds). Tallennetun tekstin korjaus (repair, ilman tapaa)
+   ei muuta kirjaimellista #sanaa joukoksi. */
+function toNames(P,s,t){return jkNames(P,toNames0(P,s,t));}
+function toNames0(P,s,t){t=refTapa(t);var vm=byVt(P);if(t!=='{')return prefNames(P,String(s||''),t,vm);return String(s||'').replace(tplRe(),function(m,i,p){var o=P.b[i];
   if(!o)return isGone(P,i)?'{⚠'+goneName(P,i)+(p?'.'+p:'')+'}':'';
   if(o.k==='ryhma')return '{'+o.nm+(p?'.'+p:'')+'}';
   if(p)return '{'+o.vt+'.'+pathConv(P,i,p,false)+'}';
   var c=vm[o.nm.toLowerCase()];return '{'+(c&&c!==i?o.vt:o.nm)+'}';});}
 var TPROP=/^[a-zåäö_][a-z0-9åäö_]*(?:\.[a-z0-9åäö_]+)*$/;
 function toIds(P,s,t){
-  t=refTapa(t);var r=bracesToIds(P,s);return t==='{'?r:prefIds(P,r,t);}
+  var jk=t!==undefined;t=refTapa(t);var r=bracesToIds(P,s);r=t==='{'?r:prefIds(P,r,t);return jk?jkIds(P,r):r;}
 function bracesToIds(P,s){
   var by={},vm=byVt(P);Object.keys(P.b).forEach(function(i){if(P.b[i].k!=='ryhma'||!by[P.b[i].nm])by[P.b[i].nm]=i;});
   function find(n){return vm[n.toLowerCase()]||by[n];}
@@ -2856,6 +2889,109 @@ function prefNames(P,s,c,vm){var re=tplRe(),out='',last=0,m;
   while((m=re.exec(s))){out+=prefEsc(P,s.slice(last,m.index),c,vm,out.slice(-1));last=re.lastIndex;out+=prefTok(P,m[1],m[2],c,s.charAt(last),s.charAt(last+1));}
   return out+prefEsc(P,s.slice(last),c,vm,out.slice(-1));}
 function refsIn(s){var r=[],m,re=tplRe();while((m=re.exec(String(s||''))))r.push(m[1]);return r;}
+/* ---------- Jonon 15c (F41, suunnitelma 25 kohdat 3.1–3.4 ja 7): joukot tageina ----------
+   Joukko on projektin rekisterissä P.jkr {id: {nm, x?}}; x = poistettu, mutta jokin kaava, teksti tai toiminto viittaa vielä
+   (näkyy #⚠nimi kuten poistettu palikka). Palikan tagit b.jkt ['j3', …] ja avatut kuuluu kun -kohdat b.jkk ovat tunnisteita,
+   joten nimen vaihto ei riko mitään. Tekstissä ja kaavassa joukko tallentuu {%id} ja {%id.kooste} (palikka on {#id}), näytössä
+   #nimi kaikilla viittaustavoilla. Tuntematon #sana jää tekstiin tekstiksi (## = merkki), kaavassa se on {%?sana}: virhe.
+   Jäsenyys (A3): kohta kuuluu #x kun (nuoli kohtaan jk_<id>) > Lisää joukkoon / Poista joukosta (käyttötieto
+   P.st['jk:'+id] = {palikka: kyllä/ei}) > tagi (perusarvo). Tagit muuttuvat vain muokatessa: tagihakemisto muistetaan
+   omBatchin muistissa (lukitussa käytössä kuvasta toiseen), ehdot ja toiminnot luetaan kerran arviointia (Ev) kohden. */
+var JKRE=/^[a-zåäö_][a-z0-9åäö_]*$/,JKIDRE=/^j[0-9]+$/;
+function jkReg(P){return P&&P.jkr&&typeof P.jkr==='object'&&!Array.isArray(P.jkr)?P.jkr:{};}
+function jkOn(P,j){var g=jkReg(P)[j];return !!g&&!g.x;}
+function jkNm(P,j){var g=jkReg(P)[j];return g?g.nm:'';}
+/* Nimellä (kirjainkoolla ei väliä); gone = etsi poistetuista. */
+function jkFind(P,n,gone){n=String(n==null?'':n).toLowerCase();var R=jkReg(P),ks=Object.keys(R);for(var i=0;i<ks.length;i++){var g=R[ks[i]];if(g.nm===n&&!g.x===!gone)return ks[i];}return '';}
+function jkList(P){var R=jkReg(P);return Object.keys(R).filter(function(j){return !R[j].x;});}
+function jkHas(b,j){return !!b&&Array.isArray(b.jkt)&&b.jkt.indexOf(j)>=0;}
+function jkNameErr(P,n,except){n=String(n||'');if(!n)return 'Kirjoita joukon nimi #:n perään, esim. #pisteet.';if(!JKRE.test(n))return 'Joukon nimessä saa olla vain kirjaimia, numeroita ja _, eikä se saa alkaa numerolla (#'+n+').';
+  var o=jkFind(P,n);if(o&&o!==except)return 'Joukko #'+n+' on jo olemassa.';return '';}
+/* Uusi joukko nimellä (tai olemassa oleva). Palauttaa tunnisteen tai tyhjän, jos nimi ei kelpaa. */
+function jkLuo(P,n){n=String(n||'').trim().toLowerCase().replace(/^#/,'');var o=jkFind(P,n);if(o)return o;if(jkNameErr(P,n))return '';
+  if(!P.jkr||typeof P.jkr!=='object'||Array.isArray(P.jkr))P.jkr={};var id='j'+(++P.seq);P.jkr[id]={nm:n};return id;}
+function jkNimea(P,j,n){n=String(n||'').trim().toLowerCase().replace(/^#/,'');var g=jkReg(P)[j];if(!g||g.x)return 'Joukkoa ei löydy.';var e=jkNameErr(P,n,j);if(e)return e;g.nm=n;return '';}
+/* Missä joukkoon viitataan: [{id, how: tagi | toiminto | kaava | teksti}]. */
+function jkUses(P,j){var out=[],k1='{%'+j+'}',k2='{%'+j+'.';Object.keys(P.b).forEach(function(id){var b=P.b[id],how='';
+  if(jkHas(b,j))how='tagi';else if(b.oj===j||b.jo===j)how='toiminto';
+  else{var s=JSON.stringify(b);if(s.indexOf(k1)>=0||s.indexOf(k2)>=0)how=b.k==='kaava'||b.k==='tee'?'kaava':'teksti';}
+  if(how)out.push({id:id,how:how});});return out;}
+/* Poisto joukkolistasta: tagit, avatut kohdat ja käyttötieto pois. Jos kaava, teksti tai toiminto viittaa vielä, joukko jää
+   rekisteriin poistettuna (näkyy #⚠nimi ja virhe), muuten se poistuu kokonaan. Kumoa on käyttöliittymän. */
+function jkPoista(P,j){var R=jkReg(P);if(!R[j])return;Object.keys(P.b).forEach(function(id){var b=P.b[id];
+    if(Array.isArray(b.jkt)){b.jkt=b.jkt.filter(function(x){return x!==j;});if(!b.jkt.length)delete b.jkt;}
+    if(Array.isArray(b.jkk)){b.jkk=b.jkk.filter(function(x){return x!==j;});if(!b.jkk.length)delete b.jkk;}});
+  delete P.st['jk:'+j];if(jkUses(P,j).length)R[j].x=1;else delete R[j];repair(P);}
+/* Tagihakemisto {joukko: [palikat]} palikoiden järjestyksessä. Muistetaan omBatchin ajan (lukitussa käytössä pidempään). */
+function jkIndex(P){var c=OMC?OMC.get(P.b):null;if(c&&c.jk)return c.jk;var ix={};
+  Object.keys(P.b).forEach(function(id){var t=P.b[id].jkt;if(Array.isArray(t))t.forEach(function(j){(ix[j]=ix[j]||[]).push(id);});});
+  if(OMC){if(c)c.jk=ix;else OMC.set(P.b,{jk:ix});}return ix;}
+/* Onko palikan kuuluu #j kun -kohtaan nuoli. */
+function jkEhto(P,id,j){var ns={};P.lg.n.forEach(function(n){if(n.p===id)ns[n.id]=1;});return P.lg.l.some(function(l){return ns[l.t]&&l.tp==='jk_'+j;});}
+/* Tunnus-kenttä: ”@uni #unipisteet #terveys”. Yksi paljas sana tai @sana (myös §sana ja {sana}) = viite, #sana = joukko.
+   ⚡ (ehdollinen tagi näytössä) ohitetaan. Viite puuttuu → viite ennallaan; koko kenttä tyhjä → viite nimestä, ei joukkoja. */
+function tunnusLue(s){var t=String(s==null?'':s).replace(/⚡/g,' ').trim(),out={vt:null,tags:[],err:'',tyhja:!t};if(!t)return out;
+  t.split(/[\s,]+/).forEach(function(w){if(!w||out.err)return;
+    if(w.charAt(0)==='#'){var n=w.slice(1).toLowerCase(),ne=n&&JKRE.test(n)?'':jkNameErr(null,n);if(ne){out.err=ne;return;}if(out.tags.indexOf(n)<0)out.tags.push(n);return;}
+    var v=w.replace(/^[@§]/,'').replace(/^\{(.*)\}$/,'$1').toLowerCase();
+    if(out.vt!==null){out.err='Yksi viite per palikka: kirjoita viite kerran ja joukot #:lla, esim. @uni #pisteet.';return;}out.vt=v;});
+  return out;}
+function tunnusTeksti(P,b,tapa){if(!b)return '';var c=refTapa(tapa),s=b.k==='ryhma'?'':(c==='{'?'':c)+(b.vt||'');
+  (Array.isArray(b.jkt)?b.jkt:[]).forEach(function(j){if(jkReg(P)[j])s+=(s?' ':'')+'#'+jkNm(P,j)+(Array.isArray(b.jkk)&&b.jkk.indexOf(j)>=0?'⚡':'');});return s;}
+/* Virhe kirjoitettaessa (ei muutoksia). */
+function tunnusVirhe(P,id,s){var r=tunnusLue(s),b=P.b[id];if(r.err)return r.err;if(r.vt!==null&&b&&r.vt!==b.vt){
+    if(KW[r.vt])return '”'+r.vt+'” on kaavoissa varattu sana. Valitse toinen viite.';if(!VTRE.test(r.vt))return 'Viitteessä saa olla vain kirjaimia, numeroita ja _, eikä se saa alkaa numerolla.';
+    var o=vtOwner(P,r.vt,id);if(o)return 'Viite on jo käytössä palikalla ”'+o.nm+'”.';}return '';}
+/* Tallennus: viite ja (ellei vainViite) tagit; uusi #nimi luo joukon heti (A11). Palauttaa virheen tai tyhjän. */
+function setTunnus(P,id,s,vainViite){var b=P.b[id];if(!b)return 'Palikkaa ei löydy.';var r=tunnusLue(s);if(r.err)return r.err;
+  if(r.tyhja){var e0=setVt(P,id,'');if(e0)return e0;}else if(r.vt!==null&&r.vt!==b.vt){var e=setVt(P,id,r.vt);if(e)return e;}
+  if(vainViite||b.k==='ryhma')return '';
+  var ids=[];r.tags.forEach(function(n){var j=jkFind(P,n)||jkLuo(P,n);if(j&&ids.indexOf(j)<0)ids.push(j);});
+  if(ids.length)b.jkt=ids;else delete b.jkt;
+  if(Array.isArray(b.jkk)){b.jkk=b.jkk.filter(function(j){return ids.indexOf(j)>=0;});if(!b.jkk.length)delete b.jkk;}
+  return '';}
+/* Tekstin joukkoviitteet. Tallennus {%id} tai {%id.polku}; näytössä #nimi.polku. */
+var JTPLRE=/\{%([a-zA-Z0-9]+)(?:\.([^{}]+))?\}/g;
+function jkTplRe(){return new RegExp(JTPLRE.source,'g');}
+function jkAt(P,s,i,gone){var g=s.charAt(i)==='⚠',m=RID.exec(s.slice(i+(g?1:0)));if(!m)return null;var id=jkFind(P,m[0],g);return id?{id:id,n:(g?1:0)+m[0].length}:null;}
+function jkPath(s,i){var p=[],j=i,m;while(s.charAt(j)==='.'&&(m=/^[A-Za-zÅÄÖåäö_][A-Za-z0-9ÅÄÖåäö_]*/.exec(s.slice(j+1)))){p.push(m[0].toLowerCase());j+=1+m[0].length;}return {p:p.join('.'),n:j-i};}
+function jkTok(P,j,p,n1,n2){var g=jkReg(P)[j];if(!g)return '';var nm=(g.x?'⚠':'')+g.nm,glue=RWC.test(n1)||(n1==='.'&&/[A-Za-zÅÄÖåäö_]/.test(n2||''));
+  return glue?'{%'+nm+(p?'.'+p:'')+'}':'#'+nm+(p?'.'+p:'');}
+function jkEsc(P,seg,prev){if(seg.indexOf('#')<0)return seg;var o='';
+  for(var i=0;i<seg.length;i++){var ch=seg.charAt(i);if(ch==='#'&&refStart(seg,i,prev)&&jkAt(P,seg,i+1))o+='#';o+=ch;}return o;}
+function jkNames(P,s){s=String(s||'');if(s.indexOf('#')<0&&s.indexOf('{%')<0)return s;var re=jkTplRe(),out='',last=0,m;
+  while((m=re.exec(s))){out+=jkEsc(P,s.slice(last,m.index),out.slice(-1));last=re.lastIndex;out+=jkTok(P,m[1],m[2],s.charAt(last),s.charAt(last+1));}
+  return out+jkEsc(P,s.slice(last),out.slice(-1));}
+function jkIds(P,s){s=String(s||'');if(s.indexOf('#')<0&&s.indexOf('{%')<0)return s;var R=jkReg(P),out='',i=0,m;
+  while(i<s.length){var ch=s.charAt(i);
+    if(ch==='{'){var e=s.indexOf('}',i);if(e>i){var inner=s.slice(i+1,e);
+      /* {%nimi} (näyttö, kun perässä on kirjain) → {%id}; jo tallennettu {%id} säilyy. */
+      if((m=/^%(⚠?)([A-Za-zÅÄÖåäö_][A-Za-z0-9ÅÄÖåäö_]*)((?:\.[A-Za-z0-9ÅÄÖåäö_]+)*)$/.exec(inner))&&!(R[m[2]]&&!m[1])){var fj=jkFind(P,m[2],!!m[1]);if(fj){out+='{%'+fj+m[3].toLowerCase()+'}';i=e+1;continue;}}
+      out+=s.slice(i,e+1);i=e+1;continue;}}
+    if(ch==='#'&&refStart(s,i)){
+      if(s.charAt(i+1)==='#'){var r2=jkAt(P,s,i+2);if(r2){out+=s.slice(i+1,i+2+r2.n);i+=2+r2.n;continue;}}
+      var r=jkAt(P,s,i+1);if(r){var st=i+1+r.n,pp=jkPath(s,st);out+='{%'+r.id+(pp.p?'.'+pp.p:'')+'}';i=st+pp.n;continue;}}
+    out+=ch;i++;}
+  return out;}
+/* Kaavassa ja tekstissä tuttu kirjoitus summa(#x) kääntyy muotoon #x.summa (kirjoitusapu, ei funktio). Lainausmerkkien sisällä ei. */
+var JKFN=/(^|[^A-Za-z0-9ÅÄÖåäö_.#])(summa|keskiarvo|suurin|pienin|havaintoja|puuttuvia|jäseniä|jasenia|jäsenet|jasenet|arvot)\s*\(\s*(#⚠?[A-Za-zÅÄÖåäö_][A-Za-z0-9ÅÄÖåäö_]*(?:\.[A-Za-zÅÄÖåäö_][A-Za-z0-9ÅÄÖåäö_]*)*)\s*\)/gi;
+function jkKaanna(s){s=String(s==null?'':s);if(s.indexOf('#')<0||s.indexOf('(')<0)return s;
+  return s.split(/(["”“][^"”“]*["”“]?)/).map(function(x,i){return i%2?x:x.replace(JKFN,function(m,a,f,x2){return a+x2+'.'+f.toLowerCase();});}).join('');}
+/* Kaavan tuntemattomat joukot ({%?nimi}). */
+function kaavaJkMiss(f){var r=[],seen={},m,re=/\{%\?([^{}]+)\}/g;while((m=re.exec(String(f||'')))){var n=m[1].trim().toLowerCase();if(n&&!seen[n]){seen[n]=1;r.push(n);}}return r;}
+/* Lisää- ja Poista joukosta -toiminnon ja koosteiden sanat (koosteet samat kuin taulukon sarakkeilla, TAGG). */
+var JKAGG={'jäseniä':'cnt',jasenia:'cnt','jäsenet':'names',jasenet:'names',arvot:'list'};
+var JKSUG=[['summa','jäsenten arvot yhteen'],['keskiarvo','jäsenten arvojen keskiarvo'],['suurin','suurin arvo'],['pienin','pienin arvo'],['jäseniä','montako jäsentä'],['jäsenet','jäsenten nimet'],['arvot','jäsenten arvot luettelona'],['havaintoja','montako arvoa on tiedossa'],['puuttuvia','montako arvoa puuttuu'],['virheitä','montako jäsentä on virheessä'],['täydellinen','kaikilla arvo eikä virheitä']];
+/* Kooste jäsenten arvoista: tyhjät ja tekstit ohitetaan, kyllä/ei on 1/0, virhe estää tuloksen (kuten sarakkeella). */
+function jkAgg(vs,kind,lab,nms){var ok=[],miss=0,errs=[];vs.forEach(function(v,i){if(isErr(v))errs.push(i);else if(!nonEmpty(v))miss++;else ok.push(v);});
+  if(kind==='n')return ok.length;if(kind==='miss')return miss;if(kind==='err')return errs.length;if(kind==='full')return !miss&&!errs.length;
+  if(errs.length)return ERR(lab+': jäsenellä ”'+nms[errs[0]]+'” on virhe: '+vs[errs[0]].err);
+  if(kind==='list')return ok.map(function(v){return fmt(v);}).join(', ');
+  var xs=ok.filter(function(v){return typeof v==='boolean'||(typeof v==='number'&&isFinite(v));}).map(function(v){return v===true?1:v===false?0:v;});
+  if(kind==='sum')return round9(xs.reduce(function(a,x){return a+x;},0));
+  if(kind==='avg')return xs.length?round9(xs.reduce(function(a,x){return a+x;},0)/xs.length):MISS;
+  if(xs.length)return Math[kind].apply(null,xs);
+  var ds=ok.filter(isD);if(!ds.length)return MISS;var best=ds[0];ds.forEach(function(v){if(kind==='max'?v.d>best.d:v.d<best.d)best=v;});return best;}
 
 /* ---------- Kaava: lyhyt lauseke, esim. uni > 7 tai tänään + 5. Viittaukset {#id} sisäisesti, viitteinä muokatessa.
    Yhdistely tehdään pääosin ikkunoilla. Jonon 12g (F41): kaavassa ei ole funktioita. Sulut ryhmittelevät, ja lyhyt ehto
@@ -2868,11 +3004,14 @@ var IDRE=/^[A-Za-zÅÄÖåäö_][A-Za-z0-9ÅÄÖåäö_]*/;
 var PROPS={tulos:'t','käynnissä':'v',arvo:'arvo','näkyy':'näkyy',tila:'tila',teksti:'teksti','vaihtoväri':'vaihtoväri','rivejä':'n',rivit:'n',kaikki:'all',rastitettuja:'v','merkintöjä':'v',viimeisin:'last'};
 var PROPLIST='arvo, näkyy, tila, teksti, vaihtoväri, tulos; satunnaisluvulla min, max, p1, p2…; käyrällä x, t, xmin, xmax, ymin, ymax, p1, p2…';
 function kaavaToIds(P,s){
-  s=String(s==null?'':s);var vm=byVt(P),nm={};Object.keys(P.b).forEach(function(i){nm[P.b[i].nm.toLowerCase()]=i;});
+  s=jkKaanna(String(s==null?'':s));var vm=byVt(P),nm={};Object.keys(P.b).forEach(function(i){nm[P.b[i].nm.toLowerCase()]=i;});
   var out='',i=0,m;
   while(i<s.length){var r=s.slice(i),c=s[i];
     if((m=/^["”“][^"”“]*["”“]?/.exec(r))){out+=m[0];i+=m[0].length;continue;}
     if((m=/^\{#[a-zA-Z0-9]+\}/.exec(r))){out+=m[0];i+=m[0].length;continue;}
+    /* Jonon 15c: #joukko → {%id}, tuntematon {%?nimi} (virhe ”ei joukkoa”). Polku (.summa) jatkuu kuten palikalla. */
+    if((m=/^\{%\??[^{}]*\}/.exec(r))){out+=m[0];i+=m[0].length;continue;}
+    if((m=/^#(⚠?)([A-Za-zÅÄÖåäö_][A-Za-z0-9ÅÄÖåäö_]*)/.exec(r))){var jj=jkFind(P,m[2],!!m[1]);out+=jj?'{%'+jj+'}':'{%?'+m[2].toLowerCase()+'}';i+=m[0].length;continue;}
     if((m=/^⚠\s*([A-Za-zÅÄÖåäö_][A-Za-z0-9ÅÄÖåäö_]*)/.exec(r))){var gi=goneFind(P,m[1]);out+=gi?'{#'+gi+'}':'{?'+m[1]+'}';i+=m[0].length;continue;}
     if((m=/^\{([^{}]*)\}/.exec(r))){var key=m[1].trim().toLowerCase(),id=vm[key]||nm[key];out+=id?'{#'+id+'}':'{?'+m[1].trim()+'}';i+=m[0].length;continue;}
     if(/[0-9]/.test(c)){m=/^[0-9][0-9.,]*/.exec(r);out+=m[0];i+=m[0].length;continue;}
@@ -2929,10 +3068,10 @@ function kaavaVanha(s){s=String(s==null?'':s);if(s.indexOf(';')<0&&!KOLDQ.test(s
     return {s:parts.map(function(x){return x.kind&&!asg?'('+x.s+')':x.s;}).join('')};}
   try{var out='';for(;;){out+=seg(true).s;if(p>=T.length)break;out+=T[p].s;p++;}return out;}catch(e){return s;}
 }
-function kaavaToText(P,f){return String(f||'').replace(/\{#([a-zA-Z0-9]+)\}((?:\.[A-Za-zÅÄÖåäö_][A-Za-z0-9ÅÄÖåäö_]*)+)/g,function(m,i,p){return '{#'+i+'}.'+pathConv(P,i,p.slice(1),false);}).replace(/\{#([a-zA-Z0-9]+)\}/g,function(m,i){return P.b[i]?(P.b[i].k==='ryhma'?grpVt(P.b[i]):P.b[i].vt):isGone(P,i)?'⚠'+goneName(P,i):'?';}).replace(/\{\?([^{}]*)\}/g,function(m,n){return n||'?';});}
+function kaavaToText(P,f){return String(f||'').replace(/\{%([a-zA-Z0-9]+)\}/g,function(m,j){var g=jkReg(P)[j];return g?'#'+(g.x?'⚠':'')+g.nm:'#?';}).replace(/\{%\?([^{}]*)\}/g,function(m,n){return '#'+(n||'?');}).replace(/\{#([a-zA-Z0-9]+)\}((?:\.[A-Za-zÅÄÖåäö_][A-Za-z0-9ÅÄÖåäö_]*)+)/g,function(m,i,p){return '{#'+i+'}.'+pathConv(P,i,p.slice(1),false);}).replace(/\{#([a-zA-Z0-9]+)\}/g,function(m,i){return P.b[i]?(P.b[i].k==='ryhma'?grpVt(P.b[i]):P.b[i].vt):isGone(P,i)?'⚠'+goneName(P,i):'?';}).replace(/\{\?([^{}]*)\}/g,function(m,n){return n||'?';});}
 function GRPERR(){return ERR('Ryhmä ei ole arvo');}
 function kaavaStaticErr(n,B){if(!n||typeof n!=='object')return null;
-  if(n.t==='miss')return ERR('puuttuu: '+(n.n||'palikka'));if(n.t==='ref'&&B&&B[n.id]&&B[n.id].k==='ryhma')return GRPERR();
+  if(n.t==='miss')return ERR('puuttuu: '+(n.n||'palikka'));if(n.t==='jkmiss')return ERR('ei joukkoa: #'+(n.n||'?'));if(n.t==='ref'&&B&&B[n.id]&&B[n.id].k==='ryhma')return GRPERR();
   var e=null;['a','b'].forEach(function(k){if(!e&&n[k])e=kaavaStaticErr(n[k],B);});
   if(!e&&n.args)n.args.forEach(function(a){if(!e)e=kaavaStaticErr(a,B);});return e;}
 /* Jonon 5 (F27 kohta 1): kaavan tuntemattomat nimet ({?nimi}, ei ominaisuutta perässä) ja Arvo-palikan luonti nimestä.
@@ -2951,6 +3090,8 @@ function kaavaTokens(f){
     if((m=/^\s+/.exec(r))){i+=m[0].length;continue;}
     if(!t.length&&/^=(?![=])/.test(r)){i++;continue;}
     if((m=/^\{#([a-zA-Z0-9]+)\}(?:\.([A-Za-zÅÄÖåäö_][A-Za-z0-9ÅÄÖåäö_]*(?:\.[A-Za-zÅÄÖåäö_][A-Za-z0-9ÅÄÖåäö_]*)*))?/.exec(r))){t.push({t:'ref',id:m[1],p:m[2]?m[2].toLowerCase():''});i+=m[0].length;continue;}
+    if((m=/^\{%([a-zA-Z0-9]+)\}(?:\.([A-Za-zÅÄÖåäö_][A-Za-z0-9ÅÄÖåäö_]*(?:\.[A-Za-zÅÄÖåäö_][A-Za-z0-9ÅÄÖåäö_]*)*))?/.exec(r))){t.push({t:'jk',j:m[1],p:m[2]?m[2].toLowerCase():''});i+=m[0].length;continue;}
+    if((m=/^\{%\?([^{}]*)\}(?:\.([A-Za-zÅÄÖåäö_][A-Za-z0-9ÅÄÖåäö_]*(?:\.[A-Za-zÅÄÖåäö_][A-Za-z0-9ÅÄÖåäö_]*)*))?/.exec(r))){t.push({t:'jkmiss',n:m[1]});i+=m[0].length;continue;}
     if((m=/^\{\?([^{}]*)\}(?:\.([A-Za-zÅÄÖåäö_][A-Za-z0-9ÅÄÖåäö_]*(?:\.[A-Za-zÅÄÖåäö_][A-Za-z0-9ÅÄÖåäö_]*)*))?/.exec(r))){t.push({t:'miss',n:m[1]});i+=m[0].length;continue;}
     if((m=/^["”“]([^"”“]*)(["”“]?)/.exec(r))){if(!m[2])return {err:'lainausmerkki jäi auki'};t.push({t:'lit',v:m[1]});i+=m[0].length;continue;}
     if((m=/^(\d{1,2})\.(\d{1,2})\.(\d{4}|\d{2})?(?![\d.,])/.exec(r))){var d=parseDate(m[0]);if(!d)return {err:'”'+m[0]+'” ei ole päivämäärä'};t.push({t:'lit',v:D(d)});i+=m[0].length;continue;}
@@ -2961,7 +3102,7 @@ function kaavaTokens(f){
     if(r[0]==='('){dep++;t.push({t:'lp'});i++;continue;}
     if(r[0]===')'){if(!dep)return {err:'sulku ) ilman avaavaa ('};dep--;t.push({t:'rp'});i++;continue;}
     if(r[0]===';')return {err:'puolipistettä ei käytetä: jos (ehto) kyllä muuten ei · ehto ja ehto · ehto tai ehto'};
-    if((m=IDRE.exec(r))&&KHAS[m[0].toLowerCase()]&&t.length&&/^(lit|ref|miss|kw|rp)$/.test(t[t.length-1].t)){t.push({t:'cmp',o:'has',raw:'sisältää'});i+=m[0].length;continue;}
+    if((m=IDRE.exec(r))&&KHAS[m[0].toLowerCase()]&&t.length&&/^(lit|ref|miss|kw|rp|jk|jkmiss)$/.test(t[t.length-1].t)){t.push({t:'cmp',o:'has',raw:'sisältää'});i+=m[0].length;continue;}
     if((m=IDRE.exec(r))){var w=m[0].toLowerCase();if(KRES[w]){t.push({t:'kwd',w:w});i+=m[0].length;continue;}if(KW[w]){var pm=ENVW[w]?/^\.([A-Za-zÅÄÖåäö_][A-Za-z0-9ÅÄÖåäö_]*)/.exec(r.slice(m[0].length)):null;if(pm){t.push({t:'kw',w:w,p:pm[1].toLowerCase()});i+=m[0].length+pm[0].length;continue;}t.push({t:'kw',w:w});}else t.push({t:'miss',n:m[0]});i+=m[0].length;continue;}
     return {err:'tuntematon merkki ”'+r[0]+'”'};
   }
@@ -2991,7 +3132,7 @@ function parseExprT(T){
     w==='niin'?'niin kuuluu jos-ehdon perään: jos ehto niin kyllä muuten ei':w+' tarvitsee ehdon molemmille puolille: uni > 7 '+w+' ikä < 50';}
   var atom=function(){var x=T[pos];if(!x)return {err:'kaava jäi kesken'};
     if(x.t==='op'&&x.o==='sub'){pos++;var a=atom();return a.err?a:{t:'neg',a:a};}
-    if(x.t==='lit'||x.t==='ref'||x.t==='miss'||x.t==='kw'){pos++;return x;}
+    if(x.t==='lit'||x.t==='ref'||x.t==='miss'||x.t==='kw'||x.t==='jk'||x.t==='jkmiss'){pos++;return x;}
     /* Jonon 12g: sulut vain ryhmittelevät. */
     if(x.t==='lp'){pos++;if(pk('rp'))return {err:'tyhjät sulut: kirjoita sulkujen sisään arvo tai lasku'};var e=top();if(e.err)return e;
       if(!pk('rp'))return {err:'sulku jäi auki: lisää )'};pos++;return e;}
@@ -3035,7 +3176,7 @@ function kaavaAstText(P,n,min){if(!n)return '';var s=kaavaAstT(P,n);return kaava
 function kaavaAstT(P,n){var q=kaavaPrec(n);switch(n.t){
   case 'lit':return typeof n.v==='string'?'"'+n.v+'"':fmt(n.v,'pp.kk.vvvv');
   case 'ref':return kaavaToText(P,'{#'+n.id+'}'+(n.p?'.'+n.p:''));
-  case 'miss':return n.n||'?';case 'kw':return n.w+(n.p?'.'+n.p:'');
+  case 'miss':return n.n||'?';case 'jk':return kaavaToText(P,'{%'+n.j+'}')+(n.p?'.'+n.p:'');case 'jkmiss':return '#'+(n.n||'?');case 'kw':return n.w+(n.p?'.'+n.p:'');
   case 'neg':return '−'+kaavaAstText(P,n.a,6);
   case 'bin':return kaavaAstText(P,n.a,q)+' '+KOPT[n.o]+' '+kaavaAstText(P,n.b,q+1);
   case 'cmp':return kaavaAstText(P,n.a,4)+' '+(n.raw||'=')+' '+kaavaAstText(P,n.b,4);
@@ -3103,7 +3244,25 @@ function Ev(P,ctx){
   function has(id,p){if(linked(id,p))return true;var b=B[id];var x=b&&b[p];return !(x==null||x===''||(typeof x==='object'&&!isD(x)&&!x.r));}
   function goneErr(i){return ERR('kohde poistettu: '+goneName(P,i));}
   function fmtE(v){return isR(v)?rLabel(P,v,df):fmt(v,df);}
-  function tpl(s){return String(s==null?'':s).replace(tplRe(),function(m,i,p){if(!B[i])return isGone(P,i)?fmt(goneErr(i),df):'';if(B[i].k==='ryhma')return fmt(GRPERR(),df);return fmtE(p?prop(i,p):val(i,'v'));});}
+  function tpl(s){s=String(s==null?'':s).replace(tplRe(),function(m,i,p){if(!B[i])return isGone(P,i)?fmt(goneErr(i),df):'';if(B[i].k==='ryhma')return fmt(GRPERR(),df);return fmtE(p?prop(i,p):val(i,'v'));});
+    return s.indexOf('{%')<0?s:s.replace(jkTplRe(),function(m,j,p){return fmtE(jkProp(j,p||''));});}
+  /* Jonon 15c: joukon jäsenet nyt palikoiden järjestyksessä (tai virhe). Kerran tätä arviointia kohden; kehä näkyy virheenä. */
+  function jkJasenet(j){return once('#'+j,function(){var g=jkReg(P)[j];if(!g)return ERR('ei joukkoa');if(g.x)return ERR('joukko poistettu: #'+g.nm);
+    var c=(jkIndex(P)[j]||[]).slice(),sa=P.st['jk:'+j],out=[],k,seen={};if(!sa||typeof sa!=='object')sa=null;
+    c.forEach(function(x){seen[x]=1;});if(sa)for(k in sa)if(sa[k]===true&&!seen[k]&&B[k]){seen[k]=1;c.push(k);}
+    for(var i=0;i<c.length;i++){var id=c[i],b=B[id];if(!b||b.k==='ryhma')continue;var on,ls=inId[id]?inl[id+'|jk_'+j]:null;
+      if(ls&&ls.length){on=true;for(var q=0;q<ls.length;q++){var sv=srcVal(ls[q]);if(isErr(sv))return ERR('kuuluu #'+g.nm+' kun (”'+b.nm+'”): '+sv.err);if(!truth(sv)){on=false;break;}}}
+      else if(sa&&sa.hasOwnProperty(id))on=sa[id]===true;else on=jkHas(b,j);
+      if(on)out.push(id);}
+    return out;});}
+  /* #joukko (= jäseniä), #joukko.kooste ja #joukko.<ominaisuus>.kooste. */
+  function jkProp(j,path){var ms=jkJasenet(j);if(isErr(ms))return ms;path=String(path||'').toLowerCase();if(!path)return ms.length;
+    var sg=path.split('.'),last=sg[sg.length-1],kind=TAGG[last]||JKAGG[last],pp=sg.slice(0,-1).join('.'),nm='#'+jkNm(P,j);
+    if(!kind)return ERR(nm+'.'+path+': valitse kooste, esim. '+nm+'.'+path+'.summa (summa, keskiarvo, suurin, pienin, jäseniä, jäsenet, arvot, havaintoja, puuttuvia, virheitä, täydellinen)');
+    if(kind==='cnt')return ms.length;if(kind==='names')return ms.map(function(id){return B[id].nm;}).join(', ');
+    return jkAgg(ms.map(function(id){return pp?prop(id,pp):val(id,'v');}),kind,nm+'.'+path,ms.map(function(id){return B[id].nm;}));}
+  /* Palikan ominaisuus joukot: voimassa olevat joukot nimillä (”pisteet, terveys”). */
+  function jkOf(id){var R=jkReg(P),out=[],er=null;Object.keys(R).forEach(function(j){if(R[j].x||er)return;var ms=jkJasenet(j);if(isErr(ms)){if(/^kehä/.test(ms.err))er=ms;return;}if(ms.indexOf(id)>=0)out.push(R[j].nm);});return er||out.join(', ');}
   var cycHit=false;
   function once(key,fn){
     if(memo.hasOwnProperty(key)){if(memo[key]===CYC){cycHit=true;return ERR('kehä: arvo riippuu itsestään');}return memo[key];}
@@ -3189,7 +3348,7 @@ function Ev(P,ctx){
       if(m[1]==='teksti')return x.tx||'';var d=new Date(x.t);return d.getHours()+'.'+p2(d.getMinutes());}
     return undefined;}
   /* Lasketut ominaisuudet (rekisterin calc). */
-  function calcProp(id,key){var b=B[id];if(!b)return ERR('puuttuva palikka');
+  function calcProp(id,key){var b=B[id];if(!b)return ERR('puuttuva palikka');if(key==='joukot')return jkOf(id);
     if(key==='ruutux'||key==='ruutuy'){var rg=ruudukkoOf(P,b);if(!rg)return null;var rr=rectNow(P,{omiNum:omiNum,linked:linked,inp:inp},b),rc=ruutuAt(rg,rr.x+rr.w/2,rr.y+rr.h/2);return (key==='ruutux'?rc.x:rc.y)+1;}
     switch(b.k){
       case 'reitti':{var rpo=reittiOsat(reittiPisteet(P,{omiNum:omiNum,linked:linked,inp:inp},b),!!b.kier);return key==='pituus'?Math.round(rpo.L*100)/100:(Array.isArray(b.pts)?b.pts.length:0);}
@@ -3272,6 +3431,7 @@ function Ev(P,ctx){
           n.w==='kyllä'||n.w==='kylla'?true:n.w==='ei'?false:n.w==='tyhjä'||n.w==='tyhja'?null:n.w;
         case 'ref':return B[n.id]?(B[n.id].k==='ryhma'?GRPERR():n.p?prop(n.id,n.p):val(n.id,'v')):isGone(P,n.id)?goneErr(n.id):ERR('puuttuva palikka');
         case 'miss':return ERR('puuttuu: '+(n.n||'palikka'));
+        case 'jk':return jkProp(n.j,n.p);case 'jkmiss':return ERR('ei joukkoa: #'+(n.n||'?'));
         case 'neg':{var a=ev(n.a);return calc('sub',0,a);}
         case 'bin':return calc(n.o,ev(n.a),ev(n.b),df);
         case 'cmp':return cmp(n.o,ev(n.a),ev(n.b),now);
@@ -3482,7 +3642,7 @@ function Ev(P,ctx){
     if(!visible(id,true))s=b.nkt==='harmaa'?'harmaa':b.nkt==='luku'?'luettava':'piilossa';
     if(STRANK[s]<STRANK.harmaa&&(greyed(id)||noRow(id)))s='harmaa';
     return s;
-  }  return {stv:stv,memRow:memRow,rowsIn:rowsIn,joukkoRows:joukkoRows,winVals:winVals,memberVals:memberVals,rowEv:rowEv,triviRow:triviRow,bndRow:bndRow,noRow:noRow,layer:layer,layerShown:layerShown,timeSrc:timeSrc,omi:omi,omiNum:omiNum,omiVal:omiVal,omSrc:omSrc,calcProp:calcProp,envVal:envVal,mhRow:mhRow,timerLeft:timerLeft,val:val,inp:inp,has:has,tpl:tpl,text:text,visible:visible,alt:alt,hue:hue,greyed:greyed,state:state,prop:prop,kaava:kaava,targetOf:targetOf,ownerOf:ownerOf,josTrace:josTrace,linked:linked,srcVal:srcVal,members:members,hakuRow:hakuRow,shown:function(id){var b=B[id];return b&&b.nka==='pois'?compute(id,'v',true):val(id,'v');},
+  }  return {jkJasenet:jkJasenet,jkProp:jkProp,jkOf:jkOf,stv:stv,memRow:memRow,rowsIn:rowsIn,joukkoRows:joukkoRows,winVals:winVals,memberVals:memberVals,rowEv:rowEv,triviRow:triviRow,bndRow:bndRow,noRow:noRow,layer:layer,layerShown:layerShown,timeSrc:timeSrc,omi:omi,omiNum:omiNum,omiVal:omiVal,omSrc:omSrc,calcProp:calcProp,envVal:envVal,mhRow:mhRow,timerLeft:timerLeft,val:val,inp:inp,has:has,tpl:tpl,text:text,visible:visible,alt:alt,hue:hue,greyed:greyed,state:state,prop:prop,kaava:kaava,targetOf:targetOf,ownerOf:ownerOf,josTrace:josTrace,linked:linked,srcVal:srcVal,members:members,hakuRow:hakuRow,shown:function(id){var b=B[id];return b&&b.nka==='pois'?compute(id,'v',true):val(id,'v');},
     fmt:fmtE,now:now,df:df,outl:outl,inl:inl,nid:nid,ctx:ctx};
 }
 
@@ -3551,10 +3711,14 @@ function fire(P,id,p,ctx,depth){
 }
 /* R (valinnainen): mistä toiminnon arvo luetaan (lukitun ketjun lukukuva). Kirjoitus on aina P:hen, ja kohteen oma
    nykyinen arvo (Lisää, Vaihda, Valitse, Lisää rivi) luetaan P:stä. */
-function runAction(P,id,ctx,depth,R){
+function runAction(P,id,ctx,depth,R,oJ){
   var inStep=!!R;R=R||P;var b=R.b[id];if(!b||b.k!=='tee'||isOff(R,b,ctx))return;ctx=ctx||{};
-  if(isGone(P,b.o)){if(ctx.toast)ctx.toast('Toiminto ”'+b.nm+'”: kohde poistettu ('+goneName(P,b.o)+').');return;}
-  var ev=Ev(R,ctx),o=b.o,tg=P.b[o],vv=ev.has(id,'v')?ev.inp(id,'v'):null,evL=R===P?ev:null;
+  /* Jonon 15c: kohteena joukko (b.oj): sama toiminto jokaiselle jäsenelle kerralla (jäsenet tästä hetkestä), sitten kerran. */
+  if(b.oj&&oJ===undefined){var jms=Ev(R,ctx).jkJasenet(b.oj);if(isErr(jms)){if(ctx.toast&&!inStep)ctx.toast('Toiminto ”'+b.nm+'”: '+jms.err+'.');return {err:jms.err};}
+    jms.forEach(function(m){if(P.b[m]&&m!==id)runAction(P,id,ctx,depth,inStep?R:undefined,m);});fire(P,id,'e',ctx,(depth||0)+1);return;}
+  var one=oJ!==undefined;function fireE(c){if(!one)fire(P,id,'e',c,(depth||0)+1);}
+  if(!one&&isGone(P,b.o)){if(ctx.toast)ctx.toast('Toiminto ”'+b.nm+'”: kohde poistettu ('+goneName(P,b.o)+').');return;}
+  var ev=Ev(R,ctx),o=one?oJ:b.o,tg=P.b[o],vv=ev.has(id,'v')?ev.inp(id,'v'):null,evL=R===P?ev:null;
   function cur(){return evL||(evL=Ev(P,ctx));}
   /* P1b: väärä lukitustila on näkyvä virhe (ei pyöristetä eikä ohiteta hiljaa). */
   if(tg&&tg.k==='ketju'&&b.om&&(b.do==='aseta'||b.do==='lisaa')){var le=omFind(tg,b.om);if(le&&le.p==='lukitus'){
@@ -3562,19 +3726,21 @@ function runAction(P,id,ctx,depth,R){
     if(isErr(ln)){if(ctx.toast&&!inStep)ctx.toast('Toiminto ”'+b.nm+'”: '+ln.err+'.');return {err:ln.err};}}}
   /* Pajakone 4: toiminto ominaisuuteen (b.om): Aseta, Lisää, Aseta tila ja Vaihda. Palauta poistaa asetetun arvon. */
   var oe=tg&&b.om?omFind(tg,b.om):null;
-  if(b.do==='palauta'){if(tg)resetOmi(P,o,b.om||'');fire(P,id,'e',ctx,(depth||0)+1);return;}
+  /* Jonon 15c: joukon jäsen, jolla valittua ominaisuutta ei ole, ohitetaan (ei muuteta sen arvoa). */
+  if(one&&b.om&&!(oe&&oe.o)&&b.do!=='palauta')return;
+  if(b.do==='palauta'){if(tg)resetOmi(P,o,b.om||'');fireE(ctx);return;}
   if(oe&&oe.o&&(b.do==='aseta'||b.do==='lisaa'||b.do==='tila'||b.do==='vaihda')){
     if(b.do==='aseta')setOmi(P,o,oe.p,vv);
     else if(b.do==='lisaa'){var oc=cur().omi(o,oe.p),od=vv===null?1:num(vv);if(isNaN(od))od=0;var ocn=num(oc);if(isErr(oc)||isNaN(ocn))ocn=0;setOmi(P,o,oe.p,round9(ocn+od));}
     else if(b.do==='tila')setOmi(P,o,oe.p,b.ti!=='ei');
     else setOmi(P,o,oe.p,!truth(cur().omi(o,oe.p)));
-    fire(P,id,'e',ctx,(depth||0)+1);return;}
+    fireE(ctx);return;}
   /* F28: Aseta arvo ja Lisää janaan siirtävät sen kohtaa (hil: ilman laukaisua). */
   if(tg&&tg.k==='jana'&&!b.om&&(b.do==='aseta'||b.do==='lisaa')){var jcur=num(cur().val(o));if(isNaN(jcur))jcur=0;var jd=vv===null?1:num(vv);
-    var jt=b.do==='aseta'?num(vv):jcur+(isNaN(jd)?0:jd);if(!isNaN(jt))janaSiirra(P,o,round9(jt),ctx,depth,b.hil===true);fire(P,id,'e',ctx,(depth||0)+1);return;}
+    var jt=b.do==='aseta'?num(vv):jcur+(isNaN(jd)?0:jd);if(!isNaN(jt))janaSiirra(P,o,round9(jt),ctx,depth,b.hil===true);fireE(ctx);return;}
   /* P2: toiminto tietotaulukkoon (kenttä, rivi, valinta). Sitten-tapahtuma kertoo muuttuneen rivin. */
   if(tg&&tg.k==='taulu'){var tr=tauluDo(P,b,tg,ev,ctx);if(tr.err){if(ctx.toast&&!inStep)ctx.toast('Toiminto ”'+b.nm+'”: '+tr.err+'.');return {err:tr.err};}
-    fire(P,id,'e',tr.ev?withEv(ctx,tr.ev):ctx,(depth||0)+1);return {ev:tr.ev||null};}
+    fireE(tr.ev?withEv(ctx,tr.ev):ctx);return {ev:tr.ev||null};}
   switch(b.do){
     case 'aseta':if(tg)setVal(P,o,vv,ctx);break;
     case 'tila':if(tg&&isBoolKind(tg))setVal(P,o,b.ti!=='ei',ctx);break;
@@ -3593,9 +3759,11 @@ function runAction(P,id,ctx,depth,R){
     case 'kaynnista':if(tg&&tg.k==='ketju')chainStart(P,o,ctx,null,(depth||0)+1);else if(tg&&tg.k==='jana')janaStart(P,o,ctx,(depth||0)+1);break;
     case 'pysayta':if(tg&&tg.k==='ketju')chainStop(P,o,ctx);else if(tg&&tg.k==='jana')janaStop(P,o,ctx);break;
     case 'arvonta':if(tg&&tg.k==='satu')satuRoll(P,o,ctx,depth);break;
+    /* Jonon 15c: Lisää joukkoon / Poista joukosta (b.jo). Käyttötietoa: tagit eivät muutu, Palauta perusarvo palauttaa. */
+    case 'joukkoon':case 'joukosta':if(tg&&b.jo&&jkOn(P,b.jo)&&tg.k!=='ryhma'){var jsk='jk:'+b.jo,jso=P.st[jsk];if(!jso||typeof jso!=='object'||Array.isArray(jso))jso=P.st[jsk]={};jso[o]=b.do==='joukkoon';}break;
     case 'hae':if(ctx.toast&&!inStep)ctx.toast('Toiminto ”'+b.nm+'”: '+haeIssue(P,tg)+'.');return {err:haeIssue(P,tg)};
   }
-  fire(P,id,'e',ctx,(depth||0)+1);
+  fireE(ctx);
 }
 /* P3b: kortin painike (ctx = tstCtx) laskee kortin omat painallukset ja lähettää tapahtuman kortin rivillä. */
 function press(P,id,ctx){
@@ -3799,7 +3967,7 @@ function lkLive(s,l){
   if(Array.isArray(s)){var ch=false,a=s.map(function(v,i){var r=lkLive(v,lo?lo[i]:undefined);if(r!==v)ch=true;return r;});return ch?a:s;}
   var o=null;for(var k in s){var r=lkLive(s[k],lo?lo[k]:undefined);if(r!==s[k]){if(!o){o={};for(var k2 in s)o[k2]=s[k2];}o[k]=r;}}return o||s;}
 function lkSnap(P,now){var st={};LK_HIT=0;Object.keys(P.st).forEach(function(k){if(!lkCtl(P,k))st[k]=lkClone(P.st[k]);});var sm=LK_HIT>0;
-  var o={ver:VER,at:now,b:lkClone(P.b),lg:lkClone(P.lg),st:st};if(sm)o.m=1;return o;}
+  var o={ver:VER,at:now,b:lkClone(P.b),lg:lkClone(P.lg),st:st};if(sm)o.m=1;if(P.jkr)o.jkr=lkClone(P.jkr);return o;}
 function lkSet(P,cs,m,now){cs.lk=m;delete cs.ownM;if(m){cs.snap=lkSnap(P,now);cs.own={};}else{delete cs.snap;delete cs.own;}}
 function lkOk(cs){return !cs.lk||!!(cs.snap&&cs.snap.ver===VER);}
 /* Pyydetty tila: ohjattu > asetettu > perusarvo, aina ajantasaisena. Muu kuin 0, 1 tai 2 on virhe. */
@@ -4765,16 +4933,25 @@ function janaIssues(P,id,ctx){var out=[],b=P.b[id];if(!b)return out;var sp=janaS
    Liitettäessä logiikan palikat tehdään uusina (uudet tunnisteet, nimet ja viitteet), ja näkymän palikoista tulee uusi
    esiintymä samaan palikkaan. Viittaukset kopioitujen palikoiden välillä osoittavat liitettäessä uusiin. */
 function copyNodes(P,nids){
-  var want={},out={b:{},n:[],l:[],pid:P.id};
+  var want={},out={b:{},n:[],l:[],pid:P.id};if(P.jkr)out.jkr=clone(P.jkr);
   function addN(id){if(want[id])return;var n=nodeOf(P,id);if(!n)return;want[id]=1;P.lg.n.forEach(function(m){if(m.g===id)addN(m.id);});}
   (nids||[]).forEach(addN);
   P.lg.n.forEach(function(n){if(!want[n.id])return;var c=clone(n);if(!want[c.g])c.keepG=c.g;out.n.push(c);var b=P.b[n.p];if(b)out.b[b.id]=clone(b);});
   P.lg.l.forEach(function(l){if(want[l.f]&&want[l.t])out.l.push(clone(l));});
   return out;
 }
+/* Jonon 15c: toisesta projektista tai presetistä tuodun palikan joukot nimen mukaan tämän projektin joukoiksi (puuttuva
+   tehdään). src = lähteen rekisteri {id: {nm}}. Tagit, kohteet ja {%id}-viittaukset tekstissä ja kaavassa. */
+function jkTuo(P,b,src,map){if(!b)return;src=src&&typeof src==='object'?src:{};map=map||{};
+  function m(j){if(!map.hasOwnProperty(j)){var g=src[j];map[j]=g&&!g.x&&JKRE.test(g.nm)?(jkFind(P,g.nm)||jkLuo(P,g.nm)):'';}return map[j];}
+  ['jkt','jkk'].forEach(function(f){if(Array.isArray(b[f])){b[f]=b[f].map(m).filter(Boolean);if(!b[f].length)delete b[f];}});
+  ['oj','jo'].forEach(function(f){if(typeof b[f]==='string'){var t=m(b[f]);if(t)b[f]=t;else delete b[f];}});
+  Object.keys(b).forEach(function(k){if(k==='id'||k==='k')return;var x=b[k];if(x&&typeof x==='object'){var js=JSON.stringify(x);if(js.indexOf('{%')<0)return;x=JSON.parse(js.replace(/\{%([a-zA-Z0-9]+)/g,function(mm,j){var t=m(j);return t?'{%'+t:'{%?'+(src[j]?src[j].nm:'');}));b[k]=x;}
+    else if(typeof x==='string'&&x.indexOf('{%')>=0)b[k]=x.replace(/\{%([a-zA-Z0-9]+)/g,function(mm,j){var t=m(j);return t?'{%'+t:'{%?'+(src[j]?src[j].nm:'');});});
+  return map;}
 function pasteNodes(P,clip,dx,dy){
   if(!clip||!clip.n||!clip.n.length)return [];
-  var bmap={},nmap={},made=[],other=clip.pid&&clip.pid!==P.id;
+  var bmap={},nmap={},made=[],other=clip.pid&&clip.pid!==P.id,jkMap={};
   Object.keys(clip.b).forEach(function(id){var o=clip.b[id];if(!K[o.k])return;
     if(K[o.k].g==='ui'){if(P.b[id]&&P.b[id].k===o.k)bmap[id]=id;return;}
     var props=clone(o);delete props.id;delete props.vt;delete props.vtSet;var nm=props.nm;delete props.nm;
@@ -4787,7 +4964,8 @@ function pasteNodes(P,clip,dx,dy){
       else if(x&&typeof x==='object'&&!Array.isArray(x)&&x.r){if(bmap[x.r])x.r=bmap[x.r];else if(other)b[k]=k==='nk'?{m:'aina'}:k==='vr'?null:'';}});
     if(b.k==='tee'&&b.kv)Object.keys(b.kv).forEach(function(c){b.kv[c]=b.kv[c].replace(tplRe(),function(m,i,p){return bmap[i]?'{#'+bmap[i]+(p?'.'+p:'')+'}':other?'{?}':m;});});
     if(b.k==='taulu')tSar(b).forEach(function(c){if(c.tt)c.tt=bmap[c.tt]||(other?'':c.tt);});
-    if(other&&b.k==='haku')(b.rivit||[]).forEach(function(r){['a','b','t'].forEach(function(f){if(typeof r[f]==='string')r[f]=r[f].replace(tplRe(),function(m,i,p){return bmap[i]?'{#'+bmap[i]+(p?'.'+p:'')+'}':'';});});});});
+    if(other&&b.k==='haku')(b.rivit||[]).forEach(function(r){['a','b','t'].forEach(function(f){if(typeof r[f]==='string')r[f]=r[f].replace(tplRe(),function(m,i,p){return bmap[i]?'{#'+bmap[i]+(p?'.'+p:'')+'}':'';});});});
+    if(other)jkMap=jkTuo(P,b,clip.jkr,jkMap);});
   clip.n.forEach(function(c){var pid=bmap[c.p];if(!pid||!P.b[pid])return;
     var n={id:'n'+(++P.seq),p:pid,x:Math.round((c.x||0)+(dx||0)),y:Math.round((c.y||0)+(dy||0)),g:''};if(c.w)n.w=c.w;if(c.h)n.h=c.h;if(c.not)n.not=true;if(c.col)n.col=true;if(typeof c.jk==='number')n.jk=c.jk;
     n._g=c.g;n._keep=c.keepG;nmap[c.id]=n;P.lg.n.push(n);made.push(n);});
@@ -4823,7 +5001,7 @@ function presetNeeds(P,set){
 }
 function presetMake(P,bids,nids,opt){
   opt=opt||{};var set=presetSet(P,bids,nids),N={};set.n.forEach(function(i){N[i]=1;});
-  var pr={pv:PRESVER,ver:VER,nm:String(opt.nm||'Presetti'),sis:!!opt.sis,b:{},n:[],l:[],ext:{},xl:[],st:{}};
+  var pr={pv:PRESVER,ver:VER,nm:String(opt.nm||'Presetti'),sis:!!opt.sis,b:{},n:[],l:[],ext:{},xl:[],st:{}};if(P.jkr)pr.jkr=clone(P.jkr);
   set.b.forEach(function(id){var c=clone(P.b[id]);
     if(c.k==='taulu'){var st=P.st[id];c.rv=!opt.sis?[]:clone(st&&Array.isArray(st.rows)?st.rows:(c.rv||[]));}
     if(opt.sis&&c.k==='muisti'&&P.st.hasOwnProperty(id))pr.st[id]=clone(P.st[id]);
@@ -4851,7 +5029,8 @@ function presetPaste(P,pr,opt){
     if(K[o.k].g==='ui'){props.v=vw;if(opt.kr&&o.k!=='alue'&&o.k!=='merkki')props.kr=opt.kr;props.x=Math.round((opt.x||0)+(num(o.x)||0)-ux);props.y=Math.round((opt.y||0)+(num(o.y)||0)-uy);props.z=zt+1+(o.z||0)-z0;}
     var nb=addBlock(P,o.k,props);nb.nm=uniqueName(P,nm||nb.nm,nb.id);if(validVt(o.vt)&&!vtOwner(P,o.vt,nb.id))nb.vt=o.vt;else{nb.vt=uniqueVt(P,nb.nm,nb.id);delete nb.vtSet;}
     bmap[id]=nb.id;out.b.push(nb.id);});
-  out.b.forEach(function(nid){var b=P.b[nid];
+  var jkMap={};
+  out.b.forEach(function(nid){var b=P.b[nid];jkMap=jkTuo(P,b,pr.jkr,jkMap);
     scanRefs(b,function(r){return bmap[r]||(pr.ext&&pr.ext.hasOwnProperty(r)?gone(r):r);});
     if(b.tst!==undefined){if(bmap[b.tst])b.tst=bmap[b.tst];else delete b.tst;}
     if(b.k==='taulu')(b.rv||[]).forEach(function(r){if(r&&r.a)Object.keys(r.a).forEach(function(c){var x=r.a[c];if(isR(x)){if(bmap[x.rr])x.rr=bmap[x.rr];else delete r.a[c];}});});});
@@ -4914,7 +5093,7 @@ function refPairs(P,ids,D){D=D||deps(P);var out=[],seen={};
 
 /* ---------- Toiminnon kuvaus selkokielellä ---------- */
 function descAct(P,id,df){
-  var b=P.b[id];if(!b||b.k!=='tee')return '';var tg=P.b[b.o],tn=tg?tg.nm:'';
+  var b=P.b[id];if(!b||b.k!=='tee')return '';var tg=P.b[b.o],tn=tg?tg.nm:b.oj?'#'+jkNm(P,b.oj)+' (jokainen jäsen)':'';
   function lit(x){if(x&&typeof x==='object'&&x.r)return P.b[x.r]?P.b[x.r].nm:'?';if(x===''||x==null)return '';return toNames(P,String(x),REFT);}
   var s=DOS[b.do]||'Toiminto';
   /* Pajakone 4: toiminto ominaisuuteen, esim. ”Nappi.leveys = 200”, ja Palauta. */
@@ -4932,7 +5111,7 @@ function descAct(P,id,df){
       case 'tyhjenna':ts='Tyhjennä: '+tn+(sc?' ('+rw+'): '+cn:' (kaikki rivit)');break;
       default:ts=s+': '+tn;}
     return (b.off?'(pois käytöstä) ':'')+ts;}
-  if(b.do==='palauta')return (b.off?'(pois käytöstä) ':'')+(tg?'Palauta '+(oe?tn:tn+': kaikki ominaisuudet')+' perusarvoon':'Palauta perusarvo');
+  if(b.do==='palauta')return (b.off?'(pois käytöstä) ':'')+(tn?'Palauta '+(oe?tn:tn+': kaikki ominaisuudet')+' perusarvoon':'Palauta perusarvo');
   if(oe&&b.do==='vaihda')return (b.off?'(pois käytöstä) ':'')+'Vaihda: '+tn;
   switch(b.do){
     case 'aseta':s=tn?tn+' = '+(lit(b.v)||'arvo nuolesta'):'Aseta arvo';break;
@@ -4944,6 +5123,7 @@ function descAct(P,id,df){
     case 'ilmoita':s+=b.tx?': '+toNames(P,b.tx,REFT):'';break;
     case 'kaynnista':s+=tn?': '+tn+(b.odota?' ja odota':''):'';break;
     case 'pysayta':case 'arvonta':s+=tn?': '+tn:'';break;
+    case 'joukkoon':case 'joukosta':s+=(b.jo?' #'+jkNm(P,b.jo):'')+(tn?': '+tn:'');break;
   }
   if(tg&&tg.k==='jana'&&(b.do==='kaynnista'||b.do==='pysayta'))s=s.replace(' ketju',' jana');
   if(tg&&tg.k==='jana'&&(b.do==='aseta'||b.do==='lisaa')&&b.hil===true)s+=' (ilman laukaisua)';
@@ -4973,7 +5153,7 @@ function janaWhy(P,n,E){var jb=janaOfNode(P,n),sp=janaSpec(P,jb.id,E.ctx),js=P.s
   var out=!isErr(sp)&&(k<sp.lo-1e-9||k>sp.hi+1e-9);
   return 'Janan ”'+jb.nm+'” merkki kohdassa '+fmt(k,E.df)+y+(out?': alueen ulkopuolella, joten se ei laukea':': tehdään, kun kohta ohittaa sen')+(ft?'. Laukesi viimeksi klo '+hms(ft)+', koska kohta ohitti '+fmt(k,E.df)+y:'')+'.';}
 /* Toiminnot, jotka eivät tee mitään ilman kohdetta (Siirry, Kirjaa ja Ilmoita toimivat ilmankin). */
-var TEE_KOHDE={aseta:1,tila:1,lisaa:1,valitse:1,poista:1,vaihda:1,tyhjenna:1,kaynnista:1,pysayta:1,arvonta:1,palauta:1,lisaarivi:1,poistarivi:1,valitserivi:1,siirrarivi:1};
+var TEE_KOHDE={joukkoon:1,joukosta:1,aseta:1,tila:1,lisaa:1,valitse:1,poista:1,vaihda:1,tyhjenna:1,kaynnista:1,pysayta:1,arvonta:1,palauta:1,lisaarivi:1,poistarivi:1,valitserivi:1,siirrarivi:1};
 function why(P,E,id,depth,seen){
   var b=P.b[id];if(!b)return null;seen=seen||{};depth=depth==null?3:depth;
   var v=E.val(id),r={id:id,nm:b.nm,k:b.k,v:v,ok:typeof v==='boolean'?v:null,err:isErr(v)?v.err:'',txt:'',kids:[]};
@@ -5044,7 +5224,7 @@ function why(P,E,id,depth,seen){
         if(!t.p||t.p==='arvo'){var kid=why(P,E,t.id,depth-1,seen);if(kid)r.kids.push(kid);return;}
         var pv=E.prop(t.id,t.p);r.kids.push({id:t.id,nm:P.b[t.id].nm+' .'+t.p,k:P.b[t.id].k,v:pv,ok:typeof pv==='boolean'?pv:null,err:isErr(pv)?pv.err:'',txt:'',kids:[]});});
       break;}
-    case 'tee':r.txt=TEE_KOHDE[b.do]&&!P.b[b.o]?'Kohde puuttuu: valitse kohde paneelin kohdasta ”Kohde”.':descAct(P,id);{var jwn=nodesOfBlock(P,id).filter(function(n){return janaOfNode(P,n);})[0];if(jwn)r.txt+='. '+janaWhy(P,jwn,E);}break;
+    case 'tee':r.txt=TEE_KOHDE[b.do]&&!P.b[b.o]&&!b.oj?'Kohde puuttuu: valitse kohde paneelin kohdasta ”Kohde”.':descAct(P,id);{var jwn=nodesOfBlock(P,id).filter(function(n){return janaOfNode(P,n);})[0];if(jwn)r.txt+='. '+janaWhy(P,jwn,E);}break;
     case 'haara':{var hv=haaraVal(P,b,{now:function(){return E.now;}}),src=E.linked(id,'c')?'ehto nuolesta':(P.b[b.o]?'onko ”'+P.b[b.o].nm+'” valittu':'');
       r.txt=!src?'Valitse palikka, jota ehto tarkistaa.':isErr(hv)?'Ehdossa on virhe.':'Tarkistaa '+src+': nyt '+(truth(hv)?'pätee, joten ketju jatkaa kyllä-haaraan.':'ei päde, joten ketju jatkaa ei-haaraan.');
       r.ok=src&&!isErr(hv)?truth(hv):null;if(E.linked(id,'c'))kidFor('c');else if(P.b[b.o]){var kq=why(P,E,b.o,depth-1,seen);if(kq)r.kids.push(kq);}break;}
@@ -5137,8 +5317,8 @@ function why(P,E,id,depth,seen){
 return {PADN:PADN,PADM:PADM,PAD_KUOLLUT:PAD_KUOLLUT,ohjainSet:ohjainSet,padNow:padNow,padPel:padPel,padKuollut:padKuollut,padNimi:padNimi,padPainetut:padPainetut,padKaytossa:padKaytossa,padPohjassa:padPohjassa,omat:omat,omBatch:omBatch,geoNum:geoNum,omFind:omFind,omNorm:omNorm,omBase:omBase,omNames:omNames,omActive:omActive,setOmi:setOmi,resetOmi:resetOmi,isOff:isOff,napVaihto:napVaihto,boolKey:boolKey,TIMEU:TIMEU,YKSA:YKSA,ENVW:ENVW,portsBase:portsBase,tattiSet:tattiSet,muutosStart:muutosStart,muutosStop:muutosStop,frame:frame,aikaKay:aikaKay,napExt:napExt,NAP_PITKA:NAP_PITKA,pressDown:pressDown,pressLong:pressLong,pressUp:pressUp,hasOut:hasOut,curveAt:curveAt,KAYRA_PRESETS:KAYRA_PRESETS,kayraPreset:kayraPreset,kayraResize:kayraResize,kayraDec:kayraDec,kayraSpec:kayraSpec,kayraAt:kayraAt,satuN:satuN,satuMuoto:satuMuoto,satuCurve:satuCurve,satuResize:satuResize,satuPreset:satuPreset,SATU_PRESETS:SATU_PRESETS,SATU_MAXN:SATU_MAXN,satuSpec:satuSpec,satuDist:satuDist,satuPick:satuPick,satuPct:satuPct,satuItemTxt:satuItemTxt,satuTop:satuTop,satuRoll:satuRoll,
   chainOpen:chainOpen,LKN:LKN,LKID:LKID,lkReq:lkReq,lkView:lkView,chainLock:chainLock,chainLockDiff:chainLockDiff,parseKlo:parseKlo,nextClock:nextClock,timerLabel:timerLabel,arpaN:arpaN,toistaN:toistaN,setMhLabel:function(f){MHLAB=f;},mhLabel:mhLabel,odotaLim:odotaLim,odotaEv:odotaEv,hasLimit:hasLimit,chainSignal:chainSignal,copyNodes:copyNodes,pasteNodes:pasteNodes,PRESVER:PRESVER,presetSet:presetSet,presetNeeds:presetNeeds,presetMake:presetMake,presetPaste:presetPaste,chainList:chainList,haaraVal:haaraVal,chainIssues:chainIssues,FXK:FXK,YKS:YKS,YKSN:YKSN,fmtDur:fmtDur,parseNum:parseNum,fiNum:fiNum,fmtLeft:fmtLeft,timerMs:timerMs,chainStart:chainStart,chainStop:chainStop,chainAdvance:chainAdvance,chainPoll:chainPoll,chainInfo:chainInfo,anyChainRunning:anyChainRunning,CH_STEPS:CH_STEPS,CH_TOKENS:CH_TOKENS,
   isWin:isWin,isStep:isStep,STEPK:STEPK,chainNode:chainNode,chainOfNode:chainOfNode,chainSteps:chainSteps,isChainLink:isChainLink,chainLinksFrom:chainLinksFrom,chainStarts:chainStarts,chainIsRing:chainIsRing,chainOrder:chainOrder,
-  ANTAVAT:ANTAVAT,ANPEH:ANPEH,ANARVO:ANARVO,ANPAIKKA:ANPAIKKA,VER:VER,PAJA:'56',LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,raahattava:raahattava,raahausPaikka:raahausPaikka,raahausAlku:raahausAlku,raahausPudotus:raahausPudotus,raahausPeruttu:raahausPeruttu,raahausKohteet:raahausKohteet,tstLahde:tstLahde,tstLajittuu:tstLajittuu,tstSiirra:tstSiirra,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikuta0:liikuta0,rectNow0:rectNow0,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,reittiPisteet:reittiPisteet,reittiOsat:reittiOsat,reittiHae:reittiHae,liikeRuutuKomento:liikeRuutuKomento,liikePyyhkaisy:liikePyyhkaisy,ruutuAskel:ruutuAskel,RUUTU_SU:RUUTU_SU,reittiKohta:reittiKohta,liikeRun:liikeRun,kuvaKuvat:kuvaKuvat,kelloNow:kelloNow,kelloKomento:kelloKomento,kerrosObj:kerrosObj,zoomAsetus:zoomAsetus,kameraBlk:kameraBlk,zoomNyt:zoomNyt,zoomLukittu:zoomLukittu,zoomAseta:zoomAseta,ZOOM_MIN:ZOOM_MIN,ZOOM_MAX:ZOOM_MAX,MITM:MITM,MITE:MITE,
-kuvaPyorii:kuvaPyorii,kuvaNro:kuvaNro,SARJA_MAX:SARJA_MAX,ruudukko:ruudukko,ruudukkoOf:ruudukkoOf,ruutuAt:ruutuAt,ruutuKeski:ruutuKeski,kohdista:kohdista,ruutuKohdistus:ruutuKohdistus,alueRuudukko:alueRuudukko,alueRuutu:alueRuutu,alueNapautus:alueNapautus,kerrokset:kerrokset,kerrosOf:kerrosOf,rvOf:rvOf,kuvaUrl:kuvaUrl,K:K,KW:KW,KVALEND:KVALEND,KHAS:KHAS,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,kaavaToIds:kaavaToIds,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,kaavaVanha:kaavaVanha,kaavaAstText:kaavaAstText,KRES:KRES,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
+  ANTAVAT:ANTAVAT,ANPEH:ANPEH,ANARVO:ANARVO,ANPAIKKA:ANPAIKKA,VER:VER,PAJA:'57',LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,raahattava:raahattava,raahausPaikka:raahausPaikka,raahausAlku:raahausAlku,raahausPudotus:raahausPudotus,raahausPeruttu:raahausPeruttu,raahausKohteet:raahausKohteet,tstLahde:tstLahde,tstLajittuu:tstLajittuu,tstSiirra:tstSiirra,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikuta0:liikuta0,rectNow0:rectNow0,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,reittiPisteet:reittiPisteet,reittiOsat:reittiOsat,reittiHae:reittiHae,liikeRuutuKomento:liikeRuutuKomento,liikePyyhkaisy:liikePyyhkaisy,ruutuAskel:ruutuAskel,RUUTU_SU:RUUTU_SU,reittiKohta:reittiKohta,liikeRun:liikeRun,kuvaKuvat:kuvaKuvat,kelloNow:kelloNow,kelloKomento:kelloKomento,kerrosObj:kerrosObj,zoomAsetus:zoomAsetus,kameraBlk:kameraBlk,zoomNyt:zoomNyt,zoomLukittu:zoomLukittu,zoomAseta:zoomAseta,ZOOM_MIN:ZOOM_MIN,ZOOM_MAX:ZOOM_MAX,MITM:MITM,MITE:MITE,
+kuvaPyorii:kuvaPyorii,kuvaNro:kuvaNro,SARJA_MAX:SARJA_MAX,ruudukko:ruudukko,ruudukkoOf:ruudukkoOf,ruutuAt:ruutuAt,ruutuKeski:ruutuKeski,kohdista:kohdista,ruutuKohdistus:ruutuKohdistus,alueRuudukko:alueRuudukko,alueRuutu:alueRuutu,alueNapautus:alueNapautus,kerrokset:kerrokset,kerrosOf:kerrosOf,rvOf:rvOf,kuvaUrl:kuvaUrl,K:K,KW:KW,KVALEND:KVALEND,KHAS:KHAS,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,jkReg:jkReg,lkSnap:lkSnap,jkNameErr:jkNameErr,jkOn:jkOn,jkNm:jkNm,jkFind:jkFind,jkList:jkList,jkHas:jkHas,jkLuo:jkLuo,jkNimea:jkNimea,jkUses:jkUses,jkPoista:jkPoista,jkEhto:jkEhto,jkIndex:jkIndex,jkTuo:jkTuo,jkNames:jkNames,jkIds:jkIds,jkKaanna:jkKaanna,kaavaJkMiss:kaavaJkMiss,JKAGG:JKAGG,JKSUG:JKSUG,jkAgg:jkAgg,tunnusLue:tunnusLue,tunnusTeksti:tunnusTeksti,tunnusVirhe:tunnusVirhe,setTunnus:setTunnus,kaavaToIds:kaavaToIds,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,kaavaVanha:kaavaVanha,kaavaAstText:kaavaAstText,KRES:KRES,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
   pinsHidden:pinsHidden,refPairs:refPairs,
   ports:ports,port:port,newProject:newProject,addBlock:addBlock,addNode:addNode,addLink:addLink,canLink:canLink,
   removeNode:removeNode,removeBlock:removeBlock,refsTo:refsTo,brokenRefs:brokenRefs,relink:relink,isGone:isGone,goneName:goneName,scanRefs:scanRefs,nodeOf:nodeOf,nodesOfBlock:nodesOfBlock,uniqueName:uniqueName,baseName:baseName,
@@ -5626,6 +5806,7 @@ function renderPal(){
     h+='<div class="pt-h">Kaava</div><div class="chips">'+chipHTML('kaava',{},'Kaava','ƒ',3)+chipHTML('tulos',{},'Kaavan tulos','⇐',3)+'</div>';
     h+='<div class="pt-h">Arvot</div><div class="chips">'+chipHTML('arvo',{},'Arvo','•',0)+chipHTML('muisti',{},'Muisti','▣',0)+chipHTML('satu',{},'Satunnaisluku','⚂',3)+chipHTML('kayra',{},'Käyrä','∿',3)+chipHTML('tanaan',{},'Tänään','◷',5)+chipHTML('pvmosa',{part:'vk'},'Päivämäärän osa','◷',5)+'</div>';
     h+='<div class="pt-h">Tieto</div><div class="chips">'+chipHTML('taulu',{nm:'Taulukko'},'Tietotaulukko','⊞',6)+chipHTML('tapaht',{nm:'Tapahtuma'},'Tapahtuman tiedot','✉',5)+chipHTML('trivi',{nm:'Kohde'},'Rivi','▤',6)+chipHTML('joukko',{nm:'Joukko'},'Rivijoukko','☷',6)+'<div class="chip qk h6" data-quick="tulkki" title="Liitä tekstiä: rivit kuviolla tai taulukkona (Excel, Sheets, CSV) taulukon riveiksi tai Arvo-, Muisti- ja Teksti-palikoiksi. Esikatselu ennen hyväksyntää."><span class="ci">⇄</span>Tulkki…</div></div>';
+    h+=jkPalHTML();
     h+='<div class="pt-h">Laskut</div><div class="chips">';
     Object.keys(KK.OPS).forEach(function(o){h+='<div class="chip sym h2" data-make="'+esc(JSON.stringify({k:'lasku',p:{op:o}}))+'" title="Lasku">'+KK.OPS[o]+'</div>';});
     h+='</div><div class="pt-h">Vertailut</div><div class="chips">';
@@ -5693,6 +5874,7 @@ function palDown(e){
     else createInstance(chip.getAttribute('data-inst'),pt.x,pt.y);
   });
 }
+$('#pal').addEventListener('click',function(e){jkPalAct(e);});
 $('#pal').addEventListener('pointerdown',function(e){
   var pk=e.target.closest('[data-pk]');if(pk){S.pane=pk.getAttribute('data-pk');renderPal();if(!S.sel)renderInsp();return;}
   if(e.target.closest('#linetool')){S.tool=S.tool==='viiva'?null:'viiva';renderPal();renderUIStage();return;}
@@ -5995,7 +6177,7 @@ function ueInner(b,E,ed){
 }
 /* F38 kohta 3 (jonon 12c): muokatessa palikan yläpuolella himmeä lappu, josta näkee tekstin lähteen: upotetut viitteet
    ({Nimi}, kuten paneelissa) tai nuoli (⇐ Nimi). Teksti on data-l-attribuutissa (CSS ::before), joten se ei sekoitu palikan tekstiin. Arvo pysyy palikassa ennallaan. Lukittuna ja kokeillessa ei lappua. Selainasetus Dt.cfg.vlap. */
-var VLAPRE=/\{#[a-zA-Z0-9]+(?:\.[^{}]+)?\}/g,VLAPEI={merkki:1,alue:1,toistin:1,reitti:1,tatti:1};
+var VLAPRE=/\{[#%][a-zA-Z0-9]+(?:\.[^{}]+)?\}/g,VLAPEI={merkki:1,alue:1,toistin:1,reitti:1,tatti:1};
 function vlapHTML(b,E){if(Dt.cfg.vlap===false||VLAPEI[b.k])return '';
   var ls=E.inl&&E.inl[b.id+'|tx'];if(ls&&ls.length){var f=E.nid[ls[0].f],o=f&&P.b[f.p];return '<div class="vlap" data-l="⇐ '+esc(o?o.nm:'?')+'" title="Teksti tulee nuolesta: '+esc(o?o.nm:'?')+'"></div>';}
   var m=String(b.tx||'').match(VLAPRE);if(!m)return '';var seen={},r=[];m.forEach(function(x){var t=refShow(x);if(t&&!seen[t]){seen[t]=1;r.push(t);}});
@@ -6047,7 +6229,7 @@ function tEditOpen(b,fresh){if(!tEditable(b)||!editingUI())return false;tEditEnd
     if(e.key==='Enter'&&e.shiftKey&&!TEDML[b.k]){e.preventDefault();tEditEnd(true);}});
   ['keyup','click'].forEach(function(evn){ta.addEventListener(evn,tEditSug);});
   ta.addEventListener('blur',function(){setTimeout(function(){if(S.tEdit&&S.tEdit.id===b.id&&document.activeElement!==ta)tEditEnd(true);},0);});
-  box.addEventListener('pointerdown',function(e){e.preventDefault();var f=e.target.closest('[data-fsug]');if(f)tEditIns(f.getAttribute('data-fsug'),+f.getAttribute('data-rep')||0);var tl=e.target.closest('[data-tluo]');if(tl)tplLuo(tl.getAttribute('data-tluo'),ta);});
+  box.addEventListener('pointerdown',function(e){e.preventDefault();var f=e.target.closest('[data-fsug]');if(f)tEditIns(f.getAttribute('data-fsug'),+f.getAttribute('data-rep')||0);var tl=e.target.closest('[data-tluo]');if(tl)tplLuo(tl.getAttribute('data-tluo'),ta);var jl=e.target.closest('[data-jluo]');if(jl)jkLuoUI(jl.getAttribute('data-jluo'),ta);});
   ta.focus();if(fresh)ta.select();else{var L=ta.value.length;try{ta.setSelectionRange(L,L);}catch(e){}}
   tEditFit();tEditSug();return true;}
 function tEditTa(){return S.tEdit&&$('#uels .ue[data-id="'+S.tEdit.id+'"] textarea.tedit');}
@@ -6588,7 +6770,7 @@ function pinsHTML(b,n,kv,hid){
   /* Piilossa: vain kytketyt kohdat, näkymättöminä, jotta nuolten päät pysyvät paikallaan. */
   if(hid)pr={ins:pr.ins,outs:pr.outs.filter(function(p){return linkedOut[p.p];})};
   /* Ketjun tapahtumissa kohdat ovat ylä- ja alareunassa, koska ketju etenee ylhäältä alas. */
-  function pin(p,d){return kv?'<span class="pw"><i class="pt '+p.t+'" data-p="'+p.p+'" data-d="'+d+'" data-t="'+p.t+'" title="'+esc(p.n)+'"></i><em>'+esc(p.n)+'</em></span>':'<i class="pt '+p.t+'" data-p="'+p.p+'" data-d="'+d+'" data-t="'+p.t+'"><em>'+esc(p.n)+'</em></i>';}
+  function pin(p,d){if(p.j)p={p:p.p,t:p.t,n:'kuuluu #'+KK.jkNm(P,p.j)+' kun'};return kv?'<span class="pw"><i class="pt '+p.t+'" data-p="'+p.p+'" data-d="'+d+'" data-t="'+p.t+'" title="'+esc(p.n)+'"></i><em>'+esc(p.n)+'</em></span>':'<i class="pt '+p.t+'" data-p="'+p.p+'" data-d="'+d+'" data-t="'+p.t+'"><em>'+esc(p.n)+'</em></i>';}
   if(ins.length){h+='<div class="pins i">';ins.forEach(function(p){h+=pin(p,'i');});h+='</div>';}
   if(pr.outs.length){h+='<div class="pins o">';pr.outs.forEach(function(p){h+=pin(p,'o');});h+='</div>';}
   return h;
@@ -7079,6 +7261,8 @@ function selBlock(){
   if(S.sel.t==='n'){var n=KK.nodeOf(P,S.sel.id);return n?P.b[n.p]:null;}
   return null;
 }
+function jkOpts(cur){var js=KK.jkList(P),R=KK.jkReg(P),h='';js.forEach(function(j){h+='<option value="%'+j+'"'+(cur===j?' selected':'')+'>#'+esc(KK.jkNm(P,j))+' (jokainen jäsen)</option>';});
+  if(cur&&R[cur]&&R[cur].x)h+='<option value="%'+cur+'" selected>#⚠'+esc(R[cur].nm)+' (poistettu)</option>';return h?'<optgroup label="Joukko (jokainen jäsen)">'+h+'</optgroup>':'';}
 function refOptions(cur,filter,emptyLabel){
   var h='<option value="">'+esc(emptyLabel||'— ei valittu —')+'</option>';
   var groups={};blocks(filter).forEach(function(b){var g=isUI(b)?'Näkymä: '+viewName(b.v):'Logiikka';(groups[g]=groups[g]||[]).push(b);});
@@ -7327,7 +7511,7 @@ function blockInsp(b){
   if(K[b.k]&&K[b.k].erik)h+='<div class="erik"><b>✦ Erikoispalikka.</b> '+esc(K[b.k].erik)+'</div>';
   var hi0=!isUI(b)?hintOf(b.k,b):'';if(hi0)h+='<div class="khint">'+esc(hi0)+'</div>';
   h+=section('',fText('Nimi','nm',b.nm,isUI(b)?'Nimi kertoo ajatuksen. Se ei näy käyttäjälle, ellet laita sitä tekstiin.':b.k==='ryhma'?'Kirjoitettu nimi näkyy ryhmän ylälaidassa ja Palikat-listassa.':'Nimetty palikka näkyy Palikat-listassa, ja siihen voi viitata muualta.')+
-    (b.k==='ryhma'?'':F('Viite','<input data-k="vt" class="kfx" value="'+esc(b.vt)+'" spellcheck="false" autocapitalize="off" autocomplete="off">','<span id="vterr" class="errt"></span>Lyhyt nimi kaavoihin ja teksteihin: kaavassa <code>'+esc(b.vt)+' &gt; 7</code>, tekstissä <code>{'+esc(b.vt)+'}</code>. '+(b.vtSet?'Itse asetettu. Tyhjäksi = takaisin nimestä.':'Seuraa nimeä, kunnes kirjoitat oman.')))+
+    (b.k==='ryhma'?'':tunnusField(b))+
     F('Lisätieto','<textarea data-k="info" rows="2" placeholder="Vapaa selitys, ei vaikuta mihinkään">'+esc(b.info||'')+'</textarea>','Näkyy pikakatselussa, kun viet hiiren palikan päälle.'));
   BRK=null;h+=brkSection(b);
   if(node&&KK.janaOfNode(P,node))h+=janaMarkSection(node);
@@ -8524,6 +8708,7 @@ var KFNSUG=[['jos','jos (ehto) kyllä muuten ei',0,'jos ('],['ja','kumpikin pät
 function kaavaSug(t,box){
   var el=box||$('#ksug');if(!el)return;var pos=t.selectionStart==null?t.value.length:t.selectionStart,txt=t.value.slice(0,pos),items=[];
   if(((txt.match(/["”“]/g)||[]).length)%2){el.innerHTML='';return;}
+  var js=jkSugItems(txt,true);if(js){el.innerHTML=js.items.map(function(it){return '<button data-ksug="'+esc(it.v)+'" data-rep="'+it.r+'" title="Lisää kaavaan">'+esc(it.v)+'<small>'+esc(it.s)+'</small></button>';}).join('')+js.luo;return;}
   var sb=selBlock(),m=/([A-Za-zÅÄÖåäö_][A-Za-z0-9ÅÄÖåäö_]*)\.((?:[A-Za-zÅÄÖåäö_][A-Za-z0-9ÅÄÖåäö_]*\.)*[A-Za-zÅÄÖåäö_]*)$/.exec(txt);
   if(m){var ob=P.b[KK.byVt(P)[m[1].toLowerCase()]],ep=!ob&&ENVPROPS[m[1].toLowerCase()];(ob?propsFor(ob):ep||[]).forEach(function(x){if(x[0].indexOf(m[2].toLowerCase())===0)items.push({v:x[0],s:x[1],r:m[2].length});});}
   else{var w=/([A-Za-zÅÄÖåäö_][A-Za-z0-9ÅÄÖåäö_]*)$/.exec(txt);var q=w?w[1].toLowerCase():'';
@@ -8541,7 +8726,8 @@ function kaavaSug(t,box){
    kaksi merkkiä eikä mikään palikka sovi siihen (muuten ehdotus olisi jokaisella näppäilyllä). Kaavan tulos -kohde (x = …) ei. */
 function luoHTML(text,cur,hasSug){var f=KK.kaavaToIds(P,text),pk=KK.parseKaava(f),asg=pk&&pk.asgMiss?String(pk.asgMiss).toLowerCase():'';
   return KK.kaavaMiss(f).filter(function(n){var l=n.toLowerCase();if(l===asg||!KK.canLuo(P,n))return false;if(cur&&l===cur.toLowerCase()&&(cur.length<2||hasSug))return false;return true;})
-    .map(function(n){return '<button class="luo" data-kluo="'+esc(n)+'" title="Uusi Arvo-palikka tällä nimellä, arvo tyhjä">＋ Luo Arvo ”'+esc(n)+'”</button>';}).join('');}
+    .map(function(n){return '<button class="luo" data-kluo="'+esc(n)+'" title="Uusi Arvo-palikka tällä nimellä, arvo tyhjä">＋ Luo Arvo ”'+esc(n)+'”</button>';}).join('')+
+    KK.kaavaJkMiss(f).filter(function(n){return !KK.jkNameErr(P,n);}).map(jkLuoBtn).join('');}
 function luoArvoUI(name,relink){var k=S.kEdit,b=k?P.b[k.bid]:selBlock();
   if(!KK.canLuo(P,name)){toast('Nimellä ”'+name+'” ei voi luoda palikkaa.');return null;}
   if(k){if(!k.u){pushUndo();k.u=true;}k.luo=true;}else pushUndo();
@@ -8553,12 +8739,62 @@ function luoArvoUI(name,relink){var k=S.kEdit,b=k?P.b[k.bid]:selBlock();
   /* Paneelin uudelleenpiirto palauttaa kohdistuksen kenttään; siitä ei tule toista Kumoa-askelta. */
   var ul=S.undo.length;if(k)kaavaEditInput();else afterInsp(true);S.undo.length=Math.min(S.undo.length,ul);
   toast('Uusi Arvo ”'+nb.nm+'” logiikassa. Anna sille arvo sen paneelissa.');return nb;}
+/* Jonon 15c: Tunnus = viite ja joukot (#nimi). Kirjoitettaessa vain viite tallentuu (ja tarkistetaan); joukot
+   tallentuvat, kun kenttä vahvistetaan (Enter tai napautus muualle). Uusi #nimi luo joukon. */
+function tunnusField(b){var c=refStyle(),pf=c==='{'?'':c;
+  return F('Tunnus','<input data-k="vt" data-tunnus="1" class="kfx" value="'+esc(KK.tunnusTeksti(P,b,c))+'" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="'+esc(pf+b.vt+' #joukko')+'">',
+    '<span id="vterr" class="errt"></span>Viite kaavoihin ja teksteihin (kaavassa <code>'+esc(b.vt)+' &gt; 7</code>, tekstissä <code>'+esc(refEx(b.vt))+'</code>) ja joukot, esim. <code>'+esc(pf+'uni #unipisteet #terveys')+'</code>. Uusi #nimi luo joukon. '+
+    (b.vtSet?'Viite on itse asetettu; tyhjä kenttä = viite takaisin nimestä.':'Viite seuraa nimeä, kunnes kirjoitat oman.'))+jkChips(b,ev());}
+/* Joukot, joihin palikka kuuluu tai on kuulunut toiminnon kautta, ja miksi (A10). ⚡ avaa kohdan ”kuuluu #x kun”. */
+function jkChips(b,E){var tags=Array.isArray(b.jkt)?b.jkt.slice():[],all=tags.slice();
+  KK.jkList(P).forEach(function(j){var sa=P.st['jk:'+j];if(sa&&typeof sa==='object'&&sa.hasOwnProperty(b.id)&&all.indexOf(j)<0)all.push(j);});
+  if(!all.length)return '';var h='<div class="jkchips">';
+  all.forEach(function(j){var on=tags.indexOf(j)>=0,ehto=on&&Array.isArray(b.jkk)&&b.jkk.indexOf(j)>=0,ln=ehto&&E.linked(b.id,'jk_'+j),ms=E.jkJasenet(j),er=KK.isErr(ms),jas=!er&&ms.indexOf(b.id)>=0,sa=P.st['jk:'+j],
+      st=sa&&typeof sa==='object'&&sa.hasOwnProperty(b.id)?sa[b.id]:null,why;
+    if(er)why='⚠ '+ms.err;else if(ln)why=jas?'jäsen nyt: ehto pätee':'ei jäsen nyt: ehto ei päde';
+    else if(st!==null)why=(st?'jäsen: Lisää joukkoon -toiminto':'ei jäsen: Poista joukosta -toiminto')+' (Palauta perusarvo palauttaa)';
+    else why=ehto?'jäsen (tagi). Vie nuoli kohtaan ”kuuluu #'+KK.jkNm(P,j)+' kun”, niin jäsenyys riippuu siitä.':'jäsen (tagi)';
+    h+='<div class="jkc'+(jas?' on':'')+'"><b>#'+esc(KK.jkNm(P,j))+'</b><span class="jkw">'+esc(why)+'</span>'+(on?'<button class="ib'+(ehto?' on':'')+'" data-jkk="'+j+'" title="'+(ehto?'Poista kohta ”kuuluu kun” (jäsenyys taas tagin mukaan)':'Avaa palikkaan kohta ”kuuluu #'+esc(KK.jkNm(P,j))+' kun”: jäsen vain, kun siihen tuleva arvo pätee')+'">⚡ kuuluu kun</button>':'')+'</div>';});
+  return h+'</div>';}
+/* #-ehdotukset: joukon nimet #:n jälkeen, koosteet ja jäsenten ominaisuudet #nimi.:n jälkeen. null = ei #-kohtaa. */
+var JKW='A-Za-zÅÄÖåäö_',JKW2='A-Za-z0-9ÅÄÖåäö_';
+function jkSugItems(txt,luo){var m=new RegExp('(^|[^'+JKW2+'#])#(⚠?)(['+JKW+']['+JKW2+']*)((?:\\.['+JKW+']['+JKW2+']*)*)\\.(['+JKW+']['+JKW2+']*)?$').exec(txt),items=[];
+  if(m){var j=KK.jkFind(P,m[3],!!m[2]);if(!j)return {items:[],luo:'',dot:1};var q=(m[5]||'').toLowerCase(),seen={};
+    KK.JKSUG.forEach(function(x){if(x[0].indexOf(q)===0&&x[0]!==q)items.push({v:x[0],s:x[1],r:q.length});});
+    if(!m[4]){var ms=ev().jkJasenet(j);if(!KK.isErr(ms))ms.slice(0,12).forEach(function(id){var o=P.b[id];if(o)propsFor(o).forEach(function(x){if(!seen[x[0]]&&x[0].indexOf(q)===0){seen[x[0]]=1;items.push({v:x[0]+'.',s:'jäsenten '+x[0]+', sitten kooste',r:q.length});}});});}
+    return {items:items.slice(0,16),luo:'',dot:1};}
+  m=new RegExp('(^|[^'+JKW2+'#@§{])#(['+JKW+']['+JKW2+']*)?$').exec(txt);if(!m)return null;var q2=(m[2]||'').toLowerCase(),ex=false;
+  KK.jkList(P).map(function(j){return KK.jkNm(P,j);}).filter(function(n){if(n===q2)ex=true;return n.indexOf(q2)===0;}).sort(function(a,b){return a.localeCompare(b,'fi');}).slice(0,10)
+    .forEach(function(n){var j=KK.jkFind(P,n),ms=ev().jkJasenet(j);items.push({v:'#'+n,s:KK.isErr(ms)?'joukko':'joukko, '+ms.length+(ms.length===1?' jäsen':' jäsentä'),r:q2.length+1});});
+  return {items:items,luo:luo&&q2&&!ex&&!KK.jkNameErr(P,q2)?jkLuoBtn(q2):'',q:'#'+q2};}
+function jkLuoBtn(n){return '<button class="luo" data-jluo="'+esc(n)+'" title="Uusi joukko. Palikka liitetään siihen kirjoittamalla #'+esc(n)+' palikan Tunnus-kenttään.">＋ Luo joukko #'+esc(n)+'</button>';}
+function jkLuoUI(n,t){var k=S.kEdit;if(k){if(!k.u){pushUndo();k.u=true;}k.luo=true;}else pushUndo();var j=KK.jkLuo(P,n);if(!j){toast('Joukkoa #'+n+' ei voi luoda.');return;}
+  save();renderPal();toast('Uusi joukko #'+n+'. Liitä palikoita siihen kirjoittamalla #'+n+' niiden Tunnus-kenttään.');if(t){t.dispatchEvent(new Event('input',{bubbles:true}));if(!k&&!S.tEdit)fieldSug(t);}}
+/* summa(#x) → #x.summa heti kirjoitettaessa (kaava). */
+function jkLive(t){var v=t.value,nv=KK.jkKaanna(v);if(nv===v)return;var p=t.selectionStart,d=nv.length-v.length;t.value=nv;if(p!=null)try{var c=Math.max(0,Math.min(nv.length,p+d));t.setSelectionRange(c,c);}catch(e){}}
+/* Tunnus-kentän ehdotukset: joukot #:n jälkeen (ei vielä kentässä olevia). */
+function tunnusSug(t,box){var pos=t.selectionStart==null?t.value.length:t.selectionStart,txt=t.value.slice(0,pos),m=/(^|\s)#([A-Za-z0-9ÅÄÖåäö_]*)$/.exec(txt);box._open=false;box._q=null;
+  if(!m){box.innerHTML='';return;}var q=m[2].toLowerCase(),have=KK.tunnusLue(t.value).tags;
+  box.innerHTML=KK.jkList(P).map(function(j){return KK.jkNm(P,j);}).filter(function(n){return n.indexOf(q)===0&&(n===q||have.indexOf(n)<0);}).sort(function(a,b){return a.localeCompare(b,'fi');}).slice(0,10)
+    .map(function(n){return '<button data-fsug="#'+esc(n)+' " data-rep="'+(q.length+1)+'" title="Liitä joukkoon">#'+esc(n)+'<small>joukko</small></button>';}).join('')+
+    (q&&KK.jkList(P).every(function(j){return KK.jkNm(P,j)!==q;})&&!KK.jkNameErr(P,q)?'<span class="sugno">#'+esc(q)+': uusi joukko syntyy, kun vahvistat kentän</span>':'');}
+/* Paletti: projektin joukot, nimeäminen ja poisto. */
+function jkPalHTML(){var js=KK.jkList(P),E=ev();var h='<div class="pt-h">Joukot</div>';
+  if(!js.length)return '';
+  return h+js.map(function(j){var ms=E.jkJasenet(j),n=KK.isErr(ms)?'⚠':ms.length+(ms.length===1?' jäsen':' jäsentä');return '<div class="jkrow"><b>#'+esc(KK.jkNm(P,j))+'</b><span>'+esc(n)+'</span><i class="jkbt"><button class="ib" data-jkre="'+j+'">Nimeä</button><button class="ib" data-jkdel="'+j+'">Poista</button></i></div>';}).join('');}
+function jkPalAct(e){var a=e.target.closest('[data-jkre],[data-jkdel]');if(!a)return false;e.preventDefault();var j=a.getAttribute('data-jkre')||a.getAttribute('data-jkdel'),nm=KK.jkNm(P,j);
+  if(a.hasAttribute('data-jkre')){var v=prompt('Joukon uusi nimi (kaavat ja tekstit seuraavat):','#'+nm);if(v==null)return true;pushUndo();var er=KK.jkNimea(P,j,v);if(er){S.undo.pop();toast(er);return true;}}
+  else{var us=KK.jkUses(P,j),tg=us.filter(function(u){return u.how==='tagi';}).length,mu=us.length-tg;
+    if(!confirm('Poistetaanko joukko #'+nm+'? '+(tg?'Tagi lähtee '+tg+(tg===1?' palikalta':' palikalta')+'. ':'')+(mu?mu+(mu===1?' kaava, teksti tai toiminto viittaa':' kaavaa, tekstiä tai toimintoa viittaa')+' siihen ja näyttää sen jälkeen #⚠'+nm+' ja virheen. ':'')+'Kumoa palauttaa.'))return true;
+    pushUndo();KK.jkPoista(P,j);}
+  repairL();save();renderPal();renderStage();renderInsp();return true;}
 /* Jonon 5: viite-ehdotukset tekstikenttiin ({viite} tekstipohjassa, viite kaavakentässä). Tekstiä ei muuteta itsestään. */
 function sugMatch(q){var sb=selBlock();return blocks(function(o){return (!sb||o.id!==sb.id)&&o.k!=='ryhma'&&hasValue(o);})
   .filter(function(o){return o.vt.indexOf(q)===0||o.nm.toLowerCase().indexOf(q)===0;})
   .sort(function(a,b){return (a.vt.indexOf(q)===0?0:1)-(b.vt.indexOf(q)===0?0:1)||a.vt.localeCompare(b.vt,'fi');}).slice(0,8);}
 function tplSug(t,box){var pos=t.selectionStart==null?t.value.length:t.selectionStart,txt=t.value.slice(0,pos),items=[],m,c=refStyle(),luo='';
   var ob=txt.lastIndexOf('{'),cb=txt.lastIndexOf('}');box._open=false;box._q=null;
+  var js=!(ob>cb)&&jkSugItems(txt,true);if(js){box._open=!js.dot;box._q=js.q||null;box.innerHTML=js.items.map(function(it){return '<button data-fsug="'+esc(it.v)+'" data-rep="'+it.r+'" title="Lisää tekstiin">'+esc(it.v)+'<small>'+esc(it.s)+'</small></button>';}).join('')+js.luo;return;}
   /* Jonon 12f: valittu etumerkki (@ tai §) tai { avaa ehdotukset; tuntematon @sana tarjoaa Luo Arvo. */
   var pm=c!=='{'&&new RegExp('(^|[^A-Za-z0-9ÅÄÖåäö_'+c+'])\\'+c+'([A-Za-zÅÄÖåäö_][A-Za-z0-9ÅÄÖåäö_]*)?$').exec(txt);
   if(ob>cb&&!(pm&&pm.index>ob)){var q=txt.slice(ob+1);if(!/[.#⚠]/.test(q)){box._open=true;var cl=t.value.charAt(pos)==='}';sugMatch(q.trim().toLowerCase()).forEach(function(o){items.push({v:'{'+o.vt+(cl?'':'}'),s:o.nm,r:q.length+1});});}}
@@ -8575,9 +8811,10 @@ function tplLuo(name,t){var v=t.value,ted=!!S.tEdit,key=t.getAttribute('data-k')
 function isTplField(t){var k=t.getAttribute&&t.getAttribute('data-k');return !!k&&(t.hasAttribute('data-tpl')||t.hasAttribute('data-lit')||/^(hr_\d+_[abt]|mh_\d+_[ab]|qv)$/.test(k));}
 function isKvField(t){var k=t.getAttribute&&t.getAttribute('data-k');return !!k&&k.indexOf('kv_')===0&&t.classList.contains('kfx');}
 function sugRow(t){return t.closest('.hrow')||(t.parentNode&&t.parentNode.classList.contains('row2')?t.parentNode:t);}
-function fieldSug(t){if(!t||t.disabled||!(isTplField(t)||isKvField(t)))return;var row=sugRow(t),box=row.nextElementSibling;
+function isTunnus(t){return !!(t&&t.hasAttribute&&t.hasAttribute('data-tunnus'));}
+function fieldSug(t){if(!t||t.disabled||!(isTplField(t)||isKvField(t)||isTunnus(t)))return;var row=sugRow(t),box=row.nextElementSibling;
   if(!box||!box.classList.contains('fsug')){box=document.createElement('div');box.className='ksug fsug';row.insertAdjacentElement('afterend',box);}
-  box._t=t;if(isKvField(t))kaavaSug(t,box);else tplSug(t,box);}
+  box._t=t;if(isTunnus(t))tunnusSug(t,box);else if(isKvField(t))kaavaSug(t,box);else tplSug(t,box);}
 function fieldSugIns(t,text,rep){var pos=t.selectionStart==null?t.value.length:t.selectionStart,a=t.value.slice(0,pos-(rep||0));
   t.value=a+text+t.value.slice(pos);var c=a.length+text.length;try{t.setSelectionRange(c,c);}catch(e){}
   t.dispatchEvent(new Event('input',{bubbles:true}));fieldSug(t);}
@@ -8603,11 +8840,12 @@ function kaavaEdit(n){
   ['keyup','click'].forEach(function(evn){ta.addEventListener(evn,function(){kaavaSug(ta,$('#ksug2'));});});
   ta.addEventListener('blur',function(){setTimeout(function(){if(S.kEdit&&document.activeElement!==ta)kaavaEditEnd(true);},0);});
   box.addEventListener('pointerdown',function(e){var k=e.target.closest('[data-ksug]');if(k){e.preventDefault();kaavaEditIns(k.getAttribute('data-ksug'),+k.getAttribute('data-rep')||0);}
+    var jl=e.target.closest('[data-jluo]');if(jl){e.preventDefault();jkLuoUI(jl.getAttribute('data-jluo'),ta);return;}
     var lu=e.target.closest('[data-kluo]');if(lu){e.preventDefault();luoArvoUI(lu.getAttribute('data-kluo'));}});
   ta.focus();var L=ta.value.length;try{ta.setSelectionRange(L,L);}catch(e){}
   $('#kres2').innerHTML=kaavaRes(b,ev(),true);kaavaSug(ta,$('#ksug2'));
 }
-function kaavaEditInput(){var k=S.kEdit,ta=$('#kedit textarea'),b=k&&P.b[k.bid];if(!b||!ta)return;
+function kaavaEditInput(){var k=S.kEdit,ta=$('#kedit textarea'),b=k&&P.b[k.bid];if(!b||!ta)return;jkLive(ta);
   if(!k.u){pushUndo();k.u=true;}b.f=KK.kaavaToIds(P,ta.value);KK.repair(P);KK.tick(P,ctx());save();renderStage();qvRefresh();refreshInspHead();
   var r=$('#kres2');if(r)r.innerHTML=kaavaRes(b,ev(),true);kaavaSug(ta,$('#ksug2'));}
 function kaavaEditIns(text,rep){var ta=$('#kedit textarea');if(!ta)return;var pos=ta.selectionStart==null?ta.value.length:ta.selectionStart;
@@ -8739,13 +8977,19 @@ function teeInsp(b,E){
   var isT=function(o){return o.k==='taulu';};
   var tfv={kaynnista:function(o){return o.k==='ketju'||(o.k==='jana'&&o.kulku!=='arvo');},pysayta:function(o){return o.k==='ketju'||(o.k==='jana'&&o.kulku!=='arvo');},aseta:function(o){return settable(o)||isT(o)||o.k==='jana';},tila:KK.isBoolKind,lisaa:function(o){return ['saadin','luku','muisti','pvm','jana'].indexOf(o.k)>=0||(o.k==='nappi'&&o.beh==='kerta'&&!KK.napVaihto(o))||isT(o);},valitse:function(o){return KK.isBoolKind(o)||(o.k==='nappi');},poista:KK.isBoolKind,vaihda:function(o){return KK.isBoolKind(o)||isT(o);},
     lisaarivi:isT,poistarivi:isT,valitserivi:isT,siirrarivi:isT,hae:isT,
-    tyhjenna:function(o){return settable(o)||o.k==='lista'||o.k==='aika'||isT(o);},kirjaa:function(o){return (o.k==='aika'&&!KK.ajLahde(P,o))||isT(o);},rivi:function(o){return o.k==='lista';},siirry:function(o){return isUI(o);},arvonta:function(o){return o.k==='satu';}};
+    tyhjenna:function(o){return settable(o)||o.k==='lista'||o.k==='aika'||isT(o);},kirjaa:function(o){return (o.k==='aika'&&!KK.ajLahde(P,o))||isT(o);},rivi:function(o){return o.k==='lista';},siirry:function(o){return isUI(o);},arvonta:function(o){return o.k==='satu';},joukkoon:function(o){return o.k!=='ryhma';},joukosta:function(o){return o.k!=='ryhma';}};
   /* Pajakone 4: Aseta, Lisää, Aseta tila, Vaihda ja Palauta voivat kohdistua myös ominaisuuteen (b.om). */
   var OMD={aseta:'aseta',lisaa:'lisaa',tila:'tila',vaihda:'vaihda',palauta:'aseta'};
   function omOpts(o,dd){return KK.omat(o).filter(function(e){if(!e.o)return false;if(dd==='lisaa')return e.t==='luku';if(dd==='tila'||dd==='vaihda')return e.t==='kylla';return true;});}
   var tf=OMD[d]?function(o){return (tfv[d]&&tfv[d](o))||omOpts(o,OMD[d]).length>0;}:tfv[d];
-  if(tf)h+=F(d==='siirry'?'Kohde (sijainti, alue tai palikka)':'Kohde','<select data-k="o">'+refOptions(b.o,tf,d==='siirry'?'— ei, käytä näkymää ja kohtaa —':'Valitse…')+'</select>');
+  var JKT={aseta:1,lisaa:1,tila:1,vaihda:1,palauta:1,tyhjenna:1,valitse:1,poista:1,kaynnista:1,pysayta:1,joukkoon:1,joukosta:1};
+  if(d==='joukkoon'||d==='joukosta')h+=fSelect('Joukko','jo',b.jo||'',[['','— valitse joukko —']].concat(KK.jkList(P).map(function(j){return [j,'#'+KK.jkNm(P,j)];})),KK.jkList(P).length?null:'Projektissa ei ole vielä joukkoja. Joukko syntyy, kun kirjoitat palikan Tunnus-kenttään #nimi.');
+  if(tf)h+=F(d==='siirry'?'Kohde (sijainti, alue tai palikka)':'Kohde','<select data-k="o">'+refOptions(b.o,tf,d==='siirry'?'— ei, käytä näkymää ja kohtaa —':'Valitse…')+(JKT[d]?jkOpts(b.oj):'')+'</select>');
   var tgo=P.b[b.o];
+  if(!tgo&&b.oj){var jnm='#'+KK.jkNm(P,b.oj),jm=ev().jkJasenet(b.oj),seenp={},oo2=[];if(KK.isErr(jm))h+='<div class="help errt">⚠ '+esc(jm.err)+'</div>';
+    else if(OMD[d])jm.slice(0,50).forEach(function(id){if(P.b[id])omOpts(P.b[id],OMD[d]).forEach(function(e){if(!seenp[e.p]){seenp[e.p]=1;oo2.push(e);}});});
+    if(OMD[d])h+=fSelect(d==='palauta'?'Mikä palautetaan':'Mitä muutetaan','om',b.om||'',[['',d==='palauta'?'kaikki ominaisuudet':d==='tila'||d==='vaihda'?'tila (on valittu / ei)':'arvo']].concat(oo2.map(function(e){return [e.p,e.n+(e.d?' – '+e.d:'')];})),null);
+    h+='<div class="help">Tehdään jokaiselle joukon '+esc(jnm)+' jäsenelle, joka on jäsen sillä hetkellä'+(KK.isErr(jm)?'':' (nyt '+jm.length+')')+'. Jäsen, jolla valittua ominaisuutta ei ole, ohitetaan. Sitten lähtee kerran, kun kaikki on tehty.</div>';}
   /* P2: taulukkoon: sarake, rivi (valittu tai tapahtuman), Lisää rivi -kentät, Valitse rivi -tapa. */
   if(tgo&&tgo.k==='taulu'){var tcs=KK.tSar(tgo),ti=KK.tauluIssue(P,b,tgo);
     if(d==='aseta'||d==='lisaa'||d==='vaihda'||d==='tyhjenna'){var okc=tcs.filter(function(c){return d==='lisaa'?(c.laji==='luku'||c.laji==='pvm'):d==='vaihda'?c.laji==='kylla':true;});
@@ -8778,7 +9022,7 @@ function teeInsp(b,E){
   if((d==='kirjaa'&&!(tgo&&tgo.k==='taulu'))||d==='rivi'||d==='ilmoita')h+=fTpl(d==='ilmoita'?'Ilmoitus':'Teksti','tx',b,d==='kirjaa'?'Tulee aikajanalle aikaleiman kanssa. '+refEx('uni')+' tuo toisen palikan arvon.':null);
   /* Arvo kaavasta: sama pikaluonti kuin Ehdossa, kun arvokenttä on näkyvissä eikä nuolta vielä ole. */
   if(h.indexOf('data-k="v"')>=0)h+='<div class="ibs"><button class="ib nf" data-kto="v">ƒ Arvo kaavasta</button></div>';
-  var hp={aseta:'',tila:'',lisaa:'',valitse:'',poista:'',vaihda:'',tyhjenna:'Palauttaa kohteen alkutilaan.',siirry:'',takaisin:'Palaa näkymään ja kohtaan, josta viimeksi siirryttiin Siirry-toiminnolla (esim. Takaisin-painike). Jos aiempaa siirtoa ei ole, mitään ei tapahdu. Välilehden vaihto käsin nollaa historian.',kirjaa:'',rivi:'',ilmoita:'Ilmoitus näkyy hetken näytön yläreunassa.',lisaarivi:'Sitten-tapahtuman rivi on uusi rivi (Tapahtuman tiedot: tapahtuma.rivi).',poistarivi:'Jos poistettu rivi oli valittu, valinta siirtyy seuraavaan.',siirrarivi:'Sitten-tapahtumassa tapahtuma.vanha ja tapahtuma.uusi ovat rivin paikka ennen ja jälkeen (1 = ensimmäinen).',valitserivi:'Sitten-tapahtuman rivi on valittu rivi; vanha ja uusi kertovat valinnan ennen ja jälkeen.',hae:'Hakee taulukon lähdetiedoston GitHubista (taulukon paneeli: Lähde) ja yhdistää rivit. Sitten jatkuu heti, kun haku alkaa; tulos tulee taulukon tapahtumina haettu ja hakuvirhe. Haku tehdään vain, kun appi on auki. Projektin avautuessa: ketju, joka käynnistyy, kun projekti avataan.',arvonta:'Arpoo satunnaisluvulle uuden luvun sen välin ja jakauman mukaan. Satunnaisluvun arvottu-tapahtuma lähtee heti.'}[d];
+  var hp={aseta:'',tila:'',lisaa:'',valitse:'',poista:'',vaihda:'',tyhjenna:'Palauttaa kohteen alkutilaan.',siirry:'',takaisin:'Palaa näkymään ja kohtaan, josta viimeksi siirryttiin Siirry-toiminnolla (esim. Takaisin-painike). Jos aiempaa siirtoa ei ole, mitään ei tapahdu. Välilehden vaihto käsin nollaa historian.',kirjaa:'',rivi:'',ilmoita:'Ilmoitus näkyy hetken näytön yläreunassa.',lisaarivi:'Sitten-tapahtuman rivi on uusi rivi (Tapahtuman tiedot: tapahtuma.rivi).',poistarivi:'Jos poistettu rivi oli valittu, valinta siirtyy seuraavaan.',siirrarivi:'Sitten-tapahtumassa tapahtuma.vanha ja tapahtuma.uusi ovat rivin paikka ennen ja jälkeen (1 = ensimmäinen).',valitserivi:'Sitten-tapahtuman rivi on valittu rivi; vanha ja uusi kertovat valinnan ennen ja jälkeen.',joukkoon:'Kohde kuuluu joukkoon käytön ajan, vaikka sillä ei ole tagia. Tagit eivät muutu. Palauta (kaikki ominaisuudet) tai Poista joukosta perii tämän. Jos jäsenyydellä on ”kuuluu kun” -nuoli, nuoli ratkaisee.',joukosta:'Kohde ei kuulu joukkoon käytön ajan, vaikka sillä olisi tagi. Palauta (kaikki ominaisuudet) palauttaa tagin mukaiseksi. Jos jäsenyydellä on ”kuuluu kun” -nuoli, nuoli ratkaisee.',hae:'Hakee taulukon lähdetiedoston GitHubista (taulukon paneeli: Lähde) ja yhdistää rivit. Sitten jatkuu heti, kun haku alkaa; tulos tulee taulukon tapahtumina haettu ja hakuvirhe. Haku tehdään vain, kun appi on auki. Projektin avautuessa: ketju, joka käynnistyy, kun projekti avataan.',arvonta:'Arpoo satunnaisluvulle uuden luvun sen välin ja jakauman mukaan. Satunnaisluvun arvottu-tapahtuma lähtee heti.'}[d];
   return section('Toiminto',fCheck('Käytössä','on',!b.off)+h+(hp?'<div class="help">'+hp+'</div>':'')+'<div class="help">Toiminto tehdään, kun siihen tulee tapahtuma (esim. painettu, NIIN, silloin) tai kun siihen tuleva arvo alkaa päteä. Ulos lähtee ”sitten”, josta voi jatkaa seuraavaan toimintoon.</div>');
 }
 
@@ -8816,10 +9060,11 @@ $('#insp').addEventListener('pointerdown',function(e){var k=e.target.closest('[d
   if(k){e.preventDefault();kaavaInsert(k.getAttribute('data-ksug'),+k.getAttribute('data-rep')||0);return;}
   var f2=e.target.closest('[data-fsug]');if(f2&&ft){e.preventDefault();fieldSugIns(ft,f2.getAttribute('data-fsug'),+f2.getAttribute('data-rep')||0);return;}
   var tl=e.target.closest('[data-tluo]');if(tl&&ft){e.preventDefault();tplLuo(tl.getAttribute('data-tluo'),ft);return;}
+  var jl=e.target.closest('[data-jluo]');if(jl){e.preventDefault();jkLuoUI(jl.getAttribute('data-jluo'),ft||$('#insp textarea[data-kaava]'));return;}
   var lu=e.target.closest('[data-kluo]');if(lu){e.preventDefault();luoArvoUI(lu.getAttribute('data-kluo'));}});
 /* Jonon 5: viite-ehdotukset tekstipohjiin, toiminnon arvoon ja Lisää rivi -kenttiin. */
 ['focusin','keyup','click','input'].forEach(function(evn){$('#insp').addEventListener(evn,function(e){fieldSug(e.target);});});
-$('#insp').addEventListener('focusout',function(e){var t=e.target;if(!(isTplField(t)||isKvField(t)))return;var box=sugRow(t).nextElementSibling;if(box&&box.classList.contains('fsug')&&box._t===t)box.innerHTML='';});
+$('#insp').addEventListener('focusout',function(e){var t=e.target;if(!(isTplField(t)||isKvField(t)||isTunnus(t)))return;var box=sugRow(t).nextElementSibling;if(box&&box.classList.contains('fsug')&&box._t===t)box.innerHTML='';});
 $('#insp').addEventListener('keydown',function(e){var t=e.target;if(t.hasAttribute&&t.hasAttribute('data-kaava')&&e.key==='Enter'){e.preventDefault();t.blur();}});
 ['keyup','click'].forEach(function(evn){$('#insp').addEventListener(evn,function(e){var t=e.target;if(t.hasAttribute&&t.hasAttribute('data-kaava')&&!(evn==='keyup'&&/^(Shift|Meta|Control|Alt)$/.test(e.key)))kaavaSug(t);});});
 $('#insp').addEventListener('input',function(e){
@@ -8827,13 +9072,13 @@ $('#insp').addEventListener('input',function(e){
   if(e.target.hasAttribute&&e.target.hasAttribute('data-lm')){var lv=Math.round(+String(e.target.value).replace(',','.'));if(!isNaN(lv)&&lv>=0){Dt.cfg[e.target.getAttribute('data-lm')]=lv;save();$$('#insp [data-lm="'+e.target.getAttribute('data-lm')+'"]').forEach(function(x){if(x!==e.target)x.value=lv;});}return;}
   if(e.target.hasAttribute&&e.target.hasAttribute('data-jk')){var JT=inspTarget(),jx=parseFloat(String(e.target.value).replace(',','.'));if(!JT||!JT.n||isNaN(jx))return;JT.n.jk=Math.round(jx*1e6)/1e6;KK.repair(P);save();renderStage();return;}
   var t=e.target,k=t.getAttribute('data-k');if(!k||t.type==='checkbox'||t.tagName==='SELECT')return;var T=inspTarget();if(!T||!T.b)return;var b=T.b;
-  if(k==='nm'){var v=t.value.trim();if(!v)return;KK.setName(P,b.id,v);var vi=$('#insp input[data-k="vt"]');if(vi&&!b.vtSet)vi.value=b.vt;afterInsp(false);return;}
-  if(k==='vt'){var er=KK.setVt(P,b.id,t.value);var ve=$('#vterr');if(ve)ve.textContent=er?er+' ':'';t.classList.toggle('bad',!!er);if(!er)afterInsp(false);return;}
-  if(k==='f'&&t.hasAttribute('data-kaava')){b.f=KK.kaavaToIds(P,t.value);afterInsp(false);kaavaLive(b,t);return;}
+  if(k==='nm'){var v=t.value.trim();if(!v)return;KK.setName(P,b.id,v);var vi=$('#insp input[data-k="vt"]');if(vi&&!b.vtSet)vi.value=KK.tunnusTeksti(P,b,refStyle());afterInsp(false);return;}
+  if(k==='vt'){var er=KK.tunnusVirhe(P,b.id,t.value);var ve=$('#vterr');if(ve)ve.textContent=er?er+' ':'';t.classList.toggle('bad',!!er);if(!er){KK.setTunnus(P,b.id,t.value,true);afterInsp(false);}return;}
+  if(k==='f'&&t.hasAttribute('data-kaava')){jkLive(t);b.f=KK.kaavaToIds(P,t.value);afterInsp(false);kaavaLive(b,t);return;}
   if(k.indexOf('mh_')===0){var mp=k.split('_'),mi=+mp[1],mf=mp[2];if(b.haarat&&b.haarat[mi]&&(mf==='a'||mf==='b'||mf==='nm')){b.haarat[mi][mf]=mf==='nm'?t.value:refStore(t.value);afterInsp(false);}return;}
   if(k.indexOf('hr_')===0){var hp=k.split('_'),ri=+hp[1],rf=hp[2];if(b.rivit&&b.rivit[ri]&&rf!=='m'){b.rivit[ri][rf]=refStore(t.value);afterInsp(false);hakuHi(b);}return;}
   if(k==='qv'){var qva=valitseOf(b);if(qva){qva.a=refStore(t.value);afterInsp(false);}return;}
-  if(k.indexOf('kv_')===0&&b.k==='tee'){var kc=k.slice(3);b.kv=b.kv&&typeof b.kv==='object'?b.kv:{};if(t.value.trim())b.kv[kc]=KK.kaavaToIds(P,t.value);else delete b.kv[kc];var kpr=ev().kaava(b.kv[kc]||'');t.classList.toggle('bad',!!t.value.trim()&&KK.isErr(kpr));afterInsp(false);return;}
+  if(k.indexOf('kv_')===0&&b.k==='tee'){jkLive(t);var kc=k.slice(3);b.kv=b.kv&&typeof b.kv==='object'?b.kv:{};if(t.value.trim())b.kv[kc]=KK.kaavaToIds(P,t.value);else delete b.kv[kc];var kpr=ev().kaava(b.kv[kc]||'');t.classList.toggle('bad',!!t.value.trim()&&KK.isErr(kpr));afterInsp(false);return;}
   if(k.indexOf('tc_')===0&&b.k==='taulu'){tcInput(b,t,false);return;}
   var val=t.value;
   if(t.hasAttribute('data-tpl')||t.hasAttribute('data-lit'))val=refStore(val);
@@ -8898,15 +9143,19 @@ $('#insp').addEventListener('change',function(e){
   if(t.tagName==='SELECT'&&k3==='tsar'){pushUndo();if(t.value)b.tsar=t.value;else delete b.tsar;repairL();afterInsp(true);return;}
   if(t.tagName==='SELECT'&&k3==='trv'){pushUndo();if(t.value)b.trv=t.value;else delete b.trv;
     var ntb=b.trv?P.b[b.trv]&&P.b[b.trv].tt:KK.tstOf(P,b)?KK.rowTable(P,b.tst):'';if(b.tsar&&!(P.b[ntb]&&KK.colById(P.b[ntb],b.tsar)))delete b.tsar;repairL();afterInsp(true);return;}
+  if(t.tagName==='SELECT'&&k3==='o'&&b.k==='tee'){pushUndo();if(t.value.charAt(0)==='%'){b.oj=t.value.slice(1);b.o='';}else{b.o=t.value;delete b.oj;}afterInsp(true);return;}
   if(t.tagName==='SELECT'){pushUndo();b[k3]=t.value;
-    if(k3==='do'){if(!b.nmSet)b.nm=KK.uniqueName(P,KK.baseName('tee',b),b.id);b.o='';}
+    if(k3==='do'){if(!b.nmSet)b.nm=KK.uniqueName(P,KK.baseName('tee',b),b.id);b.o='';delete b.oj;}
     if((k3==='m'||k3==='j')&&b.k==='ikkuna'){if(!b.nmSet)b.nm=KK.uniqueName(P,KK.baseName('ikkuna',b),b.id);}
     afterInsp(true);return;}
   if(k3==='nm'){refreshInspHead();return;}
-  if(k3==='vt'&&b){if(t.value!==b.vt){t.value=b.vt;t.classList.remove('bad');var ve=$('#vterr');if(ve)ve.textContent='';}return;}
+  if(k3==='vt'&&b){var r0=JSON.stringify([b.jkt||[],KK.jkList(P)]),er=KK.setTunnus(P,b.id,t.value);if(er)toast(er);var ve=$('#vterr');if(ve)ve.textContent='';t.classList.remove('bad');
+    if(JSON.stringify([b.jkt||[],KK.jkList(P)])!==r0){repairL();renderPal();afterInsp(true);}else t.value=KK.tunnusTeksti(P,b,refStyle());return;}
 });
 $('#insp').addEventListener('click',function(e){
   var g=e.target.closest('[data-goto]');if(g){gotoBlock(g.getAttribute('data-goto'));return;}
+  var jkb=e.target.closest('[data-jkk]');if(jkb){var jb=selBlock(),jj=jkb.getAttribute('data-jkk');if(!jb)return;pushUndo();var jl0=Array.isArray(jb.jkk)?jb.jkk:[];
+    if(jl0.indexOf(jj)>=0){jb.jkk=jl0.filter(function(x){return x!==jj;});if(!jb.jkk.length)delete jb.jkk;}else jb.jkk=jl0.concat([jj]);repairL();afterInsp(true);return;}
   /* P2: taulukon sarakkeet ja ikkuna. */
   var tdo=e.target.closest('[data-tdo],[data-tcm],[data-tcd]');if(tdo){var tb=selBlock();if(!tb||tb.k!=='taulu')return;
     if(tdo.getAttribute('data-tdo')==='open'){openTauluSheet(tb.id);return;}

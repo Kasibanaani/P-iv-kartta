@@ -17,7 +17,7 @@ Kaksi roolia kannattaa erottaa:
 | **Logiikka** | Toinen kanvaasi (**Logiikka**-välilehti), jossa palikat kytketään nuolilla ja lasketaan. Näkymän palikat voi tuoda myös logiikkaan. | Kaava, JOS, Ikkuna |
 | **Arvo** | Jatkuva tieto: luku, teksti, kyllä/ei tai päivämäärä. Päivittyy itsestään kuin taulukkolaskennan solu. Logiikassa pyöreä piste. | säätimen luku 5 |
 | **Tapahtuma** | Hetki: jotain tapahtui juuri nyt. Logiikassa punainen salmiakki. | *painettu*, *valmis* |
-| **Viite** | Palikan lyhyt nimi kaavoissa ja teksteissä: pienet kirjaimet, numerot ja _, ei ala numerolla. Seuraa palikan nimeä, kunnes kirjoitat oman. | `lasit` |
+| **Viite** | Palikan lyhyt nimi kaavoissa ja teksteissä (kenttä **Tunnus**, jossa voi olla myös joukot `#nimi`): pienet kirjaimet, numerot ja _, ei ala numerolla. Seuraa palikan nimeä, kunnes kirjoitat oman. | `lasit` |
 | **Kaava** | Lyhyt lauseke, joka laskee arvon toisten palikoiden arvoista. | `8 - lasit` |
 | **Kaavan tulos** | Kaavalle annettu oma nimi: `jaljella = 8 - lasit`. | `{jaljella}` tekstissä |
 | **Ominaisuus** | Palikan osa-arvo, jota voi lukea kaavassa ja usein myös ohjata: `viite.ominaisuus`. | `lasit.suurin`, `otsikko.näkyy` |
@@ -40,7 +40,7 @@ Vaiheet on kokeiltu tietokoneen Chromiumissa 1440 px leveänä (17.10.2026, Appi
 **1. Uusi projekti.** Avaa appi. Jos projekteja ei ole, kirjoita aloitusruudun kenttään *Projektin nimi* `Vesilasit` ja paina **Luo projekti**. Muuten: yläpalkin **projektin nimi ▾** → kenttä *Uuden projektin nimi* → **Luo**. Projekti aukeaa **Näkymä**-välilehdelle muokkaustilaan.
 
 **2. Säädin.** Paletista (vasemmalla), ryhmästä *Ohjaimet*, vedä **Säädin** kanvaasille. (Napautus paletissa tuo palikan ruudun keskelle. Kun lisäät monta, vedä ne erilleen, etteivät ne jää päällekkäin.) Säädin valitaan ja sen paneeli aukeaa oikealle. Kirjoita paneeliin:
-- **Nimi**: `Lasit`. Kenttä **Viite** muuttuu itsestään muotoon `lasit`.
+- **Nimi**: `Lasit`. Kenttä **Tunnus** muuttuu itsestään muotoon `@lasit` (viite `lasit`).
 - osio *Sisältö*: **Otsikko** `Juodut lasit`, **Suurin** `12`, **Alkuarvo** `0`.
 
 **3. Teksti, jossa on viite.** Ryhmästä *Näyttö* vedä **Teksti** säätimen alle. Kirjoita paneelin kenttään **Teksti**: `Joit {lasit} lasia.` Aaltosulkeet hakevat toisen palikan arvon tekstiin.

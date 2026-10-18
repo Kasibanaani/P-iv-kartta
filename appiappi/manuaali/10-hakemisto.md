@@ -43,6 +43,10 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | muuttaa vanhan aikajanan taulukoksi | Aikajanan paneeli → Muunna historiaksi | [Aikajana](03-nakymapalikat.md#aikajana-aika) |
 | näyttää jokaiselle riville kortin | Toistin | [Toistin](07-tieto.md#toistin--toistin) |
 | suodattaa tai järjestää rivejä | Rivijoukko | [Rivijoukko](07-tieto.md#rivijoukko-joukko) |
+| koota palikoita joukoksi ja laskea niistä (summa, keskiarvo, montako) | Tunnus-kenttään `#nimi`, kaavassa `#nimi.summa` | [Palikoiden joukot](07-tieto.md#palikoiden-joukot-nimi-appi-appi-57) |
+| tehdä saman toiminnon kaikille joukon palikoille | Toiminnon Kohde: `#nimi (jokainen jäsen)` | [Toiminto kaikille jäsenille](07-tieto.md#toiminto-kaikille-jäsenille) |
+| liittää palikan joukkoon vain ehdolla tai käytön aikana | ⚡ kuuluu kun; toiminnot Lisää joukkoon / Poista joukosta | [Kuuluu joukkoon kun](07-tieto.md#kuuluu-joukkoon-kun-ehdollinen-jäsenyys) |
+| nimetä tai poistaa joukon | paletti → Joukot | [Nimeä ja poista](07-tieto.md#nimeä-ja-poista-paletti) |
 | laskea sarakkeen summan | `taulu.sarake.summa` tai SUMMA-ikkuna riveille | [Laske taulukon sarakkeen summa](07-tieto.md#laske-taulukon-sarakkeen-summa) |
 | liikuttaa hahmoa | Liike + Tatti tai napautus | [Liike](08-maailma-ja-liike.md#liike-liike) |
 | tunnistaa törmäyksen tai alueeseen astumisen | Este, Liikkeen *törmäsi*, Alue | [Maailma ja liike](08-maailma-ja-liike.md) |
@@ -171,6 +175,7 @@ Kokeiltavat vaiheohjeet lukujen lopussa.
 | arvokohta | pyöreä piste palikan reunassa: jatkuva arvo |
 | esiintymä | sama palikka logiikkakanvaasilla useassa kohdassa; kaikki ovat samaa palikkaa |
 | erikoispalikka ✦ | palikka, joka poikkeaa tarkoituksella yhteisestä säännöstä; syy näkyy paneelissa |
+| joukko `#nimi` | palikoiden nimetty joukko (tagi Tunnus-kentässä); ei palikka. Eri asia kuin Rivijoukko |
 | ikkuna | logiikan laatikko, joka yhdistää sisältönsä (JA, TAI, SUMMA…); kuin sulut |
 | kaava | lauseke, joka laskee arvon toisista: `uni > 7` |
 | kaavan tulos | kaavan nimetty arvo: `uni = a + b` |

@@ -117,7 +117,7 @@ var V2=blk(P,'trivi',{nm:'Uusi valinta',tt:T.t.id,ls:'val'});A.ok(KK.relink(P,fN
 P=JSON.parse(undo);KK.repair(P);A.strictEqual(P.b[fNimi.b.id].trv,V.b.id,'Kumoa palauttaa');
 
 // 12. Tallennus, vienti ja tuonti: trv ja tsar säilyvät, versio ennallaan; repair siivoaa kelvottomat
-A.strictEqual(KK.VER,9,'tallennusversio 9 (jonon 12g)');
+A.strictEqual(KK.VER,10,'tallennusversio 10 (jonon 15c)');
 var Q=JSON.parse(JSON.stringify(P));KK.repair(Q);A.strictEqual(Q.b[fMaara.b.id].trv,V.b.id);A.strictEqual(Q.b[fMaara.b.id].tsar,T.c['Määrä'].id);A.strictEqual(KK.Ev(Q,C).val(fMaara.b.id),KK.Ev(P,C).val(fMaara.b.id));
 Q.b[fMaara.b.id].trv=nappi.b.id;Q.b[fNimi.b.id].trv=5;Q.b[fValmis.b.id].trv='';var mb=Object.keys(Q.b).filter(function(i){return Q.b[i].k==='muisti';})[0];Q.b[mb].trv=V.b.id;Q.b[mb].tsar='c1';
 KK.repair(Q);A.strictEqual(Q.b[fMaara.b.id].trv,undefined,'trv ei-Rivi-palikkaan pois');A.strictEqual(Q.b[fMaara.b.id].tsar,undefined,'ja sidonta');A.strictEqual(Q.b[fNimi.b.id].trv,undefined);A.strictEqual(Q.b[fValmis.b.id].trv,undefined);

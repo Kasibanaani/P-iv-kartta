@@ -34,7 +34,7 @@ Paneeli on ylhäältä alas suunnilleen tässä järjestyksessä:
 
 | Osio | Mitä siinä on |
 |---|---|
-| (yläosa) | **Nimi**, **Viite**, **Lisätieto**. Nimi ei näy käyttäjälle. Viite on lyhyt nimi kaavoihin ja teksteihin (esim. `painike`); se seuraa nimeä, kunnes kirjoitat oman. Erikoispalikalla tässä on ✦-laatikko ja poikkeuksen syy. |
+| (yläosa) | **Nimi**, **Tunnus** (viite ja joukot `#nimi`), **Lisätieto**. Nimi ei näy käyttäjälle. Viite on lyhyt nimi kaavoihin ja teksteihin (esim. `painike`); se seuraa nimeä, kunnes kirjoitat oman. Erikoispalikalla tässä on ✦-laatikko ja poikkeuksen syy. |
 | **Sisältö** | Palikan oma teksti ja lajikohtaiset asetukset (katso kunkin palikan merkintä). |
 | **Kun painetaan / Kun valitaan** | Pikatoiminnot (vain Painike, Valintaruutu, Kytkin). |
 | **Rivin sarake** | Näkyy syöttäville ohjaimille, kun projektissa on Tietotaulukko (muokkauslomake, luku [Tieto](07-tieto.md)). |

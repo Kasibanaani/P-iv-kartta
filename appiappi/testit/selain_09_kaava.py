@@ -17,7 +17,7 @@ async def main():
             # --- viite seuraa nimeä, oma viite, tupla estetään ---
             await paletti(pg,'Säädin',520,260);await pg.wait_for_timeout(120)
             await pg.fill('#insp input[data-k="nm"]','Uni');await pg.wait_for_timeout(80)
-            vt=await pg.input_value('#insp input[data-k="vt"]');print(W,'1 viite nimestä:',vt);assert vt=='uni'
+            vt=await pg.input_value('#insp input[data-k="vt"]');print(W,'1 viite nimestä:',vt);assert vt=='@uni'
             await paletti(pg,'Säädin',520,380);await pg.wait_for_timeout(120)
             await pg.fill('#insp input[data-k="vt"]','uni');await pg.wait_for_timeout(80)
             er=await pg.inner_text('#vterr');print(W,'2 tupla:',er);assert 'käytössä' in er

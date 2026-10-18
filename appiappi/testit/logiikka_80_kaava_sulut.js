@@ -7,7 +7,7 @@ var NOW=new Date(2026,9,18,10,0,0).getTime();var C={now:function(){return new Da
 function N(P,b){return KK.addNode(P,b.id,0,0,'');}
 function V(P,b){return KK.Ev(P,C).val(b.id);}
 function K(P,s){var k=KK.addBlock(P,'kaava');k.f=KK.kaavaToIds(P,s);N(P,k);KK.repair(P);return k;}
-A.strictEqual(KK.VER,9,'tallennusversio 9');
+A.ok(KK.VER>=9,'tallennusversio vähintään 9');
 
 var P=KK.newProject('sulut');
 var uni=KK.addBlock(P,'saadin',{nm:'Uni',min:0,max:12,start:8});N(P,uni);
@@ -85,13 +85,13 @@ var J=JSON.parse(JSON.stringify(R));J.b[a.id].vt='ja';J.b[t.id].vt='tai';
 J.b[kv.id].f='jos(ja({#'+a.id+'} > 1; tai({#'+t.id+'} = 0; {#'+t.id+'} > 5)); "on"; "ei")';J.b[tee.id].kv={};J.b[tee.id].kv[col.id]='tai({#'+a.id+'}; 0)';
 var Dt=KK.repairData({app:'appiappi',ver:8,projects:[J],cur:J.id,presetit:[{id:'pr1',nm:'P',ver:8,pv:1,b:{x1:{id:'x1',k:'kaava',nm:'K',vt:'k',f:'jos(1 > 0; "a"; "b")'}},n:[],l:[]}],
   suos:[{k:'kaava',p:{f:'ja(1; 2)'},l:'K',i:'ƒ',h:0}]});
-A.strictEqual(Dt.ver,9);var R2=Dt.projects[0];
+A.strictEqual(Dt.ver,KK.VER);var R2=Dt.projects[0];
 A.strictEqual(R2.b[a.id].vt,'ja_2','varattu viite vaihtuu');A.strictEqual(R2.b[t.id].vt,'tai_2');
 A.strictEqual(R2.b[kv.id].f,'jos ({#'+a.id+'} > 1 ja ({#'+t.id+'} = 0 tai {#'+t.id+'} > 5)) "on" muuten "ei"','kaava muuntui');
 A.strictEqual(KK.kaavaToText(R2,R2.b[kv.id].f),'jos (ja_2 > 1 ja (tai_2 = 0 tai tai_2 > 5)) "on" muuten "ei"','näkyy uusilla viitteillä');
 KK.userSet(R2,a.id,3,C);A.strictEqual(V(R2,R2.b[kv.id]),'on');
 A.strictEqual(R2.b[tee.id].kv[col.id],'{#'+a.id+'} tai 0','Toiminnon kenttä muuntui');
-A.strictEqual(Dt.presetit[0].b.x1.f,'jos (1 > 0) "a" muuten "b"','presetti muuntui');A.strictEqual(Dt.presetit[0].ver,9);
+A.strictEqual(Dt.presetit[0].b.x1.f,'jos (1 > 0) "a" muuten "b"','presetti muuntui');A.strictEqual(Dt.presetit[0].ver,KK.VER);
 A.strictEqual(Dt.suos[0].p.f,'1 ja 2','suosikki muuntui');
 var once=JSON.stringify(R2);KK.repair(R2);A.strictEqual(JSON.stringify(R2),once,'repair on vakaa');
 
@@ -102,8 +102,8 @@ var lk=KK.addBlock(L,'kaava',{nm:'Valinta'});KK.addNode(L,lk.id,-400,160);lk.f=K
 var s1=KK.addBlock(L,'ajastin',{kesto:'10',yks:'s'}),n1=KK.addNode(L,s1.id,0,60,wn.id);
 var s2=KK.addBlock(L,'tee',{do:'aseta',o:lue.id,v:{r:lk.id}}),n2=KK.addNode(L,s2.id,0,120,wn.id);KK.addLink(L,n1.id,'e',n2.id,'e');
 KK.repair(L);L.st[las.id]=0;KK.chainStart(L,k.id,C);A.strictEqual(L.st[k.id].run,true);
-var JL=JSON.parse(JSON.stringify(L));var sn=JL.st[k.id].snap;A.strictEqual(sn.ver,9);sn.ver=8;sn.b[lk.id].f='jos({#'+las.id+'} > 5; 100; 200)';JL.b[lk.id].f=sn.b[lk.id].f;
-var L2=KK.repair(JL);A.strictEqual(L2.st[k.id].snap.ver,9,'kuva nousi versioon 9');A.strictEqual(L2.st[k.id].snap.b[lk.id].f,'jos ({#'+las.id+'} > 5) 100 muuten 200');
+var JL=JSON.parse(JSON.stringify(L));var sn=JL.st[k.id].snap;A.strictEqual(sn.ver,KK.VER);sn.ver=8;sn.b[lk.id].f='jos({#'+las.id+'} > 5; 100; 200)';JL.b[lk.id].f=sn.b[lk.id].f;
+var L2=KK.repair(JL);A.strictEqual(L2.st[k.id].snap.ver,KK.VER,'kuva nousi nykyiseen versioon');A.strictEqual(L2.st[k.id].snap.b[lk.id].f,'jos ({#'+las.id+'} > 5) 100 muuten 200');
 L2.st[las.id]=50;NOW+=10000;KK.chainPoll(L2,C);A.ok(!L2.st[k.id].err,'ei virhettä: '+L2.st[k.id].err);A.strictEqual(KK.Ev(L2,C).val(lue.id),200,'luki kuvasta (laskuri oli 0)');
 
 console.log('ok kaavan sulut ja jos');

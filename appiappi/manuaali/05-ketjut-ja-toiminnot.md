@@ -31,7 +31,7 @@ Toiminto tekee yhden muutoksen kerran, kun siihen tulee tapahtuma. Sen jälkeen 
 - **Asetukset (paneeli), osio Toiminto:**
   - **Käytössä** (rasti). Pois käytöstä oleva toiminto ei tee mitään (ketjussa ketju jatkaa sen ohi).
   - **Toiminto**: valikko, josta lajin voi vaihtaa jälkikäteen.
-  - **Kohde**: valikko, johon tulee vain lajille sopivat palikat (Siirry-lajilla otsikko on *Kohde (sijainti, alue tai palikka)*).
+  - **Kohde**: valikko, johon tulee vain lajille sopivat palikat (Siirry-lajilla otsikko on *Kohde (sijainti, alue tai palikka)*). Ryhmässä *Joukko (jokainen jäsen)* projektin joukot: toiminto tehdään jokaiselle jäsenelle ja *sitten* lähtee kerran ([Toiminto kaikille jäsenille](07-tieto.md#toiminto-kaikille-jäsenille), Appi-appi 57). Kohteena joukko käy lajeille Aseta arvo, Aseta tila, Lisää, Valitse, Poista valinta, Vaihda, Tyhjennä, Käynnistä ketju, Pysäytä ketju, Palauta perusarvo, Lisää joukkoon ja Poista joukosta.
   - **Mitä muutetaan** (Aseta arvo, Lisää, Aseta tila, Vaihda) tai **Mikä palautetaan** (Palauta perusarvo): näkyy, kun kohteella on ohjattavia ominaisuuksia. Oletus on kohteen oma arvo tai tila; muut rivit ovat ominaisuuksia (esim. leveys, näkyy).
   - Lajin omat kentät (taulukko alla).
   - Ohje paneelin alareunassa: ”Toiminto tehdään, kun siihen tulee tapahtuma (esim. painettu, NIIN, silloin) tai kun siihen tuleva arvo alkaa päteä.”
@@ -70,6 +70,8 @@ Alla *tyhjä* tarkoittaa, että kenttä on tyhjä eikä kohtaan *arvo* tule nuol
 | **Poista rivi** | Poistaa rivin. | Tietotaulukko. | **Mikä rivi**: *Valittu rivi* / *Tapahtuman rivi*. | Jos poistettu oli valittu, valinta siirtyy seuraavaan. Ilman riviä: virhe. |
 | **Valitse rivi** | Vaihtaa taulukon valitun rivin. | Tietotaulukko. | **Mikä rivi**: ensimmäinen, seuraava, edellinen, viimeinen, tapahtuman rivi, arvosta (numero tai rivi), ei mitään. Seuraavalle ja edelliselle **Lopusta alkuun (ja alusta loppuun)**. | Arvosta: tyhjä = ei valintaa; liian iso numero = virhe. |
 | **Siirrä rivi** | Vaihtaa rivin paikkaa viereisen kanssa. | Tietotaulukko. | **Mikä rivi**, **Suunta**: *Ylös* / *Alas*. | Ensimmäinen ei siirry ylemmäs eikä viimeinen alemmas. |
+| **Lisää joukkoon** (Appi-appi 57) | Kohde kuuluu joukkoon käytön ajan, vaikka sillä ei ole tagia. | Mikä tahansa palikka paitsi Ryhmä; myös joukko (jokainen jäsen). | **Joukko**. | Ilman joukkoa ei tee mitään. Tagi ei muutu; *Palauta perusarvo* (kaikki) palauttaa. *kuuluu kun* -nuoli voittaa. |
+| **Poista joukosta** (Appi-appi 57) | Kohde ei kuulu joukkoon käytön ajan, vaikka sillä on tagi. | Kuten yllä. | **Joukko**. | Kuten yllä. |
 | **Hae tiedostosta** | Hakee taulukon lähdetiedoston GitHubista ja yhdistää rivit ([Lähde](07-tieto.md#lähde-rivitiedosto-githubista)). | Tietotaulukko, jolla on lähde. | ei asetuksia (lähde ja avain taulukon paneelissa). | *Sitten* heti, kun haku alkaa; tulos taulukon tapahtumina haettu ja hakuvirhe. Ilman lähdettä tai muuhun kohteeseen: virhe. |
 
 Taulukkotoiminnot kuvataan tarkemmin tietotaulukon luvussa. Niiden virhe (esim. ”taulukossa ei ole valittua riviä”) näkyy ilmoituksena ketjun ulkopuolella ja pysäyttää ketjun ketjun sisällä.

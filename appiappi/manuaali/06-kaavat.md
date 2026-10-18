@@ -10,7 +10,7 @@ Kaikki tämän luvun esimerkkien tulokset on tarkistettu ajamalla appin moottori
 
 Jokaisella palikalla (paitsi Ryhmällä) on **viite**: lyhyt nimi, jolla siihen viitataan kaavoissa ja teksteissä. Esimerkiksi palikan *Uni* viite on `uni`.
 
-- **Löytyy:** valitse palikka, paneelin (tarkastelijan) yläosassa on kenttä **Viite** heti kentän **Nimi** alla. Viite näkyy myös Palikat-listan (yläpalkin **☰ Palikat**) sarakkeessa *Viite* ja Ominaisuudet-osion riveillä.
+- **Löytyy:** valitse palikka, paneelin (tarkastelijan) yläosassa on kenttä **Tunnus** heti kentän **Nimi** alla (Appi-appi 57; ennen *Viite*). Tunnuksessa on viite ja palikan joukot, esim. `@uni #pisteet`; ks. [Palikoiden joukot](07-tieto.md#palikoiden-joukot-nimi-appi-appi-57). Viite näkyy myös Palikat-listan (yläpalkin **☰ Palikat**) sarakkeessa *Viite* ja Ominaisuudet-osion riveillä.
 - **Säännöt:** vain pienet kirjaimet a–z, å, ä, ö, numerot ja alaviiva `_`. Ei saa alkaa numerolla. Isot kirjaimet muuttuvat pieniksi (kirjoitat `U2` → tallentuu `u2`). Muut merkit (välilyönti, viiva, é, ü) eivät kelpaa.
 - **Varatut sanat** eivät kelpaa viitteeksi: `nyt`, `ruutu`, `näkymä` (`nakyma`), `tumma`, `tänään` (`tanaan`), `huomenna`, `eilen`, `kyllä` (`kylla`), `ei`, `tyhjä` (`tyhja`), `näkyy`, `harmaa`, `piilossa`, `luettava`. Sanat `jos`, `ja`, `tai` ja `sisältää` eivät ole varattuja (ks. Huomio).
 - **Kaksi palikkaa ei voi jakaa samaa viitettä.**
@@ -32,7 +32,7 @@ Jos nimestä ei jää yhtään kelpaavaa merkkiä, viite on `p` (tai `p2` …).
 ### Viitteen muuttaminen
 
 1. Valitse palikka (napauta sitä näkymässä tai logiikassa).
-2. Kirjoita paneelin kenttään **Viite** uusi viite.
+2. Kirjoita paneelin kenttään **Tunnus** uusi viite (joukot `#nimi` voivat jäädä perään).
 3. Virheellinen viite näkyy punaisena ja kentän alla lukee syy. Viite ei vaihdu ennen kuin se kelpaa; jos poistut kentästä virheellisellä tekstillä, kenttään palaa voimassa oleva viite.
 
 Virheilmoitukset:
@@ -40,8 +40,9 @@ Virheilmoitukset:
 - `”tänään” on kaavoissa varattu sana. Valitse toinen viite.`
 - `Viitteessä saa olla vain kirjaimia, numeroita ja _, eikä se saa alkaa numerolla.`
 - `Viite on jo käytössä palikalla ”Uni”.`
+- `Yksi viite per palikka: kirjoita viite kerran ja joukot #:lla, esim. @uni #pisteet.`
 
-Kentän ohjeteksti kertoo tilan: *Seuraa nimeä, kunnes kirjoitat oman.* tai *Itse asetettu. Tyhjäksi = takaisin nimestä.*
+Kentän ohjeteksti kertoo tilan: *Viite seuraa nimeä, kunnes kirjoitat oman.* tai *Viite on itse asetettu; tyhjä kenttä = viite takaisin nimestä.*
 
 - **Viite seuraa nimeä**, kunnes kirjoitat oman. Kun vaihdat nimen, viite vaihtuu mukana (Uni 2 → Unen laatu: `uni2` → `unenlaatu`).
 - **Itse kirjoitettu viite pysyy**, vaikka nimi vaihtuisi.
@@ -487,6 +488,8 @@ Ominaisuus on joko **vain luettava** (lasketaan palikan tilasta, esim. `nimi.pit
 ### Yleiset ominaisuudet
 
 **Kaikilla palikoilla, joilla on arvo ulos:** `arvo` (luettava) = palikan arvo.
+
+**Kaikilla palikoilla paitsi Ryhmällä (Appi-appi 57):** `joukot` (luettava, teksti) = joukot, joihin palikka kuuluu nyt, nimet pilkulla erotettuna (`uni.joukot sisältää "terveys"`).
 
 **Kaikilla logiikan palikoilla, joilla on Käytössä-valinta** (JOS, KUN, Ikkuna, Ketju, Ajastin, Ehto, Odota kunnes, Arpa, Toista, Ketjun tulos, Lopeta ketju, Monta haaraa, efektit, Toiminto): `käytössä` (ohjattava, kyllä/ei).
 

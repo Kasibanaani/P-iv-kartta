@@ -11,8 +11,9 @@ Palikat lyhyesti:
 | Rivi (`trivi`) | Logiikka → Tieto | Nimetty lähde yhdelle riville (käsiteltävä, valittu tai tapahtuman). |
 | Rivijoukko (`joukko`) | Logiikka → Tieto | Suodattaa ja järjestää rivejä muuttamatta niitä. |
 | Toistin ✦ (`toistin`) | Näkymä → Näyttö | Sama kortti jokaiselle riville. |
+| Joukko `#nimi` (ei palikka) | Tunnus-kenttä, paletti → Joukot | Kokoaa palikoita: `#kolikot.summa`, toiminto kaikille jäsenille. |
 
-Paletin Tieto-ryhmässä palikat ovat oletusnimillä **Taulukko**, **Tapahtuma**, **Kohde** ja **Joukko**, joten viitteet kaavoihin ovat aluksi `taulukko`, `tapahtuma`, `kohde` ja `joukko`. Nimen voi vaihtaa paneelin yläosasta; viite seuraa nimeä, ellei sitä ole kirjoitettu itse kenttään **Viite**. Tämän luvun esimerkeissä taulukon nimi on *Ostokset* (viite `ostokset`) ja sarakkeet *Nimi* (`nimi`), *Määrä* (`määrä`) ja *Hinta* (`hinta`).
+Paletin Tieto-ryhmässä palikat ovat oletusnimillä **Taulukko**, **Tapahtuma**, **Kohde** ja **Joukko** (Rivijoukko; eri asia kuin [palikoiden joukot `#nimi`](#palikoiden-joukot-nimi-appi-appi-57)), joten viitteet kaavoihin ovat aluksi `taulukko`, `tapahtuma`, `kohde` ja `joukko`. Nimen voi vaihtaa paneelin yläosasta; viite seuraa nimeä, ellei sitä ole kirjoitettu itse kenttään **Viite**. Tämän luvun esimerkeissä taulukon nimi on *Ostokset* (viite `ostokset`) ja sarakkeet *Nimi* (`nimi`), *Määrä* (`määrä`) ja *Hinta* (`hinta`).
 
 Peruskäsitteet:
 
@@ -286,6 +287,79 @@ Suodattaa ja järjestää taulukon rivejä muuttamatta niitä. Tulos on joukko s
 - **Esimerkki:** Ostokset → rivit → Joukko. Kaava `kohde.määrä > 0` (kohde = Rivi, käsiteltävä rivi) nuolella kohtaan **ehto riveittäin**. Järjestys: Nimi. `joukko.rivejä` kertoo, montako ostosta on jäljellä.
   - Toisenlainen käyttö: järjestys Määrä, laskeva, Enintään 1: `joukko.eka.nimi` on suurin määrä.
 - **Huomio:** joukko, jonka ehto lukee joukkoa itseään, antaa virheen *kehä*. Järjestä-nuolella eniten ensin: anna arvoksi esim. `0 - kohde.määrä`.
+
+---
+
+## Palikoiden joukot `#nimi` (Appi-appi 57)
+
+Joukko kokoaa palikoita yhden nimen alle, esim. kaikki kolikot tai kaikki unen pisteet. Palikka liitetään joukkoon tagilla, ja kaava laskee joukon jäsenistä koosteen (`#kolikot.summa`). Toiminto voi kohdistua kaikkiin jäseniin kerralla. Joukko ei ole palikka eikä sillä ole paikkaa logiikassa. Älä sekoita **Rivijoukkoon** (yllä), joka suodattaa taulukon rivejä.
+
+- **Löytyy:** valitse palikka, paneelin kenttä **Tunnus** (Nimen alla). Projektin joukot listataan Logiikka-välilehden paletissa ryhmässä **Joukot** (näkyy, kun projektissa on joukkoja).
+- **Liitä palikka joukkoon:** kirjoita Tunnukseen viitteen perään `#nimi`, esim. `@uni #unipisteet #terveys`, ja paina Enter (tai napauta muualle). Joukkoja voi olla rajattomasti. Uusi nimi luo joukon heti. Kun kirjoitat `#`, kentän alle tulevat projektin joukot ehdotuksina; uudesta nimestä lukee *uusi joukko syntyy, kun vahvistat kentän*.
+- **Poista palikka joukosta:** pyyhi `#nimi` Tunnuksesta ja vahvista.
+- **Nimen säännöt:** kuten viitteellä (pienet kirjaimet, å, ä, ö, numerot, `_`, ei ala numerolla). Isot kirjaimet muuttuvat pieniksi. Kaksi joukkoa ei voi jakaa nimeä. Joukon nimi saa olla sama kuin jonkin palikan viite (`#uni` ja `uni` ovat eri asioita).
+- **Kuka voi kuulua:** mikä tahansa palikka paitsi Ryhmä. Myös Kaava, Ikkuna ja näkymän palikat.
+- **Paneelissa jäsenyydet:** Tunnuksen alla rivi jokaiselle joukolle: `#nimi` ja syy, miksi palikka on nyt jäsen tai ei ole: *jäsen (tagi)*, *jäsen nyt: ehto pätee*, *ei jäsen nyt: ehto ei päde*, *jäsen: Lisää joukkoon -toiminto* tai *ei jäsen: Poista joukosta -toiminto*. Kehys on korostettu, kun palikka on jäsen nyt.
+
+### Kuuluu joukkoon kun (ehdollinen jäsenyys)
+
+1. Valitse palikka. Napauta jäsenyysrivin nappia **⚡ kuuluu kun**.
+2. Palikkaan tulee logiikassa kohta **kuuluu #nimi kun**, ja Tunnuksessa joukon perään tulee `⚡` (`@uni #terveys⚡`).
+3. Vie kohtaan nuoli (esim. Kaava `uni > 7` tai Vertailu). Palikka on jäsen vain, kun nuolen arvo pätee. Useampi nuoli: kaikkien pitää päteä.
+4. Ilman nuolta jäsenyys on tagin mukainen. Nappi uudelleen sulkee kohdan ja poistaa sen nuolet.
+
+Ehdossa ei ole omaa kaavakenttää: ehto tehdään tavallisilla palikoilla nuolella. Ehto, joka lukee saman joukon koostetta, antaa virheen *kehä*.
+
+### Joukko kaavassa
+
+| Kirjoitus | Tulos |
+|---|---|
+| `#kolikot` | montako jäsentä (sama kuin `#kolikot.jäseniä`) |
+| `#kolikot.summa` | jäsenten arvot yhteen |
+| `#kolikot.keskiarvo`, `.suurin`, `.pienin` | jäsenten arvoista |
+| `#kolikot.jäsenet` | jäsenten nimet pilkulla erotettuna, esim. *Eka, Toka* |
+| `#kolikot.arvot` | jäsenten arvot luettelona |
+| `#kolikot.havaintoja`, `.puuttuvia`, `.virheitä`, `.täydellinen` | kuten taulukon sarakkeella |
+| `#kolikot.x.pienin` | jäsenten ominaisuus `x`, siitä kooste (mikä tahansa jäsenten ominaisuus, esim. `.leveys.summa`, `.näkyy.summa`) |
+| `palikka.joukot` | palikan joukot nyt, nimet pilkulla (luettava ominaisuus kaikilla paitsi Ryhmällä), esim. `uni.joukot sisältää "terveys"` |
+
+- **Ehdotukset:** `#` ehdottaa joukkojen nimiä (ja jäsenmäärää), `#nimi.` koosteita ja jäsenten ominaisuuksia.
+- **Kääntyy itse:** `summa(#kolikot)` muuttuu kirjoittaessa muotoon `#kolikot.summa` (samoin `keskiarvo`, `suurin`, `pienin`, `jäseniä`, `jäsenet`, `arvot` ja muut koosteet).
+- **Mitkä arvot lasketaan:** luvut; kyllä = 1 ja ei = 0. Teksti ja tyhjä ohitetaan (näkyvät määrissä *havaintoja* ja *puuttuvia*). Päivämäärille `.suurin` ja `.pienin`, kun lukuja ei ole. Yksikin virhe jäsenessä tekee koosteesta virheen (paitsi `.virheitä`).
+- **Tyhjä joukko:** `.summa` = 0, `#x` = 0, `.keskiarvo`, `.suurin` ja `.pienin` puuttuvat.
+- **Jäsen ilman ominaisuutta:** `#kolikot.x.summa`, kun jollain jäsenellä ei ole `x`:ää, on virhe, joka nimeää jäsenen.
+- **Pelkkä ominaisuus ilman koostetta** (`#kolikot.x`) on virhe *valitse kooste*.
+- **Järjestys:** jäsenet logiikan palikkajärjestyksessä (`.jäsenet`, `.arvot`).
+- **Tuntematon joukko:** `#uusi.summa` antaa virheen *ei joukkoa: #uusi*, ja ehdotusrivillä on nappi **＋ Luo joukko #uusi**. Jos joukko tehdään myöhemmin (Tunnuksesta), kaava kytkeytyy siihen.
+- `#x = …` (kaava asettaa jäseniä) **ei ole tehty**.
+
+### Joukko tekstissä
+
+Näkymän teksteissä `#kolikot.summa` toimii kuten kaavassa: `Kolikoita #kolikot, yhteensä #kolikot.summa`. Kirjaimeen liimattuna `{%kolikot}a` (kuten `{uni}a`). `##` on merkki tekstinä, kun perässä on olemassa olevan joukon nimi: `##kolikot` näkyy käytössä `#kolikot`. Muu `#` (`#1`, `#tuntematon`) pysyy sellaisenaan. Tuntematon `#sana` jää tavalliseksi tekstiksi, eikä joukko luo itseään tekstistä; ehdotusrivillä on **＋ Luo joukko**. Tämä toimii kaikilla viittaustavoilla (`@`, `§`, `{ }`).
+
+### Toiminto kaikille jäsenille
+
+Toiminnon **Kohde**-valikossa on ryhmä *Joukko (jokainen jäsen)*: `#kolikot (jokainen jäsen)`. Toiminto tehdään jokaiselle jäsenelle, joka on jäsen toimintohetkellä, ja *sitten* lähtee kerran, kun kaikki on tehty. Kanvaasilla lause on esim. `#kolikot (jokainen jäsen) + 1`.
+
+- **Mitä muutetaan**: jäsenten ominaisuudet (kaikkien jäsenten ominaisuudet yhdessä listassa). Jäsen, jolla valittua ominaisuutta ei ole, ohitetaan.
+- Jäsenen oma arvo muuttuu vain lajeilla, joille toiminto muutenkin käy (esim. Aseta arvo Muistiin, ei Arvo-palikkaan).
+- Toiminto ei koske itseään, vaikka kuuluisi joukkoon.
+- Poistettu joukko: Kohde näyttää `#⚠nimi (poistettu)`, ja toiminto antaa virheen.
+
+**Lisää joukkoon** ja **Poista joukosta** ovat toimintolajeja: kenttä **Joukko** ja **Kohde** (mikä tahansa palikka paitsi Ryhmä, myös toinen joukko). Ne muuttavat jäsenyyttä käytön ajan: tagi ei muutu, ja Tunnus näyttää edelleen rakentajan tagit. *Palauta perusarvo* (kaikki ominaisuudet) palauttaa jäsenyyden tagin mukaiseksi. Jos palikalla on *kuuluu kun* -nuoli, nuoli ratkaisee eikä toiminto vaikuta.
+
+### Nimeä ja poista (paletti)
+
+Logiikan paletin ryhmä **Joukot**: jokaisella joukolla jäsenmäärä nyt ja napit:
+
+- **Nimeä**: uusi nimi. Kaavat, tekstit ja toiminnot näyttävät heti uuden nimen (ne tallentuvat tunnisteella).
+- **Poista**: vahvistus kertoo, monelta palikalta tagi lähtee ja montako kaavaa, tekstiä tai toimintoa viittaa joukkoon. Viittaukset jäävät näkyviin muodossa `#⚠nimi` ja antavat virheen *joukko poistettu*. Samanniminen uusi joukko ei peri niitä. Kumoa palauttaa.
+
+### Kopiointi ja tallennus
+
+- **Monista, kopioi ja liitä:** tagit seuraavat. Toiseen projektiin liitettäessä joukot yhdistyvät nimen mukaan, ja puuttuva joukko luodaan. Sama koskee presettejä.
+- **Tallennus:** projektin joukot (`jkr`), palikan tagit ja avatut *kuuluu kun* -kohdat ovat rakennetta. Toimintojen tekemät jäsenyysmuutokset ovat käyttötietoa. Tallennusversio 10; vanhat tallennukset aukeavat ennallaan (ei joukkoja).
+- **Keveys:** jäsenyys lasketaan kerran arviointia kohden, ja tagihakemisto muistetaan ajon ajan.
 
 ---
 

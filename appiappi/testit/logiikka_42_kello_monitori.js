@@ -10,7 +10,7 @@ function nappi(P,kohde,port){var n=KK.addBlock(P,'nappi',{v:P.views[0].id,beh:'k
 var P=KK.newProject('k');var k=KK.addBlock(P,'kello');N(P,k);
 A.strictEqual(KK.K.kello.n,'Sekuntikello');
 var pr=KK.ports(k);A.deepStrictEqual(pr.ins.map(function(x){return x.p+x.t;}),['ee','xe','ne','cv']);A.deepStrictEqual(pr.outs.map(function(x){return x.p+x.t;}),['vv','rv']);
-A.deepStrictEqual(KK.omat(k).map(function(e){return e.n;}),['arvo','käy','kulunut']);
+A.deepStrictEqual(KK.omat(k).map(function(e){return e.n;}),['arvo','käy','kulunut','joukot']);
 A.strictEqual(E(P).val(k.id),0,'alussa 0');A.strictEqual(E(P).val(k.id,'r'),false);
 // --- 2. Käynnistä, kulu, pysäytä, jatka, nollaa ---
 var go=nappi(P,k,'e'),st=nappi(P,k,'x'),nl=nappi(P,k,'n');KK.repair(P);

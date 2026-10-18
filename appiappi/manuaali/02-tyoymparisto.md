@@ -353,7 +353,7 @@ Ylhäältä alas:
 1. Mahdollinen paluunappi **‹ nimi** (kun pikatoiminto tai kaava vei toiseen palikkaan; vie takaisin).
 2. Otsikko: kuvake, nimi, laji ja nykyinen arvo (”nyt: …”).
 3. Erikoispalikalla laatikko **✦ Erikoispalikka.** ja syy. Logiikkapalikalla vihjeteksti.
-4. **Nimi**, **Viite** (ei Ryhmällä) ja **Lisätieto** (vapaa selitys, näkyy pikakatselussa, ei vaikuta mihinkään).
+4. **Nimi**, **Tunnus** (viite ja joukot; ei Ryhmällä), joukkojen jäsenyysrivit ja **Lisätieto** (vapaa selitys, näkyy pikakatselussa, ei vaikuta mihinkään).
 5. **⚠ Viitevirheet**, jos palikka viittaa poistettuun (ks. Poisto).
 6. Lajin omat osiot. Näkymäpalikoilla tavallisesti *Sisältö*, pikatoiminnot (*Kun painetaan*, *Kun valitaan*), *Arvo, kun valittu*, *Näkyvyys*, *Väri*, *Animointi*, *Käyttöraahaus*, *Paikka ja koko* ja *Ulkoasu*. Logiikkapalikoilla lajin asetukset ja *Ulkonäkö logiikassa*.
 7. **Ominaisuudet** (avattava osio): kaikki, mihin kaava voi viitata, viitteineen. Napauta viitettä: se kopioituu. Ohjattavilla ominaisuuksilla napit ƒ (arvo kaavasta), ⇢ (kohta logiikkaan nuolta varten), × (sulje kohta) ja *asetettu ↺* (palauta). Yksityiskohdat ominaisuusluvussa.
@@ -369,7 +369,10 @@ Muutokset paneelissa tulevat voimaan heti kirjoittaessa. Yhden kentän muokkaus 
 
 - **Nimi** kertoo, mikä palikka on. Se ei näy appin käyttäjälle, ellei sitä laiteta tekstiin. Nimet ovat projektissa yksilöllisiä: jos nimi on jo käytössä, Appi-appi lisää perään numeron.
 - **Viite** on lyhyt nimi kaavoihin ja teksteihin: kaavassa esim. `uni > 7`, tekstissä `@uni` (tai valitulla viittaustavalla `§uni` / `{uni}`). Viite näkyy logiikkapalikan kulmassa ja näkymäpalikan nimilapussa muokatessa.
-- Viite **seuraa nimeä**, kunnes kirjoitat oman. Oma viite: kirjoita kenttään *Viite*. Tyhjä kenttä palauttaa viitteen nimestä.
+- Viite kirjoitetaan kenttään **Tunnus** (Appi-appi 57; ennen *Viite*). Kentässä on viite ja palikan joukot: `@uni #unipisteet #terveys` (`{ }`-tavalla `uni #unipisteet`). Viite ilman merkkiä kelpaa (`uni #pisteet`).
+- Viite **seuraa nimeä**, kunnes kirjoitat oman. Oma viite: kirjoita Tunnukseen. Viite tallentuu jo kirjoittaessa; joukot, kun painat Enter tai napautat muualle. Kokonaan tyhjä kenttä palauttaa viitteen nimestä ja poistaa joukot. Pelkät joukot (`#pisteet`) eivät muuta viitettä.
+- **Joukot** (`#nimi`, rajattomasti): uusi nimi luo joukon. `#`:n jälkeen kentän alla ehdotetaan projektin joukkoja. Kentän alla on rivi jokaiselle joukolle: syy jäsenyyteen ja nappi **⚡ kuuluu kun**. Ks. [Palikoiden joukot](07-tieto.md#palikoiden-joukot-nimi-appi-appi-57).
+- Yksi viite per palikka: kaksi sanaa ilman `#`:ä antaa virheen.
 - Viitteen säännöt: pienet kirjaimet (myös å, ä, ö), numerot ja `_`, ei ala numerolla, ei varattu sana (esim. `nyt`, `ruutu`, `tänään`, `kyllä`, `ei`, `tyhjä`, `näkyy`) eikä toisen palikan viite. Virheestä tulee punainen teksti kentän alle, eikä viite muutu.
 - **Nimen tai viitteen vaihto ei riko kaavoja eikä tekstejä**: ne tallentuvat sisäisesti palikan tunnisteella ja näyttävät aina nykyisen viitteen.
 

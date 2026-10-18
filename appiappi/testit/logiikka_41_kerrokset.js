@@ -13,8 +13,8 @@ var X=mk(),P=X.P;
 var kb=KK.addBlock(P,'kerros',{vw:X.vw,kr:'k1'});N(P,kb);
 A.strictEqual(KK.K.kerros.n,'Kerros');A.strictEqual(KK.K.kerros.g,'lg');
 var pr=KK.ports(kb);A.deepStrictEqual(pr.outs.map(function(x){return x.p;}),['v']);A.deepStrictEqual(pr.ins.map(function(x){return x.p;}),['o_nakyy'],'näkyy-kohta auki valmiiksi');
-A.deepStrictEqual(KK.omat(kb).map(function(e){return e.n;}),['arvo','näkyy','estää','himmennys','läpinäkyvyys']);
-A.ok(KK.omat(kb).filter(function(e){return e.n!=='arvo';}).every(function(e){return e.o;}),'kaikki ohjattavia');
+A.deepStrictEqual(KK.omat(kb).map(function(e){return e.n;}),['arvo','näkyy','estää','himmennys','läpinäkyvyys','joukot']);
+A.ok(KK.omat(kb).filter(function(e){return e.n!=='arvo'&&e.n!=='joukot';}).every(function(e){return e.o;}),'kaikki ohjattavia');
 // --- 2. Perusarvo kerroksen asetuksista: piilossa käytössä, estää, himmennys ---
 var ev=E(P);A.strictEqual(ev.val(kb.id),false,'pk → ei näy');A.strictEqual(ev.omi(kb.id,'estää'),true);A.strictEqual(ev.omi(kb.id,'himmennys'),40);A.strictEqual(ev.omi(kb.id,'läpinäkyvyys'),0);
 A.strictEqual(ev.state(X.men.id),'piilossa','piilotetun kerroksen palikka');A.strictEqual(ev.visible(X.men.id),false);A.strictEqual(ev.prop(X.men.id,'näkyy'),false,'.näkyy kertoo kerroksen');
