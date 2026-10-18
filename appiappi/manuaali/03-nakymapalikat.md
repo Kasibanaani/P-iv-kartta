@@ -14,12 +14,12 @@ Luku perustuu Appi-appi 31:n koodiin (commit 77461d2).
 
 **Valinta, siirto ja koko** (muokkaustilassa)
 - Napauta palikkaa: se valitaan, ja sen asetukset (paneeli) avautuvat. Tietokoneella paneeli on oikealla; puhelimella napauta alareunan **Asetukset**.
-- Vedä palikkaa siirtääksesi. Ruudukko kohdistaa 10 px:n välein; tietokoneella Vaihto-näppäin (⇧) ohittaa kohdistuksen. Kohdistuksen voi ottaa pois: **⚙︎ Asetukset** → *Kohdista ruudukkoon*.
+- Vedä palikkaa siirtääksesi. Ruudukko kohdistaa 10 px:n välein; tietokoneella Vaihto-näppäin (⇧) ohittaa kohdistuksen. Kohdistuksen voi ottaa pois: **Asetukset** → *Kohdista ruudukkoon*.
 - Koko: vedä palikan oikean alakulman kahvasta.
 - Tietokoneella ⇧ + napautus lisää palikan monivalintaan.
 
 **Käyttöön ja takaisin**
-- Yläpalkin **🔒 Lukitse** vie näkymän käyttötilaan: palikat toimivat kuten valmiissa appissa. Nappi muuttuu muotoon **✏️ Muokkaa**, josta palataan muokkaamaan.
+- Yläpalkin **Lukitse** vie näkymän käyttötilaan: palikat toimivat kuten valmiissa appissa. Nappi muuttuu muotoon **Muokkaa**, josta palataan muokkaamaan.
 - Muokatessa näkymä näyttää palikoiden *perusarvot* (paneelin arvot). Logiikan ohjaamat arvot (esim. siirto, ohjattu leveys, toiminnon asettama väri) näkyvät vasta käytössä.
 
 **Paneelin alaosan napit (näkymäpalikalla):** *Tuo eteen*, *Vie taakse*, *Monista*, *Näytä logiikassa* (tekee palikasta laatikon logiikkaan, jos sitä ei vielä ole, ja siirtyy sinne; sama valitun palikan kehyksen ⇢-napista, ks. [luku 2](02-tyoymparisto.md)), *Tallenna presetiksi…*, *Poista palikka*.
@@ -95,7 +95,7 @@ Miltä palikka näyttää, kun se tulee näkyviin, katoaa, vaihtaa arvoa tai sii
 - **Paikka vaihtuu** (Appi-appi 42): *Projektin oletus*, *töks*, *liukuu*. Kun Aseta-toiminto, nuoli tai kaava siirtää palikan (`x`, `y`), palikka liukuu vanhasta kohdasta uuteen. Kaikilla näkymäpalikoilla.
 - Kesto ja pehmeys ovat yhteiset kaikille neljälle.
 
-Projektin oletus asetetaan kohdassa **⚙︎ Asetukset → Projektin animointi** (luku [Työympäristö](02-tyoymparisto.md)). Ilman oletusta ja omaa valintaa palikka on töks, kuten ennen.
+Projektin oletus asetetaan kohdassa **Asetukset → Projektin animointi** (luku [Työympäristö](02-tyoymparisto.md)). Ilman oletusta ja omaa valintaa palikka on töks, kuten ennen.
 
 Säännöt:
 - **Pelkkä näyttö.** Animaatio ei muuta palikan paikkaa, kokoa, osuma-aluetta eikä mitään logiikan arvoa. `.näkyy` vaihtuu heti: piilotettu palikka ei ota napautuksia, vaikka se vielä häipyy, ja näkyviin tuleva painike toimii heti.
@@ -107,7 +107,7 @@ Säännöt:
 - Toistimen korttien palikat animoituvat samoin, mutta muut kortit eivät liu'u tilalle.
 - Ketjun efekti (Animaatio, Teksti ilmestyy, Kuva vaihtuu) voittaa sillä kertaa: se keskeyttää palikan oman animaation, ja efektin aikana arvo ja paikka vaihtuvat töksinä.
 - **Vähennä liikettä** (iPhonen asetus *Käyttöapu → Liike*): kaikki palikoiden animoinnit ovat töks. Ketjun efekteistä jää silloin vain häivytys: Animaatio-efektin liike ei näy, ja Kuva vaihtuu- ja Näkymänvaihto-efektien liuku on häivytys.
-- Toimii vain käytössä (🔒 tai 🧪), ei muokatessa.
+- Toimii vain käytössä (lukittuna tai kokeillessa), ei muokatessa.
 
 Logiikka voi ohjata näitä kuten muitakin ominaisuuksia (taulukko alla): esim. yksi Arvo *3* nuolella monen palikan kohtaan *animointi.kesto*. Tuntematon tapa (esim. `"lentää"`) on näkyvä virhe, ja palikka on silloin töks.
 
@@ -121,7 +121,7 @@ Palikka tallentaa vain paikan numeron 1–8. Värit tulevat projektin paletista,
 
 ### Paletti ja oma väri (projektin asetus)
 
-⚙︎ Asetukset → *Projektin käyttönäkymän ilme* (Appi-appi F34 vaihe 1):
+Asetukset → *Projektin käyttönäkymän ilme* (Appi-appi F34 vaihe 1):
 
 - **Oma väri** (viimeinen teemakortti): käyttönäkymän teema mistä tahansa väristä. Valitse väri värivalitsimella tai kirjoita heksa (`#8D642C`) kenttään *Teeman väri*. Appi laskee siitä taustan, pinnat, tekstin ja korostuksen vaalealle ja tummalle tilalle. Korostusta vaalennetaan tai tummennetaan (sävy pysyy), kunnes teksti erottuu vähintään 4,5:1.
 - **Palikoiden paletti:** tapa, jolla kahdeksan paikkaa lasketaan. *Sateenkaari* = alkuperäiset värit (oletus). *Vierekkäiset*, *Vastavärit*, *Kolmikko*, *Neliö*, *Jaettu vastaväri*, *Yksi sävy*, *Murretut*, *Kirkkaat* ja *Pastelli* lähtevät **lähtöväristä** (värivalitsin tai heksa; aluksi oman teeman väri tai teeman korostus). *Teeman mukaan* ottaa lähtövärin teeman korostuksesta ja vaihtuu teeman mukana. Kortin kahdeksan ruutua näyttävät paletin valitulla lähtövärillä.
@@ -135,15 +135,15 @@ Palikka tallentaa vain paikan numeron 1–8. Värit tulevat projektin paletista,
 
 Useimmilla palikoilla on tekstikenttä (*Painikkeen teksti*, *Teksti* tai *Otsikko*). Tekstiin voi upottaa toisen palikan arvon:
 
-- `@viite`, esim. `Unta @uni h` (Appi-appi 54; viittaustavan voi vaihtaa ⚙︎ Asetuksista: `@`, `§` tai `{ }`). Viite päättyy itsestään välilyöntiin tai välimerkkiin. Käppyrät käyvät aina: `{uni}` ja palikan nimi `{Uni}`.
+- `@viite`, esim. `Unta @uni h` (Appi-appi 54; viittaustavan voi vaihtaa Asetuksista: `@`, `§` tai `{ }`). Viite päättyy itsestään välilyöntiin tai välimerkkiin. Käppyrät käyvät aina: `{uni}` ja palikan nimi `{Uni}`.
 - `@viite.ominaisuus`, esim. `@otsikko.näkyy` tai `@lista.rivejä`: sama arvo kuin kaavassa `viite.ominaisuus`.
 - Tarkat säännöt (taivutus `@uni:n`, `@@`, tuntematon sana): [Tekstiin upotetut viitteet](06-kaavat.md#tekstiin-upotetut-viitteet).
 - Nappi **＋ Viittaus** kentän vieressä lisää viittauksen valikosta.
-- **Suoraan palikkaan kirjoittaminen (Appi-appi 52):** muokkaustilassa kaksoisnapsauta (puhelimella napauta kahdesti) Laatikkoa, Tekstiä, Painiketta, Ilmoitusta, Valintaruutua, Kytkintä, Säädintä, Tekstikenttää, Lukukenttää, Päivämäärää, Listaa tai Aikajanaa, tai valitse palikka ja paina **Enter**. Palikan oma teksti (otsikollisissa otsikko) aukeaa kirjoitettavaksi samalla fontilla ja paikalla. Viitteet näkyvät kuten paneelissa (`Unta @unipisteet h`). `@` (tai valittu etumerkki), `{` tai nimen alku tuo samat viite-ehdotukset kuin paneelissa; kun `@` tai `{` on auki, **Enter** (tai **Tab**) ottaa ensimmäisen ehdotuksen. Kun viite on jo kirjoitettu kokonaan (ehdotus on sama kuin kirjoitettu), **Enter** tallentaa. Ohjerivillä lukee *@ tuo viitteen*. **Enter** tai napautus muualle tallentaa, **⇧Enter** tekee uuden rivin (vain Muodoissa kuten Laatikko ja Tekstissä; muissa ⇧Enter tallentaa), **Esc** peruu. Koko kirjoitus on yksi ⌘Z-askel, ja paneelin tekstikenttä päivittyy samaan (rivinvaihdollinen teksti näkyy paneelissa monirivisenä kenttänä). Lukittuna ja 🧪 Kokeile-tilassa kirjoitusta ei ole.
+- **Suoraan palikkaan kirjoittaminen (Appi-appi 52):** muokkaustilassa kaksoisnapsauta (puhelimella napauta kahdesti) Laatikkoa, Tekstiä, Painiketta, Ilmoitusta, Valintaruutua, Kytkintä, Säädintä, Tekstikenttää, Lukukenttää, Päivämäärää, Listaa tai Aikajanaa, tai valitse palikka ja paina **Enter**. Palikan oma teksti (otsikollisissa otsikko) aukeaa kirjoitettavaksi samalla fontilla ja paikalla. Viitteet näkyvät kuten paneelissa (`Unta @unipisteet h`). `@` (tai valittu etumerkki), `{` tai nimen alku tuo samat viite-ehdotukset kuin paneelissa; kun `@` tai `{` on auki, **Enter** (tai **Tab**) ottaa ensimmäisen ehdotuksen. Kun viite on jo kirjoitettu kokonaan (ehdotus on sama kuin kirjoitettu), **Enter** tallentaa. Ohjerivillä lukee *@ tuo viitteen*. **Enter** tai napautus muualle tallentaa, **⇧Enter** tekee uuden rivin (vain Muodoissa kuten Laatikko ja Tekstissä; muissa ⇧Enter tallentaa), **Esc** peruu. Koko kirjoitus on yksi ⌘Z-askel, ja paneelin tekstikenttä päivittyy samaan (rivinvaihdollinen teksti näkyy paneelissa monirivisenä kenttänä). Lukittuna ja Kokeile-tilassa kirjoitusta ei ole.
 - **Uusi Laatikko tai Teksti** paletista (myös Ympyrä, Lappu ja Kehys, jotka ovat Muotoja) aukeaa heti kirjoitukseen: Tekstin oletusteksti on valittuna, joten kirjoittaminen korvaa sen; napautus muualle pitää sen. Esc jättää palikan ja peruu vain kirjoituksen.
 - **Jos teksti tulee nuolesta tai kaavasta** (kohta *teksti*, myös **ƒ Teksti kaavasta**), kirjoitus ei avaudu. Palikan viereen tulee hetkeksi kupla *Teksti tulee nuolesta: Nimi ›* (kun lähde on Kaava: *Teksti tulee kaavasta: Nimi ›*, Appi-appi 58); sen napautus vie lähteeseen logiikkaan.
 - Jos nimeä ei löydy, kentän alle tulee punainen varoitus ”⚠ Nimeä {…} ei löydy.”
-- **Viitelappu muokatessa (Appi-appi 50):** palikka näyttää aina arvon (`Unta 7 h`). Muokatessa sen yläreunan yläpuolella on lisäksi pieni katkoviivainen lappu, josta näkee, mistä teksti tulee: tekstin viitteet `@unipisteet, @laatu` (kuten paneelin kentässä, valitulla viittaustavalla, sama viite vain kerran) tai nuolesta tuleva teksti *⇐ Kaavan nimi*. Valitulla palikalla lappu on nimilapun yläpuolella. Lukittuna ja 🧪 Kokeile-tilassa lappua ei ole, eikä palikka liiku lukittaessa. Tavallisella tekstillä ilman viitteitä lappua ei ole. Pois päältä: **⚙︎ Asetukset** → Muokkaus → *Näytä viitteet muokatessa*: Ei (koskee tätä selainta).
+- **Viitelappu muokatessa (Appi-appi 50):** palikka näyttää aina arvon (`Unta 7 h`). Muokatessa sen yläreunan yläpuolella on lisäksi pieni katkoviivainen lappu, josta näkee, mistä teksti tulee: tekstin viitteet `@unipisteet, @laatu` (kuten paneelin kentässä, valitulla viittaustavalla, sama viite vain kerran) tai nuolesta tuleva teksti *⇐ Kaavan nimi*. Valitulla palikalla lappu on nimilapun yläpuolella. Lukittuna ja Kokeile-tilassa lappua ei ole, eikä palikka liiku lukittaessa. Tavallisella tekstillä ilman viitteitä lappua ei ole. Pois päältä: **Asetukset** → Muokkaus → *Näytä viitteet muokatessa*: Ei (koskee tätä selainta).
 - Tekstiin ei voi kirjoittaa laskua viitteeseen (esim. `@uni * 2` näyttää arvon ja tekstin ` * 2`, `{uni * 2}` ei toimi). Laskettu teksti tehdään napilla **ƒ Teksti kaavasta**: se tekee Kaava-palikan, jonka tulos menee kohtaan *teksti*, esim. kaava `"Unta " + uni + " h"`.
 
 Teksti ilmestyy -efekti (logiikka) voi vaihtaa Tekstin, Muodon, Ilmoituksen ja Painikkeen tekstin; uusi teksti jää voimaan, kunnes toiminto *Palauta perusarvo* poistaa sen. Nuoli kohtaan *teksti* voittaa sen.
@@ -542,7 +542,7 @@ Piirretty viiva, jota pitkin Liike voi kulkea. ✦ Pelkkä esitys: ei anna arvoa
 2. Paneelin *Sisältö*-osiossa: **Toiminta** → *Kertapainallus*. **Arvo** pysyy *Painallusten määrä*.
 3. Nopein tapa: rasti **Näytä painallusten määrä painikkeessa**.
 4. Tai erillinen teksti: paletista *Näyttö* → **Teksti**. Kirjoita sen *Teksti*-kenttään `Painettu @painike kertaa` (tai napauta *＋ Viittaus* ja valitse Painike). Tarkista Painikkeen viite paneelin *Viite*-kentästä.
-5. **🔒 Lukitse** ja paina painiketta: luku kasvaa. Nollaus: lisää Painikkeelle toinen painike, jonka *Kun painetaan* → *Tyhjennä* → kohde Painike.
+5. **Lukitse** ja paina painiketta: luku kasvaa. Nollaus: lisää Painikkeelle toinen painike, jonka *Kun painetaan* → *Tyhjennä* → kohde Painike.
 
 ### Säädin ohjaa Monitoria
 1. Lisää **Säädin** (Ohjaimet) ja **Monitori** (Näyttö). Aseta Säätimelle Pienin 0, Suurin 100, Alkuarvo 50.

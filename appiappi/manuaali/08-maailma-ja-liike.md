@@ -4,7 +4,7 @@ Tämä luku kertoo, miten näkymästä tehdään puhelimen tai iPadin muotoinen 
 
 Tärkeät perussäännöt ennen yksityiskohtia:
 
-- Liike näkyy vain **lukitussa käytössä**. Lukitse näkymä yläpalkin napista **🔒 Lukitse** (nappi muuttuu muotoon **✏️ Muokkaa**, josta palataan muokkaukseen). Muokatessa palikat näkyvät perusarvoissaan, eli paikassa, johon ne on aseteltu.
+- Liike näkyy vain **lukitussa käytössä**. Lukitse näkymä yläpalkin napista **Lukitse** (nappi muuttuu muotoon **Muokkaa**, josta palataan muokkaukseen). Muokatessa palikat näkyvät perusarvoissaan, eli paikassa, johon ne on aseteltu.
 - Liike kirjoittaa palikan paikan **käyttötietoon** (ominaisuudet x ja y toiminnon tasolla, kuten Aseta-toiminto). Palikan perusarvo eli aseteltu paikka ei muutu. Tapahtuma **alkuun** tai nappi **↺ Alkuun** palauttaa perusarvoon.
 - Koordinaatit ovat pikseleitä kanvaasin kohdasta (0, 0). x kasvaa oikealle, y kasvaa **alaspäin**. Suunta asteina: 0 = ylös, 90 = oikealle, 180 = alas, 270 = vasemmalle.
 - Paikka tarkoittaa palikan vasenta yläkulmaa. Törmäyksissä, alueissa, reiteillä ja napautuksessa käytetään palikan **keskipistettä**.
@@ -42,7 +42,7 @@ Näkymälle valitaan laite, jolloin se on puhelimen tai iPadin ruudun kokoinen. 
 
 Vapaassa näkymässä (ei laitetta) käyttäjä voi oletuksena rullata ja zoomata vapaasti. Näkymän asetuksissa on silloin osio **Näkymän sijainti ja rullaus**:
 
-- **Alkukohta:** valikosta Sijainti-palikka. Lukittu näkymä aukeaa siitä, kun appi avataan, kun painetaan 🔒 Lukitse ja kun näkymään vaihdetaan välilehdeltä.
+- **Alkukohta:** valikosta Sijainti-palikka. Lukittu näkymä aukeaa siitä, kun appi avataan, kun painetaan Lukitse ja kun näkymään vaihdetaan välilehdeltä.
 - **Rullaus käytössä:** **Vapaa** (rullaus ja zoomaus vapaasti), **Alueen sisällä** (rullaus vain Alue-palikan reunoihin asti), **Ei rullausta** (ruutu liikkuu vain Siirry-toiminnoilla; ei myöskään zoomausta).
 - **Aloitusalue** (näkyy, kun valittu Alueen sisällä): mistä alueesta aloitetaan. Oletus on alkukohdan alue tai ensimmäinen alue.
 - Alueita voi olla monta, ”huoneina”. Siirry-toiminto alueeseen tai alueen sisällä olevaan sijaintiin vaihtaa rajauksen siihen alueeseen. Aluetta pienempi ruutu pysyy keskellä.
@@ -126,11 +126,11 @@ Kerrokset (Pajakone 3b) ratkaisevat piirtojärjestyksen. Tässä luvussa tärke�
 | ○ / ● | valitsee kerroksen, johon uudet palikat tulevat |
 | rullausvauhti- ja syvyysvalikko (vain laitenäkymässä) | **sormen mukana**; rullausvauhti **75 %**, **50 %**, **25 %**, **lukittu**; syvyys **syvyys 100**, **syvyys 300**, **syvyys 900**, **oma syvyys…** |
 | ⬚ | valitsee kerroksen kaikki palikat |
-| 👁 | piilottaa kerroksen muokatessa (ei vaikuta käyttöön) |
-| 🔒 | lukitsee kerroksen muokatessa (palikoihin ei voi tarttua) |
-| 🧱 | kerroksen palikat ovat esteitä liikkuville |
+| silmä | piilottaa kerroksen muokatessa (ei vaikuta käyttöön) |
+| lukko | lukitsee kerroksen muokatessa (palikoihin ei voi tarttua) |
+| tiiliseinä | kerroksen palikat ovat esteitä liikkuville |
 | ▦ | ruudukko kerrokselle (ks. Ruudukko) |
-| ⚙ | käyttöasetukset: **näkyy käytössä**, **estää alempien käytön**, **himmennä alemmat %**, **läpinäkyvyys %** ja nappi **◧ Ohjaa logiikasta** (tekee Kerros-palikan) |
+| kytkin | käyttöasetukset: **näkyy käytössä**, **estää alempien käytön**, **himmennä alemmat %**, **läpinäkyvyys %** ja nappi **◧ Ohjaa logiikasta** (tekee Kerros-palikan) |
 | ↑ ↓ | järjestys (ylin kerros on muiden päällä) |
 | ✕ | poistaa kerroksen (palikat siirtyvät pohjalle) |
 
@@ -343,7 +343,7 @@ Este on näkymäpalikka, jonka läpi liikkuvat palikat eivät mene. Liikkuja liu
 
 **Kädenliikkeet:** valitse näkymäpalikka → paneelin osio **Este ja osuma-alue**:
 
-- **Este: liikkuvat palikat eivät mene läpi** (valintaruutu). Tai koko kerros: Kerrokset-osiossa kerrosrivin **🧱**. Tai logiikasta: ominaisuus `este` (avaa Ominaisuudet-osiosta ohjattavaksi; silloin se ohittaa oman ja kerroksen asetuksen).
+- **Este: liikkuvat palikat eivät mene läpi** (valintaruutu). Tai koko kerros: Kerrokset-osiossa kerrosrivin **tiiliseinä**. Tai logiikasta: ominaisuus `este` (avaa Ominaisuudet-osiosta ohjattavaksi; silloin se ohittaa oman ja kerroksen asetuksen).
 - Kun palikka on este tai sitä liikuttaa Liike, näkyvät lisäksi:
   - **Osuma-alue:** **Muodon mukaan** (ympyrän muotoinen Muoto = ympyrä, muu = laatikko), **Laatikko**, **Ympyrä**. Ympyrän säde = puolet lyhyemmästä sivusta.
   - **Osuma-alueen koko (%):** 100 = palikan kokoinen, sallittu 10–200, keskitettynä. Pienempi on armollisempi hahmolle, jonka kuvassa on tyhjää reunoilla. Muokatessa osuma-alue näkyy katkoviivana.
@@ -610,13 +610,13 @@ Kuva-palikalle (`pkuva`) voi antaa kuvasarjan, joka pyörii esimerkiksi kävelle
 3. **Koristeet → Laatikko** hahmon viereen, nimeksi *Seinä*. Seinän paneelissa osio **Este ja osuma-alue** → rasti **Este: liikkuvat palikat eivät mene läpi**.
 4. Kerrokset-osiossa **＋ Uusi kerros**, nimeksi *Kojelauta*, rullausvauhti **lukittu**. Kun Kojelauta on valittuna (●), lisää **Ohjaimet → Tatti** ruudun alaosaan.
 5. Logiikka-välilehti: paletista **Liike ja aika → Liike**. Paneelissa **Liikutettava palikka** = Hahmo, **Ohjaus** = **Tatti**, **Tatti** = tatti, **Huippunopeus** esim. 200.
-6. Paina **🔒 Lukitse** ja vedä tatin nuppia: hahmo kulkee siihen suuntaan ja pysähtyy seinään (liukuu sen reunaa pitkin, jos vedät vinoon).
+6. Paina **Lukitse** ja vedä tatin nuppia: hahmo kulkee siihen suuntaan ja pysähtyy seinään (liukuu sen reunaa pitkin, jos vedät vinoon).
 7. Halutessasi: Liikkeen **Vauhti** → Kiihtyminen 0,3 ja Jarrutus 0,3 pehmentää. ↺ Alkuun (paneelissa) palauttaa hahmon.
 
 ### 2. Napauta minne hahmo kävelee
 
 1. Laitenäkymä kuten edellä. Hahmoksi Kuva-palikka (**Näyttö → Kuva**), jolle kuvasarja ja **Pyörii: Kun liikkuu** (valinnainen).
-2. Lisää seiniä (Laatikko + **Este**) tai tee seinille oma kerros ja paina sen rivillä **🧱**.
+2. Lisää seiniä (Laatikko + **Este**) tai tee seinille oma kerros ja paina sen rivillä **tiiliseinää**.
 3. Logiikkaan **Liike**: **Liikutettava palikka** = hahmo, **Ohjaus** = **Napautus**, rasti **Kiertää esteet**. Hahmo-osiossa **Kääntyminen** = **Peilaa sivuttain**.
 4. Lukitse ja napauta jotain kohtaa maailmasta: rengas merkitsee kohteen, ja hahmo kävelee sinne seinät kiertäen. Perillä lähtee tapahtuma **perillä**.
 5. Ruudukkopeliin: anna hahmon kerrokselle ruudukko (**▦**), niin napautus vie ruudun keskelle.

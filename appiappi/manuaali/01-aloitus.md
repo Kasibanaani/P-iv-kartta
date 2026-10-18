@@ -7,7 +7,7 @@ Appi-appi on selaimessa toimiva rakennusympäristö, jolla tehdään omia pieni�
 Kaksi roolia kannattaa erottaa:
 
 - **Rakentaja** tekee appia muokkaustilassa: lisää palikoita, kytkee niitä ja kirjoittaa kaavoja.
-- **Käyttäjä** käyttää valmista appia lukittuna (**🔒 Lukitse**): painaa nappeja, kirjoittaa kenttiin ja näkee tulokset. Rakentaja ja käyttäjä ovat usein sama ihminen.
+- **Käyttäjä** käyttää valmista appia lukittuna (**Lukitse**): painaa nappeja, kirjoittaa kenttiin ja näkee tulokset. Rakentaja ja käyttäjä ovat usein sama ihminen.
 
 ## Ajattelumalli lyhyesti
 
@@ -59,12 +59,12 @@ Kaava luetaan näin: jos lasit on vähintään 8, jäljellä on 0, muuten 8 miin
 - osio *Kun painetaan*: valikosta **＋ Lisää toiminto…** valitse **Aseta arvo**. Appi tekee logiikkaan Toiminto-palikan, kytkee sen painikkeen *painettu*-tapahtumaan ja avaa toiminnon paneelin.
 - Toiminnon paneelissa: **Kohde** = `Lasit`, **Uusi arvo** = `0` (Enter tai siirry kentästä pois).
 
-**8. Kokeile.** Paina yläpalkin **🔒 Lukitse**. Näkymä on nyt käyttötilassa:
+**8. Kokeile.** Paina yläpalkin **Lukitse**. Näkymä on nyt käyttötilassa:
 - Alussa näkyy *Joit 0 lasia.* ja *Tavoitteeseen 8 lasia.*
 - Vedä säädin lukuun 9: *Joit 9 lasia.*, *Tavoitteeseen 0 lasia.* ja *Tavoite täynnä!* tulee näkyviin.
 - Paina **Nollaa**: säädin palaa nollaan ja onnittelu katoaa.
 
-Paluu muokkaukseen: **✏️ Muokkaa**. Säätimen asento on käyttötietoa ja säilyy, kun appi suljetaan. Kaikki käyttötiedot nollataan *Projektit*-ikkunan napilla **Tyhjennä käyttötiedot**.
+Paluu muokkaukseen: **Muokkaa**. Säätimen asento on käyttötietoa ja säilyy, kun appi suljetaan. Kaikki käyttötiedot nollataan *Projektit*-ikkunan napilla **Tyhjennä käyttötiedot**.
 
 ### Mitä opit ja mihin jatkaa
 
@@ -75,6 +75,6 @@ Paluu muokkaukseen: **✏️ Muokkaa**. Säätimen asento on käyttötietoa ja s
 | 4 | Kaava, `jos (…) … muuten …`, Kaavan tulos | [Kaavat](06-kaavat.md), [Logiikkapalikat](04-logiikkapalikat.md#kaavan-tulos--tulos) |
 | 6 | Ehdollinen näkyvyys | [Näkymäpalikat: Näkyvyys-osio](03-nakymapalikat.md#näkyvyys-osio) |
 | 7 | Tapahtuma ja Toiminto | [Toiminnot ja ketjut](05-ketjut-ja-toiminnot.md) |
-| 8 | Muokkaus ja käyttö, käyttötieto | [Työympäristö](02-tyoymparisto.md#muokkaus-ja-käyttö--lukitse), [Tallennus](09-tallennus.md) |
+| 8 | Muokkaus ja käyttö, käyttötieto | [Työympäristö](02-tyoymparisto.md#muokkaus-ja-käyttö-lukitse), [Tallennus](09-tallennus.md) |
 
 Seuraavaksi kannattaa kokeilla lukujen lopun reseptejä. Kaikki reseptit on koottu [hakemistoon](10-hakemisto.md#reseptit).

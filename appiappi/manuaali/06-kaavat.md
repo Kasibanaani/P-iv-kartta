@@ -10,7 +10,7 @@ Kaikki tämän luvun esimerkkien tulokset on tarkistettu ajamalla appin moottori
 
 Jokaisella palikalla (paitsi Ryhmällä) on **viite**: lyhyt nimi, jolla siihen viitataan kaavoissa ja teksteissä. Esimerkiksi palikan *Uni* viite on `uni`.
 
-- **Löytyy:** valitse palikka, paneelin (tarkastelijan) yläosassa on kenttä **Tunnus** heti kentän **Nimi** alla (Appi-appi 57; ennen *Viite*). Tunnuksessa on viite ja palikan joukot, esim. `@uni #pisteet`; ks. [Palikoiden joukot](07-tieto.md#palikoiden-joukot-nimi-appi-appi-57). Viite näkyy myös Palikat-listan (yläpalkin **☰ Palikat**) sarakkeessa *Viite* ja Ominaisuudet-osion riveillä.
+- **Löytyy:** valitse palikka, paneelin (tarkastelijan) yläosassa on kenttä **Tunnus** heti kentän **Nimi** alla (Appi-appi 57; ennen *Viite*). Tunnuksessa on viite ja palikan joukot, esim. `@uni #pisteet`; ks. [Palikoiden joukot](07-tieto.md#palikoiden-joukot-nimi-appi-appi-57). Viite näkyy myös Palikat-listan (yläpalkin **Palikat**) sarakkeessa *Viite* ja Ominaisuudet-osion riveillä.
 - **Säännöt:** vain pienet kirjaimet a–z, å, ä, ö, numerot ja alaviiva `_`. Ei saa alkaa numerolla. Isot kirjaimet muuttuvat pieniksi (kirjoitat `U2` → tallentuu `u2`). Muut merkit (välilyönti, viiva, é, ü) eivät kelpaa.
 - **Varatut sanat** eivät kelpaa viitteeksi: `nyt`, `ruutu`, `näkymä` (`nakyma`), `tumma`, `tänään` (`tanaan`), `huomenna`, `eilen`, `kyllä` (`kylla`), `ei`, `tyhjä` (`tyhja`), `näkyy`, `harmaa`, `piilossa`, `luettava`. Sanat `jos`, `ja`, `tai` ja `sisältää` eivät ole varattuja (ks. Huomio).
 - **Kaksi palikkaa ei voi jakaa samaa viitettä.**
@@ -76,7 +76,7 @@ Poiston jälkeen viittaukset eivät katoa, vaan ne muistavat poistetun kohteen:
 
 - Kaavassa poistettu viite näkyy muodossa `⚠uni` (logiikan palikassa punaisena) ja kaavan tulos on `⚠ kohde poistettu: uni`.
 - Tekstissä kohta näyttää virheen `⚠ kohde poistettu: uni`.
-- Yläpalkin **☰ Palikat** -napissa näkyy merkki **⚠ n** (montako katkennutta viittausta).
+- Yläpalkin **Palikat** -napissa näkyy merkki **⚠ n** (montako katkennutta viittausta).
 - Palikat-listan ylimpänä on osio **⚠ Viitevirheet (n)** sarakkein Palikka, Missä, Käyttö, Virhe (*⚠ Kohde poistettu: uni*). Rivin napautus vie palikkaan.
 - Viittaavan palikan paneelissa on osio **⚠ Viitevirheet**: *⚠ Kohde poistettu: `uni`* (käytöt suluissa) ja valikko **Valitse uusi kohde…**. Kun valitset uuden kohteen, kaikki tämän palikan viittaukset poistettuun korjautuvat siihen (ilmoitus *Viittaus korjattu: …*).
 - Valikon ensimmäinen vaihtoehto on **＋ Luo Arvo ”uni”** (Appi-appi 37), kun poistettuun viitataan kaavassa, tekstissä tai arvona ja viite on vapaa. Se tekee uuden tyhjän Arvo-palikan poistetun viitteen nimellä ja korjaa tämän palikan viittaukset siihen. Toimintojen kohteille ja nuolille vaihtoehtoa ei ole.
@@ -339,7 +339,7 @@ Päivämäärän osat (viikko, viikonpäivä, kuukausi …) saa Päivämäärä-
 | `nyt.tunti` | 0–23 | luku |
 | `nyt.minuutti` | 0–59 | luku |
 | `nyt.sekunti` | 0–59 | luku |
-| `nyt.päivä` (`nyt.paiva`) | tämä päivä **päivän rajan mukaan** (⚙︎ Asetukset → Päivämäärät): rajalla 4 kello 2.00 vielä eilinen | päivämäärä |
+| `nyt.päivä` (`nyt.paiva`) | tämä päivä **päivän rajan mukaan** (Asetukset → Päivämäärät): rajalla 4 kello 2.00 vielä eilinen | päivämäärä |
 | `ruutu.leveys` | ruudun leveys pikseleinä | luku |
 | `ruutu.korkeus` | ruudun korkeus pikseleinä | luku |
 | `näkymä` tai `näkymä.nimi` | auki olevan näkymän nimi; lukitussa käytössä logiikka lasketaan heti välilehteä vaihdettaessa, joten KUN `näkymä = "Peli"` laukeaa vaihdossa | teksti |
@@ -679,7 +679,7 @@ Toiminto-palikan paneelissa, kun **Kohde** on palikka, jolla on ohjattavia omina
 
 Näkymäpalikoiden teksteihin voi upottaa toisen palikan arvon: `Unta @uni h` näyttää *Unta 6 h*.
 
-**Viittaustapa (Appi-appi 54):** **⚙︎ Asetukset** → Muokkaus → *Viittaus tekstissä*: **@** (oletus), **§** tai **{ }**. Valinta koskee tätä selainta ja vain sitä, miltä teksti näyttää ja miten se kirjoitetaan. Projekti ei muutu (teksti tallentuu tunnisteilla), joten vaihto näyttää kaikki vanhat tekstit heti uudella tavalla. `#` ei ole viittaustapa: se on varattu joukoille. Alla esimerkit `@`:lla; `§`-tavalla sama `§`:llä.
+**Viittaustapa (Appi-appi 54):** **Asetukset** → Muokkaus → *Viittaus tekstissä*: **@** (oletus), **§** tai **{ }**. Valinta koskee tätä selainta ja vain sitä, miltä teksti näyttää ja miten se kirjoitetaan. Projekti ei muutu (teksti tallentuu tunnisteilla), joten vaihto näyttää kaikki vanhat tekstit heti uudella tavalla. `#` ei ole viittaustapa: se on varattu joukoille. Alla esimerkit `@`:lla; `§`-tavalla sama `§`:llä.
 
 **Missä toimii:** kaikkien näkymäpalikoiden tekstikentät (Painikkeen teksti, Teksti, Otsikko, Ilmoituksen teksti …), Arvo-palikan arvo, Hakutaulukon tulokset ja Muuten-kenttä, Monta haaraa -rivit, toimintojen *Kirjaa* (aikajanalle), *Lisää riviksi listaan* ja *Näytä ilmoitus* tekstit sekä Teksti ilmestyy -efekti.
 

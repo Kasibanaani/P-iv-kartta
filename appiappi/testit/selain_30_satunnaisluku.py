@@ -1,6 +1,6 @@
 # Versio 8: Satunnaisluku selaimessa. Palikka paletista (arvottu heti), viite noppa, ⚂ Arvo nyt, tasainen → muotoiltu,
 # jakaumaikkuna: painojen määrä, valmis muoto, pisteen veto hiirellä ylös ja alas, paino kirjoittamalla, todennäköisyydet
-# ja koeheitto, Valmis; nuoli kaavasta painoon (valikko Mihin kohtaan?) → paino lukittu 🔒, veto estetty; nuoli painikkeesta
+# ja koeheitto, Valmis; nuoli kaavasta painoon (valikko Mihin kohtaan?) → paino lukittu (lukko), veto estetty; nuoli painikkeesta
 # kohtaan arvo uudelleen ja painallus lukitussa näkymässä arpoo, teksti {noppa} näyttää luvun; tallennus ja uudelleenavaus;
 # Kumoa jakaumaikkunassa; toiminto Arvo uudelleen paneelista. Kuvat versio8_*.png.
 import asyncio
@@ -81,7 +81,7 @@ async def main():
             await pg.click('#lworld [data-nid="%s"] .lb'%sn);await pg.wait_for_timeout(150)
             await pg.click('#insp .ibs [data-do="satued"]');await pg.wait_for_timeout(200)
             assert await pg.locator('#sheet input[data-sdw="5"]').is_disabled()
-            assert '🔒' in await pg.inner_text('#sheet .sdins')
+            assert await pg.locator('#sheet .sdins use[href="#i-lukko"]').count()>=1  # Appi-appi 80: lukko viivakuvakkeena
             a=await pt(5);await veda(pg,a,[a[0],a[1]+40])
             ts=await pg.inner_text('#toast');print(W,'11 veto estetty:',ts);assert 'nuolesta' in ts
             assert (await P(pg,"KK.satuSpec(P,'%s',APP.ctx()).w[5]"%sid))==50

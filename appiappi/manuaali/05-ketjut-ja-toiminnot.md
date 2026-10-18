@@ -173,7 +173,7 @@ Aikajanalla on aina sekä *kierros* että *valmis*, joten Kierroksen vaihto ei p
 - **Hypyssä**: *Väliin jääneet* (oletus) / *Vain viimeinen* / *Ei mitään*. Hyppy = kohta muuttuu kerralla yli portaan (napautus säätimen raidalle, Aseta arvo) tai appi oli välillä kiinni (aikajanalla yli sekunnin tauko). Tavallisessa kulussa merkit tehdään aina järjestyksessä.
 - **Laukeaa**: *Oletus* (aikajanalla eteenpäin, arvojanalla molempiin) / *Eteenpäin* / *Molempiin suuntiin*. Merkki laukeaa uudestaan vasta, kun kohta on käynyt sen toisella puolella.
 - **Kierros** (vain aika): *Kerran* (pysähtyy loppuun, tapahtuma *valmis*) / *Toista* (lopusta alkuun, tapahtuma *kierros*) / *Edestakaisin* (alusta loppuun ja takaisin, *kierros* kummassakin päässä). Toistuva jana kulkee, kunnes se pysäytetään, eikä sen *valmis* laukea; ohje kertoo tämän.
-- Tilarivi (*Käynnissä*, *Pysähdyksissä*, *Kohta nyt* · edistyminen prosentteina, ja kohta), aikajanalla napit **▶ Käynnistä alusta**, **⏵ Jatka**, **⏹ Pysäytä**, huomautukset (alku ja loppu samat, tyhjä jana, merkkejä alueen ulkopuolella, arvojanalla ei nuolta).
+- Tilarivi (*Käynnissä*, *Pysähdyksissä*, *Kohta nyt* · edistyminen prosentteina, ja kohta), aikajanalla napit **▶ Käynnistä alusta**, **⏵ Jatka**, **Pysäytä**, huomautukset (alku ja loppu samat, tyhjä jana, merkkejä alueen ulkopuolella, arvojanalla ei nuolta).
 - Yleiset: nimi, viite, **Pois käytöstä** (pois päältä oleva aikajana pysähtyy).
 
 **Kaavassa** (viite esim. `jana`): `jana.kohta` (myös pelkkä `jana`), `jana.edistyminen` (0–1, kuten Muutos ajassa ja Liikkeen reitti; vie se suoraan Käyrään, jonka x-väli on 0–1), `jana.käynnissä` (arvojanalla aina *ei*), `jana.alku`, `jana.loppu`. Merkkinä olevan Toiminnon kaavassa `tapahtuma.uusi` on merkin kohta ja `tapahtuma.suunta` on 1 eteenpäin ja −1 taaksepäin (tarvitsee Tapahtuman tiedot -palikan, kuten muutkin tapahtumakentät).
@@ -344,7 +344,7 @@ Appi tarkistaa noin 30 sekunnin välein, onko päivämäärä vaihtunut. Jos on,
 1. Näkymä-välilehti: lisää paletista **Painike** ja **Lukukenttä** (tai logiikkaan **Muisti** ja näkymään Teksti, joka näyttää sen).
 2. Napauta Painiketta. Paneelissa (puhelimessa **Asetukset**) osio **Kun painetaan** → **＋ Lisää toiminto…** → **Lisää**.
 3. Uuden toiminnon paneelissa: **Kohde** = Lukukenttä. Jätä **Määrä** tyhjäksi (= 1).
-4. Paina yläpalkista **🔒 Lukitse** ja painele Painiketta: luku kasvaa yhdellä. Vähentävälle painikkeelle Määrä `-1`.
+4. Paina yläpalkista **Lukitse** ja painele Painiketta: luku kasvaa yhdellä. Vähentävälle painikkeelle Määrä `-1`.
 
 ### Ajastettu muistutus 10 s päästä
 1. Logiikka-välilehti: vedä **Ketju** kanvaasille. Anna nimi paneelissa (esim. Muistutus).

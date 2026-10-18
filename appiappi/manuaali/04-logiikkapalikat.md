@@ -119,7 +119,7 @@ Arpoo kokonaisluvun väliltä pienin–suurin (molemmat päät mukana). Luku pys
 
 - **Ulos:** *luku* (arvo), *arvottu* (tapahtuma, lähtee jokaisen arvonnan jälkeen).
 - **Asetukset (paneeli):** **Pienin** (oletus 1) ja **Suurin** (oletus 6): kirjoita luku tai valitse *tai palikka…*. **Jakauma**: *Tasainen* tai *Muotoiltu*. Muotoillussa pieni käyrä ja nappi **Muokkaa jakaumaa…**. Rivillä *Arvottu luku* nappi **⚂ Arvo nyt**.
-- **Jakaumaikkuna** (*Muokkaa jakaumaa…*): **Painoja** 2–10, **Valmiit muodot** (Tasainen, Keskelle, Reunoille, Nousee, Laskee), käyrä, jonka pisteitä vedetään ylös ja alas (hiiri tai sormi), painokentät p1… (0–100, nuolinäppäimet ±1), *Todennäköisyydet*-pylväät ja nappi **⚂ Koeheitto 1000 kertaa**. Sulje napista **Valmis**. Paino p1 on välin pienin luku, viimeinen suurin, muut tasavälein. Painot ovat suhteellisia: summan ei tarvitse olla 100. Jos kaikki painot ovat nollassa, arvonta on tasainen. 🔒 = paino tulee nuolesta, sitä ei voi muuttaa ikkunassa.
+- **Jakaumaikkuna** (*Muokkaa jakaumaa…*): **Painoja** 2–10, **Valmiit muodot** (Tasainen, Keskelle, Reunoille, Nousee, Laskee), käyrä, jonka pisteitä vedetään ylös ja alas (hiiri tai sormi), painokentät p1… (0–100, nuolinäppäimet ±1), *Todennäköisyydet*-pylväät ja nappi **⚂ Koeheitto 1000 kertaa**. Sulje napista **Valmis**. Paino p1 on välin pienin luku, viimeinen suurin, muut tasavälein. Painot ovat suhteellisia: summan ei tarvitse olla 100. Jos kaikki painot ovat nollassa, arvonta on tasainen. lukko (kaaviossa piste •) = paino tulee nuolesta, sitä ei voi muuttaa ikkunassa.
 - **Ominaisuudet** (kaikki luettavia): `arvo`, `min` (myös `pienin`), `max` (myös `suurin`), muotoillussa `p1`, `p2` …
 - **Kaavassa:** `noppa` = arvottu luku, `noppa.min`, `noppa.max`, `noppa.p1`.
 - **Aika ja tila:** arvottu luku on käyttötietoa. Ennen ensimmäistä arvontaa luku on tyhjä (–). Arvonta tapahtuu vain tapahtumasta *arvo uudelleen*, toiminnosta **Arvo uudelleen** (myös ketjussa) tai paneelin napista.
@@ -142,7 +142,7 @@ Kun se käynnistetään, arvo kulkee tasaisesti alusta loppuun annetussa ajassa.
 | kesto | arvo | Kesto sekunteina (nuolesta). |
 
 - **Ulos:** *arvo* (arvo), *edistyminen* (arvo 0–1), *käynnissä* (kyllä/ei), *valmis* (tapahtuma).
-- **Asetukset (paneeli):** **Alku**, **Loppu**, **Kesto** ja **Yksikkö** (sekuntia, minuuttia, tuntia; oletus 1 sekunti). **Kun valmis**: *Pysähtyy loppuun* (oletus, lähettää *valmis*), *Alkaa alusta*, *Edestakaisin*. Tilarivi (*Käynnissä*/*Pysähdyksissä* ja prosentti) sekä napit **▶ Käynnistä kokeeksi** ja **⏹ Pysäytä**.
+- **Asetukset (paneeli):** **Alku**, **Loppu**, **Kesto** ja **Yksikkö** (sekuntia, minuuttia, tuntia; oletus 1 sekunti). **Kun valmis**: *Pysähtyy loppuun* (oletus, lähettää *valmis*), *Alkaa alusta*, *Edestakaisin*. Tilarivi (*Käynnissä*/*Pysähdyksissä* ja prosentti) sekä napit **▶ Käynnistä kokeeksi** ja **Pysäytä**.
 - **Ominaisuudet** (luettavia): `arvo`, `alku`, `loppu`, `kesto` (sekunteina), `edistyminen` (0–1), `käynnissä`, `kulunut` (sekunteina).
 - **Kaavassa:** `viite`, `viite.edistyminen`, `viite.kulunut`.
 - **Aika ja tila:** ennen käynnistystä arvo on alku. Pysäytetty jää siihen kohtaan; seuraava *alkaa* aloittaa alusta (jatka-toimintoa ei ole). *Valmis* lähtee vain tavassa *Pysähtyy loppuun*. Tila on käyttötietoa.
@@ -164,7 +164,7 @@ Mittaa kulunutta aikaa sekunteina. Käynnistys, pysäytys ja nollaus tapahtumill
 | käy kun | arvo | Kello käy täsmälleen silloin, kun ehto pätee. |
 
 - **Ulos:** *kulunut* (arvo, sekunteja), *käy* (kyllä/ei).
-- **Asetukset (paneeli):** ei kenttiä. Tilarivi (*Käy*/*Seis* ja aika) ja napit **▶ Käynnistä**, **⏸ Pysäytä**, **↺ Nollaa**.
+- **Asetukset (paneeli):** ei kenttiä. Tilarivi (*Käy*/*Seis* ja aika) ja napit **▶ Käynnistä**, **Pysäytä**, **↺ Nollaa**.
 - **Ominaisuudet** (luettavia): `arvo`, `kulunut`, `käy` (myös `käynnissä`, kuten muilla aikapalikoilla: kyllä, kun kello käy; pysäytettynä ei).
 - **Kaavassa:** `kello.kulunut > 60`.
 - **Aika ja tila:** aika on käyttötietoa ja kuluu kellon mukaan myös, kun appi on kiinni. Käyvä kello pitää näkymän ja logiikan päivittymässä, joten esim. KUN `kello.kulunut >= 60` laukeaa ajallaan ilman napautusta, myös kun kello alkaa käydä liikkeen pysähtyessä.
@@ -224,10 +224,10 @@ Tuo näkymän kerroksen logiikkaan: näkyykö kerros käytössä, estääkö se 
 
 ✦ Poikkeus: ohjaa näkymää logiikasta. Kaikkia kerroksen asetuksia (rullausvauhti, järjestys) ei voi ohjata.
 
-- **Löytyy:** logiikan paletti → *Näkymä ja efektit* → **Kerros**. Toinen tapa: Näkymä-välilehden paneelin osio *Kerrokset* → kerrosrivin **⚙** → **◧ Ohjaa logiikasta** (tekee palikan valmiiksi kerrokseen kytkettynä; jos palikka on jo, nappi on **◧ Näytä logiikassa**).
+- **Löytyy:** logiikan paletti → *Näkymä ja efektit* → **Kerros**. Toinen tapa: Näkymä-välilehden paneelin osio *Kerrokset* → kerrosrivin **kytkin** → **◧ Ohjaa logiikasta** (tekee palikan valmiiksi kerrokseen kytkettynä; jos palikka on jo, nappi on **◧ Näytä logiikassa**).
 - **Sisään:** *näkyy* (arvo, ohjauskohta, auki valmiiksi uudessa palikassa). Muut ohjattavat ominaisuudet saa kohdaksi ⇢-napista.
 - **Ulos:** *näkyy* (arvo).
-- **Asetukset (paneeli):** **Kerros** (valitse näkymä · kerros). *Perusarvot (kerroksen asetukset)*: **näkyy käytössä**, **estää alempien käytön**, **himmennä alemmat … %**, **läpinäkyvyys … %**. Samat perusarvot muuttuvat myös kerrosrivin ⚙-kohdasta.
+- **Asetukset (paneeli):** **Kerros** (valitse näkymä · kerros). *Perusarvot (kerroksen asetukset)*: **näkyy käytössä**, **estää alempien käytön**, **himmennä alemmat … %**, **läpinäkyvyys … %**. Samat perusarvot muuttuvat myös kerrosrivin kytkimestä.
 - **Ominaisuudet** (kaikki ohjattavia paitsi `arvo`): `näkyy` (kyllä/ei), `estää` (kyllä/ei), `himmennys` (0–100), `läpinäkyvyys` (0–100, 100 = ei näy), `syvyys` (Appi-appi 78; luku, alaraja −90, perusarvo kerrosrivin syvyys, 0 = pinnassa; vain laitenäkymässä, ks. Maailma ja liike: Syvyys).
 - **Kaavassa:** `valikko.näkyy`, `valikko.himmennys`.
 - **Aika ja tila:** toiminnon asettama arvo on käyttötietoa. Muokatessa kaikki kerrokset näkyvät.
@@ -460,7 +460,7 @@ Rakentajan merkintä: kokoaa palikoita reunaviivan sisään, nimellä ja halutes
 3. Paletti → *Laskut* → **+** (puhelimessa ensin **＋ Palikat**). Valitse uusi Lasku ja kirjoita paneelin **Nimi**-kenttään `Summa` (viite muuttuu `summa`).
 4. Vedä nuoli ensimmäisen Lukukentän oikean reunan pisteestä (*arvo*) Laskun kohtaan *A*, toisesta kohtaan *B*.
 5. Valitse näkymässä Teksti ja kirjoita sen tekstiksi `Summa: {summa}`.
-6. Kokeile: muuta lukuja (tai lukitse näkymä **🔒 Lukitse**). Teksti päivittyy heti.
+6. Kokeile: muuta lukuja (tai lukitse näkymä **Lukitse**). Teksti päivittyy heti.
 
 Sama ilman Laskua: Kaava, jossa Lukukenttien viitteet plus-merkillä, esim. `a + b` (viite näkyy kunkin Lukukentän paneelin **Tunnus**-kentässä), ja paneelin nappi **Vie tulos näkymän palikkaan…** → Teksti → teksti.
 

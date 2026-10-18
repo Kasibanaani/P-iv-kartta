@@ -83,7 +83,7 @@ async def main():
                 await pg.select_option('#insp select[data-k="padn"]','');await pg.wait_for_timeout(150)
                 assert await P(pg,"'padn' in APP.P.b['%s']"%I['nb'])==False,'valinta pois poistaa kentän'
                 await pg.evaluate("APP.S.sel={t:'b',id:'%s'};APP.S.multi=[];APP.renderAll()"%I['tj']);await pg.wait_for_timeout(200)
-                await pg.select_option('#insp select[data-k="pad"]','oikea');await pg.wait_for_timeout(150)
+                await pg.click('#insp [data-seg="pad"][data-v="oikea"]');await pg.wait_for_timeout(150)
                 await pg.select_option('#insp select[data-k="padp"]','2');await pg.wait_for_timeout(150)
                 assert await P(pg,"[APP.P.b['%s'].pad,APP.P.b['%s'].padp]"%(I['tj'],I['tj']))==['oikea',2]
             # Tila ei tallennu

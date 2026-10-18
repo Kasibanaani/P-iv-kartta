@@ -8,7 +8,7 @@ Kuvaus perustuu koodiin (Appi-appi 31, commit 77461d2). Puhelimen kosketusta on 
 
 | Osa | Missä | Mitä siinä on |
 |---|---|---|
-| Yläpalkki | ylhäällä | Projekti ▾, välilehdet, laput, tila, Varmuuskopio, ☰ Palikat, Kumoa, Kokeile, Lukitse, Asetukset |
+| Yläpalkki | ylhäällä | Projekti ▾, välilehdet, laput, tila, Varmuuskopio, Palikat, Kumoa, Kokeile, Lukitse, Asetukset |
 | Paletti | vasemmalla (puhelimella laatikko) | palikat, joita lisätään kanvaasille |
 | Kanvaasi | keskellä | Näkymä (käyttöpinta) tai Logiikka tai molemmat rinnakkain |
 | Paneeli (tarkastelija) | oikealla (puhelimella alhaalta nouseva laatikko) | valitun palikan, nuolen tai näkymän asetukset |
@@ -29,22 +29,24 @@ Vasemmalta oikealle:
 |---|---|
 | **projektin nimi ▾** | avaa ikkunan *Projektit* |
 | **Näkymä / Logiikka / Rinnakkain** | välilehdet (ks. Välilehdet) |
-| **📝 Muistilappu** | uusi muistilappu itselle |
-| **✉️ Viestilappu** | uusi viestilappu tekoälylle; punainen piste = lapussa on uusi vastaus |
+| **Muistilappu** | uusi muistilappu itselle |
+| **Viestilappu** | uusi viestilappu tekoälylle; punainen piste = lapussa on uusi vastaus |
 | tilateksti | esim. ”Tallessa tässä selaimessa”, ”Varmuuskopio viemättä”, ”Varmuuskopio viety pp.kk.vvvv” tai ”Tallennus selaimeen ei onnistu” |
 | GitHub-tila | näkyy, kun GitHub-tallennus on päällä, esim. ”GitHub ✓ 22.24”; pitkä selitys hiiren alla (luku [Tallennus](09-tallennus.md#tila-yläpalkissa)) |
-| **💾 Varmuuskopio** | lataa kaikki projektit tiedostoksi omalle laitteelle |
-| **☰ Palikat** | kaikki palikat taulukkona; perässä ⚠ ja luku, jos viittauksia poistettuun on |
-| **↶ Kumoa** ja **↷** | kumoa ja tee uudelleen |
-| **🧪 Kokeile** / **⏹ Lopeta kokeilu** | kokeilu kopiolla käyttötiedoista, oikeat tiedot eivät muutu (ks. Kokeilu) |
-| **🔒 Lukitse** / **✏️ Muokkaa** | vaihtaa käyttöpinnan muokkauksen ja käytön välillä |
-| **⚙︎ Asetukset** | avaa ikkunan *Asetukset* |
+| **Varmuuskopio** | lataa kaikki projektit tiedostoksi omalle laitteelle |
+| **Palikat** | kaikki palikat taulukkona; perässä ⚠ ja luku, jos viittauksia poistettuun on |
+| **Kumoa** ja **Tee uudelleen** | kumoa ja tee uudelleen |
+| **Kokeile** / **Lopeta kokeilu** | kokeilu kopiolla käyttötiedoista, oikeat tiedot eivät muutu (ks. Kokeilu) |
+| **Lukitse** / **Muokkaa** | vaihtaa käyttöpinnan muokkauksen ja käytön välillä |
+| **Asetukset** | avaa ikkunan *Asetukset* |
 
-Kumoa ja ↷ piiloutuvat, kun Näkymä-välilehti on lukittu. Lukitse-nappi näkyy vain, kun käyttöpinta on näkyvissä (Näkymä tai Rinnakkain).
+Napeissa on yksiväriset viivakuvakkeet, jotka ovat napin tekstin värisiä ja seuraavat siksi teemaa (Appi-appi 80): muistilappu, puhekupla (viestilappu), alas osoittava nuoli (varmuuskopio), lista, kaarinuolet (kumoa ja tee uudelleen), koeputki (kokeile) ja neliö (lopeta kokeilu), lukko (lukitse) ja kynä (muokkaa) sekä liukusäätimet (asetukset). Samat kuvakkeet ovat lapuissa ja kerrosriveillä (ks. Kerrokset). Palikoiden omat kuvakkeet ovat ennallaan.
 
-**Tietokoneella yläpalkin napit eivät koskaan rivity.** Kun ikkuna on enintään 1800 px leveä, lapunapeissa on pelkkä kuvake. Enintään 1360 px leveällä ikkunalla myös napeista 💾, ☰, ↶, 🧪/⏹, 🔒/✏️ ja ⚙︎ jää pelkkä kuvake; nimi näkyy, kun hiiri on napin päällä. Projektin nimi lyhenee kolmeen pisteeseen ensimmäisenä (vähintään noin 90 px näkyy). Enintään 1020 px leveällä ikkunalla tilateksti piiloutuu, ja jos tila silti loppuu, palkki rullaa sivuttain kuten puhelimella.
+Kumoa ja Tee uudelleen piiloutuvat, kun Näkymä-välilehti on lukittu. Lukitse-nappi näkyy vain, kun käyttöpinta on näkyvissä (Näkymä tai Rinnakkain).
 
-**Puhelimella (ruutu enintään 760 px leveä)** yläpalkki rullaa sivuttain, ja siitä puuttuvat Rinnakkain-välilehti, Varmuuskopio, ☰ Palikat ja tilateksti. Lapunapeissa näkyy pelkkä kuvake. Varmuuskopion saa silti Projektit-ikkunan napista *Vie kaikki projektit*.
+**Tietokoneella yläpalkin napit eivät koskaan rivity.** Kun ikkuna on enintään 1800 px leveä, lapunapeissa on pelkkä kuvake. Enintään 1360 px leveällä ikkunalla myös napeista Varmuuskopio, Palikat, Kumoa, Kokeile, Lukitse ja Asetukset jää pelkkä kuvake; nimi näkyy, kun hiiri on napin päällä. Projektin nimi lyhenee kolmeen pisteeseen ensimmäisenä (vähintään noin 90 px näkyy). Enintään 1020 px leveällä ikkunalla tilateksti piiloutuu, ja jos tila silti loppuu, palkki rullaa sivuttain kuten puhelimella.
+
+**Puhelimella (ruutu enintään 760 px leveä)** yläpalkki rullaa sivuttain, ja siitä puuttuvat Rinnakkain-välilehti, Varmuuskopio, Palikat ja tilateksti. Lapunapeissa näkyy pelkkä kuvake. Varmuuskopion saa silti Projektit-ikkunan napista *Vie kaikki projektit*.
 
 ## Projektit
 
@@ -62,7 +64,7 @@ Avaa **projektin nimi ▾** yläpalkin vasemmasta reunasta. Ikkunassa *Projektit
 
 ## Asetukset
 
-**⚙︎ Asetukset** yläpalkin oikeasta reunasta. Osiot:
+**Asetukset** yläpalkin oikeasta reunasta. Osiot:
 
 | Osio | Valinnat |
 |---|---|
@@ -84,25 +86,25 @@ Alimpana näkyy versio: Appi-appi-numero ja tallennusmuodon versio, esim. ”App
 
 Rinnakkain ei ole puhelimella (välilehti piilossa alle 761 px leveydellä).
 
-## Muokkaus ja käyttö (🔒 Lukitse)
+## Muokkaus ja käyttö (Lukitse)
 
 Käyttöpinnalla on kaksi tilaa:
 
 - **Muokkaus** (oletus): palikoita lisätään, siirretään ja muutetaan. Näkyy viivaimet, koordinaatit vasemmassa alakulmassa ja palikoiden nimilaput. Ohjaimet eivät reagoi napautukseen, vaan napautus valitsee.
-- **Käyttö**: paina **🔒 Lukitse**. Palikat ovat paikallaan ja niitä käytetään kuin valmista appia: painikkeet painuvat, säätimet liikkuvat, kentät ottavat tekstiä. Nappi muuttuu muotoon **✏️ Muokkaa**, josta palataan muokkaukseen.
+- **Käyttö**: paina **Lukitse**. Palikat ovat paikallaan ja niitä käytetään kuin valmista appia: painikkeet painuvat, säätimet liikkuvat, kentät ottavat tekstiä. Nappi muuttuu muotoon **Muokkaa**, josta palataan muokkaukseen.
 
 Lukitus on projektin tila ja tallentuu. Näkymä-välilehdellä lukittuna paletti, paneeli, Kumoa ja puhelimen alapalkki piiloutuvat. Rinnakkain-tilassa lukitus koskee vain näkymän puolta: näkymää käytetään, ja logiikkaa voi samalla muokata ja seurata (paletti näyttää silloin logiikan palikat). Logiikka-välilehdellä lukitus ei näy.
 
 Lukitessa näkymä siirtyy alkukohtaansa, jos sellainen on valittu (ks. Näkymät).
 
-## Kokeilu (🧪 Kokeile)
+## Kokeilu (Kokeile)
 
 Kokeilussa appia käytetään oikeasti, mutta kopiolla käyttötiedoista: oikeat tiedot eivät muutu (Appi-appi 33).
 
-- **Aloitus:** yläpalkin **🧪 Kokeile**. Kokeilu alkaa kopiosta projektin nykyisistä käyttötiedoista (kirjoitetut tekstit, valinnat, laskurit, taulukon rivit, ketjujen ajotila). Näkymä lukittuu käyttöön, ja Logiikka-välilehdeltä siirrytään Näkymään.
-- **Koko kokeilun ajan** yläpalkin alla on oranssi raita: **Kokeilu** – *Oikeat tiedot eivät muutu. Rakenteen muutokset jäävät voimaan.* ja nappi **Lopeta**. Kapealla näytöllä (puhelin) raidassa lukee lyhyesti *Vain rakenne tallentuu ⓘ*. Raidan tekstin napautus kertoo ilmoituksena, mitä kokeilu palauttaa ja mikä jää voimaan. Yläpalkin nappi on silloin **⏹ Lopeta kokeilu**.
-- **Kokeilussa** painikkeet, kentät, ketjut, taulukot ja kaavat toimivat tavallisesti (myös `taulu.eka` ja `taulu.vika` lukevat kokeilun rivejä). **✏️ Muokkaa** ja **🔒 Lukitse** toimivat kokeilun sisällä.
-- **Lopetus:** raidan **Lopeta** tai **⏹ Lopeta kokeilu**. Oikeat käyttötiedot palaavat, samoin lukitus ja välilehti, jotka olivat ennen kokeilua. Toisen projektin avaus lopettaa kokeilun samalla tavalla.
+- **Aloitus:** yläpalkin **Kokeile**. Kokeilu alkaa kopiosta projektin nykyisistä käyttötiedoista (kirjoitetut tekstit, valinnat, laskurit, taulukon rivit, ketjujen ajotila). Näkymä lukittuu käyttöön, ja Logiikka-välilehdeltä siirrytään Näkymään.
+- **Koko kokeilun ajan** yläpalkin alla on oranssi raita: **Kokeilu** – *Oikeat tiedot eivät muutu. Rakenteen muutokset jäävät voimaan.* ja nappi **Lopeta**. Kapealla näytöllä (puhelin) raidassa lukee lyhyesti *Vain rakenne tallentuu ⓘ*. Raidan tekstin napautus kertoo ilmoituksena, mitä kokeilu palauttaa ja mikä jää voimaan. Yläpalkin nappi on silloin **Lopeta kokeilu**.
+- **Kokeilussa** painikkeet, kentät, ketjut, taulukot ja kaavat toimivat tavallisesti (myös `taulu.eka` ja `taulu.vika` lukevat kokeilun rivejä). **Muokkaa** ja **Lukitse** toimivat kokeilun sisällä.
+- **Lopetus:** raidan **Lopeta** tai **Lopeta kokeilu**. Oikeat käyttötiedot palaavat, samoin lukitus ja välilehti, jotka olivat ennen kokeilua. Toisen projektin avaus lopettaa kokeilun samalla tavalla.
 - **Mikä ei muutu:** selaimen muistiin, GitHubiin, varmuuskopioon, projektin vientiin ja Kopioi-toiminnon kopioon menevät aina oikeat käyttötiedot. Jos appi suljetaan kesken kokeilun, kokeilu häviää.
 - **Mikä jää:** rakenteen muutokset (palikat, nimet, asetukset, nuolet) kokeilun aikana ovat oikeita muutoksia.
 - **Ei ole:** kokeilun tulosten siirto oikeaan käyttöön, aloitus tyhjästä, tallennetut kokeet, testikello ja suoritus vaihe kerrallaan.
@@ -346,6 +348,8 @@ Paneeli näyttää sen, mikä on valittuna:
 - **nuoli**: nuolen tiedot ja Poista nuoli
 - **koristeviiva**: tyyli, väri, Poista viiva
 
+**Valikot paneelissa (Appi-appi 80):** pudotusvalikoissa on oma nuoli oikeassa reunassa ja pehmeät kulmat vaaleassa ja tummassa teemassa. Lyhyt kiinteä valinta (2–4 lyhyttä vaihtoehtoa, esim. Muutos ajassa → *Yksikkö*: sekuntia, minuuttia, tuntia; Tatti → *Peliohjain*: ei, vasen tatti, oikea tatti) on napautettavina segmentteinä kuten muutkin lyhyet valinnat. Valikoiksi jäävät pitkät ja vaihtuvat luettelot (palikat, sarakkeet, kerrokset) sekä valinnat, joilla on oma erikoiskäsittely.
+
 ### Palikan paneelin rakenne
 
 Ylhäältä alas:
@@ -391,7 +395,7 @@ Osio *Miksi?* selittää, miksi palikan arvo on mikä on: yläteksti ja puu osis
 
 ### Palikat-lista
 
-**☰ Palikat** (yläpalkki, ei puhelimella) avaa taulukon kaikista palikoista: Nimi, Viite, Laji, Nyt, Missä, Logiikassa (esiintymiä), Käytetään (kuinka monessa kohdassa). Hakukenttä *Etsi nimellä tai lajilla…*. Napauta riviä: siirryt palikkaan. Jos viittauksia poistettuun on, ylimpänä on taulukko *⚠ Viitevirheet*.
+**Palikat** (yläpalkki, ei puhelimella) avaa taulukon kaikista palikoista: Nimi, Viite, Laji, Nyt, Missä, Logiikassa (esiintymiä), Käytetään (kuinka monessa kohdassa). Hakukenttä *Etsi nimellä tai lajilla…*. Napauta riviä: siirryt palikkaan. Jos viittauksia poistettuun on, ylimpänä on taulukko *⚠ Viitevirheet*.
 
 ## Kopioi ja liitä, monista
 
@@ -404,7 +408,7 @@ Osio *Miksi?* selittää, miksi palikan arvo on mikä on: yläteksti ja puu osis
 
 ## Kumoa ja tee uudelleen
 
-- **↶ Kumoa** (⌘Z / Ctrl+Z) ja **↷** (⇧⌘Z tai ⌘Y). Ilman kumottavaa tulee ”Ei kumottavaa”.
+- **Kumoa** (⌘Z / Ctrl+Z) ja **Tee uudelleen** (⇧⌘Z tai ⌘Y). Ilman kumottavaa tulee ”Ei kumottavaa”.
 - Lukitulla Näkymä-välilehdellä (myös kokeilussa) Kumoa ei toimi: napit ovat piilossa, eivätkä ⌘Z ja ⌘Y tee mitään.
 - Kumoa koskee **rakennetta**: palikat, nuolet, asetukset, paikat, näkymät. Se ei palauta käyttötietoja (kirjoitetut tekstit, valinnat, listojen rivit), eikä Pistokkeet- ja Viitteet-valintoja.
 - Historiassa on enintään 80 askelta. Uusi muutos tyhjentää Tee uudelleen -historian. Projektin vaihto tyhjentää molemmat. Kumoaminen poistaa valinnan.
@@ -425,7 +429,7 @@ Osio *Miksi?* selittää, miksi palikan arvo on mikä on: yläteksti ja puu osis
 
 **Vaikutuslista**: jos poistettavaa palikkaa käytetään muualla (kaavassa, tekstissä, näkyvyydessä, toiminnon kohteena, nuolella…), aukeaa ikkuna **Poistetaanko?**: ”nimi käytetään N kohdassa” ja taulukko (Palikka, Missä, Käyttö; monessa poistossa myös Poistuva). Napit **Peru** ja **Poista silti**. Rivin napautus perii poiston ja vie siihen palikkaan. Jos palikkaa ei käytetä missään, se poistuu heti ilman kysymystä.
 
-**Poiston jälkeen** viittaukset jäävät näkyviin virheinä: logiikan ja näkymän palikassa punainen ⚠-merkki, kaavassa `⚠nimi`, teksti ”⚠ Kohde poistettu”, ☰ Palikat -napissa ⚠ ja luku, ja Palikat-listassa *⚠ Viitevirheet*. **Korjaus**: siirry palikkaan (rivistä), ja sen paneelin osiossa *⚠ Viitevirheet* valitse **Valitse uusi kohde…** -listasta korvaava palikka; kaikki sen viittaukset poistettuun korjautuvat. Samanniminen uusi palikka ei peri poistettua. Kumoa palauttaa kaiken. Nuolet poistuvat palikan mukana eivätkä palaa korjauksessa.
+**Poiston jälkeen** viittaukset jäävät näkyviin virheinä: logiikan ja näkymän palikassa punainen ⚠-merkki, kaavassa `⚠nimi`, teksti ”⚠ Kohde poistettu”, Palikat -napissa ⚠ ja luku, ja Palikat-listassa *⚠ Viitevirheet*. **Korjaus**: siirry palikkaan (rivistä), ja sen paneelin osiossa *⚠ Viitevirheet* valitse **Valitse uusi kohde…** -listasta korvaava palikka; kaikki sen viittaukset poistettuun korjautuvat. Samanniminen uusi palikka ei peri poistettua. Kumoa palauttaa kaiken. Nuolet poistuvat palikan mukana eivätkä palaa korjauksessa.
 
 ## Suosikit ja presetit
 
@@ -500,13 +504,13 @@ Auki pysyvä, kelluva laatikko näkymäkanvaasin päällä (Appi-appi 61). Siit�
 
 ## Kerrokset (lyhyesti)
 
-Näkymän asetusten osio *Kerrokset (näkymän nimi)* (napauta tyhjää näkymäkanvaasilla): kerroslista ylimmästä alimpaan. Rivillä **○/●** (kerros, johon uudet palikat tulevat), nimi, palikoiden määrä, **✕** (poista kerros; palikat siirtyvät pohjalle), sekä napit **⬚** (valitse kerroksen palikat), **👁** (piilota muokatessa), **🔒** (lukitse muokatessa: palikkaan ei voi tarttua), **🧱** (este), **▦** (ruudukko), **⚙** (käytön asetukset), **↑ ↓** (järjestys); laitenäkymässä myös rullausvauhti- ja syvyysvalikko (syvä kerros näkyy muokatessa pienempänä, ks. luku 8). Alhaalla **＋ Uusi kerros**. 👁 ja 🔒 koskevat vain muokkausta. Tarkemmin Kerros-palikan luvussa.
+Näkymän asetusten osio *Kerrokset (näkymän nimi)* (napauta tyhjää näkymäkanvaasilla): kerroslista ylimmästä alimpaan. Rivillä **○/●** (kerros, johon uudet palikat tulevat), nimi, palikoiden määrä, **rasti** (poista kerros; palikat siirtyvät pohjalle), sekä napit **katkoviivaneliö** (valitse kerroksen palikat), **silmä** (piilota muokatessa), **lukko** (lukitse muokatessa: palikkaan ei voi tarttua), **tiiliseinä** (este), **▦** (ruudukko), **kytkin** (käytön asetukset), **↑ ↓** (järjestys); laitenäkymässä myös rullausvauhti- ja syvyysvalikko (syvä kerros näkyy muokatessa pienempänä, ks. luku 8). Alhaalla **＋ Uusi kerros**. Silmä ja lukko koskevat vain muokkausta. Tarkemmin Kerros-palikan luvussa.
 
 ## Muisti- ja viestilaput
 
-Laput ovat rakentajan omia muistiinpanoja (📝 muistilappu) ja tekoälylle osoitettuja viestejä (✉️ viestilappu). Ne eivät kuulu appin logiikkaan, eivät näy käyttäjälle eivätkä kulje viedyn appin mukana. Lappu kuuluu projektiin ja siihen osioon, jossa se tehtiin (Näkymä, Logiikka, Rinnakkain tai lukittu käyttö), ja näkyy vain siellä.
+Laput ovat rakentajan omia muistiinpanoja (muistilappu) ja tekoälylle osoitettuja viestejä (viestilappu). Ne eivät kuulu appin logiikkaan, eivät näy käyttäjälle eivätkä kulje viedyn appin mukana. Lappu kuuluu projektiin ja siihen osioon, jossa se tehtiin (Näkymä, Logiikka, Rinnakkain tai lukittu käyttö), ja näkyy vain siellä.
 
-**Tee lappu**: yläpalkin **📝 Muistilappu** tai **✉️ Viestilappu**. Lappu ilmestyy oikeaan yläosaan, ja kirjoituskohta on valmiina.
+**Tee lappu**: yläpalkin **Muistilappu** tai **Viestilappu**. Lappu ilmestyy oikeaan yläosaan, ja kirjoituskohta on valmiina.
 
 **Lapun osat ja liikkeet:**
 
@@ -521,11 +525,11 @@ Laput ovat rakentajan omia muistiinpanoja (📝 muistilappu) ja tekoälylle osoi
 | alapalkin sirut | **→ nimi** siirtyy viitattuun palikkaan; **⤴ kohde** välähdyttää viivan kohteen (tai vie palikkaan); **✕** poistaa viivan; `[nimi] ?` = palikkaa ei löydy |
 | oikea alakulma | vedä muuttaaksesi kokoa |
 
-**Näytä kaikki / Piilota kaikki** (Appi-appi 79): kummankin lappunapin vieressä on silmänappi, kun tässä osiossa on sen lajin lappuja. Silmä piilottaa kaikki sen lajin laput (kaikissa projekteissa ja osioissa); napissa näkyy sitten yliviivattu silmä ja tämän osion piilotettujen määrä, esim. *(3)*. Napautus näyttää ne taas. Uusi lappu näkyy aina, vaikka laji olisi piilossa. Valinta on tämän selaimen asetus: se säilyy uudelleenlatauksessa, mutta ei tallennu projektiin, varmuuskopioon eikä GitHubiin, eikä se poista lappuja. Piilotetun viestilapun uusi vastaus näkyy silti punaisena pisteenä ✉️-napissa.
+**Näytä kaikki / Piilota kaikki** (Appi-appi 79): kummankin lappunapin vieressä on silmänappi, kun tässä osiossa on sen lajin lappuja. Silmä piilottaa kaikki sen lajin laput (kaikissa projekteissa ja osioissa); napissa näkyy sitten yliviivattu silmä ja tämän osion piilotettujen määrä, esim. *(3)*. Napautus näyttää ne taas. Uusi lappu näkyy aina, vaikka laji olisi piilossa. Valinta on tämän selaimen asetus: se säilyy uudelleenlatauksessa, mutta ei tallennu projektiin, varmuuskopioon eikä GitHubiin, eikä se poista lappuja. Piilotetun viestilapun uusi vastaus näkyy silti punaisena pisteenä Viestilappu-napissa.
 
 Viivat seuraavat kohdetta, kun kanvaasia rullataan. Jos kohde on näkyvän alueen ulkopuolella, viiva on katkoviiva reunaan asti.
 
-**Viestilapun keskustelu**: kirjoitettu teksti on alkuviesti. Lapun alaosa kertoo vuoron: *Tekoälyn vuoro* tai *Sinun vuorosi*. Tekoäly vastaa vain, kun pyydät keskustelussa ”lue viestilaput”, ja vain jos GitHub-tallennus on päällä (laput tallentuvat tiedostoon `appiappi/laput/laput.json`). Vastaukset näkyvät lapussa viestiketjuna (Tekoäly / Sinä). Vastaa kenttään *Vastaa…* ja paina **Lähetä**. Tekoälyn suunnitelman alla on nappi **Hyväksy suunnitelma**. **Merkitse valmiiksi** sulkee keskustelun (**Avaa uudelleen** avaa). Uusi vastaus näkyy punaisena pisteenä ✉️-napissa ja merkkinä *Vastaus* lapun otsikossa. Appi hakee vastauksia itse puolentoista minuutin välein, kun viestilappuja on.
+**Viestilapun keskustelu**: kirjoitettu teksti on alkuviesti. Lapun alaosa kertoo vuoron: *Tekoälyn vuoro* tai *Sinun vuorosi*. Tekoäly vastaa vain, kun pyydät keskustelussa ”lue viestilaput”, ja vain jos GitHub-tallennus on päällä (laput tallentuvat tiedostoon `appiappi/laput/laput.json`). Vastaukset näkyvät lapussa viestiketjuna (Tekoäly / Sinä). Vastaa kenttään *Vastaa…* ja paina **Lähetä**. Tekoälyn suunnitelman alla on nappi **Hyväksy suunnitelma**. **Merkitse valmiiksi** sulkee keskustelun (**Avaa uudelleen** avaa). Uusi vastaus näkyy punaisena pisteenä Viestilappu-napissa ja merkkinä *Vastaus* lapun otsikossa. Appi hakee vastauksia itse puolentoista minuutin välein, kun viestilappuja on.
 
 **Asetusten osio Muisti- ja viestilaput**: lappujen määrät, **Hae vastaukset** (GitHub päällä), **Kopioi laput tekstinä** (ilman GitHubia: liitä keskusteluun) ja lista kaikista lapuista. Rivin napautus avaa lapun projektin ja osion ja välähdyttää lappua.
 
@@ -565,7 +569,7 @@ Lukitulla Näkymä-välilehdellä poisto, monistus ja nuolinäppäimet eivät to
 2. Vaihda **Logiikka**-välilehdelle. Paletin ylimmässä ryhmässä *Palikat* näkyvät Kytkin ja Teksti. Vedä molemmat logiikkakanvaasille vierekkäin, Kytkin vasemmalle.
 3. Tartu Kytkimen **oikean reunan pyöreään palloon** (*arvo*). Vedä Tekstin päälle ja päästä irti palikan keskelle.
 4. Valikko *Mihin kohtaan?* aukeaa. Valitse **näkyy kun**. Harmaa nuoli syntyy.
-5. Vaihda **Näkymä**-välilehdelle ja paina **🔒 Lukitse**. Napauta kytkintä: teksti tulee näkyviin ja katoaa. Logiikassa nuoli on vihreä, kun kytkin on päällä.
+5. Vaihda **Näkymä**-välilehdelle ja paina **Lukitse**. Napauta kytkintä: teksti tulee näkyviin ja katoaa. Logiikassa nuoli on vihreä, kun kytkin on päällä.
 
 Puhelimella samoin: **＋ Palikat** avaa paletin, veto sormella. Nuolen poisto: napauta nuolta ja paneelin **Poista nuoli**.
 
@@ -576,7 +580,7 @@ Puhelimella samoin: **＋ Palikat** avaa paletin, veto sormella. Nuolen poisto: 
 3. Paneelin osiossa **Kun painetaan** valitse listasta **＋ Lisää toiminto…** → **Siirry**. Paneeli siirtyy uuteen Siirry-toimintoon (ylhäällä paluunappi ‹ Painike).
 4. Jätä *Kohde (sijainti, alue tai palikka)* arvoon ”— ei, käytä näkymää ja kohtaa —” ja valitse **Näkymä**: Näkymä 2. *Siirtymä*: Vierien tai Heti.
 5. Takaisin-painike: Näkymä 2:een Painike, *Kun painetaan* → **Palaa takaisin**.
-6. **🔒 Lukitse** ja paina painiketta.
+6. **Lukitse** ja paina painiketta.
 
 ### Vaihtoehtoryhmä pikaluonnilla
 
@@ -588,9 +592,9 @@ Puhelimella samoin: **＋ Palikat** avaa paletin, veto sormella. Nuolen poisto: 
 ### Viestilappu tekoälylle palikasta
 
 1. Avaa osio, jota viesti koskee (esim. Logiikka).
-2. Paina yläpalkin **✉️ Viestilappu**. Kirjoita viesti; palikkaan voi viitata hakasuluilla, esim. `[Mieliala]`.
+2. Paina yläpalkin **Viestilappu**. Kirjoita viesti; palikkaan voi viitata hakasuluilla, esim. `[Mieliala]`.
 3. Vedä lapun otsikon **↗**-napista viiva palikkaan, jota viesti koskee.
 4. Pienennä lappu väkäsestä, jos se on tiellä.
-5. Pyydä keskustelussa ”lue viestilaput” (GitHub-tallennus päällä). Vastaus ilmestyy lappuun ja ✉️-napissa näkyy punainen piste.
+5. Pyydä keskustelussa ”lue viestilaput” (GitHub-tallennus päällä). Vastaus ilmestyy lappuun ja Viestilappu-napissa näkyy punainen piste.
 
 Tämän luvun kehityshavainnot (ristiriidat ja puutteet): [Versio ja tunnetut rajat](11-versio-ja-rajat.md#työympäristö).

@@ -10,8 +10,8 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | lisätä palikan | vedä paletista tai napauta | [Työympäristö: Paletti](02-tyoymparisto.md#palikan-lisääminen) |
 | kytkeä palikat yhteen | nuoli logiikassa lähtökohdasta tulokohtaan | [Nuolen vetäminen](02-tyoymparisto.md#nuolen-vetäminen) |
 | näyttää arvon tekstissä | `@viite` (tai `{viite}`) tekstikentässä | [Teksti ja upotetut viitteet](03-nakymapalikat.md#teksti-ja-upotetut-viitteet) |
-| vaihtaa viittausmerkin (`@`, `§`, `{ }`) | ⚙︎ Asetukset → Muokkaus → Viittaus tekstissä | [Tekstiin upotetut viitteet](06-kaavat.md#tekstiin-upotetut-viitteet) |
-| nähdä muokatessa, mistä palikan teksti tulee | viitelappu palikan yläpuolella (⚙︎ Asetukset → Näytä viitteet muokatessa) | [Teksti ja upotetut viitteet](03-nakymapalikat.md#teksti-ja-upotetut-viitteet) |
+| vaihtaa viittausmerkin (`@`, `§`, `{ }`) | Asetukset → Muokkaus → Viittaus tekstissä | [Tekstiin upotetut viitteet](06-kaavat.md#tekstiin-upotetut-viitteet) |
+| nähdä muokatessa, mistä palikan teksti tulee | viitelappu palikan yläpuolella (Asetukset → Näytä viitteet muokatessa) | [Teksti ja upotetut viitteet](03-nakymapalikat.md#teksti-ja-upotetut-viitteet) |
 | kirjoittaa tekstin suoraan näkymän palikkaan | kaksoisnapsauta palikkaa tai valitse ja paina Enter | [Teksti ja upotetut viitteet](03-nakymapalikat.md#teksti-ja-upotetut-viitteet) |
 | tehdä logiikan tuloksesta näkymään palikan yhdellä napautuksella | paneelin ▢ Tee näkymään tai N | [Tee näkymään](06-kaavat.md#tee-näkymään) |
 | tehdä Toiminnolle painike, Ketjulle käynnistysnappi, Muistille syöttökenttä, taulukolle Toistin tai Sekuntikellolle napit | paneelin Tee näkymään ▾ | [Tee näkymään](06-kaavat.md#tee-näkymään) |
@@ -23,9 +23,9 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | antaa laskulle nimen | `nimi = lauseke` ja ＋ Luo kaavan tulos | [Kaavan tulos](04-logiikkapalikat.md#kaavan-tulos--tulos) |
 | valita kahdesta arvosta ehdolla | `jos (ehto) a muuten b` tai VALITSE | [Jos, ja, tai](06-kaavat.md#jos-ja-tai) |
 | näyttää tai piilottaa palikan ehdolla | Näkyvyys-osio tai nuoli kohtaan *näkyy kun* | [Näkyvyys-osio](03-nakymapalikat.md#näkyvyys-osio) |
-| värittää projektin omilla väreillä tai vaihtaa koko paletin | ⚙︎ Asetukset → Projektin käyttönäkymän ilme → Oma väri, Palikoiden paletti, Paikat 1–8 | [Paletti ja oma väri](03-nakymapalikat.md#paletti-ja-oma-väri-projektin-asetus) |
+| värittää projektin omilla väreillä tai vaihtaa koko paletin | Asetukset → Projektin käyttönäkymän ilme → Oma väri, Palikoiden paletti, Paikat 1–8 | [Paletti ja oma väri](03-nakymapalikat.md#paletti-ja-oma-väri-projektin-asetus) |
 | pyöristää laatikon kulmat (tai tehdä terävät) | Muodon paneelin Kulmat (px), logiikassa `.kulmat` | [Muoto](03-nakymapalikat.md#muoto-muoto) |
-| animoida palikan ilmestymisen tai katoamisen | Animointi-osio (palikka) tai ⚙︎ Asetukset → Projektin animointi | [Animointi-osio](03-nakymapalikat.md#animointi-osio) |
+| animoida palikan ilmestymisen tai katoamisen | Animointi-osio (palikka) tai Asetukset → Projektin animointi | [Animointi-osio](03-nakymapalikat.md#animointi-osio) |
 | häivyttää tai rullata arvon vaihtuessa, liu'uttaa palikan uuteen paikkaan | Animointi-osion *Arvo vaihtuu* ja *Paikka vaihtuu* | [Animointi-osio](03-nakymapalikat.md#animointi-osio) |
 | harmaannuttaa palikan | *Harmaana* tai kohta *harmaana kun* | [Näkyvyys-osio](03-nakymapalikat.md#näkyvyys-osio) |
 | tehdä jotain painalluksesta | Painikkeen *Kun painetaan* → ＋ Lisää toiminto… | [Toiminto](05-ketjut-ja-toiminnot.md#toiminto-tee) |
@@ -43,7 +43,7 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | tehdä monta Arvoa kerralla tekstistä (`yöuni: 8`) | Tulkki…, Palikoiksi | [Tulkki](07-tieto.md#tulkki-teksti-riveiksi-tai-palikoiksi) |
 | kirjata mitä ja milloin (historia) | Tietotaulukko → Tee kirjaushistoria, toiminto Kirjaa | [Kirjaushistoria](07-tieto.md#kirjaushistoria), [Kirjausappi](07-tieto.md#kirjausappi-mitä-otin-ja-milloin) |
 | laskea päivän kirjaukset tai ajan edellisestä | `loki.tänään`, `loki.edellisestä`, Rivijoukko ehdolla `kirjaus.aika.päivä = nyt.päivä` | [Kirjaushistoria](07-tieto.md#kirjaushistoria) |
-| siirtää yön kirjaukset edelliselle päivälle | ⚙︎ Asetukset → Päivän raja | [Kirjaushistoria](07-tieto.md#kirjaushistoria) |
+| siirtää yön kirjaukset edelliselle päivälle | Asetukset → Päivän raja | [Kirjaushistoria](07-tieto.md#kirjaushistoria) |
 | muuttaa vanhan aikajanan taulukoksi | Aikajanan paneeli → Muunna historiaksi | [Aikajana](03-nakymapalikat.md#aikajana-aika) |
 | näyttää jokaiselle riville kortin | Toistin | [Toistin](07-tieto.md#toistin--toistin) |
 | suodattaa tai järjestää rivejä | Rivijoukko | [Rivijoukko](07-tieto.md#rivijoukko-joukko) |
@@ -63,13 +63,13 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | hypätä (korkeus, lyhyt hyppy, tuplahyppy, armoaika, ennakko) | Liikkeen kohta *hyppää*, osio Hyppy, tapahtuma *hyppäsi* | [Hyppy](08-maailma-ja-liike.md#hyppy) |
 | tehdä syvyyttä (tausta pienempänä ja hitaampana, lähestyvä palikka) | kerrosrivin syvyys, palikan *Oma syvyys*, ominaisuudet `syvyys` ja `näkyväkoko`, Kerros-palikan `syvyys` | [Kerrokset käytössä](08-maailma-ja-liike.md#kerrokset-käytössä) |
 | tehdä puhelimen muotoisen näkymän | Näkymän laite: Puhelin | [Laitemuoto](02-tyoymparisto.md#laitemuoto-vapaa-puhelin-ipad) |
-| käyttää valmista appia | 🔒 Lukitse | [Muokkaus ja käyttö](02-tyoymparisto.md#muokkaus-ja-käyttö--lukitse) |
-| kokeilla appia niin, etteivät oikeat tiedot muutu | 🧪 Kokeile | [Kokeilu](02-tyoymparisto.md#kokeilu--kokeile) |
+| käyttää valmista appia | Lukitse | [Muokkaus ja käyttö](02-tyoymparisto.md#muokkaus-ja-käyttö-lukitse) |
+| kokeilla appia niin, etteivät oikeat tiedot muutu | Kokeile | [Kokeilu](02-tyoymparisto.md#kokeilu-kokeile) |
 | tallentaa ja siirtää laitteelta toiselle | automaattinen tallennus, GitHub, vienti | [Tallennus](09-tallennus.md) |
 | ottaa varmuuskopion | Varmuuskopio tai Vie kaikki projektit | [Varmuuskopio ennen isoa muutosta](09-tallennus.md#varmuuskopio-ennen-isoa-muutosta) |
 | selvittää, miksi arvo on mikä on | paneelin Miksi? ja Yhteydet | [Miksi?](02-tyoymparisto.md#miksi), [Yhteydet](02-tyoymparisto.md#yhteydet) |
 | kertoa tekoälylle palikasta | viestilappu | [Muisti- ja viestilaput](02-tyoymparisto.md#muisti--ja-viestilaput) |
-| kumota | ↶ Kumoa (vain rakenne, ei käyttötietoja) | [Kumoa](02-tyoymparisto.md#kumoa-ja-tee-uudelleen) |
+| kumota | Kumoa (vain rakenne, ei käyttötietoja) | [Kumoa](02-tyoymparisto.md#kumoa-ja-tee-uudelleen) |
 | käyttää samaa rakennetta uudestaan | suosikit, presetit, kopioi ja liitä | [Suosikit ja presetit](02-tyoymparisto.md#suosikit-ja-presetit) |
 | lisätä monta samaa nopeasti (seiniä, kolikoita, hahmoja) | Rakennuslaatikko, klik klik | [Rakennuslaatikko](02-tyoymparisto.md#rakennuslaatikko) |
 
@@ -197,8 +197,8 @@ Kokeiltavat vaiheohjeet lukujen lopussa.
 | kanvaasi | piirtoalue: Näkymä tai Logiikka |
 | ketju | tapahtumaketju: ikkuna, jonka palikat etenevät viivoja pitkin vaihe kerrallaan |
 | käyttötieto | käytössä syntyvä tieto (valinnat, tekstit, muistit, rivit); erillään rakenteesta |
-| lukittu, käyttötila | 🔒 Lukitse: näkymää käytetään kuin valmista appia |
-| muokkaustila | ✏️ Muokkaa: palikoita lisätään ja muutetaan |
+| lukittu, käyttötila | Lukitse: näkymää käytetään kuin valmista appia |
+| muokkaustila | Muokkaa: palikoita lisätään ja muutetaan |
 | näkymä | käyttöpinnan sivu; projektissa voi olla monta |
 | ominaisuus | palikan osa-arvo `viite.ominaisuus`; luettava, usein myös ohjattava |
 | ohjattu | arvo tulee nuolesta tai kaavasta; voittaa toiminnon asettaman ja perusarvon |

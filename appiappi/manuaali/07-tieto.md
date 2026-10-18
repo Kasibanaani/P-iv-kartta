@@ -101,7 +101,7 @@ Taulukko, jossa on nimetyt sarakkeet ja rivejä. Kaavat lukevat sen rivejä ja k
 - **Huomio:**
   - Sarakkeen nimen voi vaihtaa vapaasti: kaavat tallentuvat sarakkeen sisäisellä tunnisteella eivätkä katkea. Poikkeus: `tapahtuma.rivi.<sarake>` etsii sarakkeen viitteellä (ks. Tapahtuman tiedot).
   - **Sarakkeen poisto** (× sarakkeen rivillä): jos kentissä on tietoa tai saraketta käytetään, appi kysyy *Poistetaanko sarake ”Määrä”? N kentän tieto poistuu. Saraketta käytetään: ... Niihin jää virhe ”sarake puuttuu”, kunnes korjaat ne.* Luettelossa ovat kaavat, toiminnot, Rivin ja Rivijoukon kaavat, joukon järjestyssarake sekä sarakkeeseen sidotut kentät (lomake ja kortti). Poiston jälkeen ilmoitus *Sarake poistettu. Korjattavaa: ...*. Toiminnon sarakevalinta tyhjenee.
-  - Taulukkoikkunan muutokset lähtöaineistoon voi kumota (↶ Kumoa); käyttötiedon muutoksia ei kumota.
+  - Taulukkoikkunan muutokset lähtöaineistoon voi kumota (Kumoa); käyttötiedon muutoksia ei kumota.
   - Uudessa taulukossa (ei käyttötietoa) taulukkoikkunassa ei voi valita riviä. Rivi valitaan toiminnolla **Valitse rivi** tai kortista.
   - Koosteet ovat taulukon ominaisuuksia. Riveittäin laskettu kooste (esim. määrä × hinta yhteensä) tehdään ikkunalla **Riveille** (ks. alla).
 
@@ -128,7 +128,7 @@ Historia on tavallinen Tietotaulukko, jonka rivit ovat kirjauksia: mitä, kuinka
 | `nyt.päivä` | tämä päivä päivän rajan mukaan (vertailuun: `kirjaus.aika.päivä = nyt.päivä`) |
 
   Aikavälin rivit, määrä aikavälillä ja viimeisin ehdolla tehdään **Rivijoukolla**: ehto riveittäin esim. `kirjaus.aika.päivä = nyt.päivä` tai `kirjaus.aika >= kalenteri` (Rivi-palikka *Kirjaus*, käsiteltävä rivi), järjestys Aika-sarakkeen mukaan laskevasti ja *enintään 1* antaa viimeisimmän ehdolla (`joukko.eka`). Määrä: `joukko.rivejä`, summa `joukko.määrä.summa`. Ilman ajankohta-saraketta `viimeisin`, `edellisestä` ja `tänään` ovat virhe *ei ole aika-saraketta*.
-- **Päivän raja:** ⚙︎ Asetukset → Päivämäärät → *Päivän raja (tämä projekti)*: keskiyö (oletus) tai klo 1.00–6.00. Rajalla 4 klo 2.30 tehty kirjaus kuuluu edelliseen päivään: `aika.päivä`, `loki.tänään`, Kalenterin merkinnät ja Aikajanan *tänään* noudattavat rajaa. `nyt.päivä` on tämä päivä samalla rajalla, joten vertaa kirjauksia siihen: `kirjaus.aika.päivä = nyt.päivä`. Kaavan `tänään` on aina kalenteripäivä (Päivämäärä-palikan *Tänään*, kalenterin korostus), joten klo 0–4 välillä `kirjaus.aika.päivä = tänään` ei osu eiliseen yöhön. Ilman rajaa molemmat ovat sama päivä. Taulukon paneelin osio *Historian haut* neuvoo saman.
+- **Päivän raja:** Asetukset → Päivämäärät → *Päivän raja (tämä projekti)*: keskiyö (oletus) tai klo 1.00–6.00. Rajalla 4 klo 2.30 tehty kirjaus kuuluu edelliseen päivään: `aika.päivä`, `loki.tänään`, Kalenterin merkinnät ja Aikajanan *tänään* noudattavat rajaa. `nyt.päivä` on tämä päivä samalla rajalla, joten vertaa kirjauksia siihen: `kirjaus.aika.päivä = nyt.päivä`. Kaavan `tänään` on aina kalenteripäivä (Päivämäärä-palikan *Tänään*, kalenterin korostus), joten klo 0–4 välillä `kirjaus.aika.päivä = tänään` ei osu eiliseen yöhön. Ilman rajaa molemmat ovat sama päivä. Taulukon paneelin osio *Historian haut* neuvoo saman.
 - **Samasta lähteestä:** Aikajanan **Lähde** ja Kalenterin **Merkitse päivät** hyväksyvät historiataulukon; Toistin näyttää rivit kortteina; koosteet ja Rivijoukko laskevat samoista riveistä. Mitään ei kopioida, joten yksi kirjaus näkyy kaikissa kerran.
 - **Vanha tekstiaikajana:** Aikajanan paneelin **Muunna historiaksi** (ks. [Aikajana](03-nakymapalikat.md#aikajana-aika)). Muunnos tehdään vain napista.
 
@@ -154,7 +154,7 @@ Appi-appi 40 (jonon 6, F27 kohta 2). Rakentajan työkalu, ei palikka: liität te
   - Sama nimi (tai viite) päivittää olemassa olevan Arvon, Muistin tai Tekstin eikä tee tuplaa; kirjainkoko ei ratkaise. Virhe, jos nimi on jo muulla palikalla tai rivin laji on eri kuin olemassa olevan. Samassa tekstissä myöhempi rivi voittaa.
   - Kaava, joka odotti tuntematonta nimeä (`yöuni * 2`), sitoutuu luotuun palikkaan ja toimii heti.
 - **Esikatselu:** yhteenveto (*N uutta · N muuttuu · N ennallaan · N virhettä (ohitetaan) · N tyhjää riviä ohitetaan*) ja jokainen rivi numeroineen ja tilansa kanssa: **uusi**, **muuttuu**, **ennallaan** tai **virhe** syineen (esim. *erotinta ”=” ei löydy*, *nimi puuttuu*, *lainausmerkki jää auki*, *kenttiä on enemmän kuin otsikoita*). Tyhjät rivit ohitetaan. Yli 200 riviä: loput lasketaan mutta ei listata. **Hyväksy (N)** on harmaana, kun mitään ei muutu.
-- **Kumoa:** hyväksyntä on yksi ↶ Kumoa -askel (luodut palikat, taulukko, rivit ja uudet sarakkeet).
+- **Kumoa:** hyväksyntä on yksi Kumoa -askel (luodut palikat, taulukko, rivit ja uudet sarakkeet).
 - **Tallennetut kuviot:** **Tallenna kuvio…** kysyy nimen ja tallentaa kuvion projektiin; se näkyy napiksi ★ nimi (× poistaa). Sama nimi korvaa vanhan. Enintään 30.
 - **Rajat:** ei omaa kielioppia, sisäkkäisiä rakenteita eikä elävää tulkintaa (teksti muuttuu → rivit muuttuvat). Palikoiksi vain Arvo, Muisti ja Teksti. Appi ei kutsu tekoälyä: tekoäly voi tuottaa liitettävän tekstin keskustelussa.
 - **Esimerkki (korttipakka):** Tulkki… → Rivejä kuviolla, kuvio `{etu} = {taka}`, Taulukon riveiksi, ＋ Uusi taulukko nimellä *Kortit*, teksti `kissa = cat` ja `koira = dog` omille riveilleen → Hyväksy (2). Syntyy taulukko *Kortit* (sarakkeet etu ja taka), jolle Toistin ja toiminto Valitse rivi tekevät korttipakan.
@@ -166,7 +166,7 @@ Jonon 9 (F32 vaihe 1). Tietotaulukko voi hakea rivinsä tiedostosta, joka on sam
 - **Löytyy:** Tietotaulukon paneeli, osio **Lähde**.
   - **Tiedosto:** polku repossa, esim. `tuonnit/terveys.json`. Alun `/` jätetään pois. Tyhjä = ei lähdettä. Kun polku on, taulukko saa tapahtumat **haettu** ja **hakuvirhe** sekä ominaisuudet `haettu` ja `hakuvirhe`.
   - **Avain:** *tiedoston avaimen mukaan* (oletus: tiedoston kenttä `avain`), jokin taulukon sarake tai *ei avainta: korvaa rivit*. Id-saraketta ei voi valita.
-  - **⤓ Hae nyt** hakee heti. Jos tiedostossa on kenttiä, joita taulukossa ei ole, ensin kysytään **Uusia sarakkeita tiedostosta**: rasti ja laji (arvattu arvoista: luku, kyllä/ei, ajankohta, päivämäärä tai teksti) jokaiselle, sitten **Lisää sarakkeet ja hae**, **Hae ilman niitä** tai **Peru**. Sarakkeiden lisäyksen voi kumota (↶ Kumoa); haettuja rivejä ei.
+  - **⤓ Hae nyt** hakee heti. Jos tiedostossa on kenttiä, joita taulukossa ei ole, ensin kysytään **Uusia sarakkeita tiedostosta**: rasti ja laji (arvattu arvoista: luku, kyllä/ei, ajankohta, päivämäärä tai teksti) jokaiselle, sitten **Lisää sarakkeet ja hae**, **Hae ilman niitä** tai **Peru**. Sarakkeiden lisäyksen voi kumota (Kumoa); haettuja rivejä ei.
   - Tila: *Haettu 17.10.2026 klo 7.30. N uutta, N päivittyi, N ennallaan* (ja tarvittaessa *N arvoa ei sopinut sarakkeeseen*, *N riviä ilman avainta ohitettiin*), virhe punaisella aikoineen, ja kentät, joita taulukossa ei ole. Ilman GitHub-asetuksia: *GitHub-yhteys puuttuu*.
 - **Logiikassa:** toiminto **Hae tiedostosta**, kohteena taulukko ([Toiminnot](05-ketjut-ja-toiminnot.md)). Sen *sitten* lähtee heti, kun haku alkaa; tulos tulee taulukon tapahtumina **haettu** tai **hakuvirhe**. Haku käynnistyy painikkeesta, ajastimesta tai ketjusta, joka käynnistyy, kun projekti avataan. Piirto tai kaava ei koskaan hae.
 - **Tiedoston muoto:** rivitiedosto (JSON), pelkkä rivilista tai CSV (otsikkorivi = kenttien nimet).
@@ -525,7 +525,7 @@ Lista (Näkymä → Näyttö → **Lista**) ja Aikajana (**Aikajana**) ovat vanh
 6. Valitse Toistin ja paina paneelista **＋ Rivi-palikka kortin riville**: logiikkaan tulee *Kohde*.
 7. Näkymässä vedä **Teksti** katkoviivalla merkittyyn ensimmäiseen korttiin ja kirjoita tekstiksi `{kohde.nimi}: {kohde.määrä}`. Muut kortit näyttävät haaleina omat rivinsä.
 8. Vedä korttiin **Painike**, teksti `+`. Painikkeen paneelissa **Kun painetaan** → **＋ Lisää toiminto…** → **Lisää**. Toiminnon paneelissa **Kohde**: Ostokset, **Sarake**: Määrä, **Mikä rivi**: Tapahtuman rivi, Määrä tyhjä (= 1).
-9. **🔒 Lukitse** ja paina jonkin kortin `+`: vain sen rivin määrä kasvaa.
+9. **Lukitse** ja paina jonkin kortin `+`: vain sen rivin määrä kasvaa.
 
 ### Uuden rivin lisääminen lomakkeesta painikkeella
 1. Näkymään **Tekstikenttä**, nimi *Uusi* (viite `uusi`), ja **Painike** tekstillä *Lisää*.

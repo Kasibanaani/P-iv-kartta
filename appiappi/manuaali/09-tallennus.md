@@ -60,11 +60,11 @@ Projektissa on kaksi osaa:
 
 **Tyhjennä käyttötiedot** (Projektit-ikkuna, kohta *Tämä projekti*) kysyy ”Tyhjennetäänkö projektin käyttötiedot? Rakenne säilyy.” ja nollaa käyttötiedot (`st` ja `mem`). Tietotaulukko palaa lähtöaineistoonsa. Rakenteeseen ei kosketa.
 
-**Kumoa** (↶) koskee rakennetta. Käytössä syntyneet käyttötiedot eivät kuulu kumottaviin muutoksiin (Kumoa palauttaa rakenteen ja jättää käyttötiedot ennalleen).
+**Kumoa** koskee rakennetta. Käytössä syntyneet käyttötiedot eivät kuulu kumottaviin muutoksiin (Kumoa palauttaa rakenteen ja jättää käyttötiedot ennalleen).
 
 **Asetus, joka poistaa nuolia:** kun paneelin asetus poistaa palikalta kohtia (esim. Tietotaulukon *Lähde*-polku tyhjennetään, jolloin *haettu* ja *hakuvirhe* katoavat, tai Janan *Kulku* vaihtuu, Toistimen tapa tai Ikkunan laji muuttuu), niihin menneet nuolet poistuvat ja ilmoitus kertoo: *Asetus muutti palikan kohtia, joten N nuolta poistui. Kumoa palauttaa.* Kohtaa takaisin tuova asetus ei tuo nuolia; **Kumoa** tuo.
 
-**Kokeile** (yläpalkki, luku [Työympäristö](02-tyoymparisto.md#kokeilu--kokeile)) käyttää kopiota käyttötiedoista (`st`, `mem`), käyttönäkymän kameroista ja lukituksesta. Kaikki tallennus (selaimen muisti, GitHub, varmuuskopio, vienti) kirjoittaa kokeilun aikana oikeat arvot, joten kokeilu ei tallennu eikä jää voimaan, jos appi suljetaan kesken.
+**Kokeile** (yläpalkki, luku [Työympäristö](02-tyoymparisto.md#kokeilu-kokeile)) käyttää kopiota käyttötiedoista (`st`, `mem`), käyttönäkymän kameroista ja lukituksesta. Kaikki tallennus (selaimen muisti, GitHub, varmuuskopio, vienti) kirjoittaa kokeilun aikana oikeat arvot, joten kokeilu ei tallennu eikä jää voimaan, jos appi suljetaan kesken.
 
 Kanvaasin vierityskohta ja zoomaus (`cam`, `lcam`) ovat laitekohtaisia: ne eivät mene GitHubiin.
 
@@ -108,7 +108,7 @@ GitHub-tallennus tallentaa projektit omaan **yksityiseen** GitHub-repoosi. Hyöd
 
 ### Asetukset
 
-Yläpalkki → **⚙︎ Asetukset** (puhelimella yläpalkkia voi joutua pyyhkäisemään sivulle) → osio **GitHub-tallennus (yksityinen repo)**.
+Yläpalkki → **Asetukset** (puhelimella yläpalkkia voi joutua pyyhkäisemään sivulle) → osio **GitHub-tallennus (yksityinen repo)**.
 
 | Kenttä tai nappi | Mitä tekee |
 |---|---|
@@ -166,7 +166,7 @@ Appi tarkistaa GitHubista avoimen projektin, kun appi käynnistyy, kun avaat toi
 - **On omia tallentamattomia muutoksia:** appi ei korvaa mitään. Tilanappiin tulee *GitHubissa uudempi* ja asetuksiin viesti ”Projektista … on GitHubissa uudempi versio, esimerkiksi tekoälyn muutokset. Hae se tai tallenna omasi sen päälle.”
 
 Ristiriidan ratkaisu: napauta tilanappia *GitHubissa uudempi*.
-1. Ensimmäinen kysymys: **OK** = hae GitHubin versio (omat tallentamattomat muutokset korvautuvat; **↶ Kumoa** palauttaa ne). **Peru** = muut vaihtoehdot.
+1. Ensimmäinen kysymys: **OK** = hae GitHubin versio (omat tallentamattomat muutokset korvautuvat; **Kumoa** palauttaa ne). **Peru** = muut vaihtoehdot.
 2. Toinen kysymys: **OK** = tallenna oma versio GitHubin päälle (GitHubin versio korvautuu). **Peru** = ei tehdä mitään.
 
 Vaihtoehtoisesti: asetuksissa **Hae GitHubista** kysyy ennen korvaamista, ja **Tallenna nyt** tallentaa oman version päälle.
@@ -194,7 +194,7 @@ Appi-appi oli ennen nimeltään Pajakone. Ensimmäisellä avauksella se kopioi s
 
 ## Laput ja GitHub
 
-Muisti- ja viestilaput (📝, ✉️) eivät ole projektin osa. Ne ovat koko tallennuksen osa (selaimen muisti ja varmuuskopio), eivät mene yhden projektin vientiin.
+Muisti- ja viestilaput eivät ole projektin osa. Ne ovat koko tallennuksen osa (selaimen muisti ja varmuuskopio), eivät mene yhden projektin vientiin.
 
 Asetukset → osio **Muisti- ja viestilaput**:
 - Yhteenveto: montako muistilappua ja viestilappua, montako odottaa tekoälyä ja montako uutta vastausta.
@@ -206,7 +206,7 @@ Kun GitHub-tallennus on päällä:
 - Laput tallentuvat tiedostoon `appiappi/laput/laput.json` noin 3 sekuntia muutoksen jälkeen (jos automaattinen tallennus on päällä) ja kun appi siirtyy taustalle.
 - Appi hakee vastaukset itse käynnistyessä, palatessa näkyviin ja 90 sekunnin välein, kun appi on auki ja viestilappuja on.
 - Yhdistäminen: tekoälyn uudet viestit tulevat aina mukaan; muu tieto (teksti, paikka, koko, ⚡ kiire) uudemman muokkauksen mukaan. Poistettu lappu ei palaa.
-- Uusi vastaus näkyy ilmoituksena ”Tekoäly vastasi viestilappuun.” ja merkkinä ✉️-napissa.
+- Uusi vastaus näkyy ilmoituksena ”Tekoäly vastasi viestilappuun.” ja merkkinä Viestilappu-napissa.
 
 Lappujen *Näytä kaikki / Piilota kaikki* on vain tämän selaimen asetus (ei tiedostossa eikä varmuuskopiossa).
 
@@ -224,13 +224,13 @@ Kuva-palikkaan (ja kuvasarjaan) valittu kuvatiedosto tallentuu projektin sisää
 
 ## Esimerkkiprojekti
 
-Esimerkkiprojekti tehdään vain pyynnöstä: Projektit → **Avaa esimerkkiprojekti** (tai aloitusruudulta). Se luo uuden projektin ”Esimerkki: viikon tehtävät” (kaksi näkymää: tehtävälista, eräpäivä, ilmoitukset, säädin, taukonappi ja aikajana sekä Yhteenveto-näkymä kaaviolla ja kalenterilla). Ilmoitus: ”Esimerkki avattu. Lukitse 🔒 ja kokeile.” Sen voi muokata tai poistaa kuten muunkin projektin. Joka painallus luo uuden kopion.
+Esimerkkiprojekti tehdään vain pyynnöstä: Projektit → **Avaa esimerkkiprojekti** (tai aloitusruudulta). Se luo uuden projektin ”Esimerkki: viikon tehtävät” (kaksi näkymää: tehtävälista, eräpäivä, ilmoitukset, säädin, taukonappi ja aikajana sekä Yhteenveto-näkymä kaaviolla ja kalenterilla). Ilmoitus: ”Esimerkki avattu. Lukitse ja kokeile.” Sen voi muokata tai poistaa kuten muunkin projektin. Joka painallus luo uuden kopion.
 
 ## Koeapit `master-tiedot`-repossa
 
 Emilin yksityisessä repossa `master-tiedot` on kansiossa `appiappi/` valmiita koeappeja, esim. `pkoeappic.json` (*Koeappi C: kohdelista*) ja `pkoeappib.json` (*Koeappi B: kysymykset*). Sisältö on keksittyä esimerkkiaineistoa.
 
-- GitHub-tallennus päällä: Asetukset → **Hae uudet projektit**, sitten Projektit → valitse koeappi → 🔒 Lukitse.
+- GitHub-tallennus päällä: Asetukset → **Hae uudet projektit**, sitten Projektit → valitse koeappi → Lukitse.
 - Ilman GitHubia: lataa tiedosto reposta ja Projektit → **Tuo tiedostosta**.
 
 ## Tiedostomuoto (tekniset tiedot)
@@ -311,7 +311,7 @@ Tarkista ennen vientiä: appin oma kelpoisuustarkistus (`okProj`) vaatii `projek
 ## Reseptit
 
 ### Varmuuskopio ennen isoa muutosta
-1. Tietokoneella: paina yläpalkin **💾 Varmuuskopio** (kapeassa ikkunassa napissa on pelkkä 💾). Puhelimella: napauta yläpalkista projektin nimeä → kohdassa *Varmuuskopio ja tuonti* **Vie kaikki projektit**.
+1. Tietokoneella: paina yläpalkin **Varmuuskopio** (kapeassa ikkunassa napissa on pelkkä kuvake). Puhelimella: napauta yläpalkista projektin nimeä → kohdassa *Varmuuskopio ja tuonti* **Vie kaikki projektit**.
 2. Tiedosto `appiappi-varmuuskopio-<päivä>.json` latautuu. Siirrä se talteen (esim. iCloud Driveen).
 3. Tietokoneella yläpalkin tila muuttuu: *Varmuuskopio viety <päivä>*.
 4. Palautus tarvittaessa: Projektit → **Tuo tiedostosta** → valitse tiedosto. Projektit tulevat kopioina vanhojen rinnalle (sama tunniste saa uuden), joten poista tarpeeton versio itse.
@@ -330,7 +330,7 @@ Tarkista ennen vientiä: appin oma kelpoisuustarkistus (`okProj`) vaatii `projek
 2. Avain: profiilikuva → **Settings** → **Developer settings** → **Personal access tokens** → **Fine-grained tokens** → **Generate new token**.
 3. **Repository access**: *Only select repositories* → valitse repo. **Permissions** → *Repository permissions* → **Contents: Read and write**.
 4. **Generate token** ja kopioi avain (alkaa `github_pat_`).
-5. Appi-appissa: **⚙︎ Asetukset** → *GitHub-tallennus (yksityinen repo)*. Liitä avain kenttään **Avain**, kirjoita **Repo**-kenttään `omistaja/repon-nimi`.
+5. Appi-appissa: **Asetukset** → *GitHub-tallennus (yksityinen repo)*. Liitä avain kenttään **Avain**, kirjoita **Repo**-kenttään `omistaja/repon-nimi`.
 6. Paina **Testaa yhteys**. Odotettu: ”Yhteys toimii. Repo … on yksityinen.”
 7. Pidä rasti *Tallenna automaattisesti muutosten jälkeen* päällä. Yläpalkkiin tulee tilanappi, joka hetken päästä näyttää *GitHub ✓* ja kellonajan.
 8. Jotta tekoäly näkee projektit: anna Claude-sovellukselle pääsy repoon GitHubissa (Settings → Applications → Claude → Configure) ja kerro keskustelussa repon nimi.
@@ -338,7 +338,7 @@ Tarkista ennen vientiä: appin oma kelpoisuustarkistus (`okProj`) vaatii `projek
 
 ### Tekoälyn tekemä projekti käyttöön
 1. Pyydä tekoälyä tekemään projektitiedosto `master-tiedot`-repoon.
-2. Appi-appissa: **⚙︎ Asetukset** → **Hae uudet projektit**. Ilmoitus ”1 projekti haettu GitHubista.”
-3. Projektit → valitse uusi projekti → 🔒 Lukitse ja kokeile.
+2. Appi-appissa: **Asetukset** → **Hae uudet projektit**. Ilmoitus ”1 projekti haettu GitHubista.”
+3. Projektit → valitse uusi projekti → Lukitse ja kokeile.
 
 Tämän luvun kehityshavainnot (ristiriidat ja puutteet): [Versio ja tunnetut rajat](11-versio-ja-rajat.md#tallennus).

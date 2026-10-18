@@ -29,7 +29,7 @@ Appi: https://kasibanaani.github.io/P-iv-kartta/appiappi/
 
 ## Merkinnät
 
-- **Lihavoitu** = näkyvä painike, välilehti tai valinta, kuten **🔒 Lukitse**. *Kursiivi* = kohdan, osion tai kentän nimi, kuten *näkyy kun*.
+- **Lihavoitu** = näkyvä painike, välilehti tai valinta, kuten **Lukitse**. *Kursiivi* = kohdan, osion tai kentän nimi, kuten *näkyy kun*.
 - `koodi` = kaava, viite tai teksti, jonka kirjoitat sellaisenaan, kuten `uni > 7`.
 - ✦ = erikoispalikka: poikkeaa tarkoituksella yhteisestä säännöstä (luettelo ja syyt `../PALIKKASAANNOT.md`).
 - Sulkeissa oleva sisäinen nimi, kuten (`nappi`), on palikan laji tallennustiedostossa. Käyttäjä ei näe sitä.

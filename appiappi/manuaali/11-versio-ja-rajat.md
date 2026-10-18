@@ -2,8 +2,8 @@
 
 ## Tarkistettu versio
 
-- **Appi:** Appi-appi 79, tallennusversio 12 (`VER`), repo `Kasibanaani/P-iv-kartta`, kansio `appiappi/`.
-- **Kirjoitettu:** 17.10.2026 koodista commitilla `77461d2` (Appi-appi 31). Sen jälkeen jokainen rakentaja on päivittänyt muuttuneet kohdat samassa työssä; versiokohtaiset tiedot ja mitä kussakin tarkistettiin ovat `appiappi/MUUTOKSET.md`:ssä. **Viimeksi tarkistettu:** Appi-appi 79 (18.10.2026, jonon 28: lapun ⚡ Kiire ja Näytä/Piilota kaikki), luvut 2 (Muisti- ja viestilaput) ja 9 (Laput ja GitHub); sitä ennen Appi-appi 78 (jonon 17d: palikan oma syvyys), luku 8 (Kerrokset käytössä), luku 3 (Paikka ja koko, ominaisuudet), luku 4 (Kerros), luku 6 (ominaisuustaulukot), hakemisto ja tämä luku; sitä ennen Appi-appi 77 (jonon 27: venytyskulma), luku 2; sitä ennen Appi-appi 76 (jonon 17c: kerroksen syvyys), luku 8 ja luku 2; sitä ennen Appi-appi 75 (jonon 1v: kartoitus 11:n korjaukset), luku 8 (Painovoima ja maassa, Hyppy) ja luku 2 (Kopioi ja liitä).
+- **Appi:** Appi-appi 80, tallennusversio 12 (`VER`), repo `Kasibanaani/P-iv-kartta`, kansio `appiappi/`.
+- **Kirjoitettu:** 17.10.2026 koodista commitilla `77461d2` (Appi-appi 31). Sen jälkeen jokainen rakentaja on päivittänyt muuttuneet kohdat samassa työssä; versiokohtaiset tiedot ja mitä kussakin tarkistettiin ovat `appiappi/MUUTOKSET.md`:ssä. **Viimeksi tarkistettu:** Appi-appi 80 (18.10.2026, jonon 29: rakennusympäristön viivakuvakkeet ja paneelien valikot), luvut 2 (Yläpalkki, Paneeli, Kerrokset, Laput) ja muiden lukujen nappien nimet (emojit pois nimistä), 4 (Kerros, jakauman lukko) ja 8 (kerrosrivin napit).
 - **Miten tarkistettiin:** jokainen luku on kirjoitettu lukemalla käyttöliittymän ja moottorin koodia (nimet suoraan koodin merkkijonoista) sekä testien kuvauksia. Kaavakielestä ajettiin noin 150 kaavaa moottorilla (Node), ja maailman ja liikkeen kaavanimet tarkistettiin samoin. Aloitusluvun esimerkki *Vesilasit* tehtiin vaihe vaiheelta oikeassa käyttöliittymässä (Chromium, 1440 px). Muiden lukujen reseptejä **ei ole ajettu** selaimessa: ne on koottu koodista.
 - **Ei tarkistettu oikealla iPhonella, iPadilla eikä Safarilla.** Puhelinkäyttö on kuvattu koodista ja testeistä, jotka ajavat kosketusta tietokoneen selaimessa 390 ja 320 px leveänä. Oikean laitteen tuntuma (sormella veto, näppäimistö, Safarin oma zoomaus) on varmistamatta.
 - Kohdat, joita kirjoittaja ei voinut varmistaa, on merkitty tekstiin ”(ei tarkistettu)”.
@@ -36,7 +36,7 @@ Kirjoittaessa löytyneet ristiriidat, puutteet ja yllätykset. Nämä eivät ole
 
 ### Työympäristö
 
-- Puhelimella alapalkin paneelinappi on nimeltään ”Asetukset: palikan nimi”, ja yläpalkissa on lisäksi ”⚙︎ Asetukset”, joka avaa aivan eri ikkunan. Sama sana kahdelle asialle voi hämätä.
+- Puhelimella alapalkin paneelinappi on nimeltään ”Asetukset: palikan nimi”, ja yläpalkissa on lisäksi ”Asetukset”, joka avaa aivan eri ikkunan. Sama sana kahdelle asialle voi hämätä.
 - Näkymää ei voi poistaa eikä siirtää välilehtirivillä; nappia ei ole. Näkymän nimeäminen onnistuu vain kaksoisnapautuksella, eikä sitä ole todennettu oikealla iPhonella.
 - Näkymän muokkauksessa ei ole kahden sormen zoomausta (vain logiikkakanvaasilla ja lukitussa laitenäkymässä). Safari voi silloin zoomata koko sivua (ei tarkistettu).
 - Monivalinta vaatii ⇧-näppäimen, joten puhelimella monta palikkaa saa valittua vain kerroksen ⬚-napista (näkymä). Logiikassa puhelimella ei ole monivalintaa lainkaan; silloin myös monen palikan kopiointi ja presetin tallennus monesta logiikkapalikasta on mahdotonta sormella.
