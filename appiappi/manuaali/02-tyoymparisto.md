@@ -67,7 +67,7 @@ Avaa **projektin nimi ▾** yläpalkin vasemmasta reunasta. Ikkunassa *Projektit
 | Osio | Valinnat |
 |---|---|
 | Rakennusympäristön ilme | *Vaalea ja tumma tila*: Laitteen mukaan, Vaalea, Tumma. *Väriteema*: Metsä, Järvi, Luumu, Hiekka, Ruusu, Harmaa, Laguuni, Laventeli, Oliivi, Kupari. Koskee kaikkia projekteja tässä selaimessa. |
-| Projektin käyttönäkymän ilme | samat valinnat, mutta vain tälle projektille; kulkee projektin mukana. Kumoa peruu. |
+| Projektin käyttönäkymän ilme | samat valinnat, mutta vain tälle projektille; kulkee projektin mukana. Lisäksi **Oma väri** (teema mistä tahansa väristä), **Palikoiden paletti** (tapa × lähtöväri) ja **Paikat 1–8** (oma väri paikalle, ↺ palauttaa); ks. [Paletti ja oma väri](03-nakymapalikat.md#paletti-ja-oma-väri-projektin-asetus). Kumoa peruu. |
 | Projektin animointi | *Ilmestyy*, *Katoaa*, *Kesto (s)*, *Pehmeys*, *Arvo vaihtuu*, *Paikka vaihtuu*: tämän projektin näkymäpalikoiden oletus, kun palikalle ei ole valittu omaa (luku [Näkymäpalikat](03-nakymapalikat.md), Animointi-osio). Tyhjä = töks. Kulkee projektin mukana. |
 | Päivämäärät | *Muoto*: pp.kk.vvvv tai pp.kk.vv; *Päivän raja (tämä projekti)*: keskiyö (oletus) tai klo 1.00–6.00. Raja koskee kirjaushistoriaa ([Tieto](07-tieto.md#kirjaushistoria)). |
 | Muokkaus | *Kohdista ruudukkoon*: Kyllä / Ei (10 px:n ruudukko raahattaessa). *Viittaus tekstissä* (Appi-appi 54): `@` (oletus) / `§` / `{ }`, millä merkillä toisen palikan arvo kirjoitetaan tekstiin, ks. [Tekstiin upotetut viitteet](06-kaavat.md#tekstiin-upotetut-viitteet). *Näytä viitteet muokatessa*: Kyllä (oletus) / Ei, ks. [viitelappu](03-nakymapalikat.md#teksti-ja-upotetut-viitteet). Koskee tätä selainta, ei kulje projektin mukana. |

@@ -1,6 +1,6 @@
 # F34 Vapaat värit ja paletit: mikä tahansa lähtöväri, paljon siihen sopivia paletteja
 
-17.10.2026. **Emilin toive** (viesti 17.10. klo 23.15 Suomen aikaa): ”Käyttäjäpuolen värimaailmavaihtoehtoihin rajaton mahdollisuus ja silti mihin tahansa väreihin sopivat paletit. Suuri määrä paletteja, jotka eivät perustu tiettyyn lähtöväriin vaan täysin itse valittavaan. Ei kiire, mutta jonoon.” Tekoälyn jäsentämä suunnitelma; *ehdotus* = tekoälyn suositus. **Ei toteutettu.** [Hakemisto](../SUUNNITELMA.md), [palikkasäännöt](../PALIKKASAANNOT.md).
+17.10.2026. **Emilin toive** (viesti 17.10. klo 23.15 Suomen aikaa): ”Käyttäjäpuolen värimaailmavaihtoehtoihin rajaton mahdollisuus ja silti mihin tahansa väreihin sopivat paletit. Suuri määrä paletteja, jotka eivät perustu tiettyyn lähtöväriin vaan täysin itse valittavaan. Ei kiire, mutta jonoon.” Tekoälyn jäsentämä suunnitelma; *ehdotus* = tekoälyn suositus. **Vaihe 1 toteutettu (Appi-appi 65, 18.10.2026, kaista B)**; vaiheet 2 ja 3 eivät. Toteutuksen poikkeamat: tavat ovat yhdessätoista (lisänä *Jaettu vastaväri*), *Sateenkaari* ei käytä lähtöväriä (alkuperäiset värit, omat paikat kyllä), paikka 1 on lähtövärin harmaa, tallennusversio pysyi (12), rakentajan virhemerkki näkymässä pysyy punaisena (`--er`) ja Kokeilu-raita siirtyi rakennusympäristön väreihin. [Hakemisto](../SUUNNITELMA.md), [palikkasäännöt](../PALIKKASAANNOT.md).
 
 ## 1. Nykytila koodissa (tarkistettu 17.10.2026, Appi-appi 42)
 

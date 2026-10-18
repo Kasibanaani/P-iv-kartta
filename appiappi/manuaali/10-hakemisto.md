@@ -22,6 +22,7 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | antaa laskulle nimen | `nimi = lauseke` ja ＋ Luo kaavan tulos | [Kaavan tulos](04-logiikkapalikat.md#kaavan-tulos--tulos) |
 | valita kahdesta arvosta ehdolla | `jos (ehto) a muuten b` tai VALITSE | [Jos, ja, tai](06-kaavat.md#jos-ja-tai) |
 | näyttää tai piilottaa palikan ehdolla | Näkyvyys-osio tai nuoli kohtaan *näkyy kun* | [Näkyvyys-osio](03-nakymapalikat.md#näkyvyys-osio) |
+| värittää projektin omilla väreillä tai vaihtaa koko paletin | ⚙︎ Asetukset → Projektin käyttönäkymän ilme → Oma väri, Palikoiden paletti, Paikat 1–8 | [Paletti ja oma väri](03-nakymapalikat.md#paletti-ja-oma-väri-projektin-asetus) |
 | animoida palikan ilmestymisen tai katoamisen | Animointi-osio (palikka) tai ⚙︎ Asetukset → Projektin animointi | [Animointi-osio](03-nakymapalikat.md#animointi-osio) |
 | häivyttää tai rullata arvon vaihtuessa, liu'uttaa palikan uuteen paikkaan | Animointi-osion *Arvo vaihtuu* ja *Paikka vaihtuu* | [Animointi-osio](03-nakymapalikat.md#animointi-osio) |
 | harmaannuttaa palikan | *Harmaana* tai kohta *harmaana kun* | [Näkyvyys-osio](03-nakymapalikat.md#näkyvyys-osio) |

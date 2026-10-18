@@ -292,7 +292,7 @@ Tämä osio on tekoälylle. Säännöt tulevat repon `AGENTS.md`:n kohdasta *Pro
 | `st` | Käyttötieto palikan tunnisteen mukaan (uudessa projektissa `{}`) |
 | `mem` | Vanha käyttötiedon kenttä, tyhjennetään yhdessä `st`:n kanssa; uusissa `{}` |
 | `lock` | Avautuuko lukittuna käyttöön |
-| `appearance`, `pois` | Valinnaiset: käyttönäkymän ilme, poistettujen viittauskohteiden muisti |
+| `appearance`, `pois` | Valinnaiset: käyttönäkymän ilme (`theme`, `mode`; F34: `oma` = oman teeman heksa, `pal` = `{t: tapa, c: lähtöväri, x: 8 paikan omat värit tai null}`, puuttuva = Sateenkaari), poistettujen viittauskohteiden muisti |
 | `praja` | Valinnainen: päivän raja tunteina 1–12 (puuttuu = keskiyö). Kirjaushistorian päivä (F08) |
 | `kuviot` | Valinnainen: tulkin tallennetut kuviot `[{nm (nimi), k (kuvio)}]`, enintään 30, nimi yksilöllinen (jonon 6) |
 | `an` | Valinnainen: projektin animoinnin oletus `{i (ilmestyy), o (katoaa), k (kesto s), p (pehmeys)}`. Näkymäpalikan omat vastaavat kentät `ani`, `ano`, `ank`, `anp`. Puuttuva = töks (F29) |

@@ -21,7 +21,8 @@ async def run():
     assert min(ratios)>=4.5,(mode,theme,ratios)
     assert await pg.evaluate("getComputedStyle(document.getElementById('toast')).color!==getComputedStyle(document.getElementById('toast')).backgroundColor")
   # Both sides share the same options, but choosing one does not change the other.
-  assert await pg.locator('[data-ap-theme] strong').all_text_contents()==await pg.locator('button[data-view-theme] strong').all_text_contents()
+  # F34 (jonon 14): projektin puolella lisäksi Oma väri -kortti viimeisenä.
+  assert await pg.locator('[data-ap-theme] strong').all_text_contents()+['Oma väri']==await pg.locator('button[data-view-theme] strong').all_text_contents()
   blocks=await pg.evaluate('JSON.stringify([APP.P.b,APP.P.st,APP.P.mem,APP.P.lg])')
   editor=await pg.evaluate("localStorage.getItem('appiappi:appearance')")
   for mode in ['light','dark']:

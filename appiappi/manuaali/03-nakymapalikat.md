@@ -116,7 +116,19 @@ Logiikka voi ohjata näitä kuten muitakin ominaisuuksia (taulukko alla): esim. 
 - **Vaihtoväri käytössä:** *kun pätee / kun ei päde* ja palikka (oletus *ei koskaan*). Tai nuoli kohtaan *vaihtoväri kun*.
 - **Läpinäkyvyys (%):** 0 = näkyy kokonaan, 100 = ei näy lainkaan (mutta on paikallaan ja painettavissa). Muokatessa palikka näkyy aina vähintään haaleana.
 
-Värit tulevat teemasta, joten sama numero näyttää erilaiselta vaalealla ja tummalla ilmeellä. Väriä ei voi valita vapaasti (esim. heksakoodina).
+Palikka tallentaa vain paikan numeron 1–8. Värit tulevat projektin paletista, joten sama numero näyttää erilaiselta vaalealla ja tummalla ilmeellä, ja paletin vaihto värittää koko projektin kerralla. Yksittäiselle palikalle ei anneta vapaata väriä (heksakoodia); vapaus on paletissa:
+
+### Paletti ja oma väri (projektin asetus)
+
+⚙︎ Asetukset → *Projektin käyttönäkymän ilme* (Appi-appi F34 vaihe 1):
+
+- **Oma väri** (viimeinen teemakortti): käyttönäkymän teema mistä tahansa väristä. Valitse väri värivalitsimella tai kirjoita heksa (`#8D642C`) kenttään *Teeman väri*. Appi laskee siitä taustan, pinnat, tekstin ja korostuksen vaalealle ja tummalle tilalle. Korostusta vaalennetaan tai tummennetaan (sävy pysyy), kunnes teksti erottuu vähintään 4,5:1.
+- **Palikoiden paletti:** tapa, jolla kahdeksan paikkaa lasketaan. *Sateenkaari* = alkuperäiset värit (oletus). *Vierekkäiset*, *Vastavärit*, *Kolmikko*, *Neliö*, *Jaettu vastaväri*, *Yksi sävy*, *Murretut*, *Kirkkaat* ja *Pastelli* lähtevät **lähtöväristä** (värivalitsin tai heksa; aluksi oman teeman väri tai teeman korostus). *Teeman mukaan* ottaa lähtövärin teeman korostuksesta ja vaihtuu teeman mukana. Kortin kahdeksan ruutua näyttävät paletin valitulla lähtövärillä.
+- **Paikat 1–8:** napauta paikkaa ja valitse sille oma väri; ↺ palauttaa paletin värin. Oma väri saa itse haalean pohjan ja tumman tilan version.
+- Paikka 1 on lähtövärin harmaa (kuten Sateenkaaressa). Lähes harmaasta lähtöväristä paletti tehdään vaaleusportaista.
+- Tarkistukset: sävy erottuu pinnasta vähintään 3:1, palikan teksti haalealla pohjalla vähintään 4,5:1. Jos ei riitä, vaaleutta siirretään, sävyyn ei kosketa; siksi oma väri voi näkyä hieman tummempana vaalealla pinnalla.
+- Rakentajan virhemerkki näkymässä pysyy punaisena paletista riippumatta. Rakennusympäristön ilmeeseen paletti ei vaikuta (vaihe 2, ei rakennettu).
+- Kumoa peruu jokaisen valinnan. Kulkee projektin mukana (`appearance.oma`, `appearance.pal`), ks. [Tallennus](09-tallennus.md).
 
 ## Teksti ja upotetut viitteet
 
