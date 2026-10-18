@@ -128,7 +128,7 @@ Palikka tallentaa vain paikan numeron 1–8. Värit tulevat projektin paletista,
 - **Paikat 1–8:** napauta paikkaa ja valitse sille oma väri; ↺ palauttaa paletin värin. Oma väri saa itse haalean pohjan ja tumman tilan version.
 - Paikka 1 on lähtövärin harmaa (kuten Sateenkaaressa). Lähes harmaasta lähtöväristä paletti tehdään vaaleusportaista.
 - Tarkistukset: sävy erottuu pinnasta vähintään 3:1, palikan teksti haalealla pohjalla vähintään 4,5:1. Jos ei riitä, vaaleutta siirretään, sävyyn ei kosketa; siksi oma väri voi näkyä hieman tummempana vaalealla pinnalla.
-- Rakentajan virhemerkki näkymässä pysyy punaisena paletista riippumatta. Rakennusympäristön ilmeeseen paletti ei vaikuta (vaihe 2, ei rakennettu).
+- Rakentajan virhemerkki näkymässä pysyy punaisena paletista riippumatta. Rakennusympäristön ilmeeseen paletti ei vaikuta (vaihe 2, ei rakennettu). Poikkeus: näkymäpalikan väriä edustavat kuvakkeet (värinäytteet, paneelin otsikon kuvake ja Yhteydet-taulukon kuvake) näyttävät projektin värin, joten ne ovat samaa väriä kuin palikka näkymässä (Appi-appi 70). Logiikkapalikoiden lajivärit ovat rakennusympäristön.
 - Kumoa peruu jokaisen valinnan. Kulkee projektin mukana (`appearance.oma`, `appearance.pal`), ks. [Tallennus](09-tallennus.md).
 
 ## Teksti ja upotetut viitteet
@@ -205,7 +205,7 @@ Kumpikin näkyy vain käytössä; muokatessa palikka on paneelin X/Y-kohdassa.
 
 ## Napautus (osio *Napautus*, Appi-appi 68)
 
-Teksti, Muoto (Laatikko, Ympyrä, Pilleri, Lappu, Kehys), Kuva, Monitori ja Ilmoitus voivat ottaa napautuksen ilman päälle asetettua Painiketta. Rasti **Napautettava käytössä** osiossa *Napautus*. Laatikko on silloin painike ilman tilaa: se ei jää pohjaan eikä laske painalluksia (siihen tarvitaan Painike).
+Teksti, Muoto (Laatikko, Ympyrä, Pilleri, Lappu, Kehys), Kuva, Monitori, Kaavio (Appi-appi 70) ja Ilmoitus voivat ottaa napautuksen ilman päälle asetettua Painiketta. **Sääntö:** napautettava on näyttävillä palikoilla, joilla ei ole omaa napautusta. Ulkona ovat palikat, joiden napautus jo tekee jotain: Painike (painettu), Lista ja Aikajana (valinta), Kalenteri (päivä), syöttävät ohjaimet (arvo), Tatti, Toistin (kortit ovat palikoita) sekä Alue ja Sijainti (paikkoja; Alueella on oma *napautettu*). Rasti **Napautettava käytössä** osiossa *Napautus*. Laatikko on silloin painike ilman tilaa: se ei jää pohjaan eikä laske painalluksia (siihen tarvitaan Painike).
 
 - **Painuu painettaessa:** palikka painuu hieman, kun sitä painetaan (vain ulkoasu).
 - Lukittuna osoitin on käsi. Muokatessa napautus valitsee palikan kuten ennenkin.
@@ -220,9 +220,9 @@ Teksti, Muoto (Laatikko, Ympyrä, Pilleri, Lappu, Kehys), Kuva, Monitori ja Ilmo
 | Kohta | Milloin |
 |---|---|
 | **napautettu** | palikkaa napautettiin (hiirellä napsautus) |
-| **pitkä painallus** | painettuna puoli sekuntia paikallaan. Jos tähän kohtaan on kytketty jotain, se korvaa napautuksen; muuten tulee myös napautettu, kuten Painikkeella. |
+| **pitkä painallus** | painettuna puoli sekuntia paikallaan. Jos pitkä painallus on käytössä, se korvaa napautuksen; muuten tulee myös napautettu, kuten Painikkeella. Käytössä = tästä kohdasta lähtee nuoli **tai** palikka on sellaisen Joukon jäsen, jonka kohdasta *jäsen pitkä painallus* lähtee nuoli (Appi-appi 70; ennen mikä tahansa Joukko missä tahansa riitti). |
 
-Tapahtuman tiedoissa `tapahtuma.x` ja `tapahtuma.y`: kohta palikassa pikseleinä vasemmasta yläkulmasta (zoomaus ei vaikuta). Toistimen kortissa myös `tapahtuma.rivi`.
+Tapahtuman tiedoissa `tapahtuma.x` ja `tapahtuma.y`: kohta palikassa pikseleinä vasemmasta yläkulmasta (zoomaus ei vaikuta). Toistimen kortissa myös `tapahtuma.rivi`. Samat tiedot tulevat Alueen napautuksesta ja Painikkeen painalluksesta, joten Joukon yksi *jäsen napautettu* -sääntö toimii kaikille jäsenille (Appi-appi 70).
 
 **Kokeile koneella:** tee Laatikko, avaa *Napautus*, rasti *Napautettava käytössä* ja *Painuu painettaessa*. Valitse *Kun napautetaan* → *Näytä ilmoitus*. Lukitse ja napsauta laatikkoa.
 
@@ -274,7 +274,7 @@ Painettava nappi. Se voi jäädä pohjaan kuin katkaisija, laskea painalluksia t
 | Kohta | Laji | Mitä |
 |---|---|---|
 | **on valittu** (Jää pohjaan) / **painalluksia** (Kertapainallus) / **on valittu** (Kertapainallus, arvo Kyllä ↔ ei) / **painetaan nyt** (Pohjassa vain painettaessa) | arvo | palikan arvo, katso Toiminta |
-| **painettu** | tapahtuma | joka painalluksella; *Pohjassa vain painettaessa* -tilassa kun painaminen alkaa |
+| **painettu** | tapahtuma | joka painalluksella; *Pohjassa vain painettaessa* -tilassa kun painaminen alkaa. Tiedoissa `tapahtuma.x` ja `tapahtuma.y`: kohta painikkeessa px (Appi-appi 70); näppäimistöltä ja peliohjaimelta tyhjä |
 | **pitkä painallus** | tapahtuma | painettuna 0,5 s (vain lisätapahtumien kanssa) |
 | **irrotettu** | tapahtuma | sormi nousee (vain lisätapahtumien kanssa) |
 | **painalluksen kesto** | arvo | viimeisimmän painalluksen kesto sekunteina (vain lisätapahtumien kanssa) |
@@ -295,7 +295,7 @@ Painettava nappi. Se voi jäädä pohjaan kuin katkaisija, laskea painalluksia t
 - **Esimerkki:** Painike, Toiminta *Kertapainallus*, rasti *Näytä painallusten määrä painikkeessa*. Lukitse ja paina kolme kertaa: painikkeessa lukee ”Painike (3)”, `painike` = 3.
 - **Toinen käyttö:** *Pohjassa vain painettaessa* + Liike-palikka: kaasu, joka toimii vain painaessa.
 - **Huomio:**
-  - Jos *pitkä painallus* -kohdasta lähtee nuoli, pitkä painallus korvaa tavallisen painalluksen (*painettu* ei lähde). Jos siitä ei lähde nuolta, tavallinen painallus tulee perille.
+  - Jos pitkä painallus on käytössä, se korvaa tavallisen painalluksen (*painettu* ei lähde). Käytössä = *pitkä painallus* -kohdasta lähtee nuoli tai painike on sellaisen Joukon jäsen, jonka *jäsen pitkä painallus* -kohdasta lähtee nuoli (Appi-appi 70; sama sääntö kuin napautettavalla). Muuten tavallinen painallus tulee perille.
   - *Jää pohjaan* -tilassa *painettu* lähtee molempiin suuntiin. Jos haluat toiminnon vain pohjaan painettaessa, vie arvo *on valittu* toiminnon *tee kun* -kohtaan.
   - Painikkeelle ei voi antaa näppäimistön pikanäppäintä.
 
@@ -456,6 +456,7 @@ Pylväs-, vaakapalkki- tai rengaskaavio valittujen palikoiden nykyisistä luvuis
 - **Ulos:** ei mitään.
 - **Asetukset:** **Otsikko** (oletus ”Kaavio”), **Laji** *Pylväät / Vaakapalkit / Rengas*, **Asteikon yläraja** (ei renkaalla; tyhjä = suurimman luvun mukaan), **Luvut**: *＋ Lisää palikka…* -valikko (palikat, joilla on arvo), × poistaa.
 - **Ominaisuudet:** yhteiset; lisäksi ohjattava `.asteikko`.
+- **Napautus:** osio *Napautus* kuten Tekstillä (ks. [Napautus](#napautus-osio-napautus-appi-appi-68), Appi-appi 70).
 - **Esimerkki:** kolme Säädintä (Uni, Liikunta, Stressi) Kaavion lukuihin.
 - **Huomio:** nimet tulevat palikoiden nimistä ja värit kiinteästä järjestyksestä, ei palikoiden väreistä. Rengas laskee yhteen vain positiiviset luvut ja näyttää summan keskellä. Kaavio näyttää vain nykyhetken, ei historiaa.
 

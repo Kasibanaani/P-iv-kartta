@@ -370,7 +370,7 @@ Alue on näkymättömä suorakulmio tai ellipsi, joka tietää, kun liikkuva pal
 | astuttu | tapahtuma | joku tunnistettava tuli sisään |
 | poistuttu | tapahtuma | joku tunnistettava lähti |
 | napautettu x, napautettu y | arvo | viimeksi napautettu kohta: px alueen vasemmasta yläkulmasta, tai ruutu (kun Ruutu kerrallaan) |
-| napautettu | tapahtuma | aluetta napautettiin lukitussa näkymässä |
+| napautettu | tapahtuma | aluetta napautettiin lukitussa näkymässä. Tiedoissa `tapahtuma.x` ja `tapahtuma.y` (px alueen vasemmasta yläkulmasta, kuten napautettavalla) ja Ruutu kerrallaan -alueella `tapahtuma.ruutux` ja `tapahtuma.ruutuy` (Appi-appi 70) |
 | ruutu x, ruutu y | arvo | vain kun Ruutu kerrallaan: tunnistettavan ruutu alueen sisällä (1 = vasen yläruutu) |
 | ruutu vaihtui | tapahtuma | vain kun Ruutu kerrallaan: tunnistettava siirtyi toiseen ruutuun alueen sisällä |
 
@@ -386,7 +386,7 @@ Alue on näkymättömä suorakulmio tai ellipsi, joka tietää, kun liikkuva pal
   - Sisällä = tunnistettavan **keskipiste** on alueen sisällä.
   - Tunnistus tehdään liikkeen kuvasilmukassa, eli kun jokin liikkuu lukitussa näkymässä.
   - **astuttu** ja **poistuttu** lähtevät sillä hetkellä, kun joku tulee tai lähtee. Jos sisällä on jo joku ja toinen tulee, astuttu lähtee uudelleen.
-  - Napautus kirjataan vain, jos kohdista **napautettu**, **napautettu x** tai **napautettu y** lähtee nuoli. Silloin yhden sormen veto ei rullaa näkymää.
+  - Napautus kirjataan vain, jos kohdista **napautettu**, **napautettu x** tai **napautettu y** lähtee nuoli tai Alue on sellaisen Joukon jäsen, jonka kohdasta *jäsen napautettu* lähtee nuoli (Appi-appi 70; ennen joukon nuoli ei riittänyt ilman Alueen omaa nuolta). Silloin yhden sormen veto ei rullaa näkymää.
 - **Esimerkki:** ks. resepti ”Alue, johon astuminen näyttää viestin”.
 - **Huomio:**
   - Ei näy käytössä. Muokatessa se näkyy kehyksenä nimineen.

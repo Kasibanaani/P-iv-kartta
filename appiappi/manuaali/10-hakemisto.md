@@ -29,7 +29,7 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | häivyttää tai rullata arvon vaihtuessa, liu'uttaa palikan uuteen paikkaan | Animointi-osion *Arvo vaihtuu* ja *Paikka vaihtuu* | [Animointi-osio](03-nakymapalikat.md#animointi-osio) |
 | harmaannuttaa palikan | *Harmaana* tai kohta *harmaana kun* | [Näkyvyys-osio](03-nakymapalikat.md#näkyvyys-osio) |
 | tehdä jotain painalluksesta | Painikkeen *Kun painetaan* → ＋ Lisää toiminto… | [Toiminto](05-ketjut-ja-toiminnot.md#toiminto-tee) |
-| tehdä laatikosta, tekstistä tai kuvasta painettavan (ilman Painiketta) | osio *Napautus* → *Napautettava käytössä*, tapahtuma *napautettu* | [Napautus](03-nakymapalikat.md#napautus-osio-napautus-appi-appi-68) |
+| tehdä laatikosta, tekstistä, kuvasta tai kaaviosta painettavan (ilman Painiketta) | osio *Napautus* → *Napautettava käytössä*, tapahtuma *napautettu* | [Napautus](03-nakymapalikat.md#napautus-osio-napautus-appi-appi-68) |
 | kasvattaa laskuria | Muisti + toiminto Lisää | [Laskuri, joka muistaa](04-logiikkapalikat.md#4-laskuri-joka-muistaa) |
 | yhdistää monta ehtoa | Ikkuna (JA, TAI, VÄHINTÄÄN…) tai kaavassa `a ja b`, `a tai b` | [Ikkuna](04-logiikkapalikat.md#ikkuna-ikkuna) |
 | tehdä jotain ehdon alkaessa päteä | JOS (NIIN-tapahtuma) tai KUN | [JOS](04-logiikkapalikat.md#jos-jos), [KUN](04-logiikkapalikat.md#kun-kun) |
