@@ -65,6 +65,11 @@ Tekstissä sama: `Unipisteet: #unipisteet.summa`. Tuntematon `#sana` jää tekst
 
 **Ikkuna ja joukko** (Emilin kysymys 18.10.): sama laskenta, kaksi tapaa valita, keistä lasketaan. SUMMA-ikkuna valitsee *paikan* mukaan (mikä on sisällä) ja laskee yhden asian; joukko valitsee *nimen* mukaan, palikka voi olla monessa joukossa ilman kopioita, ja samaa joukkoa voi käyttää moneen (koosteet, toiminto kaikille, säännöt jäsenille). Molemmat sallitaan (A8). Ikkuna ei itsestään ole joukko, jotta palikan pudotus ikkunaan ei vie sitä huomaamatta jonkin joukon sääntöjen alle. *Ehdotus myöhemmäksi, ei vaiheissa:* ikkunan paneeliin valinta *Sisältö kuuluu joukkoon #…*, jos tarvetta tulee; Miksi? kertoo silloin ”kuuluu, koska on ikkunassa X”.
 
+**Muutos kaikille jäsenille** (Emilin kysymys 18.10. klo 3.49), kolme reittiä:
+- *Nuoli:* Joukko-palikalla on jäsenten yhteiset kohdat (näkyy kun, harmaana kun, vaihtoväri kun, siirto x/y). Nuoli Joukon kohtaan = sama ohjaus jokaiselle jäsenelle. Tämä on suunnitelman 21 kohdan 5 sääntö nuolena (sama etusija, sama tallennus).
+- *Kaava:* Joukon *＋ Sääntö*: `näkyy = jäsen.y < 600`. `jäsen` on kukin jäsen vuorollaan.
+- *Hetki (tapahtuma):* Toiminto, jonka kohde on `#kolikot` (Aseta, Lisää, Vaihda, Palauta), tekee muutoksen kaikille jäsenille kerralla. Vain yhdelle: jäsenen tapahtumassa kohde `tapahtuma.jäsen` (esim. *kun jäsen törmäsi* → piilota juuri se).
+
 ### 3.4 Joukko logiikasta
 
 Kaikki kolme ovat olemassa olevia mekanismeja, eivät uutta kieltä:
