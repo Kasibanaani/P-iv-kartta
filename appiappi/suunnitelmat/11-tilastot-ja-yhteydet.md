@@ -61,7 +61,7 @@ Koska raakakirjaus säilyttää kellonajan, järjestyksen voi johtaa uudeksi pä
 
 Havaintomäärä näkyy aina tuloksen vieressä. Samanaikaisuus ei ole syy, ja luettava kuvaus sanoo "esiintyi yhdessä", ei "aiheuttaa". Vähäisen aineiston tulos merkitään, ei piiloteta.
 
-## 9. Avoimet kysymykset (auki, Emil miettii)
+## 9. Avoimet kysymykset (vastattu 18.10.2026, kohta 1 tarkentuu koeapissa)
 
 Emil 17.10.2026 aamulla: kysymykset jäävät auki, ja ne käydään läpi uudelleen tarkistuspisteessä. Tämä korvaa 17.10. yöllä kirjatun "suositusten mukaan" -päätöksen tämän suunnitelman osalta. Tekoälyn suositukset säilyvät ehdotuksina:
 
@@ -69,6 +69,13 @@ Emil 17.10.2026 aamulla: kysymykset jäävät auki, ja ne käydään läpi uudel
 2. Mikä on päivän raja, kun valvotaan yli puolenyön? *Ehdotus:* projektin asetus, oletus keskiyö. Huom.: F08 rakentaa tämän asetuksen joka tapauksessa (`TILA.md`, Jono), joten tässä kysytään vain F25:n käyttämä oletus.
 3. Käyvätkö luotettavuusrajat (kohta 5)? *Ehdotus:* alle 10 parillista päivää tai alle 3 päivää kummassakin ryhmässä = liian vähän.
 4. Tehdäänkö elämäntapaväittämistä ensin koeappi nykyisillä palikoilla? *Ehdotus:* kyllä, heti F08:n jälkeen.
+
+**Emilin vastaukset 18.10.2026:**
+
+1. *Päivä kirjattu:* Emil ei ole varma, miltä tämä näyttää käytännössä. Jos tarvitaan oma toiminto, se on yksi nappi ”tämä päivä on kirjattu”, jonka jälkeen puuttuvat kirjaukset tarkoittavat ”ei”. Muuten logiikka. *Tekoälyn ehdotus:* päivä on kirjattu, kun sillä on mikä tahansa kirjaus TAI nappia on painettu. Nappi tehdään nykyisillä palikoilla (Painike, toiminto Kirjaa historiataulukkoon ”Päivät”), ei uutta palikkaa. Lopullinen muoto ratkaistaan koeapissa (kohta 4), kun Emil näkee sen käytössä.
+2. *Päivän raja:* keskiyö. Muu raja tekee asiasta sekavan. F08:n asetus (`P.praja`) on jo olemassa; sen poisto Asetuksista on avoin kysymys Emilille.
+3. *Luotettavuusraja:* 3 päivää. Tulkinta (tekoäly, vahvistamatta): vähintään 3 päivää kummassakin ryhmässä, ja ehdotettu 10 parillisen päivän raja jää pois.
+4. *Koeappi:* kyllä, tehdään elämäntapaväittämien koeappi nykyisillä palikoilla.
 
 Emil voi lisätä tähän uusia kysymyksiä tai vastata milloin vain; vastaus kirjataan tähän päivämäärän kanssa.
 
