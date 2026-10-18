@@ -45,7 +45,7 @@ Paneeli on ylhäältä alas suunnilleen tässä järjestyksessä:
 | **Este ja osuma-alue** | Este, osuma-alue, massa, kimmoisuus (luku [Maailma ja liike](08-maailma-ja-liike.md)). |
 | **Napautus** | Teksti, Muoto, Kuva, Monitori ja Ilmoitus: Napautettava käytössä, Painuu painettaessa (kiinni oletuksena). Ks. alla. |
 | **Käyttöraahaus** | Raahattava käytössä (kiinni oletuksena). |
-| **Paikka ja koko** | X, Y, Leveys, Korkeus; Näkymä (jos näkymiä on monta); laitenäkymässä *Laitteen ruudussa* -napit ja *Rullausvauhti*; *Kerros* (jos kerroksia on monta); *Monista* (N kpl alle/viereen tai ruudukoksi). |
+| **Paikka ja koko** | X, Y, Leveys, Korkeus; Näkymä (jos näkymiä on monta); laitenäkymässä *Laitteen ruudussa* -napit, *Rullausvauhti* ja *Oma syvyys*; *Kerros* (jos kerroksia on monta); *Monista* (N kpl alle/viereen tai ruudukoksi). |
 | **Ulkoasu** | *Kopioi ulkoasu* ja *Liitä ulkoasu*: koko ja värit, samalle lajille myös tekstin koko, lihavointi, tasaus ja muoto. |
 | **Ominaisuudet** | Kaikki, mihin kaava voi viitata (kiinni oletuksena, avautuu otsikosta). |
 | **Miksi?** | Näkyy, kun palikan näkyvyys tai harmaus riippuu jostain. |
@@ -178,6 +178,8 @@ Kaikilla näkymäpalikoilla (paitsi Sijainti, Alue, Toistin) on nämä:
 | `.läpinäkyvyys` | luku 0–100 | kyllä | 0 = näkyy kokonaan |
 | `.järjestys` | luku | kyllä | suurempi on päällä saman kerroksen sisällä |
 | `.rullausvauhti` | luku 0–100 | kyllä | laitenäkymässä: 100 = sormen mukana, 0 = lukittu ruutuun |
+| `.syvyys` | luku, alaraja −90 | kyllä | laitenäkymässä: 0 = pinnassa, isompi = pienempi ja hitaampi; perusarvo oma tai kerroksen (Appi-appi 78) |
+| `.näkyväkoko` | luku % | ei | syvyyden antama koko ja vauhti, 100 = pinnassa (myös `nakyvakoko`) |
 | `.kierto` | luku | kyllä | kierto asteina myötäpäivään (sisältö kääntyy, paikka ja osuma-alue eivät) |
 | `.peilattu` | kyllä/ei | kyllä | peilaus vaakasuunnassa |
 | `.este` | kyllä/ei | kyllä | liikkuvat palikat eivät mene läpi |

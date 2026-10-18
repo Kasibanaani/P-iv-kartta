@@ -509,6 +509,8 @@ Ominaisuus on joko **vain luettava** (lasketaan palikan tilasta, esim. `nimi.pit
 | `läpinäkyvyys` | `lapinakyvyys`, `lpn` | luku | ohjattava | 0 = näkyy kokonaan, 100 = ei näy |
 | `järjestys` | `jarjestys`, `z` | luku | ohjattava | suurempi on päällä saman kerroksen sisällä |
 | `rullausvauhti` | `rv` | luku | ohjattava | 0–100, laitenäkymässä |
+| `syvyys` | `sy` | luku | ohjattava | alaraja −90, laitenäkymässä; perusarvo oma tai kerroksen |
+| `näkyväkoko` | `nakyvakoko` | luku | vain luku | syvyyden antama koko %, 100 = pinnassa |
 | `kierto` | `kulma` | luku | ohjattava | asteina myötäpäivään |
 | `peilattu` | `peili` | kyllä/ei | ohjattava | peilattu vaakasuunnassa |
 | `este` | | kyllä/ei | ohjattava | liikkuvat palikat eivät mene läpi |
@@ -593,6 +595,7 @@ Taulukossa *L* = vain luettava, *O* = ohjattava. Suluissa muut kirjoitusasut.
 | Peliohjain | `vasenliipaisin`, `oikealiipaisin` | L | 0–1 |
 | Kerros | `näkyy`, `estää` | O | kyllä/ei |
 | Kerros | `himmennys`, `läpinäkyvyys` | O | 0–100 |
+| Kerros | `syvyys` | O | alaraja −90, 0 = pinnassa |
 | Kamera | `zoomaus` | O | % (100 = laitteen ruutu) |
 | Kamera | `leveys`, `korkeus` | L | näkyvän maailman koko |
 | Liike | `x`, `y`, `liikkuu`, `osuu`, `nopeus`, `suunta` | L | |

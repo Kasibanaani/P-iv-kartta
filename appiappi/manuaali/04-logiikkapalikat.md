@@ -220,7 +220,7 @@ Xbox-, PlayStation- tai Nintendo-ohjain syötteeksi (selaimen Gamepad API). Tiet
 
 ## Kerros ✦ (`kerros`)
 
-Tuo näkymän kerroksen logiikkaan: näkyykö kerros käytössä, estääkö se alempien käytön, himmennys ja läpinäkyvyys. Esim. valikko, joka avautuu painikkeesta ja estää muun käytön.
+Tuo näkymän kerroksen logiikkaan: näkyykö kerros käytössä, estääkö se alempien käytön, himmennys, läpinäkyvyys ja syvyys. Esim. valikko, joka avautuu painikkeesta ja estää muun käytön.
 
 ✦ Poikkeus: ohjaa näkymää logiikasta. Kaikkia kerroksen asetuksia (rullausvauhti, järjestys) ei voi ohjata.
 
@@ -228,7 +228,7 @@ Tuo näkymän kerroksen logiikkaan: näkyykö kerros käytössä, estääkö se 
 - **Sisään:** *näkyy* (arvo, ohjauskohta, auki valmiiksi uudessa palikassa). Muut ohjattavat ominaisuudet saa kohdaksi ⇢-napista.
 - **Ulos:** *näkyy* (arvo).
 - **Asetukset (paneeli):** **Kerros** (valitse näkymä · kerros). *Perusarvot (kerroksen asetukset)*: **näkyy käytössä**, **estää alempien käytön**, **himmennä alemmat … %**, **läpinäkyvyys … %**. Samat perusarvot muuttuvat myös kerrosrivin ⚙-kohdasta.
-- **Ominaisuudet** (kaikki ohjattavia paitsi `arvo`): `näkyy` (kyllä/ei), `estää` (kyllä/ei), `himmennys` (0–100), `läpinäkyvyys` (0–100, 100 = ei näy).
+- **Ominaisuudet** (kaikki ohjattavia paitsi `arvo`): `näkyy` (kyllä/ei), `estää` (kyllä/ei), `himmennys` (0–100), `läpinäkyvyys` (0–100, 100 = ei näy), `syvyys` (Appi-appi 78; luku, alaraja −90, perusarvo kerrosrivin syvyys, 0 = pinnassa; vain laitenäkymässä, ks. Maailma ja liike: Syvyys).
 - **Kaavassa:** `valikko.näkyy`, `valikko.himmennys`.
 - **Aika ja tila:** toiminnon asettama arvo on käyttötietoa. Muokatessa kaikki kerrokset näkyvät.
 - **Esimerkki:** Painike *Valikko* → osio *Kun painetaan* → **＋ Lisää toiminto…** → *Vaihda* → Kohde: Kerros-palikka → *Mitä muutetaan*: näkyy. Napautus avaa ja sulkee valikon. Toinen käyttö: kaava `peli.tauko` kohtaan *näkyy* pitää valikon näkyvissä tauon ajan.
