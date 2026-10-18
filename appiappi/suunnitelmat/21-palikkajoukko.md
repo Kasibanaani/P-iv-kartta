@@ -25,7 +25,9 @@ Pelkkä joukon nimi tavallisessa kaavassa antaa virheen ”⚠ Joukossa on monta
 
 **Toisinnot ikkunan sisään automaattisesti: ei** (*ehdotus*). Kun sääntö ottaa mukaan 40 vihollista, kanvaasille ilmestyisi 40 esiintymää; palikka, joka kuuluu kolmeen joukkoon, näkyisi kolmesti, ja nuolten merkitys hämärtyisi (mihin esiintymään nuoli tulee?). Jäsenyys näytetään sen sijaan (kohta 4) korostuksena ja listana.
 
-## 3. Ehdotus: uusi palikka Joukko (`joukko`)
+## 3. Ehdotus: uusi palikka Joukko (`pjoukko`)
+
+*Kartoitus 7 (18.10.):* lajiavain `joukko` on jo Rivijoukko, joten uusi laji on **`pjoukko`** (A13).
 
 Logiikan paletti → *Tieto* (Rivijoukon viereen; rinnakkainen nimi, A1, A9). Nimi, viite (esim. `kolikot`) ja arvo = jäsenten määrä, joten se ei ole erikoispalikka.
 
@@ -47,7 +49,7 @@ Logiikan paletti → *Tieto* (Rivijoukon viereen; rinnakkainen nimi, A1, A9). Ni
 
 ## 5. Säännöt jäsenille
 
-Joukon paneelissa *＋ Sääntö*: ominaisuus (yhteiset ensin: näkyy, harmaana, vaihtoväri, siirto x/y, läpinäkyvyys; sitten lajien yhteiset) ja kaava, esim. `näkyy = ei jäsen.kerätty`. Sääntö on tila, ei hetki (A6).
+Joukon paneelissa *＋ Sääntö*: ominaisuus (yhteiset ensin: näkyy, harmaana, vaihtoväri, siirto x/y, läpinäkyvyys; sitten lajien yhteiset) ja kaava, esim. `näkyy = jäsen.y < 600` (*Kartoitus 7:* aiempi esimerkki `ei jäsen.kerätty` oletti kieltosanan, jota kaavassa ei ole; `ei` on arvo, joten kielto kirjoitetaan vertailuna `jäsen.kerätty = ei`). Sääntö on tila, ei hetki (A6).
 
 **Etusija** (A3): jäsenen oma nuoli tai kaava > joukon sääntö > toiminnon asettama > perusarvo. Joukon sääntö on siis ”ohjattu”, mutta jäsenen oma ohjaus voittaa, ja ristiriita näkyy jäsenen paneelissa (*Joukon Kolikot sääntö ohitettu: oma kaava*). Kaksi joukkoa, jotka ohjaavat samaa ominaisuutta samassa palikassa: ensimmäinen joukko kanvaasin järjestyksessä voittaa ja ristiriita näkyy molemmissa.
 
@@ -57,7 +59,7 @@ Joukon paneelissa *＋ Sääntö*: ominaisuus (yhteiset ensin: näkyy, harmaana,
 2. **Säännöt jäsenille** (jonon 15d): kohta 5, etusija ja ristiriidan näyttö.
 3. **Jäsenille ja jäsenten tapahtumat** (jonon 15e): ikkunan valinta *Jäsenille* (kohta *jäsenet* nuolella Joukosta, kuten *rivit*), ketjun *Toista jäsenille*, Joukon tapahtumat *jäsen …* niille tapahtumille, jotka jokaisella jäsenlajilla on (esim. kaikilla näkymäpalikoilla yhteinen *napautettu*, Liikkeellä *törmäsi*), tiedot `tapahtuma.jäsen`. Tästä hyötyy 2D-suunnitelman ([19](19-2d-pelit-ja-ymparistot.md)) vaihe D (kolikot ja viholliset).
 
-**Tallennusmuoto laajenee** jokaisessa vaiheessa (uusi laji `joukko` kentin jäsenet, sääntö, pois suljetut ja säännöt; jäsenyys tallentuu Joukkoon, ei jäseniin). Vanha projekti aukeaa ennallaan. Kaistasäännön mukaan muotomuutos yksi kaista kerrallaan; muistuta varmuuskopiosta.
+**Tallennusmuoto laajenee** jokaisessa vaiheessa (uusi laji `pjoukko` kentin jäsenet, sääntö, pois suljetut ja säännöt; jäsenyys tallentuu Joukkoon, ei jäseniin). Vanha projekti aukeaa ennallaan. Kaistasäännön mukaan muotomuutos yksi kaista kerrallaan; muistuta varmuuskopiosta.
 
 Nykyinen **Ryhmä** säilyy ennallaan kehyksenä. *Ehdotus, ei jonossa:* Ryhmän paneeliin myöhemmin nappi *Tee sisällöstä joukko* (käsin valitut = ryhmän sisällä olevat).
 

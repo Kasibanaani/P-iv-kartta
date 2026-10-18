@@ -2,7 +2,7 @@
 
 18.10.2026 (Suomen aikaa). **Emilin ajatus** (viesti 18.10. klo 3.37): `#` sopii paremmin joukolle kuin viitteelle, koska se on asiasana muutenkin. Palikalla olisi kenttä teknisille tiedoille, johon kirjoitetaan viite ja välilyönnein yksi tai monta joukkoa (`#unipisteet`). Kaavassa joukkoa käsiteltäisiin kokonaisuutena (summa, keskiarvo, suurin, pienin). Joukko voisi määräytyä myös logiikalla, ja viitteelle keksitään uusi etumerkki. Lisäksi kaavan sulut pelkiksi suluiksi, ja *jos* niin, että ehdon sulku sulkeutuu ennen seurausta (ei Excelin `jos(ehto; a; b)`).
 
-Merkinnät: *Emilin idea*, *ehdotus* (tekoälyn ratkaisu), ⏸ = odottaa Emilin päätöstä. **Emil hyväksyi kaikki suositukset 18.10.2026** (klo 4.05). **Ei toteutettu.** Jonossa 12f (viittaustapa `@`), 12g (kaava), 15c–15e (joukot). Tämä suunnitelma korvaa [21 Palikkajoukon](21-palikkajoukko.md) ja [23 Viittaustavan](23-viittaustapa.md) ristiriitaiset kohdat. Lue ensin [palikkasäännöt](../PALIKKASAANNOT.md) (erityisesti A2, A3, A7, A9).
+Merkinnät: *Emilin idea*, *ehdotus* (tekoälyn ratkaisu), ⏸ = odottaa Emilin päätöstä. **Emil hyväksyi kaikki suositukset 18.10.2026** (klo 4.05). **Ei toteutettu.** Jonossa 12f (viittaustapa `@`), 12g (kaava), 15c–15e (joukot). Tämä suunnitelma korvaa [21 Palikkajoukon](21-palikkajoukko.md) ja [23 Viittaustavan](23-viittaustapa.md) ristiriitaiset kohdat. Lue ensin [palikkasäännöt](../PALIKKASAANNOT.md) (erityisesti A2, A3, A7, A9) ja kohta 7 (kartoitus 7:n tekniset sopimukset: tallennusmerkki, avaimet, toiminnot).
 
 ## 1. Lyhyt vastaus
 
@@ -144,6 +144,19 @@ Säännöt:
 4. Logiikan joukko: joukon sääntö + tagin kohta *kuuluu kun* + toiminnot, ei `#(viite)` Tunnus-kenttään (suositus kyllä).
 5. Kaava: `jos (ehto) a muuten b` (ja/tai `jos ehto niin a muuten b`), `ja`, `tai`, laskusulut; vanhat muuttuvat itsestään (suositus kyllä, molemmat jos-muodot).
 6. Järjestys kohdan 5 mukaan.
+
+## 7. Kartoitus 7: tekniset sopimukset ennen rakentamista (18.10.)
+
+[Linjakkuuskartoitus 7](../kartoitukset/2026-10-18-linjakkuus-7.md) tarkisti tämän suunnitelman koodia (`c126706`, Appi-appi 52) vasten. Nämä täydentävät kohtia 3–5; Emilin päätökset (kohta 6) eivät muutu.
+
+1. **Tallennus (U1):** joukkoviite tallentuu omalla merkillä **`{%id}`** ja **`{%id.kooste}`** tekstissä ja kaavassa (palikkaviite on `{#id}`, ja `{#j3}` tulkittaisiin poistetuksi palikaksi). Toiminnon kohde ja jäsenen tagit tallentavat saman tunnisteen. Joukon poisto joukkolistasta näyttää vaikutuslistan (A9).
+2. **Avaimet (U2):** Joukko-palikan laji **`pjoukko`** (`joukko` = Rivijoukko), palikan tagit **`b.jkt`**, rekisteri **`P.jkr`** (`jk` on solmun kenttä, Janan merkki). Kohdissa 3.2 ja 5 mainitut `P.jk` ja `b.jk` tarkoittavat näitä.
+3. **Tunnus-kenttä (U3):** yksi paljas sana tai `@sana` = viite kaikilla viittaustavoilla; näyttö valitun tavan mukaan. Virhe vain, jos viitteitä on kaksi tai sana ei kelpaa.
+4. **Toiminnot (U7):** *Lisää joukkoon* ja *Poista joukosta* ovat uudet toiminnot omilla avaimilla (`joukkoon`, `joukosta`), eivät Lisää-toiminnon uusi merkitys (Lisää on lukujen lisäys, ja `poista` on *Poista valinta*).
+5. **Kohdat (U8):** tagin kohta *kuuluu #x kun* saa avaimen joukon tunnisteesta (`jk_<id>`), ei nimestä. Tagit eivät muutu lukitussa käytössä; käytön jäsenyysmuutokset ovat käyttötietoa (`P.st`).
+6. **Pikatiet (U6, 15d):** 1p:n pikatiet (`rectNow`, kuvan `rect`, `fysKim`, `cullOut`) kysyvät yhdeltä moottorin avulta, ohjaako palikkaa jokin (oma ohjaus, joukon sääntö, nuoli Joukon kohtaan).
+7. **Sanat (U9, U10):** koosteet samalla sanalistalla kuin sarakkeilla (`TAGG`, myös `täydellinen`); `jäsen` varataan 15d:ssä; Joukko-palikan nimi on joukon nimi, eikä sillä ole omaa `@`-viitettä. Kohdan 3.1 *viitelappu* tarkoittaa: 12c:n lappu näyttää tekstin lähteet valitulla tavalla (`@uni`, `#unipisteet.summa`), ei palikan omaa tunnusta. A7:n teksti päivitetään 12g:ssä, ja 15c lisää siihen joukkojen koosteet.
+8. **12g (U4, U5):** `repair` muuntaa vanhat kaavat projektin palikoissa (Kaavan `f`, Toiminnon kentät `kv`), ketjujen lukituskuvissa (ja nostaa kuvan version, jotta lukittu ketju jatkaa) sekä preseteissä (`Dt.presetit`). Vanha muoto tunnistetaan `;`-merkistä, ei sulun paikasta (`Jos (uni < 7; 2,5; 0)` on vanhaa muotoa). Varattu sana ei kelpaa oletusviitteeksi: JOS-palikan oletusviite on nyt `jos`. Manuaali sanoo, että kaavan `jos` on VALITSE-palikka kaavana; JOS-palikka (pätee + NIIN-tapahtuma) on eri asia.
 
 ## Linjakkuus
 
