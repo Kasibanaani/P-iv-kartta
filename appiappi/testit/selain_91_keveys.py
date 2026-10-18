@@ -73,7 +73,7 @@ async def main():
             assert not el['off'] and el['left']=='%dpx'%fx and el['top']=='%dpx'%fy and el['nak'],el
             await pg.screenshot(path='appiappi_1p_kaytto_%d.png'%W)
             # 4 (jonon 1s, kartoitus 9 S4): samat 400 seinää joukon jäseninä ja Joukko-palikalla säännöt näkyy kun ja siirto x, jotka lukevat jäsentä.
-            #   Raja sama: vähintään 30 kuvaa/s ja moottori alle 8 ms (ennen 1s:ää 39 kuvaa/s ja 12 ms).
+            #   Raja: vähintään 30 kuvaa/s ja moottori alle 4,5 × saman ajon moottoriaika ilman sääntöjä (ennen 1s:ää 39 kuvaa/s ja 12 ms ≈ 6×).
             if not mob:
                 await pg.click('#lockbtn');await pg.wait_for_timeout(200)
                 nj=await pg.evaluate("""(function(){var P=APP.P,J=KK.jkLuo(P,'seinat'),n=0;Object.keys(P.b).forEach(function(i){var b=P.b[i];if(b.k==='muoto'&&b.kr==='k1'){b.jkt=[J];n++;}});
@@ -91,8 +91,11 @@ async def main():
                 fr=await pg.evaluate("window.__fr");kf=await pg.evaluate("[window.__kf,window.__kn]")
                 fps2=(len(fr)-1)/((fr[-1]-fr[0])/1000);kms2=kf[0]/max(1,kf[1])
                 assert fps2>=30,('joukon säännöllä liian vähän kuvia sekunnissa',round(fps2,1))
-                assert kms2<8,('joukon säännöllä moottori liian hidas',round(kms2,2))
-                tulos['joukko_kuvaa_s_%d'%W]=round(fps2,1);tulos['joukko_moottori_ms_%d'%W]=round(kms2,2)
+                # Jonon 1t: suhteellinen raja, koska testikoneet eroavat (kaistan B koneella 9–12 ms, täällä 5 ms). Joukon säännöt saavat
+                #   maksaa enintään 4,5 kertaa saman ajon moottoriajan ilman sääntöjä (1s:n jälkeen noin 3×, ennen 1s:ää noin 6×).
+                raja2=4.5*max(kms,1.5)
+                assert kms2<raja2,('joukon säännöllä moottori liian hidas suhteessa ilman sääntöjä',round(kms2,2),round(kms,2),round(raja2,2))
+                tulos['joukko_kuvaa_s_%d'%W]=round(fps2,1);tulos['joukko_moottori_ms_%d'%W]=round(kms2,2);tulos['joukko_suhde_%d'%W]=round(kms2/max(kms,1e-9),1)
             await ctx.close()
             print('ok',W,'errs',errs);assert not errs,errs
         print('keveys',tulos)

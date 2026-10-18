@@ -17,7 +17,8 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | tehdä Toiminnolle painike, Ketjulle käynnistysnappi, Muistille syöttökenttä, taulukolle Toistin tai Sekuntikellolle napit | paneelin Tee näkymään ▾ | [Tee näkymään](06-kaavat.md#tee-näkymään) |
 | laskea jotain | Kaava tai Lasku | [Kaavat](06-kaavat.md#kaavan-syntaksi), [Lasku](04-logiikkapalikat.md#lasku-lasku) |
 | muuttaa laskujärjestystä | sulut: `(sarake - 1) * 80` | [Laskutoimitukset](06-kaavat.md#laskutoimitukset) |
-| tehdä arvon nimestä, jonka kirjoitin kaavaan | ehdotusrivin ＋ Luo Arvo ”nimi” | [Ehdotusrivi](06-kaavat.md#ehdotusrivi) |
+| tehdä arvon nimestä, jonka kirjoitin kaavaan | ehdotusrivin ＋ Luo Arvo ”nimi”, tai vahvista kaava ja vastaa kysymykseen OK | [Ehdotusrivi](06-kaavat.md#ehdotusrivi) |
+| tehdä joukon (ja Joukko-palikan) kaavaan kirjoittamastani #nimestä | vahvista kaava ja vastaa *Joukkoa #x ei ole. Tehdäänkö?* OK, tai ＋ Luo joukko | [Joukko kaavassa](07-tieto.md#joukko-kaavassa) |
 | muuttaa tekstin sanan viittaukseksi | kirjoita `@` tai alku ja napauta ehdotusta `@viite` | [Ehdotusrivi teksteissä](06-kaavat.md#ehdotusrivi-teksteissä-ja-toimintojen-kentissä-appi-appi-35) |
 | antaa laskulle nimen | `nimi = lauseke` ja ＋ Luo kaavan tulos | [Kaavan tulos](04-logiikkapalikat.md#kaavan-tulos--tulos) |
 | valita kahdesta arvosta ehdolla | `jos (ehto) a muuten b` tai VALITSE | [Jos, ja, tai](06-kaavat.md#jos-ja-tai) |

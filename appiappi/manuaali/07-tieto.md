@@ -332,7 +332,7 @@ Ehdossa ei ole omaa kaavakenttää: ehto tehdään tavallisilla palikoilla nuole
 - **Jäsen ilman ominaisuutta:** `#kolikot.x.summa`, kun jollain jäsenellä ei ole `x`:ää, on virhe, joka nimeää jäsenen.
 - **Pelkkä ominaisuus ilman koostetta** (`#kolikot.x`) on virhe *valitse kooste*.
 - **Järjestys:** jäsenet logiikan palikkajärjestyksessä (`.jäsenet`, `.arvot`).
-- **Tuntematon joukko:** `#uusi.summa` antaa virheen *ei joukkoa: #uusi*, ja ehdotusrivillä on nappi **＋ Luo joukko #uusi**. Jos joukko tehdään myöhemmin (Tunnuksesta), kaava kytkeytyy siihen.
+- **Tuntematon joukko:** `#uusi.summa` antaa virheen *ei joukkoa: #uusi*. Kun vahvistat kaavan, alareunaan tulee kysymys *Joukkoa #uusi ei ole. Tehdäänkö? OK / Peruuta*; OK tekee joukon ja sen **Joukko-palikan** kaavan viereen (yksi Kumoa poistaa molemmat). Ehdotusrivin nappi **＋ Luo joukko #uusi** tekee saman (Appi-appi 69; ennen nappi teki pelkän joukon). Jos joukko tehdään myöhemmin (Tunnuksesta), kaava kytkeytyy siihen. Tunnus-kentän uusi `#nimi` tekee edelleen pelkän joukon ilman Joukko-palikkaa, koska tagi itse on jäsenyys.
 - `#x = …` (kaava asettaa jäseniä) **ei ole tehty**.
 
 ### Joukko tekstissä
