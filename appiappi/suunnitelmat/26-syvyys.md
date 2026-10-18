@@ -1,6 +1,6 @@
 # F42 Syvyys: kerroksen ja palikan etäisyys, josta parallaksi ja koko seuraavat
 
-18.10.2026. **Emilin idea** (viesti 18.10. klo 10.56 Suomen aikaa): kerroksille syvyys (etäisyys näytön pinnasta), joka ohjaa suoraan parallaksia rullatessa; kauemmas työnnetty kerros pienenee; myös yksittäiselle objektille oma syvyys; kaikki säädettävissä logiikalla ja tapahtumilla; ei saa raskauttaa. Tekoälyn jäsentämä suunnitelma. Merkinnät: *ehdotus* = tekoälyn suositus; ⏸ = odottaa Emilin päätöstä. **Ei toteutettu, ei jonossa.** [Hakemisto](../SUUNNITELMA.md), [2D-pelit](19-2d-pelit-ja-ymparistot.md), [palikan ruudukko](20-palikan-ruudukko.md), [animointi](14-animointi.md).
+18.10.2026. **Emilin idea** (viesti 18.10. klo 10.56 Suomen aikaa): kerroksille syvyys (etäisyys näytön pinnasta), joka ohjaa suoraan parallaksia rullatessa; kauemmas työnnetty kerros pienenee; myös yksittäiselle objektille oma syvyys; kaikki säädettävissä logiikalla ja tapahtumilla; ei saa raskauttaa. Tekoälyn jäsentämä suunnitelma. Merkinnät: *ehdotus* = tekoälyn suositus; ⏸ = odottaa Emilin päätöstä. **Emil hyväksyi 18.10.2026** (kohdan 10 kysymykset 1–4, 6 ja 7 suositusten mukaan). Jonossa 17b (napautuskorjaus, ei muotomuutosta), 17c (vaihe 1), 17d (vaihe 2); vaiheet 3–4 ⏸ (17e). **Ei toteutettu.** [Hakemisto](../SUUNNITELMA.md), [2D-pelit](19-2d-pelit-ja-ymparistot.md), [palikan ruudukko](20-palikan-ruudukko.md), [animointi](14-animointi.md).
 
 ## 1. Mitä nyt on (tarkistettu koodista 18.10.2026, Appi-appi 63)
 
@@ -76,7 +76,7 @@
 
 | Vaihe | Sisältö | Tallennusmuoto | Hyväksymiskoe |
 |---|---|---|---|
-| 1 | Kerroksen syvyys: valikko, koko ja rullaus kaavasta, muokkausnäkymä alkuhetkestä, *Säilytä näkyvä koko*, kosketuksen ja napautuksen muunnos (myös nykyinen rullausvauhti), kerroksen ruudukon piirto syvyydessä, karsinta syvyydelle | **laajenee**: kerroksen `sy` (luku) | kolmen kerroksen tausta (900, 300, pinta) vierittyy oikein; Alueen napautus syvässä kerroksessa osuu näkyvään kohtaan; zoomaus ja kojelauta ennallaan; vanha projekti näyttää täsmälleen samalta |
+| 1 | (Napautuksen muunnos tehdään ensin omana kohtana 17b, ei muotomuutosta.) Kerroksen syvyys: valikko, koko ja rullaus kaavasta, muokkausnäkymä alkuhetkestä, *Säilytä näkyvä koko*, kosketuksen ja napautuksen muunnos (myös nykyinen rullausvauhti), kerroksen ruudukon piirto syvyydessä, karsinta syvyydelle | **laajenee**: kerroksen `sy` (luku) | kolmen kerroksen tausta (900, 300, pinta) vierittyy oikein; Alueen napautus syvässä kerroksessa osuu näkyvään kohtaan; zoomaus ja kojelauta ennallaan; vanha projekti näyttää täsmälleen samalta |
 | 2 | Palikan oma syvyys, ominaisuudet `syvyys` ja `näkyväkoko`, Kerros-palikan `syvyys`, järjestys kerroksen sisällä | **laajenee**: palikan `sy`, Kerros-palikan ohjauskohta | palikka lähestyy Muutos ajassa -palikalla 900 → 0 ja ohittaa saman kerroksen palikat; kosketus seuraa kokoa; Joukon sääntö syvyydelle |
 | 3 ⏸ | Kameran syvyys (kamera liikkuu eteenpäin: lähellä oleva kasvaa nopeammin kuin kaukainen; kameran taakse jäävä piiloon) | **laajenee**: Kamera-palikan `syvyys` | lentäminen tähtikentän läpi |
 | 4 ⏸ | Ilmaperspektiivi: himmennys tai värin haalistuminen syvyyden mukaan (kevyt, läpinäkyvyys ja värin sekoitus; ei sumeutta oletuksena) | laajenee: kerroksen valinta | ei hidasta 60 kuvaa/s Headmazessa |
@@ -112,6 +112,8 @@ Ei 3D-mallinnusta, ei kallistusta eikä perspektiivivääristymää (palikka pys
 - **Ei uutta poikkeusta kosketukseen:** kosketus noudattaa näkyvää kohtaa, kuten nyt näkyvässä palikassa.
 
 ## 10. Avoimet kysymykset Emilille
+
+**Emil 18.10.: hyväksyn.** Kysymykset 1–4, 6 ja 7 ratkaistu ehdotusten mukaan (muokatessa alkuhetken kuva; *Säilytä näkyvä koko* vaiheessa 1; etuala sallittu, alaraja −90; kerros ensin, sen sisällä syvyys; jonossa ennen 2D-vaihetta C; nimi `näkyväkoko`). Kysymys 5 (vaiheet 3–4) odottaa yhä.
 
 1. ⏸ Muokatessa: näkyykö syvyys alkuhetken kuvana (*ehdotus*) vai litteänä ja napista *Näytä syvyys*?
 2. ⏸ *Säilytä näkyvä koko* -nappi syvyyttä muutettaessa: tehdäänkö vaiheessa 1 (*ehdotus* kyllä)?
