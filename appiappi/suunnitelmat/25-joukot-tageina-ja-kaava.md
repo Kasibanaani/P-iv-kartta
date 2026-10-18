@@ -2,7 +2,7 @@
 
 18.10.2026 (Suomen aikaa). **Emilin ajatus** (viesti 18.10. klo 3.37): `#` sopii paremmin joukolle kuin viitteelle, koska se on asiasana muutenkin. Palikalla olisi kenttä teknisille tiedoille, johon kirjoitetaan viite ja välilyönnein yksi tai monta joukkoa (`#unipisteet`). Kaavassa joukkoa käsiteltäisiin kokonaisuutena (summa, keskiarvo, suurin, pienin). Joukko voisi määräytyä myös logiikalla, ja viitteelle keksitään uusi etumerkki. Lisäksi kaavan sulut pelkiksi suluiksi, ja *jos* niin, että ehdon sulku sulkeutuu ennen seurausta (ei Excelin `jos(ehto; a; b)`).
 
-Merkinnät: *Emilin idea*, *ehdotus* (tekoälyn ratkaisu), ⏸ = odottaa Emilin päätöstä. **Ei toteutettu, ei jonossa.** Muuttaa hyväksyttyjä suunnitelmia [21 Palikkajoukko](21-palikkajoukko.md) (jonon 15c–15e) ja [23 Viittaustapa](23-viittaustapa.md) (jonon 12f), joten ne on merkitty jonossa ⏸ tämän päätöksen ajaksi. Lue ensin [palikkasäännöt](../PALIKKASAANNOT.md) (erityisesti A2, A3, A7, A9).
+Merkinnät: *Emilin idea*, *ehdotus* (tekoälyn ratkaisu), ⏸ = odottaa Emilin päätöstä. **Emil hyväksyi kaikki suositukset 18.10.2026** (klo 4.05). **Ei toteutettu.** Jonossa 12f (viittaustapa `@`), 12g (kaava), 15c–15e (joukot). Tämä suunnitelma korvaa [21 Palikkajoukon](21-palikkajoukko.md) ja [23 Viittaustavan](23-viittaustapa.md) ristiriitaiset kohdat. Lue ensin [palikkasäännöt](../PALIKKASAANNOT.md) (erityisesti A2, A3, A7, A9).
 
 ## 1. Lyhyt vastaus
 
@@ -79,7 +79,7 @@ Kaikki kolme ovat olemassa olevia mekanismeja, eivät uutta kieltä:
 2. **Ehdollinen tagi: kohta *kuuluu kun*** (A2, A5; tarkennettu 18.10. Emilin kysymyksestä ”jos unipisteet alle 80, niin kuuluu joukkoon”): jokaisella palikan tagilla on paneelissa oma kohta *kuuluu #huono_yö kun*, kuten *näkyy kun*. Oletus: aina. Kaava tai nuoli tekee jäsenyydestä ehdollisen: `kuuluu #huono_yö kun unipisteet < 80`. Muut tagit pysyvät ennallaan (ei koko listan korvaamista). Tunnus-kenttä näyttää ehdollisen tagin `#huono_yö⚡`. Lisäksi luettava ominaisuus `joukot` (lista voimassa olevista joukoista, `uni.joukot sisältää "terveys"`). Tämä on Emilin `#(viite)`-ajatus tavallisena kohtana. Monelle palikalle samalla ehdolla käytetään joukon sääntöä (kohta 1).
 **Rajaava ehto *Vain jos*** (Emilin kysymys 18.10. klo 4.00, ”muuten ei”): Joukko-palikassa on kaksi erillistä ehtoa. *Ota mukaan* lisää jäseniä (kohta 1). *Vain jos* (esim. `jäsen.arvo < 7`) koskee kaikkia, myös tagilla ja toiminnolla liitettyjä: ehtoa täyttämätön ei ole jäsen. Palikan Tunnus-kentässä tagi näkyy silloin himmeänä, ja Miksi? kertoo *#x: ei kelpaa, Vain jos -ehto ei päde*. Molemmat ehdot ovat valinnaisia; ilman niitä joukko on pelkät tagit.
 
-**Mihin ehto kirjoitetaan** (Emilin kysymys 18.10. klo 4.03): Joukko-palikkaan, ei Kaavaan. Palikka syntyy paletista (*Tieto → Joukko*, tai *Tieto → Joukot* -listasta vetämällä olemassa oleva tagi), ja sen kentät *Ota mukaan* ja *Vain jos* ovat kaavakenttiä, joihin voi kirjoittaa myös suoraan palikkaan (12d). Joukko-palikka on joukolle sama kuin Kaavan tulos arvolle: nimetty paikka, jonka määritys on yhdessä kohdassa. ⏸ *Vaihtoehto:* Kaava `#unipisteet = jäsen.arvo < 7` kirjoittaisi saman *Ota mukaan* -ehdon (kuten `summa = …` antaa arvon Kaavan tulokselle; puuttuva Joukko-palikka luodaan napista). Suositus: ei vielä, jotta samalla säännöllä on yksi koti; lisätään, jos Emil huomaa kirjoittavansa niin.
+**Mihin ehto kirjoitetaan** (Emilin kysymys 18.10. klo 4.03): Joukko-palikkaan, ei Kaavaan. Palikka syntyy paletista (*Tieto → Joukko*, tai *Tieto → Joukot* -listasta vetämällä olemassa oleva tagi), ja sen kentät *Ota mukaan* ja *Vain jos* ovat kaavakenttiä, joihin voi kirjoittaa myös suoraan palikkaan (12d). Joukko-palikka on joukolle sama kuin Kaavan tulos arvolle: nimetty paikka, jonka määritys on yhdessä kohdassa. ⏸ *Vaihtoehto:* Kaava `#unipisteet = jäsen.arvo < 7` kirjoittaisi saman *Ota mukaan* -ehdon (kuten `summa = …` antaa arvon Kaavan tulokselle; puuttuva Joukko-palikka luodaan napista). **Päätetty 18.10.: ei vielä**, jotta samalla säännöllä on yksi koti; lisätään, jos Emil huomaa kirjoittavansa niin.
 
 3. **Toiminnot** (A6, hetki): *Lisää joukkoon* ja *Poista joukosta* ovat Lisää/Poista-toimintoja ominaisuudelle `joukot` (tai kohteena joukko). Esim. vihollinen osuu → Poista joukosta `#elossa`.
 
@@ -105,7 +105,7 @@ Etusija on sama kuin muualla (A3): ohjattu kaava > toiminnon asettama > perusarv
 
 Esimerkit joukon kanssa: `#unipisteet.summa > 80` antaa kyllä tai ei ilman yhtään sulkua (riittää *näkyy kun* -kohtaan tai ikkunaan). Valinta: `jos (#unipisteet.summa > 80) "hyvä" muuten "huono"`.
 
-⏸ *Avoin:* jos-ehdon sulut voisi korvata sanalla `niin`: `jos #unipisteet.summa > 80 niin "hyvä" muuten "huono"`. Silloin kaavassa ei tarvita sulkuja lainkaan, paitsi laskujärjestykseen. Suositus: hyväksytään molemmat (kumpikin on yksiselitteinen), kenttä säilyttää kirjoitetun muodon.
+⏸ *Avoin:* jos-ehdon sulut voisi korvata sanalla `niin`: `jos #unipisteet.summa > 80 niin "hyvä" muuten "huono"`. Silloin kaavassa ei tarvita sulkuja lainkaan, paitsi laskujärjestykseen. **Päätetty 18.10.:** molemmat kelpaavat, kenttä säilyttää kirjoitetun muodon.
 
 Säännöt:
 
@@ -136,7 +136,7 @@ Säännöt:
 
 `PALIKKASAANNOT.md` A7 päivitetään vaiheessa 2 (funktiot poistuvat, sulut ryhmittelevät, `ja`/`tai`/`jos` ovat sanoja). Manuaali: luvut 2 (Tunnus), 3 (tekstin viite), 6 (kaava kokonaan uusiksi funktio-osuudelta), 7 (joukot), hakemisto ja versio.
 
-## 6. Päätettävät ⏸
+## 6. Päätökset (Emil hyväksyi kaikki suositukset 18.10.)
 
 1. `#` = joukko ja `@` = viite (suositus kyllä). Vaihtoehto: viite `§`.
 2. Viite ja joukot samaan Tunnus-kenttään (suositus kyllä).
