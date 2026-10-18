@@ -1,4 +1,4 @@
-# F40 Oppivat botit: sensori, alusta, pikakelaus ja oppiva arpa
+# F40 Oppivat botit: etäisyys, alusta, pikakelaus ja oppiva arpa
 
 18.10.2026. **Emilin ajatusleikki** (viestit 18.10. klo 2.59 ja 3.00 Suomen aikaa): voisiko maailmaan laittaa botin, jolla on suuntasensorit (asteluku suhteessa botin omaan pohjoiseen, ruudut ympärillä, lähellä olevat asiat nimeltä tai tyypiltä), ja joka oppisi niin, että onnistuneet kierrokset vahvistavat niissä tehtyjä valintoja ruutu- ja suuntakohtaisesti? Luuppi ajettaisiin nopeutettuna tosi monta kertaa, ja botti oppisi kiertämään zombeja tai jahtaamaan pelaajaa ilman, että sitä ohjelmoidaan suoraan. Lisäksi: koulutetut botit pelaajan vastustajina, ja eri verran oppineet botit eri vaikeustasoina.
 
@@ -41,7 +41,7 @@ Suositus (*ehdotus*): sensorit karkeina luokkina, ei tarkkoina lukuina. ”Zombi
 
 Nyt olemassa ja käyttökelpoista: ruutuliike (*ylös/alas/vasen/oikea*-tapahtumat = botin neljä valintaa, `ruutux`/`ruutuy` = sijainti), Alueen *astuttu* (perillä), törmäys-tapahtumat (zombi osui), Arpa (satunnainen haara, tasajakauma), Satunnaisluku painoilla, Tietotaulukko, Kaavio, Liikkeen *alkuun*, ketjut ja Ajastin. Puuttuu:
 
-1. **Sensori.** Kaava ei osaa laskea suuntaa tai etäisyyttä toiseen palikkaan (ei neliöjuurta eikä kulmafunktiota, eikä palikkasäännön 7 mukaan niitä lisätä kaavaan yhden tarpeen takia), ei löydä lähintä tietyn lajin palikkaa eikä kerro, mitä on ruudussa botin edessä. Suunta suhteessa botin omaan kulkusuuntaan puuttuu kokonaan.
+1. **Etäisyys ja suunta (sensorin osat).** Kaava ei osaa laskea suuntaa tai etäisyyttä toiseen palikkaan (ei neliöjuurta eikä kulmafunktiota, eikä palikkasäännön 7 mukaan niitä lisätä kaavaan yhden tarpeen takia), ei löydä lähintä tietyn lajin palikkaa eikä kerro, mitä on ruudussa botin edessä. Suunta suhteessa botin omaan kulkusuuntaan puuttuu kokonaan.
 2. **Koko maailma alkuun.** Liikkeen *alkuun* palauttaa yhden liikkujan, ja *Tyhjennä käyttötiedot* nollaa kaiken käsin, myös opitun. Ei toimintoa, joka palauttaa näkymän alkutilaan mutta säilyttää valitut asiat.
 3. **Nopeutus.** Aikakerrointa ei ole: kaikki kulkee seinäkellon mukaan noin 60 kuvaa sekunnissa, ja moottori rajaa kuvan pituuden 0,25 sekuntiin (`frame`, törmäykset muuten hyppäisivät seinien läpi). Miljoona askelta reaaliajassa ≈ 4,6 tuntia, ja appi piirtää jokaisen. Mitattu raskaus (`kartoitukset/2026-10-18-keveys.md`): moottori 2,7–5 ms kuvalle isossa projektissa. Hyvä uutinen: moottori on DOMista vapaa (`<script id="engine">`), joten sen voi ajaa piirtämättä.
 4. **Oppiva valinta.** Arvan haarat ovat aina yhtä todennäköisiä; painoa ei voi muuttaa tapahtumasta. Tietotaulukkoon voisi teoriassa käsin rakentaa arvotaulun (Hakutaulukko tilanteelle, Aseta arvo soluun, kaava parhaalle suunnalle `jos(;;)`-ketjuilla), mutta se olisi kymmenien palikoiden hirviö, joka vaatisi silti kohdat 1–3.
@@ -51,15 +51,26 @@ Nyt olemassa ja käyttökelpoista: ruutuliike (*ylös/alas/vasen/oikea*-tapahtum
 
 Jokainen on hyödyllinen ilman bottejakin (palikkasääntö 8, missio kohta 3).
 
-### 5.1 Sensori (`sensori`, uusi logiikkapalikka)
+### 5.1 Etäisyys ja Kohdassa: sensori rakennetaan yleisistä osista (Emilin linjaus 18.10.2026)
 
-- **Asetukset:** *kenen* (näkymäpalikka, esim. botti), *mitä etsii* (yksi palikka, joukko `#x` tai laji), *kantama* (px tai ruutua), *sektoreita* (4 tai 8), *seinät peittävät* (esteet katkaisevat näön; kyllä/ei).
-- **Ominaisuudet** (`omat`): `montako` (kantamalla näkyvät), `lähin.nimi`, `lähin.etäisyys`, `lähin.ruutuja`, `lähin.suunta` (asteina suhteessa *kenen* kulkusuuntaan, 0 = edessä, −180…180), `lähin.ilmansuunta` (maailman suunta, 0 = ylös), `lähin.sektori` (1–8 tai sanat *edessä, edessä oikealla, …*), `lähin.lähellä` (etäisyys alle puolet kantamasta). Ruututiedot, kun kerroksella on ruudukko: `edessä`, `vasemmalla`, `oikealla`, `takana` = mitä ruudussa on (*este*, *tyhjä* tai jäsenen Joukon nimi).
-- **Tapahtumat ulos:** *näki* (montako 0 → 1+), *menetti näkyvistä*.
-- **Muut käytöt:** vartija huomaa pelaajan näköyhteydellä; kompassinuoli lähimpään kolikkoon (Monitori `lähin.ilmansuunta`); ”kuuma–kylmä”-peli; Autopelin tekoälyauto katsoo seuraavaa tarkistuspistettä; tiedotus, kun lähin pysäkki on alle 100 m (myöhemmin karttamaailma).
-- **Keveys:** lasketaan vain, kun sitä luetaan, ja kerran kuvassa; ehdokkaina vain joukon jäsenet (ei koko maailmaa).
+*Emilin kysymys:* tarvitaanko erillinen Sensori, vai onko etäisyys yleinen työkalu, josta sensori rakennetaan tarpeen mukaan (ja peleihin presetit)? *Ehdotus:* jälkimmäinen. Sensori nimeää sovelluksen, ei tekemistä (palikkasääntö 1), ja lukitsisi etäisyyden yhteen käyttöön. Siksi kaksi yleistä mittaavaa palikkaa ja sensorit presetteinä (F26).
 
-- **Kaksi vaihetta (Emil 18.10.: etäisyydet kiinnostavat muutenkin, myös robotinrakennuspeli `master-tiedot/IDEAT.md` *Robottipaja*):** **2a** *mitä etsii* = yksi nimetty palikka: `etäisyys`, `ruutuja`, `suunta`, `ilmansuunta`, `sektori`, *näki/menetti* (kantamalla). **2b** joukko `#x` tai laji, lähin, `montako`, ruututiedot ja *seinät peittävät*.
+**Etäisyys** (`etaisyys`, logiikkapalikka; mittaa kahden asian välin):
+- **Asetukset:** *mistä* (palikka), *mihin* (palikka, joukko `#x` tai laji; joukolla mitataan lähimpään), *suunta suhteessa*: **maailmaan** (0 = ylös) tai **mistä-palikan kulkusuuntaan** (0 = edessä, −180…180; näin mittaus ”lukittuu hahmoon” ja kääntyy sen mukana), *mitta*: px tai ruutua (kerroksen tai palikan ruudukko), valinnainen *seinät peittävät* (esteet katkaisevat näön).
+- **Ominaisuudet** (`omat`): `arvo` = etäisyys, `dx`, `dy`, `suunta`, `sektori` (4 tai 8 suuntaa, 1 = edessä tai ylös), `näkyy` (näköyhteys), joukolla `kuka` (lähimmän nimi) ja `montako` (kuinka monta joukosta mitattiin).
+- **Sisään:** *mistä* ja *mihin* myös nuolella. **Ulos:** *arvo* jatkuvana, tapahtuma *muuttui*. Raja-tapahtumat (*tuli lähelle*) tehdään tavallisella Vertailulla `@zombi_väli < 100` ja sen *alkoi päteä* -tapahtumalla, ei omaa kynnystä palikkaan.
+- **Muut käytöt:** kompassinuoli lähimpään kolikkoon (Monitori `@kolikkoon.suunta`), ”kuuma–kylmä”, äänen voimakkuus etäisyyden mukaan, vihollinen kääntyy pelaajaa kohti (Liikkeen kohde `@pelaajaan.suunta`), tarkistuspisteen etäisyys Autopelissä, kaavio kahden pallon etäisyydestä ajassa.
+
+**Kohdassa** (`kohdassa`, logiikkapalikka; kertoo, mitä on tietyssä pisteessä):
+- **Asetukset:** *mistä* (palikka tai ei mitään = maailma), *siirto* (eteen/sivulle px tai ruutua, kiertyy mistä-palikan kulkusuunnan mukana; tai x, y maailmassa), *mitä etsii* (kaikki, este, joukko `#x`).
+- **Ominaisuudet:** `arvo` = päällimmäisen nimi tai tyhjä, `este` (kyllä/ei), `montako`, `joukot`.
+- **Muut käytöt:** ruutupelin ”onko edessä seinä”, Sokoban-tarkistus ennen työntöä, voiko tähän rakentaa, napautuspisteen alla olevat palikat, robotin törmäystuntoviikset.
+
+**Sensori-presetit** (F26, ei uutta palikkaa): *Etäisyyssensori* (Etäisyys lukittu hahmon kulkusuuntaan + Vertailu + sektori), *Näkösensori* (sama + seinät peittävät), *Tuntoviikset* (kolme Kohdassa-palikkaa: edessä, vasemmalla, oikealla). Avautuvat tavalliseksi logiikaksi.
+
+**Keveys:** lasketaan vain, kun arvoa luetaan, kerran kuvassa; joukolla vain jäsenet.
+
+**Miksi ei ominaisuutena jokaisella palikalla** (`@botti.etäisyys.zombi`): pareja on rajattomasti, ja asetuksille (suhteessa mihin, mitta, seinät) ei olisi paikkaa eikä Miksi?-selitystä. Palikka antaa näkyvän paikan ja nimen tulokselle, kuten Kaavan tulos.
 
 ### 5.2 Aloita alusta (toiminto)
 
@@ -88,7 +99,7 @@ Uusi toiminto *Aloita alusta*: valittu näkymä (tai koko projekti) palaa alkuti
 
 Arpa saa painot (kuten Satunnaisluku) ja valinnaisen osion **Oppiminen**:
 
-- *Tilanne*: kaava, joka nimeää tilanteen tekstinä, esim. `@botti.ruutux-@botti.ruutuy` tai `@zombisensori.lähin.sektori/@maalisensori.lähin.sektori/@zombisensori.edessä`. Rakentaja päättää, mitä botti tietää (kohta 2).
+- *Tilanne*: kaava, joka nimeää tilanteen tekstinä, esim. `@botti.ruutux-@botti.ruutuy` tai `@zombiin.sektori/@maaliin.sektori/@edessä.este`. Rakentaja päättää, mitä botti tietää (kohta 2).
 - *Palkkio* (sisään, tapahtuma + määrä): plus tai miinus mihin tahansa hetkeen (perillä +10, zombi −10, askel −0,1). *Kierros päättyi* (sisään): viimeinen palkkio ei valu yli kierrosten.
 - *Uteliaisuus* % (ohjattava; harjoitus 20 %, peli 0–5 %), *oppimisnopeus*, *kaukonäköisyys* (kuinka paljon tuleva palkkio painaa nyt; oletukset valmiina).
 - **Muisti on Tietotaulukko:** rivi per tilanne, sarake per haara. Sen voi avata ja lukea (”tästä tilanteesta haara 2 arvo 7,3”), monistaa tasoksi (*Taso 1000*), tyhjentää tai vaihtaa Arvan käyttämäksi Valitse-palikalla. Ei uutta tallennuslajia opitulle.
@@ -106,8 +117,8 @@ Arpa saa painot (kuten Satunnaisluku) ja valinnaisen osion **Oppiminen**:
 |---|---|---|---|
 | F40-0 | Arvonta: Satunnaisluku ja Arpa yhteen (5.0) | muutos (`repair` Arpa → Vaihtoehdot) | – |
 | F40-1 | Aloita alusta (5.2) | laajenee (toiminnon lista *säilytä*) | – |
-| F40-2a | Sensori yhteen palikkaan: etäisyys ja suunta (5.1) | laajenee, uusi laji `sensori` | – |
-| F40-2b | Sensori: lähin joukosta, ruudut ympärillä, näköyhteys (5.1) | laajenee | F40-2a (joukot ovat jo: Appi-appi 57, 62, 63) |
+| F40-2a | Etäisyys kahden palikan välillä, suunta maailmaan tai kulkusuuntaan (5.1) | laajenee, uusi laji `etaisyys` | – |
+| F40-2b | Etäisyys lähimpään joukosta ja näköyhteys, Kohdassa-palikka, sensoripresetit (5.1) | laajenee, uusi laji `kohdassa` | F40-2a (joukot ovat jo: Appi-appi 57, 62, 63) |
 | F40-3 | Pikakelaus ja näennäinen kello (5.3) | ei | jonon 1p (kevennys), F40-1 |
 | F40-4 | Arpa oppii (5.4) ja Miksi? | laajenee (Arvan valinnaiset kentät) | F40-1, F40-3 |
 | F40-5 | Nuolikartta (5.5) | ei | F40-4 |
@@ -124,9 +135,9 @@ Suositus jonoon: **F40-1 heti jonon 15 jälkeen** (pieni, hyödyllinen kaikille 
 
 ## 8. Linjakkuus
 
-- **Säännöt A1–A15:** Sensori nimetty tekemisen mukaan (aistii); Arpa säilyttää nimensä ja tekee saman asian painotettuna. Kaikki arvot `omat`-rekisteriin (A2); uteliaisuus ja kantama ohjattavia (vaikeustaso). Tapahtumat: Sensori *näki/menetti*, Arpa *palkkio/kierros päättyi* sisään, *alkoi alusta* ulos (A4). Kaava pysyy tilana: tilanne-kaava vain nimeää tilanteen, oppiminen tapahtuu Arvan arvoksi -tapahtumassa (A6). Ei uusia kaavafunktioita (A7). Opittu = Tietotaulukko, ei uutta tallennusta (A8). Miksi? molemmille (A10). Sensorin laskenta moottorissa (A12).
+- **Säännöt A1–A15:** Etäisyys ja Kohdassa nimetty tekemisen mukaan (mittaa, kertoo mitä pisteessä on); sensori on preset, ei palikka; Arpa säilyttää nimensä ja tekee saman asian painotettuna. Kaikki arvot `omat`-rekisteriin (A2); uteliaisuus ja kantama ohjattavia (vaikeustaso). Tapahtumat: Sensori *näki/menetti*, Arpa *palkkio/kierros päättyi* sisään, *alkoi alusta* ulos (A4). Kaava pysyy tilana: tilanne-kaava vain nimeää tilanteen, oppiminen tapahtuu Arvan arvoksi -tapahtumassa (A6). Ei uusia kaavafunktioita (A7). Opittu = Tietotaulukko, ei uutta tallennusta (A8). Miksi? molemmille (A10). Sensorin laskenta moottorissa (A12).
 - **Uusi käsite:** näennäinen kello pikakelauksessa. Se on uusi asia opittavaksi, mutta näkyy vain ⏩-työkalussa; muuten aika toimii kuten ennen.
-- **Erikoispalikka:** Arpa on jo ✦ (ketjun palikka). Oppiminen ei tuo uutta poikkeusta: Arpa kirjoittaa omaan Tietotaulukkoonsa käyttötietona kuten Muisti. Sensori on tavallinen logiikkapalikka.
+- **Erikoispalikka:** Arpa on jo ✦ (ketjun palikka). Oppiminen ei tuo uutta poikkeusta: Arpa kirjoittaa omaan Tietotaulukkoonsa käyttötietona kuten Muisti. Etäisyys ja Kohdassa ovat tavallisia logiikkapalikoita.
 
 ## 9. Avoimet kysymykset Emilille
 
