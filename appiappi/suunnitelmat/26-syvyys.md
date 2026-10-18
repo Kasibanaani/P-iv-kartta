@@ -8,7 +8,7 @@
 - **Parallaksi on jo olemassa rullausvauhtina** (`rv` 0–100, kerroksella ja palikalla; `rvOf`). Se on pelkkä *liike*: hidas kerros liikkuu osan kameran liikkeestä, mutta ei pienene. Palikan oma `rullausvauhti` on ohjattava ominaisuus (nuoli, kaava, Aseta); kerroksen vauhtia ei voi ohjata logiikasta (avoin kysymys TILA:ssa).
 - Toteutus: käyttöliittymä siirtää jokaista palikkaa CSS-siirrolla (`applyRV`), moottori ei tiedä siitä. Lukittu kerros (`rv:0`, kojelauta) ei myöskään zoomaudu.
 - **Kosketus** käytössä kulkee selaimen oman osumatestin kautta: piirretty palikka ottaa kosketuksen siitä, missä se näkyy, myös siirrettynä. Alimpaankin kerrokseen pääsee, kun mikään sen päällä ei peitä kohtaa eikä ylempi kerros *estä alempien käytön*.
-- **Puute (löytö):** Alueen ja Liikkeen napautus (`alueNapautus`, `liikeNapautus`) muuntaa sormen kohdan maailmaan ilman rullausvauhtia. Hitaassa kerroksessa oleva Alue ottaa napautuksen siitä kohdasta, missä se olisi täydellä vauhdilla. Sama koskee esteitä ja törmäyksiä: moottori laskee ne siirtämättömistä paikoista. Syvyys korjaa tämän samalla (kohta 4).
+- **Puute (löytö):** Alueen ja Liikkeen napautus (`alueNapautus`, `liikeNapautus`) muuntaa sormen kohdan maailmaan ilman rullausvauhtia. Hitaassa kerroksessa oleva Alue ottaa napautuksen siitä kohdasta, missä se olisi täydellä vauhdilla. Sama koskee esteitä ja törmäyksiä: moottori laskee ne siirtämättömistä paikoista. Syvyys korjaa tämän samalla (kohta 4). **Korjattu Appi-appi 72:ssa (jonon 17b)** napautukselle ja pudotukselle yhdellä moottorin muunnoksella `rvMuunnos`; esteet ja törmäykset ennallaan.
 
 ## 2. Vastaukset Emilin kysymyksiin
 
