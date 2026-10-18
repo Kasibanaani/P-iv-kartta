@@ -1,6 +1,8 @@
 # F37 Palikkajoukko: yksi sääntö monelle palikalle
 
 > **18.10.2026: Emil hyväksyi muutokset** suunnitelmasta [25 Joukot tageina](25-joukot-tageina-ja-kaava.md): käsin jäsenyys = `#tagi` palikan Tunnus-kentässä, koosteet `#joukko.summa`, Joukko-palikka vapaaehtoinen (*Ota mukaan*, *Vain jos*). Ristiriidassa suunnitelma 25 voittaa. Jonon 15c–15e.
+>
+> **Kartoitus 8 (18.10.):** 15c on toteutunut (Appi-appi 57). Siksi tämän suunnitelman kohdan 3 *Käsin valitut* (pudotus Joukon päälle, ruksilista), kohta 6.1 ja kohdan 6 lause ”jäsenyys tallentuu Joukkoon” **eivät ole voimassa**: käsin jäsenyys on palikan tagi (`b.jkt`), ja Joukko-palikalla ei ole omaa viitettä (kaavassa aina `#nimi`). 15d:n ja 15e:n etusija, sekajoukon ehdot, kiinteät kohdat ja tapahtumat sekä avaimet: [suunnitelma 25 kohta 8](25-joukot-tageina-ja-kaava.md).
 
 18.10.2026. **Emilin kysymys** (viesti 18.10. klo 0.09 Suomen aikaa): miten logiikkapuolella palikat napataan ryhmäksi niin, että kaavassa ryhmän nimi tarkoittaa jokaista jäsentä vuorollaan (”ryhmä1 = palikka2 + palikka3”)? Onko se ikkunaominaisuus? Miten jäsenyyttä hallitaan käsin ja säännöllä, myös myöhemmin tehtävien palikoiden osalta? Merkinnät: *Emilin idea* = hänen sanomansa, *ehdotus* = tekoälyn suunnitteluratkaisu, *avoin* = päätetään ennen rakentamista. **Emil hyväksyi suositukset 18.10.2026** (nimi Joukko, paikkamerkki `jäsen`, kaikki muut ehdotukset) ja siirsi F37:n jonossa 2D-pelien edelle. **Ei toteutettu.** Lue ensin [periaatteet](00-periaatteet.md) ja [palikkasäännöt](../PALIKKASAANNOT.md).
 

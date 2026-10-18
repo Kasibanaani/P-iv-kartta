@@ -158,6 +158,17 @@ Säännöt:
 7. **Sanat (U9, U10):** koosteet samalla sanalistalla kuin sarakkeilla (`TAGG`, myös `täydellinen`); `jäsen` varataan 15d:ssä; Joukko-palikan nimi on joukon nimi, eikä sillä ole omaa `@`-viitettä. Kohdan 3.1 *viitelappu* tarkoittaa: 12c:n lappu näyttää tekstin lähteet valitulla tavalla (`@uni`, `#unipisteet.summa`), ei palikan omaa tunnusta. A7:n teksti päivitetään 12g:ssä, ja 15c lisää siihen joukkojen koosteet.
 8. **12g (U4, U5):** `repair` muuntaa vanhat kaavat projektin palikoissa (Kaavan `f`, Toiminnon kentät `kv`), ketjujen lukituskuvissa (ja nostaa kuvan version, jotta lukittu ketju jatkaa) sekä preseteissä (`Dt.presetit`). Vanha muoto tunnistetaan `;`-merkistä, ei sulun paikasta (`Jos (uni < 7; 2,5; 0)` on vanhaa muotoa). Varattu sana ei kelpaa oletusviitteeksi: JOS-palikan oletusviite on nyt `jos`. Manuaali sanoo, että kaavan `jos` on VALITSE-palikka kaavana; JOS-palikka (pätee + NIIN-tapahtuma) on eri asia.
 
+## 8. Kartoitus 8: 15d ja 15e toteutuneen 15c:n jälkeen (18.10.)
+
+[Linjakkuuskartoitus 8](../kartoitukset/2026-10-18-linjakkuus-8.md) tarkisti 15d:n ja 15e:n suunnitelmat Appi-appi 57:ää (`68e0c21`) vasten. Nämä ovat tekoälyn ehdotuksia, jotka täydentävät kohtia 3.4 ja 5 sekä suunnitelman 21 kohtia 3–6; Emil voi muuttaa.
+
+1. **Jäsenyyden etusija (U1, A3):** **Vain jos** (rajaa kaikkia) > jäsenen oma **kuuluu kun** -nuoli > **Lisää/Poista joukosta** (käyttötieto) > **perusjäsenyys** = tagi ∪ *Ota mukaan* − pois suljetut. *Ota mukaan* kertoo, keistä joukko koostuu, kuten tagi, joten se on perusarvo, vaikka se on kaava; näin *Poista joukosta `#elossa`* toimii myös sääntöjoukolle. *Palauta perusarvo* palaa perusjäsenyyteen. Miksi? kertoo tason.
+2. **Sekajoukko (U2):** ehdossa (*Ota mukaan*, *Vain jos*) jäsen, jolta puuttuu luettu ominaisuus, ei päde (kuten Rivijoukon *ehto riveittäin*), ja Miksi? kertoo sen. Muut virheet (kehä, katkennut viite) ovat joukon virheitä kuten 15c:ssä. *Säännöt jäsenille* ohittavat jäsenen, jolla ei ole ohjattavaa ominaisuutta.
+3. **Kiinteät kohdat ja tapahtumat (U3):** Joukko-palikan kohdat ja tapahtumat eivät riipu hetken jäsenistä, koska jäsenet vaihtuvat käytössä ja joukko voi olla tyhjä (muuten nuolia katoaisi). 15d: näkymäpalikan yhteiset kohdat. 15e: näkymäpalikoiden yhteiset tapahtumat ja paneelin valinta *Jäsenten laji* lajikohtaisille (esim. Liike → *jäsen törmäsi*). Jäsen ilman kohtaa tai tapahtumaa ohitetaan.
+4. **Avaimet (U4):** pois suljetut esim. `b.jex` (ei `pois`: `P.pois` on poistettujen palikoiden rekisteri); 15e:n kohde *Tapahtuman jäsen* erillisenä kenttänä esim. `b.otj:1`, koska `b.o` on aina palikan tunniste. Tarkistettu vapaiksi; rakentaja tarkistaa uudelleen.
+5. **Elinkaari (U5):** Joukko-palikan poisto poistaa vain sen säännöt (vaikutuslistalla), joukko ja tagit jäävät. Joukon poisto paletista poistaa myös Joukko-palikan. Nimen vaihto kummasta tahansa vaihtaa molemmat. Joukko-palikalla ei tageja eikä `joukot`-ominaisuutta (ei joukkojen joukkoja). `jäsen` joukon kenttien ulkopuolella: selkeä virhe.
+6. **Järjestys:** 1q on viety (Appi-appi 58), joten `jäsen.käynnissä` ei anna hiljaa väärää arvoa. Ennen 15d:tä jonon 1r (Rivijoukon oletusnimi *Suodatus*, jotta paletissa ei ole kahta *Joukkoa*).
+
 ## Linjakkuus
 
 - A2: `joukot` on tavallinen ominaisuus (perusarvo, kaava, toiminto). Koosteet joukon ominaisuuksina, samat nimet kuin taulukon sarakkeilla (A8: yksi opittava tapa).
