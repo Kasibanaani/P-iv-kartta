@@ -59,6 +59,7 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | kertoa tekoälylle palikasta | viestilappu | [Muisti- ja viestilaput](02-tyoymparisto.md#muisti--ja-viestilaput) |
 | kumota | ↶ Kumoa (vain rakenne, ei käyttötietoja) | [Kumoa](02-tyoymparisto.md#kumoa-ja-tee-uudelleen) |
 | käyttää samaa rakennetta uudestaan | suosikit, presetit, kopioi ja liitä | [Suosikit ja presetit](02-tyoymparisto.md#suosikit-ja-presetit) |
+| lisätä monta samaa nopeasti (seiniä, kolikoita, hahmoja) | Rakennuslaatikko, klik klik | [Rakennuslaatikko](02-tyoymparisto.md#rakennuslaatikko) |
 
 ## Palikat
 

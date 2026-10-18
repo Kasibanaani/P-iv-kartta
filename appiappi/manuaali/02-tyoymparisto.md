@@ -161,7 +161,7 @@ Paletti näyttää vain sen puolen palikat, joka on auki: Näkymä-välilehdell�
 | Ohjaimet | Painike, Valintaruutu, Kytkin, Säädin, Tatti, Tekstikenttä, Lukukenttä, Päivämäärä |
 | Näyttö | Laatikko (sama kuin Koristeiden Laatikko, peruspalikka tekstille), Teksti, Monitori, Kuva, Ilmoitus, Lista, Aikajana, Kaavio, Kalenteri, Toistin (Toistin näkyy vasta, kun projektissa on Tietotaulukko) |
 | Koristeet | Laatikko, Ympyrä, Lappu, Kehys, Sijainti, Alue, Reitti ja työkalu **Viiva** |
-| Pikaluonti | Vaihtoehtoryhmä…, Kyllä/ei-kysymys… |
+| Pikaluonti | Vaihtoehtoryhmä…, Kyllä/ei-kysymys…, **Rakennuslaatikko** (avaa tai sulkee kelluvan laatikon, ks. [Rakennuslaatikko](#rakennuslaatikko)) |
 
 **Logiikan paletti**, ryhmät:
 
@@ -456,6 +456,46 @@ Näkymän paletin ryhmä *Pikaluonti* tekee valmiin ryhmän tavallisista palikoi
 
 Luodut palikat ovat valittuina, ja niitä muokataan kuten muita. Kumoa peruu koko luonnin.
 
+## Rakennuslaatikko
+
+Auki pysyvä, kelluva laatikko näkymäkanvaasin päällä (Appi-appi 61). Siitä poimitaan valmiita kohteita nopeasti kanvaasille: valitse kohde ja klikkaa näkymää, jokainen klikkaus lisää yhden (klik klik). Laatikko on rakentajan työkalu, ei palikka: kaikki, mitä siitä tulee, on tavallisia palikoita.
+
+**Kädenliikkeet:**
+
+- **Avaa ja sulje:** Näkymä-välilehden paletti → *Pikaluonti* → **Rakennuslaatikko** (sama sirun napautus sulkee). Laatikon otsikon **✕** piilottaa sen. Laatikko näkyy vain muokatessa Näkymä- tai Rinnakkain-välilehdellä; lukittuna ja Logiikka-välilehdellä se on piilossa ja palaa, kun palaat muokkaamaan.
+- **Siirrä:** vedä otsikosta (*Rakennuslaatikko*). **Koko:** vedä oikeasta alakulmasta.
+- **Hyllyt:** välilehdet **Rakenne**, **Hahmot**, **Alueet**, **Esineet**, **Näkymä** ja **Omat**.
+- **Klik klik:** napauta kohdetta (se korostuu ja osoitin muuttuu ristiksi näkymän päällä). Jokainen klikkaus näkymään lisää yhden niin, että pääpalikan keskipiste tulee klikkauskohtaan. Lopeta **Esc**:llä tai napauttamalla samaa kohdetta uudestaan. Ruudukko kohdistaa kuten paletista lisätessä.
+- **Raahaus:** vedä kohde laatikosta kanvaasille: lisää yhden pudotuskohtaan.
+- **Kumoa** (⌘Z) peruu yhden lisäyksen kerrallaan.
+- Lisätty pääpalikka jää valituksi. Logiikka menee Logiikka-kanvaasin alaosaan omaan Ryhmäänsä (nimetty pääpalikan mukaan), joten monta lisäystä ei kasaa palikoita päällekkäin.
+- **muokkaa** (otsikossa): valmiin kohteen **✕** piilottaa sen tästä laatikosta, piilotetun **↺** palauttaa; **valmis** lopettaa. Palikoihin tämä ei koske.
+- Laatikon paikka, koko, valittu hylly, auki/kiinni ja piilotetut kohteet muistetaan **tässä selaimessa** (ei projektissa, ei varmuuskopiossa eikä GitHubissa).
+
+**Valmiit kohteet:**
+
+| Hylly | Kohde | Mitä syntyy |
+|---|---|---|
+| Rakenne | Seinä | Laatikko 40 × 160, **Este** |
+| Rakenne | Lattia | Laatikko 400 × 32, Este |
+| Rakenne | Pallo | Ympyrä 40 × 40, Este, massa 1, kimmoisuus 80 %, ja Liike ilman ohjausta (lennähtää törmäyksestä) |
+| Rakenne | Työnnettävä laatikko | Laatikko 60 × 60, Este, massa 3, ja Liike ilman ohjausta (liukuu työnnettäessä, kitka pysäyttää) |
+| Hahmot | Pelaaja: tatti | Ympyrä *Pelaaja* 48 × 48, Tatti sen alla ja Liike (ohjaus Tatti, 200 px/s). Isossa maailmassa siirrä tatti lukittuun kerrokseen ([Kerrokset käytössä](08-maailma-ja-liike.md#kerrokset-käytössä)). |
+| Hahmot | Pelaaja: napautus | Ympyrä *Pelaaja* ja Liike (ohjaus Napautus, Kiertää esteet, 200 px/s) |
+| Hahmot | Vihollinen edestakaisin | Ympyrä *Vihollinen* (Este), Reitti 240 px sen keskeltä oikealle ja Liike (ohjaus Reitti, Edestakaisin, 120 px/s). Reitin pisteitä voi siirtää. |
+| Alueet | Alue | Alue 200 × 160 |
+| Alueet | Maali | Alue *Maali* 120 × 120 ja Ilmoitus ”Maali!”, jonka *näkyy kun* tulee Maalin *sisällä*-kohdasta |
+| Alueet | Aloituskohta | Sijainti *Aloitus* |
+| Esineet | Kolikko | Ympyrä *Kolikko* 28 × 28, Alue sen ympärillä, Muisti *Kolikko: kerätty*, Aseta tila (astuttu → kerätty) ja Lisää (kerätty → Pisteet + 1) sekä Kaava `jos kolikkokerätty niin ei muuten kyllä` → kolikon *näkyy kun*. Kolikko katoaa, kun liikkuvan keskipiste tulee sen alueelle. |
+| Esineet | Pomppulevy | Laatikko 120 × 24, Este, kimmoisuus 150 % |
+| Näkymä | Pistenäyttö | Teksti ”Pisteet: @pisteet” |
+| Näkymä | Elämät | Monitori *Elämänäyttö* (muoto pisteet, ♥, 0–5) ja Muisti *Elämät* (alkuarvo 3) nuolella sen arvoon. Vähennä toiminnolla Lisää, määrä −1. |
+| Omat | omat presetit | kuten paletin Presetit-ryhmä ([Presetit](#presetit)): näkymäpalikoiden keskikohta tulee klikkauskohtaan. Napit **＋ Valinta presetiksi** ja **Presetit…** (hylly). |
+
+**Pisteet ja Elämät yhteisinä:** Kolikko ja Pistenäyttö käyttävät Muistia, jonka viite on `pisteet`, ja Elämät Muistia, jonka viite on `elämät`. Jos sellaista ei vielä ole, se tehdään (ilmoitus kertoo: ”Uusi logiikkaan: Pisteet”). Jos on, kohde käyttää sitä: kolikon Ryhmään tulee Pisteistä uusi esiintymä (2×), ei uutta muistia. Haku on vain viitteellä; samanniminen muulla viitteellä ei kelpaa.
+
+**Rajat:** laattojen, painovoiman ja hypyn kohteet tulevat 2D-vaiheiden mukana; nyt niitä ei ole. Hyllyjä ei voi nimetä uudelleen eikä omia lisätä; omat kohteet tehdään presetteinä (Omat-hylly). Kolikko ei palaa itsestään: *Kolikko: kerätty* nollautuu Tyhjennä käyttötiedot -napista tai toiminnolla.
+
 ## Kerrokset (lyhyesti)
 
 Näkymän asetusten osio *Kerrokset (näkymän nimi)* (napauta tyhjää näkymäkanvaasilla): kerroslista ylimmästä alimpaan. Rivillä **○/●** (kerros, johon uudet palikat tulevat), nimi, palikoiden määrä, **✕** (poista kerros; palikat siirtyvät pohjalle), sekä napit **⬚** (valitse kerroksen palikat), **👁** (piilota muokatessa), **🔒** (lukitse muokatessa: palikkaan ei voi tarttua), **🧱** (este), **▦** (ruudukko), **⚙** (käytön asetukset), **↑ ↓** (järjestys). Alhaalla **＋ Uusi kerros**. 👁 ja 🔒 koskevat vain muokkausta. Tarkemmin Kerros-palikan luvussa.
@@ -501,7 +541,7 @@ Tietokoneella. ⌘ = Macin Command, Windowsissa Ctrl. Oikotiet eivät toimi, kun
 | ⌫ tai Delete | Poista valittu (palikka, esiintymä, nuoli, koristeviiva) tai valitut | muokatessa |
 | Nuolinäppäimet | Siirrä valittua näkymäpalikkaa 1 px | näkymän muokkaus |
 | ⇧ + nuoli | Siirrä 10 px | näkymän muokkaus |
-| Esc | Poista valinta, lopeta työkalu, sulje valikko ja ikkuna | kaikkialla |
+| Esc | Lopeta rakennuslaatikon klik klik (ensin), muuten poista valinta, lopeta työkalu, sulje valikko ja ikkuna | kaikkialla |
 | ⇧ + napsautus | Lisää valintaan tai poista valinnasta | kanvaasit |
 | ⇧ + veto tyhjästä | Valintalaatikko | kanvaasit |
 | ⇧ raahatessa | Ohita kohdistus ruudukkoon | näkymän muokkaus, reitin pisteet |
