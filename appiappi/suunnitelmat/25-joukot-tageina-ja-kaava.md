@@ -53,6 +53,7 @@ Paneelin nykyinen *Viite*-kenttä muuttuu kentäksi **Tunnus**: `@uni #unipistee
 | `#unipisteet.havaintoja`, `.puuttuvia`, `.virheitä` | kuten sarakkeen koosteet |
 | `#kolikot.x.pienin` | jäsenten ominaisuuden kooste (vrt. `ostokset.määrä.summa`) |
 | `#kolikot.jäsenet` | jäsenten nimet listana (kuten `rastitettu`) |
+| `#unipisteet.arvot`, `#kolikot.x.arvot` | jäsenten arvot (tai ominaisuus) luettelona ”7, 3, 5” (*ehdotus* 18.10., Emilin kysymys ”jokainen erikseen outputiksi”) |
 | `uni.joukot sisältää "terveys"` | palikan oma ominaisuus `joukot` |
 
 Tekstissä sama: `Unipisteet: #unipisteet.summa`. Tuntematon `#sana` jää tekstiksi (suunnitelman 23 sääntö 5), `##` = merkki tekstinä. Kaavassa tuntematon `#sana` on virhe *ei joukkoa: sana* ja nappi *Luo joukko*.
