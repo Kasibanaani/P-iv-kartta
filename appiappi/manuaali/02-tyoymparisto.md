@@ -159,7 +159,7 @@ Paletti näyttää vain sen puolen palikat, joka on auki: Näkymä-välilehdell�
 |---|---|
 | Suosikit, Presetit | omat valinnat, jos niitä on (ks. Suosikit ja presetit) |
 | Ohjaimet | Painike, Valintaruutu, Kytkin, Säädin, Tatti, Tekstikenttä, Lukukenttä, Päivämäärä |
-| Näyttö | Teksti, Monitori, Kuva, Ilmoitus, Lista, Aikajana, Kaavio, Kalenteri, Toistin (Toistin näkyy vasta, kun projektissa on Tietotaulukko) |
+| Näyttö | Laatikko (sama kuin Koristeiden Laatikko, peruspalikka tekstille), Teksti, Monitori, Kuva, Ilmoitus, Lista, Aikajana, Kaavio, Kalenteri, Toistin (Toistin näkyy vasta, kun projektissa on Tietotaulukko) |
 | Koristeet | Laatikko, Ympyrä, Lappu, Kehys, Sijainti, Alue, Reitti ja työkalu **Viiva** |
 | Pikaluonti | Vaihtoehtoryhmä…, Kyllä/ei-kysymys… |
 
@@ -214,6 +214,7 @@ Tietokoneella kanvaasin kulmassa on pieni kiinteä laatikko. Kun hiiri on palika
 - **Napauta palikkaa**: se valitaan, ja paneeli näyttää sen asetukset.
 - **Napauta tyhjää**: valinta poistuu (ja kanvaasi lähtee rullaamaan, jos vedät).
 - **Esc**: poistaa valinnan ja lopettaa työkalun (esim. Viiva).
+- **Kaksoisnapsautus tai Enter** näkymän tekstilliseen palikkaan (Laatikko, Teksti, Painike, otsikolliset ohjaimet): teksti kirjoitetaan suoraan palikkaan, ks. [suora kirjoitus](03-nakymapalikat.md#teksti-ja-upotetut-viitteet).
 
 ### Monivalinta (vain näppäimistöllä)
 
