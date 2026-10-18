@@ -493,6 +493,7 @@ Auki pysyvä, kelluva laatikko näkymäkanvaasin päällä (Appi-appi 61). Siit�
 | Alueet | Maali | Alue *Maali* 120 × 120 ja Ilmoitus ”Maali!”, jonka *näkyy kun* tulee Maalin *sisällä*-kohdasta |
 | Alueet | Aloituskohta | Sijainti *Aloitus* |
 | Esineet | Kolikko | Ympyrä *Kolikko* 28 × 28, Alue sen ympärillä Tunnuksella `#kolikot` ja Kaava `kolikkoalue.joukot sisältää "kolikot"` → kolikon *näkyy kun*. Ensimmäinen kolikko tekee lisäksi yhteisen osan Ryhmään *Kolikot*: Joukko-palikka `#kolikot` (Jäsenten laji Alue), *jäsen astuttu* → Poista joukosta (Tapahtuman jäsen) ja Lisää Pisteet 1. Seuraavat kolikot liittyvät samaan Ryhmään. Kolikko katoaa, kun liikkuvan keskipiste tulee sen alueelle (Appi-appi 66, [Jäsenten tapahtumat](07-tieto.md#jäsenten-tapahtumat-appi-appi-63)). |
+| Esineet | Liikkuva taso | Laatikko *Liikkuva taso* 160 × 20 (Este), Reitti 240 px sen keskeltä oikealle ja Liike (ohjaus Reitti, Edestakaisin, 80 px/s). Painovoimassa päällä seisova kulkee mukana ([Painovoima ja maassa](08-maailma-ja-liike.md#painovoima-ja-maassa), Appi-appi 82). |
 | Esineet | Pomppulevy | Laatikko 120 × 24, Este, kimmoisuus 150 % |
 | Näkymä | Pistenäyttö | Teksti ”Pisteet: @pisteet” |
 | Näkymä | Elämät | Monitori *Elämänäyttö* (muoto pisteet, ♥, 0–5) ja Muisti *Elämät* (alkuarvo 3) nuolella sen arvoon. Vähennä toiminnolla Lisää, määrä −1. |

@@ -403,13 +403,14 @@ Painovoima on **Alueen** ominaisuus (jonon 16, 2D-pelien vaihe A): alue vetää 
 - **Painovoiman kääntö:** toiminto **Aseta** → Alue → `suunta` (ylös), tai **Aseta** → `painovoima`. Hahmon maassa-tieto ja ohjaus kääntyvät mukana. Suunta kaavassa ja toiminnossa: `alas`, `ylös`, `vasen`, `oikea` tai 1–4.
 - **Hyppy:** Liikkeen kohta **hyppää** (ks. Hyppy alla). Vanha kiertotie **Aseta** → `vauhtiy` toimii yhä.
 - **Tasainen aika:** kun projektissa on painovoima-Alue, liike lasketaan kiinteinä 1/120 s:n askelina, joten putoaminen ja lentorata ovat samat 30, 60 ja 120 Hz:n näytöllä. Yhdessä kuvassa on enintään 8 askelta: alle 15 kuvaa sekunnissa peli hidastuu eikä hyppää. Ilman painovoima-Aluetta liike lasketaan kuten ennen.
+- **Liikkuva taso kantaa** (jonon 22, Appi-appi 82): maassa oleva kulkee alustansa mukana, liikkui alusta millä tavalla tahansa (oma Liike, Reitti, Muutos ajassa, kaava tai toiminto). Nouseva taso nostaa ja laskeva laskee ilman *irtosi maasta* -tapahtumaa; alustan oma Liike ei törmää päällä seisovaan, joten hissi ei pysähdy matkustajaansa. Oma kävely lisätään tason liikkeeseen. Este pysäyttää kannon (seinä tason vieressä työntää matkustajan pois tasolta). Hyppy irrottaa, ja ilmassa ei kanneta. Valmis taso: rakennuslaatikon Esineet → **Liikkuva taso**. Tason Liikkeelle Painovoima 0 %, jos se on painovoima-Alueella eikä kulje Reittiä.
 - Kuvasilmukka pysähtyy, kun kaikki ovat maassa ja paikallaan, ja käy, kun jokin on ilmassa.
 
 **Ominaisuudet:** Alueella `painovoima`, `suunta` ja `ilmanvastus` (kaikki ohjattavia), Liikkeellä `painovoima` (%), `maassa`, `alla`, `putoamisvauhti` ja hypyn ominaisuudet (ks. Hyppy).
 
 **Esimerkki:** Näkymään Alue *Maailma* (koko näkymä, Painovoima 2000), sen alareunaan Laatikko *Lattia* (Este) ja ylös Laatikko *Pelaaja* (Este). Logiikkaan Liike, Liikutettava palikka Pelaaja, Ohjaus Tatti. Lukitse: pelaaja putoaa lattialle, `liike.maassa` = kyllä, `liike.alla` = Lattia. Hyppy: ks. seuraava osio.
 
-**Rajat:** ei kaltevia pintoja (osuma-alue on laatikko tai ympyrä), ei liikkuvia tasoja (alusta ei kanna mukanaan, jonon 22).
+**Rajat:** ei kaltevia pintoja (osuma-alue on laatikko tai ympyrä). Liikkuvalta tasolta hypätessä tason vauhti ei siirry hyppyyn, eikä katon ja tason väliin jäävä litisty (taso menee sisään).
 
 ## Hyppy
 

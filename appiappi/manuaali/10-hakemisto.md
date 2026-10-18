@@ -61,6 +61,7 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | tunnistaa törmäyksen tai alueeseen astumisen | Este, Liikkeen *törmäsi*, Alue | [Maailma ja liike](08-maailma-ja-liike.md) |
 | tehdä tasoloikan painovoiman (putoaminen, maassa, laskeutuminen, painovoiman kääntö) | Alueen osio Painovoima, Liikkeen *maassa*, *laskeutui*, `tapahtuma.puoli` | [Painovoima ja maassa](08-maailma-ja-liike.md#painovoima-ja-maassa) |
 | maalata seinät, lattiat ja tasot ruudukkoon (sokkelo, tasoloikka, pohjapiirros) | Laattakartta, Maalaa | [Laattakartta](08-maailma-ja-liike.md#laattakartta-laatat) |
+| tehdä liikkuvan tason tai hissin, joka kantaa päällä seisovaa | Rakennuslaatikko → Esineet → Liikkuva taso; mikä tahansa liikkuva este | [Painovoima ja maassa](08-maailma-ja-liike.md#painovoima-ja-maassa) |
 | hypätä (korkeus, lyhyt hyppy, tuplahyppy, armoaika, ennakko) | Liikkeen kohta *hyppää*, osio Hyppy, tapahtuma *hyppäsi* | [Hyppy](08-maailma-ja-liike.md#hyppy) |
 | tehdä syvyyttä (tausta pienempänä ja hitaampana, lähestyvä palikka) | kerrosrivin syvyys, palikan *Oma syvyys*, ominaisuudet `syvyys` ja `näkyväkoko`, Kerros-palikan `syvyys` | [Kerrokset käytössä](08-maailma-ja-liike.md#kerrokset-käytössä) |
 | tehdä puhelimen muotoisen näkymän | Näkymän laite: Puhelin | [Laitemuoto](02-tyoymparisto.md#laitemuoto-vapaa-puhelin-ipad) |
