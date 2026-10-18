@@ -1,6 +1,6 @@
 # F43 Aukot ja paikat: avattava valikko on katse toiseen kohtaan samaa kanvaasia
 
-18.10.2026. **Emilin ajatus** (viesti 18.10. klo 11.42 Suomen aikaa): käyttäjäpuolella avautuva ”alasvetovalikko”, joka ei ole vain vaihtoehtolista vaan oma minikanvaasi (vapaa asettelu, vieritys); se voisi olla toinen sijainti samalla loputtomalla kanvaasilla, kuten välilehdetkin voisivat olla; alueen vierityksen rajaus helposti (ikkunan leveys, vapaa, ruudun koko); syvyyden suhde rajaan; mitä muita vaihtoehtoja on. Tekoälyn jäsentämä suunnitelma. Merkinnät: *ehdotus* = tekoälyn suositus; ⏸ = odottaa Emilin päätöstä. **Ei hyväksytty, ei jonossa, ei toteutettu.** [Hakemisto](../SUUNNITELMA.md), [syvyys](26-syvyys.md), [käyttöpinta F11](03-kayttopinta.md), [palikan ruudukko](20-palikan-ruudukko.md).
+18.10.2026. **Emilin ajatus** (viesti 18.10. klo 11.42 Suomen aikaa): käyttäjäpuolella avautuva ”alasvetovalikko”, joka ei ole vain vaihtoehtolista vaan oma minikanvaasi (vapaa asettelu, vieritys); se voisi olla toinen sijainti samalla loputtomalla kanvaasilla, kuten välilehdetkin voisivat olla; alueen vierityksen rajaus helposti (ikkunan leveys, vapaa, ruudun koko); syvyyden suhde rajaan; mitä muita vaihtoehtoja on. Tekoälyn jäsentämä suunnitelma. Merkinnät: *ehdotus* = tekoälyn suositus; ⏸ = odottaa Emilin päätöstä. **Emil hyväksyi 18.10.2026** (kohdan 10 kysymykset 1–5 suositusten mukaan). Jonossa 22b–22e (vaiheet 1–4); vaihe 5 ⏸. **Ei toteutettu.** [Hakemisto](../SUUNNITELMA.md), [syvyys](26-syvyys.md), [käyttöpinta F11](03-kayttopinta.md), [palikan ruudukko](20-palikan-ruudukko.md).
 
 ## 1. Mitä nyt on (tarkistettu koodista ja manuaalista 18.10.2026, Appi-appi 64)
 
@@ -130,6 +130,8 @@ Ei uudelleen rivittyvää vapaata asettelua (Toistimen ruudukko tekee sen), ei s
 - **Erikoispalikka:** Aukko ei poikkea osan A säännöistä, joten ei rekisteririviä. Alueen nykyinen ✦-rivi ei muutu; *Vain aukossa* on Alueen asetus.
 
 ## 10. Avoimet kysymykset Emilille
+
+**Emil 18.10.: hyväksyn.** Kaikki ratkaistu ehdotusten mukaan: Aukko rakennetaan, vaiheet 1–4 jonoon 2D-vaiheiden ja syvyyden jälkeen (22b–22e); nimi *Aukko*; sama Alue yhdessä aukossa kerrallaan; näkymät säilyvät erillisinä, vaihe 5 ei jonossa (⏸); oletusvieritys *pystyyn, leveys sovitettu*.
 
 1. ⏸ Rakennetaanko Aukko (tapa C) ja missä järjestyksessä vaiheet 1–4 (*ehdotus*: jonoon 2D-vaiheiden ja syvyyden 17c–17d jälkeen, vaihe 4 syvyyden jälkeen)?
 2. ⏸ Nimi: *Aukko*, *Kurkistus*, *Näyttöalue* vai muu?
