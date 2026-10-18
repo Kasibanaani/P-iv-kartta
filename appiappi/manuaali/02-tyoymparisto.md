@@ -493,7 +493,7 @@ Tietokoneella. ⌘ = Macin Command, Windowsissa Ctrl. Oikotiet eivät toimi, kun
 | ⌘C | Kopioi valitut | Logiikka ja Rinnakkain (logiikan palikat) |
 | ⌘V | Liitä | Logiikka ja Rinnakkain |
 | ⌘D | Monista (näkymä) tai toinen esiintymä (logiikka) | valittu palikka |
-| N | Tee näkymään: valitusta (tai valituista) arvollisesta logiikkapalikasta näyttölaatikko viimeksi auki olleeseen näkymään ([Tee näkymään](06-kaavat.md#tee-näkymään)) | Logiikka ja Rinnakkain |
+| N | Tee näkymään: valitusta (tai valituista) logiikkapalikasta oletus (arvosta näyttölaatikko, Toiminnosta Painike, Ketjusta Käynnistysnappi) viimeksi auki olleeseen näkymään ([Tee näkymään](06-kaavat.md#tee-näkymään)) | Logiikka ja Rinnakkain |
 | ⌫ tai Delete | Poista valittu (palikka, esiintymä, nuoli, koristeviiva) tai valitut | muokatessa |
 | Nuolinäppäimet | Siirrä valittua näkymäpalikkaa 1 px | näkymän muokkaus |
 | ⇧ + nuoli | Siirrä 10 px | näkymän muokkaus |

@@ -62,7 +62,7 @@ async def main():
             # 3) ▾: luvulle Monitori, ei Ilmoitusta; Arvolle (teksti) vain laatikko ja teksti
             await klik(pg,I['mn']);await pg.click('#insp [data-tnvm]');await pg.wait_for_timeout(120)
             opts=await pg.locator('#menu button').all_inner_texts();print(W,opts)
-            assert opts==['Laatikko tekstillä','Pelkkä teksti','Monitori'],opts
+            assert opts==['Laatikko tekstillä','Pelkkä teksti','Monitori','Lukukenttä, joka asettaa tämän','Säädin, joka asettaa tämän'],opts  # jonon 12e: Muistille myös kentät
             await pg.locator('#menu button',has_text='Monitori').click();await pg.wait_for_timeout(150)
             r=await P(pg,"(function(){var b=Object.values(P.b).filter(b=>b.k==='mittari')[0];return {nm:b.nm,tx:b.tx};})()")
             print(W,r)

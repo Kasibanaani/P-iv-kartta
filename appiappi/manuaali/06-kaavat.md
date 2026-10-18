@@ -126,14 +126,21 @@ Tulos ohjaa kohdetta niin kauan kuin kaava pätee.
 
 ### Tee näkymään
 
-Kun näkymän palikkaa ei vielä ole, sen voi tehdä logiikasta yhdellä napautuksella. Toimii kaikille logiikkapalikoille, joilla on arvo (Kaava, Kaavan tulos, Arvo, Muisti, Lasku, Vertailu, Ikkuna, Satunnaisluku, Sekuntikello, Ketju …), ei näkymäpalikoiden logiikkaesiintymille.
+Kun näkymän palikkaa ei vielä ole, sen voi tehdä logiikasta yhdellä napautuksella. Toimii kaikille logiikkapalikoille, joilla on arvo (Kaava, Kaavan tulos, Arvo, Muisti, Lasku, Vertailu, Ikkuna, Satunnaisluku, Sekuntikello, Ketju …), sekä Toiminnolle (Appi-appi 53), ei näkymäpalikoiden logiikkaesiintymille.
 
 - Paneelin osio **Näkymään** → **▢ Tee näkymään**: tekee **Laatikon** (Muoto, laji laatikko, 200 × 60), jonka teksti on `{viite}`, eli palikka näyttää tämän arvon. Nimi on lähteen nimi + ” · näyttö”, viite lähteen viite + `_n` (numero perään, jos varattu). Molemmat voi vaihtaa kuten aina.
 - **Minne:** näkymään, joka oli viimeksi auki Näkymä-välilehdellä (paneelin ohje kertoo sen nimen), aktiiviseen kerrokseen, vasempaan reunaan alimman palikan alle. Laitenäkymässä vasen reuna on 20 px ja alin palikka lasketaan ruudun leveydeltä; jos ruutu on täynnä, palikka tulee ruudun alle.
 - **Logiikkaan jäädään.** Lähdepalikan viereen välähtää kupla *▢ Näkymään: Nimi · näyttö ›*; sen napautus vie palikan kohdalle Näkymä-välilehdelle. Rinnakkain-tilassa näkymäpuoli siirtyy uuden palikan kohdalle.
 - **▾** napin vieressä: *Laatikko tekstillä*, *Pelkkä teksti* (Teksti-palikka), *Monitori* (vain kun arvo on nyt luku; nuoli tästä Monitorin kohtaan *arvo*, Monitori tulee myös logiikkaan) ja *Ilmoitus, joka näkyy kun tämä pätee* (vain kun arvo on nyt kyllä/ei; Ilmoituksen Näkyvyys = *Näkyy kun* tämä, teksti = lähteen nimi).
-- **Pikanäppäin N** logiikassa (ei kentässä kirjoittaessa): tekee Laatikon valitusta palikasta. Monivalinnalla jokaisesta arvollisesta valitusta tulee Laatikko, allekkain valintajärjestyksessä; monivalinnan paneelissa sama nappi **▢ Tee näkymään (N)**.
-- Laatikko ei tule logiikan kanvaasille: viite riittää, ja Yhteydet näyttää sen. Yksi ⌘Z kumoaa kaiken kerralla.
+- **Muut pikaluonnit lähteen mukaan (Appi-appi 53):** ▾:ssä on lisäksi lähteen lajin mukaan alla olevat. Ne tekevät tavallisia palikoita ja tavallisia nuolia logiikkaan (uudet logiikkasolmut tulevat lähteen viereen: nuoli lähteeseen vasemmalle, lähteestä oikealle), joten tulosta voi muokata kuten itse tehtyä.
+  - **Toiminto → Painike, joka tekee tämän** (Toiminnolla ainoa, joten ei ▾:tä): Painike (kertapainallus), teksti = Toiminnon nimi tai kuvaus; nuoli Painikkeen *painettu* → Toiminnon *tee kun*.
+  - **Ketju → Käynnistysnappi** (Ketjulla oletus): Painike *Käynnistä Nimi*, *painettu* → Ketjun *käynnistä*.
+  - **Satunnaisluku → Arvo uudelleen -nappi:** Painike *Arvo uudelleen*, *painettu* → *arvo uudelleen*.
+  - **Muisti → Lukukenttä, Säädin, Tekstikenttä tai Kytkin, joka asettaa tämän:** vaihtoehdot Muistin nykyisen arvon mukaan (luku: Lukukenttä ja Säädin; teksti: Tekstikenttä, Lukukenttä ja Säädin; kyllä/ei: Kytkin; tyhjä: kaikki). Kenttä alkaa Muistin nykyisestä arvosta (Säätimen rajat 0–10 laajenevat kattamaan sen). Logiikkaan tulee Toiminto *Aseta Muisti = kenttä* ja nuoli kentän *muuttui* → Toiminnon *tee kun*. Muisti ei päivitä kenttää takaisin, jos Muisti muuttuu muualta. **Arvolle** ei tehdä kenttää: Arvo on kiinteä eikä muutu käytössä; käytä Muistia.
+  - **Tietotaulukko tai Rivijoukko → Toistin: kortti jokaiselle riville:** Toistin (korkeus 300), nuoli lähteen *rivit* → Toistimen *rivit*, Rivi-palikka *Kohde* (käsiteltävä rivi; olemassa oleva käytetään uudelleen) ja kortin malliin Teksti, joka näyttää kaksi ensimmäistä saraketta (`{kohde.nimi} · {kohde.määrä}`). Listalle ja Kaaviolle ei ole pikaluontia: ne eivät osaa ottaa rivejä taulukosta.
+  - **Sekuntikello → Monitori + Käynnistä ja Pysäytä:** Monitori lukuna (yksikkö s, nuoli *kulunut* → *arvo*) ja sen alle rinnakkain napit *Käynnistä* (→ *käynnistä*) ja *Pysäytä* (→ *pysäytä*).
+- **Pikanäppäin N** logiikassa (ei kentässä kirjoittaessa): tekee valitusta palikasta oletuksen (arvosta Laatikko, Toiminnosta Painike, Ketjusta Käynnistysnappi). Monivalinnalla jokaisesta valitusta tulee oletus, allekkain valintajärjestyksessä; monivalinnan paneelissa sama nappi **▢ Tee näkymään (N)**.
+- Laatikko, Teksti ja Ilmoitus eivät tule logiikan kanvaasille: viite riittää, ja Yhteydet näyttää sen. Nuolellinen palikka (Monitori, napit, kentät, Toistin) tulee. Yksi ⌘Z kumoaa kaiken kerralla.
 
 ### Kun tulos alkaa päteä (kerran)
 
