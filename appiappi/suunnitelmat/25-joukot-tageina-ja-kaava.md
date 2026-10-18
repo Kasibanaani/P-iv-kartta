@@ -76,7 +76,7 @@ Tekstissä sama: `Unipisteet: #unipisteet.summa`. Tuntematon `#sana` jää tekst
 Kaikki kolme ovat olemassa olevia mekanismeja, eivät uutta kieltä:
 
 1. **Joukon sääntö** (suunnitelma 21, kohta 3.2): *Ota mukaan myös* laji, näkymä/kerros, ehto `jäsen.hp > 0`. Joukko päättää, kuka kuuluu. Paras, kun sääntö koskee monta palikkaa.
-2. **Ominaisuus `joukot`** (A2): jokaisella palikalla on lista `joukot`. Tunnus-kentän tagit ovat sen perusarvo. Ominaisuuden voi ohjata kaavalla kuten minkä tahansa (`jos (vaara > 5) "vaarassa" muuten "turvassa"`): tämä on Emilin `#(viite)`, mutta tavallisena ominaisuuden ohjauksena. Ohjattuna Tunnus-kenttä näyttää `#⚡` ja vihjeen *joukot tulevat kaavasta*.
+2. **Ehdollinen tagi: kohta *kuuluu kun*** (A2, A5; tarkennettu 18.10. Emilin kysymyksestä ”jos unipisteet alle 80, niin kuuluu joukkoon”): jokaisella palikan tagilla on paneelissa oma kohta *kuuluu #huono_yö kun*, kuten *näkyy kun*. Oletus: aina. Kaava tai nuoli tekee jäsenyydestä ehdollisen: `kuuluu #huono_yö kun unipisteet < 80`. Muut tagit pysyvät ennallaan (ei koko listan korvaamista). Tunnus-kenttä näyttää ehdollisen tagin `#huono_yö⚡`. Lisäksi luettava ominaisuus `joukot` (lista voimassa olevista joukoista, `uni.joukot sisältää "terveys"`). Tämä on Emilin `#(viite)`-ajatus tavallisena kohtana. Monelle palikalle samalla ehdolla käytetään joukon sääntöä (kohta 1).
 3. **Toiminnot** (A6, hetki): *Lisää joukkoon* ja *Poista joukosta* ovat Lisää/Poista-toimintoja ominaisuudelle `joukot` (tai kohteena joukko). Esim. vihollinen osuu → Poista joukosta `#elossa`.
 
 Etusija on sama kuin muualla (A3): ohjattu kaava > toiminnon asettama > perusarvo (Tunnus-kenttä). Joukon sääntö lisää jäseniä niiden päälle, pois suljettu voittaa.
@@ -137,7 +137,7 @@ Säännöt:
 1. `#` = joukko ja `@` = viite (suositus kyllä). Vaihtoehto: viite `§`.
 2. Viite ja joukot samaan Tunnus-kenttään (suositus kyllä).
 3. Koosteet ominaisuuksina `#joukko.summa`, ei funktioita (suositus kyllä).
-4. Logiikan joukko: sääntö + `joukot`-ominaisuus + toiminnot, ei `#(viite)` Tunnus-kenttään (suositus kyllä).
+4. Logiikan joukko: joukon sääntö + tagin kohta *kuuluu kun* + toiminnot, ei `#(viite)` Tunnus-kenttään (suositus kyllä).
 5. Kaava: `jos (ehto) a muuten b` (ja/tai `jos ehto niin a muuten b`), `ja`, `tai`, laskusulut; vanhat muuttuvat itsestään (suositus kyllä, molemmat jos-muodot).
 6. Järjestys kohdan 5 mukaan.
 
