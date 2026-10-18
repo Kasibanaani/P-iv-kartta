@@ -59,6 +59,12 @@ Tekstissä sama: `Unipisteet: #unipisteet.summa`. Tuntematon `#sana` jää tekst
 
 **Emilin uniesimerkki** toimii näin: Kaavat *Pituuspisteet*, *Laatupisteet* ja *Säännöllisyyspisteet* (Tunnus `@pituus_p #unipisteet` jne.), ja kaava `unipisteet = #unipisteet.summa`. *Huomio:* tunnit, laatuluku ja säännöllisyys ovat eri asteikoilla, joten summa on mielekäs vasta, kun jokainen jäsen on ensin muutettu pisteiksi (esim. `uni / 8 * 40`). Siksi jäsenet ovat Kaavoja, eivät raakoja arvoja.
 
+**Ehdotukset pisteen jälkeen:** kuten nyt `uni.` (manuaali 6, *Ehdotusrivi*), myös `#unipisteet.` avaa listan: `summa`, `keskiarvo`, `suurin`, `pienin`, `jäseniä`, `jäsenet`, `havaintoja` sekä jäsenten yhteiset ominaisuudet (`x`, `näkyy` …), joiden perään taas kooste. `#` yksinään avaa projektin joukot. Ulkoa ei tarvitse osata.
+
+**Tuttu kirjoitus kääntyy:** jos kirjoittaa `summa(#unipisteet)` (tai `keskiarvo(…)`, `suurin(…)`, `pienin(…)`), kenttä muuttaa sen heti muotoon `#unipisteet.summa`, eikä anna virhettä (Emilin kysymys 18.10. klo 3.48). Funktioita ei silti synny: kääntö on kirjoitusapu.
+
+**Ikkuna ja joukko** (Emilin kysymys 18.10.): sama laskenta, kaksi tapaa valita, keistä lasketaan. SUMMA-ikkuna valitsee *paikan* mukaan (mikä on sisällä) ja laskee yhden asian; joukko valitsee *nimen* mukaan, palikka voi olla monessa joukossa ilman kopioita, ja samaa joukkoa voi käyttää moneen (koosteet, toiminto kaikille, säännöt jäsenille). Molemmat sallitaan (A8). Ikkuna ei itsestään ole joukko, jotta palikan pudotus ikkunaan ei vie sitä huomaamatta jonkin joukon sääntöjen alle. *Ehdotus myöhemmäksi, ei vaiheissa:* ikkunan paneeliin valinta *Sisältö kuuluu joukkoon #…*, jos tarvetta tulee; Miksi? kertoo silloin ”kuuluu, koska on ikkunassa X”.
+
 ### 3.4 Joukko logiikasta
 
 Kaikki kolme ovat olemassa olevia mekanismeja, eivät uutta kieltä:
@@ -86,6 +92,10 @@ Etusija on sama kuin muualla (A3): ohjattu kaava > toiminnon asettama > perusarv
 | `tai(a; b)` | `a tai b` |
 | `(1 + 2) * 3` → virhe | `(1 + 2) * 3` = 9 |
 | ikkuna SUMMA joukolle | `#joukko.summa` |
+
+Esimerkit joukon kanssa: `#unipisteet.summa > 80` antaa kyllä tai ei ilman yhtään sulkua (riittää *näkyy kun* -kohtaan tai ikkunaan). Valinta: `jos (#unipisteet.summa > 80) "hyvä" muuten "huono"`.
+
+⏸ *Avoin:* jos-ehdon sulut voisi korvata sanalla `niin`: `jos #unipisteet.summa > 80 niin "hyvä" muuten "huono"`. Silloin kaavassa ei tarvita sulkuja lainkaan, paitsi laskujärjestykseen. Suositus: hyväksytään molemmat (kumpikin on yksiselitteinen), kenttä säilyttää kirjoitetun muodon.
 
 Säännöt:
 
@@ -122,7 +132,7 @@ Säännöt:
 2. Viite ja joukot samaan Tunnus-kenttään (suositus kyllä).
 3. Koosteet ominaisuuksina `#joukko.summa`, ei funktioita (suositus kyllä).
 4. Logiikan joukko: sääntö + `joukot`-ominaisuus + toiminnot, ei `#(viite)` Tunnus-kenttään (suositus kyllä).
-5. Kaava: `jos (ehto) a muuten b`, `ja`, `tai`, laskusulut; vanhat muuttuvat itsestään (suositus kyllä).
+5. Kaava: `jos (ehto) a muuten b` (ja/tai `jos ehto niin a muuten b`), `ja`, `tai`, laskusulut; vanhat muuttuvat itsestään (suositus kyllä, molemmat jos-muodot).
 6. Järjestys kohdan 5 mukaan.
 
 ## Linjakkuus
