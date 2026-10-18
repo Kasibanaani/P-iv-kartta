@@ -375,7 +375,7 @@ Säännöt:
 - **Tönäisy (töytäisyvauhti)** tulee ohjauksen päälle, joten ohjattukin hahmo lennähtää. **Kitka** hiiputtaa sitä: 0 = ei koskaan, 100 = heti.
 - **Liukkaus ≠ kitka:** liukkaus = miten ohjaus tarttuu, kitka = miten tönäisy hiipuu.
 - Lyönti tai potku: toiminto **Lisää** → Liike → `vauhtix` (esim. 300 tai kaava `tatti.vaaka * 800`). **Aseta** 0 pysäyttää. **Palauta** poistaa asetetun. Nuoli kohtaan vauhtix tai vauhtiy ohjaa tönäisyä jatkuvasti (silloin kitka ei hiiputa).
-- **törmäsi** lähtee jokaisesta uudesta kosketuksesta molempien Liikkeille. Tapahtuman tiedoissa `tapahtuma.kohde` ja `tapahtuma.isku` (lähestymisnopeus). Liikkeellä `isku` ja `törmäyskohde`.
+- **törmäsi** lähtee jokaisesta uudesta kosketuksesta molempien Liikkeille. Tapahtuman tiedoissa `tapahtuma.kohde` ja `tapahtuma.isku` (lähestymisnopeus); kun kohteella on [oma ruudukko](03-nakymapalikat.md#oma-ruudukko-osio-oma-ruudukko-appi-appi-86), myös osuttu ruutu `tapahtuma.ruutux/ruutuy`. Liikkeellä `isku` ja `törmäyskohde`.
 - Reitillä kulkeva on kiskoilla: se tönäisee muita kuin massaton eikä itse hätkähdä. Ruutuliikkeessä massa ei vaikuta.
 - Rajat: osuma-alue ei kierry, ei pyörimistä, ei seinän pintakitkaa. Painovoima: ks. seuraava osio.
 
@@ -592,6 +592,8 @@ Mitä ruudukko vaikuttaa:
 - Reitinhaku kulkee ruutujen keskeltä.
 - Alue, jonka **Ruutu kerrallaan** on tämä kerros, kertoo ruudun x, y ja ruudun vaihtumisen.
 - Reitin pisteet ja käyttöraahauksen pudotus voivat kohdistua ruutuihin.
+
+Palikan omaa, sen mukana kulkevaa ruudukkoa varten on näkymäpalikan osio [Oma ruudukko](03-nakymapalikat.md#oma-ruudukko-osio-oma-ruudukko-appi-appi-86) (Appi-appi 86).
 
 ## Liike ruutu kerrallaan
 

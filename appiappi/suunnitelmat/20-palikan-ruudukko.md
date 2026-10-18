@@ -1,6 +1,6 @@
 # F36 Palikan oma ruudukko: kosketuskohdat, jotka kulkevat palikan mukana
 
-17.10.2026. **Emilin idea** (viestit 17.10. klo 23.55 ja 0.01 Suomen aikaa): maailman ruudukko toimii kosketuskohtana missä ruudussa vain; myös palikalla tai objektilla pitäisi voida olla oma, siinä kiinni pysyvä ruudukko, vaikka palikka liikkuu. Yleinen ominaisuus, ei 2D-pelien osa. Tekoälyn jäsentämä. **Ei toteutettu.** [Hakemisto](../SUUNNITELMA.md).
+17.10.2026. **Emilin idea** (viestit 17.10. klo 23.55 ja 0.01 Suomen aikaa): maailman ruudukko toimii kosketuskohtana missä ruudussa vain; myös palikalla tai objektilla pitäisi voida olla oma, siinä kiinni pysyvä ruudukko, vaikka palikka liikkuu. Yleinen ominaisuus, ei 2D-pelien osa. Tekoälyn jäsentämä. **Toteutettu Appi-appi 86** (jonon 15b; kentät litteinä `ors`, `orr`, `orn`, ks. `MUUTOKSET.md`). [Hakemisto](../SUUNNITELMA.md).
 
 **Emilin kysymys 17.10.:** maailman ruudukko toimii kosketuskohtana missä ruudussa vain; saako liikkuvalle palikalle oman, siinä kiinni pysyvän ruudukon? **Nyt ei.** Ruudukko on kerroksen ominaisuus ja ankkuroitu kanvaasin kohtaan (0, 0) (`ruudukko`, `alueRuutu`). Alue osaa kertoa napautetun ruudun, mutta vain kerroksen ruudukossa, eikä Aluetta voi kiinnittää liikkuvaan palikkaan. Ilman ruudukkoa Alue antaa napautuksen pikseleinä kulmastaan, mikä on lähin nykyinen kiertotie.
 

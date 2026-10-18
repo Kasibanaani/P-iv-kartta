@@ -31,6 +31,7 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | harmaannuttaa palikan | *Harmaana* tai kohta *harmaana kun* | [Näkyvyys-osio](03-nakymapalikat.md#näkyvyys-osio) |
 | tehdä jotain painalluksesta | Painikkeen *Kun painetaan* → ＋ Lisää toiminto… | [Toiminto](05-ketjut-ja-toiminnot.md#toiminto-tee) |
 | tehdä laatikosta, tekstistä, kuvasta tai kaaviosta painettavan (ilman Painiketta) | osio *Napautus* → *Napautettava käytössä*, tapahtuma *napautettu* | [Napautus](03-nakymapalikat.md#napautus-osio-napautus-appi-appi-68) |
+| antaa palikalle oman ruudukon, jonka ruutua napautetaan, johon törmätään tai pudotetaan (näppäimistö yhtenä kuvana, liikkuva lauta) | osio *Oma ruudukko*, tapahtuma *ruutu napautettu*, `tapahtuma.ruutux/ruutuy` | [Oma ruudukko](03-nakymapalikat.md#oma-ruudukko-osio-oma-ruudukko-appi-appi-86) |
 | kasvattaa laskuria | Muisti + toiminto Lisää | [Laskuri, joka muistaa](04-logiikkapalikat.md#4-laskuri-joka-muistaa) |
 | yhdistää monta ehtoa | Ikkuna (JA, TAI, VÄHINTÄÄN…) tai kaavassa `a ja b`, `a tai b` | [Ikkuna](04-logiikkapalikat.md#ikkuna-ikkuna) |
 | tehdä jotain ehdon alkaessa päteä | JOS (NIIN-tapahtuma) tai KUN | [JOS](04-logiikkapalikat.md#jos-jos), [KUN](04-logiikkapalikat.md#kun-kun) |

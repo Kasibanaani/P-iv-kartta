@@ -247,7 +247,31 @@ Lukitussa käytössä palikkaa voi siirtää sormella tai hiirellä, kun osiossa
 | **pudotettu** | palikka jäi uuteen paikkaan |
 | **raahaus peruttu** | pudotus hylättiin (vain alueisiin ja ei alueella), kosketus keskeytyi tai toinen sormi aloitti nipistyksen |
 
-Tapahtuman tiedoissa (Tapahtuman tiedot -palikka, viite yleensä `tapahtuma`): `tapahtuma.kohde` (pienin Alue, jonka sisään palikan keskipiste osui, nimenä), `tapahtuma.x`, `tapahtuma.y` (uusi paikka), `tapahtuma.ruutux`, `tapahtuma.ruutuy` (jos ruudukko).
+Tapahtuman tiedoissa (Tapahtuman tiedot -palikka, viite yleensä `tapahtuma`): `tapahtuma.kohde` (pienin Alue, jonka sisään palikan keskipiste osui, nimenä), `tapahtuma.x`, `tapahtuma.y` (uusi paikka), `tapahtuma.ruutux`, `tapahtuma.ruutuy` (jos ruudukko). Jos palikka pudotettiin sellaisen palikan päälle, jolla on [oma ruudukko](#oma-ruudukko-osio-oma-ruudukko-appi-appi-86), ruutu on sen ruudukon ruutu, ja ilman Aluetta `tapahtuma.kohde` on se palikka.
+
+## Oma ruudukko (osio *Oma ruudukko*, Appi-appi 86)
+
+Näkymäpalikan päälle sarakkeet × rivit -ruudukko, joka kulkee, venyy ja kiertyy palikan mukana: numeronäppäimistö yhtenä Kuvana (3 × 4), liukuva lautapelin lauta, pohjapiirros, jonka huoneita napautetaan, hahmon osat (1 × 3). Kaikilla näkymäpalikoilla paitsi Sijainnilla, Alueella (sillä on kerroksen ruudukko), Toistimella ja Laattakartalla.
+
+- Rasti **Oma ruudukko käytössä** tekee 3 × 3 -ruudukon. **Sarakkeet** ja **Rivit** 1–64; ruudut jakavat palikan koon tasan.
+- **Ruudukko näkyy:** *Muokatessa* (oletus), *Aina* (myös käytössä, hillityt viivat) tai *Ei*. Viivat kiertyvät ja peilautuvat sisällön mukana.
+- Rastin poisto poistaa ruudukon ja sen kohdat.
+
+**Lähtevät kohdat (vain ruudukon kanssa):**
+
+| Kohta | Mitä |
+|---|---|
+| **ruutu napautettu** | lukittuna palikkaa napautettiin; tiedoissa `tapahtuma.ruutux`, `tapahtuma.ruutuy` (1 = vasen yläruutu) sekä `tapahtuma.x`, `tapahtuma.y` (pikseleinä vasemmasta yläkulmasta) |
+| **napautettu x**, **napautettu y** | viimeksi napautettu ruutu (tyhjä ennen ensimmäistä napautusta); kaavassa `palikka.napautettux`, `palikka.napautettuy` kuten Alueella |
+
+- Napautus toimii, kun *ruutu napautettu*- tai *napautettu x/y* -kohdasta lähtee nuoli tai palikka on sellaisen Joukon jäsen, jonka kohdasta *jäsen ruutu napautettu* lähtee nuoli. Silloin osoitin on käsi ja napautus ei mene palikan alle (ei liikuta *Napautus*-ohjattua Liikettä).
+- Painikkeessa sama napsautus antaa sekä *painettu* että *ruutu napautettu*. Napautettavan palikan (osio *Napautus*) *napautettu*- ja *pitkä painallus* -tietoihin tulee myös `tapahtuma.ruutux/ruutuy`.
+- Kierretyssä tai peilatussa palikassa ruutu lasketaan siitä, mitä näkyy: 180° kierretyn vasen yläkulma on oikea alaruutu. Kierretyn sisällön ulkopuolinen kulma ei anna ruutua.
+- **Törmäys:** kun Liikkeen kohde törmää ruudukolliseen palikkaan, *törmäsi*-tiedoissa (ja *laskeutui*) on `tapahtuma.ruutux/ruutuy`: kohteen ruutu, johon liikkujan keskipiste osui (reunalta). Lasketaan kiertämättömästä osuma-alueesta, koska osuma-alue ei kierry.
+- **Pudotus:** käyttöraahauksessa pienin ruudukollinen palikka, jonka päälle palikan keskipiste pudotettiin, antaa ruudun (ks. [Käyttöraahaus](#käyttöraahaus-osio-käyttöraahaus)).
+- **Ominaisuudet** `ruudukko.sarakkeet` ja `ruudukko.rivit` ovat ohjattavia (Aseta, nuoli, kaava).
+
+**Kokeile koneella:** tee Laatikko, avaa *Oma ruudukko*, rasti, Rivit 4. Logiikassa *ruutu napautettu* → Näytä ilmoitus tekstillä `@tapahtuma.ruutux, @tapahtuma.ruutuy`. Lukitse ja napsauta eri ruutuja; anna laatikolle Ominaisuuksissa *kierto* 180 ja kokeile uudelleen.
 
 ## Tapahtuma muuttui
 
