@@ -4,6 +4,14 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
 
 ## Versiot
 
+- Appi-appi 67 (18.10., jonon 14c, F38 kohta 6, `suunnitelmat/22-logiikasta-nakymaan.md` kohta 6, kaista B): **Muodon kulmat.**
+  - Moottori: rekisteriin Muodolle `OM('kulmat',…,{f:'kpy',o:1,lim:[0,500],def:16})`, joten kulmat on kaavalla luettava (`laatikko.kulmat`), nuolella ohjattava (`o_kulmat`) ja Aseta/Lisää/Palauta-kohde. `repair`: `kpy` vain Muodolle, kokonaisluku 0–500, 16 ja virheellinen pois.
+  - **Tallennusmuoto laajeni** valinnaisella `kpy` (px); puuttuva = 16 eli entinen ulkoasu, versio pysyi 12 (vanha appi ohittaa kentän). Suunnitelman `kr` oli jo palikan kerros (A13), siksi `kpy`.
+  - UI: piirto `kulmaCss` (Laatikko ja Kehys suoraan, Lappu samassa suhteessa: 16 = 3/3/18/3); Ympyrä ja Pilleri aina pyöreitä. Paneelin *Kulmat (px)* Muodon alla (ei Ympyrällä eikä Pillerillä), Kumoa toimii, *Kopioi ulkoasu* vie kulmat samalle lajille.
+  - Testit `logiikka_89_kulmat.js`, `selain_106_kulmat.py` (1440, 1280, 390 savutestinä). Manuaali: luvut 3, 9, 10 ja 11.
+  - Ei tehty: kulmat Painikkeelle tai Tekstille (suunnitelman mukaan ei), kulmakohtaiset arvot. Osuma-alue on yhä suorakulmio pyöristyksestä riippumatta (kuten ennen 16 px:llä).
+  - **Kokeile koneella** (ota ensin varmuuskopio: tallennusmuoto laajenee): lisää näkymään Laatikko (Koristeet). Paneelissa Muodon alla **Kulmat (px)** = 16. Kirjoita 0: kulmat terävät. Kirjoita 60: pilleriä muistuttava. ⌘Z palauttaa. Vaihda Muodoksi Lappu ja kulmiksi 32: taitettu nurkka kasvaa samassa suhteessa. Ohjaus: näkymään Säädin (0–100). Laatikon paneelin osio **Ominaisuudet** → rivin `kulmat` nappi **ƒ** tekee ohjaavan Kaavan; kirjoita siihen `säädin * 2`. 🔒 Lukitse ja liikuta säädintä: kulmat pyöristyvät mukana.
+
 - Appi-appi 66 (18.10., jonon 1s, kartoitus 9:n korjaukset S1–S7, S9, R1, kaista A): **Joukkojen hiljaiset väärät tulokset korjattu, säännöt kevyemmiksi, kolikko joukolla.**
   - S1: `jkCtl` palauttaa säännön laskuvirheen tuloksena (ennen `visible` teki siitä epätoden ja `catch` nieli poikkeukset). `jkSaantoVirheet(pj)` = ensimmäinen virheellinen jäsen kohtaa kohden; Joukko-palikan arvo on virhe (*sääntö näkyy kun, jäsen ”Eka”: …*), paneelin sääntörivin alla ⚠ (`pjRunErr`, päivittyy kirjoittaessa), jäsenen jäsenyysrivillä *⚠ joukon #x sääntö (näkyy kun): virhe …*, Miksi? Joukko-palikalle ja jäsenelle (kuka ohjaa mitä kohtaa ja millä arvolla). Puuttuva ominaisuus (`jpu`) ohittaa kuten ennen.
   - S2: `jäsen` ratkeaa vain Joukko-palikan kentän ylimmällä tasolla (`jasKaava`, `JOV`/`JOD`) tai palikassa, joka on Jäsenille-ikkunan sisällä (`jasWin`, laskentapino `ONS` `once`ssa). Ennen mikä tahansa Jäsenille-ikkuna teki `jäsen`-kaavasta koko projektissa tyhjän. `jäsen` ei kulje viitteen kautta.

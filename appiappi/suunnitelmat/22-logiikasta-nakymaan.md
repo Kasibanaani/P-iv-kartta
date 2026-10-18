@@ -57,7 +57,7 @@ Laatikosta painike ilman kiertotietä. Yleinen ominaisuus (A5, A8), ei uusi pali
 - Muodolle **Kulmat** (0 = terävä … pyöreä; oletus = nykyinen 16 px, joten vanhat näyttävät samalta), ominaisuus `muoto.kulmat` ohjattavaksi (A2). Ympyrä ja Pilleri eivät käytä sitä.
 - Muodon laji vaihtuu jo nyt (kohta 1); tähän ei tule uusia lajeja ilman pyyntöä.
 - Ei Painikkeelle eikä Tekstille: kohdan 5 jälkeen peruspalikka on Laatikko, jonka muoto on säädettävä. Painikkeen ulkoasun muutos kuuluu 20b:n Ilmeeseen (Piirros), joka toimii näiden päällä: Piirros korvaa pohjan ja reunan, Kulmat ja laji jäävät tavalliseen ilmeeseen.
-- **Tallennusmuoto:** valinnainen `kr` (pikseleinä); puuttuva = 16.
+- **Tallennusmuoto:** valinnainen `kpy` (pikseleinä); puuttuva = 16. (Toteutus Appi-appi 67: suunniteltu `kr` oli jo palikan kerroksen avain, joten A13:n mukaan nimi vaihdettiin.)
 
 ## 7. Muut pikaluonnit logiikasta näkymään (tekoälyn ehdotuksia, Emil hyväksyi 18.10., jonon 12e)
 
@@ -71,7 +71,7 @@ Sama periaate (A8: pikaluonti tuottaa tavallista, avattavaa logiikkaa) koskee mu
 
 ## Linjakkuus
 
-- A5: kohdat 3–5 ovat näkymäpalikoiden yhteisiä (lappu, suora kirjoitus, Napautus-osio), ei lajikohtaisia poikkeuksia. A8: Tee näkymään on pikaluonti, joka tekee tavallisen Muodon ja tavallisen viitteen, ei uutta palikkaa. A9: viite `{#id}`, kestää uudelleennimeämisen. A2: `muoto.kulmat` rekisteriin; napautettavuus luettavaksi (`palikka.napautettava`). A4: *napautettu*, *pitkä painallus* samoilla nimillä kuin Painikkeella ja Alueella. A11: ei vahvistuksia, ⌘Z kumoaa. A13: kentät `nap`, `kr` valinnaisia.
+- A5: kohdat 3–5 ovat näkymäpalikoiden yhteisiä (lappu, suora kirjoitus, Napautus-osio), ei lajikohtaisia poikkeuksia. A8: Tee näkymään on pikaluonti, joka tekee tavallisen Muodon ja tavallisen viitteen, ei uutta palikkaa. A9: viite `{#id}`, kestää uudelleennimeämisen. A2: `muoto.kulmat` rekisteriin; napautettavuus luettavaksi (`palikka.napautettava`). A4: *napautettu*, *pitkä painallus* samoilla nimillä kuin Painikkeella ja Alueella. A11: ei vahvistuksia, ⌘Z kumoaa. A13: kentät `nap`, `kpy` valinnaisia.
 - Ei uutta erikoispalikkaa eikä poikkeusta.
 - Päällekkäisyys: 20b Ilme (Piirros) ja F34 värit toimivat näiden päällä; 15b oma ruudukko käyttää samaa napautusta (ruutu napautettu) ja kannattaa rakentaa 14b:n tapahtumien päälle, jos 14b tulee ensin.
 

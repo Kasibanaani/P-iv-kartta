@@ -489,8 +489,8 @@ Laatikko, ympyrä, pilleri, lappu tai kehys, valinnaisesti tekstillä. Paletissa
 - **Löytyy:** Näkymä → Koristeet.
 - **Sisään:** yhteiset.
 - **Ulos:** **arvo** = teksti.
-- **Asetukset:** **Teksti**, **Muoto** *Laatikko / Ympyrä / Pilleri / Lappu / Kehys*, **Koko** S–XL, **Lihavoitu**. Teksti on aina keskellä.
-- **Ominaisuudet:** yhteiset; lisäksi ohjattavat `.muoto` (nimi tai 1–5), `.koko`, `.lihavoitu`.
+- **Asetukset:** **Teksti**, **Muoto** *Laatikko / Ympyrä / Pilleri / Lappu / Kehys*, **Kulmat (px)** (Appi-appi 67: kulmien pyöristys, 0 = terävä, iso luku = pyöreä, oletus 16; Lappu pitää taitetun nurkkansa samassa suhteessa; Ympyrällä ja Pillerillä kenttää ei ole, koska ne ovat aina pyöreitä), **Koko** S–XL, **Lihavoitu**. Teksti on aina keskellä. *Kopioi ulkoasu* vie kulmat toiseen Muotoon.
+- **Ominaisuudet:** yhteiset; lisäksi ohjattavat `.muoto` (nimi tai 1–5), `.kulmat` (px, 0–500), `.koko`, `.lihavoitu`. Esim. Säädin → Kaava `pyöreys * 2` → Laatikon kohta *kulmat*.
 - **Esimerkki:** Laatikko taustaksi muiden palikoiden alle (*Vie taakse*), väri vaihtuu, kun ehto pätee (*Vaihtoväri käytössä*).
 - **Huomio:** paletin *Viiva* on eri asia: koristeviiva kahden palikan välillä (napauta Viiva ja vedä palikasta toiseen). Se vain näyttää yhteyden, ei logiikkaa.
 
