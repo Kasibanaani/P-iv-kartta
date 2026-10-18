@@ -174,6 +174,8 @@ Valitaan paneelin osiossa **Liike**, kohta **Ohjaus**:
 | ohjaus | arvo | Auto | −1…1 (negatiivinen = vasemmalle) |
 | ylös, alas, vasen, oikea | tapahtuma | Ruutu | yksi askel siihen suuntaan |
 | liikkuu kun | arvo | kaikki | liike pysähtyy, kun ehto ei päde |
+| hyppää | tapahtuma | ei Reitti eikä Ruutu | hyppy painovoimaa vastaan (ks. Hyppy) |
+| lopeta hyppy | tapahtuma | ei Reitti eikä Ruutu | leikkaa nousun (lyhyt hyppy), esim. Painikkeen irrotettu |
 | alkuun | tapahtuma | kaikki | palauttaa alkupaikkaan, nopeus nollaan |
 | käynnistä, pysäytä | tapahtuma | Reitti | reitillä kulku käyntiin ja seis |
 
@@ -194,6 +196,7 @@ Lisäksi Ominaisuudet-osiosta voi avata ohjattavat kohdat `kitka`, `vauhtix`, `v
 | putoamisvauhti | arvo | ei Reitti eikä Ruutu | vauhti painovoiman suuntaan px/s (nouseva negatiivinen, ilman painovoimaa 0) |
 | laskeutui | tapahtuma | ei Reitti eikä Ruutu | tuli maahan; tiedoissa `tapahtuma.kohde`, `.isku` (putoamisvauhti osumahetkellä) ja `.voima` |
 | irtosi maasta | tapahtuma | ei Reitti eikä Ruutu | lähti maasta (hyppy tai putoaminen reunalta) |
+| hyppäsi | tapahtuma | ei Reitti eikä Ruutu | hyppy lähti (myös ilmahyppy) |
 | kohde x, kohde y | arvo | Napautus | nykyinen kohde (tyhjä, kun ei kohdetta) |
 | perillä | tapahtuma | Napautus | keskipiste on kohteessa |
 | ei pääse | arvo | Napautus + Kiertää esteet | kyllä, kun kohteeseen ei ole reittiä |
@@ -256,6 +259,12 @@ Kaikki luettavia kaavassa (`liike.avain`); ohjattavat merkitty.
 | `törmäyskohde` (ei Ruudussa) | palikka, johon viimeksi törmäsi (nimi) |
 | `painovoima` (ohjattava, ei Reitissä eikä Ruudussa) | kuinka paljon Alueen painovoima vetää, %: 100 = sellaisenaan (oletus), 50 = kuu, 0 = ei välitä |
 | `maassa`, `alla`, `putoamisvauhti` (ei Reitissä eikä Ruudussa) | kuten kohdat yllä |
+| `hyppy` (ohjattava, ei Reitissä eikä Ruudussa) | hypyn korkeus px; tyhjä = 3 × liikutettavan korkeus |
+| `ilmaohjaus` (ohjattava) | 0–100 %, oletus 100 = ohjaus ilmassa kuten maassa |
+| `lyhythyppy` (ohjattava, kyllä/ei; myös `lyhyt hyppy`) | oletus kyllä: *lopeta hyppy* leikkaa nousun |
+| `ilmahypyt` (ohjattava; myös `hyppyjä ilmassa`) | lisähyppyjä ilmassa, oletus 0, 1 = tuplahyppy |
+| `armoaika`, `ennakko` (ohjattavia) | sekunteina 0–2, oletus 0,1 |
+| `hyppyjäljellä` (myös `hyppyja jaljella`) | montako hyppyä voi tehdä nyt: maassa 1 + ilmahypyt, ilmassa jäljellä olevat ilmahypyt |
 | `kohdex`, `kohdey` (Napautus; myös `kohde x`, `kohde y` ominaisuusvalikossa) | nykyinen kohde |
 | `eipääse` (Napautus + Kiertää esteet; myös `eipaase`) | kyllä, kun kohteeseen ei ole reittiä |
 | `edistyminen` (Reitti) | 0–1 reitin alusta loppuun |
@@ -382,15 +391,38 @@ Painovoima on **Alueen** ominaisuus (jonon 16, 2D-pelien vaihe A): alue vetää 
 - **Painovoimassa törmäsi lähtee kohteittain:** maassa kävelevä saa törmäsi-tapahtuman myös, kun osuu seinään tai viholliseen (ilman painovoimaa törmäsi lähtee kuten ennen, kun osuminen alkaa).
 - **Törmäsi-tietoihin `tapahtuma.puoli` ja `tapahtuma.voima`:** painovoimassa puoli on *ylhäältä* (osui päältä, esim. litistys), *alhaalta* (pää osui) tai *sivulta*; ilman painovoimaa *ylhäältä*, *alhaalta*, *vasemmalta* tai *oikealta* ruudun suhteen. Voima = impulssi (massa × vauhdin muutos; ilman massaa = isku).
 - **Painovoiman kääntö:** toiminto **Aseta** → Alue → `suunta` (ylös), tai **Aseta** → `painovoima`. Hahmon maassa-tieto ja ohjaus kääntyvät mukana. Suunta kaavassa ja toiminnossa: `alas`, `ylös`, `vasen`, `oikea` tai 1–4.
-- **Hyppy nyt:** toiminto **Aseta** → Liike → `vauhtiy` (esim. −900) Painikkeesta tai näppäimestä, kun `liike.maassa`. Varsinainen hyppy (korkeus, lyhyt hyppy, armoaika) on tulossa (jonon 17).
+- **Hyppy:** Liikkeen kohta **hyppää** (ks. Hyppy alla). Vanha kiertotie **Aseta** → `vauhtiy` toimii yhä.
 - **Tasainen aika:** kun projektissa on painovoima-Alue, liike lasketaan kiinteinä 1/120 s:n askelina, joten putoaminen ja lentorata ovat samat 30, 60 ja 120 Hz:n näytöllä. Yhdessä kuvassa on enintään 8 askelta: alle 15 kuvaa sekunnissa peli hidastuu eikä hyppää. Ilman painovoima-Aluetta liike lasketaan kuten ennen.
 - Kuvasilmukka pysähtyy, kun kaikki ovat maassa ja paikallaan, ja käy, kun jokin on ilmassa.
 
-**Ominaisuudet:** Alueella `painovoima`, `suunta` ja `ilmanvastus` (kaikki ohjattavia), Liikkeellä `painovoima` (%), `maassa`, `alla`, `putoamisvauhti`.
+**Ominaisuudet:** Alueella `painovoima`, `suunta` ja `ilmanvastus` (kaikki ohjattavia), Liikkeellä `painovoima` (%), `maassa`, `alla`, `putoamisvauhti` ja hypyn ominaisuudet (ks. Hyppy).
 
-**Esimerkki:** Näkymään Alue *Maailma* (koko näkymä, Painovoima 2000), sen alareunaan Laatikko *Lattia* (Este) ja ylös Laatikko *Pelaaja* (Este). Logiikkaan Liike, Liikutettava palikka Pelaaja, Ohjaus Tatti. Lukitse: pelaaja putoaa lattialle, `liike.maassa` = kyllä, `liike.alla` = Lattia. Painike *Hyppää* → Toiminto **Aseta** Liike → `vauhtiy` = −900, kun `liike.maassa`.
+**Esimerkki:** Näkymään Alue *Maailma* (koko näkymä, Painovoima 2000), sen alareunaan Laatikko *Lattia* (Este) ja ylös Laatikko *Pelaaja* (Este). Logiikkaan Liike, Liikutettava palikka Pelaaja, Ohjaus Tatti. Lukitse: pelaaja putoaa lattialle, `liike.maassa` = kyllä, `liike.alla` = Lattia. Hyppy: ks. seuraava osio.
 
-**Rajat:** ei kaltevia pintoja (osuma-alue on laatikko tai ympyrä), ei hyppy-toimintoa (jonon 17), ei liikkuvia tasoja (alusta ei kanna mukanaan, jonon 22), alueelta poistuminen ei lähetä *irtosi maasta* -tapahtumaa.
+**Rajat:** ei kaltevia pintoja (osuma-alue on laatikko tai ympyrä), ei liikkuvia tasoja (alusta ei kanna mukanaan, jonon 22), alueelta poistuminen ei lähetä *irtosi maasta* -tapahtumaa.
+
+## Hyppy
+
+Liike hyppää painovoimaa vastaan (jonon 17, 2D-pelien vaihe B). Toimii vain painovoima-Alueella (ilman painovoimaa *hyppää* ei tee mitään), Ohjauksella Nopeus x, y, Tatti, Napautus tai Auto (ei Reitti eikä Ruutu).
+
+1. Vedä nuoli kohtaan **hyppää**, esim. Painikkeesta, jonka toiminta on *Pohjassa vain painettaessa* (painettu → hyppää, irrotettu → **lopeta hyppy**), Peliohjaimen napista tai näppäimestä.
+2. Liikkeen paneelin osio **Hyppy** (Painovoima-osion alla; auki, kun *hyppää*-kohtaan on nuoli tai asetuksia on muutettu):
+   - **Hypyn korkeus (px)**: tyhjä = 3 × liikutettavan korkeus. Paneeli näyttää ponnistuksen ja ilma-ajan (”= ponnistus 800 px/s, ilmassa 0,8 s”). Ponnistus lasketaan √(2 × painovoima × korkeus), joten korkeus pysyy samana, vaikka painovoimaa muutetaan.
+   - **Ilmaohjaus (%)** (oletus 100): 100 = ohjaus ilmassa kuten maassa, 60 = tasoloikkamainen, 0 = lähtövauhti ratkaisee (puhdas lentorata). Koskee myös reunalta putoamista.
+   - **Lyhyt hyppy** (oletus päällä): *lopeta hyppy* nousun aikana leikkaa nousuvauhdin 40 %:iin. Lyhyt painallus = matala hyppy, pitkä = täysi.
+   - **Hyppyjä ilmassa** (oletus 0; 1 = tuplahyppy). Ilmahyppy nousee korkeuden verran siitä kohdasta.
+   - **Armoaika (s)** (oletus 0,1): reunalta pudonnut voi vielä hypätä maasta. **Ennakko (s)** (oletus 0,1): juuri ennen laskeutumista painettu hyppy tehdään laskeutuessa.
+   - Rivi **Nyt**: hyppyjä jäljellä.
+3. Tapahtuma **hyppäsi** lähtee jokaisesta hypystä; *irtosi maasta* lähtee kuten ennen.
+
+- Vaakavauhti säilyy hypyssä, joten juoksuhyppy kantaa pidemmälle kuin paikaltaan hyppy. Massa ei vaikuta hyppyyn.
+- Käännetty painovoima: hyppy lähtee aina painovoimaa vastaan (katossa alaspäin).
+- Hyppy korvaa painovoiman suuntaisen vauhdin (putoava ilmahyppy ei kumoudu putoamisvauhtiin).
+- **Ladattava hyppy:** Sekuntikello + Kaava → ominaisuus `hyppy` (ohjattava), tai **Aseta** → `hyppy`.
+
+**Esimerkki:** Painovoima-osion esimerkin päälle Painike *Hyppää* (Pohjassa vain painettaessa), nuolet *painettu* → Liikkeen **hyppää** ja *irrotettu* → **lopeta hyppy**, Hypyn korkeus 160. Lukitse ja paina: pelaaja nousee 160 px; napauta lyhyesti: matala hyppy.
+
+**Rajat:** ei seinähyppyä eikä seinässä liukumista; ilmaohjaus koskee ohjausvauhtia (ei töytäisyvauhtia); *hyppää* ilman painovoimaa ei tee mitään.
 
 ---
 

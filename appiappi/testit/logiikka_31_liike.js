@@ -43,7 +43,7 @@ KK.press(M,bt.id,C);T+=1000;var y=val(M,ky.id);A.ok(y>0&&y<150,'kiihtyvä puoliv
 
 // --- Liike ---
 var L=KK.newProject('l');var li=KK.addBlock(L,'liike',{x0:100,y0:50,xmin:0,xmax:390});var lin=KK.addNode(L,li.id,300,0);
-A.deepStrictEqual(KK.ports(li).ins.map(function(p){return p.p;}),['vx','vy','c','e']);A.deepStrictEqual([val(L,li.id),val(L,li.id,'y')],[100,50]);
+/* Jonon 17: hyppää ja lopeta hyppy ennen alkuun-kohtaa. */A.deepStrictEqual(KK.ports(li).ins.map(function(p){return p.p;}),['vx','vy','c','hyp','hyx','e']);A.deepStrictEqual([val(L,li.id),val(L,li.id,'y')],[100,50]);
 A.strictEqual(KK.frame(L,0.5,C),false,'ei nopeutta, ei liikettä');
 li.vx=40;li.vy='-10';A.strictEqual(KK.frame(L,0.25,C),true);KK.frame(L,0.25,C);A.deepStrictEqual([val(L,li.id),val(L,li.id,'y')],[120,45]);
 KK.frame(L,0.25,C);A.strictEqual(val(L,li.id),130);

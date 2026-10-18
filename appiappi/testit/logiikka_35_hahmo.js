@@ -12,7 +12,7 @@ function uusi(){var P=KK.newProject('h');var vw=P.views[0].id;var h=KK.addBlock(
 function X(o){return KK.Ev(o.P,C).omiNum(o.h.id,'x',0);}function Y(o){return KK.Ev(o.P,C).omiNum(o.h.id,'y',0);}
 function nop(o){return KK.Ev(o.P,C).val(o.li.id,'nop');}
 // --- 1. Tatti, heti huippunopeuteen ---
-var o=uusi();A.deepStrictEqual(KK.ports(o.li).ins.map(function(x){return x.p;}),['vm','c','e']);
+var o=uusi();A.deepStrictEqual(KK.ports(o.li).ins.map(function(x){return x.p;}),['vm','c','hyp','hyx','e']);
 o.P.st[o.tj.id]={x:1,y:0};run(o.P,0.5);near(X(o),1100,0.5,'200 px/s');near(nop(o),200,0.01);
 o.P.st[o.tj.id]={x:0.5,y:0};run(o.P,0.1);near(nop(o),100,0.01,'puolikas tatti = puolet');
 o.P.st[o.tj.id]={x:0,y:0};run(o.P,0.1);A.strictEqual(nop(o),0,'pysähtyy heti');A.strictEqual(KK.Ev(o.P,C).val(o.li.id,'m'),false);
@@ -47,7 +47,7 @@ o.P.st[o.tj.id]={x:1,y:0};run(o.P,0.1);A.strictEqual(KK.Ev(o.P,C).omiVal(o.h.id,
 o.li.ks='vasen';run(o.P,0.1);A.strictEqual(KK.Ev(o.P,C).omiVal(o.h.id,'peili'),true,'vasemmalle katsova kuva');
 // --- 6. Napautus kohteeseen ---
 o=uusi();o.li.ohj='napautus';o.li.vm=400;var per=laskuri(o.P,o.li,'per');KK.repair(o.P);
-A.deepStrictEqual(KK.ports(o.li).ins.map(function(x){return x.p;}),['vm','tx','ty','c','e']);
+A.deepStrictEqual(KK.ports(o.li).ins.map(function(x){return x.p;}),['vm','tx','ty','c','hyp','hyx','e']);
 A.strictEqual(KK.liikeNapautus(o.P,o.vw,1320,1020,C),1);var E=KK.Ev(o.P,C);A.strictEqual(E.val(o.li.id,'kx'),1320);A.strictEqual(E.val(o.li.id,'ky'),1020);
 run(o.P,0.5);near(X(o),1200,8,'puolivälissä');run(o.P,0.4);E=KK.Ev(o.P,C);A.strictEqual(X(o),1300,'keskipiste kohdassa');A.strictEqual(Y(o),1000);
 A.strictEqual(E.val(per.id),1,'perillä kerran');A.strictEqual(E.val(o.li.id,'kx'),null);A.strictEqual(KK.liikeKay(o.P,o.li.id),false);
@@ -60,7 +60,7 @@ A.strictEqual(KK.liikeNapautus(o.P,o.vw,0,0,C),0,'nuolesta ohjattu ei kuuntele n
 // --- 7. Auto: kaasu ja ohjaus nuolesta ---
 o=uusi();o.li.ohj='auto';o.li.tt='';o.li.vm=200;o.li.kaa=180;var kaa=LB(o.P,'arvo',{v:'1'}),ohj=LB(o.P,'arvo',{v:'0'});
 KK.addLink(o.P,N(o.P,kaa).id,'v',N(o.P,o.li).id,'kaa');KK.addLink(o.P,N(o.P,ohj).id,'v',N(o.P,o.li).id,'ohj');KK.repair(o.P);
-A.deepStrictEqual(KK.ports(o.li).ins.map(function(x){return x.p;}),['vm','kaa','ohj','c','e']);
+A.deepStrictEqual(KK.ports(o.li).ins.map(function(x){return x.p;}),['vm','kaa','ohj','c','hyp','hyx','e']);
 run(o.P,0.5);near(Y(o),900,0.5,'ajaa ylös');near(X(o),1000,0.01);A.strictEqual(KK.Ev(o.P,C).val(o.li.id,'suu'),0);
 ohj.v='1';run(o.P,0.5);var su=KK.Ev(o.P,C).val(o.li.id,'suu');near(su,90,1,'kääntyy 180°/s');
 ohj.v='0';run(o.P,0.5);A.ok(X(o)>1090,'ajaa oikealle');

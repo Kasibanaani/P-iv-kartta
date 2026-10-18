@@ -32,7 +32,7 @@ async def main():
                 await valitse(pg,I['li'])
                 await pg.select_option('#insp select[data-k="o"]',I['hm']);await pg.wait_for_timeout(100)
                 await pg.click('#insp [data-seg="ohj"][data-v="tatti"]');await pg.wait_for_timeout(120)
-                assert await P(pg,"KK.ports(P.b['%s']).ins.map(x=>x.p)"%I['li'])==['vm','c','e']
+                assert await P(pg,"KK.ports(P.b['%s']).ins.map(x=>x.p)"%I['li'])==['vm','c','hyp','hyx','e']
                 await pg.select_option('#insp select[data-k="tt"]',I['tj']);await pg.wait_for_timeout(100)
                 await pg.fill('#insp input[data-k="ka"]','0.6');await pg.dispatch_event('#insp input[data-k="ka"]','input')
                 await pg.select_option('#insp select[data-k="km"]',I['ky']);await pg.wait_for_timeout(100)
