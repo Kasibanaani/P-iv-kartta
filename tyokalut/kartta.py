@@ -6,6 +6,11 @@ Käyttö (repon juuresta):
   python3 tyokalut/kartta.py appiappi -f          lisäksi funktiot osioittain
   python3 tyokalut/kartta.py appiappi -f Kamera   funktiot vain osioista, joiden nimessä on "Kamera"
   python3 tyokalut/kartta.py appiappi -n save     funktiot, joiden nimessä on "save"
+  python3 tyokalut/kartta.py appiappi -m          manuaalin (appiappi/manuaali/*.md) otsikot riveineen ja koko
+  python3 tyokalut/kartta.py appiappi -m Liike     vain otsikot, joissa on "Liike" (kaikista luvuista)
+  python3 tyokalut/kartta.py appiappi/TILA.md     minkä tahansa .md-tiedoston otsikot
+
+Manuaalin luvusta luetaan vain muuttuvan otsikon rivit (esim. Read offset/limit tai sed -n).
 
 Kartta luetaan aina tiedostosta, joten rivinumerot ovat ajan tasalla. Osiot tunnistetaan
 kommenteista /* ---------- Nimi ---------- */ ja /* ===== NIMI ===== */.
@@ -58,9 +63,47 @@ def osion_loppu(osiot, k, lohkot, rivimaara):
     return loppu
 
 
+OTSIKKO = re.compile(r'^(#{1,4})\s+(.*)')
+
+
+def md_kartta(polku, suodin=''):
+    with open(polku, encoding='utf8') as t:
+        rivit = t.read().split('\n')
+    otsikot, aidattu = [], False
+    for i, r in enumerate(rivit, 1):
+        if r.startswith('```'):
+            aidattu = not aidattu
+        m = None if aidattu else OTSIKKO.match(r)
+        if m:
+            otsikot.append((i, len(m.group(1)), m.group(2).strip()))
+    tavut = [len(r.encode('utf8')) + 1 for r in rivit]
+    if suodin and not any(suodin in n.lower() for _, _, n in otsikot):
+        return
+    print(f'{polku}: {len(rivit)} riviä, {sum(tavut) // 1024} kt')
+    for k, (i, taso, nimi) in enumerate(otsikot):
+        loppu = len(rivit)
+        for j, t2, _ in otsikot[k + 1:]:
+            if t2 <= taso:
+                loppu = j - 1
+                break
+        if suodin and suodin not in nimi.lower():
+            continue
+        koko = sum(tavut[i - 1:loppu]) / 1024
+        print(f'{"  " * (taso - 1)}{i}-{loppu}  {nimi}  ({koko:.1f} kt)')
+
+
 def main(argv):
     if not argv or argv[0] in ('-?', '--help'):
         print(__doc__.strip())
+        return 0
+    if argv[0].endswith('.md'):
+        md_kartta(argv[0], (argv[1] if len(argv) > 1 else '').lower())
+        return 0
+    if len(argv) > 1 and argv[1] == '-m':
+        kansio = os.path.join(argv[0], 'manuaali')
+        for nimi in sorted(os.listdir(kansio)):
+            if nimi.endswith('.md'):
+                md_kartta(os.path.join(kansio, nimi), (argv[2] if len(argv) > 2 else '').lower())
         return 0
     polku, rivit = lue(argv[0])
     lohkot, osiot, funktiot = kartta(rivit)

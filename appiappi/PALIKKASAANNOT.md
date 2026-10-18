@@ -6,7 +6,7 @@
 
 | Kuka, milloin | Lukee |
 |---|---|
-| Rakentaja, rajattu työ (palikka, korjaus, jonon kohta) | Tämä + `TILA.md` + työn oma suunnitelma. Missio vain, jos työ tuo uuden käsitteen tai poikkeaa alla olevista säännöistä. |
+| Rakentaja, rajattu työ (palikka, korjaus, jonon kohta) | Tämä + `TILA.md` + työn oma suunnitelma. Missio vain, jos työ tuo uuden käsitteen tai poikkeaa alla olevista säännöistä. Manuaalista vain muuttuvat otsikot (`python3 tyokalut/kartta.py appiappi -m <sana>` antaa rivit), ei kokonaisia lukuja; `MUUTOKSET.md`:stä ja `testit/README.md`:stä vain alku tai haettu kohta, uusi merkintä lisätään. |
 | Suunnittelija, uusi suunnitelma | Missio + periaatteet + tämä. Suunnitelmaan kohta **Linjakkuus** (ks. alla). |
 | Linjakkuuskartoitus (koko metsä) | Missio kokonaan + [manuaali](manuaali/README.md) ja koodi (manuaali ei todista, tarkista epäselvä koodista) + tämä. Milloin: ks. loppu. |
 

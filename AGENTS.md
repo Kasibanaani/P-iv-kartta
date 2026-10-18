@@ -21,6 +21,8 @@ Emil kehittää tekoälyn kanssa omia selainappeja. Hän ei koodaa itse: tekoäl
   - `python3 tyokalut/kartta.py appiappi` – lohkot ja osiot rivinumeroineen
   - `python3 tyokalut/kartta.py appiappi -f Kamera` – osion funktiot
   - `python3 tyokalut/kartta.py appiappi -n save` – funktion rivi nimen perusteella
+  - `python3 tyokalut/kartta.py appiappi -m Liike` – manuaalin otsikot riveineen; lue ja muokkaa vain muuttuvaa otsikkoa, älä kokonaista lukua
+- Appi-appin testit kehityksen aikana kohdennetusti (`sh appiappi/testit/aja.sh <sana…>`), koko sarja kerran ennen vientiä.
 - `README.md` on iso: lue vain tarvittava kohta.
 
 ## Keskustelu

@@ -2,7 +2,9 @@
 
 Pajakone on tehty Kytköskartan kopiona (15.10.2026), joten testit 01–26 (logiikka) ja 01–30 (selain) ovat Kytköskartan testejä. Ne on sovitettu Pajakoneen omiin tallennusavaimiin (nyt `appiappi.v1`, `appiappi:gh`, `appiappi:appearance`) ja GitHub-kansioon `appiappi/`. Pajakoneen omat testit alkavat numeroista 27 ja 31.
 
-Aja kaikki: `sh appiappi/testit/aja.sh` (vaatii Noden ja Pythonin Playwrightin Chromiumilla).
+Aja kaikki: `sh appiappi/testit/aja.sh` (vaatii Noden ja Pythonin Playwrightin Chromiumilla). Tuloste näyttää vain kaatuneet ja yhteenvedon (`KAIKKI OK (202 testiä)`); `-v` näyttää myös läpäisseet.
+
+**Kehityksen aikana** aja vain asiaan liittyvät: `sh appiappi/testit/aja.sh painovoima 92` ajaa testit, joiden tiedostonimessä on jokin sanoista (kymmeniä sekunteja). **Koko sarja kerran ennen vientiä**, mitään ei ohiteta. Tätä luetteloa ei tarvitse lukea kokonaan: uusi testi lisätään riviksi oikeaan kohtaan, ja omat testit löytyvät nimellä (`grep`).
 
 Koko sarja kestää noin 20 minuuttia, eli yli tekoälyn työkalun 10 minuutin aikarajan: aja taustalla tai selaintestit osissa. `selain_49_monitori` (käyvän sekuntikellon ajoitus) kaatui kerran, kun kaksi sarjaa ajettiin yhtä aikaa; yksin ajettuna läpi.
 
