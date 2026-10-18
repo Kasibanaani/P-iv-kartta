@@ -28,7 +28,7 @@ Tilanne on se, mitä botti ”tietää” valitessaan. Rakentaja päättää sen
 
 Suositus (*ehdotus*): sensorit karkeina luokkina, ei tarkkoina lukuina. ”Zombi 37° oikealla 4,2 ruudun päässä” on liian tarkka; ”edessä oikealla, lähellä” on oppimiskelpoinen. Kahdeksan sektoria × kolme etäisyyttä (lähellä, kaukana, ei näy) = 24 tilaa per seurattava asia.
 
-**Nimi, laji vai hyvä/huono?** Taulukko ei tiedä, että *Zombi 1* ja *Zombi 2* ovat samanlaisia, joten sensorin pitää kertoa **laji** (Joukko, F37: *Zombit*, *Kolikot*, *Pelaaja*). Botti oppii lajin arvon itse seurauksista, joten ”hyvä” ja ”huono” -merkintää ei tarvita, ja kun uusi zombilaji liitetään Zombit-joukkoon, botti osaa sen heti. Pelkkä hyvä/huono-merkintä olisi tiivein mutta sama kuin kertoisi vastauksen valmiiksi; laji on rehellisempi ja yhtä pieni.
+**Nimi, laji vai hyvä/huono?** Taulukko ei tiedä, että *Zombi 1* ja *Zombi 2* ovat samanlaisia, joten sensorin pitää kertoa **laji** (joukko, F41, toteutettu Appi-appi 57/62/63: `#zombit`, `#kolikot`, `#pelaaja`). Botti oppii lajin arvon itse seurauksista, joten ”hyvä” ja ”huono” -merkintää ei tarvita, ja kun uusi zombi saa tunnuksen `#zombit`, botti osaa sen heti. Pelkkä hyvä/huono-merkintä olisi tiivein mutta sama kuin kertoisi vastauksen valmiiksi; laji on rehellisempi ja yhtä pieni.
 
 **Näköyhteys:** talossa seinän takana oleva zombi ei saa näkyä, muuten botti väistää seinän läpi. Sensorin valinta *seinät peittävät*.
 
@@ -37,7 +37,7 @@ Suositus (*ehdotus*): sensorit karkeina luokkina, ei tarkkoina lukuina. ”Zombi
 - **Jahtaaja:** palkkio pelaajan kiinniotosta, pieni plus lähestymisestä. Harjoitus vaatii pelaajan, joka liikkuu ilman ihmistä, koska ihminen on miljoonaan askeleeseen liian hidas: (a) satunnainen kulkija, (b) yksinkertainen pakenija (kaava: poispäin jahtaajasta), (c) toinen oppiva botti, joka oppii pakenemaan (molemmat paranevat vuorotellen). Rehellinen riski: botti oppii voittamaan juuri sen harjoitusvastuksen. Ihmistä vastaan se voi olla yllättävän hyvä tai helposti huijattava; sen näkee vain kokeilemalla.
 - **Vaikeustasot:** taulukon voi tallentaa kopioksi missä vaiheessa tahansa (100, 1 000, 10 000 kierroksen kohdalla). Huono puoli: vähän oppinut botti ei ole ”heikompi mutta järkevä” vaan sekava, osin hyvä, osin hölmö. Parempi vaikeussäädin (*ehdotus*): täysin oppinut taulukko ja pelissä säädettävä uteliaisuus (helppo = usein satunnainen valinta), reaktioviive ja sensorin kantama. Kaikki ovat tavallisia ohjattavia ominaisuuksia, joten vaikeustaso on yksi Valitse-palikka. Kopiot sopivat, jos haluaa eri luonteita.
 
-## 4. Mitä Appi-appista puuttuu (tarkistettu 18.10.2026, Appi-appi 49)
+## 4. Mitä Appi-appista puuttuu (tarkistettu 18.10.2026, Appi-appi 49; joukot lisätty Appi-appi 64:n mukaan)
 
 Nyt olemassa ja käyttökelpoista: ruutuliike (*ylös/alas/vasen/oikea*-tapahtumat = botin neljä valintaa, `ruutux`/`ruutuy` = sijainti), Alueen *astuttu* (perillä), törmäys-tapahtumat (zombi osui), Arpa (satunnainen haara, tasajakauma), Satunnaisluku painoilla, Tietotaulukko, Kaavio, Liikkeen *alkuun*, ketjut ja Ajastin. Puuttuu:
 
@@ -53,13 +53,13 @@ Jokainen on hyödyllinen ilman bottejakin (palikkasääntö 8, missio kohta 3).
 
 ### 5.1 Sensori (`sensori`, uusi logiikkapalikka)
 
-- **Asetukset:** *kenen* (näkymäpalikka, esim. botti), *mitä etsii* (Joukko, laji tai nimen osa; aluksi yksi Joukko), *kantama* (px tai ruutua), *sektoreita* (4 tai 8), *seinät peittävät* (esteet katkaisevat näön; kyllä/ei).
+- **Asetukset:** *kenen* (näkymäpalikka, esim. botti), *mitä etsii* (yksi palikka, joukko `#x` tai laji), *kantama* (px tai ruutua), *sektoreita* (4 tai 8), *seinät peittävät* (esteet katkaisevat näön; kyllä/ei).
 - **Ominaisuudet** (`omat`): `montako` (kantamalla näkyvät), `lähin.nimi`, `lähin.etäisyys`, `lähin.ruutuja`, `lähin.suunta` (asteina suhteessa *kenen* kulkusuuntaan, 0 = edessä, −180…180), `lähin.ilmansuunta` (maailman suunta, 0 = ylös), `lähin.sektori` (1–8 tai sanat *edessä, edessä oikealla, …*), `lähin.lähellä` (etäisyys alle puolet kantamasta). Ruututiedot, kun kerroksella on ruudukko: `edessä`, `vasemmalla`, `oikealla`, `takana` = mitä ruudussa on (*este*, *tyhjä* tai jäsenen Joukon nimi).
 - **Tapahtumat ulos:** *näki* (montako 0 → 1+), *menetti näkyvistä*.
 - **Muut käytöt:** vartija huomaa pelaajan näköyhteydellä; kompassinuoli lähimpään kolikkoon (Monitori `lähin.ilmansuunta`); ”kuuma–kylmä”-peli; Autopelin tekoälyauto katsoo seuraavaa tarkistuspistettä; tiedotus, kun lähin pysäkki on alle 100 m (myöhemmin karttamaailma).
-- **Keveys:** lasketaan vain, kun sitä luetaan, ja kerran kuvassa; ehdokkaina vain Joukon jäsenet (ei koko maailmaa).
+- **Keveys:** lasketaan vain, kun sitä luetaan, ja kerran kuvassa; ehdokkaina vain joukon jäsenet (ei koko maailmaa).
 
-- **Kaksi vaihetta (Emil 18.10.: etäisyydet kiinnostavat muutenkin, myös robotinrakennuspeli `master-tiedot/IDEAT.md` *Robottipaja*):** **2a** *mitä etsii* = yksi nimetty palikka: `etäisyys`, `ruutuja`, `suunta`, `ilmansuunta`, `sektori`, *näki/menetti* (kantamalla). Ei riipu Joukosta, joten voi tulla aiemmin. **2b** Joukko tai laji, lähin, `montako`, ruututiedot ja *seinät peittävät*.
+- **Kaksi vaihetta (Emil 18.10.: etäisyydet kiinnostavat muutenkin, myös robotinrakennuspeli `master-tiedot/IDEAT.md` *Robottipaja*):** **2a** *mitä etsii* = yksi nimetty palikka: `etäisyys`, `ruutuja`, `suunta`, `ilmansuunta`, `sektori`, *näki/menetti* (kantamalla). **2b** joukko `#x` tai laji, lähin, `montako`, ruututiedot ja *seinät peittävät*.
 
 ### 5.2 Aloita alusta (toiminto)
 
@@ -88,7 +88,7 @@ Uusi toiminto *Aloita alusta*: valittu näkymä (tai koko projekti) palaa alkuti
 
 Arpa saa painot (kuten Satunnaisluku) ja valinnaisen osion **Oppiminen**:
 
-- *Tilanne*: kaava, joka nimeää tilanteen tekstinä, esim. `#botti.ruutux-#botti.ruutuy` tai `#zombisensori.lähin.sektori/#maalisensori.lähin.sektori/#zombisensori.edessä`. Rakentaja päättää, mitä botti tietää (kohta 2).
+- *Tilanne*: kaava, joka nimeää tilanteen tekstinä, esim. `@botti.ruutux-@botti.ruutuy` tai `@zombisensori.lähin.sektori/@maalisensori.lähin.sektori/@zombisensori.edessä`. Rakentaja päättää, mitä botti tietää (kohta 2).
 - *Palkkio* (sisään, tapahtuma + määrä): plus tai miinus mihin tahansa hetkeen (perillä +10, zombi −10, askel −0,1). *Kierros päättyi* (sisään): viimeinen palkkio ei valu yli kierrosten.
 - *Uteliaisuus* % (ohjattava; harjoitus 20 %, peli 0–5 %), *oppimisnopeus*, *kaukonäköisyys* (kuinka paljon tuleva palkkio painaa nyt; oletukset valmiina).
 - **Muisti on Tietotaulukko:** rivi per tilanne, sarake per haara. Sen voi avata ja lukea (”tästä tilanteesta haara 2 arvo 7,3”), monistaa tasoksi (*Taso 1000*), tyhjentää tai vaihtaa Arvan käyttämäksi Valitse-palikalla. Ei uutta tallennuslajia opitulle.
@@ -107,14 +107,14 @@ Arpa saa painot (kuten Satunnaisluku) ja valinnaisen osion **Oppiminen**:
 | F40-0 | Arvonta: Satunnaisluku ja Arpa yhteen (5.0) | muutos (`repair` Arpa → Vaihtoehdot) | – |
 | F40-1 | Aloita alusta (5.2) | laajenee (toiminnon lista *säilytä*) | – |
 | F40-2a | Sensori yhteen palikkaan: etäisyys ja suunta (5.1) | laajenee, uusi laji `sensori` | – |
-| F40-2b | Sensori: lähin joukosta, ruudut ympärillä, näköyhteys (5.1) | laajenee | Joukko 15c, F40-2a |
+| F40-2b | Sensori: lähin joukosta, ruudut ympärillä, näköyhteys (5.1) | laajenee | F40-2a (joukot ovat jo: Appi-appi 57, 62, 63) |
 | F40-3 | Pikakelaus ja näennäinen kello (5.3) | ei | jonon 1p (kevennys), F40-1 |
 | F40-4 | Arpa oppii (5.4) ja Miksi? | laajenee (Arvan valinnaiset kentät) | F40-1, F40-3 |
 | F40-5 | Nuolikartta (5.5) | ei | F40-4 |
 
 Sen jälkeen koeprojekti *Talo ja zombit* `master-tiedot/appiappi/`-kansioon (botti oppii talon, sitten zombit, sitten jahtaaja), kömpelyydet jonoon yleisinä kohtina.
 
-Suositus jonoon: **F40-1 heti jonon 15 jälkeen** (pieni, hyödyllinen kaikille peleille), **F40-2…5 Joukon (15c–15e) jälkeen ja ennen 2D-vaihetta A (16)**. Perustelu: osat ovat pienempiä kuin 2D, toimivat jo nykyisessä ruutumaailmassa (Headmaze-tyyppiset talot ruutuliikkeellä) eivätkä vaadi painovoimaa. Vaihtoehto: 2D ensin, botit sen jälkeen, jos tasoloikka on Emilille tärkeämpi. Kaistat: F40-3 koskee moottorin silmukkaa kuten 1p ja 2D, joten ei samaan aikaan niiden kanssa.
+Suositus jonoon: **F40-1 heti jonon 15 jälkeen** (pieni, hyödyllinen kaikille peleille), **F40-2…5 ennen 2D-vaihetta A (16)** (joukot ovat jo valmiina, Appi-appi 57, 62, 63). Perustelu: osat ovat pienempiä kuin 2D, toimivat jo nykyisessä ruutumaailmassa (Headmaze-tyyppiset talot ruutuliikkeellä) eivätkä vaadi painovoimaa. Vaihtoehto: 2D ensin, botit sen jälkeen, jos tasoloikka on Emilille tärkeämpi. Kaistat: F40-3 koskee moottorin silmukkaa kuten 1p ja 2D, joten ei samaan aikaan niiden kanssa.
 
 ## 7. Rajaukset
 
