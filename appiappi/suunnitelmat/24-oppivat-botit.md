@@ -111,6 +111,14 @@ Arpa saa painot (kuten Satunnaisluku) ja valinnaisen osion **Oppiminen**:
 - Tietotaulukko näyttää jo luvut. Lisäksi (*ehdotus*): kun Arvan tilanne on muotoa `x-y` ja kerroksella on ruudukko, rakentaja voi näyttää näkymässä jokaiseen ruutuun nuolen parhaaseen suuntaan ja värin arvon mukaan (pelkkä rakentajan näkymä, kuten Viitteet-katkoviivat). Botti, joka on oppinut talon, näyttää nuolikartan, jossa kaikki nuolet virtaavat maalia kohti. Tämä on yksi opettavaisimmista asioista koko ajatuksessa.
 - Arvan Miksi?: *valitsi haaran 2: arvo 7,3 (muut 1,2 / −4,0 / 0,5), tilanne 12-7*; tai *arvottiin uteliaisuudesta*.
 
+### 5.6 Valitsija on vaihdettava: arpa, oppija, ihminen tai ulkoinen ohjain (Emilin ajatusleikki 18.10.2026)
+
+*Emilin ajatus:* botti, joka ei tiedä mitään, ja tekoäly (API) saa vain sensoritiedon ja päättää liikkeet. *Ehdotus:* sama rajapinta palvelee kaikkia valitsijoita. Botin logiikan raja on Arvonnan Vaihtoehdot-tapa: **sisään tilanne** (tilanne-kaavan teksti, esim. `@zombiin.sektori/@edessä.este`), **ulos yksi vaihtoehto** (tapahtumakohta per vaihtoehto). *Kuka valitsee*: painotettu arpa (5.0), oppiva (5.4), ihminen (painike tai Peliohjain ohjaa samoja vaihtoehtoja) tai myöhemmin ulkoinen ohjain. Botin muu logiikka ei muutu valitsijan mukana, joten samaa bottia voi verrata eri valitsijoilla.
+
+- **Ulkoinen ohjain** (*avoin*, ei suunniteltu tarkemmin): projektin sääntö on, että appi ei kutsu tekoälyä eikä repossa ole avaimia. Se ei estä ideaa: silta voi olla appin ulkopuolella (skripti tai Claude Code koneella), joka lukee tilanteen ja vaihtoehdot ja palauttaa valinnan. Avain ei koskaan tule appiin, projektiin eikä repoon. Sääntöä muutetaan vain Emilin päätöksellä.
+- Kielimalli on hidas (sekunteja päätökseen) ja maksaa askeleelta, joten se sopii vuoropohjaiseen: maailma odottaa valintaa (pikakelauksen näennäinen kello 5.3 antaa tähän pysäytettävän ajan). Se ei opi painoina vaan päättelee ja pitää muistiinpanoja; vertailukohta *Claude pelaa Pokémonia*.
+- Idea kirjattu: `master-tiedot/IDEAT.md`, *Tekoäly ohjaa bottia*.
+
 ## 6. Järjestys ja paikka jonossa (*ehdotus*, Emil päättää)
 
 | Vaihe | Sisältö | Tallennusmuoto | Riippuu |
