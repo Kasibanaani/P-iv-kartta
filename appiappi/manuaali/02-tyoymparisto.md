@@ -70,7 +70,7 @@ Avaa **projektin nimi ▾** yläpalkin vasemmasta reunasta. Ikkunassa *Projektit
 | Projektin käyttönäkymän ilme | samat valinnat, mutta vain tälle projektille; kulkee projektin mukana. Kumoa peruu. |
 | Projektin animointi | *Ilmestyy*, *Katoaa*, *Kesto (s)*, *Pehmeys*, *Arvo vaihtuu*, *Paikka vaihtuu*: tämän projektin näkymäpalikoiden oletus, kun palikalle ei ole valittu omaa (luku [Näkymäpalikat](03-nakymapalikat.md), Animointi-osio). Tyhjä = töks. Kulkee projektin mukana. |
 | Päivämäärät | *Muoto*: pp.kk.vvvv tai pp.kk.vv; *Päivän raja (tämä projekti)*: keskiyö (oletus) tai klo 1.00–6.00. Raja koskee kirjaushistoriaa ([Tieto](07-tieto.md#kirjaushistoria)). |
-| Muokkaus | *Kohdista ruudukkoon*: Kyllä / Ei (10 px:n ruudukko raahattaessa) |
+| Muokkaus | *Kohdista ruudukkoon*: Kyllä / Ei (10 px:n ruudukko raahattaessa). *Näytä viitteet muokatessa*: Kyllä (oletus) / Ei, ks. [viitelappu](03-nakymapalikat.md#teksti-ja-upotetut-viitteet). Koskee tätä selainta, ei kulje projektin mukana. |
 | Muisti- ja viestilaput | lappujen määrät, lista, *Hae vastaukset*, *Kopioi laput tekstinä* (ks. Laput) |
 | GitHub-tallennus | Repo, Avain, automaattinen tallennus, *Tallenna nyt*, *Hae GitHubista*, *Hae uudet projektit*, *Testaa yhteys* (luku [Tallennus](09-tallennus.md)) |
 

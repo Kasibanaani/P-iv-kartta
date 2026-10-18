@@ -10,6 +10,7 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | lisätä palikan | vedä paletista tai napauta | [Työympäristö: Paletti](02-tyoymparisto.md#palikan-lisääminen) |
 | kytkeä palikat yhteen | nuoli logiikassa lähtökohdasta tulokohtaan | [Nuolen vetäminen](02-tyoymparisto.md#nuolen-vetäminen) |
 | näyttää arvon tekstissä | `{viite}` tekstikentässä | [Teksti ja upotetut viitteet](03-nakymapalikat.md#teksti-ja-upotetut-viitteet) |
+| nähdä muokatessa, mistä palikan teksti tulee | viitelappu palikan yläpuolella (⚙︎ Asetukset → Näytä viitteet muokatessa) | [Teksti ja upotetut viitteet](03-nakymapalikat.md#teksti-ja-upotetut-viitteet) |
 | tehdä logiikan tuloksesta näkymään palikan yhdellä napautuksella | paneelin ▢ Tee näkymään tai N | [Tee näkymään](06-kaavat.md#tee-näkymään) |
 | laskea jotain | Kaava tai Lasku | [Kaavat](06-kaavat.md#kaavan-syntaksi), [Lasku](04-logiikkapalikat.md#lasku-lasku) |
 | tehdä arvon nimestä, jonka kirjoitin kaavaan | ehdotusrivin ＋ Luo Arvo ”nimi” | [Ehdotusrivi](06-kaavat.md#ehdotusrivi) |

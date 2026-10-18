@@ -126,6 +126,7 @@ Useimmilla palikoilla on tekstikenttä (*Painikkeen teksti*, *Teksti* tai *Otsik
 - `{viite.ominaisuus}`, esim. `{otsikko.näkyy}` tai `{lista.rivejä}`: sama arvo kuin kaavassa `viite.ominaisuus`.
 - Nappi **＋ Viittaus** kentän vieressä lisää viittauksen valikosta.
 - Jos nimeä ei löydy, kentän alle tulee punainen varoitus ”⚠ Nimeä {…} ei löydy.”
+- **Viitelappu muokatessa (Appi-appi 50):** palikka näyttää aina arvon (`Unta 7 h`). Muokatessa sen yläreunan yläpuolella on lisäksi pieni katkoviivainen lappu, josta näkee, mistä teksti tulee: tekstin viitteet `{Unipisteet}, {Laatu}` (kuten paneelin kentässä, sama viite vain kerran) tai nuolesta tuleva teksti *⇐ Kaavan nimi*. Valitulla palikalla lappu on nimilapun yläpuolella. Lukittuna ja 🧪 Kokeile-tilassa lappua ei ole, eikä palikka liiku lukittaessa. Tavallisella tekstillä ilman viitteitä lappua ei ole. Pois päältä: **⚙︎ Asetukset** → Muokkaus → *Näytä viitteet muokatessa*: Ei (koskee tätä selainta).
 - Tekstiin ei voi kirjoittaa laskua aaltosulkeisiin (esim. `{uni * 2}` ei toimi). Laskettu teksti tehdään napilla **ƒ Teksti kaavasta**: se tekee Kaava-palikan, jonka tulos menee kohtaan *teksti*, esim. kaava `"Unta " + uni + " h"`.
 
 Teksti ilmestyy -efekti (logiikka) voi vaihtaa Tekstin, Muodon, Ilmoituksen ja Painikkeen tekstin; uusi teksti jää voimaan, kunnes toiminto *Palauta perusarvo* poistaa sen. Nuoli kohtaan *teksti* voittaa sen.
