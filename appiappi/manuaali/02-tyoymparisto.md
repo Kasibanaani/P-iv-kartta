@@ -331,6 +331,7 @@ Kun palikka on valittu, sen nuolet korostuvat ja muut himmenevät.
 Logiikkakanvaasin vasemmassa alakulmassa (puhelimella hieman ylempänä, allekkain) on kaksi nappia:
 
 - **Pistokkeet: näkyvät** / **Pistokkeet piilossa**: piilottaa pallot ja salmiakit kaikista palikoista. Nuolet säilyvät, näkyvät himmeinä ja toimivat. Piilotettuun palikkaan nuoli viedään pudottamalla se palikan päälle (valikko kysyy kohdan).
+  Kun palikan pistokkeet ovat piilossa, sen teksti mahtuu kahdelle riville ja palikka saa olla leveämpi (enintään noin 320 px, näkyvillä pistokkeilla 240 px ja yksi rivi). Vielä pidempi teksti katkeaa kolmeen pisteeseen. Ketjun vaiheet, ikkunat ja venytetty Kaava pysyvät ennallaan.
 - **Viitteet: ei / valitulle / kaikille**: napautus kiertää vaihtoehdot. Viitteet ovat himmeitä pisteviivoja kaavasta tai tekstistä palikkaan, johon se viittaa. *Valitulle* (oletus) näyttää vain valitun palikan viitteet. Pelkkä näyttö: viivaa ei voi valita.
 
 Palikkakohtainen valinta: logiikkapalikan paneelin osio *Ulkonäkö logiikassa* → **Pistokkeet**: *Kuten muut*, *Näkyvät* tai *Piilossa*, ja nappi **Sama kaikille tämän lajin palikoille**. Palikan oma valinta voittaa yleisen. Ketjussa ja ketjuikkunassa pistokkeet näkyvät aina. Nämä valinnat tallentuvat projektiin, mutta eivät mene Kumoa-historiaan.
