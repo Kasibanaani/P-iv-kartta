@@ -77,6 +77,8 @@ Kaikki kolme ovat olemassa olevia mekanismeja, eivät uutta kieltä:
 
 1. **Joukon sääntö** (suunnitelma 21, kohta 3.2): *Ota mukaan myös* laji, näkymä/kerros, ehto `jäsen.hp > 0`. Joukko päättää, kuka kuuluu. Paras, kun sääntö koskee monta palikkaa.
 2. **Ehdollinen tagi: kohta *kuuluu kun*** (A2, A5; tarkennettu 18.10. Emilin kysymyksestä ”jos unipisteet alle 80, niin kuuluu joukkoon”): jokaisella palikan tagilla on paneelissa oma kohta *kuuluu #huono_yö kun*, kuten *näkyy kun*. Oletus: aina. Kaava tai nuoli tekee jäsenyydestä ehdollisen: `kuuluu #huono_yö kun unipisteet < 80`. Muut tagit pysyvät ennallaan (ei koko listan korvaamista). Tunnus-kenttä näyttää ehdollisen tagin `#huono_yö⚡`. Lisäksi luettava ominaisuus `joukot` (lista voimassa olevista joukoista, `uni.joukot sisältää "terveys"`). Tämä on Emilin `#(viite)`-ajatus tavallisena kohtana. Monelle palikalle samalla ehdolla käytetään joukon sääntöä (kohta 1).
+**Rajaava ehto *Vain jos*** (Emilin kysymys 18.10. klo 4.00, ”muuten ei”): Joukko-palikassa on kaksi erillistä ehtoa. *Ota mukaan* lisää jäseniä (kohta 1). *Vain jos* (esim. `jäsen.arvo < 7`) koskee kaikkia, myös tagilla ja toiminnolla liitettyjä: ehtoa täyttämätön ei ole jäsen. Palikan Tunnus-kentässä tagi näkyy silloin himmeänä, ja Miksi? kertoo *#x: ei kelpaa, Vain jos -ehto ei päde*. Molemmat ehdot ovat valinnaisia; ilman niitä joukko on pelkät tagit.
+
 3. **Toiminnot** (A6, hetki): *Lisää joukkoon* ja *Poista joukosta* ovat Lisää/Poista-toimintoja ominaisuudelle `joukot` (tai kohteena joukko). Esim. vihollinen osuu → Poista joukosta `#elossa`.
 
 Etusija on sama kuin muualla (A3): ohjattu kaava > toiminnon asettama > perusarvo (Tunnus-kenttä). Joukon sääntö lisää jäseniä niiden päälle, pois suljettu voittaa.
