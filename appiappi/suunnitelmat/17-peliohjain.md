@@ -1,6 +1,6 @@
 # F33 Peliohjain: Xbox-, PlayStation- ja Nintendo-ohjain Appi-appin syötteeksi
 
-17.10.2026. **Emilin idea** (viesti 17.10. klo 16.58): ”Tuki ohjaimelle, kuten Xbox, PlayStation tai Nintendo.” Tekoälyn jäsentämä suunnitelma. Merkinnät: *ehdotus* = tekoälyn suositus; ⏸ = odottaa Emilin päätöstä. **Vaihe 1 toteutettu** (Appi-appi 45, 17.10.2026: kohdat 3.1–3.3, testattu valeohjaimella tietokoneen Chromiumissa); vaiheet 2–4 eivät. [Hakemisto](../SUUNNITELMA.md), [käyttöpinta](03-kayttopinta.md), [palikkasäännöt](../PALIKKASAANNOT.md).
+17.10.2026. **Emilin idea** (viesti 17.10. klo 16.58): ”Tuki ohjaimelle, kuten Xbox, PlayStation tai Nintendo.” Tekoälyn jäsentämä suunnitelma. Merkinnät: *ehdotus* = tekoälyn suositus; ⏸ = odottaa Emilin päätöstä. **Vaihe 1 toteutettu** (Appi-appi 45, 17.10.2026: kohdat 3.1–3.3, testattu valeohjaimella tietokoneen Chromiumissa); **Vaihe 4 toteutettu** (Appi-appi 64, 18.10.2026, Emil valitsi kortilla: näppäimistö pelaajan 1 ohjaimeksi, kartta `PADKEY` moottorissa, ks. manuaalin luku 4); vaiheet 2–3 eivät. [Hakemisto](../SUUNNITELMA.md), [käyttöpinta](03-kayttopinta.md), [palikkasäännöt](../PALIKKASAANNOT.md).
 
 ## 1. Mitä iPhone oikeasti tukee (selvitetty 17.10.2026)
 
@@ -86,7 +86,7 @@ Periaate A8: monta yleistä reittiä on hyvä. Ohjain tuodaan sisään kolmea re
 1. **Vaihe 1 (jonoon):** Peliohjain-palikka (3.1), Tatti seuraa ohjainta (3.2), Painike reagoi nappiin (3.3), paneelin esikatselu, Miksi?, testit. Moninpeli 1–4 mukana alusta (pelaaja-asetus), koska se on halpa.
 2. **Vaihe 2, tärinä:** toiminto **Täristä** (kohde Peliohjain, kesto s, voima 0–1, valinnainen heikko/vahva). Jos laite ei tue (`vibrationActuator` puuttuu), ei tee mitään ja Miksi? sanoo ”tämä laite ei tue ohjaimen tärinää”. Rakennetaan vasta, kun vaihe 1 on kokeiltu oikealla iPhonella ja ohjaimella, koska iPhonen tuki on epävarma.
 3. **Vaihe 3 (ehdotus), valikossa liikkuminen:** ristiohjain siirtää näkyvää kehystä painikkeiden välillä ja alanappi painaa, ilman että rakentaja kytkee jokaisen painikkeen erikseen. Projektin asetus, oletus pois.
-4. **Vaihe 4 (ehdotus), näppäimistö:** iPadin näppäimistö ja tietokone samaan Peliohjain-palikkaan (nuolet = ristiohjain, välilyönti = alanappi …). Samalla rakentaja voi kokeilla ohjainlogiikkaa ilman ohjainta.
+4. **Vaihe 4, näppäimistö (toteutettu Appi-appi 64):** iPadin näppäimistö ja tietokone samaan Peliohjain-palikkaan (nuolet = ristiohjain, välilyönti = alanappi …). Samalla rakentaja voi kokeilla ohjainlogiikkaa ilman ohjainta.
 
 ## 6. Linjakkuus
 

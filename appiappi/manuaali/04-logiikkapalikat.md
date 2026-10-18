@@ -173,7 +173,7 @@ Mittaa kulunutta aikaa sekunteina. Käynnistys, pysäytys ja nollaus tapahtumill
 
 ## Peliohjain (`pohj`)
 
-Xbox-, PlayStation- tai Nintendo-ohjain syötteeksi (selaimen Gamepad API). Ei näy käyttäjälle.
+Xbox-, PlayStation- tai Nintendo-ohjain syötteeksi (selaimen Gamepad API). Tietokoneella myös näppäimistö on pelaajan 1 ohjain (ks. *Näppäimistö* alla). Ei näy käyttäjälle.
 
 - **Löytyy:** logiikan paletti → *Liike ja aika* → **Peliohjain**.
 - **Sisään:** ei mitään.
@@ -199,11 +199,23 @@ Xbox-, PlayStation- tai Nintendo-ohjain syötteeksi (selaimen Gamepad API). Ei n
 | ylänappi | Y | △ | X |
 
   Lisäksi `vasenolka`, `oikeaolka` (LB/RB, L1/R1, L/R), `vasenliipaisin`, `oikealiipaisin` (LT/RT, L2/R2, ZL/ZR; 0–1, painallus = 0,5 tai yli), `ylös`, `alas`, `vasen`, `oikea` (ristiohjain), `valikko` (Menu/Options/+), `valinta` (View/Create/−), `vasenpainallus`, `oikeapainallus` (tatin painallus).
+- **Näppäimistö (Appi-appi 64):** kun näkymä on käytössä (lukittu tai Kokeile), näppäimistö on pelaajan 1 ohjain. Näppäin valitaan paikan mukaan, joten kartta on sama kaikilla näppäimistökielillä.
+
+| Näppäin | Ohjaimessa |
+|---|---|
+| ↑ ↓ ← → tai W S A D | ristiohjain (`ylös`, `alas`, `vasen`, `oikea`) **ja** vasen tatti (`vaaka`, `pysty`; vino 0,71, vastakkaiset kumoavat) |
+| Välilyönti tai K | alanappi |
+| L / J / I | oikeanappi / vasennappi / ylänappi (IJKL samassa kuviossa kuin ohjaimen etunapit) |
+| Q / E | vasenolka / oikeaolka |
+| Z / C | vasenliipaisin / oikealiipaisin (1 pohjassa) |
+| Enter / askelpalautin | valikko / valinta |
+
+  Oikeaa tattia ja tattien painalluksia ei ole näppäimistöllä. `nimi` on *Näppäimistö*. Näppäimistö yhdistyy (*yhdistyi*) ensimmäisestä sen näppäimen painalluksesta ja irtoaa kuten ohjain. Jos myös oikea ohjain on pelaaja 1, kumpi tahansa käy: napit kummasta tahansa, tatti näppäimistöstä, kun sillä ohjataan. Näppäimet koskevat vain projektia, jossa on Peliohjain-palikka tai ohjaimeen kytketty Tatti tai Painike; silloin ne eivät tee muuta (välilyönti ei panoroi, nuoli ei vieritä). Tekstikenttään kirjoittaessa näppäimet menevät kenttään. Muokatessa nuolet siirtävät valittua palikkaa kuten ennen, eikä näppäimistö ole ohjain. Paneelin esikatselu näyttää vain oikean ohjaimen. Ikkunasta poistuttaessa pohjassa olevat näppäimet päästetään irti.
 - **Ominaisuudet** (luettavia, ei asetettavia: arvot tulevat laitteesta): `yhdistetty`, `nimi`, `vaaka`, `pysty`, `etäisyys`, `suunta`, `oikeavaaka`, `oikeapysty` ja jokainen nappi yllä (kyllä/ei, liipaisimet luku). Muut nimet ilman pisteitä: `ylanappi`, `ylos`, `etaisyys`.
 - **Kaavassa:** `ohjain.vaaka * 200` (samat nimet kuin Tatilla), `ohjain.alanappi`, `ohjain.oikealiipaisin > 0,5`.
 - **Yksi nappi tapahtumaksi:** KUN-palikka ehdolla `ohjain.alanappi`, tai *painettu* → JOS `tapahtuma.nappi = "alanappi"`.
 - **Aika ja tila:** toimii, kun näkymä on käytössä (lukittu tai Kokeile). Ohjaimen tila ei tallennu. Kun ohjain irtoaa, sivu menee taustalle tai näkymä avataan muokattavaksi, kaikki napit ja tatit palaavat lepoon (*irtosi*, Tatti *loppuu*).
-- **Esimerkki:** Tatin paneelissa *Peliohjain: vasen tatti*, niin vanha Tatti + Liike -peli liikkuu ohjaimella. Hyppypainikkeen paneelissa *Peliohjaimen nappi: alanappi*.
+- **Esimerkki:** Tatin paneelissa *Peliohjain: vasen tatti*, niin vanha Tatti + Liike -peli liikkuu ohjaimella ja koneella nuolinäppäimillä. Hyppypainikkeen paneelissa *Peliohjaimen nappi: alanappi*.
 - **Huomio:** selain näkee ohjaimen vasta, kun sen nappia painetaan sivun ollessa auki. Kotinapin ja jakonapin ottaa laite itse. Tärinää ei ole (suunnitelman vaihe 2). Oikealla ohjaimella ja iPhonella ei ole kokeiltu (ei tarkistettu).
 
 ## Kerros ✦ (`kerros`)

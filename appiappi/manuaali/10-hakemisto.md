@@ -52,6 +52,7 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | nimetä tai poistaa joukon | paletti → Joukot | [Nimeä ja poista](07-tieto.md#nimeä-ja-poista-paletti) |
 | laskea sarakkeen summan | `taulu.sarake.summa` tai SUMMA-ikkuna riveille | [Laske taulukon sarakkeen summa](07-tieto.md#laske-taulukon-sarakkeen-summa) |
 | liikuttaa hahmoa | Liike + Tatti tai napautus | [Liike](08-maailma-ja-liike.md#liike-liike) |
+| ohjata koneen näppäimistöllä (nuolet, välilyönti) | Peliohjain, pelaaja 1 | [Peliohjain](04-logiikkapalikat.md#peliohjain-pohj) |
 | tunnistaa törmäyksen tai alueeseen astumisen | Este, Liikkeen *törmäsi*, Alue | [Maailma ja liike](08-maailma-ja-liike.md) |
 | tehdä puhelimen muotoisen näkymän | Näkymän laite: Puhelin | [Laitemuoto](02-tyoymparisto.md#laitemuoto-vapaa-puhelin-ipad) |
 | käyttää valmista appia | 🔒 Lukitse | [Muokkaus ja käyttö](02-tyoymparisto.md#muokkaus-ja-käyttö--lukitse) |
