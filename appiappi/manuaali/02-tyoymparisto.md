@@ -182,7 +182,7 @@ Paletti näyttää vain sen puolen palikat, joka on auki: Näkymä-välilehdell�
 
 **Haku**: logiikan paletin kenttä *Etsi nimellä…* suodattaa vain Palikat-listaa (projektin omat palikat nimen tai viitteen mukaan). Palikkalajeja ei voi hakea; ne etsitään ryhmistä.
 
-**Palikat-lista (logiikka)**: näkymän palikat (paitsi sijainnit) ja nimetyt logiikkapalikat sekä muistit, arvot, tulokset, satunnaisluvut ja käyrät. Rivillä näkyy kuvake ja nimi yhdellä rivillä; pitkä nimi katkeaa kolmeen pisteeseen. Viite, näkymän nimi tai ”logiikka” ja montako kertaa palikka on jo logiikkakanvaasilla (esim. ”univiime · logiikka · 2×”) näkyvät vihjeessä, kun hiiri on rivin päällä. Kanvaasilla viite näkyy palikan yläpuolella kuten ennenkin. **Näkymän palikka saadaan logiikkaan vain tästä listasta** (tai paneelin napista *Näytä logiikassa*). Sama palikka saa olla logiikassa monessa kohdassa: jokainen veto tekee uuden **esiintymän**. Ikkunasta voi olla vain yksi esiintymä, joten ikkunan veto vain valitsee sen.
+**Palikat-lista (logiikka)**: näkymän palikat (paitsi sijainnit) ja nimetyt logiikkapalikat sekä muistit, arvot, tulokset, satunnaisluvut ja käyrät. Rivillä näkyy kuvake ja nimi yhdellä rivillä; pitkä nimi katkeaa kolmeen pisteeseen. Viite, näkymän nimi tai ”logiikka” ja montako kertaa palikka on jo logiikkakanvaasilla (esim. ”univiime · logiikka · 2×”) näkyvät vihjeessä, kun hiiri on rivin päällä. Kanvaasilla viite näkyy palikan yläpuolella kuten ennenkin. Ylimpänä ovat valittu palikka ja kolme viimeksi tehtyä näkymän palikkaa (uusin ensin), sitten muut näkymän palikat ja logiikkapalikat aakkosissa (Appi-appi 74). **Näkymän palikka saadaan logiikkaan vain tästä listasta** (tai paneelin napista *Näytä logiikassa* tai valitun palikan ⇢-napista). Sama palikka saa olla logiikassa monessa kohdassa: jokainen veto tekee uuden **esiintymän**. Ikkunasta voi olla vain yksi esiintymä, joten ikkunan veto vain valitsee sen.
 
 ### Palikan lisääminen
 
@@ -238,7 +238,7 @@ Monivalinnan paneelissa: *Tasaa* (Vasen, Keskelle, Oikea, Ylös, Keskelle, Alas)
 
 Näkymäpalikan paneelissa:
 
-- **Monista**: kopio 20 px viereen. Sama ⌘D.
+- **Monista**: kopio 20 px viereen. Sama ⌘D, joka monistaa myös monivalinnan kerralla.
 - *Paikka ja koko* → **Monista**: N kpl, väli px, **Alle** tai **Viereen**; tai *Ruudukko* rivit × sarakkeet → **Monista ruudukoksi**. Kopiot saavat omat nimet.
 - *Ulkoasu* → **Kopioi ulkoasu** ja **Liitä ulkoasu** (koko ja värit; samalle lajille myös tekstin koko, lihavointi, tasaus ja muoto).
 
@@ -361,7 +361,7 @@ Ylhäältä alas:
 9. Napit, esim. näkymäpalikalla **Tuo eteen**, **Vie taakse**, **Monista**, **Näytä logiikassa**, **Tallenna presetiksi…**, **Poista palikka**; logiikkapalikalla **Lisää toinen esiintymä**, **⧉ Kopioi**, **Liitä**, **Tallenna presetiksi…**, **Poista** tai **Poista tämä esiintymä**. Kun näkymäpalikka on valittu logiikassa: **Lisää toinen esiintymä**, **Poista logiikasta**, **Näytä näkymässä**, **Tallenna presetiksi…**.
 10. Logiikan esiintymällä valintaruutu **Käänteinen tässä kohdassa (EI): kyllä ↔ ei** (vain tämä esiintymä kääntyy, palikkaan tulee merkki EI) ja ikkunalla **Tiivistetty**.
 
-**Näytä logiikassa** (näkymäpalikan paneelissa) vaihtaa Logiikka-välilehdelle (Rinnakkain-tilassa pysyy) ja tekee palikasta esiintymän logiikkaan, jos sitä ei vielä ole. **Näytä näkymässä** vie takaisin palikan kohdalle.
+**Näytä logiikassa** (näkymäpalikan paneelissa, tai valitun palikan kehyksen oikeassa yläkulmassa oleva pieni **⇢**-nappi, ei Reitillä, Appi-appi 74) vaihtaa Logiikka-välilehdelle (Rinnakkain-tilassa pysyy) ja tekee palikasta esiintymän logiikkaan, jos sitä ei vielä ole. **Näytä näkymässä** vie takaisin palikan kohdalle. Rinnakkain-tilassa ⇢-napista voi myös **vetää** logiikan puolelle: pudotuskohtaan tulee palikan esiintymä (toinen esiintymä, jos palikka on jo logiikassa). Logiikkaan ei tule mitään itsestään.
 
 Muutokset paneelissa tulevat voimaan heti kirjoittaessa. Yhden kentän muokkaus on yksi Kumoa-askel.
 
@@ -397,7 +397,9 @@ Osio *Miksi?* selittää, miksi palikan arvo on mikä on: yläteksti ja puu osis
 
 - **Logiikassa**: valitse palikka tai monta, paina **⧉ Kopioi** paneelissa (tai ⌘C / Ctrl+C), sitten **Liitä** (tai ⌘V). Kopio sisältää valitut palikat, ikkunan tai ketjun koko sisällön ja niiden väliset nuolet. Liitetyt logiikkapalikat ovat uusia (uudet nimet ja viitteet), ja viittaukset kopioitujen välillä osoittavat uusiin. Näkymäpalikasta liitetään vain uusi esiintymä samaan palikkaan. Jokainen liitos siirtyy 40 px edellisestä.
 - Leikepöytä on Appi-appin oma ja säilyy vain, kun sivu on auki. Toiseen projektiin voi liittää: silloin viittaukset muihin kuin kopioituihin palikoihin poistuvat, ja toisen projektin näkymäpalikat jäävät pois.
-- **Näkymässä** ei ole kopioi ja liitä -toimintoa. Käytä **Monista** (paneeli) tai ⌘D, tai presettiä.
+- **Näkymässä** (Appi-appi 74): valitse palikka tai monta (⇧-napsautus), ⌘C / Ctrl+C ja ⌘V. Liitetyt palikat ovat uusia: samat asetukset, omat nimet ja viitteet. Viittaukset kopioitujen palikoiden välillä (esim. Tekstin `{Painike.tila}` tai *näkyy kun* -nuoli kopioituun) osoittavat uusiin, muut ennallaan. Logiikkaan ei tule esiintymiä. Samaan näkymään liitos siirtyy 20 px edellisestä; toiseen näkymään liitetään samaan kohtaan, ja kerros, jota siellä ei ole, vaihtuu Pohjaksi. ⌘D monistaa valitun palikan tai koko monivalinnan 20 px viereen.
+- Rinnakkain-tilassa ⌘V liittää sinne, mistä viimeksi kopioitiin (näkymä tai logiikka).
+- **Numerointi** (kopio, liitos, monistus): lopussa oleva numero kasvaa, ”Arvo 1” → ”Arvo 2” (ennen ”Arvo 1 2”), viite samoin `arvo1` → `arvo2`. Itse asetettu viite numeroituu samalla tavalla.
 - ⌘D logiikassa tekee valitusta palikasta toisen esiintymän (ei ikkunalle eikä ketjun tapahtumalle). Sama: paneelin **Lisää toinen esiintymä**.
 
 ## Kumoa ja tee uudelleen
@@ -534,9 +536,9 @@ Tietokoneella. ⌘ = Macin Command, Windowsissa Ctrl. Oikotiet eivät toimi, kun
 |---|---|---|
 | ⌘Z | Kumoa | kaikkialla paitsi lukitulla Näkymä-välilehdellä |
 | ⇧⌘Z tai ⌘Y | Tee uudelleen | kaikkialla paitsi lukitulla Näkymä-välilehdellä |
-| ⌘C | Kopioi valitut | Logiikka ja Rinnakkain (logiikan palikat) |
-| ⌘V | Liitä | Logiikka ja Rinnakkain |
-| ⌘D | Monista (näkymä) tai toinen esiintymä (logiikka) | valittu palikka |
+| ⌘C | Kopioi valitut | Logiikka, Näkymä ja Rinnakkain |
+| ⌘V | Liitä | Logiikka, Näkymä ja Rinnakkain (sinne, mistä viimeksi kopioitiin) |
+| ⌘D | Monista (näkymä, myös monivalinta) tai toinen esiintymä (logiikka) | valittu palikka |
 | N | Tee näkymään: valitusta (tai valituista) logiikkapalikasta oletus (arvosta näyttölaatikko, Toiminnosta Painike, Ketjusta Käynnistysnappi) viimeksi auki olleeseen näkymään ([Tee näkymään](06-kaavat.md#tee-näkymään)) | Logiikka ja Rinnakkain |
 | ⌫ tai Delete | Poista valittu (palikka, esiintymä, nuoli, koristeviiva) tai valitut | muokatessa |
 | Nuolinäppäimet | Siirrä valittua näkymäpalikkaa 1 px | näkymän muokkaus |

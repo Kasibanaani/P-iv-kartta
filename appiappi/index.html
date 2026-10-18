@@ -228,6 +228,13 @@ body.koe #body{top:85px}
 .edit .ue:hover:not(.sel){outline:1px dashed var(--label3);outline-offset:3px;border-radius:12px}
 .ue .rh{display:none;position:absolute;right:-9px;bottom:-9px;width:14px;height:14px;border-radius:5px;background:var(--cell);border:2px solid var(--accent);cursor:nwse-resize;z-index:3}
 .edit .ue.sel .rh{display:block}
+/* Jonon 25 (a): valitun palikan ⇢ = Näytä logiikassa; Rinnakkain-tilassa siitä voi vetää suoraan logiikkaan. */
+.ue .tolg{display:none;position:absolute;right:-12px;top:-12px;width:22px;height:22px;box-sizing:border-box;border-radius:50%;background:var(--cell);border:2px solid var(--accent);color:var(--accent);font:700 12px/18px system-ui,sans-serif;font-style:normal;text-align:center;cursor:pointer;z-index:4;touch-action:none}
+.ue .tolg:hover{background:var(--accent);color:var(--bg)}
+.edit .ue.sel .tolg{display:block}
+.edit .ue.k-merkki .tolg{right:-26px}
+.ue .tolg::before{content:'⇢'}
+.edit .ue.k-reitti .tolg{display:none}
 .ue .nmtag{display:none;position:absolute;left:0;top:-22px;font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;background:var(--bg);padding:1px 6px;border-radius:6px}
 .edit .ue.sel .nmtag,.edit.shownames .ue .nmtag{display:block}
 .ue .vlap{position:absolute;left:0;bottom:calc(100% + 3px);max-width:max(100%,240px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:600 11px/15px ui-monospace,Menlo,monospace;color:var(--label2);background:var(--bg);border:1px dashed var(--sep);padding:0 5px;border-radius:6px;pointer-events:none}
@@ -2703,6 +2710,8 @@ function newProject(name){
 function uniqueName(P,base,except,k){
   var g=(k||(P.b[except]&&P.b[except].k))==='ryhma',used={};Object.keys(P.b).forEach(function(i){if(i!==except&&(P.b[i].k==='ryhma')===g)used[P.b[i].nm]=1;});
   if(!used[base])return base;
+  /* Jonon 25 (c): lopussa oleva numero kasvaa (”Arvo 1” → ”Arvo 2”, ei ”Arvo 1 2”). */
+  var m=/^(.*?\S)(\s*)(\d+)$/.exec(base);if(m){for(var j=+m[3]+1;j<+m[3]+9999;j++)if(!used[m[1]+m[2]+j])return m[1]+m[2]+j;}
   for(var i=2;i<9999;i++)if(!used[base+' '+i])return base+' '+i;
   return base+' '+Date.now();
 }
@@ -2720,7 +2729,9 @@ function vtOwner(P,v,except){var ks=Object.keys(P.b);for(var i=0;i<ks.length;i++
 function vtNext(base,i){return base+(KRES[base]?'_':'')+i;}
 function vtPick(base,taken){base=slugVt(base);var i=2,m=/^([a-zåäö]+)(\d+)$/.exec(base);
   if(m&&KRES[m[1]]){base=m[1];i=Math.max(1,+m[2]);}else if(KRES[base])i=1;
-  var v=KRES[base]?vtNext(base,i++):base;while(!validVt(v)||taken(v))v=vtNext(base,i++);return v;}
+  /* Jonon 25 (c): muun viitteen lopun numero kasvaa (arvo1 → arvo2, ei arvo12). */
+  var v0=base,m2=!KRES[base]&&/^(.*[^0-9])(\d+)$/.exec(base);if(m2){base=m2[1];i=+m2[2]+1;}
+  var v=KRES[base]?vtNext(base,i++):m2?v0:base;while(!validVt(v)||taken(v))v=vtNext(base,i++);return v;}
 function uniqueVt(P,base,except){return vtPick(base,function(v){return !!vtOwner(P,v,except);});}
 function byVt(P){var m={};Object.keys(P.b).forEach(function(i){var o=P.b[i];if(o&&o.vt&&o.k!=='ryhma'&&o.k!=='pjoukko')m[o.vt]=i;});return m;}
 /* Ryhmään osoittava kaava tai teksti (vanha projekti) näyttää ryhmän nimen ja on virhe ”Ryhmä ei ole arvo”. */
@@ -5483,6 +5494,31 @@ function pasteNodes(P,clip,dx,dy){
   return made.map(function(n){return n.id;}).filter(function(id){return !!nodeOf(P,id);});
 }
 
+/* Jonon 25 (b): näkymän palikoiden kopio ja liitos (⌘C/⌘V/⌘D). Uudet palikat samoilla asetuksilla, omilla nimillä ja viitteillä
+   (uniqueName/uniqueVt kasvattavat lopun numeroa). Kopioitujen väliset viittaukset (nuolen {r}, {#id} tekstissä ja kaavassa,
+   toistimen kortti tst) osoittavat uusiin, muut ennallaan. Toisesta projektista muihin viittaavat tyhjenevät kuten pasteNodes. */
+function copyBlocks(P,ids){var out={b:{},ord:[],pid:P.id,ui:1};if(P.jkr)out.jkr=clone(P.jkr);
+  (ids||[]).forEach(function(id){var b=P.b[id];if(!b||!K[b.k]||K[b.k].g!=='ui'||out.b[id])return;out.b[id]=clone(b);out.ord.push(id);});
+  return out;}
+function pasteBlocks(P,clip,v,dx,dy){
+  if(!clip||!clip.b)return [];var other=clip.pid&&clip.pid!==P.id,bmap={},made=[],jkMap={};
+  var kr={};kerrokset(P,v).forEach(function(k){kr[k.id]=1;});
+  (clip.ord||Object.keys(clip.b)).forEach(function(id){var o=clip.b[id];if(!o||!K[o.k]||K[o.k].g!=='ui')return;
+    var p=clone(o);delete p.id;delete p.vt;delete p.vtSet;p.v=v||o.v;if(p.kr&&!kr[p.kr])delete p.kr;
+    var nb=addBlock(P,o.k,p);if(o.vtSet&&o.vt){nb.vt=uniqueVt(P,o.vt,nb.id);nb.vtSet=true;}
+    nb.x=Math.round((o.x||0)+(dx||0));nb.y=Math.round((o.y||0)+(dy||0));bmap[id]=nb.id;made.push(nb);});
+  function tpl(t,kaava){return t.replace(tplRe(),function(m,i,q){return bmap[i]?'{#'+bmap[i]+(q?'.'+q:'')+'}':other?(kaava?'{?}':''):m;});}
+  function walk(x,kaava){if(typeof x==='string')return bmap[x]?bmap[x]:x.indexOf('{#')>=0?tpl(x,kaava):x;
+    if(Array.isArray(x))return x.map(function(y){return walk(y,kaava);});
+    if(x&&typeof x==='object'){Object.keys(x).forEach(function(k){x[k]=walk(x[k],kaava);});return x;}return x;}
+  made.forEach(function(b){Object.keys(b).forEach(function(k){if(k==='id'||k==='k'||k==='nm'||k==='vt'||k==='v')return;var x=b[k];
+      if(other&&x&&typeof x==='object'&&!Array.isArray(x)&&typeof x.r==='string'&&!bmap[x.r]){b[k]=k==='nk'?{m:'aina'}:k==='vr'?null:'';return;}
+      b[k]=walk(x,k==='f');});
+    if(b.tst&&!made.some(function(m){return m.id===b.tst;})&&(other||!P.b[b.tst]))delete b.tst;
+    if(other)jkMap=jkTuo(P,b,clip.jkr,jkMap);});
+  return made.map(function(b){return b.id;});
+}
+
 /* ---------- F26: presetit (D12, D13) ----------
    Presetti on nimetty, projektista riippumaton kopio palikkajoukosta: palikat (b) sellaisinaan, logiikan solmut (n) ja niiden
    väliset nuolet (l). Liitettäessä kaikki tehdään uusina (irtokopio, D12): uudet tunnisteet, nimet ja viitteet, ja viittaukset
@@ -5833,9 +5869,9 @@ function why(P,E,id,depth,seen){
 }
 
 return {tapKaytossa:tapKaytossa,NAPK:NAPK,napPorts:napPorts,napOn:napOn,napautus:napautus,PALTAVAT:PALTAVAT,repairAp:repairAp,jkPick:jkPick,JK_OHI:JK_OHI,jkKohtaNimi:jkKohtaNimi,jkLiikkuva:jkLiikkuva,jkTapahtumat:jkTapahtumat,JKTAP:JKTAP,jkFire:jkFire,toistaJasenet:toistaJasenet,jkVoi:jkVoi,jkPjOf:jkPjOf,jkPjMap:jkPjMap,jkOtaOn:jkOtaOn,jkOtaMatch:jkOtaMatch,jkKohta:jkKohta,JKKOHT:JKKOHT,JKKP:JKKP,siirtoOf:siirtoOf,PADN:PADN,PADM:PADM,PAD_KUOLLUT:PAD_KUOLLUT,ohjainSet:ohjainSet,padNow:padNow,PADKEY:PADKEY,PADKEYN:PADKEYN,nappTila:nappTila,padYhdista:padYhdista,padPel:padPel,padKuollut:padKuollut,padNimi:padNimi,padPainetut:padPainetut,padKaytossa:padKaytossa,padPohjassa:padPohjassa,omat:omat,omBatch:omBatch,geoNum:geoNum,omFind:omFind,omNorm:omNorm,omBase:omBase,omNames:omNames,omActive:omActive,setOmi:setOmi,resetOmi:resetOmi,isOff:isOff,napVaihto:napVaihto,boolKey:boolKey,TIMEU:TIMEU,YKSA:YKSA,ENVW:ENVW,portsBase:portsBase,tattiSet:tattiSet,muutosStart:muutosStart,muutosStop:muutosStop,frame:frame,aikaKay:aikaKay,napExt:napExt,NAP_PITKA:NAP_PITKA,pressDown:pressDown,pressLong:pressLong,pressUp:pressUp,hasOut:hasOut,curveAt:curveAt,KAYRA_PRESETS:KAYRA_PRESETS,kayraPreset:kayraPreset,kayraResize:kayraResize,kayraDec:kayraDec,kayraSpec:kayraSpec,kayraAt:kayraAt,satuN:satuN,satuMuoto:satuMuoto,satuCurve:satuCurve,satuResize:satuResize,satuPreset:satuPreset,SATU_PRESETS:SATU_PRESETS,SATU_MAXN:SATU_MAXN,satuSpec:satuSpec,satuDist:satuDist,satuPick:satuPick,satuPct:satuPct,satuItemTxt:satuItemTxt,satuTop:satuTop,satuRoll:satuRoll,
-  chainOpen:chainOpen,LKN:LKN,LKID:LKID,lkReq:lkReq,lkView:lkView,chainLock:chainLock,chainLockDiff:chainLockDiff,parseKlo:parseKlo,nextClock:nextClock,timerLabel:timerLabel,arpaN:arpaN,toistaN:toistaN,setMhLabel:function(f){MHLAB=f;},mhLabel:mhLabel,odotaLim:odotaLim,odotaEv:odotaEv,hasLimit:hasLimit,chainSignal:chainSignal,copyNodes:copyNodes,pasteNodes:pasteNodes,PRESVER:PRESVER,presetSet:presetSet,presetNeeds:presetNeeds,presetMake:presetMake,presetPaste:presetPaste,chainList:chainList,haaraVal:haaraVal,chainIssues:chainIssues,FXK:FXK,YKS:YKS,YKSN:YKSN,fmtDur:fmtDur,parseNum:parseNum,fiNum:fiNum,fmtLeft:fmtLeft,timerMs:timerMs,chainStart:chainStart,chainStop:chainStop,chainAdvance:chainAdvance,chainPoll:chainPoll,chainInfo:chainInfo,anyChainRunning:anyChainRunning,CH_STEPS:CH_STEPS,CH_TOKENS:CH_TOKENS,
+  chainOpen:chainOpen,LKN:LKN,LKID:LKID,lkReq:lkReq,lkView:lkView,chainLock:chainLock,chainLockDiff:chainLockDiff,parseKlo:parseKlo,nextClock:nextClock,timerLabel:timerLabel,arpaN:arpaN,toistaN:toistaN,setMhLabel:function(f){MHLAB=f;},mhLabel:mhLabel,odotaLim:odotaLim,odotaEv:odotaEv,hasLimit:hasLimit,chainSignal:chainSignal,copyNodes:copyNodes,pasteNodes:pasteNodes,copyBlocks:copyBlocks,pasteBlocks:pasteBlocks,PRESVER:PRESVER,presetSet:presetSet,presetNeeds:presetNeeds,presetMake:presetMake,presetPaste:presetPaste,chainList:chainList,haaraVal:haaraVal,chainIssues:chainIssues,FXK:FXK,YKS:YKS,YKSN:YKSN,fmtDur:fmtDur,parseNum:parseNum,fiNum:fiNum,fmtLeft:fmtLeft,timerMs:timerMs,chainStart:chainStart,chainStop:chainStop,chainAdvance:chainAdvance,chainPoll:chainPoll,chainInfo:chainInfo,anyChainRunning:anyChainRunning,CH_STEPS:CH_STEPS,CH_TOKENS:CH_TOKENS,
   isWin:isWin,isStep:isStep,STEPK:STEPK,chainNode:chainNode,chainOfNode:chainOfNode,chainSteps:chainSteps,isChainLink:isChainLink,chainLinksFrom:chainLinksFrom,chainStarts:chainStarts,chainIsRing:chainIsRing,chainOrder:chainOrder,
-  ANTAVAT:ANTAVAT,ANPEH:ANPEH,ANARVO:ANARVO,ANPAIKKA:ANPAIKKA,VER:VER,PAJA:'73',PV_SN:PV_SN,pvAlueet:pvAlueet,pvKohde:pvKohde,hyppyJaljella:hyppyJaljella,liikeHyppyKomento:liikeHyppyKomento,PV_SUUNNAT:PV_SUUNNAT,LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,rvMuunnos:rvMuunnos,kerrosPiste:kerrosPiste,kerrosPiirto:kerrosPiirto,raahattava:raahattava,raahausPaikka:raahausPaikka,raahausAlku:raahausAlku,raahausPudotus:raahausPudotus,raahausPeruttu:raahausPeruttu,raahausKohteet:raahausKohteet,tstLahde:tstLahde,tstLajittuu:tstLajittuu,tstSiirra:tstSiirra,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikuta0:liikuta0,rectNow0:rectNow0,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,reittiPisteet:reittiPisteet,reittiOsat:reittiOsat,reittiHae:reittiHae,liikeRuutuKomento:liikeRuutuKomento,liikePyyhkaisy:liikePyyhkaisy,ruutuAskel:ruutuAskel,RUUTU_SU:RUUTU_SU,reittiKohta:reittiKohta,liikeRun:liikeRun,kuvaKuvat:kuvaKuvat,kelloNow:kelloNow,kelloKomento:kelloKomento,kerrosObj:kerrosObj,zoomAsetus:zoomAsetus,kameraBlk:kameraBlk,zoomNyt:zoomNyt,zoomLukittu:zoomLukittu,zoomAseta:zoomAseta,ZOOM_MIN:ZOOM_MIN,ZOOM_MAX:ZOOM_MAX,MITM:MITM,MITE:MITE,
+  ANTAVAT:ANTAVAT,ANPEH:ANPEH,ANARVO:ANARVO,ANPAIKKA:ANPAIKKA,VER:VER,PAJA:'74',PV_SN:PV_SN,pvAlueet:pvAlueet,pvKohde:pvKohde,hyppyJaljella:hyppyJaljella,liikeHyppyKomento:liikeHyppyKomento,PV_SUUNNAT:PV_SUUNNAT,LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,rvMuunnos:rvMuunnos,kerrosPiste:kerrosPiste,kerrosPiirto:kerrosPiirto,raahattava:raahattava,raahausPaikka:raahausPaikka,raahausAlku:raahausAlku,raahausPudotus:raahausPudotus,raahausPeruttu:raahausPeruttu,raahausKohteet:raahausKohteet,tstLahde:tstLahde,tstLajittuu:tstLajittuu,tstSiirra:tstSiirra,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikuta0:liikuta0,rectNow0:rectNow0,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,reittiPisteet:reittiPisteet,reittiOsat:reittiOsat,reittiHae:reittiHae,liikeRuutuKomento:liikeRuutuKomento,liikePyyhkaisy:liikePyyhkaisy,ruutuAskel:ruutuAskel,RUUTU_SU:RUUTU_SU,reittiKohta:reittiKohta,liikeRun:liikeRun,kuvaKuvat:kuvaKuvat,kelloNow:kelloNow,kelloKomento:kelloKomento,kerrosObj:kerrosObj,zoomAsetus:zoomAsetus,kameraBlk:kameraBlk,zoomNyt:zoomNyt,zoomLukittu:zoomLukittu,zoomAseta:zoomAseta,ZOOM_MIN:ZOOM_MIN,ZOOM_MAX:ZOOM_MAX,MITM:MITM,MITE:MITE,
 kuvaPyorii:kuvaPyorii,kuvaNro:kuvaNro,SARJA_MAX:SARJA_MAX,ruudukko:ruudukko,ruudukkoOf:ruudukkoOf,ruutuAt:ruutuAt,ruutuKeski:ruutuKeski,kohdista:kohdista,ruutuKohdistus:ruutuKohdistus,alueRuudukko:alueRuudukko,alueRuutu:alueRuutu,alueNapautus:alueNapautus,kerrokset:kerrokset,kerrosOf:kerrosOf,rvOf:rvOf,kuvaUrl:kuvaUrl,K:K,KW:KW,KVALEND:KVALEND,KHAS:KHAS,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,jkReg:jkReg,lkSnap:lkSnap,jkNameErr:jkNameErr,jkOn:jkOn,jkNm:jkNm,jkFind:jkFind,jkList:jkList,jkHas:jkHas,jkLuo:jkLuo,jkNimea:jkNimea,jkUses:jkUses,jkPoista:jkPoista,jkEhto:jkEhto,jkIndex:jkIndex,jkTuo:jkTuo,jkNames:jkNames,jkIds:jkIds,jkKaanna:jkKaanna,jkSyy:jkSyy,kaavaJkMiss:kaavaJkMiss,JKAGG:JKAGG,JKSUG:JKSUG,jkAgg:jkAgg,tunnusLue:tunnusLue,tunnusTeksti:tunnusTeksti,tunnusVirhe:tunnusVirhe,setTunnus:setTunnus,kaavaToIds:kaavaToIds,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,kaavaVanha:kaavaVanha,kaavaAstText:kaavaAstText,KRES:KRES,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
   pinsHidden:pinsHidden,refPairs:refPairs,
   ports:ports,port:port,newProject:newProject,addBlock:addBlock,addNode:addNode,addLink:addLink,canLink:canLink,
@@ -6363,7 +6399,11 @@ function renderPal(){
 function renderPList(){
   var el=$('#plist');if(!el)return;var q=(S.psearch||'').toLowerCase();
   var list=blocks(function(b){return (isUI(b)&&b.k!=='merkki')||b.k==='muisti'||b.k==='arvo'||b.k==='tulos'||b.k==='satu'||b.k==='kayra'||b.nmSet;}).filter(function(b){return !q||b.nm.toLowerCase().indexOf(q)>=0||String(b.vt||'').indexOf(q)>=0;});
-  list.sort(function(a,b){return (isUI(a)?0:1)-(isUI(b)?0:1)||a.nm.localeCompare(b.nm,'fi');});
+  /* Jonon 25 (a): valitut ja kolme viimeksi tehtyä näkymäpalikkaa ylimmäksi, sitten näkymän palikat ja muut aakkosissa. */
+  var sid={};selUIBlocks().forEach(function(o){sid[o.id]=1;});if(S.sel&&S.sel.t==='n'){var sn=KK.nodeOf(P,S.sel.id);if(sn&&P.b[sn.p]&&isUI(P.b[sn.p]))sid[sn.p]=1;}var sq=function(o){return +String(o.id).slice(1)||0;};
+  blocks(isUI).filter(function(o){return o.k!=='merkki';}).sort(function(a,b){return sq(b)-sq(a);}).slice(0,3).forEach(function(o){if(!sid[o.id])sid[o.id]=2;});
+  var rk=function(o){return sid[o.id]===1?0:sid[o.id]===2?1:isUI(o)?2:3;};
+  list.sort(function(a,b){return rk(a)-rk(b)||(rk(a)===1?sq(b)-sq(a):0)||a.nm.localeCompare(b.nm,'fi');});
   el.innerHTML=list.length?list.map(function(b){
     var cnt=KK.nodesOfBlock(P,b.id).length;
     // Viitenimi, sijainti ja määrä vihjeeseen (jonon 12): rivi pysyy yksirivisenä, kanvaasin viitenimi ennallaan.
@@ -6702,7 +6742,7 @@ function ueInner(b,E,ed){
       h=ed||b.nak==='nakyy'?'<svg class="w-reitti" width="'+b.w+'" height="'+b.h+'" viewBox="0 0 '+b.w+' '+b.h+'" overflow="visible"><'+(rcl?'polygon':'polyline')+' class="rl'+(ed?'':' u')+'" points="'+rps.map(function(q){return q[0]+','+q[1];}).join(' ')+'"/>'+
         (ed?rps.map(function(q,i){return '<circle class="rpt'+(i===0?' r0':'')+'" data-i="'+i+'" cx="'+q[0]+'" cy="'+q[1]+'" r="'+(i===0?7:5)+'"><title>'+(i===0?'Alku':'Piste '+(i+1))+' · vedä siirtääksesi, kaksoisnapauta poistaaksesi</title></circle>';}).join(''):'')+'</svg>':'';break;}
   }
-  return '<div class="nmtag">'+esc(b.nm)+'<small>'+esc(b.vt)+'</small></div>'+(ed?vlapHTML(b,E):'')+'<div class="in">'+h+'</div>'+(b.nks?'<div class="nks">'+esc(b.nks)+'</div>':'')+(ed?hitboxHTML(b):'')+'<i class="rh"></i>';
+  return '<div class="nmtag">'+esc(b.nm)+'<small>'+esc(b.vt)+'</small></div>'+(ed?vlapHTML(b,E):'')+'<div class="in">'+h+'</div>'+(b.nks?'<div class="nks">'+esc(b.nks)+'</div>':'')+(ed?hitboxHTML(b)+'<i class="tolg" title="Näytä logiikassa'+(split()?' (tai vedä logiikan puolelle)':'')+'"></i>':'')+'<i class="rh"></i>';
 }
 /* F38 kohta 3 (jonon 12c): muokatessa palikan yläpuolella himmeä lappu, josta näkee tekstin lähteen: upotetut viitteet
    ({Nimi}, kuten paneelissa) tai nuoli (⇐ Nimi). Teksti on data-l-attribuutissa (CSS ::before), joten se ei sekoitu palikan tekstiin. Arvo pysyy palikassa ennallaan. Lukittuna ja kokeillessa ei lappua. Selainasetus Dt.cfg.vlap. */
@@ -7040,7 +7080,7 @@ function bindUIStage(){
     else{var dL=editingUI()&&devOf();fitAll(vp,c,blocks(function(b){return isUI(b)&&b.v===S.vw;}).map(rectOf).concat(dL?[{x:0,y:0,w:dL.w,h:dL.h}]:[]));}
     uiCamChanged();save();});
   vp.addEventListener('dblclick',function(e){if(!editingUI())return;var rp=e.target.closest('.rpt'),el=e.target.closest('.ue');
-    if(!rp&&el&&!e.shiftKey&&!e.target.closest('textarea.tedit,.rh')){var tb=P.b[el.getAttribute('data-id')];if(tEditable(tb)){e.preventDefault();tEditOpen(tb);}return;}
+    if(!rp&&el&&!e.shiftKey&&!e.target.closest('textarea.tedit,.rh,.tolg')){var tb=P.b[el.getAttribute('data-id')];if(tEditable(tb)){e.preventDefault();tEditOpen(tb);}return;}
     if(!rp||!el)return;var b=P.b[el.getAttribute('data-id')];if(!b||b.k!=='reitti')return;
     if(b.pts.length<=2){toast('Reitissä on oltava vähintään kaksi pistettä.');return;}pushUndo();b.pts.splice(+rp.getAttribute('data-i'),1);reittiNorm(b);save();renderUIStage();renderInsp();});
   vp.addEventListener('pointermove',function(e){if(!editingUI())return;var w=toWorld(vp,camUI(),e.clientX,e.clientY);$('#coords').textContent='x '+Math.round(w.x)+' · y '+Math.round(w.y);});
@@ -7068,6 +7108,7 @@ function bindUIStage(){
       if(S.sel||S.multi.length){S.sel=null;S.multi=[];syncSel();renderInsp();}startPan(e,vp,camUI,uiCamChanged);return;}
     e.preventDefault();
     var id=el.getAttribute('data-id'),b=P.b[id];if(!b)return;
+    if(e.target.closest('.tolg')&&!e.shiftKey){tolgDown(e,b);return;}
     var rpt=e.target.closest('.rpt');if(rpt&&b.k==='reitti'&&!e.shiftKey){reittiDrag(e,b,+rpt.getAttribute('data-i'));return;}
     if(S.tool==='viiva'){startDecoLine(e,b);return;}
     if(e.shiftKey){toggleMulti('b',id);return;}
@@ -7256,7 +7297,7 @@ function selNodeSet(){
 }
 /* Kopioi ja liitä logiikassa: valitut solmut sisältöineen. */
 function selNodeIds(){var ids=S.multi.filter(function(m){return m.t==='n';}).map(function(m){return m.id;});if(!ids.length&&S.sel&&S.sel.t==='n')ids=[S.sel.id];return ids.filter(function(id){return KK.nodeOf(P,id);});}
-function copySel(){var ids=selNodeIds();if(!ids.length){toast('Valitse ensin palikka logiikasta.');return;}S.clip=KK.copyNodes(P,ids);S.clipN=0;
+function copySel(){var ids=selNodeIds();if(!ids.length){toast('Valitse ensin palikka logiikasta.');return;}S.clip=KK.copyNodes(P,ids);S.clipN=0;S.clipLast='l';
   toast('Kopioitu: '+S.clip.n.length+' palikka'+(S.clip.n.length===1?'':'a')+'. Liitä ⌘V tai paneelin napista.');if(S.sel)renderInsp();}
 function pasteClip(){if(!S.clip){toast('Ei mitään liitettävää: kopioi ensin.');return;}
   pushUndo();S.clipN=(S.clipN||0)+1;var d=40*S.clipN;var ids=KK.pasteNodes(P,S.clip,d,d);
@@ -7655,6 +7696,7 @@ document.addEventListener('pointerdown',function(e){if(!e.target.closest('#menu'
 function jkHiSet(){var b=selBlock();if(!b||b.k!=='pjoukko'||S.multi.length)return null;var ms=ev().jkJasenet(b.jj);if(KK.isErr(ms))return null;var o={};ms.forEach(function(m){o[m]=1;});return o;}
 function syncSel(){
   if(showU()&&$('#uvp'))drawMarkFrame();
+  if(split()&&palKind()==='logiikka')renderPList();
   if(showU()&&$('#uvp'))$$('#uels .ue').forEach(function(el){var id=el.getAttribute('data-id');var b=P.b[id];
     el.classList.toggle('sel',!!(S.sel&&S.sel.t==='b'&&S.sel.id===id)||inMulti('b',id));
     var sn=S.sel&&S.sel.t==='n'?KK.nodeOf(P,S.sel.id):null;el.classList.toggle('sel2',!!(sn&&sn.p===id));var jh=jkHiSet();el.classList.toggle('jkhi',!!(jh&&jh[id]));});
@@ -8427,8 +8469,28 @@ function dupMany(dir){var b=S.sel&&S.sel.t==='b'&&P.b[S.sel.id];if(!b||!isUI(b))
   var pos=[];if(dir==='g'){var rr=Math.max(1,Math.min(20,inum('#dupr',1))),kk=Math.max(1,Math.min(20,inum('#dupk',1)));for(var r=0;r<rr;r++)for(var k=0;k<kk;k++)if(r||k)pos.push([b.x+k*(b.w+g),b.y+r*(b.h+g)]);}
   else for(var i=1;i<=n;i++)pos.push(dir==='y'?[b.x,b.y+i*(b.h+g)]:[b.x+i*(b.w+g),b.y]);
   if(!pos.length)return;n=pos.length;
-  pushUndo();var last=b,z=topZ(b.v);pos.forEach(function(p){var c=KK.clone(b);delete c.id;delete c.nm;delete c.nmSet;delete c.vt;delete c.vtSet;var nb=KK.addBlock(P,b.k,c);nb.x=p[0];nb.y=p[1];nb.z=++z;last=nb;});
+  pushUndo();var last=b,z=topZ(b.v),cl=KK.copyBlocks(P,[b.id]);pos.forEach(function(p){var nb=P.b[KK.pasteBlocks(P,cl,b.v,p[0]-b.x,p[1]-b.y)[0]];nb.z=++z;last=nb;});
   S.sel={t:'b',id:last.id};save();renderAll();toast(n+(n===1?' kopio':' kopiota')+' tehty. Kumoa poistaa ne.');}
+/* Jonon 25 (b): näkymän kopio ja liitos (⌘C/⌘V) sekä monivalinnan monistus (⌘D). Viimeisin kopio ratkaisee Rinnakkain-tilassa,
+   liitetäänkö näkymään vai logiikkaan (S.clipLast). Logiikassa ei näy mitään automaattisesti. */
+function copyUI(){var bs=selUIBlocks();if(!bs.length)return;S.vclip=KK.copyBlocks(P,bs.map(function(b){return b.id;}));S.vclip.v=bs[0].v;S.vclipN=0;S.clipLast='v';
+  toast('Kopioitu: '+bs.length+' palikka'+(bs.length===1?'':'a')+'. Liitä ⌘V.');}
+function uiPasted(ids,msg){if(!ids.length)return;var z=topZ(P.b[ids[0]].v);ids.map(function(id){return P.b[id];}).sort(function(a,b){return (a.z||0)-(b.z||0);}).forEach(function(b){b.z=++z;});
+  KK.tstAssign(P,ids);S.multi=ids.length>1?ids.map(function(id){return {t:'b',id:id};}):[];S.sel={t:'b',id:ids[ids.length-1]};
+  KK.tick(P,ctx());save();renderAll();toast(msg+': '+ids.length+' palikka'+(ids.length===1?'':'a')+'. Kumoa poistaa.');}
+function pasteUI(){var c=S.vclip;if(!c)return;pushUndo();var same=c.pid===P.id&&c.v===S.vw;S.vclipN=same?(S.vclipN||0)+1:0;var d=20*S.vclipN;
+  var ids=KK.pasteBlocks(P,c,S.vw,d,d);if(!ids.length){S.undo.pop();return;}uiPasted(ids,'Liitetty');}
+function dupUI(bs){pushUndo();var ids=KK.pasteBlocks(P,KK.copyBlocks(P,bs.map(function(b){return b.id;})),bs[0].v,20,20);uiPasted(ids,'Monistettu');}
+/* Jonon 25 (a): ⇢-napista Näytä logiikassa; Rinnakkain-tilassa vedä logiikan puolelle = esiintymä pudotuskohtaan. */
+function tolgDown(e,b){var sx=e.clientX,sy=e.clientY,ghost=null;
+  drag(e,function(m){if(!split())return;
+    if(!ghost&&Math.hypot(m.clientX-sx,m.clientY-sy)>4){ghost=document.createElement('div');ghost.className='chip ghost '+hueCls(6);ghost.innerHTML='<span class="ci">'+esc(icon(b))+'</span>'+esc(b.nm);document.body.appendChild(ghost);}
+    if(ghost){ghost.style.left=m.clientX+'px';ghost.style.top=m.clientY+'px';highlightDrop(m.clientX,m.clientY);}
+  },function(m){
+    if(!ghost){doAction('tologic',{b:b});return;}
+    ghost.remove();clearDropHi();var vp=$('#lvp'),r=vp&&vp.getBoundingClientRect();
+    if(!r||m.clientX<r.left||m.clientX>r.right||m.clientY<r.top||m.clientY>r.bottom){toast('Pudota logiikan puolelle.');return;}
+    var had=KK.nodesOfBlock(P,b.id).length;createInstance(b.id,m.clientX,m.clientY);if(had)toast('Toinen esiintymä: ”'+b.nm+'” on nyt logiikassa '+(had+1)+' kohdassa.');});}
 function alignMulti(op){
   var items=S.multi.map(function(m){return m.t==='b'?{t:'b',o:P.b[m.id]}:{t:'n',o:KK.nodeOf(P,m.id)};}).filter(function(i){return i.o;});
   if(items.length&&items[0].t==='n'){var ids={};items.forEach(function(i){ids[i.o.id]=1;});items=items.filter(function(i){var c=i.o,g=0;while(c&&c.g&&g++<60){if(ids[c.g])return false;c=KK.nodeOf(P,c.g);}return true;});}
@@ -10041,7 +10103,7 @@ function doAction(d,T){
     case 'deldeco':pushUndo();P.deco=P.deco.filter(function(x){return x.id!==S.sel.id;});S.sel=null;break;
     case 'delblock':if(!S.delOk){delAsk([b.id],function(){S.delOk=1;try{doAction('delblock',T);}finally{S.delOk=0;}});return;}pushUndo();KK.nodesOfBlock(P,b.id).forEach(function(n){if(KK.chainOfNode(P,n))removeStep(n.id);});if(P.b[b.id])KK.removeBlock(P,b.id);S.sel=null;break;
     case 'delnode':if(!S.delOk){delAsk(delIdsOfNodes([S.sel.id]),function(){S.delOk=1;try{doAction('delnode',T);}finally{S.delOk=0;}});return;}pushUndo();removeStep(S.sel.id);S.sel=null;break;
-    case 'dup':{pushUndo();var c=KK.clone(b);delete c.id;delete c.nm;delete c.nmSet;delete c.vt;delete c.vtSet;var nb=KK.addBlock(P,b.k,c);nb.x=b.x+20;nb.y=b.y+20;S.sel={t:'b',id:nb.id};break;}
+    case 'dup':{pushUndo();var dids=KK.pasteBlocks(P,KK.copyBlocks(P,[b.id]),b.v,20,20);S.sel={t:'b',id:dids[0]};S.multi=[];break;}
     case 'inst':{pushUndo();var n0=KK.nodeOf(P,S.sel.id);var n=KK.addNode(P,b.id,(n0?n0.x:0)+30,(n0?n0.y:0)+60,n0?n0.g:'');S.sel={t:'n',id:n.id};S.pendingFit=n.id;break;}
     case 'tologic':{var ex=KK.nodesOfBlock(P,b.id)[0];if(!split()){S.tab='logiikka';$('#stage').innerHTML='';}ensurePanes();
       var st=stL(),cL=camL();
@@ -10114,8 +10176,13 @@ document.addEventListener('keydown',function(e){
   var undoOk=!(S.tab==='nakyma'&&locked());
   if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='z'&&!inField){e.preventDefault();if(undoOk){if(e.shiftKey)redo();else undo();}return;}
   if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='y'&&!inField){e.preventDefault();if(undoOk)redo();return;}
-  if((e.metaKey||e.ctrlKey)&&!inField&&showL()&&!(S.tab==='nakyma')&&(e.key.toLowerCase()==='c'||e.key.toLowerCase()==='v')){
-    if(e.key.toLowerCase()==='c'){if(selNodeIds().length){e.preventDefault();copySel();}}else if(S.clip){e.preventDefault();pasteClip();}return;}
+  /* Jonon 25 (b): ⌘C/⌘V myös näkymässä. Rinnakkain-tilassa liitos menee sinne, mistä viimeksi kopioitiin. */
+  var ck=(e.metaKey||e.ctrlKey)&&!inField&&!e.altKey?e.key.toLowerCase():'';
+  if(ck==='c'||ck==='v'){var lOk=showL()&&S.tab!=='nakyma',vOk=editingUI();
+    if(ck==='c'){if(lOk&&selNodeIds().length){e.preventDefault();copySel();}else if(vOk&&selUIBlocks().length){e.preventDefault();copyUI();}}
+    else if(vOk&&S.vclip&&(!lOk||!S.clip||S.clipLast==='v')){e.preventDefault();pasteUI();}
+    else if(lOk&&S.clip){e.preventDefault();pasteClip();}
+    if(lOk||vOk)return;}
   if(inField)return;
   if(e.key==='Escape'&&S.rl&&S.rl.pick){S.rl.pick=null;renderRL();return;}
   if(e.key==='Escape'){S.tool=null;S.sel=null;S.multi=[];S.back=null;hideMenu();closeSheet();renderAll();return;}
@@ -10130,6 +10197,7 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Enter'&&!e.shiftKey&&!e.metaKey&&!e.ctrlKey&&!e.altKey&&S.sel&&S.sel.t==='b'&&S.multi.length<2&&editingUI()&&(S.tab==='nakyma'||(split()&&S.pane==='nakyma'))&&tEditable(P.b[S.sel.id])){e.preventDefault();tEditOpen(P.b[S.sel.id]);return;}
   if(!e.metaKey&&!e.ctrlKey&&!e.altKey&&e.key.toLowerCase()==='n'&&showL()&&tnvSel().length){e.preventDefault();tnvDo(null);return;}
   if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='d'&&S.sel){e.preventDefault();var b=selBlock();if(!b)return;
+    var dus=S.sel.t==='b'?selUIBlocks():[];if(dus.length>1){dupUI(dus);return;}
     if(S.sel.t==='b')doAction('dup',{b:b});else if(!KK.isWin(b)&&!KK.chainOfNode(P,KK.nodeOf(P,S.sel.id)))doAction('inst',{b:b});return;}
   if(S.sel&&S.sel.t==='b'&&/^Arrow/.test(e.key)&&editingUI()){var bb=P.b[S.sel.id];if(!bb||!isUI(bb))return;e.preventDefault();var s=e.shiftKey?10:1;
     if(!S.nudging){pushUndo();S.nudging=true;}

@@ -2,8 +2,8 @@
 
 ## Tarkistettu versio
 
-- **Appi:** Appi-appi 73, tallennusversio 12 (`VER`), repo `Kasibanaani/P-iv-kartta`, kansio `appiappi/`.
-- **Kirjoitettu:** 17.10.2026 koodista commitilla `77461d2` (Appi-appi 31). Sen jälkeen jokainen rakentaja on päivittänyt muuttuneet kohdat samassa työssä; versiokohtaiset tiedot ja mitä kussakin tarkistettiin ovat `appiappi/MUUTOKSET.md`:ssä. **Viimeksi tarkistettu:** Appi-appi 73 (18.10.2026, jonon 17: hyppy), luvut 8 (Liikkeen kohdat ja ominaisuudet, uusi osio Hyppy), 9 (kentät `hyk`, `ilo`, `hylp`, `hyi`, `hya`, `hye`) ja 10, koodin ja testien `logiikka_94_hyppy.js` ja `selain_112_hyppy.py` mukaan.
+- **Appi:** Appi-appi 74, tallennusversio 12 (`VER`), repo `Kasibanaani/P-iv-kartta`, kansio `appiappi/`.
+- **Kirjoitettu:** 17.10.2026 koodista commitilla `77461d2` (Appi-appi 31). Sen jälkeen jokainen rakentaja on päivittänyt muuttuneet kohdat samassa työssä; versiokohtaiset tiedot ja mitä kussakin tarkistettiin ovat `appiappi/MUUTOKSET.md`:ssä. **Viimeksi tarkistettu:** Appi-appi 74 (18.10.2026, jonon 25: ⇢-nappi, kopioi ja liitä näkymässä, numerointi), luku 2 (Palikat-lista, Kopioi ja liitä, näppäimet), luku 3 (paneelin napit) ja tämä luku.
 - **Miten tarkistettiin:** jokainen luku on kirjoitettu lukemalla käyttöliittymän ja moottorin koodia (nimet suoraan koodin merkkijonoista) sekä testien kuvauksia. Kaavakielestä ajettiin noin 150 kaavaa moottorilla (Node), ja maailman ja liikkeen kaavanimet tarkistettiin samoin. Aloitusluvun esimerkki *Vesilasit* tehtiin vaihe vaiheelta oikeassa käyttöliittymässä (Chromium, 1440 px). Muiden lukujen reseptejä **ei ole ajettu** selaimessa: ne on koottu koodista.
 - **Ei tarkistettu oikealla iPhonella, iPadilla eikä Safarilla.** Puhelinkäyttö on kuvattu koodista ja testeistä, jotka ajavat kosketusta tietokoneen selaimessa 390 ja 320 px leveänä. Oikean laitteen tuntuma (sormella veto, näppäimistö, Safarin oma zoomaus) on varmistamatta.
 - Kohdat, joita kirjoittaja ei voinut varmistaa, on merkitty tekstiin ”(ei tarkistettu)”.
@@ -40,7 +40,7 @@ Kirjoittaessa löytyneet ristiriidat, puutteet ja yllätykset. Nämä eivät ole
 - Näkymää ei voi poistaa eikä siirtää välilehtirivillä; nappia ei ole. Näkymän nimeäminen onnistuu vain kaksoisnapautuksella, eikä sitä ole todennettu oikealla iPhonella.
 - Näkymän muokkauksessa ei ole kahden sormen zoomausta (vain logiikkakanvaasilla ja lukitussa laitenäkymässä). Safari voi silloin zoomata koko sivua (ei tarkistettu).
 - Monivalinta vaatii ⇧-näppäimen, joten puhelimella monta palikkaa saa valittua vain kerroksen ⬚-napista (näkymä). Logiikassa puhelimella ei ole monivalintaa lainkaan; silloin myös monen palikan kopiointi ja presetin tallennus monesta logiikkapalikasta on mahdotonta sormella.
-- Kopioi ja liitä on vain logiikassa; näkymäpalikoille on Monista ja presetit.
+- Kopioi ja liitä näkymässä ei vie palikoiden logiikkaa mukanaan (vain näkymäpalikat); logiikan saa mukaan presetillä.
 - Logiikan paletin ohje sanoo ”Vedä nuoli palikan oikeasta reunasta toisen vasempaan reunaan”, mutta ketjun tapahtumissa kohdat ovat ylä- ja alareunassa.
 - Kumoa ei palauta käyttötietoja; *Tyhjennä käyttötiedot* on siksi lopullinen (varmistuskysymys kertoo vain, että rakenne säilyy).
 - Lukitussa käytössä näkymävälilehdet näkyvät aina, kun näkymiä on vähintään kaksi; niitä ei voi piilottaa appin käyttäjältä (ei tiedetä, onko tarkoituksellista).

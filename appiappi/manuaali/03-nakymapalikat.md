@@ -22,7 +22,7 @@ Luku perustuu Appi-appi 31:n koodiin (commit 77461d2).
 - Yläpalkin **🔒 Lukitse** vie näkymän käyttötilaan: palikat toimivat kuten valmiissa appissa. Nappi muuttuu muotoon **✏️ Muokkaa**, josta palataan muokkaamaan.
 - Muokatessa näkymä näyttää palikoiden *perusarvot* (paneelin arvot). Logiikan ohjaamat arvot (esim. siirto, ohjattu leveys, toiminnon asettama väri) näkyvät vasta käytössä.
 
-**Paneelin alaosan napit (näkymäpalikalla):** *Tuo eteen*, *Vie taakse*, *Monista*, *Näytä logiikassa* (tekee palikasta laatikon logiikkaan, jos sitä ei vielä ole, ja siirtyy sinne), *Tallenna presetiksi…*, *Poista palikka*.
+**Paneelin alaosan napit (näkymäpalikalla):** *Tuo eteen*, *Vie taakse*, *Monista*, *Näytä logiikassa* (tekee palikasta laatikon logiikkaan, jos sitä ei vielä ole, ja siirtyy sinne; sama valitun palikan kehyksen ⇢-napista, ks. [luku 2](02-tyoymparisto.md)), *Tallenna presetiksi…*, *Poista palikka*.
 
 ## Kaikille näkymäpalikoille yhteistä
 
