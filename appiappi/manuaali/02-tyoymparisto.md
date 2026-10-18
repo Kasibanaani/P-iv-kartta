@@ -497,7 +497,7 @@ Auki pysyvä, kelluva laatikko näkymäkanvaasin päällä (Appi-appi 61). Siit�
 | Alueet | Alue | Alue 200 × 160 |
 | Alueet | Painovoima-alue | Alue *Painovoima* 1200 × 800, painovoima 2000 px/s² alas ([Painovoima ja maassa](08-maailma-ja-liike.md#painovoima-ja-maassa)) |
 | Alueet | Vesi | Laatikko *Vesi* 320 × 160 ja sen päälle Alue *Vesi: alue*, painovoima 400 ja ilmanvastus 60 %: hahmo vajoaa hitaasti |
-| Alueet | Tikkaat | Laatikko *Tikkaat* 48 × 240 ja sen päälle Alue *Tikkaat: alue*, painovoima 0: tatti ylös ja alas liikuttaa taas |
+| Alueet | Tikkaat | Laatikko *Tikkaat* 48 × 240 ja sen päälle Alue *Tikkaat: alue*, painovoima 0: tatti ylös ja alas liikuttaa taas; lattialla tikkaiden ohi kävelevä pysyy maassa (ei *irtosi*, *laskeutui* eikä *törmäsi*) |
 | Alueet | Maali | Alue *Maali* 120 × 120 ja Ilmoitus ”Maali!”, jonka *näkyy kun* tulee Maalin *sisällä*-kohdasta |
 | Alueet | Aloituskohta | Sijainti *Aloitus* |
 | Esineet | Kolikko | Ympyrä *Kolikko* 28 × 28, Alue sen ympärillä Tunnuksella `#kolikot` ja Kaava `kolikkoalue.joukot sisältää "kolikot"` → kolikon *näkyy kun*. Ensimmäinen kolikko tekee lisäksi yhteisen osan Ryhmään *Kolikot*: Joukko-palikka `#kolikot` (Jäsenten laji Alue), *jäsen astuttu* → Poista joukosta (Tapahtuman jäsen) ja Lisää Pisteet 1. Seuraavat kolikot liittyvät samaan Ryhmään. Kolikko katoaa, kun liikkuvan keskipiste tulee sen alueelle (Appi-appi 66, [Jäsenten tapahtumat](07-tieto.md#jäsenten-tapahtumat-appi-appi-63)). |
