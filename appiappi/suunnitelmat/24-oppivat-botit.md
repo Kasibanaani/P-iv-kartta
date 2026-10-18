@@ -71,6 +71,17 @@ Uusi toiminto *Aloita alusta*: valittu näkymä (tai koko projekti) palaa alkuti
 - **Muut käytöt:** pelin tasapainon testaus (100 kierrosta Autopelin rataa eri renkailla), arpapelin tilastot tuhannesta pelistä, päivälaskurin testaus ”kelaa viikko eteenpäin” ilman että odotetaan.
 - **Arvio nopeudesta** (*päätelty*): pieni harjoitustalo (50–100 palikkaa) jonon 1p:n kevennysten jälkeen alle 1 ms askelta kohden → 1 000–3 000 askelta sekunnissa → miljoona askelta 5–15 minuutissa. Mitataan ennen kuin luvataan.
 
+### 5.0 Arvonta: Satunnaisluku ja Arpa yhdeksi palikaksi (Emilin idea 18.10.2026)
+
+*Emilin kysymys:* miksi Satunnaisluku ja Arpa ovat eri työkaluja, kun molemmille pitäisi voida antaa painot? *Ehdotus:* yksi palikka, kaksi tapaa.
+
+- **Lukuväli** (nykyinen Satunnaisluku): pienin–suurin, painot jatkuvana käyränä janalla (nykyinen jakaumaikkuna). Ulos *luku*.
+- **Vaihtoehdot** (uusi): oma lista (*Kivi, Paperi, Sakset* tai *1, 2, 3, 4*), jokaisella oma paino pylväänä. Ulos *arvo* = arvottu vaihtoehto ja yksi tapahtumakohta per vaihtoehto (*Kivi arvottu* …). Ketjussa sama palikka toimii kuten nykyinen Arpa: ketju jatkuu arvotun vaihtoehdon haaraan.
+- Sama jakaumaikkuna, sama ⚂ Koeheitto, samat ohjattavat painot `p1…` molemmissa. Oppiminen (5.4) liitetään tähän yhteen palikkaan.
+- **Vanhat projektit:** Arpa avautuu Vaihtoehdot-tapana (vaihtoehdot 1…n, tasapainot), Satunnaisluku Lukuväli-tapana (`repair`). Tallennusmuodon muutos.
+- **Linjakkuus:** yksi käsite (jakauma) kahden sijaan; hinta on, että yksi laji on sekä arvopalikka että ketjun haarapalikka, joten erikoispalikkarekisterin Arpa-rivi muuttuu (*avoin*: Emilin hyväksyntä, PALIKKASAANNOT osa B). Nimi *avoin*: säilyykö *Satunnaisluku*, vai *Arvonta*.
+- Vaihtoehto, jos yhdistäminen ei kelpaa: Arpa saa saman painoikkunan, palikat pysyvät erillään.
+
 ### 5.4 Arpa oppii (Arvan laajennus, ei uusi palikka)
 
 Arpa saa painot (kuten Satunnaisluku) ja valinnaisen osion **Oppiminen**:
@@ -91,6 +102,7 @@ Arpa saa painot (kuten Satunnaisluku) ja valinnaisen osion **Oppiminen**:
 
 | Vaihe | Sisältö | Tallennusmuoto | Riippuu |
 |---|---|---|---|
+| F40-0 | Arvonta: Satunnaisluku ja Arpa yhteen (5.0) | muutos (`repair` Arpa → Vaihtoehdot) | – |
 | F40-1 | Aloita alusta (5.2) | laajenee (toiminnon lista *säilytä*) | – |
 | F40-2 | Sensori (5.1) | laajenee, uusi laji `sensori` | Joukko 15c |
 | F40-3 | Pikakelaus ja näennäinen kello (5.3) | ei | jonon 1p (kevennys), F40-1 |
