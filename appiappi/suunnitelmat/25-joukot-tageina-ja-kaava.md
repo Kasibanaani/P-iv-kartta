@@ -2,7 +2,7 @@
 
 18.10.2026 (Suomen aikaa). **Emilin ajatus** (viesti 18.10. klo 3.37): `#` sopii paremmin joukolle kuin viitteelle, koska se on asiasana muutenkin. Palikalla olisi kenttä teknisille tiedoille, johon kirjoitetaan viite ja välilyönnein yksi tai monta joukkoa (`#unipisteet`). Kaavassa joukkoa käsiteltäisiin kokonaisuutena (summa, keskiarvo, suurin, pienin). Joukko voisi määräytyä myös logiikalla, ja viitteelle keksitään uusi etumerkki. Lisäksi kaavan sulut pelkiksi suluiksi, ja *jos* niin, että ehdon sulku sulkeutuu ennen seurausta (ei Excelin `jos(ehto; a; b)`).
 
-Merkinnät: *Emilin idea*, *ehdotus* (tekoälyn ratkaisu), ⏸ = odottaa Emilin päätöstä. **Emil hyväksyi kaikki suositukset 18.10.2026** (klo 4.05). **Ei toteutettu.** Jonossa 12f (viittaustapa `@`), 12g (kaava), 15c–15e (joukot). Tämä suunnitelma korvaa [21 Palikkajoukon](21-palikkajoukko.md) ja [23 Viittaustavan](23-viittaustapa.md) ristiriitaiset kohdat. Lue ensin [palikkasäännöt](../PALIKKASAANNOT.md) (erityisesti A2, A3, A7, A9) ja kohta 7 (kartoitus 7:n tekniset sopimukset: tallennusmerkki, avaimet, toiminnot).
+Merkinnät: *Emilin idea*, *ehdotus* (tekoälyn ratkaisu), ⏸ = odottaa Emilin päätöstä. **Emil hyväksyi kaikki suositukset 18.10.2026** (klo 4.05). **Toteutettu kokonaan:** 12f (Appi-appi 54), 12g (55), 15c (57), 15d (62) ja 15e (63); korjaukset 1q (58), 1r (60) ja jonon 1s ([kartoitus 9](../kartoitukset/2026-10-18-linjakkuus-9.md)). Tekematta päätöksellä: `#x = …` kaavassa ja ikkunan *Sisältö kuuluu joukkoon*. Tämä suunnitelma korvaa [21 Palikkajoukon](21-palikkajoukko.md) ja [23 Viittaustavan](23-viittaustapa.md) ristiriitaiset kohdat. Lue ensin [palikkasäännöt](../PALIKKASAANNOT.md) (erityisesti A2, A3, A7, A9) ja kohta 7 (kartoitus 7:n tekniset sopimukset: tallennusmerkki, avaimet, toiminnot).
 
 ## 1. Lyhyt vastaus
 
@@ -178,4 +178,4 @@ Säännöt:
 - A9: joukot ja viitteet tunnisteina; nimen vaihto ei riko.
 - A10: Miksi? kertoo jäsenyyden syyn (tagi, sääntö, kaava, toiminto).
 - A12: jäsenyys ja koosteet moottorissa. A13: vanha muoto aukeaa ja muuntuu.
-- Ei uutta erikoispalikkaa. Joukko-palikka ei ole erikoispalikka (arvo = jäsenmäärä).
+- Ei uutta erikoispalikkaa *suunnitelmana*. Toteutuksessa (Appi-appi 62) Joukko-palikka merkittiin ✦:llä, koska sillä ei ole omaa viitettä, sitä on yksi per joukko ja sen kentissä on sana `jäsen`; nämä poikkeukset ovat yllä hyväksyttyjä. Kartoitus 9 (S8) arvioi merkinnän tarkoitukselliseksi (rekisterin tila *arvioitu*).

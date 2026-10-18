@@ -86,4 +86,4 @@ Nykyinen **Ryhmä** säilyy ennallaan kehyksenä. *Ehdotus, ei jonossa:* Ryhmän
 - A7: ei uutta funktiota eikä sulkuja; kooste tehdään ikkunalla (*Jäsenille*, kuten *Riveille*).
 - A8: rivien ”jokaiselle” ja palikoiden ”jokaiselle” toimivat samalla kaavalla (käsiteltävä rivi / `jäsen`), eli yksi opittava periaate, ei kahta.
 - A10: Miksi? kertoo jäsenyyden syyn. A12: jäsenyyden ja sääntöjen laskenta moottorissa, koska se kulkee vietyyn appiin.
-- Ei erikoispalikkaa: Joukolla on arvo (jäsenten määrä), kohdat ja tapahtumat.
+- Ei erikoispalikkaa: Joukolla on arvo (jäsenten määrä), kohdat ja tapahtumat. *Toteutuksessa* (Appi-appi 62) Joukko on ✦-merkitty (ei omaa viitettä, yksi per joukko, sana `jäsen`), ks. [kartoitus 9](../kartoitukset/2026-10-18-linjakkuus-9.md) S8.
