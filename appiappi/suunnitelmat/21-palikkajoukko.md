@@ -61,6 +61,12 @@ Joukon paneelissa *＋ Sääntö*: ominaisuus (yhteiset ensin: näkyy, harmaana,
 
 Nykyinen **Ryhmä** säilyy ennallaan kehyksenä. *Ehdotus, ei jonossa:* Ryhmän paneeliin myöhemmin nappi *Tee sisällöstä joukko* (käsin valitut = ryhmän sisällä olevat).
 
+### Keveys (linjaus jonon 1p:stä, 18.10.)
+
+- **Jäsenyys lasketaan muutoksessa, ei joka kuvassa:** kun palikka lisätään tai poistetaan, kun säännön ehdon syöte muuttuu tai kun jäsenen laji, näkymä tai kerros muuttuu. Kuvassa luetaan valmis jäsenlista.
+- **Jäsensäännöt kerran kuvassa jäsentä kohden**, saman `KK.omBatch`-ajon sisällä kuin muu kuva (ominaisuusrekisteri muistissa).
+- Säännön ohjaama jäsen on ”ohjattu” (kuten `omOn`): moottorin ja piirron pikatiet (perusarvoissa oleva palikka, ruudun ulkopuolisen ohitus) eivät koske sitä. Jos sääntö ohjaa vain esim. väriä, paikan pikatie voisi silti päteä; tarkista mittaamalla, kun vaihe 2 rakennetaan (`selain_91_keveys.py`-tyyppinen testi 30 liikkuvalla jäsenellä ja sadoilla esteillä).
+
 ## 7. Päätökset ja avoimet
 
 - **Nimi:** *Joukko* (suositus; Rivijoukon pari, Ryhmä on jo kehys) vai Ryhmä? **Päätetty: Joukko** (Emil 18.10.).
