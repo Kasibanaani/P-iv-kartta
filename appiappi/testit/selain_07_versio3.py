@@ -45,7 +45,8 @@ async def main():
             await pg.click('#tabs [data-t="logiikka"]');await pg.wait_for_timeout(250)
             lv=await pg.locator('#lvp').bounding_box()
             await paletti(pg,'Hakutaulukko',lv['x']+lv['width']/2,lv['y']+lv['height']-90);await pg.wait_for_timeout(150)
-            sid=await P(pg,"B('Mieliala: pisteet').id");await pg.select_option('#insp select[data-ref="a"]',sid);await pg.wait_for_timeout(120)
+            # Jonon 26 b: arvokenttä on kaavakenttä (ei palikkavalikkoa): viite kirjoitetaan @-merkillä
+            svt=await P(pg,"B('Mieliala: pisteet').vt");await pg.fill('#insp input[data-k="a"][data-lit]','@'+svt);await pg.wait_for_timeout(120)
             for i,(a,bb,t) in enumerate([('','2','Huono'),('2','3','Ok'),('3','','Hyvä')]):
                 await pg.click('#insp [data-hradd]');await pg.wait_for_timeout(80)
                 if a:await pg.fill('#insp input[data-k="hr_%d_a"]'%i,a)

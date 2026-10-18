@@ -115,6 +115,19 @@ Kaava-palikka laskee yhden arvon lausekkeesta. Tulos voi olla luku, teksti, kyll
 
 **Kaava venyy:** valitun Kaavan oikeassa alakulmassa on venytyskulma. Vedä sitä, niin pitkä kaava näkyy kokonaan rivitettynä. Kaksoisnapautus kulmaan palauttaa koon.
 
+### Arvokenttä: kaava suoraan paneelin kentässä
+
+Appi-appi 83 (jonon 26 b). Palikan arvokentät ovat yksi kaavakenttä: ennen kenttä oli kahdessa osassa (*luku, teksti tai pvm* ja valikko *tai palikka…*), nyt valikkoa ei ole.
+
+- **Missä:** Jana (Alku, Loppu), Satunnaisluku (Pienin, Suurin), Käyrä (Syöte, x- ja y-välin päät), Lasku ja Vertailu (A, B), Päivämäärän osa (Päivämäärä), VALITSE (molemmat arvot), Ketjun tulos (Tulos), Muutos ajassa (Alku, Loppu), Liike (Nopeus x, Nopeus y, Huippunopeus), Monta haaraa ja Hakutaulukko (Arvo), Toiminto (Rivi, Uusi arvo, Määrä). Vihje kentässä: *luku, teksti tai @viite*.
+- **Mitä kirjoitetaan:** luku `5`, teksti `Valmis`, päivämäärä `24.12.2026`, `kyllä`, viite `@alku`, ominaisuus `@pelaaja.x`, joukon kooste `#kolikot.summa`, laskut `@alku + 5`, `(@sarake - 1) * 80` ja `jos (@uni > 7) "hyvä" muuten "huono"`. Sama kirjoitustapa kuin Kaava-palikassa ([Kaavan syntaksi](#kaavan-syntaksi)).
+- **Miten kirjoitettu tulkitaan:** kenttä on kaava, jos siinä on `@`, `#` tai `{viite}`, tai jos se on kelvollinen kaava ilman tuntematonta nimeä (`3 * 4`, `"Maito"`, `tänään + 5`, `alku * 2`). Muuten se on teksti kuten ennen (`Valmis`, `Hei maailma`). Teksti, johon tulee arvo, kirjoitetaan lainausmerkein: `"Pisteet: " + @pisteet`.
+- **Kentän alla:** kaavan tulos harmaana (`= 1239,57`) tai punainen virhe (`puuttuu: tuntematon`); kenttä punertuu virheestä. Luvulle ja tekstille ei tulosriviä.
+- **@ tuo ehdotukset** kuten Kaavassa: palikat, ominaisuudet pisteen jälkeen ja joukot `#`:n jälkeen; napautus lisää ehdotuksen.
+- **Nuoli voittaa:** kun kohtaan tulee nuoli, kentän paikalla lukee *Arvo tulee nuolesta.*
+- **Vanhat projektit:** valikosta valittu palikka näkyy kentässä viitteenä (`@alku`) ja toimii kuten ennen. Aiemmin kenttään kirjoitettu pelkkä `@alku` antaa nyt arvon sellaisenaan (ennen tekstiksi pyöristetyn, esim. 1235,57 eikä 1235,5678), ja `@alku + 5` lasketaan (ennen siitä tuli teksti ”1234,57 + 5”). Teksti viitteineen (`Pisteet: @pisteet`) pysyy tekstinä.
+- **Kopiointi, uudelleennimeäminen ja poisto** kohtelevat kentän viitteitä kuten Kaavan: nimi päivittyy, kopio osoittaa kopioituun, poisto näkyy vaikutuslistassa ja Yhteyksissä.
+
 ### Vie tulos jatkuvasti
 
 Paneelin osio **Vie tulos jatkuvasti**:

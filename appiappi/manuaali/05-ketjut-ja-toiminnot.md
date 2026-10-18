@@ -36,7 +36,7 @@ Toiminto tekee yhden muutoksen kerran, kun siihen tulee tapahtuma. Sen jälkeen 
   - Lajin omat kentät (taulukko alla).
   - Ohje paneelin alareunassa: ”Toiminto tehdään, kun siihen tulee tapahtuma (esim. painettu, NIIN, silloin) tai kun siihen tuleva arvo alkaa päteä.”
   - Ketjun ulkopuolella lisäksi osio **Sitten** ja valikko **＋ Lisää toiminto…** seuraavalle toiminnolle.
-- **Arvo-kenttä (Uusi arvo, Määrä):** kaksi osaa vierekkäin: tekstikenttä *luku, teksti tai pvm* ja valikko *tai palikka…*.
+- **Arvo-kenttä (Uusi arvo, Määrä, Rivi):** yksi kaavakenttä *luku, teksti tai @viite*, esim. `5`, `Valmis`, `@pisteet + 1` ([arvokenttä](06-kaavat.md#arvokenttä-kaava-suoraan-paneelin-kentässä)).
   - Kenttään kelpaa luku (`3`, `1,5`, `-2`), teksti, `kyllä` / `ei`, päivämäärä (`24.12.2026`, `tänään`, `huomenna`, `eilen`) ja teksti, jossa on viittauksia (`@uni`, ks. [Tekstiin upotetut viitteet](06-kaavat.md#tekstiin-upotetut-viitteet)).
   - Valikosta valittu palikka antaa arvonsa toimintohetkellä.
   - **Kenttä ei ole kaava.** Laskettu arvo (esim. `pisteet * 2`) tehdään Kaava-palikalla, jonka nuoli tulee Toiminnon kohtaan *arvo*. Nopein tapa on kentän alla oleva nappi **ƒ Arvo kaavasta** (Appi-appi 39): se tekee Kaavan, vetää nuolen kohtaan *arvo* ja avaa kaavan kirjoitettavaksi. Silloin paneelissa lukee ”Arvo tulee nuolesta.”, eikä nappia enää näy.
@@ -251,7 +251,7 @@ Kulkee *kierros*-haaraan annetun määrän kertoja tai kerran jokaiselle tauluko
 Antaa ketjulle tuloksen, esim. päätöspuun vastauksen.
 
 - **Sisään:** *alkaa*, *arvo*. **Ulos:** *sitten*.
-- **Asetukset:** **Tulos** (arvokenttä: luku, teksti, päivämäärä tai palikka) tai nuoli kohtaan *arvo*.
+- **Asetukset:** **Tulos** (arvokenttä: luku, teksti, päivämäärä, `@viite` tai kaava) tai nuoli kohtaan *arvo*.
 - **Kaavassa:** tulos luetaan ketjusta: `paatos.tulos`.
 - Ketju muistaa tuloksen, kunnes se käynnistyy uudelleen.
 

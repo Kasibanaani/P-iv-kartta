@@ -2,8 +2,8 @@
 
 ## Tarkistettu versio
 
-- **Appi:** Appi-appi 82, tallennusversio 12 (`VER`), repo `Kasibanaani/P-iv-kartta`, kansio `appiappi/`.
-- **Kirjoitettu:** 17.10.2026 koodista commitilla `77461d2` (Appi-appi 31). Sen jälkeen jokainen rakentaja on päivittänyt muuttuneet kohdat samassa työssä; versiokohtaiset tiedot ja mitä kussakin tarkistettiin ovat `appiappi/MUUTOKSET.md`:ssä. **Viimeksi tarkistettu:** Appi-appi 82 (18.10.2026, jonon 22: liikkuvat tasot), luvut 8 (Painovoima ja maassa: kanto ja rajat), 2 (Rakennuslaatikko: Liikkuva taso) ja 10 (hakemistorivi).
+- **Appi:** Appi-appi 83, tallennusversio 12 (`VER`), repo `Kasibanaani/P-iv-kartta`, kansio `appiappi/`.
+- **Kirjoitettu:** 17.10.2026 koodista commitilla `77461d2` (Appi-appi 31). Sen jälkeen jokainen rakentaja on päivittänyt muuttuneet kohdat samassa työssä; versiokohtaiset tiedot ja mitä kussakin tarkistettiin ovat `appiappi/MUUTOKSET.md`:ssä. **Viimeksi tarkistettu:** Appi-appi 83 (18.10.2026, jonon 26 b: arvokenttä kaavana), luku 6 (Arvokenttä), luvut 4, 5 ja 8 (kenttien kuvaukset), hakemisto ja tämä luku; sitä ennen Appi-appi 82 (18.10.2026, jonon 22: liikkuvat tasot), luvut 8 (Painovoima ja maassa: kanto ja rajat), 2 (Rakennuslaatikko: Liikkuva taso) ja 10 (hakemistorivi).
 - **Miten tarkistettiin:** jokainen luku on kirjoitettu lukemalla käyttöliittymän ja moottorin koodia (nimet suoraan koodin merkkijonoista) sekä testien kuvauksia. Kaavakielestä ajettiin noin 150 kaavaa moottorilla (Node), ja maailman ja liikkeen kaavanimet tarkistettiin samoin. Aloitusluvun esimerkki *Vesilasit* tehtiin vaihe vaiheelta oikeassa käyttöliittymässä (Chromium, 1440 px). Muiden lukujen reseptejä **ei ole ajettu** selaimessa: ne on koottu koodista.
 - **Ei tarkistettu oikealla iPhonella, iPadilla eikä Safarilla.** Puhelinkäyttö on kuvattu koodista ja testeistä, jotka ajavat kosketusta tietokoneen selaimessa 390 ja 320 px leveänä. Oikean laitteen tuntuma (sormella veto, näppäimistö, Safarin oma zoomaus) on varmistamatta.
 - Kohdat, joita kirjoittaja ei voinut varmistaa, on merkitty tekstiin ”(ei tarkistettu)”.
@@ -79,7 +79,8 @@ Kirjoittaessa löytyneet ristiriidat, puutteet ja yllätykset. Nämä eivät ole
 2. **Pilkku desimaalina ja erottimena:** `1,5,2` ja `jos (a) 1, 2` antavat ohjeen *pilkku on desimaalimerkki*; `2,5` on luku. Ennen Appi-appi 55:tä virhe oli funktion ulkopuolella *tuntematon merkki*.
 3. **Tyhjä ohjaus ohittaa toiminnon asettaman arvon:** kun ominaisuus on ohjattu nuolella ja kaava antaa tyhjän, käytetään perusarvoa, ei toiminnon asettamaa. Ominaisuudet-osion ohjeteksti kuvaa etusijan ilman tätä poikkeusta.
 4. **Ohjeen sana "tyhjä" vs. puuttuva:** kaavan ohjeteksti ei erota tyhjää (laskussa 0) ja taulukon puuttuvaa (laskussa tuntematon); ero näkyy vain tuloksissa.
-5. Ei tarkistettu selaimessa tässä luvussa: ehdotusrivin ja valikoiden tarkka ulkoasu puhelimella; kuvaus perustuu koodiin. Moottorin tulokset on ajettu nodella.
+5. **Arvokentän kaksoispiste (Appi-appi 83):** arvokenttään kirjoitettu `Pisteet: @pisteet` on kaava, jossa kaksoispiste on jako (tulos näkyy kentän alla, esim. `= 1`). Teksti arvon kanssa: `"Pisteet: " + @pisteet`. Vanhat tallennetut tekstit viitteineen pysyvät tekstinä.
+6. Ei tarkistettu selaimessa tässä luvussa: ehdotusrivin ja valikoiden tarkka ulkoasu puhelimella; kuvaus perustuu koodiin. Moottorin tulokset on ajettu nodella.
 
 ### Tieto
 

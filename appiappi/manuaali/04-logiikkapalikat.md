@@ -118,7 +118,7 @@ Arpoo kokonaisluvun väliltä pienin–suurin (molemmat päät mukana). Luku pys
 | paino 1, paino 2 … | arvo | Vain muotoillussa jakaumassa. Piilossa, kunnes nuoli tulee. |
 
 - **Ulos:** *luku* (arvo), *arvottu* (tapahtuma, lähtee jokaisen arvonnan jälkeen).
-- **Asetukset (paneeli):** **Pienin** (oletus 1) ja **Suurin** (oletus 6): kirjoita luku tai valitse *tai palikka…*. **Jakauma**: *Tasainen* tai *Muotoiltu*. Muotoillussa pieni käyrä ja nappi **Muokkaa jakaumaa…**. Rivillä *Arvottu luku* nappi **⚂ Arvo nyt**.
+- **Asetukset (paneeli):** **Pienin** (oletus 1) ja **Suurin** (oletus 6): kirjoita luku tai kaava, esim. `@taso * 2` ([arvokenttä](06-kaavat.md#arvokenttä-kaava-suoraan-paneelin-kentässä)). **Jakauma**: *Tasainen* tai *Muotoiltu*. Muotoillussa pieni käyrä ja nappi **Muokkaa jakaumaa…**. Rivillä *Arvottu luku* nappi **⚂ Arvo nyt**.
 - **Jakaumaikkuna** (*Muokkaa jakaumaa…*): **Painoja** 2–10, **Valmiit muodot** (Tasainen, Keskelle, Reunoille, Nousee, Laskee), käyrä, jonka pisteitä vedetään ylös ja alas (hiiri tai sormi), painokentät p1… (0–100, nuolinäppäimet ±1), *Todennäköisyydet*-pylväät ja nappi **⚂ Koeheitto 1000 kertaa**. Sulje napista **Valmis**. Paino p1 on välin pienin luku, viimeinen suurin, muut tasavälein. Painot ovat suhteellisia: summan ei tarvitse olla 100. Jos kaikki painot ovat nollassa, arvonta on tasainen. lukko (kaaviossa piste •) = paino tulee nuolesta, sitä ei voi muuttaa ikkunassa.
 - **Ominaisuudet** (kaikki luettavia): `arvo`, `min` (myös `pienin`), `max` (myös `suurin`), muotoillussa `p1`, `p2` …
 - **Kaavassa:** `noppa` = arvottu luku, `noppa.min`, `noppa.max`, `noppa.p1`.
@@ -272,7 +272,7 @@ Laskee kahden arvon yhteen, erotuksen, tulon tai osamäärän.
 - **Löytyy:** logiikan paletti → *Laskut* → symbolit **+**, **−**, **×**, **÷** (kukin tekee Laskun valmiiksi tällä laskutoimituksella).
 - **Sisään:** *A* (arvo), *B* (arvo).
 - **Ulos:** *tulos* (arvo).
-- **Asetukset (paneeli):** **Laskutoimitus** (+ − × ÷). **A** ja **B**: kirjoita luku, teksti tai päivämäärä, tai valitse *tai palikka…*. Jos kohtaan tulee nuoli, kentässä lukee *Arvo tulee nuolesta.*
+- **Asetukset (paneeli):** **Laskutoimitus** (+ − × ÷). **A** ja **B**: kirjoita luku, teksti, päivämäärä, `@viite` tai kaava (`@alku + 5`). Jos kohtaan tulee nuoli, kentässä lukee *Arvo tulee nuolesta.*
 - **Ominaisuudet:** `arvo`.
 - **Kaavassa:** `viite`.
 - **Säännöt:** tyhjä = 0. Päivämäärä + luku = päivämäärä luvun verran päiviä myöhemmin. Päivämäärä − päivämäärä = päivien määrä. Teksti + mikä tahansa liittää tekstit yhteen. Jako nollalla, päivämäärän kertominen ja kahden päivämäärän summa ovat virheitä. Puuttuva taulukkotieto tekee tuloksesta tuntemattoman.
@@ -285,7 +285,7 @@ Vertaa kahta arvoa. Tulos on kyllä tai ei.
 - **Löytyy:** logiikan paletti → *Vertailut* → **=**, **≠**, **<**, **≤**, **>**, **≥**. *sisältää* valitaan paneelista (paletissa vain merkit).
 - **Sisään:** *A*, *B* (arvoja).
 - **Ulos:** *tulos* (kyllä/ei).
-- **Asetukset (paneeli):** **Vertailu** (= ≠ < ≤ > ≥ *sisältää*), **A**, **B** (kenttä tai *tai palikka…*).
+- **Asetukset (paneeli):** **Vertailu** (= ≠ < ≤ > ≥ *sisältää*), **A**, **B** (arvokenttä: luku, teksti, `@viite` tai kaava).
 - **Ominaisuudet:** `arvo`.
 - **Säännöt:** luvut lukuina, päivämäärät päivinä (teksti kuten `24.12.2026` tulkitaan päivämääräksi, kun toinen puoli on päivämäärä), tekstit aakkosjärjestyksessä kirjainkoosta välittämättä (`Kalle` = `kalle`). Tyhjä = tyhjä on kyllä; tyhjä < luku on ei.
 - **Esimerkki:** Säädin → A, B = `3`, vertailu ≤. Tulos → Teksti *näkyy kun*.
@@ -339,7 +339,7 @@ Poimii päivämäärästä yhden osan.
 - **Löytyy:** logiikan paletti → *Arvot* → **Päivämäärän osa**.
 - **Sisään:** *päivämäärä* (arvo).
 - **Ulos:** *tulos* (arvo).
-- **Asetukset (paneeli):** **Mikä osa**: Viikkonumero (oletus, suomalainen ISO), Viikonpäivä (nimi, esim. *maanantai*), Viikonpäivä numerona (maanantai 1 … sunnuntai 7), Päivä, Kuukausi, Vuosi, Päiviä tästä päivästä (menneet miinuksella). **Päivämäärä** (kenttä tai *tai palikka…*).
+- **Asetukset (paneeli):** **Mikä osa**: Viikkonumero (oletus, suomalainen ISO), Viikonpäivä (nimi, esim. *maanantai*), Viikonpäivä numerona (maanantai 1 … sunnuntai 7), Päivä, Kuukausi, Vuosi, Päiviä tästä päivästä (menneet miinuksella). **Päivämäärä** (arvokenttä: päivämäärä, `@viite` tai kaava, esim. `tänään + 7`).
 - **Ominaisuudet:** `arvo`.
 - **Esimerkki:** Päivämäärä-ohjain → *päivämäärä*, osa *Päiviä tästä päivästä* → Vertailu < 0 → Teksti *näkyy kun* (”myöhässä”).
 - **Huomio:** Jos syöte ei ole päivämäärä, tulos on tyhjä. Päivämäärä-ohjaimella on samat osat suoraan ominaisuuksina (`pvm.viikko`, `pvm.päiviä`).
@@ -364,7 +364,7 @@ Antaa arvon A, kun ehto pätee, muuten arvon B. Ei tee mitään, vain antaa arvo
 - **Löytyy:** logiikan paletti → *Ehdot* → **VALITSE**.
 - **Sisään:** *ehto*, *arvo kun pätee*, *arvo muuten* (arvoja).
 - **Ulos:** *tulos* (arvo).
-- **Asetukset (paneeli):** **Arvo, kun ehto pätee** (tyhjä = kyllä), **Arvo muuten** (tyhjä = ei). Kenttä tai *tai palikka…*.
+- **Asetukset (paneeli):** **Arvo, kun ehto pätee** (tyhjä = kyllä), **Arvo muuten** (tyhjä = ei). Arvokenttä: luku, teksti, `@viite` tai kaava.
 - **Ominaisuudet:** `arvo`.
 - **Esimerkki:** Kytkin → *ehto*, A = `Päivä`, B = `Yö` → Teksti *teksti*. Toinen käyttö: VALITSE kahden kuvan SVG-tekstin välillä → Kuva-palikan kohta *kuva*.
 - **Huomio:** Sama kaavana: `jos (kytkin) "Päivä" muuten "Yö"`.
@@ -376,7 +376,7 @@ Valitsee tuloksen sen mukaan, mille riville arvo osuu (kuten taulukkolaskennan h
 - **Löytyy:** logiikan paletti → *Ehdot* → **Hakutaulukko**.
 - **Sisään:** *arvo* (arvo).
 - **Ulos:** *tulos* (arvo).
-- **Asetukset (paneeli):** **Arvo** (kenttä tai *tai palikka…*). Rivit: valinta *välillä* (kentät *alkaen* ja *alle*) tai *täsmälleen* (kenttä *arvo*), **→** ja *tulos*; napit ↑ (siirrä ylemmäs) ja × (poista). **＋ Lisää rivi**. **Muuten (mikään rivi ei osu)**. Vihreä rivi osuu juuri nyt.
+- **Asetukset (paneeli):** **Arvo** (arvokenttä: luku, `@viite` tai kaava). Rivit: valinta *välillä* (kentät *alkaen* ja *alle*) tai *täsmälleen* (kenttä *arvo*), **→** ja *tulos*; napit ↑ (siirrä ylemmäs) ja × (poista). **＋ Lisää rivi**. **Muuten (mikään rivi ei osu)**. Vihreä rivi osuu juuri nyt.
 - **Ominaisuudet:** `arvo`, `rivi` (osuneen rivin numero, 0 = ei osunut).
 - **Säännöt:** rivit käydään ylhäältä alas, ensimmäinen osuva ratkaisee. *Välillä* = vähintään alkaen ja alle ylärajan (0–5 kattaa 0…4,99). Tyhjä raja = rajaton. Tyhjä arvo menee *Muuten*-kohtaan. Tulos voi olla luku tai teksti, myös `{Nimi}`.
 - **Esimerkki:** SUMMA-ikkuna → *arvo*. Rivit: välillä 0–5 → `heikko`, 5–8 → `hyvä`, välillä 8–(tyhjä) → `erinomainen`.

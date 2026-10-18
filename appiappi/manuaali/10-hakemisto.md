@@ -15,6 +15,7 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | kirjoittaa tekstin suoraan näkymän palikkaan | kaksoisnapsauta palikkaa tai valitse ja paina Enter | [Teksti ja upotetut viitteet](03-nakymapalikat.md#teksti-ja-upotetut-viitteet) |
 | tehdä logiikan tuloksesta näkymään palikan yhdellä napautuksella | paneelin ▢ Tee näkymään tai N | [Tee näkymään](06-kaavat.md#tee-näkymään) |
 | tehdä Toiminnolle painike, Ketjulle käynnistysnappi, Muistille syöttökenttä, taulukolle Toistin tai Sekuntikellolle napit | paneelin Tee näkymään ▾ | [Tee näkymään](06-kaavat.md#tee-näkymään) |
+| kirjoittaa palikan kenttään viitteen tai laskun (`@alku + 5`) | arvokenttä (Lasku, Vertailu, Toiminnon Uusi arvo, Liikkeen nopeus …) | [Arvokenttä](06-kaavat.md#arvokenttä-kaava-suoraan-paneelin-kentässä) |
 | laskea jotain | Kaava tai Lasku | [Kaavat](06-kaavat.md#kaavan-syntaksi), [Lasku](04-logiikkapalikat.md#lasku-lasku) |
 | muuttaa laskujärjestystä | sulut: `(sarake - 1) * 80` | [Laskutoimitukset](06-kaavat.md#laskutoimitukset) |
 | tehdä arvon nimestä, jonka kirjoitin kaavaan | ehdotusrivin ＋ Luo Arvo ”nimi”, tai vahvista kaava ja vastaa kysymykseen OK | [Ehdotusrivi](06-kaavat.md#ehdotusrivi) |

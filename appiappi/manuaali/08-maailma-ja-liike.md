@@ -220,7 +220,7 @@ Lisäksi Ominaisuudet-osiosta voi avata ohjattavat kohdat `kitka`, `vauhtix`, `v
 
 - **Liikutettava palikka:** valikosta näkymän palikka (ei Sijainti eikä Alue). Liike siirtää sitä suoraan, esteet ja alueet toimivat, ja alkupaikka on palikan oma paikka. Vaihtoehto **ei kohdetta (vain arvot x ja y)**: Liike laskee vain paikan x, y, jonka voi viedä nuolella näkymäpalikan kohtiin **siirto x** ja **siirto y** (siirto lisätään palikan paikkaan). Ilman kohdetta esteet, alueet ja törmäykset eivät toimi.
 - **Ohjaus:** kuten taulukossa yllä.
-- **Nopeus x (px/s)** ja **Nopeus y (px/s)** (Nopeus x, y): luku kenttään, tai valikosta **tai palikka…** palikka, jonka arvo käytetään, tai nuoli kohtaan. Esim. Kaava `tatti.vaaka * 200`.
+- **Nopeus x (px/s)** ja **Nopeus y (px/s)** (Nopeus x, y): luku tai kaava kenttään ([arvokenttä](06-kaavat.md#arvokenttä-kaava-suoraan-paneelin-kentässä), esim. `@tatti.vaaka * 200`), tai nuoli kohtaan.
 - **Huippunopeus (px/s)** (muut ohjaustavat): oletus 200. Ruudussa se on liukumisnopeus; iso luku (esim. 10000) hyppää suoraan ruutuun.
 - **Tatti** (Tatti, Auto ja Ruutu): valikosta näkymän Tatti. Jos tattia ei ole, ohje käskee lisäämään sen (Ohjaimet → Tatti).
 - **Kiertää esteet** (Napautus, kun liikutettava palikka on valittu): ks. Reitinhaku.
