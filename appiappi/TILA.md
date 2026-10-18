@@ -172,6 +172,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 ## Suunnitelmat
 
+- **18.10.2026, F40 oppivat botit (Emilin ajatusleikki):** `suunnitelmat/24-oppivat-botit.md`. Toimii ehdoin (välipalkkiot, epäonnistumisesta miinus, pieni tilanne, uteliaisuus); puuttuu Sensori, Aloita alusta, pikakelaus ja Arvan oppiminen. Vaikeustaso = uteliaisuus + kantama, tasot taulukon kopioina. Ei jonossa: odottaa Emilin päätöstä paikasta (suositus F40-1 jonon 15 jälkeen, muut Joukon jälkeen ennen 2D:tä).
 - **18.10.2026, keveysmittaus (Emilin kysymys):** `kartoitukset/2026-10-18-keveys.md`. Autopeli 58 ja Headmaze ~50 kuvaa/s, mutta hidastuu suoraan palikkamäärän mukana (+750 seinää 9 kuvaa/s); neljä paikallista pullonkaulaa, korjaukset jonon kohdassa 1p ennen Joukkoa ja 2D:tä. Lataus ja muisti kunnossa.
 - **18.10.2026, F39 viittaustapa (Emilin toive):** `suunnitelmat/23-viittaustapa.md`. Etumerkki (`#`, `@`, `§`) tai `{ }` tekstin viitteisiin rakentajan selainasetuksena; tallennus ennallaan, vanhat näkyvät heti uudella tavalla. Jonossa 12f. Emil valitsi oletukseksi `#`. Ei toteutettu.
 - **18.10.2026, F38 logiikasta näkymään (Emilin toive):** `suunnitelmat/22-logiikasta-nakymaan.md`. Tee näkymään -pikaluonti tuloksesta Laatikoksi, viite näkyy muokatessa, suora kirjoitus palikkaan, napautettava Laatikko, Muodon kulmat. Jonossa 12b–12e (ei tallennusmuotoa) ja 14b–14c (laajenee). Emil hyväksyi kaiken 18.10., myös kohdan 7 pikaluonnit (12e). Ei toteutettu.
