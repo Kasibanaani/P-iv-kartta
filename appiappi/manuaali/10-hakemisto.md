@@ -76,6 +76,7 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | käyttää samaa rakennetta uudestaan | suosikit, presetit, kopioi ja liitä | [Suosikit ja presetit](02-tyoymparisto.md#suosikit-ja-presetit) |
 | lisätä monta samaa nopeasti (seiniä, kolikoita, hahmoja) | Rakennuslaatikko, klik klik | [Rakennuslaatikko](02-tyoymparisto.md#rakennuslaatikko) |
 | aloittaa tasoloikan nopeasti (hahmo, hyppy, painovoima, vesi, tikkaat) | Rakennuslaatikko → Hahmot → Pelaaja: tasoloikka; Alueet → Painovoima-alue, Vesi, Tikkaat | [Rakennuslaatikko](02-tyoymparisto.md#rakennuslaatikko) |
+| saada kamera seuraamaan pelaajaa ja ohjaimet pysymään ruudulla | laitenäkymässä Rakennuslaatikko → Hahmot (tekee itse) tai Näkymä → Kamera seuraa; Alueet → Kameran rajat | [Rakennuslaatikko](02-tyoymparisto.md#rakennuslaatikko), [Maailma ja kamera](08-maailma-ja-liike.md) |
 | maalata laattoja rakennuslaatikosta | Rakennuslaatikko → Laatat → kartta, sitten laji | [Rakennuslaatikko](02-tyoymparisto.md#rakennuslaatikko), [Maalaus](08-maailma-ja-liike.md#maalaus) |
 
 ## Palikat

@@ -81,7 +81,7 @@ Laitenäkymästä voi tehdä ruutua isomman maailman, jota rullataan kaikkiin su
   - **Kaikkiin suuntiin**: käyttäjä rullaa sormella (tai hiirellä) maailmaa joka suuntaan palikoiden reunoille asti tai valitun alueen reunoille.
   - **Ei rullausta**: ruutu pysyy paikallaan.
   - Kun kamera seuraa, valinta on aina Kaikkiin suuntiin, eikä muita voi valita.
-- **Kamera seuraa:** valikosta näkymän palikka (yleensä hahmo). Kamera pitää sen ruudulla, kun se liikkuu. Sormella ei silloin rullata, joten napautukset jäävät pelille.
+- **Kamera seuraa:** valikosta näkymän palikka (yleensä hahmo). Kamera pitää sen ruudulla, kun se liikkuu. Sormella ei silloin rullata, joten napautukset jäävät pelille. Pikatie: rakennuslaatikon pelaajat asettavat tämän itse, ja Näkymä-hyllyn *Kamera seuraa* asettaa klikatun palikan (Appi-appi @@V@@, [Rakennuslaatikko](02-tyoymparisto.md#rakennuslaatikko)).
 - **Kuollut alue** (näkyy, kun kamera seuraa): 0–100 %, oletus 30. Ympyrä ruudun keskellä, jonka sisällä seurattava saa liikkua ilman, että kamera liikkuu. 0 = seurattava pysyy aina keskellä, 50 = saa kulkea puoliväliin reunaa kohti. Muokatessa ympyrä näkyy laitteen kehyksessä katkoviivana.
 - **Pehmeys** (näkyy, kun kamera seuraa): 0–100 %, oletus 40. 0 = kamera on heti perässä, 100 = ottaa kiinni hitaasti ja liukuen.
 - **Maailman rajat** (näkyy, kun kamera seuraa tai rullaus on Kaikkiin suuntiin): valikosta Alue-palikka. Kamera ei näytä alueen ulkopuolta. Oletus: seuratessa **ei rajaa** (maailma jatkuu loputtomiin), rullatessa **palikoiden mukaan** (laitteen ruutu ja kaikki sormen mukana rullautuvat palikat). Jos raja on ruutua pienempi, se keskitetään.
