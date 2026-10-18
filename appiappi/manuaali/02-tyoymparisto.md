@@ -259,7 +259,7 @@ Näkymän palettiin **Viiva** (Koristeet-ryhmässä): napauta sitä, sitten ved�
 
 ## Logiikkakanvaasi
 
-Jokaisessa logiikkapalikassa näkyy kuvake, otsikko, arvosiru (nykyinen arvo: kyllä vihreänä, ei sinisenä, virhe ⚠) ja kulmassa **viite**. Näkymäpalikan esiintymä on himmeä, kun palikka ei juuri nyt näy käyttöpinnalla.
+Jokaisessa logiikkapalikassa näkyy kuvake, otsikko, arvosiru (nykyinen arvo: kyllä vihreänä, ei sinisenä, virhe ⚠) ja kulmassa **viite**. Näkymäpalikan esiintymä on himmeä, kun palikka ei juuri nyt näy käyttöpinnalla. Jos sama palikka on logiikassa useassa kohdassa, viitteen perässä on merkki **2×** (tai 3×…) jokaisessa esiintymässä (Appi-appi 59). Merkin napautus valitsee saman palikan seuraavan esiintymän ja siirtää kanvaasin siihen; toistuva napautus kiertää kaikki läpi. Kun esiintymä on valittuna, saman palikan muut esiintymät saavat katkoviivareunan. Ikkunasta on aina yksi esiintymä, joten sille ei tule merkkiä.
 
 - **Ikkuna** (JA, TAI ym.): palikat sen sisällä ovat kuin sulkeissa. Otsikon **tyyppi ▾** -napista valikko *Miten sisältö yhdistyy* vaihtaa tyypin. MIN-, MAX- ja =-ikkunassa on lukukenttä N. **–** tiivistää ikkunan pieneksi (sisältö piiloon, nuolet ikkunan reunaan), **⤢** tai kaksoisnapautus avaa. Palikka viedään ikkunaan vetämällä se ikkunan päälle ja pois vetämällä ulos.
 - **Ketju** (⛓ KETJU, punainen reuna): otsikossa kytkin päälle ja pois, **▶** käynnistää kokeeksi ja **■** pysäyttää. Ketjun tapahtumissa kohdat ovat ylä- ja alareunassa. Uusi tapahtuma kytkeytyy itsestään edelliseen, jos loppuja on tasan yksi. Tarkemmin ketjuluvussa.

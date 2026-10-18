@@ -173,7 +173,7 @@ Kokeiltavat vaiheohjeet lukujen lopussa.
 |---|---|
 | alkuarvo, perusarvo | paneeliin kirjoitettu arvo; voimassa, kun mikään ei ohjaa tai aseta |
 | arvokohta | pyöreä piste palikan reunassa: jatkuva arvo |
-| esiintymä | sama palikka logiikkakanvaasilla useassa kohdassa; kaikki ovat samaa palikkaa |
+| esiintymä | sama palikka logiikkakanvaasilla useassa kohdassa; kaikki ovat samaa palikkaa. Viitteen perässä merkki 2×, jonka napautus vie seuraavaan esiintymään (Appi-appi 59) |
 | erikoispalikka ✦ | palikka, joka poikkeaa tarkoituksella yhteisestä säännöstä; syy näkyy paneelissa |
 | joukko `#nimi` | palikoiden nimetty joukko (tagi Tunnus-kentässä); ei palikka. Eri asia kuin Rivijoukko |
 | ikkuna | logiikan laatikko, joka yhdistää sisältönsä (JA, TAI, SUMMA…); kuin sulut |

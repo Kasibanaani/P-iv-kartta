@@ -4,6 +4,11 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
 
 ## Versiot
 
+- Appi-appi 59 (18.10., jonon 24, kaista B): **Esiintymien määrä näkyviin logiikkakanvaasilla.**
+  - UI `nodeHTML`: kun samalla palikalla on logiikassa useampi esiintymä, viitteen (`vtag`) perään tulee merkki `<span class="ninst">2×</span>` (vihje *Sama palikka 2 kohdassa logiikkaa. Napauta: seuraava esiintymä.*). Määrät lasketaan kerran per piirto `renderLogicStage0`:ssa (`S.instC`, palikka → lukumäärä), ei palikkaa kohden. Ikkunoille ei merkkiä (aina yksi esiintymä).
+  - UI `nextInstance` (pointerdown `[data-ninst]`): valitsee seuraavan esiintymän logiikan järjestyksessä kiertäen ja keskittää kameran siihen (tiivistetyn ikkunan sisällä: ikkunan pilleri, kuten `gotoBlock`). Muiden esiintymien korostus `.ln.same` on nyt katkoviivareuna.
+  - Ei tallennusmuodon muutosta. Testi `selain_98_esiintymat.py` (2× molemmissa, yksin olevalla ei merkkiä, napautus siirtää ja kiertää, katkoviiva, 3× ja poisto). Manuaali: luvut 2, 4, 10 ja 11.
+  - **Kokeile koneella:** Logiikka → vedä Muisti kanvaasille, paneelista **Lisää toinen esiintymä** (tai ⌘D). Kummankin viitteen perässä näkyy *2×*. Napauta merkkiä: kanvaasi liukuu toiseen esiintymään ja se valitaan; ensimmäinen saa katkoviivareunan. Napauta uudelleen: takaisin. Poista toinen esiintymä: merkki katoaa.
 - Appi-appi 58 (18.10., jonon 1q, `kartoitukset/2026-10-18-linjakkuus-7.md` S1 ja S2, kaista B): **Kaavan yleissanat vain oikealle palikalle, kuplan teksti.**
   - Moottori `prop`: kun palikalla ei ole ominaisuutta, yleissana (`PROPS`: `käynnissä`, `rastitettuja`, `merkintöjä` → `v`, `tulos` → `t`, `rivejä`/`rivit` → `n`…) kelpaa vain, kun palikan ulostulon nimi on sama sana; muuten tavallinen virhe *tuntematon ominaisuus*. Ennen `säädin.käynnissä` = Säätimen arvo, `liike.käynnissä` = x, `muutos.tulos` = edistyminen, `alue.rivejä` = montako sisällä. Sekuntikellon `käy` sai rinnakkaisnimet `käynnissä`, `kaynnissa` (ennen `kello.käynnissä` = kulunut aika, tosi myös pysäytettynä).
   - UI `tEditBubble`: kupla *Teksti tulee nuolesta: Nimi ›*, Kaava-lähteellä *Teksti tulee kaavasta: Nimi ›*.

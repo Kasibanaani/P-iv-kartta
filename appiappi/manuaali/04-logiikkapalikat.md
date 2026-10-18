@@ -11,7 +11,7 @@ Kuvaus vastaa koodia Appi-appi 31 (commit 77461d2).
 - Yläpalkin välilehti **Logiikka** näyttää logiikan kanvaasin. **Rinnakkain** näyttää näkymän ja logiikan vierekkäin; silloin paletin yläreunassa valitaan **Näkymä** tai **Logiikka**.
 - Paletti on tietokoneella vasemmalla. Puhelimessa se avautuu alapalkin napista **＋ Palikat**, ja paneeli (asetukset) napista **Asetukset** (napissa lukee valitun palikan nimi, esim. *Asetukset: Summa*). Paneeli suljetaan puhelimessa napista **Valmis ⌄**.
 - Palikka lisätään vetämällä se paletista kanvaasille tai napauttamalla sitä paletissa. Logiikan palikat pitää pudottaa logiikan puolelle; väärälle puolelle pudotus antaa ilmoituksen *Tämä palikka kuuluu logiikan puolelle.*
-- Näkymän palikka (painike, säädin, teksti…) tuodaan logiikkaan logiikan paletin kohdasta **Palikat** (hakukenttä *Etsi nimellä…*, vedä kanvaasille) tai valitsemalla palikka näkymässä ja napauttamalla paneelin nappia **Näytä logiikassa**. Sama palikka saa olla logiikassa monessa kohdassa (paneelin nappi **Lisää toinen esiintymä**), jotta nuolet pysyvät lyhyinä.
+- Näkymän palikka (painike, säädin, teksti…) tuodaan logiikkaan logiikan paletin kohdasta **Palikat** (hakukenttä *Etsi nimellä…*, vedä kanvaasille) tai valitsemalla palikka näkymässä ja napauttamalla paneelin nappia **Näytä logiikassa**. Sama palikka saa olla logiikassa monessa kohdassa (paneelin nappi **Lisää toinen esiintymä**), jotta nuolet pysyvät lyhyinä. Esiintymät tunnistaa viitteen perässä olevasta merkistä **2×**; sen napautus vie seuraavaan esiintymään (Appi-appi 59, ks. [luku 2](02-tyoymparisto.md)).
 
 ### Arvokohdat ja tapahtumakohdat
 

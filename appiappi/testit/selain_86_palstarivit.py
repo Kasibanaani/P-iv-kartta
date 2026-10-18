@@ -37,7 +37,8 @@ async def main():
             await pg.fill('#psearch','');await pg.wait_for_timeout(100)
             # Kanvaasin viitenimi ennallaan
             if mob: await pg.evaluate("document.body.classList.remove('palopen')");await pg.wait_for_timeout(100)
-            vts=await pg.locator('#lworld .ln .vtag').all_inner_texts()
+            # Jonon 24: viitteen perässä voi olla esiintymämerkki (2×); viite itse on ensimmäinen tekstisolmu.
+            vts=await pg.evaluate("[...document.querySelectorAll('#lworld .ln .vtag')].map(e=>e.firstChild.textContent)")
             assert vts.count(I['mvt'])>=1,vts
             if not mob: await pg.screenshot(path='palstarivit_%d.png'%W)
             print(W,'errs',errs);assert not errs
