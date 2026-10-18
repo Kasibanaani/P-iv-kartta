@@ -28,6 +28,7 @@ async def main():
             pg=await ctx.new_page();errs=[];pg.on('pageerror',lambda e:errs.append(str(e)));pg.on('console',lambda m:m.type=='error' and errs.append(m.text))
             await pg.goto(U);await pg.wait_for_timeout(250)
             await pg.fill('#wname','Suora kirjoitus');await pg.click('#wcreate');await pg.wait_for_timeout(150)
+            await pg.evaluate("APP.data.cfg.viit='{'")  # jonon 12f: tämä testi tarkistaa { }-viittaustavan (oletus on @, ks. selain_94)
             I=await pg.evaluate(SETUP);await pg.wait_for_timeout(200)
             if mob:
                 # Kaksi napautusta samaan palikkaan avaa kirjoituksen, napautus muualle tallentaa.

@@ -81,7 +81,7 @@ Kiinteä arvo, jonka kirjoitat itse: luku, teksti, kyllä/ei tai päivämäärä
 - **Löytyy:** logiikan paletti → *Arvot* → **Arvo**. Toinen tapa (Appi-appi 37): kirjoita Kaavaan nimi, jota ei vielä ole (`yöuni > 7`), ja napauta ehdotusrivin **＋ Luo Arvo ”yöuni”**: Arvo syntyy kaavan viereen nimellä ja viitteellä `yöuni`, arvo tyhjä.
 - **Sisään:** ei kohtia.
 - **Ulos:** *arvo* (arvo).
-- **Asetukset (paneeli):** osio *Arvo*: tekstikenttä (esim. `3`, `Valmis`, `24.12.2026`, `kyllä`); nappi **＋ Viittaus** lisää `{Nimi}`-viittauksen toisen palikan arvoon. **Yksikkö**: luku (oletus), sekuntia, minuuttia, tuntia, pikseliä, prosenttia.
+- **Asetukset (paneeli):** osio *Arvo*: tekstikenttä (esim. `3`, `Valmis`, `24.12.2026`, `kyllä`); nappi **＋ Viittaus** lisää viittauksen (`@viite`) toisen palikan arvoon. **Yksikkö**: luku (oletus), sekuntia, minuuttia, tuntia, pikseliä, prosenttia.
 - **Ominaisuudet:** `arvo` (luettava).
 - **Kaavassa:** `viite` antaa arvon.
 - **Aika ja tila:** ei käyttötietoa.

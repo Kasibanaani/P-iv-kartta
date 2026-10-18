@@ -24,6 +24,7 @@ async def main():
         for W,dark in ((1440,False),(1280,True)):
             b,pg,errs=await avaa(p,W,900,dark)
             await pg.fill('#wname','Viitteet');await pg.click('#wcreate');await pg.wait_for_timeout(150)
+            await pg.evaluate("APP.data.cfg.viit='{'")  # jonon 12f: tämä testi tarkistaa { }-viittaustavan (oletus on @, ks. selain_94)
             I=await pg.evaluate(SETUP);await pg.wait_for_timeout(150)
             await pg.click('#tabs [data-t="nakyma"]');await pg.wait_for_timeout(150)
             # 1. Tekstin ominaisuusviite näyttää saman arvon kuin kaava

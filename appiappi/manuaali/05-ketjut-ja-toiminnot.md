@@ -37,7 +37,7 @@ Toiminto tekee yhden muutoksen kerran, kun siihen tulee tapahtuma. Sen jälkeen 
   - Ohje paneelin alareunassa: ”Toiminto tehdään, kun siihen tulee tapahtuma (esim. painettu, NIIN, silloin) tai kun siihen tuleva arvo alkaa päteä.”
   - Ketjun ulkopuolella lisäksi osio **Sitten** ja valikko **＋ Lisää toiminto…** seuraavalle toiminnolle.
 - **Arvo-kenttä (Uusi arvo, Määrä):** kaksi osaa vierekkäin: tekstikenttä *luku, teksti tai pvm* ja valikko *tai palikka…*.
-  - Kenttään kelpaa luku (`3`, `1,5`, `-2`), teksti, `kyllä` / `ei`, päivämäärä (`24.12.2026`, `tänään`, `huomenna`, `eilen`) ja teksti, jossa on viittauksia `{Nimi}`.
+  - Kenttään kelpaa luku (`3`, `1,5`, `-2`), teksti, `kyllä` / `ei`, päivämäärä (`24.12.2026`, `tänään`, `huomenna`, `eilen`) ja teksti, jossa on viittauksia (`@uni`, ks. [Tekstiin upotetut viitteet](06-kaavat.md#tekstiin-upotetut-viitteet)).
   - Valikosta valittu palikka antaa arvonsa toimintohetkellä.
   - **Kenttä ei ole kaava.** Laskettu arvo (esim. `pisteet * 2`) tehdään Kaava-palikalla, jonka nuoli tulee Toiminnon kohtaan *arvo*. Nopein tapa on kentän alla oleva nappi **ƒ Arvo kaavasta** (Appi-appi 39): se tekee Kaavan, vetää nuolen kohtaan *arvo* ja avaa kaavan kirjoitettavaksi. Silloin paneelissa lukee ”Arvo tulee nuolesta.”, eikä nappia enää näy.
   - Poikkeus: **Lisää rivi** -toiminnon sarakekentät ovat oikeita kaavoja (ks. taulukko).
@@ -59,9 +59,9 @@ Alla *tyhjä* tarkoittaa, että kenttä on tyhjä eikä kohtaan *arvo* tule nuol
 | **Tyhjennä** | Palauttaa kohteen alkutilaan (poistaa käyttötiedon). | Asetettavat palikat, Lista, Aikajana; Tietotaulukko. | Taulukolle **Sarake**: tyhjä valinta = *kaikki rivit (tyhjennä taulukko)*. | – |
 | **Siirry** | Vie käyttönäkymän toiseen kohtaan tai näkymään. | Sijainti, Alue tai mikä tahansa näkymän palikka. Kohteen voi jättää valitsematta. | **Kohde**; ilman kohdetta **Näkymä** (*tämä näkymä* tai muu) ja **X**, **Y** (kohta tulee näytön vasempaan yläkulmaan). **Siirtymä**: *Vierien* (noin puoli sekuntia) / *Heti*. | Ilman kohdetta X ja Y ovat 0. |
 | **Palaa takaisin** | Palaa näkymään ja kohtaan, josta viimeksi siirryttiin Siirry-toiminnolla. | Ei kohdetta. | **Siirtymä**. | Jos aiempaa siirtoa ei ole, mitään ei tapahdu. |
-| **Kirjaa** | Aikajanalle: merkintä aikaleiman kanssa. Tietotaulukkoon: uusi rivi, jonka aika on kirjaushetki ([kirjaushistoria](07-tieto.md#kirjaushistoria)). | Aikajana (omat merkinnät); Tietotaulukko, jossa on ajankohta-sarake. | Aikajanalle **Teksti** (`{Nimi}` toimii). Taulukkoon kenttä jokaiselle sarakkeelle kuten Lisää rivi (ei Id:tä); aika-kentän ohje *(tyhjä = nyt)*. Ilman aika-saraketta nappi **Tee taulukosta kirjaushistoria**. | Aikajana: tyhjä teksti → arvo nuolesta. Taulukko ilman ajankohta-saraketta: virhe *ei ole aika-saraketta*, riviä ei lisätä. Sitten-tapahtuman rivi = uusi kirjaus. |
+| **Kirjaa** | Aikajanalle: merkintä aikaleiman kanssa. Tietotaulukkoon: uusi rivi, jonka aika on kirjaushetki ([kirjaushistoria](07-tieto.md#kirjaushistoria)). | Aikajana (omat merkinnät); Tietotaulukko, jossa on ajankohta-sarake. | Aikajanalle **Teksti** (`@viite` toimii). Taulukkoon kenttä jokaiselle sarakkeelle kuten Lisää rivi (ei Id:tä); aika-kentän ohje *(tyhjä = nyt)*. Ilman aika-saraketta nappi **Tee taulukosta kirjaushistoria**. | Aikajana: tyhjä teksti → arvo nuolesta. Taulukko ilman ajankohta-saraketta: virhe *ei ole aika-saraketta*, riviä ei lisätä. Sitten-tapahtuman rivi = uusi kirjaus. |
 | **Lisää riviksi listaan** | Lisää Listaan uuden rivin. | Lista. | **Teksti**. | Tyhjä teksti: arvo nuolesta; muuten ”Uusi rivi”. Jos arvo on päivämäärä, se tulee rivin päivämääräksi. |
-| **Näytä ilmoitus** | Näyttää hetken ilmoituksen näytön yläreunassa. | Ei kohdetta. | **Ilmoitus** (`{Nimi}` toimii). | Tyhjä teksti: näytetään arvo nuolesta (ilman sitä ”–”, ei tarkistettu selaimessa). |
+| **Näytä ilmoitus** | Näyttää hetken ilmoituksen näytön yläreunassa. | Ei kohdetta. | **Ilmoitus** (`@viite` toimii). | Tyhjä teksti: näytetään arvo nuolesta (ilman sitä ”–”, ei tarkistettu selaimessa). |
 | **Käynnistä ketju** | Käynnistää ketjun tai [janan](#jana-jana) alusta. | Ketju, Jana. | **Odota, että ketju on valmis** (rasti, toimii vain ketjun sisällä). | – |
 | **Pysäytä ketju** | Pysäyttää ketjun kaikki haarat tai janan. Pysäytetty ketju ei anna valmis-tapahtumaa. | Ketju, Jana. | – | – |
 | **Arvo uudelleen** | Arpoo Satunnaisluvulle uuden luvun. Satunnaisluvun *arvottu*-tapahtuma lähtee heti. | Satunnaisluku. | – | – |
@@ -269,7 +269,7 @@ Näkyviä muutoksia käyttönäkymään. Kaikilla sisään *alkaa*, ulos *sitten
 
 | Efekti | Kentät (oletus) | Huomio |
 |---|---|---|
-| **Teksti ilmestyy** | **Palikka**, **Teksti** (tyhjä = palikan nykyinen teksti, `{viite}` toimii), **Tapa**: Kirjain kerrallaan / Sana kerrallaan / Häivyttäen; kesto 1 s. | Toimii Tekstissä, Muodossa, Ilmoituksessa ja Painikkeessa. Teksti jää palikkaan, kunnes Palauta perusarvo poistaa sen. |
+| **Teksti ilmestyy** | **Palikka**, **Teksti** (tyhjä = palikan nykyinen teksti, `@viite` toimii), **Tapa**: Kirjain kerrallaan / Sana kerrallaan / Häivyttäen; kesto 1 s. | Toimii Tekstissä, Muodossa, Ilmoituksessa ja Painikkeessa. Teksti jää palikkaan, kunnes Palauta perusarvo poistaa sen. |
 | **Kuva vaihtuu** | **Kuva-palikka**, **Uusi kuva** (SVG-koodi tai https-osoite, tai **Valitse kuvatiedosto…**; tyhjä = oma kuva), **Siirtymä**: Häivyttäen / Liukuen / Heti; kesto 0,5 s. | Uusi kuva jää voimaan, kunnes Palauta perusarvo. |
 | **Animaatio** | **Palikka**, **Liike**: Pomppu, Ravistus, Sykintä, Heilahdus, Pyörähdys, Välähdys, Ilmestyy; kesto 0,6 s. | Palikka palaa samaan kohtaan: paikka ei muutu. |
 | **Näkymänvaihto** | **Näkymä** tai **tai sijainti** (sijainti voittaa), **Siirtymä**: Liukuu vasemmalle / oikealle / ylös / alas, Häivyttäen, Heti; kesto 0,4 s. | Kuten Siirry, mutta siirtymäefektillä. Palaa takaisin toimii. |

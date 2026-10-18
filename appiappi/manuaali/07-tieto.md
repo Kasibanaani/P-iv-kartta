@@ -370,7 +370,7 @@ Valittu rivi -tilassa toiminto antaa virheen, jos valittua riviä ei ole. Kortin
 ## Lista ja Aikajana suhteessa taulukkoon
 Lista (Näkymä → Näyttö → **Lista**) ja Aikajana (**Aikajana**) ovat vanhempia, yksinkertaisia näyttöjä, eivät Tietotaulukoita.
 
-- **Lisää riviksi listaan** lisää Listaan tekstirivin, **Kirjaa** lisää Aikajanalle merkinnän aikaleimalla. Molemmissa kenttä **Teksti**, jossa `{viite}` toimii.
+- **Lisää riviksi listaan** lisää Listaan tekstirivin, **Kirjaa** lisää Aikajanalle merkinnän aikaleimalla. Molemmissa kenttä **Teksti**, jossa `@viite` toimii.
 - Kaavassa Listalla esim. `lista.rivi2`, `lista.rivi2.rastitettu`, `lista.rivi2.pvm`, Aikajanalla `aikajana.viimeisin.teksti` ja `.viimeisin.aika` (viite palikan mukaan).
 - Listan ja Aikajanan rivit eivät käy Rivijoukon, Toistimen, ikkunan Riveille tai Toista riveille -palikan **rivit**-kohtaan (virhe: *tuo nuoli Tietotaulukosta tai Rivijoukosta*). Sarakkeita, koosteita tai riviviitteitä niillä ei ole.
 - Kun tarvitset sarakkeita, laskentaa tai kortteja, käytä Tietotaulukkoa: Kirjaa kirjoittaa myös taulukkoon ([Kirjaushistoria](#kirjaushistoria)), ja vanhan aikajanan voi muuntaa napista **Muunna historiaksi**. Aikajana voi näyttää historiataulukkoa (Lähde).

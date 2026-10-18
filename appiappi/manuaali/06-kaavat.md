@@ -128,7 +128,7 @@ Tulos ohjaa kohdetta niin kauan kuin kaava pätee.
 
 Kun näkymän palikkaa ei vielä ole, sen voi tehdä logiikasta yhdellä napautuksella. Toimii kaikille logiikkapalikoille, joilla on arvo (Kaava, Kaavan tulos, Arvo, Muisti, Lasku, Vertailu, Ikkuna, Satunnaisluku, Sekuntikello, Ketju …), sekä Toiminnolle (Appi-appi 53), ei näkymäpalikoiden logiikkaesiintymille.
 
-- Paneelin osio **Näkymään** → **▢ Tee näkymään**: tekee **Laatikon** (Muoto, laji laatikko, 200 × 60), jonka teksti on `{viite}`, eli palikka näyttää tämän arvon. Nimi on lähteen nimi + ” · näyttö”, viite lähteen viite + `_n` (numero perään, jos varattu). Molemmat voi vaihtaa kuten aina.
+- Paneelin osio **Näkymään** → **▢ Tee näkymään**: tekee **Laatikon** (Muoto, laji laatikko, 200 × 60), jonka teksti on viite (`@viite`), eli palikka näyttää tämän arvon. Nimi on lähteen nimi + ” · näyttö”, viite lähteen viite + `_n` (numero perään, jos varattu). Molemmat voi vaihtaa kuten aina.
 - **Minne:** näkymään, joka oli viimeksi auki Näkymä-välilehdellä (paneelin ohje kertoo sen nimen), aktiiviseen kerrokseen, vasempaan reunaan alimman palikan alle. Laitenäkymässä vasen reuna on 20 px ja alin palikka lasketaan ruudun leveydeltä; jos ruutu on täynnä, palikka tulee ruudun alle.
 - **Logiikkaan jäädään.** Lähdepalikan viereen välähtää kupla *▢ Näkymään: Nimi · näyttö ›*; sen napautus vie palikan kohdalle Näkymä-välilehdelle. Rinnakkain-tilassa näkymäpuoli siirtyy uuden palikan kohdalle.
 - **▾** napin vieressä: *Laatikko tekstillä*, *Pelkkä teksti* (Teksti-palikka), *Monitori* (vain kun arvo on nyt luku; nuoli tästä Monitorin kohtaan *arvo*, Monitori tulee myös logiikkaan) ja *Ilmoitus, joka näkyy kun tämä pätee* (vain kun arvo on nyt kyllä/ei; Ilmoituksen Näkyvyys = *Näkyy kun* tämä, teksti = lähteen nimi).
@@ -156,6 +156,7 @@ Osio **Kun tulos alkaa päteä (kerran)** ja valikko **＋ Lisää toiminto…**
 - **Kirjainkoko:** viitteet, avainsanat ja funktiot eivät välitä kirjainkoosta (`Uni`, `JOS(`, `Tänään` käyvät).
 - **Alun `=`** ohitetaan (taulukkolaskennan tapa): `= 10 / 4` antaa 2,5.
 - **Sana ilman lainausmerkkejä on aina viite** (tai avainsana). `kissa` ilman lainausmerkkejä → `⚠ puuttuu: kissa`. Teksti kirjoitetaan lainausmerkkeihin: `"kissa"`.
+- **Etumerkki käy (Appi-appi 54):** tekstistä tuttu `@uni` (tai `§uni`) kelpaa kaavassa ja tarkoittaa samaa kuin `uni`; kaava näytetään paljain viittein (`@uni + 3` → `uni + 3`).
 - **Nimi aaltosulkeissa:** `{Uni 2}` löytää palikan nimellä tai viitteellä, joten välilyönnillinen nimi käy aaltosulkeissa. Tallennettaessa se muuttuu viitteeksi (`uni2`).
 - **Ääkköset ilman pisteitä** käyvät avainsanoissa: `tanaan`, `kylla`, `tyhja`, `sisaltaa`, `nakyma`, ja ominaisuuksissa (`nakyy`, `vari`).
 
@@ -658,15 +659,26 @@ Toiminto-palikan paneelissa, kun **Kohde** on palikka, jolla on ohjattavia omina
 
 ## Tekstiin upotetut viitteet
 
-Näkymäpalikoiden teksteihin voi upottaa toisen palikan arvon aaltosulkeilla: `Unta {uni} h` näyttää *Unta 6 h*.
+Näkymäpalikoiden teksteihin voi upottaa toisen palikan arvon: `Unta @uni h` näyttää *Unta 6 h*.
+
+**Viittaustapa (Appi-appi 54):** **⚙︎ Asetukset** → Muokkaus → *Viittaus tekstissä*: **@** (oletus), **§** tai **{ }**. Valinta koskee tätä selainta ja vain sitä, miltä teksti näyttää ja miten se kirjoitetaan. Projekti ei muutu (teksti tallentuu tunnisteilla), joten vaihto näyttää kaikki vanhat tekstit heti uudella tavalla. `#` ei ole viittaustapa: se on varattu joukoille. Alla esimerkit `@`:lla; `§`-tavalla sama `§`:llä.
 
 **Missä toimii:** kaikkien näkymäpalikoiden tekstikentät (Painikkeen teksti, Teksti, Otsikko, Ilmoituksen teksti …), Arvo-palikan arvo, Hakutaulukon tulokset ja Muuten-kenttä, Monta haaraa -rivit, toimintojen *Kirjaa* (aikajanalle), *Lisää riviksi listaan* ja *Näytä ilmoitus* tekstit sekä Teksti ilmestyy -efekti.
 
 **Miten kirjoitetaan:**
 
-- `{Nimi}`: palikan nimi, myös välilyönnein (`{Uni 2}`).
-- `{viite}`: palikan viite (`{uni2}`).
-- `{viite.ominaisuus}`: ominaisuus kuten kaavassa (`{otsikko.näkyy}`, `{lista.rivejä}`, `{ostokset.vika.nimi}`).
+- `@viite`: palikan viite (`@uni2`). Kirjainkoko ei haittaa (`@Uni` virkkeen alussa).
+- `@viite.ominaisuus`: ominaisuus kuten kaavassa (`@otsikko.näkyy`, `@lista.rivejä`, `@ostokset.vika.nimi`).
+- `{viite}` ja `{Nimi}` (myös välilyönnein, `{Uni 2}`) toimivat aina, valitusta tavasta riippumatta. Käppyröillä viitteen voi liimata sanaan: `{uni}a`.
+
+**Etumerkkiviitteen säännöt:**
+
+- **Alku:** `@` aloittaa viitteen vain rivin alussa tai merkin jälkeen, joka ei ole kirjain, numero tai `_`. Siksi `emil@posti.fi` pysyy tekstinä.
+- **Loppu:** viite päättyy ensimmäiseen merkkiin, joka ei kuulu viitteeseen: välilyönti, rivinvaihto, pilkku, kaksoispiste, `!`, `?`, sulut, lainausmerkit, viiva. Taivutus kaksoispisteellä: `@uni:n`.
+- **Piste** jatkaa viitettä vain, jos perässä on palikan tunnettu ominaisuus: `@pelaaja.x` on ominaisuus, `Sait @pisteet.` on viite ja piste. Taulukon, rivin, rivijoukon, tapahtuman, listan ja aikajanan polut jatkuvat (`@kauppa.hinta.summa`).
+- **Tuntematon sana** (`@kesä`, eikä palikkaa jonka viite on `kesä`) jää tavalliseksi tekstiksi eikä kytkeydy myöhemmin itsestään. Ehdotusrivillä lukee *@kesä: ei palikkaa* ja nappi **＋ Luo Arvo ”kesä”**, joka tekee Arvo-palikan ja kytkee tekstin siihen. Myöhemmin kytkeytyvä viite kirjoitetaan `{kesä}`.
+- **`@@`** on merkki tekstinä: `@@uni` näkyy käytössä `@uni`. Tarvitaan vain, kun perässä on olemassa oleva viite (`@@kesä` näkyy sellaisenaan).
+- **Näyttö muokatessa:** aina viite (`@unen_maara`), ei nimeä, koska nimessä voi olla välilyöntejä. Jos viitteen perässä on kirjain (tallennettu `{uni}a`), se näytetään käppyröin.
 
 **Napilla:**
 
@@ -674,18 +686,18 @@ Näkymäpalikoiden teksteihin voi upottaa toisen palikan arvon aaltosulkeilla: `
 2. Napauta kentän vieressä **＋ Viittaus**.
 3. Valikko *Lisää arvo palikasta*: valitse palikka.
 4. Jos palikalla on ominaisuuksia, valikko *Nimi: mitä näytetään?*: **Arvo** tai **.ominaisuus**.
-5. Appi lisää `{Nimi}` tai `{viite.ominaisuus}` kursorin kohtaan.
+5. Appi lisää `@viite` tai `@viite.ominaisuus` kursorin kohtaan (`{ }`-tavalla `{Nimi}`; käppyröin myös, jos kursorin perässä on kirjain).
 
-**Ehdotuksella (Appi-appi 37):** kirjoita palikan viitteen tai nimen alku (vähintään kaksi merkkiä) ja napauta kentän alle tulevaa ehdotusta `{viite}`. Ks. [Ehdotusrivi teksteissä](#ehdotusrivi-teksteissä-ja-toimintojen-kentissä-appi-appi-37).
+**Ehdotuksella (Appi-appi 37):** kirjoita palikan viitteen tai nimen alku (vähintään kaksi merkkiä) ja napauta kentän alle tulevaa ehdotusta `@viite`. Ks. [Ehdotusrivi teksteissä](#ehdotusrivi-teksteissä-ja-toimintojen-kentissä-appi-appi-37).
 
 **Säännöt:**
 
-- Teksti tallentuu tunnisteilla, joten nimen ja viitteen vaihto ei riko sitä. Muokatessa kentässä näkyy `{Nimi}` (tai `{viite}`, jos nimi on jonkun toisen palikan viite).
-- Tuntematon nimi jää tekstiin sellaisenaan (`{tuntematon}`), ja paneelissa lukee `⚠ Nimeä {tuntematon} ei löydy.` Kun samanniminen palikka tehdään, viittaus kytkeytyy.
+- Teksti tallentuu tunnisteilla, joten nimen ja viitteen vaihto ei riko sitä. Muokatessa kentässä näkyy `@viite` (`{ }`-tavalla `{Nimi}`, tai `{viite}`, jos nimi on jonkun toisen palikan viite).
+- Tuntematon nimi käppyröissä jää tekstiin sellaisenaan (`{tuntematon}`), ja paneelissa lukee `⚠ Nimeä {tuntematon} ei löydy.` Kun samanniminen palikka tehdään, viittaus kytkeytyy.
 - **Tekstissä toimivat vain palikat, eivät kaavan avainsanat:** `{tänään}` tai `{nyt}` ei näytä päivää. Tee Tänään-palikka (esim. nimi *Päivä*) ja kirjoita `Tänään on {päivä}`.
-- **Laskuja ei voi kirjoittaa aaltosulkeisiin:** `{uni * 2}` ei laske. Tee Kaava ja viittaa siihen, tai tuo koko teksti kaavasta (**ƒ Teksti kaavasta**, esim. `"Unta " + uni + " h"`).
+- **Laskuja ei voi kirjoittaa viitteeseen:** `{uni * 2}` ei laske, ja `@uni * 2` näyttää arvon ja tekstin ` * 2`. Tee Kaava ja viittaa siihen, tai tuo koko teksti kaavasta (**ƒ Teksti kaavasta**, esim. `"Unta " + uni + " h"`).
 - Muotoilu: luku pilkulla ja enintään 2 desimaalilla, kyllä/ei sanoina, päivämäärä asetuksen muodossa, tyhjä `–`, virhe `⚠ …`.
-- Poistettu kohde näkyy muokatessa `{⚠uni}` ja käytössä virheenä.
+- Poistettu kohde näkyy muokatessa `@⚠uni` (`{ }`-tavalla `{⚠uni}`) ja käytössä virheenä.
 
 ---
 
@@ -706,9 +718,9 @@ Mitä ehdotetaan:
 
 ### Ehdotusrivi teksteissä ja toimintojen kentissä (Appi-appi 37)
 
-Kun kirjoitat tekstikenttään sanaa, joka alkaa palikan viitteellä tai nimellä, kentän alle tulee ehdotus `{viite}` (pienellä palikan nimi). Napautus muuttaa kirjoitetun sanan viittaukseksi: `Unta un` → `Unta {uni}`. Tekstiä ei muuteta itsestään: ilman napautusta sana jää tavalliseksi tekstiksi.
+Kun kirjoitat tekstikenttään sanaa, joka alkaa palikan viitteellä tai nimellä, kentän alle tulee ehdotus `@viite` (pienellä palikan nimi). Napautus muuttaa kirjoitetun sanan viittaukseksi: `Unta un` → `Unta @uni`. Tekstiä ei muuteta itsestään: ilman napautusta sana jää tavalliseksi tekstiksi.
 
-- Ehdotus tulee, kun sanassa on vähintään kaksi merkkiä ja kursori on sanan lopussa, tai heti aaltosulun jälkeen (`{u` → `{uni}`).
+- Ehdotus tulee, kun sanassa on vähintään kaksi merkkiä ja kursori on sanan lopussa, tai heti `@`:n jälkeen (`@u` → `@uni`, pelkkä `@` näyttää kaikki) tai aaltosulun jälkeen (`{u` → `{uni}`). Tuntemattomalle `@sanalle` tulee **＋ Luo Arvo** (ks. säännöt yllä).
 - Enintään 8 palikkaa, joilla on arvo; ensin viitteen alulla osuvat. Palikka itse ja ryhmät jäävät pois.
 - **Missä:** näkymäpalikoiden tekstit (Teksti, Painikkeen teksti, Otsikko …), Arvo-palikan arvo, Teksti ilmestyy -efektin teksti, toimintojen tekstit (*Kirjaa aikajanalle*, *Lisää riviksi listaan*, *Näytä ilmoitus*) ja toiminnon *Uusi arvo* tai *Määrä*, Hakutaulukon rivit ja Muuten-kenttä, Monta haaraa -rivit.
 - **Lisää rivi -toiminnon sarakekentät** ovat kaavoja: niissä ehdotukset ja **＋ Luo Arvo** toimivat kuten Kaavassa (viite ilman aaltosulkeita).

@@ -70,7 +70,7 @@ Avaa **projektin nimi ▾** yläpalkin vasemmasta reunasta. Ikkunassa *Projektit
 | Projektin käyttönäkymän ilme | samat valinnat, mutta vain tälle projektille; kulkee projektin mukana. Kumoa peruu. |
 | Projektin animointi | *Ilmestyy*, *Katoaa*, *Kesto (s)*, *Pehmeys*, *Arvo vaihtuu*, *Paikka vaihtuu*: tämän projektin näkymäpalikoiden oletus, kun palikalle ei ole valittu omaa (luku [Näkymäpalikat](03-nakymapalikat.md), Animointi-osio). Tyhjä = töks. Kulkee projektin mukana. |
 | Päivämäärät | *Muoto*: pp.kk.vvvv tai pp.kk.vv; *Päivän raja (tämä projekti)*: keskiyö (oletus) tai klo 1.00–6.00. Raja koskee kirjaushistoriaa ([Tieto](07-tieto.md#kirjaushistoria)). |
-| Muokkaus | *Kohdista ruudukkoon*: Kyllä / Ei (10 px:n ruudukko raahattaessa). *Näytä viitteet muokatessa*: Kyllä (oletus) / Ei, ks. [viitelappu](03-nakymapalikat.md#teksti-ja-upotetut-viitteet). Koskee tätä selainta, ei kulje projektin mukana. |
+| Muokkaus | *Kohdista ruudukkoon*: Kyllä / Ei (10 px:n ruudukko raahattaessa). *Viittaus tekstissä* (Appi-appi 54): `@` (oletus) / `§` / `{ }`, millä merkillä toisen palikan arvo kirjoitetaan tekstiin, ks. [Tekstiin upotetut viitteet](06-kaavat.md#tekstiin-upotetut-viitteet). *Näytä viitteet muokatessa*: Kyllä (oletus) / Ei, ks. [viitelappu](03-nakymapalikat.md#teksti-ja-upotetut-viitteet). Koskee tätä selainta, ei kulje projektin mukana. |
 | Muisti- ja viestilaput | lappujen määrät, lista, *Hae vastaukset*, *Kopioi laput tekstinä* (ks. Laput) |
 | GitHub-tallennus | Repo, Avain, automaattinen tallennus, *Tallenna nyt*, *Hae GitHubista*, *Hae uudet projektit*, *Testaa yhteys* (luku [Tallennus](09-tallennus.md)) |
 
@@ -367,7 +367,7 @@ Muutokset paneelissa tulevat voimaan heti kirjoittaessa. Yhden kentän muokkaus 
 ### Nimi ja viite
 
 - **Nimi** kertoo, mikä palikka on. Se ei näy appin käyttäjälle, ellei sitä laiteta tekstiin. Nimet ovat projektissa yksilöllisiä: jos nimi on jo käytössä, Appi-appi lisää perään numeron.
-- **Viite** on lyhyt nimi kaavoihin ja teksteihin: kaavassa esim. `uni > 7`, tekstissä `{uni}`. Viite näkyy logiikkapalikan kulmassa ja näkymäpalikan nimilapussa muokatessa.
+- **Viite** on lyhyt nimi kaavoihin ja teksteihin: kaavassa esim. `uni > 7`, tekstissä `@uni` (tai valitulla viittaustavalla `§uni` / `{uni}`). Viite näkyy logiikkapalikan kulmassa ja näkymäpalikan nimilapussa muokatessa.
 - Viite **seuraa nimeä**, kunnes kirjoitat oman. Oma viite: kirjoita kenttään *Viite*. Tyhjä kenttä palauttaa viitteen nimestä.
 - Viitteen säännöt: pienet kirjaimet (myös å, ä, ö), numerot ja `_`, ei ala numerolla, ei varattu sana (esim. `nyt`, `ruutu`, `tänään`, `kyllä`, `ei`, `tyhjä`, `näkyy`) eikä toisen palikan viite. Virheestä tulee punainen teksti kentän alle, eikä viite muutu.
 - **Nimen tai viitteen vaihto ei riko kaavoja eikä tekstejä**: ne tallentuvat sisäisesti palikan tunnisteella ja näyttävät aina nykyisen viitteen.

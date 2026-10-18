@@ -1,5 +1,7 @@
 # F39 Viittaustapa: etumerkki käppyräsulkujen tilalle
 
+> **Toteutettu Appi-appi 54 (18.10.2026, jonon 12f).** Toteutuksen tarkennukset: näytössä viite liimautuu sanaan tai epäselvään pistepolkuun käppyröin (`{uni}a`), jotta tallennus ei muutu; ryhmän viite näkyy aina käppyröin. Manuaali luku 6, *Tekstiin upotetut viitteet*.
+
 > **18.10.2026: Emil hyväksyi muutoksen** suunnitelmasta [25](25-joukot-tageina-ja-kaava.md): viitteen oletusmerkki on **`@`** (vaihtoehdot `§`, `{ }`), koska `#` tarkoittaa joukkoa. Alla `#` luetaan `@`:ksi (myös `##` → `@@`). Jonon 12f.
 
 18.10.2026 (Suomen aikaa). **Emilin toive** (viestit 18.10. klo 2.17 ja 2.19): tekstiin viitataan nyt `{viite}`-muodossa, ja käppyräsulut ovat ikäviä kirjoittaa (Macin suomalaisessa näppäimistössä `{` = Shift+Alt+8, ja merkki tarvitaan molemmin puolin). Toive: yksi helposti kirjoitettava etumerkki aloittaa viitteen, ja viite päättyy itsestään (välilyönti, rivinvaihto). Viittaustapa valittavaksi asetuksista, ja vanhat viitteet muuttuvat uudelle tavalle itsestään. Kysymys: haittaako etumerkki kaavassa, kun viitteen perässä jatkuu kaava?

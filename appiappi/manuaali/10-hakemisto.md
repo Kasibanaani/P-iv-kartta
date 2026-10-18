@@ -9,14 +9,15 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | aloittaa alusta | uusi projekti ja ensimmäinen appi | [Aloitus](01-aloitus.md#ensimmäinen-appi-vesilasit) |
 | lisätä palikan | vedä paletista tai napauta | [Työympäristö: Paletti](02-tyoymparisto.md#palikan-lisääminen) |
 | kytkeä palikat yhteen | nuoli logiikassa lähtökohdasta tulokohtaan | [Nuolen vetäminen](02-tyoymparisto.md#nuolen-vetäminen) |
-| näyttää arvon tekstissä | `{viite}` tekstikentässä | [Teksti ja upotetut viitteet](03-nakymapalikat.md#teksti-ja-upotetut-viitteet) |
+| näyttää arvon tekstissä | `@viite` (tai `{viite}`) tekstikentässä | [Teksti ja upotetut viitteet](03-nakymapalikat.md#teksti-ja-upotetut-viitteet) |
+| vaihtaa viittausmerkin (`@`, `§`, `{ }`) | ⚙︎ Asetukset → Muokkaus → Viittaus tekstissä | [Tekstiin upotetut viitteet](06-kaavat.md#tekstiin-upotetut-viitteet) |
 | nähdä muokatessa, mistä palikan teksti tulee | viitelappu palikan yläpuolella (⚙︎ Asetukset → Näytä viitteet muokatessa) | [Teksti ja upotetut viitteet](03-nakymapalikat.md#teksti-ja-upotetut-viitteet) |
 | kirjoittaa tekstin suoraan näkymän palikkaan | kaksoisnapsauta palikkaa tai valitse ja paina Enter | [Teksti ja upotetut viitteet](03-nakymapalikat.md#teksti-ja-upotetut-viitteet) |
 | tehdä logiikan tuloksesta näkymään palikan yhdellä napautuksella | paneelin ▢ Tee näkymään tai N | [Tee näkymään](06-kaavat.md#tee-näkymään) |
 | tehdä Toiminnolle painike, Ketjulle käynnistysnappi, Muistille syöttökenttä, taulukolle Toistin tai Sekuntikellolle napit | paneelin Tee näkymään ▾ | [Tee näkymään](06-kaavat.md#tee-näkymään) |
 | laskea jotain | Kaava tai Lasku | [Kaavat](06-kaavat.md#kaavan-syntaksi), [Lasku](04-logiikkapalikat.md#lasku-lasku) |
 | tehdä arvon nimestä, jonka kirjoitin kaavaan | ehdotusrivin ＋ Luo Arvo ”nimi” | [Ehdotusrivi](06-kaavat.md#ehdotusrivi) |
-| muuttaa tekstin sanan viittaukseksi | kirjoita alku ja napauta ehdotusta `{viite}` | [Ehdotusrivi teksteissä](06-kaavat.md#ehdotusrivi-teksteissä-ja-toimintojen-kentissä-appi-appi-35) |
+| muuttaa tekstin sanan viittaukseksi | kirjoita `@` tai alku ja napauta ehdotusta `@viite` | [Ehdotusrivi teksteissä](06-kaavat.md#ehdotusrivi-teksteissä-ja-toimintojen-kentissä-appi-appi-35) |
 | antaa laskulle nimen | `nimi = lauseke` ja ＋ Luo kaavan tulos | [Kaavan tulos](04-logiikkapalikat.md#kaavan-tulos--tulos) |
 | valita kahdesta arvosta ehdolla | `jos(ehto; a; b)` tai VALITSE | [Funktiot jos, ja, tai](06-kaavat.md#funktiot-jos-ja-tai) |
 | näyttää tai piilottaa palikan ehdolla | Näkyvyys-osio tai nuoli kohtaan *näkyy kun* | [Näkyvyys-osio](03-nakymapalikat.md#näkyvyys-osio) |
