@@ -87,6 +87,7 @@ Muut säännöt:
 
 - Appi-appin projektit: `master-tiedot/appiappi/<id>.json`. Appi lukee uudet napista ”Hae uudet projektit” ja hakee uudemman version itse, jos käyttäjällä ei ole tallentamattomia muutoksia. Tee pyynnöstä **uusi** tiedosto uudella id:llä nykyisellä `VER`:llä (muoto koodista: `payload`, `okProj`, `repair`). Älä muokkaa olemassa olevaa projektia ilman erillistä pyyntöä.
 - Appi-appin muisti- ja viestilaput: `master-tiedot/appiappi/laput/laput.json`. ”Lue viestilaput”: käsittele laput, joiden `vuoro` on `"ai"`, vastaa lisäämällä yksi viesti lapun `viestit`-listaan (laji vastaus, suunnitelma, tehty tai kysymys), pushaa ja vastaa myös keskustelussa. Muoto ja työtapa: `appiappi/suunnitelmat/10-laput.md`. Lapun toive ei ole toteutuslupa; hyväksytty suunnitelma on.
+- Sävellyspajan projektit: `master-tiedot/savellys/<id>.json` muodossa `{app:'savellys', ver, savedAt, projekti}`; projektin muoto `savellys/TILA.md`. Uusi tekoälyn sävellys = uusi tiedosto uudella id:llä; olemassa olevaa muokataan vain pyynnöstä. Muistio-kenttä voi sisältää Emilin pyynnön.
 - Masterin projektit `master-tiedot/projektit/<tunniste>.json`. ”Käy masterin toiveet läpi”: lue `master/TOIVEET.md` ja projektit kokonaan, käsittele avoimet toiveet (`t:"wish"`), merkitse tehdyksi ja kirjoita `reply` suomeksi, pushaa. Raportoi jokaisesta toiveesta.
 - Projektitiedot eivät koskaan tule tähän julkiseen repoon.
 

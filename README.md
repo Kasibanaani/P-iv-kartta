@@ -18,6 +18,7 @@ Henkilökohtaiseen käyttöön tehtyjä selainappeja. Jokainen appi on yksi HTML
 | `pajakone/` | Vanha osoite: ohjaa Appi-appiin | https://kasibanaani.github.io/P-iv-kartta/pajakone/ |
 | `rytmikone/` | Rytmikone (ääni → MIDI-rumpunuotit, esikuuntelu ja rumpuäänet; vaiheet 1–2, suunnitelma `rytmikone/SUUNNITELMA.md`) | https://kasibanaani.github.io/P-iv-kartta/rytmikone/ |
 | `rumpusyntikka/` | Rumpusyntikka (tietokoneelle, DFAMin mallinen 2 oskillaattorin rumpusyntikka, 8 askeleen sekvensseri ja patch bay; tila `rumpusyntikka/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/rumpusyntikka/ |
+| `savellys/` | Sävellyspaja (tietokoneelle; MIDI-raidat, piano roll, yksinkertaiset syntikat, MIDI-vienti ja -tuonti, projektit GitHubiin tekoälyn luettaviksi; tila `savellys/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/savellys/ |
 | `animaatio/` | Animappi (2D-nukketeatteri, iPad ja kynä, toimii myös tietokoneella) | https://kasibanaani.github.io/P-iv-kartta/animaatio/ |
 
 Uusi appi tulee omaan kansioonsa nimellä `index.html`. Osoite on silloin `https://kasibanaani.github.io/P-iv-kartta/<kansio>/`.
