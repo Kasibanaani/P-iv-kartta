@@ -72,6 +72,7 @@ Muut säännöt:
 
 - Aja muutetun appin testit ennen vientiä: `sh <kansio>/testit/aja.sh` (Päiväkartta: `sh testit/aja.sh`). Uusi toiminto saa oman testinsä. Puhelinapit leveyksillä 390 ja 320 px, tietokoneapit 1440 ja 1280 px.
 - Vie suoraan päähaaraan (Emilin päätös 11.10.2026). Toinen istunto voi muokata samaa repoa: `git pull --rebase` ennen pushia. Vie vain pyydetyt muutokset, älä muuta muita appeja.
+- **Appi-appin kaistat (Emil 18.10.2026):** rakentaja kokeilee lopuksi oman muutoksensa yhteispelin toisen kaistan tuoreimpien versioiden kanssa ja kirjaa tuloksen yhdellä rivillä `MUUTOKSET.md`:hen. Linjakkuuskartoitus joka 10. valmiin jonon kohdan jälkeen (molemmat kaistat yhteensä) ja aina ennen uuden ominaisuusryhmän ensimmäistä kohtaa (`appiappi/PALIKKASAANNOT.md`, loppu).
 - Kerro aina: testit ajettiin tietokoneen selaimessa, ei oikealla iPhonella, ja mitä jäi siksi varmistamatta. Julkaisu näkyy minuutin parin päästä; appi kannattaa sulkea kokonaan ja avata uudelleen.
 - Muistuta varmuuskopiosta ennen muutosta, joka koskee tallennusmuotoa.
 
