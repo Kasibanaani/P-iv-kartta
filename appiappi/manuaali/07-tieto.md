@@ -239,6 +239,7 @@ Antaa tiedot tapahtumasta, joka käynnisti toiminnon tai ketjun. Tiedot ovat tap
 | `tapahtuma.tunniste`, `tapahtuma.on` | tunniste ja onko tapahtumaa |
 | `tapahtuma.kohde`, `.isku`, `.x`, `.y`, `.ruutux`, `.ruutuy` | törmäyksen ja napautuksen tiedot (muut luvut) |
 | `tapahtuma.nappi` | Peliohjaimen *painettu* ja *irrotettu*: napin nimi, esim. `alanappi` |
+| `tapahtuma.jäsen`, `tapahtuma.jäsen.<ominaisuus>` | Joukon *jäsen …* -tapahtuma ja Toista jäsenille -kierros: jäsenen nimi ja sen ominaisuus nyt ([Jäsenten tapahtumat](#jäsenten-tapahtumat-appi-appi-63)) |
 | `tapahtuma.suunta` | janan merkissä 1 eteenpäin, −1 taaksepäin ([Jana](05-ketjut-ja-toiminnot.md#jana-jana)); `tapahtuma.uusi` on silloin merkin kohta |
 
 - **Aika ja tila:** tiedot tallentuvat ketjun ajoon ja säilyvät odotusten ja appin sulkemisen yli. Ketjun käynnistämä aliketju perii tapahtuman.
@@ -355,7 +356,7 @@ Joukko-palikka on joukon säännöt logiikassa: kuka otetaan mukaan ilman tagia,
 
 - **Löytyy:** Logiikka → **Tieto** → **Joukko** (⁂) tekee uuden joukon (`#joukko`, `#joukko2` …) ja sen palikan. Paletin ryhmässä **Joukot** napin **⁂** napautus tekee olemassa olevalle joukolle Joukko-palikan tai siirtyy siihen.
 - **Sisään:** *näkyy kun*, *harmaana kun*, *vaihtoväri kun*, *siirto x*, *siirto y* (kiinteät). Nuoli Joukko-palikan kohtaan ohjaa saman kohdan kaikilla jäsenillä yhdellä arvolla. Jäsen, jolla kohtaa ei ole (esim. logiikkapalikka), ohitetaan.
-- **Ulos:** *jäseniä* (luku).
+- **Ulos:** *jäseniä* (luku), *jäsenet* (nimet; nuolena Toista jäsenille ja ikkunaan Jäsenille, Appi-appi 63) ja tapahtumat *jäsen …* (ks. [Jäsenten tapahtumat](#jäsenten-tapahtumat-appi-appi-63)).
 - **Paneeli:**
   - **Nimi**: joukon nimi ilman `#`:ä. Vaihto nimeää joukon (kuten paletin Nimeä).
   - **Ota mukaan**: **Laji** (esim. Muoto), **Näkymä**, **Kerros** (kun näkymässä on kerroksia) ja **Ehto**. Jäseneksi tulee jokainen palikka, joka täyttää kaikki valitut, myös myöhemmin lisätyt. Ilman valintoja Ota mukaan on pois päältä.
@@ -373,6 +374,16 @@ Joukko-palikka on joukon säännöt logiikassa: kuka otetaan mukaan ilman tagia,
 - **Huomio:** sääntö, joka lukee ominaisuutta, jota se itse ohjaa (esim. *näkyy kun* `jäsen.näkyy`), antaa virheen *kehä*. `#x = …` (kaava asettaa jäsenille) ei ole tehty; käytä sääntöä.
 - **Esimerkki:** Ota mukaan, Laji *Muoto*, Näkymä *Pelikenttä*; Vain jos `jäsen.x > 0`; sääntö *näkyy kun* `jäsen.x < 800`. Kaava `#joukko` kertoo, montako muotoa on ruudulla.
 
+### Jäsenten tapahtumat (Appi-appi 63)
+
+Joukko-palikasta lähtee tapahtuma aina, kun joku sen jäsenistä lähettää saman tapahtuman. Yksi nuoli riittää kaikille kolikoille, vihollisille tai napeille, myös myöhemmin lisätyille.
+
+- **Kohdat (kiinteät, eivät riipu hetken jäsenistä):** aina *jäsen muuttui*, *jäsen raahaus alkoi*, *jäsen pudotettu*, *jäsen raahaus peruttu* (näkymäpalikoiden yhteiset). Paneelin osio **Jäsenten tapahtumat** → **Jäsenten laji** lisää lajin omat tapahtumat kaikkine asetusvaihtoehtoineen, esim. *Painike* → *jäsen painettu*, *jäsen pitkä painallus*, *jäsen irrotettu*; *Liike* → *jäsen törmäsi*, *jäsen perillä*, *jäsen askel valmis*; *Alue* → *jäsen astuttu*, *jäsen poistuttu*, *jäsen napautettu*. Oletus *Vain yhteiset*. Lajin vaihto poistaa nuolet kohdista, joita uudella lajilla ei ole.
+- **Kuka lähettää:** jäsen tapahtumahetkellä (tagi, Ota mukaan, Lisää joukkoon …). Jäsen, jolla tapahtumaa ei ole, ei lähetä sitä. Liikkeen tapahtumissa jäsen on Liike-palikka, joten Liike liitetään joukkoon (Tunnus `#viholliset` tai Ota mukaan, Laji *Liike*).
+- **Tapahtuman tiedot:** jäsenen oma tapahtuma sellaisenaan (esim. `tapahtuma.kohde` ja `tapahtuma.isku` törmäyksessä) ja lisäksi `tapahtuma.jäsen` (jäsenen nimi) ja `tapahtuma.jäsen.<ominaisuus>` (esim. `tapahtuma.jäsen.x`). Ilman jäsentä `tapahtuma.jäsen` on tyhjä.
+- **Toiminnon kohde Tapahtuman jäsen:** Toiminnon **Kohde**-valikon rivi *Tapahtuman jäsen* (lajeille, jotka käyvät myös joukolle): toiminto kohdistuu siihen jäseneen, jonka tapahtuma sen käynnisti (*jäsen …* -tapahtuma tai Toista jäsenille -kierros). **Mitä muutetaan** listaa projektin joukkojen jäsenten ominaisuudet; jäsen, jolla valittua ominaisuutta ei ole, ohitetaan. Ilman jäsentä toiminto näyttää virheen *tapahtumalla ei ole jäsentä*.
+- **Esimerkki (napit):** Painikkeet Tunnuksella `#napit`. Joukko-palikka `#napit`, Jäsenten laji *Painike*. Nuoli *jäsen painettu* → Toiminto **Lisää** → *Pisteet* ja toinen nuoli → Toiminto **Aseta arvo**, Kohde *Tapahtuman jäsen*, Mitä muutetaan *väri*, arvo `3`. Painettu nappi vaihtaa väriä ja piste tulee. Ikkuna MONTAKO PÄTEE, **Jäsenille**, sisällä Kaava `jäsen.väri = 3` kertoo, montako on painettu.
+
 ### Nimeä ja poista (paletti)
 
 Logiikan paletin ryhmä **Joukot**: jokaisella joukolla jäsenmäärä nyt ja napit:
@@ -383,7 +394,7 @@ Logiikan paletin ryhmä **Joukot**: jokaisella joukolla jäsenmäärä nyt ja na
 ### Kopiointi ja tallennus
 
 - **Monista, kopioi ja liitä:** tagit seuraavat. Toiseen projektiin liitettäessä joukot yhdistyvät nimen mukaan, ja puuttuva joukko luodaan. Sama koskee presettejä.
-- **Tallennus:** projektin joukot (`jkr`), palikan tagit ja avatut *kuuluu kun* -kohdat ovat rakennetta. Toimintojen tekemät jäsenyysmuutokset ovat käyttötietoa. Joukko-palikka (`pjoukko`: `jj`, `otl`, `otv`, `otk`, `otf`, `vjf`, `jex`, `jsr`) on rakennetta. Tallennusversio 11 (Appi-appi 62; joukot tulivat versiossa 10); vanhat tallennukset aukeavat ennallaan.
+- **Tallennus:** projektin joukot (`jkr`), palikan tagit ja avatut *kuuluu kun* -kohdat ovat rakennetta. Toimintojen tekemät jäsenyysmuutokset ovat käyttötietoa. Joukko-palikka (`pjoukko`: `jj`, `otl`, `otv`, `otk`, `otf`, `vjf`, `jex`, `jsr`, `jlj`) on rakennetta, samoin Toiminnon `otj`, ikkunan `jas` ja Toista-palikan `tapa:'jasenet'`. Tallennusversio 12 (Appi-appi 63; Joukko-palikka tuli versiossa 11, joukot versiossa 10); vanhat tallennukset aukeavat ennallaan.
 - **Keveys:** jäsenyys lasketaan kerran arviointia kohden, ja tagihakemisto muistetaan ajon ajan.
 
 ---
@@ -396,6 +407,21 @@ Tavallinen ikkuna (Logiikka → Ikkunat), jossa valinta **Riveille: sisältö la
 - Puuttuvat ohitetaan; paneeli näyttää *tiedossa* ja *puuttuu*. Valinta **Vaatii täydelliset tiedot (yksikin puuttuva → tuntematon)** SUMMA-, KESKIARVO-, SUURIN- ja PIENIN-ikkunoille.
 - Kaavassa ikkunan `.rivejä`, `.havaintoja`, `.puuttuvia`.
 - Huomio: jos ikkunassa on monta palikkaa, kaikkien arvot kootaan yhteen (SUMMA laskee molemmat kaavat kaikilta riveiltä). Tavallisesti ikkunaan laitetaan yksi kaava tai vertailu (avoin kysymys TILA.md:ssä).
+
+## Ikkuna jäsenille (Appi-appi 63)
+Sama kuin Riveille, mutta joukon jäsenille: ikkunan paneelissa **Jäsenille: sisältö lasketaan jokaiselle joukon jäsenelle** (näkyy, kun projektissa on joukkoja; Riveille voittaa, jos molemmat).
+
+- Ikkunaan tulee kohta **jäsenet**: vie siihen nuoli Joukko-palikan kohdasta *jäsenet*.
+- Ikkunan sisällä `jäsen` on käsiteltävä jäsen: Kaava `jäsen.y > 400` MONTAKO PÄTEE -ikkunassa kertoo, montako jäsentä on alhaalla; `jäsen.leveys` SUMMA-ikkunassa laskee leveydet yhteen. Ikkunan ulkopuolella (esim. kaavan oma arvo kanvaasilla) `jäsen` on tyhjä.
+- Paneeli näyttää jäsenet; Miksi? kertoo jäsenten määrän tai virheen (esim. *jäsen ”Laatta 2”: …*).
+
+## Toista jäsenille (Appi-appi 63)
+Ketjun **Toista**-palikan valinta **jäsenille** (näkyy, kun projektissa on joukkoja).
+
+- Kohta *kerrat* vaihtuu kohdaksi **jäsenet**: nuoli Joukko-palikan kohdasta *jäsenet*.
+- Ketju kulkee **kierros**-haaraan kerran jokaiselle jäsenelle ja lopuksi **valmis**-haaraan. Vedä kierros-haaran viimeisestä tapahtumasta viiva takaisin Toista-palikkaan.
+- Jäsenet otetaan talteen, kun toisto alkaa. Kierroksella `tapahtuma.jäsen` on käsiteltävä jäsen ja Toiminnon kohde **Tapahtuman jäsen** kohdistuu siihen. Kesken poistettu jäsen ohitetaan.
+- Ero Toimintoon, jonka kohde on `#joukko (jokainen jäsen)`: Toista jäsenille voi tehdä jäsenkohtaisen sarjan (esim. siirto, odota 0,2 s, seuraava).
 
 ## Toista riveille
 Ketjun **Toista**-palikan paneelissa valinta **Toista**: **N kertaa** / **riveille** (näkyy, kun projektissa on Tietotaulukko).

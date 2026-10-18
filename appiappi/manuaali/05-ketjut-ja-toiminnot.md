@@ -31,7 +31,7 @@ Toiminto tekee yhden muutoksen kerran, kun siihen tulee tapahtuma. Sen jälkeen 
 - **Asetukset (paneeli), osio Toiminto:**
   - **Käytössä** (rasti). Pois käytöstä oleva toiminto ei tee mitään (ketjussa ketju jatkaa sen ohi).
   - **Toiminto**: valikko, josta lajin voi vaihtaa jälkikäteen.
-  - **Kohde**: valikko, johon tulee vain lajille sopivat palikat (Siirry-lajilla otsikko on *Kohde (sijainti, alue tai palikka)*). Ryhmässä *Joukko (jokainen jäsen)* projektin joukot: toiminto tehdään jokaiselle jäsenelle ja *sitten* lähtee kerran ([Toiminto kaikille jäsenille](07-tieto.md#toiminto-kaikille-jäsenille), Appi-appi 57). Kohteena joukko käy lajeille Aseta arvo, Aseta tila, Lisää, Valitse, Poista valinta, Vaihda, Tyhjennä, Käynnistä ketju, Pysäytä ketju, Palauta perusarvo, Lisää joukkoon ja Poista joukosta.
+  - **Kohde**: valikko, johon tulee vain lajille sopivat palikat (Siirry-lajilla otsikko on *Kohde (sijainti, alue tai palikka)*). Rivi *Tapahtuman jäsen* kohdistaa toiminnon jäseneen, jonka tapahtuma sen käynnisti ([Jäsenten tapahtumat](07-tieto.md#jäsenten-tapahtumat-appi-appi-63), Appi-appi 63). Ryhmässä *Joukko (jokainen jäsen)* projektin joukot: toiminto tehdään jokaiselle jäsenelle ja *sitten* lähtee kerran ([Toiminto kaikille jäsenille](07-tieto.md#toiminto-kaikille-jäsenille), Appi-appi 57). Kohteena joukko käy lajeille Aseta arvo, Aseta tila, Lisää, Valitse, Poista valinta, Vaihda, Tyhjennä, Käynnistä ketju, Pysäytä ketju, Palauta perusarvo, Lisää joukkoon ja Poista joukosta.
   - **Mitä muutetaan** (Aseta arvo, Lisää, Aseta tila, Vaihda) tai **Mikä palautetaan** (Palauta perusarvo): näkyy, kun kohteella on ohjattavia ominaisuuksia. Oletus on kohteen oma arvo tai tila; muut rivit ovat ominaisuuksia (esim. leveys, näkyy).
   - Lajin omat kentät (taulukko alla).
   - Ohje paneelin alareunassa: ”Toiminto tehdään, kun siihen tulee tapahtuma (esim. painettu, NIIN, silloin) tai kun siihen tuleva arvo alkaa päteä.”
@@ -240,9 +240,9 @@ Jatkaa yhteen satunnaiseen haaraan.
 Kulkee *kierros*-haaraan annetun määrän kertoja tai kerran jokaiselle taulukon riville, sitten *valmis*-haaraan.
 
 - **Löytyy:** Ketju → Haarat → **Toista**.
-- **Sisään:** *alkaa*; tavalla N kertaa *kerrat* (arvo), tavalla riveille *rivit* (rivijoukko).
+- **Sisään:** *alkaa*; tavalla N kertaa *kerrat* (arvo), tavalla riveille *rivit* (rivijoukko), tavalla jäsenille *jäsenet* (nuoli Joukko-palikasta, Appi-appi 63).
 - **Ulos:** *kierros*, *valmis*.
-- **Asetukset:** **Toista**: *N kertaa* / *riveille* (valinta näkyy, kun projektissa on Tietotaulukko). **Montako kertaa** (oletus 3, 0–1000). Riveille: tuo nuoli Tietotaulukon tai Rivijoukon *rivit*-kohdasta; kierroksella käsiteltävä rivi on *tapahtuman rivi*.
+- **Asetukset:** **Toista**: *N kertaa* / *riveille* (näkyy, kun projektissa on Tietotaulukko) / *jäsenille* (näkyy, kun projektissa on joukkoja; [Toista jäsenille](07-tieto.md#toista-jäsenille-appi-appi-63)). **Montako kertaa** (oletus 3, 0–1000). Riveille: tuo nuoli Tietotaulukon tai Rivijoukon *rivit*-kohdasta; kierroksella käsiteltävä rivi on *tapahtuman rivi*.
 - **Ominaisuudet:** `kierros` (monesko menossa, 0 = ei), `kerrat`.
 - **Tärkeää:** vedä kierros-haaran viimeisestä vaiheesta viiva **takaisin Toista-palikkaan**, muuten kierros ei toistu. Laskuri alkaa alusta joka käynnistyksellä ja valmis-haaran jälkeen. Kanvaasilla näkyy *2/3*.
 - Riveille: rivit otetaan talteen toiston alussa; jos käsittelemätön rivi poistetaan kesken, ketju pysähtyy virheeseen.

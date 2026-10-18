@@ -46,6 +46,8 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | koota palikoita joukoksi ja laskea niistä (summa, keskiarvo, montako) | Tunnus-kenttään `#nimi`, kaavassa `#nimi.summa` | [Palikoiden joukot](07-tieto.md#palikoiden-joukot-nimi-appi-appi-57) |
 | tehdä saman toiminnon kaikille joukon palikoille | Toiminnon Kohde: `#nimi (jokainen jäsen)` | [Toiminto kaikille jäsenille](07-tieto.md#toiminto-kaikille-jäsenille) |
 | liittää palikan joukkoon vain ehdolla tai käytön aikana | ⚡ kuuluu kun; toiminnot Lisää joukkoon / Poista joukosta | [Kuuluu joukkoon kun](07-tieto.md#kuuluu-joukkoon-kun-ehdollinen-jäsenyys) |
+| tehdä jotain, kun joku joukon jäsenistä painetaan, törmää tai pudotetaan | Joukko-palikan tapahtuma *jäsen …* (Jäsenten laji), Toiminnon kohde *Tapahtuman jäsen*, `tapahtuma.jäsen` | [Jäsenten tapahtumat](07-tieto.md#jäsenten-tapahtumat-appi-appi-63) |
+| käydä joukon jäsenet läpi yksi kerrallaan tai laskea jäsenistä ikkunalla | Toista jäsenille, ikkuna Jäsenille (nuoli Joukko-palikan kohdasta *jäsenet*) | [Toista jäsenille](07-tieto.md#toista-jäsenille-appi-appi-63), [Ikkuna jäsenille](07-tieto.md#ikkuna-jäsenille-appi-appi-63) |
 | ottaa joukkoon kaikki tietyn lajin tai näkymän palikat, rajata jäseniä ehdolla tai ohjata kaikkia jäseniä yhdellä säännöllä | Joukko-palikka: Ota mukaan, Vain jos, Säännöt jäsenille (`jäsen.x`) | [Joukko-palikka](07-tieto.md#joukko-palikka-pjoukko-appi-appi-62) |
 | nimetä tai poistaa joukon | paletti → Joukot | [Nimeä ja poista](07-tieto.md#nimeä-ja-poista-paletti) |
 | laskea sarakkeen summan | `taulu.sarake.summa` tai SUMMA-ikkuna riveille | [Laske taulukon sarakkeen summa](07-tieto.md#laske-taulukon-sarakkeen-summa) |
