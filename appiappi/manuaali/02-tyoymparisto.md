@@ -228,7 +228,7 @@ Monivalinnan paneelissa: *Tasaa* (Vasen, Keskelle, Oikea, Ylös, Keskelle, Alas)
 ### Siirto ja koko
 
 - **Siirto**: vedä palikkaa. Monivalinnassa minkä tahansa valitun veto siirtää kaikkia. Logiikassa ikkunan veto siirtää sen sisällön mukana.
-- **Koko**: näkymässä vedä palikan oikeaa alakulmaa. Logiikassa ikkunan, ketjun ja ryhmän kulmassa on venytyskahva; Kaava-palikkaa voi venyttää valittuna oikeasta alakulmasta (kaksoisnapautus kahvaan palauttaa koon).
+- **Koko**: näkymässä vedä palikan oikeaa alakulmaa. Logiikassa ikkunan, ketjun ja ryhmän kulmassa on venytyskahva; Kaava-palikkaa voi venyttää valittuna oikeasta alakulmasta (kaksoisnapautus kahvaan palauttaa koon). Venytyskahvat (Appi-appi 77): näkymän palikan kulmassa neliö, logiikan ikkunoissa, palikoissa ja lapuissa kaksi vinoviivaa. Osuma-alue on noin 20 × 20 px, osoitin muuttuu vinonuoleksi, ja osoittimen alla sekä vedon ajan kahva paksunee korostusvärillä. Lyhyen palikan oikea kohta on kahvan päällä, joten nuolen veto kohdasta toimii yhä.
 - **Kohdistus**: asetus *Kohdista ruudukkoon* (Asetukset → Muokkaus) kohdistaa näkymän palikat 10 px:n välein tai kerroksen ruudukkoon. **⇧ pohjassa** raahatessa ohittaa kohdistuksen. Logiikassa kohdistusta ei ole.
 - **Tarkka paikka**: näkymäpalikan paneelin osio *Paikka ja koko*: X, Y, Leveys, Korkeus.
 - **Nuolinäppäimet** siirtävät valittua näkymäpalikkaa (tai monivalintaa) 1 px, **⇧ + nuoli** 10 px.
