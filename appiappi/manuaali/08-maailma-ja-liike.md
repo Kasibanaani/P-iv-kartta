@@ -117,14 +117,14 @@ Muokatessa kanvaasin alareunan napit **−**, **100 %** ja **+** zoomaavat vain 
 
 ## Kerrokset käytössä
 
-Kerrokset (Pajakone 3b) ratkaisevat piirtojärjestyksen. Tässä luvussa tärkeät kerrosten ominaisuudet ovat rullausvauhti, este, ruudukko ja käyttöasetukset.
+Kerrokset (Pajakone 3b) ratkaisevat piirtojärjestyksen. Tässä luvussa tärkeät kerrosten ominaisuudet ovat rullausvauhti tai syvyys, este, ruudukko ja käyttöasetukset.
 
 **Kädenliikkeet:** näkymän asetukset → osio **Kerrokset (näkymän nimi)**. Jokaisella kerrosrivillä on nimi, palikkamäärä ja napit:
 
 | Nappi | Mitä tekee |
 |---|---|
 | ○ / ● | valitsee kerroksen, johon uudet palikat tulevat |
-| rullausvauhti-valikko (vain laitenäkymässä) | **sormen mukana**, **75 %**, **50 %**, **25 %**, **lukittu** |
+| rullausvauhti- ja syvyysvalikko (vain laitenäkymässä) | **sormen mukana**; rullausvauhti **75 %**, **50 %**, **25 %**, **lukittu**; syvyys **syvyys 100**, **syvyys 300**, **syvyys 900**, **oma syvyys…** |
 | ⬚ | valitsee kerroksen kaikki palikat |
 | 👁 | piilottaa kerroksen muokatessa (ei vaikuta käyttöön) |
 | 🔒 | lukitsee kerroksen muokatessa (palikoihin ei voi tarttua) |
@@ -137,9 +137,16 @@ Kerrokset (Pajakone 3b) ratkaisevat piirtojärjestyksen. Tässä luvussa tärke�
 Uusi kerros: nappi **＋ Uusi kerros**. Palikan kerroksen voi vaihtaa sen paneelin osiosta Paikka ja koko, kohta **Kerros**.
 
 - **Rullausvauhti:** 100 = palikka liikkuu sormen (tai kameran) mukana, 0 = **lukittu** ruutuun (kojelauta, alapalkki), välissä hitaampi (kaukainen tausta, syvyysvaikutelma). Toimii molempiin suuntiin. Palikan oma **Rullausvauhti** paneelin osiossa Paikka ja koko (**Kerroksen mukaan**, **Sormen mukana**, **50 %**, **25 %**, **Lukittu ruutuun**, tai kenttä **Oma vauhti %**) ohittaa kerroksen vauhdin. Rullausvauhti toimii vain lukitussa laitenäkymässä.
+- **Syvyys** (Appi-appi 76): kerroksen etäisyys ruudun pinnasta. Yksi luku antaa sekä koon että rullausvauhdin: `100 / (1 + syvyys / 100)` %, eli syvyys 100 = puolet, 300 = neljännes, 900 = kymmenesosa; negatiivinen (alaraja −90) on etuala, joka näkyy isompana ja liikkuu sormea nopeammin (−50 = kaksinkertainen). Syvä kerros pienenee ruudun keskikohtaa kohti, joten kolmen kerroksen tausta (esim. vuoret 900, puut 300, pelikenttä pinnassa) vierittyy oikeassa perspektiivissä. Zoomaus suurentaa kaikkia syvyyksiä samassa suhteessa. Kerroksella on joko rullausvauhti tai syvyys: valikon toinen valinta poistaa toisen. Kun syvyys on valittu, rivin alle tulee kenttä **Syvyys** (oma luku, näyttää koon prosentteina) ja valinta **säilytä näkyvä koko**: kun se on päällä ja syvyyttä muutetaan, kerroksen palikoiden paikat ja koot muuttuvat niin, että alkuhetken kuva pysyy samana ja vain parallaksi muuttuu (tekstin koko S–XL ei muutu; Kumoa toimii). Valinta on vain tämän istunnon apu, ei tallennu.
+  - **Muokatessa** syvä kerros näkyy alkuhetken kuvana: pienennettynä laitteen kehyksen keskikohtaa kohti, kuten käytössä kameran ollessa kehyksen kohdalla. Muokkauskanvaasin vieritys ei liikuta kerroksia toisiinsa nähden. Raahaus, koon muutos ja valintalaatikko toimivat kerroksen omissa koordinaateissa (palikka pysyy osoittimen alla; paneelin X ja Y ovat kerroksen lukuja). *Ruudun keskelle* -napit toimivat syvässäkin kerroksessa; reunanapit sijoittavat kerroksen koordinaateissa.
+  - **Palikan oma rullausvauhti** (paneeli tai logiikka) ohittaa kerroksen syvyyden: palikka liikkuu omalla vauhdillaan täydessä koossa. Paneelin *Kerroksen mukaan* kertoo kerroksen syvyyden.
+  - Napautus, Napautus-liike, käytössä näkyvä ruudukko ja käyttöraahauksen pudotus osuvat siihen, missä syvä palikka näkyy (sama muunnos kuin piirrossa). Syvä palikka ottaa kosketuksen näkyvästä koostaan: pieni taustan nappi on pieni myös sormelle.
+  - **Esteet ja törmäykset** lasketaan kerroksen omissa koordinaateissa, ei siellä, missä syvä palikka näkyy. Siksi kerrosrivi varoittaa, kun esteeksi merkitty kerros (tai sen palikka) on eri syvyydellä kuin jokin liikkuja: *Este on eri syvyydellä kuin …: törmäys tapahtuu eri kohdassa kuin näkyy.*
+  - Syvä kerros ei kasvata rullattavaa aluetta (sisällön alareuna ja kameran rajat lasketaan pinnan palikoista), ja kaukana ruudun ulkopuolella olevat syvät palikat jätetään piirtämättä kuten pinnan palikat.
+  - Rajat: syvyys toimii vain laitenäkymässä (muissa näkymissä valikkoa ei ole). Palikan oma syvyys, ominaisuudet `syvyys` ja `näkyväkoko` sekä Kerros-palikan syvyys tulevat myöhemmin (jonon 17d); kameran syvyys ja ilmaperspektiivi odottavat päätöstä.
 - **Napautus ja pudotus osuvat siihen, missä palikka näkyy** (Appi-appi 72): hitaan tai lukitun kerroksen Alue ottaa napautuksen näkyvästä kohdastaan (myös zoomattuna), Napautus-liike vie hitaan kerroksen palikan napautettuun kohtaan (ruudukolla sen kerroksen ruudun keskelle), käytössä näkyvä kerroksen ruudukko siirtyy kerroksen mukana, ja käyttöraahattu palikka putoaa Alueeseen, jonka päällä se näkyy, vaikka ne olisivat eri vauhtisilla kerroksilla. Logiikan *siirto x / y* ei vaikuta osumaan. **Raja:** esteet ja törmäykset lasketaan yhä siirtämättömistä paikoista, joten eri vauhtisilla kerroksilla olevat palikat eivät törmää siellä, missä ne näkyvät.
 - **Estää alempien käytön:** kun kerros näkyy ja estää, alempien kerrosten palikoita ei voi käyttää (esim. valikko tai taukoruutu).
-- Logiikka voi ohjata vain kerroksen näkyvyyttä, estämistä, himmennystä ja läpinäkyvyyttä (Kerros-palikka, ks. logiikkapalikoiden luku). Rullausvauhtia ja järjestystä ei voi ohjata logiikasta.
+- Logiikka voi ohjata vain kerroksen näkyvyyttä, estämistä, himmennystä ja läpinäkyvyyttä (Kerros-palikka, ks. logiikkapalikoiden luku). Rullausvauhtia, syvyyttä ja järjestystä ei voi ohjata logiikasta.
 
 ---
 

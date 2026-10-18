@@ -500,7 +500,7 @@ Auki pysyvä, kelluva laatikko näkymäkanvaasin päällä (Appi-appi 61). Siit�
 
 ## Kerrokset (lyhyesti)
 
-Näkymän asetusten osio *Kerrokset (näkymän nimi)* (napauta tyhjää näkymäkanvaasilla): kerroslista ylimmästä alimpaan. Rivillä **○/●** (kerros, johon uudet palikat tulevat), nimi, palikoiden määrä, **✕** (poista kerros; palikat siirtyvät pohjalle), sekä napit **⬚** (valitse kerroksen palikat), **👁** (piilota muokatessa), **🔒** (lukitse muokatessa: palikkaan ei voi tarttua), **🧱** (este), **▦** (ruudukko), **⚙** (käytön asetukset), **↑ ↓** (järjestys). Alhaalla **＋ Uusi kerros**. 👁 ja 🔒 koskevat vain muokkausta. Tarkemmin Kerros-palikan luvussa.
+Näkymän asetusten osio *Kerrokset (näkymän nimi)* (napauta tyhjää näkymäkanvaasilla): kerroslista ylimmästä alimpaan. Rivillä **○/●** (kerros, johon uudet palikat tulevat), nimi, palikoiden määrä, **✕** (poista kerros; palikat siirtyvät pohjalle), sekä napit **⬚** (valitse kerroksen palikat), **👁** (piilota muokatessa), **🔒** (lukitse muokatessa: palikkaan ei voi tarttua), **🧱** (este), **▦** (ruudukko), **⚙** (käytön asetukset), **↑ ↓** (järjestys); laitenäkymässä myös rullausvauhti- ja syvyysvalikko (syvä kerros näkyy muokatessa pienempänä, ks. luku 8). Alhaalla **＋ Uusi kerros**. 👁 ja 🔒 koskevat vain muokkausta. Tarkemmin Kerros-palikan luvussa.
 
 ## Muisti- ja viestilaput
 
