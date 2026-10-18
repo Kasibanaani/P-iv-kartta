@@ -486,15 +486,15 @@ Auki pysyvä, kelluva laatikko näkymäkanvaasin päällä (Appi-appi 61). Siit�
 | Alueet | Alue | Alue 200 × 160 |
 | Alueet | Maali | Alue *Maali* 120 × 120 ja Ilmoitus ”Maali!”, jonka *näkyy kun* tulee Maalin *sisällä*-kohdasta |
 | Alueet | Aloituskohta | Sijainti *Aloitus* |
-| Esineet | Kolikko | Ympyrä *Kolikko* 28 × 28, Alue sen ympärillä, Muisti *Kolikko: kerätty*, Aseta tila (astuttu → kerätty) ja Lisää (kerätty → Pisteet + 1) sekä Kaava `jos kolikkokerätty niin ei muuten kyllä` → kolikon *näkyy kun*. Kolikko katoaa, kun liikkuvan keskipiste tulee sen alueelle. |
+| Esineet | Kolikko | Ympyrä *Kolikko* 28 × 28, Alue sen ympärillä Tunnuksella `#kolikot` ja Kaava `kolikkoalue.joukot sisältää "kolikot"` → kolikon *näkyy kun*. Ensimmäinen kolikko tekee lisäksi yhteisen osan Ryhmään *Kolikot*: Joukko-palikka `#kolikot` (Jäsenten laji Alue), *jäsen astuttu* → Poista joukosta (Tapahtuman jäsen) ja Lisää Pisteet 1. Seuraavat kolikot liittyvät samaan Ryhmään. Kolikko katoaa, kun liikkuvan keskipiste tulee sen alueelle (Appi-appi 66, [Jäsenten tapahtumat](07-tieto.md#jäsenten-tapahtumat-appi-appi-63)). |
 | Esineet | Pomppulevy | Laatikko 120 × 24, Este, kimmoisuus 150 % |
 | Näkymä | Pistenäyttö | Teksti ”Pisteet: @pisteet” |
 | Näkymä | Elämät | Monitori *Elämänäyttö* (muoto pisteet, ♥, 0–5) ja Muisti *Elämät* (alkuarvo 3) nuolella sen arvoon. Vähennä toiminnolla Lisää, määrä −1. |
 | Omat | omat presetit | kuten paletin Presetit-ryhmä ([Presetit](#presetit)): näkymäpalikoiden keskikohta tulee klikkauskohtaan. Napit **＋ Valinta presetiksi** ja **Presetit…** (hylly). |
 
-**Pisteet ja Elämät yhteisinä:** Kolikko ja Pistenäyttö käyttävät Muistia, jonka viite on `pisteet`, ja Elämät Muistia, jonka viite on `elämät`. Jos sellaista ei vielä ole, se tehdään (ilmoitus kertoo: ”Uusi logiikkaan: Pisteet”). Jos on, kohde käyttää sitä: kolikon Ryhmään tulee Pisteistä uusi esiintymä (2×), ei uutta muistia. Haku on vain viitteellä; samanniminen muulla viitteellä ei kelpaa.
+**Pisteet ja Elämät yhteisinä:** Kolikko ja Pistenäyttö käyttävät Muistia, jonka viite on `pisteet`, ja Elämät Muistia, jonka viite on `elämät`. Jos sellaista ei vielä ole, se tehdään (ilmoitus kertoo: ”Uusi logiikkaan: Pisteet”). Jos on, kohde käyttää sitä: Kolikot-Ryhmään tulee Pisteistä uusi esiintymä (2×), ei uutta muistia. Haku on vain viitteellä; samanniminen muulla viitteellä ei kelpaa.
 
-**Rajat:** laattojen, painovoiman ja hypyn kohteet tulevat 2D-vaiheiden mukana; nyt niitä ei ole. Hyllyjä ei voi nimetä uudelleen eikä omia lisätä; omat kohteet tehdään presetteinä (Omat-hylly). Kolikko ei palaa itsestään: *Kolikko: kerätty* nollautuu Tyhjennä käyttötiedot -napista tai toiminnolla.
+**Rajat:** laattojen, painovoiman ja hypyn kohteet tulevat 2D-vaiheiden mukana; nyt niitä ei ole. Hyllyjä ei voi nimetä uudelleen eikä omia lisätä; omat kohteet tehdään presetteinä (Omat-hylly). Kolikko ei palaa itsestään: kerätyt palaavat joukkoon *Palauta perusarvo*- tai Tyhjennä käyttötiedot -napista tai toiminnolla Lisää joukkoon. Appi-appi 61–64 teki kolikolle oman Muistin *Kolikko: kerätty*; vanhat kolikot toimivat ennallaan.
 
 ## Kerrokset (lyhyesti)
 

@@ -77,7 +77,7 @@ A.ok(/varattu/.test(KK.setVt(P,arv.id,'jäsen')));var raw=JSON.parse(JSON.string
 
 // Nimeäminen kummasta tahansa, joukon poisto vie palikan, toinen saman joukon palikka saa oman joukon
 KK.setName(P,pj.id,'#raha');A.strictEqual(KK.jkNm(P,J),'raha');A.strictEqual(pj.nm,'#raha');KK.jkNimea(P,J,'kolikot');A.strictEqual(pj.nm,'#kolikot');
-var dup=KK.addBlock(P,'pjoukko',{jj:J});N(P,dup);KK.repair(P);A.notStrictEqual(dup.jj,J);A.strictEqual(dup.nm,'#kolikot_2');
+var dup=KK.addBlock(P,'pjoukko',{jj:J});N(P,dup);KK.repair(P);A.notStrictEqual(dup.jj,J);A.strictEqual(dup.nm,'#kolikot2','1s (S6): numerointi kuten viitteillä');
 var cl=KK.copyNodes(P,[pjn.id]),made=KK.pasteNodes(P,cl,20,20);var cp=P.b[KK.nodeOf(P,made[0]).p];A.strictEqual(cp.k,'pjoukko');A.notStrictEqual(cp.jj,J);A.strictEqual(cp.jsr.length,pj.jsr.length,'kopio vie säännöt');
 KK.jkPoista(P,dup.jj);A.ok(!P.b[dup.id],'joukon poisto poistaa Joukko-palikan');
 var tagit=m1.jkt.slice();KK.removeBlock(P,pj.id);KK.repair(P);A.ok(KK.jkFind(P,'kolikot'));A.deepStrictEqual(m1.jkt,tagit,'tagit jäävät');A.strictEqual(E(P).visible(m2.id),true);
@@ -89,7 +89,7 @@ var s1=KK.addBlock(L,'ajastin',{kesto:'10',yks:'s'}),n1=KK.addNode(L,s1.id,0,60,
 KK.repair(L);KK.chainStart(L,k.id,C);A.strictEqual(L.st[k.id].run,true);var JL=JSON.parse(JSON.stringify(L));JL.st[k.id].snap.ver=10;
 var L2=KK.repair(JL);A.strictEqual(L2.st[k.id].snap.ver,KK.VER,'version 10 lukituskuva nousi nykyiseen');A.strictEqual(L2.st[k.id].run,true,'lukittu ketju jatkaa');
 var bad=KK.repair({id:'x',name:'x',seq:3,views:[{id:'v1',n:'N'}],b:{b1:{id:'b1',k:'pjoukko',nm:'#ei',jj:'j9',jsr:[{p:'zz',f:'1'},{p:'nk',f:'kyllä'},{p:'nk',f:'ei'}],jex:['b77'],otl:'eiole',otv:'v9'}},lg:{n:[{id:'n1',p:'b1',x:0,y:0,g:''}],l:[]},deco:[],st:{}});
-var bb=bad.b.b1;A.ok(bad.jkr[bb.jj],'puuttuva joukko tehdään nimestä');A.strictEqual(bb.nm,'#ei_2','varattu sana ei käy nimeksi');A.deepStrictEqual(bb.jsr,[{p:'nk',f:'kyllä'}]);A.ok(!bb.jex&&!bb.otl&&!bb.otv);
+var bb=bad.b.b1;A.ok(bad.jkr[bb.jj],'puuttuva joukko tehdään nimestä');A.strictEqual(bb.nm,'#ei2','varattu sana ei käy nimeksi (1s: ei2)');A.deepStrictEqual(bb.jsr,[{p:'nk',f:'kyllä'}]);A.ok(!bb.jex&&!bb.otl&&!bb.otv);
 
 // Keveys: ilman Joukko-palikkaa jkVoi on heti epätosi; 30 liikkuvaa ohjattua jäsentä mahtuu kuvaan
 var H=KK.newProject('keveys'),hs=[];var HJ=KK.jkLuo(H,'kaikki');for(var i=0;i<300;i++){var hb=KK.addBlock(H,'muoto',{nm:'s'+i,x:i,y:i,w:10,h:10});hs.push(hb);if(i<30)hb.jkt=[HJ];}

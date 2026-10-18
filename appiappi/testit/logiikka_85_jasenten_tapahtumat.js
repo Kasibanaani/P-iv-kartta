@@ -17,7 +17,8 @@ var pj=KK.addBlock(P,'pjoukko',{jj:J}),pjn=N(P,pj,500,0);KK.repair(P);
 
 // 1. Kiinteät tapahtumat: yhteiset aina, lajin omat Jäsenten lajista (ei hetken jäsenistä)
 A.deepStrictEqual(outs(pj),['v','jm','j_mu','j_ral','j_rpu','j_rpe'],'yhteiset tapahtumat ilman lajia');
-pj.jlj='nappi';KK.repair(P);A.deepStrictEqual(outs(pj),['v','jm','j_mu','j_ral','j_rpu','j_rpe','j_e','j_pitka','j_irti'],'Painikkeen tapahtumat');
+// 1s (kartoitus 9, S3): näkymäpalikka voi liikkua, joten lajin perään tulevat myös Liikkeen tapahtumat.
+pj.jlj='nappi';KK.repair(P);A.deepStrictEqual(outs(pj),['v','jm','j_mu','j_ral','j_rpu','j_rpe','j_e','j_pitka','j_irti','j_tor','j_per','j_ast'],'Painikkeen tapahtumat');
 A.strictEqual(KK.port(pj,'outs','j_e').n,'jäsen painettu');
 var tyhja=KK.addBlock(P,'pjoukko',{jj:KK.jkLuo(P,'tyhja'),jlj:'liike'});N(P,tyhja);KK.repair(P);
 A.ok(['j_tor','j_per','j_ast','j_eip'].every(function(p){return p==='j_eip'||outs(tyhja).indexOf(p)>=0;}),'Liike: törmäsi, perillä, askel valmis, myös tyhjällä joukolla: '+outs(tyhja));

@@ -57,13 +57,13 @@ async def main():
             c=await keskus(pg,'#rlbox [data-rli="lattia"]');await veda(pg,c,[q[0]+200,q[1]+420])
             assert await P(pg,"Object.values(P.b).filter(b=>b.nm=='Lattia').length")==1
             assert await pg.evaluate("APP.S.rl.pick")==None
-            # 5 kolikot ja pelaaja: Pisteet tehdään kerran, kolikko katoaa ja Pisteet kasvaa, kun pelaaja kulkee yli
+            # 5 kolikot ja pelaaja: Pisteet ja Ryhmä Kolikot tehdään kerran, kolikko katoaa ja Pisteet kasvaa, kun pelaaja kulkee yli
             await pg.locator('#rlbox [data-rlhy="esineet"]').click();await pg.wait_for_timeout(100)
             await pg.locator('#rlbox [data-rli="kolikko"]').click()
             await klik(pg,q[0]+500,q[1]+600);await klik(pg,q[0]+580,q[1]+600)
             await pg.keyboard.press('Escape')
             k=await P(pg,"[Object.values(P.b).filter(b=>b.k=='muisti'&&b.vt=='pisteet').length,Object.values(P.b).filter(b=>b.k=='ryhma').length,Object.values(P.b).filter(b=>b.nm.indexOf('Kolikko')==0&&b.k=='muoto').map(b=>b.id)]")
-            assert k[0]==1 and k[1]==2 and len(k[2])==2,k
+            assert k[0]==1 and k[1]==1 and len(k[2])==2,k  # 1s R1: yksi yhteinen Ryhmä Kolikot
             # pelaaja vasemmalle samalle riville; Liike nopeus x 300 kuljettaa sen ensimmäisen kolikon yli
             await pg.evaluate("""(function(){var P=APP.P,k=Object.values(P.b).filter(b=>b.nm=='Kolikko')[0];
               var p=KK.addBlock(P,'muoto',{laji:'ympyra',nm:'Testipelaaja',v:APP.S.vw});p.w=p.h=30;p.x=k.x-120;p.y=k.y-1;

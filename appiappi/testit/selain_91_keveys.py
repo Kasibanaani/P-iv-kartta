@@ -3,6 +3,7 @@
 # 8 ms kuvassa, logiikan uudelleenpiirto ilman muutosta alle 15 ms (ennen 1p:tä 22 ms). Lisäksi oikeellisuus: ruudun ulkopuoliset seinät
 # ohitetaan, kaukainen seinä piirtyy oikeaan kohtaan, kun hahmo menee sen luo, ja muuttumaton logiikan solmu jää
 # paikalleen, muuttunut vaihtuu. Tietokone 1440 ja 1280 hiirellä, 390 savutestinä (vain oikeellisuus). Ei oikeaa iPhonea.
+# Jonon 1s: sama 400 seinää joukon jäseninä ja Joukko-palikan sääntö (jäsen.x), sama raja.
 # Pilvikoneen luvut ovat suuntaa antavia; raja on väljä, jotta se kertoo hidastumisesta eikä koneen kuormasta.
 import asyncio, os, math, time
 from playwright.async_api import async_playwright
@@ -71,6 +72,27 @@ async def main():
             el=await pg.evaluate("(function(){var e=document.querySelector('.ue[data-id=\"%s\"]');var r=e.getBoundingClientRect(),v=document.querySelector('#uvp').getBoundingClientRect();return {off:!!e._off,left:e.style.left,top:e.style.top,nak:r.right>v.left&&r.left<v.right&&r.bottom>v.top&&r.top<v.bottom};})()"%I['far'])
             assert not el['off'] and el['left']=='%dpx'%fx and el['top']=='%dpx'%fy and el['nak'],el
             await pg.screenshot(path='appiappi_1p_kaytto_%d.png'%W)
+            # 4 (jonon 1s, kartoitus 9 S4): samat 400 seinää joukon jäseninä ja Joukko-palikalla säännöt näkyy kun ja siirto x, jotka lukevat jäsentä.
+            #   Raja sama: vähintään 30 kuvaa/s ja moottori alle 8 ms (ennen 1s:ää 39 kuvaa/s ja 12 ms).
+            if not mob:
+                await pg.click('#lockbtn');await pg.wait_for_timeout(200)
+                nj=await pg.evaluate("""(function(){var P=APP.P,J=KK.jkLuo(P,'seinat'),n=0;Object.keys(P.b).forEach(function(i){var b=P.b[i];if(b.k==='muoto'&&b.kr==='k1'){b.jkt=[J];n++;}});
+                  var pj=KK.addBlock(P,'pjoukko',{jj:J});KK.addNode(P,pj.id,20,300);pj.jsr=[{p:'nk',f:KK.kaavaToIds(P,'jäsen.x > -5000')},{p:'dx',f:KK.kaavaToIds(P,'jäsen.y / 1000')}];KK.repair(P);KK.tick(P,APP.ctx());APP.saveNow();APP.renderAll();
+                  return [n,APP.ev().jkJasenet(J).length,KK.isErr(APP.ev().val(pj.id))];})()""")
+                assert nj[0]==400 and nj[1]==400 and not nj[2],nj
+                await pg.click('#lockbtn');await pg.wait_for_timeout(400)
+                await pg.evaluate("(function(){var P=APP.P;KK.setOmi(P,'%s','x',185);KK.setOmi(P,'%s','y',400);KK.tick(P,APP.ctx());APP.renderAll();})()"%(I['h'],I['h']));await pg.wait_for_timeout(200)
+                await pg.evaluate("window.__kf=0;window.__kn=0;window.__fr=[];window.__on=true;(function f(t){if(!window.__on)return;window.__fr.push(t);requestAnimationFrame(f);})(performance.now());")
+                bb=await pg.locator('.ue[data-id="%s"]'%I['t']).bounding_box();cx,cy=bb['x']+bb['width']/2,bb['y']+bb['height']/2
+                await pg.mouse.move(cx,cy);await pg.mouse.down();t0=time.time();i=0
+                while time.time()-t0<3.0:
+                    a=i*0.05;await pg.mouse.move(cx+bb['width']*0.4*math.cos(a),cy-bb['height']*0.4*abs(math.sin(a)));i+=1;await pg.wait_for_timeout(30)
+                await pg.mouse.up();await pg.evaluate("window.__on=false")
+                fr=await pg.evaluate("window.__fr");kf=await pg.evaluate("[window.__kf,window.__kn]")
+                fps2=(len(fr)-1)/((fr[-1]-fr[0])/1000);kms2=kf[0]/max(1,kf[1])
+                assert fps2>=30,('joukon säännöllä liian vähän kuvia sekunnissa',round(fps2,1))
+                assert kms2<8,('joukon säännöllä moottori liian hidas',round(kms2,2))
+                tulos['joukko_kuvaa_s_%d'%W]=round(fps2,1);tulos['joukko_moottori_ms_%d'%W]=round(kms2,2)
             await ctx.close()
             print('ok',W,'errs',errs);assert not errs,errs
         print('keveys',tulos)

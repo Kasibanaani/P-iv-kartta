@@ -50,6 +50,7 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | tehdä jotain, kun joku joukon jäsenistä painetaan, törmää tai pudotetaan | Joukko-palikan tapahtuma *jäsen …* (Jäsenten laji), Toiminnon kohde *Tapahtuman jäsen*, `tapahtuma.jäsen` | [Jäsenten tapahtumat](07-tieto.md#jäsenten-tapahtumat-appi-appi-63) |
 | käydä joukon jäsenet läpi yksi kerrallaan tai laskea jäsenistä ikkunalla | Toista jäsenille, ikkuna Jäsenille (nuoli Joukko-palikan kohdasta *jäsenet*) | [Toista jäsenille](07-tieto.md#toista-jäsenille-appi-appi-63), [Ikkuna jäsenille](07-tieto.md#ikkuna-jäsenille-appi-appi-63) |
 | ottaa joukkoon kaikki tietyn lajin tai näkymän palikat, rajata jäseniä ehdolla tai ohjata kaikkia jäseniä yhdellä säännöllä | Joukko-palikka: Ota mukaan, Vain jos, Säännöt jäsenille (`jäsen.x`) | [Joukko-palikka](07-tieto.md#joukko-palikka-pjoukko-appi-appi-62) |
+| kerätä kolikoita tai tehdä saman asian monelle esineelle yhdellä logiikalla | rakennuslaatikon Kolikko: Alue joukossa `#kolikot`, *jäsen astuttu* → Poista joukosta (Tapahtuman jäsen) | [Jäsenten tapahtumat](07-tieto.md#jäsenten-tapahtumat-appi-appi-63) |
 | nimetä tai poistaa joukon | paletti → Joukot | [Nimeä ja poista](07-tieto.md#nimeä-ja-poista-paletti) |
 | laskea sarakkeen summan | `taulu.sarake.summa` tai SUMMA-ikkuna riveille | [Laske taulukon sarakkeen summa](07-tieto.md#laske-taulukon-sarakkeen-summa) |
 | liikuttaa hahmoa | Liike + Tatti tai napautus | [Liike](08-maailma-ja-liike.md#liike-liike) |
@@ -183,7 +184,7 @@ Kokeiltavat vaiheohjeet lukujen lopussa.
 | esiintymä | sama palikka logiikkakanvaasilla useassa kohdassa; kaikki ovat samaa palikkaa. Viitteen perässä merkki 2×, jonka napautus vie seuraavaan esiintymään (Appi-appi 59) |
 | erikoispalikka ✦ | palikka, joka poikkeaa tarkoituksella yhteisestä säännöstä; syy näkyy paneelissa |
 | joukko `#nimi` | palikoiden nimetty joukko (tagi Tunnus-kentässä). Säännöt Joukko-palikalla (`pjoukko`). Eri asia kuin Rivijoukko |
-| `jäsen` | Joukko-palikan kentissä käsiteltävä jäsen (`jäsen.x`); varattu sana |
+| `jäsen` | Joukko-palikan kentissä ja Jäsenille-ikkunan sisällä käsiteltävä jäsen (`jäsen.x`); muualla virhe; varattu sana |
 | ikkuna | logiikan laatikko, joka yhdistää sisältönsä (JA, TAI, SUMMA…); kuin sulut |
 | kaava | lauseke, joka laskee arvon toisista: `uni > 7` |
 | kaavan tulos | kaavan nimetty arvo: `uni = a + b` |
