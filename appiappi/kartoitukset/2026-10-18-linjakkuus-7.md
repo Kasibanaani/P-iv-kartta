@@ -70,7 +70,7 @@ Ei uusia rivejä. Uudet toiminnot (12b, 12d) ovat pikaluonteja ja muokkaustapoja
 
 ## Koko testisarja
 
-`sh appiappi/testit/aja.sh` commitilla `c126706` (koodi = Appi-appi 52): logiikka 78/78 läpi. Selaintestit ajossa tätä kirjoitettaessa; tulos päivitetään tähän. Vain tietokoneen Chromiumissa, ei oikealla iPhonella.
+`sh appiappi/testit/aja.sh` commitilla `c126706` (koodi = Appi-appi 52): logiikka 78/78 ja selain 91/92 läpi, ei sivuvirheitä. Ainoa virhe `selain_39_appiappi` johtui kartoituksen ajotavasta (sarja ajettiin kopiosta, jossa oli vain `appiappi/`-kansio, ja testi avaa myös `pajakone/`-osoitteen); repon omassa kansiossa ajettuna se meni läpi. Ei löydös. Vain tietokoneen Chromiumissa, ei oikealla iPhonella.
 
 ## Lisätty jonoon
 
