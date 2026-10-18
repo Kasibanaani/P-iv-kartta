@@ -237,7 +237,7 @@ Antaa tiedot tapahtumasta, joka käynnisti toiminnon tai ketjun. Tiedot ovat tap
 | `tapahtuma.lähde` | palikan nimi, josta tapahtuma lähti |
 | `tapahtuma.aika`, `tapahtuma.päivä` | kellonaika (h.mm) ja päivä |
 | `tapahtuma.tunniste`, `tapahtuma.on` | tunniste ja onko tapahtumaa |
-| `tapahtuma.kohde`, `.isku`, `.x`, `.y`, `.ruutux`, `.ruutuy` | törmäyksen ja napautuksen tiedot (muut luvut) |
+| `tapahtuma.kohde`, `.isku`, `.puoli`, `.voima`, `.x`, `.y`, `.ruutux`, `.ruutuy` | törmäyksen, laskeutumisen ja napautuksen tiedot (muut luvut) |
 | `tapahtuma.nappi` | Peliohjaimen *painettu* ja *irrotettu*: napin nimi, esim. `alanappi` |
 | `tapahtuma.jäsen`, `tapahtuma.jäsen.<ominaisuus>` | Joukon *jäsen …* -tapahtuma ja Toista jäsenille -kierros: jäsenen nimi ja sen ominaisuus nyt ([Jäsenten tapahtumat](#jäsenten-tapahtumat-appi-appi-63)) |
 | `tapahtuma.suunta` | janan merkissä 1 eteenpäin, −1 taaksepäin ([Jana](05-ketjut-ja-toiminnot.md#jana-jana)); `tapahtuma.uusi` on silloin merkin kohta |

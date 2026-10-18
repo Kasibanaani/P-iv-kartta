@@ -494,7 +494,7 @@ Auki pysyvä, kelluva laatikko näkymäkanvaasin päällä (Appi-appi 61). Siit�
 
 **Pisteet ja Elämät yhteisinä:** Kolikko ja Pistenäyttö käyttävät Muistia, jonka viite on `pisteet`, ja Elämät Muistia, jonka viite on `elämät`. Jos sellaista ei vielä ole, se tehdään (ilmoitus kertoo: ”Uusi logiikkaan: Pisteet”). Jos on, kohde käyttää sitä: Kolikot-Ryhmään tulee Pisteistä uusi esiintymä (2×), ei uutta muistia. Haku on vain viitteellä; samanniminen muulla viitteellä ei kelpaa.
 
-**Rajat:** laattojen, painovoiman ja hypyn kohteet tulevat 2D-vaiheiden mukana; nyt niitä ei ole. Hyllyjä ei voi nimetä uudelleen eikä omia lisätä; omat kohteet tehdään presetteinä (Omat-hylly). Kolikko ei palaa itsestään: kerätyt palaavat joukkoon *Palauta perusarvo*- tai Tyhjennä käyttötiedot -napista tai toiminnolla Lisää joukkoon. Appi-appi 61–64 teki kolikolle oman Muistin *Kolikko: kerätty*; vanhat kolikot toimivat ennallaan.
+**Rajat:** laattojen, painovoiman ja hypyn kohteet tulevat 2D-vaiheiden mukana; nyt niitä ei ole (painovoima itsessään on Alueen osiossa Painovoima). Hyllyjä ei voi nimetä uudelleen eikä omia lisätä; omat kohteet tehdään presetteinä (Omat-hylly). Kolikko ei palaa itsestään: kerätyt palaavat joukkoon *Palauta perusarvo*- tai Tyhjennä käyttötiedot -napista tai toiminnolla Lisää joukkoon. Appi-appi 61–64 teki kolikolle oman Muistin *Kolikko: kerätty*; vanhat kolikot toimivat ennallaan.
 
 ## Kerrokset (lyhyesti)
 

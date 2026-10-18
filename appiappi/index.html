@@ -1309,6 +1309,8 @@ function portsBase(b){
     case 'liike':{var oj=LIIKE_OHJ[b.ohj]?b.ohj:'';ins=oj?[V('vm','huippunopeus')]:[V('vx','nopeus x'),V('vy','nopeus y')];
       if(oj==='napautus')ins.push(V('tx','kohde x'),V('ty','kohde y'));if(oj==='auto')ins.push(V('kaa','kaasu'),V('ohj','ohjaus'));if(oj==='ruutu')ins.push(E('yl','ylös'),E('al','alas'),E('va','vasen'),E('oi','oikea'));
       ins.push(V('c','liikkuu kun'),E('e','alkuun'));if(oj==='reitti')ins.push(E('go','käynnistä'),E('stop','pysäytä'));outs=[V('v','x'),V('y','y'),V('m','liikkuu'),V('osuu','osuu esteeseen'),V('nop','nopeus'),V('suu','suunta'),E('tor','törmäsi')];
+      /* Jonon 16: painovoima (Alueen osio Painovoima). */
+      if(oj!=='ruutu'&&oj!=='reitti')outs.push(V('maa','maassa'),V('alla','alla'),V('pvv','putoamisvauhti'),E('lask','laskeutui'),E('irt','irtosi maasta'));
       if(oj==='napautus')outs.push(V('kx','kohde x'),V('ky','kohde y'),E('per','perillä'));if(oj==='napautus'&&b.kie===true)outs.push(V('eip','ei pääse'));if(oj==='ruutu')outs.push(E('ast','askel valmis'));if(oj==='reitti')outs.push(V('ed','edistyminen'),E('per','päässä'));break;}
     case 'pvmosa':ins=[V('a','päivämäärä')];outs=[V('v','tulos')];break;
     case 'jos':ins=[V('c','ehto')];outs=[V('v','pätee'),E('e','NIIN')];if(b.muuten)outs.push(E('m','MUUTEN'));break;
@@ -1430,7 +1432,12 @@ function omatK(b){
   if(pb.outs.some(function(x){return x.p==='v';}))r.push(OM('arvo','arvo','arvo',{port:'v',d:'palikan arvo'}));
   if(K[k].g==='ui'){
     if(k==='merkki')return r.concat(omGeo());
-    if(k==='alue'){pt('n','montako','montako tunnistettavaa on sisällä');pt('nx','napautettux','viimeksi napautettu ruutu tai kohta x');pt('ny','napautettuy','viimeksi napautettu ruutu tai kohta y');if(b.rkr){pt('rx','ruutux','tunnistettavan ruutu x alueen sisällä (1 = vasen)');pt('ry','ruutuy','tunnistettavan ruutu y alueen sisällä (1 = ylin)');}r=r.filter(function(e){return e.p!=='arvo';});r.unshift(OM('sisällä','sisällä','arvo',{port:'v',al:['sisalla'],d:'onko tunnistettava sisällä (kyllä/ei)'}));return r.concat(omGeo(),omKoko());}
+    if(k==='alue'){pt('n','montako','montako tunnistettavaa on sisällä');pt('nx','napautettux','viimeksi napautettu ruutu tai kohta x');pt('ny','napautettuy','viimeksi napautettu ruutu tai kohta y');if(b.rkr){pt('rx','ruutux','tunnistettavan ruutu x alueen sisällä (1 = vasen)');pt('ry','ruutuy','tunnistettavan ruutu y alueen sisällä (1 = ylin)');}r=r.filter(function(e){return e.p!=='arvo';});r.unshift(OM('sisällä','sisällä','arvo',{port:'v',al:['sisalla'],d:'onko tunnistettava sisällä (kyllä/ei)'}));
+      /* Jonon 16: painovoima Alueen ominaisuutena (Aseta kääntää painovoiman). */
+      r.push(OM('painovoima','painovoima','luku',{f:'pv',o:1,lim:[0,100000],d:'painovoima alueella px/s² (tyhjä = ei painovoimaa, 0 = kumoaa alemman alueen painovoiman; tavallinen 1800–2500)'}),
+        OM('suunta','suunta','valinta',{f:'pvs',o:1,opt:PV_SN,def:'alas',d:'painovoiman suunta: alas, ylös, vasen tai oikea (myös 1–4)'}),
+        OM('ilmanvastus','ilmanvastus','luku',{f:'ilv',o:1,lim:[0,100],def:0,d:'hidastaa töytäisyvauhtia alueella (%): vesi esim. 50, 0 = ei'}));
+      return r.concat(omGeo(),omKoko());}
     r=r.concat(omTila(),omGeo(),omKoko(),omIlme(),[OM('este','este','kylla',{f:'este',o:1,d:'liikkuvat palikat eivät mene läpi (kyllä/ei)'}),OM('massa','massa','luku',{f:'mas',o:1,lim:[0,null],d:'paino törmäyksissä (tyhjä tai 0 = ei massaa: ei reagoi, mutta tönäisee massallisia). Vain suhteilla on väliä (F24)'}),OM('kimmoisuus','kimmoisuus','luku',{f:'kim',o:1,lim:[0,200],def:0,d:'0 = tömähtää, 100 = pomppaa täysin, yli 100 = pomppulevy (%)'}),OM('ruutux','ruutux','luku',{calc:1,d:'keskipisteen ruutu x kerroksen ruudukossa (1 = ensimmäinen)'}),OM('ruutuy','ruutuy','luku',{calc:1,d:'keskipisteen ruutu y kerroksen ruudukossa (1 = ylin)'})],omAnim(k));
     if(NAPK[k])r.push(OM('napautettava','napautettava','kylla',{f:'nap',o:1,d:'ottaako palikka käytössä napautuksia (kyllä/ei): tapahtumat napautettu ja pitkä painallus'}));
     switch(k){
@@ -1483,7 +1490,8 @@ function omatK(b){
       cl('kesto','kesto','luku',b.tapa==='klo'?'aika seuraavaan kellonaikaan sekunteina':'odotuksen kesto sekunteina (kentästä tai nuolesta)');break;
     case 'muutos':cl('alku','alku','luku','arvo alussa (kentästä tai nuolesta)');cl('loppu','loppu','luku','arvo lopussa (kentästä tai nuolesta)');cl('kesto','kesto','luku','kesto sekunteina (kentästä tai nuolesta)');
       pt('t','edistyminen','0–1 alusta loppuun');pt('r','käynnissä','onko käynnissä',['kaynnissa']);cl('kulunut','kulunut','luku','kulunut aika sekunteina (kesto × edistyminen)');break;
-    case 'liike':r.push(OM('x','x','arvo',{port:'v',d:'paikka x'}));pt('y','y','paikka y');pt('m','liikkuu','kyllä, kun liikkuu nyt');pt('osuu','osuu','kyllä, kun este pysäyttää tai ohjaa liikettä');pt('nop','nopeus','nopeus pikseliä sekunnissa');if(b.ohj!=='ruutu'){/* Jonon 1o (kartoitus 6, S3): vauhdin asetukset ohjattaviksi kuten kitka. */if(b.ohj==='auto')r.push(OM('kaantyvyys','kääntyvyys','luku',{al:['kaantyvyys'],f:'kaa',o:1,lim:[0,null],def:180,d:'montako astetta auto kääntyy sekunnissa täydellä vauhdilla'}));if(b.ohj!=='reitti')r.push(OM('liukkaus','liukkaus','luku',{f:'liuk',o:1,lim:[0,100],def:0,d:'0 = pito täysi, 100 = todellinen nopeus seuraa haluttua 1,5 s viiveellä (%)'}));r.push(OM('kiihtyminen','kiihtyminen','luku',{f:'ka',o:1,lim:[0,60],def:0,d:'aika paikaltaan huippunopeuteen sekunteina, 0 = heti'}),OM('jarrutus','jarrutus','luku',{f:'kb',o:1,lim:[0,60],def:0,d:'aika huippunopeudesta pysähdyksiin sekunteina, 0 = heti'}),OM('kitka','kitka','luku',{f:'kit',o:1,lim:[0,100],def:50,d:'kuinka nopeasti törmäyksestä tai töytäisystä saatu vauhti hiipuu: 0 = ei koskaan, 100 = heti (%)'}),OM('ux','vauhtix','luku',{al:['vauhti x'],lst:'ux',o:1,d:'töytäisyvauhti vaakaan (px/s), esim. lyönti: Lisää 300'}),OM('uy','vauhtiy','luku',{al:['vauhti y'],lst:'uy',o:1,d:'töytäisyvauhti pystyyn (px/s), alas +'}));cl('isku','isku','luku','viimeisimmän törmäyksen voimakkuus (lähestymisnopeus px/s)');cl('törmäyskohde','törmäyskohde','teksti','palikka, johon viimeksi törmäsi',['tormayskohde']);}pt('suu','suunta','kulkusuunta asteina, 0 = ylös, 90 = oikealle');
+    case 'liike':r.push(OM('x','x','arvo',{port:'v',d:'paikka x'}));pt('y','y','paikka y');pt('m','liikkuu','kyllä, kun liikkuu nyt');pt('osuu','osuu','kyllä, kun este pysäyttää tai ohjaa liikettä');pt('nop','nopeus','nopeus pikseliä sekunnissa');if(b.ohj!=='ruutu'&&b.ohj!=='reitti'){r.push(OM('painovoima','painovoima','luku',{f:'pvk',o:1,lim:[0,1000],def:100,d:'kuinka paljon Alueen painovoima vetää (%): 100 = sellaisenaan, 50 = kuu, 0 = ei välitä'}));
+      pt('maa','maassa','kyllä, kun seisoo jonkin päällä painovoiman suhteen');pt('alla','alla','sen palikan nimi, jonka päällä seisoo (tyhjä = ilmassa tai rajan päällä)');pt('pvv','putoamisvauhti','vauhti painovoiman suuntaan (px/s, nouseva negatiivinen)');}if(b.ohj!=='ruutu'){/* Jonon 1o (kartoitus 6, S3): vauhdin asetukset ohjattaviksi kuten kitka. */if(b.ohj==='auto')r.push(OM('kaantyvyys','kääntyvyys','luku',{al:['kaantyvyys'],f:'kaa',o:1,lim:[0,null],def:180,d:'montako astetta auto kääntyy sekunnissa täydellä vauhdilla'}));if(b.ohj!=='reitti')r.push(OM('liukkaus','liukkaus','luku',{f:'liuk',o:1,lim:[0,100],def:0,d:'0 = pito täysi, 100 = todellinen nopeus seuraa haluttua 1,5 s viiveellä (%)'}));r.push(OM('kiihtyminen','kiihtyminen','luku',{f:'ka',o:1,lim:[0,60],def:0,d:'aika paikaltaan huippunopeuteen sekunteina, 0 = heti'}),OM('jarrutus','jarrutus','luku',{f:'kb',o:1,lim:[0,60],def:0,d:'aika huippunopeudesta pysähdyksiin sekunteina, 0 = heti'}),OM('kitka','kitka','luku',{f:'kit',o:1,lim:[0,100],def:50,d:'kuinka nopeasti törmäyksestä tai töytäisystä saatu vauhti hiipuu: 0 = ei koskaan, 100 = heti (%)'}),OM('ux','vauhtix','luku',{al:['vauhti x'],lst:'ux',o:1,d:'töytäisyvauhti vaakaan (px/s), esim. lyönti: Lisää 300'}),OM('uy','vauhtiy','luku',{al:['vauhti y'],lst:'uy',o:1,d:'töytäisyvauhti pystyyn (px/s), alas +'}));cl('isku','isku','luku','viimeisimmän törmäyksen voimakkuus (lähestymisnopeus px/s)');cl('törmäyskohde','törmäyskohde','teksti','palikka, johon viimeksi törmäsi',['tormayskohde']);}pt('suu','suunta','kulkusuunta asteina, 0 = ylös, 90 = oikealle');
         /* 1l (P6): kohdan ulostulot myös kaavaan (samat ehdot kuin nuolikohdilla). */
         if(b.ohj==='napautus'){pt('kx','kohdex','kohteen x (napautettu kohta)',['kohde x','kohde_x']);pt('ky','kohdey','kohteen y (napautettu kohta)',['kohde y','kohde_y']);
           if(b.kie===true)pt('eip','eipääse','kyllä, kun kohteeseen ei pääse esteiden ohi',['ei pääse','eipaase','ei_pääse']);}
@@ -1510,7 +1518,7 @@ function omatK(b){
       if(histCol(b)){cl('viimeisin','viimeisin','arvo','uusin kirjaus (riviviite)');cl('edellisestä','edellisestä','luku','minuutteja uusimmasta kirjauksesta',['edellisesta']);cl('tänään','tänään','luku','kirjauksia tänään (päivän raja)',['tanaan']);}
       break;
     case 'tapaht':r=r.filter(function(e){return e.p!=='arvo';});r.push(OM('uusi','uusi','arvo',{port:'v',al:['arvo'],d:'uusi arvo tapahtumahetkellä'}));pt('vanha','vanha','arvo ennen tapahtumaa');pt('rivi','rivi','tapahtuman rivi (riviviite)');
-      cl('lähde','lähde','teksti','palikka, josta tapahtuma lähti',['lahde']);cl('aika','aika','teksti','tapahtuman kellonaika');cl('päivä','päivä','pvm','tapahtuman päivä',['paiva']);cl('tunniste','tunniste','teksti','tapahtuman tunniste');cl('kohde','kohde','teksti','Liikkeen törmäsi: palikka, johon törmättiin; pudotettu: Alue, johon pudotettiin');cl('x','x','luku','pudotettu: palikan uusi x; napautettu ja pitkä painallus: kohta palikassa tai Alueessa (px vasemmasta yläkulmasta, painikkeelta tyhjä näppäimistöltä ja ohjaimelta)');cl('y','y','luku','pudotettu: palikan uusi y; napautettu ja pitkä painallus: kohta y (px)');cl('ruutux','ruutux','luku','pudotettu ja ruudukollisen Alueen napautettu: ruudukon ruutu vaakaan (1 = ensimmäinen)');cl('ruutuy','ruutuy','luku','pudotettu ja ruudukollisen Alueen napautettu: ruudukon ruutu pystyyn (1 = ensimmäinen)');cl('isku','isku','luku','Liikkeen törmäsi: kuinka kovaa (px/s)');cl('suunta','suunta','luku','Janan merkki: 1 = eteenpäin, −1 = taaksepäin');cl('nappi','nappi','teksti','Peliohjaimen painettu tai irti: napin nimi, esim. alanappi');cl('jäsen','jäsen','teksti','Joukon jäsen …- ja Toista jäsenille -tapahtuma: jäsen, jonka tapahtuma on (myös tapahtuma.jäsen.x)',['jasen']);
+      cl('lähde','lähde','teksti','palikka, josta tapahtuma lähti',['lahde']);cl('aika','aika','teksti','tapahtuman kellonaika');cl('päivä','päivä','pvm','tapahtuman päivä',['paiva']);cl('tunniste','tunniste','teksti','tapahtuman tunniste');cl('kohde','kohde','teksti','Liikkeen törmäsi: palikka, johon törmättiin; pudotettu: Alue, johon pudotettiin');cl('x','x','luku','pudotettu: palikan uusi x; napautettu ja pitkä painallus: kohta palikassa tai Alueessa (px vasemmasta yläkulmasta, painikkeelta tyhjä näppäimistöltä ja ohjaimelta)');cl('y','y','luku','pudotettu: palikan uusi y; napautettu ja pitkä painallus: kohta y (px)');cl('ruutux','ruutux','luku','pudotettu ja ruudukollisen Alueen napautettu: ruudukon ruutu vaakaan (1 = ensimmäinen)');cl('ruutuy','ruutuy','luku','pudotettu ja ruudukollisen Alueen napautettu: ruudukon ruutu pystyyn (1 = ensimmäinen)');cl('isku','isku','luku','Liikkeen törmäsi ja laskeutui: kuinka kovaa (px/s)');cl('puoli','puoli','teksti','Liikkeen törmäsi: miltä puolelta osui (painovoimassa ylhäältä, alhaalta tai sivulta; muuten myös vasemmalta tai oikealta)');cl('voima','voima','luku','Liikkeen törmäsi ja laskeutui: osumavoima eli impulssi (massa × vauhdin muutos; ilman massaa = isku)');cl('suunta','suunta','luku','Janan merkki: 1 = eteenpäin, −1 = taaksepäin');cl('nappi','nappi','teksti','Peliohjaimen painettu tai irti: napin nimi, esim. alanappi');cl('jäsen','jäsen','teksti','Joukon jäsen …- ja Toista jäsenille -tapahtuma: jäsen, jonka tapahtuma on (myös tapahtuma.jäsen.x)',['jasen']);
       cl('on','on','kylla','onko tapahtumaa (ei = tapahtuman ulkopuolella)');cl('taulukko','taulukko','teksti','tapahtuman rivin taulukko');r.push(OM('rivi.sarake','rivi.<sarake>','arvo',{dyn:1,d:'tapahtuman rivin kenttä nyt (sarakkeen viite)'}));break;
     /* P3a */
     case 'trivi':r=r.filter(function(e){return e.p!=='arvo';});pt('v','rivi','rivi (riviviite)',['arvo']);cl('nro','nro','luku','rivin numero taulukossa (0 = ei riviä)');cl('on','on','kylla','onko riviä nyt');
@@ -1841,10 +1849,20 @@ function frame0(P,dt,ctx){var ev=Ev(P,ctx),act=false,changed=false,done=[],fires
     return out;}
   function lim(v,lo,hi){var a=parseNum(lo),c=parseNum(hi);if(!isNaN(a))v=Math.max(a,v);if(!isNaN(c))v=Math.min(c,v);return v;}
   function r3(v){return Math.round(v*1000)/1000;}
-  var nA=fysAlivaiheet(P,FY,rect,dt),kos={};
-  for(var ai=0;ai<nA;ai++){var last=ai===nA-1;
-    Object.keys(P.b).forEach(function(id){var b=P.b[id];if(b.k!=='liike')return;if(liikeAskel(P,b,ev,dt/nA,rect,R,esteet,lim,fires))changed=true;if(last&&liikeKay(P,id))act=true;});
-    if(FY.on&&fysParit(P,ev,FY,rect,R,esteet,dt/nA,kos))changed=true;}
+  /* Jonon 16: painovoiman kanssa kuva lasketaan kiinteinä 1/120 s:n askelina (kertymä PVACC, enintään 8 askelta kuvassa,
+     ettei taustalle jäänyt välilehti räjähdä). Ilman painovoima-Aluetta kuva on yksi askel kuten ennen. */
+  var pvA=pvAlueet(P,ev),steps=[dt],kos={};
+  if(pvA.length){FY.pvOf=function(t){return pvKohde(pvA,t,rect);};FY.gv={};FY.maa={};
+    var acc=(PVACC&&PVACC.get(P)||0)+dt,nS=Math.floor(acc/PV_DT+1e-9);if(nS>PV_MAX){nS=PV_MAX;acc=nS*PV_DT;}acc-=nS*PV_DT;if(PVACC)PVACC.set(P,Math.max(0,acc));
+    steps=[];for(var si=0;si<nS;si++)steps.push(PV_DT);
+    /* Ei kokonaista askelta (esim. 240 Hz tai silmukan alku): ei liikettä, mutta ilmassa oleva pitää silmukan käynnissä. */
+    if(!nS)Object.keys(P.b).forEach(function(id){var b=P.b[id];if(b.k!=='liike')return;if(liikeKay(P,id)){act=true;return;}if(b.ohj==='ruutu'||b.ohj==='reitti'||liikeSt(P,id).ma)return;
+      var t=liikeKohde(P,b),g=t&&FY.pvOf(t);if(g&&g.g>0&&ev.omiNum(id,'painovoima',100)>0)act=true;});}
+  for(var sj=0;sj<steps.length;sj++){var sdt=steps[sj],nA=fysAlivaiheet(P,FY,rect,sdt),lastS=sj===steps.length-1;
+    for(var ai=0;ai<nA;ai++){var last=lastS&&ai===nA-1;
+      Object.keys(P.b).forEach(function(id){var b=P.b[id];if(b.k!=='liike')return;if(liikeAskel(P,b,ev,sdt/nA,rect,R,esteet,lim,fires,FY))changed=true;if(last&&liikeKay(P,id))act=true;});
+      if(FY.on&&fysParit(P,ev,FY,rect,R,esteet,sdt/nA,kos))changed=true;}
+    if(FY.gv&&sdt>0&&pvLopuksi(P,FY,fires))changed=true;}
   if(FY.on&&fysKosketus(P,FY,kos,fires))changed=true;
   /* Appi-appi 4: kuvasarjat käyntiin ja seis. */
   var ev2=changed?Ev(P,ctx):ev;
@@ -1866,7 +1884,7 @@ function frame0(P,dt,ctx){var ev=Ev(P,ctx),act=false,changed=false,done=[],fires
       if(b.toisto!=='toista'&&b.toisto!=='edestakaisin'){var sp=muutosSpec(b,ev.inp,ev.has,ev.linked);if(isErr(sp))return;var t=(msNow(ctx)-st.t0)/(sp.k*1000);if(t>=1){P.st[id]={run:false,t0:0,t:1};done.push(id);}}}
   });
   if(changed||done.length||fires.length){done.forEach(function(id){fire(P,id,'e',ctx,0);});
-    fires.forEach(function(f){var c2=ctx;if(f[2]){var te=mkEv(P,f[0],ctx,null);te.kohde=f[2].kohde;te.kn=P.b[f[2].kohde]?P.b[f[2].kohde].nm:'';te.isku=Math.round((num(f[2].isku)||0)*100)/100;c2=withEv(ctx,te);}fire(P,f[0],f[1],c2,0);});tick(P,ctx);}
+    fires.forEach(function(f){var c2=ctx;if(f[2]){var te=mkEv(P,f[0],ctx,null);te.kohde=f[2].kohde;te.kn=P.b[f[2].kohde]?P.b[f[2].kohde].nm:'';te.isku=Math.round((num(f[2].isku)||0)*100)/100;if(f[2].puoli)te.puoli=f[2].puoli;if(f[2].voima!=null&&isFinite(f[2].voima))te.voima=Math.round(f[2].voima*100)/100;c2=withEv(ctx,te);}fire(P,f[0],f[1],c2,0);});tick(P,ctx);}
   if(!act&&aikaKay(P))act=true;
   return act;}
 /* Toista: montako kierrosta (nuolesta tai kentästä). */
@@ -2167,12 +2185,14 @@ function fysParit(P,ev,FY,rect,R,esteet,dt,kos){var L=[];
   if(L.length<2)return false;
   function oa(X){return osumaAlue(X.t,X.r);}
   function siirr(X,dx,dy){X.r={x:X.r.x+dx,y:X.r.y+dy,w:X.r.w,h:X.r.h};X.mv=true;}
-  function kirjaa(X,Y,isku,oik){var k=kos[X.f.lid]||(kos[X.f.lid]={}),o=k[Y.t.id]||(k[Y.t.id]={isku:0,oik:false});if(isku>o.isku)o.isku=isku;if(oik)o.oik=true;}
+  function kirjaa(X,Y,isku,oik,nx,ny,jv){var k=kos[X.f.lid]||(kos[X.f.lid]={}),o=k[Y.t.id]||(k[Y.t.id]={isku:0,oik:false});if(isku>o.isku||(oik&&o.nx==null)){o.isku=Math.max(o.isku,isku);if(nx!=null){o.nx=nx;o.ny=ny;o.voima=jv||0;}}if(oik)o.oik=true;
+    /* Jonon 16: alusta painovoiman suhteen (seisoo toisen kappaleen päällä). */
+    var G=FY.gv&&FY.gv[X.f.lid];if(G&&nx!=null&&pvMaaOn(G,{x:nx,y:ny}))pvMaaKirjaa(FY,X.f.lid,Y.t.id,isku,jv||0);}
   function pari(X,Y){return X.t.v===Y.t.v&&(X.f.este||Y.f.este)&&(X.f.inv>0||Y.f.inv>0);}
   function seinat(X){if(!X.mv||!(X.f.inv>0))return;var obs=esteet(X.t.v,X.t.id);
     for(var k2=0;k2<4;k2++){var m2=false;for(var q=0;q<obs.length;q++){var v=osumaTyonto(oa(X),obs[q]);if(!v)continue;siirr(X,v.x,v.y);m2=true;X.sein=true;
       var dd=Math.sqrt(v.x*v.x+v.y*v.y);if(dd<1e-9)continue;var qx=v.x/dd,qy=v.y/dd,vn=(X.vx+X.ux)*qx+(X.vy+X.uy)*qy;if(!(vn<0))continue;
-      var e2=Math.max(X.f.kim,obs[q].kim||0),cvn=X.vx*qx+X.vy*qy;if(cvn<0){X.vx-=cvn*qx;X.vy-=cvn*qy;X.cv=true;}
+      var e2=Math.max(X.f.kim,obs[q].kim||0),cvn=X.vx*qx+X.vy*qy,G2=FY.gv&&FY.gv[X.f.lid];if(G2&&pvMaaOn(G2,{x:qx,y:qy}))pvMaaKirjaa(FY,X.f.lid,obs[q].bid,-vn,pvVoima(-vn,e2,X.f.m));if(cvn<0){X.vx-=cvn*qx;X.vy-=cvn*qy;X.cv=true;}
       var un=X.ux*qx+X.uy*qy,uw=-e2*vn-(X.vx*qx+X.vy*qy);X.ux+=(uw-un)*qx;X.uy+=(uw-un)*qy;X.uv=true;}if(!m2)break;}}
   for(var it=0;it<4;it++){var any=false;
     for(var i=0;i<L.length;i++)for(var j=i+1;j<L.length;j++){var X=L[i],Y=L[j];if(!pari(X,Y))continue;
@@ -2180,8 +2200,8 @@ function fysParit(P,ev,FY,rect,R,esteet,dt,kos){var L=[];
       if(!pv){if(osumaTyonto(fysLaaja(ax,1),ay)){kirjaa(X,Y,0,false);kirjaa(Y,X,0,false);}continue;}
       var d=Math.sqrt(pv.x*pv.x+pv.y*pv.y);if(d<1e-9)continue;var nx=pv.x/d,ny=pv.y/d,sI=X.f.inv+Y.f.inv;
       var vrel=(X.vx+X.ux-Y.vx-Y.ux)*nx+(X.vy+X.uy-Y.vy-Y.uy)*ny;
-      if(vrel<0){var e=Math.max(X.f.kim,Y.f.kim),jj=-(1+e)*vrel/sI;X.ux+=jj*X.f.inv*nx;X.uy+=jj*X.f.inv*ny;Y.ux-=jj*Y.f.inv*nx;Y.uy-=jj*Y.f.inv*ny;X.uv=Y.uv=true;}
-      kirjaa(X,Y,vrel<0?-vrel:0,true);kirjaa(Y,X,vrel<0?-vrel:0,true);
+      var jv=0;if(vrel<0){var e=Math.max(X.f.kim,Y.f.kim),jj=-(1+e)*vrel/sI;jv=jj;X.ux+=jj*X.f.inv*nx;X.uy+=jj*X.f.inv*ny;Y.ux-=jj*Y.f.inv*nx;Y.uy-=jj*Y.f.inv*ny;X.uv=Y.uv=true;}
+      kirjaa(X,Y,vrel<0?-vrel:0,true,nx,ny,jv);kirjaa(Y,X,vrel<0?-vrel:0,true,-nx,-ny,jv);
       if(X.f.inv>0)siirr(X,pv.x*X.f.inv/sI,pv.y*X.f.inv/sI);if(Y.f.inv>0)siirr(Y,-pv.x*Y.f.inv/sI,-pv.y*Y.f.inv/sI);any=true;}
     L.forEach(seinat);if(!any)break;}
   /* Puristus: seinää vasten oleva massallinen ei anna periksi, joten massaton tönäisijä pysähtyy sen pintaan. */
@@ -2199,9 +2219,44 @@ function fysKosketus(P,FY,kos,fires){var ch=false;
     var uusi=cur.filter(function(x){return prev.indexOf(x)<0;});if(!uusi.length&&cur.join('|')===prev.join('|'))return;
     var s1={};for(var q in s)s1[q]=s[q];if(cur.length)s1.kos=cur;else delete s1.kos;
     if(uusi.length){var best=uusi[0];uusi.forEach(function(x){if(k[x].isku>k[best].isku)best=x;});s1.osk=best;s1.okn=P.b[best]?P.b[best].nm:'';s1.isku=Math.round(k[best].isku*1000)/1000;
-      uusi.forEach(function(x){fires.push([f.lid,'tor',{kohde:x,isku:k[x].isku}]);});}
+      uusi.forEach(function(x){var kx=k[x],G=FY.gv&&FY.gv[f.lid]||null;fires.push([f.lid,'tor',{kohde:x,isku:kx.isku,puoli:kx.nx!=null?pvPuoli(G,{x:kx.nx,y:kx.ny}):undefined,voima:kx.nx!=null?kx.voima:undefined}]);});}
     P.st[f.lid]=s1;ch=true;});
   return ch;}
+/* ---------- Jonon 16 (F35 vaihe A): painovoima ja maassa ----------
+   Painovoima on Alueen ominaisuus: b.pv px/s² (puuttuva = alue ei koske painovoimaan; 0 = ei painovoimaa tällä alueella, kumoaa
+   alemman, esim. tikkaat), suunta b.pvs (alas, ylos, vasen, oikea) ja ilmanvastus b.ilv % (hidastaa töytäisyvauhtia, 100 % =
+   aikavakio 1/3 s). Kappale = Liikkeen kohde (ei Reitti eikä Ruutu); sen keskipisteen päällimmäinen painovoima-Alue voittaa
+   (kerros, järjestys, lisäysjärjestys). Liikkeen b.pvk % kertoo painovoiman (100 = sellaisenaan, 0 = ei välitä). Painovoimassa
+   ohjaus koskee vain poikittaista akselia (pystyosa siirtyy töytäisyvauhtiin), painovoima kiihdyttää töytäisyvauhtia ja kitka
+   koskee vain maassa ja vain poikittaista osaa. Maassa = askeleen osumanormaaleista jokin osoittaa painovoimaa vastaan
+   (kosini > 0,7). Kun projektissa on painovoima, kuva lasketaan kiinteinä 1/120 s:n askelina (kertymä, enintään 8 askelta
+   kuvassa), joten lentorata ei riipu virkistystaajuudesta; siirto käyttää askeleen keskivauhtia (tarkka tasaiselle
+   kiihtyvyydelle). Käyttötiedot st[id]: ma (maassa), alla (palikka, jonka päällä seisoo; '' = raja), pvs (suunta askeleessa).
+   Tapahtumat lask (laskeutui: kohde, isku, voima) ja irt (irtosi maasta). Törmäsi-tietoihin puoli ja voima (impulssi). */
+var PV_SUUNNAT={alas:[0,1],ylos:[0,-1],vasen:[-1,0],oikea:[1,0]},PV_SN=[['alas','alas'],['ylos','ylös'],['vasen','vasen'],['oikea','oikea']],PV_DT=1/120,PV_MAX=8,PV_MAA=0.7,
+  PVACC=typeof WeakMap!=='undefined'?new WeakMap():null;
+/* Painovoima-Alueet päällimmäinen ensin: {a, g, d: [dx, dy], s, ilv}. Alue mukana, kun perusarvo on annettu tai sitä ohjataan. */
+function pvAlueet(P,ev){var o=[];Object.keys(P.b).forEach(function(id,i){var a=P.b[id];if(a.k!=='alue')return;if((a.pv==null||a.pv==='')&&!omActiveAny(P,a))return;
+  var g=ev.omiNum(id,'painovoima',NaN);if(!isFinite(g))return;var sv=ev.omiVal(id,'suunta');if(!PV_SUUNNAT[sv])sv='alas';var il=ev.omiNum(id,'ilmanvastus',0);
+  o.push({a:a,g:Math.max(0,g),d:PV_SUUNNAT[sv],s:sv,ilv:Math.max(0,Math.min(100,num(il)||0)),i:i,ki:kerrosOf(P,a).i,z:num(a.z)||0});});
+  o.sort(function(x,y){return y.ki-x.ki||y.z-x.z||y.i-x.i;});return o;}
+function pvKohde(L,t,rect){var r=null;for(var i=0;i<L.length;i++){var a=L[i].a;if(a.v!==t.v||(a.kuka&&a.kuka!==t.id))continue;r=r||rect(t);if(alueSisalla(a,rect(a),r.x+r.w/2,r.y+r.h/2))return L[i];}return null;}
+/* Osumanormaali q (esteestä liikkujaan): onko alusta painovoiman G suhteen, ja miltä puolelta liikkuja osui. */
+function pvMaaOn(G,q){return -(q.x*G.dx+q.y*G.dy)>PV_MAA;}
+function pvPuoli(G,q){if(G){var c=-(q.x*G.dx+q.y*G.dy);return c>PV_MAA?'ylhäältä':c<-PV_MAA?'alhaalta':'sivulta';}
+  return Math.abs(q.y)>=Math.abs(q.x)?(q.y<0?'ylhäältä':'alhaalta'):(q.x<0?'vasemmalta':'oikealta');}
+/* Osumavoima = impulssi: massallinen seinään (1 + e) · isku · m; massaton = isku (massa 1). */
+function pvVoima(isku,e,m){return m>0?(1+e)*isku*m:isku;}
+function pvMaaKirjaa(FY,lid,bid,isku,voima){if(!FY||!FY.maa)return;var c=FY.maa[lid];if(!c||isku>c.isku)FY.maa[lid]={bid:bid||'',isku:isku,voima:voima};}
+/* Askeleen lopuksi: maassa ja alla ajan tasalle, laskeutui ja irtosi maasta. Palauttaa, muuttuiko jokin. */
+function pvLopuksi(P,FY,fires){var ch=false;Object.keys(FY.gv).forEach(function(lid){var s=liikeSt(P,lid),c=FY.maa[lid],was=!!s.ma,now=!!c,s1=null;
+    function cp(){if(!s1){s1={};for(var k in s)s1[k]=s[k];}return s1;}
+    if(now&&!was){cp().ma=1;fires.push([lid,'lask',{kohde:c.bid,isku:c.isku,voima:c.voima}]);}else if(!now&&was){delete cp().ma;fires.push([lid,'irt']);}
+    var al=now?c.bid:'';if(now&&(s.alla==null||s.alla!==al))cp().alla=al;else if(!now&&s.alla!=null)delete cp().alla;
+    if(s1){P.st[lid]=s1;ch=true;}});
+  FY.maa={};return ch;}
+/* Putoamisvauhti = vauhti painovoiman suuntaan (px/s). */
+function pvVauhti(s){var d=PV_SUUNNAT[s.pvs];if(!d)return 0;return Math.round((((num(s.vx)||0)+(num(s.ux)||0))*d[0]+((num(s.vy)||0)+(num(s.uy)||0))*d[1])*100)/100;}
 /* ---------- Appi-appi 3: hahmon liike ----------
    Ohjaustapa b.ohj: '' = nopeus x ja y nuolesta (kuten ennen), 'tatti' = valittu Tatti (b.tt) × huippunopeus, 'napautus' =
    kulkee napautettuun kohtaan (tai kohde x / y nuolesta, palikan keskipiste), 'auto' = kaasu ja ohjaus (nuolesta tai tatista:
@@ -2250,7 +2305,7 @@ function alueNapautus(P,vw,x,y,ctx){var ev=Ev(P,ctx),hit=[];Object.keys(P.b).for
   var te=mkEv(P,id,ctx,null);te.x=px.x;te.y=px.y;if(g){te.ruutux=o.x;te.ruutuy=o.y;}hit.push([id,te]);});
   hit.forEach(function(h){fire(P,h[0],'nap',withEv(ctx,h[1]),0);});if(hit.length)tick(P,ctx);return hit.map(function(h){return h[0];});}
 /* Yksi kuva yhdelle Liike-palikalle. Palauttaa, muuttuiko jokin. */
-function liikeAskel(P,b,ev,dt,rect,R,esteet,lim,fires){var id=b.id,st=liikeSt(P,id),t=liikeKohde(P,b),ohj=LIIKE_OHJ[b.ohj]?b.ohj:'';
+function liikeAskel(P,b,ev,dt,rect,R,esteet,lim,fires,FY){var id=b.id,st=liikeSt(P,id),t=liikeKohde(P,b),ohj=LIIKE_OHJ[b.ohj]?b.ohj:'';
   if(ohj==='reitti')return liikeReitti(P,b,ev,dt,rect,R,fires);
   if(ohj==='ruutu')return liikeRuutu(P,b,ev,dt,rect,R,esteet,lim,fires);
   function r3(v){return Math.round(v*1000)/1000;}
@@ -2258,6 +2313,10 @@ function liikeAskel(P,b,ev,dt,rect,R,esteet,lim,fires){var id=b.id,st=liikeSt(P,
   var vm=200;if(ohj){var vmx=ev.inp(id,'vm');vm=vmx===''||vmx==null?200:num(vmx);if(!isFinite(vm)||vm<0)vm=0;}
   var ka=aikaS(ev.omiNum(id,'kiihtyminen',0)),kb=aikaS(ev.omiNum(id,'jarrutus',0)),f=liikeMuoto(P,b),liuk=Math.max(0,Math.min(100,ev.omiNum(id,'liukkaus',0)||0));
   var r=t?rect(t):null,p0=t?{x:r.x,y:r.y}:liikePos(P,b),w=r?r.w:0,h=r?r.h:0;
+  /* Jonon 16: painovoima-Alue (pvA0) ja tämän kappaleen painovoima pvG = {g, dx, dy, s} (g > 0). */
+  var pvA0=t&&FY&&FY.pvOf?FY.pvOf(t):null,pvk=pvA0?Math.max(0,ev.omiNum(id,'painovoima',100)):0,pvG=pvA0&&pvA0.g*pvk/100>0?{g:pvA0.g*pvk/100,dx:pvA0.d[0],dy:pvA0.d[1],s:pvA0.s}:null;
+  if(FY&&FY.gv){if(pvG)FY.gv[id]=pvG;else delete FY.gv[id];}
+  var mAc=null;function mA(){if(mAc==null){var mm=t?ev.omiNum(t.id,'massa',0):0;mAc=isFinite(mm)&&mm>0?mm:0;}return mAc;}
   var vx=num(st.vx)||0,vy=num(st.vy)||0,s=num(st.s)||0,head=num(st.h)||0,sf=num(st.sf)||0,tx=st.tx,ty=st.ty,perilla=false,ns={};
   var dirx=0,diry=0,tm=0,vref=0,wx=null,wy=null;
   /* Appi-appi 7: reitinhaku */
@@ -2271,7 +2330,7 @@ function liikeAskel(P,b,ev,dt,rect,R,esteet,lim,fires){var id=b.id,st=liikeSt(P,
     if(on&&tx!=null&&ty!=null){var cx=p0.x+w/2,cy=p0.y+h/2,dl=0;wx=tx;wy=ty;
       if(kie){if(!pp||!pk||pk[0]!==tx||pk[1]!==ty||(st.osui&&!(pw>0))){var hr=reittiHae(osumaAlue(t,r),esteet(t.v,t.id),cx,cy,tx,ty,ruudukkoOf(P,t));pp=hr.pts;pk=[tx,ty];pw=0.5;np=hr.ok?0:1;}
         pp=reittiOhi(pp,cx,cy,Math.sqrt(vx*vx+vy*vy)*dt);wx=pp[0][0];wy=pp[0][1];dl=reittiPituus(pp);}
-      var ddx=wx-cx,ddy=wy-cy,dw=Math.sqrt(ddx*ddx+ddy*ddy),dd=dw+dl;
+      var ddx=wx-cx,ddy=wy-cy;if(pvG){var pdd=ddx*pvG.dx+ddy*pvG.dy;ddx-=pdd*pvG.dx;ddy-=pdd*pvG.dy;}var dw=Math.sqrt(ddx*ddx+ddy*ddy),dd=dw+dl;
       if(dd<0.5){perilla=true;}
       else{if(dw>1e-9){dirx=ddx/dw;diry=ddy/dw;}var spNow=vref*(f?f(s):s);
         /* Jarrutusmatka: jarrutus kb sekunnissa huipusta → hidastuvuus vm / kb. */
@@ -2289,6 +2348,8 @@ function liikeAskel(P,b,ev,dt,rect,R,esteet,lim,fires){var id=b.id,st=liikeSt(P,
     if(!(dirx||diry)){var vv=Math.sqrt(vx*vx+vy*vy);if(vv>1e-6){dirx=vx/vv;diry=vy/vv;}else sp=0;}
     if(ohj==='napautus'&&dt>0&&wx!=null&&!perilla){var cx2=p0.x+w/2,cy2=p0.y+h/2,d2=Math.sqrt((wx-cx2)*(wx-cx2)+(wy-cy2)*(wy-cy2));sp=Math.min(sp,d2/dt);}
     var gx=dirx*sp,gy=diry*sp;}
+  /* Jonon 16: painovoimassa ohjaus vain poikittain (pystysuunta kuuluu painovoimalle). */
+  if(pvG){var gd=gx*pvG.dx+gy*pvG.dy;gx-=gd*pvG.dx;gy-=gd*pvG.dy;}
   /* 2. Liukkaus: todellinen nopeus seuraa haluttua. */
   var tau=liuk/100*1.5,a=tau>0&&dt>0?1-Math.exp(-dt/tau):1;vx+=(gx-vx)*a;vy+=(gy-vy)*a;
   if(Math.abs(vx)<1e-3)vx=0;if(Math.abs(vy)<1e-3)vy=0;/* Perillä: loppumatka (alle 0,5 px) tarkasti kohteeseen. */
@@ -2297,21 +2358,34 @@ function liikeAskel(P,b,ev,dt,rect,R,esteet,lim,fires){var id=b.id,st=liikeSt(P,
      o_ux / o_uy ohjaa sitä jatkuvasti. */
   var ux=num(st.ux)||0,uy=num(st.uy)||0,uhit=null;
   if(ev.linked(id,'o_ux')){var lux=num(ev.inp(id,'o_ux'));ux=isFinite(lux)?lux:0;}if(ev.linked(id,'o_uy')){var luy=num(ev.inp(id,'o_uy'));uy=isFinite(luy)?luy:0;}
-  if((ux||uy)&&dt>0&&!ev.linked(id,'o_ux')&&!ev.linked(id,'o_uy')){var kit=Math.max(0,Math.min(100,ev.omiNum(id,'kitka',50))),usp=Math.sqrt(ux*ux+uy*uy),dec=3000*kit*kit/10000;
-    var usn=Math.max(0,usp-dec*dt);if(kit>0&&usn<1)usn=0;ux=usp>0?ux*usn/usp:0;uy=usp>0?uy*usn/usp:0;}
+  var lU=ev.linked(id,'o_ux')||ev.linked(id,'o_uy');
+  /* Jonon 16: painovoimaan tullessa ohjausvauhdin pystyosa siirtyy töytäisyvauhtiin (liikemäärä säilyy). */
+  if(pvG){var vd=vx*pvG.dx+vy*pvG.dy;if(Math.abs(vd)>1e-9){vx-=vd*pvG.dx;vy-=vd*pvG.dy;if(!snap&&!lU){ux+=vd*pvG.dx;uy+=vd*pvG.dy;}}}
+  if((ux||uy)&&dt>0&&!lU){var kit=Math.max(0,Math.min(100,ev.omiNum(id,'kitka',50))),dec=3000*kit*kit/10000;
+    /* Painovoimassa kitka vain maassa ja vain maan suuntaiseen osaan; ilmassa vain ilmanvastus. */
+    if(pvG){if(st.ma){var ua=ux*pvG.dx+uy*pvG.dy,ut1=ux-ua*pvG.dx,ut2=uy-ua*pvG.dy,tsp=Math.sqrt(ut1*ut1+ut2*ut2),tsn=Math.max(0,tsp-dec*dt);if(kit>0&&tsn<1)tsn=0;
+      ux=ua*pvG.dx+(tsp>0?ut1*tsn/tsp:0);uy=ua*pvG.dy+(tsp>0?ut2*tsn/tsp:0);}}
+    else{var usp=Math.sqrt(ux*ux+uy*uy),usn=Math.max(0,usp-dec*dt);if(kit>0&&usn<1)usn=0;ux=usp>0?ux*usn/usp:0;uy=usp>0?uy*usn/usp:0;}}
+  /* Jonon 16: painovoima kiihdyttää töytäisyvauhtia; siirto käyttää askeleen keskivauhtia (hx, hy). Ilmanvastus hiiputtaa. */
+  var hx=0,hy=0;if(pvA0&&dt>0&&!lU){if(pvG){ux+=pvG.g*pvG.dx*dt;uy+=pvG.g*pvG.dy*dt;hx=-0.5*pvG.g*pvG.dx*dt;hy=-0.5*pvG.g*pvG.dy*dt;}
+    if(pvA0.ilv>0){var dr=Math.exp(-3*pvA0.ilv/100*dt);ux*=dr;uy*=dr;if(Math.abs(ux)<1e-3)ux=0;if(Math.abs(uy)<1e-3)uy=0;}}
   /* 3. Siirto ja törmäys */
-  var moving=!!(vx||vy||ux||uy)&&dt>0,osui=false,p=p0,changed=false;
+  var moving=!!(vx||vy||ux||uy)&&dt>0,osui=false,p=p0,changed=false,kosH=pvG?{}:null;
+  /* Jonon 16: painovoimassa törmäsi kohteittain (maassa kävelevä osuu myös seinään); kosH[kohde] = vahvin osuma. */
+  function kosK(q,hit){if(!kosH)return;var k=q.bid||'';if(!kosH[k]||hit.isku>kosH[k].isku)kosH[k]=hit;}
   if(moving){
-    if(t){var res=liikuta(t,r,(vx+ux)*dt,(vy+uy)*dt,esteet(t.v,t.id));osui=res.osui;var nx=lim(res.x,b.xmin,b.xmax),ny=lim(res.y,b.ymin,b.ymax);
+    if(t){var res=liikuta(t,r,(vx+ux+hx)*dt,(vy+uy+hy)*dt,esteet(t.v,t.id));osui=res.osui;var nx=lim(res.x,b.xmin,b.xmax),ny=lim(res.y,b.ymin,b.ymax);
       var kA=fysKim(ev,t),fy=!!(ux||uy||kA>0||res.nn.some(function(q){return q.kim>0;}));
       if(fy&&(osui||nx!==res.x||ny!==res.y)){
         /* F24: seinään päin oleva ohjausvauhti pois, töytäisyvauhti pomppaa kimmoisuuden mukaan (suurempi voittaa). */
         var nl=res.nn.slice();if(nx<res.x)nl.push({x:-1,y:0,kim:0});if(nx>res.x)nl.push({x:1,y:0,kim:0});if(ny<res.y)nl.push({x:0,y:-1,kim:0});if(ny>res.y)nl.push({x:0,y:1,kim:0});
-        nl.forEach(function(q){var vn=(vx+ux)*q.x+(vy+uy)*q.y;if(!(vn<0))return;var e=Math.max(kA,q.kim||0),cvn=vx*q.x+vy*q.y;if(cvn<0){vx-=cvn*q.x;vy-=cvn*q.y;}
-          var un=ux*q.x+uy*q.y,uw=-e*vn-(vx*q.x+vy*q.y);ux+=(uw-un)*q.x;uy+=(uw-un)*q.y;if(!uhit||-vn>uhit.isku)uhit={kohde:q.bid||'',isku:-vn};});
+        nl.forEach(function(q){var vn=(vx+ux)*q.x+(vy+uy)*q.y,e=Math.max(kA,q.kim||0);if(pvG&&pvMaaOn(pvG,q)){var mi=Math.max(0,-vn);pvMaaKirjaa(FY,id,q.bid,mi,pvVoima(mi,e,mA()));}
+          if(!(vn<0))return;var cvn=vx*q.x+vy*q.y;if(cvn<0){vx-=cvn*q.x;vy-=cvn*q.y;}
+          var un=ux*q.x+uy*q.y,uw=-e*vn-(vx*q.x+vy*q.y);ux+=(uw-un)*q.x;uy+=(uw-un)*q.y;var hq={kohde:q.bid||'',isku:-vn,puoli:pvPuoli(pvG,q),voima:pvVoima(-vn,e,mA())};kosK(q,hq);if(!uhit||-vn>uhit.isku)uhit=hq;});
+        if(kosH)nl.forEach(function(q){kosK(q,{kohde:q.bid||'',isku:0,puoli:pvPuoli(pvG,q),voima:0});});
         if(Math.abs(ux)<1e-3)ux=0;if(Math.abs(uy)<1e-3)uy=0;
         if(ohj==='auto'){sf=vx*dirx+vy*diry;}var spB=Math.sqrt(vx*vx+vy*vy);if(vref>0)s=Math.min(s,muotoInv(f,Math.min(1,spB/vref)));}
-      else if(osui||nx!==res.x||ny!==res.y){res.nn.forEach(function(q){var vn=vx*q.x+vy*q.y;if(!uhit||-vn>uhit.isku)uhit={kohde:q.bid||'',isku:Math.max(0,-vn)};});
+      else if(osui||nx!==res.x||ny!==res.y){res.nn.forEach(function(q){var vn=vx*q.x+vy*q.y,vi=Math.max(0,-vn);if(pvG&&pvMaaOn(pvG,q))pvMaaKirjaa(FY,id,q.bid,vi,pvVoima(vi,0,mA()));var hq={kohde:q.bid||'',isku:vi,puoli:pvPuoli(pvG,q),voima:pvVoima(vi,0,mA())};kosK(q,hq);if(!uhit||-vn>uhit.isku)uhit=hq;});
         var avx=(nx-r.x)/dt,avy=(ny-r.y)/dt;vx=avx;vy=avy;if(ohj==='auto'){sf=vx*dirx+vy*diry;}var spA=Math.sqrt(vx*vx+vy*vy);if(vref>0)s=Math.min(s,muotoInv(f,Math.min(1,spA/vref)));}
       if(nx!==r.x||ny!==r.y){paikkaAseta(P,ev,t,R,nx,ny);changed=true;}
       p={x:nx,y:ny};}
@@ -2334,7 +2408,12 @@ function liikeAskel(P,b,ev,dt,rect,R,esteet,lim,fires){var id=b.id,st=liikeSt(P,
   if(on&&(tm>0||(ohj==='auto'&&kaasu)))ns.go=1;
   if(!stillMoving&&!osui&&!ns.s&&!(ns.tx!=null)){ns.vx=0;ns.vy=0;delete ns.sf;}
   if(ux)ns.ux=r3(ux);if(uy)ns.uy=r3(uy);fysKanna(st,ns);
-  if(osui&&!st.osui){if(uhit&&uhit.kohde){ns.osk=uhit.kohde;ns.okn=P.b[uhit.kohde]?P.b[uhit.kohde].nm:'';ns.isku=r3(uhit.isku);fires.push([id,'tor',uhit]);}else fires.push([id,'tor']);}
+  /* Jonon 16: maassa ja alla päivittyvät askeleen lopuksi (pvLopuksi); ilmassa oleva pitää kuvasilmukan käynnissä. */
+  if(pvG){if(st.ma)ns.ma=1;if(st.alla!=null)ns.alla=st.alla;ns.pvs=pvG.s;if(!st.ma)ns.go=1;}
+  if(kosH){var kp=typeof st.kt==='string'?st.kt.split('|'):[],kc=Object.keys(kosH).sort(),ku=kc.filter(function(k){return kp.indexOf(k)<0;});if(kc.length)ns.kt=kc.join('|');
+    if(ku.length){var kb2=ku[0];ku.forEach(function(k){if(kosH[k].isku>kosH[kb2].isku)kb2=k;});if(kosH[kb2].kohde){ns.osk=kosH[kb2].kohde;ns.okn=P.b[kb2]?P.b[kb2].nm:'';}ns.isku=r3(kosH[kb2].isku);
+      ku.forEach(function(k){fires.push([id,'tor',kosH[k]]);});}}
+  else if(osui&&!st.osui){if(uhit&&uhit.kohde){ns.osk=uhit.kohde;ns.okn=P.b[uhit.kohde]?P.b[uhit.kohde].nm:'';ns.isku=r3(uhit.isku);fires.push([id,'tor',uhit]);}else fires.push([id,'tor']);}
   var keys={};Object.keys(st).concat(Object.keys(ns)).forEach(function(k){keys[k]=1;});
   if(Object.keys(keys).some(function(k){return st[k]!==ns[k];})){P.st[id]=ns;changed=true;}
   return changed;}
@@ -2835,6 +2914,12 @@ function repair(P){
       if(b.osk!==undefined){var oskn=parseNum(b.osk);if(isNaN(oskn)||oskn===100)delete b.osk;else b.osk=Math.max(10,Math.min(200,Math.round(oskn)));}
       if(b.mas!==undefined){var masn=parseNum(b.mas);if(isNaN(masn)||!(masn>0))delete b.mas;else b.mas=round9(masn);}if(b.kim!==undefined){var kimn=parseNum(b.kim);if(isNaN(kimn)||!(kimn>0))delete b.kim;else b.kim=Math.min(200,Math.round(kimn));}}
     if(b.k==='alue'&&b.rkr!==undefined&&!(typeof b.rkr==='string'&&kerrokset(P,b.v).some(function(k){return k.id===b.rkr&&num(k.rk)>=4;})))delete b.rkr;
+    /* Jonon 16 (F35 vaihe A): Alueen painovoima b.pv px/s² (puuttuva = ei painovoimaa; 0 = alue kumoaa alemman painovoiman),
+       suunta b.pvs (puuttuva = alas), ilmanvastus b.ilv % (puuttuva = 0); Liikkeen painovoima b.pvk % (puuttuva = 100). */
+    if(b.pv!==undefined){var pvn=b.k==='alue'&&b.pv!==''&&b.pv!==null?parseNum(b.pv):NaN;if(isNaN(pvn))delete b.pv;else b.pv=Math.max(0,Math.min(100000,round9(pvn)));}
+    if(b.pvs!==undefined&&(b.k!=='alue'||!PV_SUUNNAT[b.pvs]||b.pvs==='alas'))delete b.pvs;
+    if(b.ilv!==undefined){var ilvn=b.k==='alue'?parseNum(b.ilv):NaN;if(isNaN(ilvn)||!(ilvn>0))delete b.ilv;else b.ilv=Math.min(100,round9(ilvn));}
+    if(b.pvk!==undefined){var pvkn=b.k==='liike'?parseNum(b.pvk):NaN;if(isNaN(pvkn)||pvkn===100)delete b.pvk;else b.pvk=Math.max(0,Math.min(1000,round9(pvkn)));}
     if(b.k==='alue'&&b.kuka!==undefined){var kku=P.b[b.kuka];if((!kku&&!isGone(P,b.kuka))||(kku&&(!K[kku.k]||K[kku.k].g!=='ui'||kku.k==='merkki'||kku.k==='alue')))delete b.kuka;}
     if(b.k==='pkuva'){if(!Array.isArray(b.sarja))b.sarja=[];else b.sarja=b.sarja.filter(function(x){return typeof x==='string'&&!!kuvaUrl(x);}).slice(0,SARJA_MAX);
       var fpn=parseNum(b.fps);b.fps=isNaN(fpn)?8:Math.max(0,Math.min(60,fpn));if(b.pyor!==''&&b.pyor!=='aina'&&b.pyor!=='liikkuu')b.pyor='';}
@@ -3623,7 +3708,7 @@ function Ev(P,ctx){
       if(sg2[0]==='rivi'&&sg2.length>1){if(!e||!isR(e.rivi))return sg2[sg2.length-1]==='tiedossa'?false:MISS;return rowPath(P,RR(e.rivi.rr,e.rivi.ri),sg2.slice(1),true);}
       switch(pn){case 'uusi':case 'arvo':return e?evOut(e.uusi):null;case 'vanha':return e?evOut(e.vanha):null;case 'rivi':return e&&isR(e.rivi)?RR(e.rivi.rr,e.rivi.ri):null;
         case 'lähde':case 'lahde':return e?(B[e.src]?B[e.src].nm:e.nm||''):null;case 'aika':return e?hmOf(e.at):null;case 'päivä':case 'paiva':return e?D(iso(new Date(e.at))):null;
-        case 'tunniste':return e?e.id:null;case 'on':return !!e;case 'kohde':return e&&e.kohde?(B[e.kohde]?B[e.kohde].nm:e.kn||''):null;case 'isku':return e&&isFinite(e.isku)?e.isku:null;case 'suunta':return e&&isFinite(e.suunta)?e.suunta:null;case 'x':return e&&isFinite(e.x)?e.x:null;case 'y':return e&&isFinite(e.y)?e.y:null;case 'ruutux':return e&&isFinite(e.ruutux)?e.ruutux:null;case 'ruutuy':return e&&isFinite(e.ruutuy)?e.ruutuy:null;case 'taulukko':return e&&isR(e.rivi)&&B[e.rivi.rr]?B[e.rivi.rr].nm:null;case 'nappi':return e&&e.nappi?e.nappi:null;}
+        case 'tunniste':return e?e.id:null;case 'on':return !!e;case 'kohde':return e&&e.kohde?(B[e.kohde]?B[e.kohde].nm:e.kn||''):null;case 'isku':return e&&isFinite(e.isku)?e.isku:null;case 'puoli':return e&&e.puoli?e.puoli:null;case 'voima':return e&&isFinite(e.voima)?e.voima:null;case 'suunta':return e&&isFinite(e.suunta)?e.suunta:null;case 'x':return e&&isFinite(e.x)?e.x:null;case 'y':return e&&isFinite(e.y)?e.y:null;case 'ruutux':return e&&isFinite(e.ruutux)?e.ruutux:null;case 'ruutuy':return e&&isFinite(e.ruutuy)?e.ruutuy:null;case 'taulukko':return e&&isR(e.rivi)&&B[e.rivi.rr]?B[e.rivi.rr].nm:null;case 'nappi':return e&&e.nappi?e.nappi:null;}
       return undefined;}
     /* P3a: Rivi (kohde.määrä, kohde.nro, kohde.on) ja Rivijoukko (joukko.rivejä, joukko.eka.nimi, joukko.määrä.summa). */
     if(b.k==='trivi'){var rw=triviRow(id);if(pn==='nro'){if(isErr(rw))return rw;return rw?tIdx(P,rw.rr,rw.ri)+1:0;}if(pn==='on')return isR(rw);if(pn==='rivi'||pn==='arvo')return rw;
@@ -3811,6 +3896,7 @@ function Ev(P,ctx){
       case 'kerros':return omi(id,'nakyy');
       case 'kamera':{var kL=laite(P,b.vw),kzv=kL?zoomPct(omiVal(id,'zoomaus')):100;if(p==='lev'||p==='kor')return kL?Math.round((p==='lev'?kL.w:kL.h)*10000/kzv)/100:null;return kzv;}
       case 'liike':{var lst=liikeSt(P,id);if(p==='m')return !!lst.m;if(p==='osuu')return !!lst.osui;
+        if(p==='maa')return !!lst.ma;if(p==='alla')return lst.ma&&lst.alla&&B[lst.alla]?B[lst.alla].nm:'';if(p==='pvv')return pvVauhti(lst);
         if(p==='nop'){var tvx=(num(lst.vx)||0)+(num(lst.ux)||0),tvy=(num(lst.vy)||0)+(num(lst.uy)||0);return round9(Math.round(Math.sqrt(tvx*tvx+tvy*tvy)*100)/100);}
         if(p==='kx'||p==='ky'){var kv=p==='kx'?lst.tx:lst.ty;return kv==null||!isFinite(kv)?null:kv;}if(p==='eip')return !!lst.np;
         if(p==='ed'){var erb=P.b[b.rt];if(!erb||erb.k!=='reitti')return null;var eo=reittiOsat(reittiPisteet(P,{omiNum:omiNum,linked:linked,inp:inp},erb),!!erb.kier);return eo.L>0?round9(Math.round(Math.max(0,Math.min(1,(num(lst.rd)||0)/eo.L))*10000)/10000):0;}
@@ -4034,7 +4120,7 @@ function fire(P,id,p,ctx,depth){
    joukon jäsen tapahtumahetkellä. Kuori on jäsenen tapahtuman kopio, ja tapahtuma.jäsen kertoo jäsenen (kohde Tapahtuman jäsen). */
 /* 1s (kartoitus 9, S3): Liikkeen tapahtuma lähtee myös liikutettavan palikan (b.o) jäsentapahtumana: jäsen = liikutettava,
    tapahtuma.lähde = Liike. Liike jäsenenä toimii ennallaan. */
-var JK_LIIKE={tor:1,per:1,ast:1};
+var JK_LIIKE={tor:1,per:1,ast:1,lask:1,irt:1};
 function jkFire(P,id,p,ctx,depth){if(String(p).indexOf('j_')===0)return;var jp='j_'+p,ns=null,js=[],seen={},ev=null;
   P.lg.l.forEach(function(l){if(l.fp!==jp)return;if(!ns){ns={};P.lg.n.forEach(function(n){ns[n.id]=n.p;});}var jid=ns[l.f],jb=P.b[jid];if(jb&&jb.k==='pjoukko'&&!seen[jid]){seen[jid]=1;js.push(jid);}});
   if(!js.length)return;var lb=P.b[id],kt=lb&&lb.k==='liike'&&JK_LIIKE[p]?liikeKohde(P,lb):null,ehd=kt&&kt.id!==id?[id,kt.id]:[id];
@@ -5684,7 +5770,7 @@ function why(P,E,id,depth,seen){
 return {tapKaytossa:tapKaytossa,NAPK:NAPK,napPorts:napPorts,napOn:napOn,napautus:napautus,PALTAVAT:PALTAVAT,repairAp:repairAp,jkPick:jkPick,JK_OHI:JK_OHI,jkKohtaNimi:jkKohtaNimi,jkLiikkuva:jkLiikkuva,jkTapahtumat:jkTapahtumat,JKTAP:JKTAP,jkFire:jkFire,toistaJasenet:toistaJasenet,jkVoi:jkVoi,jkPjOf:jkPjOf,jkPjMap:jkPjMap,jkOtaOn:jkOtaOn,jkOtaMatch:jkOtaMatch,jkKohta:jkKohta,JKKOHT:JKKOHT,JKKP:JKKP,siirtoOf:siirtoOf,PADN:PADN,PADM:PADM,PAD_KUOLLUT:PAD_KUOLLUT,ohjainSet:ohjainSet,padNow:padNow,PADKEY:PADKEY,PADKEYN:PADKEYN,nappTila:nappTila,padYhdista:padYhdista,padPel:padPel,padKuollut:padKuollut,padNimi:padNimi,padPainetut:padPainetut,padKaytossa:padKaytossa,padPohjassa:padPohjassa,omat:omat,omBatch:omBatch,geoNum:geoNum,omFind:omFind,omNorm:omNorm,omBase:omBase,omNames:omNames,omActive:omActive,setOmi:setOmi,resetOmi:resetOmi,isOff:isOff,napVaihto:napVaihto,boolKey:boolKey,TIMEU:TIMEU,YKSA:YKSA,ENVW:ENVW,portsBase:portsBase,tattiSet:tattiSet,muutosStart:muutosStart,muutosStop:muutosStop,frame:frame,aikaKay:aikaKay,napExt:napExt,NAP_PITKA:NAP_PITKA,pressDown:pressDown,pressLong:pressLong,pressUp:pressUp,hasOut:hasOut,curveAt:curveAt,KAYRA_PRESETS:KAYRA_PRESETS,kayraPreset:kayraPreset,kayraResize:kayraResize,kayraDec:kayraDec,kayraSpec:kayraSpec,kayraAt:kayraAt,satuN:satuN,satuMuoto:satuMuoto,satuCurve:satuCurve,satuResize:satuResize,satuPreset:satuPreset,SATU_PRESETS:SATU_PRESETS,SATU_MAXN:SATU_MAXN,satuSpec:satuSpec,satuDist:satuDist,satuPick:satuPick,satuPct:satuPct,satuItemTxt:satuItemTxt,satuTop:satuTop,satuRoll:satuRoll,
   chainOpen:chainOpen,LKN:LKN,LKID:LKID,lkReq:lkReq,lkView:lkView,chainLock:chainLock,chainLockDiff:chainLockDiff,parseKlo:parseKlo,nextClock:nextClock,timerLabel:timerLabel,arpaN:arpaN,toistaN:toistaN,setMhLabel:function(f){MHLAB=f;},mhLabel:mhLabel,odotaLim:odotaLim,odotaEv:odotaEv,hasLimit:hasLimit,chainSignal:chainSignal,copyNodes:copyNodes,pasteNodes:pasteNodes,PRESVER:PRESVER,presetSet:presetSet,presetNeeds:presetNeeds,presetMake:presetMake,presetPaste:presetPaste,chainList:chainList,haaraVal:haaraVal,chainIssues:chainIssues,FXK:FXK,YKS:YKS,YKSN:YKSN,fmtDur:fmtDur,parseNum:parseNum,fiNum:fiNum,fmtLeft:fmtLeft,timerMs:timerMs,chainStart:chainStart,chainStop:chainStop,chainAdvance:chainAdvance,chainPoll:chainPoll,chainInfo:chainInfo,anyChainRunning:anyChainRunning,CH_STEPS:CH_STEPS,CH_TOKENS:CH_TOKENS,
   isWin:isWin,isStep:isStep,STEPK:STEPK,chainNode:chainNode,chainOfNode:chainOfNode,chainSteps:chainSteps,isChainLink:isChainLink,chainLinksFrom:chainLinksFrom,chainStarts:chainStarts,chainIsRing:chainIsRing,chainOrder:chainOrder,
-  ANTAVAT:ANTAVAT,ANPEH:ANPEH,ANARVO:ANARVO,ANPAIKKA:ANPAIKKA,VER:VER,PAJA:'70',LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,raahattava:raahattava,raahausPaikka:raahausPaikka,raahausAlku:raahausAlku,raahausPudotus:raahausPudotus,raahausPeruttu:raahausPeruttu,raahausKohteet:raahausKohteet,tstLahde:tstLahde,tstLajittuu:tstLajittuu,tstSiirra:tstSiirra,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikuta0:liikuta0,rectNow0:rectNow0,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,reittiPisteet:reittiPisteet,reittiOsat:reittiOsat,reittiHae:reittiHae,liikeRuutuKomento:liikeRuutuKomento,liikePyyhkaisy:liikePyyhkaisy,ruutuAskel:ruutuAskel,RUUTU_SU:RUUTU_SU,reittiKohta:reittiKohta,liikeRun:liikeRun,kuvaKuvat:kuvaKuvat,kelloNow:kelloNow,kelloKomento:kelloKomento,kerrosObj:kerrosObj,zoomAsetus:zoomAsetus,kameraBlk:kameraBlk,zoomNyt:zoomNyt,zoomLukittu:zoomLukittu,zoomAseta:zoomAseta,ZOOM_MIN:ZOOM_MIN,ZOOM_MAX:ZOOM_MAX,MITM:MITM,MITE:MITE,
+  ANTAVAT:ANTAVAT,ANPEH:ANPEH,ANARVO:ANARVO,ANPAIKKA:ANPAIKKA,VER:VER,PAJA:'71',PV_SN:PV_SN,PV_SUUNNAT:PV_SUUNNAT,LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,raahattava:raahattava,raahausPaikka:raahausPaikka,raahausAlku:raahausAlku,raahausPudotus:raahausPudotus,raahausPeruttu:raahausPeruttu,raahausKohteet:raahausKohteet,tstLahde:tstLahde,tstLajittuu:tstLajittuu,tstSiirra:tstSiirra,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikuta0:liikuta0,rectNow0:rectNow0,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,reittiPisteet:reittiPisteet,reittiOsat:reittiOsat,reittiHae:reittiHae,liikeRuutuKomento:liikeRuutuKomento,liikePyyhkaisy:liikePyyhkaisy,ruutuAskel:ruutuAskel,RUUTU_SU:RUUTU_SU,reittiKohta:reittiKohta,liikeRun:liikeRun,kuvaKuvat:kuvaKuvat,kelloNow:kelloNow,kelloKomento:kelloKomento,kerrosObj:kerrosObj,zoomAsetus:zoomAsetus,kameraBlk:kameraBlk,zoomNyt:zoomNyt,zoomLukittu:zoomLukittu,zoomAseta:zoomAseta,ZOOM_MIN:ZOOM_MIN,ZOOM_MAX:ZOOM_MAX,MITM:MITM,MITE:MITE,
 kuvaPyorii:kuvaPyorii,kuvaNro:kuvaNro,SARJA_MAX:SARJA_MAX,ruudukko:ruudukko,ruudukkoOf:ruudukkoOf,ruutuAt:ruutuAt,ruutuKeski:ruutuKeski,kohdista:kohdista,ruutuKohdistus:ruutuKohdistus,alueRuudukko:alueRuudukko,alueRuutu:alueRuutu,alueNapautus:alueNapautus,kerrokset:kerrokset,kerrosOf:kerrosOf,rvOf:rvOf,kuvaUrl:kuvaUrl,K:K,KW:KW,KVALEND:KVALEND,KHAS:KHAS,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,jkReg:jkReg,lkSnap:lkSnap,jkNameErr:jkNameErr,jkOn:jkOn,jkNm:jkNm,jkFind:jkFind,jkList:jkList,jkHas:jkHas,jkLuo:jkLuo,jkNimea:jkNimea,jkUses:jkUses,jkPoista:jkPoista,jkEhto:jkEhto,jkIndex:jkIndex,jkTuo:jkTuo,jkNames:jkNames,jkIds:jkIds,jkKaanna:jkKaanna,jkSyy:jkSyy,kaavaJkMiss:kaavaJkMiss,JKAGG:JKAGG,JKSUG:JKSUG,jkAgg:jkAgg,tunnusLue:tunnusLue,tunnusTeksti:tunnusTeksti,tunnusVirhe:tunnusVirhe,setTunnus:setTunnus,kaavaToIds:kaavaToIds,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,kaavaVanha:kaavaVanha,kaavaAstText:kaavaAstText,KRES:KRES,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
   pinsHidden:pinsHidden,refPairs:refPairs,
   ports:ports,port:port,newProject:newProject,addBlock:addBlock,addNode:addNode,addLink:addLink,canLink:canLink,
@@ -7535,7 +7621,7 @@ function bindLogicStage(){
   wheel(vp,camL,function(){applyCam(vp,$('#lworld'),camL());$('#lzpct').textContent=Math.round(camL().z*100)+' %';});
   $('.zoomc',stL()).addEventListener('click',function(e){var z=e.target.getAttribute('data-z');if(!z)return;var c=camL(),r=vp.getBoundingClientRect();
     if(z==='in')zoomAt(vp,c,1.2,r.left+r.width/2,r.top+r.height/2);else if(z==='out')zoomAt(vp,c,1/1.2,r.left+r.width/2,r.top+r.height/2);else if(z==='reset')zoomAt(vp,c,1/c.z,r.left+r.width/2,r.top+r.height/2);
-    else fitAll(vp,c,P.lg.n.filter(function(n){return !(S.hidden&&S.hidden[n.id]);}).map(nodeRect));
+    else fitAll(vp,c,P.lg.n.filter(function(n){return !(S.hidden&&S.hidden[n.id]);}).map(function(n){return nodeRect(n);}));
     applyCam(vp,$('#lworld'),c);$('#lzpct').textContent=Math.round(c.z*100)+' %';save();});
   vp.addEventListener('change',function(e){
     var t=e.target,wel=t.closest('.lw');if(!wel)return;var n=KK.nodeOf(P,wel.getAttribute('data-nid'));var b=n&&P.b[n.p];if(!b)return;
@@ -7816,6 +7902,20 @@ function sarjaSection(b,E){var fr=KK.kuvaKuvat(P,E,b),sar=Array.isArray(b.sarja)
 /* Appi-appi 17 (F24): Liikkeen Törmäykset-osio (kitka, massan tila, logiikka). Avautuu itsestään, kun kitkaa on muutettu
    tai kohteella on massa. */
 S.fysOpen=false;
+/* Jonon 16 (F35 vaihe A): Alueen osio Painovoima (suljettu, kunnes painovoima annetaan tai osio avataan). */
+function pvSection(b,E){var on=b.pv!=null&&b.pv!=='',g=on?KK.parseNum(b.pv):NaN,h='';
+  var ex=g>0?'Nyt: putoaa 100 px '+KK.fiNum(Math.round(Math.sqrt(200/g)*100)/100)+' s:ssa, 1 s:n jälkeen vauhti '+Math.round(g)+' px/s.':on?'Nyt: 0 = ei painovoimaa tällä alueella, vaikka alempi alue vetäisi (tikkaat, avaruus).':'Tyhjä = alue ei koske painovoimaan.';
+  h+=fNum('Painovoima (px/s²)','pv',on?b.pv:'','Tavallinen 1800–2500. '+ex)+
+    fSegs('Suunta','pvs',b.pvs||'alas',KK.PV_SN.map(function(o){return [o[0],o[1].charAt(0).toUpperCase()+o[1].slice(1)];}))+
+    fNum('Ilmanvastus (%)','ilv',b.ilv==null?0:b.ilv,'Hidastaa putoamista ja töytäisyä alueella: vesi esim. 50, 0 = ei.')+
+    '<div class="help">Koskee liikkuvia (Liikkeen kohteita), joiden keskipiste on alueella; päällekkäisistä alueista päällimmäinen ratkaisee. Painovoimassa ohjaus kulkee vain poikittain, kitka vaikuttaa vain maassa, ja Liike kertoo <b>maassa</b>, <b>alla</b> ja <b>putoamisvauhti</b> sekä tapahtumat <b>laskeutui</b> ja <b>irtosi maasta</b>. Painovoiman kääntö: toiminto <b>Aseta</b> → '+esc(b.nm)+' → <b>suunta</b> (ylös).</div>';
+  return '<details class="fs oms" id="pvsec"'+(on||S.pvOpen?' open':'')+'><summary><h4>Painovoima</h4></summary>'+h+'</details>';}
+/* Liikkeen osio Painovoima: näkyy, kun kohteen näkymässä on painovoima-Alue tai Liikkeen painovoimaa on muutettu. */
+function pvLiikeSection(b,lkt,E){var ma=E.val(b.id,'maa'),al=E.val(b.id,'alla');
+  var h=fNum('Painovoima (%)','pvk',b.pvk==null?100:b.pvk,'Kuinka paljon Alueen painovoima vetää: 100 = sellaisenaan, 50 = kuu, 0 = ei välitä (lintu, liikkuva taso).')+
+    '<div class="sdnow"><span>Nyt</span><b>'+(ma?'maassa'+(al?' (”'+esc(al)+'”)':''):'ilmassa tai ei painovoimaa')+'</b><small>putoamisvauhti '+esc(E.fmt(E.val(b.id,'pvv')))+' px/s</small></div>'+
+    '<div class="help">Logiikkaan: <b>maassa</b>, <b>alla</b> (minkä päällä seisoo), <b>putoamisvauhti</b> ja tapahtumat <b>laskeutui</b> (tiedoissa <code>tapahtuma.kohde</code>, <code>.isku</code> ja <code>.voima</code>) ja <b>irtosi maasta</b>. Törmäsi-tiedoissa <code>tapahtuma.puoli</code>: ylhäältä, alhaalta tai sivulta. Hyppy nyt: toiminto <b>Aseta</b> → '+esc(b.nm)+' → <b>vauhtiy</b> (esim. −900), kun <b>maassa</b>.</div>';
+  return section('Painovoima',h);}
 function fysSection(b,lkt,oj,E){
   var kitv=b.kit==null?50:b.kit,kn=Math.max(0,Math.min(100,KK.parseNum(kitv)||0)),dec=3000*kn*kn/10000,mas=lkt?KK.parseNum(lkt.mas):NaN,onM=mas>0;
   var ex=kn<=0?'Nyt: tönäisy ei hiivu koskaan (ilmakiekko, avaruus).':'Nyt: 300 px/s → pysähtyy '+KK.fiNum(300/dec)+' s:ssa, liukuu '+Math.round(300*300/(2*dec))+' px.';
@@ -8008,7 +8108,8 @@ function uiInsp(b,E){
       sp+=fSelect('Ruutu kerrallaan','rkr',b.rkr||'',[['','ei (koko alue)']].concat(gks.map(function(k){return [k.id,'kerroksen ”'+k.n+'” ruudukko ('+k.rk+' px)'];})),
         gks.length?'Ruutu kerrallaan: alue kertoo, missä ruudussa tunnistettava on (<b>ruutu x</b>, <b>ruutu y</b>, 1 = vasen yläruutu) ja tapahtuman <b>ruutu vaihtui</b>. Napautus kertoo silloin napautetun ruudun.':'Ruutukohtaisiin alueisiin: anna kerrokselle ruudukko (▦ kerrosrivillä).');
       sp+='<div class="help">Napautus käytössä: <b>napautettu</b>-tapahtuma sekä <b>napautettu x</b> ja <b>y</b> ('+(b.rkr?'ruutuina':'pikseleinä alueen vasemmasta yläkulmasta')+'), kun niistä lähtee nuoli, tai kun Alue on Joukon jäsen ja Joukon <b>jäsen napautettu</b> -kohdasta lähtee nuoli. Tapahtuman tiedoissa <code>tapahtuma.x</code> ja <code>tapahtuma.y</code> (px alueen vasemmasta yläkulmasta)'+(b.rkr?', <code>tapahtuma.ruutux</code> ja <code>tapahtuma.ruutuy</code>':'')+'.</div>';
-      var ain=KK.alueTila(P,b.id);sp+='<div class="sdnow"><span>Sisällä nyt</span><b>'+(ain.length?esc(ain.map(function(i){return P.b[i]?P.b[i].nm:'';}).join(', ')):'ei ketään')+'</b></div>';}
+      var ain=KK.alueTila(P,b.id);sp+='<div class="sdnow"><span>Sisällä nyt</span><b>'+(ain.length?esc(ain.map(function(i){return P.b[i]?P.b[i].nm:'';}).join(', ')):'ei ketään')+'</b></div>';
+      sp+=pvSection(b,E);}
       sp+='<div class="help">Alue ei näy käytössä. Kun näkymän rullaus on <b>Alueen sisällä</b>, käyttäjä voi rullata vain tämän alueen reunoihin asti. Alueen pienempi kuin ruutu pysyy keskellä.</div><div class="help">Alueita voi olla monta, ”huoneina”. Siirry alueeseen tai sen sisällä olevaan sijaintiin vaihtaa rajauksen siihen alueeseen.</div>';break;
   }
   if(k==='merkki'||k==='alue'){h+=section('Sisältö',sp)+viewSection(b.v);
@@ -8558,7 +8659,7 @@ function tauluInsp(b,E){var cs=KK.tSar(b),used=KK.tUsed(P,b.id),rows=KK.tRows(P,
   return out;}
 function tapahtInsp(b,E){var v=b.vt;
   return section('Tapahtuman tiedot','<div class="help" style="margin-top:0">Tiedot tapahtumasta, joka käynnisti toiminnon tai ketjun: esim. painallus, kentän muutos tai taulukkotoiminto. Ne pysyvät tapahtumahetken mukaisina myös ketjun odotusten yli, vaikka arvot muuttuisivat.</div>'+
-    '<div class="help"><code>'+esc(v)+'.uusi</code> ja <code>'+esc(v)+'.vanha</code> arvo tapahtumahetkellä ja ennen sitä · <code>'+esc(v)+'.lähde</code> mistä tapahtuma lähti · <code>'+esc(v)+'.kohde</code> ja <code>'+esc(v)+'.isku</code> mihin ja kuinka kovaa Liike törmäsi · <code>'+esc(v)+'.aika</code>, <code>'+esc(v)+'.päivä</code> · <code>'+esc(v)+'.rivi</code> taulukon rivi (Lisää rivi, Valitse rivi …) · <code>'+esc(v)+'.rivi.<i>sarake</i></code> sen rivin kenttä nyt · <code>'+esc(v)+'.tunniste</code> · <code>'+esc(v)+'.on</code>.</div>'+
+    '<div class="help"><code>'+esc(v)+'.uusi</code> ja <code>'+esc(v)+'.vanha</code> arvo tapahtumahetkellä ja ennen sitä · <code>'+esc(v)+'.lähde</code> mistä tapahtuma lähti · <code>'+esc(v)+'.kohde</code> ja <code>'+esc(v)+'.isku</code> mihin ja kuinka kovaa Liike törmäsi tai laskeutui · <code>'+esc(v)+'.puoli</code> ja <code>'+esc(v)+'.voima</code> miltä puolelta ja millä voimalla (massa × vauhdin muutos) · <code>'+esc(v)+'.aika</code>, <code>'+esc(v)+'.päivä</code> · <code>'+esc(v)+'.rivi</code> taulukon rivi (Lisää rivi, Valitse rivi …) · <code>'+esc(v)+'.rivi.<i>sarake</i></code> sen rivin kenttä nyt · <code>'+esc(v)+'.tunniste</code> · <code>'+esc(v)+'.on</code>.</div>'+
     '<div class="help">Tapahtuman ulkopuolella (esim. näkymän tekstissä) arvot ovat tyhjiä. Ketjun käynnistämä aliketju perii tapahtuman. Ketjun lukitus ei muuta tapahtuman tietoja.</div>');}
 /* ---------- P3a: Rivi, Rivijoukko, ikkuna ja Toista riveille (paneelit) ---------- */
 /* Rivivalinnat näkyvät ikkunassa ja Toistassa vasta, kun projektissa on tietotaulukko (peruskäyttö pysyy kevyenä). */
@@ -8694,6 +8795,7 @@ function lgInsp(b,E,node){
         fSelect('Vauhdin muoto','km',b.km||'',[['','Suora'],['kiihtyy','Kiihtyy (hidas alku)'],['hidastuu','Hidastuu (nopea alku)'],['s','S-käyrä']].concat(kyopt),'Miten vauhti kasvaa kiihdyttäessä ja laskee jarruttaessa. Oman muodon saat Käyrä-palikasta: sen portaat ovat vauhti (% huipusta) ajan kuluessa.')+
         fNum('Liukkaus (%)','liuk',b.liuk||0,'0 = pito täysi. Liukkaalla vauhti säilyy pitkään ja suunnan muutos kestää (jää, avaruus). Autolla näkyy sivuluisuna.'));
       if(oj!=='ruutu')h+=fysSection(b,lkt,oj,E);
+      if(oj!=='ruutu'&&oj!=='reitti'&&lkt&&(b.pvk!=null||blocks(function(o){return o.k==='alue'&&o.v===lkt.v&&o.pv!=null&&o.pv!=='';}).length))h+=pvLiikeSection(b,lkt,E);
       if(lkt){var h3=fSegs('Kääntyminen','kaanny',b.kaanny||'',[['','Ei'],['kaanny','Kulkusuuntaan'],['peili','Peilaa sivuttain']],b.kaanny==='kaanny'?'Palikka kiertyy kulkusuuntaan (osuma-alue ei kierry, joten ympyrä sopii parhaiten).':b.kaanny==='peili'?'Kuva kääntyy peilikuvaksi, kun suunta vaihtuu vasemman ja oikean välillä (sivulta kuvattu hahmo).':'');
         if(b.kaanny==='kaanny')h3+=fSegs('Kuva katsoo','ks',b.ks||'ylos',[['ylos','Ylös'],['oikea','Oikealle'],['alas','Alas'],['vasen','Vasemmalle']],'Mihin suuntaan palikan kuva katsoo piirrettynä.');
         if(b.kaanny==='peili')h3+=fSegs('Kuva katsoo','ks',b.ks==='vasen'?'vasen':'oikea',[['oikea','Oikealle'],['vasen','Vasemmalle']]);
@@ -9605,7 +9707,7 @@ $('#insp').addEventListener('focusout',function(e){var t=e.target,b=selBlock();i
   if(KK.kaavaVanha(t.value)===t.value)return;var k=t.getAttribute('data-k')||'';
   if(k==='f'&&t.hasAttribute('data-kaava')&&typeof b.f==='string')t.value=KK.kaavaToText(P,b.f);
   else if(k.indexOf('kv_')===0&&b.kv&&typeof b.kv[k.slice(3)]==='string')t.value=KK.kaavaToText(P,b.kv[k.slice(3)]);});
-$('#insp').addEventListener('toggle',function(e){if(e.target&&e.target.id==='omsec')S.omOpen=e.target.open;if(e.target&&e.target.id==='fyssec')S.fysOpen=e.target.open;if(e.target&&e.target.id==='ansec')S.anOpen=e.target.open;},true);
+$('#insp').addEventListener('toggle',function(e){if(e.target&&e.target.id==='omsec')S.omOpen=e.target.open;if(e.target&&e.target.id==='fyssec')S.fysOpen=e.target.open;if(e.target&&e.target.id==='pvsec')S.pvOpen=e.target.open;if(e.target&&e.target.id==='ansec')S.anOpen=e.target.open;},true);
 /* Kaavan ehdotukset: painallus ei vie kohdistusta kaavakentästä. */
 $('#insp').addEventListener('pointerdown',function(e){var k=e.target.closest('[data-ksug]');
   var fs=e.target.closest('.fsug'),ft=fs&&fs._t;
@@ -9643,6 +9745,8 @@ $('#insp').addEventListener('input',function(e){
   if((k==='kw'||k==='kh'||k==='vali')&&b.k==='toistin'){var tn=parseFloat(String(val).replace(',','.'));if(isNaN(tn)||tn<0)return;b[k]=Math.round(k==='kh'?Math.max(16,tn):tn);afterInsp(false);return;}
   if(k==='ank'){if(String(val).trim()===''){delete b.ank;afterInsp(false);return;}var an=parseFloat(String(val).replace(',','.'));if(isNaN(an))return;b.ank=Math.max(0,Math.min(10,an));afterInsp(false);return;}
   if(k==='kpy'){if(String(val).trim()===''){delete b.kpy;afterInsp(false);return;}var kpx=parseFloat(String(val).replace(',','.'));if(isNaN(kpx))return;b.kpy=Math.max(0,Math.min(500,Math.round(kpx)));if(b.kpy===16)delete b.kpy;afterInsp(false);return;}
+  /* Jonon 16: painovoiman luvut (tyhjä = ei painovoimaa / oletus). */
+  if((k==='pv'||k==='ilv'||k==='pvk')&&(b.k==='alue'||b.k==='liike')){if(String(val).trim()===''){delete b[k];afterInsp(false);return;}var pvx=KK.parseNum(val);if(isNaN(pvx))return;b[k]=pvx;afterInsp(false);return;}
   if(k==='rv'){if(String(val).trim()===''){delete b.rv;afterInsp(false);return;}var rx=parseFloat(String(val).replace(',','.'));if(isNaN(rx))return;b.rv=Math.max(0,Math.min(100,Math.round(rx)));afterInsp(false);return;}
   b[k]=val;afterInsp(false);
 });

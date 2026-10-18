@@ -59,6 +59,7 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | liikuttaa hahmoa | Liike + Tatti tai napautus | [Liike](08-maailma-ja-liike.md#liike-liike) |
 | ohjata koneen näppäimistöllä (nuolet, välilyönti) | Peliohjain, pelaaja 1 | [Peliohjain](04-logiikkapalikat.md#peliohjain-pohj) |
 | tunnistaa törmäyksen tai alueeseen astumisen | Este, Liikkeen *törmäsi*, Alue | [Maailma ja liike](08-maailma-ja-liike.md) |
+| tehdä tasoloikan painovoiman (putoaminen, maassa, laskeutuminen, painovoiman kääntö) | Alueen osio Painovoima, Liikkeen *maassa*, *laskeutui*, `tapahtuma.puoli` | [Painovoima ja maassa](08-maailma-ja-liike.md#painovoima-ja-maassa) |
 | tehdä puhelimen muotoisen näkymän | Näkymän laite: Puhelin | [Laitemuoto](02-tyoymparisto.md#laitemuoto-vapaa-puhelin-ipad) |
 | käyttää valmista appia | 🔒 Lukitse | [Muokkaus ja käyttö](02-tyoymparisto.md#muokkaus-ja-käyttö--lukitse) |
 | kokeilla appia niin, etteivät oikeat tiedot muutu | 🧪 Kokeile | [Kokeilu](02-tyoymparisto.md#kokeilu--kokeile) |

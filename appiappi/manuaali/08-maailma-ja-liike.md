@@ -188,6 +188,11 @@ Lisäksi Ominaisuudet-osiosta voi avata ohjattavat kohdat `kitka`, `vauhtix`, `v
 | nopeus | arvo | kaikki | nopeus px/s (sisältää tönäisyn) |
 | suunta | arvo | kaikki | kulkusuunta asteina, 0 = ylös, 90 = oikealle (Autolla keulan suunta) |
 | törmäsi | tapahtuma | kaikki | uusi osuma esteeseen, rajaan tai toiseen kappaleeseen |
+| maassa | arvo | ei Reitti eikä Ruutu | kyllä, kun seisoo jonkin päällä painovoiman suhteen (ks. Painovoima ja maassa) |
+| alla | arvo | ei Reitti eikä Ruutu | sen palikan nimi, jonka päällä seisoo (tyhjä = ilmassa tai Liikkeen rajan päällä) |
+| putoamisvauhti | arvo | ei Reitti eikä Ruutu | vauhti painovoiman suuntaan px/s (nouseva negatiivinen, ilman painovoimaa 0) |
+| laskeutui | tapahtuma | ei Reitti eikä Ruutu | tuli maahan; tiedoissa `tapahtuma.kohde`, `.isku` (putoamisvauhti osumahetkellä) ja `.voima` |
+| irtosi maasta | tapahtuma | ei Reitti eikä Ruutu | lähti maasta (hyppy tai putoaminen reunalta) |
 | kohde x, kohde y | arvo | Napautus | nykyinen kohde (tyhjä, kun ei kohdetta) |
 | perillä | tapahtuma | Napautus | keskipiste on kohteessa |
 | ei pääse | arvo | Napautus + Kiertää esteet | kyllä, kun kohteeseen ei ole reittiä |
@@ -248,6 +253,8 @@ Kaikki luettavia kaavassa (`liike.avain`); ohjattavat merkitty.
 | `vauhtix`, `vauhtiy` (ohjattavia, ei Ruudussa; myös `vauhti x`, `vauhti y`) | töytäisyvauhti px/s |
 | `isku` (ei Ruudussa) | viimeisimmän törmäyksen voimakkuus px/s |
 | `törmäyskohde` (ei Ruudussa) | palikka, johon viimeksi törmäsi (nimi) |
+| `painovoima` (ohjattava, ei Reitissä eikä Ruudussa) | kuinka paljon Alueen painovoima vetää, %: 100 = sellaisenaan (oletus), 50 = kuu, 0 = ei välitä |
+| `maassa`, `alla`, `putoamisvauhti` (ei Reitissä eikä Ruudussa) | kuten kohdat yllä |
 | `kohdex`, `kohdey` (Napautus; myös `kohde x`, `kohde y` ominaisuusvalikossa) | nykyinen kohde |
 | `eipääse` (Napautus + Kiertää esteet; myös `eipaase`) | kyllä, kun kohteeseen ei ole reittiä |
 | `edistyminen` (Reitti) | 0–1 reitin alusta loppuun |
@@ -263,7 +270,7 @@ Nämä neljä ovat kaavassa vain silloin, kun vastaava nuolikohta on (sama ohjau
 - Paikka, nopeus ja muu liikkeen tila ovat käyttötietoa: ne säilyvät, kun appi suljetaan, ja tallentuvat noin kahden sekunnin välein liikkeen aikana.
 - Liike etenee vain, kun appi on auki (kuvasilmukka). Kuvan pituus on enintään 0,25 s, joten tauon jälkeen hahmo ei hyppää.
 - **alkuun** (tai ↺ Alkuun): kohde palaa perusarvoonsa (asetettu x ja y poistuu), nopeus nollautuu. Reitillä käynnissä/pysäytetty-tila säilyy.
-- **törmäsi** lähtee kerran osuman alkaessa, ei joka kuvassa, kun palikka painaa seinää.
+- **törmäsi** lähtee kerran osuman alkaessa, ei joka kuvassa, kun palikka painaa seinää. Painovoimassa se lähtee kerran jokaisesta uudesta kohteesta (ks. Painovoima ja maassa).
 
 ### Esimerkki
 
@@ -350,7 +357,39 @@ Säännöt:
 - Lyönti tai potku: toiminto **Lisää** → Liike → `vauhtix` (esim. 300 tai kaava `tatti.vaaka * 800`). **Aseta** 0 pysäyttää. **Palauta** poistaa asetetun. Nuoli kohtaan vauhtix tai vauhtiy ohjaa tönäisyä jatkuvasti (silloin kitka ei hiiputa).
 - **törmäsi** lähtee jokaisesta uudesta kosketuksesta molempien Liikkeille. Tapahtuman tiedoissa `tapahtuma.kohde` ja `tapahtuma.isku` (lähestymisnopeus). Liikkeellä `isku` ja `törmäyskohde`.
 - Reitillä kulkeva on kiskoilla: se tönäisee muita kuin massaton eikä itse hätkähdä. Ruutuliikkeessä massa ei vaikuta.
-- Rajat: osuma-alue ei kierry, ei pyörimistä, ei seinän pintakitkaa, ei painovoimaa.
+- Rajat: osuma-alue ei kierry, ei pyörimistä, ei seinän pintakitkaa. Painovoima: ks. seuraava osio.
+
+## Painovoima ja maassa
+
+Painovoima on **Alueen** ominaisuus (jonon 16, 2D-pelien vaihe A): alue vetää liikkuvia, joiden keskipiste on sen sisällä. Koko maailma = yksi iso Alue; tikkaat, vesi ja avaruus ovat pienempiä Alueita sen päällä.
+
+**Kädenliikkeet:**
+
+1. Alueen paneeli → avattava osio **Painovoima** → **Painovoima (px/s²)**, esim. 2000 (tavallinen 1800–2500). Tyhjä = alue ei koske painovoimaan. Paneeli näyttää, kuinka nopeasti putoaa (”putoaa 100 px 0,32 s:ssa”). Osio on auki, kun painovoima on annettu.
+2. **Suunta:** Alas (oletus), Ylös, Vasen tai Oikea.
+3. **Ilmanvastus (%)** (oletus 0): hiiputtaa putoamista ja töytäisyä alueella. Putoamisvauhti lähestyy rajaa painovoima / (3 × ilmanvastus/100), esim. 1500 ja 50 % → noin 1000 px/s. Vesi = pieni painovoima ja ilmanvastus.
+4. Liikkeen paneeliin tulee osio **Painovoima**, kun kohteen näkymässä on painovoima-Alue tai Liikkeen painovoimaa on muutettu: **Painovoima (%)** (100 = sellaisenaan, 50 = kuu, 0 = ei välitä, esim. lintu tai liikkuva taso) ja rivi **Nyt** (maassa ja minkä päällä, tai ilmassa, ja putoamisvauhti).
+
+**Säännöt:**
+
+- Koskee Liikkeen kohteita (ohjaukset Nopeus x, y, Tatti, Napautus ja Auto; ei Reittiä eikä Ruutua). Alueen **Tunnistaa**-valinta rajaa, ketä se vetää.
+- **Päällekkäisistä Alueista päällimmäinen ratkaisee** (kerros, sitten järjestys, sitten myöhemmin lisätty). Painovoima 0 päällimmäisellä alueella = ei painovoimaa siinä kohdassa, vaikka alempi vetää (tikkaat: pystyohjaus toimii taas).
+- **Ohjaus vain poikittain:** painovoimassa ohjauksen pystyosa ei liikuta (Nopeus y, tatti ylös); pystysuunta kuuluu painovoimalle. Vino tatti antaa poikittaisen osansa. Tatin pystyasento on yhä luettavissa (`tatti.pysty`), esim. kyykkyyn.
+- **Kitka vain maassa** ja vain maan suuntaiseen töytäisyyn; ilmassa vain ilmanvastus. Heitetty esine lentää siis paraabelin.
+- **Maassa** = jokin askeleen osumista tulee painovoimaa vastaan (enintään noin 45° kalteva pinta; käytännössä laatikon tai ympyrän päällä). Myös Liikkeen raja (esim. y enintään) on maa, silloin `alla` on tyhjä. Toisen kappaleen (massallinen laatikko omalla Liikkeellään) päällä seisominen toimii.
+- **laskeutui** lähtee, kun kappale tulee maahan, ja **irtosi maasta**, kun se lähtee maasta. Tiedoissa `tapahtuma.kohde` (alusta), `tapahtuma.isku` (putoamisvauhti osumahetkellä, askeleen tarkkuudella) ja `tapahtuma.voima` (massallisella (1 + kimmoisuus) × isku × massa, massattomalla = isku; toisen kappaleen päällä impulssi).
+- **Painovoimassa törmäsi lähtee kohteittain:** maassa kävelevä saa törmäsi-tapahtuman myös, kun osuu seinään tai viholliseen (ilman painovoimaa törmäsi lähtee kuten ennen, kun osuminen alkaa).
+- **Törmäsi-tietoihin `tapahtuma.puoli` ja `tapahtuma.voima`:** painovoimassa puoli on *ylhäältä* (osui päältä, esim. litistys), *alhaalta* (pää osui) tai *sivulta*; ilman painovoimaa *ylhäältä*, *alhaalta*, *vasemmalta* tai *oikealta* ruudun suhteen. Voima = impulssi (massa × vauhdin muutos; ilman massaa = isku).
+- **Painovoiman kääntö:** toiminto **Aseta** → Alue → `suunta` (ylös), tai **Aseta** → `painovoima`. Hahmon maassa-tieto ja ohjaus kääntyvät mukana. Suunta kaavassa ja toiminnossa: `alas`, `ylös`, `vasen`, `oikea` tai 1–4.
+- **Hyppy nyt:** toiminto **Aseta** → Liike → `vauhtiy` (esim. −900) Painikkeesta tai näppäimestä, kun `liike.maassa`. Varsinainen hyppy (korkeus, lyhyt hyppy, armoaika) on tulossa (jonon 17).
+- **Tasainen aika:** kun projektissa on painovoima-Alue, liike lasketaan kiinteinä 1/120 s:n askelina, joten putoaminen ja lentorata ovat samat 30, 60 ja 120 Hz:n näytöllä. Yhdessä kuvassa on enintään 8 askelta: alle 15 kuvaa sekunnissa peli hidastuu eikä hyppää. Ilman painovoima-Aluetta liike lasketaan kuten ennen.
+- Kuvasilmukka pysähtyy, kun kaikki ovat maassa ja paikallaan, ja käy, kun jokin on ilmassa.
+
+**Ominaisuudet:** Alueella `painovoima`, `suunta` ja `ilmanvastus` (kaikki ohjattavia), Liikkeellä `painovoima` (%), `maassa`, `alla`, `putoamisvauhti`.
+
+**Esimerkki:** Näkymään Alue *Maailma* (koko näkymä, Painovoima 2000), sen alareunaan Laatikko *Lattia* (Este) ja ylös Laatikko *Pelaaja* (Este). Logiikkaan Liike, Liikutettava palikka Pelaaja, Ohjaus Tatti. Lukitse: pelaaja putoaa lattialle, `liike.maassa` = kyllä, `liike.alla` = Lattia. Painike *Hyppää* → Toiminto **Aseta** Liike → `vauhtiy` = −900, kun `liike.maassa`.
+
+**Rajat:** ei kaltevia pintoja (osuma-alue on laatikko tai ympyrä), ei hyppy-toimintoa (jonon 17), ei liikkuvia tasoja (alusta ei kanna mukanaan, jonon 22), alueelta poistuminen ei lähetä *irtosi maasta* -tapahtumaa.
 
 ---
 
@@ -380,7 +419,8 @@ Alue on näkymättömä suorakulmio tai ellipsi, joka tietää, kun liikkuva pal
   - **Ruutu kerrallaan:** **ei (koko alue)** tai kerroksen ruudukko (listassa vain kerrokset, joilla on ruudukko).
   - Rivi **Sisällä nyt** näyttää, kuka on sisällä.
 - **Asetukset, osio Paikka ja koko:** X, Y, Leveys, Korkeus.
-- **Ominaisuudet:** `sisällä` (myös `sisalla`), `montako`, `napautettux`, `napautettuy`, `ruutux` ja `ruutuy` (vain Ruutu kerrallaan), `x`, `y`, `leveys`, `korkeus` (paikka ja koko ohjattavia).
+- **Asetukset, osio Painovoima** (avattava): **Painovoima (px/s²)**, **Suunta**, **Ilmanvastus (%)**; ks. Painovoima ja maassa.
+- **Ominaisuudet:** `sisällä` (myös `sisalla`), `montako`, `napautettux`, `napautettuy`, `ruutux` ja `ruutuy` (vain Ruutu kerrallaan), `painovoima`, `suunta`, `ilmanvastus` (ohjattavia), `x`, `y`, `leveys`, `korkeus` (paikka ja koko ohjattavia).
 - **Kaavassa:** `alue.sisällä` ja `alue` (sama). Esim. `aarre.montako > 0`.
 - **Aika ja tila:**
   - Sisällä = tunnistettavan **keskipiste** on alueen sisällä.
@@ -392,6 +432,7 @@ Alue on näkymättömä suorakulmio tai ellipsi, joka tietää, kun liikkuva pal
   - Ei näy käytössä. Muokatessa se näkyy kehyksenä nimineen.
   - Ilman Liikettä alue ei tunnista mitään, ellei Tunnistaa-kohtaan ole valittu palikkaa (ja silloinkin vain, kun kuvasilmukka käy).
   - Alue ei ole este. Seinäksi tehdään Muoto tai muu palikka, jolla on Este.
+  - Painovoima-Alue vaikuttaa aina, kun kuvasilmukka käy, myös silloin, kun kukaan ei astu sisään tai ulos.
   - Sama Alue voi olla Maailman rajat (laitenäkymä), Alueen sisällä -rajaus (vapaa näkymä), Siirry-toiminnon kohde ja käyttöraahauksen pudotuskohde.
 
 ---

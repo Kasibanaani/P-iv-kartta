@@ -2,8 +2,8 @@
 
 ## Tarkistettu versio
 
-- **Appi:** Appi-appi 70, tallennusversio 12 (`VER`), repo `Kasibanaani/P-iv-kartta`, kansio `appiappi/`.
-- **Kirjoitettu:** 17.10.2026 koodista commitilla `77461d2` (Appi-appi 31). Sen jälkeen jokainen rakentaja on päivittänyt muuttuneet kohdat samassa työssä; versiokohtaiset tiedot ja mitä kussakin tarkistettiin ovat `appiappi/MUUTOKSET.md`:ssä. **Viimeksi tarkistettu:** Appi-appi 70 (18.10.2026, jonon 1u: kartoitus 10:n korjaukset), luvut 3 (Napautus, Painike, Kaavio, Paletti ja oma väri), 7 (Jäsenten tapahtumat), 8 (Alue) ja 10 (napautettava).
+- **Appi:** Appi-appi 71, tallennusversio 12 (`VER`), repo `Kasibanaani/P-iv-kartta`, kansio `appiappi/`.
+- **Kirjoitettu:** 17.10.2026 koodista commitilla `77461d2` (Appi-appi 31). Sen jälkeen jokainen rakentaja on päivittänyt muuttuneet kohdat samassa työssä; versiokohtaiset tiedot ja mitä kussakin tarkistettiin ovat `appiappi/MUUTOKSET.md`:ssä. **Viimeksi tarkistettu:** Appi-appi 71 (18.10.2026, jonon 16: painovoima ja maassa), luvut 2 (Rakennuslaatikon rajat), 3 (Alue), 7 (tapahtuman tiedot), 8 (Liike, Alue ja uusi osio Painovoima ja maassa), 9 (kentät `pv`, `pvs`, `ilv`, `pvk`) ja 10, koodin ja testien `logiikka_92_painovoima.js` ja `selain_110_painovoima.py` mukaan.
 - **Miten tarkistettiin:** jokainen luku on kirjoitettu lukemalla käyttöliittymän ja moottorin koodia (nimet suoraan koodin merkkijonoista) sekä testien kuvauksia. Kaavakielestä ajettiin noin 150 kaavaa moottorilla (Node), ja maailman ja liikkeen kaavanimet tarkistettiin samoin. Aloitusluvun esimerkki *Vesilasit* tehtiin vaihe vaiheelta oikeassa käyttöliittymässä (Chromium, 1440 px). Muiden lukujen reseptejä **ei ole ajettu** selaimessa: ne on koottu koodista.
 - **Ei tarkistettu oikealla iPhonella, iPadilla eikä Safarilla.** Puhelinkäyttö on kuvattu koodista ja testeistä, jotka ajavat kosketusta tietokoneen selaimessa 390 ja 320 px leveänä. Oikean laitteen tuntuma (sormella veto, näppäimistö, Safarin oma zoomaus) on varmistamatta.
 - Kohdat, joita kirjoittaja ei voinut varmistaa, on merkitty tekstiin ”(ei tarkistettu)”.

@@ -88,5 +88,6 @@ near(eo.val(lo.id),15,0.01);near(eo.val(lo.id,'y'),-15,0.01);A.strictEqual(eo.va
 // Kohde korjataan pois, jos se ei ole näkymäpalikka
 lo.o='eiole';KK.repair(O);A.strictEqual(lo.o,'');
 // Kytkentäkohdat
-A.deepStrictEqual(KK.ports(lo).outs.map(function(o){return o.p;}),['v','y','m','osuu','nop','suu','tor']);
+// Jonon 16: painovoiman kohdat maassa, alla, putoamisvauhti, laskeutui ja irtosi maasta.
+A.deepStrictEqual(KK.ports(lo).outs.map(function(o){return o.p;}),['v','y','m','osuu','nop','suu','tor','maa','alla','pvv','lask','irt']);
 console.log('ok liike ja esteet');

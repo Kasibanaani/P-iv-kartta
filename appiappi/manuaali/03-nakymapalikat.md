@@ -528,7 +528,7 @@ Sama kortti jokaiselle Tietotaulukon tai Rivijoukon riville. ✦ Vain kohdat *n�
 Piste, johon toiminto *Siirry* vie, ja näkymän alkukohta. ✦ Paikka, ei näkyvää sisältöä: ei näkyy kun -kohtia eikä käyttöraahausta. Lisätään paletin Koristeista tai kanvaasin napista **⌖ Sijainti**. Katso luku [Maailma ja liike](08-maailma-ja-liike.md).
 
 ## Alue ✦ (`alue`)
-Suorakulmio tai ellipsi, joka tunnistaa, kun liikkuva palikka on sen sisällä, rajaa rullauksen ja ottaa vastaan raahauspudotuksia. ✦ Paikka, ei näkyvää sisältöä. Lisätään Koristeista tai napista **⛶ Alue**. Katso luku [Maailma ja liike](08-maailma-ja-liike.md).
+Suorakulmio tai ellipsi, joka tunnistaa, kun liikkuva palikka on sen sisällä, rajaa rullauksen, ottaa vastaan raahauspudotuksia ja voi antaa painovoiman (osio Painovoima). ✦ Paikka, ei näkyvää sisältöä. Lisätään Koristeista tai napista **⛶ Alue**. Katso luku [Maailma ja liike](08-maailma-ja-liike.md).
 
 ## Reitti ✦ (`reitti`)
 Piirretty viiva, jota pitkin Liike voi kulkea. ✦ Pelkkä esitys: ei anna arvoa ulos. Ominaisuudet `.pituus` ja `.pisteitä`. Katso luku [Maailma ja liike](08-maailma-ja-liike.md).
