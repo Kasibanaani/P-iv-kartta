@@ -59,6 +59,8 @@ Jokainen on hyödyllinen ilman bottejakin (palikkasääntö 8, missio kohta 3).
 - **Muut käytöt:** vartija huomaa pelaajan näköyhteydellä; kompassinuoli lähimpään kolikkoon (Monitori `lähin.ilmansuunta`); ”kuuma–kylmä”-peli; Autopelin tekoälyauto katsoo seuraavaa tarkistuspistettä; tiedotus, kun lähin pysäkki on alle 100 m (myöhemmin karttamaailma).
 - **Keveys:** lasketaan vain, kun sitä luetaan, ja kerran kuvassa; ehdokkaina vain Joukon jäsenet (ei koko maailmaa).
 
+- **Kaksi vaihetta (Emil 18.10.: etäisyydet kiinnostavat muutenkin, myös robotinrakennuspeli `master-tiedot/IDEAT.md` *Robottipaja*):** **2a** *mitä etsii* = yksi nimetty palikka: `etäisyys`, `ruutuja`, `suunta`, `ilmansuunta`, `sektori`, *näki/menetti* (kantamalla). Ei riipu Joukosta, joten voi tulla aiemmin. **2b** Joukko tai laji, lähin, `montako`, ruututiedot ja *seinät peittävät*.
+
 ### 5.2 Aloita alusta (toiminto)
 
 Uusi toiminto *Aloita alusta*: valittu näkymä (tai koko projekti) palaa alkutilaan: käyttötieto pois (asetetut ominaisuudet, Liikkeet alkuun, Muistit tyhjiksi, satunnaisluvut arvotaan), rakenne ennallaan. Valinta *säilytä*: lista palikoista, joiden käyttötieto pysyy (opittu taulukko, ennätys, kierroslaskuri). Tapahtuma *alkoi alusta*. **Muut käytöt:** jokaisen pelin *Uusi peli* -nappi, Headmazen nollaus, Autopelin uusi lähtö ilman kahdeksaa *alkuun*-nuolta. Tämä on hyödyllinen heti, botteja odottamatta.
@@ -104,7 +106,8 @@ Arpa saa painot (kuten Satunnaisluku) ja valinnaisen osion **Oppiminen**:
 |---|---|---|---|
 | F40-0 | Arvonta: Satunnaisluku ja Arpa yhteen (5.0) | muutos (`repair` Arpa → Vaihtoehdot) | – |
 | F40-1 | Aloita alusta (5.2) | laajenee (toiminnon lista *säilytä*) | – |
-| F40-2 | Sensori (5.1) | laajenee, uusi laji `sensori` | Joukko 15c |
+| F40-2a | Sensori yhteen palikkaan: etäisyys ja suunta (5.1) | laajenee, uusi laji `sensori` | – |
+| F40-2b | Sensori: lähin joukosta, ruudut ympärillä, näköyhteys (5.1) | laajenee | Joukko 15c, F40-2a |
 | F40-3 | Pikakelaus ja näennäinen kello (5.3) | ei | jonon 1p (kevennys), F40-1 |
 | F40-4 | Arpa oppii (5.4) ja Miksi? | laajenee (Arvan valinnaiset kentät) | F40-1, F40-3 |
 | F40-5 | Nuolikartta (5.5) | ei | F40-4 |
