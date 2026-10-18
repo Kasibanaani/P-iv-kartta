@@ -11,7 +11,7 @@ Emil kehittää tekoälyn kanssa omia selainappeja. Hän ei koodaa itse: tekoäl
 
 ## Lopeta näin (joka työvaiheen jälkeen, pyytämättä)
 
-- Päivitä appin `TILA.md`: päivämäärä, mitä tehtiin, mitä ei tarkistettu, seuraava askel, avoimet kysymykset. Pidä se lyhyenä: korvaa vanhentunut, älä kasaa historiaa. Älä muuta osiota *Emilin kommentit*.
+- Päivitä appin `TILA.md`: päivämäärä, mitä tehtiin, mitä ei tarkistettu, seuraava askel, avoimet kysymykset. Pidä se lyhyenä: korvaa vanhentunut, älä kasaa historiaa. Älä muuta osiota *Emilin kommentit*. Appi-appissa versioiden yksityiskohdat ja *Ei tarkistettu* kirjataan vain `MUUTOKSET.md`:hen, ja `TILA.md` pysyy alle 40 kt:n (vanhat osat `TILA-arkisto.md`:hen, jota ei lueta aloittaessa).
 - Uusi Emilin idea → `master-tiedot/IDEAT.md`. Tekoälyn omat ehdotukset merkitään ehdotuksiksi.
 - Kirjaa vain se, mikä on totta: ”ei rakennettu” ja ”ei tarkistettu” sanotaan suoraan.
 
