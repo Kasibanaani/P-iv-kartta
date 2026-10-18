@@ -123,6 +123,24 @@ Ei 3D-mallinnusta, ei kallistusta eikä perspektiivivääristymää (palikka pys
 6. ⏸ Jonon paikka: *ehdotus* vaiheet 1–2 jonon nykyisten muotomuutosten perään, ennen 2D-vaihetta C (laattakartta), jotta tasoloikan taustat saavat syvyyden suoraan.
 7. ⏸ Lukuominaisuuden nimi: `näkyväkoko` vai jokin muu?
 
+## 11. Jatkoluonnos: syvyys kolmantena akselina (Emilin kysymys 18.10. klo 14.30, **ei hyväksytty, ei jonossa**)
+
+**Kysymys:** voiko syvyydestä tulla oikea kolmas akseli, jolla on painovoima ja liikeradat? Esimerkkinä frisbeegolf: sama väylä ylhäältä karttana ja samaan aikaan heittäjän silmin, ilman 3D-grafiikkaa. Pelkkä 3D-laskenta kertoisi, missä ja minkä kokoisena kukin asia näkyy.
+
+**Vastaus: onnistuu, eikä matka ole pitkä.** Tämä on niin sanottua kuvakorttien 3D:tä (1990-luvun alun pelien tapa): jokainen asia on litteä kuva, jolla on paikka (x, korkeus, matka), ja se piirretään oikeaan kohtaan oikean kokoisena. Kohdan 3 kaava on jo oikea perspektiivi. Kun maan taso on ruudun keskikohdan alapuolella, kauempana oleva asia siirtyy kohti horisonttia ja pienenee juuri niin kuin pitääkin. Vaiheet 1–3 tekevät siis jo kuvan. Kolme asiaa puuttuu:
+
+1. **Liike syvyyssuunnassa (vaihe 5).** Liikkeelle syvyysnopeus `us` ja sille vastus. Painovoima on 2D-suunnitelman vaihe A (Alueen ominaisuus, suunta alas), ja se toimii sellaisenaan: silmistä katsottuna ruudun pystyakseli on korkeus. Maa on Alue tai raja korkeudelle 0. Palikalle tulee **paksuus syvyydessä**, ja törmäys tapahtuu vain, kun myös syvyydet ovat päällekkäin. Silloin kiekko ohittaa puun, joka on samassa ruudun kohdassa mutta eri matkalla.
+2. **Kamera, jolla on paikka ja suunta (vaihe 6).** Kamera-palikalle paikka (x, korkeus, matka) ja kääntö vaakatasossa. Palikka, jolle valitaan *paikka maailmassa*, piirretään kameran läpi: ruudun kohta ja koko lasketaan kameraan nähden, kameran taakse jäävä piilotetaan ja järjestys tulee etäisyydestä. Muut palikat (kojelauta, napit) pysyvät litteinä kuten nyt.
+3. **Kaksi näkymää samasta maailmasta (vaihe 7).** Sama maailma ylhäältä: toinen kamera, joka katsoo suoraan alas (x ja matka → ruutu). ⏸ Kaksi tapaa: (a) **jo nyt kaavoilla**, jolloin kartan merkin x = `@kiekko.x` ja y = `@kiekko.syvyys / 10`, eli kartta on nukke, joka seuraa samoja arvoja; (b) yleinen ominaisuus, jossa näkymä voi näyttää toisen näkymän maailman omalla kamerallaan. *Ehdotus:* ensin (a) koeapissa, (b) vasta jos (a) osoittautuu kömpelöksi. Rata rakennetaan karttanäkymässä (puut ja kori paikoilleen ylhäältä), ja silmistä katsottu näkymä lasketaan siitä. Näin 3D-maailmaa ei tarvitse muokata 3D:nä.
+
+**Frisbee itse on preset, ei moottorin erikoisuus** (yleiskäyttöisyysperiaate). Lento (nosto, vastus, kaartuminen ja loppukaarto vauhdin mukaan) rakennetaan kaavoilla ja Muutos ajassa -palikoilla Liikkeen syvyys- ja sivunopeuteen. Kallistus näkyy niin, että kiekko on ellipsi, jonka korkeus ja kierto tulevat kallistuksesta kaavalla. Kaikki tämä on jo olemassa.
+
+**Raskaus:** ei ongelma tällaisessa pelissä. Jokainen maailmaan sijoitettu palikka vaatii kuvaa kohti muutaman kertolaskun ja yhden piirtomuunnoksen, ja järjestys lajitellaan etäisyyden mukaan. Satoja palikoita mahtuu 60 kuvaan sekunnissa. Raskaaksi menisi vasta se, mitä ei tehdä: maaston mäet ja kuopat, varjot, valaistus, peittävät seinät ja kallistuva kamera.
+
+**Rajat rehellisesti:** maa on tasainen (mäet olisivat oma suuri työnsä), asiat ovat aina kameraan päin käännettyjä kuvia (puun voi kiertää, mutta se näyttää joka suunnasta samalta), eikä isoja seiniä tai taloja voi kulkea sisältä. Frisbeegolfiin ja moneen pallopeliin tämä riittää, mutta 3D-räiskintään ei.
+
+**Järjestys (*ehdotus*):** vaiheet 5–7 vasta jonon 17d:n ja 2D-vaiheen A (painovoima) jälkeen, koska ne rakentuvat molempien päälle. Ennen rakentamista tämä tarvitsee oman suunnitelman (kamerasuunta, maailmapaikan tallennus, kartan vaihtoehto a/b) ja Emilin hyväksynnän. Koeappi on frisbeegolfväylä projektina master-tiedotiin.
+
 ## Testit
 
 Moottori: koko ja rullausvauhti syvyydestä (−50, 0, 100, 300, 900), etusija palikka > kerros ja syvyys/rullausvauhti, `syvyys` ohjattavana (nuoli, kaava, Aseta, Muutos ajassa, Joukon sääntö), `näkyväkoko`, Kerros-palikan `syvyys`, tallennus ja vanhan projektin avaus, kerroksen sisäinen järjestys. Selain (1440 ja 1280 px, käyttönäkymä 390 px): kolmen syvyyskerroksen vieritys ja kameran seuranta, zoomaus, kojelauta ennallaan, napautus syvän kerroksen palikkaan ja Alueeseen osuu näkyvään kohtaan, ruudukon ruutu syvyydessä, käyttöraahaus syvässä kerroksessa, muokkausnäkymän raahaus syvässä kerroksessa, *Säilytä näkyvä koko* ja Kumoa, vanha rullausvauhtiprojekti piirtyy täsmälleen ennallaan, keveysraja.
