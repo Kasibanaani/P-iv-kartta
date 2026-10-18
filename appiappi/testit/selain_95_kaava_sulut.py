@@ -68,9 +68,9 @@ async def main():
             await pg.reload();await pg.wait_for_function("window.APP&&APP.P&&APP.P.b")
             await pg.wait_for_timeout(250)
             f=await P(pg,"KK.kaavaToText(P,P.b['%s'].f)"%I['k']);print(W,'7 avattu:',f)
-            assert f=='jos (tai_2 > 7) "vanha" muuten tai_2 < 1 tai kyllä',f
+            assert f=='jos (tai_1 > 7) "vanha" muuten tai_1 < 1 tai kyllä',f
             assert await P(pg,"E().val('%s')"%I['k'])=='vanha'
-            assert await P(pg,"B('Tai').vt")=='tai_2'
+            assert await P(pg,"B('Tai').vt")=='tai_1'
             print(W,'errs',errs);assert not errs,errs
             await ctx.close()
         await b.close()

@@ -43,10 +43,10 @@ A.ok(KK.isErr(V(P,K(P,'tai(kyllä; 1 / 0)'))),'ja/tai näyttävät virheen');
 var tul=KK.addBlock(P,'tulos',{nm:'Arvio'});N(P,tul);var kt=K(P,'arvio = jos(uni > 7; "levännyt"; "väsynyt")');
 A.strictEqual(V(P,kt),'levännyt');A.strictEqual(V(P,tul),'levännyt','kaavan tulos');
 
-// Jonon 12g: ja on varattu sana, joten Ja-niminen palikka saa viitteen ja_2
-var ja=KK.addBlock(P,'luku',{nm:'Ja'});N(P,ja);KK.repair(P);A.strictEqual(ja.vt,'ja_2');KK.userSet(P,ja.id,5,C);
-var kj=K(P,'ja_2 > 3');A.strictEqual(kj.f,'{#'+ja.id+'} > 3');A.strictEqual(V(P,kj),true,'viite');
-A.strictEqual(V(P,K(P,'ja(ja_2 > 3; uni > 7)')),true,'vanha ja ja viite samassa');
+// Jonon 12g: ja on varattu sana, joten Ja-niminen palikka saa viitteen ja_1
+var ja=KK.addBlock(P,'luku',{nm:'Ja'});N(P,ja);KK.repair(P);A.strictEqual(ja.vt,'ja_1');KK.userSet(P,ja.id,5,C);
+var kj=K(P,'ja_1 > 3');A.strictEqual(kj.f,'{#'+ja.id+'} > 3');A.strictEqual(V(P,kj),true,'viite');
+A.strictEqual(V(P,K(P,'ja(ja_1 > 3; uni > 7)')),true,'vanha ja ja viite samassa');
 
 // Virheet selvällä suomella
 function err(s,re){var v=V(P,K(P,s));A.ok(KK.isErr(v),s);A.ok(re.test(v.err),s+' → '+v.err);}

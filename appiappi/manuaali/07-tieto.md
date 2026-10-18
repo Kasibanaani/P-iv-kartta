@@ -13,7 +13,7 @@ Palikat lyhyesti:
 | Toistin ✦ (`toistin`) | Näkymä → Näyttö | Sama kortti jokaiselle riville. |
 | Joukko `#nimi` (ei palikka) | Tunnus-kenttä, paletti → Joukot | Kokoaa palikoita: `#kolikot.summa`, toiminto kaikille jäsenille. |
 
-Paletin Tieto-ryhmässä palikat ovat oletusnimillä **Taulukko**, **Tapahtuma**, **Kohde** ja **Joukko** (Rivijoukko; eri asia kuin [palikoiden joukot `#nimi`](#palikoiden-joukot-nimi-appi-appi-57)), joten viitteet kaavoihin ovat aluksi `taulukko`, `tapahtuma`, `kohde` ja `joukko`. Nimen voi vaihtaa paneelin yläosasta; viite seuraa nimeä, ellei sitä ole kirjoitettu itse kenttään **Viite**. Tämän luvun esimerkeissä taulukon nimi on *Ostokset* (viite `ostokset`) ja sarakkeet *Nimi* (`nimi`), *Määrä* (`määrä`) ja *Hinta* (`hinta`).
+Paletin Tieto-ryhmässä palikat ovat oletusnimillä **Taulukko**, **Tapahtuma**, **Kohde** ja **Suodatus** (Rivijoukko, Appi-appi 60; ennen *Joukko*, eri asia kuin [palikoiden joukot `#nimi`](#palikoiden-joukot-nimi-appi-appi-57)), joten viitteet kaavoihin ovat aluksi `taulukko`, `tapahtuma`, `kohde` ja `suodatus`. Vanhat Rivijoukot pitävät nimensä. Nimen voi vaihtaa paneelin yläosasta; viite seuraa nimeä, ellei sitä ole kirjoitettu itse kenttään **Viite**. Tämän luvun esimerkeissä taulukon nimi on *Ostokset* (viite `ostokset`) ja sarakkeet *Nimi* (`nimi`), *Määrä* (`määrä`) ja *Hinta* (`hinta`).
 
 Peruskäsitteet:
 
@@ -267,7 +267,7 @@ Nimetty lähde yhdelle taulukon riville. Sarakkeet ovat sen ominaisuuksia, joten
 ## Rivijoukko (`joukko`)
 Suodattaa ja järjestää taulukon rivejä muuttamatta niitä. Tulos on joukko samoja rivejä (ei kopioita).
 
-- **Löytyy:** Logiikka → **Tieto** → **Rivijoukko** (☷), oletusnimi *Joukko*, viite `joukko`.
+- **Löytyy:** Logiikka → **Tieto** → **Rivijoukko** (☷), oletusnimi *Suodatus*, viite `suodatus` (Appi-appi 60; ennen *Joukko*, vanhat palikat ennallaan).
 - **Sisään:**
 
 | Kohta | Laji | Mitä tekee |
@@ -282,10 +282,10 @@ Suodattaa ja järjestää taulukon rivejä muuttamatta niitä. Tulos on joukko s
   - **Suunta** (kun järjestys on): **nouseva (pienin ensin)** / **laskeva (suurin ensin)**. Tasatilanteessa lähteen järjestys säilyy, puuttuva arvo on aina lopussa.
   - **Enintään**: esim. 3 = kolme ensimmäistä järjestyksen jälkeen. Tyhjä = kaikki.
   - **Tulos:** montako riviä ja ensimmäisten nimet.
-- **Kaavassa:** `joukko.rivejä`, `joukko.eka`, `joukko.vika`, `joukko.eka.nimi`, `joukko.vika.nimi`, `joukko.määrä.summa` (ja muut koosteet kuten taulukolla, vain joukon riveistä).
+- **Kaavassa:** `suodatus.rivejä`, `suodatus.eka`, `suodatus.vika`, `suodatus.eka.nimi`, `suodatus.vika.nimi`, `suodatus.määrä.summa` (ja muut koosteet kuten taulukolla, vain suodatettujen rivien).
 - **Aika ja tila:** lasketaan aina uudelleen. Ei tallenna mitään.
-- **Esimerkki:** Ostokset → rivit → Joukko. Kaava `kohde.määrä > 0` (kohde = Rivi, käsiteltävä rivi) nuolella kohtaan **ehto riveittäin**. Järjestys: Nimi. `joukko.rivejä` kertoo, montako ostosta on jäljellä.
-  - Toisenlainen käyttö: järjestys Määrä, laskeva, Enintään 1: `joukko.eka.nimi` on suurin määrä.
+- **Esimerkki:** Ostokset → rivit → Suodatus. Kaava `kohde.määrä > 0` (kohde = Rivi, käsiteltävä rivi) nuolella kohtaan **ehto riveittäin**. Järjestys: Nimi. `suodatus.rivejä` kertoo, montako ostosta on jäljellä.
+  - Toisenlainen käyttö: järjestys Määrä, laskeva, Enintään 1: `suodatus.eka.nimi` on suurin määrä.
 - **Huomio:** joukko, jonka ehto lukee joukkoa itseään, antaa virheen *kehä*. Järjestä-nuolella eniten ensin: anna arvoksi esim. `0 - kohde.määrä`.
 
 ---
@@ -321,9 +321,9 @@ Ehdossa ei ole omaa kaavakenttää: ehto tehdään tavallisilla palikoilla nuole
 | `#kolikot.arvot` | jäsenten arvot luettelona |
 | `#kolikot.havaintoja`, `.puuttuvia`, `.virheitä`, `.täydellinen` | kuten taulukon sarakkeella |
 | `#kolikot.x.pienin` | jäsenten ominaisuus `x`, siitä kooste (mikä tahansa jäsenten ominaisuus, esim. `.leveys.summa`, `.näkyy.summa`) |
-| `palikka.joukot` | palikan joukot nyt, nimet pilkulla (luettava ominaisuus kaikilla paitsi Ryhmällä), esim. `uni.joukot sisältää "terveys"` |
+| `palikka.joukot` | palikan joukot nyt, nimet pilkulla (luettava ominaisuus kaikilla paitsi Ryhmällä), esim. `uni.joukot sisältää "terveys"`. Jos joukko, johon palikka voisi kuulua (tagi, *Lisää joukkoon* tai oma *kuuluu kun* -nuoli), on virheessä, `joukot` on virhe *joukko #x on virheessä: …* (Appi-appi 60; ennen joukko jäi hiljaa pois). Kehä näkyy kaikille. |
 
-- **Ehdotukset:** `#` ehdottaa joukkojen nimiä (ja jäsenmäärää), `#nimi.` koosteita ja jäsenten ominaisuuksia.
+- **Ehdotukset:** `#` ehdottaa joukkojen nimiä (ja jäsenmäärää), `#nimi.` koosteita ja jäsenten ominaisuuksia: ensin kaikkien jäsenten yhteiset, sitten muut merkinnällä *vain osalla jäsenistä (1/2), muuten kooste on virhe* (Appi-appi 60).
 - **Kääntyy itse:** `summa(#kolikot)` muuttuu kirjoittaessa muotoon `#kolikot.summa` (samoin `keskiarvo`, `suurin`, `pienin`, `jäseniä`, `jäsenet`, `arvot` ja muut koosteet).
 - **Mitkä arvot lasketaan:** luvut; kyllä = 1 ja ei = 0. Teksti ja tyhjä ohitetaan (näkyvät määrissä *havaintoja* ja *puuttuvia*). Päivämäärille `.suurin` ja `.pienin`, kun lukuja ei ole. Yksikin virhe jäsenessä tekee koosteesta virheen (paitsi `.virheitä`).
 - **Tyhjä joukko:** `.summa` = 0, `#x` = 0, `.keskiarvo`, `.suurin` ja `.pienin` puuttuvat.
@@ -488,10 +488,10 @@ Lista (Näkymä → Näyttö → **Lista**) ja Aikajana (**Aikajana**) ovat vanh
 4. Riveittäin laskettu summa (määrä × hinta): Logiikka → Ikkunat → ikkuna, **Miten sisältö yhdistyy**: SUMMA, valitse **Riveille**, nuoli Ostokset → rivit ikkunan kohtaan **rivit**, ikkunan sisään Kaava `kohde.määrä * kohde.hinta` (Kohde = Rivi, käsiteltävä rivi). Ikkunan tulos on yhteishinta.
 
 ### Näytä vain ostamattomat, eniten ensin
-1. Logiikka → **Tieto** → **Rivijoukko**. Nuoli Ostokset → **rivit** → Joukko **rivit**.
-2. Kaava `kohde.määrä > 0` nuolella Joukon kohtaan **ehto riveittäin**.
-3. Joukon paneelissa **Järjestys**: Määrä, **Suunta**: laskeva.
-4. Vie Toistimen rivit nuolella Joukosta (ei suoraan taulukosta). Huom: silloin **Järjestä raahaamalla** ei muuta järjestystä.
+1. Logiikka → **Tieto** → **Rivijoukko** (nimi *Suodatus*). Nuoli Ostokset → **rivit** → Suodatus **rivit**.
+2. Kaava `kohde.määrä > 0` nuolella Suodatuksen kohtaan **ehto riveittäin**.
+3. Suodatuksen paneelissa **Järjestys**: Määrä, **Suunta**: laskeva.
+4. Vie Toistimen rivit nuolella Suodatuksesta (ei suoraan taulukosta). Huom: silloin **Järjestä raahaamalla** ei muuta järjestystä.
 
 ---
 

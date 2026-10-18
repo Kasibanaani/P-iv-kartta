@@ -32,8 +32,8 @@ async def main():
             box=await pg.locator('#lvp').bounding_box();X0=box['x'];Y0=box['y']
             await paletti(pg,'Rivijoukko',X0+520,Y0+80);await paletti(pg,'Rivi',X0+520,Y0+300)
             nms=await P(pg,"Object.values(P.b).map(b=>[b.k,b.nm,b.vt])");print(W,'1 palikat:',nms)
-            assert ['trivi','Kohde','kohde'] in nms and ['joukko','Joukko','joukko'] in nms
-            kn=await nid_of(pg,'Kohde');jn=await nid_of(pg,'Joukko')
+            assert ['trivi','Kohde','kohde'] in nms and ['joukko','Suodatus','suodatus'] in nms
+            kn=await nid_of(pg,'Kohde');jn=await nid_of(pg,'Suodatus')
             # 2. Rivin paneeli: taulukko, mikä rivi, sarakkeet kaavaan
             await valitse(pg,kn);await pg.select_option('#insp select[data-k="tt"]',I['t']);await pg.wait_for_timeout(150)
             t=await insp(pg);segs=await pg.evaluate("[...document.querySelectorAll('#insp [data-seg=\"ls\"]')].map(b=>b.textContent+(b.classList.contains('on')?'*':''))");print(W,'2 rivi:',segs)
@@ -60,9 +60,9 @@ async def main():
             a=await keskus(pg,(S%kid[1])+' .pins.o .pt[data-p="v"]');z=await keskus(pg,(S%jn)+' .pins.i .pt[data-p="c"]');await veda(pg,a,z)
             await valitse(pg,jn);t=await insp(pg);assert 'Tulos: 2 riviä taulukosta ”Tuotteet”: Maito, Omena' in t,t
             ks=await pg.evaluate("(function(){var b=KK.addBlock(APP.P,'kaava',{});var n=KK.addNode(APP.P,b.id,360,530);KK.repair(APP.P);APP.renderAll();return n.id;})()")
-            await valitse(pg,ks);await pg.click(ta);await pg.keyboard.type('joukko.');await pg.wait_for_timeout(150)
-            sug=await pg.evaluate("[...document.querySelectorAll('#ksug button')].map(b=>b.getAttribute('data-ksug'))");print(W,'5 ehdotukset joukko:',sug[:8]);assert 'rivejä' in sug and 'eka' in sug and 'määrä.summa' in sug
-            await pg.fill(ta,'joukko.eka.nimi');await pg.dispatch_event(ta,'input');await pg.wait_for_timeout(150);kr=await pg.inner_text('#kres');print(W,'5 tulos:',kr);assert 'Maito' in kr
+            await valitse(pg,ks);await pg.click(ta);await pg.keyboard.type('suodatus.');await pg.wait_for_timeout(150)
+            sug=await pg.evaluate("[...document.querySelectorAll('#ksug button')].map(b=>b.getAttribute('data-ksug'))");print(W,'5 ehdotukset suodatus:',sug[:8]);assert 'rivejä' in sug and 'eka' in sug and 'määrä.summa' in sug
+            await pg.fill(ta,'suodatus.eka.nimi');await pg.dispatch_event(ta,'input');await pg.wait_for_timeout(150);kr=await pg.inner_text('#kres');print(W,'5 tulos:',kr);assert 'Maito' in kr
             # 6. Ikkuna riveille: SUMMA kohde.määrä × kohde.hinta
             wi=await pg.evaluate("""(function(t){var P=APP.P;var w=KK.addBlock(P,'ikkuna',{m:'sum'});var wn=KK.addNode(P,w.id,40,300);var k=KK.addBlock(P,'kaava',{});var kn=KK.addNode(P,k.id,60,350,wn.id);
               k.f=KK.kaavaToIds(P,'kohde.määrä * kohde.hinta');KK.repair(P);APP.renderAll();return [w.id,wn.id];})('%s')"""%I['t'])

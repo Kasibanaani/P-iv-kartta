@@ -4,6 +4,14 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
 
 ## Versiot
 
+- Appi-appi 60 (18.10., jonon 1r, `kartoitukset/2026-10-18-linjakkuus-8.md` S1–S4 ja W1, kaista A): **Kartoitus 8:n korjaukset.**
+  - Moottori `jkOf` (+ `jkCand`): kun palikka on joukon ehdokas (tagi, *Lisää joukkoon* `st['jk:<id>']` tai oma *kuuluu kun* -nuoli `jk_<id>`) ja joukon jäsenyys on virheessä, `palikka.joukot` on virhe *joukko #x on virheessä: …*. Kehä (`kehä:`) näkyy kaikille kuten ennen. Ennen virheellinen ehto ja kehäkin jäivät hiljaa pois, koska virhe alkaa ”kuuluu #x kun”.
+  - Moottori `vtPick` (yhteinen `uniqueVt`:lle ja `repair`in viitekorjaukselle): varatulle pohjalle `jos_1`, `jos_2`, `jos_3` … myös nimestä *JOS 2* (ennen `jos_2`, sitten `jos2`); vanha varattu viite korjautuu avattaessa `ja_1`:ksi. Tallennetut viitteet (`jos_2`, `jos2`, `ja_2`) ennallaan. Muut pohjat ennallaan (`uni`, `uni2`).
+  - UI `jkSugItems`: `#x.`-ehdotuksissa ensin kaikkien jäsenten yhteiset ominaisuudet, sitten muut merkinnällä *vain osalla jäsenistä (n/m), muuten kooste on virhe* (enintään 40 jäsentä katsotaan).
+  - UI paletti: Rivijoukon oletusnimi *Joukko* → **Suodatus** (viite `suodatus`), laji ja vanhat palikat ennallaan.
+  - Repo: 16 testikuvaa (`appiappi/testit/*.png`, Appi-appi 57) poistettu, `testit/.gitignore`:en `*.png`.
+  - Ei tallennusmuodon muutosta. Testit `logiikka_83_korjaukset_1r.js`, `selain_99_korjaukset_1r.py` (1440, 1280, 390 savutestinä); päivitetty `logiikka_62`, `_80`, `selain_95` (`ja_1`, `tai_1`, `jos_1`). Manuaali: luvut 6, 7 ja 11.
+  - **Kokeile koneella:** Logiikka-välilehti. (1) Tee kaksi Muistia, molempien Tunnukseen ` #x`, toiselle myös ` #y`. Avaa ensimmäiselle ⚡ kuuluu kun ja vie siihen nuoli Kaavasta `puuttuva > 1`. Kaava `toka.joukot` näyttää nyt punaisen virheen *joukko #x on virheessä* (ennen pelkkä ”y”). (2) Lisää joukkoon #x Sekuntikello ja kirjoita Kaavaan `#x.`: ensin yhteiset (arvo., joukot.), lopussa *käy.* ja *kulunut.* merkinnällä *vain osalla jäsenistä (1/3)*. (3) Vedä paletista Tieto → Rivijoukko: nimi on *Suodatus*. (4) Tee kaksi JOS-palikkaa: viitteet `jos_1` ja `jos_2`.
 - Appi-appi 59 (18.10., jonon 24, kaista B): **Esiintymien määrä näkyviin logiikkakanvaasilla.**
   - UI `nodeHTML`: kun samalla palikalla on logiikassa useampi esiintymä, viitteen (`vtag`) perään tulee merkki `<span class="ninst">2×</span>` (vihje *Sama palikka 2 kohdassa logiikkaa. Napauta: seuraava esiintymä.*). Määrät lasketaan kerran per piirto `renderLogicStage0`:ssa (`S.instC`, palikka → lukumäärä), ei palikkaa kohden. Ikkunoille ei merkkiä (aina yksi esiintymä).
   - UI `nextInstance` (pointerdown `[data-ninst]`): valitsee seuraavan esiintymän logiikan järjestyksessä kiertäen ja keskittää kameran siihen (tiivistetyn ikkunan sisällä: ikkunan pilleri, kuten `gotoBlock`). Muiden esiintymien korostus `.ln.same` on nyt katkoviivareuna.

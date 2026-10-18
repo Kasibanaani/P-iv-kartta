@@ -1,7 +1,7 @@
 // Jonon 12g (F41, suunnitelma 25 kohta 3.5 ja 7.8): kaavassa ei funktioita. Sulut ryhmittelevät, jos (ehto) a muuten b ja
 // jos ehto niin a muuten b, muuten jos ketjuttuu, a ja b, a tai b (laskut > vertailut > ja > tai > jos). Vanhat jos(;;),
 // ja(;), tai(;) muuttuvat kirjoitettaessa ja repairissa (palikat, Toiminnon kentät, lukituskuvat, presetit, suosikit);
-// tallennusversio 9; varatut sanat eivät kelpaa viitteeksi (ja → ja_2); version 8 lukituskuva jatkaa.
+// tallennusversio 9; varatut sanat eivät kelpaa viitteeksi (ja → ja_1); version 8 lukituskuva jatkaa.
 var KK=require('./moottori.js'),A=require('assert');
 var NOW=new Date(2026,9,18,10,0,0).getTime();var C={now:function(){return new Date(NOW);},toast:function(){},nav:function(){}};
 function N(P,b){return KK.addNode(P,b.id,0,0,'');}
@@ -74,7 +74,7 @@ A.strictEqual(KK.kaavaVanha('jos({#a1}.ja > 1; {#a2}; ja({#a3}; {#a4}))'),'jos (
 
 // Varatut sanat: viitteeksi ei kelpaa, vanha viite vaihtuu (kaavat säilyvät, koska ne tallentavat tunnisteen)
 ['jos','ja','tai','muuten','niin'].forEach(function(w){A.ok(!KK.validVt(w),w+' varattu');A.ok(KK.KW[w]);});
-var Q=KK.newProject('varattu');var jb=KK.addBlock(Q,'jos');A.strictEqual(jb.vt,'jos_2','JOS-palikan oletusviite ei ole varattu sana');
+var Q=KK.newProject('varattu');var jb=KK.addBlock(Q,'jos');A.strictEqual(jb.vt,'jos_1','JOS-palikan oletusviite ei ole varattu sana');
 var jb2=KK.addBlock(Q,'jos');A.ok(KK.validVt(jb2.vt)&&jb2.vt!==jb.vt,'toinen JOS: '+jb2.vt);
 
 // Repair: versio 8 -tallennus vanhoilla kaavoilla ja varatuilla viitteillä
@@ -86,9 +86,9 @@ J.b[kv.id].f='jos(ja({#'+a.id+'} > 1; tai({#'+t.id+'} = 0; {#'+t.id+'} > 5)); "o
 var Dt=KK.repairData({app:'appiappi',ver:8,projects:[J],cur:J.id,presetit:[{id:'pr1',nm:'P',ver:8,pv:1,b:{x1:{id:'x1',k:'kaava',nm:'K',vt:'k',f:'jos(1 > 0; "a"; "b")'}},n:[],l:[]}],
   suos:[{k:'kaava',p:{f:'ja(1; 2)'},l:'K',i:'ƒ',h:0}]});
 A.strictEqual(Dt.ver,KK.VER);var R2=Dt.projects[0];
-A.strictEqual(R2.b[a.id].vt,'ja_2','varattu viite vaihtuu');A.strictEqual(R2.b[t.id].vt,'tai_2');
+A.strictEqual(R2.b[a.id].vt,'ja_1','varattu viite vaihtuu');A.strictEqual(R2.b[t.id].vt,'tai_1');
 A.strictEqual(R2.b[kv.id].f,'jos ({#'+a.id+'} > 1 ja ({#'+t.id+'} = 0 tai {#'+t.id+'} > 5)) "on" muuten "ei"','kaava muuntui');
-A.strictEqual(KK.kaavaToText(R2,R2.b[kv.id].f),'jos (ja_2 > 1 ja (tai_2 = 0 tai tai_2 > 5)) "on" muuten "ei"','näkyy uusilla viitteillä');
+A.strictEqual(KK.kaavaToText(R2,R2.b[kv.id].f),'jos (ja_1 > 1 ja (tai_1 = 0 tai tai_1 > 5)) "on" muuten "ei"','näkyy uusilla viitteillä');
 KK.userSet(R2,a.id,3,C);A.strictEqual(V(R2,R2.b[kv.id]),'on');
 A.strictEqual(R2.b[tee.id].kv[col.id],'{#'+a.id+'} tai 0','Toiminnon kenttä muuntui');
 A.strictEqual(Dt.presetit[0].b.x1.f,'jos (1 > 0) "a" muuten "b"','presetti muuntui');A.strictEqual(Dt.presetit[0].ver,KK.VER);
