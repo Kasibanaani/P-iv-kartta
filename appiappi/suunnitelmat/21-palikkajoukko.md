@@ -1,5 +1,7 @@
 # F37 Palikkajoukko: yksi sääntö monelle palikalle
 
+> ⏸ **18.10.2026: muutosehdotus odottaa Emilin päätöstä,** ks. [25 Joukot tageina, viite @:lla ja kaavan sulut](25-joukot-tageina-ja-kaava.md). Älä rakenna tätä ennen päätöstä.
+
 18.10.2026. **Emilin kysymys** (viesti 18.10. klo 0.09 Suomen aikaa): miten logiikkapuolella palikat napataan ryhmäksi niin, että kaavassa ryhmän nimi tarkoittaa jokaista jäsentä vuorollaan (”ryhmä1 = palikka2 + palikka3”)? Onko se ikkunaominaisuus? Miten jäsenyyttä hallitaan käsin ja säännöllä, myös myöhemmin tehtävien palikoiden osalta? Merkinnät: *Emilin idea* = hänen sanomansa, *ehdotus* = tekoälyn suunnitteluratkaisu, *avoin* = päätetään ennen rakentamista. **Emil hyväksyi suositukset 18.10.2026** (nimi Joukko, paikkamerkki `jäsen`, kaikki muut ehdotukset) ja siirsi F37:n jonossa 2D-pelien edelle. **Ei toteutettu.** Lue ensin [periaatteet](00-periaatteet.md) ja [palikkasäännöt](../PALIKKASAANNOT.md).
 
 ## 1. Miten nyt (Appi-appi 43)
