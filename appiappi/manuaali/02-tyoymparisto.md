@@ -355,7 +355,7 @@ Ylhäältä alas:
 3. Erikoispalikalla laatikko **✦ Erikoispalikka.** ja syy. Logiikkapalikalla vihjeteksti.
 4. **Nimi**, **Tunnus** (viite ja joukot; ei Ryhmällä), joukkojen jäsenyysrivit ja **Lisätieto** (vapaa selitys, näkyy pikakatselussa, ei vaikuta mihinkään).
 5. **⚠ Viitevirheet**, jos palikka viittaa poistettuun (ks. Poisto).
-6. Lajin omat osiot. Näkymäpalikoilla tavallisesti *Sisältö*, pikatoiminnot (*Kun painetaan*, *Kun valitaan*), *Arvo, kun valittu*, *Näkyvyys*, *Väri*, *Animointi*, *Käyttöraahaus*, *Paikka ja koko* ja *Ulkoasu*. Logiikkapalikoilla lajin asetukset ja *Ulkonäkö logiikassa*.
+6. Lajin omat osiot. Näkymäpalikoilla tavallisesti *Sisältö*, pikatoiminnot (*Kun painetaan*, *Kun valitaan*, *Kun napautetaan*), *Arvo, kun valittu*, *Näkyvyys*, *Väri*, *Animointi*, *Napautus*, *Käyttöraahaus*, *Paikka ja koko* ja *Ulkoasu*. Logiikkapalikoilla lajin asetukset ja *Ulkonäkö logiikassa*.
 7. **Ominaisuudet** (avattava osio): kaikki, mihin kaava voi viitata, viitteineen. Napauta viitettä: se kopioituu. Ohjattavilla ominaisuuksilla napit ƒ (arvo kaavasta), ⇢ (kohta logiikkaan nuolta varten), × (sulje kohta) ja *asetettu ↺* (palauta). Yksityiskohdat ominaisuusluvussa.
 8. **Miksi?** (kun palikalle on selitys, ks. alla) ja **Yhteydet**.
 9. Napit, esim. näkymäpalikalla **Tuo eteen**, **Vie taakse**, **Monista**, **Näytä logiikassa**, **Tallenna presetiksi…**, **Poista palikka**; logiikkapalikalla **Lisää toinen esiintymä**, **⧉ Kopioi**, **Liitä**, **Tallenna presetiksi…**, **Poista** tai **Poista tämä esiintymä**. Kun näkymäpalikka on valittu logiikassa: **Lisää toinen esiintymä**, **Poista logiikasta**, **Näytä näkymässä**, **Tallenna presetiksi…**.

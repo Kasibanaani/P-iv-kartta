@@ -2,7 +2,7 @@
 
 ## Tarkistettu versio
 
-- **Appi:** Appi-appi 67, tallennusversio 12 (`VER`), repo `Kasibanaani/P-iv-kartta`, kansio `appiappi/`.
+- **Appi:** Appi-appi 68, tallennusversio 12 (`VER`), repo `Kasibanaani/P-iv-kartta`, kansio `appiappi/`.
 - **Kirjoitettu:** 17.10.2026 koodista commitilla `77461d2` (Appi-appi 31). Sen jälkeen jokainen rakentaja on päivittänyt muuttuneet kohdat samassa työssä; versiokohtaiset tiedot ja mitä kussakin tarkistettiin ovat `appiappi/MUUTOKSET.md`:ssä. **Viimeksi tarkistettu:** Appi-appi 67 (18.10.2026, jonon 14c: Muodon kulmat, `kpy`), luvut 3 (Muoto), 9 (tallennuskenttä `kpy`), 10 ja 11, koodin ja testien `logiikka_89_kulmat.js` ja `selain_106_kulmat.py` mukaan; Appi-appi 66 (jonon 1s: kartoitus 9:n joukkokorjaukset), luvut 2 (Rakennuslaatikon Kolikko), 7 (Joukko-palikka, Jäsenten tapahtumat), 10 ja 11, koodin ja testien `logiikka_88_korjaukset_1s.js`, `selain_105_korjaukset_1s.py` ja `selain_91_keveys.py` mukaan; Appi-appi 65 (värit ja paletit) ks. `MUUTOKSET.md`.
 - **Miten tarkistettiin:** jokainen luku on kirjoitettu lukemalla käyttöliittymän ja moottorin koodia (nimet suoraan koodin merkkijonoista) sekä testien kuvauksia. Kaavakielestä ajettiin noin 150 kaavaa moottorilla (Node), ja maailman ja liikkeen kaavanimet tarkistettiin samoin. Aloitusluvun esimerkki *Vesilasit* tehtiin vaihe vaiheelta oikeassa käyttöliittymässä (Chromium, 1440 px). Muiden lukujen reseptejä **ei ole ajettu** selaimessa: ne on koottu koodista.
 - **Ei tarkistettu oikealla iPhonella, iPadilla eikä Safarilla.** Puhelinkäyttö on kuvattu koodista ja testeistä, jotka ajavat kosketusta tietokoneen selaimessa 390 ja 320 px leveänä. Oikean laitteen tuntuma (sormella veto, näppäimistö, Safarin oma zoomaus) on varmistamatta.

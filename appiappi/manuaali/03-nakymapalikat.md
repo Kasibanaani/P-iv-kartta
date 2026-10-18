@@ -36,13 +36,14 @@ Paneeli on ylhäältä alas suunnilleen tässä järjestyksessä:
 |---|---|
 | (yläosa) | **Nimi**, **Tunnus** (viite ja joukot `#nimi`), **Lisätieto**. Nimi ei näy käyttäjälle. Viite on lyhyt nimi kaavoihin ja teksteihin (esim. `painike`); se seuraa nimeä, kunnes kirjoitat oman. Erikoispalikalla tässä on ✦-laatikko ja poikkeuksen syy. |
 | **Sisältö** | Palikan oma teksti ja lajikohtaiset asetukset (katso kunkin palikan merkintä). |
-| **Kun painetaan / Kun valitaan** | Pikatoiminnot (vain Painike, Valintaruutu, Kytkin). |
+| **Kun painetaan / Kun valitaan / Kun napautetaan** | Pikatoiminnot (Painike, Valintaruutu, Kytkin; *Kun napautetaan* napautettavalle Tekstille, Muodolle, Kuvalle, Monitorille ja Ilmoitukselle). |
 | **Rivin sarake** | Näkyy syöttäville ohjaimille, kun projektissa on Tietotaulukko (muokkauslomake, luku [Tieto](07-tieto.md)). |
 | **Arvo, kun valittu** | Painike (ei kertapainallus), Valintaruutu, Kytkin. |
 | **Näkyvyys** | Näkyy kun, harmaana kun, syy. |
 | **Väri** | Väri, vaihtoväri, vaihtovärin ehto, läpinäkyvyys. |
 | **Animointi** | Ilmestyy, katoaa, kesto, pehmeys, arvo vaihtuu, paikka vaihtuu (kiinni, kun mitään ei ole valittu). Ks. alla. |
 | **Este ja osuma-alue** | Este, osuma-alue, massa, kimmoisuus (luku [Maailma ja liike](08-maailma-ja-liike.md)). |
+| **Napautus** | Teksti, Muoto, Kuva, Monitori ja Ilmoitus: Napautettava käytössä, Painuu painettaessa (kiinni oletuksena). Ks. alla. |
 | **Käyttöraahaus** | Raahattava käytössä (kiinni oletuksena). |
 | **Paikka ja koko** | X, Y, Leveys, Korkeus; Näkymä (jos näkymiä on monta); laitenäkymässä *Laitteen ruudussa* -napit ja *Rullausvauhti*; *Kerros* (jos kerroksia on monta); *Monista* (N kpl alle/viereen tai ruudukoksi). |
 | **Ulkoasu** | *Kopioi ulkoasu* ja *Liitä ulkoasu*: koko ja värit, samalle lajille myös tekstin koko, lihavointi, tasaus ja muoto. |
@@ -201,6 +202,29 @@ Molemmat siirtävät palikkaa, mutta eri tavalla:
 - **ominaisuus x / y** (Ominaisuudet, toiminto Aseta tai nuoli avattuun kohtaan) **korvaa** paikan.
 
 Kumpikin näkyy vain käytössä; muokatessa palikka on paneelin X/Y-kohdassa.
+
+## Napautus (osio *Napautus*, Appi-appi 68)
+
+Teksti, Muoto (Laatikko, Ympyrä, Pilleri, Lappu, Kehys), Kuva, Monitori ja Ilmoitus voivat ottaa napautuksen ilman päälle asetettua Painiketta. Rasti **Napautettava käytössä** osiossa *Napautus*. Laatikko on silloin painike ilman tilaa: se ei jää pohjaan eikä laske painalluksia (siihen tarvitaan Painike).
+
+- **Painuu painettaessa:** palikka painuu hieman, kun sitä painetaan (vain ulkoasu).
+- Lukittuna osoitin on käsi. Muokatessa napautus valitsee palikan kuten ennenkin.
+- Pikatoiminnot **Kun napautetaan** tulevat paneeliin kuten Painikkeen *Kun painetaan*.
+- Raahattava ja napautettava yhtä aikaa: alle 6 px liike on napautus, pidempi veto raahaa eikä napauta.
+- Napautettava palikka ottaa napautuksen itselleen: sen kohdalla napautus ei liikuta *Napautus*-ohjattua Liikettä eikä mene sen alla olevalle Alueelle (kuten Painikkeella).
+- Harmaana, luettavana tai pois käytöstä oleva palikka ei ota napautusta.
+- **Ominaisuus** `napautettava` (kyllä/ei) on ohjattava: kaavalla luettava (`laatikko.napautettava`), Aseta, Palauta tai nuoli avattuun kohtaan. Aseta *kyllä* tekee napautettavaksi myös palikan, jolta rasti puuttuu (silloin kuulee Joukko-palikka, omia kohtia ei ole).
+
+**Tapahtumat (lähtevät kohdat, vain kun napautettava on päällä):**
+
+| Kohta | Milloin |
+|---|---|
+| **napautettu** | palikkaa napautettiin (hiirellä napsautus) |
+| **pitkä painallus** | painettuna puoli sekuntia paikallaan. Jos tähän kohtaan on kytketty jotain, se korvaa napautuksen; muuten tulee myös napautettu, kuten Painikkeella. |
+
+Tapahtuman tiedoissa `tapahtuma.x` ja `tapahtuma.y`: kohta palikassa pikseleinä vasemmasta yläkulmasta (zoomaus ei vaikuta). Toistimen kortissa myös `tapahtuma.rivi`.
+
+**Kokeile koneella:** tee Laatikko, avaa *Napautus*, rasti *Napautettava käytössä* ja *Painuu painettaessa*. Valitse *Kun napautetaan* → *Näytä ilmoitus*. Lukitse ja napsauta laatikkoa.
 
 ## Käyttöraahaus (osio *Käyttöraahaus*)
 
@@ -464,7 +488,7 @@ Näyttää kuvan (SVG-teksti, kuvatiedosto tai https-osoite) tai kuvasarjan anim
   - Teksti on kuvan vaihtoehtoinen teksti (ei näy).
 - **Ominaisuudet:** yhteiset; lisäksi `.kuvanopeus` (ohjattava, 0–60), `.kuvanro` (monesko kuva näkyy, 1 = pääkuva), `.pyörii`.
 - **Aika ja tila:** pysähtyneenä näkyy pääkuva. Efekti *Kuva vaihtuu* vaihtaa pääkuvan, kunnes *Palauta perusarvo* palauttaa oman kuvan.
-- **Esimerkki:** Kuva ja sen päällä Painike, jonka *Ulkoasu* on *Näkymätön kosketusalue* (*Tuo eteen*): kuvan kohta on painettava.
+- **Esimerkki:** kuvasta painettava: osio *Napautus* → *Napautettava käytössä* (Appi-appi 68), tapahtuma *napautettu*, kohta kuvassa `tapahtuma.x`/`tapahtuma.y`. Vain osa kuvasta painettavaksi: päälle Painike, jonka *Ulkoasu* on *Näkymätön kosketusalue* (*Tuo eteen*).
 - **Toinen käyttö:** hahmon kävely: 3 kuvaa sarjassa, Pyörii *Kun liikkuu*.
 - **Huomio:** muut osoitteet (esim. `javascript:`, `data:text/html`) eivät näy. Isot kuvatiedostot hidastavat tallennusta; SVG on kevyin.
 
