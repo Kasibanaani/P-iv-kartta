@@ -35,6 +35,8 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | kasvattaa laskuria | Muisti + toiminto Lisää | [Laskuri, joka muistaa](04-logiikkapalikat.md#4-laskuri-joka-muistaa) |
 | yhdistää monta ehtoa | Ikkuna (JA, TAI, VÄHINTÄÄN…) tai kaavassa `a ja b`, `a tai b` | [Ikkuna](04-logiikkapalikat.md#ikkuna-ikkuna) |
 | tehdä päätöspuun: napit, joista jokainen tuo näkyviin seuraavat (myös silmukat, kysymykset) | Ikkuna PÄÄTÖSPUU tai Pikaluonti → Päätöspuu… | [Päätöspuu](04-logiikkapalikat.md#päätöspuu-appi-appi-88), [resepti](02-tyoymparisto.md#päätöspuu-pikaluonnilla) |
+| aloittaa päätöspuu napista tai lopettaa se | Päätöspuun *Alkaa: aloitusnapista*, **＋ Aloitusnappi**, kohdat *alkuun* ja *lopeta* | [Päätöspuu](04-logiikkapalikat.md#päätöspuu-appi-appi-88) |
+| tehdä näkymän Painikkeen suoraan logiikasta | logiikan paletti *Ikkunat* → **Painike** | [Päätöspuu](04-logiikkapalikat.md#päätöspuu-appi-appi-88) |
 | ottaa joukon jäsenet ikkunan sisällöksi | Ikkunan *Sisältö myös joukosta* | [Ikkuna](04-logiikkapalikat.md#ikkuna-ikkuna) |
 | asettaa näkyvät palikat siististi listaksi, piilossa olevat ilman aukkoja | Alueen *Asettelu käytössä*: Allekkain tai Ruudukko | [Alue](08-maailma-ja-liike.md#alue--alue) |
 | tehdä jotain ehdon alkaessa päteä | JOS (NIIN-tapahtuma) tai KUN | [JOS](04-logiikkapalikat.md#jos-jos), [KUN](04-logiikkapalikat.md#kun-kun) |

@@ -8,7 +8,7 @@ from yhteinen import *
 PUU="Object.values(P.b).find(b=>b.k==='ikkuna'&&b.m==='puu')"
 async def nappi(pg,tx):return await P(pg,"Object.values(P.b).find(b=>b.k==='nappi'&&b.tx===%r).id"%tx)
 async def nakyvat(pg):
-    return await pg.evaluate("()=>[...document.querySelectorAll('#uels .ue.k-nappi')].filter(e=>getComputedStyle(e).display!=='none'&&e.offsetParent).map(e=>[e.innerText.trim(),Math.round(e.getBoundingClientRect().top)]).sort((a,b)=>a[1]-b[1]).map(a=>a[0])")
+    return await pg.evaluate("()=>[...document.querySelectorAll('#uels .ue.k-nappi')].filter(e=>getComputedStyle(e).display!=='none'&&e.offsetParent).map(e=>[e.innerText.trim(),Math.round(e.getBoundingClientRect().top)]).sort((a,b)=>a[1]-b[1]).map(a=>a[0]).filter(t=>t!=='Aloita')")
 async def luo(pg,W):
     await pg.fill('#wname','Puu');await pg.click('#wcreate');await pg.wait_for_timeout(150)
     await pg.click('#pal [data-quick="puu"]');await pg.wait_for_timeout(200)
@@ -19,13 +19,13 @@ async def main():
         for W in (1440,1280):
             b,pg,errs=await avaa(p,W,900)
             await luo(pg,W)
-            st=await P(pg,"(function(){var b=%s,wn=KK.puuWn(P,b.id),al=P.b[b.pual];return [b.nm,(b.pus||[]).length,(b.pusa||[]).length,KK.puuNakyvat(P,b.id).map(id=>P.b[KK.nodeOf(P,id).p].tx),al.k,al.as,al.asl];})()"%PUU)
-            print(W,'1 pikaluonti:',st);assert st==['Mitä teen',4,2,['Väsynyt','Pirteä'],'alue','pino','sovita']
+            st=await P(pg,"(function(){var b=%s,wn=KK.puuWn(P,b.id),al=P.b[b.pual];return [b.nm,(b.pus||[]).length,(b.pusa||[]).length,KK.puuAlku(P,wn,KK.puuSy(P,b,wn),b).map(id=>P.b[KK.nodeOf(P,id).p].tx),al.k,b.puk,KK.puuNakyvat(P,b.id).length,al.as,al.asl];})()"%PUU)
+            print(W,'1 pikaluonti:',st);assert st==['Mitä teen',4,2,['Väsynyt','Pirteä'],'alue','nappi',0,'pino','sovita']
             ins=await pg.inner_text('#insp');assert 'Alussa näkyvät' in ins and 'Päätöspuu' in ins
             # alussa näkyvät: Pirteä pois ja takaisin
             await pg.click('#insp [data-pusa]:has-text("Pirteä")');await pg.wait_for_timeout(150)
-            a=await P(pg,"KK.puuNakyvat(P,%s.id).length"%PUU);await pg.click('#insp [data-pusa]:has-text("Pirteä")');await pg.wait_for_timeout(150)
-            a2=await P(pg,"KK.puuNakyvat(P,%s.id).length"%PUU);print(W,'2 alussa näkyvät vaihto:',a,a2);assert a==1 and a2==2
+            a=await P(pg,"(function(){var b=%s,wn=KK.puuWn(P,b.id);return KK.puuAlku(P,wn,KK.puuSy(P,b,wn),b).length;})()"%PUU);await pg.click('#insp [data-pusa]:has-text("Pirteä")');await pg.wait_for_timeout(150)
+            a2=await P(pg,"(function(){var b=%s,wn=KK.puuWn(P,b.id);return KK.puuAlku(P,wn,KK.puuSy(P,b,wn),b).length;})()"%PUU);print(W,'2 alussa näkyvät vaihto:',a,a2);assert a==1 and a2==2
             await pg.screenshot(path='paatospuu_paneeli_%d.png'%W)
             # logiikka: neljä siirtymää piirtyy
             await pg.click('#tabs [data-t="logiikka"]');await pg.wait_for_timeout(250);await pg.click('.zoomc [data-z="fit"]');await pg.wait_for_timeout(400)
@@ -52,10 +52,19 @@ async def main():
             await pg.keyboard.press('Tab');await pg.wait_for_timeout(250);assert await pg.locator('#puin').count()==1
             await pg.keyboard.type('Juoksu');await pg.keyboard.press('Enter');await pg.wait_for_timeout(250)
             await pg.keyboard.type('Pyöräily');await pg.keyboard.press('Enter');await pg.wait_for_timeout(250);await pg.keyboard.press('Escape');await pg.wait_for_timeout(250)
-            r=await P(pg,"(function(){var b=%s;return [Object.values(P.b).filter(o=>o.k==='nappi').length,KK.puuSeur(KK.puuSy(P,b,KK.puuWn(P,b.id)),%r).map(id=>P.b[KK.nodeOf(P,id).p].tx).sort()];})()"%(PUU,pi))
+            r=await P(pg,"(function(){var b=%s;return [Object.values(P.b).filter(o=>o.k==='nappi'&&o.tx!=='Aloita').length,KK.puuSeur(KK.puuSy(P,b,KK.puuWn(P,b.id)),%r).map(id=>P.b[KK.nodeOf(P,id).p].tx).sort()];})()"%(PUU,pi))
             print(W,'6 Tab/Enter:',r);assert r==[9,['Juoksu','Pyöräily','Treeni']]
+            # logiikan paletin Painike pudotettuna päätöspuun sisään: nappi puun Alueelle ja ikkunaan, teksti heti
+            wsel='#lworld [data-nid="%s"]'%await P(pg,"KK.puuWn(P,%s.id).id"%PUU);wr=await pg.locator(wsel).bounding_box()
+            ch=pg.locator('#pal .chip[data-make*=\'"lg":1\']').first;await ch.scroll_into_view_if_needed();c0=await ch.bounding_box()
+            await veda(pg,[c0['x']+c0['width']/2,c0['y']+c0['height']/2],[wr['x']+wr['width']-90,wr['y']+wr['height']-40]);await pg.wait_for_timeout(300)
+            assert await pg.locator('#puin').count()==1;await pg.keyboard.type('Kahvi');await pg.keyboard.press('Enter');await pg.wait_for_timeout(250);await pg.keyboard.press('Escape');await pg.wait_for_timeout(250)
+            kv=await P(pg,"(function(){var w=%s,wn=KK.puuWn(P,w.id),al=P.b[w.pual],b=Object.values(P.b).find(o=>o.k==='nappi'&&o.tx==='Kahvi'),n=KK.nodesOfBlock(P,b.id)[0],t=Object.values(P.b).find(o=>o.tx==='↩ Takaisin');return [n.g===wn.id,b.v===al.v&&b.y>al.y&&b.y+b.h<al.y+al.h,b.y<t.y,Object.values(P.b).filter(o=>o.k==='nappi').length];})()"%PUU)
+            print(W,'6b paletin Painike puuhun:',kv);assert kv==[True,True,True,11]
             # käyttötila: allekkain, napautus etenee, Takaisin, silmukka, Alkuun
             await pg.click('#tabs [data-t="nakyma"]');await pg.wait_for_timeout(200);await pg.click('#lockbtn');await pg.wait_for_timeout(400)
+            v00=await nakyvat(pg);print(W,'7a ennen Aloita:',v00);assert v00==[]
+            await pg.click('#uels [data-id="%s"]'%await nappi(pg,'Aloita'));await pg.wait_for_timeout(300)
             v0=await nakyvat(pg);print(W,'7 alussa:',v0);assert v0==['Väsynyt','Pirteä']
             al=await P(pg,"(function(){var a=P.b[%s.pual];return a.y;})()"%PUU)
             vy=await pg.evaluate("(id)=>document.querySelector('#uels [data-id=\"'+id+'\"]').getBoundingClientRect().top",await nappi(pg,'Väsynyt'))
@@ -86,6 +95,7 @@ async def main():
         # (rakennetaan koneella, käytetään kapealla ruudulla)
         b,pg,errs=await avaa(p,1440,900);await luo(pg,1440)
         await pg.evaluate("APP.S.sel=null;APP.renderAll()");await pg.click('#lockbtn');await pg.set_viewport_size({'width':390,'height':844});await pg.wait_for_timeout(400)
+        await pg.click('#uels [data-id="%s"]'%await nappi(pg,'Aloita'));await pg.wait_for_timeout(300)
         v=await nakyvat(pg);vw=await pg.evaluate("[document.documentElement.scrollWidth,innerWidth]");print('390 14:',v,vw)
         assert v==['Väsynyt','Pirteä'] and vw[0]<=vw[1]
         await pg.screenshot(path='paatospuu_390.png');print('errs',errs);assert not errs;await b.close()

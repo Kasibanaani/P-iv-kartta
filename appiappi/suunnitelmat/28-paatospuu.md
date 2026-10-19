@@ -75,6 +75,14 @@ Vaihe 2 on hyödyllinen yksinään ja sopii ennen suunnitelman 27 vaihetta 2 (Au
 - Alku: automaattinen sääntö ja paneelin *Alussa näkyvät*; pikaluonti valitsee ylimmän tason, jos silmukka vie johonkin niistä (muuten silmukka piilottaisi juuren).
 - Listan järjestys on palikoiden paikka (ylhäältä alas, vasemmalta oikealle), ei siirtymien järjestys: yksinkertaisempi ja sama kaikille Alueille.
 - Ei tehty: eri vaihtoehdosta eri suuntaan, valmis polkurivi.
+- Appi-appi 89 (Emilin palaute): *Alkaa: aloitusnapista* + kohta *lopeta*, **＋ Aloitusnappi**, logiikan paletin **Painike** (näkymäpalikka logiikasta, puun sisään pudotettuna puun Alueelle).
+
+## 10. Ehdotus: näkymän palikat logiikassa oletuksena ⏸ (Emil 19.10.)
+
+Emilin toive: näkymän napit näkyisivät logiikassa valmiiksi, vähän sivussa, jonkinlaisina palikoina. Nyt näkymän palikka tulee logiikkaan vasta, kun se vedetään paletin listasta (esiintymä).
+- *Ehdotus:* logiikan kanvaasin vasempaan reunaan sarake **Näkymässä** (näkymä kerrallaan): ne näkymän palikat, joilla ei vielä ole esiintymää, pieninä nimilappuina. Veto sarakkeesta kanvaasille tai ikkunaan tekee esiintymän. Ei tallennu (laskettu), ei muuta logiikkaa eikä vie tilaa, kun kaikki on käytössä. Kiinni/auki kuten paletti.
+- *Vaihtoehto:* jokainen uusi näkymäpalikka saa esiintymän itse logiikan reunaan. Huono puoli: logiikka täyttyy palikoista, joilla ei ole logiikkaa (otsikot, kuvat, koristeet).
+- Pistokkeet: piilotus on jo (logiikan vasen alakulma, ketjussa näkyvät aina). Kysymys: uusiin projekteihin piilossa oletuksena?
 
 ## Linjakkuus
 

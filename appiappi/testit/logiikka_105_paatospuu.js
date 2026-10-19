@@ -20,7 +20,7 @@ var irti=blk(P,'nappi',{v:vw,tx:'Irti'});
 sy(W,a,b);sy(W,a,c);sy(W,c,d);sy(W,d,a); // D palaa alkuun: silmukka
 KK.repair(P);
 A.strictEqual(KK.WM.puu,'PÄÄTÖSPUU');A.ok(KK.isPuu(W.b));
-var pr=KK.ports(W.b);A.deepStrictEqual(pr.ins.map(function(p){return p.p;}),['al','tk']);A.deepStrictEqual(pr.outs.map(function(p){return p.p;}),['v','pl','va','lo']);
+var pr=KK.ports(W.b);A.deepStrictEqual(pr.ins.map(function(p){return p.p;}),['al','tk','lp']);A.deepStrictEqual(pr.outs.map(function(p){return p.p;}),['v','pl','va','lo']);
 // Silmukka: kaikkiin tulee siirtymä, joten alussa ensimmäinen jäsen
 A.deepStrictEqual(KK.puuNakyvat(P,W.b.id),[a.n.id]);
 A.ok(vis(P,a)&&!vis(P,b)&&!vis(P,c)&&!vis(P,d),'alussa vain A');A.ok(vis(P,irti),'puun ulkopuolinen ei muutu');
@@ -118,4 +118,11 @@ J.st['puu:'+W.b.id]='rikki';A.deepStrictEqual(KK.puuNakyvat(J,W.b.id),[a.n.id],'
 // Kopio ja liitos: siirtymät uusiin solmuihin
 var clip=KK.copyNodes(P,[W.n.id]);var made=KK.pasteNodes(P,clip,0,600);var nw=null;made.forEach(function(id){var n=KK.nodeOf(P,id);if(P.b[n.p].k==='ikkuna'&&P.b[n.p].m==='puu')nw=P.b[n.p];});
 A.ok(nw&&nw.id!==W.b.id&&nw.pus.length===W.b.pus.length,'kopion siirtymät');nw.pus.forEach(function(e){A.ok(made.indexOf(e.f)>=0&&made.indexOf(e.t)>=0,'uusiin solmuihin');});
+// Appi-appi 89: alkaa aloitusnapista (puk), lopeta piilottaa, tila säilyy edetessä
+var PK=KK.newProject('aloitus'),vk=PK.views[0].id,TK=blk(PK,'ikkuna',{m:'puu',puk:'nappi'}),k1=blk(PK,'nappi',{v:vk,tx:'Yksi',beh:'kerta'},TK.n.id),k2=blk(PK,'nappi',{v:vk,tx:'Kaksi',beh:'kerta'},TK.n.id);
+sy(TK,k1,k2);var go=blk(PK,'nappi',{v:vk,tx:'Aloita',beh:'kerta'}),lop=blk(PK,'nappi',{v:vk,tx:'Lopeta',beh:'kerta'});KK.addLink(PK,go.n.id,'e',TK.n.id,'al');KK.addLink(PK,lop.n.id,'e',TK.n.id,'lp');KK.repair(PK);KK.tick(PK,C);
+A.ok(!vis(PK,k1)&&!vis(PK,k2)&&vis(PK,go),'ennen aloitusta mitään ei näy');A.deepStrictEqual(KK.ports(TK.b).ins.map(function(q){return q.p;}),['al','tk','lp']);
+tap(PK,go);KK.tick(PK,C);A.ok(vis(PK,k1)&&!vis(PK,k2),'aloitus näyttää alun');tap(PK,k1);KK.tick(PK,C);A.ok(vis(PK,k2)&&KK.puuSt(PK,TK.b.id).k===true,'eteneminen pitää käynnissä');
+tap(PK,lop);KK.tick(PK,C);A.ok(!vis(PK,k1)&&!vis(PK,k2)&&KK.puuSt(PK,TK.b.id).p.length===0,'lopeta piilottaa ja nollaa');
+TK.b.puk='x';KK.repair(PK);A.strictEqual(TK.b.puk,undefined,'tuntematon alkaa-arvo pois');KK.tick(PK,C);A.ok(vis(PK,k1),'ilman aloitusnappia alku näkyy heti');
 console.log('ok logiikka_105_paatospuu');

@@ -613,10 +613,10 @@ Puhelimella samoin: **＋ Palikat** avaa paletin, veto sormella. Nuolen poisto: 
        -> Väsynyt
    ```
    `-> Teksti` vie jo tehtyyn nappiin (silmukka tai paluu). Napin tekstissä voi olla viite, esim. `{uni} h`.
-3. Jätä päälle *Takaisin- ja Alkuun-painikkeet*. Paina **Luo**.
+3. Jätä päälle *Takaisin- ja Alkuun-painikkeet* ja *Aloita-painike*. Paina **Luo**.
 4. Näkymään tulee Alue (*Allekkain*, napit Alueen levyisinä) ja napit, logiikkaan PÄÄTÖSPUU-ikkuna siirtymineen sekä Takaisin- ja Alkuun-napit, jotka näkyvät, kun jotain on valittu.
-5. **Lukitse** ja napauta *Pirteä*: tilalle tulevat *Treeni*, *Takaisin* ja *Alkuun* ylhäältä alkaen. *Treeni* vie silmukassa *Väsyneeseen*.
-6. Lisää nappeja logiikassa: valitse nappi ja paina **Tab** (seuraava taso) tai **Enter** (rinnakkainen), kirjoita teksti.
+5. **Lukitse**. Näkyvissä on vain *Aloita*; napauta sitä, niin *Väsynyt* ja *Pirteä* tulevat esiin. Napauta *Pirteä*: tilalle tulevat *Treeni*, *Takaisin* ja *Alkuun* ylhäältä alkaen. *Treeni* vie silmukassa *Väsyneeseen*.
+6. Lisää nappeja logiikassa: vedä logiikan paletin *Ikkunat*-ryhmästä **Painike** päätöspuun sisään, tai valitse nappi ja paina **Tab** (seuraava taso) tai **Enter** (rinnakkainen). Kirjoita teksti. Nappi ilmestyy näkymään puun Alueelle itse.
 
 ### Viestilappu tekoälylle palikasta
 

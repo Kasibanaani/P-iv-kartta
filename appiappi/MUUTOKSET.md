@@ -4,6 +4,17 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
 
 ## Versiot
 
+- Appi-appi 89 (19.10., Emilin palaute 88:sta; päätöspuuhun valinnainen kenttä `puk`, käyttötietoon `k`, versio pysyi 12): **Päätöspuun aloitusnappi ja Painike logiikan paletista.**
+  - `b.puk:'nappi'` (*Alkaa: aloitusnapista*): `puuKay` – ennen kohtaa *alkuun* ja kohdan *lopeta* (uusi sisään `lp`) jälkeen `puuNakyvat` on tyhjä. Tila `P.st['puu:'+id].k` (true/false) säilyy edetessä (`puuSiirry`) ja takaisin-komennossa. `repair` poistaa muun arvon kuin `'nappi'`.
+  - Paneeli: *Alkaa* (heti / aloitusnapista) ja **＋ Aloitusnappi** (`puuAloitus`: Painike Alueen yläpuolelle samalla leveydellä, nuoli `e` → `al`). Pikaluonnissa *Aloita-painike* oletuksena päällä.
+  - Logiikan paletti *Ikkunat*: **Painike** (`data-make` lipulla `lg:1`, `createUIFromLogic`): näkymäpalikka ja esiintymä yhdellä vedolla; päätöspuun sisään pudotettuna puun Alueelle (`puuPaikka`), muuten näkymän ruudun keskelle; tekstikenttä aukeaa (Enter/Tab jatkaa, Esc tyhjänä poistaa).
+  - Testit: `logiikka_105` (aloitus, eteneminen, lopeta, roska-arvo, kohdat `al, tk, lp`), `selain_127` (Aloita ennen ja jälkeen, paletin Painike puuhun: Alueelle Takaisin-napin yläpuolelle, ikkunaan).
+  - Manuaali: luku 4 Päätöspuu (Alkaa, Aloitusnappi, lopeta, Painike paletista), luku 2 resepti, hakemisto, luku 11.
+  - Ei tehty (ehdotus, ⏸ Emil): näkymän palikat logiikassa oletuksena (jonon 37). Pistokkeiden piilotus on jo valmiina (logiikan vasen alakulma *Pistokkeet: näkyvät* → *piilossa*; ketjussa näkyvät aina).
+  - Ei tarkistettu: oikea iPhone/Safari.
+  - Kokeile koneella (Chromium): ota ensin varmuuskopio. Pikaluonti *Päätöspuu…* → Luo → Lukitse: vain *Aloita* näkyy, sen painallus tuo puun. Logiikassa vedä *Ikkunat*-ryhmän **Painike** päätöspuun sisään, kirjoita teksti ja Enter: nappi on näkymässä puun Alueella.
+  - Ristikokeilu: kaistat tauolla; sama kuin 88 (kaista A:n kamerahaara ei koske päätöspuuta).
+
 - Appi-appi 88 (19.10., jonon 36, F44, suunnitelma 28; Emil hyväksyi vaiheet 19.10. klo 11.01 Suomen aikaa ja pyysi jonon kärkeen; **tallennusmuoto laajeni**, versio pysyi 12): **Päätöspuu.**
   - Ikkunan tapa `m:'puu'` (paletti *Ikkunat* → PÄÄTÖSPUU). Siirtymät ikkunassa `b.pus = [{f, t, kk}]` (solmujen tunnisteet, `kk:true` = molempiin suuntiin), ei `P.lg.l`:ssä, jotta tavalliset nuolet pysyvät ennallaan. Valinnainen `b.pusa` (alussa näkyvät solmut; puuttuva = automaattinen: ei tulevaa siirtymää, muuten ensimmäinen). `b.pual` = Alue, jolle uudet napit tehdään. Käyttötieto `P.st['puu:'+id] = {v, p}` (nykyinen solmu, polku, enintään 200).
   - Moottori: `isPuu`, `puuJas`/`puuJasen` (suorat näkymäpalikat paitsi Alue ja Sijainti, sekä ikkunat), `puuSy`, `puuSeur`, `puuAlku`, `puuNakyvat`, `puuNakyy` (null = ei ohjaa; periytyy sisemmän tavallisen ikkunan läpi), `puuTap` (napautus `press`- ja `napautus`-poluista), `puuSiirry` (tapahtumat `va` ja `lo`), `puuKomento` (`al`, `tk`). `visible()` yhdistää päätöspuun ja oman näkyy kun -säännön. Kohdat: sisään `al`, `tk`; ulos `v` (vaihe), `pl` (polku), `va`, `lo`; ominaisuus `askelia`.
