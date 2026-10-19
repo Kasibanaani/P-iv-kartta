@@ -10,7 +10,7 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
   - Logiikan paletti *Ikkunat*: **Painike** (`data-make` lipulla `lg:1`, `createUIFromLogic`): näkymäpalikka ja esiintymä yhdellä vedolla; päätöspuun sisään pudotettuna puun Alueelle (`puuPaikka`), muuten näkymän ruudun keskelle; tekstikenttä aukeaa (Enter/Tab jatkaa, Esc tyhjänä poistaa).
   - Testit: `logiikka_105` (aloitus, eteneminen, lopeta, roska-arvo, kohdat `al, tk, lp`), `selain_127` (Aloita ennen ja jälkeen, paletin Painike puuhun: Alueelle Takaisin-napin yläpuolelle, ikkunaan).
   - Manuaali: luku 4 Päätöspuu (Alkaa, Aloitusnappi, lopeta, Painike paletista), luku 2 resepti, hakemisto, luku 11.
-  - Ei tehty (ehdotus, ⏸ Emil): näkymän palikat logiikassa oletuksena (jonon 37). Pistokkeiden piilotus on jo valmiina (logiikan vasen alakulma *Pistokkeet: näkyvät* → *piilossa*; ketjussa näkyvät aina).
+  - Ei tehty (ehdotus, ⏸ Emil): näkymän palikat logiikassa oletuksena (jonon 38). Pistokkeiden piilotus on jo valmiina (logiikan vasen alakulma *Pistokkeet: näkyvät* → *piilossa*; ketjussa näkyvät aina).
   - Ei tarkistettu: oikea iPhone/Safari.
   - Kokeile koneella (Chromium): ota ensin varmuuskopio. Pikaluonti *Päätöspuu…* → Luo → Lukitse: vain *Aloita* näkyy, sen painallus tuo puun. Logiikassa vedä *Ikkunat*-ryhmän **Painike** päätöspuun sisään, kirjoita teksti ja Enter: nappi on näkymässä puun Alueella.
   - Ristikokeilu: kaistat tauolla; sama kuin 88 (kaista A:n kamerahaara ei koske päätöspuuta).
