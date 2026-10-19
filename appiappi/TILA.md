@@ -1,12 +1,12 @@
 # Appi-appi: tila
 
-**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 18.10.2026 (Appi-appi 86, jonon 15b: palikan oma ruudukko; tallennusmuoto laajeni)
+**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 19.10.2026 (Appi-appi 87: Vain tällä laitteella, ei GitHubia; projektiin valinnainen kenttä)
 
 Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- ja iPad-näkymät, maailma ja hahmon liike, myöhemmin vienti omaksi appiksi). Ristiriidoissa Kytköskartan logiikka voittaa. Suunnitelma: `SUUNNITELMA.md` ja `suunnitelmat/`; vanhempien vaiheiden päätökset `VERTAILU.md`. Toteutettujen versioiden yksityiskohdat, tallennuskentät ja kokeiluohjeet: `MUUTOKSET.md`.
 
 ## Valmiina
 
-- Appi-appi 0–86 ja Pajakone 1–4: versioittain `MUUTOKSET.md` (uusin ensin, myös kunkin version *Ei tarkistettu* ja *Kokeile koneella*). Käyttäjän näkökulmasta koko appi: `manuaali/`. Vanhat Valmiina-rivit: `TILA-arkisto.md`.
+- Appi-appi 0–87 ja Pajakone 1–4: versioittain `MUUTOKSET.md` (uusin ensin, myös kunkin version *Ei tarkistettu* ja *Kokeile koneella*). Käyttäjän näkökulmasta koko appi: `manuaali/`. Vanhat Valmiina-rivit: `TILA-arkisto.md`.
 - **Uusi versio** kirjataan vain `MUUTOKSET.md`:hen; tänne ei lisätä riviä.
 
 ## Jono
@@ -40,6 +40,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 - **Kaistojen uusimmat viennit** (vanhemmat versiot vain `MUUTOKSET.md`:ssä; tähän vain kunkin kaistan uusin, korvaa edellinen): **kaista A** Appi-appi 85, jonon 1w (kartoitus 12:n korjaukset: tikkaiden ohi kävely ei irrota maasta eikä törmää, lukukenttä punertuu ja neuvoo nuoleen tai Aseta-toimintoon, syvyysvaroitus näkee Laattakartan ja palikan oman syvyyden; ei tallennusmuotoa). **Kaista B** alla (Appi-appi 86).
 - **Linjakkuuskartoitus 12 tehty 18.10.** (75–84, `kartoitukset/2026-10-18-linjakkuus-12.md`): linja pitää; korjaukset viety (jonon 1w), jatkot jonon 35:ssä. Kartoituslaskuri 1/10 (Appi-appi 85).
 - **Palikan oma ruudukko valmis (Appi-appi 86, jonon 15b, F36, kaista B; tallennusmuoto laajeni, versio pysyi 12):** näkymäpalikan osio *Oma ruudukko* (sarakkeet × rivit 1–64, näkyy muokatessa/aina/ei), ruudukko kulkee, venyy ja kiertyy palikan mukana; tapahtuma *ruutu napautettu*, kohdat *napautettu x/y*, osuttu ruutu *törmäsi*- ja *laskeutui*-tiedoissa ja pudotuksessa (`tapahtuma.ruutux/ruutuy`). Yksityiskohdat `MUUTOKSET.md`. Kartoituslaskuri 2/10.
+- **Vain tällä laitteella valmis (Appi-appi 87, Emilin välikysymys 19.10., kaistat tauolla):** laitekohtainen tila (Asetukset tai osoite `?vainlaite`) estää kaiken GitHub-liikenteen selaimessa; projektikohtainen rasti Projektit-arkissa pitää yhden projektin ja sen laput poissa GitHubista. Ei kartoituslaskuriin (ei jonon kohta). Yksityiskohdat `MUUTOKSET.md`, käyttö `manuaali/09-tallennus.md`.
 - **Linjakkuuskartoitukset:** viimeisin ja aiemmat luetellaan `PALIKKASAANNOT.md`:n lopussa; tehtyjen kartoitusten yhteenvedot `TILA-arkisto.md`:ssä.
 - **Koeapit (Appi-appi 23) toivat esiin:** tekstihaku (Appi-appi 30) ja taulukon `eka`/`vika` (Appi-appi 31) tehty. Ei jonossa: kapeassa kortissa Lukukentän omat −/+ peittävät luvun, joten C näyttää määrän Tekstinä.
 - Järjestys: Jono yllä. Kokonaiskuva ja loput paketit (P4–P7): `SUUNNITELMA.md`.

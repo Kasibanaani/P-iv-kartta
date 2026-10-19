@@ -70,6 +70,7 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | käyttää valmista appia | Lukitse | [Muokkaus ja käyttö](02-tyoymparisto.md#muokkaus-ja-käyttö-lukitse) |
 | kokeilla appia niin, etteivät oikeat tiedot muutu | Kokeile | [Kokeilu](02-tyoymparisto.md#kokeilu-kokeile) |
 | tallentaa ja siirtää laitteelta toiselle | automaattinen tallennus, GitHub, vienti | [Tallennus](09-tallennus.md) |
+| pitää projektit vain laitteella, ei GitHubiin | Vain tällä laitteella (laite tai projekti), `?vainlaite` | [Vain tällä laitteella](09-tallennus.md#vain-tällä-laitteella-ei-githubia) |
 | ottaa varmuuskopion | Varmuuskopio tai Vie kaikki projektit | [Varmuuskopio ennen isoa muutosta](09-tallennus.md#varmuuskopio-ennen-isoa-muutosta) |
 | selvittää, miksi arvo on mikä on | paneelin Miksi? ja Yhteydet | [Miksi?](02-tyoymparisto.md#miksi), [Yhteydet](02-tyoymparisto.md#yhteydet) |
 | kertoa tekoälylle palikasta | viestilappu | [Muisti- ja viestilaput](02-tyoymparisto.md#muisti--ja-viestilaput) |
@@ -186,6 +187,7 @@ Kokeiltavat vaiheohjeet lukujen lopussa.
 - [Varmuuskopio ennen isoa muutosta](09-tallennus.md#varmuuskopio-ennen-isoa-muutosta) (Tallennus)
 - [Projekti puhelimesta tietokoneelle](09-tallennus.md#projekti-puhelimesta-tietokoneelle) (Tallennus)
 - [GitHub-tallennuksen käyttöönotto](09-tallennus.md#github-tallennuksen-käyttöönotto) (Tallennus)
+- [Toinen laite ilman GitHubia](09-tallennus.md#toinen-laite-ilman-githubia) (Tallennus)
 - [Tekoälyn tekemä projekti käyttöön](09-tallennus.md#tekoälyn-tekemä-projekti-käyttöön) (Tallennus)
 
 ## Sanasto

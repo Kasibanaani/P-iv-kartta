@@ -192,6 +192,21 @@ Toisella laitteella jo olevaa projektia ei haeta uudelleen tällä napilla; sen 
 
 Appi-appi oli ennen nimeltään Pajakone. Ensimmäisellä avauksella se kopioi samasta selaimesta Pajakoneen projektit ja kerran GitHubin kansiosta `pajakone/` puuttuvat projektit, jotka tallentuvat sen jälkeen kansioon `appiappi/`. Pajakoneen omat tiedot jäävät ennalleen.
 
+## Vain tällä laitteella (ei GitHubia)
+
+Kun projektien ei pidä mennä GitHubiin edes yksityiseen repoon. Sama appi ja sama osoite; asetus ratkaisee.
+
+**Koko laite (selain):** Asetukset → GitHub-osion nappi **Vain tällä laitteella** (vahvistus). Tai avaa appi osoitteesta, jonka loppuun on lisätty `?vainlaite` (esim. `…/appiappi/?vainlaite`): tila kytkeytyy ennen kuin mitään haetaan, joten saman selaimen Masterin tai Kytköskartan GitHub-asetuksiakaan ei oteta käyttöön. Tila säilyy, vaikka appi avataan myöhemmin tavallisesta osoitteesta.
+
+- Selain ei lähetä eikä hae GitHubista mitään: ei projekteja, käyttötietoja, lappuja eikä rivitiedostoja (toiminto Hae kertoo, että haku on estetty).
+- Tähän selaimeen tallennettu GitHub-avain poistetaan kytkettäessä. GitHubiin aiemmin tallennetut projektit jäävät sinne.
+- Yläpalkissa näkyy lukon kuva ja **Vain tällä laitteella**; napautus avaa asetukset. Asetusten osio näyttää vain selityksen ja napin **Salli GitHub tällä laitteella**.
+- Asetus on laitekohtainen: se ei kulje varmuuskopiossa eikä projektin mukana.
+
+**Yksi projekti:** Projektit → *Tämä projekti* → rasti **Vain tällä laitteella: ei koskaan GitHubiin**. Projektia ei viedä eikä haeta GitHubista, ja sen laput jäävät pois GitHubin lappulistasta; muut projektit tallentuvat kuten ennenkin. Nimen edessä on lukon kuva projektilistassa ja yläpalkin projektinapissa, ja listassa lukee *vain tällä laitteella*. GitHubissa ei näy projektista mitään, ei nimeäkään; toisen selaimen projektilistaan se tulee vain tuomalla tiedostosta. **Monista yksityisenä** (Projektit → *Tämä projekti*) tekee kopion, joka on merkitty jo syntyessään, joten GitHub-projektista saa yksityisen version ilman, että kopio käy GitHubissa (tavallinen *Monista* tallentuisi GitHubiin parissa sekunnissa). Yksityisen projektin tavallinen kopio on myös yksityinen; rastin poisto kopiosta vie sen GitHubiin. Merkintä kulkee projektin mukana (varmuuskopio, Vie tiedostona, Monista), joten tiedostona toiseen selaimeen tuotu projekti pysyy poissa GitHubista. Jos projekti oli jo GitHubissa, sen kopio (`appiappi/<id>.json`) jää sinne, kunnes poistat sen GitHubista. Rastin poisto kysyy vahvistuksen, ja sen jälkeen projekti tallentuu GitHubiin.
+
+**Mitä selaimen muisti tarkoittaa:** tiedot ovat vain tässä selaimessa tällä laitteella (ei toisessa selaimessa, ei yksityisessä ikkunassa). Ne katoavat, jos selaimen sivustotiedot tai historia tyhjennetään tai selain poistetaan, ja Safari voi poistaa pitkään avaamattoman sivuston tiedot. Siksi **Varmuuskopio** tiedostoon laitteelle; yläpalkin *Varmuuskopio viemättä* punertuu muistutukseksi. Tekoäly ei näe näitä projekteja.
+
 ## Laput ja GitHub
 
 Muisti- ja viestilaput eivät ole projektin osa. Ne ovat koko tallennuksen osa (selaimen muisti ja varmuuskopio), eivät mene yhden projektin vientiin.
@@ -335,6 +350,12 @@ Tarkista ennen vientiä: appin oma kelpoisuustarkistus (`okProj`) vaatii `projek
 7. Pidä rasti *Tallenna automaattisesti muutosten jälkeen* päällä. Yläpalkkiin tulee tilanappi, joka hetken päästä näyttää *GitHub ✓* ja kellonajan.
 8. Jotta tekoäly näkee projektit: anna Claude-sovellukselle pääsy repoon GitHubissa (Settings → Applications → Claude → Configure) ja kerro keskustelussa repon nimi.
 9. Toinen laite: toista kohdat 5–7 samalla avaimella (avain on vain kunkin selaimen muistissa).
+
+### Toinen laite ilman GitHubia
+
+1. Avaa toisella laitteella `https://kasibanaani.github.io/P-iv-kartta/appiappi/?vainlaite` ja tee siitä kirjanmerkki.
+2. Tarkista, että yläpalkissa lukee **Vain tällä laitteella**.
+3. Tee projektit tavalliseen tapaan ja vie välillä **Varmuuskopio** tiedostoon.
 
 ### Tekoälyn tekemä projekti käyttöön
 1. Pyydä tekoälyä tekemään projektitiedosto `master-tiedot`-repoon.
