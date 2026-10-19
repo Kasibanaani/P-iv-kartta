@@ -4,6 +4,17 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
 
 ## Versiot
 
+- Appi-appi 94 (19.10., jonon 37c, F45 suunnitelma 29 kohta 5; TALLENNUSMUOTO laajeni: ikkunan `wr`, solmun `wa`, vanha muoto luetaan): **Ryhmän ikkuna.**
+  - Ikkunan otsikon ▾-valikossa uusi osa *Ryhmän ikkuna*: yleispalikat, joilla on jäseniä (`@eläin (3)`), *Kirjoita ryhmä…* (otsikkoon kenttä, `@eläin` + Enter, Esc peruu) ja *Ei ryhmää*. Otsikossa näkyy `@eläin`; napautus avaa kirjoituksen.
+  - Ikkunan `wr` = yleispalikka; `wrSync` (moottori, `repair`) pitää ikkunassa jokaisesta jäsenestä rinnakkaisen esiintymän (solmu `wa:1`, ikkunan sisällä alekkain, ikkuna kasvaa). Uusi jäsen tulee, poistettu katoaa. Ikkuna laskee esiintymistä kuten muusta sisällöstä (SUMMA = jäsenten summa).
+  - Esiintymän poisto ikkunasta (Emil 19.10.) irrottaa jäsenen ryhmästä (`wrIrrota`) ja poistaa viittauksen toisesta päästä; palikka säilyy (jos esiintymä oli sen ainoa solmu, se siirtyy ikkunan viereen). *Ei ryhmää* poistaa esiintymät, jäsenyys säilyy.
+  - Testi: uusi `selain_131_ryhmaikkuna.py` (1440 ja 1280: valikosta @eläin, SUMMA 10, uusi jäsen tulee, esiintymän poisto irrottaa, Ei ryhmää, kirjoitus otsikkoon, lataus); `selain_129` valikon osat päivitetty.
+  - Manuaaliin: luku 4 *Ikkuna*: kohta *Ryhmän ikkuna (Appi-appi 94)*: valikon osa *Ryhmän ikkuna*, otsikon @eläin, jäsenet rinnakkaisina esiintyminä, uusi jäsen tulee itsestään, esiintymän poisto irrottaa ryhmästä mutta palikka säilyy, *Ei ryhmää*. Hakemisto: tehtävärivi "näyttää ryhmän jäsenet ikkunassa". Luku 11: versio 94.
+  - Ei tehty: esiintymien järjestäminen tai oma asettelu (alekkain lisäysjärjestyksessä); päätöspuun napit jäsenistä (vanha *Sisältö myös joukosta* hoitaa sen edelleen).
+  - Ei tarkistettu: oikea iPhone/Safari.
+  - Kokeile koneella (Chromium): **ota varmuuskopio ensin** (tallennusmuoto laajeni). Tee yleispalikat Eläin, Koira (`4` ja toiselle riville `#eläin`) ja Kissa (`6`, `#eläin`). Vedä Yleisikkuna, ▾ → `@eläin (2)`, sitten SUMMA: ikkuna näyttää 10. Valitse Kissa ikkunassa ja poista: Kissa irtoaa eläimestä mutta jää paikalleen.
+  - Ristikokeilu: 93 ryhmämalli (`selain_130`, `logiikka_106`) ja 91 yleisikkuna (`selain_129`) ajettu tämän päälle.
+
 - Appi-appi 93 (19.10., jonon 37g, F45 suunnitelma 29 kohta 9; ei uusia kenttiä, mutta yleispalikan kirjoituksen tulkinta muuttui): **Ryhmä on palikka, linkki kahteen suuntaan.**
   - Yleispalikan kentässä rivi, jolla on pelkkiä `#nimi`- ja `@nimi`-merkintöjä, on **linkkirivi** (`ylJaa`): `#eläin` = tämä kuuluu eläimeen, `@koira` = koira kuuluu tähän. Tallentuu jäsenyytenä (jäsenen `jkt`), joten sama linkki näkyy molemmissa päissä (`ylTeksti` lisää linkkirivit sisällön perään). Poisto kummasta päästä tahansa poistaa linkin.
   - Palikan oma ryhmä = ryhmä, jonka nimi on palikan viite (`ylOma`); viitteen tai nimen vaihto nimeää ryhmän (`ylNimiSeuraa`). Sisäkkäiset ryhmät: Eläin, joka kuuluu Eläviin olentoihin, on siellä yksi jäsen.

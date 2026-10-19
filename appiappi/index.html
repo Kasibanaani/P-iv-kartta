@@ -465,6 +465,7 @@ textarea.fld{resize:none;flex:1}
 .lw .wm{border:0;border-radius:8px;background:var(--wc);color:#fff;font-weight:800;font-size:11px;letter-spacing:.05em;padding:4px 8px;cursor:pointer;white-space:nowrap}
 :root[data-theme="dark"] .lw .wm{color:#111}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .lw .wm{color:#111}}
+.lw .wgr{border:0;background:var(--tint);color:var(--vtc,#B8860B);font-weight:700;font-size:12px;border-radius:7px;padding:2px 7px;cursor:pointer}.lw .wgri{width:110px;border:1px solid var(--accent);border-radius:7px;background:var(--cell);color:var(--vtc,#B8860B);font-weight:700;font-size:12px;padding:2px 6px;outline:none}
 .lw .wnn{width:40px;border:1px solid var(--sep);border-radius:7px;background:var(--cell);text-align:center;padding:2px;font-weight:700;font-size:12px}
 .lw .wname{font-weight:700;font-size:12.5px;color:var(--label2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lw .wj{font-size:10.5px;font-weight:800;color:var(--wc)}
@@ -3030,12 +3031,26 @@ function addLink(P,fn,fp,tn,tp){
 }
 function removeNode(P,nid){
   var n=nodeOf(P,nid);if(!n)return;
+  /* Jonon 37c: ryhmän ikkunan jäsen (wa) poistettuna irtoaa ryhmästä; palikka säilyy (viimeinen solmu siirtyy ikkunan viereen). */
+  if(n.wa){var wn0=nodeOf(P,n.g);wrIrrota(P,n);if(nodesOfBlock(P,n.p).length<2){delete n.wa;n.g=wn0&&wn0.g||'';if(wn0){n.x=wn0.x+(wn0.w||260)+40;n.y=wn0.y;}return;}}
   P.lg.n.forEach(function(m){if(m.g===nid)m.g=n.g||'';});
   P.lg.n=P.lg.n.filter(function(m){return m.id!==nid;});
   P.lg.l=P.lg.l.filter(function(l){return l.f!==nid&&l.t!==nid;});
   var b=P.b[n.p];
   if(b&&K[b.k].g==='lg'&&!nodesOfBlock(P,b.id).length)removeBlock(P,b.id);
 }
+/* Jonon 37c (suunnitelma 29 kohta 5): ryhmän ikkuna. Ikkunan wr = yleispalikka, jonka jäsenet näkyvät ikkunassa rinnakkaisina
+   esiintyminä (solmu wa). Uusi jäsen tulee, poistettu katoaa; esiintymän poisto irrottaa jäsenen ryhmästä. */
+function wrIrrota(P,n){var wn=nodeOf(P,n.g),wb=wn&&P.b[wn.p],o=wb&&wb.wr&&P.b[wb.wr],g=ylOma(P,o),x=P.b[n.p];
+  if(g&&x&&jkHas(x,g)){x.jkt=x.jkt.filter(function(j){return j!==g;});if(!x.jkt.length)delete x.jkt;}}
+function wrSync(P){var ws=P.lg.n.filter(function(n){var b=P.b[n.p];return b&&b.k==='ikkuna'&&b.wr;});if(!ws.length)return;
+  ws.forEach(function(wn){var wb=P.b[wn.p],o=P.b[wb.wr];if(!o||!o.yl){delete wb.wr;return;}
+    var mem=ylJasenet(P,o),seen={},pois={};
+    P.lg.n.forEach(function(n){if(n.g!==wn.id||!n.wa)return;if(mem.indexOf(n.p)<0||seen[n.p])pois[n.id]=1;else seen[n.p]=1;});
+    if(Object.keys(pois).length){P.lg.n=P.lg.n.filter(function(n){return !pois[n.id];});P.lg.l=P.lg.l.filter(function(l){return !pois[l.f]&&!pois[l.t];});}
+    var by=wn.y+58;P.lg.n.forEach(function(n){if(n.g===wn.id)by=Math.max(by,n.y+(n.h||34)+26);});
+    mem.forEach(function(id){if(seen[id])return;var nn=addNode(P,id,wn.x+16,by,wn.id);nn.wa=1;by+=60;});
+    if(!wn.col&&by-wn.y+8>(wn.h||150))wn.h=by-wn.y+8;});}
 /* ---------- Appi-appi 11 (D08): viitatun kohteen poisto ----------
    Viittaukset säilyttävät poistetun tunnisteen, ja P.pois muistaa sen nimen ja viitteen, jotta virhe näkyy ja löytyy.
    Samanniminen uusi palikka ei peri poistettua. Kumoa palauttaa palikan samalla tunnisteella, jolloin viittaukset toimivat taas. */
@@ -3387,6 +3402,9 @@ function repair(P){
   P.lg.l=P.lg.l.filter(function(l){var f=nids[l.f],t=nids[l.t];if(!f||!t)return false;var o=port(P.b[f.p],'outs',l.fp),i=port(P.b[t.p],'ins',l.tp);return !!(o&&i&&!(o.t==='e'&&i.t==='v'));});
   P.deco=P.deco.filter(function(d){return P.b[d.a]&&P.b[d.b];});
   Object.keys(P.b).forEach(function(id){var b=P.b[id];if(b.lpin!==undefined&&b.lpin!=='n'&&b.lpin!=='h')delete b.lpin;});
+  P.lg.n.forEach(function(n){if(n.wa!==undefined&&!(n.wa===1&&n.g))delete n.wa;});
+  Object.keys(P.b).forEach(function(id){var b=P.b[id];if(b.wr!==undefined&&!(b.k==='ikkuna'&&typeof b.wr==='string'&&P.b[b.wr]&&P.b[b.wr].yl))delete b.wr;});
+  wrSync(P);
   // lohkot, joilla ei ole solmua eikä näkymää, ovat turhia
   Object.keys(P.b).forEach(function(id){var b=P.b[id];if(K[b.k].g==='lg'&&!P.lg.n.some(function(n){return n.p===id;}))delete P.b[id];});
   if(P.pois){var used={};Object.keys(P.b).forEach(function(id){scanRefs(P.b[id],function(r){if(isGone(P,r))used[r]=1;});});Object.keys(P.pois).forEach(function(i){if(!used[i])delete P.pois[i];});if(!Object.keys(P.pois).length)delete P.pois;}
@@ -6319,8 +6337,8 @@ function why(P,E,id,depth,seen){
 return {isPuu:isPuu,PUU_AUTO:PUU_AUTO,puuWn:puuWn,puuJas:puuJas,puuJasen:puuJasen,puuSy:puuSy,puuSeur:puuSeur,puuAlku:puuAlku,puuKay:puuKay,puuSt:puuSt,puuNakyvat:puuNakyvat,puuNakyy:puuNakyy,puuValmisW:puuValmisW,puuKomento:puuKomento,puuTap:puuTap,tapKaytossa:tapKaytossa,NAPK:NAPK,ORK:ORK,OR_MAX:OR_MAX,orOn:orOn,orKoko:orKoko,orRuutu:orRuutu,orNapautus:orNapautus,orOsuma:orOsuma,raahausOmaRuutu:raahausOmaRuutu,napPorts:napPorts,napOn:napOn,napautus:napautus,PALTAVAT:PALTAVAT,repairAp:repairAp,jkPick:jkPick,JK_OHI:JK_OHI,jkKohtaNimi:jkKohtaNimi,jkLiikkuva:jkLiikkuva,jkTapahtumat:jkTapahtumat,JKTAP:JKTAP,jkFire:jkFire,toistaJasenet:toistaJasenet,jkVoi:jkVoi,jkPjOf:jkPjOf,jkPjMap:jkPjMap,jkOtaOn:jkOtaOn,jkOtaMatch:jkOtaMatch,jkKohta:jkKohta,JKKOHT:JKKOHT,JKKP:JKKP,siirtoOf:siirtoOf,PADN:PADN,PADM:PADM,PAD_KUOLLUT:PAD_KUOLLUT,ohjainSet:ohjainSet,padNow:padNow,PADKEY:PADKEY,PADKEYN:PADKEYN,nappTila:nappTila,padYhdista:padYhdista,padPel:padPel,padKuollut:padKuollut,padNimi:padNimi,padPainetut:padPainetut,padKaytossa:padKaytossa,padPohjassa:padPohjassa,omat:omat,omBatch:omBatch,geoNum:geoNum,omFind:omFind,omNorm:omNorm,omBase:omBase,omNames:omNames,omActive:omActive,setOmi:setOmi,resetOmi:resetOmi,isOff:isOff,napVaihto:napVaihto,boolKey:boolKey,TIMEU:TIMEU,YKSA:YKSA,ENVW:ENVW,portsBase:portsBase,tattiSet:tattiSet,muutosStart:muutosStart,muutosStop:muutosStop,frame:frame,aikaKay:aikaKay,napExt:napExt,NAP_PITKA:NAP_PITKA,pressDown:pressDown,pressLong:pressLong,pressUp:pressUp,hasOut:hasOut,curveAt:curveAt,KAYRA_PRESETS:KAYRA_PRESETS,kayraPreset:kayraPreset,kayraResize:kayraResize,kayraDec:kayraDec,kayraSpec:kayraSpec,kayraAt:kayraAt,satuN:satuN,satuMuoto:satuMuoto,satuCurve:satuCurve,satuResize:satuResize,satuPreset:satuPreset,SATU_PRESETS:SATU_PRESETS,SATU_MAXN:SATU_MAXN,satuSpec:satuSpec,satuDist:satuDist,satuPick:satuPick,satuPct:satuPct,satuItemTxt:satuItemTxt,satuTop:satuTop,satuRoll:satuRoll,
   chainOpen:chainOpen,LKN:LKN,LKID:LKID,lkReq:lkReq,lkView:lkView,chainLock:chainLock,chainLockDiff:chainLockDiff,parseKlo:parseKlo,nextClock:nextClock,timerLabel:timerLabel,arpaN:arpaN,toistaN:toistaN,setMhLabel:function(f){MHLAB=f;},mhLabel:mhLabel,odotaLim:odotaLim,odotaEv:odotaEv,hasLimit:hasLimit,chainSignal:chainSignal,copyNodes:copyNodes,pasteNodes:pasteNodes,copyBlocks:copyBlocks,pasteBlocks:pasteBlocks,PRESVER:PRESVER,presetSet:presetSet,presetNeeds:presetNeeds,presetMake:presetMake,presetPaste:presetPaste,chainList:chainList,haaraVal:haaraVal,chainIssues:chainIssues,FXK:FXK,YKS:YKS,YKSN:YKSN,fmtDur:fmtDur,parseNum:parseNum,fiNum:fiNum,fmtLeft:fmtLeft,timerMs:timerMs,chainStart:chainStart,chainStop:chainStop,chainAdvance:chainAdvance,chainPoll:chainPoll,chainInfo:chainInfo,anyChainRunning:anyChainRunning,CH_STEPS:CH_STEPS,CH_TOKENS:CH_TOKENS,
   isWin:isWin,isStep:isStep,STEPK:STEPK,chainNode:chainNode,chainOfNode:chainOfNode,chainSteps:chainSteps,isChainLink:isChainLink,chainLinksFrom:chainLinksFrom,chainStarts:chainStarts,chainIsRing:chainIsRing,chainOrder:chainOrder,
-  ANTAVAT:ANTAVAT,LT_MAX:LT_MAX,LT_MERKIT:LT_MERKIT,LT_TAVAT:LT_TAVAT,ltRepair:ltRepair,ltLajiMap:ltLajiMap,syEsteOn:syEsteOn,syVaroitus:syVaroitus,ltSolu:ltSolu,ltMaarat:ltMaarat,ltNimi:ltNimi,ltLajiNimella:ltLajiNimella,ltEsteet:ltEsteet,SY_MIN:SY_MIN,syNorm:syNorm,syKoko:syKoko,krSy:krSy,syMuunnos:syMuunnos,kerrosMuunnos:kerrosMuunnos,syOf:syOf,syOma:syOma,pinnalla:pinnalla,palikkaMuunnos:palikkaMuunnos,ANPEH:ANPEH,ANARVO:ANARVO,ANPAIKKA:ANPAIKKA,VER:VER,PAJA:'93',PV_SN:PV_SN,pvAlueet:pvAlueet,pvKohde:pvKohde,hyppyJaljella:hyppyJaljella,liikeHyppyKomento:liikeHyppyKomento,PV_SUUNNAT:PV_SUUNNAT,LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,rvMuunnos:rvMuunnos,kerrosPiste:kerrosPiste,kerrosPiirto:kerrosPiirto,raahattava:raahattava,raahausPaikka:raahausPaikka,raahausAlku:raahausAlku,raahausPudotus:raahausPudotus,raahausPeruttu:raahausPeruttu,raahausKohteet:raahausKohteet,tstLahde:tstLahde,tstLajittuu:tstLajittuu,tstSiirra:tstSiirra,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikuta0:liikuta0,rectNow0:rectNow0,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,reittiPisteet:reittiPisteet,reittiOsat:reittiOsat,reittiHae:reittiHae,liikeRuutuKomento:liikeRuutuKomento,liikePyyhkaisy:liikePyyhkaisy,ruutuAskel:ruutuAskel,RUUTU_SU:RUUTU_SU,reittiKohta:reittiKohta,liikeRun:liikeRun,kuvaKuvat:kuvaKuvat,kelloNow:kelloNow,kelloKomento:kelloKomento,kerrosObj:kerrosObj,zoomAsetus:zoomAsetus,kameraBlk:kameraBlk,zoomNyt:zoomNyt,zoomLukittu:zoomLukittu,zoomAseta:zoomAseta,ZOOM_MIN:ZOOM_MIN,ZOOM_MAX:ZOOM_MAX,MITM:MITM,MITE:MITE,
-kuvaPyorii:kuvaPyorii,kuvaNro:kuvaNro,SARJA_MAX:SARJA_MAX,ruudukko:ruudukko,ruudukkoOf:ruudukkoOf,ruutuAt:ruutuAt,ruutuKeski:ruutuKeski,kohdista:kohdista,ruutuKohdistus:ruutuKohdistus,alueRuudukko:alueRuudukko,alueRuutu:alueRuutu,alueNapautus:alueNapautus,kerrokset:kerrokset,kerrosOf:kerrosOf,rvOf:rvOf,kuvaUrl:kuvaUrl,K:K,KW:KW,KVALEND:KVALEND,KHAS:KHAS,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,jkReg:jkReg,lkSnap:lkSnap,jkNameErr:jkNameErr,jkOn:jkOn,jkNm:jkNm,jkFind:jkFind,jkList:jkList,jkHas:jkHas,jkLuo:jkLuo,jkNimea:jkNimea,jkUses:jkUses,jkPoista:jkPoista,jkEhto:jkEhto,jkIndex:jkIndex,jkTuo:jkTuo,jkNames:jkNames,jkIds:jkIds,jkKaanna:jkKaanna,jkSyy:jkSyy,kaavaJkMiss:kaavaJkMiss,JKAGG:JKAGG,JKSUG:JKSUG,jkAgg:jkAgg,tunnusLue:tunnusLue,tunnusTeksti:tunnusTeksti,tunnusVirhe:tunnusVirhe,setTunnus:setTunnus,kaavaToIds:kaavaToIds,FVAL:FVAL,isFx:isFx,arvoKentta:arvoKentta,YLL:YLL,YLIC:YLIC,YLKO:YLKO,ylLajit:ylLajit,ylAseta:ylAseta,ylTeksti:ylTeksti,ylJaa:ylJaa,vtOwner:vtOwner,ylLinkit:ylLinkit,ylOma:ylOma,ylJasenet:ylJasenet,ylSisTeksti:ylSisTeksti,ylLaji:ylLaji,ylRyhma:ylRyhma,ylKooste:ylKooste,fvalVanha:fvalVanha,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,kaavaVanha:kaavaVanha,kaavaAstText:kaavaAstText,KRES:KRES,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
+  ANTAVAT:ANTAVAT,LT_MAX:LT_MAX,LT_MERKIT:LT_MERKIT,LT_TAVAT:LT_TAVAT,ltRepair:ltRepair,ltLajiMap:ltLajiMap,syEsteOn:syEsteOn,syVaroitus:syVaroitus,ltSolu:ltSolu,ltMaarat:ltMaarat,ltNimi:ltNimi,ltLajiNimella:ltLajiNimella,ltEsteet:ltEsteet,SY_MIN:SY_MIN,syNorm:syNorm,syKoko:syKoko,krSy:krSy,syMuunnos:syMuunnos,kerrosMuunnos:kerrosMuunnos,syOf:syOf,syOma:syOma,pinnalla:pinnalla,palikkaMuunnos:palikkaMuunnos,ANPEH:ANPEH,ANARVO:ANARVO,ANPAIKKA:ANPAIKKA,VER:VER,PAJA:'94',PV_SN:PV_SN,pvAlueet:pvAlueet,pvKohde:pvKohde,hyppyJaljella:hyppyJaljella,liikeHyppyKomento:liikeHyppyKomento,PV_SUUNNAT:PV_SUUNNAT,LAITE:LAITE,LAITEJ:LAITEJ,laite:laite,laiteBottom:laiteBottom,lrul:lrul,kamera:kamera,rectNow:rectNow,rvMuunnos:rvMuunnos,kerrosPiste:kerrosPiste,kerrosPiirto:kerrosPiirto,raahattava:raahattava,raahausPaikka:raahausPaikka,raahausAlku:raahausAlku,raahausPudotus:raahausPudotus,raahausPeruttu:raahausPeruttu,raahausKohteet:raahausKohteet,tstLahde:tstLahde,tstLajittuu:tstLajittuu,tstSiirra:tstSiirra,kameraRajat:kameraRajat,kameraRajaa:kameraRajaa,kameraSeuraa:kameraSeuraa,osuMuoto:osuMuoto,osuKoko:osuKoko,osumaAlue:osumaAlue,osumaTyonto:osumaTyonto,liikuta:liikuta,liikuta0:liikuta0,rectNow0:rectNow0,liikeKohde:liikeKohde,onEste:onEste,liikkuvat:liikkuvat,alueSisalla:alueSisalla,alueTila:alueTila,liikeNow:liikeNow,liikeSt:liikeSt,liikeAlkuun:liikeAlkuun,LIIKE_OHJ:LIIKE_OHJ,LIIKE_KS:LIIKE_KS,liikeMuoto:liikeMuoto,muotoInv:muotoInv,vauhtiS:vauhtiS,liikeNapautus:liikeNapautus,liikeKay:liikeKay,reittiPisteet:reittiPisteet,reittiOsat:reittiOsat,reittiHae:reittiHae,liikeRuutuKomento:liikeRuutuKomento,liikePyyhkaisy:liikePyyhkaisy,ruutuAskel:ruutuAskel,RUUTU_SU:RUUTU_SU,reittiKohta:reittiKohta,liikeRun:liikeRun,kuvaKuvat:kuvaKuvat,kelloNow:kelloNow,kelloKomento:kelloKomento,kerrosObj:kerrosObj,zoomAsetus:zoomAsetus,kameraBlk:kameraBlk,zoomNyt:zoomNyt,zoomLukittu:zoomLukittu,zoomAseta:zoomAseta,ZOOM_MIN:ZOOM_MIN,ZOOM_MAX:ZOOM_MAX,MITM:MITM,MITE:MITE,
+kuvaPyorii:kuvaPyorii,kuvaNro:kuvaNro,SARJA_MAX:SARJA_MAX,ruudukko:ruudukko,ruudukkoOf:ruudukkoOf,ruutuAt:ruutuAt,ruutuKeski:ruutuKeski,kohdista:kohdista,ruutuKohdistus:ruutuKohdistus,alueRuudukko:alueRuudukko,alueRuutu:alueRuutu,alueNapautus:alueNapautus,kerrokset:kerrokset,kerrosOf:kerrosOf,rvOf:rvOf,kuvaUrl:kuvaUrl,K:K,KW:KW,KVALEND:KVALEND,KHAS:KHAS,parseExprT:parseExprT,PROPS:PROPS,PROPLIST:PROPLIST,slugVt:slugVt,validVt:validVt,uniqueVt:uniqueVt,setName:setName,setVt:setVt,byVt:byVt,jkReg:jkReg,lkSnap:lkSnap,jkNameErr:jkNameErr,jkOn:jkOn,jkNm:jkNm,jkFind:jkFind,jkList:jkList,jkHas:jkHas,jkLuo:jkLuo,jkNimea:jkNimea,jkUses:jkUses,jkPoista:jkPoista,jkEhto:jkEhto,jkIndex:jkIndex,jkTuo:jkTuo,jkNames:jkNames,jkIds:jkIds,jkKaanna:jkKaanna,jkSyy:jkSyy,kaavaJkMiss:kaavaJkMiss,JKAGG:JKAGG,JKSUG:JKSUG,jkAgg:jkAgg,tunnusLue:tunnusLue,tunnusTeksti:tunnusTeksti,tunnusVirhe:tunnusVirhe,setTunnus:setTunnus,kaavaToIds:kaavaToIds,FVAL:FVAL,isFx:isFx,arvoKentta:arvoKentta,YLL:YLL,YLIC:YLIC,YLKO:YLKO,ylLajit:ylLajit,ylAseta:ylAseta,ylTeksti:ylTeksti,ylJaa:ylJaa,wrSync:wrSync,vtOwner:vtOwner,ylLinkit:ylLinkit,ylOma:ylOma,ylJasenet:ylJasenet,ylSisTeksti:ylSisTeksti,ylLaji:ylLaji,ylRyhma:ylRyhma,ylKooste:ylKooste,fvalVanha:fvalVanha,kaavaToText:kaavaToText,kaavaRefs:kaavaRefs,parseKaava:parseKaava,kaavaTokens:kaavaTokens,kaavaVanha:kaavaVanha,kaavaAstText:kaavaAstText,KRES:KRES,OPS:OPS,CMPS:CMPS,WM:WM,PARTS:PARTS,DOS:DOS,VKP:VKP,KUUT:KUUT,HOW:HOW,deps:deps,descAct:descAct,actsFrom:actsFrom,why:why,hakuDesc:hakuDesc,ERR:ERR,isErr:isErr,migrateJos:migrateJos,retarget:retarget,
   pinsHidden:pinsHidden,refPairs:refPairs,
   ports:ports,port:port,newProject:newProject,addBlock:addBlock,addNode:addNode,addLink:addLink,canLink:canLink,
   removeNode:removeNode,removeBlock:removeBlock,refsTo:refsTo,brokenRefs:brokenRefs,relink:relink,isGone:isGone,goneName:goneName,scanRefs:scanRefs,nodeOf:nodeOf,nodesOfBlock:nodesOfBlock,uniqueName:uniqueName,baseName:baseName,
@@ -8062,11 +8080,21 @@ function winHTML(n,E){
   var cnt=col?descendants(n.id).length:0;
   var hid=KK.pinsHidden(P,n);
   return '<div class="lw m-'+b.m+(b.j&&b.m!=='puu'?' j-'+b.j:'')+(col?' col':'')+(hid?' nopin':'')+(b.off?' off':'')+'" data-nid="'+n.id+'" style="left:'+n.x+'px;top:'+n.y+'px'+(col?'':';width:'+n.w+'px;height:'+n.h+'px')+'">'+
-    '<div class="wh">'+(b.j?'<span class="wj">'+(b.j==='jos'?'JOS':'KUN')+'</span>':'')+'<button class="wm" data-wmb title="Vaihda ikkunan tyyppi">'+KK.WM[b.m]+' ▾</button>'+(needN?'<input class="wnn" data-wn value="'+esc(b.n)+'">':'')+(b.riv?'<span class="wj" title="Sisältö lasketaan jokaisella rivillä">riveille</span>':'')+
+    '<div class="wh">'+(b.j?'<span class="wj">'+(b.j==='jos'?'JOS':'KUN')+'</span>':'')+'<button class="wm" data-wmb title="Vaihda ikkunan tyyppi">'+KK.WM[b.m]+' ▾</button>'+(needN?'<input class="wnn" data-wn value="'+esc(b.n)+'">':'')+wrHTML(b,n)+(b.riv?'<span class="wj" title="Sisältö lasketaan jokaisella rivillä">riveille</span>':'')+
     '<span class="wname">'+(b.nmSet||col?esc(b.nm):'')+' <span class="wvt">'+esc(b.vt)+'</span>'+(col?' <small>· '+cnt+' sisällä</small>':'')+'</span>'+(b.pakota&&b.m==='one'?'<span class="wj" title="Valinta poistaa muut">⇄</span>':'')+(b.off?'<span class="offt">pois</span>':'')+valChip(E,b,b.id)+
     (b.m==='puu'&&!col?'<button class="wcol" data-puplus title="Uusi nappi (valittuna nappi: Tab = seuraava taso, Enter = rinnakkainen)">＋</button>':'')+
     '<button class="wcol" data-col title="'+(col?'Avaa ikkuna (tai kaksoisnapauta)':'Tiivistä ikkuna pieneksi')+'">'+(col?'⤢':'–')+'</button></div>'+pinsHTML(b,n,false,hid)+(col?'':'<i class="rs"></i>')+(col?'':winJkHTML(b,E))+puuPinHTML(n)+'</div>';
 }
+/* Jonon 37c: ryhmän ikkuna. Otsikossa @ryhmä (napautus avaa kirjoituksen) tai kirjoituskenttä. */
+function wrHTML(b,n){var o=b.wr&&P.b[b.wr],st=refStyle(),r=o?(st==='{'?'{'+o.vt+'}':st+o.vt):'';
+  if(S.wrEdit===n.id)return '<input class="wgri" data-wgri value="'+esc(r)+'" placeholder="'+esc(st==='{'?'{ryhmä}':st+'ryhmä')+'" spellcheck="false" autocapitalize="off" autocomplete="off" title="Ryhmän ikkuna: kirjoita yleispalikan viite, Enter">';
+  return o?'<button class="wgr" data-wgr title="Ryhmän ikkuna: jäsenet näkyvät tässä. Napauta vaihtaaksesi.">'+esc(r)+'</button>':'';}
+function wrAseta(wb,wn,txt){var nm=String(txt||'').trim().replace(/^[@§#{]/,'').replace(/\}$/,'').toLowerCase();S.wrEdit=null;
+  if(!nm){wrPois(wb,wn);return;}var o=KK.vtOwner(P,nm,'');if(!o||!o.yl){toast('Ei yleispalikkaa viitteellä '+nm+'. Ryhmän ikkuna tarvitsee yleispalikan, jonka jäsenet näytetään.');return;}
+  if(wb.wr!==o.id){wrPois(wb,wn);wb.wr=o.id;}}
+function wrPois(wb,wn){if(!wb.wr)return;delete wb.wr;var ids={};P.lg.n.forEach(function(n){if(n.g===wn.id&&n.wa){if(KK.nodesOfBlock(P,n.p).length>1)ids[n.id]=1;else delete n.wa;}});
+  P.lg.n=P.lg.n.filter(function(n){return !ids[n.id];});P.lg.l=P.lg.l.filter(function(l){return !ids[l.f]&&!ids[l.t];});}
+function wrEditAuki(wn){S.wrEdit=wn.id;renderLogicStage();var i=$('#lworld .lw[data-nid="'+wn.id+'"] [data-wgri]');if(i){i.focus();i.select();}}
 /* Appi-appi 29: ryhmä. Reunaviiva, nimi (tai himmeä Ryhmä) ja valinnainen sävy; ei kohtia eikä arvoa. */
 function ryhmaHTML(n){
   var b=P.b[n.p],col=!!n.col,sv=typeof b.sav==='number';
@@ -8274,7 +8302,12 @@ function winMenu(wb,wn,x,y){
     var rv=wb.riv||hasTaulu(),js=!wb.riv&&(wb.jas||KK.jkList(P).length);
     if(rv||js){it.push({h:'Laske jokaiselle'});
       if(rv)it.push({t:(wb.riv?'✓ ':'')+'Riveille (jokainen taulukon rivi)',f:tee(function(){if(wb.riv)delete wb.riv;else{wb.riv=true;delete wb.jas;}})});
-      if(js)it.push({t:(wb.jas?'✓ ':'')+'Jäsenille (jokainen joukon jäsen)',f:tee(function(){if(wb.jas)delete wb.jas;else wb.jas=true;})});}}
+      if(js)it.push({t:(wb.jas?'✓ ':'')+'Jäsenille (jokainen joukon jäsen)',f:tee(function(){if(wb.jas)delete wb.jas;else wb.jas=true;})});}
+    var yr=Object.keys(P.b).filter(function(id){return P.b[id].yl&&KK.ylJasenet(P,P.b[id]).length;}).slice(0,8),st=refStyle();
+    it.push({h:'Ryhmän ikkuna (jäsenet näkyvät ikkunassa)'});
+    yr.forEach(function(id){var o=P.b[id];it.push({t:(wb.wr===id?'✓ ':'')+(st==='{'?'{'+o.vt+'}':st+o.vt)+' ('+KK.ylJasenet(P,o).length+')',f:tee(function(){wrAseta(wb,wn,o.vt);})});});
+    it.push({t:'Kirjoita ryhmä…',f:function(){wrEditAuki(wn);}});
+    if(wb.wr)it.push({t:'Ei ryhmää',f:tee(function(){wrPois(wb,wn);})});}
   showMenu(x,y,it);}
 function afterWin(wn){repairL();KK.tick(P,ctx());save();renderLogicStage();S.sel={t:'n',id:wn.id};S.multi=[];renderInsp();drawLinks();}
 function showMenu(x,y,items){
@@ -8335,8 +8368,12 @@ function bindLogicStage(){
     var t=e.target,wel=t.closest('.lw');if(!wel)return;var n=KK.nodeOf(P,wel.getAttribute('data-nid'));var b=n&&P.b[n.p];if(!b)return;
     pushUndo();
     if(t.hasAttribute('data-wn')){var x=parseInt(t.value,10);b.n=isNaN(x)?1:Math.max(0,x);}
-    KK.tick(P,ctx());save();renderLogicStage();renderInsp();
+    if(t.hasAttribute('data-wgri')){wrAseta(b,n,t.value);repairL();}
+    KK.tick(P,ctx());save();renderLogicStage();renderInsp();drawLinks();
   });
+  vp.addEventListener('keydown',function(e){var t=e.target;if(!t.hasAttribute||!t.hasAttribute('data-wgri'))return;
+    if(e.key==='Enter'){e.preventDefault();t.blur();}else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();S.wrEdit=null;renderLogicStage();}});
+  vp.addEventListener('focusout',function(e){var t=e.target;if(t.hasAttribute&&t.hasAttribute('data-wgri')&&S.wrEdit&&t.value===t.defaultValue){S.wrEdit=null;setTimeout(renderLogicStage,0);}});
   vp.addEventListener('pointerdown',function(e){
     blurPanels();setPane('logiikka');if(isPhone())closeDrawers();
     if(e.button===1||(e.button===0&&S.space)){e.preventDefault();startPan(e,vp,camL,function(){applyCam(vp,$('#lworld'),camL());});return;}
@@ -8349,6 +8386,7 @@ function bindLogicStage(){
     if(kpl){e.preventDefault();var kn=KK.nodeOf(P,kpl.closest('.lw').getAttribute('data-nid'));if(kn)chainToggle(kn.p);return;}
     var colb=e.target.closest('[data-col]');
     if(colb){e.preventDefault();toggleCol(KK.nodeOf(P,colb.closest('.lw').getAttribute('data-nid')));return;}
+    var wgr=e.target.closest('[data-wgr]');if(wgr){e.preventDefault();wrEditAuki(KK.nodeOf(P,wgr.closest('.lw').getAttribute('data-nid')));return;}
     var wmb=e.target.closest('[data-wmb]');
     if(wmb){e.preventDefault();var wn=KK.nodeOf(P,wmb.closest('.lw').getAttribute('data-nid'));var wb=P.b[wn.p];var r=wmb.getBoundingClientRect();
       winMenu(wb,wn,r.left,r.bottom+4);return;}

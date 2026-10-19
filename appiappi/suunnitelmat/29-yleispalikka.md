@@ -47,7 +47,7 @@ Tämä kartoitus korvaa uuden ominaisuusryhmän esikartoituksen.
 - Ei uutta lajia eikä tallennusmuotoa: kaikki nämä ovat jo Ikkunan kenttiä (`j`, `m`, `riv`, jäsenille). Työ on valikko, värit ja paletti.
 - Ketju ja Jana ovat omia lajejaan; niiden siirto samaan valikkoon on vaihe 37e.
 
-## 5. Vaihe 3: Ryhmä ikkunan sisällä (jonon 37c)
+## 5. Vaihe 3: Ryhmä ikkunan sisällä (jonon 37c, toteutettu Appi-appi 94 Emilin 19.10. mallilla: ryhmän ikkuna)
 
 - Ryhmä-yleispalikka ikkunassa on yksi arvo kuten muutkin (summa, määrä…), joten SUMMA-ikkuna kahdesta ryhmästä laskee *ryhmien summien summan* ja MONTAKO PÄTEE *montako ryhmää täyttää ehdon* ilman uutta sääntöä. Tämä toimii heti vaiheen 1 jälkeen.
 - Uutta on valinta **jokainen jäsen erikseen**: ryhmäpalikka tuo jäsenensä ikkunan sisällöksi (sama kuin nykyinen *Sisältö myös joukosta*), jolloin JA tarkoittaa ”kaikki jäsenet”, SUMMA ”kaikkien jäsenten summa” ja päätöspuussa jäsenet ovat napit. Emilin vaihtoehto ”ryhmäpalikka muuttuu ikkunassa ryhmäikkunaksi” hylätään: palikka pysyy palikkana, valinta kertoo tavan.

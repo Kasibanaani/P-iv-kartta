@@ -23,7 +23,7 @@ async def main():
             await veda(pg,await keskus(pg,'#pal .chip[data-make*="ikkuna"][data-make*="yl"]'),r)
             nid=await P(pg,"P.lg.n.filter(n=>P.b[n.p].k==='ikkuna')[0].id")
             s=await ik(pg,nid);print(W,'2 uusi:',s);assert s[:3]==['and','',False] and await P(pg,"!('yl' in P.b[KK.nodeOf(P,%r).p])"%nid)
-            h=await valikko(pg,nid,'KUN:');s=await ik(pg,nid);print(W,'3 KUN:',h,s);assert h==['Tarkoitus','Miten sisältö yhdistyy','Laske jokaiselle'] and s[1]=='kun' and 'j-kun' in s[3]
+            h=await valikko(pg,nid,'KUN:');s=await ik(pg,nid);print(W,'3 KUN:',h,s);assert h==['Tarkoitus','Miten sisältö yhdistyy','Laske jokaiselle','Ryhmän ikkuna (jäsenet näkyvät ikkunassa)'] and s[1]=='kun' and 'j-kun' in s[3]
             assert await pg.inner_text('#lworld .lw[data-nid="%s"] .wh'%nid)!=''
             await valikko(pg,nid,'Päätöspuu');s=await ik(pg,nid);print(W,'4 puu:',s);assert s[0]=='puu' and s[1]==''
             h=await valikko(pg,nid,'JOS:');s=await ik(pg,nid);print(W,'5 JOS:',h,s);assert h==['Tarkoitus'] and s[0]=='and' and s[1]=='jos' and 'j-jos' in s[3]

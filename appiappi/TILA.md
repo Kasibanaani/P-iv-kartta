@@ -1,12 +1,12 @@
 # Appi-appi: tila
 
-**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 19.10.2026 (Appi-appi 93: ryhmä on palikka, jonon 37g; linkkirivit #/@)
+**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 19.10.2026 (Appi-appi 94: ryhmän ikkuna, jonon 37c; tallennusmuoto laajeni (ikkunan wr, solmun wa))
 
 Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- ja iPad-näkymät, maailma ja hahmon liike, myöhemmin vienti omaksi appiksi). Ristiriidoissa Kytköskartan logiikka voittaa. Suunnitelma: `SUUNNITELMA.md` ja `suunnitelmat/`; vanhempien vaiheiden päätökset `VERTAILU.md`. Toteutettujen versioiden yksityiskohdat, tallennuskentät ja kokeiluohjeet: `MUUTOKSET.md`.
 
 ## Valmiina
 
-- Appi-appi 0–93 ja Pajakone 1–4: versioittain `MUUTOKSET.md` (uusin ensin, myös kunkin version *Ei tarkistettu* ja *Kokeile koneella*). Käyttäjän näkökulmasta koko appi: `manuaali/`. Vanhat Valmiina-rivit: `TILA-arkisto.md`.
+- Appi-appi 0–94 ja Pajakone 1–4: versioittain `MUUTOKSET.md` (uusin ensin, myös kunkin version *Ei tarkistettu* ja *Kokeile koneella*). Käyttäjän näkökulmasta koko appi: `manuaali/`. Vanhat Valmiina-rivit: `TILA-arkisto.md`.
 - **Uusi versio** kirjataan vain `MUUTOKSET.md`:hen; tänne ei lisätä riviä.
 
 ## Jono
@@ -17,7 +17,6 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 **Haarat ja tarkistuspisteet (Emil 17.10.2026):** ⏸-merkitty kohta odottaa Emilin päätöstä. Jono ei pysähdy siihen: rakentaja tai vahti ilmoittaa Emilille ja jatkaa seuraavaan kohtaan, joka ei riipu odottavasta. Kohta, josta mikään jonossa ei riipu, on oma haaransa; Emil voi ottaa sen käsittelyyn milloin haluaa. Avoimista haaroista muistutetaan Emiliä säännöllisesti (ajastettu muistutus APPI-APPI-projektin ketjussa *Tilastot ja oppiminen*).
 
-37c. **Ryhmä ikkunan sisällä F45, vaihe 3** (suunnitelma 29 kohta 5): Emil 19.10.: ikkunan yläreunaan kirjoitetaan `@eläin` → ryhmän ikkuna, jokainen jäsen ilmestyy rinnakkaisena esiintymänä (uusi jäsen tulee, poistettu katoaa; esiintymän poisto ikkunasta poistaa ryhmästä ja viittauksen toisesta päästä, palikka säilyy: Emil hyväksyi 19.10.). Rakennetaan 37g:n päälle. ryhmä-yleispalikan valinta *jokainen jäsen erikseen* tuo jäsenet ikkunan sisällöksi.
 37d. **⏸ Vanhat yleispalikoiksi** (kohta 6; Emilin kokeilun jälkeen). 37e. **⏸ Ketju ja Jana yleisikkunan tarkoituksiksi.** 37f. **⏸ Säätimet ja triggerit samalla periaatteella** (oma suunnitelma).
 4. **⏸ Tarkistuspiste F25** (`suunnitelmat/11-tilastot-ja-yhteydet.md`, Emil 17.10. aamulla): ei rakenneta. F08 viety 17.10. (Appi-appi 36) ja Emilille ilmoitettu, että F25:n avoimet kysymykset (kohta 9) ovat vuorossa; Emil vastasi 18.10. (kirjattu kohtaan 9): raja keskiyö, luotettavuus 3 päivää, koeappi tehdään; ”päivä kirjattu” ratkaistaan koeapissa (ehdotus: mikä tahansa kirjaus tai yksi nappi). Seuraava: elämäntapaväittämien koeappi nykyisillä palikoilla; korrelaatio (kohdat 2–5) vasta koeapin jälkeen. Jono jatkaa kohdasta 5.
 **Kärki (Emil 18.10.):** F41/F37-kokonaisuus (12f–15e) valmis Appi-appi 54–63. Tallennusmuodon muutokset yksi kerrallaan kaistasäännön mukaan.
@@ -46,7 +45,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 - **Vain tällä laitteella valmis (Appi-appi 87, Emilin välikysymys 19.10., kaistat tauolla):** laitekohtainen tila (Asetukset tai osoite `?vainlaite`) estää kaiken GitHub-liikenteen selaimessa; projektikohtainen rasti Projektit-arkissa pitää yhden projektin ja sen laput poissa GitHubista. Ei kartoituslaskuriin (ei jonon kohta). Yksityiskohdat `MUUTOKSET.md`, käyttö `manuaali/09-tallennus.md`.
 - **Päätöspuun jatko (Appi-appi 89):** Alkaa aloitusnapista (*lopeta*-kohta), ＋ Aloitusnappi, logiikan paletin Painike suoraan puuhun ja näkymään.
 - **Päätöspuu valmis (Appi-appi 88, jonon 36, F44; Emil pyysi jonon kärkeen 19.10., kaistat tauolla; tallennusmuoto laajeni, versio pysyi 12):** Ikkunan tapa PÄÄTÖSPUU (siirtymät pisteestä ◦, ↔, silmukat, alussa näkyvät, sisempi ikkuna kysymyksenä, Valmis), pikaluonti sisennetystä tekstistä, Tab/Enter, Ikkunan *Sisältö myös joukosta* ja Alueen *Asettelu käytössä* (Allekkain/Ruudukko). Uusi ominaisuusryhmä aloitettiin ilman edeltävää kartoitusta Emilin pyynnöstä. Yksityiskohdat `MUUTOKSET.md`, käyttö `manuaali/04-logiikkapalikat.md#päätöspuu-appi-appi-88`.
-- **Ryhmä on palikka valmis (Appi-appi 93, jonon 37g):** yleispalikan kentässä omalla rivillä `#eläin` = kuuluu eläimeen, `@koira` = koira kuuluu tähän; näkyy molemmissa päissä, tallentuu vahvistettaessa. Ryhmän luku tekstissä tai kaavassa (`#eläin.summa`). Seuraavaksi 37c (ryhmän ikkuna `@eläin`), odottaa Emilin kokeilua.
+- **Ryhmä on palikka valmis (Appi-appi 93, jonon 37g):** yleispalikan kentässä omalla rivillä `#eläin` = kuuluu eläimeen, `@koira` = koira kuuluu tähän; näkyy molemmissa päissä, tallentuu vahvistettaessa. Ryhmän luku tekstissä tai kaavassa (`#eläin.summa`). Ryhmän ikkuna (37c) valmis Appi-appi 94: ikkunan valikosta tai otsikkoon `@eläin`, jäsenet rinnakkaisina esiintyminä. Seuraavaksi kartoitus 13 (10/10 täynnä).
 - **Yleispalikka valmis (Appi-appi 90, jonon 37a, F45; tallennusmuoto laajeni, versio pysyi 12):** logiikan paletin ylin *Yleiset → Yleispalikka*, laji kirjoituksesta, lajivalikko ja lukitus, kirjoitusosa palikan kohdalla. **Yleisikkuna valmis (Appi-appi 91, jonon 37b, ei tallennusmuotoa):** *Yleiset → Yleisikkuna*, otsikon valikossa Tarkoitus, Miten sisältö yhdistyy ja Laske jokaiselle; KUN punainen, JOS turkoosi, päätöspuu sininen. 37c ja myöhemmät odottavat Emilin kokeilua. Yksityiskohdat `MUUTOKSET.md`, käyttö `manuaali/04-logiikkapalikat.md#yleispalikka-appi-appi-90`.
 - **Suunnitelma 29 (F45, 19.10.):** yleispalikka ja yleisikkuna, jonon 37a–37f; kartoitus suunnitelman kohdassa 1 korvaa uuden ominaisuusryhmän esikartoituksen.
 - **Linjakkuuskartoitukset:** viimeisin ja aiemmat luetellaan `PALIKKASAANNOT.md`:n lopussa; tehtyjen kartoitusten yhteenvedot `TILA-arkisto.md`:ssä.
