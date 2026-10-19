@@ -58,6 +58,17 @@ Tämä kartoitus korvaa uuden ominaisuusryhmän esikartoituksen.
 - **37e ⏸ Ketju ja Jana yleisikkunan tarkoituksiksi** (lajit vaihtuvat, kohdat eroavat: oma suunnitelma).
 - **37f ⏸ Säätimet ja triggerit** samalla periaatteella (Emil: myöhemmin): yksi *Ohjain*-palikka, jonka tarkoitus (painike, kytkin, säädin…) valitaan. Oma suunnitelma.
 
+## 9. Ryhmä on palikka, linkki kahteen suuntaan (Emilin ajatus 19.10., ehdotus, odottaa hyväksyntää)
+
+Emilin kokeilu 90–91 jälkeen: ryhmä erillisenä #-tunnisteena (suunnitelma 25) ei näy missään palikkana, ja tekstikentän `#eläin` (= lukee ryhmää) sekoittuu jäsenyyteen.
+
+- **Ryhmä = yleispalikka, jonka kentässä on pelkkiä viittauksia** (`@koira @kissa @kilpikonna`). Kooste-valikko (määrä, summa, arvot, jäsenet…) kuten nyt. Viittaukset + tekstiä = tekstipalikka. Yksi viittaus = viite.
+- **Yksi linkki, kaksi näkymää:** `#eläin` Koiran kentässä ⇔ `@koira` Eläimen kentässä. Kirjoitus kumpaan tahansa päähän luo linkin, poisto kummasta tahansa poistaa sen. Palikka voi kuulua moneen ryhmään (myös ryhmäpalikka ryhmään).
+- **Nimi itsestään:** tekstin ensimmäinen sana; kaavasta Kaava, Kaava 2…; ryhmästä sen nimi. Nimi muutettavissa. **Viite = nimi yhteen kirjoitettuna pienellä** (yksikäsitteistetty numerolla), ei omaa kenttää.
+- `=` ei käy viittausmerkiksi (= alussa on kaava). `@` jää, viittaukset näytetään kentässä nimilappuina.
+- Tallennusmuoto: nykyiset `jk`-ryhmät muunnetaan ryhmä-yleispalikoiksi (`repair`), vanha muoto luetaan aina. Varmuuskopio ennen.
+- Heti (ei tallennusmuotoa): nimi ja tyyppi muokkausruudun ja paneelin yläreunaan, tyypin valinta appin omina napautettavina valintoina (ei selaimen pudotusvalikkoa).
+
 ## 7. Linjakkuus
 
 - **A1** nimi: *Yleispalikka* on Emilin sana; laji näkyy merkkinä ja valikossa. **A2** ominaisuudet ennallaan (`arvo`). **A6** kaava on tila: laji ei muuta tätä. **A8** yksi yleinen reitti korvaa kuusi sirua: tämä on säännön suunta. **A9** viite ja nimi säilyvät lajin vaihtuessa. **A13** uudet kentät valinnaisia, vanha aukeaa. **A14** testi: päättely, lajin vaihto nuolet säilyttäen, lukitus ja punainen, ryhmän kooste, kirjoitusosa selaimessa.
