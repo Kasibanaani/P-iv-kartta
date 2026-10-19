@@ -1,12 +1,12 @@
 # Appi-appi: tila
 
-**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 19.10.2026 (Appi-appi 91: yleisikkuna, jonon 37b; ei tallennusmuotoa)
+**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 19.10.2026 (Appi-appi 92: yleispalikan ruutu nimi + kirjoitus, omat valinnat; ei tallennusmuotoa)
 
 Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- ja iPad-näkymät, maailma ja hahmon liike, myöhemmin vienti omaksi appiksi). Ristiriidoissa Kytköskartan logiikka voittaa. Suunnitelma: `SUUNNITELMA.md` ja `suunnitelmat/`; vanhempien vaiheiden päätökset `VERTAILU.md`. Toteutettujen versioiden yksityiskohdat, tallennuskentät ja kokeiluohjeet: `MUUTOKSET.md`.
 
 ## Valmiina
 
-- Appi-appi 0–91 ja Pajakone 1–4: versioittain `MUUTOKSET.md` (uusin ensin, myös kunkin version *Ei tarkistettu* ja *Kokeile koneella*). Käyttäjän näkökulmasta koko appi: `manuaali/`. Vanhat Valmiina-rivit: `TILA-arkisto.md`.
+- Appi-appi 0–92 ja Pajakone 1–4: versioittain `MUUTOKSET.md` (uusin ensin, myös kunkin version *Ei tarkistettu* ja *Kokeile koneella*). Käyttäjän näkökulmasta koko appi: `manuaali/`. Vanhat Valmiina-rivit: `TILA-arkisto.md`.
 - **Uusi versio** kirjataan vain `MUUTOKSET.md`:hen; tänne ei lisätä riviä.
 
 ## Jono
@@ -17,8 +17,8 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 **Haarat ja tarkistuspisteet (Emil 17.10.2026):** ⏸-merkitty kohta odottaa Emilin päätöstä. Jono ei pysähdy siihen: rakentaja tai vahti ilmoittaa Emilille ja jatkaa seuraavaan kohtaan, joka ei riipu odottavasta. Kohta, josta mikään jonossa ei riipu, on oma haaransa; Emil voi ottaa sen käsittelyyn milloin haluaa. Avoimista haaroista muistutetaan Emiliä säännöllisesti (ajastettu muistutus APPI-APPI-projektin ketjussa *Tilastot ja oppiminen*).
 
-37g. **Ryhmä on palikka F45** (suunnitelma 29 kohta 9, ⏸ odottaa Emilin päätöstä, TALLENNUSMUOTO): ryhmä = yleispalikka pelkin viittauksin, `#eläin` ⇔ `@koira` yksi linkki kahteen suuntaan, nimi tekstin ensimmäisestä sanasta, viite = nimi. Heti ilman päätöstä: nimi ja tyyppi ruudun ja paneelin yläreunaan, tyypille omat valinnat.
-37c. **Ryhmä ikkunan sisällä F45, vaihe 3** (suunnitelma 29 kohta 5): ryhmä-yleispalikan valinta *jokainen jäsen erikseen* tuo jäsenet ikkunan sisällöksi.
+37g. **JONON KÄRKI (Emil 19.10. 14:19 UTC): Ryhmä on palikka F45** (suunnitelma 29 kohta 9, hyväksytty Emil 19.10., ilman neutraalia linkkiä; TALLENNUSMUOTO, työn alla ketjussa Yleispalikka ja yleisikkuna): mikä tahansa palikka luetaan ryhmänä `#nimi`; kentässä pelkkänä `#eläin` = kuuluu eläimeen ⇔ eläimen kentässä `@koira` = jäsen, kumpaan tahansa kirjoitettu päivittää toisen pään; ryhmän luku tekstin/kaavan sisällä; nykyiset #ryhmät palikoiksi; nimi tekstin ensimmäisestä sanasta, viite = nimi. Ruutu (nimi + kirjoitus, viite tietona, omat valinnat) tehty 92:ssa.
+37c. **Ryhmä ikkunan sisällä F45, vaihe 3** (suunnitelma 29 kohta 5): Emil 19.10.: ikkunan yläreunaan kirjoitetaan `@eläin` → ryhmän ikkuna, jokainen jäsen ilmestyy rinnakkaisena esiintymänä (uusi jäsen tulee, poistettu katoaa; esiintymän poisto ikkunasta poistaa ryhmästä ja viittauksen toisesta päästä, palikka säilyy: Emil hyväksyi 19.10.). Rakennetaan 37g:n päälle. ryhmä-yleispalikan valinta *jokainen jäsen erikseen* tuo jäsenet ikkunan sisällöksi.
 37d. **⏸ Vanhat yleispalikoiksi** (kohta 6; Emilin kokeilun jälkeen). 37e. **⏸ Ketju ja Jana yleisikkunan tarkoituksiksi.** 37f. **⏸ Säätimet ja triggerit samalla periaatteella** (oma suunnitelma).
 4. **⏸ Tarkistuspiste F25** (`suunnitelmat/11-tilastot-ja-yhteydet.md`, Emil 17.10. aamulla): ei rakenneta. F08 viety 17.10. (Appi-appi 36) ja Emilille ilmoitettu, että F25:n avoimet kysymykset (kohta 9) ovat vuorossa; Emil vastasi 18.10. (kirjattu kohtaan 9): raja keskiyö, luotettavuus 3 päivää, koeappi tehdään; ”päivä kirjattu” ratkaistaan koeapissa (ehdotus: mikä tahansa kirjaus tai yksi nappi). Seuraava: elämäntapaväittämien koeappi nykyisillä palikoilla; korrelaatio (kohdat 2–5) vasta koeapin jälkeen. Jono jatkaa kohdasta 5.
 **Kärki (Emil 18.10.):** F41/F37-kokonaisuus (12f–15e) valmis Appi-appi 54–63. Tallennusmuodon muutokset yksi kerrallaan kaistasäännön mukaan.

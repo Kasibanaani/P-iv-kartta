@@ -4,6 +4,17 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
 
 ## Versiot
 
+- Appi-appi 92 (19.10., F45 suunnitelma 29 kohta 9 heti-osa; ei tallennusmuotoa): **Yleispalikan ruutu yksinkertaistui (Emil 19.10.).**
+  - Palikan kohdalle aukeavassa ruudussa ylimpänä **Nimi**, sen vieressä viite tietona (`@nimiyhteen`, ei kenttää), sitten kirjoitus, Laji ja ryhmän kooste. Laatikko alkaa rivin verran palikan yläpuolelta, joten kirjoituskenttä on palikan kohdalla (kaksoisnapautus osuu kenttään).
+  - Nimen kirjoitus ruudussa poistaa `vtSet`-lukon: viite seuraa aina nimeä (pienellä, yhteen). Paneelin Nimi ja Tunnus päivittyvät samalla.
+  - Laji ja *Mitä ryhmästä* ovat appin omia napautettavia valintoja (`.seg`) ruudussa ja paneelissa, ei selaimen pudotusvalikkoa. Ruudun kentät näyttävät samalta kuin paneelin.
+  - Ryhmään kuuluminen tehdään edelleen paneelin Tunnus-kentästä (`@koira #eläin`); kirjoituskentän `#eläin` lukee ryhmää. Ryhmä palikkana ja kaksisuuntainen linkki = jonon 37g, odottaa Emilin päätöstä.
+  - Testi: `selain_128_yleispalikka.py` päivitetty (järjestys nimi → kirjoitus → laji, ei `select`-elementtejä, napautettava laji ja kooste, viite seuraa nimeä, paneelin nimi päivittyy).
+  - Manuaaliin: luku 4 *Yleispalikka*: ruudussa Nimi ylimpänä ja viite tietona sen vieressä (viite = nimi pienellä yhteen kirjoitettuna); Laji ja *Mitä ryhmästä* napautettavina valintoina; ryhmään liittäminen paneelin Tunnus-kentästä. Luku 11: versio 92.
+  - Ei tarkistettu: oikea iPhone/Safari.
+  - Kokeile koneella (Chromium): kaksoisnapauta yleispalikkaa, kirjoita nimeksi *Iso koira*: viereen tulee @isokoira. Napauta Laji-valintoja ja ryhmälle *Summa*.
+  - Ristikokeilu: 91 yleisikkuna (`selain_129`) ja moottori (`logiikka_106`) ajettu tämän päälle.
+
 - Appi-appi 91 (19.10., jonon 37b, F45, suunnitelma 29 kohta 4; ei tallennusmuotoa): **Yleisikkuna.**
   - Logiikan paletin *Yleiset* → **Yleisikkuna** (Ikkuna `m:'and'`; paletin `yl`-lippu poistetaan luonnissa, vain vihjettä varten).
   - Ikkunan otsikon valikko (`winMenu`, ennen pelkkä *Miten sisältö yhdistyy*): **Tarkoitus** (`WTARK`: Tulos = ei `j`; JOS `j:'jos'`; KUN `j:'kun'`; Päätöspuu `m:'puu'`, poistaa `j`, `riv`, `jas`; puusta muuhun `m:'and'`), **Miten sisältö yhdistyy** (WM ilman PÄÄTÖSPUUta; ei näy päätöspuulla), **Laske jokaiselle** (Riveille `riv`, Jäsenille `jas`, kun taulukko tai joukko on). Kaikki entisiä kenttiä; `repairL` siivoaa nuolet, jotka eivät enää sovi (kuten paneelin *Toimii myös* -valinnassa).

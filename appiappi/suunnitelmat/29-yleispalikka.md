@@ -52,6 +52,8 @@ Tämä kartoitus korvaa uuden ominaisuusryhmän esikartoituksen.
 - Ryhmä-yleispalikka ikkunassa on yksi arvo kuten muutkin (summa, määrä…), joten SUMMA-ikkuna kahdesta ryhmästä laskee *ryhmien summien summan* ja MONTAKO PÄTEE *montako ryhmää täyttää ehdon* ilman uutta sääntöä. Tämä toimii heti vaiheen 1 jälkeen.
 - Uutta on valinta **jokainen jäsen erikseen**: ryhmäpalikka tuo jäsenensä ikkunan sisällöksi (sama kuin nykyinen *Sisältö myös joukosta*), jolloin JA tarkoittaa ”kaikki jäsenet”, SUMMA ”kaikkien jäsenten summa” ja päätöspuussa jäsenet ovat napit. Emilin vaihtoehto ”ryhmäpalikka muuttuu ikkunassa ryhmäikkunaksi” hylätään: palikka pysyy palikkana, valinta kertoo tavan.
 
+- **Emil 19.10. (kumoaa yllä olevan hylkäyksen osittain):** ikkunan yläreunaan voi kirjoittaa `@eläin`, jolloin ikkuna on ryhmän ikkuna ja jokainen jäsen ilmestyy sen sisään palikkana rinnakkaisena esiintymänä. Jäsenyyden muutos näkyy heti. Päätös (Emil 19.10.): esiintymän poisto ikkunasta poistaa palikan ryhmästä ja viittauksen toisesta päästä; palikka säilyy. Rakennetaan kohdan 9 (ryhmä on palikka) jälkeen.
+
 ## 6. Myöhemmin
 
 - **37d ⏸ Vanhat yleispalikoiksi** (Emilin kokeilun jälkeen): vanhat Arvot, Muistit ja Kaavat saavat `yl:1` itsestään, Kaavan tulos muunnetaan (kaava siirtyy tulospalikkaan), paletista poistuvat erilliset sirut. Ei tehdä ennen kuin Emil sanoo, että yleispalikka toimii.
@@ -67,6 +69,10 @@ Emilin kokeilu 90–91 jälkeen: ryhmä erillisenä #-tunnisteena (suunnitelma 2
 - **Nimi itsestään:** tekstin ensimmäinen sana; kaavasta Kaava, Kaava 2…; ryhmästä sen nimi. Nimi muutettavissa. **Viite = nimi yhteen kirjoitettuna pienellä** (yksikäsitteistetty numerolla), ei omaa kenttää.
 - `=` ei käy viittausmerkiksi (= alussa on kaava). `@` jää, viittaukset näytetään kentässä nimilappuina.
 - Tallennusmuoto: nykyiset `jk`-ryhmät muunnetaan ryhmä-yleispalikoiksi (`repair`), vanha muoto luetaan aina. Varmuuskopio ennen.
+- **Emil 19.10. jatko:** sama nimi kahdella etumerkillä: `@eläin` = palikka (sen arvo), `#eläin` = ryhmä (jäsenet). Ehdotus: jäsenyys tehdään vain ryhmän puolelta (`@koira` Eläimen kenttään); jäsenen ruutuun tulee merkintä *kuuluu: eläin*, poistettavissa. `#` kirjoituksessa tarkoittaa aina ryhmän lukemista, ei jäsenyyttä (muuten sekaannus palaa).
+- **Tarkennus 19.10. (Emilin kysymys neutraalista linkistä):** ryhmä ei ole laji: mikä tahansa palikka luetaan ryhmänä kirjoittamalla `#nimi`. Linkki näkyy ja muokkautuu molemmista päistä (Koiralla `@eläin` = kuuluu, Eläimellä `@koira` = jäsen), mutta muistaa suunnan, koska sisäkkäisissä ryhmissä (Eläin kuuluu Eläviin olentoihin) suunnaton linkki laskisi isomman ryhmän jäseneksi. `@` tekstin tai kaavan sisällä on lukemista, ei linkki.
+- **Etumerkki kertoo suunnan (Emil 19.10., korvaa yllä olevan "vain ryhmän puolelta"):** kentässä pelkkänä: `#eläin` = tämä kuuluu eläimeen (eläimen kenttään ilmestyy `@koira`); `@koira` = koira on tämän jäsen (koiran kenttään ilmestyy `#eläin`); `~kissa` = neutraali "liittyy", näkyy molemmissa, ei ryhmään eikä laskuihin (kysytty Emililtä, tarvitaanko). Ryhmän lukeminen tekstin tai kaavan sisällä (`Eläimiä: #eläin`, `= #eläin.summa`); pelkkä `#eläin` kentässä on jäsenyys.
+- **Monta arvoa yhdessä kentässä (Emilin ajatus):** ehdotus ei. Kentän osat värikoodataan lajin mukaan (teksti, viittaus, jäsen, kaava), mutta palikalla on yksi arvo. `#eläin.summa` laskee jäsenten luvut ja ohittaa tekstit. Oma lasku = oma palikka.
 - Heti (ei tallennusmuotoa): nimi ja tyyppi muokkausruudun ja paneelin yläreunaan, tyypin valinta appin omina napautettavina valintoina (ei selaimen pudotusvalikkoa).
 
 ## 7. Linjakkuus
