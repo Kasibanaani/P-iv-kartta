@@ -28,10 +28,10 @@ async def main():
             op=await pg.evaluate("()=>!!document.querySelector('#yedit textarea')&&document.activeElement===document.querySelector('#yedit textarea')")
             nm=await P(pg,YL+"[0].nm");print(W,'2 uusi aukeaa:',op,nm);assert op and nm
             # 3 päättely
-            for t,odotus in (('Hei maailma',['arvo','teksti','Hei maailma']),('15',['arvo','arvo',15]),('@kaava1',['kaava','viite',30]),('= @kaava1 * 2',['kaava','kaava',60]),
-                             ('Pisteet: @kaava1',['arvo','teksti','Pisteet: 30']),('#ryhmä1',['kaava','ryhma',2])):
+            for t,odotus in (('Hei maailma',['arvo','teksti','Hei maailma']),('15',['arvo','arvo',15]),('= @kaava1',['kaava','kaava',30]),('= @kaava1 * 2',['kaava','kaava',60]),
+                             ('Pisteet: @kaava1',['arvo','teksti','Pisteet: 30']),('#ryhmä1.jäseniä',['kaava','ryhma',2])):
                 await kirjoita(pg,t);s=await tila(pg,nm);print(W,'3',repr(t),s,await lajit(pg));assert [s[0],s[1],s[3]]==odotus,(t,s)
-            assert await lajit(pg)==['','ryhma','kaava']
+            assert await lajit(pg)==['','ryhma','kaava'],await lajit(pg)
             # 3b nimi ja tunnus ylimpänä, ei selaimen pudotusvalikoita
             y=await pg.evaluate("()=>['[data-ynm]','[data-yvi]','textarea','[data-ytys]'].map(q=>document.querySelector('#yedit '+q).getBoundingClientRect().top)")
             sel=await pg.evaluate("()=>document.querySelectorAll('#yedit select').length")
@@ -61,7 +61,7 @@ async def main():
             s=await tila(pg,'Iso Tervehdys');print(W,'7 uudelleen + Esc:',w,tv,s);assert w>=400 and tv=='Hei maailma' and s[1]=='teksti' and s[3]=='Hei maailma'
             # 8 paneeli: sama kirjoitus ja laji
             ins=await pg.inner_text('#insp');assert 'Yleispalikka' in ins
-            await pg.fill('#insp [data-yl]','@kaava1');await pg.wait_for_timeout(150);s=await tila(pg,'Iso Tervehdys');assert s[1]=='viite' and s[3]==30,s
+            await pg.fill('#insp [data-yl]','@kaava1.arvo');await pg.wait_for_timeout(150);s=await tila(pg,'Iso Tervehdys');assert s[1]=='viite' and s[3]==30,s
             await pg.click('#insp [data-ylty="kaava"]');await pg.wait_for_timeout(150);s=await tila(pg,'Iso Tervehdys');assert s[2]=='kaava' and s[3]==30,s
             # 9 Kumoa palauttaa
             await pg.keyboard.press('Meta+z' if False else 'Control+z');await pg.wait_for_timeout(150)

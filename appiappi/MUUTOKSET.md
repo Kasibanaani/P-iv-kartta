@@ -4,6 +4,20 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
 
 ## Versiot
 
+- Appi-appi 93 (19.10., jonon 37g, F45 suunnitelma 29 kohta 9; ei uusia kenttiä, mutta yleispalikan kirjoituksen tulkinta muuttui): **Ryhmä on palikka, linkki kahteen suuntaan.**
+  - Yleispalikan kentässä rivi, jolla on pelkkiä `#nimi`- ja `@nimi`-merkintöjä, on **linkkirivi** (`ylJaa`): `#eläin` = tämä kuuluu eläimeen, `@koira` = koira kuuluu tähän. Tallentuu jäsenyytenä (jäsenen `jkt`), joten sama linkki näkyy molemmissa päissä (`ylTeksti` lisää linkkirivit sisällön perään). Poisto kummasta päästä tahansa poistaa linkin.
+  - Palikan oma ryhmä = ryhmä, jonka nimi on palikan viite (`ylOma`); viitteen tai nimen vaihto nimeää ryhmän (`ylNimiSeuraa`). Sisäkkäiset ryhmät: Eläin, joka kuuluu Eläviin olentoihin, on siellä yksi jäsen.
+  - Linkit tallentuvat vasta vahvistettaessa (Enter, napautus muualle, paneelin kentän jättäminen; `ylLinkit`), Esc peruu. Uusi `#nimi`, jolla ei ole palikkaa, tekee yleispalikan kirjoittajan viereen. Tuntematon `@nimi` = ilmoitus.
+  - Pelkät jäsenet (ei sisältöä): arvo on jäsenten määrä. Ryhmän luku tekstissä tai kaavassa: `Eläimiä: #eläin.jäseniä`, `= #eläin.summa`. Toisen palikan arvo yksinään: `= @nimi` (pelkkä `@nimi` on nyt jäsenlinkki). Kooste *määrä* kirjoittaa `.jäseniä`.
+  - Korjaus: Arvon tekstissä ryhmäviite (`{%…}`) lasketaan nyt (ennen näkyi raakana).
+  - Paneelin laji- ja koostevalinnat toimivat painalluksesta (eivät katoa, kun kirjoituskenttä menettää kohdistuksen). Paneelin nimi yleispalikalle: viite seuraa aina nimeä.
+  - Testit: `logiikka_106` (linkit molempiin suuntiin, sisäkkäinen ryhmä, poisto, nimeäminen, tallennus) ja uusi `selain_130_ryhmapalikka.py` (1440 ja 1280: #eläin Koirasta, @kissa Eläimestä, Esc, uusi #lemmikit tekee palikan, paneeli, lataus); `selain_128` päivitetty (= @nimi, #ryhmä.jäseniä).
+  - Manuaaliin: luku 4 *Yleispalikka*: linkkirivit (`#eläin` kuuluu, `@koira` jäsen; näkyy molemmissa päissä; tallentuu vahvistettaessa; uusi #nimi tekee palikan), pelkät jäsenet = määrä, ryhmän luku `#eläin.summa`/`Eläimiä: #eläin.jäseniä`, toisen palikan arvo `= @nimi`. Hakemisto: tehtävärivi "liittää palikka ryhmään yleispalikan kentässä". Luku 11: versio 93.
+  - Ei tehty: neutraali linkki (Emil: pois toistaiseksi); vanhoille #ryhmille ei tehdä palikkaa automaattisesti (ne toimivat kuten ennen, ja yleispalikka, jonka viite on sama, ottaa ryhmän omakseen); ryhmän ikkuna `@eläin` (37c).
+  - Ei tarkistettu: oikea iPhone/Safari. Vanhat 90–92-yleispalikat, joissa on pelkkä `@nimi` tai `#nimi`, näyttävät arvonsa kuten ennen, mutta seuraava muokkaus tulkitsee rivin linkiksi.
+  - Kokeile koneella (Chromium): tee yleispalikat Eläin, Koira ja Kissa. Kirjoita Koiraan toiselle riville `#eläin`, Enter: Eläimessä lukee `@koira` ja arvo 1. Kirjoita Eläimeen `@koira @kissa`: Kissaan ilmestyy `#eläin`. Tee kolmas palikka `= #eläin.jäseniä`.
+  - Ristikokeilu: 91 yleisikkuna (`selain_129`) ja 92 ruutu (`selain_128`) ajettu tämän päälle.
+
 - Appi-appi 92 (19.10., F45 suunnitelma 29 kohta 9 heti-osa; ei tallennusmuotoa): **Yleispalikan ruutu yksinkertaistui (Emil 19.10.).**
   - Palikan kohdalle aukeavassa ruudussa ylimpänä **Nimi**, sen vieressä viite tietona (`@nimiyhteen`, ei kenttää), sitten kirjoitus, Laji ja ryhmän kooste. Laatikko alkaa rivin verran palikan yläpuolelta, joten kirjoituskenttä on palikan kohdalla (kaksoisnapautus osuu kenttään).
   - Nimen kirjoitus ruudussa poistaa `vtSet`-lukon: viite seuraa aina nimeä (pienellä, yhteen). Paneelin Nimi ja Tunnus päivittyvät samalla.

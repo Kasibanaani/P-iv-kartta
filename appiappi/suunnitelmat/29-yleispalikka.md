@@ -60,7 +60,7 @@ Tämä kartoitus korvaa uuden ominaisuusryhmän esikartoituksen.
 - **37e ⏸ Ketju ja Jana yleisikkunan tarkoituksiksi** (lajit vaihtuvat, kohdat eroavat: oma suunnitelma).
 - **37f ⏸ Säätimet ja triggerit** samalla periaatteella (Emil: myöhemmin): yksi *Ohjain*-palikka, jonka tarkoitus (painike, kytkin, säädin…) valitaan. Oma suunnitelma.
 
-## 9. Ryhmä on palikka, linkki kahteen suuntaan (Emilin ajatus 19.10., ehdotus, odottaa hyväksyntää)
+## 9. Ryhmä on palikka, linkki kahteen suuntaan (Emil hyväksyi 19.10., toteutettu Appi-appi 93 ilman neutraalia linkkiä)
 
 Emilin kokeilu 90–91 jälkeen: ryhmä erillisenä #-tunnisteena (suunnitelma 25) ei näy missään palikkana, ja tekstikentän `#eläin` (= lukee ryhmää) sekoittuu jäsenyyteen.
 
