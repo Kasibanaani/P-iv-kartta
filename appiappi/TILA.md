@@ -1,12 +1,12 @@
 # Appi-appi: tila
 
-**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 19.10.2026 (Appi-appi 96, jonon 21 jatko: rakennuslaatikon kamera; tallennusmuoto ennallaan)
+**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 19.10.2026 (Appi-appi 97, kartoitus 13:n korjaukset)
 
 Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- ja iPad-näkymät, maailma ja hahmon liike, myöhemmin vienti omaksi appiksi). Ristiriidoissa Kytköskartan logiikka voittaa. Suunnitelma: `SUUNNITELMA.md` ja `suunnitelmat/`; vanhempien vaiheiden päätökset `VERTAILU.md`. Toteutettujen versioiden yksityiskohdat, tallennuskentät ja kokeiluohjeet: `MUUTOKSET.md`.
 
 ## Valmiina
 
-- Appi-appi 0–96 ja Pajakone 1–4: versioittain `MUUTOKSET.md` (uusin ensin, myös kunkin version *Ei tarkistettu* ja *Kokeile koneella*). Käyttäjän näkökulmasta koko appi: `manuaali/`. Vanhat Valmiina-rivit: `TILA-arkisto.md`.
+- Appi-appi 0–97 ja Pajakone 1–4: versioittain `MUUTOKSET.md` (uusin ensin, myös kunkin version *Ei tarkistettu* ja *Kokeile koneella*). Käyttäjän näkökulmasta koko appi: `manuaali/`. Vanhat Valmiina-rivit: `TILA-arkisto.md`.
 - **Uusi versio** kirjataan vain `MUUTOKSET.md`:hen; tänne ei lisätä riviä.
 
 ## Jono
@@ -17,7 +17,6 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 **Haarat ja tarkistuspisteet (Emil 17.10.2026):** ⏸-merkitty kohta odottaa Emilin päätöstä. Jono ei pysähdy siihen: rakentaja tai vahti ilmoittaa Emilille ja jatkaa seuraavaan kohtaan, joka ei riipu odottavasta. Kohta, josta mikään jonossa ei riipu, on oma haaransa; Emil voi ottaa sen käsittelyyn milloin haluaa. Avoimista haaroista muistutetaan Emiliä säännöllisesti (ajastettu muistutus APPI-APPI-projektin ketjussa *Tilastot ja oppiminen*).
 
-1x. **Kartoitus 13:n korjaukset** (kaista A, jonon kärki; ei tallennusmuodon muutosta; `kartoitukset/2026-10-19-linjakkuus-13.md` S1–S5): (S1) pelkkien jäsenten yleispalikan arvo ja ryhmän ikkunan laskenta käyttävät ryhmän nykyisiä jäseniä (`jkJasenet`, sama kuin `#eläin`): esiintymä, joka ei nyt ole jäsen, ei laske ja näkyy himmeänä, käytössä lisätty lasketaan kuten *Sisältö myös joukosta* (rivi *+ n käytössä lisättyä*); (S2) `wrSync` ei tee toista esiintymää jäsenelle, joka on jo ikkunassa, ja `members` laskee saman palikan kerran; (S3) `ylSisTeksti` palauttaa pelkän viitteen `= @nimi` ja pelkän ryhmän `#nimi.jäseniä`, jotta 90–92:n yleispalikka ei muutu avaamalla ja vahvistamalla; (S4) yleispalikan paneelissa Tunnus-kentän tilalle viite tietona (kuten ruudussa), ryhmät vain Sisältö-kentässä; (S5) nimi itsestään (suunnitelma 29 kohta 9: tekstin ensimmäinen sana, Kaava, Kaava 2 …, kun nimeä ei ole itse annettu). Testit kunkin kohdan mukaan (raportti). Manuaaliin: poista luvun 4 *Ryhmä on palikka* ja *Ryhmän ikkuna* -kohtien kartoitus 13 -huomiot ja luvun 11 nimihavainto, lisää S4 ja S5.
 37d. **⏸ Vanhat yleispalikoiksi** (kohta 6; Emilin kokeilun jälkeen). 37e. **⏸ Ketju ja Jana yleisikkunan tarkoituksiksi.** 37f. **⏸ Säätimet ja triggerit samalla periaatteella** (oma suunnitelma).
 4. **⏸ Tarkistuspiste F25** (`suunnitelmat/11-tilastot-ja-yhteydet.md`, Emil 17.10. aamulla): ei rakenneta. F08 viety 17.10. (Appi-appi 36) ja Emilille ilmoitettu, että F25:n avoimet kysymykset (kohta 9) ovat vuorossa; Emil vastasi 18.10. (kirjattu kohtaan 9): raja keskiyö, luotettavuus 3 päivää, koeappi tehdään; ”päivä kirjattu” ratkaistaan koeapissa (ehdotus: mikä tahansa kirjaus tai yksi nappi). Seuraava: elämäntapaväittämien koeappi nykyisillä palikoilla; korrelaatio (kohdat 2–5) vasta koeapin jälkeen. Jono jatkaa kohdasta 5.
 **Kärki (Emil 18.10.):** F41/F37-kokonaisuus (12f–15e) valmis Appi-appi 54–63. Tallennusmuodon muutokset yksi kerrallaan kaistasäännön mukaan.
@@ -40,9 +39,9 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 ## Seuraavaksi
 
-- **Uusin vienti:** Appi-appi 96 (kaista B, jonon 21 jatko: rakennuslaatikon kamera; laitenäkymässä pelaaja saa kameran seuraamaan itseään ja ohjaimet lukittuun kerrokseen, uudet kohteet Kameran rajat ja Kamera seuraa). Kartoituslaskuri 2/10. Versiot ja kokeiluohjeet vain `MUUTOKSET.md`:ssä; tähän vain uusin vienti ja laskuri (korvaa edellinen).
-- **Linjakkuuskartoitus 13 tehty 19.10.** (85–94, `kartoitukset/2026-10-19-linjakkuus-13.md`): linja pitää 85–91:ssä; ryhmien saumat (93–94) korjataan jonon 1x:ssä (kaista A). Manuaali päivitetty ensimmäistä kertaa *Manuaaliin:*-riveistä (91–94). Kartoituslaskuri 0/10.
-- **Seuraavaksi:** kaista A 1x; kaista B seuraava vapaa kohta. 37d–f ja 39 odottavat Emiliä.
+- **Uusin vienti:** Appi-appi 97 (kaista A, jonon 1x: kartoitus 13:n ryhmäkorjaukset S1–S5). Versiot ja kokeiluohjeet vain `MUUTOKSET.md`:ssä; tähän vain uusin vienti ja laskuri (korvaa edellinen). Edelliset: 96 (kaista B, rakennuslaatikon kamera) ja 95 (jonon 38, Näkymässä-osio). **Kartoituslaskuri 3/10.**
+- **Linjakkuuskartoitus 13 tehty 19.10.** (85–94, `kartoitukset/2026-10-19-linjakkuus-13.md`): linja pitää 85–91:ssä; ryhmien saumat (93–94) korjattu Appi-appi 97:ssä. Manuaali päivitetty ensimmäistä kertaa *Manuaaliin:*-riveistä (91–94).
+- **Seuraavaksi:** **Emil tauotti kehityksen 19.10. klo 20.35 Suomen aikaa**; jatketaan, kun Emil sanoo. Sitten kaista A ja B seuraavat vapaat kohdat. 37d–f ja 39 odottavat Emiliä.
 - **Linjakkuuskartoitukset:** viimeisin ja aiemmat luetellaan `PALIKKASAANNOT.md`:n lopussa; tehtyjen kartoitusten yhteenvedot `TILA-arkisto.md`:ssä.
 - **Koeapit (Appi-appi 23) toivat esiin:** tekstihaku (Appi-appi 30) ja taulukon `eka`/`vika` (Appi-appi 31) tehty. Ei jonossa: kapeassa kortissa Lukukentän omat −/+ peittävät luvun, joten C näyttää määrän Tekstinä.
 - Järjestys: Jono yllä. Kokonaiskuva ja loput paketit (P4–P7): `SUUNNITELMA.md`.
