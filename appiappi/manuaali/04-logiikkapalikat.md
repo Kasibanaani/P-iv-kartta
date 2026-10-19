@@ -74,6 +74,31 @@ Logiikan palikan paneelissa on aina **Nimi**, **Tunnus** (viite ja joukot `#nimi
 
 ---
 
+## Yleispalikka (Appi-appi 90)
+
+Yksi palikka tekstille, valmiille arvolle, viitteelle, ryhmälle, kaavalle ja muistille. Kirjoita siihen, niin se päättelee lajinsa itse. Sisäisesti se on Arvo, Muisti tai Kaava, joten se toimii kaikkialla niiden tapaan (kaavat, teksti, ikkunat, nuolet, Toiminnot).
+
+- **Löytyy:** logiikan paletin ylin osio **Yleiset** → **Yleispalikka** (✎). Uusi palikka aukeaa heti kirjoitukseen.
+- **Pienenä:** lajimerkki, nimi ja arvo; viite keltaisena yläpuolella. Ryhmällä nimen perässä ryhmä ja kooste (*#kolikot · summa*).
+- **Auki:** kaksoisnapautus tai napautus jo valittuun palikkaan avaa palikan kohdalle kirjoitusosan: ylimpänä kirjoituskenttä, sen alla tulos (*Nyt: …* tai punainen virhe), ryhmällä valinta **Mitä ryhmästä**, sitten **lajivalikko**, **nimi** ja **viite**. Enter tallentaa, ⇧Enter tekee uuden rivin, Esc peruu kaiken (myös nimen ja lajin), napautus muualle tallentaa. Kentän oikeasta alakulmasta venyttää sivulle ja alas; koko jää palikalle seuraavaa avausta varten. Sama kirjoitus ja lajivalikko ovat myös paneelissa (osio *Yleispalikka*).
+- **Laji kirjoituksesta:**
+
+| Kirjoitat | Laji | Esimerkki ja tulos |
+|---|---|---|
+| luku, päivämäärä, kyllä/ei | • Arvo | `15` → 15 |
+| tekstiä, myös arvoja sekaan | T Teksti | `Pisteet: @pisteet` → Pisteet: 30 |
+| `@viite` (myös `@pelaaja.x`) | @ Viite | `@kaava1` → kaava1:n arvo |
+| `#ryhmä` (myös `#ryhmä.summa`) | # Ryhmä | `#kolikot` → jäsenten määrä |
+| `=` alussa, tai kelvollinen lasku | ƒ Kaava | `= @a + @b`, `15 + 15` → 30 |
+
+- **Lajivalikko** (*Laji: automaattinen (…)*) näyttää vain kirjoitukseen sopivat lajit. Valinta lukitsee lajin: jos kirjoitus ei sovi siihen, kenttä ja palikka punertuvat ja tulosrivi kertoo syyn (*Ei kelpaa kaavaksi: tuntematon nimi ”Hei”*). *Automaattinen* poistaa lukon. Pelkkä sana (`valmis`) on tekstiä; viitteeksi se tulee `@`:lla tai valitsemalla laji Viite.
+- **Muisti** on laji, jonka arvoa toiminnot (Aseta arvo, Lisää) muuttavat käytössä; kirjoitus on alkuarvo. Valitse se lajivalikosta. Arvo ei muutu käytössä.
+- **Mitä ryhmästä:** määrä, summa, keskiarvo, suurin, pienin, arvot luettelona, jäsenten nimet. Valinta kirjoittaa kenttään esim. `#kolikot.summa`. Samalle ryhmälle saa tehdä monta palikkaa (yksi summa, toinen määrä). Joukko-palikka (säännöt jäsenille) on eri asia, ja niitä on edelleen yksi ryhmää kohden.
+- **Lainausmerkit** tarvitaan vain tekstille, joka näyttäisi laskulta (`"15 + 15"`), tai kun tekstiä yhdistetään laskuun: `= "Yhteensä " + (@a + @b)`.
+- **Ulos:** *arvo*. Laji voi vaihtua kirjoittaessa, eikä yksikään nuoli katkea.
+- **Ominaisuudet:** `arvo`. **Kaavassa:** `@viite` antaa arvon.
+- **Huomio:** Kaavan tulosta ✦ ei tarvita: yleispalikalla on oma nimi ja viite, joten `= @a + @b` palikassa *Summa* on muille `@summa`. Vanhat Arvo, Muisti, Kaava ja Kaavan tulos ovat paletissa ennallaan; vanhoja palikoita ei muuteta yleispalikoiksi. Ketjun sisällä yleispalikkaa muokataan paneelissa.
+
 ## Arvo (`arvo`)
 
 Kiinteä arvo, jonka kirjoitat itse: luku, teksti, kyllä/ei tai päivämäärä. Arvo ei muutu käytössä.

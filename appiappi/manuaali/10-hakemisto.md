@@ -9,6 +9,7 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | aloittaa alusta | uusi projekti ja ensimmäinen appi | [Aloitus](01-aloitus.md#ensimmäinen-appi-vesilasit) |
 | lisätä palikan | vedä paletista tai napauta | [Työympäristö: Paletti](02-tyoymparisto.md#palikan-lisääminen) |
 | kytkeä palikat yhteen | nuoli logiikassa lähtökohdasta tulokohtaan | [Nuolen vetäminen](02-tyoymparisto.md#nuolen-vetäminen) |
+| kirjoittaa tekstin, luvun, viitteen, ryhmän tai kaavan yhteen palikkaan, joka päättelee lajinsa | logiikan paletti → Yleiset → Yleispalikka | [Yleispalikka](04-logiikkapalikat.md#yleispalikka-appi-appi-90) |
 | näyttää arvon tekstissä | `@viite` (tai `{viite}`) tekstikentässä | [Teksti ja upotetut viitteet](03-nakymapalikat.md#teksti-ja-upotetut-viitteet) |
 | vaihtaa viittausmerkin (`@`, `§`, `{ }`) | Asetukset → Muokkaus → Viittaus tekstissä | [Tekstiin upotetut viitteet](06-kaavat.md#tekstiin-upotetut-viitteet) |
 | nähdä muokatessa, mistä palikan teksti tulee | viitelappu palikan yläpuolella (Asetukset → Näytä viitteet muokatessa) | [Teksti ja upotetut viitteet](03-nakymapalikat.md#teksti-ja-upotetut-viitteet) |
@@ -113,6 +114,7 @@ Kaikki palikkalajit. Laji on sisäinen tunniste (tallennustiedostossa `k`). ✦ 
 | [Alue ✦](08-maailma-ja-liike.md#alue--alue) | `alue` | Näkymä | Maailma ja liike |
 | [Reitti ✦](08-maailma-ja-liike.md#reitti--reitti) | `reitti` | Näkymä | Maailma ja liike |
 | [Laattakartta](08-maailma-ja-liike.md#laattakartta-laatat) | `laatat` | Näkymä | Maailma ja liike |
+| [Yleispalikka](04-logiikkapalikat.md#yleispalikka-appi-appi-90) | `arvo`, `muisti` tai `kaava` + `yl` | Logiikka | Logiikkapalikat |
 | [Arvo](04-logiikkapalikat.md#arvo-arvo) | `arvo` | Logiikka | Logiikkapalikat |
 | [Muisti](04-logiikkapalikat.md#muisti-muisti) | `muisti` | Logiikka | Logiikkapalikat |
 | [Satunnaisluku](04-logiikkapalikat.md#satunnaisluku-satu) | `satu` | Logiikka | Logiikkapalikat |

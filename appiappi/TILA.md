@@ -1,12 +1,12 @@
 # Appi-appi: tila
 
-**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 19.10.2026 (Appi-appi 89: päätöspuun aloitusnappi ja Painike logiikan paletista)
+**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 19.10.2026 (Appi-appi 90: yleispalikka, jonon 37a; tallennusmuoto laajeni)
 
 Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- ja iPad-näkymät, maailma ja hahmon liike, myöhemmin vienti omaksi appiksi). Ristiriidoissa Kytköskartan logiikka voittaa. Suunnitelma: `SUUNNITELMA.md` ja `suunnitelmat/`; vanhempien vaiheiden päätökset `VERTAILU.md`. Toteutettujen versioiden yksityiskohdat, tallennuskentät ja kokeiluohjeet: `MUUTOKSET.md`.
 
 ## Valmiina
 
-- Appi-appi 0–89 ja Pajakone 1–4: versioittain `MUUTOKSET.md` (uusin ensin, myös kunkin version *Ei tarkistettu* ja *Kokeile koneella*). Käyttäjän näkökulmasta koko appi: `manuaali/`. Vanhat Valmiina-rivit: `TILA-arkisto.md`.
+- Appi-appi 0–90 ja Pajakone 1–4: versioittain `MUUTOKSET.md` (uusin ensin, myös kunkin version *Ei tarkistettu* ja *Kokeile koneella*). Käyttäjän näkökulmasta koko appi: `manuaali/`. Vanhat Valmiina-rivit: `TILA-arkisto.md`.
 - **Uusi versio** kirjataan vain `MUUTOKSET.md`:hen; tänne ei lisätä riviä.
 
 ## Jono
@@ -17,7 +17,6 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 **Haarat ja tarkistuspisteet (Emil 17.10.2026):** ⏸-merkitty kohta odottaa Emilin päätöstä. Jono ei pysähdy siihen: rakentaja tai vahti ilmoittaa Emilille ja jatkaa seuraavaan kohtaan, joka ei riipu odottavasta. Kohta, josta mikään jonossa ei riipu, on oma haaransa; Emil voi ottaa sen käsittelyyn milloin haluaa. Avoimista haaroista muistutetaan Emiliä säännöllisesti (ajastettu muistutus APPI-APPI-projektin ketjussa *Tilastot ja oppiminen*).
 
-37a. **Yleispalikka F45, vaihe 1** (Emil 19.10. jonon kärkeen; `suunnitelmat/29-yleispalikka.md` kohta 3; **tallennusmuoto laajenee**, valinnaiset `yl`, `ty`; työn alla, ketju *Yleispalikka*): logiikan paletin ylimpänä *Yleiset → Yleispalikka*; laji kirjoituksesta (Teksti, Arvo, Viite, Kaava, Ryhmä, Muisti), lajivalikossa vain sopivat, lukittu laji punaisena jos ei sovi; kirjoitusosa palikan kohdalla (laji, nimi, viite, kenttä, venytys sivulle ja alas); ryhmän kooste valikosta. Sisäisesti Arvo, Muisti tai Kaava (sama kohta `v`, nuolet säilyvät). Vanhat palikat ennallaan.
 37b. **Yleisikkuna F45, vaihe 2** (suunnitelma 29 kohta 4; ei tallennusmuotoa): *Yleiset → Yleisikkuna*, otsikon valikossa Tarkoitus (Ehto, JOS, KUN, Päätöspuu, Jäsenille, Riveille) ja Miten sisältö yhdistyy; väri tarkoituksen mukaan.
 37c. **Ryhmä ikkunan sisällä F45, vaihe 3** (suunnitelma 29 kohta 5): ryhmä-yleispalikan valinta *jokainen jäsen erikseen* tuo jäsenet ikkunan sisällöksi.
 37d. **⏸ Vanhat yleispalikoiksi** (kohta 6; Emilin kokeilun jälkeen). 37e. **⏸ Ketju ja Jana yleisikkunan tarkoituksiksi.** 37f. **⏸ Säätimet ja triggerit samalla periaatteella** (oma suunnitelma).
@@ -48,6 +47,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 - **Vain tällä laitteella valmis (Appi-appi 87, Emilin välikysymys 19.10., kaistat tauolla):** laitekohtainen tila (Asetukset tai osoite `?vainlaite`) estää kaiken GitHub-liikenteen selaimessa; projektikohtainen rasti Projektit-arkissa pitää yhden projektin ja sen laput poissa GitHubista. Ei kartoituslaskuriin (ei jonon kohta). Yksityiskohdat `MUUTOKSET.md`, käyttö `manuaali/09-tallennus.md`.
 - **Päätöspuun jatko (Appi-appi 89):** Alkaa aloitusnapista (*lopeta*-kohta), ＋ Aloitusnappi, logiikan paletin Painike suoraan puuhun ja näkymään.
 - **Päätöspuu valmis (Appi-appi 88, jonon 36, F44; Emil pyysi jonon kärkeen 19.10., kaistat tauolla; tallennusmuoto laajeni, versio pysyi 12):** Ikkunan tapa PÄÄTÖSPUU (siirtymät pisteestä ◦, ↔, silmukat, alussa näkyvät, sisempi ikkuna kysymyksenä, Valmis), pikaluonti sisennetystä tekstistä, Tab/Enter, Ikkunan *Sisältö myös joukosta* ja Alueen *Asettelu käytössä* (Allekkain/Ruudukko). Uusi ominaisuusryhmä aloitettiin ilman edeltävää kartoitusta Emilin pyynnöstä. Yksityiskohdat `MUUTOKSET.md`, käyttö `manuaali/04-logiikkapalikat.md#päätöspuu-appi-appi-88`.
+- **Yleispalikka valmis (Appi-appi 90, jonon 37a, F45; tallennusmuoto laajeni, versio pysyi 12):** logiikan paletin ylin *Yleiset → Yleispalikka*, laji kirjoituksesta, lajivalikko ja lukitus, kirjoitusosa palikan kohdalla. Seuraavaksi 37b Yleisikkuna. Yksityiskohdat `MUUTOKSET.md`, käyttö `manuaali/04-logiikkapalikat.md#yleispalikka-appi-appi-90`.
 - **Suunnitelma 29 (F45, 19.10.):** yleispalikka ja yleisikkuna, jonon 37a–37f; kartoitus suunnitelman kohdassa 1 korvaa uuden ominaisuusryhmän esikartoituksen.
 - **Linjakkuuskartoitukset:** viimeisin ja aiemmat luetellaan `PALIKKASAANNOT.md`:n lopussa; tehtyjen kartoitusten yhteenvedot `TILA-arkisto.md`:ssä.
 - **Koeapit (Appi-appi 23) toivat esiin:** tekstihaku (Appi-appi 30) ja taulukon `eka`/`vika` (Appi-appi 31) tehty. Ei jonossa: kapeassa kortissa Lukukentän omat −/+ peittävät luvun, joten C näyttää määrän Tekstinä.

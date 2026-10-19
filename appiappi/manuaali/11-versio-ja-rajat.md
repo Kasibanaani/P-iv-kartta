@@ -2,8 +2,8 @@
 
 ## Tarkistettu versio
 
-- **Appi:** Appi-appi 89, tallennusversio 12 (`VER`), repo `Kasibanaani/P-iv-kartta`, kansio `appiappi/`.
-- **Kirjoitettu:** 17.10.2026 koodista commitilla `77461d2` (Appi-appi 31). Sen jälkeen jokainen rakentaja on päivittänyt muuttuneet kohdat samassa työssä; versiokohtaiset tiedot ja mitä kussakin tarkistettiin ovat `appiappi/MUUTOKSET.md`:ssä. **Viimeksi tarkistettu:** Appi-appi 89 (19.10.2026, päätöspuun aloitusnappi ja Painike logiikan paletista), luvut 2 (resepti Päätöspuu pikaluonnilla), 4 (Päätöspuu) ja 10 (hakemistorivit).
+- **Appi:** Appi-appi 90, tallennusversio 12 (`VER`), repo `Kasibanaani/P-iv-kartta`, kansio `appiappi/`.
+- **Kirjoitettu:** 17.10.2026 koodista commitilla `77461d2` (Appi-appi 31). Sen jälkeen jokainen rakentaja on päivittänyt muuttuneet kohdat samassa työssä; versiokohtaiset tiedot ja mitä kussakin tarkistettiin ovat `appiappi/MUUTOKSET.md`:ssä. **Viimeksi tarkistettu:** Appi-appi 90 (19.10.2026), luvut 4 (Yleispalikka) ja 10 (hakemistorivit).
 - **Miten tarkistettiin:** jokainen luku on kirjoitettu lukemalla käyttöliittymän ja moottorin koodia (nimet suoraan koodin merkkijonoista) sekä testien kuvauksia. Kaavakielestä ajettiin noin 150 kaavaa moottorilla (Node), ja maailman ja liikkeen kaavanimet tarkistettiin samoin. Aloitusluvun esimerkki *Vesilasit* tehtiin vaihe vaiheelta oikeassa käyttöliittymässä (Chromium, 1440 px). Muiden lukujen reseptejä **ei ole ajettu** selaimessa: ne on koottu koodista.
 - **Ei tarkistettu oikealla iPhonella, iPadilla eikä Safarilla.** Puhelinkäyttö on kuvattu koodista ja testeistä, jotka ajavat kosketusta tietokoneen selaimessa 390 ja 320 px leveänä. Oikean laitteen tuntuma (sormella veto, näppäimistö, Safarin oma zoomaus) on varmistamatta.
 - Kohdat, joita kirjoittaja ei voinut varmistaa, on merkitty tekstiin ”(ei tarkistettu)”.
@@ -61,6 +61,7 @@ Kirjoittaessa löytyneet ristiriidat, puutteet ja yllätykset. Nämä eivät ole
 - JOS, KUN (ilman tapahtumanuolta), JOS-ikkuna ja nuoli arvosta tapahtumakohtaan eivät laukea, jos ehto on jo tosi heti alussa (avaus, uusi palikka). Tämä on koodin mukainen, mutta käyttäjälle ehkä yllättävää; paneelien ohjeteksteissä sitä ei mainita.
 - SUMMA-ikkuna laskee tekstin hiljaa nollaksi ja kyllän ykköseksi; Lasku taas antaa tekstistä tekstiliitoksen tai virheen. Ero ei näy paneelissa.
 - JA-ikkuna ilman sisältöä on *ei*, EI MIKÄÄN ilman sisältöä *kyllä*. Ei mainita paneelissa.
+- Yleispalikka (Appi-appi 90): pelkkä sana (`valmis`) on tekstiä, vaikka samanniminen viite olisi olemassa; viitteeksi se tulee `@`:lla. Kelvollinen lasku ilman `=`-merkkiä (`15 + 15`) on kaava kuten paneelin arvokentissä. Ketjun sisällä kirjoitusosa ei aukea palikan kohdalle (paneeli toimii). Ryhmälle *jokainen jäsen erikseen* ikkunassa ei vielä ole (jonon 37c).
 - Päätöspuu (Appi-appi 88): siirtymä vedetään pisteestä ◦ eikä pistokkeesta, ja ↔ on vain päätöspuussa (hyväksytty poikkeus, suunnitelma 28). Käytössä lista järjestyy palikoiden paikan mukaan (ylhäältä alas), ei siirtymien järjestyksen: järjestys muutetaan siirtämällä nappia muokatessa. Eri vaihtoehdosta eri suuntaan (siirtymä suoraan kysymyksen vaihtoehdosta) ei ole rakennettu.
 - Muutos ajassa: ei tarkistettu, lähteekö *valmis*, jos kulku loppuu appin ollessa kiinni (moottori huomaa sen todennäköisesti seuraavassa kuvassa avattaessa).
 - Avoimet kysymykset TILA.md:stä, jotka koskevat tätä lukua: pelkät sulut kaavassa (ei sallittu), KESKIARVO/SUURIN/PIENIN ohittavat tyhjät (vanhan projektin keskiarvo voi muuttua), kerroksen rullausvauhtia ja järjestystä ei voi ohjata, Kameralla vain zoomaus.
