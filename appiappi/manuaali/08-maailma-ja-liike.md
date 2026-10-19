@@ -463,6 +463,7 @@ Alue on näkymättömä suorakulmio tai ellipsi, joka tietää, kun liikkuva pal
   - **Muoto:** **Suorakulmio** tai **Ellipsi**.
   - **Ruutu kerrallaan:** **ei (koko alue)** tai kerroksen ruudukko (listassa vain kerrokset, joilla on ruudukko).
   - Rivi **Sisällä nyt** näyttää, kuka on sisällä.
+- **Asetukset, osio Asettelu käytössä** (Appi-appi 88): **Vapaa** (oletus), **Allekkain** tai **Ruudukko**. Allekkain ja Ruudukko asettavat käytössä Alueen sisällä olevat **näkyvät** palikat (keskipiste Alueen sisällä) ylhäältä alkaen siinä järjestyksessä kuin ne ovat muokatessa (ylhäältä alas, vasemmalta oikealle); Ruudukko täyttää rivin vasemmalta oikealle ja jatkaa seuraavalle. Piilossa oleva ei vie tilaa. **Leveys** (Allekkain): *Palikan oma* tai *Alueen levyinen*. **Väli (px)**, oletus 8. Muokatessa palikat ovat omilla paikoillaan. Tällä tehdään päätöspuun lista puhelimelle.
 - **Asetukset, osio Paikka ja koko:** X, Y, Leveys, Korkeus.
 - **Asetukset, osio Painovoima** (avattava): **Painovoima (px/s²)**, **Suunta**, **Ilmanvastus (%)**; ks. Painovoima ja maassa.
 - **Ominaisuudet:** `sisällä` (myös `sisalla`), `montako`, `napautettux`, `napautettuy`, `ruutux` ja `ruutuy` (vain Ruutu kerrallaan), `painovoima`, `suunta`, `ilmanvastus` (ohjattavia), `x`, `y`, `leveys`, `korkeus` (paikka ja koko ohjattavia).

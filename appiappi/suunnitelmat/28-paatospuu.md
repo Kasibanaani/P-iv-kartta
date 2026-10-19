@@ -1,6 +1,6 @@
 # F44 Päätöspuu: napit nuolilla, seuraava taso näkyviin
 
-19.10.2026. **Emilin ajatus** (viesti 19.10. klo 10.22 Suomen aikaa): logiikassa nopea tapa tehdä päätöspuu. Tekstipalikat ovat käyttäjäpuolella painettavia nappeja; nuoli tarkoittaa vain ”tämän painallus tuo näkyviin seuraavat”. Nuoli kiinni palikan kylkeen ilman pistokkeen etsimistä, mihin suuntaan tahansa tai molempiin, joten silmukat ja palaavat haarat onnistuvat ilman kopioita. Nuoli voi mennä myös sisempään ikkunaan, jossa on kysymys, vaihtoehdot ja asetus montako valitaan; kun valinta on tehty (tai *Valmis* painettu), puu etenee. Napit ovat tavallisia palikoita: tekstin tilalle viite, lisää logiikkaa vapaasti. Käyttäjätilassa (myös puhelimella) näkyvät napit asettuvat siististi listaksi itsestään. Tekoälyn jäsentämä suunnitelma. Merkinnät: *ehdotus* = tekoälyn suositus; ⏸ = odottaa Emilin päätöstä. **Ei hyväksytty, ei toteutettu.** [Hakemisto](../SUUNNITELMA.md), [aukot ja paikat](27-aukot-ja-paikat.md), [logiikasta näkymään](22-logiikasta-nakymaan.md).
+19.10.2026. **Emilin ajatus** (viesti 19.10. klo 10.22 Suomen aikaa): logiikassa nopea tapa tehdä päätöspuu. Tekstipalikat ovat käyttäjäpuolella painettavia nappeja; nuoli tarkoittaa vain ”tämän painallus tuo näkyviin seuraavat”. Nuoli kiinni palikan kylkeen ilman pistokkeen etsimistä, mihin suuntaan tahansa tai molempiin, joten silmukat ja palaavat haarat onnistuvat ilman kopioita. Nuoli voi mennä myös sisempään ikkunaan, jossa on kysymys, vaihtoehdot ja asetus montako valitaan; kun valinta on tehty (tai *Valmis* painettu), puu etenee. Napit ovat tavallisia palikoita: tekstin tilalle viite, lisää logiikkaa vapaasti. Käyttäjätilassa (myös puhelimella) näkyvät napit asettuvat siististi listaksi itsestään. Tekoälyn jäsentämä suunnitelma. Merkinnät: *ehdotus* = tekoälyn suositus; ⏸ = odottaa Emilin päätöstä. **Hyväksytty 19.10.2026 klo 11.01 Suomen aikaa (vaiheet 1–4, jonon kärkeen), toteutettu Appi-appi 88.** Toteuma ja poikkeamat: kohta 9 ja `MUUTOKSET.md`. [Hakemisto](../SUUNNITELMA.md), [aukot ja paikat](27-aukot-ja-paikat.md), [logiikasta näkymään](22-logiikasta-nakymaan.md).
 
 ## 1. Miten se toimii nyt (manuaalista tarkistettu, Appi-appi 86)
 
@@ -58,7 +58,7 @@ Ei uutta palikkaa. Ikkuna on jo yleinen sulku, jonka tapa valitaan (JA, TAI, VAI
 
 Vaihe 2 on hyödyllinen yksinään ja sopii ennen suunnitelman 27 vaihetta 2 (Aukko).
 
-## 8. Kysymykset ⏸
+## 8. Kysymykset (Emil vastasi 19.10.)
 
 1. **Nimi:** *Päätöspuu* (ehdotus; ikkunan tapana *PÄÄTÖSPUU*). Logiikassa *ikkuna* on oikea sana, koska kyse on Ikkunasta; suunnitelma 27 vältti sanaa vain näkymän puolella. *Pikaikkuna* ei kerro, mitä se tekee.
 2. **Edellinen taso:** piiloon ja polkurivi ylös (ehdotus) vai jää näkyviin harmaana?
@@ -66,9 +66,19 @@ Vaihe 2 on hyödyllinen yksinään ja sopii ennen suunnitelman 27 vaihetta 2 (Au
 4. **Asettelu Alueelle yleisenä** (ehdotus) vai vain päätöspuun Alueelle?
 5. Hyväksytäänkö vaiheet 1–4 jonoon (kohta 36)?
 
+**Vastaukset:** vaiheet hyväksytty ja jonon kärkeen. Emil kysyi, tarvitaanko tapaa ollenkaan, kun sisemmät JOS-ikkunat jo toimivat: ulompi ikkuna tarvitsee tavan (vain se tietää, mikä näkyy), sisemmät ovat tavallisia ikkunoita. Emilin lisäys: ikkunan sisällöksi joukko (`#ryhmä`), jonka jäsenet näkyvät omana rivinään ja ovat tasavertaisia sisään vedettyjen kanssa; tehty yleisenä Ikkunan valintana *Sisältö myös joukosta*. Kohdat 2–4: ehdotukset, paitsi polkuriviä ei tehty valmiiksi (Tekstillä `{nimi.polku}`).
+
+## 9. Toteuma (Appi-appi 88)
+
+- Kentät: `pus` (siirtymät), `pusa` (alussa näkyvät, valinnainen), `pual` (Alue uusille napeille), `sj` (joukko), Alueen `as`/`asl`/`asv`. Nimet eivät ole `sy`/`pal`, koska `sy` on jo syvyys (A13).
+- Kylkinuoli toteutui pisteenä ◦ jäsenen kulmassa: palikan veto siirtää palikkaa, joten veto ”mistä kohtaa tahansa” ei ollut mahdollinen. Pudotus mihin kohtaan tahansa kohdetta, ei valikkoa.
+- Alku: automaattinen sääntö ja paneelin *Alussa näkyvät*; pikaluonti valitsee ylimmän tason, jos silmukka vie johonkin niistä (muuten silmukka piilottaisi juuren).
+- Listan järjestys on palikoiden paikka (ylhäältä alas, vasemmalta oikealle), ei siirtymien järjestys: yksinkertaisempi ja sama kaikille Alueille.
+- Ei tehty: eri vaihtoehdosta eri suuntaan, valmis polkurivi.
+
 ## Linjakkuus
 
 - Uusi Ikkunan tapa, ei uusi palikka. Ikkunassa nuoli jäsenestä toiseen on jo erikoismerkityksinen (jäsen ei ole sisältöä), joten siirtymänuoli sopii samaan kohtaan.
-- **Poikkeus, Emilin hyväksyttävä (PALIKKASAANNOT):** kylkinuoli ja ↔ vain PÄÄTÖSPUU-ikkunassa. Perustelu: siellä nuolella on vain yksi merkitys.
+- **Poikkeus, Emil hyväksyi 19.10. (PALIKKASAANNOT):** siirtymäpiste ◦ ja ↔ vain PÄÄTÖSPUU-ikkunassa. Perustelu: siellä nuolella on vain yksi merkitys.
 - Alueen asettelu on yleinen palikan ominaisuus, ei päätöspuun erikoisuus.
 - Sanat: *Päätöspuu*, *siirtymä*, *vaihe*, *polku*. Ei sanaa *haara*, joka on jo Ehdon ja Monta haaraa -palikoiden sana.

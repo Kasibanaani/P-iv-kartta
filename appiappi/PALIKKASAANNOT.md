@@ -52,6 +52,8 @@ Tila: **ehdokas** = havaittu, arvioimatta; **arvioitu** = kartoitus pitää poik
 | Joukko (`pjoukko`) | Ei omaa viitettä (nimi on `#joukko`), yksi per joukko, kiinteät kohdat ja tapahtumat; kentissä sana `jäsen` | Joukon säännöt, ei oma arvo; jäsen-sana vastaa rivin sarakkeita Rivijoukossa (Appi-appi 62) | arvioitu ([kartoitus 9](kartoitukset/2026-10-18-linjakkuus-9.md) S8: poikkeukset Emilin hyväksymiä suunnitelmissa 21 ja 25, ✦ merkitty Appi-appi 62:ssa ilman erillistä päätöstä) |
 | Ryhmä (`ryhma`) | Ei arvoa, ei kohtia, ei tapahtumia eikä ominaisuuksia (A2, A4, A10). Vain ylimmällä tasolla tai toisessa ryhmässä. | Rakentajan merkintä kuten lappu: kokoaa ja nimeää, ei laske. Sisältö toimii kuin ryhmää ei olisi (Appi-appi 29, F30 kohta 5). | päätetty (suunnitelma 15, Emilin jonopäätös) |
 
+**Tavan poikkeus (ei erikoispalikka):** Ikkunan tapa PÄÄTÖSPUU (Appi-appi 88): siirtymät pisteestä ◦ ja ↔ eivät ole tavallisia nuolia (`b.pus`), ja ikkuna ohjaa jäsentensä näkyvyyttä. Syy: päätöspuussa nuolella on vain yksi merkitys, silmukat ilman kopioita (suunnitelma 28). Päätetty: Emil 19.10.2026.
+
 ## Suunnitelman kohta Linjakkuus
 
 Jokaisessa uudessa suunnitelmassa on lyhyt kohta: mitkä osan A säännöt koskevat työtä, mitkä ominaisuudet tulevat `omat`-rekisteriin, mitä tapahtumia sisään ja ulos, ja tuleeko uusi erikoispalikka tai poikkeus (jos tulee, rekisteririvi ehdotuksena). Pieni korjaus ei tarvitse tätä.

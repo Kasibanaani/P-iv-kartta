@@ -34,6 +34,9 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | antaa palikalle oman ruudukon, jonka ruutua napautetaan, johon törmätään tai pudotetaan (näppäimistö yhtenä kuvana, liikkuva lauta) | osio *Oma ruudukko*, tapahtuma *ruutu napautettu*, `tapahtuma.ruutux/ruutuy` | [Oma ruudukko](03-nakymapalikat.md#oma-ruudukko-osio-oma-ruudukko-appi-appi-86) |
 | kasvattaa laskuria | Muisti + toiminto Lisää | [Laskuri, joka muistaa](04-logiikkapalikat.md#4-laskuri-joka-muistaa) |
 | yhdistää monta ehtoa | Ikkuna (JA, TAI, VÄHINTÄÄN…) tai kaavassa `a ja b`, `a tai b` | [Ikkuna](04-logiikkapalikat.md#ikkuna-ikkuna) |
+| tehdä päätöspuun: napit, joista jokainen tuo näkyviin seuraavat (myös silmukat, kysymykset) | Ikkuna PÄÄTÖSPUU tai Pikaluonti → Päätöspuu… | [Päätöspuu](04-logiikkapalikat.md#päätöspuu-appi-appi-88), [resepti](02-tyoymparisto.md#päätöspuu-pikaluonnilla) |
+| ottaa joukon jäsenet ikkunan sisällöksi | Ikkunan *Sisältö myös joukosta* | [Ikkuna](04-logiikkapalikat.md#ikkuna-ikkuna) |
+| asettaa näkyvät palikat siististi listaksi, piilossa olevat ilman aukkoja | Alueen *Asettelu käytössä*: Allekkain tai Ruudukko | [Alue](08-maailma-ja-liike.md#alue--alue) |
 | tehdä jotain ehdon alkaessa päteä | JOS (NIIN-tapahtuma) tai KUN | [JOS](04-logiikkapalikat.md#jos-jos), [KUN](04-logiikkapalikat.md#kun-kun) |
 | odottaa ja tehdä vaiheittain | Ketju ja Ajastin | [Ketju](05-ketjut-ja-toiminnot.md#tapahtumaketju-ketju-ketju) |
 | tehdä asioita aikataulussa (0 s, 2 s, 5 s…) tai säätimen kohdissa | Jana: Toiminnot janalle kohtiinsa | [Jana](05-ketjut-ja-toiminnot.md#jana-jana) |

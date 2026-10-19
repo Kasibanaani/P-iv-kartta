@@ -404,8 +404,9 @@ Laukaisee tapahtuman *silloin* joko ehdon alkaessa päteä tai päästämällä 
 
 Sulku, joka yhdistää sisällään olevien palikoiden arvot yhdeksi tulokseksi: JA, TAI, laskettu summa ja muut. Ikkunoita voi laittaa sisäkkäin.
 
-- **Löytyy:** logiikan paletti → *Ikkunat*: **JA**, **TAI**, **VAIN YKSI**, **VÄHINTÄÄN**, **ENINTÄÄN**, **TÄSMÄLLEEN**, **EI MIKÄÄN**, **MONTAKO PÄTEE**, **SUMMA**, **KESKIARVO**, **SUURIN**, **PIENIN** sekä **JOS-ikkuna** ja **KUN-ikkuna** (JA-ikkuna valmiiksi jatkolla JOS tai KUN).
+- **Löytyy:** logiikan paletti → *Ikkunat*: **JA**, **TAI**, **VAIN YKSI**, **VÄHINTÄÄN**, **ENINTÄÄN**, **TÄSMÄLLEEN**, **EI MIKÄÄN**, **MONTAKO PÄTEE**, **SUMMA**, **KESKIARVO**, **SUURIN**, **PIENIN**, **PÄÄTÖSPUU** (Appi-appi 88, ks. alla) sekä **JOS-ikkuna** ja **KUN-ikkuna** (JA-ikkuna valmiiksi jatkolla JOS tai KUN).
 - **Sisältö:** vedä palikoita ikkunan sisään (hiirellä tai sormella), myös Kaava tai toinen ikkuna. Ikkunan sisältöä ovat ne sisällä olevat palikat, joilla on arvo ja joiden arvoa **ei** viedä nuolella toiseen saman ikkunan palikkaan. Esim. Säädin → Vertailu ≤ 3 ikkunan sisällä: vain vertailun tulos lasketaan. KUN-palikat ja ketjun palikat eivät ole sisältöä. Käänteinen (EI) -valinta kääntää jäsenen arvon.
+- **Sisältö myös joukosta** (Appi-appi 88, paneeli, näkyy kun projektissa on joukkoja): joukon `#nimi` jäsenet ovat ikkunan sisältöä kuten sisään vedetyt palikat, myös myöhemmin joukkoon lisätyt. Ikkunan alareunassa näkyy rivi *Sisältö myös #nimi (n)*. Sisään vedetty palikka ja joukon jäsen ovat tasavertaisia; sama palikka lasketaan kerran. VAIN YKSI + *valinta poistaa muut* koskee myös joukon jäseniä. Ei Riveille-, Jäsenille- eikä PÄÄTÖSPUU-ikkunassa.
 - **Sisään:** *mukaan* (arvo, piilossa kunnes nuoli tulee; monta nuolta sallittu, tuo arvoja ikkunan ulkopuolelta). KUN-jatkolla *tapahtuma*. Riveille-valinnalla *rivit*, Jäsenille-valinnalla *jäsenet* (Appi-appi 63; ks. luku [Tieto](07-tieto.md#ikkuna-jäsenille-appi-appi-63)).
 - **Ulos:** *tulos* (arvo). JOS-jatkolla *NIIN* ja valinnaisesti *MUUTEN* (tapahtumia). KUN-jatkolla *läpi* (tapahtuma).
 - **Asetukset (paneeli):** **Miten sisältö yhdistyy** (tavat alla). **Montako** (VÄHINTÄÄN, ENINTÄÄN, TÄSMÄLLEEN; oletus 1). **Toimii myös**: *pelkkänä tuloksena* / *JOS: tapahtumat NIIN ja MUUTEN* / *KUN: päästää tapahtuman läpi*. VAIN YKSI -tavalla **Käytössä valinta poistaa ikkunan muut valinnat**. Jatkon kanssa **Käytössä**, JOS-jatkolla **MUUTEN-haara**. Kun projektissa on Tietotaulukko: **Riveille: sisältö lasketaan jokaisella rivillä**. Palikan alla valinta **Tiivistetty: sisältö piiloon, ikkuna pieneksi** (myös ikkunan –-napista).
@@ -424,6 +425,7 @@ Sulku, joka yhdistää sisällään olevien palikoiden arvot yhdeksi tulokseksi:
 | KESKIARVO | keskiarvo, tyhjät ohitetaan |
 | SUURIN | suurin luku, tyhjät ohitetaan |
 | PIENIN | pienin luku, tyhjät ohitetaan |
+| PÄÄTÖSPUU | nykyisen vaiheen nimi (ks. Päätöspuu) |
 
 - **Jatko JOS:** NIIN lähtee, kun tulos alkaa päteä, MUUTEN kun se lakkaa (kuten JOS-palikka). Osiot *NIIN* ja *MUUTEN* ja **＋ Lisää toiminto…**.
 - **Jatko KUN:** tapahtuma kohtaan *tapahtuma* pääsee läpi (*läpi*) vain, jos ikkunan tulos pätee juuri silloin. Osio *Läpi*.
@@ -432,6 +434,26 @@ Sulku, joka yhdistää sisällään olevien palikoiden arvot yhdeksi tulokseksi:
 - **Kaavassa:** `valinnat.pätee >= 2`.
 - **Esimerkki:** ks. resepti *Kolmesta valintaruudusta vähintään kaksi*.
 - **Huomio:** SUMMA laskee kyllä-arvon yhdeksi ja tekstin nollaksi. KESKIARVO, SUURIN ja PIENIN laskevat kyllä/ei-arvot lukuina 1/0. Ennätys tehdään Muistilla: Muisti ja uusi tulos SUURIN-ikkunaan, ja Aseta arvo vie tuloksen takaisin Muistiin. Näkymä-paletin *Pikaluonti* → **Vaihtoehtoryhmä…** tekee napit näkymään ja niille ikkunan logiikkaan (VAIN YKSI -tavalla valinnat poistavat toisensa).
+
+### Päätöspuu (Appi-appi 88)
+
+Ikkunan tapa **PÄÄTÖSPUU**: napit, joista jokainen tuo näkyviin seuraavat. Suunnitelma 28 (F44).
+
+- **Löytyy:** logiikan paletti → *Ikkunat* → **PÄÄTÖSPUU**, tai näkymän tai logiikan paletti → *Pikaluonti* → **Päätöspuu…** (ks. resepti luvussa [Työympäristö](02-tyoymparisto.md#päätöspuu-pikaluonnilla)).
+- **Jäsenet:** ikkunan suoraan sisällä olevat näkymäpalikat (Painike, Muoto, Teksti, Valintaruutu…) ja sisemmät ikkunat. Alue ja Sijainti eivät ole jäseniä. Jäsenet ovat tavallisia palikoita: teksti, `{viite}`, kaava ja muu logiikka toimivat kuten aina.
+- **Siirtymä:** jäsenen oikeassa yläkulmassa on piste ◦. Vedä siitä toisen saman päätöspuun palikan päälle (mihin kohtaan tahansa): syntyy sininen nuoli. Nuolen napautus avaa valikon: **→ Yhteen suuntaan**, **↔ Molempiin suuntiin**, **⇄ Käännä suunta**, **Poista siirtymä**. Silmukka ja paluu ovat pelkkiä nuolia. Tavalliset nuolet (pistokkeista) toimivat jäsenillä kuten ennenkin.
+- **Mitä näkyy käytössä:** alussa *Alussa näkyvät* -jäsenet; jäsenen napautuksen jälkeen ne, joihin siitä vie siirtymä (↔ myös takaisin päin); jos siirtymiä ei ole eteenpäin (loppu), napautettu itse. Muut jäsenet ovat piilossa. Jäsenen oma *näkyy kun* pätee lisäksi (molempien pitää päteä). Muokatessa kaikki jäsenet näkyvät, piilossa olevat himmeinä.
+- **Alussa näkyvät:** oletuksena automaattisesti jäsenet, joihin ei tule siirtymää (jos kaikkiin tulee, ensimmäinen). Paneelissa jäsenet napeiksi: napautus ottaa mukaan tai pois (✓), **Automaattisesti** palauttaa oletuksen. Pikaluonti valitsee ylimmän tason napit itse, jos silmukka vie johonkin niistä.
+- **Napautettava jäsen:** Painike, napautettava Muoto tai Teksti. Pohjaan jäävä painike tai valintaruutu etenee, kun sitä painetaan.
+- **Sisempi ikkuna kysymyksenä:** siirtymä sisempään ikkunaan näyttää koko ikkunan sisällön. VAIN YKSI ja TÄSMÄLLEEN etenevät itse, kun tulos alkaa päteä. Muilla tavoilla (VÄHINTÄÄN, ENINTÄÄN, JA…) etenee ikkunan **kertapainallus-Painike** (Valmis), joka on harmaana, kunnes tulos pätee. Sisemmän ikkunan Teksti (kysymys) ja Valmis eivät ole vaihtoehtoja. Siirtymä sisemmästä ikkunasta seuraavaan jäseneen jatkaa puuta. Paneelin **＋ Kysymys (valitse yksi)** ja **＋ Kysymys (valitse monta)** tekevät valmiin ikkunan (kysymys, kolme vaihtoehtoa, monessa Valmis).
+- **Nopeasti logiikassa:** ikkunan otsikon **＋** tai paneelin **＋ Nappi** tekee Painikkeen (näkymään päätöspuun Alueelle ja logiikkaan) ja avaa tekstikentän. Valittu jäsen: **Tab** tekee seuraavan tason napin (siirtymä valmiina), **Enter** rinnakkaisen. Tekstikentässä Enter ja Tab jatkavat samalla tavalla, Esc lopettaa (tyhjä uusi poistuu). Kaksoisnapautus jäseneen muuttaa tekstiä.
+- **Sisään:** *alkuun* ja *takaisin* (tapahtumia: palaa alkuun / edelliseen vaiheeseen).
+- **Ulos:** *vaihe* (nykyisen jäsenen nimi; sisemmästä ikkunasta valitut pilkuin), *polku* (kuljetut, esim. `Väsynyt › Lepää`), tapahtumat *valittu* (jokainen eteneminen, `tapahtuma.valinta`) ja *loppu* (jäsen, josta ei ole siirtymää eteenpäin).
+- **Asetukset (paneeli):** tilannerivi (jäsenet, siirtymät, näkyvissä, polku), **＋ Nappi**, **＋ Kysymys…**, **↺ Alkuun nyt**, *Alussa näkyvät*, **Uudet napit Alueelle** (minne uudet napit tehdään), **Käytössä**. Osiot *Kun valitaan* ja *Lopussa* (**＋ Lisää toiminto…**).
+- **Ominaisuudet:** `arvo` ja `vaihe` (nykyisen nimi), `polku`, `askelia` (montako valintaa), `käytössä` (ohjattava).
+- **Kaavassa:** `mitäteen.askelia > 0` (esim. Takaisin-napin näkyy kun), `mitäteen = "Lepää"`.
+- **Aika ja tila:** vaihe ja polku ovat käyttötietoa kuten Muisti: ne säilyvät tallennuksessa ja nollautuvat *Tyhjennä käyttötiedot* -napista. Polku muistaa enintään 200 askelta. Poistettu nykyinen jäsen = alussa.
+- **Huomio:** pois käytöstä (*Käytössä* pois) päätöspuu ei piilota mitään eikä etene. Jäsen voi olla vain yhden päätöspuun suora jäsen. Käytössä siisti lista syntyy Alueen asettelulla (*Allekkain*, luku [Maailma ja liike](08-maailma-ja-liike.md#alue--alue)); pikaluonti tekee sellaisen valmiiksi.
 
 ## Ryhmä ✦ (`ryhma`)
 

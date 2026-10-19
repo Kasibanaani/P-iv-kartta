@@ -600,6 +600,24 @@ Puhelimella samoin: **＋ Palikat** avaa paletin, veto sormella. Nuolen poisto: 
 3. *Miten valitaan*: Valitse yksi. *Palikka*: Painike. *Asettelu*: Allekkain. Paina **Luo**.
 4. Näkymään tulee otsikko ja kolme painiketta, logiikkaan VAIN YKSI -ikkuna ja pisteiden SUMMA-ikkuna. Pisteet saa tekstiin viitteellä (katso SUMMA-ikkunan viite sen kulmasta), esim. `{mielialapisteet}` (viite muodostuu nimestä ”Mieliala: pisteet”).
 
+### Päätöspuu pikaluonnilla
+
+1. **Näkymä**- tai **Logiikka**-välilehti. Paletin ryhmästä *Pikaluonti* napauta **Päätöspuu…**.
+2. *Nimi*: Mitä teen. *Napit* riveittäin, sisennys (välilyönnit tai sarkain) = mitä seuraa, kun nappia painetaan:
+   ```
+   Väsynyt
+     Lepää
+     Kävely
+   Pirteä
+     Treeni
+       -> Väsynyt
+   ```
+   `-> Teksti` vie jo tehtyyn nappiin (silmukka tai paluu). Napin tekstissä voi olla viite, esim. `{uni} h`.
+3. Jätä päälle *Takaisin- ja Alkuun-painikkeet*. Paina **Luo**.
+4. Näkymään tulee Alue (*Allekkain*, napit Alueen levyisinä) ja napit, logiikkaan PÄÄTÖSPUU-ikkuna siirtymineen sekä Takaisin- ja Alkuun-napit, jotka näkyvät, kun jotain on valittu.
+5. **Lukitse** ja napauta *Pirteä*: tilalle tulevat *Treeni*, *Takaisin* ja *Alkuun* ylhäältä alkaen. *Treeni* vie silmukassa *Väsyneeseen*.
+6. Lisää nappeja logiikassa: valitse nappi ja paina **Tab** (seuraava taso) tai **Enter** (rinnakkainen), kirjoita teksti.
+
 ### Viestilappu tekoälylle palikasta
 
 1. Avaa osio, jota viesti koskee (esim. Logiikka).
