@@ -1,12 +1,12 @@
 # Appi-appi: tila
 
-**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 19.10.2026 (linjakkuuskartoitus 13, Appi-appi 94; manuaali koottu)
+**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 19.10.2026 (Appi-appi 95: logiikan Näkymässä-osio, pistokkeet oletuksena osoitettaessa; ei tallennusmuotoa)
 
 Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- ja iPad-näkymät, maailma ja hahmon liike, myöhemmin vienti omaksi appiksi). Ristiriidoissa Kytköskartan logiikka voittaa. Suunnitelma: `SUUNNITELMA.md` ja `suunnitelmat/`; vanhempien vaiheiden päätökset `VERTAILU.md`. Toteutettujen versioiden yksityiskohdat, tallennuskentät ja kokeiluohjeet: `MUUTOKSET.md`.
 
 ## Valmiina
 
-- Appi-appi 0–94 ja Pajakone 1–4: versioittain `MUUTOKSET.md` (uusin ensin, myös kunkin version *Ei tarkistettu* ja *Kokeile koneella*). Käyttäjän näkökulmasta koko appi: `manuaali/`. Vanhat Valmiina-rivit: `TILA-arkisto.md`.
+- Appi-appi 0–95 ja Pajakone 1–4: versioittain `MUUTOKSET.md` (uusin ensin, myös kunkin version *Ei tarkistettu* ja *Kokeile koneella*). Käyttäjän näkökulmasta koko appi: `manuaali/`. Vanhat Valmiina-rivit: `TILA-arkisto.md`.
 - **Uusi versio** kirjataan vain `MUUTOKSET.md`:hen; tänne ei lisätä riviä.
 
 ## Jono
@@ -36,14 +36,13 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 30.–33. **Lähtölukemisen karsinnat tehty 18.10.** (TILA laihaksi, manuaalin otsikkokartta `kartta.py -m`, kohdennetut testit `aja.sh <sana…>`, testitulosteen tiivistys; ei appin koodia): raportti `kartoitukset/2026-10-18-lahtolukeminen.md`, ohjeet `AGENTS.md`:ssä ja `testit/README.md`:ssä. Kartoitus 12 tiivisti nämä yhdeksi riviksi.
 34. **⏸ Kartoituksen luku kohdennetuksi** (sama mittaus; odottaa Emilin päätöstä, koska muuttaa `PALIKKASAANNOT.md`:n lukujärjestystä): linjakkuuskartoitus lukee manuaalista vain edellisen kartoituksen jälkeen muuttuneen (`git diff`), koko manuaalin joka kolmas kerta tai kokonaiskatselmuksessa. Säästö ~85 000 tokenia kahdessa kartoituksessa kolmesta; riski, että kokonaislinja nähdään harvemmin.
 35. **Viedyistä jääneet jatkot** (koottu kartoituksessa 12 `MUUTOKSET.md`:n *Ei tehty* -riveistä; tekoälyn kirjaus, ei kiire, ei järjestystä, kukin oma pieni työnsä): (a) Appi-appi 82: tasolta hypätessä tason vauhti hyppyyn, katon ja nousevan tason väliin jäävän litistys; (b) 78: *Säilytä näkyvä koko* palikan omalle syvyydelle, toistimen korttien järjestys syvyyden mukaan; (c) 76/78: keveysmittaus kolmella syvyyskerroksella (`mittaa_keveys.py`); (d) 79: piilotetun lapun uusi vastaus tuo lapun esiin; (e) 83: Monta haaraa- ja Hakutaulukko-rivien rajat ja tulokset kaavoiksi (nyt mallipohjia; liittyy 26:n S3:een, ⏸ Emil). (f) 93: vanhat `#ryhmät` (joukot ilman palikkaa) ryhmäpalikoiksi `repair`issa (suunnitelma 29 kohta 9, **tallennusmuodon muutos**; kartoitus 13).
-38. **⏸ Näkymän palikat logiikassa oletuksena** (Emilin toive 19.10., ehdotus `suunnitelmat/28-paatospuu.md` kohta 10; odottaa Emilin valintaa): näkymän palikoilla, joilla ei ole esiintymää logiikassa, olisi oma sarake logiikan reunassa, josta ne vedetään käyttöön. Lisäksi kysymys: uusiin projekteihin *Pistokkeet piilossa* oletukseksi.
 39. **⏸ Yksi sana ryhmälle** (kartoitus 13, Emilin päätös): *joukko* (Tunnus, Joukko-palikka, Lisää joukkoon) ja *ryhmä* (yleispalikka, Ryhmän ikkuna) ovat sama asia, ja vanha Ryhmä-palikka ✦ on kolmas. Tekoälyn suositus: käyttöliittymässä *ryhmä* kaikkialla, vanha Ryhmä-palikka uudelle nimelle (esim. *Kehys*), Joukko-palikka *Ryhmän säännöt*; tallennuskentät ennallaan.
 
 ## Seuraavaksi
 
-- **Uusin vienti:** Appi-appi 94 (ryhmän ikkuna, jonon 37c; 87–94 tehtiin kaistojen tauolla Emilin kärkipyynnöistä). Versiot ja kokeiluohjeet vain `MUUTOKSET.md`:ssä; tähän vain uusin vienti ja laskuri (korvaa edellinen).
+- **Uusin vienti:** Appi-appi 95 (logiikan Näkymässä-osio paletin ylimpänä ja pistokkeet piilossa, kunnes osoitetaan; jonon 38, Emil hyväksyi 19.10.). Kartoituslaskuri 1/10. Versiot ja kokeiluohjeet vain `MUUTOKSET.md`:ssä; tähän vain uusin vienti ja laskuri (korvaa edellinen).
 - **Linjakkuuskartoitus 13 tehty 19.10.** (85–94, `kartoitukset/2026-10-19-linjakkuus-13.md`): linja pitää 85–91:ssä; ryhmien saumat (93–94) korjataan jonon 1x:ssä (kaista A). Manuaali päivitetty ensimmäistä kertaa *Manuaaliin:*-riveistä (91–94). Kartoituslaskuri 0/10.
-- **Seuraavaksi:** kaista A 1x, sitten kamerajatko (jonon 21, sivuhaara); kaista B seuraava vapaa kohta. 37d–f ja 38–39 odottavat Emiliä.
+- **Seuraavaksi:** kaista A 1x, sitten kamerajatko (jonon 21, sivuhaara); kaista B seuraava vapaa kohta. 37d–f ja 39 odottavat Emiliä.
 - **Linjakkuuskartoitukset:** viimeisin ja aiemmat luetellaan `PALIKKASAANNOT.md`:n lopussa; tehtyjen kartoitusten yhteenvedot `TILA-arkisto.md`:ssä.
 - **Koeapit (Appi-appi 23) toivat esiin:** tekstihaku (Appi-appi 30) ja taulukon `eka`/`vika` (Appi-appi 31) tehty. Ei jonossa: kapeassa kortissa Lukukentän omat −/+ peittävät luvun, joten C näyttää määrän Tekstinä.
 - Järjestys: Jono yllä. Kokonaiskuva ja loput paketit (P4–P7): `SUUNNITELMA.md`.

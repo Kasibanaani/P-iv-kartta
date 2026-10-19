@@ -11,6 +11,10 @@ var ika=blk(P,'muisti',{nm:'Ikä',v:'40'});KK.repair(P);
 
 // Pistokkeet: oletuksena näkyvät; yleinen piilotus; palikan oma voittaa kumpaankin suuntaan
 A.strictEqual(KK.pinsHidden(P,hyva.n),false,'oletus: näkyvät');
+// Appi-appi 95: oletus = osoitettaessa (pinsHover), 'n' = aina, 'h' = piilossa; palikan oma valinta ohittaa
+A.strictEqual(KK.pinsHover(P,hyva.n),true,'oletus: osoitettaessa');P.lg.pin='n';A.strictEqual(KK.pinsHover(P,hyva.n),false,'aina');
+KK.repair(P);A.strictEqual(P.lg.pin,'n','aina säilyy korjauksessa');P.lg.pin='h';A.strictEqual(KK.pinsHover(P,hyva.n),false);delete P.lg.pin;
+hyva.b.lpin='n';A.strictEqual(KK.pinsHover(P,hyva.n),false,'oma valinta ohittaa oletuksen');delete hyva.b.lpin;
 P.lg.pin='h';A.strictEqual(KK.pinsHidden(P,hyva.n),true,'yleinen piilotus');
 hyva.b.lpin='n';A.strictEqual(KK.pinsHidden(P,hyva.n),false,'oma näkyvät voittaa yleisen piilotuksen');
 delete P.lg.pin;uni.b.lpin='h';A.strictEqual(KK.pinsHidden(P,uni.n),true,'oma piilossa voittaa yleisen');

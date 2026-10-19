@@ -44,14 +44,24 @@ async def main():
             async def kc():
                 r=await pg.locator(K+' .lb').bounding_box();return (r['x']+r['width']/2,r['y']+r['height']/2)
             async def refs():return await pg.evaluate("document.querySelectorAll('#lsvg path.lk.ref').length")
-            # 1 pistokkeet näkyvät, valinta kulmassa
-            assert await pg.locator('#lviewc [data-lview="pin"]').inner_text()=='Pistokkeet: näkyvät'
-            assert await pg.locator(K+' .pins.o .pt').count()==1
+            # 1 oletus (Appi-appi 95): pistokkeet osoitettaessa; valittuna tai hiiren alla näkyvät
+            assert await pg.locator('#lviewc [data-lview="pin"]').inner_text()=='Pistokkeet: osoitettaessa'
+            assert await pg.locator(K+' .pins.o .pt').count()==1 and 'pho' in (await pg.locator(K).get_attribute('class'))
+            if not mob:
+                await pg.mouse.move(5,5);await pg.wait_for_timeout(250)
+                op0=float(await pg.evaluate("getComputedStyle(document.querySelector('%s>.pins.o')).opacity"%K));assert op0==0,op0
+                kb=await pg.locator(K+' .lb').bounding_box();await pg.mouse.move(kb['x']+kb['width']/2,kb['y']+kb['height']/2);await pg.wait_for_timeout(250)
+                op1=float(await pg.evaluate("getComputedStyle(document.querySelector('%s>.pins.o')).opacity"%K));assert op1==1,op1
+                print(W,'1 osoitettaessa:',op0,op1);await pg.mouse.move(5,5)
+            await tap('#lviewc [data-lview="pin"]');await tap('#lviewc [data-lview="pin"]')
+            assert await pg.evaluate("APP.P.lg.pin")=='n' and await pg.locator('#lviewc [data-lview="pin"]').inner_text()=='Pistokkeet: aina'
+            assert 'pho' not in (await pg.locator(K).get_attribute('class')) and 'nopin' not in (await pg.locator(K).get_attribute('class'))
+            await tap('#lviewc [data-lview="pin"]');assert await pg.evaluate("APP.P.lg.pin")==None
             await pg.screenshot(path='appiappi27_nakyvat_%d.png'%W)
             # 2 piiloon: valinta korostuu, nuoli himmeä, pistoke ei osu
             await tap('#lviewc [data-lview="pin"]')
             assert await pg.evaluate("APP.P.lg.pin")=='h'
-            pb=pg.locator('#lviewc [data-lview="pin"]');assert await pb.inner_text()=='Pistokkeet piilossa' and 'on' in (await pb.get_attribute('class'))
+            pb=pg.locator('#lviewc [data-lview="pin"]');assert await pb.inner_text()=='Pistokkeet: piilossa' and 'on' in (await pb.get_attribute('class'))
             assert 'nopin' in (await pg.locator(K).get_attribute('class'))
             assert await pg.evaluate("document.querySelectorAll('#lsvg path.lk.hp').length")==1,'nuoli himmeänä'
             op=float(await pg.evaluate("getComputedStyle(document.querySelector('#lsvg path.lk.hp')).opacity"));assert op<0.5,op
@@ -72,7 +82,7 @@ async def main():
             await pg.screenshot(path='appiappi27_viitteet_%d.png'%W)
             await tap('#lviewc [data-lview="vit"]');assert await pg.evaluate("APP.P.lg.vit")=='ei' and await refs()==0
             await tap('#lviewc [data-lview="vit"]');assert await pg.evaluate("APP.P.lg.vit")==None
-            await tap('#lviewc [data-lview="pin"]');assert await pg.evaluate("APP.P.lg.pin")==None
+            await pg.evaluate("APP.P.lg.pin='n';APP.renderAll()");await tap('#lviewc [data-lview="pin"]');assert await pg.evaluate("APP.P.lg.pin")==None
             # 5 venytys kulmasta (valittuna kulma näkyy)
             c=await kc();await tapxy(*c)
             r=await pg.locator(K+' .rs').bounding_box();w0=(await pg.locator(K).bounding_box())['width']
