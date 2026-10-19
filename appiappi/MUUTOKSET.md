@@ -4,6 +4,17 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
 
 ## Versiot
 
+- Appi-appi 91 (19.10., jonon 37b, F45, suunnitelma 29 kohta 4; ei tallennusmuotoa): **Yleisikkuna.**
+  - Logiikan paletin *Yleiset* → **Yleisikkuna** (Ikkuna `m:'and'`; paletin `yl`-lippu poistetaan luonnissa, vain vihjettä varten).
+  - Ikkunan otsikon valikko (`winMenu`, ennen pelkkä *Miten sisältö yhdistyy*): **Tarkoitus** (`WTARK`: Tulos = ei `j`; JOS `j:'jos'`; KUN `j:'kun'`; Päätöspuu `m:'puu'`, poistaa `j`, `riv`, `jas`; puusta muuhun `m:'and'`), **Miten sisältö yhdistyy** (WM ilman PÄÄTÖSPUUta; ei näy päätöspuulla), **Laske jokaiselle** (Riveille `riv`, Jäsenille `jas`, kun taulukko tai joukko on). Kaikki entisiä kenttiä; `repairL` siivoaa nuolet, jotka eivät enää sovi (kuten paneelin *Toimii myös* -valinnassa).
+  - Väri tarkoituksen mukaan: `.lw.j-kun` punainen (`--h1`), `.lw.j-jos` turkoosi (`--h5`), päätöspuu sininen kuten ennen.
+  - Testi: `selain_129_yleisikkuna.py` (1440 ja 1280: paletti, valikon osat, KUN/päätöspuu/JOS/tulos, SUMMA, Jäsenille päälle ja pois, värit, yleisikkuna toisen sisään, kaksi ryhmä-yleispalikkaa SUMMA-ikkunassa = summien summa).
+  - Manuaaliin: luku 4 *Ikkuna*: lisää kohta *Yleisikkuna (Appi-appi 91)*: paletin Yleiset → Yleisikkuna; otsikon ▾-valikossa Tarkoitus (Tulos, JOS, KUN, Päätöspuu), Miten sisältö yhdistyy, Laske jokaiselle (Riveille, Jäsenille); värit KUN punainen, JOS turkoosi, päätöspuu sininen; samat valinnat kuin paneelissa. Luku 4 *Yleispalikka*: lisää esimerkki ”kaksi ryhmä-yleispalikkaa (`#a.summa`, `#b.summa`) SUMMA-ikkunassa = summien summa”. Hakemisto: tehtävärivi ”valita ikkunan tarkoitus sen omasta valikosta” ja palikkarivi Yleisikkuna (`ikkuna`). Luku 11: versio 91.
+  - Ei tehty: Ketju ja Jana tarkoituksiksi (37e ⏸), ryhmä jokainen jäsen erikseen (37c, odottaa Emilin kokeilua).
+  - Ei tarkistettu: oikea iPhone/Safari.
+  - Kokeile koneella (Chromium): Logiikka → *Yleiset* → **Yleisikkuna**. Napauta otsikon ▾: valitse Tarkoitus KUN (ikkuna punaiseksi), sitten JOS ja SUMMA. Vedä toinen Yleisikkuna ensimmäisen sisään ja sinne kaksi yleispalikkaa `#ryhmä.summa`.
+  - Ristikokeilu: rakennettu 90:n päälle; päätöspuu (88–89) valitaan nyt myös tarkoituksena ja `selain_127_paatospuu` ajettiin koko sarjassa.
+
 - Appi-appi 90 (19.10., jonon 37a, F45, suunnitelma 29; Emil pyysi jonon kärkeen; **tallennusmuoto laajeni**, versio pysyi 12): **Yleispalikka.**
   - Ei uutta lajia: yleispalikka on `arvo`, `muisti` tai `kaava`, jolla `b.yl = 1`; `b.ty` = lukittu laji (`teksti|arvo|viite|kaava|ryhma|muisti`), `b.yer` = miksi lukittu laji ei sovi (arviointi palauttaa `ERR(b.yer)`). Kaikilla kolmella sama ulostulo `v`, joten laji vaihtuu nuolten katkeamatta. Vanha appi näkee tavallisen Arvon, Muistin tai Kaavan.
   - Moottori: `ylLajit` (sopivat lajit, ensimmäinen oletus: `=` alussa → kaava; `#ryhmä(.kooste)` → ryhmä; `@viite(.polku)` → viite; luku/pvm/kyllä → arvo; kelvollinen kaava → kaava; pelkkä sana → teksti; muu → teksti), `ylAseta` (tallennus: teksti ja arvo `v`-mallipohjana, teksti-lukko luvulle kaavana `"15"`, muisti `v`, muut `f`; Muistin `P.st` poistuu lajin vaihtuessa), `ylTeksti`, `ylLaji`, `ylRyhma`/`ylKooste` (kooste kaavan päätteenä `{%j}.summa`). `repair` poistaa `yl`/`ty`/`yer` muilta lajeilta ja tuntemattoman `ty`:n.
