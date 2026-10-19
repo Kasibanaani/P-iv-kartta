@@ -169,13 +169,14 @@ Paletti näyttää vain sen puolen palikat, joka on auki: Näkymä-välilehdell�
 
 | Ryhmä | Sisältö |
 |---|---|
+| Yleiset (ylimpänä, Appi-appi 90–91) | [Yleispalikka](04-logiikkapalikat.md#yleispalikka-appi-appi-90), [Yleisikkuna](04-logiikkapalikat.md#yleisikkuna-appi-appi-91) |
 | Palikat | hakukenttä *Etsi nimellä…* ja lista projektin näkymäpalikoista ja nimetyistä logiikkapalikoista (ks. alla) |
 | Kaava | Kaava, Kaavan tulos |
 | Arvot | Arvo, Muisti, Satunnaisluku, Käyrä, Tänään, Päivämäärän osa |
 | Tieto | Tietotaulukko, Tapahtuman tiedot, Rivi, Rivijoukko, Joukko (⁂, [Joukko-palikka](07-tieto.md#joukko-palikka-pjoukko-appi-appi-62)) ja työkalu **Tulkki…** (teksti, Excelin solut tai CSV taulukon riveiksi tai palikoiksi; ks. [Tulkki](07-tieto.md#tulkki-teksti-riveiksi-tai-palikoiksi)) |
 | Laskut | laskumerkit |
 | Vertailut | vertailumerkit |
-| Ikkunat | JA, TAI ja muut ikkunat, JOS-ikkuna, KUN-ikkuna; alaryhmä *Järjestys*: Ryhmä |
+| Ikkunat | JA, TAI ja muut ikkunat, PÄÄTÖSPUU, Painike (Appi-appi 89), JOS-ikkuna, KUN-ikkuna; alaryhmä *Järjestys*: Ryhmä |
 | Ketju | Ketju; alaryhmät *Odotus* (Ajastin, Odota, kunnes), *Haarat* (Ehto, Monta haaraa, Arpa, Toista), *Tekemiset* (Aseta arvo, Aseta tila, Käynnistä ketju, Pysäytä ketju, Ketjun tulos, Lopeta ketju) ja projektin ketjujen lista |
 | Ehdot | JOS, VALITSE, KUN, Hakutaulukko |
 | Liike ja aika | Muutos ajassa, Liike, Sekuntikello, Peliohjain |

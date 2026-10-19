@@ -4,6 +4,11 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
 
 ## Versiot
 
+- Linjakkuuskartoitus 13 (19.10., Appi-appi 85–94; ei versiota, ei sovelluskoodia): raportti `kartoitukset/2026-10-19-linjakkuus-13.md`.
+  - Löydökset: ryhmien saumat 93–94 (S1 sama ryhmä antaa kolme lukua, kun jäsenyys tulee toiminnosta tai säännöstä; S2 ryhmän ikkuna laskee käsin vedetyn jäsenen kahdesti; S3 vanha 90–92-yleispalikka muuttuu avaamalla ja vahvistamalla; S4 Tunnus- ja Sisältö-kentän `@koira` vastakkaisissa merkityksissä; S5 nimi itsestään puuttuu; S6 TILA tiivistetty). Korjaukset jonon 1x:ään (kaista A), vanhat #ryhmät palikoiksi jonon 35 (f), sanavalinta joukko/ryhmä ⏸ jonon 39.
+  - Manuaali päivitetty ensimmäistä kertaa *Manuaaliin:*-riveistä (A15): 91–94 (luku 4 Yleispalikka, Ryhmä on palikka, Yleisikkuna, Ryhmän ikkuna; luvut 2, 7, 10, 11). Seuraava koonti kartoitus 14:ssä; *Manuaaliin:*-rivit 95:stä alkaen.
+  - `PALIKKASAANNOT.md`: tavan poikkeus Ryhmän ikkuna (Emil 19.10.), viimeisin kartoitus. Kartoituslaskuri 0/10.
+
 - Appi-appi 94 (19.10., jonon 37c, F45 suunnitelma 29 kohta 5; TALLENNUSMUOTO laajeni: ikkunan `wr`, solmun `wa`, vanha muoto luetaan): **Ryhmän ikkuna.**
   - Ikkunan otsikon ▾-valikossa uusi osa *Ryhmän ikkuna*: yleispalikat, joilla on jäseniä (`@eläin (3)`), *Kirjoita ryhmä…* (otsikkoon kenttä, `@eläin` + Enter, Esc peruu) ja *Ei ryhmää*. Otsikossa näkyy `@eläin`; napautus avaa kirjoituksen.
   - Ikkunan `wr` = yleispalikka; `wrSync` (moottori, `repair`) pitää ikkunassa jokaisesta jäsenestä rinnakkaisen esiintymän (solmu `wa:1`, ikkunan sisällä alekkain, ikkuna kasvaa). Uusi jäsen tulee, poistettu katoaa. Ikkuna laskee esiintymistä kuten muusta sisällöstä (SUMMA = jäsenten summa).

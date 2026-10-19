@@ -2,8 +2,8 @@
 
 ## Tarkistettu versio
 
-- **Appi:** Appi-appi 90, tallennusversio 12 (`VER`), repo `Kasibanaani/P-iv-kartta`, kansio `appiappi/`.
-- **Kirjoitettu:** 17.10.2026 koodista commitilla `77461d2` (Appi-appi 31). Sen jälkeen jokainen rakentaja on päivittänyt muuttuneet kohdat samassa työssä; versiokohtaiset tiedot ja mitä kussakin tarkistettiin ovat `appiappi/MUUTOKSET.md`:ssä. **Viimeksi tarkistettu:** Appi-appi 90 (19.10.2026), luvut 4 (Yleispalikka) ja 10 (hakemistorivit).
+- **Appi:** Appi-appi 94, tallennusversio 12 (`VER`), repo `Kasibanaani/P-iv-kartta`, kansio `appiappi/`.
+- **Kirjoitettu:** 17.10.2026 koodista commitilla `77461d2` (Appi-appi 31). Sen jälkeen jokainen rakentaja on päivittänyt muuttuneet kohdat samassa työssä; versiokohtaiset tiedot ja mitä kussakin tarkistettiin ovat `appiappi/MUUTOKSET.md`:ssä. **Viimeksi tarkistettu:** linjakkuuskartoitus 13 (19.10.2026, Appi-appi 94). Appi-appi 90:stä lähtien rakentajat eivät päivitä manuaalia, vaan kirjoittavat *Manuaaliin:*-rivin `MUUTOKSET.md`:hen, ja joka 10. kohdan kartoitus päivittää manuaalin kerralla; manuaali voi siis olla enintään kymmenen versiota jäljessä. Kartoitus 13 kokosi versiot 91–94 (luku 4: Yleispalikka, Ryhmä on palikka, Yleisikkuna, Ryhmän ikkuna; luvut 7 ja 10).
 - **Miten tarkistettiin:** jokainen luku on kirjoitettu lukemalla käyttöliittymän ja moottorin koodia (nimet suoraan koodin merkkijonoista) sekä testien kuvauksia. Kaavakielestä ajettiin noin 150 kaavaa moottorilla (Node), ja maailman ja liikkeen kaavanimet tarkistettiin samoin. Aloitusluvun esimerkki *Vesilasit* tehtiin vaihe vaiheelta oikeassa käyttöliittymässä (Chromium, 1440 px). Muiden lukujen reseptejä **ei ole ajettu** selaimessa: ne on koottu koodista.
 - **Ei tarkistettu oikealla iPhonella, iPadilla eikä Safarilla.** Puhelinkäyttö on kuvattu koodista ja testeistä, jotka ajavat kosketusta tietokoneen selaimessa 390 ja 320 px leveänä. Oikean laitteen tuntuma (sormella veto, näppäimistö, Safarin oma zoomaus) on varmistamatta.
 - Kohdat, joita kirjoittaja ei voinut varmistaa, on merkitty tekstiin ”(ei tarkistettu)”.
@@ -22,12 +22,12 @@ Mitattu Appi-appi 51 (jonon 1p, 18.10.2026) pilvikoneen Chromiumissa 1440 px, ei
 
 ## Manuaalin ylläpito
 
-Jokainen rakentaja päivittää manuaalin samassa työssä, kun muuttaa jotain käyttäjälle näkyvää (sääntö `AGENTS.md`:ssä ja `PALIKKASAANNOT.md`:n kohdassa A15):
+Rakentaja ei muokkaa manuaalia (Emil 19.10.2026; `AGENTS.md` ja `PALIKKASAANNOT.md` A15), vaan kirjoittaa `MUUTOKSET.md`:hen versionsa alle rivin *Manuaaliin:* (mitä lisätään, muutetaan tai poistetaan, missä luvussa). Joka 10. jonon kohdan linjakkuuskartoitus kokoaa rivit ja päivittää manuaalin kerralla:
 
 1. Muuta vain muuttunut kohta: palikan merkintä palikkakaavalla (mitä tekee, löytyy, sisään, ulos, asetukset, ominaisuudet, kaavassa, aika ja tila, esimerkki, huomio).
 2. Uusi palikka: merkintä oikeaan lukuun ja rivi [hakemiston](10-hakemisto.md#palikat) palikkataulukkoon; erikoispalikka ✦:llä.
 3. Muuttunut nimi tai syntaksi: korjaa kaikki maininnat (`grep -rn 'vanha nimi' appiappi/manuaali/`).
-4. Päivitä tämän luvun *Tarkistettu versio* -kohtaan uusin Appi-appi-numero ja mitä tarkistettiin. **Korvaa edellinen, älä lisää perään:** kohdassa on vain uusin versio; aiemmat ovat `MUUTOKSET.md`:ssä.
+4. Päivitä tämän luvun *Tarkistettu versio* -kohtaan uusin Appi-appi-numero ja kartoitus. **Korvaa edellinen, älä lisää perään.**
 5. Suunniteltu, ei vielä toteutettu: ei kuulu manuaaliin.
 
 ## Havainnot
@@ -61,7 +61,7 @@ Kirjoittaessa löytyneet ristiriidat, puutteet ja yllätykset. Nämä eivät ole
 - JOS, KUN (ilman tapahtumanuolta), JOS-ikkuna ja nuoli arvosta tapahtumakohtaan eivät laukea, jos ehto on jo tosi heti alussa (avaus, uusi palikka). Tämä on koodin mukainen, mutta käyttäjälle ehkä yllättävää; paneelien ohjeteksteissä sitä ei mainita.
 - SUMMA-ikkuna laskee tekstin hiljaa nollaksi ja kyllän ykköseksi; Lasku taas antaa tekstistä tekstiliitoksen tai virheen. Ero ei näy paneelissa.
 - JA-ikkuna ilman sisältöä on *ei*, EI MIKÄÄN ilman sisältöä *kyllä*. Ei mainita paneelissa.
-- Yleispalikka (Appi-appi 90): pelkkä sana (`valmis`) on tekstiä, vaikka samanniminen viite olisi olemassa; viitteeksi se tulee `@`:lla. Kelvollinen lasku ilman `=`-merkkiä (`15 + 15`) on kaava kuten paneelin arvokentissä. Ketjun sisällä kirjoitusosa ei aukea palikan kohdalle (paneeli toimii). Ryhmälle *jokainen jäsen erikseen* ikkunassa ei vielä ole (jonon 37c).
+- Yleispalikka (Appi-appi 90): pelkkä sana (`valmis`) on tekstiä, vaikka samanniminen viite olisi olemassa; viitteeksi se tulee `@`:lla. Kelvollinen lasku ilman `=`-merkkiä (`15 + 15`) on kaava kuten paneelin arvokentissä. Ketjun sisällä kirjoitusosa ei aukea palikan kohdalle (paneeli toimii). Pelkkä `@nimi` tai `#nimi` omalla rivillä on jäsenlinkki (Appi-appi 93); arvo yksinään luetaan `= @nimi`. Uusi yleispalikka saa nimen *Arvo*, *Arvo 2* … lajista riippumatta, ja sen ryhmä saa saman nimen (`#arvo2`), kunnes nimen vaihtaa.
 - Päätöspuu (Appi-appi 88): siirtymä vedetään pisteestä ◦ eikä pistokkeesta, ja ↔ on vain päätöspuussa (hyväksytty poikkeus, suunnitelma 28). Käytössä lista järjestyy palikoiden paikan mukaan (ylhäältä alas), ei siirtymien järjestyksen: järjestys muutetaan siirtämällä nappia muokatessa. Eri vaihtoehdosta eri suuntaan (siirtymä suoraan kysymyksen vaihtoehdosta) ei ole rakennettu.
 - Muutos ajassa: ei tarkistettu, lähteekö *valmis*, jos kulku loppuu appin ollessa kiinni (moottori huomaa sen todennäköisesti seuraavassa kuvassa avattaessa).
 - Avoimet kysymykset TILA.md:stä, jotka koskevat tätä lukua: pelkät sulut kaavassa (ei sallittu), KESKIARVO/SUURIN/PIENIN ohittavat tyhjät (vanhan projektin keskiarvo voi muuttua), kerroksen rullausvauhtia ja järjestystä ei voi ohjata, Kameralla vain zoomaus.

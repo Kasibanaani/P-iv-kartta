@@ -76,28 +76,43 @@ Logiikan palikan paneelissa on aina **Nimi**, **Tunnus** (viite ja joukot `#nimi
 
 ## Yleispalikka (Appi-appi 90)
 
-Yksi palikka tekstille, valmiille arvolle, viitteelle, ryhmälle, kaavalle ja muistille. Kirjoita siihen, niin se päättelee lajinsa itse. Sisäisesti se on Arvo, Muisti tai Kaava, joten se toimii kaikkialla niiden tapaan (kaavat, teksti, ikkunat, nuolet, Toiminnot).
+Yksi palikka tekstille, valmiille arvolle, viitteelle, ryhmälle, kaavalle ja muistille. Kirjoita siihen, niin se päättelee lajinsa itse. Sisäisesti se on Arvo, Muisti tai Kaava, joten se toimii kaikkialla niiden tapaan (kaavat, teksti, ikkunat, nuolet, Toiminnot). Appi-appi 93:sta lähtien yleispalikka on myös **ryhmä**: palikat liitetään siihen kirjoittamalla (ks. *Ryhmä on palikka* alla).
 
 - **Löytyy:** logiikan paletin ylin osio **Yleiset** → **Yleispalikka** (✎). Uusi palikka aukeaa heti kirjoitukseen.
 - **Pienenä:** lajimerkki, nimi ja arvo; viite keltaisena yläpuolella. Ryhmällä nimen perässä ryhmä ja kooste (*#kolikot · summa*).
-- **Auki:** kaksoisnapautus tai napautus jo valittuun palikkaan avaa palikan kohdalle kirjoitusosan: ylimpänä kirjoituskenttä, sen alla tulos (*Nyt: …* tai punainen virhe), ryhmällä valinta **Mitä ryhmästä**, sitten **lajivalikko**, **nimi** ja **viite**. Enter tallentaa, ⇧Enter tekee uuden rivin, Esc peruu kaiken (myös nimen ja lajin), napautus muualle tallentaa. Kentän oikeasta alakulmasta venyttää sivulle ja alas; koko jää palikalle seuraavaa avausta varten. Sama kirjoitus ja lajivalikko ovat myös paneelissa (osio *Yleispalikka*).
+- **Auki** (Appi-appi 92): kaksoisnapautus tai napautus jo valittuun palikkaan avaa palikan kohdalle ruudun: ylimpänä **Nimi** ja sen vieressä viite tietona (`@isokoira`; viite on aina nimi pienellä yhteen kirjoitettuna, ei omaa kenttää), sen alla kirjoituskenttä (palikan kohdalla, joten kaksoisnapautus osuu siihen), tulos (*Nyt: …* tai punainen virhe), **Laji** ja ryhmällä **Mitä ryhmästä**. Laji ja *Mitä ryhmästä* ovat napautettavia valintoja. Enter tallentaa, ⇧Enter tekee uuden rivin, Esc peruu kaiken (myös nimen, lajin ja linkit), napautus muualle tallentaa. Kentän oikeasta alakulmasta venyttää sivulle ja alas; koko jää palikalle seuraavaa avausta varten. Sama kirjoitus ja lajivalinnat ovat myös paneelissa (osio *Yleispalikka*, kenttä *Sisältö*).
 - **Laji kirjoituksesta:**
 
 | Kirjoitat | Laji | Esimerkki ja tulos |
 |---|---|---|
 | luku, päivämäärä, kyllä/ei | • Arvo | `15` → 15 |
 | tekstiä, myös arvoja sekaan | T Teksti | `Pisteet: @pisteet` → Pisteet: 30 |
-| `@viite` (myös `@pelaaja.x`) | @ Viite | `@kaava1` → kaava1:n arvo |
-| `#ryhmä` (myös `#ryhmä.summa`) | # Ryhmä | `#kolikot` → jäsenten määrä |
+| `@viite.polku` (esim. `@pelaaja.x`) | @ Viite | `@kaava1.arvo` → kaava1:n arvo |
+| `#ryhmä.kooste` (esim. `#kolikot.summa`) | # Ryhmä | `#kolikot.jäseniä` → jäsenten määrä |
 | `=` alussa, tai kelvollinen lasku | ƒ Kaava | `= @a + @b`, `15 + 15` → 30 |
 
-- **Lajivalikko** (*Laji: automaattinen (…)*) näyttää vain kirjoitukseen sopivat lajit. Valinta lukitsee lajin: jos kirjoitus ei sovi siihen, kenttä ja palikka punertuvat ja tulosrivi kertoo syyn (*Ei kelpaa kaavaksi: tuntematon nimi ”Hei”*). *Automaattinen* poistaa lukon. Pelkkä sana (`valmis`) on tekstiä; viitteeksi se tulee `@`:lla tai valitsemalla laji Viite.
-- **Muisti** on laji, jonka arvoa toiminnot (Aseta arvo, Lisää) muuttavat käytössä; kirjoitus on alkuarvo. Valitse se lajivalikosta. Arvo ei muutu käytössä.
-- **Mitä ryhmästä:** määrä, summa, keskiarvo, suurin, pienin, arvot luettelona, jäsenten nimet. Valinta kirjoittaa kenttään esim. `#kolikot.summa`. Samalle ryhmälle saa tehdä monta palikkaa (yksi summa, toinen määrä). Joukko-palikka (säännöt jäsenille) on eri asia, ja niitä on edelleen yksi ryhmää kohden.
+- **Toisen palikan arvo yksinään:** `= @kaava1` (tai `@kaava1.arvo`). Pelkkä `@kaava1` omalla rivillään on jäsenlinkki (Appi-appi 93), ei arvon lukeminen. Tekstin tai kaavan sisällä `@nimi` lukee arvon kuten ennenkin.
+- **Laji-valinta** (*automaattinen (…)*) näyttää vain kirjoitukseen sopivat lajit. Valinta lukitsee lajin: jos kirjoitus ei sovi siihen, kenttä ja palikka punertuvat ja tulosrivi kertoo syyn (*Ei kelpaa kaavaksi: tuntematon nimi ”Hei”*). *Automaattinen* poistaa lukon. Pelkkä sana (`valmis`) on tekstiä; viitteeksi se tulee valitsemalla laji Viite.
+- **Muisti** on laji, jonka arvoa toiminnot (Aseta arvo, Lisää) muuttavat käytössä; kirjoitus on alkuarvo. Valitse se lajivalinnoista. Arvo ei muutu käytössä.
+- **Mitä ryhmästä:** määrä, summa, keskiarvo, suurin, pienin, arvot luettelona, jäsenten nimet. Valinta kirjoittaa kenttään esim. `#kolikot.summa` (määrä: `#kolikot.jäseniä`). Samalle ryhmälle saa tehdä monta palikkaa (yksi summa, toinen määrä). Joukko-palikka (säännöt jäsenille) on eri asia, ja niitä on edelleen yksi ryhmää kohden.
 - **Lainausmerkit** tarvitaan vain tekstille, joka näyttäisi laskulta (`"15 + 15"`), tai kun tekstiä yhdistetään laskuun: `= "Yhteensä " + (@a + @b)`.
 - **Ulos:** *arvo*. Laji voi vaihtua kirjoittaessa, eikä yksikään nuoli katkea.
 - **Ominaisuudet:** `arvo`. **Kaavassa:** `@viite` antaa arvon.
+- **Ikkunassa** (Appi-appi 91): kaksi ryhmä-yleispalikkaa (`#a.summa`, `#b.summa`) SUMMA-ikkunassa = summien summa; jokainen yleispalikka on ikkunalle yksi arvo. Jäsenet yksitellen ikkunaan: *Ryhmän ikkuna* (Ikkuna, alla).
 - **Huomio:** Kaavan tulosta ✦ ei tarvita: yleispalikalla on oma nimi ja viite, joten `= @a + @b` palikassa *Summa* on muille `@summa`. Vanhat Arvo, Muisti, Kaava ja Kaavan tulos ovat paletissa ennallaan; vanhoja palikoita ei muuteta yleispalikoiksi. Ketjun sisällä yleispalikkaa muokataan paneelissa.
+
+### Ryhmä on palikka (Appi-appi 93)
+
+Yleispalikka on samalla ryhmä, jonka nimi on palikan viite: palikka *Eläin* on ryhmä `#eläin`. Liitos kirjoitetaan kenttään omalle rivilleen, ja etumerkki kertoo suunnan.
+
+- **Linkkirivi:** rivi, jolla on pelkkiä `#nimi`- ja `@nimi`-merkintöjä (välilyönnein tai pilkuin). `#eläin` = tämä palikka kuuluu eläimeen. `@koira` = koira kuuluu tähän palikkaan. Esim. Koiran kentässä `4` ja toisella rivillä `#eläin`.
+- **Näkyy molemmissa päissä:** kun Koiraan kirjoitetaan `#eläin`, Eläimen kenttään ilmestyy `@koira`, ja päinvastoin. Linkki on yksi: poisto kummasta päästä tahansa poistaa sen.
+- **Tallentuu vahvistettaessa** (Enter, napautus muualle tai paneelin kentän jättäminen), ei jokaisella näppäilyllä; Esc peruu. Uusi `#nimi`, jolla ei ole palikkaa, tekee yleispalikan kirjoittajan viereen. Tuntematon `@nimi` antaa ilmoituksen.
+- **Pelkät jäsenet** (ei muuta sisältöä): palikan arvo on jäsenten määrä.
+- **Sisäkkäiset ryhmät:** Eläin, jolla on rivi `#elävätolennot`, on Elävien olentojen yksi jäsen (sen omat jäsenet eivät).
+- **Ryhmän luku tekstissä tai kaavassa:** `Eläimiä: #eläin.jäseniä`, `= #eläin.summa`. `@` ja `#` tekstin tai kaavan sisällä lukevat arvoa, eivät tee linkkiä.
+- **Nimi:** palikan tai viitteen vaihto nimeää ryhmän samalla, jos uusi nimi on vapaa. Ryhmä on sama kuin joukko `#nimi` (luku [Tieto](07-tieto.md#palikoiden-joukot-nimi-appi-appi-57)): yleispalikka, jonka viite on vanhan joukon nimi, ottaa joukon omakseen. Paneelin *Tunnus*-kentässä `@nimi` on palikan oma viite, ei jäsenlinkki.
+- **Huomio:** palikan arvo (pelkät jäsenet) ja ryhmän ikkuna näkevät vain kirjoitetut linkit; toiminnoilla (Lisää joukkoon) tai Joukko-palikan säännöillä tulleet jäsenet näkyvät `#eläin`-luvussa (kartoitus 13, korjataan). Vanhat Appi-appi 90–92:n yleispalikat, joissa on pelkkä `@nimi` tai `#nimi`, näyttävät arvonsa kuten ennen, mutta seuraava tallennus tulkitsee rivin linkiksi: kirjoita `= @nimi` tai `#nimi.jäseniä`.
 
 ## Arvo (`arvo`)
 
@@ -429,7 +444,7 @@ Laukaisee tapahtuman *silloin* joko ehdon alkaessa päteä tai päästämällä 
 
 Sulku, joka yhdistää sisällään olevien palikoiden arvot yhdeksi tulokseksi: JA, TAI, laskettu summa ja muut. Ikkunoita voi laittaa sisäkkäin.
 
-- **Löytyy:** logiikan paletti → *Ikkunat*: **JA**, **TAI**, **VAIN YKSI**, **VÄHINTÄÄN**, **ENINTÄÄN**, **TÄSMÄLLEEN**, **EI MIKÄÄN**, **MONTAKO PÄTEE**, **SUMMA**, **KESKIARVO**, **SUURIN**, **PIENIN**, **PÄÄTÖSPUU** (Appi-appi 88, ks. alla) sekä **JOS-ikkuna** ja **KUN-ikkuna** (JA-ikkuna valmiiksi jatkolla JOS tai KUN).
+- **Löytyy:** logiikan paletti → *Ikkunat*: **JA**, **TAI**, **VAIN YKSI**, **VÄHINTÄÄN**, **ENINTÄÄN**, **TÄSMÄLLEEN**, **EI MIKÄÄN**, **MONTAKO PÄTEE**, **SUMMA**, **KESKIARVO**, **SUURIN**, **PIENIN**, **PÄÄTÖSPUU** (Appi-appi 88, ks. alla) sekä **JOS-ikkuna** ja **KUN-ikkuna** (JA-ikkuna valmiiksi jatkolla JOS tai KUN). Lisäksi *Yleiset* → **Yleisikkuna**, jonka tarkoitus valitaan otsikon valikosta (ks. alla).
 - **Sisältö:** vedä palikoita ikkunan sisään (hiirellä tai sormella), myös Kaava tai toinen ikkuna. Ikkunan sisältöä ovat ne sisällä olevat palikat, joilla on arvo ja joiden arvoa **ei** viedä nuolella toiseen saman ikkunan palikkaan. Esim. Säädin → Vertailu ≤ 3 ikkunan sisällä: vain vertailun tulos lasketaan. KUN-palikat ja ketjun palikat eivät ole sisältöä. Käänteinen (EI) -valinta kääntää jäsenen arvon.
 - **Sisältö myös joukosta** (Appi-appi 88, paneeli, näkyy kun projektissa on joukkoja): joukon `#nimi` jäsenet ovat ikkunan sisältöä kuten sisään vedetyt palikat, myös myöhemmin joukkoon lisätyt. Ikkunan alareunassa näkyy rivi *Sisältö myös #nimi (n)*. Sisään vedetty palikka ja joukon jäsen ovat tasavertaisia; sama palikka lasketaan kerran. VAIN YKSI + *valinta poistaa muut* koskee myös joukon jäseniä. Ei Riveille-, Jäsenille- eikä PÄÄTÖSPUU-ikkunassa.
 - **Sisään:** *mukaan* (arvo, piilossa kunnes nuoli tulee; monta nuolta sallittu, tuo arvoja ikkunan ulkopuolelta). KUN-jatkolla *tapahtuma*. Riveille-valinnalla *rivit*, Jäsenille-valinnalla *jäsenet* (Appi-appi 63; ks. luku [Tieto](07-tieto.md#ikkuna-jäsenille-appi-appi-63)).
@@ -459,6 +474,24 @@ Sulku, joka yhdistää sisällään olevien palikoiden arvot yhdeksi tulokseksi:
 - **Kaavassa:** `valinnat.pätee >= 2`.
 - **Esimerkki:** ks. resepti *Kolmesta valintaruudusta vähintään kaksi*.
 - **Huomio:** SUMMA laskee kyllä-arvon yhdeksi ja tekstin nollaksi. KESKIARVO, SUURIN ja PIENIN laskevat kyllä/ei-arvot lukuina 1/0. Ennätys tehdään Muistilla: Muisti ja uusi tulos SUURIN-ikkunaan, ja Aseta arvo vie tuloksen takaisin Muistiin. Näkymä-paletin *Pikaluonti* → **Vaihtoehtoryhmä…** tekee napit näkymään ja niille ikkunan logiikkaan (VAIN YKSI -tavalla valinnat poistavat toisensa).
+
+### Yleisikkuna (Appi-appi 91)
+
+Ikkuna, jonka tarkoitus valitaan sen omasta valikosta. Sama Ikkuna kuin yllä: kaikki valinnat ovat samat kuin paneelissa.
+
+- **Löytyy:** logiikan paletti → *Yleiset* → **Yleisikkuna** (alkaa JA-ikkunana).
+- **Otsikon ▾-valikko:** **Tarkoitus**: *Tulos* (pelkkä tulos), *JOS* (tapahtumat NIIN ja MUUTEN), *KUN* (päästää tapahtuman läpi), *Päätöspuu*. **Miten sisältö yhdistyy**: JA, TAI … SUMMA (ei näy päätöspuulla). **Laske jokaiselle**: *Riveille* (kun projektissa on Tietotaulukko), *Jäsenille* (kun projektissa on joukkoja). **Ryhmän ikkuna** (Appi-appi 94, alla). Valinta, joka ei enää sovi, poistaa siihen sopimattomat nuolet kuten paneelin *Toimii myös* -valinta.
+- **Väri kertoo tarkoituksen:** KUN punainen, JOS turkoosi, päätöspuu sininen. Sama väri tulee kaikille KUN- ja JOS-ikkunoille, myös vanhoille.
+
+### Ryhmän ikkuna (Appi-appi 94)
+
+Ikkuna, jonka sisällä on ryhmän jokainen jäsen erikseen. Ryhmä on yleispalikka (ks. *Ryhmä on palikka*).
+
+- **Valitse ryhmä:** otsikon ▾-valikon osa **Ryhmän ikkuna** listaa yleispalikat, joilla on jäseniä (`@eläin (3)`), tai **Kirjoita ryhmä…** (otsikkoon kenttä: `@eläin` ja Enter, Esc peruu). Otsikossa näkyy `@eläin`; sen napautus avaa kirjoituksen. **Ei ryhmää** palauttaa tavallisen ikkunan: esiintymät poistuvat, jäsenyys säilyy.
+- **Jäsenet rinnakkaisina esiintyminä:** jokainen jäsen näkyy ikkunassa alekkain lisäysjärjestyksessä (sama palikka, ei kopio). Uusi jäsen ilmestyy itsestään, ryhmästä poistettu katoaa, ja ikkuna kasvaa tarpeen mukaan.
+- **Laskee** esiintymistä kuten muusta sisällöstä: SUMMA = jäsenten summa, JA = kaikki jäsenet pätevät, VAIN YKSI = täsmälleen yksi.
+- **Esiintymän poisto ikkunasta** irrottaa jäsenen ryhmästä (myös toisen pään `#eläin` häviää). Palikka säilyy; jos esiintymä oli sen ainoa, palikka siirtyy ikkunan viereen.
+- **Huomio:** jos sama palikka on ikkunassa myös itse vedettynä, se lasketaan kahdesti (kartoitus 13, korjataan). Toiminnoilla tai Joukko-palikan säännöillä tulleet jäsenet eivät tule ikkunaan.
 
 ### Päätöspuu (Appi-appi 88)
 

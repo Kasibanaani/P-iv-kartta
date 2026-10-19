@@ -10,6 +10,7 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | lisätä palikan | vedä paletista tai napauta | [Työympäristö: Paletti](02-tyoymparisto.md#palikan-lisääminen) |
 | kytkeä palikat yhteen | nuoli logiikassa lähtökohdasta tulokohtaan | [Nuolen vetäminen](02-tyoymparisto.md#nuolen-vetäminen) |
 | kirjoittaa tekstin, luvun, viitteen, ryhmän tai kaavan yhteen palikkaan, joka päättelee lajinsa | logiikan paletti → Yleiset → Yleispalikka | [Yleispalikka](04-logiikkapalikat.md#yleispalikka-appi-appi-90) |
+| liittää palikka ryhmään yleispalikan kentässä | omalle rivilleen `#eläin` (tämä kuuluu eläimeen) tai `@koira` (koira kuuluu tähän) | [Ryhmä on palikka](04-logiikkapalikat.md#ryhmä-on-palikka-appi-appi-93) |
 | näyttää arvon tekstissä | `@viite` (tai `{viite}`) tekstikentässä | [Teksti ja upotetut viitteet](03-nakymapalikat.md#teksti-ja-upotetut-viitteet) |
 | vaihtaa viittausmerkin (`@`, `§`, `{ }`) | Asetukset → Muokkaus → Viittaus tekstissä | [Tekstiin upotetut viitteet](06-kaavat.md#tekstiin-upotetut-viitteet) |
 | nähdä muokatessa, mistä palikan teksti tulee | viitelappu palikan yläpuolella (Asetukset → Näytä viitteet muokatessa) | [Teksti ja upotetut viitteet](03-nakymapalikat.md#teksti-ja-upotetut-viitteet) |
@@ -39,6 +40,8 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | aloittaa päätöspuu napista tai lopettaa se | Päätöspuun *Alkaa: aloitusnapista*, **＋ Aloitusnappi**, kohdat *alkuun* ja *lopeta* | [Päätöspuu](04-logiikkapalikat.md#päätöspuu-appi-appi-88) |
 | tehdä näkymän Painikkeen suoraan logiikasta | logiikan paletti *Ikkunat* → **Painike** | [Päätöspuu](04-logiikkapalikat.md#päätöspuu-appi-appi-88) |
 | ottaa joukon jäsenet ikkunan sisällöksi | Ikkunan *Sisältö myös joukosta* | [Ikkuna](04-logiikkapalikat.md#ikkuna-ikkuna) |
+| valita ikkunan tarkoitus sen omasta valikosta (Tulos, JOS, KUN, Päätöspuu) | Yleisikkuna tai minkä tahansa ikkunan otsikon ▾ | [Yleisikkuna](04-logiikkapalikat.md#yleisikkuna-appi-appi-91) |
+| näyttää ryhmän jäsenet ikkunassa yksitellen | ikkunan otsikon ▾ → *Ryhmän ikkuna* → `@eläin` | [Ryhmän ikkuna](04-logiikkapalikat.md#ryhmän-ikkuna-appi-appi-94) |
 | asettaa näkyvät palikat siististi listaksi, piilossa olevat ilman aukkoja | Alueen *Asettelu käytössä*: Allekkain tai Ruudukko | [Alue](08-maailma-ja-liike.md#alue--alue) |
 | tehdä jotain ehdon alkaessa päteä | JOS (NIIN-tapahtuma) tai KUN | [JOS](04-logiikkapalikat.md#jos-jos), [KUN](04-logiikkapalikat.md#kun-kun) |
 | odottaa ja tehdä vaiheittain | Ketju ja Ajastin | [Ketju](05-ketjut-ja-toiminnot.md#tapahtumaketju-ketju-ketju) |
@@ -136,6 +139,7 @@ Kaikki palikkalajit. Laji on sisäinen tunniste (tallennustiedostossa `k`). ✦ 
 | [Hakutaulukko](04-logiikkapalikat.md#hakutaulukko-haku) | `haku` | Logiikka | Logiikkapalikat |
 | [KUN](04-logiikkapalikat.md#kun-kun) | `kun` | Logiikka | Logiikkapalikat |
 | [Ikkuna](04-logiikkapalikat.md#ikkuna-ikkuna) | `ikkuna` | Logiikka | Logiikkapalikat |
+| [Yleisikkuna](04-logiikkapalikat.md#yleisikkuna-appi-appi-91) | `ikkuna` | Logiikka | Logiikkapalikat |
 | [Ryhmä ✦](04-logiikkapalikat.md#ryhmä--ryhma) | `ryhma` | Logiikka | Logiikkapalikat |
 | [Ketju](05-ketjut-ja-toiminnot.md#tapahtumaketju-ketju-ketju) | `ketju` | Logiikka | Toiminnot ja ketjut |
 | [Jana](05-ketjut-ja-toiminnot.md#jana-jana) | `jana` | Logiikka | Toiminnot ja ketjut |
@@ -205,7 +209,7 @@ Kokeiltavat vaiheohjeet lukujen lopussa.
 | arvokohta | pyöreä piste palikan reunassa: jatkuva arvo |
 | esiintymä | sama palikka logiikkakanvaasilla useassa kohdassa; kaikki ovat samaa palikkaa. Viitteen perässä merkki 2×, jonka napautus vie seuraavaan esiintymään (Appi-appi 59) |
 | erikoispalikka ✦ | palikka, joka poikkeaa tarkoituksella yhteisestä säännöstä; syy näkyy paneelissa |
-| joukko `#nimi` | palikoiden nimetty joukko (tagi Tunnus-kentässä). Säännöt Joukko-palikalla (`pjoukko`). Eri asia kuin Rivijoukko |
+| joukko `#nimi` | palikoiden nimetty joukko (tagi Tunnus-kentässä). Säännöt Joukko-palikalla (`pjoukko`). Eri asia kuin Rivijoukko. Yleispalikka on samalla ryhmä, jonka nimi on sen viite (Appi-appi 93: palikka *Eläin* = `#eläin`) |
 | `jäsen` | Joukko-palikan kentissä ja Jäsenille-ikkunan sisällä käsiteltävä jäsen (`jäsen.x`); muualla virhe; varattu sana |
 | ikkuna | logiikan laatikko, joka yhdistää sisältönsä (JA, TAI, SUMMA…); kuin sulut |
 | kaava | lauseke, joka laskee arvon toisista: `uni > 7` |

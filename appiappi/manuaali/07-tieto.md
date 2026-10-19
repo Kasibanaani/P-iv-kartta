@@ -296,6 +296,7 @@ Suodattaa ja järjestää taulukon rivejä muuttamatta niitä. Tulos on joukko s
 
 Joukko kokoaa palikoita yhden nimen alle, esim. kaikki kolikot tai kaikki unen pisteet. Palikka liitetään joukkoon tagilla, ja kaava laskee joukon jäsenistä koosteen (`#kolikot.summa`). Toiminto voi kohdistua kaikkiin jäseniin kerralla. Joukko itsessään ei ole palikka; sille voi tehdä yhden **Joukko-palikan** (alla), joka ottaa jäseniä mukaan säännöllä ja ohjaa niitä. Älä sekoita **Rivijoukkoon** (yllä), joka suodattaa taulukon rivejä.
 
+- **Ryhmä on palikka** (Appi-appi 93): yleispalikka on samalla joukko, jonka nimi on sen viite, ja jäsenet liitetään sen kentässä (`#eläin` tai `@koira` omalla rivillä). Ks. luku [Logiikkapalikat](04-logiikkapalikat.md#ryhmä-on-palikka-appi-appi-93). Tunnus-kenttä ja Joukko-palikka toimivat samalle joukolle kuten ennen.
 - **Löytyy:** valitse palikka, paneelin kenttä **Tunnus** (Nimen alla). Projektin joukot listataan Logiikka-välilehden paletissa ryhmässä **Joukot** (näkyy, kun projektissa on joukkoja).
 - **Liitä palikka joukkoon:** kirjoita Tunnukseen viitteen perään `#nimi`, esim. `@uni #unipisteet #terveys`, ja paina Enter (tai napauta muualle). Joukkoja voi olla rajattomasti. Uusi nimi luo joukon heti. Kun kirjoitat `#`, kentän alle tulevat projektin joukot ehdotuksina; uudesta nimestä lukee *uusi joukko syntyy, kun vahvistat kentän*.
 - **Poista palikka joukosta:** pyyhi `#nimi` Tunnuksesta ja vahvista.
