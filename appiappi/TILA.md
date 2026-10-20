@@ -1,12 +1,12 @@
 # Appi-appi: tila
 
-**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 20.10.2026 (Appi-appi 98, Sääntö)
+**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 20.10.2026 (Appi-appi 99, Säännön rivit)
 
 Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- ja iPad-näkymät, maailma ja hahmon liike, myöhemmin vienti omaksi appiksi). Ristiriidoissa Kytköskartan logiikka voittaa. Suunnitelma: `SUUNNITELMA.md` ja `suunnitelmat/`; vanhempien vaiheiden päätökset `VERTAILU.md`. Toteutettujen versioiden yksityiskohdat, tallennuskentät ja kokeiluohjeet: `MUUTOKSET.md`.
 
 ## Valmiina
 
-- Appi-appi 0–98 ja Pajakone 1–4: versioittain `MUUTOKSET.md` (uusin ensin, myös kunkin version *Ei tarkistettu* ja *Kokeile koneella*). Käyttäjän näkökulmasta koko appi: `manuaali/`. Vanhat Valmiina-rivit: `TILA-arkisto.md`.
+- Appi-appi 0–99 ja Pajakone 1–4: versioittain `MUUTOKSET.md` (uusin ensin, myös kunkin version *Ei tarkistettu* ja *Kokeile koneella*). Käyttäjän näkökulmasta koko appi: `manuaali/`. Vanhat Valmiina-rivit: `TILA-arkisto.md`.
 - **Uusi versio** kirjataan vain `MUUTOKSET.md`:hen; tänne ei lisätä riviä.
 
 ## Jono
@@ -35,7 +35,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 30.–33. **Lähtölukemisen karsinnat tehty 18.10.** (TILA laihaksi, manuaalin otsikkokartta `kartta.py -m`, kohdennetut testit `aja.sh <sana…>`, testitulosteen tiivistys; ei appin koodia): raportti `kartoitukset/2026-10-18-lahtolukeminen.md`, ohjeet `AGENTS.md`:ssä ja `testit/README.md`:ssä. Kartoitus 12 tiivisti nämä yhdeksi riviksi.
 34. **⏸ Kartoituksen luku kohdennetuksi** (sama mittaus; odottaa Emilin päätöstä, koska muuttaa `PALIKKASAANNOT.md`:n lukujärjestystä): linjakkuuskartoitus lukee manuaalista vain edellisen kartoituksen jälkeen muuttuneen (`git diff`), koko manuaalin joka kolmas kerta tai kokonaiskatselmuksessa. Säästö ~85 000 tokenia kahdessa kartoituksessa kolmesta; riski, että kokonaislinja nähdään harvemmin.
 35. **Viedyistä jääneet jatkot** (koottu kartoituksessa 12 `MUUTOKSET.md`:n *Ei tehty* -riveistä; tekoälyn kirjaus, ei kiire, ei järjestystä, kukin oma pieni työnsä): (a) Appi-appi 82: tasolta hypätessä tason vauhti hyppyyn, katon ja nousevan tason väliin jäävän litistys; (b) 78: *Säilytä näkyvä koko* palikan omalle syvyydelle, toistimen korttien järjestys syvyyden mukaan; (c) 76/78: keveysmittaus kolmella syvyyskerroksella (`mittaa_keveys.py`); (d) 79: piilotetun lapun uusi vastaus tuo lapun esiin; (e) 83: Monta haaraa- ja Hakutaulukko-rivien rajat ja tulokset kaavoiksi (nyt mallipohjia; liittyy 26:n S3:een, ⏸ Emil). (f) 93: vanhat `#ryhmät` (joukot ilman palikkaa) ryhmäpalikoiksi `repair`issa (suunnitelma 29 kohta 9, **tallennusmuodon muutos**; kartoitus 13).
-40. **Sääntö F46, jatkot** (`suunnitelmat/30-saanto.md` kohta 3; vaihe 1 tehty Appi-appi 98; tekoälyn kirjaus, ei kiire): 40b piilotus ja näyttäminen kerralla (`kun … niin @x.näkyy = ei`, tarvitsee K10:n asetetun näkyvyyden ⏸), 40c säännön kohteeksi nuolikohdat (Janan asetukset, animaation käynnistys), 40d ehdotusrivi tarjoaa ohjattavat ominaisuudet ja arvot, ♛ näkymän kanvaasille, namiskan lukko säännön alla.
+40. **Sääntö F46, jatkot** (`suunnitelmat/30-saanto.md` kohta 3; vaihe 1 tehty Appi-appi 98; tekoälyn kirjaus, ei kiire): 40b piilotus ja näyttäminen kerralla (`kun … niin @x.näkyy = ei`, tarvitsee K10:n asetetun näkyvyyden ⏸), 40c säännön kohteeksi nuolikohdat (Janan asetukset, animaation käynnistys), 40d ehdotusrivi tarjoaa ohjattavat ominaisuudet ja arvot, ♛ näkymän kanvaasille, namiskan lukko säännön alla. 40e monta riviä (jos-vaiheet, Arvon ja Muistin arvo, monta kun-riviä, Sekuntikello) tehty Appi-appi 99. 40f ⏸ kirjoitettu tapahtumaketju (`odota 5 s`, suunnitelma 30 kohta 2c, odottaa Emiliä).
 
 41. **Aika ja päivä kaavassa** (Emilin kysymys 20.10.2026; tekoälyn rajaus, ei tallennusmuotoa, ei erikoispalikkaa): nyt kaavassa on `nyt` (kellonaika tekstinä), `nyt.tunti/.minuutti/.sekunti/.päivä` ja `tänään`/`huomenna`/`eilen`, mutta kellonajalla ei voi laskea eikä avainsanan päivästä saa osia. (a) `tänään`, `huomenna`, `eilen` ja `nyt.päivä` saavat samat ominaisuudet kuin Päivämäärä-kenttä: `.viikko`, `.viikonpäivä`, `.päivä`, `.kuukausi`, `.vuosi` (nyt virhe ”tuntematon merkki ”.””). (b) Laskettava kellonaika: `nyt.aika` = aika-arvo (sekunteja vuorokauden alusta, sama laji kuin Sekuntikellon *kulunut*) ja kaavaan kellonaikaliteraali `klo 7.30` (myös `klo 7`), jolloin `nyt.aika >= klo 18.30` ja `klo 22 - nyt.aika` (aikaa jäljellä) toimivat; näyttö h.mm, Monitorin esitykset kuten kululla. (c) Yleispalikan paletissa esiasetus **Kello** (yleispalikka, jonka kaavarivi `= nyt`, ja toinen rivi `= tänään`), ei uusi palikkalaji. Testit: (a)–(c) ja vanha `nyt` ennallaan. Manuaaliin: luku 06 *Ympäristön sanat* ja päivämäärät, 04 yleispalikan esiasetukset.
 
@@ -43,7 +43,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 ## Seuraavaksi
 
-- **Uusin vienti:** Appi-appi 98 (Sääntö ♛, suunnitelma 30, Emilin pyynnöstä tauon aikana ketjussa *Superyksinkertainen Appi-appi*). Versiot ja kokeiluohjeet vain `MUUTOKSET.md`:ssä; tähän vain uusin vienti ja laskuri (korvaa edellinen). Edelliset: 97 (kaista A, kartoitus 13:n korjaukset) ja 96 (kaista B, rakennuslaatikon kamera). **Kartoituslaskuri 4/10.**
+- **Uusin vienti:** Appi-appi 99 (Säännön rivit, jonon 40e, Emilin pyynnöstä tauon aikana ketjussa *Superyksinkertainen Appi-appi*). Versiot ja kokeiluohjeet vain `MUUTOKSET.md`:ssä; tähän vain uusin vienti ja laskuri (korvaa edellinen). Edelliset: 98 (Sääntö ♛) ja 97 (kaista A, kartoitus 13:n korjaukset). **Kartoituslaskuri 5/10.**
 - **Linjakkuuskartoitus 13 tehty 19.10.** (85–94, `kartoitukset/2026-10-19-linjakkuus-13.md`): linja pitää 85–91:ssä; ryhmien saumat (93–94) korjattu Appi-appi 97:ssä. Manuaali päivitetty ensimmäistä kertaa *Manuaaliin:*-riveistä (91–94).
 - **Seuraavaksi:** **Emil tauotti kehityksen 19.10. klo 20.35 Suomen aikaa** (poikkeus: Sääntö 98 Emilin pyynnöstä 20.10.); jatketaan, kun Emil sanoo. Sitten kaista A ja B seuraavat vapaat kohdat. 37d–f ja 39 odottavat Emiliä.
 - **Linjakkuuskartoitukset:** viimeisin ja aiemmat luetellaan `PALIKKASAANNOT.md`:n lopussa; tehtyjen kartoitusten yhteenvedot `TILA-arkisto.md`:ssä.

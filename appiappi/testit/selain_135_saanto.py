@@ -51,6 +51,14 @@ async def main():
             bad=await pg.evaluate("()=>document.querySelector('#yedit textarea').classList.contains('bad')");res=await pg.inner_text('#yres');print(W,'7 virhe:',bad,res);assert bad and 'ei ole ominaisuus' in res
             await kirjoita(pg,'kun @määrä > 8');await pg.focus('#yedit textarea');await pg.keyboard.press('Enter');await pg.wait_for_timeout(200)
             ok=await P(pg,"(function(){var b=Object.values(P.b).filter(b=>b.yl&&b.sa&&b.sa.kerta)[0];return !!b&&KK.ports(b).outs.some(x=>x.p==='e');})()");print(W,'8 kun:',ok);assert ok
+            # 9 (40e) monta riviä: vaiheet ja kun-rivit, tila näyttää tehdyt rivit
+            await pg.evaluate("(function(){var P=APP.P;var a=KK.addBlock(P,'arvo',{v:'0'});KK.setName(P,a.id,'Valmius');KK.addNode(P,a.id,60,300);KK.repair(P);APP.renderAll();})()")
+            await uusiYl(pg,0.6,0.15);await kirjoita(pg,'@valmius = 10\njos @määrä > 5 niin @valmius = @valmius * 2\njos @määrä > 50 niin @valmius = 0\nkun @määrä > 8 niin @lamppu.väri = 4')
+            res=await pg.inner_text('#yres');print(W,'9 rivit:',res);assert 'Rivit: 1 ✓, 2 ✓, 3 –' in res and 'Kun-rivi tekee' in res,res
+            await pg.focus('#yedit textarea');await pg.keyboard.press('Enter');await pg.wait_for_timeout(200)
+            v=await P(pg,"E().val(B('Valmius').id)");lab=await pg.evaluate("()=>[...document.querySelectorAll('#lworld .ln.yl')].map(e=>e.innerText).join('|')")
+            print(W,'10 arvo:',v,repr(lab));assert v==20 and '3 vaihetta' in lab and 'kun ×1' in lab,(v,lab)
+            await pg.screenshot(path='saanto_rivit_%d.png'%W)
             print(W,'virheet:',errs);assert not errs,errs
             await b.close()
 asyncio.run(main())

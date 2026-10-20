@@ -42,7 +42,11 @@ function aseta(P,m,v){KK.setVal(P,m.id,v,C);KK.tick(P,C);}
   A.strictEqual(E(P).omi(o.l.id,'väri'),3);
   kirjoita(P,s2,'jos @lamppu.väri > 2 niin @lamppu.väri = 5');A.ok(KK.isErr(E(P).omi(o.l.id,'väri'))||E(P).omi(o.l.id,'väri')===3,'kehä ei jumita');
   var c2=E(P).jkCtl(o.l.id,'o_vari');A.ok(c2&&c2.pj===s.id);
-  kirjoita(P,s,'');kirjoita(P,s2,'jos @lamppu.väri > 0 niin @lamppu.väri = 5');var v=E(P).omi(o.l.id,'väri');A.ok(KK.isErr(v)&&/kehä/.test(v.err),'kehä on virhe: '+JSON.stringify(v));
+  // 40e: kohteen oma viittaus säännössä = edellinen tulos (ensimmäisellä rivillä oma arvo), ei kehä
+  kirjoita(P,s,'');kirjoita(P,s2,'jos @lamppu.väri > 0 niin @lamppu.väri = @lamppu.väri + 4');A.strictEqual(E(P).omi(o.l.id,'väri'),5,'oma arvo 1 + 4');
+  // oikea kehä kulkee toisen palikan kautta
+  var y=KK.addBlock(P,'arvo',{yl:1});N(P,y);kirjoita(P,y,'= @lamppu.väri');KK.setName(P,y.id,'Apu');KK.repair(P);
+  kirjoita(P,s2,'jos @apu > 0 niin @lamppu.väri = 5');var v=E(P).omi(o.l.id,'väri');A.ok(KK.isErr(v)&&/kehä/.test(v.err),'kehä on virhe: '+JSON.stringify(v));
 })();
 
 // --- Virheet ja lajit ---
@@ -50,7 +54,7 @@ function aseta(P,m,v){KK.setVal(P,m.id,v,C);KK.tick(P,C);}
   kirjoita(P,s,'jos @määrä > 5 niin @lamppu.lentää = 3');A.ok(/ei ole ominaisuus/.test(s.yer),s.yer);A.ok(/Ohjattavat: näkyy/.test(s.yer));
   A.strictEqual(KK.ylTeksti(P,s,'@'),'jos @määrä > 5 niin @lamppu.lentää = 3','virheellinen kirjoitus säilyy');A.strictEqual(KK.ylLaji(P,s),'saanto');
   A.ok(KK.isErr(E(P).val(s.id)));
-  kirjoita(P,s,'jos @määrä > 5 niin @lamppu = 3');A.ok(/ohjaa ominaisuutta/.test(s.yer),s.yer);
+  kirjoita(P,s,'jos @määrä > 5 niin @lamppu = 3');A.ok(/laskee arvonsa itse/.test(s.yer),s.yer);
   kirjoita(P,s,'jos @eiole > 5 niin @lamppu.väri = 3');A.ok(/ehto ei kelpaa/.test(s.yer),s.yer);
   kirjoita(P,s,'jos @määrä > 5 niin @lamppu.väri = vaihda');A.ok(/kerran/.test(s.yer),s.yer);
   // lukittu Sääntö ilman ehtoa
@@ -86,8 +90,48 @@ function aseta(P,m,v){KK.setVal(P,m.id,v,C);KK.tick(P,C);}
   kirjoita(P,s,'kun @määrä > 50 niin @ajo = käynnistä');A.strictEqual(s.yer,undefined,s.yer);aseta(P,o.m,0);aseta(P,o.m,51);A.ok(P.st[kj.id]&&P.st[kj.id].run!==undefined,'ketju käynnistyi: '+JSON.stringify(P.st[kj.id]));
   kirjoita(P,s,'kun @määrä > 60 niin @ajo = pysäytä');A.strictEqual(s.yer,undefined,s.yer);
   // käynnistä vain ketjulle ja Janalle
-  kirjoita(P,s,'kun @määrä > 5 niin @lamppu = käynnistä');A.ok(/ketjulle ja Janalle/.test(s.yer),s.yer);
+  kirjoita(P,s,'kun @määrä > 5 niin @lamppu = käynnistä');A.ok(/ketjulle, Janalle ja Sekuntikellolle/.test(s.yer),s.yer);
   // piilotus kerralla myöhemmin
   kirjoita(P,s,'kun @määrä > 5 niin @lamppu.näkyy = ei');A.ok(/myöhemmin/.test(s.yer),s.yer);
+})();
+// --- 40e: Arvon ja Muistin arvo, vaiheet riveittäin ---
+(function(){var o=uusi(),P=o.P,s=o.s;
+  function blk(k,nm,v){var b=KK.addBlock(P,k,{v:v});KK.setName(P,b.id,nm);N(P,b);KK.repair(P);return b;}
+  var uni=blk('arvo','Uni','8'),kuo=blk('muisti','Kuormitus','20'),str=blk('muisti','Stressi','3'),val=blk('arvo','Valmius','0');
+  kirjoita(P,s,'jos @stressi > 5 niin @valmius = 1');A.strictEqual(s.yer,undefined,s.yer);A.strictEqual(s.sa.p,'v');
+  A.strictEqual(E(P).val(val.id),0,'ei voimassa: oma arvo');aseta(P,str,7);A.strictEqual(E(P).val(val.id),1,'sääntö ohjaa Arvon arvoa');
+  A.strictEqual(E(P).jkCtl(val.id,'v').pj,s.id);aseta(P,str,3);
+  var t='@valmius = @uni * 1\n@valmius = @valmius - @kuormitus / 10\njos @stressi > 5 niin @valmius = @valmius * 0,8';
+  A.deepStrictEqual(KK.ylLajit(P,t),['saanto','teksti'],'monirivinen sääntö tunnistuu');
+  kirjoita(P,s,t);A.strictEqual(s.yer,undefined,s.yer);A.strictEqual(s.sa.s.length,3);
+  A.strictEqual(E(P).val(val.id),6,'8 - 20/10, kolmas rivi väliin');
+  var tr=E(P).saVal(s.id).tr;A.deepStrictEqual(tr.map(function(x){return x.on;}),[true,true,false],'jälki: kolmas ohitettiin');
+  aseta(P,str,7);A.ok(Math.abs(E(P).val(val.id)-4.8)<1e-9,'jos-rivi kertoo edellisen: '+E(P).val(val.id));
+  A.strictEqual(KK.ylTeksti(P,s,'@'),t.replace('0,8','0.8').replace('0.8',KK.ylTeksti(P,s,'@').split('* ').pop()),'rivit takaisin järjestyksessä');
+  A.strictEqual(KK.ylTeksti(P,s,'@').split('\n').length,3);
+  // Muistin arvo säännön alla: tallennettu arvo palaa, kun sääntö lakkaa
+  kirjoita(P,s,'jos @stressi > 5 niin @kuormitus = 0');A.strictEqual(E(P).val(kuo.id),0);aseta(P,kuo,50);A.strictEqual(E(P).val(kuo.id),0,'sääntö voittaa');
+  aseta(P,str,1);A.strictEqual(E(P).val(kuo.id),50,'tallennettu arvo esiin');
+  // virheet
+  kirjoita(P,s,'jos @stressi > 5 niin @valmius = 1\njos @stressi > 5 niin @lamppu.väri = 2');A.ok(/rivi 2: jos-rivit ohjaavat samaa kohdetta/.test(s.yer),s.yer);
+  kirjoita(P,s,'@valmius = 1\n@valmius = @eiole');A.ok(/rivi 2: arvo ei kelpaa/.test(s.yer),s.yer);
+})();
+
+// --- 40e: monta kun-riviä, sekuntikello ---
+(function(){var o=uusi(),P=o.P,s=o.s,t0=Date.UTC(2026,9,20,9),dt=0;
+  var C2={now:function(){return new Date(t0+dt);},toast:function(){},nav:function(){}};
+  var ke=KK.addBlock(P,'kello',{});KK.setName(P,ke.id,'Kello');N(P,ke);KK.repair(P);
+  function t2(){KK.tick(P,C2);}
+  KK.ylAseta(P,s,'kun @määrä > 5 niin @kello = käynnistä\nkun @kello > 3 niin @lamppu.väri = 4\nkun @kello > 3 niin @kello = nollaa','@');KK.repair(P);t2();
+  A.strictEqual(s.yer,undefined,s.yer);A.strictEqual(s.sa.k.length,3);A.ok(s.sa.kerta&&!s.sa.r);
+  A.ok(KK.ports(s).outs.some(function(x){return x.p==='e';}),'silloin-tapahtuma');
+  KK.setVal(P,o.m.id,7,C2);t2();A.ok(P.st[ke.id].run,'kello käynnistyi');
+  dt=4000;t2();A.strictEqual(Ev2().omi(o.l.id,'väri'),4,'toinen rivi laukesi kellosta');
+  A.ok(!P.st[ke.id].acc&&P.st[ke.id].run,'kolmas rivi nollasi kellon');
+  function Ev2(){return KK.Ev(P,C2);}
+  A.strictEqual(KK.ylTeksti(P,s,'@').split('\n').length,3,'rivit takaisin');
+  // jos-vaiheet ja kun-rivit samassa palikassa
+  KK.ylAseta(P,s,'jos @määrä > 5 niin @lamppu.väri = 2\nkun @määrä > 8 niin @valo = kyllä','@');KK.repair(P);t2();
+  A.strictEqual(s.yer,undefined,s.yer);A.strictEqual(Ev2().omi(o.l.id,'väri'),2);KK.setVal(P,o.m.id,9,C2);t2();A.strictEqual(Ev2().val(o.k.id),true);
 })();
 console.log('ok logiikka_108_saanto');
