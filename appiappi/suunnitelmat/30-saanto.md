@@ -25,7 +25,9 @@
 - **Näkyvyys:** tila näyttää rivit (*Rivit: 1 ✓, 2 ✓, 3 –*) ja kun-rivien määrän; palikassa `→ Kohde · 3 vaihetta · kun ×2`. Oma viittaus ei enää ole kehä; kehä toisen palikan kautta on yhä virhe.
 - **Tallennus:** `b.sa.s = [{i rivi, c?, v, m?}]` (vaiheet) ja `b.sa.k = [{i, c, r?, p?, pr?, v? | vh?}]` (kun-rivit); pelkillä kun-riveillä `sa = {kerta:1, k}`. Valinnaisia kenttiä, versio pysyy 12.
 
-## 2c. Seuraava ehdotus: kirjoitettu tapahtumaketju (ei tehty, odottaa Emiliä)
+## 2c. Kirjoitettu tapahtumaketju (toteutettu Appi-appi 101, jonon 40f; Emil hyväksyi 20.10.)
+
+Toteutus: kun-rivin ryhmä, jossa on odota-rivi, on ketju; ei uudelleenkäynnistystä kesken ajon; tila *Ketju käynnissä: rivi N (odottaa vielä …)*. Yksityiskohdat `MUUTOKSET.md`. Alkuperäinen ehdotus:
 
 Ehdotus (tekoäly): ketju samaan palikkaan ilman ehtojen kirjoittamista, esim. `kun @nappi niin @lamppu.väri = 4` / `odota 5 s` / `@lamppu.väri = 1` / `odota 2 s` / `@ajo = käynnistä`. Rivit tehdään järjestyksessä, `odota` pitää taukoa (sama aikamoottori kuin Ketju-palikalla, joten vienti toimii). Yksi suora ketju, ei haaroja; tekoäly voi kirjoittaa sen tekstinä. Avoimet: käynnistyykö ketju uudestaan kesken ajon (ehdotus: ei, kuten Ketju), ja näkyykö eteneminen palikassa (ehdotus: rivin ✓). Kirjattu jonoon 40f ⏸.
 
