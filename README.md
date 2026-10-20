@@ -9,6 +9,7 @@ Henkilökohtaiseen käyttöön tehtyjä selainappeja. Jokainen appi on yksi HTML
 | `/` (juuri) | Päiväkartta | https://kasibanaani.github.io/P-iv-kartta/ |
 | `paatoskartta/` | Päätöskartta | https://kasibanaani.github.io/P-iv-kartta/paatoskartta/ |
 | `projektikartta/` | Projektikartta | https://kasibanaani.github.io/P-iv-kartta/projektikartta/ |
+| `paatospuu/` | Päätöspuu (tekstinä tuotava päätöspuu, kierrokset muistiinpanoiksi, termit ja päivät; tila `paatospuu/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/paatospuu/ |
 | `taitokartta/` | Taitokartta | https://kasibanaani.github.io/P-iv-kartta/taitokartta/ |
 | `oppikartta/` | Oppikartta | https://kasibanaani.github.io/P-iv-kartta/oppikartta/ |
 | `viidakkovahti/` | Viidakkovahti | https://kasibanaani.github.io/P-iv-kartta/viidakkovahti/ |
