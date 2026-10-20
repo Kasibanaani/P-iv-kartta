@@ -10658,7 +10658,7 @@ function ylEdit(n){
     '<div class="yrow" id="ykorow"'+(KK.ylLaji(P,b)==='ryhma'&&KK.ylRyhma(b)?'':' hidden')+'><span class="yvl">Ryhmästä</span><div class="seg yseg" data-ykos>'+ylKoOpts(b)+'</div></div>'+
     '<div class="ksug" id="ysug"></div><div class="kres" id="yres"></div>'+
     '<div class="yrow ytop"><span class="yvl">Laji</span><div class="seg yseg" data-ytys>'+ylTyOpts(b,t)+'</div></div>'+
-    '<div class="kehelp">Enter tallentaa · ⇧Enter uusi rivi · Esc peruu · kentän kulmasta venyy</div>';
+    '<div class="kehelp">Enter tallentaa · ⇧Enter uusi rivi · Esc peruu · kentän kulmasta venyy · reunasta siirtyy</div>';
   st.appendChild(box);var ta=$('textarea',box);ta.value=t;ta.style.width=Math.min(w,sr.width-40)+'px';ta.style.height=hh+'px';
   S.yEdit={nid:n.id,bid:b.id,snap:JSON.stringify(b),st0:P.st&&P.st.hasOwnProperty(b.id)?JSON.stringify(P.st[b.id]):null,u:false,w0:ta.style.width,h0:ta.style.height};
   function muutos(){var k=S.yEdit;if(k&&!k.u){pushUndo();k.u=true;}}
@@ -10675,10 +10675,19 @@ function ylEdit(n){
     var yk=e.target.closest('[data-yko]');if(yk){e.preventDefault();muutos();if(KK.ylKooste(b,yk.getAttribute('data-yko')))ta.value=KK.ylTeksti(P,b,refStyle());ylEditRefresh(false);ta.focus();return;}
     var k=e.target.closest('[data-ksug]');if(k){e.preventDefault();ylEditIns(k.getAttribute('data-ksug'),+k.getAttribute('data-rep')||0);return;}
     var jl=e.target.closest('[data-jluo]');if(jl){e.preventDefault();muutos();jkLuoUI(jl.getAttribute('data-jluo'));ylEditInput();ta.focus();return;}
-    var lu=e.target.closest('[data-kluo]');if(lu){e.preventDefault();muutos();var nu=S.undo.length;luoArvoUI(lu.getAttribute('data-kluo'));S.undo.length=nu;ylEditInput();ta.focus();}});
+    var lu=e.target.closest('[data-kluo]');if(lu){e.preventDefault();muutos();var nu=S.undo.length;luoArvoUI(lu.getAttribute('data-kluo'));S.undo.length=nu;ylEditInput();ta.focus();return;}
+    /* Auki olevan palikan reunasta tai tyhjästä kohdasta tarttuminen siirtää palikkaa, kirjoitus pysyy auki (Emil 20.10.: napsahti pieneksi). */
+    if(e.button===0&&!e.target.closest('input,textarea,button,select,a,[data-ksug]')){e.preventDefault();ylSiirto(e,box,n);}});
   renderLogicStage();ta.focus();var L=ta.value.length;try{ta.setSelectionRange(L,L);}catch(e){}
   ylEditRefresh(false);ylSug(ta);ylPaikka();
 }
+/* Auki olevan yleispalikan siirto: palikka ja kirjoitusosa liikkuvat yhdessä; pudotus ikkunaan kuten tavallisessa raahauksessa. */
+function ylSiirto(e,box,n){var c=camL(),sx=e.clientX,sy=e.clientY,x0=n.x,y0=n.y,l0=parseFloat(box.style.left)||0,t0=parseFloat(box.style.top)||0,moved=false,nel=$('#lworld [data-nid="'+n.id+'"]');
+  drag(e,function(m){var px=m.clientX-sx,py=m.clientY-sy;if(!moved&&Math.hypot(px,py)<3)return;if(!moved){if(!(S.yEdit&&S.yEdit.u))pushUndo();moved=true;}
+    n.x=Math.round(x0+px/c.z);n.y=Math.round(y0+py/c.z);if(nel){nel.style.left=n.x+'px';nel.style.top=n.y+'px';}box.style.left=(l0+px)+'px';box.style.top=(t0+py)+'px';drawLinks();},
+    function(){var ta=$('textarea',box);if(moved){var r=nel&&nel.getBoundingClientRect(),w=r?windowAt(r.left+Math.min(r.width/2,40),r.top+Math.min(r.height/2,17),n.id):null,old=n.g;n.g=w?w.id:'';
+      KK.tick(P,ctx());save();renderLogicStage();if(n.g)growChain(n.g);if(old&&old!==n.g)growChain(old);drawLinks();}
+      if(ta&&document.activeElement!==ta&&!box.contains(document.activeElement))ta.focus();});}
 /* Kirjoitusosa pysyy kanvaasin sisällä (leveä kenttä siirtää sitä vasemmalle). */
 function ylPaikka(){var box=$('#yedit'),st=stL();if(!box||!st)return;var sr=st.getBoundingClientRect(),r=box.getBoundingClientRect();
   if(r.right>sr.right-8)box.style.left=Math.max(8,parseFloat(box.style.left)-(r.right-sr.right+8))+'px';if(r.bottom>sr.bottom-8)box.style.top=Math.max(8,parseFloat(box.style.top)-(r.bottom-sr.bottom+8))+'px';}

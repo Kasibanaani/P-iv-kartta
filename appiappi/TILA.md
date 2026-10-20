@@ -1,6 +1,6 @@
 # Appi-appi: tila
 
-**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 20.10.2026 (Appi-appi 100, laattojen vuorovaikutus)
+**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 20.10.2026 (Appi-appi 102, auki olevan yleispalikan siirto)
 
 Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- ja iPad-näkymät, maailma ja hahmon liike, myöhemmin vienti omaksi appiksi). Ristiriidoissa Kytköskartan logiikka voittaa. Suunnitelma: `SUUNNITELMA.md` ja `suunnitelmat/`; vanhempien vaiheiden päätökset `VERTAILU.md`. Toteutettujen versioiden yksityiskohdat, tallennuskentät ja kokeiluohjeet: `MUUTOKSET.md`.
 
@@ -43,7 +43,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 ## Seuraavaksi
 
-- **Uusin vienti:** Appi-appi 101 (kaista A: kello kaavoissa ja odota säännössä, jonot 41 ja 40f). Versiot ja kokeiluohjeet vain `MUUTOKSET.md`:ssä; tähän vain uusin vienti ja laskuri (korvaa edellinen). Edelliset: 100 (kaista B, laattojen vuorovaikutus) ja 99 (Säännön rivit). **Kartoituslaskuri 7/10.**
+- **Uusin vienti:** Appi-appi 102 (Emilin bugi tauon aikana: auki olevaan yleispalikkaan tarttuminen ei enää napsauta sitä pieneksi). Versiot ja kokeiluohjeet vain `MUUTOKSET.md`:ssä; tähän vain uusin vienti ja laskuri (korvaa edellinen). Edelliset: 101 (kaista A, kello ja odota) ja 100 (kaista B, laatat). **Kartoituslaskuri 7/10** (102 on korjaus, ei jonon kohta).
 - **Linjakkuuskartoitus 13 tehty 19.10.** (85–94, `kartoitukset/2026-10-19-linjakkuus-13.md`): linja pitää 85–91:ssä; ryhmien saumat (93–94) korjattu Appi-appi 97:ssä. Manuaali päivitetty ensimmäistä kertaa *Manuaaliin:*-riveistä (91–94).
 - **Seuraavaksi:** **Emil tauotti yleisen kehityksen 20.10. klo 18.35 Suomen aikaa** 101:n jälkeen; ensin Emilin tarkentavat kysymykset ja toiveet. Jatketaan, kun Emil sanoo (kaista A seuraava vapaa kohta, kaista B jono 19, jos kesken). 37d–f odottavat Emiliä.
 - **Linjakkuuskartoitukset:** viimeisin ja aiemmat luetellaan `PALIKKASAANNOT.md`:n lopussa; tehtyjen kartoitusten yhteenvedot `TILA-arkisto.md`:ssä.
@@ -76,6 +76,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 ## Suunnitelmat
 
+- **20.10.2026, F47 lista, taulukko ja ryhmä (Emilin toiveet, ehdotus, ei jonossa):** `suunnitelmat/31-lista-taulukko-ja-ryhma.md`. Taulukko-näyttö, Lista sen esiasetuksena, lähteenä omat rivit, Tietotaulukko tai ryhmä; muokattavat rivit, valinnainen rasti, rivijäsenet, `.rasti`, tekstin `.päivä`/`.kello`, kirjoitettu jäsenyyssääntö, ⚙-väkänen. Suositusjärjestys V1→V2→V7→V8→V3→V6→V4→V5; päätökset D1–D5 odottavat Emiliä.
 - **18.10.2026, F43 aukot ja paikat (Emilin ajatus, Emil hyväksyi suositukset 18.10.; jonossa 22b–22e):** `suunnitelmat/27-aukot-ja-paikat.md`. Avattava valikko = Aukko-palikka, joka näyttää jonkin Alueen omassa vierivässä kehyksessään (samat palikat, ei kopioita); ruudulle ja aukolle samat vieritystavat; Alueen pikakoot; syvä kerros tarvitsee alueen `(alue − ruutu) + ruutu / s`, appi laskee ja näyttää sen. Löytö: laitenäkymässä Siirry alueeseen ei vaihda maailman rajaa (koodin perusteella, ei kokeiltu). Vaihe 5 ⏸. Ei toteutettu.
 - **18.10.2026, F42 syvyys (Emilin ajatus):** `suunnitelmat/26-syvyys.md`. Syvyys kerrokselle ja palikalle; koko ja rullausvauhti samasta kaavasta, ohjattava logiikalla, kosketus näkyvästä kohdasta. Löytö: Alueen ja Liikkeen napautus hitaassa (rullausvauhti < 100) kerroksessa osuu siirtämättömään kohtaan. Tallennusmuoto laajenee. Emil hyväksyi 18.10. (avoimet kohdat 1–4, 6 ja 7 suositusten mukaan); jonossa 17b (napautuskorjaus, ei muotomuutosta), 17c ja 17d; vaiheet 3–4 ⏸ (17e). **Jatkoluonnos 18.10. (kohta 11, ei hyväksytty):** syvyys kolmantena akselina (Liikkeen syvyysnopeus ja paksuus, kamera paikalla ja suunnalla, kartta + silmistä samasta maailmasta; frisbeegolf presettinä), vasta 17d:n ja 2D-A:n jälkeen.
 - **18.10.2026, F41 joukot tageina, viite @:lla ja kaavan sulut (Emilin ajatus, Emil hyväksyi kaiken 18.10.):** `suunnitelmat/25-joukot-tageina-ja-kaava.md`. `#` = joukko, `@` = viite; Tunnus-kenttä `@uni #unipisteet`; koosteet `#joukko.summa` ilman funktioita; ehdollinen tagi *kuuluu kun*, Joukko-palikan *Ota mukaan* ja *Vain jos*; kaavaan `jos (ehto) a muuten b` / `jos ehto niin a muuten b`, `ja`, `tai` ja laskusulut, vanhat muuntuvat itsestään. Jonossa 12f (muutettu), 12g (uusi), 15c–15e (muutettu). Ei toteutettu.

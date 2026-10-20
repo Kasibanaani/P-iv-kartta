@@ -295,3 +295,4 @@ Asetuksissa on rakennusympäristön ja projektin käyttönäkymän erilliset val
 - `selain_136_laattojen_vuorovaikutus.py` – (1440, 1280 px; Appi-appi 100) Ilmoittaa-rasti, Maalaa laatta -toiminnon kentät ja kuvaus, kolikot katoavat käytössä myös kuvasta, Palauta maalattu kartta.
 - `logiikka_110_kello.js` – Appi-appi 101 (jonot 41, 40f): päivän sanojen ominaisuudet, `nyt.aika` ja `klo`, h.mm-näyttö, kello kun-rivin laukaisijana, säännön odota-ketju (eteneminen, ei uudelleenkäynnistystä, kunnostus, väliin jääneet, virheet).
 - `selain_137_kello.py` – (1440, 1280 px; Appi-appi 101) paletin Kello ja Päivä, kellonaika h.mm palikassa, säännön ketjun tila paneelissa.
+- `selain_138_yleispalikka_siirto.py` – (1440, 1280 px; Appi-appi 102) auki olevan yleispalikan siirto kirjoitusosan reunasta: pysyy auki, Enter tallentaa, kenttä ei siirrä, Kumoa, zoom 2, pudotus ikkunaan.
