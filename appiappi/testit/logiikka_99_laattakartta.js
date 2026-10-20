@@ -37,7 +37,7 @@ var LJ3=[{c:'1',n:'Seinä',hue:0,t:'kiintea'},{c:'2',n:'Koriste',hue:4,t:'lapi'}
   var f=LB(P,'kaava',{f:''});f.f=KK.kaavaToIds(P,b.vt+'.määrä.kolikko * 10');A.strictEqual(E(P).val(f.id),30,'kaavassa');
   var ps=KK.omat(b).map(function(o){return o.p;});A.ok(ps.indexOf('este')<0&&ps.indexOf('massa')<0&&ps.indexOf('kimmoisuus')<0,'este, massa ja kimmoisuus ovat lajeilla');A.ok(ps.indexOf('sarakkeet')>=0&&ps.indexOf('näkyy')>=0);
   b.lrt=['....','....','...4'];A.strictEqual(E(P).prop(b.id,'määrä.kolikko'),1,'uudet rivit lasketaan uudelleen');
-  A.deepStrictEqual(KK.ports(b).outs.map(function(o){return o.p;}),['v']);})();
+  A.deepStrictEqual(KK.ports(b).outs.map(function(o){return o.p;}),['v','e','ulos']);})();
 
 // --- Kävely laattalattian yli: saumat eivät pysäytä, yksi törmäsi (laskeutuminen) ---
 [{},{ymp:1}].forEach(function(o){
