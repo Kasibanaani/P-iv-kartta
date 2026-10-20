@@ -254,6 +254,10 @@ main{padding-bottom:28px}
 .actbar{flex:none;display:grid;grid-template-columns:1fr auto auto;gap:8px;padding:8px 16px;background:var(--bg);border-top:.5px solid var(--sep)}
 .actbar .btn{min-height:46px;padding:0 14px}
 .actbar .btn:disabled{opacity:.45;cursor:default}
+.notebar{grid-template-columns:auto 1fr auto;align-items:center}
+.notebar .btn{min-height:40px;padding:0 14px;font-size:16px}
+.notebar .seg{margin:0}
+.notebar .seg button{min-height:36px}
 .log{display:flex;flex-direction:column;margin:2px 0 14px}
 .log .tbox{background:var(--cell);border-radius:12px;border:0;border-left:4px solid var(--accent)}
 .divider{display:flex;align-items:center;gap:10px;margin:10px 4px;color:var(--label2)}
@@ -317,6 +321,11 @@ input[type="date"]{width:100%;min-height:48px;padding:10px 16px;border:0;border-
     <button type="button" class="btn solid" id="act-go">Jatka</button>
     <button type="button" class="btn" id="act-back">Peru askel</button>
     <button type="button" class="btn" id="act-end">Lopeta</button>
+  </div>
+  <div class="actbar notebar" id="notebar" hidden>
+    <button type="button" class="btn solid" id="newnote" aria-label="Uusi muistiinpano">+ Uusi</button>
+    <div class="seg" id="notesort" role="group" aria-label="Järjestys"><button type="button" data-ns="next">Tulevat</button><button type="button" data-ns="new">Uusimmat</button></div>
+    <button type="button" class="btn" id="terms">Termit</button>
   </div>
   <nav role="tablist" aria-label="Näkymät" id="nav">
     <button class="tab" type="button" role="tab" data-tab="use"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="12" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M8.4 12H11c2.4 0 2.2-6 4.6-6M11 12c2.4 0 2.2 6 4.6 6"/></svg>Käyttö</button>
@@ -470,9 +479,15 @@ function commitStep(P,S,draft){var v=sessionView(P,S,draft);if(!v.picked.length)
 /* Askeleen peruminen: palauttaa sen askeleen draftin, jotta valinnat voi korjata */
 function undoStep(S){if(!S||S.steps.length<2)return null;var st=S.steps.pop(),n=S.logAt.pop();if(typeof n==='number')S.log.length=Math.min(S.log.length,n);
   var before=replay(S.steps);return {p:st.p.filter(function(x){return before.indexOf(x)<0;}),d:st.d.slice()};}
+/* Kaikki ryhmät, jotka kierroksen aikana aktivoituivat (Alku mukaan lukien) */
+function sessionGroups(P,S,pt){pt=pt||parseText(P.text);var steps=stepsOf(S),out=[];
+  steps.forEach(function(st,i){var excl=exclOf(P,pt,replay(steps.slice(0,i+1)));
+    reachGroups(P,pt,st.p.filter(function(x){return x===ALKU||(pt.by[x]&&pt.by[x].k==='b');}),excl).forEach(function(g){if(out.indexOf(g)<0)out.push(g);});});
+  return out;}
 function sessionNote(P,S,extra){var v=sessionView(P,S),by=v.pt.by,lines=[P.name];function nm(x){return by[x]?by[x].name:x;}
   var path=stepsOf(S).slice(1).map(function(st){return st.p.map(nm).join(', ')+(st.d.length?' (pois: '+st.d.map(nm).join(', ')+')':'');});
   if(path.length)lines.push('Valinnat: '+path.join(' → '));
+  var gs=sessionGroups(P,S,v.pt);if(gs.length)lines.push('Ryhmät: '+gs.map(nm).join(', '));
   var tx=S.log.filter(function(t){return by[t];}).map(function(t){return bodyText(by[t].body);});
   var out=lines.join('\n');if(tx.length)out+='\n\n'+tx.join('\n\n');if(clean(extra))out+='\n\n'+String(extra).trim();
   return out;}
@@ -565,7 +580,7 @@ function normalizeData(o){if(!o||typeof o!=='object'||o.app!=='paatospuu')return
 function looseJson(txt){var s=String(txt||''),a=s.indexOf('{'),b=s.lastIndexOf('}');if(a<0||b<=a)return null;s=s.slice(a,b+1);
   try{return JSON.parse(s);}catch(e){}try{return JSON.parse(s.replace(/[“”„]/g,'"'));}catch(e){}return null;}
 if(typeof module!=='undefined')module.exports={VER:VER,ALKU:ALKU,parseLine:parseLine,lineOf:lineOf,bodyText:bodyText,parseText:parseText,rl:rl,ruleState:ruleState,toggleRule:toggleRule,
-  sessionView:sessionView,blockedNow:blockedNow,tapDraft:tapDraft,replay:replay,exclOf:exclOf,newSession:newSession,commitStep:commitStep,undoStep:undoStep,sessionNote:sessionNote,renameKey:renameKey,removeKey:removeKey,
+  sessionView:sessionView,blockedNow:blockedNow,tapDraft:tapDraft,replay:replay,exclOf:exclOf,newSession:newSession,commitStep:commitStep,undoStep:undoStep,sessionNote:sessionNote,sessionGroups:sessionGroups,renameKey:renameKey,removeKey:removeKey,
   replaceLine:replaceLine,orphans:orphans,dropOrphans:dropOrphans,hasWord:hasWord,termOn:termOn,noteTerms:noteTerms,parseDates:parseDates,noteDates:noteDates,nextDate:nextDate,
   sortNotes:sortNotes,fiDate:fiDate,stamp:stamp,isoD:isoD,normalizeData:normalizeData,looseJson:looseJson};
 </script>
@@ -619,7 +634,7 @@ function showTab(t){scrollPos[tab]=main.scrollTop;tab=t;
   Object.keys(panels).forEach(function(k){panels[k].hidden=k!==t;});
   Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(b){b.setAttribute('aria-selected',b.dataset.tab===t?'true':'false');});
   render();main.scrollTop=scrollPos[t]||0;}
-function render(){setInfo();$('actbar').hidden=true;
+function render(){setInfo();$('actbar').hidden=true;$('notebar').hidden=true;
   if(tab==='use')renderUse();else if(tab==='teach')renderTeach();else if(tab==='notes')renderNotes();else renderSettings();syncChrome();}
 $('nav').addEventListener('click',function(ev){var b=ev.target.closest('[data-tab]');if(b)showTab(b.dataset.tab);});
 function openSheet(d){if(d.showModal)d.showModal();else d.setAttribute('open','');}
@@ -767,8 +782,7 @@ var noteSort='next',noteFilter=null,noteCur=null,noteArm=0;
 function termName(id){for(var i=0;i<data.terms.length;i++)if(data.terms[i].id===id)return data.terms[i].name;return '';}
 function renderNotes(){var p=panels.notes;p.textContent='';var today=todayIso();
   setInfo(data.notes.length?data.notes.length+(data.notes.length===1?' muistiinpano':' muistiinpanoa'):'Päättyneet kierrokset ja omat muistiinpanot tulevat tänne.');
-  var r=el('div','btnrow');r.style.margin='0 0 12px';button(r,'+ Uusi muistiinpano','btn solid',function(){openNote(null);}).id='newnote';button(r,'Termit','btn',openTerms).id='terms';p.appendChild(r);
-  var seg=el('div','seg');[['next','Seuraavaksi tulevat'],['new','Uusimmat ensin']].forEach(function(m){var b=button(seg,m[1],'',function(){noteSort=m[0];render();});b.className='';b.setAttribute('aria-pressed',noteSort===m[0]?'true':'false');});p.appendChild(seg);
+  $('notebar').hidden=false;Array.prototype.forEach.call(document.querySelectorAll('#notesort button'),function(b){b.setAttribute('aria-pressed',noteSort===b.dataset.ns?'true':'false');});
   if(data.terms.length){var cs=el('div','chips');cs.style.marginBottom='12px';data.terms.forEach(function(t){var b=button(cs,t.name,'chip',function(){noteFilter=noteFilter===t.id?null:t.id;render();});b.setAttribute('aria-pressed',noteFilter===t.id?'true':'false');});p.appendChild(cs);}
   if(noteFilter&&!termName(noteFilter))noteFilter=null;
   var l=sortNotes(data.notes,noteSort,today).filter(function(n){return !noteFilter||noteTerms(data.terms,n.text).indexOf(noteFilter)>=0;});
@@ -796,6 +810,9 @@ $('ns-cancel').addEventListener('click',function(){closeSheet($('nsheet'));});
 $('ns-del').addEventListener('click',function(){if(!noteCur)return;if(Date.now()-noteArm>4000){noteArm=Date.now();$('ns-del').textContent='Varmasti?';return;}
   data.notes=data.notes.filter(function(n){return n!==noteCur;});touch();closeSheet($('nsheet'));render();});
 
+$('newnote').addEventListener('click',function(){openNote(null);});
+$('terms').addEventListener('click',function(){openTerms();});
+$('notesort').addEventListener('click',function(ev){var b=ev.target.closest('[data-ns]');if(!b)return;noteSort=b.dataset.ns;main.scrollTop=0;render();});
 /* ---- termit ---- */
 var termCur=null,termArm=0;
 function openTerms(){termCur=null;renderTerms();openSheet($('tsheet'));}

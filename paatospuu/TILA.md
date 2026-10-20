@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1, kokeilussa · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 20.10.2026
+**Vaihe:** versio 1.1, kokeilussa · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 20.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -17,6 +17,11 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Päivät tekstistä:** 24.10.26, 24.10.2026, 24.10. (seuraava), tänään, huomenna, ylihuomenna, viikonpäivät (sama päivä = tänään), ensi viikolla, tällä viikolla, tässä/ensi kuussa, ”kahden viikon sisällä” (väli), ”3 päivän päästä”. Pohjana muistiinpanon **luontihetki**.
 - **Asetukset:** Appipaja 2.0 -teemat, vaalea/tumma/laite. Tiedot vain laitteella; vienti tiedostona tai tekstinä ja tuonti samoin (`{app:'paatospuu', ver:1, …}`).
 - Testit `sh paatospuu/testit/aja.sh`: 50 logiikkatarkistusta + selainpolku 390 ja 320 px tietokoneen Chromiumissa.
+
+## Versio 1.1 (20.10.2026, Emilin pyyntö)
+
+- Muistiinpanoissa kiinteä alapalkki: pieni + Uusi, järjestys (Tulevat / Uusimmat), Termit. Ei liiku vierityksen mukana.
+- Kierroksen muistiinpanoon myös rivi *Ryhmät:* (kaikki kierroksen aikana aktivoituneet ryhmät). Valinnat ja ilmoitukset olivat jo mukana.
 
 ## Ei tarkistettu
 

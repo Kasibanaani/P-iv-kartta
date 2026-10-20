@@ -51,6 +51,9 @@ p=P('A\nD\n#G\n#H');t(p,A,'a');t(p,'a','g');t(p,'g','h');t(p,'h','d');S=E.newSes
 p=P('A\nB\n>T: Perustelu.');t(p,A,'a');t(p,'a','b');t(p,'a','t');S=E.newSession(p,'x');E.commitStep(p,S,{p:['a'],d:[]});E.commitStep(p,S,{p:['b'],d:[]});
 eq('muistiinpano',E.sessionNote(p,S,'Oma huomio'),'Testi\nValinnat: A → B\n\nPerustelu.\n\nOma huomio');
 
+p=P('A\nB\nC\n#G\n#H');t(p,A,'a');t(p,'a','g');t(p,'g','h');t(p,'h','b');t(p,'b','c');S=E.newSession(p,'x');E.commitStep(p,S,{p:['a'],d:[]});E.commitStep(p,S,{p:['b'],d:[]});
+eq('muistiinpanoon ryhmät',E.sessionNote(p,S,''),'Testi\nValinnat: A → B\nRyhmät: G, H');
+
 // nimen vaihto ja poisto
 p=P('A\nB');t(p,A,'a');t(p,'a','b');p.mx=[['a','b']];E.renameKey(p,'b','bee');eq('rename',[p.rules.a.o,p.mx],[['bee'],[['a','bee']]]);
 E.removeKey(p,'bee');eq('remove',[p.rules.a,p.mx],[undefined,[]]);

@@ -67,7 +67,10 @@ async def run(p,w,h):
     # muistiinpanot
     await pg.click('[data-tab="notes"]'); await pg.wait_for_timeout(50)
     txt=await pg.inner_text('#nlist')
-    want('muistiinpano tallentui', 'Valinnat: Kissa → Ruoka' in txt and 'perjantaina' in txt)
+    want('muistiinpano tallentui', 'Valinnat: Kissa → Ruoka' in txt and 'Ryhmät: Eläimet' in txt and 'perjantaina' in txt)
+    await pg.evaluate("document.getElementById('main').scrollTop=0")
+    y0=(await pg.locator('#newnote').bounding_box())['y']; await pg.evaluate("document.getElementById('main').scrollTop=500"); y1=(await pg.locator('#newnote').bounding_box())['y']
+    want('Uusi-nappi pysyy paikallaan alhaalla', y0==y1 and y0==y1)
     await pg.click('#terms'); await pg.fill('#newterm','eläin'); await pg.keyboard.press('Enter'); await pg.fill('#tyes','kissa'); await pg.fill('#tno','lelu'); await check('termi'); await pg.click('#tok')
     await pg.click('#ts-body .btnrow .btn'); await pg.wait_for_timeout(50)
     want('termi näkyy kortissa', 'eläin' in await pg.inner_text('#nlist .nf'))
