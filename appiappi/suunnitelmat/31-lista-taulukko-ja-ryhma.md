@@ -1,6 +1,6 @@
 # F47 Lista, taulukko ja ryhmä: yksi rivirakenne
 
-20.10.2026. Lähtö: Emilin sanelu 20.10. (ketju *Lista, taulukko ja ryhmät*). Tämä on **ehdotus**: mitään ei ole jonossa, ennen kuin Emil hyväksyy. Merkinnät: **[on]** = toimii jo (versio), **[osin]** = osa toimii, **[uusi]** = ei ole.
+20.10.2026. Lähtö: Emilin sanelu 20.10. (ketju *Lista, taulukko ja ryhmät*). **Emil hyväksyi 20.10.2026 klo 21.10 Suomen aikaa** (kaikki päätökset suositusten mukaan); jonossa 42a–42h `TILA.md`:ssä. Merkinnät: **[on]** = toimii jo (versio), **[osin]** = osa toimii, **[uusi]** = ei ole.
 
 ## 0. Näin teet sen nyt (Appi-appi 102)
 
@@ -62,7 +62,7 @@ Perustelu: periaate *yleinen työkalu, erikoisuus esiasetuksena* (MISSIO, A8). K
 
 Suositusjärjestys: **V1 → V2 → V7 → V8 → V3 → V6 → V4 → V5.** V1–V2 ovat pieniä ja parantavat nykyistä Listaa heti. V7–V8 tekevät ryhmistä näkyviä ja kirjoitettavia ilman uutta käsitettä. V3 yhdistää Listan ja ryhmän, kun D1 on päätetty. V6 on itsenäinen ja hyödyllinen kaikkialla. V4–V5 ovat suurin työ ja tarvitsevat V3:n lähdemallin; ennen niitä uusi ominaisuusryhmä → linjakkuuskartoitus.
 
-## 4. Päätökset Emilille
+## 4. Päätökset (Emil hyväksyi suositukset 20.10.)
 
 - **D1** Käytössä lisätty ryhmälistan rivi: rivijäsen (käyttötietoa, *Tee palikaksi* rakentajalle) **(suositus)** vai oikea palikka (rakenne kasvaa käytössä).
 - **D2** Lista Taulukon esiasetukseksi (suositus) vai Lista ja Taulukko erillisinä palikoina.
