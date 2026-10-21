@@ -151,6 +151,8 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 ## Avoimet kysymykset
 
+- Vaihe 9 (merkitykset, kääntöpuolet, vain tärkeät järjestykseen, etenevä kierros): ehdotus ja 5 kysymystä Claude Docissa https://claude.ai/artifact/TwhFPyZxyV1gEyrNzCr6sR. Ei rakennettu.
+
 - Kuitatut näkyvät yhä kalenterissa ja päivän kierroksen esivalinnoissa. Kysymys Emilille, pitäisikö ne piilottaa.
 
 - Emil hyväksyi 21.10.2026 kaikki suositukset dokumentista *Päätöspuu: avoimet kysymykset* (https://claude.ai/artifact/RFMnrpTAm7fb7r9prDPz8q). Toteutus etenee vaihe kerrallaan: `SUUNNITELMA-vaiheet.md` (pelisäännöt, vaiheiden tila ja kunkin vaiheen kysymykset). Seuraavaan vaiheeseen vasta Emilin kuittauksen ja vastausten jälkeen.

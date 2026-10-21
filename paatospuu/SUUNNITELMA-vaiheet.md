@@ -22,6 +22,7 @@ Päivitetty 21.10.2026. Emil sanoi kyllä kaikkiin suosituksiin dokumentissa *P�
 | 6 | Teksti ↔ appi kaksisuuntaisesti (12, 25) | 2 versiota | Valmis (1.16), kuitattu |
 | 7 | Kalenteri (20, 21, 22) | 2–3 versiota | 7a valmis (1.17); 7b odottaa (vaihe 8 tehtiin ensin) |
 | 8 | Tärkeysjärjestys, kuittaus, roskakori, pitkän painalluksen valikko (Emil 21.10.2026) | 2 versiota | Valmis (1.18), odottaa Emilin kuittausta |
+| 9 | Merkitykset, kääntöpuolet, vain tärkeät järjestykseen, tärkeysjärjestyksessä etenevä kierros (Emil 21.10.2026) | 2 versiota | Ehdotus, odottaa vastauksia |
 
 Kohta 17 (luontihetki) on jo nyt käytössä, joten työtä ei tarvita. Kohta 24 (”kierros”) jää ennalleen. Molemmat poistetaan TILA:n avoimista kysymyksistä vaiheessa 1. Myös välit päivän muistiinpanoissa on ratkaistu (Emil: ”Juu!”).
 
@@ -96,3 +97,10 @@ Kohta 17 (luontihetki) on jo nyt käytössä, joten työtä ei tarvita. Kohta 24
   1. Mitä tehdään muistiinpanoille, jotka eivät osu yhteenkään termiin? Suositus: listan loppuun, uusin ensin. Vaihtoehto: alkuun.
   2. Mitkä aikatermit otetaan mukaan? Suositus: *Myöhässä*, *Tänään*, *Huomenna* ja *Tällä viikolla*, kukin vain tarkimpana. Vaihtoehto: vain Myöhässä ja Tänään.
   3. Mitä *Liitä termiin* valikosta tekee? Suositus: näyttää termit siruina, ja napautus lisää termin nimen muistiinpanon loppuun omalle rivilleen (`#termi`-tyyliin), jolloin se tunnistuu. Vaihtoehto: termi tallennetaan muistiinpanoon piilotettuna, eikä tekstiin tule mitään.
+
+### Vaihe 9: merkitykset ja kääntöpuolet (Emilin ajatus 21.10.2026, ehdotus)
+
+- Pohdinta ja kysymykset: Claude Doc *Päätöspuu: merkitykset ja kääntöpuolet* https://claude.ai/artifact/TwhFPyZxyV1gEyrNzCr6sR
+- Sisältö: Tärkeät/Muut-luettelo (vain tärkeät järjestyksessä), tärkeyden perintä merkitykseltä ehdoille ja kääntöpuolille, `=Palikka kääntöpuoli:` -lohko ja *Puuttuu*-osio kierroksen muistiinpanoon, projektiasetus *Eteneminen: säännöt / tärkeysjärjestys* (Jatka = ohitus).
+- Suositus: tehdään heti vaiheen 8 jälkeen, ennen 7b:tä.
+
