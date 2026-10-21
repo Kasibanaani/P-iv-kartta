@@ -316,6 +316,8 @@ body.small #opts .row .tag,body.small #tlist .row .tag{font-size:11.5px}
 .hlwrap{position:relative}
 .hl{position:absolute;inset:0;padding:13px 16px;font-size:17px;line-height:1.4;letter-spacing:-0.01em;white-space:pre-wrap;overflow-wrap:break-word;word-break:normal;color:transparent;overflow:hidden;pointer-events:none;border-radius:10px;background:var(--cell)}
 .hl mark{color:transparent;background:var(--fill);border-radius:4px;box-shadow:0 2px 0 var(--accent)}
+.hl .th{color:transparent;text-decoration:underline;text-decoration-color:var(--k-g);text-decoration-thickness:2px;text-underline-offset:4px}
+.found i.th{box-shadow:inset 0 -2px 0 var(--k-g)}
 .hlwrap textarea{position:relative;display:block;background:transparent;line-height:1.4}
 /* puun tekstikentän värit: rivi värittyy heti, kun se on tulkittu (kirjoitettava rivi vasta välilyönnin jälkeen) */
 .hl.mono{font:16px/1.4 ui-monospace,Menlo,Consolas,monospace;letter-spacing:0;color:var(--label)}
@@ -580,12 +582,18 @@ function dropOrphans(P){orphans(P).forEach(function(k){removeKey(P,k);});}
 
 /* ---- muistiinpanot: termit ----
    Termi = {name, yes:[sanoja], no:[sanoja]}. Sana tai lause on yksi rivi (välilyönti kuuluu sanaan). Vertailussa isot ja pienet
-   kirjaimet ovat samat ja välimerkit katoavat (ne pysyvät muistiinpanossa). Sana tunnistuu kokonaisena: "koira" ei löydä koiran.
-   Tavuviiva lopussa = riittää osa: "eläi-" löytää eläin, eläimen, kotieläimet. Termin nimi lasketaan itsestään kyllä-sanaksi.
-   Poissulku voittaa. */
+   kirjaimet ovat samat ja välimerkit katoavat (ne pysyvät muistiinpanossa). Sana löytyy osana mistä kohdasta tahansa
+   (Emil 21.10.2026): "koir" löytää koirien ja kotikoiran. Termin nimi lasketaan itsestään kyllä-sanaksi. Poissulku voittaa. */
 function normT(s){return ' '+String(s==null?'':s).toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim()+' ';}
-function hasWord(text,p){p=clean(p);if(!p)return false;var part=/-$/.test(p),w=normT(p).trim();if(!w)return false;
-  var t=typeof text==='string'?normT(text):text.n;return part?t.indexOf(w)>=0:t.indexOf(' '+w+' ')>=0;}
+function hasWord(text,p){var w=normT(p).trim();if(!w)return false;var t=typeof text==='string'?normT(text):text.n;return t.indexOf(w)>=0;}
+/* Termien osumat tekstissä alkuperäisinä kohtina {s,e,id}, laajennettuna koko sanaan. Vain termit, jotka ovat päällä. */
+var LETTER=/[\p{L}\p{N}]/u;
+function termHits(terms,text){text=String(text||'');var n='',map=[],sp=true;
+  for(var i=0;i<text.length;i++){var ch=text.charAt(i);if(LETTER.test(ch)){var lo=ch.toLowerCase();if(lo.length!==1)lo=ch;n+=lo;map.push(i);sp=false;}else if(!sp){n+=' ';map.push(i);sp=true;}}
+  var T={n:' '+n.trim()+' '},out=[];
+  (terms||[]).forEach(function(t){if(!termOn(t,T))return;[t.name].concat(t.also||[],t.yes||[]).forEach(function(w){w=normT(w).trim();if(!w)return;
+    for(var k=n.indexOf(w);k>=0;k=n.indexOf(w,k+1)){var s0=map[k],e0=map[k+w.length-1]+1;while(s0>0&&LETTER.test(text.charAt(s0-1)))s0--;while(e0<text.length&&LETTER.test(text.charAt(e0)))e0++;out.push({s:s0,e:e0,id:t.id});}});});
+  return out.sort(function(a,b){return a.s-b.s||b.e-a.e;});}
 function termOn(term,text){if(typeof text==='string')text={n:normT(text)};
   var yes=[term.name].concat(term.also||[],term.yes||[]).some(function(w){return hasWord(text,w);});
   if(!yes)return false;return !(term.no||[]).some(function(w){return hasWord(text,w);});}
@@ -627,6 +635,7 @@ function rangeOf(l,r,b){var A=oneDate(l,b),B=oneDate(r,b);if(!A||!B)return null;
   return a&&a<=e?[a,e]:null;}
 function timeOf(w){var m=/^(\d{1,2})(?:[.:](\d{2}))?(?:[-–](\d{1,2})(?:[.:](\d{2}))?)?$/.exec(w);if(!m||+m[1]>24||(m[3]&&+m[3]>24))return null;
   return {s:pad(+m[1])+':'+(m[2]||'00'),e:m[3]?pad(+m[3])+':'+(m[4]||'00'):''};}
+var WDA=['su','ma','ti','ke','to','pe','la'];
 function wdOf(w){var m=/^(maanantai|tiistai|keskiviikko|torstai|perjantai|lauantai|sunnuntai)(na|sin|t)?$/.exec(w);return m?{d:WD.indexOf(m[1]),sin:m[2]==='sin',base:!m[2]}:null;}
 function isoWeek(y,n){var j=new Date(y,0,4),mon=addDays(j,-((j.getDay()+6)%7));return addDays(mon,7*(n-1));}
 function tokensOf(text){var out=[],re=/\S+/g,m,prev=0,src=String(text||'');
@@ -651,8 +660,8 @@ function specAt(tk,i,b){var w=tk[i].w,n1=tk[i+1]&&!tk[i].brk?tk[i+1].w:null,n2=n
     end=(u==='kuukauden'||u==='kuun')?new Date(b.getFullYear(),b.getMonth()+nn,b.getDate()):addDays(b,u==='viikon'?7*nn:nn);
     return {n:k+2,sp:(rel==='päästä'||rel==='kuluttua')?R(end):R(b,end)};}
   if(w==='joka'){var ev=1,j=1;if(n1&&EVERYW[n1]){ev=EVERYW[n1];j=2;}var ww=tk[i+j]&&(j===1||!tk[i+1].brk)?wdOf(tk[i+j].w):null;if(ww)return {n:j+1,sp:{wd:ww.d,rec:true,every:ev}};}
-  if((w==='klo'||w==='kello')&&n1&&(x=timeOf(n1)))return {n:2,sp:{time:x}};
-  if((m=/^(?:klo|kello)(\d.*)$/.exec(w))&&(x=timeOf(m[1])))return {n:1,sp:{time:x}};
+  if((w==='klo'||w==='kello')&&n1&&(x=timeOf(n1.replace(/\.$/,''))))return {n:2,sp:{time:x}};
+  if((m=/^(?:klo|kello)(\d.*)$/.exec(w))&&(x=timeOf(m[1].replace(/\.$/,''))))return {n:1,sp:{time:x}};
   if(n1&&/^[-–—]$/.test(n1)&&n2&&(r=rangeOf(w,n2,b)))return {n:3,sp:R(r[0],r[1])};
   if((m=/^(.+?)[-–—](.+)$/.exec(w))&&(r=rangeOf(m[1],m[2],b)))return {n:1,sp:R(r[0],r[1])};
   if((x=oneDate(w,b)))return {n:1,sp:R(x.x)};
@@ -660,6 +669,7 @@ function specAt(tk,i,b){var w=tk[i].w,n1=tk[i+1]&&!tk[i].brk?tk[i+1].w:null,n2=n
   if((m=/^vk(\d{1,2})$/.exec(w))&&+m[1]>=1&&+m[1]<=53){x=isoWeek(b.getFullYear(),+m[1]);if(addDays(x,6)<b)x=isoWeek(b.getFullYear()+1,+m[1]);return {n:1,sp:R(x,addDays(x,6))};}
   if(w==='tänään')return {n:1,sp:R(b)};if(w==='huomenna')return {n:1,sp:R(addDays(b,1))};if(w==='ylihuomenna')return {n:1,sp:R(addDays(b,2))};
   if((x=wdOf(w)))return {n:1,sp:{wd:x.d,rec:x.sin}};
+  if(WDA.indexOf(w)>=0)return {n:1,sp:{wd:WDA.indexOf(w),abbr:true}}; // ma–su kelpaa vain toisen osan vieressä (parseDates)
   return null;}
 function occursOn(o,iso){if(o.R&&(iso<o.R[0]||iso>o.R[1]))return false;if(!o.R&&o.from&&iso<o.from)return false;
   var d=fromIso(iso);if(o.wds&&o.wds.length&&o.wds.indexOf(d.getDay())<0)return false;
@@ -689,6 +699,7 @@ function finishChunk(c,b,text){var bi=isoD(b),o={s:c.s,e:c.e,src:text.slice(c.s,
 function parseDates(text,base){var b=dayOf(base||new Date()),tk=tokensOf(text),out=[],c=null,i=0;text=String(text||'');
   function close(){if(c){var o=finishChunk(c,b,text);if(o)out.push(o);}c=null;}
   while(i<tk.length){if(tk[i].nl)close();var r=specAt(tk,i,b);
+    if(r&&r.sp.abbr&&!c){var nx=!tk[i].brk&&tk[i+1]&&!tk[i+1].nl?specAt(tk,i+1,b):null;if(!nx||nx.sp.abbr)r=null;}
     if(!r){close();i++;continue;}
     var sp=r.sp,last=tk[i+r.n-1];
     if(c&&((sp.R&&c.R)||(sp.time&&c.time)||(sp.mon&&c.mon)))close();
@@ -743,7 +754,7 @@ function looseJson(txt){var s=String(txt||''),a=s.indexOf('{'),b=s.lastIndexOf('
   try{return JSON.parse(s);}catch(e){}try{return JSON.parse(s.replace(/[“”„]/g,'"'));}catch(e){}return null;}
 if(typeof module!=='undefined')module.exports={VER:VER,ALKU:ALKU,parseLine:parseLine,lineOf:lineOf,bodyText:bodyText,parseText:parseText,rl:rl,ruleState:ruleState,toggleRule:toggleRule,needOf:needOf,needOpen:needOpen,setNeedMode:setNeedMode,toggleNeed:toggleNeed,causesOf:causesOf,
   sessionView:sessionView,moveItem:moveItem,shownName:shownName,blockedNow:blockedNow,tapDraft:tapDraft,replay:replay,exclOf:exclOf,newSession:newSession,notesOnDay:notesOnDay,dayCarry:dayCarry,commitStep:commitStep,undoStep:undoStep,sessionNote:sessionNote,sessionGroups:sessionGroups,renameKey:renameKey,removeKey:removeKey,
-  replaceLine:replaceLine,orphans:orphans,dropOrphans:dropOrphans,hasWord:hasWord,normT:normT,termOn:termOn,noteTerms:noteTerms,autoTerms:autoTerms,parseDates:parseDates,occursOn:occursOn,nextOcc:nextOcc,dateLabel:dateLabel,tokensOf:tokensOf,noteDates:noteDates,nextDate:nextDate,
+  replaceLine:replaceLine,orphans:orphans,dropOrphans:dropOrphans,hasWord:hasWord,normT:normT,termHits:termHits,termOn:termOn,noteTerms:noteTerms,autoTerms:autoTerms,parseDates:parseDates,occursOn:occursOn,nextOcc:nextOcc,dateLabel:dateLabel,tokensOf:tokensOf,noteDates:noteDates,nextDate:nextDate,
   sortNotes:sortNotes,fiDate:fiDate,stamp:stamp,isoD:isoD,normalizeData:normalizeData,looseJson:looseJson};
 </script>
 <script id="ui">
@@ -1010,12 +1021,17 @@ function openNote(n){noteCur=n;noteArm=0;$('ns-text').value=n?n.text:'';$('ns-da
 function foundInfo(){var txt=$('ns-text').value,N={text:txt,created:noteCur?noteCur.created:nowIso(),date:$('ns-date').value},f=$('ns-found');f.textContent='';
   var ds=noteDates(N),ts=noteTerms(allTerms(),txt);termCache=null;
   if(ds.length){f.appendChild(document.createTextNode('Ajankohdat: '));ds.forEach(function(o){f.appendChild(el('i','',o.src+' → '+dateLabel(o)));});}
-  if(ts.length){if(ds.length)f.appendChild(el('br'));f.appendChild(document.createTextNode('Termit: '));ts.forEach(function(id){f.appendChild(el('i','',termName(id)));});}}
+  if(ts.length){if(ds.length)f.appendChild(el('br'));f.appendChild(document.createTextNode('Termit: '));var hs=termHits(allTerms(),txt),seen={};termCache=null;
+    ts.forEach(function(id){var ws=[];hs.forEach(function(h){var w=txt.slice(h.s,h.e);if(h.id===id&&ws.indexOf(w)<0)ws.push(w);});seen[id]=1;f.appendChild(el('i','th',(ws.length?ws.join(', ')+' → ':'')+termName(id)));});}}
 /* Tunnistetut ajankohdat korostetaan tekstin taakse heti, kun niiden perään on kirjoitettu välilyönti tai rivinvaihto */
-function paintHl(){var ta=$('ns-text'),hl=$('ns-hl'),txt=ta.value,N={text:txt,created:noteCur?noteCur.created:nowIso()},pos=0;hl.textContent='';
-  parseDates(txt,new Date(N.created)).slice().sort(function(x,y){return x.s-y.s;}).forEach(function(o){if(!/\s/.test(txt.charAt(o.e))||o.s<pos)return;
-    hl.appendChild(document.createTextNode(txt.slice(pos,o.s)));hl.appendChild(el('mark','',txt.slice(o.s,o.e)));pos=o.e;});
-  hl.appendChild(document.createTextNode(txt.slice(pos)+'\u200b'));hl.scrollTop=ta.scrollTop;}
+/* Termin laukaiseva sana alleviivataan samoin heti, kun sana on valmis (perässä jokin muu kuin kirjain). */
+function paintHl(){var ta=$('ns-text'),hl=$('ns-hl'),txt=ta.value,N={text:txt,created:noteCur?noteCur.created:nowIso()},f=[],i;hl.textContent='';
+  for(i=0;i<=txt.length;i++)f.push(0);
+  parseDates(txt,new Date(N.created)).forEach(function(o){if(!/\s/.test(txt.charAt(o.e)))return;for(var k=o.s;k<o.e;k++)f[k]|=1;});
+  termHits(allTerms(),txt).forEach(function(h){if(h.e>=txt.length||LETTER.test(txt.charAt(h.e)))return;for(var k=h.s;k<h.e;k++)f[k]|=2;});termCache=null;
+  var st=0;for(i=1;i<=txt.length;i++){if(i===txt.length||f[i]!==f[st]){var part=txt.slice(st,i),v=f[st];
+      if(!v)hl.appendChild(document.createTextNode(part));else hl.appendChild(el(v&1?'mark':'span',v&2?'th':'',part));st=i;}}
+  hl.appendChild(document.createTextNode('\u200b'));hl.scrollTop=ta.scrollTop;}
 $('ns-text').addEventListener('input',paintHl);$('ns-text').addEventListener('scroll',function(){$('ns-hl').scrollTop=$('ns-text').scrollTop;});
 $('ns-text').addEventListener('input',foundInfo);$('ns-date').addEventListener('change',foundInfo);
 $('ns-ok').addEventListener('click',function(){var txt=$('ns-text').value;if(!txt.trim()){if(noteCur){data.notes=data.notes.filter(function(n){return n!==noteCur;});touch();}closeSheet($('nsheet'));render();return;}var t=nowIso();
@@ -1038,7 +1054,7 @@ function termRow(t){var r=el('button','row'+(t.auto&&t.kind==='g'?' grp':t.auto&
   r.addEventListener('click',function(){termCur=t;termArm=0;renderTerms();});return r;}
 function renderTerms(){var b=$('ts-body');b.textContent='';termCache=null;
   if(!termCur){$('ts-h').textContent='Termit';
-    b.appendChild(el('p','sub','Termi tunnistuu muistiinpanosta nimestään ja liitetyistä sanoista. Yksi sana tai lause riville. Sana tunnistuu kokonaisena; tavuviiva lopussa riittää osaksi: ”eläi-” löytää eläin, eläimen ja kotieläimet. Isot kirjaimet ja välimerkit eivät vaikuta. Poissulkeva sana voittaa. Muistiinpanot ja termit ovat yhteisiä kaikille päätöspuille.'));
+    b.appendChild(el('p','sub','Termi tunnistuu muistiinpanosta nimestään ja liitetyistä sanoista. Yksi sana tai lause riville. Sana löytyy osana mistä kohdasta tahansa: kirjoita vain se osa, joka ei taivu, esim. ”koir” löytää koirien ja kotikoiran. Isot kirjaimet ja välimerkit eivät vaikuta. Poissulkeva sana voittaa. Muistiinpanot ja termit ovat yhteisiä kaikille päätöspuille.'));
     b.appendChild(el('h3','','Omat termit'));
     var l=el('div','rows');data.terms.forEach(function(t){l.appendChild(termRow(t));});b.appendChild(l);
     var a=el('div','addrow'),i=el('input');i.type='text';i.id='newterm';i.placeholder='Uusi termi, esim. eläin';i.autocomplete='off';a.appendChild(i);a.style.marginTop='8px';

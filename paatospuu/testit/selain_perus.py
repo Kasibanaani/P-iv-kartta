@@ -103,6 +103,10 @@ async def run(p,w,h):
     want('ei korostusta ennen välilyöntiä', await pg.locator('#ns-hl mark').count()==0)
     await pg.type('#ns-text',' tärkeä'); want('korostus välilyönnin jälkeen', await pg.inner_text('#ns-hl mark')=='1.7.26 klo13-16')
     await check('korostus')
+    await pg.fill('#ns-text','Ruokaa kissalle'); await pg.dispatch_event('#ns-text','input')
+    want('termiä ei alleviivata kesken sanan', 'kissalle' not in await pg.locator('#ns-hl .th').all_inner_texts())
+    await pg.type('#ns-text',' '); want('termisana alleviivattu', 'kissalle' in await pg.locator('#ns-hl .th').all_inner_texts() and 'kissalle → Kissa' in await pg.inner_text('#ns-found'))
+    await check('termin alleviivaus')
     await pg.fill('#ns-text','Muistutus 24.12. ja kahden viikon sisällä')
     await pg.click('#ns-ok'); await check('muistiinpanot')
     # kierros päivälle: edellinen kierros (Kissa, Eläimet, Ruoka) päivälle 24.12. muistiinpanon kautta

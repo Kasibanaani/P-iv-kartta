@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.10, kokeilussa · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.11 (suunnitelman vaihe 1), odottaa Emilin kuittausta · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -65,7 +65,7 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 ## Versio 1.8 (21.10.2026, Emilin toive): termisanojen säännöt, sanahaku
 
 - Termin sanat: yksi sana tai lause riville (pilkku ei enää erota). Isot kirjaimet ja välimerkit eivät vaikuta vertailuun (pysyvät muistiinpanossa). Sana tunnistuu kokonaisena; tavuviiva lopussa = osa riittää, myös sanan keskeltä (”eläi-” löytää kotieläimet). Tavuviiva muualla on tavallinen merkki.
-- **Muutos aiempaan:** ennen sana tunnistui alusta (”eläi” löysi eläimen). Nyt taivutukset tarvitsevat tavuviivan. Myös palikoiden nimet tunnistuvat vain kokonaisina.
+- *Korvattu 1.11:ssä (sana löytyy osana mistä kohdasta tahansa).* **Muutos aiempaan:** ennen sana tunnistui alusta (”eläi” löysi eläimen). Nyt taivutukset tarvitsevat tavuviivan. Myös palikoiden nimet tunnistuvat vain kokonaisina.
 - Muistiinpanoissa hakukenttä *Hae sanalla* termien yläpuolella: osa sanaa riittää. Toimii yhdessä termisuodattimen kanssa.
 
 ## Versio 1.9 (21.10.2026, Emilin toive): värit tekstikentässä
@@ -80,6 +80,13 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Tallennus: projektiin `need:{seuraus:[syyt]}` (vanha muoto luetaan ennallaan, kenttä puuttuu = ei ehtoja). Nimen vaihto, poisto, kopiointi ja ”säännöt ilman riviä” huomioivat ehdot.
 - Ei vielä: ehtojen näyttö käytössä (”miksi tämä?”), ehdon täyttyneen ryhmän näkyminen muistiinpanon Ryhmät-rivillä.
 
+## Versio 1.11 (21.10.2026, suunnitelman vaihe 1)
+
+- Termisana ja palikan nimi löytyvät osana mistä kohdasta sanaa tahansa (”koir” → koirien, kotikoira). Tavuviivasääntö poistui (vanha ”eläi-” toimii edelleen, viiva ohitetaan). Lyhyt nimi (esim. yksi kirjain) osuu siksi moneen sanaan.
+- Muistiinpanon kirjoitusikkunassa termin laukaiseva sana alleviivataan violetilla heti, kun sana on valmis. Lista ikkunan alla: *Termit: kissalle → Kissa*.
+- ma, ti, ke, to, pe, la, su tunnistuvat vain välilyönnillä kiinni muussa ajankohdan osassa (”pe klo13-16”, ”vk43 ti”), eivät yksinään.
+- ”klo 14.” ja ”klo14.” lauseen lopussa tunnistuvat kellonajaksi.
+
 ## Ei tarkistettu
 
 - Oikealla iPhonella ei kokeiltu: tekstikentän värikerroksen kohdistus Safarissa (kursori, valinta, vieritys), zoomauksen esto ja yläreunan lisätila (näkyy vain kotinäytön appina), jakoikkunan tiedostovienti, päivämäärävalitsin, näppäimistö alapalkin kanssa, tekstikentän koko.
@@ -93,18 +100,9 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 ## Avoimet kysymykset
 
-- **Emil 21.10.2026 (keskustelu, ei rakennettu):** termisana saa aina olla sanan osa (”koir” löytää koirien); väärät osumat eivät haittaa. Ehdotus: osa missä kohdassa sanaa tahansa, tavuviivasääntö pois. Lisäksi toiveet: termiosumat alleviivataan kirjoittaessa, valitusta tekstistä termisana (”Liitä termiin”), ja teksti ↔ appi kaksisuuntaisesti (napauttamalla tehdyt säännöt ja sanat ilmestyvät tekstiin). Odottaa ”toteuta”.
-
-- **Ehdot, järjestys ja muisti (pohdinta, ei rakennettu):** ks. `POHDINTA-ehdot.md` (myös esiin nousevat apukysymykset ja termit puun tekstissä), sen lopussa 8 avointa kysymystä. Seuraava askel: Emilin esimerkkipuu läpi mallin kanssa ennen koodia.
-
-- Lyhenteet (ma, ti, pe) ja ”viikko 43” välilyönnillä eivät tunnistu (Vk42 vain yhteen, Emilin päätös). Lyhenteet voisi lisätä, jos ne ovat peräkkäin muun ajankohdan kanssa.
-- ”klo 14.” lauseen lopussa (piste perässä) ei tunnistu kellonajaksi.
-
-- Päivän muistiinpanoihin lasketaan nyt myös välit (esim. ”kahden viikon sisällä”), jotka sisältävät päivän. Riittääkö vain tarkka päivä?
-
-- Suhteellisten päivien pohja: luontihetki (nyt) vai viimeisin muokkaus (Emilin alkuperäinen ajatus)? Muokkaus siirtäisi ”perjantaita” joka kerta.
-- Kelpaako nimi ”kierros” istunnon tilalle?
-- Termin opetus on nyt kaksi tekstikenttää (tunnistavat / poissulkevat) eikä napautuskierto: riittääkö?
+- Emil hyväksyi 21.10.2026 kaikki suositukset dokumentista *Päätöspuu: avoimet kysymykset* (https://claude.ai/artifact/RFMnrpTAm7fb7r9prDPz8q). Toteutus etenee vaihe kerrallaan: `SUUNNITELMA-vaiheet.md` (pelisäännöt, vaiheiden tila ja kunkin vaiheen kysymykset). Seuraavaan vaiheeseen vasta Emilin kuittauksen ja vastausten jälkeen.
+- Ratkaistu: suhteellisten päivien pohja on luontihetki (17), nimi ”kierros” jää (24), päivän muistiinpanoihin lasketaan välit (Emil: ”Juu!”).
+- Termin opetus on kaksi tekstikenttää (tunnistavat / poissulkevat), ei napautuskierto: vaiheet 4 ja 6 tuovat lohkot tekstiin.
 
 ## Emilin kommentit
 

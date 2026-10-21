@@ -56,7 +56,7 @@ eq('muistiinpanoon ryhmät',E.sessionNote(p,S,''),'Testi\nValinnat: A → B\nRyh
 
 // kierros päivälle: päivän muistiinpanojen termit valmiiksi mukaan
 p=P('A\nB\nC\nD\n#G\n>T: Teksti.');t(p,A,'a');t(p,A,'b');t(p,'b','d');t(p,'g','c');E.toggleRule(p,'g','a','x');
-var dn=[{id:'1',created:'2026-10-01T10:00:00Z',text:'B ja G ja T',date:'2026-10-24'},{id:'2',created:'2026-10-01T10:00:00Z',text:'C',date:'2026-10-25'},{id:'3',created:new Date(2026,9,20).toISOString(),text:'D kahden viikon sisällä',date:''}];
+var dn=[{id:'1',created:'2026-10-01T10:00:00Z',text:'B, G, T',date:'2026-10-24'},{id:'2',created:'2026-10-01T10:00:00Z',text:'C',date:'2026-10-25'},{id:'3',created:new Date(2026,9,20).toISOString(),text:'D 14 päivän sisällä',date:''}];
 var dterms=E.autoTerms([p],{},[]);
 eq('päivän muistiinpanot',E.notesOnDay(dn,'2026-10-24').map(function(n){return n.id;}),['1','3']);
 var dc=E.dayCarry(p,dn,dterms,'2026-10-24');eq('päivän valinnat',dc,{notes:2,pre:['b','g','d'],texts:['t']});
@@ -83,8 +83,8 @@ p=P('A');t(p,'a','zz');eq('orvot',E.orphans(p),['zz']);E.dropOrphans(p);eq('orvo
 
 // termit
 var term={id:'t1',name:'eläin',yes:['kissa','koira'],no:['lelu']};
-eq('kyllä',E.termOn(term,'Kissa: ruoka loppui'),true);eq('kokonainen sana',E.termOn(term,'Kissan ruoka loppui'),false);
-eq('poissulku voittaa',E.termOn(term,'kissa, LELU'),false);eq('ei osumaa sanan keskeltä',E.termOn(term,'pikkukissa'),false);
+eq('kyllä',E.termOn(term,'Kissa: ruoka loppui'),true);eq('osa sanasta riittää',E.termOn(term,'Kissan ruoka loppui'),true);
+eq('poissulku voittaa',E.termOn(term,'kissa, LELU'),false);eq('osuma sanan keskeltä',E.termOn(term,'pikkukissa'),true);eq('ei osumaa',E.termOn(term,'hevonen'),false);
 var t2={id:'t2',name:'Allianssi',yes:['eläi-','onko lapsi turvassa?','koti-ikävä'],no:[]};
 eq('tavuviiva = osa riittää',E.termOn(t2,'Kotieläimet ulkona'),true);eq('lause, välimerkit katoavat',E.termOn(t2,'Mietin: Onko lapsi, turvassa'),true);
 eq('tavuviiva keskellä on tavallinen merkki',E.termOn(t2,'Koti ikävä'),true);eq('isot kirjaimet',E.termOn(t2,'ALLIANSSI!'),true);
@@ -103,7 +103,7 @@ var base=new Date(2026,9,20,21,0);function pd(s){return E.parseDates(s,base).map
 eq('perjantaina',pd('Soita perjantaina'),['2026-10-23']);eq('tiistaina = tänään',pd('tiistaina'),['2026-10-20']);
 eq('pvm',pd('24.10.26 ja 5.11.2026'),['2026-10-24','2026-11-05']);eq('ilman vuotta',pd('1.1. ja 25.10.'),['2026-10-25','2027-01-01']);
 eq('kahden viikon sisällä',pd('kahden viikon sisällä'),['2026-10-20..2026-11-03']);eq('3 päivän päästä',pd('3 päivän päästä'),['2026-10-23']);
-eq('ensi viikolla',pd('ensi viikolla'),['2026-10-26..2026-11-01']);eq('kellonaika ei',pd('klo 9.30. ja 31.2.26'),[]);
+eq('ensi viikolla',pd('ensi viikolla'),['2026-10-26..2026-11-01']);eq('kellonaika ei',pd('klo 25. ja 31.2.26'),[]);
 eq('päiväväli',pd('Loma 1.7.27–3.8.27 ja 5.-6. ei'),['2027-07-01..2027-08-03']);eq('väli ilman vuotta',pd('24.10.-26.10.'),['2026-10-24..2026-10-26']);eq('väli vuodenvaihde',pd('28.12.-2.1.27'),['2026-12-28..2027-01-02']);
 eq('huomenna',pd('huomenna'),['2026-10-21']);
 // Emilin lista 21.10.2026; pohja ti 20.10.2026
@@ -154,5 +154,17 @@ E.setNeedMode(q,qt,'x',false);eq('kaikki -> yksi riittää',[E.needOf(q,'x'),E.r
 E.setNeedMode(q,qt,'x',true);eq('yksi -> kaikki',[E.needOf(q,'x'),E.ruleState(q,'a','x')],[['a','b'],'']);
 E.renameKey(q,'a','aa');eq('nimen vaihto ehdossa',E.needOf(q,'x'),['aa','b']);E.removeKey(q,'b');eq('poisto ehdosta',E.needOf(q,'x'),['aa']);
 eq('ehdot tallessa',E.normalizeData({app:'paatospuu',projektit:[{id:'p',name:'n',text:'',need:{x:['a'],y:[]}}]}).projects[0].need,{x:['a']});
+
+// vaihe 1: termiosumien kohdat, ma–su vain muun osan vieressä, klo 14.
+var th=E.termHits([{id:'e',name:'Eläimet',yes:['koir'],no:[]},{id:'k',name:'Kala',yes:[],no:['lelu']}],'Kaksi koirien, Eläimet! ja kotikoira.');
+eq('termiosumat sanoina',th.map(function(h){return h.id+':'+h.s+'-'+h.e;}),['e:6-13','e:15-22','e:27-36']);
+eq('poissuljettu ei osu',E.termHits([{id:'k',name:'Kala',yes:[],no:['lelu']}],'kala ja lelu'),[]);
+var B=new Date(2026,9,21);
+eq('pe yksin ei tunnistu',E.parseDates('Menen pe kauppaan',B).length,0);
+var pd=E.parseDates('pe klo13-16',B);eq('pe klo13-16',[pd.length,pd[0]&&pd[0].R,pd[0]&&pd[0].time],[1,['2026-10-23','2026-10-23'],{s:'13:00',e:'16:00'}]);
+pd=E.parseDates('vk43 ti',B);eq('vk43 ti',[pd.length,pd[0]&&pd[0].a],[1,'2026-10-20']);
+pd=E.parseDates('ma ti',B);eq('kaksi lyhennettä yksin ei',pd.length,0);
+pd=E.parseDates('Tavataan klo 14.',B);eq('klo 14. lauseen lopussa',pd.length&&pd[0].time,{s:'14:00',e:''});
+pd=E.parseDates('Tavataan klo14.',B);eq('klo14.',pd.length&&pd[0].time,{s:'14:00',e:''});
 
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);
