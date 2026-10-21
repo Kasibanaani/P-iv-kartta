@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.4, kokeilussa · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.5, kokeilussa · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -43,6 +43,14 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Uusi tyyppi **apukysymys** `?Nimi: kysymys`: opetetaan kuten ilmoitus (valinta tuo sen näkyviin), näkyy pienenä, matalan kontrastin tekstinä kiinteästi ylhäällä ilman paneelirajaa vain sen askeleen ajan; monta allekkain. Ei lokiin, ei muistiinpanoon, ei termi.
 - Kalenterinäkymä: ehdotus `paatospuu/SUUNNITELMA-kalenteri.md`, odottaa Emilin hyväksyntää.
 
+## Versio 1.5 (21.10.2026, Emilin pyyntö): ajankohtien tulkinta
+
+- Emil vahvisti: päiväväli = jokainen välin päivä (toistuu, ei kopioita).
+- Tunnistetaan: 1.7.26, 1.7.2026, 1.7., 010726, välit (1.7.26–3.8.26, myös välilyönnein), 2/27 (koko kuu), Vk42 (vain yhteen kirjoitettuna), klo13-16 / klo 13.30-16 / kello 13.16, viikonpäivät (perjantai, perjantaina = seuraava), tiistaisin ja joka tiistai (joka viikko), joka toinen/kolmas/neljäs tiistai, kuun viimeinen viikko (viimeinen täysi ma–su-viikko, joka kuu), kuun viimeiset 3pv (joka kuu), tänään/huomenna/ylihuomenna, ensi/tällä viikolla, tässä/ensi kuussa, N päivän/viikon sisällä/päästä.
+- **Yhdistäminen (Emilin sääntö):** välilyönnillä peräkkäin kirjoitetut tunnistetut osat ovat yksi ajankohta ja tarkentavat toisiaan missä järjestyksessä tahansa (vk43 perjantai klo13-16 = 23.10. klo 13–16). Tunnistamaton sana, rivinvaihto tai välimerkki (pilkku ym.) sanan perässä katkaisee; erillään olevat ovat eri ajankohtia. Jos samaa osaa tulee toinen (kaksi päivämäärää, kaksi kellonaikaa), alkaa uusi ajankohta. Pelkkä kellonaika = pohjapäivä.
+- Muistiinpanon kirjoitusikkunassa tunnistettu ajankohta korostuu (täyttö + alleviivaus) heti, kun sen perään tulee välilyönti tai rivinvaihto; jatkokirjoitus liittää uudet osat samaan korostukseen. Alla lista *Ajankohdat: teksti → tulkinta*. Muistiinpanoon jää Emilin oma kirjoitusmuoto.
+- Toistuvat ajankohdat: järjestys ”Tulevat” käyttää seuraavaa esiintymää; päivän muistiinpanoihin (kierros päivälle) lasketaan jokainen esiintymä. Kellonaika näkyy kortissa; kalenteri käyttää sitä myöhemmin.
+
 ## Ei tarkistettu
 
 - Oikealla iPhonella ei kokeiltu: jakoikkunan tiedostovienti, päivämäärävalitsin, näppäimistö alapalkin kanssa, tekstikentän koko.
@@ -53,6 +61,9 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Emil kokeilee puhelimella. Mahdolliset seuraavat: säännöt myös tekstimuodossa (koko puu tekoälyllä), ilmoitusten kumoutuminen myöhemmin, termien opetus napauttamalla.
 
 ## Avoimet kysymykset
+
+- Lyhenteet (ma, ti, pe) ja ”viikko 43” välilyönnillä eivät tunnistu (Vk42 vain yhteen, Emilin päätös). Lyhenteet voisi lisätä, jos ne ovat peräkkäin muun ajankohdan kanssa.
+- ”klo 14.” lauseen lopussa (piste perässä) ei tunnistu kellonajaksi.
 
 - Päivän muistiinpanoihin lasketaan nyt myös välit (esim. ”kahden viikon sisällä”), jotka sisältävät päivän. Riittääkö vain tarkka päivä?
 

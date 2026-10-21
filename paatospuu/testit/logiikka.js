@@ -102,7 +102,27 @@ eq('pvm',pd('24.10.26 ja 5.11.2026'),['2026-10-24','2026-11-05']);eq('ilman vuot
 eq('kahden viikon sisällä',pd('kahden viikon sisällä'),['2026-10-20..2026-11-03']);eq('3 päivän päästä',pd('3 päivän päästä'),['2026-10-23']);
 eq('ensi viikolla',pd('ensi viikolla'),['2026-10-26..2026-11-01']);eq('kellonaika ei',pd('klo 9.30. ja 31.2.26'),[]);
 eq('päiväväli',pd('Loma 1.7.27–3.8.27 ja 5.-6. ei'),['2027-07-01..2027-08-03']);eq('väli ilman vuotta',pd('24.10.-26.10.'),['2026-10-24..2026-10-26']);eq('väli vuodenvaihde',pd('28.12.-2.1.27'),['2026-12-28..2027-01-02']);
-eq('huomenna',pd('huomenna'),['2026-10-21']);eq('maanantaisin ei',pd('maanantaisin'),[]);
+eq('huomenna',pd('huomenna'),['2026-10-21']);
+// Emilin lista 21.10.2026; pohja ti 20.10.2026
+function pz(s){return E.parseDates(s,base).map(function(o){return E.dateLabel(o)+' | '+o.a+(o.rec?' toistuu':'');});}
+eq('010726',pz('010726'),['ke 1.7.2026 | 2026-07-01']);
+eq('1.7.26 klo13-16',pz('1.7.26 klo13-16'),['ke 1.7.2026 klo 13.00–16.00 | 2026-07-01']);
+eq('2/27',pz('2/27'),['1.2.2027–28.2.2027 | 2027-02-01']);
+eq('klo13-16 perjantai',pz('klo13-16 perjantai'),['pe 23.10.2026 klo 13.00–16.00 | 2026-10-23']);
+eq('tiistaisin',pz('tiistaisin'),['joka ti | 2026-10-20 toistuu']);
+eq('maanantaisin',pz('maanantaisin'),['joka ma | 2026-10-26 toistuu']);
+var jt=E.parseDates('joka toinen tiistai',base)[0];eq('joka toinen tiistai',[E.dateLabel(jt),E.occursOn(jt,'2026-10-20'),E.occursOn(jt,'2026-10-27'),E.occursOn(jt,'2026-11-03')],['joka 2. ti',true,false,true]);
+var lw=E.parseDates('kuun viimeinen viikko',base)[0];eq('kuun viimeinen viikko',[lw.a,E.occursOn(lw,'2026-10-25'),E.occursOn(lw,'2026-10-26'),E.nextOcc(lw,'2026-10-26')],['2026-10-20',true,false,'2026-11-23']);
+eq('kuun viimeiset 3pv',pz('kuun viimeiset 3pv'),['kuun viimeiset 3 pv | 2026-10-29 toistuu']);
+eq('Vk42 yhteen',pz('Vk42'),['18.10.2027–24.10.2027 | 2027-10-18']);eq('vk 42 erikseen ei',pz('vk 42'),[]);
+eq('peräkkäin tarkentavat',pz('vk43 perjantai klo13-16'),['pe 23.10.2026 klo 13.00–16.00 | 2026-10-23']);
+eq('erillään erikseen',pz('Vk43 ja sitten klo13-16'),['19.10.2026–25.10.2026 | 2026-10-19','ti 20.10.2026 klo 13.00–16.00 | 2026-10-20']);
+eq('pilkku katkaisee',pz('perjantaina, klo 14'),['ti 20.10.2026 klo 14.00 | 2026-10-20','pe 23.10.2026 | 2026-10-23']);
+eq('järjestys vapaa',pz('klo 9.30-11 1.7.26'),['ke 1.7.2026 klo 9.30–11.00 | 2026-07-01']);
+eq('väli välilyönnein',pz('1.7.26 – 3.8.26 tiistaisin'),['joka ti 1.7.2026–3.8.2026 | 2026-07-07 toistuu']);
+var cs=E.parseDates('Palaveri 1.7.26 klo13-16 tärkeä',base)[0];eq('kohta tekstissä',[cs.s,cs.e,cs.src],[9,24,'1.7.26 klo13-16']);
+var rn={id:'r',created:base.toISOString(),text:'tiistaisin'};eq('toistuva järjestyksessä',E.nextDate(rn,'2026-10-21').k,'2026-10-27');
+eq('toistuva päivän muistiinpanoissa',E.notesOnDay([rn],'2026-11-03').length,1);
 
 // järjestys: monen päivän muistiinpano siirtyy seuraavaan
 var notes=[{id:'n1',created:new Date(2026,9,1).toISOString(),edited:'b',text:'5.10.26 ja 30.10.26',date:''},

@@ -86,6 +86,11 @@ async def run(p,w,h):
     await pg.click('#newnote'); await pg.fill('#ns-text','Muistutus 24.12. ja kahden viikon sisällä'); await check('uusi muistiinpano')
     await pg.fill('#ns-date','2026-12-24')
     want('päivät tunnistettu', await pg.locator('#ns-found i').count()==2)
+    await pg.fill('#ns-text','Palaveri 1.7.26 klo13-16'); await pg.dispatch_event('#ns-text','input')
+    want('ei korostusta ennen välilyöntiä', await pg.locator('#ns-hl mark').count()==0)
+    await pg.type('#ns-text',' tärkeä'); want('korostus välilyönnin jälkeen', await pg.inner_text('#ns-hl mark')=='1.7.26 klo13-16')
+    await check('korostus')
+    await pg.fill('#ns-text','Muistutus 24.12. ja kahden viikon sisällä')
     await pg.click('#ns-ok'); await check('muistiinpanot')
     # kierros päivälle: edellinen kierros (Kissa, Eläimet, Ruoka) päivälle 24.12. muistiinpanon kautta
     await pg.click('[data-tab="notes"]'); await pg.locator('#nlist .ncard').last.click(); await pg.fill('#ns-date','2026-12-24'); await pg.click('#ns-ok')
