@@ -297,3 +297,5 @@ Asetuksissa on rakennusympäristön ja projektin käyttönäkymän erilliset val
 - `selain_137_kello.py` – (1440, 1280 px; Appi-appi 101) paletin Kello ja Päivä, kellonaika h.mm palikassa, säännön ketjun tila paneelissa.
 - `selain_138_yleispalikka_siirto.py` – (1440, 1280 px; Appi-appi 102) auki olevan yleispalikan siirto kirjoitusosan reunasta: pysyy auki, Enter tallentaa, kenttä ei siirrä, Kumoa, zoom 2, pudotus ikkunaan.
 - `selain_139_lista_muokkaus.py` – (1440, 1280 hiirellä, 390, 320 sormella; Appi-appi 103, jonon 42a) Listan rivin napautus avaa kentän, Enter tallentaa ja lähettää muuttui, Esc peruu, tyhjä palaa, napautus muualle tallentaa, rasti, lisäys ja lataus ennallaan.
+- `logiikka_111_laattojen_liukkaus.js` – Appi-appi 104 (jono 19 jatko): laattalajin liukkaus (kunnostus, jää painovoimassa jalkojen alta, ilmassa ei, ylhäältä kuvattu lattia, töytäisyn kitka), kolikot KUN-palikalla toisen ilmoittavan lajin jäädessä.
+- `selain_140_laattojen_liukkaus.py` – (1440, 1280 px; Appi-appi 104) rakennuslaatikon Jää-laji, Kolikot laattoina ja Painelaatta, paneelin Liukkaus-kenttä, kolikot kerätään käytössä.
