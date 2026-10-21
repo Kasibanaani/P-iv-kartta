@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.6, kokeilussa · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.7, kokeilussa · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -58,6 +58,10 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Muokkausikkunoissa (tekstirivi, uusi rivi, muistiinpano, termi) vain *Valmis*. Ikkunan ulkopuolelle napautus tallentaa samoin. Tyhjäksi jätetty = poistuu. Poista-, Peru- ja Kopioi-napit pois.
 - Peru askel ja Lopeta ennallaan (Lopeta toimii joka askeleella).
 
+## Versio 1.7 (21.10.2026, Emilin toive)
+
+- Projektin ikkunassa (yläpalkin nimi) nappi *Kopioi puu*: kopioon teksti, säännöt ja toisensa poissulkevat, ei keskeneräistä kierrosta. Kopio avautuu nimellä ”Nimi (kopio)”.
+
 ## Ei tarkistettu
 
 - Oikealla iPhonella ei kokeiltu: zoomauksen esto ja yläreunan lisätila (näkyy vain kotinäytön appina), jakoikkunan tiedostovienti, päivämäärävalitsin, näppäimistö alapalkin kanssa, tekstikentän koko.
@@ -69,7 +73,7 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 ## Avoimet kysymykset
 
-- **Emilin idea 21.10.2026 (vain pohdittu, ei rakennettu):** järjestys nappien välille (”kumpi ensin”) ja sen kautta työnkulku. Ehdotus: oma Järjestys-tila, jossa valitut napit napautetaan haluttuun järjestykseen. Siitä syntyy ehto ”A ennen B”. Käytössä appi näyttää avautuneista kohdista ”Seuraavaksi: …” ja kuittauksen jälkeen seuraavan. Rivijärjestys on oletusjärjestys. Kysymys: onko ”tärkeämpi” sama kuin ”pakko ensin”?
+- **Ehdot, järjestys ja muisti (pohdinta, ei rakennettu):** ks. `POHDINTA-ehdot.md`, sen lopussa 4 avointa kysymystä. Seuraava askel: Emilin esimerkkipuu läpi mallin kanssa ennen koodia.
 
 - Lyhenteet (ma, ti, pe) ja ”viikko 43” välilyönnillä eivät tunnistu (Vk42 vain yhteen, Emilin päätös). Lyhenteet voisi lisätä, jos ne ovat peräkkäin muun ajankohdan kanssa.
 - ”klo 14.” lauseen lopussa (piste perässä) ei tunnistu kellonajaksi.

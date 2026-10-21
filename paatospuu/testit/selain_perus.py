@@ -99,6 +99,11 @@ async def run(p,w,h):
     await pg.click('#start'); await pg.wait_for_timeout(50)
     want('päivän valinnat valmiina', 'Lemmikki tarvitsee' in await pg.inner_text('#log') and await opts()==['kissa','ruoka','leikkiminen'] and 'sel' in await pg.get_attribute('#opts [data-id="ruoka"]','class'))
     await pg.click('#act-end'); want('päivä valmiina lopussa', await pg.input_value('#es-date')=='2026-12-24'); await pg.click('#es-cancel')
+    # puun kopiointi
+    await pg.click('#title'); await pg.click('#ps-copy'); await pg.wait_for_timeout(50); await check('kopioi puu')
+    pr=json.loads(await pg.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('paatospuu:v1')).projektit)"))
+    want('kopio: teksti ja säännöt', len(pr)==2 and pr[1]['name']=='Lemmikit (kopio)' and pr[1]['text']==pr[0]['text'] and pr[1]['rules']==pr[0]['rules'] and pr[1]['mx']==pr[0]['mx'] and not pr[1].get('session') and pr[1]['id']!=pr[0]['id'])
+    await pg.click('#ps-del'); await pg.click('#ps-del'); await pg.click('#ps-close'); await pg.wait_for_timeout(50)
     # asetukset ja varmuuskopio
     await pg.click('[data-tab="set"]'); await pg.click('#exptxt'); await pg.wait_for_timeout(50)
     dump=await pg.input_value('#dataout textarea'); await check('asetukset')
