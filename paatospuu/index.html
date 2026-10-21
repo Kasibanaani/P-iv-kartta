@@ -282,7 +282,10 @@ button.chip[aria-pressed="true"]{box-shadow:inset 0 0 0 1px currentColor}
 /* ---- Päätöspuun omat ---- */
 :root{padding-bottom:0}
 .panel{box-shadow:none;border-radius:0}
-nav{position:static;flex:none;padding-bottom:env(safe-area-inset-bottom,0px)}
+/* Alapalkki (Emil 21.10.2026): välilehdet lähemmäs toisiaan, ettei reunimmaiset jää näytön pyöristyksen alle, ja vähemmän tyhjää alla */
+nav{position:static;flex:none;padding:0 22px max(4px,calc(env(safe-area-inset-bottom,0px) - 18px))}
+nav .tab{padding:6px 0 4px}
+@media (max-width:359px){nav{padding-left:10px;padding-right:10px}}
 main{padding-bottom:28px}
 .top[data-ed="x"]{background:var(--red)}
 .top[data-ed="c"]{background:var(--ehto-bg)}
@@ -319,7 +322,10 @@ main{padding-bottom:28px}
 #hs-body p{margin:0 0 10px;font-size:16px;overflow-wrap:anywhere}
 .ibtn{flex:none;width:26px;height:26px;padding:0;border:0;border-radius:13px;background:var(--cell);box-shadow:inset 0 0 0 1px var(--sep);color:var(--accent);font:italic 700 15px/26px Georgia,serif;cursor:pointer}
 .top[data-mode="teach"] .ibtn{background:rgba(255,255,255,.24);box-shadow:none;color:var(--on-solid)}
-.top[data-mode="teach"] .info.empty{display:none}
+.top[data-mode="teach"] .info.empty,.top[data-mode="notes"] .info.empty{display:none}
+.count{flex:none;min-width:24px;height:24px;padding:0 7px;border-radius:12px;background:var(--cell);box-shadow:inset 0 0 0 1px var(--sep);color:var(--label2);font-size:13px;font-weight:700;line-height:24px;text-align:center;font-variant-numeric:tabular-nums}
+.nbar{position:sticky;top:-10px;z-index:4;margin:-10px -16px 10px;padding:6px 16px 6px;background:var(--bg)}
+.nbar .seg{margin:0}.nbar .seg+.seg{margin-top:6px}
 .qcard{margin-bottom:8px;background:var(--bg);box-shadow:none;border:1px solid var(--sep)}.qcard textarea{min-height:60px}
 #ns-linkbox{background:var(--bg);box-shadow:none;border:1px solid var(--sep)}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
@@ -393,6 +399,7 @@ html.standalone .top{padding-top:calc(env(safe-area-inset-top,0px) + 30px)}
         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg>
       </button>
       <button id="status" class="stat" type="button" hidden></button>
+      <span class="count" id="count" hidden></span>
       <button class="ibtn" type="button" id="hint" aria-label="Ohje" hidden>i</button>
       <span class="mode" id="mode" aria-live="polite"></span>
     </div>
@@ -1138,7 +1145,7 @@ function renderHead(){var P=proj();$('tname').textContent=P?P.name:'Päätöspuu
 var hintNow=null;
 function setInfo(html,done,warn){var t=$('info-text');t.textContent='';
   if(tab==='teach'&&!warn){hintNow=html||null;$('info').classList.add('empty');$('info-done').hidden=true;$('hint').hidden=!hintNow;return;}
-  $('info').classList.remove('empty');if(tab!=='teach')$('hint').hidden=true;
+  $('info').classList.toggle('empty',!html&&!done);if(tab!=='teach')$('hint').hidden=true;if(tab!=='notes')$('count').hidden=true;
   if(html){if(typeof html==='string')t.textContent=html;else t.appendChild(html);}$('info-done').hidden=!done;}
 $('hint').addEventListener('click',function(){var b=$('hs-body');b.textContent='';if(!hintNow)return;var pp=el('p');pp.appendChild(typeof hintNow==='string'?document.createTextNode(hintNow):hintNow.cloneNode(true));b.appendChild(pp);openSheet($('hsheet'));});
 $('hs-close').addEventListener('click',function(){closeSheet($('hsheet'));});
@@ -1402,9 +1409,10 @@ var termCache=null;
 function termName(id){var l=termCache||allTerms();for(var i=0;i<l.length;i++)if(l[i].id===id)return l[i].name;return '';}
 function renderNotes(){var p=panels.notes;p.textContent='';var today=todayIso();
   var NS=data.notes.filter(function(n){return noteView==='done'?!!n.done:!n.done;}),nd=data.notes.length-data.notes.filter(function(n){return !n.done;}).length;
-  setInfo(NS.length?NS.length+(NS.length===1?' muistiinpano':' muistiinpanoa')+(noteView==='done'?' kuitattu':''):(noteView==='done'?'Ei kuitattuja. Pitkä painallus muistiinpanoon kuittaa sen.':'Päättyneet kierrokset ja omat muistiinpanot tulevat tänne.'));
-  var vs=el('div','seg');vs.id='noteview';vs.style.marginBottom='10px';[['open','Avoimet'],['done','Kuitatut'+(nd?' ('+nd+')':'')]].forEach(function(m){var b=button(vs,m[1],'',function(){noteView=m[0];main.scrollTop=0;render();});b.className='';b.dataset.nv=m[0];b.setAttribute('aria-pressed',noteView===m[0]?'true':'false');});p.appendChild(vs);
-  var so=el('div','seg');so.id='notesort';so.setAttribute('aria-label','Järjestys');so.style.marginBottom='10px';[['next','Tulevat'],['new','Uusimmat'],['prio','Tärkeys']].forEach(function(m){var b=button(so,m[1],'',function(){noteSort=m[0];main.scrollTop=0;render();});b.className='';b.dataset.ns=m[0];b.setAttribute('aria-pressed',noteSort===m[0]?'true':'false');});p.appendChild(so);
+  var cn=$('count');cn.hidden=false;cn.textContent=NS.length;cn.setAttribute('aria-label',NS.length+(NS.length===1?' muistiinpano':' muistiinpanoa'));
+  var nb=el('div','nbar');nb.id='nbar';p.appendChild(nb);
+  var vs=el('div','seg');vs.id='noteview';[['open','Avoimet'],['done','Kuitatut'+(nd?' ('+nd+')':'')]].forEach(function(m){var b=button(vs,m[1],'',function(){noteView=m[0];main.scrollTop=0;render();});b.className='';b.dataset.nv=m[0];b.setAttribute('aria-pressed',noteView===m[0]?'true':'false');});nb.appendChild(vs);
+  var so=el('div','seg');so.id='notesort';so.setAttribute('aria-label','Järjestys');[['next','Tulevat'],['new','Uusimmat'],['prio','Tärkeys']].forEach(function(m){var b=button(so,m[1],'',function(){noteSort=m[0];main.scrollTop=0;render();});b.className='';b.dataset.ns=m[0];b.setAttribute('aria-pressed',noteSort===m[0]?'true':'false');});nb.appendChild(so);
   $('notebar').hidden=false;
   var AT=termCache=allTerms(),hits={},nt={};NS.forEach(function(n){nt[n.id]=noteTerms(AT,n.text);nt[n.id].forEach(function(id){hits[id]=1;});});
   var shownT=AT.filter(function(t){return !t.auto||hits[t.id];});
@@ -1419,7 +1427,7 @@ function renderNotes(){var p=panels.notes;p.textContent='';var today=todayIso();
     c.appendChild(el('div','nt',n.text));var f=el('div','nf');f.appendChild(el('span','',stamp(n.created)));
     nt[n.id].forEach(function(id){f.appendChild(el('i','',termName(id)));});c.appendChild(f);
     longPress(c,function(){openMenu(n);},function(){openNote(n);});list.appendChild(c);});
-  if(!l.length)p.appendChild(el('p','sub',noteFilter?'Tällä termillä ei ole muistiinpanoja.':(noteView==='done'?'Ei kuitattuja muistiinpanoja.':'Ei vielä muistiinpanoja.')));
+  if(!l.length)p.appendChild(el('p','sub',noteFilter?'Tällä termillä ei ole muistiinpanoja.':(noteView==='done'?'Ei kuitattuja. Pitkä painallus muistiinpanoon kuittaa sen.':'Ei vielä muistiinpanoja. Päättyneet kierrokset ja omat muistiinpanot tulevat tänne.')));
   p.appendChild(list);var em=el('p','sub','Ei osumia.');em.id='nempty';em.hidden=true;p.appendChild(em);filterNotes();}
 /* Sanahaku: osa sanaa riittää, isot kirjaimet ja välimerkit eivät vaikuta. Suodattaa näkyvät kortit uudelleen piirtämättä. */
 function filterNotes(){var w=normT(noteQuery).trim(),n=0;Array.prototype.forEach.call(document.querySelectorAll('#nlist .ncard'),function(c){

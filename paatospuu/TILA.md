@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.19.1 (suunnitelman vaihe 9 + Opetuksen ilme), odottaa Emilin kuittausta; seuraavaksi 7b · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.19.2 (suunnitelman vaihe 9 + käyttöliittymän tiivistys), odottaa Emilin kuittausta; seuraavaksi 7b · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -154,8 +154,14 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Opetuksessa ohjeteksti ei näy jatkuvasti: yläpalkissa on i-nappi, josta ohje aukeaa. Varoitus (esim. kehä) näkyy edelleen yläpalkissa.
 - Pienet siirtymät (200 ms) käytössä ja opetuksessa: rivi liukuu uuteen kohtaansa ja väri vaihtuu pehmeästi, uusi rivi häivyttyy esiin. Pois jäävät, jos laite pyytää vähemmän liikettä.
 
+## Versio 1.19.2 (21.10.2026, Emilin toive): Muistiot ja alapalkki tiiviimmiksi
+
+- Muistiot: rivi ”N muistiinpanoa” poistettu; lukumäärä on pelkkänä numerona yläpalkissa nimen vieressä. Avoimet/Kuitatut ja Tulevat/Uusimmat/Tärkeys pysyvät ylhäällä vierittäessä; Hae sanalla ja termisirut vierivät pois.
+- Alapalkki: välilehdet 22 px (alle 360 px:n leveydellä 10 px) reunoista sisemmäs, ja tyhjää alla noin 20 px vähemmän (kotinäytön appina). Yläpalkin korkeutta ei muutettu Dynamic Islandin takia; Opetuksessa ja Muistioissa tyhjä ohjerivi jää pois.
+
 ## Ei tarkistettu
 
+- Oikealla iPhonella ei kokeiltu (1.19.2): alapalkin uusi korkeus kotinäytön appina (kotiviiva ei saa peittää nimiä), reunimmaisten välilehtien paikka.
 - Oikealla iPhonella ei kokeiltu (1.19.1): siirtymien sujuvuus, työkalurivin pysyminen ylhäällä Safarissa.
 - Oikealla iPhonella ei kokeiltu (1.19): tärkeiden raahaus (sivu ei saa vieriä mukana, iOS:n valikko ei saa aueta), tähtitila pitkällä listalla.
 - Oikealla iPhonella ei kokeiltu: muistiinpanokortin pitkä painallus (iOS:n valikko ei saa aueta), järjestysnuolet pitkällä listalla, kalenterin pitkä painallus ja raahaus (sivun vieritys ei saa lähteä mukaan, iOS:n valintavalikko ei saa aueta), kulmaväkänen, viikkonauhan pyyhkäisy, apukysymyskortit näppäimistön kanssa, tekstin valinta ja Liitä termiin -nappi (iOS:n oma valintavalikko), tekstikentän värikerroksen kohdistus Safarissa (kursori, valinta, vieritys), zoomauksen esto ja yläreunan lisätila (näkyy vain kotinäytön appina), jakoikkunan tiedostovienti, päivämäärävalitsin, näppäimistö alapalkin kanssa, tekstikentän koko.
