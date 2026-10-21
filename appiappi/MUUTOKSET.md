@@ -4,6 +4,15 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
 
 ## Versiot
 
+- Appi-appi 111 (21.10., kaista A, jonon 42f, suunnitelma 31 V6; ei tallennusmuodon muutosta): **Tekstistä luettavat .päivä, .kello, .luku ja .sanoja.**
+  - Tekstiarvolle luettavat ominaisuudet (ei funktioita): `.päivä` = ensimmäinen päivämäärä (`24.10.`, `24.10.2026`, `2026-10-24`, `tänään`, `huomenna`, `ylihuomenna`, `eilen`; vuosi puuttuu → lähin tuleva, D3), `.kello` = ensimmäinen kellonaika (`klo 14`, `kello 9.30`, `18:45`; `14.30` ilman klo-sanaa ei ole kello, koska se voi olla päivä), `.luku` = ensimmäinen luku, joka ei ole osa päivää tai kelloa (`2,5`), `.sanoja` = sanojen määrä (myös numerot). Puuttuva = tyhjä.
+  - Missä: yleispalikka (`@muistutus.päivä`), näkymän Teksti, Listan rivi (`lista.rivi2.päivä`), ryhmän jäsen (`kuuluu, kun jäsen.päivä = tänään` = päivämäärien ryhmä). Ketju: `@muistutus.päivä.viikonpäivä`, `lista.rivi2.päivä.kuukausi`. `.kello` näkyy kaavassa kellonaikana (h.mm) ja laskee kuten `klo 14` (`@muistutus.kello >= klo 12`).
+  - Päivämäärä-kentän oma `.päivä` (kuukauden päivä) ennallaan. Yleispalikan ja Tekstin ominaisuuksiin (ehdotukset, *Ominaisuudet*) tuli neljä luettavaa riviä.
+  - Testit: `logiikka_117_tekstin_osat.js`, `selain_147_tekstin_osat.py`.
+  - Ristiintarkistus kaista B:n kanssa: 110:n piirretty ilme (ohjaimet) ja 108:n piirrokset eivät koske tekstiarvoja; molempien testit läpi samassa koko sarjassa.
+  - Ei tarkistettu: oikea iPhone; vain tietokoneen Chromium. Englanninkieliset päivämuodot (10/24) ja kuukausien nimet (24. lokakuuta) eivät tunnistu.
+  - Kokeile koneella: kirjoita yleispalikkaan *Hammaslääkäri 24.10. klo 14* (nimi Muistutus) ja toiseen `= @muistutus.päivä` → 24.10.2026; `= @muistutus.kello` → 14.00.
+  - Manuaaliin: luku 3 *Yhteiset ominaisuudet* tai kaavaluku: tekstin osat `.päivä`, `.kello`, `.luku`, `.sanoja` (muodot, lähin tuleva, ketjut, missä toimii); luku Lista: `rivi2.päivä`; ryhmäluku: esimerkki `kuuluu, kun jäsen.päivä = tänään`; hakemistoon neljä riviä.
 - Appi-appi 110 (21.10., kaista B, jonon 20b, F35 vaihe E2, suunnitelma 19 kohta 6; **tallennusmuoto laajenee valinnaisella kentällä** palikan `il`, versio pysyy 12): **Piirretty ilme ohjaimille ja näkymäpalikoille.**
   - **Osio Ilme** jokaisen näkymäpalikan paneelissa (paitsi Kuva, Laattakartta, Sijainti, Alue, Reitti, Toistin): *Tavallinen* (oletus, kuten ennen) tai *Piirros*. Piirros korvaa pohjan ja reunan; toiminta, tapahtumat, näkyy kun, harmaana kun, siirto, animointi ja käyttöraahaus pysyvät.
   - **Tilat** (`il.t`, kukin valinnainen, puuttuva käyttää perusta): Painike perus / painettu (pohjassa, myös peliohjaimen painallus) / valittu (päällä) / harmaana; Valintaruutu ja Kytkin pois / päällä / harmaana; Säädin kisko / täytetty osa / nuppi; Tatti pohja / nuppi; Monitori pohja / täyttö (palkki ja pylväs leikkaavat täytön arvon mukaan; muissa muodoissa pohja on koko palikka); muut perus / vaihtovärin aikana. Puuttuva osa pysyy tavallisena.
