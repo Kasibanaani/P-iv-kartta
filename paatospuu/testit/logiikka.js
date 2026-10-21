@@ -54,6 +54,17 @@ eq('muistiinpano',E.sessionNote(p,S,'Oma huomio'),'Testi\nValinnat: A → B\n\nP
 p=P('A\nB\nC\n#G\n#H');t(p,A,'a');t(p,'a','g');t(p,'g','h');t(p,'h','b');t(p,'b','c');S=E.newSession(p,'x');E.commitStep(p,S,{p:['a'],d:[]});E.commitStep(p,S,{p:['b'],d:[]});
 eq('muistiinpanoon ryhmät',E.sessionNote(p,S,''),'Testi\nValinnat: A → B\nRyhmät: G, H');
 
+// kierros päivälle: päivän muistiinpanojen termit valmiiksi mukaan
+p=P('A\nB\nC\nD\n#G\n>T: Teksti.');t(p,A,'a');t(p,A,'b');t(p,'b','d');t(p,'g','c');E.toggleRule(p,'g','a','x');
+var dn=[{id:'1',created:'2026-10-01T10:00:00Z',text:'B ja G ja T',date:'2026-10-24'},{id:'2',created:'2026-10-01T10:00:00Z',text:'C',date:'2026-10-25'},{id:'3',created:new Date(2026,9,20).toISOString(),text:'D kahden viikon sisällä',date:''}];
+var dterms=E.autoTerms([p],{},[]);
+eq('päivän muistiinpanot',E.notesOnDay(dn,'2026-10-24').map(function(n){return n.id;}),['1','3']);
+var dc=E.dayCarry(p,dn,dterms,'2026-10-24');eq('päivän valinnat',dc,{notes:2,pre:['b','g','d'],texts:['t']});
+dc.date='2026-10-24';S=E.newSession(p,'x',dc);v=E.sessionView(p,S);
+eq('valmiina: G sulkee A:n, G avaa C:n, B avaa D:n, D valittuna',[v.opts,v.picked,S.log,S.date],[['b','c','d'],['b','d'],['t'],'2026-10-24']);
+E.commitStep(p,S,{p:['c'],d:[]});eq('muistiinpano päivällä',E.sessionNote(p,S,''),'Testi\nPäivä: 24.10.2026\nPäivän muistiinpanoista: B, D\nValinnat: B, C, D\nRyhmät: G\n\nTeksti.');
+eq('ilman päivää ennallaan',E.newSession(p,'x').steps,[{p:[A],d:[]}]);
+
 // nimen vaihto ja poisto
 p=P('A\nB');t(p,A,'a');t(p,'a','b');p.mx=[['a','b']];E.renameKey(p,'b','bee');eq('rename',[p.rules.a.o,p.mx],[['bee'],[['a','bee']]]);
 E.removeKey(p,'bee');eq('remove',[p.rules.a,p.mx],[undefined,[]]);
@@ -69,6 +80,7 @@ var pr=[{name:'Eka',text:'Kova nälkä\n#Täyttävät: x\n>Muistutus: katso jä�
 var at=E.autoTerms(pr,{'täyttävät':{yes:['pasta'],no:['lelu']}},[{id:'t9',name:'Ulkona',yes:[],no:[]}]);
 eq('automaattiset termit',at.map(function(t){return t.id+'/'+t.kind+'/'+t.proj;}),['a:kova nälkä/b/Eka','a:täyttävät/g/Eka','a:muistutus/t/Eka']);
 eq('sana liitetty ryhmään',E.noteTerms(at,'Söin pastaa ja kova nälkä'),['a:kova nälkä','a:täyttävät']);
+eq('ilmoitus tunnistuu tekstistään',E.noteTerms(at,'Muuta: Katso jääkaappi heti'),['a:muistutus']);
 eq('poissulku automaattiseen',E.noteTerms(at,'pasta ja lelu'),[]);
 eq('termisanat talteen',E.normalizeData({app:'paatospuu',termisanat:{'x':{yes:['a'],no:[]},'y':{yes:[],no:[]}}}).words,{x:{yes:['a'],no:[]}});
 

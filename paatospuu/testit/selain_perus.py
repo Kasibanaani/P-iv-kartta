@@ -79,8 +79,16 @@ async def run(p,w,h):
     want('termi näkyy kortissa', 'eläin' in await pg.inner_text('#nlist .nf'))
     want('päivä kortissa', await pg.locator('#nlist .nd').count()==1)
     await pg.click('#newnote'); await pg.fill('#ns-text','Muistutus 24.12. ja kahden viikon sisällä'); await check('uusi muistiinpano')
+    await pg.fill('#ns-date','2026-12-24')
     want('päivät tunnistettu', await pg.locator('#ns-found i').count()==2)
     await pg.click('#ns-ok'); await check('muistiinpanot')
+    # kierros päivälle: edellinen kierros (Kissa, Eläimet, Ruoka) päivälle 24.12. muistiinpanon kautta
+    await pg.click('[data-tab="notes"]'); await pg.locator('#nlist .ncard').last.click(); await pg.fill('#ns-date','2026-12-24'); await pg.click('#ns-ok')
+    await pg.click('[data-tab="use"]'); await pg.fill('#startdate','2026-12-24'); await pg.dispatch_event('#startdate','change'); await check('kierros päivälle')
+    want('päivän esikatselu', '1 ilmoitus' in await pg.inner_text('#startinfo'))
+    await pg.click('#start'); await pg.wait_for_timeout(50)
+    want('päivän valinnat valmiina', 'Lemmikki tarvitsee' in await pg.inner_text('#log') and await opts()==['kissa','ruoka','leikkiminen'] and 'sel' in await pg.get_attribute('#opts [data-id="ruoka"]','class'))
+    await pg.click('#act-end'); want('päivä valmiina lopussa', await pg.input_value('#es-date')=='2026-12-24'); await pg.click('#es-cancel')
     # asetukset ja varmuuskopio
     await pg.click('[data-tab="set"]'); await pg.click('#exptxt'); await pg.wait_for_timeout(50)
     dump=await pg.input_value('#dataout textarea'); await check('asetukset')
