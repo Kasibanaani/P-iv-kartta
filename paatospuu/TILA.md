@@ -86,6 +86,8 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 ## Avoimet kysymykset
 
+- **Emil 21.10.2026 (keskustelu, ei rakennettu):** termisana saa aina olla sanan osa (”koir” löytää koirien); väärät osumat eivät haittaa. Ehdotus: osa missä kohdassa sanaa tahansa, tavuviivasääntö pois. Lisäksi toiveet: termiosumat alleviivataan kirjoittaessa, valitusta tekstistä termisana (”Liitä termiin”), ja teksti ↔ appi kaksisuuntaisesti (napauttamalla tehdyt säännöt ja sanat ilmestyvät tekstiin). Odottaa ”toteuta”.
+
 - **Ehdot, järjestys ja muisti (pohdinta, ei rakennettu):** ks. `POHDINTA-ehdot.md` (myös esiin nousevat apukysymykset ja termit puun tekstissä), sen lopussa 8 avointa kysymystä. Seuraava askel: Emilin esimerkkipuu läpi mallin kanssa ennen koodia.
 
 - Lyhenteet (ma, ti, pe) ja ”viikko 43” välilyönnillä eivät tunnistu (Vk42 vain yhteen, Emilin päätös). Lyhenteet voisi lisätä, jos ne ovat peräkkäin muun ajankohdan kanssa.
