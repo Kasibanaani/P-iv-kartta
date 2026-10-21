@@ -120,8 +120,8 @@ var lw=E.parseDates('kuun viimeinen viikko',base)[0];eq('kuun viimeinen viikko',
 eq('kuun viimeiset 3pv',pz('kuun viimeiset 3pv'),['kuun viimeiset 3 pv | 2026-10-29 toistuu']);
 eq('Vk42 yhteen',pz('Vk42'),['18.10.2027–24.10.2027 | 2027-10-18']);eq('vk 42 erikseen ei',pz('vk 42'),[]);
 eq('peräkkäin tarkentavat',pz('vk43 perjantai klo13-16'),['pe 23.10.2026 klo 13.00–16.00 | 2026-10-23']);
-eq('erillään erikseen',pz('Vk43 ja sitten klo13-16'),['19.10.2026–25.10.2026 | 2026-10-19','ti 20.10.2026 klo 13.00–16.00 | 2026-10-20']);
-eq('pilkku katkaisee',pz('perjantaina, klo 14'),['ti 20.10.2026 klo 14.00 | 2026-10-20','pe 23.10.2026 | 2026-10-23']);
+eq('erillään erikseen',pz('Vk43 ja sitten klo13-16'),['19.10.2026–25.10.2026 | 2026-10-19','ke 21.10.2026 klo 13.00–16.00 | 2026-10-21']); // klo 21 kirjoitettu: mennyt kello huomenna
+eq('pilkku katkaisee',pz('perjantaina, klo 14'),['ke 21.10.2026 klo 14.00 | 2026-10-21','pe 23.10.2026 | 2026-10-23']);
 eq('järjestys vapaa',pz('klo 9.30-11 1.7.26'),['ke 1.7.2026 klo 9.30–11.00 | 2026-07-01']);
 eq('väli välilyönnein',pz('1.7.26 – 3.8.26 tiistaisin'),['joka ti 1.7.2026–3.8.2026 | 2026-07-07 toistuu']);
 var cs=E.parseDates('Palaveri 1.7.26 klo13-16 tärkeä',base)[0];eq('kohta tekstissä',[cs.s,cs.e,cs.src],[9,24,'1.7.26 klo13-16']);
@@ -342,6 +342,12 @@ var RT2=E.projectsFromFile(JSON.parse(JSON.stringify(E.projectFile({name:'X',cur
 eq('vienti ja lisäys takaisin',[RT2.name,RT2.projects[0].text,RT2.notes[0].text,RT2.reps.length],['X',PS.projects[0].text,'Sali ma klo 17',1]);
 eq('koko varmuuskopiosta kaikki projektit',E.projectsFromFile({app:'paatospuu',kokonaisuudet:[{id:'a',name:'A'},{id:'b',name:'B'}]}).map(function(k){return k.name;}),['A','B']);
 eq('vieras tiedosto',E.projectsFromFile({app:'muu'}),null);
+// vajaa ajanilmaus on seuraava mahdollinen (Emil 21.10.2026), kirjoitettu keskiviikkona klo 10
+var KB=new Date(2026,9,21,10,0),pa=function(t){return E.parseDates(t,KB).map(function(o){return o.a;});};
+eq('mennyt viikonpäivä ensi viikolla',pa('ke klo 8'),['2026-10-28']);eq('tuleva tänään',pa('keskiviikko klo 12'),['2026-10-21']);
+eq('käynnissä oleva väli tänään',pa('ke klo 9-11'),['2026-10-21']);eq('mennyt pelkkä kello huomenna',pa('klo 8'),['2026-10-22']);eq('tuleva pelkkä kello tänään',pa('klo 15'),['2026-10-21']);
+eq('päivämäärä ennallaan',pa('21.10.2026 klo 8'),['2026-10-21']);eq('toistuva ennallaan',pa('tiistaisin klo 8'),['2026-10-27']);eq('keskiviikkoisin',E.parseDates('keskiviikkoisin',KB)[0].rec,true);
+eq('päivämääräkenttä ja pelkkä kello',E.noteDates({text:'Soita klo 8',created:'2026-10-21T10:00:00',date:'2026-10-21'}).map(function(o){return o.a;}),['2026-10-21']);
 // kalenteri 7b
 var mkn=function(t){return {text:t,created:'2026-10-21T08:00:00',date:''};},MN=mkn('Hammas pe klo 14');eq('päivän siirto tekstiin',[E.moveDay(MN,E.noteDates(MN)[0],'2026-10-24'),MN.text],['','Hammas 24.10.2026 klo 14']);
 MN=mkn('Juttu perjantaisin');eq('toistuva ei siirry',[E.moveDay(MN,E.noteDates(MN)[0],'2026-10-24')!=='',MN.text],[true,'Juttu perjantaisin']);
