@@ -14,7 +14,7 @@
   --bg:#F2F2F7; --cell:#FFFFFF; --label:#000000; --label2:#6C6C70; --sep:#C6C6C8;
   --seg:rgba(118,118,128,.14); --seg-on:#FFFFFF; --bar:rgba(249,249,249,.8); --red:#D70015;
   --accent:#0066E0; --solid:#0066E0; --on-solid:#FFFFFF; --fill:#D9E8FC; --fill2:#AFCFFA;
-  --k-g:#8424A8; --k-t:#1A7431; --k-q:#9A5400; --k-w:#D70015;
+  --k-g:#8424A8; --k-t:#1A7431; --k-q:#9A5400; --k-w:#D70015; --ehto:#00707A; --ehto-bg:#00707A;
   box-sizing:border-box;
   padding-bottom:env(safe-area-inset-bottom,0px);
 }
@@ -23,14 +23,14 @@
     --bg:#000000; --cell:#1C1C1E; --label:#FFFFFF; --label2:#98989F; --sep:#38383A;
     --seg:rgba(118,118,128,.24); --seg-on:#636366; --bar:rgba(22,22,24,.8); --red:#FF453A;
     --accent:#409CFF; --solid:#0A6FE0; --on-solid:#FFFFFF; --fill:#10294A; --fill2:#17437A;
-  --k-g:#D59AF5; --k-t:#63D17F; --k-q:#FFB340; --k-w:#FF6961;
+  --k-g:#D59AF5; --k-t:#63D17F; --k-q:#FFB340; --k-w:#FF6961; --ehto:#4CC3CC; --ehto-bg:#00707A;
   }
 }
 :root[data-theme="dark"]{
   --bg:#000000; --cell:#1C1C1E; --label:#FFFFFF; --label2:#98989F; --sep:#38383A;
   --seg:rgba(118,118,128,.24); --seg-on:#636366; --bar:rgba(22,22,24,.8); --red:#FF453A;
   --accent:#409CFF; --solid:#0A6FE0; --on-solid:#FFFFFF; --fill:#10294A; --fill2:#17437A;
-  --k-g:#D59AF5; --k-t:#63D17F; --k-q:#FFB340; --k-w:#FF6961;
+  --k-g:#D59AF5; --k-t:#63D17F; --k-q:#FFB340; --k-w:#FF6961; --ehto:#4CC3CC; --ehto-bg:#00707A;
 }
 *,*::before,*::after{box-sizing:inherit}
 input,textarea,select,button,dialog *{box-sizing:border-box}
@@ -254,6 +254,7 @@ button.chip[aria-pressed="true"]{box-shadow:inset 0 0 0 1px currentColor}
 nav{position:static;flex:none;padding-bottom:env(safe-area-inset-bottom,0px)}
 main{padding-bottom:28px}
 .top[data-ed="x"]{background:var(--red)}
+.top[data-ed="c"]{background:var(--ehto-bg)}
 .actbar{flex:none;display:grid;grid-template-columns:1fr auto auto;gap:8px;padding:8px 16px;background:var(--bg);border-top:.5px solid var(--sep)}
 .actbar .btn{min-height:46px;padding:0 14px}
 .actbar .btn:disabled{opacity:.45;cursor:default}
@@ -276,6 +277,10 @@ main{padding-bottom:28px}
 .row.alku{background:var(--fill);font-weight:600}
 .row.ed{background:var(--solid);color:var(--on-solid);border-color:transparent;font-weight:600}
 .row.ed.edx{background:var(--red)}
+.row.ed.edc{background:var(--ehto-bg)}
+.row.rc{box-shadow:inset 0 0 0 2.5px var(--ehto)}
+.row.rc .tag{color:var(--ehto);font-weight:700}
+.cseg{margin:0 0 12px}
 .row.ed .t small,.row.ed .tag{color:inherit;opacity:.9}
 .row.ro{box-shadow:inset 0 0 0 2.5px var(--accent)}
 .row.ro .tag{color:var(--accent);font-weight:700}
@@ -478,13 +483,27 @@ function reachGroups(P,pt,srcs,excl){var g=[],q=srcs.slice(),seen={};srcs.forEac
 function replay(steps){var sel=[];(steps||[]).forEach(function(st){sel=sel.filter(function(x){return st.d.indexOf(x)<0;});st.p.forEach(function(x){if(x!==ALKU&&sel.indexOf(x)<0)sel.push(x);});});return sel;}
 function exclOf(P,pt,sel){var excl={};sel.forEach(function(s){rl(P,s).x.forEach(function(y){addExcl(P,pt,excl,y);});});reachGroups(P,pt,sel,excl);return excl;}
 function stepsOf(S){return (S&&Array.isArray(S.steps)&&S.steps.length)?S.steps:[{p:[ALKU],d:[]}];}
+/* Ehdot (taaksepäin opetettu): P.need[seuraus] = syyt, joiden kaikkien pitää olla valittuina tällä kierroksella.
+   Seuraus tulee näkyviin askeleessa, jossa viimeinenkin syy on valittu (koko kierroksen valinnat lasketaan).
+   "Yksi riittää" tallentuu tavallisena avaa-sääntönä jokaiselle syylle, joten sillä ei ole omaa muotoa. */
+function needOf(P,id){var n=P.need&&P.need[id];return Array.isArray(n)?n:[];}
+function needOpen(P,sel,lastP){var out=[];Object.keys(P.need||{}).forEach(function(d){var n=needOf(P,d);
+  if(n.length&&n.every(function(x){return sel.indexOf(x)>=0;})&&n.some(function(x){return lastP.indexOf(x)>=0;}))out.push(d);});return out;}
+function setNeed(P,id,list){if(!P.need||typeof P.need!=='object')P.need={};if(list&&list.length)P.need[id]=list.slice();else delete P.need[id];}
+/* Ehtotila: yksi riittää <-> kaikki tarvitaan. Syyt siirtyvät muodosta toiseen. */
+function causesOf(P,pt,id){var out=[];Object.keys(P.rules||{}).forEach(function(k){if(k!==ALKU&&rl(P,k).o.indexOf(id)>=0&&pt.by[k]&&pt.by[k].k==='b')out.push(k);});return out;}
+function setNeedMode(P,pt,id,all){if(all){if(needOf(P,id).length)return;var c=causesOf(P,pt,id);c.forEach(function(k){toggleRule(P,k,id,'o');});setNeed(P,id,c);if(!c.length)P.need[id]=[];}
+  else{var n=needOf(P,id);n.forEach(function(k){if(ruleState(P,k,id)!=='o')toggleRule(P,k,id,'o');});if(P.need)delete P.need[id];}}
+function toggleNeed(P,id,src){if(!src||src===id||src===ALKU)return;var n=needOf(P,id).slice(),i=n.indexOf(src);if(i>=0)n.splice(i,1);else n.push(src);if(!P.need)P.need={};P.need[id]=n;}
 /* Kierroksen tilanne. draft = tämän askeleen keskeneräiset muutokset {p:uudet valinnat, d:puretut}.
    Tarjolla = vain edellisen askeleen valintojen (ja niiden ryhmien) suoraan avaamat, miinus poissuljetut.
    Aiemmin valittu näkyy valmiiksi valittuna. Saman askeleen poissulut ja toisensa poissulkevat näkyvät harmaina (blocked). */
 function sessionView(P,S,draft){var pt=parseText(P.text),steps=stepsOf(S),last=steps[steps.length-1];draft=draft||{p:[],d:[]};
   var committed=replay(steps),base=committed.filter(function(x){return draft.d.indexOf(x)<0;}),excl=exclOf(P,pt,base);
   var srcs=last.p.filter(function(x){return x===ALKU||(pt.by[x]&&(pt.by[x].k==='b'||pt.by[x].k==='g'));}),open={};
-  srcs.concat(reachGroups(P,pt,srcs,excl)).forEach(function(s){opensOf(P,pt.items,s).forEach(function(x){open[x]=1;});});
+  var nd=needOpen(P,base,last.p).filter(function(x){return !excl[x];}),gs=nd.filter(function(x){return pt.by[x]&&pt.by[x].k==='g';});
+  nd.forEach(function(x){open[x]=1;});gs.forEach(function(g){rl(P,g).x.forEach(function(y){addExcl(P,pt,excl,y);});});
+  srcs.concat(gs,reachGroups(P,pt,srcs.concat(gs),excl)).forEach(function(s){opensOf(P,pt.items,s).forEach(function(x){open[x]=1;});});
   var opts=[],texts=[],qs=[];
   pt.items.forEach(function(it){if(!open[it.id]||excl[it.id])return;if(it.k==='b')opts.push(it.id);else if(it.k==='t')texts.push(it.id);else if(it.k==='q')qs.push(it.id);});
   var picked=opts.filter(function(x){return (base.indexOf(x)>=0)||draft.p.indexOf(x)>=0;});
@@ -538,10 +557,13 @@ function renameKey(P,a,b){if(a===b)return;var R=P.rules||{};
   if(R[a]){var r=ruleOf(P,b);R[a].o.forEach(function(x){if(r.o.indexOf(x)<0&&x!==b)r.o.push(x);});R[a].x.forEach(function(x){if(r.x.indexOf(x)<0&&x!==b)r.x.push(x);});delete R[a];}
   Object.keys(R).forEach(function(k){['o','x'].forEach(function(f){var l=R[k][f],i=l.indexOf(a);if(i>=0){if(l.indexOf(b)<0&&k!==b)l[i]=b;else l.splice(i,1);}});});
   (P.mx||[]).forEach(function(set){var i=set.indexOf(a);if(i>=0){if(set.indexOf(b)<0)set[i]=b;else set.splice(i,1);}});
-  P.mx=(P.mx||[]).filter(function(s){return s.length>1;});}
+  P.mx=(P.mx||[]).filter(function(s){return s.length>1;});
+  var N=P.need||{};if(N[a]){if(!N[b])N[b]=N[a];delete N[a];}
+  Object.keys(N).forEach(function(k){var l=N[k],i=l.indexOf(a);if(i>=0){if(l.indexOf(b)<0&&k!==b)l[i]=b;else l.splice(i,1);}});}
 function removeKey(P,a){var R=P.rules||{};delete R[a];
   Object.keys(R).forEach(function(k){R[k].o=R[k].o.filter(function(x){return x!==a;});R[k].x=R[k].x.filter(function(x){return x!==a;});if(!R[k].o.length&&!R[k].x.length)delete R[k];});
-  P.mx=(P.mx||[]).map(function(s){return s.filter(function(x){return x!==a;});}).filter(function(s){return s.length>1;});}
+  P.mx=(P.mx||[]).map(function(s){return s.filter(function(x){return x!==a;});}).filter(function(s){return s.length>1;});
+  var N=P.need||{};delete N[a];Object.keys(N).forEach(function(k){N[k]=N[k].filter(function(x){return x!==a;});});}
 /* Rivin siirto: vaihtaa paikkaa edellisen tai seuraavan asian kanssa (tyhjät rivit ja kommentit pysyvät paikallaan) */
 function moveItem(text,id,dir){var pt=parseText(text),i=-1;pt.items.forEach(function(it,k){if(it.id===id)i=k;});var j=i+dir;
   if(i<0||j<0||j>=pt.items.length)return text;var l=String(text||'').split(/\r?\n/),a=pt.items[i].line,b=pt.items[j].line,x=l[a];l[a]=l[b];l[b]=x;return l.join('\n');}
@@ -552,6 +574,7 @@ function replaceLine(text,n,line){var l=String(text||'').split(/\r?\n/);if(line=
 function orphans(P){var by=parseText(P.text).by,out={};
   Object.keys(P.rules||{}).forEach(function(k){if(k!==ALKU&&!by[k])out[k]=1;rl(P,k).o.concat(rl(P,k).x).forEach(function(x){if(!by[x])out[x]=1;});});
   (P.mx||[]).forEach(function(s){s.forEach(function(x){if(!by[x])out[x]=1;});});
+  Object.keys(P.need||{}).forEach(function(k){if(!by[k])out[k]=1;needOf(P,k).forEach(function(x){if(!by[x])out[x]=1;});});
   return Object.keys(out);}
 function dropOrphans(P){orphans(P).forEach(function(k){removeKey(P,k);});}
 
@@ -697,7 +720,7 @@ function fiDate(iso){var p=String(iso).split('-');return (+p[2])+'.'+(+p[1])+'.'
 function stamp(ts){var d=new Date(ts);return d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear()+' klo '+d.getHours()+'.'+pad(d.getMinutes());}
 
 /* ---- tallennusmuoto ----
-   {app:'paatospuu', ver, savedAt, cur, projektit:[{id,name,text,rules,mx,session}], muistiinpanot:[{id,created,edited,text,date}],
+   {app:'paatospuu', ver, savedAt, cur, projektit:[{id,name,text,rules,mx,need?,session}], muistiinpanot:[{id,created,edited,text,date}],
     termit:[{id,name,yes,no}], termisanat:{nimi:{yes,no}}, cfg:{tint,mode}} */
 function strs(a){return Array.isArray(a)?a.filter(function(x){return typeof x==='string';}):[];}
 function normalizeData(o){if(!o||typeof o!=='object'||o.app!=='paatospuu')return null;
@@ -706,6 +729,7 @@ function normalizeData(o){if(!o||typeof o!=='object'||o.app!=='paatospuu')return
     var P={id:p.id,name:clean(p.name)||'Nimetön',text:typeof p.text==='string'?p.text:'',rules:{},mx:[],session:null};
     if(p.rules&&typeof p.rules==='object')Object.keys(p.rules).forEach(function(k){var r=p.rules[k];if(!r)return;var o2=strs(r.o),x2=strs(r.x);if(o2.length||x2.length)P.rules[k]={o:o2,x:x2};});
     (Array.isArray(p.mx)?p.mx:[]).forEach(function(s){s=strs(s);if(s.length>1)P.mx.push(s);});
+    if(p.need&&typeof p.need==='object'){P.need={};Object.keys(p.need).forEach(function(k){var n=strs(p.need[k]);if(n.length)P.need[k]=n;});}
     var S=p.session;if(S&&Array.isArray(S.steps)&&S.steps.length){P.session={start:String(S.start||new Date().toISOString()),steps:S.steps.map(function(st){return Array.isArray(st)?{p:strs(st),d:[]}:{p:strs(st&&st.p),d:strs(st&&st.d)};}).filter(function(st){return st.p.length;}),date:/^\d{4}-\d\d-\d\d$/.test(S.date||'')?S.date:undefined,log:strs(S.log),logAt:Array.isArray(S.logAt)?S.logAt.filter(function(n){return typeof n==='number';}):[]};}
     out.projects.push(P);});
   (Array.isArray(o.muistiinpanot)?o.muistiinpanot:[]).forEach(function(n){if(!n||typeof n.id!=='string'||typeof n.text!=='string')return;
@@ -717,7 +741,7 @@ function normalizeData(o){if(!o||typeof o!=='object'||o.app!=='paatospuu')return
   return out;}
 function looseJson(txt){var s=String(txt||''),a=s.indexOf('{'),b=s.lastIndexOf('}');if(a<0||b<=a)return null;s=s.slice(a,b+1);
   try{return JSON.parse(s);}catch(e){}try{return JSON.parse(s.replace(/[“”„]/g,'"'));}catch(e){}return null;}
-if(typeof module!=='undefined')module.exports={VER:VER,ALKU:ALKU,parseLine:parseLine,lineOf:lineOf,bodyText:bodyText,parseText:parseText,rl:rl,ruleState:ruleState,toggleRule:toggleRule,
+if(typeof module!=='undefined')module.exports={VER:VER,ALKU:ALKU,parseLine:parseLine,lineOf:lineOf,bodyText:bodyText,parseText:parseText,rl:rl,ruleState:ruleState,toggleRule:toggleRule,needOf:needOf,needOpen:needOpen,setNeedMode:setNeedMode,toggleNeed:toggleNeed,causesOf:causesOf,
   sessionView:sessionView,moveItem:moveItem,shownName:shownName,blockedNow:blockedNow,tapDraft:tapDraft,replay:replay,exclOf:exclOf,newSession:newSession,notesOnDay:notesOnDay,dayCarry:dayCarry,commitStep:commitStep,undoStep:undoStep,sessionNote:sessionNote,sessionGroups:sessionGroups,renameKey:renameKey,removeKey:removeKey,
   replaceLine:replaceLine,orphans:orphans,dropOrphans:dropOrphans,hasWord:hasWord,normT:normT,termOn:termOn,noteTerms:noteTerms,autoTerms:autoTerms,parseDates:parseDates,occursOn:occursOn,nextOcc:nextOcc,dateLabel:dateLabel,tokensOf:tokensOf,noteDates:noteDates,nextDate:nextDate,
   sortNotes:sortNotes,fiDate:fiDate,stamp:stamp,isoD:isoD,normalizeData:normalizeData,looseJson:looseJson};
@@ -770,7 +794,7 @@ function renderStatus(){var b=$('status'),d=$('setdot'),dirty=data.meta.dirty>0&
 $('status').addEventListener('click',function(){showTab('set');});
 function renderHead(){var P=proj();$('tname').textContent=P?P.name:'Päätöspuu';}
 function setInfo(html,done){var t=$('info-text');t.textContent='';if(html){if(typeof html==='string')t.textContent=html;else t.appendChild(html);}$('info-done').hidden=!done;}
-function syncChrome(){var tp=$('top');tp.dataset.mode=tab;tp.dataset.ed=(tab==='teach'&&ed&&ed.m==='x')?'x':'';$('mode').textContent=MODE[tab];}
+function syncChrome(){var tp=$('top');tp.dataset.mode=tab;tp.dataset.ed=(tab==='teach'&&ed&&(ed.m==='x'||ed.m==='c'))?ed.m:'';$('mode').textContent=MODE[tab];}
 function showTab(t){scrollPos[tab]=main.scrollTop;tab=t;
   Object.keys(panels).forEach(function(k){panels[k].hidden=k!==t;});
   Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(b){b.setAttribute('aria-selected',b.dataset.tab===t?'true':'false');});
@@ -802,7 +826,7 @@ $('ps-add').addEventListener('click',function(){if(newProject($('ps-new').value)
 $('ps-new').addEventListener('keydown',function(ev){if(ev.key==='Enter'&&newProject($('ps-new').value)){$('ps-new').value='';renderProjSheet();}});
 $('ps-name').addEventListener('change',function(){var P=proj(),n=clean($('ps-name').value);if(P&&n){P.name=n.slice(0,80);touch();renderHead();renderProjSheet();}});
 $('ps-copy').addEventListener('click',function(){var P=proj();if(!P)return;
-  var Q={id:uid('p'),name:(P.name+' (kopio)').slice(0,80),text:P.text,rules:JSON.parse(JSON.stringify(P.rules||{})),mx:JSON.parse(JSON.stringify(P.mx||[])),session:null};
+  var Q={id:uid('p'),name:(P.name+' (kopio)').slice(0,80),text:P.text,rules:JSON.parse(JSON.stringify(P.rules||{})),mx:JSON.parse(JSON.stringify(P.mx||[])),need:JSON.parse(JSON.stringify(P.need||{})),session:null};
   data.projects.splice(data.projects.indexOf(P)+1,0,Q);data.cur=Q.id;resetDraft();ed=null;touch();renderHead();renderProjSheet();render();
   $('ps-msg').textContent='Kopio tehty ja avattu. Vaihda nimi yllä.';});
 var delArm=0;
@@ -874,7 +898,9 @@ $('es-drop').addEventListener('click',function(){var P=proj();if(!P)return;if(Da
   dropArm=0;$('es-drop').textContent='Lopeta tallentamatta';P.session=null;resetDraft();touch();closeSheet($('esheet'));render();});
 
 /* ---- opetus ----
-   Rakenna: napauta lähdettä kerran = valitse mitä se tuo näkyviin, toisen kerran = mitä se sulkee pois, kolmannen = valmis.
+   Rakenna: napauta lähdettä kerran = valitse mitä se tuo näkyviin, toisen kerran = mitä se sulkee pois,
+   kolmannen = ehdot eli mistä se itse tulee näkyviin (yksi riittää / kaikki tarvitaan), neljännen = valmis.
+   Ilmoitus ja apukysymys menevät suoraan ehtoihin, koska ne eivät avaa mitään.
    Muokkaa: napauta riviä ja muokkaa sen tekstiä. Toisensa poissulkevat: ryhmittely, joka pätee vain saman askeleen valinnoissa. */
 var ed=null,teachMode='build',mxSel=null;
 function kindTag(k){return {g:'ryhmä',t:'ilmoitus',q:'apukysymys'}[k]||'';}
@@ -891,23 +917,30 @@ function renderTeach(){var p=panels.teach,P=proj();p.textContent='';
   if(!pt.items.length){setInfo('Tekstikenttä on tyhjä.');p.appendChild(el('p','sub','Lisää ensin rivejä tekstikenttään.'));return;}
   if(teachMode==='edit')return renderEdit(p,P,pt);
   if(teachMode==='mx')return renderMx(p,P,pt);
+  if(ed&&ed.m==='c'){var cs=el('div','seg cseg');cs.id='needmode';[[false,'Yksi riittää'],[true,'Kaikki tarvitaan']].forEach(function(m){var b=button(cs,m[1],'',function(){setNeedMode(P,pt,ed.id,m[0]);ed.all=m[0];touch();var y=main.scrollTop;render();main.scrollTop=y;});b.className='';b.dataset.need=m[0]?'all':'one';b.setAttribute('aria-pressed',ed.all===m[0]?'true':'false');});p.appendChild(cs);}
   var list=el('div','rows');list.id='tlist';
   var nodes=[{id:ALKU,k:'a',name:'▶ Alku'}].concat(pt.items);
   nodes.forEach(function(it){var cls='row'+kindCls(it.k),st='',tag='';
-    if(ed){if(it.id===ed.id){cls+=' ed'+(ed.m==='x'?' edx':'');tag=ed.m==='x'?'sulkee pois…':'tuo näkyviin…';}
+    if(ed){if(it.id===ed.id){cls+=' ed'+(ed.m==='x'?' edx':ed.m==='c'?' edc':'');tag=ed.m==='x'?'sulkee pois…':ed.m==='c'?(ed.all?'tulee, kun kaikki…':'tulee, kun jokin…'):'tuo näkyviin…';}
+      else if(ed.m==='c'){if(ed.all?needOf(P,ed.id).indexOf(it.id)>=0:ruleState(P,it.id,ed.id)==='o'){cls+=' rc';tag=ed.all?'ehto':'tuo tämän';}}
       else{st=ruleState(P,ed.id,it.id);if(st==='o'){cls+=' ro';tag='tuo näkyviin';}else if(st==='x'){cls+=' rx';tag='sulkee pois';}}}
-    else{var r=rl(P,it.id),parts=[];if(it.k!=='t'&&it.k!=='q'){var on=it.id===ALKU?opensOf(P,pt.items,ALKU).length:r.o.length;if(on)parts.push('tuo '+on+(it.id===ALKU&&!r.o.length?' (opettamatta: kaikki, joita mikään ei tuo)':''));if(r.x.length)parts.push('sulkee '+r.x.length);}tag=parts.join(' · ');}
+    else{var r=rl(P,it.id),parts=[];if(it.k!=='t'&&it.k!=='q'){var on=it.id===ALKU?opensOf(P,pt.items,ALKU).length:r.o.length;if(on)parts.push('tuo '+on+(it.id===ALKU&&!r.o.length?' (opettamatta: kaikki, joita mikään ei tuo)':''));if(r.x.length)parts.push('sulkee '+r.x.length);}
+      var nn=needOf(P,it.id).length;if(nn)parts.push('ehdot: kaikki '+nn);tag=parts.join(' · ');}
     var b=el('button',cls);b.type='button';b.dataset.id=it.id;var t=nameSpan(it);var kt=kindTag(it.k);if(kt)t.appendChild(el('small','',kt));b.appendChild(t);if(tag)b.appendChild(el('span','tag',tag));
     b.addEventListener('click',function(){teachTap(P,it);});list.appendChild(b);});
   p.appendChild(list);teachHint(P,by);}
-function teachHint(P,by){if(!ed){setInfo('Napauta nappulaa, ryhmää tai Alkua. Kerran: mitä se tuo näkyviin. Toisen kerran: mitä se sulkee pois.');return;}
+function teachHint(P,by){if(!ed){setInfo('Napauta nappulaa, ryhmää tai Alkua. Kerran: mitä se tuo näkyviin. Toisen kerran: mitä se sulkee pois. Kolmannen: mistä se itse tulee näkyviin.');return;}
   var n=ed.id===ALKU?'Alku':by[ed.id].name,s=el('span'),b=el('b','',n+': ');s.appendChild(b);
-  s.appendChild(document.createTextNode(ed.m==='x'?'napauta, mitä se sulkee pois koko kierroksen ajaksi. Napauta sitä uudelleen, kun valmis.':(ed.id===ALKU?'napauta, mitkä näkyvät kierroksen alussa. Napauta Alkua uudelleen, kun valmis.':'napauta, mitä se tuo näkyviin. Napauta sitä uudelleen: poissulku.')));setInfo(s,true);}
-$('info-done').addEventListener('click',function(){ed=null;render();});
+  s.appendChild(document.createTextNode(ed.m==='c'?(ed.all?'napauta syyt. Tämä tulee näkyviin vasta, kun kaikki on valittu kierroksella. Napauta sitä uudelleen, kun valmis.':'napauta syyt. Mikä tahansa niistä tuo tämän näkyviin. Napauta sitä uudelleen, kun valmis.'):ed.m==='x'?'napauta, mitä se sulkee pois koko kierroksen ajaksi. Napauta sitä uudelleen: ehdot eli mistä se itse tulee.':(ed.id===ALKU?'napauta, mitkä näkyvät kierroksen alussa. Napauta Alkua uudelleen, kun valmis.':'napauta, mitä se tuo näkyviin. Napauta sitä uudelleen: poissulku.')));setInfo(s,true);}
+function endEd(){var P=proj();if(ed&&P&&P.need&&P.need[ed.id]&&!P.need[ed.id].length){delete P.need[ed.id];touch();}ed=null;}
+$('info-done').addEventListener('click',function(){endEd();render();});
+function hasNeed(P,id){return !!(P.need&&P.need[id]);}
 function teachTap(P,it){
-  if(!ed){if(it.k==='t'||it.k==='q'){setInfo((it.k==='t'?'Ilmoitus':'Apukysymys')+' ei avaa eikä sulje mitään, se vain näkyy. Valitse nappula, ryhmä tai Alku.');return;}ed={id:it.id,m:'o'};}
-  else if(it.id===ed.id){if(ed.m==='o'&&it.id!==ALKU)ed.m='x';else ed=null;}
-  else if(it.id===ALKU){return;}
+  if(!ed){ed=(it.k==='t'||it.k==='q')?{id:it.id,m:'c',all:hasNeed(P,it.id)}:{id:it.id,m:'o'};}
+  else if(it.id===ed.id){if(ed.m==='o'&&it.id!==ALKU)ed.m='x';else if(ed.m==='x'){ed.m='c';ed.all=hasNeed(P,ed.id);}else endEd();}
+  else if(it.id===ALKU){if(ed.m==='c'&&!ed.all){toggleRule(P,ALKU,ed.id,'o');touch();var y0=main.scrollTop;render();main.scrollTop=y0;}return;}
+  else if(ed.m==='c'){if(it.k!=='b'&&(ed.all||it.k!=='g')){setInfo(ed.all?'Kaikki tarvitaan -ehdoiksi käyvät nappulat, koska vain ne valitaan kierroksella.':'Syyksi käyvät nappulat ja ryhmät.');return;}
+    if(ed.all)toggleNeed(P,ed.id,it.id);else toggleRule(P,it.id,ed.id,'o');touch();}
   else{toggleRule(P,ed.id,it.id,ed.m);touch();}
   var y=main.scrollTop;render();main.scrollTop=y;}
 function renderEdit(p,P,pt){setInfo('Napauta riviä muokataksesi sitä. Nuolilla vaihdat järjestystä, jossa nappulat näkyvät.');

@@ -141,4 +141,18 @@ var n=E.normalizeData(o);eq('normalize',[n.projects[0].mx,n.projects[0].session.
 eq('väärä appi',E.normalizeData({app:'muu'}),null);
 eq('aikaleima',E.stamp(new Date(2026,9,20,21,5).toISOString()),'20.10.2026 klo 21.05');
 
+// ehdot: kaikki tarvitaan (taaksepäin opetettu)
+var q={text:'A\nB\nC\nX\n>Viesti: hei',rules:{'__alku':{o:['a','b','c'],x:[]},'a':{o:['c'],x:[]}},mx:[]},qt=E.parseText(q.text);
+E.setNeedMode(q,qt,'x',true);E.toggleNeed(q,'x','a');E.toggleNeed(q,'x','b');E.setNeedMode(q,qt,'viesti',true);E.toggleNeed(q,'viesti','a');E.toggleNeed(q,'viesti','b');
+var Q=E.newSession(q,'x');E.commitStep(q,Q,{p:['a'],d:[]});eq('yksi syy ei riitä',E.sessionView(q,Q).opts,['c']);
+Q=E.newSession(q,'x');E.commitStep(q,Q,{p:['a','b'],d:[]});var qv=E.sessionView(q,Q);eq('kaikki syyt: tulee',qv.opts,['c','x']);eq('ilmoitus ehdolla',qv.texts,['viesti']);
+Q=E.newSession(q,'x');E.commitStep(q,Q,{p:['a'],d:[]});E.commitStep(q,Q,{p:['c'],d:[]});eq('aiempi valinta ei vielä riitä',E.sessionView(q,Q).opts,[]);
+var q2={text:'A\nB\nX',rules:{'__alku':{o:['a'],x:[]},'a':{o:['b'],x:[]}},mx:[]};E.setNeedMode(q2,E.parseText(q2.text),'x',true);E.toggleNeed(q2,'x','a');E.toggleNeed(q2,'x','b');
+Q=E.newSession(q2,'x');E.commitStep(q2,Q,{p:['a'],d:[]});E.commitStep(q2,Q,{p:['b'],d:[]});eq('kierroksen muisti laskee',E.sessionView(q2,Q).opts,['x']);
+q.rules.b={o:[],x:['x']};Q=E.newSession(q,'x');E.commitStep(q,Q,{p:['a','b'],d:[]});eq('poissulku voittaa ehdon',E.sessionView(q,Q).opts,['c']);delete q.rules.b;
+E.setNeedMode(q,qt,'x',false);eq('kaikki -> yksi riittää',[E.needOf(q,'x'),E.ruleState(q,'a','x'),E.ruleState(q,'b','x')],[[],'o','o']);
+E.setNeedMode(q,qt,'x',true);eq('yksi -> kaikki',[E.needOf(q,'x'),E.ruleState(q,'a','x')],[['a','b'],'']);
+E.renameKey(q,'a','aa');eq('nimen vaihto ehdossa',E.needOf(q,'x'),['aa','b']);E.removeKey(q,'b');eq('poisto ehdosta',E.needOf(q,'x'),['aa']);
+eq('ehdot tallessa',E.normalizeData({app:'paatospuu',projektit:[{id:'p',name:'n',text:'',need:{x:['a'],y:[]}}]}).projects[0].need,{x:['a']});
+
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);

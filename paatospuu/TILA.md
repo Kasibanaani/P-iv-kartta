@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.9, kokeilussa · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.10, kokeilussa · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -72,6 +72,13 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 - Puun tekstikentässä rivi värittyy heti, kun se on tulkittu: nappula tavallisella värillä, ryhmä violetti, ilmoitus vihreä, apukysymys oranssinruskea, `//`-rivi harmaa, jo käytössä oleva nimi punainen aaltoviivalla. Kirjoitettava rivi värittyy vasta, kun kursorin edessä on välilyönti tai kun siirryt muualle. Ohjeen esimerkit ovat samoissa väreissä.
 - Tekniikka: värikerros tekstikentän alla (sama kuin ajankohtien korostus), tekstikentän oma teksti läpinäkyvä. Termilohkoille (`=`) varattu väri tulee, kun ne rakennetaan.
+
+## Versio 1.10 (21.10.2026, Emilin toive): ehdot eli taaksepäin opetus
+
+- Rakenna-tilassa napautuskierto: 1. tuo näkyviin, 2. sulkee pois, 3. **ehdot** (yläpalkki turkoosi), 4. valmis. Ilmoitus ja apukysymys menevät ensimmäisellä napautuksella suoraan ehtoihin.
+- Ehdoissa valitaan yläpuolelta *Yksi riittää* tai *Kaikki tarvitaan* ja napautetaan syyt. Yksi riittää = tavallinen avaa-sääntö toisesta päästä (syinä nappulat, ryhmät ja Alku). Kaikki tarvitaan = uusi `need`-sääntö (syinä nappulat): seuraus tulee askeleessa, jossa viimeinenkin syy valitaan; koko kierroksen valinnat lasketaan. Poissulku voittaa. Tilan vaihto siirtää syyt muodosta toiseen.
+- Tallennus: projektiin `need:{seuraus:[syyt]}` (vanha muoto luetaan ennallaan, kenttä puuttuu = ei ehtoja). Nimen vaihto, poisto, kopiointi ja ”säännöt ilman riviä” huomioivat ehdot.
+- Ei vielä: ehtojen näyttö käytössä (”miksi tämä?”), ehdon täyttyneen ryhmän näkyminen muistiinpanon Ryhmät-rivillä.
 
 ## Ei tarkistettu
 
