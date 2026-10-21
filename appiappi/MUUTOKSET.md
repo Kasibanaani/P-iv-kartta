@@ -4,6 +4,15 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
 
 ## Versiot
 
+- Appi-appi 109 (21.10., kaista A, jonon 42d, suunnitelma 31 V8; ei tallennusmuodon muutosta): **Ryhmän ikkuna `#`-kirjoituksella.**
+  - Ikkunan paneelin **Nimi**-kenttään kirjoitettu `#eläimet` (Enter) tekee ikkunasta ryhmän ikkunan; ikkunan nimi ei muutu. Sama otsikon valikon *Kirjoita ryhmä…* -kentässä.
+  - Jos ryhmällä ei vielä ole yleispalikkaa (ryhmä on tageista tai Joukko-palikasta, tai nimi on uusi), ikkunan vasemmalle puolelle tulee yleispalikka, jonka viite on ryhmän nimi; uusi nimi tekee tyhjän ryhmän. Kumoa peruu yhdellä painalluksella.
+  - Otsikon valikon *Ryhmän ikkuna* -luettelossa näkyvät myös `kuuluu, kun` -rivillä tehdyt ryhmät, ja määrä on ryhmän nykyiset jäsenet (ennen vain `@x`-rivit).
+  - Testit: `selain_145_ryhmaikkuna_hash.py`.
+  - Ristiintarkistus kaista B:n kanssa: 108:n piirrokset (Kuva, laattalajit) eivät koske ryhmän ikkunaa; uusi `change`-käsittelijän haara (data-pxk) säilyi ennen omaa haaraani, molempien testit läpi koko sarjassa.
+  - Ei tarkistettu: oikea iPhone; vain tietokoneen Chromium.
+  - Kokeile koneella: tee Ikkuna, kirjoita paneelin Nimeen `#eläimet` ja Enter → jäsenet tulevat ikkunaan, viereen ilmestyy palikka *Eläimet*. Kumoa peruu.
+  - Manuaaliin: ryhmän ikkuna -kohtaan: `#nimi` paneelin Nimi-kenttään tai *Kirjoita ryhmä…* -kenttään, puuttuva ryhmäpalikka syntyy viereen; valikon luettelo näyttää nykyiset jäsenet.
 - Appi-appi 108 (21.10., kaista B, jonon 20, F35 vaihe E1, suunnitelma 19 kohta 6; **tallennusmuoto laajenee valinnaisilla kentillä**, versio pysyy 12): **Piirrokset: piirtoruudukko, piirroskirjasto ja Pikselitarkka.**
   - **Piirroskirjasto** `P.px` {`d1`: {n nimi, w, h 1–64, d}}: yksi merkki per pikseli riveittäin (`.` läpinäkyvä, `a`–`x` = paletin väri 1–8 kolmena sävynä vaalea/perus/tumma). Piirros viittaa paletin paikkaan, joten se seuraa teemaa ja tummaa tilaa. Käyttäjät viittaavat tunnisteeseen: Kuvan kuva ja kuvasarjan kuva `px:d1`, laattalajin `lj[].px`. Muokkaus päivittää kaikki käyttäjät.
   - **Piirtoikkuna:** leveys ja korkeus 8/16/32/64 erikseen (vasen yläkulma säilyy), Kynä (napautus tai veto; ensimmäinen ruutu päättää, maalataanko vai pyyhitäänkö kuten laatoissa), Täyttö, ⇋ Peilaus (maalaa samalla peilikuvana), Käännä, Tyhjennä, 24 väriä + Läpinäkyvä, oikea painike pyyhkii, ⇧ + napautus vetää viivan, yksi veto = yksi Kumoa (Ctrl+Z toimii ikkunan ollessa auki). Esikatselu oikeassa koossa ja 4×. Nimi, käyttäjien määrä ja *Poista piirros kirjastosta* (viitteet tyhjenevät, Kumoa palauttaa).

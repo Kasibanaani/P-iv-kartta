@@ -6,7 +6,7 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 
 ## Valmiina
 
-- Appi-appi 0–108 ja Pajakone 1–4: versioittain `MUUTOKSET.md` (uusin ensin, myös kunkin version *Ei tarkistettu* ja *Kokeile koneella*). Käyttäjän näkökulmasta koko appi: `manuaali/`. Vanhat Valmiina-rivit: `TILA-arkisto.md`.
+- Appi-appi 0–109 ja Pajakone 1–4: versioittain `MUUTOKSET.md` (uusin ensin, myös kunkin version *Ei tarkistettu* ja *Kokeile koneella*). Käyttäjän näkökulmasta koko appi: `manuaali/`. Vanhat Valmiina-rivit: `TILA-arkisto.md`.
 - **Uusi versio** kirjataan vain `MUUTOKSET.md`:hen; tänne ei lisätä riviä.
 
 ## Jono
@@ -42,13 +42,13 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 39. **Yksi sana: ryhmä** (Emil hyväksyi 20.10. klo 18.01 Suomen aikaa; kartoitus 13; ei tallennusmuodon muutosta): käyttöliittymässä ja manuaalissa *joukko* → *ryhmä* kaikkialla (Tunnus-kenttä, paletin Joukot, Joukko-palikka → *Ryhmän säännöt*, toiminnot Lisää ryhmään / Poista ryhmästä, ohjeet ja ilmoitukset), vanha Ryhmä-palikka ✦ (`ryhma`, rakentajan kehys) saa uuden nimen (ehdotus *Kehys*). Tallennuskentät (`jkt`, `jkr`, `pjoukko`, `ryhma`) ja kaavan `#nimi` ennallaan. *Rivijoukko* jää omaksi sanakseen. Testit, jotka hakevat näkyviä tekstejä, päivitetään.
 
-42. **Lista, taulukko ja ryhmä F47** (Emil hyväksyi suunnitelman 20.10. klo 21.10 Suomen aikaa, päätökset D1–D5 suositusten mukaan; `suunnitelmat/31-lista-taulukko-ja-ryhma.md`). Järjestys: 42a **tehty Appi-appi 103** → 42b **tehty Appi-appi 105** → 42c **tehty Appi-appi 107**, säännöllä tulleet jäsenet ikkunaan toisintoina → 42d **V8 ryhmän ikkuna `#`-kirjoituksella** (**työn alla, kaista A**) (ei muotoa) → 42e **V3 Lista ryhmästä**, rivijäsenet ja `.rasti` (FORMAT) → 42f **V6 tekstin `.päivä`, `.kello`, `.luku`, `.sanoja`** (ei muotoa) → ennen 42g linjakkuuskartoitus (uusi ominaisuusryhmä) → 42g **V4 Taulukko-näyttö sarakkeilla, Lista esiasetuksena** (FORMAT) → 42h **V5 ⚙-väkänen: leveys, siirto, suodatus, järjestys, kahvaraahaus** (laajenee). Alkaa vasta, kun Emil sanoo *jatketaan*.
+42. **Lista, taulukko ja ryhmä F47** (Emil hyväksyi suunnitelman 20.10. klo 21.10 Suomen aikaa, päätökset D1–D5 suositusten mukaan; `suunnitelmat/31-lista-taulukko-ja-ryhma.md`). Järjestys: 42a **tehty Appi-appi 103** → 42b **tehty Appi-appi 105** → 42c **tehty Appi-appi 107**, säännöllä tulleet jäsenet ikkunaan toisintoina → 42d **tehty Appi-appi 109** (ei muotoa) → 42e **V3 Lista ryhmästä**, rivijäsenet ja `.rasti` (FORMAT) → 42f **V6 tekstin `.päivä`, `.kello`, `.luku`, `.sanoja`** (ei muotoa) → ennen 42g linjakkuuskartoitus (uusi ominaisuusryhmä) → 42g **V4 Taulukko-näyttö sarakkeilla, Lista esiasetuksena** (FORMAT) → 42h **V5 ⚙-väkänen: leveys, siirto, suodatus, järjestys, kahvaraahaus** (laajenee). Alkaa vasta, kun Emil sanoo *jatketaan*.
 
 ## Seuraavaksi
 
-- **Uusin vienti:** Appi-appi 108 (kaista B, jono 20: piirrokset ja Pikselitarkka; tallennusmuoto laajenee valinnaisilla kentillä). Versiot ja kokeiluohjeet vain `MUUTOKSET.md`:ssä; tähän vain uusin vienti ja laskuri (korvaa edellinen). Edelliset: 107 (kaista A, ryhmän jäsenyyssääntö) ja 106 (kaista A, kartoitus 14:n korjaukset). **Kartoituslaskuri 3/10** (kartoitus 14 tehty 105:n jälkeen).
+- **Uusin vienti:** Appi-appi 109 (kaista A, jono 42d: ryhmän ikkuna `#`-kirjoituksella, puuttuva ryhmäpalikka syntyy viereen). Versiot ja kokeiluohjeet vain `MUUTOKSET.md`:ssä; tähän vain uusin vienti ja laskuri (korvaa edellinen). Edelliset: 108 (kaista B, piirrokset ja Pikselitarkka) ja 107 (kaista A, ryhmän jäsenyyssääntö). **Kartoituslaskuri 4/10** (kartoitus 14 tehty 105:n jälkeen).
 - **Linjakkuuskartoitus 14 tehty 21.10.** (95–105, `kartoitukset/2026-10-21-linjakkuus-14.md`): linja pitää; saumat Kello-esiasetuksessa ja palikan nimessä tekstinä → jonon 1y. Manuaali koottu *Manuaaliin:*-riveistä 95–105. S4 päätetty (Emil 21.10.): `=` pysyy vertailuna ja asetuksena, vihje jonon 40g:ssä.
-- **Seuraavaksi:** kehitys jatkuu (Emil 21.10.): kaista A jonon 42d→; kaista B seuraava vapaa 2D-kohta (20b). 37d–f odottavat Emiliä.
+- **Seuraavaksi:** kehitys jatkuu (Emil 21.10.): kaista A jonon 42e→; kaista B seuraava vapaa 2D-kohta (20b). 37d–f odottavat Emiliä.
 - **Linjakkuuskartoitukset:** viimeisin ja aiemmat luetellaan `PALIKKASAANNOT.md`:n lopussa; tehtyjen kartoitusten yhteenvedot `TILA-arkisto.md`:ssä.
 - **Koeapit (Appi-appi 23) toivat esiin:** tekstihaku (Appi-appi 30) ja taulukon `eka`/`vika` (Appi-appi 31) tehty. Ei jonossa: kapeassa kortissa Lukukentän omat −/+ peittävät luvun, joten C näyttää määrän Tekstinä.
 - Järjestys: Jono yllä. Kokonaiskuva ja loput paketit (P4–P7): `SUUNNITELMA.md`.
