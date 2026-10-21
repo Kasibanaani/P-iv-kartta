@@ -79,7 +79,7 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 ## Avoimet kysymykset
 
-- **Ehdot, järjestys ja muisti (pohdinta, ei rakennettu):** ks. `POHDINTA-ehdot.md` (myös muistiinpanosta esiin nousevat apukysymykset), sen lopussa 6 avointa kysymystä. Seuraava askel: Emilin esimerkkipuu läpi mallin kanssa ennen koodia.
+- **Ehdot, järjestys ja muisti (pohdinta, ei rakennettu):** ks. `POHDINTA-ehdot.md` (myös esiin nousevat apukysymykset ja termit puun tekstissä), sen lopussa 8 avointa kysymystä. Seuraava askel: Emilin esimerkkipuu läpi mallin kanssa ennen koodia.
 
 - Lyhenteet (ma, ti, pe) ja ”viikko 43” välilyönnillä eivät tunnistu (Vk42 vain yhteen, Emilin päätös). Lyhenteet voisi lisätä, jos ne ovat peräkkäin muun ajankohdan kanssa.
 - ”klo 14.” lauseen lopussa (piste perässä) ei tunnistu kellonajaksi.

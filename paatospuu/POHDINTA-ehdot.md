@@ -1,6 +1,6 @@
 # Päätöspuu: ehdot, järjestys ja muisti (pohdinta)
 
-**Tila:** vain pohdinta 21.10.2026. Kohtia 1–3 ja 6 ei ole rakennettu. Puun kopiointi (1.7) sekä termisanojen säännöt ja muistiinpanojen sanahaku (1.8) on rakennettu.
+**Tila:** vain pohdinta 21.10.2026. Kohtia 1–3, 6 ja 7 ei ole rakennettu. Puun kopiointi (1.7) sekä termisanojen säännöt ja muistiinpanojen sanahaku (1.8) on rakennettu.
 
 Emilin lähtökohta: ensin pitää miettiä, mikä on järkevää käyttäjälle, vasta sitten koodi. Tässä on ehdotus siitä, miten Emilin toiveet saadaan muutamaan helposti ymmärrettävään käsitteeseen.
 
@@ -83,6 +83,46 @@ Ehdotus:
 
 Huono puoli: alaotsikot ovat tavallista tekstiä, joten jos otsikkoriviä muokkaa käsin, appi ei enää tunnista sitä ja luo uuden.
 
+## 7. Termit ja omat osiot puun tekstikentässä (Emil 21.10.2026, pohdinta)
+
+**Toteutettavuus: hyvä.** Tämä on kohtuullinen työ, noin yhden version kokoinen. Kaikki tarvittava on jo olemassa: tekstin jäsennin, termien sanat ja muistiinpanojen korostuspohja (ajankohtien korostus), jonka saa käyttöön myös puun tekstikenttään.
+
+**Ehdotettu kieli:**
+
+```
+Koira
+Kissa
+#Eläimet: kaikki lemmikit
+
+=Eläimet:
+eläi-
+lemmikki
+onko kotona eläimiä
+!lelu
+
+// Omat muistiinpanot
+Tämä osio on vain minulle.
+```
+
+- `=Nimi:` aloittaa termilohkon (”Eläimet tarkoittaa:”). Nimi voi olla palikka tai oma termi.
+- Lohkon sanat tulevat **seuraavalta riviltä alkaen**, yksi sana tai lause riville, kuten toivoit. Välilyönnit ja välimerkit saa kirjoittaa vapaasti, ja termisanojen säännöt pätevät (tavuviiva lopussa = osa riittää).
+- `!` rivin alussa = poissulkeva sana.
+- **Tyhjä rivi päättää lohkon.** Muualla tyhjillä riveillä ei ole merkitystä, ja niitä saa olla monta.
+- Samaa termiä saa kirjoittaa monta lohkoa eri kohtiin, myös eri puihin. Sanat lasketaan yhteen, kuten muutkin lisäävät säännöt.
+- **Miksi `=` eikä pelkkä kaksoispiste lopussa:** tavallinen rivi on nyt palikka, ja kaksi samannimistä riviä on virhe (toinen ohitetaan). Etumerkki erottaa termilohkon palikasta yksiselitteisesti ja sopii nykyiseen sarjaan `# > ? //`. Kaksoispiste pelkästään lopussa tekisi rivistä ”Koira:” arvoituksen: onko se palikka vai termi?
+- **Omat osiot:** `//`-kommenttirivit ovat jo olemassa, ja appi ohittaa ne. Ehdotan, että `//` rivin alussa näkyy kentässä väliotsikkona, jonka yläpuolella on viiva. Kenttään saa siis kirjoittaa itselleen osioita.
+
+**Näkyvä palaute kirjoittaessa** (sama tekniikka kuin ajankohtien korostuksessa):
+- Termilohkon rivit saavat taustasävyn, ja lohkon loppuun piirtyy ohut viiva. Silloin näkee heti, mihin lohko katkesi.
+- Jokaisen sanarivin loppuun tulee pieni rivinvaihtomerkki ↵. Jos pitkä lause rivittyy, näkee silti, että se on yksi rivi eikä kaksi.
+- Palikat, ryhmät, ilmoitukset ja apukysymykset saavat omat hillityt merkintänsä, ja rivi, jota ei ymmärretty, näkyy varoitusvärillä. Korostus päivittyy, kun rivi vaihtuu (sama kuin ajankohdissa: tulkinta näkyy, kun siirryt eteenpäin).
+
+**Suhde Termit-ikkunaan:** tekstistä tulevat sanat näkyvät termin ikkunassa omana luettelonaan *Puun tekstistä (Lemmikit)*. Niitä muokataan tekstissä, ja ikkunassa lisätyt sanat säilyvät erikseen. Molemmat lasketaan yhteen.
+
+**Huonot puolet:** termit ovat yhteisiä kaikille puille, mutta lohko on yhden puun tekstissä. Jos puun poistaa, sen lohkojen sanat katoavat termeistä. Tämä on looginen seuraus, mutta se voi yllättää.
+
+**Sama kieli jatkossa:** sama lohkorakenne sopisi myöhemmin myös sääntöihin tekstinä (esim. `=Koira avaa:` ja rivit alle), jolloin koko puun voi kirjoittaa tai tuoda tekstinä. Toistaiseksi tämä on vain mahdollisuus.
+
 ## Avoimet kysymykset Emilille
 
 1. Riittääkö yksi JA-ryhmä per palikka (monimutkaisemmat yhdistelmät apupalikalla)?
@@ -91,3 +131,5 @@ Huono puoli: alaotsikot ovat tavallista tekstiä, joten jos otsikkoriviä muokka
 4. Onko arviointi (napauta kunnossa olevat, saat hoidettavat) saman puun laji vai kokonaan oma puulaji, jossa kaikki väittämät näkyvät kerralla yhdellä sivulla?
 5. Apukysymykset: tuleeko rivi *N apukysymystä* muistiinpanon ikkunaan aina osumien löytyessä, vai haluatko oman napin?
 6. Kelpaako alaotsikon muoto ”▸ Kysymys” ja vastaus sen alle?
+7. Kelpaako termilohkon merkiksi `=Nimi:`, vai haluatko jonkin muun merkin?
+8. Riittääkö tyhjä rivi lohkon päättäjäksi? (Ehdotus: riittää, koska korostus näyttää katkon heti.)
