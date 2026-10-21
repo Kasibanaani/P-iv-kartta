@@ -192,7 +192,7 @@ h3{font-size:15px;font-weight:600;color:var(--label2);margin:20px 0 8px}
 .chip{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border:0;border-radius:20px;background:var(--cell);font-size:15px;cursor:pointer}
 .chip[aria-pressed="true"]{background:var(--solid);color:var(--on-solid);font-weight:600}
 .sw{flex:none;width:16px;height:16px;border-radius:50%;box-shadow:0 0 0 2px var(--cell)}
-input[type="text"],input[type="number"],textarea{width:100%;padding:13px 16px;border:0;border-radius:12px;background:var(--cell);font-size:17px}
+input[type="text"],input[type="number"],input[type="search"],textarea{width:100%;padding:13px 16px;border:0;border-radius:12px;background:var(--cell);font-size:17px}
 textarea{min-height:96px;resize:vertical}
 textarea.mono{min-height:140px;font:16px/1.4 ui-monospace,Menlo,Consolas,monospace;letter-spacing:0}
 label.fl{display:block;font-size:13px;font-weight:600;color:var(--label2);margin:16px 0 6px}
@@ -282,6 +282,7 @@ main{padding-bottom:28px}
 .row.mxp{background:var(--solid);color:var(--on-solid);font-weight:600}
 .row .t small.body{white-space:pre-wrap;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
 .ncard{display:block;width:100%;text-align:left;border:0;background:var(--cell);border-radius:14px;padding:12px 16px;cursor:pointer;color:inherit;box-shadow:0 6px 22px var(--app-shadow)}
+.ncard[hidden]{display:none}
 .ncard .nd{display:inline-block;font-size:13px;font-weight:700;color:var(--accent);margin-bottom:3px;font-variant-numeric:tabular-nums}
 .ncard .nd.today{color:var(--on-solid);background:var(--solid);border-radius:8px;padding:1px 8px}
 .ncard .nt{font-size:15.5px;white-space:pre-wrap;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:5;overflow:hidden}
@@ -546,12 +547,15 @@ function orphans(P){var by=parseText(P.text).by,out={};
 function dropOrphans(P){orphans(P).forEach(function(k){removeKey(P,k);});}
 
 /* ---- muistiinpanot: termit ----
-   Termi = {name, yes:[sanoja], no:[sanoja]}. Sana tai sanayhdistelmä tunnistetaan sanan alusta (taivutus ei haittaa):
-   "eläi" löytää eläin, eläimen, eläimet. Termin nimi lasketaan itsestään kyllä-sanaksi. Poissulku voittaa. */
-function esc(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
-function hasWord(text,p){p=clean(p).toLowerCase();if(!p)return false;
-  return new RegExp('(^|[^0-9a-zåäöüéèáà_])'+esc(p).replace(/ /g,'\\s+')).test(String(text||'').toLowerCase());}
-function termOn(term,text){var yes=[term.name].concat(term.also||[],term.yes||[]).some(function(w){return hasWord(text,w);});
+   Termi = {name, yes:[sanoja], no:[sanoja]}. Sana tai lause on yksi rivi (välilyönti kuuluu sanaan). Vertailussa isot ja pienet
+   kirjaimet ovat samat ja välimerkit katoavat (ne pysyvät muistiinpanossa). Sana tunnistuu kokonaisena: "koira" ei löydä koiran.
+   Tavuviiva lopussa = riittää osa: "eläi-" löytää eläin, eläimen, kotieläimet. Termin nimi lasketaan itsestään kyllä-sanaksi.
+   Poissulku voittaa. */
+function normT(s){return ' '+String(s==null?'':s).toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim()+' ';}
+function hasWord(text,p){p=clean(p);if(!p)return false;var part=/-$/.test(p),w=normT(p).trim();if(!w)return false;
+  var t=typeof text==='string'?normT(text):text.n;return part?t.indexOf(w)>=0:t.indexOf(' '+w+' ')>=0;}
+function termOn(term,text){if(typeof text==='string')text={n:normT(text)};
+  var yes=[term.name].concat(term.also||[],term.yes||[]).some(function(w){return hasWord(text,w);});
   if(!yes)return false;return !(term.no||[]).some(function(w){return hasWord(text,w);});}
 /* Päätöspuiden rivit termeinä: jokaisen nappulan, ilmoituksen ja ryhmän nimi on termi kaikista projekteista
    (sama nimi kerran). Sanat tallessa nimen avaimella words[avain]={yes,no}. Samanniminen oma termi korvaa. */
@@ -561,7 +565,7 @@ function autoTerms(projects,words,manual){var out=[],seen={};(manual||[]).forEac
     if(it.k==='t'&&it.body!==it.name){var f=clean(bodyText(it.body).split('\n\n')[0]);if(f)tm.also=[f];} // ilmoitus tunnistuu myös tekstistään, joka on kierroksen muistiinpanossa
     out.push(tm);});});
   return out;}
-function noteTerms(terms,text){return (terms||[]).filter(function(t){return termOn(t,text);}).map(function(t){return t.id;});}
+function noteTerms(terms,text){text={n:normT(text)};return (terms||[]).filter(function(t){return termOn(t,text);}).map(function(t){return t.id;});}
 
 /* ---- päivämäärät ----
    Pohjahetki on muistiinpanon luontihetki, joten myöhempi muokkaus ei siirrä "perjantaita". */
@@ -706,7 +710,7 @@ function looseJson(txt){var s=String(txt||''),a=s.indexOf('{'),b=s.lastIndexOf('
   try{return JSON.parse(s);}catch(e){}try{return JSON.parse(s.replace(/[“”„]/g,'"'));}catch(e){}return null;}
 if(typeof module!=='undefined')module.exports={VER:VER,ALKU:ALKU,parseLine:parseLine,lineOf:lineOf,bodyText:bodyText,parseText:parseText,rl:rl,ruleState:ruleState,toggleRule:toggleRule,
   sessionView:sessionView,moveItem:moveItem,shownName:shownName,blockedNow:blockedNow,tapDraft:tapDraft,replay:replay,exclOf:exclOf,newSession:newSession,notesOnDay:notesOnDay,dayCarry:dayCarry,commitStep:commitStep,undoStep:undoStep,sessionNote:sessionNote,sessionGroups:sessionGroups,renameKey:renameKey,removeKey:removeKey,
-  replaceLine:replaceLine,orphans:orphans,dropOrphans:dropOrphans,hasWord:hasWord,termOn:termOn,noteTerms:noteTerms,autoTerms:autoTerms,parseDates:parseDates,occursOn:occursOn,nextOcc:nextOcc,dateLabel:dateLabel,tokensOf:tokensOf,noteDates:noteDates,nextDate:nextDate,
+  replaceLine:replaceLine,orphans:orphans,dropOrphans:dropOrphans,hasWord:hasWord,normT:normT,termOn:termOn,noteTerms:noteTerms,autoTerms:autoTerms,parseDates:parseDates,occursOn:occursOn,nextOcc:nextOcc,dateLabel:dateLabel,tokensOf:tokensOf,noteDates:noteDates,nextDate:nextDate,
   sortNotes:sortNotes,fiDate:fiDate,stamp:stamp,isoD:isoD,normalizeData:normalizeData,looseJson:looseJson};
 </script>
 <script id="ui">
@@ -920,7 +924,7 @@ function renderMx(p,P,pt){var by=pt.by;
   button(r,'Peru','btn',function(){mxSel=null;render();});p.appendChild(r);}
 
 /* ---- muistiinpanot ---- */
-var noteSort='next',noteFilter=null,noteCur=null,noteArm=0;
+var noteSort='next',noteFilter=null,noteQuery='',noteCur=null,noteArm=0;
 function allTerms(){return data.terms.concat(autoTerms(data.projects,data.words,data.terms));}
 var termCache=null;
 function termName(id){var l=termCache||allTerms();for(var i=0;i<l.length;i++)if(l[i].id===id)return l[i].name;return '';}
@@ -929,6 +933,8 @@ function renderNotes(){var p=panels.notes;p.textContent='';var today=todayIso();
   $('notebar').hidden=false;Array.prototype.forEach.call(document.querySelectorAll('#notesort button'),function(b){b.setAttribute('aria-pressed',noteSort===b.dataset.ns?'true':'false');});
   var AT=termCache=allTerms(),hits={},nt={};data.notes.forEach(function(n){nt[n.id]=noteTerms(AT,n.text);nt[n.id].forEach(function(id){hits[id]=1;});});
   var shownT=AT.filter(function(t){return !t.auto||hits[t.id];});
+  var q=el('input');q.type='search';q.id='nsearch';q.placeholder='Hae sanalla';q.autocomplete='off';q.setAttribute('aria-label','Hae muistiinpanoista sanalla');q.value=noteQuery;q.style.marginBottom='10px';p.appendChild(q);
+  q.addEventListener('input',function(){noteQuery=q.value;filterNotes();});
   if(shownT.length){var cs=el('div','chips');cs.style.marginBottom='12px';shownT.forEach(function(t){var b=button(cs,t.name,'chip',function(){noteFilter=noteFilter===t.id?null:t.id;render();});b.setAttribute('aria-pressed',noteFilter===t.id?'true':'false');});p.appendChild(cs);}
   if(noteFilter&&!termName(noteFilter))noteFilter=null;
   var l=sortNotes(data.notes,noteSort,today).filter(function(n){return !noteFilter||nt[n.id].indexOf(noteFilter)>=0;});
@@ -939,7 +945,11 @@ function renderNotes(){var p=panels.notes;p.textContent='';var today=todayIso();
     nt[n.id].forEach(function(id){f.appendChild(el('i','',termName(id)));});c.appendChild(f);
     c.addEventListener('click',function(){openNote(n);});list.appendChild(c);});
   if(!l.length)p.appendChild(el('p','sub',noteFilter?'Tällä termillä ei ole muistiinpanoja.':'Ei vielä muistiinpanoja.'));
-  p.appendChild(list);}
+  p.appendChild(list);var em=el('p','sub','Ei osumia.');em.id='nempty';em.hidden=true;p.appendChild(em);filterNotes();}
+/* Sanahaku: osa sanaa riittää, isot kirjaimet ja välimerkit eivät vaikuta. Suodattaa näkyvät kortit uudelleen piirtämättä. */
+function filterNotes(){var w=normT(noteQuery).trim(),n=0;Array.prototype.forEach.call(document.querySelectorAll('#nlist .ncard'),function(c){
+  var N=null;for(var i=0;i<data.notes.length;i++)if(data.notes[i].id===c.dataset.id)N=data.notes[i];
+  var ok=!w||(N&&normT(N.text).indexOf(w)>=0);c.hidden=!ok;if(ok)n++;});var e=$('nempty');if(e)e.hidden=n>0||!data.notes.length;}
 function shortD(iso){var p=iso.split('-');return (+p[2])+'.'+(+p[1])+'.';}
 function fromIsoW(iso){var p=iso.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]);return WDS[d.getDay()]+' '+fiDate(iso);}
 function openNote(n){noteCur=n;noteArm=0;$('ns-text').value=n?n.text:'';$('ns-date').value=n?n.date:'';$('ns-stamp').textContent=n?'Luotu '+stamp(n.created)+(n.edited!==n.created?' · muokattu '+stamp(n.edited):''):'Uusi';
@@ -967,7 +977,7 @@ $('notesort').addEventListener('click',function(ev){var b=ev.target.closest('[da
 /* ---- termit ---- */
 var termCur=null,termArm=0;
 function openTerms(){termCur=null;renderTerms();openSheet($('tsheet'));}
-function lines(s){return String(s||'').split(/\r?\n|,/).map(clean).filter(Boolean);}
+function lines(s){return String(s||'').split(/\r?\n/).map(clean).filter(Boolean);}
 var KINDN={b:'nappula',g:'ryhmä',t:'ilmoitus'};
 function termRow(t){var r=el('button','row'+(t.auto&&t.kind==='g'?' grp':t.auto&&t.kind==='t'?' txt':''));r.type='button';r.dataset.id=t.id;var s=el('span','t',t.name);
   var info=[];if(t.auto)info.push(KINDN[t.kind]+' · '+t.proj);if(t.yes.length)info.push(t.yes.length+(t.yes.length===1?' sana':' sanaa'));if(t.no.length)info.push(t.no.length+(t.no.length===1?' poissulkeva':' poissulkevaa'));
@@ -975,7 +985,7 @@ function termRow(t){var r=el('button','row'+(t.auto&&t.kind==='g'?' grp':t.auto&
   r.addEventListener('click',function(){termCur=t;termArm=0;renderTerms();});return r;}
 function renderTerms(){var b=$('ts-body');b.textContent='';termCache=null;
   if(!termCur){$('ts-h').textContent='Termit';
-    b.appendChild(el('p','sub','Termi tunnistuu muistiinpanosta nimestään ja liitetyistä sanoista. Sana tunnistetaan alusta: ”eläi” löytää eläin, eläimen ja eläimet. Poissulkeva sana voittaa. Muistiinpanot ja termit ovat yhteisiä kaikille päätöspuille.'));
+    b.appendChild(el('p','sub','Termi tunnistuu muistiinpanosta nimestään ja liitetyistä sanoista. Yksi sana tai lause riville. Sana tunnistuu kokonaisena; tavuviiva lopussa riittää osaksi: ”eläi-” löytää eläin, eläimen ja kotieläimet. Isot kirjaimet ja välimerkit eivät vaikuta. Poissulkeva sana voittaa. Muistiinpanot ja termit ovat yhteisiä kaikille päätöspuille.'));
     b.appendChild(el('h3','','Omat termit'));
     var l=el('div','rows');data.terms.forEach(function(t){l.appendChild(termRow(t));});b.appendChild(l);
     var a=el('div','addrow'),i=el('input');i.type='text';i.id='newterm';i.placeholder='Uusi termi, esim. eläin';i.autocomplete='off';a.appendChild(i);a.style.marginTop='8px';

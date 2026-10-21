@@ -1,6 +1,6 @@
 # Päätöspuu: ehdot, järjestys ja muisti (pohdinta)
 
-**Tila:** vain pohdinta 21.10.2026. Mitään tästä ei ole rakennettu. Puun kopiointi on rakennettu (versio 1.7).
+**Tila:** vain pohdinta 21.10.2026. Kohtia 1–3 ja 6 ei ole rakennettu. Puun kopiointi (1.7) sekä termisanojen säännöt ja muistiinpanojen sanahaku (1.8) on rakennettu.
 
 Emilin lähtökohta: ensin pitää miettiä, mikä on järkevää käyttäjälle, vasta sitten koodi. Tässä on ehdotus siitä, miten Emilin toiveet saadaan muutamaan helposti ymmärrettävään käsitteeseen.
 
@@ -61,9 +61,33 @@ Puukohtaisesti on kaksi valintaa: *Muisti* (vain seuraava / kaikki mukana) ja *L
 
 Emil kirjoittaa yhden oikean esimerkkipuun tekstinä (esim. hoitosuunnitelman väittämät ilman potilastietoja) ja kertoo, mitä haluaisi lopuksi näkevänsä. Käydään se läpi tämän mallin kanssa paperilla. Jos malli toimii esimerkissä, rakennetaan vaiheittain: 1) ehdot (JA), 2) muistiasetus, 3) hoidettavat-tulos.
 
+## 6. Muistiinpanosta esiin nousevat apukysymykset (Emil 21.10.2026, pohdinta)
+
+Emilin periaate: Päätöspuu on helppo käyttää, ja logiikka on sisällä. (Appi-appi on päinvastoin: yksinkertaiset säännöt, vaativa käyttö.)
+
+Ehdotus:
+
+- **Mikä nousee esiin:** termikohtainen valinta *Nousee esiin muistiinpanosta*. Apukysymyksillä (`?Nimi: kysymys`) se on oletuksena päällä, muilla pois. Nyt apukysymykset eivät ole termejä lainkaan, joten ne pitää ensin lisätä termeiksi.
+- **Milloin:** muistiinpanon ikkunan alareunaan tulee rivi *2 apukysymystä*, kun teksti osuu esiin nouseviin termeihin. Napautus avaa ne kortteina. Jos osumia ei ole, mitään ei näy, joten peruskäyttö ei muutu.
+- **Vastaaminen:** kortissa on kysymys ja vastauskenttä. Kortin voi kuitata pelkällä *Kyllä*-napautuksella tai jättää koskematta. Alareunan Valmis lisää vastatut muistiinpanon loppuun alaotsikoina, ja alkuperäinen teksti pysyy ennallaan:
+
+  ```
+  (Emilin oma teksti)
+
+  ▸ Onko lapsi turvassa?
+  Kyllä, kotona tänään.
+  ```
+
+- **Uudelleen avattaessa:** jos alaotsikko on jo tekstissä, kortissa näkyy nykyinen vastaus, ja muokkaus päivittää saman kohdan. Kahta samaa otsikkoa ei synny.
+- **Myöhemmin:** kortista *Aloita kierros tästä* eli esiin noussut palikka aloittaa päätöspuun.
+
+Huono puoli: alaotsikot ovat tavallista tekstiä, joten jos otsikkoriviä muokkaa käsin, appi ei enää tunnista sitä ja luo uuden.
+
 ## Avoimet kysymykset Emilille
 
 1. Riittääkö yksi JA-ryhmä per palikka (monimutkaisemmat yhdistelmät apupalikalla)?
 2. Kun JA-ehto täyttyy tilassa *vain seuraava askel*, näkyykö seuraus vain sillä askeleella vai jääkö se odottamaan?
 3. Kelpaako tärkeysjärjestykseksi rivijärjestys, vai tarvitaanko erillinen järjestys, joka ei riipu tekstin järjestyksestä?
 4. Onko arviointi (napauta kunnossa olevat, saat hoidettavat) saman puun laji vai kokonaan oma puulaji, jossa kaikki väittämät näkyvät kerralla yhdellä sivulla?
+5. Apukysymykset: tuleeko rivi *N apukysymystä* muistiinpanon ikkunaan aina osumien löytyessä, vai haluatko oman napin?
+6. Kelpaako alaotsikon muoto ”▸ Kysymys” ja vastaus sen alle?

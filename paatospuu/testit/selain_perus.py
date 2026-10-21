@@ -99,6 +99,10 @@ async def run(p,w,h):
     await pg.click('#start'); await pg.wait_for_timeout(50)
     want('päivän valinnat valmiina', 'Lemmikki tarvitsee' in await pg.inner_text('#log') and await opts()==['kissa','ruoka','leikkiminen'] and 'sel' in await pg.get_attribute('#opts [data-id="ruoka"]','class'))
     await pg.click('#act-end'); want('päivä valmiina lopussa', await pg.input_value('#es-date')=='2026-12-24'); await pg.click('#es-cancel')
+    # sanahaku
+    await pg.click('[data-tab="notes"]'); await pg.fill('#nsearch','EI LÖYDY'); await pg.wait_for_timeout(50)
+    want('sanahaku piilottaa', await pg.locator('#nlist .ncard:visible').count()==0 and await pg.is_visible('#nempty'))
+    await pg.fill('#nsearch',''); await pg.wait_for_timeout(50); want('haku tyhjä näyttää kaikki', await pg.locator('#nlist .ncard:visible').count()==await pg.locator('#nlist .ncard').count()); await check('sanahaku')
     # puun kopiointi
     await pg.click('#title'); await pg.click('#ps-copy'); await pg.wait_for_timeout(50); await check('kopioi puu')
     pr=json.loads(await pg.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('paatospuu:v1')).projektit)"))

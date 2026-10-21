@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.7, kokeilussa · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.8, kokeilussa · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -62,6 +62,12 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 - Projektin ikkunassa (yläpalkin nimi) nappi *Kopioi puu*: kopioon teksti, säännöt ja toisensa poissulkevat, ei keskeneräistä kierrosta. Kopio avautuu nimellä ”Nimi (kopio)”.
 
+## Versio 1.8 (21.10.2026, Emilin toive): termisanojen säännöt, sanahaku
+
+- Termin sanat: yksi sana tai lause riville (pilkku ei enää erota). Isot kirjaimet ja välimerkit eivät vaikuta vertailuun (pysyvät muistiinpanossa). Sana tunnistuu kokonaisena; tavuviiva lopussa = osa riittää, myös sanan keskeltä (”eläi-” löytää kotieläimet). Tavuviiva muualla on tavallinen merkki.
+- **Muutos aiempaan:** ennen sana tunnistui alusta (”eläi” löysi eläimen). Nyt taivutukset tarvitsevat tavuviivan. Myös palikoiden nimet tunnistuvat vain kokonaisina.
+- Muistiinpanoissa hakukenttä *Hae sanalla* termien yläpuolella: osa sanaa riittää. Toimii yhdessä termisuodattimen kanssa.
+
 ## Ei tarkistettu
 
 - Oikealla iPhonella ei kokeiltu: zoomauksen esto ja yläreunan lisätila (näkyy vain kotinäytön appina), jakoikkunan tiedostovienti, päivämäärävalitsin, näppäimistö alapalkin kanssa, tekstikentän koko.
@@ -73,7 +79,7 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 ## Avoimet kysymykset
 
-- **Ehdot, järjestys ja muisti (pohdinta, ei rakennettu):** ks. `POHDINTA-ehdot.md`, sen lopussa 4 avointa kysymystä. Seuraava askel: Emilin esimerkkipuu läpi mallin kanssa ennen koodia.
+- **Ehdot, järjestys ja muisti (pohdinta, ei rakennettu):** ks. `POHDINTA-ehdot.md` (myös muistiinpanosta esiin nousevat apukysymykset), sen lopussa 6 avointa kysymystä. Seuraava askel: Emilin esimerkkipuu läpi mallin kanssa ennen koodia.
 
 - Lyhenteet (ma, ti, pe) ja ”viikko 43” välilyönnillä eivät tunnistu (Vk42 vain yhteen, Emilin päätös). Lyhenteet voisi lisätä, jos ne ovat peräkkäin muun ajankohdan kanssa.
 - ”klo 14.” lauseen lopussa (piste perässä) ei tunnistu kellonajaksi.

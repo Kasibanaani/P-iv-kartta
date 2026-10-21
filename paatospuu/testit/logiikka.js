@@ -83,14 +83,17 @@ p=P('A');t(p,'a','zz');eq('orvot',E.orphans(p),['zz']);E.dropOrphans(p);eq('orvo
 
 // termit
 var term={id:'t1',name:'eläin',yes:['kissa','koira'],no:['lelu']};
-eq('kyllä',E.termOn(term,'Kissan ruoka loppui'),true);eq('nimi alusta',E.termOn(term,'Eläinlääkäri ensi viikolla'),true);
-eq('poissulku voittaa',E.termOn(term,'kissan lelu'),false);eq('ei osumaa sanan keskeltä',E.termOn(term,'pikkukissa'),false);
+eq('kyllä',E.termOn(term,'Kissa: ruoka loppui'),true);eq('kokonainen sana',E.termOn(term,'Kissan ruoka loppui'),false);
+eq('poissulku voittaa',E.termOn(term,'kissa, LELU'),false);eq('ei osumaa sanan keskeltä',E.termOn(term,'pikkukissa'),false);
+var t2={id:'t2',name:'Allianssi',yes:['eläi-','onko lapsi turvassa?','koti-ikävä'],no:[]};
+eq('tavuviiva = osa riittää',E.termOn(t2,'Kotieläimet ulkona'),true);eq('lause, välimerkit katoavat',E.termOn(t2,'Mietin: Onko lapsi, turvassa'),true);
+eq('tavuviiva keskellä on tavallinen merkki',E.termOn(t2,'Koti ikävä'),true);eq('isot kirjaimet',E.termOn(t2,'ALLIANSSI!'),true);
 
 // päätöspuun rivit termeinä, kaikista projekteista, sama nimi kerran
 var pr=[{name:'Eka',text:'Kova nälkä\n#Täyttävät: x\n>Muistutus: katso jääkaappi\n>Tämä on pitkä ilmoitus ilman nimeä, joten siitä ei tule termiä'},{name:'Toka',text:'kova nälkä\nUlkona'}];
 var at=E.autoTerms(pr,{'täyttävät':{yes:['pasta'],no:['lelu']}},[{id:'t9',name:'Ulkona',yes:[],no:[]}]);
 eq('automaattiset termit',at.map(function(t){return t.id+'/'+t.kind+'/'+t.proj;}),['a:kova nälkä/b/Eka','a:täyttävät/g/Eka','a:muistutus/t/Eka']);
-eq('sana liitetty ryhmään',E.noteTerms(at,'Söin pastaa ja kova nälkä'),['a:kova nälkä','a:täyttävät']);
+eq('sana liitetty ryhmään',E.noteTerms(at,'Söin pasta ja kova nälkä'),['a:kova nälkä','a:täyttävät']);
 eq('ilmoitus tunnistuu tekstistään',E.noteTerms(at,'Muuta: Katso jääkaappi heti'),['a:muistutus']);
 eq('poissulku automaattiseen',E.noteTerms(at,'pasta ja lelu'),[]);
 eq('termisanat talteen',E.normalizeData({app:'paatospuu',termisanat:{'x':{yes:['a'],no:[]},'y':{yes:[],no:[]}}}).words,{x:{yes:['a'],no:[]}});
