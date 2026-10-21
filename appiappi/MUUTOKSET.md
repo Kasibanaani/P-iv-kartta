@@ -4,6 +4,15 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
 
 ## Versiot
 
+- Appi-appi 105 (21.10., kaista A, jonon 42b, suunnitelma 31 V2; tallennusmuoto laajenee valinnaisella kentällä, versio pysyy 12): **Listan rastisarake valinnaiseksi.**
+  - Listan paneelissa rasti **Rastisarake (rivin voi kuitata tehdyksi)**, oletus päällä (puuttuva kenttä = päällä, vanhat projektit ennallaan). Pois (`b.rasti = false`): riveiltä katoaa rastiruutu ja otsikosta *n/m*; arvo ja `.rastitettuja` = 0, `.kaikki` = ei, `rivi1.rastitettu` = ei, `.myöhässä` ja `.seuraava` laskevat kaikki rivit. Tallennetut rastit säilyvät käyttötiedossa ja palaavat, kun sarake laitetaan takaisin. Moottori: `listNyt` (lukijat ja Kalenterin merkinnät), kirjoitus ennallaan `listRows`.
+  - **Korjaus samalla (Kumoa):** paneelin rastin kohdistus teki oman Kumoa-askeleensa muutoksen jälkeen, joten minkä tahansa paneelin rastin peruminen vaati kaksi tai kolme painallusta. Nyt rasti tekee yhden askeleen (`focusin` ei tee askelta rastille).
+  - Testit: `logiikka_112_lista_rasti.js`, `selain_141_lista_rasti.py` (1440 ja 1280).
+  - Manuaaliin: luku 3 *Lista*, *Asetukset*: lisää **Rastisarake** (oletus päällä; pois: ei rastiruutuja eikä n/m, rastitettuja 0, kaikki ei, rastit säilyvät). Luku 2 (Kumoa): paneelin rasti kumoutuu yhdellä painalluksella (ei ennen näkyvää muutosta manuaalissa, jos siellä ei mainittu).
+  - Ei tarkistettu: oikea iPhone/Safari; Toistimen kortin Lista ilman rastia (sama `listHTML`).
+  - Ristikokeilu kaista B:n 104:n (laattojen liukkaus, kolikot, painelaatta) kanssa: koko sarja yhdistetyllä koodilla 253/253 (Chromium); Listaa ja laattoja ei kokeiltu samassa projektissa (eri alueet).
+  - Kokeile koneella (Chromium): valitse näkymän Lista, paneelista pois **Rastisarake**: ruudut ja 0/2 katoavat. Ctrl+Z palauttaa yhdellä painalluksella.
+
 - Appi-appi 104 (21.10., kaista B, jonon 19 jatko, F35 vaihe D, suunnitelma 19 kohdat 5 ja 7; tallennusmuoto laajenee valinnaisella kentällä, versio pysyy 12): **Liukas laatta, kolikot laattoina, painelaatta ja koeappi D.**
   - **Päätös (tekoälyn, jonon avoin kysymys):** laatta ohjaa **liukkautta**, ei kitkaa: jää = liukkaus. Liikkeen kitka koskee vain töytäisyvauhtia, joten pelkkä kitka ei olisi tehnyt jäätä.
   - **Laattalajin Liukkaus %** (`lj[].liu`, 1–100; 0 tai tyhjä = ei kenttää): kaikille lajeille paneelissa (myös läpi-lajille, jotta ylhäältä kuvatun pelin lattia voi olla liukas). Painovoimassa vaikuttaa vain maassa ja jalkojen alla olevasta ruudusta (Liikkeen `alla` = tämä kartta); ilman painovoimaa keskipisteen ruudusta. Liikkeen liukkaus = suurempi omasta ja laatan; töytäisyvauhdin kitka kerrotaan (1 − laatan liukkaus). Ilmassa ei vaikutusta (ilmaohjaus ennallaan). Moottori `ltLiukkaus`, `ltLiuKartat` (liukkaat kartat kerätään kerran kuvassa, joten kartat ilman liukasta lajia eivät maksa mitään). `ltRepair`: yli 100 → 100, virheellinen pois.

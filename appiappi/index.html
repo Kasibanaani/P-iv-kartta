@@ -4141,6 +4141,8 @@ function listRows(P,id){
   var b=P.b[id];var lines=String(b&&b.rivit||'').split('\n').map(function(s){return s.trim();}).filter(Boolean);
   return lines.map(function(s,i){return {id:'r'+(i+1),tx:s,c:false,d:''};});
 }
+/* Jonon 42b: Listan rastisarake pois (b.rasti === false): rastit eivät näy eivätkä laske, mutta säilyvät, jos sarake palaa. */
+function listNyt(P,id){var b=P.b[id],rows=listRows(P,id);return b&&b.rasti===false?rows.map(function(r){return {id:r.id,tx:r.tx,c:false,d:r.d};}):rows;}
 var STRANK={'näkyy':0,luettava:1,harmaa:2,piilossa:3};
 function Ev(P,ctx){
   ctx=ctx||{};var now=ctx.now?ctx.now():new Date();var df=ctx.df||'pp.kk.vvvv';
@@ -4357,7 +4359,7 @@ function Ev(P,ctx){
       var c3=colById(jt,f0)||colByName(jt,f0);if(c3&&sg3.length===2&&TAGG[sg3[1]])return tAgg(P,rs.rj,c3,TAGG[sg3[1]],rs.ids);
       if(c3)return ERR('.'+c3.vt+': valitse rivi (esim. '+b.vt+'.eka.'+c3.vt+') tai kooste (esim. '+b.vt+'.'+c3.vt+'.summa)');
       return ERR('rivijoukossa ”'+b.nm+'” ei ole ominaisuutta tai saraketta ”'+f0+'” (rivejä, eka, vika; sarakkeet: '+(tSar(jt).map(function(c){return c.vt;}).join(', ')||'ei vielä yhtään')+')');}
-    if(b.k==='lista'&&(m=/^rivi(\d+)(?:\.(teksti|rastitettu|pvm))?$/.exec(pn))){var r=listRows(P,id)[+m[1]-1];if(!r)return null;
+    if(b.k==='lista'&&(m=/^rivi(\d+)(?:\.(teksti|rastitettu|pvm))?$/.exec(pn))){var r=listNyt(P,id)[+m[1]-1];if(!r)return null;
       if(m[2]==='rastitettu')return !!r.c;if(m[2]==='pvm')return r.d?D(r.d):null;return r.tx;}
     if(b.k==='aika'&&(m=/^viimeisin\.(teksti|aika)$/.exec(pn))&&ajLahde(P,b)){var la=ajLahde(P,b),lr=tLatest(P,la);if(!lr)return null;
       if(m[1]==='teksti')return rLabel(P,RR(la,lr));return hmOf(tRow(P,la,lr).a[histCol(B[la]).id].ms);}
@@ -4376,7 +4378,7 @@ function Ev(P,ctx){
       case 'pohj':return padProp(P,b,key);
       case 'teksti':{var tv=val(id),tt=tv==null?'':String(tv);return key==='pituus'?tt.length:tt.trim()==='';}
       case 'pvm':return datePart({viikko:'vk','viikonpäivä':'vkp','päivä':'pv',kuukausi:'kk',vuosi:'v','päiviä':'ero'}[key],val(id),now);
-      case 'lista':{var rows=listRows(P,id),td=iso(now);if(key==='myöhässä')return rows.filter(function(r){return r.d&&!r.c&&r.d<td;}).length;
+      case 'lista':{var rows=listNyt(P,id),td=iso(now);if(key==='myöhässä')return rows.filter(function(r){return r.d&&!r.c&&r.d<td;}).length;
         var nx=null;rows.forEach(function(r){if(r.d&&!r.c&&r.d>=td&&(!nx||r.d<nx))nx=r.d;});return nx?D(nx):null;}
       case 'taulu':{var tdv=dynProp(id,b,key);return tdv===undefined?null:tdv;}
       case 'aika':{if(ajLahde(P,b))return tHistToday(P,ajLahde(P,b),now);var en=stv(id,[]),tdy=iso(now);return Array.isArray(en)?en.filter(function(x){return iso(new Date(x.t))===tdy;}).length:0;}
@@ -4540,7 +4542,7 @@ function Ev(P,ctx){
       case 'nayta':case 'muoto':return text(id);
       case 'laatat':return ltMaarat(ltNyt(P,b)).kaikki;
       case 'ilmo':return visible(id);
-      case 'lista':{var rows=listRows(P,id);var c=rows.filter(function(r){return r.c;}).length;if(p==='n')return rows.length;if(p==='all')return rows.length>0&&c===rows.length;return c;}
+      case 'lista':{var rows=listNyt(P,id);var c=rows.filter(function(r){return r.c;}).length;if(p==='n')return rows.length;if(p==='all')return rows.length>0&&c===rows.length;return c;}
       case 'aika':{var la2=ajLahde(P,b);if(la2){var hc2=histCol(B[la2]),lr2=tLatest(P,la2);if(p==='last')return lr2?D(histDay(P,tRow(P,la2,lr2).a[hc2.id].ms)):null;
           return tRows(P,la2).filter(function(r){return r&&r.a&&isAt(r.a[hc2.id]);}).length;}
         var e=stv(id,[]);if(!Array.isArray(e))e=[];if(p==='last'){if(!e.length)return null;return D(iso(new Date(e[e.length-1].t)));}return e.length;}
@@ -6611,7 +6613,7 @@ kuvaPyorii:kuvaPyorii,kuvaNro:kuvaNro,SARJA_MAX:SARJA_MAX,ruudukko:ruudukko,ruud
   ports:ports,port:port,newProject:newProject,addBlock:addBlock,addNode:addNode,addLink:addLink,canLink:canLink,
   removeNode:removeNode,removeBlock:removeBlock,refsTo:refsTo,brokenRefs:brokenRefs,relink:relink,isGone:isGone,goneName:goneName,scanRefs:scanRefs,nodeOf:nodeOf,nodesOfBlock:nodesOfBlock,uniqueName:uniqueName,baseName:baseName,
   repair:repair,repairData:repairData,Ev:Ev,setVal:setVal,userSet:userSet,muuttui:muuttui,MUUTTUU:MUUTTUU,press:press,kalenteriValitse:kalenteriValitse,fire:fire,tick:tick,runAction:runAction,clearVal:clearVal,
-  listRows:listRows,toNames:toNames,toIds:toIds,setRefTapa:setRefTapa,refTapa:refTapa,refsIn:refsIn,isBoolKind:isBoolKind,
+  listRows:listRows,listNyt:listNyt,toNames:toNames,toIds:toIds,setRefTapa:setRefTapa,refTapa:refTapa,refsIn:refsIn,isBoolKind:isBoolKind,
   iso:iso,addDays:addDays,diffDays:diffDays,isoWeek:isoWeek,weekday:weekday,fmtDate:fmtDate,parseDate:parseDate,
   fmt:fmt,num:num,truth:truth,isD:isD,D:D,parseLit:parseLit,calc:calc,cmp:cmp,datePart:datePart,clone:clone,
   /* P2 */
@@ -7637,12 +7639,12 @@ function mittariHTML(b,E,ed,tx){
   }
   return '';}
 function listHTML(b,E,tx){
-  var rows=KK.listRows(P,b.id),today=KK.iso(E.now);
+  var rows=KK.listNyt(P,b.id),today=KK.iso(E.now),ra=b.rasti!==false;
   var c=rows.filter(function(r){return r.c;}).length;
-  var h='<div class="card w-card"><div class="ttl">'+(tx||'&nbsp;')+'<small>'+c+'/'+rows.length+'</small></div><div class="lrows">';
+  var h='<div class="card w-card"><div class="ttl">'+(tx||'&nbsp;')+(ra?'<small>'+c+'/'+rows.length+'</small>':'')+'</div><div class="lrows">';
   rows.forEach(function(r){
     var late=r.d&&!r.c&&r.d<today;
-    h+='<div class="lr'+(r.c?' done':'')+'" data-row="'+esc(r.id)+'"><span class="box'+(r.c?' on':'')+'" data-act="rowchk"></span><span class="lt" data-act="rowedit" title="Napauta muokataksesi">'+esc(r.tx)+'</span>'+
+    h+='<div class="lr'+(r.c?' done':'')+'" data-row="'+esc(r.id)+'">'+(ra?'<span class="box'+(r.c?' on':'')+'" data-act="rowchk"></span>':'')+'<span class="lt" data-act="rowedit" title="Napauta muokataksesi">'+esc(r.tx)+'</span>'+
       (b.pvmsar?'<input class="ld'+(late?' late':'')+'" data-act="rowdate" placeholder="pvm" value="'+esc(r.d?KK.fmtDate(r.d,Dt.cfg.df):'')+'">':'')+
       '<button class="x" data-act="rowdel" title="Poista rivi">×</button></div>';
   });
@@ -7705,7 +7707,7 @@ function calMarks(b,E){
 function calItems(b,E,d){
   var r=[];
   (b.lahteet||[]).forEach(function(id){var s=P.b[id];if(!s)return;
-    if(s.k==='lista')KK.listRows(P,id).forEach(function(x){if(x.d===d)r.push({tx:x.tx||'(tyhjä rivi)',c:!!x.c,lh:s.nm});});
+    if(s.k==='lista')KK.listNyt(P,id).forEach(function(x){if(x.d===d)r.push({tx:x.tx||'(tyhjä rivi)',c:!!x.c,lh:s.nm});});
     else if(s.k==='taulu'||(s.k==='aika'&&KK.ajLahde(P,s)))calHist(s.k==='aika'?KK.ajLahde(P,s):id).forEach(function(x){if(x.d!==d)return;var t=new Date(x.t);
       r.push({tx:x.tx,klo:('0'+t.getHours()).slice(-2)+':'+('0'+t.getMinutes()).slice(-2),t:x.t,lh:s.nm});});
     else if(s.k==='aika')(Array.isArray(P.st[id])?P.st[id]:[]).forEach(function(x){var t=new Date(x.t);if(KK.iso(t)!==d)return;
@@ -9179,7 +9181,7 @@ function uiInsp(b,E){
       sp+=fSegs('Koko','koko',b.koko||'m',[['s','S'],['m','M'],['l','L'],['xl','XL']])+fCheck('Lihavoitu','lih',b.lih);
       if(k==='nayta')sp+=fSegs('Tasaus','tas',b.tas,[['left','Vasen'],['center','Keski'],['right','Oikea']]);break;
     case 'ilmo':sp+='<div class="help">Ilmoitus näkyy, kun sen näkyvyysehto pätee. Valitse ehto alta tai vie nuoli kohtaan ”näkyy kun”.</div>';break;
-    case 'lista':sp+=F('Pohjarivit','<textarea data-k="rivit" rows="5">'+esc(b.rivit)+'</textarea>','Yksi rivi per rivi. Käytössä voi lisätä, rastittaa ja poistaa rivejä.')+fCheck('Päivämääräsarake (myöhästyneet punaisella)','pvmsar',b.pvmsar)+'<div class="ibs"><button class="ib" data-do="clearst">Palauta pohjariveihin</button></div>';break;
+    case 'lista':sp+=F('Pohjarivit','<textarea data-k="rivit" rows="5">'+esc(b.rivit)+'</textarea>','Yksi rivi per rivi. Käytössä voi lisätä, rastittaa ja poistaa rivejä.')+fCheck('Rastisarake (rivin voi kuitata tehdyksi)','rasti',b.rasti!==false)+fCheck('Päivämääräsarake (myöhästyneet punaisella)','pvmsar',b.pvmsar)+'<div class="ibs"><button class="ib" data-do="clearst">Palauta pohjariveihin</button></div>';break;
     case 'aika':{var ajl=KK.ajLahde(P,b),own=Array.isArray(P.st[b.id])?P.st[b.id].length:0;
       sp+=F('Lähde','<select data-k="lh">'+refOptions(ajl,function(o){return o.k==='taulu'&&!!KK.histCol(o);},'Omat merkinnät ('+own+')')+'</select>',ajl?'Aikajana näyttää taulukon kirjaukset uusin ensin. Kirjaa-toiminto kirjaa taulukkoon.':'Merkinnät tulevat toiminnolla Kirjaa. Jokaisella on aikaleima.');
       if(!ajl)sp+='<div class="ibs"><button class="ib" data-do="clearst">Tyhjennä merkinnät</button>'+(own?'<button class="ib" data-do="ajmuunna">Muunna historiaksi</button>':'')+'</div>'+(own?'<div class="help">Muunna historiaksi tekee merkinnöistä Tietotaulukon (aika, id, teksti), ja tämän aikajanan Kirjaa-toiminnot kirjaavat jatkossa siihen. Vanhat merkinnät jäävät tänne.</div>':'');
@@ -10961,7 +10963,8 @@ function refreshInspHead(){var b=selBlock();if(!b)return;var hd=$('#insp .ih b')
   var ws=$('#whysec');if(ws)ws.outerHTML=whySection(b,E);
   var th=$('#tmhelp');if(th&&b.k==='ajastin')th.outerHTML=timerHelp(b);
   var jr=$('#jres');if(jr&&b.k==='joukko')jr.innerHTML='Tulos: '+rowsLine(E,E.val(b.id,'rj'));}
-$('#insp').addEventListener('focusin',function(e){var k=e.target.getAttribute('data-k');if(k&&inspUndoKey!==k+S.sel.id){pushUndo();inspUndoKey=k+S.sel.id;}});
+/* Rasti tekee oman Kumoa-askeleensa (change); kohdistus ei lisää toista, joka jäisi muutoksen jälkeen (jonon 42b havainto: Kumoa vaati kolme painallusta). */
+$('#insp').addEventListener('focusin',function(e){var k=e.target.getAttribute('data-k');if(k&&e.target.type!=='checkbox'&&inspUndoKey!==k+S.sel.id){pushUndo();inspUndoKey=k+S.sel.id;}});
 $('#insp').addEventListener('focusout',function(){inspUndoKey=null;});
 /* Jonon 1t: kaavakentän vahvistus kysyy puuttuvista. */
 $('#insp').addEventListener('focusin',function(e){var k=kfKey(e.target);if(!k)return;var T=inspTarget();if(!T||!T.b)return;
