@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.19.2 (suunnitelman vaihe 9 + käyttöliittymän tiivistys), odottaa Emilin kuittausta; seuraavaksi 7b · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.19.3 (vaihe 9 valmis; seuraavaksi vaihe 10 projektit ja puut, sitten 7b), odottaa Emilin kuittausta; seuraavaksi 7b · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -159,6 +159,15 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Muistiot: rivi ”N muistiinpanoa” poistettu; lukumäärä on pelkkänä numerona yläpalkissa nimen vieressä. Avoimet/Kuitatut ja Tulevat/Uusimmat/Tärkeys pysyvät ylhäällä vierittäessä; Hae sanalla ja termisirut vierivät pois.
 - Alapalkki: välilehdet 22 px (alle 360 px:n leveydellä 10 px) reunoista sisemmäs, ja tyhjää alla noin 20 px vähemmän (kotinäytön appina). Yläpalkin korkeutta ei muutettu Dynamic Islandin takia; Opetuksessa ja Muistioissa tyhjä ohjerivi jää pois.
 
+## Versio 1.19.3 (21.10.2026, Emilin toive): tähdet Järjestyksessä, valikkonappi
+
+- Opetus → Järjestys näyttää kaikki palikat (myös ryhmät, ilmoitukset ja apukysymykset). Rivin reunan tähti merkitsee tärkeäksi: tärkeät ylinnä numeroituina, järjestys pitkällä painalluksella ja raahaamalla; muut alla puun nykyisessä järjestyksessä. Rivin napautus tekee edelleen ennen-säännön. Tallennus puun tekstiin lohkona `=Tärkeät:` (rivit järjestyksessä), `P.imp`.
+- Puun tärkeät ovat puun järjestyksessä ensin (ennen `ennen`-sääntöjä ja rivijärjestystä). Tärkeysjärjestyksessä etenevä kierros: merkitys = kaikki tarvitaan -palikka, tähdellä merkitty ryhmä (osat = jäsenet) tai tähdellä merkitty nappula (yksinään). Merkitysten aikana Alku odottaa; kun ne on käyty, Alun avaamat tulevat tarjolle säännöin.
+- Tähti on sama kaikkialla: palikan tähti puussa ja sen termin tähti Termit-ikkunassa kulkevat yhdessä (järjestykset erillään, uusi tähti loppuun).
+- Muistiokortin pitkä painallus korvattu pienellä ⋯-napilla oikeassa yläkulmassa (Kuittaa, Liitä termiin, Poista). Kortti on nyt div, joten napautus avaa muistiinpanon.
+- Yläpalkin lukumäärä muodossa ”3 kpl”. Alapalkki nostettu puolimatkaa takaisin ylös (kotiviiva tuli esiin).
+- Puun kopiointi lukee nyt säännöt tekstistä (aiemmin kopio olisi pudottanut kääntöpuoli- ja tärkeät-lohkot ensimmäisessä tallennuksessa).
+
 ## Ei tarkistettu
 
 - Oikealla iPhonella ei kokeiltu (1.19.2): alapalkin uusi korkeus kotinäytön appina (kotiviiva ei saa peittää nimiä), reunimmaisten välilehtien paikka.
@@ -176,7 +185,7 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 ## Avoimet kysymykset
 
-- Vaihe 9 rakennettu (1.19), odottaa Emilin kuittausta ja vastausta: pidetäänkö muistiinpanossa sekä Hoidettavat että Puuttuu (suositus molemmat).
+- Vaihe 9 valmis: Emil valtuutti 21.10. illalla jatkamaan suositusten mukaan, joten Hoidettavat ja Puuttuu pysyvät molemmat muistiinpanossa.
 - Vaihe 10 (Emil 21.10.): projekti puiden yläpuolelle, useita puita per projekti. Emil päätti: termit, muistiinpanot, tärkeät ja kalenteri ovat projektin omia. Ei rakennettu; tehdään ennen 7b:tä. Seuraavaksi 7b (vastaukset jo annettu: pudotus viikkonauhan päivälle, ajattomat aikajanalle ja takaisin, väliotsikkotermit).
 
 - Emil hyväksyi 21.10.2026 kaikki suositukset dokumentista *Päätöspuu: avoimet kysymykset* (https://claude.ai/artifact/RFMnrpTAm7fb7r9prDPz8q). Toteutus etenee vaihe kerrallaan: `SUUNNITELMA-vaiheet.md` (pelisäännöt, vaiheiden tila ja kunkin vaiheen kysymykset). Seuraavaan vaiheeseen vasta Emilin kuittauksen ja vastausten jälkeen.

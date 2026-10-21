@@ -293,6 +293,13 @@ var RK=E.impRanks(['a:turvallisuus','a:allianssi'],AT2,[MP]);
 eq('perintä: ehto, kääntöpuoli ja ehdon kääntöpuoli',[RK['a:turvallisuus'],RK['a:kriisikontaktit sovittu'],RK['k:turvasuunnitelma puuttuu'],RK['k:turvallisuutta ei ole varmistettu'],RK['a:allianssi lapsen kanssa'],RK['a:x']],[0,0,0,0,1,undefined]);
 RK=E.impRanks(['a:turvallisuus','a:kriisikontaktit sovittu'].reverse(),AT2,[MP]);eq('oma merkintä voittaa',[RK['a:kriisikontaktit sovittu'],RK['a:turvallisuus'],RK['a:ajantasainen turvasuunnitelma']],[0,1,1]);
 RK=E.impRanks(['a:allianssi','a:turvallisuus','a:kriisikontaktit sovittu'],AT2,[MP]);eq('oma merkintä voittaa myös alempana',RK['a:kriisikontaktit sovittu'],2);
+var IT='A\n#G: ryhmä\nB\nC\nD\n\n=G avaa:\nC\nD\n\n=Alku avaa:\nA\nB\nG\n\n=Tärkeät:\nG\nB';var IP={id:'i',name:'I',text:IT,rt:1};E.rulesFromText(IP);
+eq('tärkeät tekstistä',IP.imp,['g','b']);eq('tärkeät ensin puun järjestyksessä',E.priorityList(IP,E.parseText(IT),['a','b','c','d','g']),['g','b','a','c','d']);
+IP.imp=['b'];E.rulesToText(IP);eq('tärkeät kirjoitetaan tekstiin',/=Tärkeät:\nB$/.test(IP.text),true);IP.imp=[];E.rulesToText(IP);eq('tyhjä tärkeät-lohko poistuu',IP.text.indexOf('Tärkeät')<0,true);
+eq('nimen vaihto tärkeissä',E.renameInText(IT,'b','Bee').split('\n').slice(-1)[0],'Bee');
+IP.text=IT;E.rulesFromText(IP);IP.flow='prio';var IS=E.newSession(IP,'x'),iv=E.sessionView(IP,IS);eq('tärkeä ryhmä: jäsenet ensin',[iv.cur,iv.opts],['g',['c','d']]);
+E.commitStep(IP,IS,{p:['c'],d:[]});iv=E.sessionView(IP,IS);eq('sitten tähdellä merkitty nappula',[iv.cur,iv.opts],['b',['b']]);
+E.commitStep(IP,IS,{p:[],d:[]});iv=E.sessionView(IP,IS);eq('lopuksi Alun avaamat säännöin',[iv.cur,iv.opts],[null,['a','b','c','d']]);
 eq('raahaus kohtaan',[E.moveToIdx(['a','b','c'],'c',0),E.moveToIdx(['a','b','c'],'a',2),E.moveToIdx(['a','b','c'],'b',1)],[['c','a','b'],['b','c','a'],['a','b','c']]);
 
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);

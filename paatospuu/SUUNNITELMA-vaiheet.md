@@ -22,7 +22,7 @@ Päivitetty 21.10.2026. Emil sanoi kyllä kaikkiin suosituksiin dokumentissa *P�
 | 6 | Teksti ↔ appi kaksisuuntaisesti (12, 25) | 2 versiota | Valmis (1.16), kuitattu |
 | 7 | Kalenteri (20, 21, 22) | 2–3 versiota | 7a valmis (1.17); 7b odottaa (vaihe 8 tehtiin ensin) |
 | 8 | Tärkeysjärjestys, kuittaus, roskakori, pitkän painalluksen valikko (Emil 21.10.2026) | 2 versiota | Valmis (1.18), kuitattu |
-| 9 | Merkitykset, kääntöpuolet, vain tärkeät järjestykseen, tärkeysjärjestyksessä etenevä kierros (Emil 21.10.2026) | 1 versio | Valmis (1.19), odottaa Emilin kuittausta |
+| 9 | Merkitykset, kääntöpuolet, vain tärkeät järjestykseen, tärkeysjärjestyksessä etenevä kierros (Emil 21.10.2026) | 1 versio | Valmis (1.19–1.19.3); Emil valtuutti jatkamaan suositusten mukaan |
 | 10 | Projektit ja puut: projekti (esim. Mätsik Forest) sisältää useita päätöspuita, puukohtainen Eteneminen (Emil 21.10.2026) | 1–2 versiota | Ehdotus; Emil päätti: termit, muistiinpanot, tärkeät ja kalenteri projektin omia |
 
 Kohta 17 (luontihetki) on jo nyt käytössä, joten työtä ei tarvita. Kohta 24 (”kierros”) jää ennalleen. Molemmat poistetaan TILA:n avoimista kysymyksistä vaiheessa 1. Myös välit päivän muistiinpanoissa on ratkaistu (Emil: ”Juu!”).
