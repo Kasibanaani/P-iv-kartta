@@ -198,8 +198,11 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 - 1.23.1 (Emilin toive): Muistioiden järjestysvalinta (Tulevat/Uusimmat/Tärkeys) on nyt alisteinen Avoimet/Kuitatut/Toistuvat-valinnalle: ei laatikkoa, hieman sisennetty, pienempi harmaa teksti, valittuna korostusvärinen alleviivaus.
 
+- 1.23.2 (Emilin toive): Kalenterin yläriviltä +-nappi avaa *Uusi kalenterimerkintä* -ikkunan valitun päivän päivämäärällä. Napautus aikajanan tyhjään kohtaan avaa saman: alku edellisestä vartista, kesto tunti. Merkintä on tavallinen muistiinpano ja näkyy heti Muistioissa. Pitkää painallusta ei käytetty (Emil: maalaa tekstiä).
+
 ## Ei tarkistettu
 
+- Oikealla iPhonella ei kokeiltu (1.23.2): aikajanan napautus vs. vieritys (napautuksen pitäisi tulla vain ilman vieritystä).
 - Oikealla iPhonella ei kokeiltu (1.23): termisirujen vieritys ikkunassa, rajauskenttä näppäimistön kanssa.
 
 - Oikealla iPhonella ei kokeiltu (1.22): sirun raahaus vaakavierittyvästä nauhasta (vieritys vs. pitkä painallus), pudotus viikkonauhalle sticky-otsikon kanssa.

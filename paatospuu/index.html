@@ -95,7 +95,7 @@ button,input,textarea{font:inherit;color:inherit;letter-spacing:inherit}
 .scard{background:var(--cell);border-radius:12px;padding:12px 16px}
 /* kalenteri */
 .calsticky{position:sticky;top:-10px;z-index:6;margin:-10px -16px 8px;padding:8px 16px 6px;background:var(--bg);border-bottom:.5px solid var(--sep)}
-.calsticky .calhead h2{font-size:16px}.calsticky .calhead .mini{min-width:40px}
+.calsticky .calhead h2{font-size:16px}.info .mini.calplus{flex:none;margin-left:auto;min-width:44px;height:32px;background:var(--solid);color:var(--on-solid);box-shadow:none;font-size:22px;font-weight:500;padding:0 10px}.calsticky .calhead .mini{min-width:40px}
 .calsticky .calgrid{margin-top:6px}
 .calhead .wk{font-size:13px;color:var(--label2);font-weight:500}
 .cday{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;height:48px;line-height:1.1}
@@ -422,7 +422,7 @@ html.standalone .top{padding-top:calc(env(safe-area-inset-top,0px) + 30px)}
       <button class="ibtn" type="button" id="hint" aria-label="Ohje" hidden>i</button>
       <span class="mode" id="mode" aria-live="polite"></span>
     </div>
-    <div class="info" id="info"><div class="itext" id="info-text" aria-live="polite"></div><button class="mini" type="button" id="info-done" hidden>Valmis</button></div>
+    <div class="info" id="info"><div class="itext" id="info-text" aria-live="polite"></div><button class="mini" type="button" id="info-done" hidden>Valmis</button><button class="mini calplus" type="button" id="calplus" hidden aria-label="Uusi merkintä tälle päivälle">+</button></div>
   </header>
   <main id="main">
     <div class="panel" id="p-use" role="tabpanel"></div>
@@ -1267,11 +1267,12 @@ $('status').addEventListener('click',function(){showTab('set');});
 function renderHead(){var P=proj(),k=kOf();$('tname').textContent=P?P.name:(k?k.name:'Päätöspuu');}
 /* Opetuksessa ohjeteksti ei vie tilaa: se on i-napin takana. Varoitus (warn) näkyy yläpalkissa. */
 var hintNow=null;
-function setInfo(html,done,warn){var t=$('info-text');t.textContent='';
+function setInfo(html,done,warn){var t=$('info-text');t.textContent='';$('calplus').hidden=tab!=='cal';
   if(tab==='teach'&&!warn){hintNow=html||null;$('info').classList.add('empty');$('info-done').hidden=true;$('hint').hidden=!hintNow;return;}
   $('info').classList.toggle('empty',!html&&!done);if(tab!=='teach')$('hint').hidden=true;if(tab!=='notes')$('count').hidden=true;
   if(html){if(typeof html==='string')t.textContent=html;else t.appendChild(html);}$('info-done').hidden=!done;}
 $('hint').addEventListener('click',function(){var b=$('hs-body');b.textContent='';if(!hintNow)return;var pp=el('p');pp.appendChild(typeof hintNow==='string'?document.createTextNode(hintNow):hintNow.cloneNode(true));b.appendChild(pp);openSheet($('hsheet'));});
+$('calplus').addEventListener('click',function(){openNote(null,{date:calDay||todayIso()});});
 $('hs-close').addEventListener('click',function(){closeSheet($('hsheet'));});
 function syncChrome(){var tp=$('top');tp.dataset.mode=tab;tp.dataset.ed=(tab==='teach'&&ed&&(ed.m==='x'||ed.m==='c'))?ed.m:'';$('mode').textContent=MODE[tab];}
 function showTab(t){scrollPos[tab]=main.scrollTop;tab=t;
@@ -1580,7 +1581,9 @@ function filterNotes(){var w=normT(noteQuery).trim(),n=0;Array.prototype.forEach
   var ok=!w||(N&&normT(N.text).indexOf(w)>=0);c.hidden=!ok;if(ok)n++;});var e=$('nempty');if(e)e.hidden=n>0||!document.querySelectorAll('#nlist .ncard').length;}
 function shortD(iso){var p=iso.split('-');return (+p[2])+'.'+(+p[1])+'.';}
 function fromIsoW(iso){var p=iso.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]);return WDS[d.getDay()]+' '+fiDate(iso);}
-function openNote(n){noteCur=n;noteArm=0;$('ns-linkbox').hidden=true;$('ns-linkrow').hidden=true;$('ns-pop').hidden=true;$('ns-text').value=n?n.text:'';$('ns-date').value=n?n.date:'';$('ns-ts').value=n&&n.time?n.time.s:'';$('ns-te').value=n&&n.time?n.time.e:'';$('ns-stamp').textContent=n?'Luotu '+stamp(n.created)+(n.edited!==n.created?' · muokattu '+stamp(n.edited):''):'Uusi';
+function openNote(n,pre){noteCur=n;noteArm=0;$('ns-linkbox').hidden=true;$('ns-linkrow').hidden=true;$('ns-pop').hidden=true;$('ns-text').value=n?n.text:'';$('ns-date').value=n?n.date:'';$('ns-ts').value=n&&n.time?n.time.s:'';$('ns-te').value=n&&n.time?n.time.e:'';$('ns-stamp').textContent=n?'Luotu '+stamp(n.created)+(n.edited!==n.created?' · muokattu '+stamp(n.edited):''):'Uusi';
+  /* kalenterista: valmiiksi päivä ja ajankohta (Emil 21.10.2026) */
+  $('ns-h').textContent=!n&&pre?'Uusi kalenterimerkintä':'Muistiinpano';if(!n&&pre){$('ns-date').value=pre.date||'';$('ns-ts').value=pre.s||'';$('ns-te').value=pre.e||'';}
   foundInfo();openSheet($('nsheet'));paintHl();}
 /* Liitä termiin: tekstistä valittu sana (tai sen osa) lisätään termin sanaksi. Kirjoittaa termin ikkunaan (data), ei puun tekstiin. */
 var linkSel='';
@@ -1713,10 +1716,13 @@ function renderCal(){var p=panels.cal,today=todayIso();p.textContent='';if(!calD
   if(E.untimed.length){var u=el('div','untimed');u.id='untimed';u.className='untimed hscroll';E.untimed.forEach(function(x){var c=button(u,noteTitle(x.n)||'(tyhjä)','chip');c.dataset.id=x.n.id;chipDrag(c,x);});top.appendChild(u);}
   var tl=el('div','tl');tl.id='timeline';for(var hh=0;hh<24;hh++){var r=el('div','hr');r.style.top=(hh*HOURPX)+'px';r.appendChild(el('b','',hh+'.00'));tl.appendChild(r);}
   var area=el('div','area');tl.appendChild(area);
+  /* napautus aikajanan tyhjään kohtaan = uusi merkintä lähimmästä edellisestä vartista, tunnin mittainen. Click tulee vain ilman vieritystä. */
+  area.addEventListener('click',function(ev){if(ev.target!==area)return;var m=Math.max(0,Math.min(1425,Math.floor((ev.clientY-area.getBoundingClientRect().top)/HOURPX*60/STEP)*STEP));
+    var hm=function(v){return pad(Math.floor(v/60))+':'+pad(v%60);};openNote(null,{date:calDay,s:hm(m),e:hm(Math.min(m+60,1439))});});
   if(calDay===today){var nw=new Date(),nl=el('div','now');nl.style.top=((nw.getHours()*60+nw.getMinutes())/60*HOURPX)+'px';area.appendChild(nl);}
   E.timed.forEach(function(x){area.appendChild(evBox(x));});
   p.appendChild(tl);
-  if(!E.timed.length&&!E.untimed.length)p.insertBefore(el('p','sub','Ei muistiinpanoja tälle päivälle. Ajankohta tulee tekstistä (esim. pe klo 14–15) tai päivämäärä- ja kellonaikakentistä.'),tl);
+  if(!E.timed.length&&!E.untimed.length)p.insertBefore(el('p','sub','Ei merkintöjä tälle päivälle. Lisää +-napista tai napauttamalla aikajanaa. Ajankohta tulee myös muistiinpanon tekstistä (esim. pe klo 14–15).'),tl);
   requestAnimationFrame(function(){if(calTop===null){calTop=main.scrollTop+tl.getBoundingClientRect().top-main.getBoundingClientRect().top+7*HOURPX-top.offsetHeight-6;}main.scrollTop=calTop;});}
 function isoWeekNo(d){var t=new Date(d.getFullYear(),d.getMonth(),d.getDate()+3-((d.getDay()+6)%7)),j=new Date(t.getFullYear(),0,4);return 1+Math.round(((t-j)/864e5-3+((j.getDay()+6)%7))/7);}
 function evPos(b,x,s,e){b.style.top=(s/60*HOURPX)+'px';b.style.height=Math.max(20,(e-s)/60*HOURPX-2)+'px';b.classList.toggle('short',(e-s)<45);
