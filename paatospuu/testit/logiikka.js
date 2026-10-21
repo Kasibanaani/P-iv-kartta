@@ -241,4 +241,16 @@ eq('oma termi päivittyy',D.terms[0].yes,['koir','hauva']);eq('palikan sanat',D.
 eq('uusi termi',D.terms.length===2&&D.terms[1].name==='Uusi'&&D.terms[1].yes[0]==='sana',true);
 E.termsFromText('=Uusi:\nsana',D,{kissa:'Kissa'});eq('puuttuva lohko tyhjentää',[D.terms[0].yes,D.words.kissa],[[],undefined]);
 
+// kalenteri (1.17)
+var cn=[{id:'a',created:'2026-10-20T08:00:00Z',text:'Palaveri 22.10.2026 klo 14–15.30\nmuuta',date:''},{id:'b',created:'2026-10-20T08:00:00Z',text:'Soita 22.10.2026 klo 14.30.',date:''},
+  {id:'c',created:'2026-10-20T08:00:00Z',text:'Ajaton',date:'2026-10-22'},{id:'d',created:'2026-10-20T08:00:00Z',text:'Kentästä',date:'2026-10-22',time:{s:'09:00',e:''}}];
+var de=E.dayEntries(cn,'2026-10-22');
+eq('aikajanalla',de.timed.map(function(x){return [x.n.id,x.s,x.e,x.col,x.cols];}),[['d',540,600,0,1],['a',840,930,0,2],['b',870,930,1,2]]);
+eq('ajattomat',de.untimed.map(function(x){return x.n.id;}),['c']);
+E.moveEntry(de.timed[1],900,990,false);eq('siirto tekstiin',cn[0].text,'Palaveri 22.10.2026 klo 15–16.30\nmuuta');
+E.moveEntry(de.timed[2],885,945,true);eq('avoin pysyy, piste säilyy',cn[1].text,'Soita 22.10.2026 klo 14.45.');
+E.moveEntry(de.timed[0],600,660,false);eq('siirto kenttään',cn[3].time,{s:'10:00',e:'11:00'});
+eq('kenttä ei korvaa tekstin aikaa',E.noteDates({text:'klo 8',created:'2026-10-20T08:00:00Z',time:{s:'09:00',e:''}})[0].time.s,'08:00');
+eq('normalisointi säilyttää ajan',E.normalizeData({app:'paatospuu',muistiinpanot:[{id:'x',text:'t',time:{s:'09:15',e:'bad'}}]}).notes[0].time,{s:'09:15',e:''});
+
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);

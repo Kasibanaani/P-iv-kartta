@@ -7,7 +7,7 @@ U='file://'+os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file_
 SHOTS=sys.argv[1] if len(sys.argv)>1 else None
 OVER="""(function(){var w=document.documentElement.clientWidth,out=[];
  document.querySelectorAll('input,textarea,select,button').forEach(function(e){var r=e.getBoundingClientRect();
-  if(r.width&&r.height&&e.offsetParent!==null&&e.type!=='file'&&(r.right>w+0.5||r.left<-0.5))out.push((e.id||e.className||e.tagName)+' '+Math.round(r.left)+'..'+Math.round(r.right));});
+  if(r.width&&r.height&&e.offsetParent!==null&&e.type!=='file'&&!e.closest('.hscroll')&&(r.right>w+0.5||r.left<-0.5))out.push((e.id||e.className||e.tagName)+' '+Math.round(r.left)+'..'+Math.round(r.right));});
  var m=document.getElementById('main');return JSON.stringify({w:w,doc:document.documentElement.scrollWidth,main:[m.scrollWidth,m.clientWidth],yli:out});})()"""
 TEXT="""?Apu: Onko lemmikki kotona?
 Kissa
@@ -168,12 +168,40 @@ async def run(p,w,h):
     await pg.click('#act-end'); await pg.wait_for_timeout(50)
     want('hoidettavat lopussa', await pg.locator('#hlist li.next').count()==1 and 'Seuraavaksi' in await pg.inner_text('#hlist')); await check('hoidettavat')
     await pg.click('#es-cancel'); await pg.click('#title'); await pg.click('#ps-end [data-end="path"]'); await pg.click('#ps-close')
+    # kalenteri
+    import datetime; tday=datetime.date.today().isoformat()
+    await pg.click('[data-tab="notes"]'); await pg.click('#newnote'); await pg.fill('#ns-text','Kalenteritesti klo 10–11'); await pg.fill('#ns-date',tday); await pg.dispatch_event('#ns-text','input')
+    want('aikakenttä piilossa, kun tekstissä on aika', not await pg.is_visible('#ns-timerow')); await pg.click('#ns-ok')
+    await pg.click('#newnote'); await pg.fill('#ns-text','Kenttäaika'); await pg.fill('#ns-date',tday); await pg.dispatch_event('#ns-text','input')
+    want('aikakenttä näkyy', await pg.is_visible('#ns-timerow')); await pg.fill('#ns-ts','13:00'); await pg.click('#ns-ok')
+    await pg.click('#newnote'); await pg.fill('#ns-text','Ajaton asia'); await pg.fill('#ns-date',tday); await pg.click('#ns-ok')
+    await pg.click('[data-tab="cal"]'); await pg.wait_for_timeout(150); await check('kalenteri')
+    want('viikkonauha', await pg.locator('#week .cday').count()==7 and await pg.locator('#week .cday.on.today').count()==1)
+    want('merkinnät aikajanalla', await pg.locator('#timeline .ev').count()==2 and 'Ajaton asia' in await pg.inner_text('#untimed'))
+    ev=pg.locator('#timeline .ev:has-text("Kalenteritesti")'); bb=await ev.bounding_box()
+    await pg.mouse.move(bb['x']+bb['width']/3,bb['y']+10); await pg.mouse.down(); await pg.wait_for_timeout(450)
+    want('pitkä painallus nostaa', 'lift' in await ev.get_attribute('class')); await check('kalenteri raahaus')
+    for k in range(1,7): await pg.mouse.move(bb['x']+bb['width']/3,bb['y']+10+k*8)
+    await pg.mouse.up(); await pg.wait_for_timeout(100)
+    nt=lambda: pg.evaluate("JSON.parse(localStorage.getItem('paatospuu:v1')).muistiinpanot.filter(function(n){return n.text.indexOf('Kalenteritesti')===0;})[0].text")
+    want('siirto tunnilla tekstiin', await nt()=='Kalenteritesti klo 11–12')
+    ev=pg.locator('#timeline .ev:has-text("Kalenteritesti")'); g=await ev.locator('.grip').bounding_box()
+    await pg.mouse.move(g['x']+30,g['y']+30); await pg.mouse.down(); want('väkänen katkoviivaksi', 'rs' in await ev.get_attribute('class'))
+    for k in range(1,4): await pg.mouse.move(g['x']+30,g['y']+30+k*8)
+    await pg.mouse.up(); await pg.wait_for_timeout(100); want('koon muutos', await nt()=='Kalenteritesti klo 11–12.30')
+    ev=pg.locator('#timeline .ev:has-text("Kenttäaika")'); await pg.evaluate("(function(){var m=document.getElementById('main');m.scrollTop+=200;})()"); await pg.wait_for_timeout(50); bb=await ev.bounding_box()
+    await pg.mouse.move(bb['x']+10,bb['y']+10); await pg.mouse.down(); await pg.wait_for_timeout(450)
+    for k in range(1,4): await pg.mouse.move(bb['x']+10,bb['y']+10+k*8)
+    await pg.mouse.up(); await pg.wait_for_timeout(100)
+    want('kenttäaika siirtyy', json.loads(await pg.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('paatospuu:v1')).muistiinpanot.filter(function(n){return n.text==='Kenttäaika';})[0].time)"))=={'s':'13:30','e':''})
+    await pg.click('#timeline .ev:has-text("Kenttäaika")'); await pg.wait_for_timeout(50); want('napautus avaa', await pg.is_visible('#nsheet') and await pg.input_value('#ns-ts')=='13:30'); await pg.click('#ns-ok')
+    await pg.click('#week button.cday:not(.on)'); await pg.wait_for_timeout(50); want('päivän vaihto', await pg.locator('#timeline .ev').count()==0)
     # asetukset ja varmuuskopio
     await pg.click('[data-tab="set"]'); await pg.click('#exptxt'); await pg.wait_for_timeout(50)
     dump=await pg.input_value('#dataout textarea'); await check('asetukset')
     await pg.evaluate("localStorage.clear()"); await pg.reload(); await pg.wait_for_timeout(100)
     await pg.click('[data-tab="set"]'); await pg.click('#p-set details summary'); await pg.fill('#imptext',dump); await pg.click('#impcheck'); await pg.click('#impok'); await pg.wait_for_timeout(50)
-    await pg.click('[data-tab="notes"]'); want('tuonti palautti', await pg.locator('#nlist .ncard').count()==2)
+    await pg.click('[data-tab="notes"]'); want('tuonti palautti', await pg.locator('#nlist .ncard').count()==5)
     await pg.click('[data-tab="set"]'); await pg.click('#set-size [data-v="small"]'); await pg.click('[data-tab="teach"]'); await pg.click('[data-tm="build"]'); await check('pienet nappulat opetus')
     await pg.click('[data-tab="set"]'); await pg.click('#set-size [data-v="normal"]')
     for mode in ['Tumma']:

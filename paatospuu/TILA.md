@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.16 (suunnitelman vaihe 6), odottaa Emilin kuittausta · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.17 (suunnitelman vaihe 7a), odottaa Emilin kuittausta · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -122,9 +122,16 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Palikan nimen vaihto tekstikentässä kirjoittaessa vie sääntö- ja termilohkojen viittaukset mukana (vain kun yksi palikkarivi muuttuu eikä uusi nimi ole jo käytössä). Muokkaa-ikkunan nimenvaihto samoin.
 - Termit-ikkunassa *Termit tekstinä*: omat termit ja puiden termien sanat lohkoina. Valmis lukee takaisin; uusi nimi luo termin, poistettu lohko tyhjentää sanat (termi jää).
 
+## Versio 1.17 (21.10.2026, suunnitelman vaihe 7a): kalenteri, aikajana ja raahaus
+
+- Emil kuittasi vaiheen 6 ja hyväksyi kalenterin suositukset (350 ms, 15 min, termin valinta *Näytä kalenterissa* tulee 7b:ssä).
+- Uusi välilehti **Kalenteri** (alapalkissa *Muistiot*-nimi lyhennetty, jotta viisi mahtuu). Yläosa pysyy paikallaan: kuukausi ja viikko ‹ ›, *Tänään*, viikkonauha ma–su (pyyhkäisy vaihtaa viikkoa, piste = päivällä muistiinpanoja), ajattomien nauha (vaakavieritys, napautus avaa). Alla päivän aikajana 0–24, avautuu klo 7:n kohdalta, nykyhetki punaisella viivalla. Päällekkäiset rinnakkain.
+- Merkintä: otsikko = ensimmäinen rivi ilman tunnistettuja ajankohtia. Lyhyt napautus avaa muistiinpanon. Pitkä painallus (350 ms) nostaa (varjo, paksu reuna), siirto 15 min askelin, reunan lähellä vierittää. Kulmaväkänen muuttaa loppuaikaa heti (katkoviiva).
+- Aika kirjoittuu sinne, mistä se tuli: tekstin `klo …` korvataan (toistuvassa muistiinpanossa kaikkina päivinä), muuten kenttä. Muistiinpanon ikkunassa uusi *Kellonaika*-kenttä (alkaa–päättyy), joka näkyy vain, kun tekstissä ei ole aikaa. Tallennus: muistiinpanoon `time:{s,e}`.
+
 ## Ei tarkistettu
 
-- Oikealla iPhonella ei kokeiltu: apukysymyskortit näppäimistön kanssa, tekstin valinta ja Liitä termiin -nappi (iOS:n oma valintavalikko), tekstikentän värikerroksen kohdistus Safarissa (kursori, valinta, vieritys), zoomauksen esto ja yläreunan lisätila (näkyy vain kotinäytön appina), jakoikkunan tiedostovienti, päivämäärävalitsin, näppäimistö alapalkin kanssa, tekstikentän koko.
+- Oikealla iPhonella ei kokeiltu: kalenterin pitkä painallus ja raahaus (sivun vieritys ei saa lähteä mukaan, iOS:n valintavalikko ei saa aueta), kulmaväkänen, viikkonauhan pyyhkäisy, apukysymyskortit näppäimistön kanssa, tekstin valinta ja Liitä termiin -nappi (iOS:n oma valintavalikko), tekstikentän värikerroksen kohdistus Safarissa (kursori, valinta, vieritys), zoomauksen esto ja yläreunan lisätila (näkyy vain kotinäytön appina), jakoikkunan tiedostovienti, päivämäärävalitsin, näppäimistö alapalkin kanssa, tekstikentän koko.
 - Nimen vaihto tekstikentässä seuraa vain, kun yksi rivi muuttuu kerrallaan. Leikkaa–liitä tai usean rivin muutos ei vie viittauksia mukana (Opetus näyttää ”Säännöt ilman riviä”). Termien sanat (`termisanat`) eivät seuraa nimen vaihtoa.
 - Oikealla iPhonella ei kokeiltu kursorin pysymistä, kun nimen vaihto muuttaa muita rivejä.
 
@@ -135,6 +142,8 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Emil kokeilee puhelimella. Mahdolliset seuraavat: säännöt myös tekstimuodossa (koko puu tekoälyllä), ilmoitusten kumoutuminen myöhemmin, termien opetus napauttamalla.
 
 ## Avoimet kysymykset
+
+- Emilin toive 21.10.2026: muistiinpanot tärkeysjärjestykseen termien kautta ja kuittaus arkistoon. Kirjattu suunnitelmaan vaiheeksi 8, ei rakennettu.
 
 - Emil hyväksyi 21.10.2026 kaikki suositukset dokumentista *Päätöspuu: avoimet kysymykset* (https://claude.ai/artifact/RFMnrpTAm7fb7r9prDPz8q). Toteutus etenee vaihe kerrallaan: `SUUNNITELMA-vaiheet.md` (pelisäännöt, vaiheiden tila ja kunkin vaiheen kysymykset). Seuraavaan vaiheeseen vasta Emilin kuittauksen ja vastausten jälkeen.
 - Ratkaistu: suhteellisten päivien pohja on luontihetki (17), nimi ”kierros” jää (24), päivän muistiinpanoihin lasketaan välit (Emil: ”Juu!”).
