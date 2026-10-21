@@ -103,5 +103,6 @@ Kohta 17 (luontihetki) on jo nyt käytössä, joten työtä ei tarvita. Kohta 24
 - Pohdinta ja kysymykset: Claude Doc *Päätöspuu: merkitykset ja kääntöpuolet* https://claude.ai/artifact/TwhFPyZxyV1gEyrNzCr6sR
 - Sisältö: Tärkeät/Muut-luettelo (vain tärkeät järjestyksessä), tärkeyden perintä merkitykseltä ehdoille ja kääntöpuolille, `=Palikka kääntöpuoli:` -lohko ja *Puuttuu*-osio kierroksen muistiinpanoon, projektiasetus *Eteneminen: säännöt / tärkeysjärjestys* (Jatka = ohitus).
 - Tarkennus (Emil 21.10.): puun järjestys (rivit, `ennen`) ja muistiinpanojen yhteinen järjestys ovat erillisiä. Tärkeät valitaan *Valitse tärkeät* -tilassa (aina muiden yläpuolella, muita ei järjestetä), tärkeiden järjestys raahaamalla, keskeytynyt raahaus palauttaa paikalleen. Palikan voi merkitä tärkeäksi suoraan; perintä vain merkitsemättömille.
+- Emil vastasi 21.10.: ei nuolia, pelkkä raahaus (kysymys 6); etenevä kierros puun omasta järjestyksestä (kysymys 7, suositus). Avoinna kysymykset 2–5 dokumentissa.
 - Suositus: tehdään heti vaiheen 8 jälkeen, ennen 7b:tä.
 
