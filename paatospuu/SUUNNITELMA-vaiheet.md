@@ -20,7 +20,7 @@ Päivitetty 21.10.2026. Emil sanoi kyllä kaikkiin suosituksiin dokumentissa *P�
 | 4 | Termilohkot tekstissä ja Liitä termiin (13, 11) | 1–2 versiota | Valmis (1.14), kuitattu |
 | 5 | Apukysymykset nousevat esiin muistiinpanosta (15) | 1 versio | Valmis (1.15), kuitattu |
 | 6 | Teksti ↔ appi kaksisuuntaisesti (12, 25) | 2 versiota | Valmis (1.16), kuitattu |
-| 7 | Kalenteri (20, 21, 22) | 2–3 versiota | 7a valmis (1.17); 7b odottaa (vaihe 8 tehtiin ensin) |
+| 7 | Kalenteri (20, 21, 22) | 2–3 versiota | Valmis (7a 1.17, 7b 1.22); Termin mukaan -järjestys avoin |
 | 8 | Tärkeysjärjestys, kuittaus, roskakori, pitkän painalluksen valikko (Emil 21.10.2026) | 2 versiota | Valmis (1.18), kuitattu |
 | 9 | Merkitykset, kääntöpuolet, vain tärkeät järjestykseen, tärkeysjärjestyksessä etenevä kierros (Emil 21.10.2026) | 1 versio | Valmis (1.19–1.19.3); Emil valtuutti jatkamaan suositusten mukaan |
 | 10 | Projektit ja puut: projekti (esim. Mätsik Forest) sisältää useita päätöspuita, puukohtainen Eteneminen (Emil 21.10.2026) | 1–2 versiota | Valmis (1.20) |

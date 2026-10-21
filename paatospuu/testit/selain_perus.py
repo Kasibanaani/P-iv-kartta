@@ -251,6 +251,25 @@ async def run(p,w,h):
     await pg.mouse.up(); await pg.wait_for_timeout(100)
     want('kenttäaika siirtyy', json.loads(await pg.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0].muistiinpanot.filter(function(n){return n.text==='Kenttäaika';})[0].time)"))=={'s':'13:30','e':''})
     await pg.click('#timeline .ev:has-text("Kenttäaika")'); await pg.wait_for_timeout(50); want('napautus avaa', await pg.is_visible('#nsheet') and await pg.input_value('#ns-ts')=='13:30'); await pg.click('#ns-ok')
+    nts=lambda name: pg.evaluate("JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0].muistiinpanot.filter(function(n){return n.text.indexOf('%s')===0;})[0]"%name)
+    async def drag(src,tx,ty,shot=None):
+        bb=await pg.locator(src).bounding_box(); x0=bb['x']+min(30,bb['width']/2); y0=bb['y']+bb['height']/2
+        await pg.mouse.move(x0,y0); await pg.mouse.down(); await pg.wait_for_timeout(450)
+        for k in range(1,11): await pg.mouse.move(x0+(tx-x0)*k/10,y0+(ty-y0)*k/10)
+        if shot: await check(shot)
+        await pg.mouse.up(); await pg.wait_for_timeout(120)
+    await pg.evaluate("document.getElementById('main').scrollTop=0"); await pg.wait_for_timeout(50)
+    ar=await pg.locator('#timeline .area').bounding_box(); ch='#untimed .chip:has-text("Ajaton asia")'
+    await pg.evaluate("(function(){var m=document.getElementById('main'),a=document.querySelector('#timeline .area');m.scrollTop+=a.getBoundingClientRect().top-m.getBoundingClientRect().top+9*48-250;})()"); await pg.wait_for_timeout(50)
+    ar=await pg.locator('#timeline .area').bounding_box(); await drag(ch,ar['x']+100,ar['y']+9*48+5,'ajaton raahaus')
+    want('ajaton aikajanalle', (await nts('Ajaton asia')).get('time',{}).get('s')=='09:00')
+    ev='#timeline .ev:has-text("Ajaton asia")'; ub=await pg.locator('#calsticky').bounding_box(); await drag(ev,ub['x']+ub['width']/2,ub['y']+ub['height']-12)
+    want('takaisin ajattomaksi', 'time' not in await nts('Ajaton asia') and await pg.locator(ch).count()==1)
+    import datetime as _d; nd=(_d.date.today()+_d.timedelta(days=1)); cd='#week .cday[data-day="%s"]'%nd.isoformat()
+    if await pg.locator(cd).count():
+        db=await pg.locator(cd).bounding_box(); await drag('#timeline .ev:has-text("Kalenteritesti")',db['x']+db['width']/2,db['y']+db['height']/2,'pudotus päivälle')
+        n=await nts('Kalenteritesti'); want('siirto toiselle päivälle', '%d.%d.%d'%(nd.day,nd.month,nd.year) in n['text'] and n['date']==nd.isoformat())
+        await pg.click('#week .cday[data-day="%s"]'%_d.date.today().isoformat()); await pg.wait_for_timeout(50)
     await pg.click('#week button.cday:not(.on)'); await pg.wait_for_timeout(50); want('päivän vaihto', await pg.locator('#timeline .ev').count()==0)
     # asetukset ja varmuuskopio
     await pg.click('[data-tab="set"]'); await pg.click('#exptxt'); await pg.wait_for_timeout(50)

@@ -318,6 +318,13 @@ eq('kuittauksesta laskettuna',[E.repsDue([RA],m2,'2026-10-26','t').length,E.reps
 eq('nimet',[E.repLabel({mode:'every',n:1,unit:'w'}),E.repLabel({mode:'every',n:2,unit:'d'}),E.repLabel({mode:'after',n:5,unit:'d'}),E.repLabel({mode:'after',n:1,unit:'m'})],['Joka viikko','2 päivää välein','5 päivää kuittauksesta','1 kuukausi kuittauksesta']);
 var NR=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'a',name:'A',toistuvat:[{id:'r',text:'X',mode:'after',n:'5',unit:'w',start:'2026-10-21',lastDone:'2026-10-22'},{id:'s',text:'Y'}],muistiinpanot:[{id:'n',text:'X',rep:'r'}]}]});
 eq('toistuvat tallessa',[NR.reps.length,NR.reps[0].n,NR.reps[0].mode,NR.reps[0].lastDone,NR.notes[0].rep],[1,5,'after','2026-10-22','r']);
+// kalenteri 7b
+var mkn=function(t){return {text:t,created:'2026-10-21T08:00:00',date:''};},MN=mkn('Hammas pe klo 14');eq('päivän siirto tekstiin',[E.moveDay(MN,E.noteDates(MN)[0],'2026-10-24'),MN.text],['','Hammas 24.10.2026 klo 14']);
+MN=mkn('Juttu perjantaisin');eq('toistuva ei siirry',[E.moveDay(MN,E.noteDates(MN)[0],'2026-10-24')!=='',MN.text],[true,'Juttu perjantaisin']);
+MN={text:'x',date:'2026-10-21',created:'2026-10-21T08:00:00',time:{s:'10:00',e:''}};eq('kenttäpäivä siirtyy',[E.moveDay(MN,E.noteDates(MN)[0],'2026-10-22'),MN.date],['','2026-10-22']);E.clearTime(MN,E.noteDates(MN)[0]);eq('kenttäaika pois',MN.time,undefined);
+MN=mkn('Hammas pe klo 14 tänne');E.clearTime(MN,E.noteDates(MN)[0]);eq('tekstin kellonaika pois',MN.text,'Hammas pe tänne');MN=mkn('Soita klo 14');E.clearTime(MN,E.noteDates(MN)[0]);eq('pelkkä kellonaika: päivä jää',MN.text,'Soita 21.10.2026');
+eq('alaotsikkotermit',E.calTerms([{name:'Kissa',yes:[],no:[],cal:true},{name:'Koira',yes:[],no:[]}],[{text:'Kissa ja koira 22.10.2026',created:'2026-10-21T08:00:00'}],'2026-10-22'),['Kissa']);
+eq('kalenteritermi tallessa',[E.normalizeData({app:'paatospuu',termit:[{id:'t',name:'T',cal:true}],termisanat:{k:{cal:true}}}).terms[0].cal,E.normalizeData({app:'paatospuu',termisanat:{k:{cal:true}}}).words.k.cal],[true,true]);
 eq('raahaus kohtaan',[E.moveToIdx(['a','b','c'],'c',0),E.moveToIdx(['a','b','c'],'a',2),E.moveToIdx(['a','b','c'],'b',1)],[['c','a','b'],['b','c','a'],['a','b','c']]);
 
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);

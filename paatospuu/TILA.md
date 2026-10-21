@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.21 (vaihe 11 toistuvat muistutukset); seuraavaksi 7b, odottaa Emilin kuittausta; seuraavaksi 7b · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.22 (vaihe 7b kalenterin loppuosa); kaikki suunnitellut vaiheet tehty, odottaa Emilin kokeilua, odottaa Emilin kuittausta; seuraavaksi 7b · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -182,8 +182,16 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Rakentajan ratkaisut (Emil valtuutti): jos edellinen on kuittaamatta, uutta ei tehdä; myöhästyneistä tehdään vain viimeisin; tasavälein lasketaan aina aloituspäivästä (kuun 31. ei valu 28. päivään). Ei taustailmoituksia.
 - Tallennus projektissa `toistuvat:[{id,text,mode:'every'|'after',n,unit:'d'|'w'|'m'|'y',start,lastDue?,lastDone?}]`, erä muistiinpanossa `rep`.
 
+## Versio 1.22 (21.10.2026, suunnitelman vaihe 7b): kalenterin loppuosa
+
+- Aikajanan merkinnän voi pitkällä painalluksella pudottaa viikkonauhan päivälle (päivä korostuu): yhden päivän ajankohta siirtyy. Tekstin päivä (esim. ”pe”) korvataan samassa kohdassa uudella päivämäärällä (1.11.2026), kellonaika säilyy; kenttäpäivä vaihtuu. Toistuva tai monen päivän merkintä ei siirry, ja yläpalkki kertoo syyn. Näkymä siirtyy uudelle päivälle.
+- Ajattoman sirun voi pitkällä painalluksella raahata aikajanalle (haamu seuraa sormea): saa kellonajan kenttään, tunnin mittaisena, 15 min askelin. Aikajanan merkinnän voi pudottaa takaisin ajattomiksi yläosaan (päivän otsikko, viikkonauha-alueen ulkopuolelle ei tarvitse): tekstin kellonaika poistetaan (pelkkä kellonaika korvataan päivämäärällä, ettei päivä katoa), muuten kenttä tyhjenee. Sirun napautus avaa muistiinpanon kuten ennen.
+- Termin asetus *Näytä kalenterissa* (termi-ikkunassa): termin nimi näkyy pienenä alaotsikkona viikkonauhan päivän alla (useampi: ”+N”) ja päivän otsikossa. Tallennus omassa termissä `cal:true`, puun termissä `termisanat[avain].cal`.
+- Ei rakennettu: Muistioiden järjestys *Termin mukaan* (ryhmät alaotsikkotermeistä), koska neljäs järjestysvaihtoehto ei mahdu 320 px:iin; avoimena kysymyksenä.
+
 ## Ei tarkistettu
 
+- Oikealla iPhonella ei kokeiltu (1.22): sirun raahaus vaakavierittyvästä nauhasta (vieritys vs. pitkä painallus), pudotus viikkonauhalle sticky-otsikon kanssa.
 - Oikealla iPhonella ei kokeiltu (1.20–1.21): projektin vaihto, toistuvan ikkunan valikot (iOS:n oma valitsin).
 - Oikealla iPhonella ei kokeiltu (1.19.2): alapalkin uusi korkeus kotinäytön appina (kotiviiva ei saa peittää nimiä), reunimmaisten välilehtien paikka.
 - Oikealla iPhonella ei kokeiltu (1.19.1): siirtymien sujuvuus, työkalurivin pysyminen ylhäällä Safarissa.
@@ -201,6 +209,7 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 ## Avoimet kysymykset
 
 - Vaihe 9 valmis: Emil valtuutti 21.10. illalla jatkamaan suositusten mukaan, joten Hoidettavat ja Puuttuu pysyvät molemmat muistiinpanossa.
+- Avoin: Muistioihin järjestys *Termin mukaan*? Suositus: tehdään hakuun liittyvänä suodattimena (termisirut jo suodattavat), ei neljättä järjestystä. Vaihtoehto: korvataan Uusimmat sillä.
 - Avoin: siirretäänkö puu tai muistiinpano projektista toiseen? Ei rakennettu (ehdotus: ⋯-valikkoon *Siirrä projektiin*). Seuraavaksi 7b (vastaukset jo annettu: pudotus viikkonauhan päivälle, ajattomat aikajanalle ja takaisin, väliotsikkotermit).
 
 - Emil hyväksyi 21.10.2026 kaikki suositukset dokumentista *Päätöspuu: avoimet kysymykset* (https://claude.ai/artifact/RFMnrpTAm7fb7r9prDPz8q). Toteutus etenee vaihe kerrallaan: `SUUNNITELMA-vaiheet.md` (pelisäännöt, vaiheiden tila ja kunkin vaiheen kysymykset). Seuraavaan vaiheeseen vasta Emilin kuittauksen ja vastausten jälkeen.
