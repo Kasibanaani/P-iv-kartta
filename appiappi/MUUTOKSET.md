@@ -4,6 +4,20 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
 
 ## Versiot
 
+- Appi-appi 110 (21.10., kaista B, jonon 20b, F35 vaihe E2, suunnitelma 19 kohta 6; **tallennusmuoto laajenee valinnaisella kentällä** palikan `il`, versio pysyy 12): **Piirretty ilme ohjaimille ja näkymäpalikoille.**
+  - **Osio Ilme** jokaisen näkymäpalikan paneelissa (paitsi Kuva, Laattakartta, Sijainti, Alue, Reitti, Toistin): *Tavallinen* (oletus, kuten ennen) tai *Piirros*. Piirros korvaa pohjan ja reunan; toiminta, tapahtumat, näkyy kun, harmaana kun, siirto, animointi ja käyttöraahaus pysyvät.
+  - **Tilat** (`il.t`, kukin valinnainen, puuttuva käyttää perusta): Painike perus / painettu (pohjassa, myös peliohjaimen painallus) / valittu (päällä) / harmaana; Valintaruutu ja Kytkin pois / päällä / harmaana; Säädin kisko / täytetty osa / nuppi; Tatti pohja / nuppi; Monitori pohja / täyttö (palkki ja pylväs leikkaavat täytön arvon mukaan; muissa muodoissa pohja on koko palikka); muut perus / vaihtovärin aikana. Puuttuva osa pysyy tavallisena.
+  - Jokaiselle tilalle *✎ Piirrä* (uusi tilan piirros on kopio perus-piirroksesta, jos se on; muuten palikan muotoinen 32 × 16, 16 × 32 tai 16 × 16), *kirjastosta…*, *Muokkaa* ja ×. Rasti **Teksti näkyy piirroksen päällä** (`il.nt` piilottaa), Painikkeelle **Myös yleinen painallus** (`il.yp`; oletuksena painetun piirroksen kanssa vain kuva vaihtuu).
+  - **Ominaisuus `ilme`** (kun perus on piirretty): kaavassa perus-piirroksen nimi, **Aseta** → ilme = toisen piirroksen nimi (tai `d2`) vaihtaa perus-piirroksen käytössä (hahmon asento), **Palauta** palauttaa. Tuntematon nimi jättää perusilmeen.
+  - Presetit, ⌘C/⌘V ja piirroksen poisto käsittelevät tilojen piirrokset kuten 108:n Kuvan (piirros kulkee mukana; poisto tyhjentää tilan).
+  - Testit: `logiikka_116_ilme.js`, `selain_146_ilme.py` (1440 ja 1280). Koko sarja yhdistetyllä koodilla 262/262 (Chromium).
+  - Ristikokeilu kaista A:n 109:n (ryhmän ikkuna `#`-kirjoituksella) ja 107:n kanssa: koko sarja yhdistetyllä koodilla läpi, myös A:n `selain_145_ryhmaikkuna_hash`; ryhmän ikkunan esiintymissä piirretty ilme tulee samasta `decorateUE`:sta, mutta yhdessä projektissa sitä ei kokeiltu.
+  - Manuaaliin: luku 3 (näkymäpalikoiden yhteiset osiot, Väri-osion jälkeen): uusi osio **Ilme** (Tavallinen / Piirros, tilataulukko lajeittain, Teksti näkyy, Myös yleinen painallus). Luku 3 *Yhteiset ominaisuudet*: **ilme** (vain kun perus piirretty; Aseta vaihtaa, Palauta palauttaa). Hakemistoon `10-hakemisto.md`: *ilme, piirretty painike, tilakohtainen piirros*. Luku 11: palikan kenttä `il`.
+  - Ei tehty: valmiita piirrettyjä presettejä rakennuslaatikon Omat-hyllyyn (presetin voi tallentaa itse F26:lla, ja se kantaa piirrokset); kosketuksen painettu-tila Safarissa (`:active`) ei ole varmistettu.
+  - Ei tarkistettu: oikea iPhone/Safari (`:has()`-valitsin painetulle, säätimen nupin piirros Safarin `-webkit-slider-thumb`illä); tumma tila silmämääräisesti; Kalenterin, Listan ja Kaavion ilme (yleinen pinta, testattu vain Painike ja Säädin selaimessa, Tatti ja Monitori kuvakaappauksella).
+  - Kokeile koneella (Chromium): valitse Painike → Ilme: Piirros → perus *✎ Piirrä*, piirrä, Valmis → painettu *✎ Piirrä* (kopio), muuta väriä → lukitse ja paina. Logiikassa Toiminto Aseta → painike, ilme = piirroksen nimi.
+
+
 - Appi-appi 109 (21.10., kaista A, jonon 42d, suunnitelma 31 V8; ei tallennusmuodon muutosta): **Ryhmän ikkuna `#`-kirjoituksella.**
   - Ikkunan paneelin **Nimi**-kenttään kirjoitettu `#eläimet` (Enter) tekee ikkunasta ryhmän ikkunan; ikkunan nimi ei muutu. Sama otsikon valikon *Kirjoita ryhmä…* -kentässä.
   - Jos ryhmällä ei vielä ole yleispalikkaa (ryhmä on tageista tai Joukko-palikasta, tai nimi on uusi), ikkunan vasemmalle puolelle tulee yleispalikka, jonka viite on ryhmän nimi; uusi nimi tekee tyhjän ryhmän. Kumoa peruu yhdellä painalluksella.
