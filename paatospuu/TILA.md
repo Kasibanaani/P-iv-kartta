@@ -163,7 +163,8 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 ## Avoimet kysymykset
 
-- Vaihe 9 rakennettu (1.19), odottaa Emilin kuittausta. Seuraavaksi 7b (vastaukset jo annettu: pudotus viikkonauhan päivälle, ajattomat aikajanalle ja takaisin, väliotsikkotermit).
+- Vaihe 9 rakennettu (1.19), odottaa Emilin kuittausta ja vastausta: pidetäänkö muistiinpanossa sekä Hoidettavat että Puuttuu (suositus molemmat).
+- Vaihe 10 (Emil 21.10.): projekti puiden yläpuolelle, useita puita per projekti. Kysymys: termit ja muistiinpanot projektin vai koko appin (suositus projektin). Ei rakennettu; tehdään ennen 7b:tä. Seuraavaksi 7b (vastaukset jo annettu: pudotus viikkonauhan päivälle, ajattomat aikajanalle ja takaisin, väliotsikkotermit).
 
 - Emil hyväksyi 21.10.2026 kaikki suositukset dokumentista *Päätöspuu: avoimet kysymykset* (https://claude.ai/artifact/RFMnrpTAm7fb7r9prDPz8q). Toteutus etenee vaihe kerrallaan: `SUUNNITELMA-vaiheet.md` (pelisäännöt, vaiheiden tila ja kunkin vaiheen kysymykset). Seuraavaan vaiheeseen vasta Emilin kuittauksen ja vastausten jälkeen.
 - Ratkaistu: suhteellisten päivien pohja on luontihetki (17), nimi ”kierros” jää (24), päivän muistiinpanoihin lasketaan välit (Emil: ”Juu!”).

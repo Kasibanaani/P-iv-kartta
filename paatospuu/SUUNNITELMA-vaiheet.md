@@ -23,6 +23,7 @@ Päivitetty 21.10.2026. Emil sanoi kyllä kaikkiin suosituksiin dokumentissa *P�
 | 7 | Kalenteri (20, 21, 22) | 2–3 versiota | 7a valmis (1.17); 7b odottaa (vaihe 8 tehtiin ensin) |
 | 8 | Tärkeysjärjestys, kuittaus, roskakori, pitkän painalluksen valikko (Emil 21.10.2026) | 2 versiota | Valmis (1.18), kuitattu |
 | 9 | Merkitykset, kääntöpuolet, vain tärkeät järjestykseen, tärkeysjärjestyksessä etenevä kierros (Emil 21.10.2026) | 1 versio | Valmis (1.19), odottaa Emilin kuittausta |
+| 10 | Projektit ja puut: projekti (esim. Mätsik Forest) sisältää useita päätöspuita, puukohtainen Eteneminen (Emil 21.10.2026) | 1–2 versiota | Ehdotus, odottaa vastausta: termit ja muistiinpanot projektin vai koko appin (suositus projektin) |
 
 Kohta 17 (luontihetki) on jo nyt käytössä, joten työtä ei tarvita. Kohta 24 (”kierros”) jää ennalleen. Molemmat poistetaan TILA:n avoimista kysymyksistä vaiheessa 1. Myös välit päivän muistiinpanoissa on ratkaistu (Emil: ”Juu!”).
 
@@ -106,3 +107,9 @@ Kohta 17 (luontihetki) on jo nyt käytössä, joten työtä ei tarvita. Kohta 24
 - Emil vastasi 21.10.: ei nuolia, pelkkä raahaus (kysymys 6); etenevä kierros puun omasta järjestyksestä (kysymys 7, suositus). Kysymykset 2–5: Emil hyväksyi suositukset (”suositukset ok, go”). Rakennettu versiossa 1.19.
 - Suositus: tehdään heti vaiheen 8 jälkeen, ennen 7b:tä.
 
+### Vaihe 10: projektit ja puut (Emilin toive 21.10.2026, ehdotus)
+
+- Nykyinen ”projekti” on yksi päätöspuu. Sen yläpuolelle tulee projekti, jossa on useita puita; uusi puu lisätään projektiin, ja jokaisella puulla on oma Eteneminen-asetus (säännöt / tärkeysjärjestys) ja oma järjestys.
+- Vanhat puut siirtyvät ensimmäiseen projektiin automaattisesti (vanha tallennusmuoto luetaan).
+- Kysymys Emilille: termit, muistiinpanot, tärkeät ja kalenteri projektin omia (suositus) vai koko appin yhteisiä (nykyinen linjaus).
+- Suositus: tehdään ennen 7b:tä, kun vaihe 9 on kuitattu.
