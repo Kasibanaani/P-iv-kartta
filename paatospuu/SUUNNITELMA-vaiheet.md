@@ -25,6 +25,7 @@ Päivitetty 21.10.2026. Emil sanoi kyllä kaikkiin suosituksiin dokumentissa *P�
 | 9 | Merkitykset, kääntöpuolet, vain tärkeät järjestykseen, tärkeysjärjestyksessä etenevä kierros (Emil 21.10.2026) | 1 versio | Valmis (1.19–1.19.3); Emil valtuutti jatkamaan suositusten mukaan |
 | 10 | Projektit ja puut: projekti (esim. Mätsik Forest) sisältää useita päätöspuita, puukohtainen Eteneminen (Emil 21.10.2026) | 1–2 versiota | Valmis (1.20) |
 | 11 | Toistuvat muistutukset: Muistiot → Toistuvat, tasavälein tai kuittauksesta, erä avoimeksi eri värisenä (Emil 21.10.2026) | 1 versio | Valmis (1.21) |
+| 12 | Muistutus, jos ei tapahdu: valitut termit (jokin / kaikki samassa) eivät ole olleet kuitatussa muistiinpanossa N ajassa → automaattinen avoin muistiinpano (Emil 21.10.2026) | 1 versio | Valmis (1.23) |
 
 Kohta 17 (luontihetki) on jo nyt käytössä, joten työtä ei tarvita. Kohta 24 (”kierros”) jää ennalleen. Molemmat poistetaan TILA:n avoimista kysymyksistä vaiheessa 1. Myös välit päivän muistiinpanoissa on ratkaistu (Emil: ”Juu!”).
 
@@ -120,3 +121,9 @@ Kohta 17 (luontihetki) on jo nyt käytössä, joten työtä ei tarvita. Kohta 24
 - Muistioissa *Avoimet / Kuitatut / Toistuvat*. Toistuvat = rekisteri: oma teksti (termit toimivat), toisto tasavälein (päivä … vuosi, oma luku ja yksikkö, aloituspäivä) tai kuittauksesta (N pv/vk/kk edellisestä kuittauksesta).
 - Erä tulee avoimeksi muistiinpanoksi eri värisenä (*toistuva*), päivämääränä eräpäivä; järjestys tärkeyden mukaan kuten muut.
 - Rakentajan ratkaisut (Emil valtuutti): jos edellinen on kuittaamatta, uutta ei tehdä; erät tarkistetaan appia avattaessa, ei taustailmoituksia.
+
+### Vaihe 12: muistutus, jos ei tapahdu (Emil 21.10.2026)
+
+- Toistuvat-näkymässä toinen laji: *Jos ei tapahdu*. Sääntö = teksti (omat termit → tärkeys), termit kaikista nykyisistä termeistä, *Jokin näistä / Kaikki samassa*, aika (”2 viikkoon”) ja seurannan alku. Sääntöjä voi olla kuinka monta tahansa.
+- Ehto katsotaan kuitatuista muistiinpanoista (kuittauspäivä). Aika alkaa myöhäisimmästä osumasta, seurannan alusta tai edellisen muistutuksen kuittauksesta. Muistutus on samanvärinen kuin toistuvat.
+- Rakentajan ratkaisut (Emil valtuutti): sama välilehti kuin toistuvilla, muistutuksen oma kuittaus ei ole osuma, uutta ei tule edellisen ollessa auki.

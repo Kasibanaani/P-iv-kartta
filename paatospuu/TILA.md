@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.22 (vaihe 7b kalenterin loppuosa); kaikki suunnitellut vaiheet tehty, odottaa Emilin kokeilua, odottaa Emilin kuittausta; seuraavaksi 7b · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.23 (vaihe 12 laukaisinmuistutukset); kaikki suunnitellut vaiheet tehty, odottaa Emilin kokeilua ja kuittausta · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -189,7 +189,16 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Termin asetus *Näytä kalenterissa* (termi-ikkunassa): termin nimi näkyy pienenä alaotsikkona viikkonauhan päivän alla (useampi: ”+N”) ja päivän otsikossa. Tallennus omassa termissä `cal:true`, puun termissä `termisanat[avain].cal`.
 - Ei rakennettu: Muistioiden järjestys *Termin mukaan* (ryhmät alaotsikkotermeistä), koska neljäs järjestysvaihtoehto ei mahdu 320 px:iin; avoimena kysymyksenä.
 
+## Versio 1.23 (21.10.2026, suunnitelman vaihe 12): muistutus, jos ei tapahdu
+
+- Toistuvat-näkymän ikkunassa *Milloin tulee: Ajallaan / Jos ei tapahdu*. Jos ei tapahdu: teksti (omat termit antavat tärkeyden), termit valitaan siruina kaikista nykyisistä termeistä (puiden ja omat, rajauskenttä), *Jokin näistä / Kaikki samassa* (sama kuitattu muistiinpano), aika samasta valikosta (”2 viikkoon”, oma luku) ja *Seuranta alkaa*.
+- Muistutus tulee avoimeksi samanvärisenä kuin toistuvat (merkintä *muistutus*), kun ajan kuluessa ei ole kuitattu muistiinpanoa, jossa ehto täyttyy. Aika lasketaan myöhäisimmästä: osuvan muistiinpanon kuittauspäivä, seurannan alku tai edellisen muistutuksen kuittaus (tai poisto). Avoin muistiinpano ei kelpaa osumaksi. Uutta ei tule, kun edellinen on auki. Rekisterikortissa ehto (”Jos ei 2 viikkoon: Salitreeni tai Kävely”) ja aikaisin tulopäivä.
+- Rakentajan ratkaisut (Emil valtuutti): sama välilehti kuin toistuvilla (yksi automaattisten rekisteri, välilehti nimeltään yhä *Toistuvat*), muistutuksen oma kuittaus ei lasketa osumaksi vaan vain nollaa ajan, poistunut termi näkyy ”(poistunut termi)” eikä koskaan osu.
+- Tallennus samassa listassa: `toistuvat[]` rivillä `mode:'trig', terms:[termi-id], all:true|false`. Puun termin id on `a:<kohdan id>`, joten nimen vaihto puussa irrottaa sen säännöstä.
+
 ## Ei tarkistettu
+
+- Oikealla iPhonella ei kokeiltu (1.23): termisirujen vieritys ikkunassa, rajauskenttä näppäimistön kanssa.
 
 - Oikealla iPhonella ei kokeiltu (1.22): sirun raahaus vaakavierittyvästä nauhasta (vieritys vs. pitkä painallus), pudotus viikkonauhalle sticky-otsikon kanssa.
 - Oikealla iPhonella ei kokeiltu (1.20–1.21): projektin vaihto, toistuvan ikkunan valikot (iOS:n oma valitsin).
@@ -210,7 +219,8 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 - Vaihe 9 valmis: Emil valtuutti 21.10. illalla jatkamaan suositusten mukaan, joten Hoidettavat ja Puuttuu pysyvät molemmat muistiinpanossa.
 - Avoin: Muistioihin järjestys *Termin mukaan*? Suositus: tehdään hakuun liittyvänä suodattimena (termisirut jo suodattavat), ei neljättä järjestystä. Vaihtoehto: korvataan Uusimmat sillä.
-- Avoin: siirretäänkö puu tai muistiinpano projektista toiseen? Ei rakennettu (ehdotus: ⋯-valikkoon *Siirrä projektiin*). Seuraavaksi 7b (vastaukset jo annettu: pudotus viikkonauhan päivälle, ajattomat aikajanalle ja takaisin, väliotsikkotermit).
+- Avoin: siirretäänkö puu tai muistiinpano projektista toiseen? Ei rakennettu (ehdotus: ⋯-valikkoon *Siirrä projektiin*).
+- Avoin (1.23): nimetäänkö Toistuvat-välilehti uudelleen (esim. *Automaattiset*), kun siellä on nyt kaksi lajia? Suositus: ei vielä, nimi mahtuu ja on tuttu.
 
 - Emil hyväksyi 21.10.2026 kaikki suositukset dokumentista *Päätöspuu: avoimet kysymykset* (https://claude.ai/artifact/RFMnrpTAm7fb7r9prDPz8q). Toteutus etenee vaihe kerrallaan: `SUUNNITELMA-vaiheet.md` (pelisäännöt, vaiheiden tila ja kunkin vaiheen kysymykset). Seuraavaan vaiheeseen vasta Emilin kuittauksen ja vastausten jälkeen.
 - Ratkaistu: suhteellisten päivien pohja on luontihetki (17), nimi ”kierros” jää (24), päivän muistiinpanoihin lasketaan välit (Emil: ”Juu!”).

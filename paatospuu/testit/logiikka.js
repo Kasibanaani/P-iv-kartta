@@ -318,6 +318,22 @@ eq('kuittauksesta laskettuna',[E.repsDue([RA],m2,'2026-10-26','t').length,E.reps
 eq('nimet',[E.repLabel({mode:'every',n:1,unit:'w'}),E.repLabel({mode:'every',n:2,unit:'d'}),E.repLabel({mode:'after',n:5,unit:'d'}),E.repLabel({mode:'after',n:1,unit:'m'})],['Joka viikko','2 päivää välein','5 päivää kuittauksesta','1 kuukausi kuittauksesta']);
 var NR=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'a',name:'A',toistuvat:[{id:'r',text:'X',mode:'after',n:'5',unit:'w',start:'2026-10-21',lastDone:'2026-10-22'},{id:'s',text:'Y'}],muistiinpanot:[{id:'n',text:'X',rep:'r'}]}]});
 eq('toistuvat tallessa',[NR.reps.length,NR.reps[0].n,NR.reps[0].mode,NR.reps[0].lastDone,NR.notes[0].rep],[1,5,'after','2026-10-22','r']);
+// laukaisimet (vaihe 12)
+var TA=[{id:'s',name:'Salitreeni',yes:[],no:[]},{id:'k',name:'Kävely',yes:[],no:[]}],dn=function(t,d){return {id:'x'+d,text:t,done:d+'T10:00:00'};};
+var RT={id:'g',text:'Salille?',mode:'trig',terms:['s'],all:false,n:2,unit:'w',start:'2026-10-01'};
+eq('laukaisin: ei ennen aikaa',E.repsDue([RT],[],'2026-10-14','t',TA).length,0);
+var t1=E.repsDue([RT],[],'2026-10-20','t',TA);eq('laukaisin: 2 viikkoa seurannan alusta',[t1.length,t1[0].date,t1[0].rep],[1,'2026-10-15','g']);
+RT.lastDue=undefined;var hit=[dn('Salitreeni tehty','2026-10-12')];eq('osuva kuittaus siirtää',[E.repsDue([RT],hit,'2026-10-20','t',TA).length,E.trigNext(RT,hit,TA)],[0,'2026-10-26']);
+eq('avoin osuma ei kelpaa',E.repsDue([RT],[{id:'o',text:'Salitreeni'}],'2026-10-20','t',TA).length,1);
+var RJ={id:'j',text:'Molemmat',mode:'trig',terms:['s','k'],all:true,n:1,unit:'w',start:'2026-10-01'},both=[dn('Salitreeni','2026-10-10'),dn('Kävely','2026-10-11')];
+eq('kaikki samassa muistiinpanossa',[E.trigLast(RJ,both,TA),E.trigLast(RJ,[dn('Salitreeni ja kävely','2026-10-11')],TA)],['2026-10-01','2026-10-11']);
+RJ.all=false;eq('jokin näistä',E.trigLast(RJ,both,TA),'2026-10-11');
+var RK={id:'q',text:'Q',mode:'trig',terms:['s'],n:3,unit:'d',start:'2026-10-01',lastDone:'2026-10-18'},own=[{id:'a',text:'Salitreeni',rep:'q',done:'2026-10-19T08:00:00'}];
+eq('oma kuittaus nollaa, ei laske osumaksi',[E.trigLast(RK,own,TA),E.repsDue([RK],[{id:'b',text:'Q',rep:'q'}],'2026-10-30','t',TA).length],['2026-10-18',0]);
+eq('laukaisimen nimi',[E.trigLabel({n:2,unit:'w'}),E.trigLabel({n:1,unit:'m'})],['Jos ei 2 viikkoon','Jos ei 1 kuukauteen']);
+eq('ilman termilistaa ei laukaisua',E.repsDue([RT],[],'2026-10-20','t').length,0);
+var NT=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'a',name:'A',toistuvat:[{id:'g',text:'X',mode:'trig',terms:['s',3],all:true,n:2,unit:'w',start:'2026-10-01'}]}]});
+eq('laukaisin tallessa',[NT.reps[0].mode,NT.reps[0].terms,NT.reps[0].all],['trig',['s'],true]);
 // kalenteri 7b
 var mkn=function(t){return {text:t,created:'2026-10-21T08:00:00',date:''};},MN=mkn('Hammas pe klo 14');eq('päivän siirto tekstiin',[E.moveDay(MN,E.noteDates(MN)[0],'2026-10-24'),MN.text],['','Hammas 24.10.2026 klo 14']);
 MN=mkn('Juttu perjantaisin');eq('toistuva ei siirry',[E.moveDay(MN,E.noteDates(MN)[0],'2026-10-24')!=='',MN.text],[true,'Juttu perjantaisin']);

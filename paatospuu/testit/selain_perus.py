@@ -1,7 +1,7 @@
 """Päätöspuun selaintesti: koko polku tekstikentästä opetukseen, kierrokseen, muistiinpanoon, termeihin ja varmuuskopioon.
 Leveydet 390 ja 320 px; tarkistaa, ettei mikään mene ruudun yli eikä sivulla ole virheitä.
 Käyttö: python3 testit/selain_perus.py [kuvakansio]"""
-import asyncio, os, sys, json
+import asyncio, os, sys, json, datetime
 from playwright.async_api import async_playwright
 U='file://'+os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','index.html'))
 SHOTS=sys.argv[1] if len(sys.argv)>1 else None
@@ -306,6 +306,14 @@ async def run(p,w,h):
     await pg.locator('#nlist .ncard.auto .nmenu').click(); await pg.click('#ms-done'); await pg.wait_for_timeout(50)
     await pg.click('#noteview [data-nv="rep"]'); await pg.wait_for_timeout(50); want('seuraava kuittauksesta', 'Seuraava' in await pg.inner_text('#replist'))
     await pg.click('#replist .ncard'); await pg.select_option('#rs-int','own'); want('oma väli', await pg.is_visible('#rs-n')); await check('toistuva oma väli'); await pg.click('#rs-ok')
+    # laukaisimet (vaihe 12)
+    await pg.click('#newnote'); await pg.click('#rs-kind [data-rk="trig"]'); want('laukaisinlomake', await pg.is_visible('#rs-terms') and not await pg.is_visible('#rs-mode'))
+    await pg.fill('#rs-text','Salille?'); await pg.select_option('#rs-int','1w'); await pg.click('#rs-ok'); want('termi pakollinen', 'termi' in await pg.inner_text('#rs-msg'))
+    await pg.click('#rs-terms .chip >> nth=0'); await pg.click('#rs-all [data-ra="1"]'); await check('laukaisin ikkuna')
+    await pg.fill('#rs-start',(datetime.date.today()-datetime.timedelta(days=10)).isoformat()); await pg.click('#rs-ok'); await pg.wait_for_timeout(50)
+    want('laukaisin rekisterissä', 'Jos ei 1 viikkoon' in await pg.inner_text('#replist'))
+    await pg.click('#noteview [data-nv="open"]'); await pg.wait_for_timeout(50); want('laukaisin avoimissa', 'Salille?' in await pg.inner_text('#nlist'))
+    await pg.click('#noteview [data-nv="rep"]'); await pg.click('#replist .ncard >> nth=1'); want('laukaisin aukeaa', await pg.locator('#rs-terms .chip[aria-pressed="true"]').count()==1); await pg.click('#rs-ok')
     await pg.click('#noteview [data-nv="open"]')
     await pg.click('[data-tab="set"]'); await pg.click('#set-size [data-v="small"]'); await pg.click('[data-tab="teach"]'); await pg.click('[data-tm="build"]'); await check('pienet nappulat opetus')
     await pg.click('[data-tab="set"]'); await pg.click('#set-size [data-v="normal"]')
