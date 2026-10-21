@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.24 (vaihe 13 projektin vienti ja lisäys); seuraavaksi tietokoneversio (vaihe 14); kaikki suunnitellut vaiheet tehty, odottaa Emilin kokeilua ja kuittausta · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.25 (vaihe 14 tietokoneversio); jono tyhjä, odottaa Emilin kokeilua; kaikki suunnitellut vaiheet tehty, odottaa Emilin kokeilua ja kuittausta · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -207,8 +207,18 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Projektitiedoston muoto `{app:'paatospuu', laji:'projekti', ver, savedAt, projekti:{name, cur, puut, muistiinpanot, termit, termisanat, tarkeat, toistuvat}}`. Tunnisteet saavat puuttua, säännöt ovat puun tekstissä. Ohje tekoälylle ja tulevalle skillille: `paatospuu/PROJEKTIMUOTO.md`.
 - GitHub-tallennusta ei tehty (Emil perui).
 
+## Versio 1.25 (21.10.2026, Emilin toive, vaihe 14): tietokoneversio
+
+- Rakentajan päätös: **sama appi ja sama osoite**, asettelu vaihtuu itsestään, kun ikkuna on vähintään 1000 px leveä. Siksi tallennus, varmuuskopio ja projektitiedostot ovat samat, eikä mikään ominaisuus jää toisesta jälkeen. Samalla koneella puhelinkoko (kapea ikkuna) näyttää puhelinasettelun.
+- Leveänä: välilehdet vasemmassa sivupalkissa, sisältö keskellä (enintään 1100 px, Käyttö ja Asetukset 760 px), ikkunat keskellä ruutua alhaalta nousemisen sijaan, korostus hiiren alla.
+- **Opetus**: tekstikenttä on aina auki oikealla puoliskolla. Kirjoitus päivittää puun Opetukseen heti (0,3 s viive), ja napautetut säännöt päivittyvät tekstiin. Ei Valmis-nappia.
+- **Kalenteri**: viikko seitsemänä sarakkeena, ajattomat päivän sarakkeen yläosassa, valittu päivä korostettu. Napautus sarakkeeseen = uusi merkintä sille päivälle ja vartille. Merkinnän raahaus toiseen sarakkeeseen siirtää päivän (kellonaika säilyy); ajattoman sirun raahaus sarakkeeseen antaa päivän ja kellonajan. Hiirellä raahaus alkaa heti liikkeestä, kosketuksella pitkästä painalluksesta kuten ennen.
+- **Muistiot**: kortit ruudukkona (2–3 saraketta). Muut näkymät samat, leveämpinä. Ei uusia vahvistuksia.
+- Tunnettu (myös puhelimessa): jos tekstikentässä kirjoittaa rivin alkuun, se tulkitaan nimen vaihdoksi ja säännöt seuraavat. Uusi rivi kannattaa aloittaa edellisen rivin lopusta Enterillä.
+
 ## Ei tarkistettu
 
+- Tietokoneversio (1.25): kokeiltu vain Chromiumilla 1440 ja 1280 px; Safari/Mac ja iPad (leveys 1024+ vaakatasossa saa tietokoneasettelun) kokeilematta.
 - Oikealla iPhonella ei kokeiltu (1.24): projektin jako tiedostona ja tiedoston valinta Tiedostot-appista.
 - Oikealla iPhonella ei kokeiltu (1.23.2): aikajanan napautus vs. vieritys (napautuksen pitäisi tulla vain ilman vieritystä).
 - Oikealla iPhonella ei kokeiltu (1.23): termisirujen vieritys ikkunassa, rajauskenttä näppäimistön kanssa.

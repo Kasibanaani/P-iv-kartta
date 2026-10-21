@@ -27,7 +27,7 @@ Päivitetty 21.10.2026. Emil sanoi kyllä kaikkiin suosituksiin dokumentissa *P�
 | 11 | Toistuvat muistutukset: Muistiot → Toistuvat, tasavälein tai kuittauksesta, erä avoimeksi eri värisenä (Emil 21.10.2026) | 1 versio | Valmis (1.21) |
 | 12 | Muistutus, jos ei tapahdu: valitut termit (jokin / kaikki samassa) eivät ole olleet kuitatussa muistiinpanossa N ajassa → automaattinen avoin muistiinpano (Emil 21.10.2026) | 1 versio | Valmis (1.23) |
 | 13 | Projektin vienti ja lisäys tiedostosta/tekstistä, ei korvaa; muoto tekoälylle (Emil 21.10.2026) | 1 versio | Valmis (1.24) |
-| 14 | Tietokoneversio: kaikki puhelimen ominaisuudet, leveän ruudun asettelu, samat tiedostot, ei lisää vahvistuksia (Emil 21.10.2026) | 1–2 versiota | Seuraavaksi |
+| 14 | Tietokoneversio: kaikki puhelimen ominaisuudet, leveän ruudun asettelu, samat tiedostot, ei lisää vahvistuksia (Emil 21.10.2026) | 1–2 versiota | Valmis (1.25) |
 
 Kohta 17 (luontihetki) on jo nyt käytössä, joten työtä ei tarvita. Kohta 24 (”kierros”) jää ennalleen. Molemmat poistetaan TILA:n avoimista kysymyksistä vaiheessa 1. Myös välit päivän muistiinpanoissa on ratkaistu (Emil: ”Juu!”).
 
@@ -137,3 +137,4 @@ Kohta 17 (luontihetki) on jo nyt käytössä, joten työtä ei tarvita. Kohta 24
 ### Vaihe 14: tietokoneversio (Emil 21.10.2026)
 
 - Jonon viimeinen. Kaikki puhelimen ominaisuudet, yhteensopivat tiedostot. Asettelu leveän ruudun ehdoilla (esim. kalenterissa monta päivää), ei yhtään lisää kuittauksia tai vahvistuksia. Toteutustapa rakentajan päätös.
+- Toteutettu 1.25: sama appi, leveä asettelu ≥1000 px (sivupalkki, Opetuksessa tekstikenttä aina auki ja elävänä, viikkokalenteri sarakkeina, muistiot ruudukkona, ikkunat keskellä). Testi `testit/selain_tietokone.py`.
