@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.11 (suunnitelman vaihe 1), odottaa Emilin kuittausta · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.12 (suunnitelman vaihe 2), odottaa Emilin kuittausta · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -86,6 +86,14 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Muistiinpanon kirjoitusikkunassa termin laukaiseva sana alleviivataan violetilla heti, kun sana on valmis. Lista ikkunan alla: *Termit: kissalle → Kissa*.
 - ma, ti, ke, to, pe, la, su tunnistuvat vain välilyönnillä kiinni muussa ajankohdan osassa (”pe klo13-16”, ”vk43 ti”), eivät yksinään.
 - ”klo 14.” ja ”klo14.” lauseen lopussa tunnistuvat kellonajaksi.
+
+## Versio 1.12 (21.10.2026, suunnitelman vaihe 2): arvojärjestys ja Hoidettavat
+
+- Emil kuittasi vaiheen 1 ja hyväksyi suositukset: palikan nimi on termi vasta vähintään 3 kirjaimella (omat termisanat aina).
+- Opetukseen tila *Järjestys*: napauta palikkaa ja sitten sitä vähemmän tärkeät (`order:{palikka:[vähemmän tärkeät]}`). Ilman sääntöä ratkaisee rivijärjestys. Alla *Tärkeysjärjestys nyt*.
+- Kehän tarkistus napautushetkellä, järjestys ja kaikki tarvitaan -ehdot yhdessä: napautus hylätään, nappi värähtää ja ilmoitus näyttää ketjun (*Ei käy, tulisi kehä: A → B → A*).
+- Projektin ikkunassa *Lopuksi: Polku / Hoidettavat* (`end:'hoid'`). Hoidettavat: Lopeta-ikkunassa valitsematta jääneet nappulat (ei poissuljetut) tärkeysjärjestyksessä, ylimpänä *Seuraavaksi*, ja kova ehto näkyy *jotta …*. Muistiinpanoon rivit *Kunnossa* ja *Hoidettavat*.
+- Allianssiesimerkki: `/mnt/project-files/paatospuu/allianssi-esimerkki.md` (Emil korjaa).
 
 ## Ei tarkistettu
 

@@ -56,8 +56,8 @@ eq('muistiinpanoon ryhmät',E.sessionNote(p,S,''),'Testi\nValinnat: A → B\nRyh
 
 // kierros päivälle: päivän muistiinpanojen termit valmiiksi mukaan
 p=P('A\nB\nC\nD\n#G\n>T: Teksti.');t(p,A,'a');t(p,A,'b');t(p,'b','d');t(p,'g','c');E.toggleRule(p,'g','a','x');
-var dn=[{id:'1',created:'2026-10-01T10:00:00Z',text:'B, G, T',date:'2026-10-24'},{id:'2',created:'2026-10-01T10:00:00Z',text:'C',date:'2026-10-25'},{id:'3',created:new Date(2026,9,20).toISOString(),text:'D 14 päivän sisällä',date:''}];
-var dterms=E.autoTerms([p],{},[]);
+var dn=[{id:'1',created:'2026-10-01T10:00:00Z',text:'bee, gee, tee',date:'2026-10-24'},{id:'2',created:'2026-10-01T10:00:00Z',text:'cee',date:'2026-10-25'},{id:'3',created:new Date(2026,9,20).toISOString(),text:'dee 14 päivän sisällä',date:''}];
+var dterms=E.autoTerms([p],{b:{yes:['bee'],no:[]},c:{yes:['cee'],no:[]},d:{yes:['dee'],no:[]},g:{yes:['gee'],no:[]},t:{yes:['tee'],no:[]}},[]); // yksikirjaimiset nimet eivät ole termejä
 eq('päivän muistiinpanot',E.notesOnDay(dn,'2026-10-24').map(function(n){return n.id;}),['1','3']);
 var dc=E.dayCarry(p,dn,dterms,'2026-10-24');eq('päivän valinnat',dc,{notes:2,pre:['b','g','d'],texts:['t']});
 dc.date='2026-10-24';S=E.newSession(p,'x',dc);v=E.sessionView(p,S);
@@ -166,5 +166,18 @@ pd=E.parseDates('vk43 ti',B);eq('vk43 ti',[pd.length,pd[0]&&pd[0].a],[1,'2026-10
 pd=E.parseDates('ma ti',B);eq('kaksi lyhennettä yksin ei',pd.length,0);
 pd=E.parseDates('Tavataan klo 14.',B);eq('klo 14. lauseen lopussa',pd.length&&pd[0].time,{s:'14:00',e:''});
 pd=E.parseDates('Tavataan klo14.',B);eq('klo14.',pd.length&&pd[0].time,{s:'14:00',e:''});
+
+// vaihe 2: lyhyt nimi, arvojärjestys, kehä, hoidettavat
+eq('lyhyt nimi ei termi',E.noteTerms(E.autoTerms([{name:'x',text:'Ui\nUinti'}],{},[]),'Kävin uimassa uinti'),['a:uinti']);
+var o={text:'A\nB\nC\nD',rules:{},mx:[]},ot=E.parseText(o.text);
+eq('rivijärjestys',E.priorityList(o,ot,['d','b','a']),['a','b','d']);
+E.toggleOrder(o,'c','a');E.toggleOrder(o,'b','c');eq('järjestys voittaa rivin',E.priorityList(o,ot,['a','b','c','d']),['b','c','a','d']);
+eq('kehä hylätään',E.toggleOrder(o,'a','b'),['a','b','c','a']);eq('kehä ei tallennu',E.orderOf(o,'a'),[]);
+o.need={d:['a']};eq('ehto mukana kehässä',E.cycleIf(o,'d','b'),['d','b','c','a','d']);
+eq('ehto nostaa vaaditun',E.priorityList(o,ot,['d','a']),['a','d']);
+var hp={text:'Kunnossa\nA\nB\nC',rules:{},mx:[],need:{b:['c']},order:{a:['b']},end:'hoid'},HS=E.newSession(hp,'x');E.commitStep(hp,HS,{p:['kunnossa'],d:[]});
+eq('hoidettavat',E.hoidettavat(hp,HS),[{id:'a',jotta:[]},{id:'c',jotta:['b']},{id:'b',jotta:[]}]);
+eq('hoidettavat muistiinpanossa',E.sessionNote(hp,HS,'').split('\n').slice(2),['Kunnossa: Kunnossa','Hoidettavat: 1. A, 2. C (jotta B), 3. B']);
+eq('järjestys tallessa',E.normalizeData({app:'paatospuu',projektit:[{id:'p',name:'n',text:'',order:{a:['b']},end:'hoid'}]}).projects[0].order,{a:['b']});
 
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);

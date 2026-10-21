@@ -61,6 +61,9 @@ async def run(p,w,h):
     want('säännöt', json.loads(await pg.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('paatospuu:v1')).projektit[0].rules)"))=={'__alku':{'o':['kissa','koira'],'x':[]},'kissa':{'o':['eläimet','apu','perustelu'],'x':['koira']},'eläimet':{'o':['ruoka','leikki'],'x':[]}})
     await check('opetus')
     await pg.click('[data-tm="mx"]'); await pg.click('#mxnew'); await pg.click('#p-teach [data-id="ruoka"]'); await pg.click('#p-teach [data-id="leikki"]'); await pg.click('#mxsave'); await check('toisensa poissulkevat')
+    await pg.click('[data-tm="ord"]'); await pg.wait_for_timeout(50); await tap('ruoka'); await tap('leikki'); await tap('ruoka'); await tap('leikki'); await tap('ruoka')
+    want('kehä hylätty', 'Ei käy' in await pg.inner_text('#info') and json.loads(await pg.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('paatospuu:v1')).projektit[0].order)"))=={'ruoka':['leikki']}); await check('järjestys')
+    await tap('leikki')
     await pg.click('[data-tm="edit"]'); await pg.wait_for_timeout(50); await check('muokkaa')
     await pg.click('[data-move="ruoka|-1"]'); await pg.click('[data-move="ruoka|1"]')
     await pg.click('#p-teach [data-id="leikki"]'); await pg.fill('#ls-text','Leikkiminen'); await pg.click('#ls-ok'); await pg.wait_for_timeout(50)
@@ -125,6 +128,13 @@ async def run(p,w,h):
     pr=json.loads(await pg.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('paatospuu:v1')).projektit)"))
     want('kopio: teksti ja säännöt', len(pr)==2 and pr[1]['name']=='Lemmikit (kopio)' and pr[1]['text']==pr[0]['text'] and pr[1]['rules']==pr[0]['rules'] and pr[1]['mx']==pr[0]['mx'] and not pr[1].get('session') and pr[1]['id']!=pr[0]['id'])
     await pg.click('#ps-del'); await pg.click('#ps-del'); await pg.click('#ps-close'); await pg.wait_for_timeout(50)
+    # hoidettavat
+    await pg.click('#title'); await pg.click('#ps-end [data-end="hoid"]'); await check('lopuksi-asetus'); await pg.click('#ps-close')
+    await pg.click('[data-tab="use"]'); await pg.wait_for_timeout(50)
+    if await pg.locator('#start').count(): await pg.click('#start'); await pg.wait_for_timeout(50)
+    await pg.click('#act-end'); await pg.wait_for_timeout(50)
+    want('hoidettavat lopussa', await pg.locator('#hlist li.next').count()==1 and 'Seuraavaksi' in await pg.inner_text('#hlist')); await check('hoidettavat')
+    await pg.click('#es-cancel'); await pg.click('#title'); await pg.click('#ps-end [data-end="path"]'); await pg.click('#ps-close')
     # asetukset ja varmuuskopio
     await pg.click('[data-tab="set"]'); await pg.click('#exptxt'); await pg.wait_for_timeout(50)
     dump=await pg.input_value('#dataout textarea'); await check('asetukset')
