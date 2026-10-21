@@ -261,7 +261,38 @@ eq('siirto järjestyksessä',E.moveInOrder(['c','a'],['a','b','c'],'b',-1),['c',
 var pn=[mk('x','2026-10-02T08:00:00Z'),mk('y','2026-10-03T08:00:00Z'),mk('z','2026-10-04T08:00:00Z'),mk('w','2026-10-05T08:00:00Z')],rk={x:2,y:0,z:Infinity,w:Infinity};
 eq('tärkeysjärjestys, osumattomat loppuun uusin ensin',E.prioSort(pn,function(n){return rk[n.id];},TD).map(function(n){return n.id;}),['y','x','w','z']);
 eq('roskakori 30 pv',E.purgeTrash([{deleted:'2026-09-01T00:00:00Z'},{deleted:'2026-10-01T00:00:00Z'}],new Date('2026-10-21T00:00:00Z').getTime()).length,1);
-var nd3=E.normalizeData({app:'paatospuu',muistiinpanot:[{id:'a',text:'t',done:'2026-10-21T10:00:00Z'}],roskakori:[{id:'b',text:'u',deleted:'2026-10-21T10:00:00Z'},{id:'c',text:'v'}],jarjestys:['z:late',3]});
-eq('kuittaus, roskakori ja järjestys tallessa',[nd3.notes[0].done,nd3.trash.map(function(n){return n.id;}),nd3.order],['2026-10-21T10:00:00Z',['b'],['z:late']]);
+var nd3=E.normalizeData({app:'paatospuu',muistiinpanot:[{id:'a',text:'t',done:'2026-10-21T10:00:00Z'}],roskakori:[{id:'b',text:'u',deleted:'2026-10-21T10:00:00Z'},{id:'c',text:'v'}],jarjestys:['z:late',3],tarkeat:['z:late',3,'a:x','z:late']});
+eq('kuittaus, roskakori ja tärkeät tallessa',[nd3.notes[0].done,nd3.trash.map(function(n){return n.id;}),nd3.imp,nd3.order],['2026-10-21T10:00:00Z',['b'],['z:late','a:x'],undefined]);
+
+// merkitykset, kääntöpuolet, tärkeät ja etenevä kierros (1.19)
+eq('kuitattu ei päivässä',E.notesOnDay([{id:'a',text:'Asia 21.10.2026',created:'2026-10-01T08:00:00Z'},{id:'b',text:'Asia 21.10.2026',created:'2026-10-01T08:00:00Z',done:'x'}],'2026-10-21').map(function(n){return n.id;}),['a']);
+var MT='#Turvallisuus: Turvallisuus on varmistettu\n#Allianssi: Allianssi on kunnossa\nAjantasainen turvasuunnitelma\nKriisikontaktit sovittu\nAllianssi vanhemman kanssa\nAllianssi lapsen kanssa\n\n=Turvallisuus vaatii kaikki:\nAjantasainen turvasuunnitelma\nKriisikontaktit sovittu\n\n=Allianssi vaatii kaikki:\nAllianssi vanhemman kanssa\nAllianssi lapsen kanssa\n\n=Ajantasainen turvasuunnitelma kääntöpuoli:\nTurvasuunnitelma puuttuu\n\n=Turvallisuus kääntöpuoli:\nTurvallisuutta ei ole varmistettu';
+var MP={id:'m',name:'Testi',text:MT,rt:1};E.rulesFromText(MP);
+eq('kääntöpuoli luettu',MP.flip,{'ajantasainen turvasuunnitelma':['Turvasuunnitelma puuttuu'],turvallisuus:['Turvallisuutta ei ole varmistettu']});
+eq('kääntöpuoli ei ole sääntö',[MP.rules,E.parseText(MT).items.length],[{},6]);
+eq('kääntöpuoli: rulesToText ei muuta',E.rulesToText(JSON.parse(JSON.stringify(MP))).text,MT);
+var MP2=JSON.parse(JSON.stringify(MP));MP2.flip={'kriisikontaktit sovittu':['Kriisikontaktit puuttuvat']};MP2.text=E.writeRules(MT,MP2);eq('kääntöpuolen kirjoitus',E.rulesOf(MP2.text).flip,{'kriisikontaktit sovittu':['Kriisikontaktit puuttuvat']});
+eq('nimen vaihto ei koske kääntöpuolen tekstiä',E.renameInText('A\n\n=A kääntöpuoli:\nA puuttuu\nA','a','B'),'A\n\n=B kääntöpuoli:\nA puuttuu\nA');
+var MS=E.newSession(MP,'x');eq('Alku ei avaa merkitystä',E.sessionView(MP,MS).opts.length,4);
+E.commitStep(MP,MS,{p:['kriisikontaktit sovittu','allianssi vanhemman kanssa','allianssi lapsen kanssa'],d:[]});
+eq('täyttynyt merkitys ryhmänä, Puuttuu',E.sessionNote(MP,MS).split('\n').slice(2),['Ryhmät: Allianssi','Puuttuu:','Turvallisuutta ei ole varmistettu','Turvasuunnitelma puuttuu']);
+MP.flow='prio';var PS=E.newSession(MP,'x'),pv=E.sessionView(MP,PS);eq('etenevä: ensin tärkein merkitys',[pv.cur,pv.opts],['turvallisuus',['ajantasainen turvasuunnitelma','kriisikontaktit sovittu']]);
+E.commitStep(MP,PS,{p:['kriisikontaktit sovittu'],d:[]});pv=E.sessionView(MP,PS);eq('etenevä: seuraava merkitys',[pv.cur,pv.opts],['allianssi',['allianssi vanhemman kanssa','allianssi lapsen kanssa']]);
+E.commitStep(MP,PS,{p:['allianssi vanhemman kanssa','allianssi lapsen kanssa'],d:[]});
+eq('etenevä: muistiinpano kuten dokumentissa',E.sessionNote(MP,PS).split('\n').slice(1),['Valinnat: Kriisikontaktit sovittu → Allianssi vanhemman kanssa, Allianssi lapsen kanssa','Ryhmät: Allianssi','Puuttuu:','Turvallisuutta ei ole varmistettu','Turvasuunnitelma puuttuu']);
+var PS2=E.newSession(MP,'x');eq('ohitus: Jatka ilman valintaa',[E.commitStep(MP,PS2,{p:[],d:[]}),E.sessionView(MP,PS2).cur,PS2.steps[1]],[true,'allianssi',{p:[],d:[],m:'turvallisuus'}]);
+eq('ohitus ei tyhjää polkuun',E.sessionNote(MP,PS2).indexOf('Valinnat')<0,true);
+eq('ohitettu kirjaa kääntöpuolet',E.flipMissing(MP,PS2),['Turvallisuutta ei ole varmistettu','Turvasuunnitelma puuttuu']);
+var BP={id:'b',name:'B',text:'A\nB\n\n=Alku avaa:\nA\n\n=A avaa:\nB\n\n=B kääntöpuoli:\nB puuttuu',rt:1};E.rulesFromText(BP);var BS=E.newSession(BP,'x');
+eq('ei kääntöpuolta haarasta, jossa ei käyty',E.flipMissing(BP,BS),[]);E.commitStep(BP,BS,{p:['a'],d:[]});eq('tarjolla ollut, valitsematta',E.flipMissing(BP,BS),['B puuttuu']);
+eq('valittu ei kirjaa kääntöpuolta',(E.commitStep(BP,BS,{p:['b'],d:[]}),E.flipMissing(BP,BS)),[]);
+eq('askeleen merkitys tallessa',E.normalizeData({app:'paatospuu',projektit:[{id:'p',name:'n',text:'A',rt:1,flow:'prio',session:{start:'x',steps:[{p:['__alku'],d:[]},{p:[],d:[],m:'a'},{p:[],d:[]}]}}]}).projects[0].session.steps,[{p:['__alku'],d:[]},{p:[],d:[],m:'a'}]);
+eq('eteneminen tallessa',E.normalizeData({app:'paatospuu',projektit:[{id:'p',name:'n',text:'A',rt:1,flow:'prio'}]}).projects[0].flow,'prio');
+var AT2=E.autoTerms([MP],{},[]);eq('kääntöpuoli on termi',AT2.filter(function(t){return t.kind==='k';}).map(function(t){return t.id;}),['k:turvasuunnitelma puuttuu','k:turvallisuutta ei ole varmistettu']);
+var RK=E.impRanks(['a:turvallisuus','a:allianssi'],AT2,[MP]);
+eq('perintä: ehto, kääntöpuoli ja ehdon kääntöpuoli',[RK['a:turvallisuus'],RK['a:kriisikontaktit sovittu'],RK['k:turvasuunnitelma puuttuu'],RK['k:turvallisuutta ei ole varmistettu'],RK['a:allianssi lapsen kanssa'],RK['a:x']],[0,0,0,0,1,undefined]);
+RK=E.impRanks(['a:turvallisuus','a:kriisikontaktit sovittu'].reverse(),AT2,[MP]);eq('oma merkintä voittaa',[RK['a:kriisikontaktit sovittu'],RK['a:turvallisuus'],RK['a:ajantasainen turvasuunnitelma']],[0,1,1]);
+RK=E.impRanks(['a:allianssi','a:turvallisuus','a:kriisikontaktit sovittu'],AT2,[MP]);eq('oma merkintä voittaa myös alempana',RK['a:kriisikontaktit sovittu'],2);
+eq('raahaus kohtaan',[E.moveToIdx(['a','b','c'],'c',0),E.moveToIdx(['a','b','c'],'a',2),E.moveToIdx(['a','b','c'],'b',1)],[['c','a','b'],['b','c','a'],['a','b','c']]);
 
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);

@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.18 (suunnitelman vaihe 8), odottaa Emilin kuittausta; seuraavaksi 7b · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.19 (suunnitelman vaihe 9), odottaa Emilin kuittausta; seuraavaksi 7b · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -137,8 +137,20 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Muistiot: *Avoimet / Kuitatut* ja järjestys *Tulevat / Uusimmat / Tärkeys* paneelin yläosassa (alapalkissa vain + Uusi ja Termit). Tärkeys = tärkeimmän osuvan termin tai aikatermin paikka; tasatilanteessa aikaisempi ajankohta, sitten uusin.
 - Pitkä painallus muistiinpanokorttiin: *Kuittaa / Palauta avoimeksi*, *Liitä termiin* (termisirut), *Poista*. Poisto ja tyhjäksi tyhjennetty teksti vievät roskakoriin ilman varmistusta; Asetuksissa *Roskakori* (napautus palauttaa, tyhjennys kahdella painalluksella). Yli 30 pv vanhat poistuvat avattaessa. Tallennus `done` muistiinpanossa, `roskakori:[…]`.
 
+## Versio 1.19 (21.10.2026, suunnitelman vaihe 9): merkitykset, kääntöpuolet, tärkeät, etenevä kierros
+
+- Emil hyväksyi suositukset (dokumentti https://claude.ai/artifact/TwhFPyZxyV1gEyrNzCr6sR): ei nuolia, pelkkä raahaus; etenevä kierros puun omasta järjestyksestä; oma tähti voittaa perinnän; kuitatut pois kalenterista ja päivän kierroksesta.
+- Kuitatut muistiinpanot eivät näy kalenterissa eivätkä tule päivän kierroksen esivalinnoiksi.
+- **Kääntöpuoli:** lohko `=Palikka kääntöpuoli:` ja alle tekstirivit (tallessa `P.flip`, teksti on totuus; nimen vaihto ei koske kääntöpuolen tekstiä). Kierroksen muistiinpanoon osio `Puuttuu:` ja rivit: merkitys (vaatii kaikki), jonka ehtoja tarjottiin mutta joka ei täyttynyt, sekä tarjolla ollut palikka, jota ei valittu eikä suljettu pois. Käymättömistä haaroista ei kirjata mitään. Kääntöpuolen teksti on termi (laji *kääntöpuoli*).
+- **Korjaus:** Alku ei enää avaa kaikki tarvitaan -merkitystä suoraan (aiemmin opettamaton Alku avasi myös merkitysryhmän, jolloin se näkyi *Ryhmät*-rivillä täyttymättömänäkin). Täyttynyt merkitysryhmä näkyy *Ryhmät*-rivillä.
+- **Tärkeät** (korvaa 1.18:n koko järjestyksen): Termit-ikkunassa *Valitse tärkeät* → tähdet napauttamalla → OK. Tärkeät ovat ylinnä numeroituina, järjestys pitkällä painalluksella ja raahaamalla; pudotus listan ulkopuolelle tai keskeytys palauttaa paikalleen. *Muut* ovat alla järjestämättä, perityn paikan saanut näyttää ”perii N. Nimi”. Tallennus `tarkeat:[id]`; 1.18:n `jarjestys` jätetään lukematta.
+- **Perintä:** merkitsemätön termi saa tärkeän merkityksen paikan, jos se on sen ehto (vaatii kaikki), ryhmän jäsen tai kääntöpuoli, myös välillisesti. Oma tähti voittaa. Muistiot → Tärkeys käyttää tätä.
+- **Eteneminen** (projektiasetus *Säännöt / Tärkeysjärjestys*, tallennus `flow:'prio'`): askel näyttää tärkeimmän täyttymättömän merkityksen otsikon ja ehdot puun järjestyksessä (rivit ja `ennen`). Jatka ilman valintaa ohittaa. Avaa- ja sulkee-säännöt toimivat edelleen. Askel muistaa merkityksensä (`m`), tyhjä ohitus ei näy *Valinnat*-rivillä.
+- Testit: logiikka 216 ok; selainpolku 390 ja 320 px (tähdet, raahaus, pudotus ulos, napautus, etenevä kierros, Puuttuu, asetus) tietokoneen Chromiumissa.
+
 ## Ei tarkistettu
 
+- Oikealla iPhonella ei kokeiltu (1.19): tärkeiden raahaus (sivu ei saa vieriä mukana, iOS:n valikko ei saa aueta), tähtitila pitkällä listalla.
 - Oikealla iPhonella ei kokeiltu: muistiinpanokortin pitkä painallus (iOS:n valikko ei saa aueta), järjestysnuolet pitkällä listalla, kalenterin pitkä painallus ja raahaus (sivun vieritys ei saa lähteä mukaan, iOS:n valintavalikko ei saa aueta), kulmaväkänen, viikkonauhan pyyhkäisy, apukysymyskortit näppäimistön kanssa, tekstin valinta ja Liitä termiin -nappi (iOS:n oma valintavalikko), tekstikentän värikerroksen kohdistus Safarissa (kursori, valinta, vieritys), zoomauksen esto ja yläreunan lisätila (näkyy vain kotinäytön appina), jakoikkunan tiedostovienti, päivämäärävalitsin, näppäimistö alapalkin kanssa, tekstikentän koko.
 - Nimen vaihto tekstikentässä seuraa vain, kun yksi rivi muuttuu kerrallaan. Leikkaa–liitä tai usean rivin muutos ei vie viittauksia mukana (Opetus näyttää ”Säännöt ilman riviä”). Termien sanat (`termisanat`) eivät seuraa nimen vaihtoa.
 - Oikealla iPhonella ei kokeiltu kursorin pysymistä, kun nimen vaihto muuttaa muita rivejä.
@@ -151,9 +163,7 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 ## Avoimet kysymykset
 
-- Vaihe 9 (merkitykset, kääntöpuolet, vain tärkeät järjestykseen, etenevä kierros): ehdotus ja 5 kysymystä Claude Docissa https://claude.ai/artifact/TwhFPyZxyV1gEyrNzCr6sR. Ei rakennettu.
-
-- Kuitatut näkyvät yhä kalenterissa ja päivän kierroksen esivalinnoissa. Kysymys Emilille, pitäisikö ne piilottaa.
+- Vaihe 9 rakennettu (1.19), odottaa Emilin kuittausta. Seuraavaksi 7b (vastaukset jo annettu: pudotus viikkonauhan päivälle, ajattomat aikajanalle ja takaisin, väliotsikkotermit).
 
 - Emil hyväksyi 21.10.2026 kaikki suositukset dokumentista *Päätöspuu: avoimet kysymykset* (https://claude.ai/artifact/RFMnrpTAm7fb7r9prDPz8q). Toteutus etenee vaihe kerrallaan: `SUUNNITELMA-vaiheet.md` (pelisäännöt, vaiheiden tila ja kunkin vaiheen kysymykset). Seuraavaan vaiheeseen vasta Emilin kuittauksen ja vastausten jälkeen.
 - Ratkaistu: suhteellisten päivien pohja on luontihetki (17), nimi ”kierros” jää (24), päivän muistiinpanoihin lasketaan välit (Emil: ”Juu!”).

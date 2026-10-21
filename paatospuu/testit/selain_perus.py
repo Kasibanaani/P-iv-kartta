@@ -16,6 +16,7 @@ Ruoka
 Leikki
 #Eläimet: Kaikki lemmikit
 >Perustelu: Lemmikki tarvitsee ruokaa joka päivä. // Toinen kappale."""
+MT="#Turvallisuus: Turvallisuus on varmistettu\n#Allianssi: Allianssi on kunnossa\nAjantasainen turvasuunnitelma\nKriisikontaktit sovittu\nAllianssi vanhemman kanssa\nAllianssi lapsen kanssa\n\n=Turvallisuus vaatii kaikki:\nAjantasainen turvasuunnitelma\nKriisikontaktit sovittu\n\n=Allianssi vaatii kaikki:\nAllianssi vanhemman kanssa\nAllianssi lapsen kanssa\n\n=Ajantasainen turvasuunnitelma kääntöpuoli:\nTurvasuunnitelma puuttuu\n\n=Turvallisuus kääntöpuoli:\nTurvallisuutta ei ole varmistettu"
 async def run(p,w,h):
     try: b=await p.chromium.launch()
     except Exception: b=await p.chromium.launch(executable_path='/opt/pw-browsers/chromium')
@@ -163,6 +164,7 @@ async def run(p,w,h):
     # hoidettavat
     await pg.click('#title'); await pg.click('#ps-mem [data-mem="all"]'); want('muisti kaikki', json.loads(await pg.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('paatospuu:v1')).projektit[0].mem||'')"))=='all'); await pg.click('#ps-mem [data-mem="next"]'); await pg.click('#ps-close')
     await pg.click('#title'); await pg.click('#ps-end [data-end="hoid"]'); await check('lopuksi-asetus')
+    await pg.evaluate("document.getElementById('psheet').scrollTop=0"); await pg.wait_for_timeout(30)
     hb=await pg.locator('#ps-h').bounding_box(); await pg.mouse.move(hb['x']+10,hb['y']+5); await pg.mouse.down()
     for k in range(1,9): await pg.mouse.move(hb['x']+10,hb['y']+5+k*20)
     await pg.mouse.up(); await pg.wait_for_timeout(300); want('ikkuna alas vetämällä kiinni', not await pg.is_visible('#psheet'))
@@ -185,10 +187,20 @@ async def run(p,w,h):
     await pg.click('[data-tab="set"]'); await pg.wait_for_timeout(50); want('roskakorissa', await pg.locator('#trash .row').count()==1); await check('roskakori')
     await pg.click('#trash .row'); await pg.wait_for_timeout(50); want('palautettu', await pg.locator('#trash .row').count()==0 and len(json.loads(await pg.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('paatospuu:v1')).muistiinpanot)")))==n0)
     await pg.click('[data-tab="notes"]'); await pg.click('#terms'); await pg.wait_for_timeout(50)
-    for k in range(30):
-        if await pg.get_attribute('#termlist .orow >> nth=0 >> [data-id]','data-id')=='a:kissa': break
-        await pg.click('[data-move="a:kissa|-1"]'); await pg.wait_for_timeout(20)
-    want('järjestys tallessa', json.loads(await pg.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('paatospuu:v1')).jarjestys)"))[0]=='a:kissa'); await check('tärkeysjärjestys')
+    await pg.click('#imp-pick'); await pg.click('#imppick [data-id="a:koira"]'); await pg.click('#imppick [data-id="a:kissa"]')
+    want('tähdet', await pg.locator('#imppick [aria-pressed="true"]').count()==2); await check('valitse tärkeät')
+    await pg.click('#imp-pick'); await pg.wait_for_timeout(50)
+    imp=lambda: pg.evaluate("JSON.parse(localStorage.getItem('paatospuu:v1')).tarkeat")
+    want('tärkeät ylinnä', await pg.locator('#implist .drow').count()==2 and await pg.locator('#termlist [data-id="a:kissa"]').count()==0 and await imp()==['a:koira','a:kissa'])
+    async def drag(i,dy,shot=None):
+        bb=await pg.locator('#implist .drow').nth(i).bounding_box(); x=bb['x']+bb['width']/2; y=bb['y']+bb['height']/2
+        await pg.mouse.move(x,y); await pg.mouse.down(); await pg.wait_for_timeout(450)
+        for k in range(1,11): await pg.mouse.move(x,y+dy*k/10)
+        if shot: await check(shot)
+        await pg.mouse.up(); await pg.wait_for_timeout(80)
+    await drag(1,-90,'raahaus'); want('raahaus järjestää', await imp()==['a:kissa','a:koira'] and not await pg.is_visible('#tok'))
+    await drag(0,600); want('pudotus ulos palauttaa', await imp()==['a:kissa','a:koira'])
+    await pg.click('#implist .drow >> nth=0'); want('napautus avaa termin', await pg.is_visible('#tok')); await pg.click('#tok'); await check('tärkeysjärjestys')
     await pg.click('#ts-body [data-done]'); await pg.click('#notesort [data-ns="prio"]'); await pg.wait_for_timeout(50)
     want('tärkein ensin', 'Kissa' in await pg.inner_text('#nlist .ncard >> nth=0')); await check('muistiinpanot tärkeys')
     await pg.click('#notesort [data-ns="next"]')
@@ -226,6 +238,17 @@ async def run(p,w,h):
     await pg.evaluate("localStorage.clear()"); await pg.reload(); await pg.wait_for_timeout(100)
     await pg.click('[data-tab="set"]'); await pg.click('#p-set details summary'); await pg.fill('#imptext',dump); await pg.click('#impcheck'); await pg.click('#impok'); await pg.wait_for_timeout(50)
     await pg.click('[data-tab="notes"]'); want('tuonti palautti', await pg.locator('#nlist .ncard').count()==5)
+    # merkitykset: etenevä kierros ja kääntöpuolet (1.19)
+    await pg.evaluate("(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1'));o.projektit.push({id:'pm',name:'Merkitykset',text:%s,rt:1,flow:'prio',session:null});o.cur='pm';localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()"%json.dumps(MT))
+    await pg.reload(); await pg.wait_for_timeout(100); await pg.click('[data-tab="use"]'); await pg.click('#start'); await pg.wait_for_timeout(50)
+    want('etenevä: tärkein merkitys', 'Turvallisuus' in await pg.inner_text('#curm') and await pg.locator('#opts .row').count()==2); await check('etenevä kierros')
+    await pg.click('#opts [data-id="kriisikontaktit sovittu"]'); await pg.click('#act-go'); await pg.wait_for_timeout(50)
+    want('etenevä: seuraava', 'Allianssi' in await pg.inner_text('#curm') and not await pg.is_disabled('#act-go'))
+    await pg.click('#act-go'); await pg.wait_for_timeout(50); want('ohitus', await pg.locator('#curm').count()==0)
+    await pg.click('#act-end'); await pg.click('#es-save'); await pg.wait_for_timeout(50); await pg.click('[data-tab="notes"]');
+    nts=await pg.evaluate("JSON.parse(localStorage.getItem('paatospuu:v1')).muistiinpanot[0].text")
+    want('Puuttuu muistiinpanoon', 'Puuttuu:\nTurvallisuutta ei ole varmistettu\nTurvasuunnitelma puuttuu' in nts)
+    await pg.click('#title'); await pg.wait_for_timeout(50); want('eteneminen asetuksissa', await pg.get_attribute('#ps-flow [data-flow="prio"]','aria-pressed')=='true'); await check('projektiasetus'); await pg.click('#ps-close')
     await pg.click('[data-tab="set"]'); await pg.click('#set-size [data-v="small"]'); await pg.click('[data-tab="teach"]'); await pg.click('[data-tm="build"]'); await check('pienet nappulat opetus')
     await pg.click('[data-tab="set"]'); await pg.click('#set-size [data-v="normal"]')
     for mode in ['Tumma']:

@@ -21,8 +21,8 @@ Päivitetty 21.10.2026. Emil sanoi kyllä kaikkiin suosituksiin dokumentissa *P�
 | 5 | Apukysymykset nousevat esiin muistiinpanosta (15) | 1 versio | Valmis (1.15), kuitattu |
 | 6 | Teksti ↔ appi kaksisuuntaisesti (12, 25) | 2 versiota | Valmis (1.16), kuitattu |
 | 7 | Kalenteri (20, 21, 22) | 2–3 versiota | 7a valmis (1.17); 7b odottaa (vaihe 8 tehtiin ensin) |
-| 8 | Tärkeysjärjestys, kuittaus, roskakori, pitkän painalluksen valikko (Emil 21.10.2026) | 2 versiota | Valmis (1.18), odottaa Emilin kuittausta |
-| 9 | Merkitykset, kääntöpuolet, vain tärkeät järjestykseen, tärkeysjärjestyksessä etenevä kierros (Emil 21.10.2026) | 2 versiota | Ehdotus, odottaa vastauksia |
+| 8 | Tärkeysjärjestys, kuittaus, roskakori, pitkän painalluksen valikko (Emil 21.10.2026) | 2 versiota | Valmis (1.18), kuitattu |
+| 9 | Merkitykset, kääntöpuolet, vain tärkeät järjestykseen, tärkeysjärjestyksessä etenevä kierros (Emil 21.10.2026) | 1 versio | Valmis (1.19), odottaa Emilin kuittausta |
 
 Kohta 17 (luontihetki) on jo nyt käytössä, joten työtä ei tarvita. Kohta 24 (”kierros”) jää ennalleen. Molemmat poistetaan TILA:n avoimista kysymyksistä vaiheessa 1. Myös välit päivän muistiinpanoissa on ratkaistu (Emil: ”Juu!”).
 
@@ -103,6 +103,6 @@ Kohta 17 (luontihetki) on jo nyt käytössä, joten työtä ei tarvita. Kohta 24
 - Pohdinta ja kysymykset: Claude Doc *Päätöspuu: merkitykset ja kääntöpuolet* https://claude.ai/artifact/TwhFPyZxyV1gEyrNzCr6sR
 - Sisältö: Tärkeät/Muut-luettelo (vain tärkeät järjestyksessä), tärkeyden perintä merkitykseltä ehdoille ja kääntöpuolille, `=Palikka kääntöpuoli:` -lohko ja *Puuttuu*-osio kierroksen muistiinpanoon, projektiasetus *Eteneminen: säännöt / tärkeysjärjestys* (Jatka = ohitus).
 - Tarkennus (Emil 21.10.): puun järjestys (rivit, `ennen`) ja muistiinpanojen yhteinen järjestys ovat erillisiä. Tärkeät valitaan *Valitse tärkeät* -tilassa (aina muiden yläpuolella, muita ei järjestetä), tärkeiden järjestys raahaamalla, keskeytynyt raahaus palauttaa paikalleen. Palikan voi merkitä tärkeäksi suoraan; perintä vain merkitsemättömille.
-- Emil vastasi 21.10.: ei nuolia, pelkkä raahaus (kysymys 6); etenevä kierros puun omasta järjestyksestä (kysymys 7, suositus). Avoinna kysymykset 2–5 dokumentissa.
+- Emil vastasi 21.10.: ei nuolia, pelkkä raahaus (kysymys 6); etenevä kierros puun omasta järjestyksestä (kysymys 7, suositus). Kysymykset 2–5: Emil hyväksyi suositukset (”suositukset ok, go”). Rakennettu versiossa 1.19.
 - Suositus: tehdään heti vaiheen 8 jälkeen, ennen 7b:tä.
 
