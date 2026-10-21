@@ -4,6 +4,17 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
 
 ## Versiot
 
+- Appi-appi 107 (21.10., kaista A, jonon 42c, suunnitelma 31 V7; tallennusmuoto laajenee valinnaisilla kentillä, versio pysyy 12): **Ryhmäpalikkaan kirjoitettu jäsenyyssääntö.**
+  - Ryhmäpalikan (yleispalikka, jolla on oma ryhmä) kenttään omalle rivilleen `kuuluu, kun jäsen sisältää "koira"`: jokainen toinen Arvo- tai Muisti-yleispalikka, jonka arvo täyttää ehdon, on ryhmän jäsen (myös myöhemmin tehty; `sisältää` kirjainkoosta välittämättä). `jäsen` on ehdokkaan arvo, kuten Joukko-palikan *Ota mukaan* -ehdossa. Kaavat eivät ole ehdokkaita (ei kehää). Rivi vaatii pilkun (`Kuuluu kun sataa` on tekstiä). Vain yksi rivi; virheellinen ehto näkyy palikan virheenä.
+  - Ryhmä syntyy säännöstä, jos palikalla ei vielä ole omaa ryhmää. Jäsenen syy *Jäsenet*-kohdassa: *kuuluu, kun -rivi pätee*. Etusija: oma kuuluu kun -nuoli > Lisää/Poista joukosta > tagi (`@x`-rivi) > Joukko-palikan Ota mukaan > kuuluu, kun -rivi.
+  - **Ryhmän ikkuna:** säännöllä tulleet jäsenet tulevat ikkunaan toisintoina, himmeä ⚡ kulmassa. Kun jäsen ei enää täytä ehtoa, toisinto lähtee; käytön aikana ehdon ulkopuolelle mennyt toisinto himmenee eikä laske ikkunan arvoon. Toisinnon poisto rajaa jäsenen pois (`jkx`), kunnes riviä muutetaan.
+  - Tallennus: yleispalikalle `jku` (ehto kaavana) ja `jkx` (pois rajatut), ikkunan solmulle `wk`; vanhat projektit ennallaan.
+  - Testit: `logiikka_114_ryhmasaanto.js`, `selain_143_ryhmasaanto.py`.
+  - Ristiintarkistus kaista B:n kanssa: kaista B:n 20 (pikselipiirto) on kesken, ei kokeiltu; 104:n laatat eivät ole ehdokkaita (vain yleispalikat), laattatestit läpi koko sarjassa.
+  - Ei tarkistettu: oikea iPhone; vain tietokoneen Chromium. Muut kuin yleispalikat (esim. näkymän Teksti) eivät ole ehdokkaita; niille Joukko-palikka.
+  - Kokeile koneella: tee yleispalikat *Musta koira* ja *Kissa*, ja kolmas, johon kirjoitat `kuuluu, kun jäsen sisältää "koira"` (Enter). Tee siitä ryhmän ikkuna (ikkunan otsikon valikko): Musta koira tulee ikkunaan ⚡:llä. Kirjoita uusi palikka *Rekku on koira* → se tulee mukaan.
+  - Manuaaliin: luku 3 (ryhmät/yleispalikka): lisää rivi `kuuluu, kun ehto` (ehdokkaat, pilkku, yksi rivi, etusija, jäsenen syy); luku ryhmän ikkunasta: ⚡-toisinnot ja poisto rajaa pois; hakemistoon `kuuluu, kun`.
+
 - Appi-appi 106 (21.10., kaista A, jonon 1y = kartoitus 14:n S1–S3; ei tallennusmuodon muutosta, versio pysyy 12): **Kello laskettavaksi, palikan nimi tekstinä, laattalajin nimenvaihto kaavoihin.**
   - **Kello (S1):** logiikan paletin Kello-esiasetus on nyt `= nyt.aika` (ennen `= nyt` = teksti). `@kello >= klo 12` ja `@kello + 60` toimivat kellonaikana. Kaava, jossa on viite kellonaikakaavaan (esim. `= @kello + 3600`), näkyy myös h.mm (kehä katkaistaan). Vanhat Kello-palikat ja `nyt` ennallaan.
   - **`nimi` (S2):** jokaisella palikalla (paitsi ryhmä ja vanha joukko) luettava ominaisuus `nimi` = palikan nimi tekstinä, seuraa uudelleennimeämistä: `tapahtuma.kohde = @vihollinen.nimi` (myös `.kuka`, `.lähde`, `alla`, `törmäyskohde`). Palikka, jolla on jo oma `nimi` (peliohjaimen pohja), pitää omansa. `@viite` ennallaan.
