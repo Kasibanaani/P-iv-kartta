@@ -180,4 +180,12 @@ eq('hoidettavat',E.hoidettavat(hp,HS),[{id:'a',jotta:[]},{id:'c',jotta:['b']},{i
 eq('hoidettavat muistiinpanossa',E.sessionNote(hp,HS,'').split('\n').slice(2),['Kunnossa: Kunnossa','Hoidettavat: 1. A, 2. C (jotta B), 3. B']);
 eq('järjestys tallessa',E.normalizeData({app:'paatospuu',projektit:[{id:'p',name:'n',text:'',order:{a:['b']},end:'hoid'}]}).projects[0].order,{a:['b']});
 
+// vaihe 3: muisti
+var mp={text:'A\nB\nC\nD',rules:{'__alku':{o:['a','b'],x:[]},'a':{o:['c'],x:[]},'c':{o:['d'],x:[]}},mx:[]},MS=E.newSession(mp,'x');
+E.commitStep(mp,MS,{p:['a'],d:[]});E.commitStep(mp,MS,{p:['c'],d:[]});eq('vain seuraava',E.sessionView(mp,MS).opts,['d']);
+mp.mem='all';eq('kaikki mukana',E.sessionView(mp,MS).opts,['a','b','c','d']);
+eq('kaikki mukana: valitut valmiina',E.sessionView(mp,MS).picked,['a','c']);
+MS.steps[1].d=[];MS.steps.push({p:['d'],d:['a']});eq('purettu avaaja vie sen avaamat (C:n valinta jää voimaan)',E.sessionView(mp,MS).opts,['a','b','d']);
+eq('muisti tallessa',E.normalizeData({app:'paatospuu',projektit:[{id:'p',name:'n',text:'',mem:'all'}]}).projects[0].mem,'all');
+
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);

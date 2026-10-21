@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.12 (suunnitelman vaihe 2), odottaa Emilin kuittausta · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.13 (suunnitelman vaihe 3), odottaa Emilin kuittausta · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -94,6 +94,11 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Kehän tarkistus napautushetkellä, järjestys ja kaikki tarvitaan -ehdot yhdessä: napautus hylätään, nappi värähtää ja ilmoitus näyttää ketjun (*Ei käy, tulisi kehä: A → B → A*).
 - Projektin ikkunassa *Lopuksi: Polku / Hoidettavat* (`end:'hoid'`). Hoidettavat: Lopeta-ikkunassa valitsematta jääneet nappulat (ei poissuljetut) tärkeysjärjestyksessä, ylimpänä *Seuraavaksi*, ja kova ehto näkyy *jotta …*. Muistiinpanoon rivit *Kunnossa* ja *Hoidettavat*.
 - Allianssiesimerkki: `/mnt/project-files/paatospuu/allianssi-esimerkki.md` (Emil korjaa).
+
+## Versio 1.13 (21.10.2026, suunnitelman vaihe 3): muistiasetus
+
+- Emil kuittasi vaiheen 2 ja hyväksyi oletuksen *vain seuraava askel*.
+- Projektin ikkunassa *Muisti: Vain seuraava askel / Kaikki mukana* (`mem:'all'`). Kaikki mukana: jokaisen yhä voimassa olevan valinnan avaamat pysyvät tarjolla koko kierroksen, kunnes ne suljetaan pois tai niiden avaaja puretaan. Valitut näkyvät valmiiksi valittuina. Ehdot (kaikki tarvitaan) toimivat samoin molemmissa.
 
 ## Ei tarkistettu
 

@@ -129,6 +129,7 @@ async def run(p,w,h):
     want('kopio: teksti ja säännöt', len(pr)==2 and pr[1]['name']=='Lemmikit (kopio)' and pr[1]['text']==pr[0]['text'] and pr[1]['rules']==pr[0]['rules'] and pr[1]['mx']==pr[0]['mx'] and not pr[1].get('session') and pr[1]['id']!=pr[0]['id'])
     await pg.click('#ps-del'); await pg.click('#ps-del'); await pg.click('#ps-close'); await pg.wait_for_timeout(50)
     # hoidettavat
+    await pg.click('#title'); await pg.click('#ps-mem [data-mem="all"]'); want('muisti kaikki', json.loads(await pg.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('paatospuu:v1')).projektit[0].mem||'')"))=='all'); await pg.click('#ps-mem [data-mem="next"]'); await pg.click('#ps-close')
     await pg.click('#title'); await pg.click('#ps-end [data-end="hoid"]'); await check('lopuksi-asetus'); await pg.click('#ps-close')
     await pg.click('[data-tab="use"]'); await pg.wait_for_timeout(50)
     if await pg.locator('#start').count(): await pg.click('#start'); await pg.wait_for_timeout(50)

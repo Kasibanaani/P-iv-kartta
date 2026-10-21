@@ -15,8 +15,8 @@ Päivitetty 21.10.2026. Emil sanoi kyllä kaikkiin suosituksiin dokumentissa *P�
 | Vaihe | Sisältö (kohdat) | Koko | Tila |
 | --- | --- | --- | --- |
 | 1 | Termisana osana, alleviivaus, ma/ti/pe, klo-korjaus (9, 10, 18, 19) | 1 versio | Valmis (1.11), kuitattu |
-| 2 | Arvojärjestys ja Hoidettavat-tulos (1, 5) | 2 versiota | Valmis (1.12), odottaa Emilin kuittausta |
-| 3 | Muistiasetus: vain seuraava / kaikki mukana (4) | 1 versio | Odottaa |
+| 2 | Arvojärjestys ja Hoidettavat-tulos (1, 5) | 2 versiota | Valmis (1.12), kuitattu |
+| 3 | Muistiasetus: vain seuraava / kaikki mukana (4) | 1 versio | Valmis (1.13), odottaa Emilin kuittausta |
 | 4 | Termilohkot tekstissä ja Liitä termiin (13, 11) | 1–2 versiota | Odottaa |
 | 5 | Apukysymykset nousevat esiin muistiinpanosta (15) | 1 versio | Odottaa |
 | 6 | Teksti ↔ appi kaksisuuntaisesti (12, 25) | 2 versiota | Odottaa |

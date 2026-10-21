@@ -385,6 +385,8 @@ html.standalone .top{padding-top:calc(env(safe-area-inset-top,0px) + 30px)}
   <div class="addrow"><input type="text" id="ps-new" placeholder="Nimi" autocomplete="off" enterkeyhint="done"><button type="button" class="btn solid" id="ps-add">Luo</button></div>
   <div id="ps-cur">
     <label class="fl" for="ps-name">Nykyisen projektin nimi</label><input type="text" id="ps-name" autocomplete="off" enterkeyhint="done">
+    <label class="fl">Muisti</label><div class="seg" id="ps-mem"><button type="button" data-mem="next">Vain seuraava askel</button><button type="button" data-mem="all">Kaikki mukana</button></div>
+    <p class="sub" style="margin-top:6px">Kaikki mukana: kierroksella kerran avautuneet pysyvät tarjolla, kunnes ne suljetaan pois tai avaaja puretaan.</p>
     <label class="fl">Lopuksi</label><div class="seg" id="ps-end"><button type="button" data-end="path">Polku</button><button type="button" data-end="hoid">Hoidettavat</button></div>
     <p class="sub" style="margin-top:6px">Hoidettavat: kierroksen lopussa valitsematta jääneet tärkeysjärjestyksessä, ylimpänä Seuraavaksi.</p>
     <div class="btnrow"><button type="button" class="btn" id="ps-copy">Kopioi puu</button><button type="button" class="btn danger" id="ps-del">Poista projekti</button></div>
@@ -537,10 +539,13 @@ function hoidettavat(P,S){var v=sessionView(P,S),ids=v.pt.items.filter(function(
    Aiemmin valittu näkyy valmiiksi valittuna. Saman askeleen poissulut ja toisensa poissulkevat näkyvät harmaina (blocked). */
 function sessionView(P,S,draft){var pt=parseText(P.text),steps=stepsOf(S),last=steps[steps.length-1];draft=draft||{p:[],d:[]};
   var committed=replay(steps),base=committed.filter(function(x){return draft.d.indexOf(x)<0;}),excl=exclOf(P,pt,base);
-  var srcs=last.p.filter(function(x){return x===ALKU||(pt.by[x]&&(pt.by[x].k==='b'||pt.by[x].k==='g'));}),open={};
-  var nd=needOpen(P,base,last.p).filter(function(x){return !excl[x];}),gs=nd.filter(function(x){return pt.by[x]&&pt.by[x].k==='g';});
-  nd.forEach(function(x){open[x]=1;});gs.forEach(function(g){rl(P,g).x.forEach(function(y){addExcl(P,pt,excl,y);});});
-  srcs.concat(gs,reachGroups(P,pt,srcs.concat(gs),excl)).forEach(function(s){opensOf(P,pt.items,s).forEach(function(x){open[x]=1;});});
+  var open={};
+  function from(lastP){var srcs=lastP.filter(function(x){return x===ALKU||(pt.by[x]&&(pt.by[x].k==='b'||pt.by[x].k==='g'));});
+    var nd=needOpen(P,base,lastP).filter(function(x){return !excl[x];}),gs=nd.filter(function(x){return pt.by[x]&&pt.by[x].k==='g';});
+    nd.forEach(function(x){open[x]=1;});gs.forEach(function(g){rl(P,g).x.forEach(function(y){addExcl(P,pt,excl,y);});});
+    srcs.concat(gs,reachGroups(P,pt,srcs.concat(gs),excl)).forEach(function(s){opensOf(P,pt.items,s).forEach(function(x){open[x]=1;});});}
+  /* Muisti 'all': kaikkien askelten (yhä voimassa olevien) valintojen avaamat pysyvät tarjolla */
+  if(P.mem==='all')steps.forEach(function(st){from(st.p.filter(function(x){return x===ALKU||base.indexOf(x)>=0;}));});else from(last.p);
   var opts=[],texts=[],qs=[];
   pt.items.forEach(function(it){if(!open[it.id]||excl[it.id])return;if(it.k==='b')opts.push(it.id);else if(it.k==='t')texts.push(it.id);else if(it.k==='q')qs.push(it.id);});
   var picked=opts.filter(function(x){return (base.indexOf(x)>=0)||draft.p.indexOf(x)>=0;});
@@ -772,7 +777,7 @@ function fiDate(iso){var p=String(iso).split('-');return (+p[2])+'.'+(+p[1])+'.'
 function stamp(ts){var d=new Date(ts);return d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear()+' klo '+d.getHours()+'.'+pad(d.getMinutes());}
 
 /* ---- tallennusmuoto ----
-   {app:'paatospuu', ver, savedAt, cur, projektit:[{id,name,text,rules,mx,need?,order?,end?,session}], muistiinpanot:[{id,created,edited,text,date}],
+   {app:'paatospuu', ver, savedAt, cur, projektit:[{id,name,text,rules,mx,need?,order?,end?,mem?,session}], muistiinpanot:[{id,created,edited,text,date}],
     termit:[{id,name,yes,no}], termisanat:{nimi:{yes,no}}, cfg:{tint,mode}} */
 function strs(a){return Array.isArray(a)?a.filter(function(x){return typeof x==='string';}):[];}
 function normalizeData(o){if(!o||typeof o!=='object'||o.app!=='paatospuu')return null;
@@ -783,7 +788,7 @@ function normalizeData(o){if(!o||typeof o!=='object'||o.app!=='paatospuu')return
     (Array.isArray(p.mx)?p.mx:[]).forEach(function(s){s=strs(s);if(s.length>1)P.mx.push(s);});
     if(p.need&&typeof p.need==='object'){P.need={};Object.keys(p.need).forEach(function(k){var n=strs(p.need[k]);if(n.length)P.need[k]=n;});}
     if(p.order&&typeof p.order==='object'){P.order={};Object.keys(p.order).forEach(function(k){var n=strs(p.order[k]);if(n.length)P.order[k]=n;});}
-    if(p.end==='hoid')P.end='hoid';
+    if(p.end==='hoid')P.end='hoid';if(p.mem==='all')P.mem='all';
     var S=p.session;if(S&&Array.isArray(S.steps)&&S.steps.length){P.session={start:String(S.start||new Date().toISOString()),steps:S.steps.map(function(st){return Array.isArray(st)?{p:strs(st),d:[]}:{p:strs(st&&st.p),d:strs(st&&st.d)};}).filter(function(st){return st.p.length;}),date:/^\d{4}-\d\d-\d\d$/.test(S.date||'')?S.date:undefined,log:strs(S.log),logAt:Array.isArray(S.logAt)?S.logAt.filter(function(n){return typeof n==='number';}):[]};}
     out.projects.push(P);});
   (Array.isArray(o.muistiinpanot)?o.muistiinpanot:[]).forEach(function(n){if(!n||typeof n.id!=='string'||typeof n.text!=='string')return;
@@ -875,13 +880,15 @@ function renderProjSheet(){var l=$('ps-list'),P=proj();l.textContent='';$('ps-ms
   data.projects.forEach(function(Q){var b=el('button','row'+(Q.id===data.cur?' sel':''));b.type='button';var t=el('span','t',Q.name);
     if(Q.session)t.appendChild(el('small','','kierros kesken'));b.appendChild(t);
     b.addEventListener('click',function(){data.cur=Q.id;resetDraft();ed=null;save();renderHead();renderProjSheet();render();});l.appendChild(b);});
-  $('ps-cur').hidden=!P;if(P){$('ps-name').value=P.name;Array.prototype.forEach.call(document.querySelectorAll('#ps-end button'),function(b){b.setAttribute('aria-pressed',(P.end==='hoid')===(b.dataset.end==='hoid')?'true':'false');});}}
+  $('ps-cur').hidden=!P;if(P){$('ps-name').value=P.name;Array.prototype.forEach.call(document.querySelectorAll('#ps-end button'),function(b){b.setAttribute('aria-pressed',(P.end==='hoid')===(b.dataset.end==='hoid')?'true':'false');});
+    Array.prototype.forEach.call(document.querySelectorAll('#ps-mem button'),function(b){b.setAttribute('aria-pressed',(P.mem==='all')===(b.dataset.mem==='all')?'true':'false');});}}
+Array.prototype.forEach.call(document.querySelectorAll('#ps-mem button'),function(b){b.addEventListener('click',function(){var P=proj();if(!P)return;if(b.dataset.mem==='all')P.mem='all';else delete P.mem;resetDraft();touch();renderProjSheet();render();});});
 Array.prototype.forEach.call(document.querySelectorAll('#ps-end button'),function(b){b.addEventListener('click',function(){var P=proj();if(!P)return;if(b.dataset.end==='hoid')P.end='hoid';else delete P.end;touch();renderProjSheet();});});
 $('ps-add').addEventListener('click',function(){if(newProject($('ps-new').value)){$('ps-new').value='';renderProjSheet();}});
 $('ps-new').addEventListener('keydown',function(ev){if(ev.key==='Enter'&&newProject($('ps-new').value)){$('ps-new').value='';renderProjSheet();}});
 $('ps-name').addEventListener('change',function(){var P=proj(),n=clean($('ps-name').value);if(P&&n){P.name=n.slice(0,80);touch();renderHead();renderProjSheet();}});
 $('ps-copy').addEventListener('click',function(){var P=proj();if(!P)return;
-  var Q={id:uid('p'),name:(P.name+' (kopio)').slice(0,80),text:P.text,rules:JSON.parse(JSON.stringify(P.rules||{})),mx:JSON.parse(JSON.stringify(P.mx||[])),need:JSON.parse(JSON.stringify(P.need||{})),order:JSON.parse(JSON.stringify(P.order||{})),end:P.end,session:null};
+  var Q={id:uid('p'),name:(P.name+' (kopio)').slice(0,80),text:P.text,rules:JSON.parse(JSON.stringify(P.rules||{})),mx:JSON.parse(JSON.stringify(P.mx||[])),need:JSON.parse(JSON.stringify(P.need||{})),order:JSON.parse(JSON.stringify(P.order||{})),end:P.end,mem:P.mem,session:null};
   data.projects.splice(data.projects.indexOf(P)+1,0,Q);data.cur=Q.id;resetDraft();ed=null;touch();renderHead();renderProjSheet();render();
   $('ps-msg').textContent='Kopio tehty ja avattu. Vaihda nimi yllä.';});
 var delArm=0;
