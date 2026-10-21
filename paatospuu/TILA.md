@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.14 (suunnitelman vaihe 4), odottaa Emilin kuittausta · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.15 (suunnitelman vaihe 5), odottaa Emilin kuittausta · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -107,9 +107,16 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Tekstikentässä lohkon otsikko turkoosi lihavoitu, sanarivit taustasävyllä ja ↵ lopussa, poissulkeva punainen, lohkon loppuun viiva. `//`-rivi lihavoitu väliotsikko.
 - Muistiinpanossa tekstiä valitessa kentän alle tulee *Liitä ”…” termiin*: sanaa voi lyhentää, sitten napautetaan termiä tai luodaan uusi. Sana tallentuu termin ikkunan sanoihin.
 
+## Versio 1.15 (21.10.2026, suunnitelman vaihe 5): apukysymykset nousevat esiin
+
+- Emil kuittasi vaiheen 4 ja valitsi vastausmuodon `▸ Kysymys`.
+- Puun apukysymykset (`?Nimi: Kysymys`) ovat nyt termejä: nimi ja termin ikkunan sanat tunnistavat ne muistiinpanosta. Oletuksena ne *nousevat esiin*; termin ikkunassa valinta *Ei nouse esiin / Nousee esiin muistiinpanosta* (toimii kaikille termeille).
+- Muistiinpanon kentän alle tulee nappi *N apukysymystä*. Siitä aukeavat kysymyskortit: vastauskenttä ja *Kyllä*. Vastaus kirjoittuu heti tekstin loppuun muodossa `▸ Kysymys` ja vastausrivit; muutos päivittää sen ja tyhjä poistaa. Vastaus on tavallista tekstiä, joten haku ja termit näkevät sen.
+- Apukysymys ei kulje kierroksen päivän yhteenvetoon termiosumana.
+
 ## Ei tarkistettu
 
-- Oikealla iPhonella ei kokeiltu: tekstin valinta ja Liitä termiin -nappi (iOS:n oma valintavalikko), tekstikentän värikerroksen kohdistus Safarissa (kursori, valinta, vieritys), zoomauksen esto ja yläreunan lisätila (näkyy vain kotinäytön appina), jakoikkunan tiedostovienti, päivämäärävalitsin, näppäimistö alapalkin kanssa, tekstikentän koko.
+- Oikealla iPhonella ei kokeiltu: apukysymyskortit näppäimistön kanssa, tekstin valinta ja Liitä termiin -nappi (iOS:n oma valintavalikko), tekstikentän värikerroksen kohdistus Safarissa (kursori, valinta, vieritys), zoomauksen esto ja yläreunan lisätila (näkyy vain kotinäytön appina), jakoikkunan tiedostovienti, päivämäärävalitsin, näppäimistö alapalkin kanssa, tekstikentän koko.
 - Säännöt ovat nimissä: jos nimen vaihtaa suoraan tekstikentässä, säännöt eivät seuraa (Opetus näyttää ”Säännöt ilman riviä”). Muokkaa-tilassa vaihto seuraa.
 
 ## Seuraavaksi

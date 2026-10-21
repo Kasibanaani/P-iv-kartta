@@ -71,7 +71,8 @@ eq('apukysymyksen rivi',E.lineOf(E.parseText(p.text).by['apu']),'?Apu: Onko kiir
 S=E.newSession(p,'x');eq('ei alussa',E.sessionView(p,S).qs,[]);E.commitStep(p,S,{p:['a'],d:[]});
 eq('askeleessa',E.sessionView(p,S).qs,['apu','toinen kysymys']);eq('ei lokiin',S.log,[]);
 E.commitStep(p,S,{p:['b'],d:[]});eq('katoaa seuraavassa',E.sessionView(p,S).qs,[]);
-eq('ei termi',E.autoTerms([p],{},[]).map(function(t){return t.key;}),['a','b']);
+var atq=E.autoTerms([p],{},[]);eq('apukysymys on termi',atq.map(function(t){return t.key;}),['a','b','apu','toinen kysymys']);
+eq('apukysymys nousee oletuksena',atq.filter(function(t){return t.pop;}).map(function(t){return t.key;}),['apu','toinen kysymys']);
 // järjestys ja tavuviiva
 eq('siirto alas',E.moveItem('A\n\nB\nC','a',1),'B\n\nA\nC');eq('siirto ylös reunalla',E.moveItem('A\nB','a',-1),'A\nB');
 eq('tavuviiva',E.shownName('Kova-nälkä - iso'),'Kova-\nnälkä - iso');
@@ -196,5 +197,16 @@ var bt=E.blockTerms([{name:'P',text:tx}]);eq('lohkot yhteen',[bt['koira'].yes,bt
 var at2=E.autoTerms([{name:'P',text:tx}],{},[]);eq('uusi termi lohkosta',at2.map(function(t){return t.id+'/'+t.kind;}),['a:koira/b','a:kissa/b','x:eläimet/x']);
 eq('lohkosana osuu',E.noteTerms(at2,'Hauvan kanssa ulos'),['a:koira']);eq('lohkon poissulku',E.noteTerms(at2,'hauva ja pehmolelu'),[]);
 eq('lohko omaan termiin',E.noteTerms(E.withText([{id:'t',name:'Eläimet',yes:[],no:[]}],[{name:'P',text:tx}]),'koirat'),['t']);
+
+// apukysymykset muistiinpanossa
+var qt=E.autoTerms([{name:'P',text:'?Lemmikki: Onko lemmikki kotona?\nKissa'}],{},[]);
+eq('nouseva kysymys',E.popTerms(qt,'Lemmikki pääsi ulos').map(function(t){return t.ask;}),['Onko lemmikki kotona?']);
+eq('ei osumaa',E.popTerms(qt,'Kissa söi'),[]);
+var nt=E.setAnswer('Muistiinpano','Onko?','Kyllä');eq('vastaus lisätään',nt,'Muistiinpano\n\n▸ Onko?\nKyllä');
+eq('vastaus luetaan',E.getAnswer(nt,'Onko?'),'Kyllä');
+eq('vastaus päivittyy',E.setAnswer(nt,'Onko?','Ei\nehkä'),'Muistiinpano\n\n▸ Onko?\nEi\nehkä');
+var n2=E.setAnswer(nt,'Toinen?','Joo');eq('kaksi osiota',E.getAnswer(n2,'Toinen?')+'|'+E.getAnswer(n2,'Onko?'),'Joo|Kyllä');
+eq('tyhjä poistaa',E.setAnswer(n2,'Onko?',''),'Muistiinpano\n\n▸ Toinen?\nJoo');
+eq('puuttuva vastaus',E.getAnswer('Teksti','Onko?'),null);
 
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);
