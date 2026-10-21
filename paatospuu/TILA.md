@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.1, kokeilussa · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 20.10.2026
+**Vaihe:** versio 1.2, kokeilussa · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -22,6 +22,12 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 - Muistiinpanoissa kiinteä alapalkki: pieni + Uusi, järjestys (Tulevat / Uusimmat), Termit. Ei liiku vierityksen mukana.
 - Kierroksen muistiinpanoon myös rivi *Ryhmät:* (kaikki kierroksen aikana aktivoituneet ryhmät). Valinnat ja ilmoitukset olivat jo mukana.
+
+## Versio 1.2 (21.10.2026, Emilin pyyntö)
+
+- Jokainen päätöspuun nappula, ryhmä ja ilmoitus (nimellinen; nimetön yli 40 merkin ilmoitus ei) on automaattisesti termi, johon voi liittää tunnistavia ja poissulkevia sanoja. Kaikista projekteista, sama nimi kerran; samanniminen oma termi korvaa. Sanat tallennusmuodossa kentässä `termisanat` (nimi pienillä → {yes,no}).
+- Muistiinpanot ja termit ovat yhteisiä kaikille päätöspuille (oli jo näin; Emil vahvisti). Ylempää, erottavaa tasoa ei ole.
+- Termisuodattimissa näkyvät omat termit aina ja automaattiset vain, jos ne osuvat johonkin muistiinpanoon.
 
 ## Ei tarkistettu
 

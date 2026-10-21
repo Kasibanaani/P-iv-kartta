@@ -64,6 +64,14 @@ var term={id:'t1',name:'eläin',yes:['kissa','koira'],no:['lelu']};
 eq('kyllä',E.termOn(term,'Kissan ruoka loppui'),true);eq('nimi alusta',E.termOn(term,'Eläinlääkäri ensi viikolla'),true);
 eq('poissulku voittaa',E.termOn(term,'kissan lelu'),false);eq('ei osumaa sanan keskeltä',E.termOn(term,'pikkukissa'),false);
 
+// päätöspuun rivit termeinä, kaikista projekteista, sama nimi kerran
+var pr=[{name:'Eka',text:'Kova nälkä\n#Täyttävät: x\n>Muistutus: katso jääkaappi\n>Tämä on pitkä ilmoitus ilman nimeä, joten siitä ei tule termiä'},{name:'Toka',text:'kova nälkä\nUlkona'}];
+var at=E.autoTerms(pr,{'täyttävät':{yes:['pasta'],no:['lelu']}},[{id:'t9',name:'Ulkona',yes:[],no:[]}]);
+eq('automaattiset termit',at.map(function(t){return t.id+'/'+t.kind+'/'+t.proj;}),['a:kova nälkä/b/Eka','a:täyttävät/g/Eka','a:muistutus/t/Eka']);
+eq('sana liitetty ryhmään',E.noteTerms(at,'Söin pastaa ja kova nälkä'),['a:kova nälkä','a:täyttävät']);
+eq('poissulku automaattiseen',E.noteTerms(at,'pasta ja lelu'),[]);
+eq('termisanat talteen',E.normalizeData({app:'paatospuu',termisanat:{'x':{yes:['a'],no:[]},'y':{yes:[],no:[]}}}).words,{x:{yes:['a'],no:[]}});
+
 // päivämäärät, pohja ti 20.10.2026
 var base=new Date(2026,9,20,21,0);function pd(s){return E.parseDates(s,base).map(function(o){return o.a===o.b?o.a:o.a+'..'+o.b;});}
 eq('perjantaina',pd('Soita perjantaina'),['2026-10-23']);eq('tiistaina = tänään',pd('tiistaina'),['2026-10-20']);

@@ -72,7 +72,10 @@ async def run(p,w,h):
     y0=(await pg.locator('#newnote').bounding_box())['y']; await pg.evaluate("document.getElementById('main').scrollTop=500"); y1=(await pg.locator('#newnote').bounding_box())['y']
     want('Uusi-nappi pysyy paikallaan alhaalla', y0==y1 and y0==y1)
     await pg.click('#terms'); await pg.fill('#newterm','eläin'); await pg.keyboard.press('Enter'); await pg.fill('#tyes','kissa'); await pg.fill('#tno','lelu'); await check('termi'); await pg.click('#tok')
+    want('päätöspuun rivit termeinä', await pg.locator('#autoterms [data-id]').count()==6)
+    await pg.click('#autoterms [data-id="a:ruoka"]'); await pg.fill('#tyes','nappula'); await pg.click('#tok'); await check('automaattinen termi')
     await pg.click('#ts-body .btnrow .btn'); await pg.wait_for_timeout(50)
+    want('automaattinen termi kortissa', 'Kissa' in await pg.inner_text('#nlist .nf'))
     want('termi näkyy kortissa', 'eläin' in await pg.inner_text('#nlist .nf'))
     want('päivä kortissa', await pg.locator('#nlist .nd').count()==1)
     await pg.click('#newnote'); await pg.fill('#ns-text','Muistutus 24.12. ja kahden viikon sisällä'); await check('uusi muistiinpano')
