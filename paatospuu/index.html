@@ -295,6 +295,15 @@ input[type="date"]{width:100%;min-height:48px;padding:10px 16px;border:0;border-
 .syntax code{font:12.5px ui-monospace,Menlo,Consolas,monospace;background:var(--cell);padding:1px 5px;border-radius:5px;color:var(--label)}
 .mxcard{background:var(--cell);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:15px}
 .mxcard span{flex:1;min-width:0;overflow-wrap:anywhere}
+.row .t{white-space:pre-line}
+.row.qq{background:transparent;border:1px dotted var(--sep);color:var(--label2)}
+.qbar{position:sticky;top:-10px;z-index:2;margin:-10px -16px 8px;padding:8px 16px 10px;background:linear-gradient(var(--bg) 78%,transparent)}
+.qline{font-size:13.5px;line-height:1.35;color:var(--label2);padding:1px 0 1px 18px;position:relative;overflow-wrap:anywhere}
+.qline::before{content:"?";position:absolute;left:2px;top:1px;font-weight:700;opacity:.6}
+body.small #opts,body.small #tlist{display:flex;flex-wrap:wrap;gap:6px}
+body.small #opts .row,body.small #tlist .row{width:auto;max-width:100%;min-height:38px;padding:7px 12px;font-size:15px;gap:8px;border-radius:10px}
+body.small #opts .row .t small,body.small #tlist .row .t small{font-size:11.5px}
+body.small #opts .row .tag,body.small #tlist .row .tag{font-size:11.5px}
 .warnlist{font-size:13px;color:var(--red);margin:8px 0 0;padding-left:18px}
 </style>
 </head>
@@ -352,7 +361,7 @@ input[type="date"]{width:100%;min-height:48px;padding:10px 16px;border:0;border-
   <div class="grab"></div>
   <h2 id="xs-h">Tekstikenttä</h2>
   <p class="syntax">Yksi rivi on yksi asia. Järjestyksellä ei ole väliä, koska järjestys opetetaan napauttamalla.<br>
-  <code>Koira</code> nappula · <code>#Eläimet: selitys</code> ryhmä (ei näy käytössä) · <code>&gt;Perustelu: teksti</code> ilmoitus (vain teksti näkyy) · <code> // </code> tekstin sisällä vaihtaa kappaletta · rivi joka alkaa <code>//</code> ohitetaan.</p>
+  <code>Koira</code> nappula · <code>#Eläimet: selitys</code> ryhmä (ei näy käytössä) · <code>&gt;Perustelu: teksti</code> ilmoitus (vain teksti näkyy) · <code>?Apu: kysymys</code> apukysymys (näkyy vain sen askeleen ajan) · tavuviiva nappulan nimessä vaihtaa riviä · <code> // </code> tekstin sisällä vaihtaa kappaletta · rivi joka alkaa <code>//</code> ohitetaan.</p>
   <textarea class="mono" id="xs-text" style="min-height:46vh" aria-label="Projektin sisältö tekstinä" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
   <p class="msg" id="xs-msg" aria-live="polite"></p>
   <div class="btnrow"><button type="button" class="btn solid" id="xs-ok">Tallenna</button><button type="button" class="btn" id="xs-copy">Kopioi</button><button type="button" class="btn" id="xs-cancel">Peru</button></div>
@@ -407,13 +416,14 @@ var VER=1,ALKU='__alku';
 function clean(s){return String(s==null?'':s).replace(/\s+/g,' ').trim();}
 function keyOf(s){return clean(s).toLowerCase();}
 function parseLine(line){var s=String(line==null?'':line).trim();if(!s||s.slice(0,2)==='//')return null;
-  var k='b';if(s.charAt(0)==='#'){k='g';s=s.slice(1).trim();}else if(s.charAt(0)==='>'){k='t';s=s.slice(1).trim();}
+  var k='b',c0=s.charAt(0);if(c0==='#')k='g';else if(c0==='>')k='t';else if(c0==='?')k='q';
+  if(k!=='b')s=s.slice(1).trim();
   if(!s)return null;var name=s,body='';
   if(k!=='b'){var i=s.indexOf(':');if(i>0){name=s.slice(0,i);body=s.slice(i+1).trim();}}
-  name=clean(name);if(k==='t'&&!body)body=s;
+  name=clean(name);if((k==='t'||k==='q')&&!body)body=s;
   return {k:k,name:name,body:body};}
-function lineOf(it){var p=it.k==='g'?'#':(it.k==='t'?'>':'');
-  if(it.k==='t'&&it.body===it.name)return p+it.body;
+function lineOf(it){var p={g:'#',t:'>',q:'?'}[it.k]||'';
+  if((it.k==='t'||it.k==='q')&&it.body===it.name)return p+it.body;
   return p+it.name+(it.k!=='b'&&it.body?': '+it.body:'');}
 function bodyText(s){return String(s||'').split(/\s+\/\/\s+/).join('\n\n');}
 function parseText(text){var items=[],by={},warn=[];
@@ -453,12 +463,12 @@ function stepsOf(S){return (S&&Array.isArray(S.steps)&&S.steps.length)?S.steps:[
    Aiemmin valittu näkyy valmiiksi valittuna. Saman askeleen poissulut ja toisensa poissulkevat näkyvät harmaina (blocked). */
 function sessionView(P,S,draft){var pt=parseText(P.text),steps=stepsOf(S),last=steps[steps.length-1];draft=draft||{p:[],d:[]};
   var committed=replay(steps),base=committed.filter(function(x){return draft.d.indexOf(x)<0;}),excl=exclOf(P,pt,base);
-  var srcs=last.p.filter(function(x){return x===ALKU||(pt.by[x]&&pt.by[x].k!=='t');}),open={};
+  var srcs=last.p.filter(function(x){return x===ALKU||(pt.by[x]&&(pt.by[x].k==='b'||pt.by[x].k==='g'));}),open={};
   srcs.concat(reachGroups(P,pt,srcs,excl)).forEach(function(s){opensOf(P,pt.items,s).forEach(function(x){open[x]=1;});});
-  var opts=[],texts=[];
-  pt.items.forEach(function(it){if(!open[it.id]||excl[it.id])return;if(it.k==='b')opts.push(it.id);else if(it.k==='t')texts.push(it.id);});
+  var opts=[],texts=[],qs=[];
+  pt.items.forEach(function(it){if(!open[it.id]||excl[it.id])return;if(it.k==='b')opts.push(it.id);else if(it.k==='t')texts.push(it.id);else if(it.k==='q')qs.push(it.id);});
   var picked=opts.filter(function(x){return (base.indexOf(x)>=0)||draft.p.indexOf(x)>=0;});
-  return {opts:opts,texts:texts,excl:excl,sel:base,picked:picked,blocked:blockedNow(P,opts,picked),pt:pt};}
+  return {opts:opts,texts:texts,qs:qs,excl:excl,sel:base,picked:picked,blocked:blockedNow(P,opts,picked),pt:pt};}
 /* Saman askeleen ristiriidat: mitkä tarjolla olevista eivät käy yhteen jo merkittyjen kanssa */
 function blockedNow(P,opts,picked){var out={};
   opts.forEach(function(id){if(picked.indexOf(id)>=0)return;var why=null;
@@ -491,7 +501,7 @@ function undoStep(S){if(!S||S.steps.length<2)return null;var st=S.steps.pop(),n=
 /* Kaikki ryhmät, jotka kierroksen aikana aktivoituivat (Alku mukaan lukien) */
 function sessionGroups(P,S,pt){pt=pt||parseText(P.text);var steps=stepsOf(S),out=[];
   steps.forEach(function(st,i){var excl=exclOf(P,pt,replay(steps.slice(0,i+1)));
-    var sp=st.p.filter(function(x){return x===ALKU||(pt.by[x]&&pt.by[x].k!=='t');});
+    var sp=st.p.filter(function(x){return x===ALKU||(pt.by[x]&&(pt.by[x].k==='b'||pt.by[x].k==='g'));});
     sp.concat(reachGroups(P,pt,sp,excl)).forEach(function(g){if(pt.by[g]&&pt.by[g].k==='g'&&out.indexOf(g)<0)out.push(g);});});
   return out;}
 function sessionNote(P,S,extra){var v=sessionView(P,S),by=v.pt.by,lines=[P.name];function nm(x){return by[x]?by[x].name:x;}
@@ -512,6 +522,11 @@ function renameKey(P,a,b){if(a===b)return;var R=P.rules||{};
 function removeKey(P,a){var R=P.rules||{};delete R[a];
   Object.keys(R).forEach(function(k){R[k].o=R[k].o.filter(function(x){return x!==a;});R[k].x=R[k].x.filter(function(x){return x!==a;});if(!R[k].o.length&&!R[k].x.length)delete R[k];});
   P.mx=(P.mx||[]).map(function(s){return s.filter(function(x){return x!==a;});}).filter(function(s){return s.length>1;});}
+/* Rivin siirto: vaihtaa paikkaa edellisen tai seuraavan asian kanssa (tyhjät rivit ja kommentit pysyvät paikallaan) */
+function moveItem(text,id,dir){var pt=parseText(text),i=-1;pt.items.forEach(function(it,k){if(it.id===id)i=k;});var j=i+dir;
+  if(i<0||j<0||j>=pt.items.length)return text;var l=String(text||'').split(/\r?\n/),a=pt.items[i].line,b=pt.items[j].line,x=l[a];l[a]=l[b];l[b]=x;return l.join('\n');}
+/* Nappulan nimi näytölle: tavuviivan jälkeen rivinvaihto samassa nappulassa */
+function shownName(n){return String(n||'').replace(/-(?=\S)/g,'-\n');}
 function replaceLine(text,n,line){var l=String(text||'').split(/\r?\n/);if(line===null)l.splice(n,1);else l[n]=line;return l.join('\n');}
 /* Säännöt, jotka viittaavat nimiin, joita tekstikentässä ei enää ole */
 function orphans(P){var by=parseText(P.text).by,out={};
@@ -531,7 +546,7 @@ function termOn(term,text){var yes=[term.name].concat(term.also||[],term.yes||[]
 /* Päätöspuiden rivit termeinä: jokaisen nappulan, ilmoituksen ja ryhmän nimi on termi kaikista projekteista
    (sama nimi kerran). Sanat tallessa nimen avaimella words[avain]={yes,no}. Samanniminen oma termi korvaa. */
 function autoTerms(projects,words,manual){var out=[],seen={};(manual||[]).forEach(function(t){seen[keyOf(t.name)]=1;});
-  (projects||[]).forEach(function(P){parseText(P.text).items.forEach(function(it){if(seen[it.id])return;if(it.k==='t'&&it.body===it.name&&it.name.length>40)return;seen[it.id]=1;
+  (projects||[]).forEach(function(P){parseText(P.text).items.forEach(function(it){if(seen[it.id])return;if(it.k==='q'||(it.k==='t'&&it.body===it.name&&it.name.length>40))return;seen[it.id]=1;
     var w=(words&&words[it.id])||{};var tm={id:'a:'+it.id,key:it.id,name:it.name,yes:strs(w.yes),no:strs(w.no),auto:true,kind:it.k,proj:P.name};
     if(it.k==='t'&&it.body!==it.name){var f=clean(bodyText(it.body).split('\n\n')[0]);if(f)tm.also=[f];} // ilmoitus tunnistuu myös tekstistään, joka on kierroksen muistiinpanossa
     out.push(tm);});});
@@ -549,6 +564,15 @@ var WD=['sunnuntai','maanantai','tiistai','keskiviikko','torstai','perjantai','l
 var NUMW={yhden:1,kahden:2,kolmen:3,neljän:4,viiden:5,kuuden:6,seitsemän:7,kahdeksan:8,yhdeksän:9,kymmenen:10};
 function parseDates(text,base){var t=' '+String(text||'').toLowerCase()+' ',b=dayOf(base||new Date()),out=[],m,re;
   function push(a,z,src){var A=isoD(a),Z=isoD(z||a);if(Z<A){var x=A;A=Z;Z=x;}if(!out.some(function(o){return o.a===A&&o.b===Z;}))out.push({a:A,b:Z,src:src});}
+  /* päiväväli 1.7.26–3.8.26: sama muistiinpano jokaisena välin päivänä (toistuu, ei kopioita) */
+  function yr(v){return v?(v.length===2?2000+(+v):+v):null;}
+  re=/(^|[^\d.])(\d{1,2})\.(\d{1,2})\.(\d{4}|\d{2})?\s*[-–—]\s*(\d{1,2})\.(\d{1,2})\.(\d{4}|\d{2})?(?!\d)/g;
+  t=t.replace(re,function(all,pre,d1,m1,y1,d2,m2,y2){var Y2=yr(y2),Y1=yr(y1),e,a0;
+    if(+m1<1||+m1>12||+m2<1||+m2>12)return all;
+    if(Y2)e=new Date(Y2,m2-1,+d2);else{e=new Date(b.getFullYear(),m2-1,+d2);if(e<b)e=new Date(b.getFullYear()+1,m2-1,+d2);}
+    a0=new Date(Y1||e.getFullYear(),m1-1,+d1);if(!Y1&&a0>e)a0=new Date(e.getFullYear()-1,m1-1,+d1);
+    if(e.getDate()!==+d2||a0.getDate()!==+d1)return all;
+    push(a0,e,clean(all.slice(pre.length)));return pre+' ';});
   re=/(^|[^\d.])(\d{1,2})\.(\d{1,2})\.(\d{4}|\d{2})?(?!\d)/g;
   while((m=re.exec(t))){var dd=+m[2],mm=+m[3],y=m[4]?(m[4].length===2?2000+(+m[4]):+m[4]):null,dt;
     if(mm<1||mm>12||dd<1||dd>31)continue;
@@ -595,13 +619,13 @@ function normalizeData(o){if(!o||typeof o!=='object'||o.app!=='paatospuu')return
     out.notes.push({id:n.id,created:String(n.created||new Date().toISOString()),edited:String(n.edited||n.created||new Date().toISOString()),text:n.text,date:/^\d{4}-\d\d-\d\d$/.test(n.date||'')?n.date:''});});
   (Array.isArray(o.termit)?o.termit:[]).forEach(function(t){if(!t||typeof t.id!=='string'||!clean(t.name))return;out.terms.push({id:t.id,name:clean(t.name),yes:strs(t.yes),no:strs(t.no)});});
   if(o.termisanat&&typeof o.termisanat==='object')Object.keys(o.termisanat).forEach(function(k){var w=o.termisanat[k];if(!w)return;var y=strs(w.yes),n=strs(w.no);if(y.length||n.length)out.words[k]={yes:y,no:n};});
-  if(o.cfg&&typeof o.cfg==='object')['tint','mode'].forEach(function(k){if(typeof o.cfg[k]==='string')out.cfg[k]=o.cfg[k];});
+  if(o.cfg&&typeof o.cfg==='object')['tint','mode','size'].forEach(function(k){if(typeof o.cfg[k]==='string')out.cfg[k]=o.cfg[k];});
   if(!out.projects.some(function(P){return P.id===out.cur;}))out.cur=out.projects.length?out.projects[0].id:null;
   return out;}
 function looseJson(txt){var s=String(txt||''),a=s.indexOf('{'),b=s.lastIndexOf('}');if(a<0||b<=a)return null;s=s.slice(a,b+1);
   try{return JSON.parse(s);}catch(e){}try{return JSON.parse(s.replace(/[“”„]/g,'"'));}catch(e){}return null;}
 if(typeof module!=='undefined')module.exports={VER:VER,ALKU:ALKU,parseLine:parseLine,lineOf:lineOf,bodyText:bodyText,parseText:parseText,rl:rl,ruleState:ruleState,toggleRule:toggleRule,
-  sessionView:sessionView,blockedNow:blockedNow,tapDraft:tapDraft,replay:replay,exclOf:exclOf,newSession:newSession,notesOnDay:notesOnDay,dayCarry:dayCarry,commitStep:commitStep,undoStep:undoStep,sessionNote:sessionNote,sessionGroups:sessionGroups,renameKey:renameKey,removeKey:removeKey,
+  sessionView:sessionView,moveItem:moveItem,shownName:shownName,blockedNow:blockedNow,tapDraft:tapDraft,replay:replay,exclOf:exclOf,newSession:newSession,notesOnDay:notesOnDay,dayCarry:dayCarry,commitStep:commitStep,undoStep:undoStep,sessionNote:sessionNote,sessionGroups:sessionGroups,renameKey:renameKey,removeKey:removeKey,
   replaceLine:replaceLine,orphans:orphans,dropOrphans:dropOrphans,hasWord:hasWord,termOn:termOn,noteTerms:noteTerms,autoTerms:autoTerms,parseDates:parseDates,noteDates:noteDates,nextDate:nextDate,
   sortNotes:sortNotes,fiDate:fiDate,stamp:stamp,isoD:isoD,normalizeData:normalizeData,looseJson:looseJson};
 </script>
@@ -616,7 +640,7 @@ function todayIso(){return isoD(new Date());}
 function uid(p){return p+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
 function button(parent,txt,cls,fn){var b=el('button',cls||'btn',txt);b.type='button';if(fn)b.addEventListener('click',fn);parent.appendChild(b);return b;}
 
-var data={cur:null,projects:[],notes:[],terms:[],words:{},cfg:{tint:'forest',mode:'auto'},meta:{lastExport:null,dirty:0}};
+var data={cur:null,projects:[],notes:[],terms:[],words:{},cfg:{tint:'forest',mode:'auto',size:'normal'},meta:{lastExport:null,dirty:0}};
 try{var raw=JSON.parse(localStorage.getItem(KEY)||'null'),nd=normalizeData(raw);
   if(nd){data.cur=nd.cur;data.projects=nd.projects;data.notes=nd.notes;data.terms=nd.terms;data.words=nd.words;Object.keys(nd.cfg).forEach(function(k){data.cfg[k]=nd.cfg[k];});
     if(raw.meta)data.meta={lastExport:raw.meta.lastExport||null,dirty:raw.meta.dirty||0};}}catch(e){}
@@ -637,6 +661,7 @@ function applyCfg(){var dark=isDark(),t=APPIPAJA_THEMES.filter(function(x){retur
   var v={'--bg':c.bg,'--cell':c.cell,'--label':c.label,'--label2':c.label2,'--sep':c.sep,'--accent':c.accent,'--solid':c.accent,'--on-solid':dark?c.bg:'#FFFFFF','--fill':c.fill,'--fill2':c.tint,
     '--seg':dark?'rgba(255,255,255,.10)':'rgba(37,43,40,.07)','--seg-on':c.fill,'--bar':c.cell,'--red':dark?'#FF6B61':'#C4271B','--app-shadow':dark?'rgba(0,0,0,.13)':'rgba(39,61,34,.055)'};
   Object.keys(v).forEach(function(k){root.style.setProperty(k,v[k]);});root.style.colorScheme=dark?'dark':'light';
+  document.body.classList.toggle('small',data.cfg.size==='small');
   var tc=document.querySelector('meta[name="theme-color"]');if(tc)tc.setAttribute('content',c.bg);}
 if(mq){if(mq.addEventListener)mq.addEventListener('change',applyCfg);else if(mq.addListener)mq.addListener(applyCfg);}
 applyCfg();
@@ -712,6 +737,7 @@ function renderUse(){var p=panels.use,P=proj();p.textContent='';
       dm.textContent=c.notes?'Päivälle '+fiDate(di.value)+' on '+c.notes+(c.notes===1?' muistiinpano':' muistiinpanoa')+': mukaan tulee valmiiksi '+c.pre.length+(c.pre.length===1?' valinta tai ryhmä':' valintaa tai ryhmää')+' ja '+c.texts.length+(c.texts.length===1?' ilmoitus.':' ilmoitusta.'):'Päivälle '+fiDate(di.value)+' ei ole muistiinpanoja. Päivä tallentuu kierroksen loppuun.';});
     var sb=button(p,'Aloita kierros','btn solid',function(){var c=di.value?carry():null;if(c)c.date=di.value;P.session=newSession(P,nowIso(),c);resetDraft();touch();render();});sb.id='start';sb.style.marginTop='14px';return;}
   var v=sessionView(P,S,draft),by=v.pt.by;
+  if(v.qs.length){var qb=el('div','qbar');qb.id='qbar';v.qs.forEach(function(id){qb.appendChild(el('div','qline',bodyText(by[id].body)));});p.appendChild(qb);}
   setInfo((S.date?'Kierros päivälle '+fiDate(S.date)+'. ':'Kierros alkoi '+stamp(S.start)+'. ')+'Valitse ja paina Jatka.');
   if(S.log.length){var lg=el('div','log');lg.id='log';S.log.forEach(function(id){var it=by[id];if(!it)return;
       if(lg.childNodes.length){var dv=el('div','divider');dv.appendChild(el('i'));lg.appendChild(dv);}lg.appendChild(el('div','tbox',bodyText(it.body)));});p.appendChild(lg);}
@@ -719,7 +745,7 @@ function renderUse(){var p=panels.use,P=proj();p.textContent='';
   if(mem.length){var ch=el('div','chosen');ch.appendChild(el('b','','Muistissa:'));mem.forEach(function(x){ch.appendChild(el('span','',by[x].name));});p.appendChild(ch);}
   var list=el('div','rows');list.id='opts';
   v.opts.forEach(function(id){var on=v.picked.indexOf(id)>=0,why=v.blocked[id],b=el('button','row'+(on?' sel':'')+(why?' dim':''));b.type='button';b.dataset.id=id;
-    var t=el('span','t',by[id].name);if(why)t.appendChild(el('small','','ei käy yhteen: '+by[why].name));b.appendChild(t);
+    var t=el('span','t',shownName(by[id].name));if(why)t.appendChild(el('small','','ei käy yhteen: '+by[why].name));b.appendChild(t);
     if(why)b.setAttribute('aria-disabled','true');if(on&&v.sel.indexOf(id)>=0)b.appendChild(el('span','tag','valittu aiemmin'));
     b.addEventListener('click',function(){if(why)return;draft=tapDraft(P,S,draft,id);var y=main.scrollTop;renderUse();main.scrollTop=y;});list.appendChild(b);});
   if(v.opts.length)p.appendChild(list);
@@ -740,7 +766,9 @@ $('es-drop').addEventListener('click',function(){var P=proj();if(!P)return;if(Da
    Rakenna: napauta lähdettä kerran = valitse mitä se tuo näkyviin, toisen kerran = mitä se sulkee pois, kolmannen = valmis.
    Muokkaa: napauta riviä ja muokkaa sen tekstiä. Toisensa poissulkevat: ryhmittely, joka pätee vain saman askeleen valinnoissa. */
 var ed=null,teachMode='build',mxSel=null;
-function kindTag(k){return k==='g'?'ryhmä':(k==='t'?'ilmoitus':'');}
+function kindTag(k){return {g:'ryhmä',t:'ilmoitus',q:'apukysymys'}[k]||'';}
+function kindCls(k){return {a:' alku',g:' grp',t:' txt',q:' qq'}[k]||'';}
+function nameSpan(it){return el('span','t',it.k==='b'?shownName(it.name):it.name);}
 function renderTeach(){var p=panels.teach,P=proj();p.textContent='';
   if(!P){setInfo('Luo ensin päätöspuu.');firstProjForm(p);return;}
   var pt=parseText(P.text),by=pt.by;if(ed&&ed.id!==ALKU&&!by[ed.id])ed=null;
@@ -754,11 +782,11 @@ function renderTeach(){var p=panels.teach,P=proj();p.textContent='';
   if(teachMode==='mx')return renderMx(p,P,pt);
   var list=el('div','rows');list.id='tlist';
   var nodes=[{id:ALKU,k:'a',name:'▶ Alku'}].concat(pt.items);
-  nodes.forEach(function(it){var cls='row'+(it.k==='a'?' alku':it.k==='g'?' grp':it.k==='t'?' txt':''),st='',tag='';
+  nodes.forEach(function(it){var cls='row'+kindCls(it.k),st='',tag='';
     if(ed){if(it.id===ed.id){cls+=' ed'+(ed.m==='x'?' edx':'');tag=ed.m==='x'?'sulkee pois…':'tuo näkyviin…';}
       else{st=ruleState(P,ed.id,it.id);if(st==='o'){cls+=' ro';tag='tuo näkyviin';}else if(st==='x'){cls+=' rx';tag='sulkee pois';}}}
-    else{var r=rl(P,it.id),parts=[];if(it.k!=='t'){var on=it.id===ALKU?opensOf(P,pt.items,ALKU).length:r.o.length;if(on)parts.push('tuo '+on+(it.id===ALKU&&!r.o.length?' (opettamatta: kaikki, joita mikään ei tuo)':''));if(r.x.length)parts.push('sulkee '+r.x.length);}tag=parts.join(' · ');}
-    var b=el('button',cls);b.type='button';b.dataset.id=it.id;var t=el('span','t',it.name);var kt=kindTag(it.k);if(kt)t.appendChild(el('small','',kt));b.appendChild(t);if(tag)b.appendChild(el('span','tag',tag));
+    else{var r=rl(P,it.id),parts=[];if(it.k!=='t'&&it.k!=='q'){var on=it.id===ALKU?opensOf(P,pt.items,ALKU).length:r.o.length;if(on)parts.push('tuo '+on+(it.id===ALKU&&!r.o.length?' (opettamatta: kaikki, joita mikään ei tuo)':''));if(r.x.length)parts.push('sulkee '+r.x.length);}tag=parts.join(' · ');}
+    var b=el('button',cls);b.type='button';b.dataset.id=it.id;var t=nameSpan(it);var kt=kindTag(it.k);if(kt)t.appendChild(el('small','',kt));b.appendChild(t);if(tag)b.appendChild(el('span','tag',tag));
     b.addEventListener('click',function(){teachTap(P,it);});list.appendChild(b);});
   p.appendChild(list);teachHint(P,by);}
 function teachHint(P,by){if(!ed){setInfo('Napauta nappulaa, ryhmää tai Alkua. Kerran: mitä se tuo näkyviin. Toisen kerran: mitä se sulkee pois.');return;}
@@ -766,20 +794,23 @@ function teachHint(P,by){if(!ed){setInfo('Napauta nappulaa, ryhmää tai Alkua. 
   s.appendChild(document.createTextNode(ed.m==='x'?'napauta, mitä se sulkee pois koko kierroksen ajaksi. Napauta sitä uudelleen, kun valmis.':(ed.id===ALKU?'napauta, mitkä näkyvät kierroksen alussa. Napauta Alkua uudelleen, kun valmis.':'napauta, mitä se tuo näkyviin. Napauta sitä uudelleen: poissulku.')));setInfo(s,true);}
 $('info-done').addEventListener('click',function(){ed=null;render();});
 function teachTap(P,it){
-  if(!ed){if(it.k==='t'){setInfo('Ilmoitus ei avaa eikä sulje mitään, se vain näkyy. Valitse nappula, ryhmä tai Alku.');return;}ed={id:it.id,m:'o'};}
+  if(!ed){if(it.k==='t'||it.k==='q'){setInfo((it.k==='t'?'Ilmoitus':'Apukysymys')+' ei avaa eikä sulje mitään, se vain näkyy. Valitse nappula, ryhmä tai Alku.');return;}ed={id:it.id,m:'o'};}
   else if(it.id===ed.id){if(ed.m==='o'&&it.id!==ALKU)ed.m='x';else ed=null;}
   else if(it.id===ALKU){return;}
   else{toggleRule(P,ed.id,it.id,ed.m);touch();}
   var y=main.scrollTop;render();main.scrollTop=y;}
-function renderEdit(p,P,pt){setInfo('Napauta riviä muokataksesi sitä. Uusi rivi lisätään tekstikentän loppuun.');
+function renderEdit(p,P,pt){setInfo('Napauta riviä muokataksesi sitä. Nuolilla vaihdat järjestystä, jossa nappulat näkyvät.');
   var r=el('div','addrow'),i=el('input');i.type='text';i.id='newline';i.placeholder='Uusi rivi, esim. #Ryhmä: selitys';i.autocomplete='off';r.appendChild(i);
   function add(){var l=parseLine(i.value);if(!l)return;var P2=proj();if(parseText(P2.text).by[keyOf(l.name)]){setInfo('Nimi ”'+l.name+'” on jo käytössä.');return;}
     P2.text=(P2.text.replace(/\s+$/,'')+(P2.text.trim()?'\n':'')+i.value.trim());touch();render();var n=$('newline');if(n)n.focus();}
   button(r,'Lisää','btn solid',add);i.addEventListener('keydown',function(ev){if(ev.key==='Enter')add();});p.appendChild(r);
   var list=el('div','rows');list.style.marginTop='12px';
-  pt.items.forEach(function(it){var b=el('button','row'+(it.k==='g'?' grp':it.k==='t'?' txt':''));b.type='button';b.dataset.id=it.id;var t=el('span','t',it.name);
+  pt.items.forEach(function(it,k){var row=el('div','orow'),b=el('button','row'+kindCls(it.k));b.type='button';b.dataset.id=it.id;var t=nameSpan(it);
     if(it.body&&it.body!==it.name)t.appendChild(el('small','body',bodyText(it.body)));var kt=kindTag(it.k);b.appendChild(t);if(kt)b.appendChild(el('span','tag',kt));
-    b.addEventListener('click',function(){openLine(it);});list.appendChild(b);});
+    b.addEventListener('click',function(){openLine(it);});row.appendChild(b);
+    [[-1,'↑','Siirrä ylös'],[1,'↓','Siirrä alas']].forEach(function(d){var m=button(row,d[1],'mv',function(){var P2=proj();P2.text=moveItem(P2.text,it.id,d[0]);touch();var y=main.scrollTop;render();main.scrollTop=y;});
+      m.setAttribute('aria-label',d[2]+': '+it.name);m.dataset.move=it.id+'|'+d[0];if((d[0]<0&&k===0)||(d[0]>0&&k===pt.items.length-1))m.disabled=true;});
+    list.appendChild(row);});
   p.appendChild(list);}
 var lineIt=null,lineArm=0;
 function openLine(it){lineIt=it;lineArm=0;$('ls-text').value=lineOf(it);$('ls-msg').textContent='';$('ls-del').textContent='Poista';openSheet($('lsheet'));}
@@ -886,6 +917,9 @@ function renderSettings(){var p=panels.set;p.textContent='';setInfo(statusText()
   var cs=el('div','chips');cs.id='set-pal';APPIPAJA_THEMES.forEach(function(t){var b=button(cs,'','chip',function(){data.cfg.tint=t.id;save();applyCfg();render();});b.dataset.v=t.id;
     var sw=el('span','sw');sw.style.background=t.light.accent;b.appendChild(sw);b.appendChild(document.createTextNode(t.name));b.setAttribute('aria-pressed',data.cfg.tint===t.id?'true':'false');});p.appendChild(cs);
   var seg=el('div','seg');seg.style.marginTop='12px';MODES.forEach(function(m){var b=button(seg,m[1],'',function(){data.cfg.mode=m[0];save();applyCfg();render();});b.className='';b.setAttribute('aria-pressed',data.cfg.mode===m[0]?'true':'false');});p.appendChild(seg);
+  p.appendChild(el('label','fl','Nappuloiden koko'));
+  var sz=el('div','seg');sz.id='set-size';[['normal','Normaali'],['small','Pieni']].forEach(function(m){var b=button(sz,m[1],'',function(){data.cfg.size=m[0];save();applyCfg();render();});b.className='';b.dataset.v=m[0];b.setAttribute('aria-pressed',(data.cfg.size||'normal')===m[0]?'true':'false');});p.appendChild(sz);
+  p.appendChild(el('p','foot','Pienet nappulat asettuvat vierekkäin ja vievät vain tarvitsemansa leveyden. Tavuviiva nimessä vaihtaa riviä saman nappulan sisällä.'));
   var h=el('h2','','Tiedot');h.id='sec-data';p.appendChild(h);
   p.appendChild(el('p','sub','Tiedot ovat vain tämän laitteen selaimen muistissa. Vie ne aika ajoin tiedostoksi varmuuskopioksi, esimerkiksi iCloud Driveen tai Tiedostot-appiin. Tiedostosta tai tekstistä ne saa takaisin.'));
   var ac=0;data.projects.forEach(function(P){ac+=parseText(P.text).items.length;});
@@ -897,10 +931,10 @@ function renderSettings(){var p=panels.set;p.textContent='';setInfo(statusText()
   var r3=el('div','btnrow');button(r3,'Tarkista','btn solid',function(){offerImport(ta.value);}).id='impcheck';d.appendChild(r3);p.appendChild(d);
   var m=el('p','msg');m.id='datamsg';m.setAttribute('aria-live','polite');p.appendChild(m);var out=el('div');out.id='dataout';p.appendChild(out);
   p.appendChild(el('h2','','Ohje'));
-  var o=el('div','syntax');o.innerHTML='<b>Tekstikenttä</b>: yksi rivi on yksi asia. <code>Koira</code> on nappula. <code>#Eläimet: selitys</code> on ryhmä, joka ei näy käytössä. <code>&gt;Perustelu: teksti</code> on ilmoitus: käytössä näkyy vain teksti. Rivejä voi kirjoittaa muualla ja liittää perään.<br><br>'+
+  var o=el('div','syntax');o.innerHTML='<b>Tekstikenttä</b>: yksi rivi on yksi asia. <code>Koira</code> on nappula. <code>#Eläimet: selitys</code> on ryhmä, joka ei näy käytössä. <code>&gt;Perustelu: teksti</code> on ilmoitus: käytössä näkyy vain teksti. <code>?Apu: kysymys</code> on apukysymys, joka näkyy pienenä ylhäällä vain sen askeleen ajan. Tavuviiva nappulan nimessä vaihtaa riviä. Rivejä voi kirjoittaa muualla ja liittää perään.<br><br>'+
     '<b>Opetus</b>: napauta nappulaa tai ryhmää kerran ja valitse, mitä se tuo näkyviin. Napauta sitä toisen kerran ja valitse, mitä se sulkee pois. Kolmas napautus lopettaa. Alku kertoo, mitä kierroksen alussa näkyy.<br><br>'+
     '<b>Käyttö</b>: valinta tuo näkyviin vain siihen suoraan liitetyt. Valinnat ja poissulut muistuvat koko kierroksen, kunnes valinnan purkaa. Ryhmän poissulku sulkee pois myös sen jäsenet. Toisensa poissulkevat menevät samassa askeleessa harmaiksi.<br><br>'+
-    '<b>Päivät muistiinpanoissa</b>: 24.10.26, 24.10.2026, 24.10., tänään, huomenna, perjantaina, ensi viikolla, tässä kuussa, kahden viikon sisällä, 3 päivän päästä. Suhteelliset lasketaan muistiinpanon luontihetkestä.';
+    '<b>Päivät muistiinpanoissa</b>: 1.7.26–3.8.26 (sama muistiinpano jokaisena välin päivänä), 24.10.26, 24.10.2026, 24.10., tänään, huomenna, perjantaina, ensi viikolla, tässä kuussa, kahden viikon sisällä, 3 päivän päästä. Suhteelliset lasketaan muistiinpanon luontihetkestä.';
   p.appendChild(o);}
 function markExported(){data.meta.lastExport=todayIso();data.meta.dirty=0;save();renderStatus();}
 function showText(txt){var out=$('dataout');out.textContent='';var ta=el('textarea','mono');ta.readOnly=true;ta.value=txt;ta.style.marginTop='10px';ta.setAttribute('aria-label','Vietävä sisältö');out.appendChild(ta);

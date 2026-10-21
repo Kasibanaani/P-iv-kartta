@@ -65,6 +65,17 @@ eq('valmiina: G sulkee A:n, G avaa C:n, B avaa D:n, D valittuna',[v.opts,v.picke
 E.commitStep(p,S,{p:['c'],d:[]});eq('muistiinpano päivällä',E.sessionNote(p,S,''),'Testi\nPäivä: 24.10.2026\nPäivän muistiinpanoista: B, D\nValinnat: B, C, D\nRyhmät: G\n\nTeksti.');
 eq('ilman päivää ennallaan',E.newSession(p,'x').steps,[{p:[A],d:[]}]);
 
+// apukysymys: näkyy vain sen askeleen ajan, ei lokiin eikä termeihin
+p=P('A\nB\n?Apu: Onko kiire?\n?Toinen kysymys');t(p,A,'a');t(p,'a','b');t(p,'a','apu');t(p,'a','toinen kysymys');
+eq('apukysymyksen rivi',E.lineOf(E.parseText(p.text).by['apu']),'?Apu: Onko kiire?');
+S=E.newSession(p,'x');eq('ei alussa',E.sessionView(p,S).qs,[]);E.commitStep(p,S,{p:['a'],d:[]});
+eq('askeleessa',E.sessionView(p,S).qs,['apu','toinen kysymys']);eq('ei lokiin',S.log,[]);
+E.commitStep(p,S,{p:['b'],d:[]});eq('katoaa seuraavassa',E.sessionView(p,S).qs,[]);
+eq('ei termi',E.autoTerms([p],{},[]).map(function(t){return t.key;}),['a','b']);
+// järjestys ja tavuviiva
+eq('siirto alas',E.moveItem('A\n\nB\nC','a',1),'B\n\nA\nC');eq('siirto ylös reunalla',E.moveItem('A\nB','a',-1),'A\nB');
+eq('tavuviiva',E.shownName('Kova-nälkä - iso'),'Kova-\nnälkä - iso');
+
 // nimen vaihto ja poisto
 p=P('A\nB');t(p,A,'a');t(p,'a','b');p.mx=[['a','b']];E.renameKey(p,'b','bee');eq('rename',[p.rules.a.o,p.mx],[['bee'],[['a','bee']]]);
 E.removeKey(p,'bee');eq('remove',[p.rules.a,p.mx],[undefined,[]]);
@@ -90,6 +101,7 @@ eq('perjantaina',pd('Soita perjantaina'),['2026-10-23']);eq('tiistaina = tänä�
 eq('pvm',pd('24.10.26 ja 5.11.2026'),['2026-10-24','2026-11-05']);eq('ilman vuotta',pd('1.1. ja 25.10.'),['2026-10-25','2027-01-01']);
 eq('kahden viikon sisällä',pd('kahden viikon sisällä'),['2026-10-20..2026-11-03']);eq('3 päivän päästä',pd('3 päivän päästä'),['2026-10-23']);
 eq('ensi viikolla',pd('ensi viikolla'),['2026-10-26..2026-11-01']);eq('kellonaika ei',pd('klo 9.30. ja 31.2.26'),[]);
+eq('päiväväli',pd('Loma 1.7.27–3.8.27 ja 5.-6. ei'),['2027-07-01..2027-08-03']);eq('väli ilman vuotta',pd('24.10.-26.10.'),['2026-10-24..2026-10-26']);eq('väli vuodenvaihde',pd('28.12.-2.1.27'),['2026-12-28..2027-01-02']);
 eq('huomenna',pd('huomenna'),['2026-10-21']);eq('maanantaisin ei',pd('maanantaisin'),[]);
 
 // järjestys: monen päivän muistiinpano siirtyy seuraavaan

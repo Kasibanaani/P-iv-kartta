@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.3, kokeilussa · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.4, kokeilussa · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -34,6 +34,14 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Kierroksen alussa valinnainen päivä. Jos päivä valitaan, sen päivän muistiinpanot (tarkka päivä tai väli, joka sisältää päivän) haetaan: niiden termit, jotka ovat tämän puun rivejä, tulevat mukaan valmiiksi. Nappulat ja ryhmät alkuaskeleen valinnoiksi (avaavat ja sulkevat pois kuten valinta, näkyvät valmiiksi valittuina), ilmoitukset ruutuun. Esikatselu kertoo määrät ennen aloitusta.
 - Sama päivä on valmiina lopetuksen päivämääräkentässä, ja muistiinpanoon tulee rivit *Päivä:* ja *Päivän muistiinpanoista:*. Ilman päivää kaikki toimii kuten ennen.
 - Ilmoitus tunnistuu termiksi myös tekstinsä ensimmäisestä kappaleesta (kierroksen muistiinpanossa on teksti, ei nimeä).
+
+## Versio 1.4 (21.10.2026, Emilin pyyntö)
+
+- Päiväväli 1.7.26–3.8.26 (myös ilman vuotta, myös vuodenvaihteen yli) = sama muistiinpano jokaisena välin päivänä. Emil vahvisti, että välit lasketaan päivän muistiinpanoihin.
+- Asetus *Nappuloiden koko: Normaali / Pieni*. Pienet asettuvat vierekkäin ja vievät tarvitsemansa leveyden. Tavuviiva nappulan nimessä vaihtaa riviä saman nappulan sisällä (tavuviiva jää näkyviin); muuten niin monta riviä kuin tarvitaan.
+- Opetus / Muokkaa: nuolet ↑↓ vaihtavat järjestystä (siirtää rivejä tekstikentässä).
+- Uusi tyyppi **apukysymys** `?Nimi: kysymys`: opetetaan kuten ilmoitus (valinta tuo sen näkyviin), näkyy pienenä, matalan kontrastin tekstinä kiinteästi ylhäällä ilman paneelirajaa vain sen askeleen ajan; monta allekkain. Ei lokiin, ei muistiinpanoon, ei termi.
+- Kalenterinäkymä: ehdotus `paatospuu/SUUNNITELMA-kalenteri.md`, odottaa Emilin hyväksyntää.
 
 ## Ei tarkistettu
 

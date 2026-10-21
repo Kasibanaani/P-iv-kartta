@@ -9,7 +9,8 @@ OVER="""(function(){var w=document.documentElement.clientWidth,out=[];
  document.querySelectorAll('input,textarea,select,button').forEach(function(e){var r=e.getBoundingClientRect();
   if(r.width&&r.height&&e.offsetParent!==null&&e.type!=='file'&&(r.right>w+0.5||r.left<-0.5))out.push((e.id||e.className||e.tagName)+' '+Math.round(r.left)+'..'+Math.round(r.right));});
  var m=document.getElementById('main');return JSON.stringify({w:w,doc:document.documentElement.scrollWidth,main:[m.scrollWidth,m.clientWidth],yli:out});})()"""
-TEXT="""Kissa
+TEXT="""?Apu: Onko lemmikki kotona?
+Kissa
 Koira
 Ruoka
 Leikki
@@ -37,17 +38,18 @@ async def run(p,w,h):
     # opetus
     await pg.click('[data-tab="teach"]'); await pg.wait_for_timeout(100)
     rows=lambda: pg.locator('#tlist [data-id]')
-    want('opetuksessa 7 riviä', await rows().count()==7)
+    want('opetuksessa 8 riviä', await rows().count()==8)
     async def tap(i): await pg.click('#tlist [data-id="%s"]'%i); await pg.wait_for_timeout(40)
     await tap('__alku'); await tap('kissa'); await tap('koira'); await tap('__alku')
-    await tap('kissa'); await tap('eläimet'); await tap('perustelu'); await tap('kissa'); await tap('koira'); await check('opetus poissulku')
+    await tap('kissa'); await tap('eläimet'); await tap('perustelu'); await tap('apu'); await tap('kissa'); await tap('koira'); await check('opetus poissulku')
     want('ylä palkki punainen', await pg.get_attribute('#top','data-ed')=='x')
     await tap('kissa')
     await tap('eläimet'); await tap('ruoka'); await tap('leikki'); await pg.click('#info-done')
-    want('säännöt', json.loads(await pg.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('paatospuu:v1')).projektit[0].rules)"))=={'__alku':{'o':['kissa','koira'],'x':[]},'kissa':{'o':['eläimet','perustelu'],'x':['koira']},'eläimet':{'o':['ruoka','leikki'],'x':[]}})
+    want('säännöt', json.loads(await pg.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('paatospuu:v1')).projektit[0].rules)"))=={'__alku':{'o':['kissa','koira'],'x':[]},'kissa':{'o':['eläimet','perustelu','apu'],'x':['koira']},'eläimet':{'o':['ruoka','leikki'],'x':[]}})
     await check('opetus')
     await pg.click('[data-tm="mx"]'); await pg.click('#mxnew'); await pg.click('#p-teach [data-id="ruoka"]'); await pg.click('#p-teach [data-id="leikki"]'); await pg.click('#mxsave'); await check('toisensa poissulkevat')
     await pg.click('[data-tm="edit"]'); await pg.wait_for_timeout(50); await check('muokkaa')
+    await pg.click('[data-move="ruoka|-1"]'); await pg.click('[data-move="ruoka|1"]')
     await pg.click('#p-teach [data-id="leikki"]'); await pg.fill('#ls-text','Leikkiminen'); await pg.click('#ls-ok'); await pg.wait_for_timeout(50)
     mx=json.loads(await pg.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('paatospuu:v1')).projektit[0].mx)"))
     want('nimen vaihto seuraa', mx==[['ruoka','leikkiminen']])
@@ -60,9 +62,12 @@ async def run(p,w,h):
     await check('käyttö valinta'); await pg.click('#act-go'); await pg.wait_for_timeout(50)
     want('kissan jälkeen ryhmän jäsenet', await opts()==['ruoka','leikkiminen'])
     want('ilmoitus ruudussa', 'Lemmikki tarvitsee' in await pg.inner_text('#log'))
+    want('apukysymys näkyy', 'Onko lemmikki kotona?' in await pg.inner_text('#qbar'))
+    await pg.evaluate("document.getElementById('main').scrollTop=400"); await check('apukysymys vieritettynä')
     await pg.click('#opts [data-id="ruoka"]')
     want('toisensa poissulkeva harmaa', 'dim' in (await pg.get_attribute('#opts [data-id="leikkiminen"]','class')))
     await pg.click('#act-go'); await check('käyttö loppu')
+    want('apukysymys poistui', await pg.locator('#qbar').count()==0)
     await pg.click('#act-end'); await pg.fill('#es-note','Soita eläinlääkärille perjantaina'); await check('lopetus'); await pg.click('#es-save'); await pg.wait_for_timeout(50)
     # muistiinpanot
     await pg.click('[data-tab="notes"]'); await pg.wait_for_timeout(50)
@@ -95,6 +100,8 @@ async def run(p,w,h):
     await pg.evaluate("localStorage.clear()"); await pg.reload(); await pg.wait_for_timeout(100)
     await pg.click('[data-tab="set"]'); await pg.click('#p-set details summary'); await pg.fill('#imptext',dump); await pg.click('#impcheck'); await pg.click('#impok'); await pg.wait_for_timeout(50)
     await pg.click('[data-tab="notes"]'); want('tuonti palautti', await pg.locator('#nlist .ncard').count()==2)
+    await pg.click('[data-tab="set"]'); await pg.click('#set-size [data-v="small"]'); await pg.click('[data-tab="teach"]'); await pg.click('[data-tm="build"]'); await check('pienet nappulat opetus')
+    await pg.click('[data-tab="set"]'); await pg.click('#set-size [data-v="normal"]')
     for mode in ['Tumma']:
         await pg.click('[data-tab="set"]'); await pg.click('#p-set .seg button:has-text("%s")'%mode); await check('tumma')
     print('  errs',errs); await b.close(); return bad+(['virheet'] if errs else [])
