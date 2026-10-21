@@ -81,7 +81,7 @@ Laitenäkymästä voi tehdä ruutua isomman maailman, jota rullataan kaikkiin su
   - **Kaikkiin suuntiin**: käyttäjä rullaa sormella (tai hiirellä) maailmaa joka suuntaan palikoiden reunoille asti tai valitun alueen reunoille.
   - **Ei rullausta**: ruutu pysyy paikallaan.
   - Kun kamera seuraa, valinta on aina Kaikkiin suuntiin, eikä muita voi valita.
-- **Kamera seuraa:** valikosta näkymän palikka (yleensä hahmo). Kamera pitää sen ruudulla, kun se liikkuu. Sormella ei silloin rullata, joten napautukset jäävät pelille.
+- **Kamera seuraa:** valikosta näkymän palikka (yleensä hahmo). Kamera pitää sen ruudulla, kun se liikkuu. Sormella ei silloin rullata, joten napautukset jäävät pelille. Pikatie: rakennuslaatikon pelaajat asettavat tämän itse, ja Näkymä-hyllyn *Kamera seuraa* asettaa klikatun palikan (Appi-appi 96, [Rakennuslaatikko](02-tyoymparisto.md#rakennuslaatikko)).
 - **Kuollut alue** (näkyy, kun kamera seuraa): 0–100 %, oletus 30. Ympyrä ruudun keskellä, jonka sisällä seurattava saa liikkua ilman, että kamera liikkuu. 0 = seurattava pysyy aina keskellä, 50 = saa kulkea puoliväliin reunaa kohti. Muokatessa ympyrä näkyy laitteen kehyksessä katkoviivana.
 - **Pehmeys** (näkyy, kun kamera seuraa): 0–100 %, oletus 40. 0 = kamera on heti perässä, 100 = ottaa kiinni hitaasti ja liukuen.
 - **Maailman rajat** (näkyy, kun kamera seuraa tai rullaus on Kaikkiin suuntiin): valikosta Alue-palikka. Kamera ei näytä alueen ulkopuolta. Oletus: seuratessa **ei rajaa** (maailma jatkuu loputtomiin), rullatessa **palikoiden mukaan** (laitteen ruutu ja kaikki sormen mukana rullautuvat palikat). Jos raja on ruutua pienempi, se keskitetään.
@@ -203,6 +203,7 @@ Lisäksi Ominaisuudet-osiosta voi avata ohjattavat kohdat `kitka`, `vauhtix`, `v
 | törmäsi | tapahtuma | kaikki | uusi osuma esteeseen, rajaan tai toiseen kappaleeseen |
 | maassa | arvo | ei Reitti eikä Ruutu | kyllä, kun seisoo jonkin päällä painovoiman suhteen (ks. Painovoima ja maassa) |
 | alla | arvo | ei Reitti eikä Ruutu | sen palikan nimi, jonka päällä seisoo (tyhjä = ilmassa tai Liikkeen rajan päällä) |
+| laatta | arvo | ei Reitti eikä Ruutu | Laattakartan laji, jonka päällä seisoo tai jonka kohdalla keskipiste on; ylin kartta voittaa (Appi-appi 100) |
 | putoamisvauhti | arvo | ei Reitti eikä Ruutu | vauhti painovoiman suuntaan px/s (nouseva negatiivinen, ilman painovoimaa 0) |
 | laskeutui | tapahtuma | ei Reitti eikä Ruutu | tuli maahan; tiedoissa `tapahtuma.kohde`, `.isku` (putoamisvauhti osumahetkellä) ja `.voima` |
 | irtosi maasta | tapahtuma | ei Reitti eikä Ruutu | lähti maasta (hyppy tai putoaminen reunalta) |
@@ -532,11 +533,12 @@ Liikkeen paneeli, Ohjaus **Reitti**:
 Laattakartta on ruudukko, johon maalataan laattoja klik klik: seinät, lattiat, tasot ja koristeet. Yksi palikka on yksi kartta, joten sillä on näkymäpalikan tavalliset asiat (paikka, kerros, näkyy kun, siirto, animointi). Kiinteät laatat ovat esteitä kuten Este-palikat, mutta moottori hakee vain liikkujan kohdalla olevat ruudut, joten iso kartta ei hidasta. Appi-appi 81 (2D-pelien vaihe C).
 
 - **Löytyy:** Näkymä-välilehti, paletti **Koristeet → Laattakartta**. Uusi kartta on 16 × 10 ruutua, ruutukoko 32 px, lajit *Seinä* (kiinteä, väri 1) ja *Koriste* (läpi, väri 5).
-- **Sisään:** näkymäpalikan yhteiset kohdat (näkyy kun, harmaana kun, vaihtoväri kun, siirto x/y). **Ulos:** **laattoja** (maalattujen laattojen määrä).
+- **Sisään:** näkymäpalikan yhteiset kohdat (näkyy kun, harmaana kun, vaihtoväri kun, siirto x/y). **Ulos:** **laattoja** (maalattujen laattojen määrä), **astuttu** ja **poistuttu** (tapahtumat, vain *Ilmoittaa*-lajeista, Appi-appi 100).
 - **Asetukset (paneeli), osio Sisältö:**
   - **Maalaa**: aloittaa maalauksen (nappi muuttuu muotoon **● Maalataan…**, uusi napautus lopettaa).
   - **Ruutukoko px** (4–256), **Sarakkeet** ja **Rivit** (1–200). Palikan koko on sarakkeet × ruutukoko. Kulman venytys ja *Paikka ja koko* -kentät pyöristyvät kokonaisiin ruutuihin; pois jääneet laatat poistuvat (Kumoa palauttaa).
-  - **Laattalajit:** jokaisella nimi, laattojen määrä, tapa **kiinteä** / **läpi** / **taso**, väri paletista 1–8 ja (kiinteällä ja tasolla) **Kimmoisuus %** (0 = tömähtää, 100 = pomppaa, yli 100 = pomppulevy). **×** poistaa lajin ja pyyhkii sen laatat. **＋ Uusi laji** (enintään 35).
+  - **Laattalajit:** jokaisella nimi, laattojen määrä, tapa **kiinteä** / **läpi** / **taso**, väri paletista 1–8 ja (kiinteällä ja tasolla) **Kimmoisuus %** (0 = tömähtää, 100 = pomppaa, yli 100 = pomppulevy), rasti **Ilmoittaa** (Appi-appi 100) ja **Liukkaus %** (Appi-appi 104, kaikille lajeille 1–100, tyhjä = ei).
+  - **Palauta maalattu kartta** (näkyy, kun käyttö on maalannut laattoja): poistaa käytön muutokset. **×** poistaa lajin ja pyyhkii sen laatat. **＋ Uusi laji** (enintään 35).
 - **Ominaisuudet:** `sarakkeet`, `rivit`, `ruutukoko` (luettavia), `määrä` (kaikki laatat), `määrä.<lajin nimi>`, lisäksi näkymäpalikan tavalliset (näkyy, paikka, koko, väri ym.). Laattakartalla ei ole omaa `este`-, `massa`- eikä `kimmoisuus`-ominaisuutta: ne ovat lajeilla. `leveys` ja `korkeus` ovat pikseleinä kuten muillakin.
 - **Kaavassa:** `@kartta.määrä.seinä`, `@kartta.määrä` (lajin nimi pienellä, ä ja ö käyvät myös a:na ja o:na, välilyönti = `_`), `@kartta.sarakkeet`.
 
@@ -555,7 +557,17 @@ Laattakartta on ruudukko, johon maalataan laattoja klik klik: seinät, lattiat, 
 - **Taso:** läpi alhaalta ja sivulta, mutta päälle voi pudota ja sen päällä voi seistä (hyppy tason läpi ylös). Ylös = ruudun ylös myös käännetyssä painovoimassa. Ruutu kerrallaan -liikkeelle ja reitinhaulle taso ei ole este.
 - Piilossa oleva kartta ei estä.
 
-Huomio: alas painamalla tason läpi pudottaminen, laatan lajin tunnistus (*astuttu*, `alla` = laji), Maalaa laatta -toiminto ja laatan oma kitka eivät ole vielä tehty (vaihe D). Tekninen: `rk`, `lw`, `lh2`, `lj` (`c`, `n`, `hue`, `t`, `kim`), `lrt` (rivit merkkijonoina, `.` = tyhjä).
+### Laatat pelissä (Appi-appi 100, 104)
+
+- **Ilmoittaa** (lajin rasti): kartta lähettää **astuttu**, kun Liikkeen kohde tulee tämän lajin ruutuun, ja **poistuttu**, kun se lähtee. Ruutu on liikkujan keskipisteen ruutu ja, kun se seisoo tällä kartalla, jalkojen alla oleva ruutu. Poistuttu ei lähde, jos ruudun laji vaihtui liikkujan alla (kerätty kolikko). Tapahtuman tiedot: `tapahtuma.laji` (lajin nimi tekstinä), `tapahtuma.ruutux`, `tapahtuma.ruutuy` (1 = vasen yläruutu) ja `tapahtuma.kuka` (liikkujan nimi tekstinä). Liikkeen *törmäsi* laattaan saa myös `tapahtuma.laji` ja ruudun; `tapahtuma.kohde` on kartta.
+- **Liikkeen `laatta`:** laji, jonka päällä liikkuja seisoo tai jonka kohdalla sen keskipiste on (ylin kartta voittaa). `alla` on edelleen kartan nimi.
+- **Maalaa laatta** -toiminto (luku [Toiminnot](05-ketjut-ja-toiminnot.md#toimintolajit)): muuttaa ruudun käytössä; muutos on käyttötietoa, ja Palauta, käyttötietojen tyhjennys, rakentajan maalaus ja *Palauta maalattu kartta* poistavat sen.
+- **Liukkaus %** (jää): painovoimassa vaikuttaa vain maassa jalkojen alla olevasta ruudusta, ilman painovoimaa keskipisteen ruudusta; ilmassa ei. Liikkeen liukkaus on suurempi Liikkeen omasta ja laatan liukkaudesta, ja töytäisyvauhdin kitka kerrotaan (1 − laatan liukkaus). Liikkeen `liukkaus`-ominaisuus näyttää Liikkeen oman arvon, ei laatan.
+- **Taso-laatan läpi pudotus:** hyppy, kun ohjaus osoittaa painovoiman suuntaan (tatti tai nuoli alas) ja jalkojen alla on taso, pudottaa läpi. Kiinteän läpi ei pudota.
+- **Lajin nimi on teksti:** `tapahtuma.laji = "Kolikko"` ja `@kartta.määrä.kolikko` käyttävät lajin nimeä. Lajin uudelleennimeäminen ei päivitä niitä (ei tarkistettu korjaantuvaksi; kartoitus 14).
+- Valmiit: rakennuslaatikon *Jää-laji*, *Kolikot laattoina* ja Alueilla tehty *Painelaatta* ([Rakennuslaatikko](02-tyoymparisto.md#rakennuslaatikko)).
+
+Ei vielä: laattojen haku kaavassa (ei kuulu linjaan, A7). Tekninen: `rk`, `lw`, `lh2`, `lj` (`c`, `n`, `hue`, `t`, `kim`, `il`, `liu`), `lrt` (rivit merkkijonoina, `.` = tyhjä), käytön muutokset `st['lt:'+id]`.
 
 ## Reitinhaku esteiden ohi
 

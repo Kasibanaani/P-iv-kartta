@@ -161,7 +161,7 @@ Ominaisuudet-osio luettelee rivi kerrallaan kaiken, mihin kaava voi viitata, ja 
 
 Merkki **ƒ** arvon vieressä tarkoittaa, että arvo tulee nuolesta tai kaavasta. Otsikossa näkyy määrä, esim. ”2 ohjattu”, ”1 asetettu”.
 
-**Etusija:** nuoli tai kaava kohtaan voittaa, sitten toiminnon asettama arvo, sitten paneelin perusarvo. Toiminto *Palauta perusarvo* poistaa asetetun arvon (valinnalla *Mikä palautetaan*: yksi ominaisuus tai kaikki).
+**Etusija:** nuoli tai kaava kohtaan voittaa, sitten [Sääntö ♛](04-logiikkapalikat.md#sääntö--appi-appi-98) (rivin perässä ♛), sitten joukon ohjaus (Joukko-palikan nuoli tai sääntö), sitten toiminnon asettama arvo, sitten paneelin perusarvo. Toiminto *Palauta perusarvo* poistaa asetetun arvon (valinnalla *Mikä palautetaan*: yksi ominaisuus tai kaikki).
 
 Kaikilla näkymäpalikoilla (paitsi Sijainti, Alue, Toistin) on nämä:
 
@@ -451,9 +451,9 @@ Rastilista: käyttäjä lisää, rastittaa ja poistaa rivejä. Rivillä voi olla
 
 - **Löytyy:** Näkymä → Näyttö → *Lista*.
 - **Sisään:** yhteiset.
-- **Ulos:** **rastitettuja** (luku, palikan arvo), **rivejä** (luku), **kaikki rastitettu** (kyllä/ei; tyhjä lista = ei), **muuttui**.
-- **Asetukset:** **Otsikko** (oletus ”Lista”), **Pohjarivit** (yksi rivi per rivi), **Päivämääräsarake (myöhästyneet punaisella)**, nappi **Palauta pohjariveihin**.
-- **Käytössä:** napauta ruutua rastiaksesi, × poistaa rivin, alin kenttä *＋ Lisää rivi ja paina Enter*. Päivämääräsarakkeessa kirjoita päivä riville. Otsikon vieressä näkyy ”rastitettuja/rivejä”.
+- **Ulos:** **rastitettuja** (luku, palikan arvo), **rivejä** (luku), **kaikki rastitettu** (kyllä/ei; tyhjä lista = ei), **muuttui** (myös rivin tekstin muokkauksesta).
+- **Asetukset:** **Otsikko** (oletus ”Lista”), **Pohjarivit** (yksi rivi per rivi), **Päivämääräsarake (myöhästyneet punaisella)**, **Rastisarake (rivin voi kuitata tehdyksi)** (Appi-appi 105; oletus päällä, myös vanhoissa projekteissa; pois: ei rastiruutuja eikä otsikon *n/m*, `.rastitettuja` ja arvo 0, `.kaikki` = ei, `rivi1.rastitettu` = ei, `.myöhässä` ja `.seuraava` laskevat kaikki rivit; tallennetut rastit säilyvät ja palaavat, kun sarake laitetaan takaisin), nappi **Palauta pohjariveihin**.
+- **Käytössä:** napauta ruutua rastiaksesi, napauta rivin tekstiä muokataksesi (Appi-appi 103: Enter tai napautus muualle tallentaa, Esc peruu, tyhjäksi pyyhitty palaa ennalleen), × poistaa rivin, alin kenttä *＋ Lisää rivi ja paina Enter*. Päivämääräsarakkeessa kirjoita päivä riville. Otsikon vieressä näkyy ”rastitettuja/rivejä”.
 - **Ominaisuudet:** yhteiset; lisäksi `.rivejä`, `.rastitettuja`, `.kaikki`, `.myöhässä` (rastittamattomia, joiden päivä on mennyt), `.seuraava` (lähin tuleva päivä rastittamattomista), sekä rivit järjestysnumerolla: `lista.rivi1`, `lista.rivi1.rastitettu`, `lista.rivi1.pvm` (ylin = 1).
 - **Kaavassa:** `lista` = rastitettujen määrä.
 - **Aika ja tila:** rivit ovat käyttötietoa. Kun listaa on kerran käytetty, *Pohjarivien* muuttaminen ei enää näy, ennen kuin painetaan *Palauta pohjariveihin* (joka hävittää käyttäjän rivit ja rastit). Toiminto *Lisää riviksi listaan* lisää rivin logiikasta (teksti tai päivämäärä), *Tyhjennä* palauttaa pohjariveihin.
@@ -560,7 +560,7 @@ Suorakulmio tai ellipsi, joka tunnistaa, kun liikkuva palikka on sen sisällä, 
 Piirretty viiva, jota pitkin Liike voi kulkea. ✦ Pelkkä esitys: ei anna arvoa ulos. Ominaisuudet `.pituus` ja `.pisteitä`. Katso luku [Maailma ja liike](08-maailma-ja-liike.md).
 
 ## Laattakartta (`laatat`)
-Ruudukko, johon maalataan laattoja klik klik (Maalaa): kiinteät laatat ovat esteitä, taso päästää alhaalta läpi, koriste ei estä. Arvo ulos = laattojen määrä, kaavassa `@kartta.määrä.seinä`. Enintään 200 × 200 ruutua. Katso luku [Maailma ja liike](08-maailma-ja-liike.md#laattakartta-laatat).
+Ruudukko, johon maalataan laattoja klik klik (Maalaa): kiinteät laatat ovat esteitä, taso päästää alhaalta läpi, koriste ei estä. Laji voi olla liukas (jää) tai ilmoittaa, kun sille astutaan (kohdat **astuttu** ja **poistuttu**, Appi-appi 100). Arvo ulos = laattojen määrä, kaavassa `@kartta.määrä.seinä`. Enintään 200 × 200 ruutua. Katso luku [Maailma ja liike](08-maailma-ja-liike.md#laattakartta-laatat).
 
 ## Reseptit
 

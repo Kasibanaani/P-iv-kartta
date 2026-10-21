@@ -22,9 +22,25 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | muuttaa laskujärjestystä | sulut: `(sarake - 1) * 80` | [Laskutoimitukset](06-kaavat.md#laskutoimitukset) |
 | tehdä arvon nimestä, jonka kirjoitin kaavaan | ehdotusrivin ＋ Luo Arvo ”nimi”, tai vahvista kaava ja vastaa kysymykseen OK | [Ehdotusrivi](06-kaavat.md#ehdotusrivi) |
 | tehdä joukon (ja Joukko-palikan) kaavaan kirjoittamastani #nimestä | vahvista kaava ja vastaa *Joukkoa #x ei ole. Tehdäänkö?* OK, tai ＋ Luo joukko | [Joukko kaavassa](07-tieto.md#joukko-kaavassa) |
-| muuttaa tekstin sanan viittaukseksi | kirjoita `@` tai alku ja napauta ehdotusta `@viite` | [Ehdotusrivi teksteissä](06-kaavat.md#ehdotusrivi-teksteissä-ja-toimintojen-kentissä-appi-appi-35) |
+| muuttaa tekstin sanan viittaukseksi | kirjoita `@` tai alku ja napauta ehdotusta `@viite` | [Ehdotusrivi teksteissä](06-kaavat.md#ehdotusrivi-teksteissä-ja-toimintojen-kentissä-appi-appi-37) |
 | antaa laskulle nimen | `nimi = lauseke` ja ＋ Luo kaavan tulos | [Kaavan tulos](04-logiikkapalikat.md#kaavan-tulos--tulos) |
 | valita kahdesta arvosta ehdolla | `jos (ehto) a muuten b` tai VALITSE | [Jos, ja, tai](06-kaavat.md#jos-ja-tai) |
+| muuttaa toisen palikan asiaa ehdon ajan ilman nuolta | yleispalikkaan `jos ehto niin @kohde.ominaisuus = arvo` | [Sääntö ♛](04-logiikkapalikat.md#sääntö--appi-appi-98) |
+| tehdä jotain kerran ehdon täyttyessä ilman toimintopalikkaa | yleispalikkaan `kun ehto niin @kohde = arvo` (myös `vaihda`, `käynnistä`, `pysäytä`) | [Sääntö ♛](04-logiikkapalikat.md#sääntö--appi-appi-98) |
+| laskea arvo vaiheittain | monirivinen Sääntö: rivit `@x = …`, `jos … niin @x = @x * …` | [Sääntö ♛](04-logiikkapalikat.md#sääntö--appi-appi-98) |
+| käynnistää kello ehdosta | Sääntö `kun ehto niin @kello = käynnistä` | [Sääntö ♛](04-logiikkapalikat.md#sääntö--appi-appi-98) |
+| odottaa ja tehdä sitten | Sääntö: `kun ehto`, tekorivit ja `odota 5 s`; tai Ketju ja Ajastin | [Sääntö ♛](04-logiikkapalikat.md#sääntö--appi-appi-98), [Ketjut](05-ketjut-ja-toiminnot.md) |
+| käyttää kellonaikaa kaavassa | `nyt.aika`, `klo 18.30` (`kun nyt.aika >= klo 18.30`) | [Ympäristön sanat](06-kaavat.md#ympäristön-sanat-nyt-ruutu-näkymä-tumma) |
+| tietää viikonpäivän tai viikon | `tänään.viikonpäivä`, `tänään.viikko` | [Ympäristön sanat](06-kaavat.md#ympäristön-sanat-nyt-ruutu-näkymä-tumma) |
+| näyttää kellon tai päivän palikassa | logiikan paletti → Yleiset → Kello / Päivä | [Yleispalikka](04-logiikkapalikat.md#yleispalikka-appi-appi-90) |
+| tuoda näkymän palikka logiikkaan | logiikan paletin Näkymässä-osio tai Palikat-lista: vedä kanvaasille | [Paletti](02-tyoymparisto.md#paletti) |
+| piilottaa tai näyttää pistokkeet | logiikan kulman *Pistokkeet: osoitettaessa / piilossa / aina* | [Pistokkeet ja viitteet -asetukset](02-tyoymparisto.md#pistokkeet-ja-viitteet--asetukset) |
+| muokata listan riviä käytössä | napauta rivin tekstiä | [Lista](03-nakymapalikat.md#lista-lista) |
+| listan ilman rastiruutuja | Listan paneeli: Rastisarake pois | [Lista](03-nakymapalikat.md#lista-lista) |
+| kerätä kolikoita laattoina tai tehdä laatasta tapahtuman | lajin rasti Ilmoittaa → *astuttu* ja Maalaa laatta; Rakennuslaatikko → Laatat → Kolikot laattoina | [Laatat pelissä](08-maailma-ja-liike.md#laatat-pelissä-appi-appi-100-104) |
+| tehdä jäästä liukkaan | lajin Liukkaus %; Rakennuslaatikko → Laatat → Jää-laji | [Laatat pelissä](08-maailma-ja-liike.md#laatat-pelissä-appi-appi-100-104) |
+| painelaatta (ovi aukeaa, kun seisoo päällä) | Rakennuslaatikko → Alueet → Painelaatta, tai Ilmoittaa-laji | [Rakennuslaatikko](02-tyoymparisto.md#rakennuslaatikko) |
+| pudota tason läpi | hyppy alas painettuna taso-laatalla | [Laatat pelissä](08-maailma-ja-liike.md#laatat-pelissä-appi-appi-100-104) |
 | näyttää tai piilottaa palikan ehdolla | Näkyvyys-osio tai nuoli kohtaan *näkyy kun* | [Näkyvyys-osio](03-nakymapalikat.md#näkyvyys-osio) |
 | värittää projektin omilla väreillä tai vaihtaa koko paletin | Asetukset → Projektin käyttönäkymän ilme → Oma väri, Palikoiden paletti, Paikat 1–8 | [Paletti ja oma väri](03-nakymapalikat.md#paletti-ja-oma-väri-projektin-asetus) |
 | pyöristää laatikon kulmat (tai tehdä terävät) | Muodon paneelin Kulmat (px), logiikassa `.kulmat` | [Muoto](03-nakymapalikat.md#muoto-muoto) |
@@ -87,6 +103,7 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | käyttää samaa rakennetta uudestaan | suosikit, presetit, kopioi ja liitä | [Suosikit ja presetit](02-tyoymparisto.md#suosikit-ja-presetit) |
 | lisätä monta samaa nopeasti (seiniä, kolikoita, hahmoja) | Rakennuslaatikko, klik klik | [Rakennuslaatikko](02-tyoymparisto.md#rakennuslaatikko) |
 | aloittaa tasoloikan nopeasti (hahmo, hyppy, painovoima, vesi, tikkaat) | Rakennuslaatikko → Hahmot → Pelaaja: tasoloikka; Alueet → Painovoima-alue, Vesi, Tikkaat | [Rakennuslaatikko](02-tyoymparisto.md#rakennuslaatikko) |
+| saada kamera seuraamaan pelaajaa ja ohjaimet pysymään ruudulla | laitenäkymässä Rakennuslaatikko → Hahmot (tekee itse) tai Näkymä → Kamera seuraa; Alueet → Kameran rajat | [Rakennuslaatikko](02-tyoymparisto.md#rakennuslaatikko), [Maailma ja kamera](08-maailma-ja-liike.md) |
 | maalata laattoja rakennuslaatikosta | Rakennuslaatikko → Laatat → kartta, sitten laji | [Rakennuslaatikko](02-tyoymparisto.md#rakennuslaatikko), [Maalaus](08-maailma-ja-liike.md#maalaus) |
 
 ## Palikat

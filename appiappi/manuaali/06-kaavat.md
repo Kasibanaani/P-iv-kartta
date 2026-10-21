@@ -353,16 +353,19 @@ Päivämäärän osat (viikko, viikonpäivä, kuukausi …) saa Päivämäärä-
 | `nyt.tunti` | 0–23 | luku |
 | `nyt.minuutti` | 0–59 | luku |
 | `nyt.sekunti` | 0–59 | luku |
+| `nyt.aika` (Appi-appi 101) | kellonaika laskettavana: sekunteja vuorokauden alusta **minuutin tarkkuudella** (jotta `kun nyt.aika = klo 18.30` pätee koko minuutin); näkyy muodossa h.mm | luku (aika) |
+| `klo 18.30`, `klo 7`, `klo 7:30` | kellonaika laskettavana (yli 24 tai minuutit yli 59 = virhe); `klo` ilman numeroa perässä on tavallinen viite | luku (aika) |
 | `nyt.päivä` (`nyt.paiva`) | tämä päivä **päivän rajan mukaan** (Asetukset → Päivämäärät): rajalla 4 kello 2.00 vielä eilinen | päivämäärä |
+| `tänään.viikonpäivä`, `.viikko`, `.päivä`, `.kuukausi`, `.vuosi` (Appi-appi 101; myös `huomenna`, `eilen`, `nyt.päivä`, ilman ääkkösiä) | samat osat kuin Päivämäärä-kentällä, esim. `tänään.viikonpäivä = "tiistai"`, `nyt.päivä.viikko` | teksti / luku |
 | `ruutu.leveys` | ruudun leveys pikseleinä | luku |
 | `ruutu.korkeus` | ruudun korkeus pikseleinä | luku |
 | `näkymä` tai `näkymä.nimi` | auki olevan näkymän nimi; lukitussa käytössä logiikka lasketaan heti välilehteä vaihdettaessa, joten KUN `näkymä = "Peli"` laukeaa vaihdossa | teksti |
 | `näkymä.numero` | auki olevan näkymän numero | luku |
 | `tumma` | onko tumma teema käytössä | kyllä/ei |
 
-Väärät muodot antavat virheen, joka luettelee oikeat: `nyt.x ei ole käytössä (nyt.kello, nyt.tunti, nyt.minuutti, nyt.sekunti, nyt.päivä)`, `ruutu: käytössä ruutu.leveys ja ruutu.korkeus`, `näkymä.x: käytössä näkymä ja näkymä.numero`, `tumma on kyllä/ei ilman ominaisuutta`.
+Väärät muodot antavat virheen, joka luettelee oikeat: `nyt.x ei ole käytössä (nyt.aika, nyt.kello, nyt.tunti, nyt.minuutti, nyt.sekunti, nyt.päivä)`, `ruutu: käytössä ruutu.leveys ja ruutu.korkeus`, `näkymä.x: käytössä näkymä ja näkymä.numero`, `tumma on kyllä/ei ilman ominaisuutta`.
 
-`nyt` on kellonaika tekstinä (`9.30`), ei laskettava aika. Tunteja ja minuutteja vertaa luvuilla: `nyt.tunti >= 18`.
+`nyt` on kellonaika tekstinä (`9.30`), ei laskettava aika. Laskettava aika on `nyt.aika` (Appi-appi 101): `nyt.aika >= klo 18.30`, `klo 22 - nyt.aika` (aikaa kymmeneen, näkyy h.mm, esim. 3.31; negatiivinen `−0.15`). Kellonaikana näkyy kaavan tulos, jossa on `nyt.aika` tai `klo` (myös summa, erotus tai `jos`-haara); Monitoriin aika menee sekunteina kuten Sekuntikellon kulunut. Kun-rivin ehtona kello laukaisee kerran ([Sääntö ♛](04-logiikkapalikat.md#sääntö--appi-appi-98)). Tunteja ja minuutteja voi edelleen verrata luvuilla: `nyt.tunti >= 18`.
 
 `tänään` vai `nyt.päivä`? `tänään` on aina kalenteripäivä (vaihtuu keskiyöllä). `nyt.päivä` noudattaa projektin päivän rajaa samalla säännöllä kuin kirjauksen `aika.päivä`, joten historian ehto kirjoitetaan `kirjaus.aika.päivä = nyt.päivä` (luku [Tieto](07-tieto.md#kirjaushistoria)). Ilman päivän rajaa ne ovat sama päivä. Huom. `loki.tänään` (taulukon ominaisuus) on kirjausten määrä tänään, ei päivämäärä.
 
@@ -811,6 +814,8 @@ Oletus: `uni` = 6 (Säädin), `nimi` = "Maija Meikäläinen" (Tekstikenttä), `o
 | päivämäärä | `24.12.` | 24.12.2026 |
 | `nyt` | `nyt` | 9.30 |
 | `nyt.tunti` / `.minuutti` / `.sekunti` | `nyt.tunti` | 9 |
+| `nyt.aika`, `klo 18.30` | `klo 22 - nyt.aika` | 12.30 (h.mm) |
+| `tänään.viikonpäivä` | `tänään.viikonpäivä` | tiistai |
 | `nyt.päivä` | `nyt.päivä` | 17.10.2026 (päivän rajan mukaan) |
 | `ruutu.leveys` / `.korkeus` | `ruutu.leveys` | esim. 390 |
 | `näkymä` / `näkymä.numero` | `näkymä` | esim. Koti |

@@ -4,6 +4,12 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
 
 ## Versiot
 
+- Linjakkuuskartoitus 14 (21.10., Appi-appi 95–105; ei versiota, ei sovelluskoodia): raportti `kartoitukset/2026-10-21-linjakkuus-14.md`.
+  - Löydökset: S1 paletin Kello-esiasetus (`= nyt`) antaa tekstin, joten `@kello >= klo 12` on ei ja `@kello + 60` = 72.15, eikä kellonaika kulje viitteen yli; S2 `tapahtuma.kohde`/`.kuka`/`.lähde` ovat nimiä tekstinä ja uudelleennimeäminen rikkoo vertailun hiljaa (`@x.nimi` puuttuu); S3 laattalajin nimen vaihto rikkoo `tapahtuma.laji = "Kolikko"` hiljaa; S4 `=` vertailuna ja asetuksena (Emilin päätös, suositus pitää); S5 A3 ja Säännön tavan poikkeus `PALIKKASAANNOT.md`:hen (tehty); S6 kaksi painelaattaa (manuaaliin, tehty). Korjaukset jonon 1y:hyn (kaista A, ennen 42c:tä).
+  - Manuaali koottu *Manuaaliin:*-riveistä 95–105 (luvut 2–8, 10, 11; 96:n teksti haarasta `ea9fae4`), uusi luku 4 *Sääntö ♛* ja luku 8 *Laatat pelissä*. Seuraava koonti kartoitus 15:ssä; *Manuaaliin:*-rivit 106:sta alkaen.
+  - `PALIKKASAANNOT.md`: A3 sääntö etusijaan, tavan poikkeus Sääntö, viimeisin kartoitus. Kartoituslaskuri 0/10.
+  - Koko sarja: kaikki 253 läpi (logiikka 112/112, selain 141/141) commitilla `c99cb8b` kartoittajan koneella; `selain_39` kaatui kopiokansiossa (puuttuva repojuuren uudelleenohjaus) ja meni läpi repossa ajettuna. `selain_91_keveys` 1440 px: 60,4 kuvaa/s, moottori 2,1 ms, joukkosuhde 3,1. Vain tietokoneen Chromiumissa.
+
 - Appi-appi 105 (21.10., kaista A, jonon 42b, suunnitelma 31 V2; tallennusmuoto laajenee valinnaisella kentällä, versio pysyy 12): **Listan rastisarake valinnaiseksi.**
   - Listan paneelissa rasti **Rastisarake (rivin voi kuitata tehdyksi)**, oletus päällä (puuttuva kenttä = päällä, vanhat projektit ennallaan). Pois (`b.rasti = false`): riveiltä katoaa rastiruutu ja otsikosta *n/m*; arvo ja `.rastitettuja` = 0, `.kaikki` = ei, `rivi1.rastitettu` = ei, `.myöhässä` ja `.seuraava` laskevat kaikki rivit. Tallennetut rastit säilyvät käyttötiedossa ja palaavat, kun sarake laitetaan takaisin. Moottori: `listNyt` (lukijat ja Kalenterin merkinnät), kirjoitus ennallaan `listRows`.
   - **Korjaus samalla (Kumoa):** paneelin rastin kohdistus teki oman Kumoa-askeleensa muutoksen jälkeen, joten minkä tahansa paneelin rastin peruminen vaati kaksi tai kolme painallusta. Nyt rasti tekee yhden askeleen (`focusin` ei tee askelta rastille).

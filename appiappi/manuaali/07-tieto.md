@@ -234,10 +234,11 @@ Antaa tiedot tapahtumasta, joka käynnisti toiminnon tai ketjun. Tiedot ovat tap
 | `tapahtuma.rivi` | taulukon rivi (riviviite) |
 | `tapahtuma.rivi.määrä` | sen rivin kenttä nyt |
 | `tapahtuma.taulukko` | rivin taulukon nimi |
-| `tapahtuma.lähde` | palikan nimi, josta tapahtuma lähti |
+| `tapahtuma.lähde` | palikan nimi (tekstinä), josta tapahtuma lähti |
 | `tapahtuma.aika`, `tapahtuma.päivä` | kellonaika (h.mm) ja päivä |
 | `tapahtuma.tunniste`, `tapahtuma.on` | tunniste ja onko tapahtumaa |
-| `tapahtuma.kohde`, `.isku`, `.puoli`, `.voima`, `.x`, `.y`, `.ruutux`, `.ruutuy` | törmäyksen, laskeutumisen ja napautuksen tiedot (muut luvut) |
+| `tapahtuma.kohde`, `.isku`, `.puoli`, `.voima`, `.x`, `.y`, `.ruutux`, `.ruutuy` | törmäyksen, laskeutumisen ja napautuksen tiedot (muut luvut); `kohde` on palikan **nimi tekstinä**, joten vertailu kirjoitetaan `tapahtuma.kohde = "Vihollinen"` (ei `= @vihollinen`, joka antaisi palikan arvon) |
+| `tapahtuma.laji`, `tapahtuma.kuka` (Appi-appi 100) | Laattakartan *astuttu* ja *poistuttu*: laatan lajin nimi ja liikkujan nimi tekstinä; *törmäsi* laattaan antaa myös `laji` ja ruudun ([Laatat pelissä](08-maailma-ja-liike.md#laatat-pelissä-appi-appi-100-104)) |
 | `tapahtuma.nappi` | Peliohjaimen *painettu* ja *irrotettu*: napin nimi, esim. `alanappi` |
 | `tapahtuma.jäsen`, `tapahtuma.jäsen.<ominaisuus>` | Joukon *jäsen …* -tapahtuma ja Toista jäsenille -kierros: jäsenen nimi ja sen ominaisuus nyt ([Jäsenten tapahtumat](#jäsenten-tapahtumat-appi-appi-63)) |
 | `tapahtuma.suunta` | janan merkissä 1 eteenpäin, −1 taaksepäin ([Jana](05-ketjut-ja-toiminnot.md#jana-jana)); `tapahtuma.uusi` on silloin merkin kohta |
