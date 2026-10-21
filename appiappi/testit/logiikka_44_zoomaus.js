@@ -21,7 +21,7 @@ A.strictEqual(KK.zoomNyt(P,vw,C,'abc'),100);A.strictEqual(KK.zoomAseta(P,vw,200,
 var kb=KK.addBlock(P,'kamera',{vw:vw});var kn=N(P,kb);
 A.strictEqual(KK.K.kamera.n,'Kamera');A.strictEqual(KK.K.kamera.g,'lg');
 var pr=KK.ports(kb);A.deepStrictEqual(pr.outs.map(function(x){return x.p;}),['v','lev','kor']);A.deepStrictEqual(pr.ins.map(function(x){return x.p;}),['o_zoomaus'],'zoomaus-kohta auki valmiiksi');
-A.deepStrictEqual(KK.omat(kb).map(function(e){return e.n;}),['zoomaus','leveys','korkeus','joukot']);
+A.deepStrictEqual(KK.omat(kb).map(function(e){return e.n;}),['zoomaus','leveys','korkeus','joukot','nimi']);
 A.strictEqual(KK.kameraBlk(P,vw),kb.id);
 var ev=E(P);A.strictEqual(ev.val(kb.id),100,'perusarvo 100');A.strictEqual(ev.val(kb.id,'lev'),390);A.strictEqual(ev.val(kb.id,'kor'),844);
 A.strictEqual(KK.zoomNyt(P,vw,C,250),100,'palikan kanssa sormien ui-arvo ei vaikuta');

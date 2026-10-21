@@ -4,6 +4,16 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
 
 ## Versiot
 
+- Appi-appi 106 (21.10., kaista A, jonon 1y = kartoitus 14:n S1–S3; ei tallennusmuodon muutosta, versio pysyy 12): **Kello laskettavaksi, palikan nimi tekstinä, laattalajin nimenvaihto kaavoihin.**
+  - **Kello (S1):** logiikan paletin Kello-esiasetus on nyt `= nyt.aika` (ennen `= nyt` = teksti). `@kello >= klo 12` ja `@kello + 60` toimivat kellonaikana. Kaava, jossa on viite kellonaikakaavaan (esim. `= @kello + 3600`), näkyy myös h.mm (kehä katkaistaan). Vanhat Kello-palikat ja `nyt` ennallaan.
+  - **`nimi` (S2):** jokaisella palikalla (paitsi ryhmä ja vanha joukko) luettava ominaisuus `nimi` = palikan nimi tekstinä, seuraa uudelleennimeämistä: `tapahtuma.kohde = @vihollinen.nimi` (myös `.kuka`, `.lähde`, `alla`, `törmäyskohde`). Palikka, jolla on jo oma `nimi` (peliohjaimen pohja), pitää omansa. `@viite` ennallaan.
+  - **Laattalajin nimi (S3):** Laattakartan lajin nimen vaihto päivittää kaavojen `.määrä.vanha`-polut ja `"Vanha"`-tekstit kaavoissa, joissa on `.laji` tai `.laatta` (myös Säännön osat); ilmoitus kertoo montako kaavaa muuttui, Kumoa peruu yhdellä painalluksella. Muut tekstit ennallaan.
+  - Testit: uudet `logiikka_113_kartoitus14.js`, `selain_142_kartoitus14.py`; `selain_137_kello` odottaa `nyt.aika`; tarkat ominaisuuslistat (`logiikka_41`, `42`, `44`) saivat `nimi`:n (sääntömuutos, ei löysennys). Samalla `KK.PAJA` korjattu (105 jäi 104:ään).
+  - Ristiintarkistus kaista B:n kanssa: 104:n *Kolikot laattoina* + lajin nimen vaihto → keräyskaava ja `tapahtuma.laji` toimivat (`selain_142`). Kaista B:n 20 (pikselipiirto) oli kesken, ei kokeiltu.
+  - Ei tarkistettu: oikea iPhone; vain tietokoneen Chromium. Kaavat, joissa lajin nimi on muualla kuin `.laji`/`.laatta`-kaavan tekstinä, eivät päivity (tarkoituksella).
+  - Kokeile koneella: Logiikka → Yleiset → Kello, kirjoita toiseen palikkaan `= @kello + 3600` → näkyy tunnin päässä h.mm. Nimeä palikka uudelleen ja katso, että `= @x.nimi` seuraa. Laattakartan lajin nimen vaihto → ilmoitus ja kaavat päivittyvät, Kumoa peruu.
+  - Manuaaliin: poista luvun 11 kartoitus 14 -rivit (Kello tekstinä, nimi tekstinä); lisää `nimi` lukuun 3 *Yhteiset ominaisuudet* ja esimerkki `tapahtuma.kohde = @vihollinen.nimi` lukuun 7 *Tapahtuman tiedot*; luvun 2/4 Kello-esiasetus `= nyt.aika`; luku 8 *Laatat pelissä*: lajin nimen vaihto päivittää kaavat.
+
 - Linjakkuuskartoitus 14 (21.10., Appi-appi 95–105; ei versiota, ei sovelluskoodia): raportti `kartoitukset/2026-10-21-linjakkuus-14.md`.
   - Löydökset: S1 paletin Kello-esiasetus (`= nyt`) antaa tekstin, joten `@kello >= klo 12` on ei ja `@kello + 60` = 72.15, eikä kellonaika kulje viitteen yli; S2 `tapahtuma.kohde`/`.kuka`/`.lähde` ovat nimiä tekstinä ja uudelleennimeäminen rikkoo vertailun hiljaa (`@x.nimi` puuttuu); S3 laattalajin nimen vaihto rikkoo `tapahtuma.laji = "Kolikko"` hiljaa; S4 `=` vertailuna ja asetuksena (Emilin päätös, suositus pitää); S5 A3 ja Säännön tavan poikkeus `PALIKKASAANNOT.md`:hen (tehty); S6 kaksi painelaattaa (manuaaliin, tehty). Korjaukset jonon 1y:hyn (kaista A, ennen 42c:tä).
   - Manuaali koottu *Manuaaliin:*-riveistä 95–105 (luvut 2–8, 10, 11; 96:n teksti haarasta `ea9fae4`), uusi luku 4 *Sääntö ♛* ja luku 8 *Laatat pelissä*. Seuraava koonti kartoitus 15:ssä; *Manuaaliin:*-rivit 106:sta alkaen.

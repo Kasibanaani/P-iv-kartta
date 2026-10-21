@@ -6,7 +6,7 @@ Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- 
 
 ## Valmiina
 
-- Appi-appi 0–104 ja Pajakone 1–4: versioittain `MUUTOKSET.md` (uusin ensin, myös kunkin version *Ei tarkistettu* ja *Kokeile koneella*). Käyttäjän näkökulmasta koko appi: `manuaali/`. Vanhat Valmiina-rivit: `TILA-arkisto.md`.
+- Appi-appi 0–106 ja Pajakone 1–4: versioittain `MUUTOKSET.md` (uusin ensin, myös kunkin version *Ei tarkistettu* ja *Kokeile koneella*). Käyttäjän näkökulmasta koko appi: `manuaali/`. Vanhat Valmiina-rivit: `TILA-arkisto.md`.
 - **Uusi versio** kirjataan vain `MUUTOKSET.md`:hen; tänne ei lisätä riviä.
 
 ## Jono
@@ -17,7 +17,6 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 **Haarat ja tarkistuspisteet (Emil 17.10.2026):** ⏸-merkitty kohta odottaa Emilin päätöstä. Jono ei pysähdy siihen: rakentaja tai vahti ilmoittaa Emilille ja jatkaa seuraavaan kohtaan, joka ei riipu odottavasta. Kohta, josta mikään jonossa ei riipu, on oma haaransa; Emil voi ottaa sen käsittelyyn milloin haluaa. Avoimista haaroista muistutetaan Emiliä säännöllisesti (ajastettu muistutus APPI-APPI-projektin ketjussa *Tilastot ja oppiminen*).
 
-1y. **Kartoitus 14:n korjaukset** (**työn alla, kaista A**, ennen 42c:tä; `kartoitukset/2026-10-21-linjakkuus-14.md` S1–S3; ei tallennusmuodon muutosta): (a) **S1:** logiikan paletin Kello-esiasetus `= nyt.aika` (nyt `= nyt` = teksti, joten `@kello >= klo 12` on ei ja `@kello + 60` = 72.15); `kaavaAika` pitää kellonaikana myös kaavan, jossa on viite kellonaikapalikkaan (kehä katkaistaan), jolloin `= @kello + 3600` näkyy h.mm. Vanha `nyt` ja jo tehdyt Kello-palikat ennallaan. (b) **S2:** yhteinen luettava ominaisuus `nimi` (teksti) kaikille palikoille `omat`-rekisteriin, jotta `tapahtuma.kohde = @vihollinen.nimi` (myös `.kuka`, `.lähde`, Liikkeen `alla`, `törmäyskohde`) kestää uudelleennimeämisen; Tapahtuman tietojen ohjeeseen esimerkki. `@viite` ei saa uutta merkitystä. (c) **S3:** laattalajin nimen vaihto päivittää kaavojen `.määrä.vanha`-polut ja `"Vanha"`-tekstit kaavoissa, joissa on `.laji` tai `.laatta`; ilmoitus kertoo montako kaavaa muuttui, Kumoa peruu. Testit: paletin Kello vertailussa ja laskussa 12.15, nimen vaihto ja `@x.nimi`-vertailu, Kolikot laattoina + lajin nimen vaihto → keräys toimii. Manuaaliin: poista luvun 11 kartoitus 14 -rivit (Kello, nimi tekstinä), lisää `nimi` lukuun 3 *Yhteiset ominaisuudet* ja lukuun 7 *Tapahtuman tiedot*.
 41. **Aika ja päivä kaavassa: tehty Appi-appi 101** (kaista A, Emil 20.10. kärkeen; `nyt.aika`, `klo 18.30`, päivän sanojen `.viikko`/`.viikonpäivä`…, Kello- ja Päivä-esiasetus, kello kun-rivin laukaisijana; yksityiskohdat `MUUTOKSET.md`).
 
 37d. **⏸ Vanhat yleispalikoiksi** (kohta 6; Emilin kokeilun jälkeen). 37e. **⏸ Ketju ja Jana yleisikkunan tarkoituksiksi.** 37f. **⏸ Säätimet ja triggerit samalla periaatteella** (oma suunnitelma).
@@ -47,9 +46,9 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 ## Seuraavaksi
 
-- **Uusin vienti:** Appi-appi 105 (kaista A, jono 42b: Listan rastisarake valinnaiseksi, Kumoa yhdellä painalluksella paneelin rastille). Versiot ja kokeiluohjeet vain `MUUTOKSET.md`:ssä; tähän vain uusin vienti ja laskuri (korvaa edellinen). Edelliset: 104 (kaista B, laatat) ja 103 (kaista A, Listan rivit muokattaviksi). **Kartoituslaskuri 0/10** (kartoitus 14 tehty 105:n jälkeen).
+- **Uusin vienti:** Appi-appi 106 (kaista A, jono 1y: kartoitus 14:n korjaukset S1–S3, Kello `= nyt.aika`, `@x.nimi`, laattalajin nimenvaihto päivittää kaavat). Versiot ja kokeiluohjeet vain `MUUTOKSET.md`:ssä; tähän vain uusin vienti ja laskuri (korvaa edellinen). Edelliset: 105 (kaista A, Listan rastisarake) ja 104 (kaista B, laatat). **Kartoituslaskuri 1/10** (kartoitus 14 tehty 105:n jälkeen).
 - **Linjakkuuskartoitus 14 tehty 21.10.** (95–105, `kartoitukset/2026-10-21-linjakkuus-14.md`): linja pitää; saumat Kello-esiasetuksessa ja palikan nimessä tekstinä → jonon 1y. Manuaali koottu *Manuaaliin:*-riveistä 95–105. S4 päätetty (Emil 21.10.): `=` pysyy vertailuna ja asetuksena, vihje jonon 40g:ssä.
-- **Seuraavaksi:** kehitys jatkuu (Emil 21.10.): kaista A jonon 1y, sitten 42c→; kaista B seuraava vapaa 2D-kohta (20). 37d–f odottavat Emiliä.
+- **Seuraavaksi:** kehitys jatkuu (Emil 21.10.): kaista A jonon 42c→; kaista B seuraava vapaa 2D-kohta (20). 37d–f odottavat Emiliä.
 - **Linjakkuuskartoitukset:** viimeisin ja aiemmat luetellaan `PALIKKASAANNOT.md`:n lopussa; tehtyjen kartoitusten yhteenvedot `TILA-arkisto.md`:ssä.
 - **Koeapit (Appi-appi 23) toivat esiin:** tekstihaku (Appi-appi 30) ja taulukon `eka`/`vika` (Appi-appi 31) tehty. Ei jonossa: kapeassa kortissa Lukukentän omat −/+ peittävät luvun, joten C näyttää määrän Tekstinä.
 - Järjestys: Jono yllä. Kokonaiskuva ja loput paketit (P4–P7): `SUUNNITELMA.md`.

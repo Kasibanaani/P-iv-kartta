@@ -1,4 +1,4 @@
-# Jono 41 ja 40f selaimessa: paletin Kello on tavallinen yleispalikka (= nyt), kellonaikakaava näkyy h.mm-muodossa,
+# Jono 41 ja 40f selaimessa: paletin Kello on tavallinen yleispalikka (= nyt.aika, kartoitus 14), kellonaikakaava näkyy h.mm-muodossa,
 # säännön ketju (odota) näyttää etenemisen tilassa. Tietokone 1440 ja 1280. Kuvat kello_*.png.
 import asyncio,re
 from playwright.async_api import async_playwright
@@ -20,7 +20,12 @@ async def main():
             if await pg.evaluate("()=>!!document.querySelector('#yedit')"):
                 await pg.focus('#yedit textarea');await pg.keyboard.press('Enter');await pg.wait_for_timeout(200)
             s=await P(pg,"(function(){var b=B('Kello');return b&&[b.k,!!b.yl,b.f,KK.ylLaji(P,b),E().val(b.id)];})()")
-            print(W,'1 kello:',s);assert s and s[0]=='kaava' and s[1] and s[2].lstrip('= ')=='nyt' and s[3]=='kaava' and re.match(r'^\d{1,2}\.\d\d$',s[4]),s
+            print(W,'1 kello:',s);assert s and s[0]=='kaava' and s[1] and s[2].lstrip('= ')=='nyt.aika' and s[3]=='kaava' and isinstance(s[4],(int,float)),s
+            # 1b kartoitus 14 S1: paletin Kello on laskettava kellonaika: palikassa h.mm, vertailu ja lasku toimivat, viite + 3600 näkyy h.mm
+            lab=await pg.evaluate("()=>[...document.querySelectorAll('#lworld .ln.yl')].map(e=>e.textContent).join('|')");assert re.search(r'\d{1,2}\.\d\d',lab),lab
+            v=await P(pg,"(function(){var P=APP.P;var y=KK.addBlock(P,'arvo',{yl:1});KK.addNode(P,y.id,300,300);KK.ylAseta(P,y,'= @kello >= klo 0','@');var z=KK.addBlock(P,'arvo',{yl:1});KK.addNode(P,z.id,300,360);KK.ylAseta(P,z,'= @kello + 3600','@');KK.setName(P,z.id,'Tunnin päästä');KK.repair(P);APP.renderAll();return [E().val(y.id),KK.kaavaAika(z.f,P)];})()")
+            await pg.wait_for_timeout(150);lab=await pg.evaluate("()=>[...document.querySelectorAll('#lworld .ln.yl')].map(e=>e.textContent).filter(t=>t.indexOf('Tunnin')>=0).join('')")
+            print(W,'1b laskettava:',v,lab);assert v==[True,True] and re.search(r'\d{1,2}\.\d\d',lab),(v,lab)
             # 2 Päivä
             r=await paikka(pg,0.5,0.5);await raahaa(pg,'▦',r[0],r[1]);await pg.wait_for_timeout(200)
             if await pg.evaluate("()=>!!document.querySelector('#yedit')"):
