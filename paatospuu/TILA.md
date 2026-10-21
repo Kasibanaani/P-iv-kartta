@@ -80,6 +80,8 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 ## Seuraavaksi
 
+- Arvio ja jatkokehitys 21.10.2026 (Claude Doc): https://claude.ai/artifact/UXJ416PaGLHh7mwufxmuaH. Suositus: iPhone-kokeilu, sitten näkyvyys (miksi tämä, termiosumat, nimen vaihto tekstikentässä, varmuuskopion muistutus), termilohkot, JA-ehdot, esiin nousevat apukysymykset.
+
 - Emil kokeilee puhelimella. Mahdolliset seuraavat: säännöt myös tekstimuodossa (koko puu tekoälyllä), ilmoitusten kumoutuminen myöhemmin, termien opetus napauttamalla.
 
 ## Avoimet kysymykset
