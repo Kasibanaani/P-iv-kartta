@@ -253,4 +253,15 @@ E.moveEntry(de.timed[0],600,660,false);eq('siirto kenttään',cn[3].time,{s:'10:
 eq('kenttä ei korvaa tekstin aikaa',E.noteDates({text:'klo 8',created:'2026-10-20T08:00:00Z',time:{s:'09:00',e:''}})[0].time.s,'08:00');
 eq('normalisointi säilyttää ajan',E.normalizeData({app:'paatospuu',muistiinpanot:[{id:'x',text:'t',time:{s:'09:15',e:'bad'}}]}).notes[0].time,{s:'09:15',e:''});
 
+// tärkeysjärjestys, aikatermit, roskakori (1.18)
+var TD='2026-10-21',mk=function(t,c){return {id:t,created:c||'2026-10-01T08:00:00Z',edited:c||'2026-10-01T08:00:00Z',text:t,date:''};};
+eq('aikatermit',['Asia 21.10.2026','Asia 22.10.2026','Asia 24.10.2026','Asia 1.11.2026','Asia 5.10.2026','Ei aikaa'].map(function(t){return E.timeTermOf(mk(t),TD);}),['z:today','z:tomorrow','z:week',null,'z:late',null]);
+eq('täysi järjestys',E.fullOrder(['c','x','a'],['a','b','c']),['c','a','b']);
+eq('siirto järjestyksessä',E.moveInOrder(['c','a'],['a','b','c'],'b',-1),['c','b','a']);eq('reunalla ei siirry',E.moveInOrder([],['a','b'],'a',-1),['a','b']);
+var pn=[mk('x','2026-10-02T08:00:00Z'),mk('y','2026-10-03T08:00:00Z'),mk('z','2026-10-04T08:00:00Z'),mk('w','2026-10-05T08:00:00Z')],rk={x:2,y:0,z:Infinity,w:Infinity};
+eq('tärkeysjärjestys, osumattomat loppuun uusin ensin',E.prioSort(pn,function(n){return rk[n.id];},TD).map(function(n){return n.id;}),['y','x','w','z']);
+eq('roskakori 30 pv',E.purgeTrash([{deleted:'2026-09-01T00:00:00Z'},{deleted:'2026-10-01T00:00:00Z'}],new Date('2026-10-21T00:00:00Z').getTime()).length,1);
+var nd3=E.normalizeData({app:'paatospuu',muistiinpanot:[{id:'a',text:'t',done:'2026-10-21T10:00:00Z'}],roskakori:[{id:'b',text:'u',deleted:'2026-10-21T10:00:00Z'},{id:'c',text:'v'}],jarjestys:['z:late',3]});
+eq('kuittaus, roskakori ja järjestys tallessa',[nd3.notes[0].done,nd3.trash.map(function(n){return n.id;}),nd3.order],['2026-10-21T10:00:00Z',['b'],['z:late']]);
+
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);

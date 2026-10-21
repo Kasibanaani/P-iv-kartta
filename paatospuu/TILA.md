@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.17 (suunnitelman vaihe 7a), odottaa Emilin kuittausta · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.18 (suunnitelman vaihe 8), odottaa Emilin kuittausta; seuraavaksi 7b · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -130,9 +130,16 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Merkintä: otsikko = ensimmäinen rivi ilman tunnistettuja ajankohtia. Lyhyt napautus avaa muistiinpanon. Pitkä painallus (350 ms) nostaa (varjo, paksu reuna), siirto 15 min askelin, reunan lähellä vierittää. Kulmaväkänen muuttaa loppuaikaa heti (katkoviiva).
 - Aika kirjoittuu sinne, mistä se tuli: tekstin `klo …` korvataan (toistuvassa muistiinpanossa kaikkina päivinä), muuten kenttä. Muistiinpanon ikkunassa uusi *Kellonaika*-kenttä (alkaa–päättyy), joka näkyy vain, kun tekstissä ei ole aikaa. Tallennus: muistiinpanoon `time:{s,e}`.
 
+## Versio 1.18 (21.10.2026, suunnitelman vaihe 8): tärkeysjärjestys, kuittaus, roskakori, valikko
+
+- Emil hyväksyi suositukset: vaihe 8 ennen 7b:tä, osumattomat loppuun uusin ensin, aikatermit Myöhässä/Tänään/Huomenna/Tällä viikolla, Liitä termiin lisää `#Nimi`-rivin. 7b:hen: pudotus viikkonauhan päivälle muuttaa yksittäisen päivän, toistuva ei siirry.
+- Termit-ikkunassa yksi luettelo *Tärkeysjärjestys* (aikatermit, omat termit, puiden termit), siirto ↑↓. Tallennus `jarjestys:[id]`; puuttuvat oletuksena perään (aikatermit, omat, puiden rivijärjestys).
+- Muistiot: *Avoimet / Kuitatut* ja järjestys *Tulevat / Uusimmat / Tärkeys* paneelin yläosassa (alapalkissa vain + Uusi ja Termit). Tärkeys = tärkeimmän osuvan termin tai aikatermin paikka; tasatilanteessa aikaisempi ajankohta, sitten uusin.
+- Pitkä painallus muistiinpanokorttiin: *Kuittaa / Palauta avoimeksi*, *Liitä termiin* (termisirut), *Poista*. Poisto ja tyhjäksi tyhjennetty teksti vievät roskakoriin ilman varmistusta; Asetuksissa *Roskakori* (napautus palauttaa, tyhjennys kahdella painalluksella). Yli 30 pv vanhat poistuvat avattaessa. Tallennus `done` muistiinpanossa, `roskakori:[…]`.
+
 ## Ei tarkistettu
 
-- Oikealla iPhonella ei kokeiltu: kalenterin pitkä painallus ja raahaus (sivun vieritys ei saa lähteä mukaan, iOS:n valintavalikko ei saa aueta), kulmaväkänen, viikkonauhan pyyhkäisy, apukysymyskortit näppäimistön kanssa, tekstin valinta ja Liitä termiin -nappi (iOS:n oma valintavalikko), tekstikentän värikerroksen kohdistus Safarissa (kursori, valinta, vieritys), zoomauksen esto ja yläreunan lisätila (näkyy vain kotinäytön appina), jakoikkunan tiedostovienti, päivämäärävalitsin, näppäimistö alapalkin kanssa, tekstikentän koko.
+- Oikealla iPhonella ei kokeiltu: muistiinpanokortin pitkä painallus (iOS:n valikko ei saa aueta), järjestysnuolet pitkällä listalla, kalenterin pitkä painallus ja raahaus (sivun vieritys ei saa lähteä mukaan, iOS:n valintavalikko ei saa aueta), kulmaväkänen, viikkonauhan pyyhkäisy, apukysymyskortit näppäimistön kanssa, tekstin valinta ja Liitä termiin -nappi (iOS:n oma valintavalikko), tekstikentän värikerroksen kohdistus Safarissa (kursori, valinta, vieritys), zoomauksen esto ja yläreunan lisätila (näkyy vain kotinäytön appina), jakoikkunan tiedostovienti, päivämäärävalitsin, näppäimistö alapalkin kanssa, tekstikentän koko.
 - Nimen vaihto tekstikentässä seuraa vain, kun yksi rivi muuttuu kerrallaan. Leikkaa–liitä tai usean rivin muutos ei vie viittauksia mukana (Opetus näyttää ”Säännöt ilman riviä”). Termien sanat (`termisanat`) eivät seuraa nimen vaihtoa.
 - Oikealla iPhonella ei kokeiltu kursorin pysymistä, kun nimen vaihto muuttaa muita rivejä.
 
@@ -144,7 +151,7 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 ## Avoimet kysymykset
 
-- Emilin toiveet 21.10.2026: tärkeysjärjestys termiluettelon järjestyksenä, muistiinpanot sen mukaan, aikatermit, kuittaus arkistoon, roskakori 30 pv, pitkän painalluksen valikko. Suunnitelman vaihe 8, ei rakennettu.
+- Kuitatut näkyvät yhä kalenterissa ja päivän kierroksen esivalinnoissa. Kysymys Emilille, pitäisikö ne piilottaa.
 
 - Emil hyväksyi 21.10.2026 kaikki suositukset dokumentista *Päätöspuu: avoimet kysymykset* (https://claude.ai/artifact/RFMnrpTAm7fb7r9prDPz8q). Toteutus etenee vaihe kerrallaan: `SUUNNITELMA-vaiheet.md` (pelisäännöt, vaiheiden tila ja kunkin vaiheen kysymykset). Seuraavaan vaiheeseen vasta Emilin kuittauksen ja vastausten jälkeen.
 - Ratkaistu: suhteellisten päivien pohja on luontihetki (17), nimi ”kierros” jää (24), päivän muistiinpanoihin lasketaan välit (Emil: ”Juu!”).

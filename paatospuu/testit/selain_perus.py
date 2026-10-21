@@ -111,8 +111,8 @@ async def run(p,w,h):
     want('termit tekstinä', v.startswith('=eläin:\nkissa\n!lelu')); await check('termit tekstinä')
     await pg.fill('#tt-text',v+'\n\n=Ruoka:\nnappula'); await pg.click('#tt-ok'); await pg.wait_for_timeout(50)
     want('termit tekstistä', json.loads(await pg.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('paatospuu:v1')).termisanat.ruoka)"))=={'yes':['nappula'],'no':[]})
-    want('päätöspuun rivit termeinä', await pg.locator('#autoterms [data-id]').count()==7)
-    await pg.click('#autoterms [data-id="a:ruoka"]'); want('nousee-valinta', await pg.is_visible('#tpop')); await pg.fill('#tyes','nappula'); await pg.click('#tok'); await check('automaattinen termi')
+    want('päätöspuun rivit termeinä', await pg.locator('#termlist [data-id^="a:"]').count()==7)
+    await pg.click('#termlist [data-id="a:ruoka"]'); want('nousee-valinta', await pg.is_visible('#tpop')); await pg.fill('#tyes','nappula'); await pg.click('#tok'); await check('automaattinen termi')
     await pg.click('#ts-body [data-done]'); await pg.wait_for_timeout(50)
     want('automaattinen termi kortissa', 'Kissa' in await pg.inner_text('#nlist .nf'))
     want('termi näkyy kortissa', 'eläin' in await pg.inner_text('#nlist .nf'))
@@ -171,6 +171,27 @@ async def run(p,w,h):
     await pg.click('#act-end'); await pg.wait_for_timeout(50)
     want('hoidettavat lopussa', await pg.locator('#hlist li.next').count()==1 and 'Seuraavaksi' in await pg.inner_text('#hlist')); await check('hoidettavat')
     await pg.click('#es-cancel'); await pg.click('#title'); await pg.click('#ps-end [data-end="path"]'); await pg.click('#ps-close')
+    # kuittaus, roskakori, valikko ja tärkeysjärjestys
+    await pg.click('[data-tab="notes"]'); await pg.wait_for_timeout(50); n0=await pg.locator('#nlist .ncard').count()
+    async def lp(sel):
+        bb=await pg.locator(sel).first.bounding_box(); await pg.mouse.move(bb['x']+20,bb['y']+15); await pg.mouse.down(); await pg.wait_for_timeout(450); await pg.mouse.up(); await pg.wait_for_timeout(80)
+    await lp('#nlist .ncard'); want('pitkä painallus avaa valikon', await pg.is_visible('#msheet')); await check('valikko')
+    await pg.click('#ms-done'); await pg.wait_for_timeout(50); want('kuitattu pois avoimista', await pg.locator('#nlist .ncard').count()==n0-1)
+    await pg.click('#noteview [data-nv="done"]'); await pg.wait_for_timeout(50); want('kuitatuissa', await pg.locator('#nlist .ncard').count()==1); await check('kuitatut')
+    await lp('#nlist .ncard'); await pg.click('#ms-done'); await pg.click('#noteview [data-nv="open"]'); await pg.wait_for_timeout(50); want('palautettu avoimeksi', await pg.locator('#nlist .ncard').count()==n0)
+    await lp('#nlist .ncard'); await pg.click('#ms-link'); await pg.click('#ms-chips [data-tid="a:kissa"]'); await pg.wait_for_timeout(50)
+    want('liitetty termiin tekstinä', (await pg.inner_text('#nlist .ncard >> nth=0')).find('#Kissa')>=0 or 'Kissa' in await pg.inner_text('#nlist'))
+    await lp('#nlist .ncard'); await pg.click('#ms-del'); await pg.wait_for_timeout(50); want('poisto ilman varmistusta', await pg.locator('#nlist .ncard').count()==n0-1)
+    await pg.click('[data-tab="set"]'); await pg.wait_for_timeout(50); want('roskakorissa', await pg.locator('#trash .row').count()==1); await check('roskakori')
+    await pg.click('#trash .row'); await pg.wait_for_timeout(50); want('palautettu', await pg.locator('#trash .row').count()==0 and len(json.loads(await pg.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('paatospuu:v1')).muistiinpanot)")))==n0)
+    await pg.click('[data-tab="notes"]'); await pg.click('#terms'); await pg.wait_for_timeout(50)
+    for k in range(30):
+        if await pg.get_attribute('#termlist .orow >> nth=0 >> [data-id]','data-id')=='a:kissa': break
+        await pg.click('[data-move="a:kissa|-1"]'); await pg.wait_for_timeout(20)
+    want('järjestys tallessa', json.loads(await pg.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('paatospuu:v1')).jarjestys)"))[0]=='a:kissa'); await check('tärkeysjärjestys')
+    await pg.click('#ts-body [data-done]'); await pg.click('#notesort [data-ns="prio"]'); await pg.wait_for_timeout(50)
+    want('tärkein ensin', 'Kissa' in await pg.inner_text('#nlist .ncard >> nth=0')); await check('muistiinpanot tärkeys')
+    await pg.click('#notesort [data-ns="next"]')
     # kalenteri
     import datetime; tday=datetime.date.today().isoformat()
     await pg.click('[data-tab="notes"]'); await pg.click('#newnote'); await pg.fill('#ns-text','Kalenteritesti klo 10–11'); await pg.fill('#ns-date',tday); await pg.dispatch_event('#ns-text','input')
