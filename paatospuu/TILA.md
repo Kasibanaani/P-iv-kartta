@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.19 (suunnitelman vaihe 9), odottaa Emilin kuittausta; seuraavaksi 7b · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.19.1 (suunnitelman vaihe 9 + Opetuksen ilme), odottaa Emilin kuittausta; seuraavaksi 7b · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -148,8 +148,15 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Eteneminen** (projektiasetus *Säännöt / Tärkeysjärjestys*, tallennus `flow:'prio'`): askel näyttää tärkeimmän täyttymättömän merkityksen otsikon ja ehdot puun järjestyksessä (rivit ja `ennen`). Jatka ilman valintaa ohittaa. Avaa- ja sulkee-säännöt toimivat edelleen. Askel muistaa merkityksensä (`m`), tyhjä ohitus ei näy *Valinnat*-rivillä.
 - Testit: logiikka 216 ok; selainpolku 390 ja 320 px (tähdet, raahaus, pudotus ulos, napautus, etenevä kierros, Puuttuu, asetus) tietokoneen Chromiumissa.
 
+## Versio 1.19.1 (21.10.2026, Emilin toive): Opetuksen ilme ja siirtymät
+
+- Opetuksen työkalurivi (Tekstikenttä) on aina saman korkuinen ja pysyy ylhäällä vierittäessä. *Yksi riittää / Kaikki tarvitaan* tulee samalle riville Tekstikenttä-napin viereen omaksi parikseen, joten lista ei pompaa. Tuo- ja sulkee-vaiheessa rivillä on Valmis.
+- Opetuksessa ohjeteksti ei näy jatkuvasti: yläpalkissa on i-nappi, josta ohje aukeaa. Varoitus (esim. kehä) näkyy edelleen yläpalkissa.
+- Pienet siirtymät (200 ms) käytössä ja opetuksessa: rivi liukuu uuteen kohtaansa ja väri vaihtuu pehmeästi, uusi rivi häivyttyy esiin. Pois jäävät, jos laite pyytää vähemmän liikettä.
+
 ## Ei tarkistettu
 
+- Oikealla iPhonella ei kokeiltu (1.19.1): siirtymien sujuvuus, työkalurivin pysyminen ylhäällä Safarissa.
 - Oikealla iPhonella ei kokeiltu (1.19): tärkeiden raahaus (sivu ei saa vieriä mukana, iOS:n valikko ei saa aueta), tähtitila pitkällä listalla.
 - Oikealla iPhonella ei kokeiltu: muistiinpanokortin pitkä painallus (iOS:n valikko ei saa aueta), järjestysnuolet pitkällä listalla, kalenterin pitkä painallus ja raahaus (sivun vieritys ei saa lähteä mukaan, iOS:n valintavalikko ei saa aueta), kulmaväkänen, viikkonauhan pyyhkäisy, apukysymyskortit näppäimistön kanssa, tekstin valinta ja Liitä termiin -nappi (iOS:n oma valintavalikko), tekstikentän värikerroksen kohdistus Safarissa (kursori, valinta, vieritys), zoomauksen esto ja yläreunan lisätila (näkyy vain kotinäytön appina), jakoikkunan tiedostovienti, päivämäärävalitsin, näppäimistö alapalkin kanssa, tekstikentän koko.
 - Nimen vaihto tekstikentässä seuraa vain, kun yksi rivi muuttuu kerrallaan. Leikkaa–liitä tai usean rivin muutos ei vie viittauksia mukana (Opetus näyttää ”Säännöt ilman riviä”). Termien sanat (`termisanat`) eivät seuraa nimen vaihtoa.
@@ -164,7 +171,7 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 ## Avoimet kysymykset
 
 - Vaihe 9 rakennettu (1.19), odottaa Emilin kuittausta ja vastausta: pidetäänkö muistiinpanossa sekä Hoidettavat että Puuttuu (suositus molemmat).
-- Vaihe 10 (Emil 21.10.): projekti puiden yläpuolelle, useita puita per projekti. Kysymys: termit ja muistiinpanot projektin vai koko appin (suositus projektin). Ei rakennettu; tehdään ennen 7b:tä. Seuraavaksi 7b (vastaukset jo annettu: pudotus viikkonauhan päivälle, ajattomat aikajanalle ja takaisin, väliotsikkotermit).
+- Vaihe 10 (Emil 21.10.): projekti puiden yläpuolelle, useita puita per projekti. Emil päätti: termit, muistiinpanot, tärkeät ja kalenteri ovat projektin omia. Ei rakennettu; tehdään ennen 7b:tä. Seuraavaksi 7b (vastaukset jo annettu: pudotus viikkonauhan päivälle, ajattomat aikajanalle ja takaisin, väliotsikkotermit).
 
 - Emil hyväksyi 21.10.2026 kaikki suositukset dokumentista *Päätöspuu: avoimet kysymykset* (https://claude.ai/artifact/RFMnrpTAm7fb7r9prDPz8q). Toteutus etenee vaihe kerrallaan: `SUUNNITELMA-vaiheet.md` (pelisäännöt, vaiheiden tila ja kunkin vaiheen kysymykset). Seuraavaan vaiheeseen vasta Emilin kuittauksen ja vastausten jälkeen.
 - Ratkaistu: suhteellisten päivien pohja on luontihetki (17), nimi ”kierros” jää (24), päivän muistiinpanoihin lasketaan välit (Emil: ”Juu!”).

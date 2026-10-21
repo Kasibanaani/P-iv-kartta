@@ -311,7 +311,15 @@ main{padding-bottom:28px}
 .row.ed.edc{background:var(--ehto-bg)}
 .row.rc{box-shadow:inset 0 0 0 2.5px var(--ehto)}
 .row.rc .tag{color:var(--ehto);font-weight:700}
-.cseg{margin:0 0 12px}
+.cseg{margin:0}
+/* Opetuksen työkalurivi: aina saman korkuinen ja ylhäällä kiinni, ehtovalinta tulee Tekstikenttä-napin viereen */
+.tbar{position:sticky;top:-10px;z-index:4;display:flex;align-items:center;gap:10px;box-sizing:border-box;height:50px;margin:-10px -16px 12px;padding:5px 16px;background:var(--bg)}
+.tbar .cseg{flex:1;min-width:0;max-width:300px;margin-left:auto}
+.tbar .cseg button{min-height:34px;font-size:13px;line-height:1.1;padding:2px 4px}
+#hs-body p{margin:0 0 10px;font-size:16px;overflow-wrap:anywhere}
+.ibtn{flex:none;width:26px;height:26px;padding:0;border:0;border-radius:13px;background:var(--cell);box-shadow:inset 0 0 0 1px var(--sep);color:var(--accent);font:italic 700 15px/26px Georgia,serif;cursor:pointer}
+.top[data-mode="teach"] .ibtn{background:rgba(255,255,255,.24);box-shadow:none;color:var(--on-solid)}
+.top[data-mode="teach"] .info.empty{display:none}
 .qcard{margin-bottom:8px;background:var(--bg);box-shadow:none;border:1px solid var(--sep)}.qcard textarea{min-height:60px}
 #ns-linkbox{background:var(--bg);box-shadow:none;border:1px solid var(--sep)}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
@@ -385,6 +393,7 @@ html.standalone .top{padding-top:calc(env(safe-area-inset-top,0px) + 30px)}
         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg>
       </button>
       <button id="status" class="stat" type="button" hidden></button>
+      <button class="ibtn" type="button" id="hint" aria-label="Ohje" hidden>i</button>
       <span class="mode" id="mode" aria-live="polite"></span>
     </div>
     <div class="info" id="info"><div class="itext" id="info-text" aria-live="polite"></div><button class="mini" type="button" id="info-done" hidden>Valmis</button></div>
@@ -414,6 +423,11 @@ html.standalone .top{padding-top:calc(env(safe-area-inset-top,0px) + 30px)}
   </nav>
 </div>
 
+<dialog id="hsheet" aria-labelledby="hs-h">
+  <h2 id="hs-h">Ohje</h2>
+  <div id="hs-body"></div>
+  <div class="btnrow"><button type="button" class="btn solid" id="hs-close" data-done="1">Valmis</button></div>
+</dialog>
 <dialog id="psheet" aria-labelledby="ps-h">
   <div class="grab"></div>
   <h2 id="ps-h">Projektit</h2>
@@ -1120,13 +1134,35 @@ function renderStatus(){var b=$('status'),d=$('setdot'),dirty=data.meta.dirty>0&
   b.hidden=storeOk;b.textContent=storeOk?'':'Tallennus ei onnistu';d.hidden=!dirty;}
 $('status').addEventListener('click',function(){showTab('set');});
 function renderHead(){var P=proj();$('tname').textContent=P?P.name:'Päätöspuu';}
-function setInfo(html,done){var t=$('info-text');t.textContent='';if(html){if(typeof html==='string')t.textContent=html;else t.appendChild(html);}$('info-done').hidden=!done;}
+/* Opetuksessa ohjeteksti ei vie tilaa: se on i-napin takana. Varoitus (warn) näkyy yläpalkissa. */
+var hintNow=null;
+function setInfo(html,done,warn){var t=$('info-text');t.textContent='';
+  if(tab==='teach'&&!warn){hintNow=html||null;$('info').classList.add('empty');$('info-done').hidden=true;$('hint').hidden=!hintNow;return;}
+  $('info').classList.remove('empty');if(tab!=='teach')$('hint').hidden=true;
+  if(html){if(typeof html==='string')t.textContent=html;else t.appendChild(html);}$('info-done').hidden=!done;}
+$('hint').addEventListener('click',function(){var b=$('hs-body');b.textContent='';if(!hintNow)return;var pp=el('p');pp.appendChild(typeof hintNow==='string'?document.createTextNode(hintNow):hintNow.cloneNode(true));b.appendChild(pp);openSheet($('hsheet'));});
+$('hs-close').addEventListener('click',function(){closeSheet($('hsheet'));});
 function syncChrome(){var tp=$('top');tp.dataset.mode=tab;tp.dataset.ed=(tab==='teach'&&ed&&(ed.m==='x'||ed.m==='c'))?ed.m:'';$('mode').textContent=MODE[tab];}
 function showTab(t){scrollPos[tab]=main.scrollTop;tab=t;
   Object.keys(panels).forEach(function(k){panels[k].hidden=k!==t;});
   Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(b){b.setAttribute('aria-selected',b.dataset.tab===t?'true':'false');});
   render();main.scrollTop=scrollPos[t]||0;}
-function render(){setInfo();$('actbar').hidden=true;$('notebar').hidden=true;
+/* Pienet siirtymät (Emil 21.10.2026): sama rivi liukuu uuteen kohtaansa ja vaihtaa värinsä pehmeästi, uusi rivi häivyttyy esiin.
+   Rivit tunnistetaan listan id:stä ja data-id:stä. Ei mitään, jos laite pyytää vähemmän liikettä tai näkymä vaihtui kokonaan. */
+var animOn=false,RM=window.matchMedia?window.matchMedia('(prefers-reduced-motion: reduce)'):null;
+function animKey(e){var l=e.parentNode;return (l&&l.id||'')+'|'+e.dataset.id;}
+function anim(fn){if(animOn||!document.body.animate||(RM&&RM.matches))return fn();animOn=true;var before={};
+  try{Array.prototype.forEach.call(main.querySelectorAll('.rows > [data-id]'),function(e){var cs=getComputedStyle(e);before[animKey(e)]={r:e.getBoundingClientRect(),bg:cs.backgroundColor,c:cs.color};});}catch(x){}
+  try{fn();}finally{animOn=false;}
+  requestAnimationFrame(function(){var now=Array.prototype.slice.call(main.querySelectorAll('.rows > [data-id]')),hit=now.filter(function(e){return before[animKey(e)];});if(!hit.length)return;
+    now.forEach(function(e){var b=before[animKey(e)];if(!b){e.animate([{opacity:0},{opacity:1}],{duration:180,easing:'ease-out'});return;}
+      var r=e.getBoundingClientRect(),dx=b.r.left-r.left,dy=b.r.top-r.top,cs=getComputedStyle(e),k=[{},{}];
+      if(Math.abs(dx)>1||Math.abs(dy)>1){k[0].transform='translate('+dx+'px,'+dy+'px)';k[1].transform='none';}
+      if(b.bg!==cs.backgroundColor){k[0].backgroundColor=b.bg;k[1].backgroundColor=cs.backgroundColor;}
+      if(b.c!==cs.color){k[0].color=b.c;k[1].color=cs.color;}
+      if(Object.keys(k[0]).length)e.animate(k,{duration:200,easing:'cubic-bezier(.2,.8,.2,1)'});});});}
+function render(){anim(render0);}
+function render0(){setInfo();$('actbar').hidden=true;$('notebar').hidden=true;
   if(tab==='use')renderUse();else if(tab==='teach')renderTeach();else if(tab==='notes')renderNotes();else if(tab==='cal')renderCal();else renderSettings();syncChrome();}
 $('nav').addEventListener('click',function(ev){var b=ev.target.closest('[data-tab]');if(b)showTab(b.dataset.tab);});
 function openSheet(d){if(d.showModal)d.showModal();else d.setAttribute('open','');}
@@ -1239,12 +1275,12 @@ function renderUse(){var p=panels.use,P=proj();p.textContent='';
   v.opts.forEach(function(id){var on=v.picked.indexOf(id)>=0,why=v.blocked[id],b=el('button','row'+(on?' sel':'')+(why?' dim':''));b.type='button';b.dataset.id=id;
     var t=el('span','t',shownName(by[id].name));if(why)t.appendChild(el('small','','ei käy yhteen: '+by[why].name));b.appendChild(t);
     if(why)b.setAttribute('aria-disabled','true');if(on&&v.sel.indexOf(id)>=0)b.appendChild(el('span','tag','valittu aiemmin'));
-    b.addEventListener('click',function(){if(why)return;draft=tapDraft(P,S,draft,id);var y=main.scrollTop;renderUse();main.scrollTop=y;});list.appendChild(b);});
+    b.addEventListener('click',function(){if(why)return;draft=tapDraft(P,S,draft,id);var y=main.scrollTop;anim(function(){renderUse();main.scrollTop=y;});});list.appendChild(b);});
   if(v.opts.length)p.appendChild(list);
   else p.appendChild(el('p','msg','Ei enempää vaihtoehtoja. Lopeta kierros, niin se tallentuu muistiinpanoksi.'));
   $('actbar').hidden=false;$('act-go').disabled=!v.picked.length&&!v.cur;$('act-back').disabled=S.steps.length<2;}
-$('act-go').addEventListener('click',function(){var P=proj();if(!P||!P.session)return;if(commitStep(P,P.session,draft)){resetDraft();touch();renderUse();main.scrollTop=0;}});
-$('act-back').addEventListener('click',function(){var P=proj();if(!P||!P.session)return;var d=undoStep(P.session);if(d){draft=d;touch();renderUse();}});
+$('act-go').addEventListener('click',function(){var P=proj();if(!P||!P.session)return;if(commitStep(P,P.session,draft)){resetDraft();touch();anim(renderUse);main.scrollTop=0;}});
+$('act-back').addEventListener('click',function(){var P=proj();if(!P||!P.session)return;var d=undoStep(P.session);if(d){draft=d;touch();anim(renderUse);}});
 $('act-end').addEventListener('click',function(){var P=proj();$('es-date').value=(P&&P.session&&P.session.date)||'';$('es-note').value='';renderHoid(P);openSheet($('esheet'));});
 function renderHoid(P){var box=$('es-hoid');box.textContent='';box.hidden=!(P&&P.session&&P.end==='hoid');if(box.hidden)return;
   var by=parseText(P.text).by,ho=hoidettavat(P,P.session);
@@ -1274,14 +1310,15 @@ function renderTeach(){var p=panels.teach,P=proj();p.textContent='';
   var pt=parseText(P.text),by=pt.by;if(ed&&ed.id!==ALKU&&!by[ed.id])ed=null;
   var seg=el('div','seg');[['build','Rakenna'],['edit','Muokkaa'],['ord','Järjestys'],['mx','Toisensa poissulkevat']].forEach(function(m){var b=button(seg,m[1],'',function(){teachMode=m[0];ed=null;mxSel=null;ordSel=null;render();});b.className='';b.setAttribute('aria-pressed',teachMode===m[0]?'true':'false');b.dataset.tm=m[0];});
   p.appendChild(seg);
-  var row=el('div','btnrow');row.style.margin='0 0 12px';button(row,'Tekstikenttä','mini',openText).id='opentext';p.appendChild(row);
+  var row=el('div','tbar');row.id='tbar';button(row,'Tekstikenttä','mini',openText).id='opentext';p.appendChild(row);
   var o=orphans(P);if(o.length){var c=el('div','card');c.appendChild(el('b','','Säännöt ilman riviä'));c.appendChild(el('p','','Säännöt viittaavat nimiin, joita tekstikentässä ei enää ole: '+o.join(', ')+'. Jos nimi muuttui tekstikentässä, säännöt eivät seuranneet. Palauta nimi tai poista säännöt.'));
     var r2=el('div','btnrow');button(r2,'Poista nämä säännöt','mini',function(){dropOrphans(P);touch();render();});c.appendChild(r2);p.appendChild(c);}
   if(!pt.items.length){setInfo('Tekstikenttä on tyhjä.');p.appendChild(el('p','sub','Lisää ensin rivejä tekstikenttään.'));return;}
+  if((ed&&ed.m!=='c'&&teachMode==='build')||(ordSel&&teachMode==='ord')){var dn=button(row,'Valmis','mini',function(){endEd();ordSel=null;render();});dn.id='ed-done';dn.style.marginLeft='auto';}
   if(teachMode==='edit')return renderEdit(p,P,pt);
   if(teachMode==='mx')return renderMx(p,P,pt);
   if(teachMode==='ord')return renderOrd(p,P,pt);
-  if(ed&&ed.m==='c'){var cs=el('div','seg cseg');cs.id='needmode';[[false,'Yksi riittää'],[true,'Kaikki tarvitaan']].forEach(function(m){var b=button(cs,m[1],'',function(){setNeedMode(P,pt,ed.id,m[0]);ed.all=m[0];touch();var y=main.scrollTop;render();main.scrollTop=y;});b.className='';b.dataset.need=m[0]?'all':'one';b.setAttribute('aria-pressed',ed.all===m[0]?'true':'false');});p.appendChild(cs);}
+  if(ed&&ed.m==='c'){var cs=el('div','seg cseg');cs.id='needmode';[[false,'Yksi riittää'],[true,'Kaikki tarvitaan']].forEach(function(m){var b=button(cs,m[1],'',function(){setNeedMode(P,pt,ed.id,m[0]);ed.all=m[0];touch();var y=main.scrollTop;render();main.scrollTop=y;});b.className='';b.dataset.need=m[0]?'all':'one';b.setAttribute('aria-pressed',ed.all===m[0]?'true':'false');});row.appendChild(cs);}
   var list=el('div','rows');list.id='tlist';
   var nodes=[{id:ALKU,k:'a',name:'▶ Alku'}].concat(pt.items);
   nodes.forEach(function(it){var cls='row'+kindCls(it.k),st='',tag='';
@@ -1329,7 +1366,7 @@ $('ls-ok').addEventListener('click',function(){var P=proj();if(!P||!lineIt)retur
 
 function pt0(P){return parseText(P.text);}
 /* Ristiriitainen napautus hylätään: nappi värähtää ja ilmoitus näyttää ketjun */
-function refuse(id,cy,pt){var nm=function(x){return pt.by[x]?pt.by[x].name:x;};setInfo('Ei käy, tulisi kehä: '+cy.map(nm).join(' → ')+'. Poista ensin jokin ketjun suhteista.');
+function refuse(id,cy,pt){var nm=function(x){return pt.by[x]?pt.by[x].name:x;};setInfo('Ei käy, tulisi kehä: '+cy.map(nm).join(' → ')+'. Poista ensin jokin ketjun suhteista.',false,true);
   var b=document.querySelector('#tlist [data-id="'+(window.CSS&&CSS.escape?CSS.escape(id):id)+'"]');if(b){b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');}}
 function renderOrd(p,P,pt){var by=pt.by,bs=pt.items.filter(function(it){return it.k==='b';});
   if(ordSel&&!by[ordSel])ordSel=null;
