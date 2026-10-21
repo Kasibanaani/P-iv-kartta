@@ -2,7 +2,7 @@
 <html lang="fi">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Päätöspuu</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -194,7 +194,7 @@ h3{font-size:15px;font-weight:600;color:var(--label2);margin:20px 0 8px}
 .sw{flex:none;width:16px;height:16px;border-radius:50%;box-shadow:0 0 0 2px var(--cell)}
 input[type="text"],input[type="number"],textarea{width:100%;padding:13px 16px;border:0;border-radius:12px;background:var(--cell);font-size:17px}
 textarea{min-height:96px;resize:vertical}
-textarea.mono{min-height:140px;font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;letter-spacing:0}
+textarea.mono{min-height:140px;font:16px/1.4 ui-monospace,Menlo,Consolas,monospace;letter-spacing:0}
 label.fl{display:block;font-size:13px;font-weight:600;color:var(--label2);margin:16px 0 6px}
 .addrow{display:grid;grid-template-columns:1fr auto;gap:8px}
 .orow{display:grid;grid-template-columns:1fr 46px 46px;gap:6px}
@@ -308,6 +308,12 @@ body.small #opts .row .tag,body.small #tlist .row .tag{font-size:11.5px}
 .hl{position:absolute;inset:0;padding:13px 16px;font-size:17px;line-height:1.4;letter-spacing:-0.01em;white-space:pre-wrap;overflow-wrap:break-word;word-break:normal;color:transparent;overflow:hidden;pointer-events:none;border-radius:10px;background:var(--cell)}
 .hl mark{color:transparent;background:var(--fill);border-radius:4px;box-shadow:0 2px 0 var(--accent)}
 .hlwrap textarea{position:relative;background:transparent;line-height:1.4}
+/* ei vahingossa zoomausta: kaksoisnapautus ei suurenna, kentät vähintään 16 px (Safari suurentaa pienemmät) */
+html,body{touch-action:manipulation}
+input,textarea,select{font-size:max(16px,1em)}
+/* kotinäytön appina yläpalkki alkaa reilusti tilapalkin ja Dynamic Islandin alapuolelta */
+@media (display-mode: standalone){.top{padding-top:calc(env(safe-area-inset-top,0px) + 30px)}}
+html.standalone .top{padding-top:calc(env(safe-area-inset-top,0px) + 30px)}
 .warnlist{font-size:13px;color:var(--red);margin:8px 0 0;padding-left:18px}
 </style>
 </head>
@@ -368,15 +374,15 @@ body.small #opts .row .tag,body.small #tlist .row .tag{font-size:11.5px}
   <code>Koira</code> nappula · <code>#Eläimet: selitys</code> ryhmä (ei näy käytössä) · <code>&gt;Perustelu: teksti</code> ilmoitus (vain teksti näkyy) · <code>?Apu: kysymys</code> apukysymys (näkyy vain sen askeleen ajan) · tavuviiva nappulan nimessä vaihtaa riviä · <code> // </code> tekstin sisällä vaihtaa kappaletta · rivi joka alkaa <code>//</code> ohitetaan.</p>
   <textarea class="mono" id="xs-text" style="min-height:46vh" aria-label="Projektin sisältö tekstinä" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
   <p class="msg" id="xs-msg" aria-live="polite"></p>
-  <div class="btnrow"><button type="button" class="btn solid" id="xs-ok">Tallenna</button><button type="button" class="btn" id="xs-copy">Kopioi</button><button type="button" class="btn" id="xs-cancel">Peru</button></div>
+  <div class="btnrow"><button type="button" class="btn solid" id="xs-ok" data-done="1">Valmis</button></div>
 </dialog>
 <dialog id="lsheet" aria-labelledby="ls-h">
   <div class="grab"></div>
   <h2 id="ls-h">Muokkaa</h2>
-  <p class="syntax">Kirjoita rivi samassa muodossa kuin tekstikentässä: alussa <code>#</code> tekee ryhmän ja <code>&gt;</code> ilmoituksen. Kaksoispiste erottaa nimen tekstistä. Kun nimi muuttuu, opetetut säännöt seuraavat mukana.</p>
+  <p class="syntax">Kirjoita rivi samassa muodossa kuin tekstikentässä: alussa <code>#</code> tekee ryhmän ja <code>&gt;</code> ilmoituksen. Kaksoispiste erottaa nimen tekstistä. Kun nimi muuttuu, opetetut säännöt seuraavat mukana. Tyhjä rivi poistaa asian.</p>
   <textarea id="ls-text" aria-label="Rivi" autocomplete="off"></textarea>
   <p class="msg warn" id="ls-msg" aria-live="polite"></p>
-  <div class="btnrow"><button type="button" class="btn solid" id="ls-ok">Valmis</button><button type="button" class="btn danger" id="ls-del">Poista</button><button type="button" class="btn" id="ls-cancel">Peru</button></div>
+  <div class="btnrow"><button type="button" class="btn solid" id="ls-ok" data-done="1">Valmis</button></div>
 </dialog>
 <dialog id="esheet" aria-labelledby="es-h">
   <div class="grab"></div>
@@ -394,7 +400,7 @@ body.small #opts .row .tag,body.small #tlist .row .tag{font-size:11.5px}
   <div class="hlwrap"><div class="hl" id="ns-hl" aria-hidden="true"></div><textarea id="ns-text" style="min-height:32vh" aria-label="Muistiinpanon teksti"></textarea></div>
   <label class="fl" for="ns-date">Päivämäärä (valinnainen)</label><input type="date" id="ns-date">
   <div class="found" id="ns-found"></div>
-  <div class="btnrow"><button type="button" class="btn solid" id="ns-ok">Tallenna</button><button type="button" class="btn" id="ns-cancel">Peru</button><button type="button" class="btn danger" id="ns-del">Poista</button></div>
+  <div class="btnrow"><button type="button" class="btn solid" id="ns-ok" data-done="1">Valmis</button></div>
 </dialog>
 <dialog id="tsheet" aria-labelledby="ts-h">
   <div class="grab"></div>
@@ -705,6 +711,8 @@ if(typeof module!=='undefined')module.exports={VER:VER,ALKU:ALKU,parseLine:parse
 </script>
 <script id="ui">
 if(typeof document!=='undefined')(function(){
+try{if(window.navigator.standalone)document.documentElement.classList.add('standalone');}catch(e){}
+document.addEventListener('gesturestart',function(ev){ev.preventDefault();}); // Safari: ei nipistyszoomausta
 'use strict';
 var KEY='paatospuu:v1';
 function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e;}
@@ -759,7 +767,10 @@ function render(){setInfo();$('actbar').hidden=true;$('notebar').hidden=true;
 $('nav').addEventListener('click',function(ev){var b=ev.target.closest('[data-tab]');if(b)showTab(b.dataset.tab);});
 function openSheet(d){if(d.showModal)d.showModal();else d.setAttribute('open','');}
 function closeSheet(d){if(d.close)d.close();else d.removeAttribute('open');}
-['psheet','xsheet','lsheet','esheet','nsheet','tsheet'].forEach(function(id){var d=$(id);d.addEventListener('click',function(ev){if(ev.target===d)closeSheet(d);});});
+/* Ikkunan sulkeminen ohi napauttamalla tai Esc tallentaa samoin kuin Valmis */
+function sheetDone(d){var ok=d.querySelector('[data-done]');if(ok)ok.click();else closeSheet(d);}
+['psheet','xsheet','lsheet','esheet','nsheet','tsheet'].forEach(function(id){var d=$(id);d.addEventListener('click',function(ev){if(ev.target===d)sheetDone(d);});
+  d.addEventListener('cancel',function(ev){ev.preventDefault();sheetDone(d);});});
 function firstProjForm(p){p.appendChild(el('h2','','Ensimmäinen päätöspuu'));
   p.appendChild(el('p','sub','Jokainen projekti on oma päätöspuunsa. Anna nimi, sitten kirjoitat tai liität sisällön tekstikenttään.'));
   var r=el('div','addrow'),i=el('input');i.type='text';i.id='firstproj';i.placeholder='Nimi';i.autocomplete='off';r.appendChild(i);
@@ -787,9 +798,7 @@ $('ps-close').addEventListener('click',function(){closeSheet($('psheet'));});
 function openText(){var P=proj();if(!P)return;$('xs-text').value=P.text;$('xs-msg').textContent='';openSheet($('xsheet'));}
 $('xs-ok').addEventListener('click',function(){var P=proj();if(!P)return;P.text=$('xs-text').value;var pt=parseText(P.text),o=orphans(P);touch();
   var m=pt.items.length+' riviä luettu.';if(pt.warnings.length)m+=' '+pt.warnings.join(' ');if(o.length)m+=' Säännöt viittaavat nimiin, joita ei enää ole: '+o.join(', ')+'. Ne näkyvät Opetuksessa.';
-  if(pt.warnings.length||o.length){$('xs-msg').textContent=m;$('xs-msg').className='msg warn';}else closeSheet($('xsheet'));render();});
-$('xs-cancel').addEventListener('click',function(){closeSheet($('xsheet'));});
-$('xs-copy').addEventListener('click',function(){copy($('xs-text').value,$('xs-copy'),$('xs-text'));});
+  closeSheet($('xsheet'));render();if(pt.warnings.length||o.length)setInfo(m);});
 function copy(txt,b,ta){function sel(){if(ta){ta.focus();ta.select();}b.textContent='Valittu, kopioi';}
   try{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(function(){b.textContent='Kopioitu';},sel);else sel();}catch(e){sel();}}
 
@@ -887,14 +896,12 @@ function renderEdit(p,P,pt){setInfo('Napauta riviä muokataksesi sitä. Nuolilla
     list.appendChild(row);});
   p.appendChild(list);}
 var lineIt=null,lineArm=0;
-function openLine(it){lineIt=it;lineArm=0;$('ls-text').value=lineOf(it);$('ls-msg').textContent='';$('ls-del').textContent='Poista';openSheet($('lsheet'));}
+function openLine(it){lineIt=it;lineArm=0;$('ls-text').value=lineOf(it);$('ls-msg').textContent='';openSheet($('lsheet'));}
 $('ls-ok').addEventListener('click',function(){var P=proj();if(!P||!lineIt)return;var raw=$('ls-text').value.replace(/\s*\n\s*/g,' ').trim(),l=parseLine(raw);
-  if(!l){$('ls-msg').textContent='Rivi on tyhjä. Poista se Poista-painikkeella.';return;}
+  if(!l){removeKey(P,lineIt.id);P.text=replaceLine(P.text,lineIt.line,null);touch();closeSheet($('lsheet'));render();return;}
   var nk=keyOf(l.name),pt=parseText(P.text);if(nk!==lineIt.id&&pt.by[nk]){$('ls-msg').textContent='Nimi ”'+l.name+'” on jo käytössä.';return;}
   if(nk!==lineIt.id)renameKey(P,lineIt.id,nk);P.text=replaceLine(P.text,lineIt.line,raw);touch();closeSheet($('lsheet'));render();});
-$('ls-del').addEventListener('click',function(){var P=proj();if(!P||!lineIt)return;if(Date.now()-lineArm>4000){lineArm=Date.now();$('ls-del').textContent='Varmasti?';return;}
-  removeKey(P,lineIt.id);P.text=replaceLine(P.text,lineIt.line,null);touch();closeSheet($('lsheet'));render();});
-$('ls-cancel').addEventListener('click',function(){closeSheet($('lsheet'));});
+
 function renderMx(p,P,pt){var by=pt.by;
   if(!mxSel){setInfo('Ryhmittely toisensa poissulkevista: kun yksi on merkitty, muut menevät samassa askeleessa harmaiksi. Seuraavassa askeleessa ne voivat taas tulla.');
     (P.mx||[]).forEach(function(set,i){var c=el('div','mxcard');c.appendChild(el('span','',set.map(function(x){return by[x]?by[x].name:x+' (puuttuu)';}).join(' · ')));
@@ -932,7 +939,7 @@ function renderNotes(){var p=panels.notes;p.textContent='';var today=todayIso();
 function shortD(iso){var p=iso.split('-');return (+p[2])+'.'+(+p[1])+'.';}
 function fromIsoW(iso){var p=iso.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]);return WDS[d.getDay()]+' '+fiDate(iso);}
 function openNote(n){noteCur=n;noteArm=0;$('ns-text').value=n?n.text:'';$('ns-date').value=n?n.date:'';$('ns-stamp').textContent=n?'Luotu '+stamp(n.created)+(n.edited!==n.created?' · muokattu '+stamp(n.edited):''):'Uusi';
-  $('ns-del').hidden=!n;$('ns-del').textContent='Poista';foundInfo();openSheet($('nsheet'));paintHl();}
+  foundInfo();openSheet($('nsheet'));paintHl();}
 function foundInfo(){var txt=$('ns-text').value,N={text:txt,created:noteCur?noteCur.created:nowIso(),date:$('ns-date').value},f=$('ns-found');f.textContent='';
   var ds=noteDates(N),ts=noteTerms(allTerms(),txt);termCache=null;
   if(ds.length){f.appendChild(document.createTextNode('Ajankohdat: '));ds.forEach(function(o){f.appendChild(el('i','',o.src+' → '+dateLabel(o)));});}
@@ -944,12 +951,11 @@ function paintHl(){var ta=$('ns-text'),hl=$('ns-hl'),txt=ta.value,N={text:txt,cr
   hl.appendChild(document.createTextNode(txt.slice(pos)+'\u200b'));hl.scrollTop=ta.scrollTop;}
 $('ns-text').addEventListener('input',paintHl);$('ns-text').addEventListener('scroll',function(){$('ns-hl').scrollTop=$('ns-text').scrollTop;});
 $('ns-text').addEventListener('input',foundInfo);$('ns-date').addEventListener('change',foundInfo);
-$('ns-ok').addEventListener('click',function(){var txt=$('ns-text').value;if(!txt.trim()&&!noteCur){closeSheet($('nsheet'));return;}var t=nowIso();
+$('ns-ok').addEventListener('click',function(){var txt=$('ns-text').value;if(!txt.trim()){if(noteCur){data.notes=data.notes.filter(function(n){return n!==noteCur;});touch();}closeSheet($('nsheet'));render();return;}var t=nowIso();
+  if(noteCur&&noteCur.text===txt&&noteCur.date===($('ns-date').value||'')){closeSheet($('nsheet'));return;}
   if(noteCur){noteCur.text=txt;noteCur.date=$('ns-date').value||'';noteCur.edited=t;}else data.notes.unshift({id:uid('n'),created:t,edited:t,text:txt,date:$('ns-date').value||''});
   touch();closeSheet($('nsheet'));render();});
-$('ns-cancel').addEventListener('click',function(){closeSheet($('nsheet'));});
-$('ns-del').addEventListener('click',function(){if(!noteCur)return;if(Date.now()-noteArm>4000){noteArm=Date.now();$('ns-del').textContent='Varmasti?';return;}
-  data.notes=data.notes.filter(function(n){return n!==noteCur;});touch();closeSheet($('nsheet'));render();});
+
 
 $('newnote').addEventListener('click',function(){openNote(null);});
 $('terms').addEventListener('click',function(){openTerms();});
@@ -973,20 +979,18 @@ function renderTerms(){var b=$('ts-body');b.textContent='';termCache=null;
     button(a,'Lisää','btn solid',add);i.addEventListener('keydown',function(ev){if(ev.key==='Enter')add();});b.appendChild(a);
     var au=autoTerms(data.projects,data.words,data.terms);
     if(au.length){b.appendChild(el('h3','','Päätöspuista (nappulat, ryhmät ja ilmoitukset)'));var l2=el('div','rows');l2.id='autoterms';au.forEach(function(t){l2.appendChild(termRow(t));});b.appendChild(l2);}
-    var r2=el('div','btnrow');button(r2,'Valmis','btn',function(){closeSheet($('tsheet'));render();});b.appendChild(r2);return;}
+    var r2=el('div','btnrow');button(r2,'Valmis','btn',function(){closeSheet($('tsheet'));render();}).dataset.done='1';b.appendChild(r2);return;}
   var t=termCur;$('ts-h').textContent=t.auto?t.name:'Termi';
   var n=null;
   if(t.auto)b.appendChild(el('p','sub',KINDN[t.kind].charAt(0).toUpperCase()+KINDN[t.kind].slice(1)+' päätöspuussa '+t.proj+'. Nimi tunnistaa itsensä; nimeä muutetaan päätöspuun puolella.'));
-  else{b.appendChild(el('label','fl','Nimi (tunnistaa myös itse)'));n=el('input');n.type='text';n.id='tname-in';n.value=t.name;b.appendChild(n);}
+  else{b.appendChild(el('label','fl','Nimi (tunnistaa myös itse; tyhjä poistaa termin)'));n=el('input');n.type='text';n.id='tname-in';n.value=t.name;b.appendChild(n);}
   b.appendChild(el('label','fl','Sanat, jotka tarkoittavat tätä (yksi riville)'));var y=el('textarea');y.id='tyes';y.value=t.yes.join('\n');b.appendChild(y);
   b.appendChild(el('label','fl','Sanat, jotka sulkevat tämän pois samassa muistiinpanossa'));var x=el('textarea');x.id='tno';x.value=t.no.join('\n');b.appendChild(x);
   var r=el('div','btnrow');
-  button(r,'Valmis','btn solid',function(){var ys=lines(y.value),xs=lines(x.value);
+  var tb=button(r,'Valmis','btn solid',function(){var ys=lines(y.value),xs=lines(x.value);
     if(t.auto){if(ys.length||xs.length)data.words[t.key]={yes:ys,no:xs};else delete data.words[t.key];}
-    else{var nn=clean(n.value);if(nn)t.name=nn.slice(0,60);t.yes=ys;t.no=xs;}
-    touch();termCur=null;renderTerms();}).id='tok';
-  if(!t.auto){var del=button(r,'Poista termi','btn danger',function(){if(Date.now()-termArm>4000){termArm=Date.now();del.textContent='Varmasti?';return;}data.terms=data.terms.filter(function(q){return q!==t;});touch();termCur=null;renderTerms();});}
-  button(r,'Peru','btn',function(){termCur=null;renderTerms();});
+    else{var nn=clean(n.value);if(nn){t.name=nn.slice(0,60);t.yes=ys;t.no=xs;}else data.terms=data.terms.filter(function(q){return q!==t;});}
+    touch();termCur=null;renderTerms();});tb.id='tok';tb.dataset.done='1';
   b.appendChild(r);}
 
 /* ---- asetukset, vienti ja tuonti ---- */

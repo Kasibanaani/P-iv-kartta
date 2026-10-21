@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.5, kokeilussa · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.6, kokeilussa · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -51,9 +51,16 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Muistiinpanon kirjoitusikkunassa tunnistettu ajankohta korostuu (täyttö + alleviivaus) heti, kun sen perään tulee välilyönti tai rivinvaihto; jatkokirjoitus liittää uudet osat samaan korostukseen. Alla lista *Ajankohdat: teksti → tulkinta*. Muistiinpanoon jää Emilin oma kirjoitusmuoto.
 - Toistuvat ajankohdat: järjestys ”Tulevat” käyttää seuraavaa esiintymää; päivän muistiinpanoihin (kierros päivälle) lasketaan jokainen esiintymä. Kellonaika näkyy kortissa; kalenteri käyttää sitä myöhemmin.
 
+## Versio 1.6 (21.10.2026, Emilin pyyntö): zoomaus, yläreuna, vain Valmis
+
+- Zoomaus estetty: viewport (maximum-scale=1, user-scalable=no), `touch-action: manipulation` (ei kaksoisnapautuszoomia), nipistyseleen esto ja tekstikentät vähintään 16 px (Safari ei zoomaa kenttään).
+- Kotinäytöltä avattuna yläpalkissa 30 px (~0,8 cm) lisätilaa Dynamic Islandin sumennuksen alle. Selaimessa ennallaan.
+- Muokkausikkunoissa (tekstirivi, uusi rivi, muistiinpano, termi) vain *Valmis*. Ikkunan ulkopuolelle napautus tallentaa samoin. Tyhjäksi jätetty = poistuu. Poista-, Peru- ja Kopioi-napit pois.
+- Peru askel ja Lopeta ennallaan (Lopeta toimii joka askeleella).
+
 ## Ei tarkistettu
 
-- Oikealla iPhonella ei kokeiltu: jakoikkunan tiedostovienti, päivämäärävalitsin, näppäimistö alapalkin kanssa, tekstikentän koko.
+- Oikealla iPhonella ei kokeiltu: zoomauksen esto ja yläreunan lisätila (näkyy vain kotinäytön appina), jakoikkunan tiedostovienti, päivämäärävalitsin, näppäimistö alapalkin kanssa, tekstikentän koko.
 - Säännöt ovat nimissä: jos nimen vaihtaa suoraan tekstikentässä, säännöt eivät seuraa (Opetus näyttää ”Säännöt ilman riviä”). Muokkaa-tilassa vaihto seuraa.
 
 ## Seuraavaksi
