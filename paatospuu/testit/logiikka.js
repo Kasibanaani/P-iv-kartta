@@ -306,6 +306,18 @@ eq('versio 1 yhdeksi projektiksi',[N1.K.length,N1.K[0].name,N1.k,N1.projects[0].
 var V2={app:'paatospuu',ver:2,kcur:'b',kokonaisuudet:[{id:'a',name:'Oma',puut:[{id:'p',name:'Puu',text:'A',rt:1}],muistiinpanot:[{id:'n',text:'x'}]},{id:'b',name:'Mätsik Forest',cur:'q',puut:[{id:'q',name:'Arvio',text:'B',rt:1,flow:'prio'},{id:'r',name:'Toinen',text:'C',rt:1}],muistiinpanot:[],termit:[{id:'u',name:'U'}]},{id:'a',name:'tupla'}]};
 var N2=E.normalizeData(V2);eq('versio 2: projektit ja aktiivinen',[N2.K.map(function(k){return k.name;}),N2.k,N2.cur,N2.projects.map(function(P){return P.id;}),N2.notes.length,N2.terms[0].id,N2.projects[0].flow],[['Oma','Mätsik Forest'],'b','q',['q','r'],0,'u','prio']);
 eq('tuntematon kcur: ensimmäinen',E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'a',name:'A'}],kcur:'x'}).k,'a');
+// toistuvat (vaihe 11)
+eq('yksiköt',[E.addUnit('2026-01-31',1,'m'),E.addUnit('2026-10-21',2,'w'),E.addUnit('2024-02-29',1,'y'),E.addUnit('2026-12-30',3,'d')],['2026-02-28','2026-11-04','2025-02-28','2027-01-02']);
+var RM={id:'m',text:'Kk',mode:'every',n:1,unit:'m',start:'2026-01-31'};var mm=E.repsDue([RM],[],'2026-04-30','t');eq('kuukausi ei valu',[mm[0].date,E.repNext(RM)],['2026-04-30','2026-05-31']);
+var RE={id:'a',text:'Tarkista',mode:'every',n:3,unit:'d',start:'2026-10-10'},m1=E.repsDue([RE],[],'2026-10-21','t');
+eq('tasavälein: vain viimeisin myöhästynyt',[m1.length,m1[0].date,m1[0].rep,m1[0].text],[1,'2026-10-19','a','Tarkista']);
+eq('ei uutta, kun edellinen auki',E.repsDue([RE],m1,'2026-10-25','t').length,0);m1[0].done='x';eq('seuraava kuittauksen jälkeen',E.repsDue([RE],m1,'2026-10-25','t')[0].date,'2026-10-25');
+var RA={id:'b',text:'Y',mode:'after',n:5,unit:'d',start:'2026-10-21'},m2=E.repsDue([RA],[],'2026-10-21','t');eq('kuittauksesta: ensimmäinen aloituspäivänä',m2[0].date,'2026-10-21');
+m2[0].done='x';eq('odottaa kuittauspäivää',E.repsDue([RA],m2,'2026-10-30','t').length,0);E.repSignOff([RA],m2[0],'2026-10-22');
+eq('kuittauksesta laskettuna',[E.repsDue([RA],m2,'2026-10-26','t').length,E.repsDue([RA],m2,'2026-10-27','t')[0].date],[0,'2026-10-27']);
+eq('nimet',[E.repLabel({mode:'every',n:1,unit:'w'}),E.repLabel({mode:'every',n:2,unit:'d'}),E.repLabel({mode:'after',n:5,unit:'d'}),E.repLabel({mode:'after',n:1,unit:'m'})],['Joka viikko','2 päivää välein','5 päivää kuittauksesta','1 kuukausi kuittauksesta']);
+var NR=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'a',name:'A',toistuvat:[{id:'r',text:'X',mode:'after',n:'5',unit:'w',start:'2026-10-21',lastDone:'2026-10-22'},{id:'s',text:'Y'}],muistiinpanot:[{id:'n',text:'X',rep:'r'}]}]});
+eq('toistuvat tallessa',[NR.reps.length,NR.reps[0].n,NR.reps[0].mode,NR.reps[0].lastDone,NR.notes[0].rep],[1,5,'after','2026-10-22','r']);
 eq('raahaus kohtaan',[E.moveToIdx(['a','b','c'],'c',0),E.moveToIdx(['a','b','c'],'a',2),E.moveToIdx(['a','b','c'],'b',1)],[['c','a','b'],['b','c','a'],['a','b','c']]);
 
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);

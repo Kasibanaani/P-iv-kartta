@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.20 (vaihe 10 projektit ja puut); seuraavaksi vaihe 11 toistuvat muistutukset, sitten 7b, odottaa Emilin kuittausta; seuraavaksi 7b · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.21 (vaihe 11 toistuvat muistutukset); seuraavaksi 7b, odottaa Emilin kuittausta; seuraavaksi 7b · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -175,8 +175,16 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Tallennusmuoto `ver:2`: `{app, ver, savedAt, kcur, kokonaisuudet:[{id,name,cur,puut,muistiinpanot,termit,termisanat,roskakori,tarkeat}], cfg}`. Versio 1 (puut ylätasolla kentässä `projektit`) luetaan yhdeksi projektiksi nimeltä *Projekti*; nimen voi vaihtaa. Varmuuskopion tuonti osaa molemmat.
 - Muistiokortin ⋯-nappi on nyt kulmassa kiinni, ei vie omaa riviä.
 
+## Versio 1.21 (21.10.2026, suunnitelman vaihe 11): toistuvat muistutukset
+
+- Muistiot: *Avoimet / Kuitatut / Toistuvat*. Toistuvat on rekisteri: + Uusi (tai napautus olemassa olevaan) avaa ikkunan: teksti, *Toistuu: Tasavälein / Kuittauksesta*, väli valikosta (päivä, 2 ja 3 pv, viikko, 2–4 vk, kuukausi, 2, 3 ja 6 kk, vuosi, oma luku ja yksikkö) ja aloituspäivä. Tyhjä teksti tai Poista (kaksi painallusta) poistaa; jo tulleet muistiinpanot jäävät.
+- Erä tulee avoimeksi muistiinpanoksi, kun on aika (tarkistetaan aina piirrettäessä): eri värinen kortti ja merkintä *toistuva*, päivämääränä eräpäivä (Tänään/Myöhässä ja kalenteri toimivat), järjestys tärkeyden mukaan. Kuittaus tallentaa kuittauspäivän; *Kuittauksesta*-tyyppi laskee seuraavan siitä. Poisto roskakoriin lasketaan kuittaukseksi, ettei toisto pysähdy.
+- Rakentajan ratkaisut (Emil valtuutti): jos edellinen on kuittaamatta, uutta ei tehdä; myöhästyneistä tehdään vain viimeisin; tasavälein lasketaan aina aloituspäivästä (kuun 31. ei valu 28. päivään). Ei taustailmoituksia.
+- Tallennus projektissa `toistuvat:[{id,text,mode:'every'|'after',n,unit:'d'|'w'|'m'|'y',start,lastDue?,lastDone?}]`, erä muistiinpanossa `rep`.
+
 ## Ei tarkistettu
 
+- Oikealla iPhonella ei kokeiltu (1.20–1.21): projektin vaihto, toistuvan ikkunan valikot (iOS:n oma valitsin).
 - Oikealla iPhonella ei kokeiltu (1.19.2): alapalkin uusi korkeus kotinäytön appina (kotiviiva ei saa peittää nimiä), reunimmaisten välilehtien paikka.
 - Oikealla iPhonella ei kokeiltu (1.19.1): siirtymien sujuvuus, työkalurivin pysyminen ylhäällä Safarissa.
 - Oikealla iPhonella ei kokeiltu (1.19): tärkeiden raahaus (sivu ei saa vieriä mukana, iOS:n valikko ei saa aueta), tähtitila pitkällä listalla.
@@ -193,7 +201,6 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 ## Avoimet kysymykset
 
 - Vaihe 9 valmis: Emil valtuutti 21.10. illalla jatkamaan suositusten mukaan, joten Hoidettavat ja Puuttuu pysyvät molemmat muistiinpanossa.
-- Vaihe 11 (Emil 21.10.): toistuvat muistutukset Muistioiden kolmanneksi valinnaksi (Avoimet / Kuitatut / Toistuvat). Tasavälein tai kuittauksesta laskettuna, erä tulee avoimeksi eri värisenä. Ei vielä rakennettu.
 - Avoin: siirretäänkö puu tai muistiinpano projektista toiseen? Ei rakennettu (ehdotus: ⋯-valikkoon *Siirrä projektiin*). Seuraavaksi 7b (vastaukset jo annettu: pudotus viikkonauhan päivälle, ajattomat aikajanalle ja takaisin, väliotsikkotermit).
 
 - Emil hyväksyi 21.10.2026 kaikki suositukset dokumentista *Päätöspuu: avoimet kysymykset* (https://claude.ai/artifact/RFMnrpTAm7fb7r9prDPz8q). Toteutus etenee vaihe kerrallaan: `SUUNNITELMA-vaiheet.md` (pelisäännöt, vaiheiden tila ja kunkin vaiheen kysymykset). Seuraavaan vaiheeseen vasta Emilin kuittauksen ja vastausten jälkeen.
