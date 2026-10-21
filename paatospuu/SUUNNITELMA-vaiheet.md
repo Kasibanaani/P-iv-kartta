@@ -21,7 +21,7 @@ Päivitetty 21.10.2026. Emil sanoi kyllä kaikkiin suosituksiin dokumentissa *P�
 | 5 | Apukysymykset nousevat esiin muistiinpanosta (15) | 1 versio | Valmis (1.15), kuitattu |
 | 6 | Teksti ↔ appi kaksisuuntaisesti (12, 25) | 2 versiota | Valmis (1.16), kuitattu |
 | 7 | Kalenteri (20, 21, 22) | 2–3 versiota | 7a valmis (1.17), odottaa Emilin kuittausta; 7b odottaa |
-| 8 | Muistiinpanot tärkeysjärjestykseen ja kuittaus arkistoon (Emil 21.10.2026) | 1–2 versiota | Odottaa |
+| 8 | Tärkeysjärjestys, kuittaus, roskakori, pitkän painalluksen valikko (Emil 21.10.2026) | 2 versiota | Odottaa |
 
 Kohta 17 (luontihetki) on jo nyt käytössä, joten työtä ei tarvita. Kohta 24 (”kierros”) jää ennalleen. Molemmat poistetaan TILA:n avoimista kysymyksistä vaiheessa 1. Myös välit päivän muistiinpanoissa on ratkaistu (Emil: ”Juu!”).
 
@@ -84,14 +84,15 @@ Kohta 17 (luontihetki) on jo nyt käytössä, joten työtä ei tarvita. Kohta 24
   3. Mitkä termit näytetään alaotsikkoina: termin valinta *Näytä kalenterissa* (suositus) vai kaikki osuvat?
 - Raahaus vaatii iPhone-kokeilun ennen kuin 7 kuitataan.
 
-### Vaihe 8: muistiinpanot tärkeysjärjestykseen ja kuittaus (Emilin toive 21.10.2026)
+### Vaihe 8: tärkeysjärjestys, kuittaus, roskakori ja pitkän painalluksen valikko (Emilin toiveet 21.10.2026)
 
-- Muistiinpanojen järjestysvaihtoehto *Tärkeys*: muistiinpano saa tärkeimmän termin arvon, johon se osuu. Arvo tulee puun tärkeysjärjestyksestä (rivijärjestys ja `ennen`-säännöt), koska termit ovat puun palikoita tai liitetty niihin. Tärkein termi voittaa.
-- Aikatermit (Emil 21.10.2026): järjestykseen voi laittaa myös automaattiset termit kuten *Tänään* ja *Myöhässä*. Muistiinpano saa ne itsestään ajankohtansa perusteella (tänään = ajankohta osuu tähän päivään, myöhässä = viimeinen ajankohta on mennyt eikä muistiinpanoa ole kuitattu). Ne asetetaan tärkeysjärjestykseen samoin kuin muut termit.
-- Kuittaus: muistiinpano siirtyy *Kuitatut*-arkistoon, joka toimii samoin kuin avoimet (haku, järjestys, termit, avaus). Kuittauksen voi perua.
-- **Kysymykset (kysytään vaiheen 7 raportissa):**
-  1. Minkä puun järjestys ratkaisee, jos termi on usean puun palikka? Suositus: nykyisen puun, muuten ensimmäinen puu, jossa se on.
-  2. Missä järjestyksessä ovat muistiinpanot, jotka eivät osu yhteenkään järjestettyyn termiin? Suositus: listan loppuun omaan ryhmäänsä uusin ensin.
-  3. Mitkä aikatermit? Suositus: *Myöhässä*, *Tänään*, *Huomenna* ja *Tällä viikolla*, ja kukin osuu vain tarkimpaan (tänään ei ole samalla tällä viikolla). Vaihtoehto: vain Myöhässä ja Tänään.
-  4. Miten kuitataan? Suositus: muistiinpanon ikkunassa nappi *Kuittaa*, ja arkisto on Muistiot-välilehden yläreunan valinta *Avoimet / Kuitatut*.
-
+- **Tärkeysjärjestys kaikille palikoille ja termeille (Emil: ”pian”, ”sama järjestys kuin luettelossa”).** Termit-ikkunan luettelon järjestys on tärkeysjärjestys, ja sitä muutetaan siirtämällä rivejä. Yksi yhteinen järjestys kaikille puille.
+- **Muistiinpanot tärkeysjärjestykseen:** järjestysvaihtoehto *Tärkeys*. Muistiinpano saa tärkeimmän termin paikan, johon se osuu. Tärkein voittaa.
+- **Aikatermit:** *Myöhässä*, *Tänään* ja muut automaattiset termit ovat luettelossa ja järjestettävissä. Muistiinpano saa ne itsestään ajankohtansa perusteella.
+- **Kuittaus:** muistiinpano siirtyy *Kuitatut*-arkistoon, joka toimii samoin kuin avoimet. Kuittauksen voi perua.
+- **Poisto ilman varmistusta:** poistettu menee roskakoriin 30 päiväksi, ja sen voi palauttaa. Roskakori on Asetuksissa. Vanhemmat poistuvat itsestään.
+- **Pitkä painallus muistiinpanokorttiin** avaa valikon: *Kuittaa*, *Liitä termiin*, *Poista*.
+- **Kysymykset:**
+  1. Mitä tehdään muistiinpanoille, jotka eivät osu yhteenkään termiin? Suositus: listan loppuun, uusin ensin. Vaihtoehto: alkuun.
+  2. Mitkä aikatermit otetaan mukaan? Suositus: *Myöhässä*, *Tänään*, *Huomenna* ja *Tällä viikolla*, kukin vain tarkimpana. Vaihtoehto: vain Myöhässä ja Tänään.
+  3. Mitä *Liitä termiin* valikosta tekee? Suositus: näyttää termit siruina, ja napautus lisää termin nimen muistiinpanon loppuun omalle rivilleen (`#termi`-tyyliin), jolloin se tunnistuu. Vaihtoehto: termi tallennetaan muistiinpanoon piilotettuna, eikä tekstiin tule mitään.

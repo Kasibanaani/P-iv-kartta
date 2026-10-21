@@ -162,7 +162,10 @@ async def run(p,w,h):
     await pg.click('#ps-del'); await pg.click('#ps-del'); await pg.click('#ps-close'); await pg.wait_for_timeout(50)
     # hoidettavat
     await pg.click('#title'); await pg.click('#ps-mem [data-mem="all"]'); want('muisti kaikki', json.loads(await pg.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('paatospuu:v1')).projektit[0].mem||'')"))=='all'); await pg.click('#ps-mem [data-mem="next"]'); await pg.click('#ps-close')
-    await pg.click('#title'); await pg.click('#ps-end [data-end="hoid"]'); await check('lopuksi-asetus'); await pg.click('#ps-close')
+    await pg.click('#title'); await pg.click('#ps-end [data-end="hoid"]'); await check('lopuksi-asetus')
+    hb=await pg.locator('#ps-h').bounding_box(); await pg.mouse.move(hb['x']+10,hb['y']+5); await pg.mouse.down()
+    for k in range(1,9): await pg.mouse.move(hb['x']+10,hb['y']+5+k*20)
+    await pg.mouse.up(); await pg.wait_for_timeout(300); want('ikkuna alas vetämällä kiinni', not await pg.is_visible('#psheet'))
     await pg.click('[data-tab="use"]'); await pg.wait_for_timeout(50)
     if await pg.locator('#start').count(): await pg.click('#start'); await pg.wait_for_timeout(50)
     await pg.click('#act-end'); await pg.wait_for_timeout(50)

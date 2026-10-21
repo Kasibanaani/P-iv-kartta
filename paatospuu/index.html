@@ -1053,6 +1053,22 @@ function closeSheet(d){if(d.close)d.close();else d.removeAttribute('open');}
 function sheetDone(d){var ok=d.querySelector('[data-done]');if(ok)ok.click();else closeSheet(d);}
 ['psheet','xsheet','lsheet','esheet','nsheet','tsheet'].forEach(function(id){var d=$(id);d.addEventListener('click',function(ev){if(ev.target===d)sheetDone(d);});
   d.addEventListener('cancel',function(ev){ev.preventDefault();sheetDone(d);});});
+/* Ikkunan voi vetää alas mistä tahansa vapaasta kohdasta (ei kentästä tai napista), kun se on vieritetty ylös asti.
+   Riittävä veto sulkee ja tallentaa kuten Valmis. */
+var FREE='input,textarea,select,button,a,label,[contenteditable],.hlwrap,.untimed';
+function sheetDrag(d){var st=null;
+  function start(y,t){if(t===d||t.closest(FREE)||d.scrollTop>0)return;st={y:y,dy:0};}
+  function move(y,ev){if(!st)return;var dy=y-st.y;if(dy<=0&&!st.on){st=null;return;}if(ev.cancelable)ev.preventDefault();
+    if(!st.on&&dy>6){st.on=true;d.style.transition='none';}if(st.on){st.dy=Math.max(0,dy);d.style.transform='translateY('+st.dy+'px)';}}
+  function end(){if(!st)return;var s0=st;st=null;if(!s0.on)return;d.style.transition='transform .18s';
+    if(s0.dy>90){d.style.transform='translateY(100%)';setTimeout(function(){d.style.transform='';d.style.transition='';sheetDone(d);},170);}
+    else{d.style.transform='';setTimeout(function(){d.style.transition='';},200);}}
+  d.addEventListener('touchstart',function(ev){if(ev.touches.length===1)start(ev.touches[0].clientY,ev.target);},{passive:true});
+  d.addEventListener('touchmove',function(ev){if(st)move(ev.touches[0].clientY,ev);},{passive:false});
+  d.addEventListener('touchend',end);d.addEventListener('touchcancel',end);
+  d.addEventListener('mousedown',function(ev){if(ev.button===0)start(ev.clientY,ev.target);});
+  document.addEventListener('mousemove',function(ev){if(st)move(ev.clientY,ev);});document.addEventListener('mouseup',end);}
+['psheet','xsheet','lsheet','esheet','nsheet','tsheet'].forEach(function(id){sheetDrag($(id));});
 function firstProjForm(p){p.appendChild(el('h2','','Ensimmäinen päätöspuu'));
   p.appendChild(el('p','sub','Jokainen projekti on oma päätöspuunsa. Anna nimi, sitten kirjoitat tai liität sisällön tekstikenttään.'));
   var r=el('div','addrow'),i=el('input');i.type='text';i.id='firstproj';i.placeholder='Nimi';i.autocomplete='off';r.appendChild(i);

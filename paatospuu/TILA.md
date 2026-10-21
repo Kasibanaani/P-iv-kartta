@@ -125,6 +125,7 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 ## Versio 1.17 (21.10.2026, suunnitelman vaihe 7a): kalenteri, aikajana ja raahaus
 
 - Emil kuittasi vaiheen 6 ja hyväksyi kalenterin suositukset (350 ms, 15 min, termin valinta *Näytä kalenterissa* tulee 7b:ssä).
+- Korjaus 1.17.1: ikkunan voi vetää alas mistä tahansa vapaasta kohdasta (ei kentästä tai napista), kun se on ylhäällä; sulkee ja tallentaa kuten Valmis.
 - Uusi välilehti **Kalenteri** (alapalkissa *Muistiot*-nimi lyhennetty, jotta viisi mahtuu). Yläosa pysyy paikallaan: kuukausi ja viikko ‹ ›, *Tänään*, viikkonauha ma–su (pyyhkäisy vaihtaa viikkoa, piste = päivällä muistiinpanoja), ajattomien nauha (vaakavieritys, napautus avaa). Alla päivän aikajana 0–24, avautuu klo 7:n kohdalta, nykyhetki punaisella viivalla. Päällekkäiset rinnakkain.
 - Merkintä: otsikko = ensimmäinen rivi ilman tunnistettuja ajankohtia. Lyhyt napautus avaa muistiinpanon. Pitkä painallus (350 ms) nostaa (varjo, paksu reuna), siirto 15 min askelin, reunan lähellä vierittää. Kulmaväkänen muuttaa loppuaikaa heti (katkoviiva).
 - Aika kirjoittuu sinne, mistä se tuli: tekstin `klo …` korvataan (toistuvassa muistiinpanossa kaikkina päivinä), muuten kenttä. Muistiinpanon ikkunassa uusi *Kellonaika*-kenttä (alkaa–päättyy), joka näkyy vain, kun tekstissä ei ole aikaa. Tallennus: muistiinpanoon `time:{s,e}`.
@@ -143,7 +144,7 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 ## Avoimet kysymykset
 
-- Emilin toive 21.10.2026: muistiinpanot tärkeysjärjestykseen termien kautta ja kuittaus arkistoon. Kirjattu suunnitelmaan vaiheeksi 8, ei rakennettu.
+- Emilin toiveet 21.10.2026: tärkeysjärjestys termiluettelon järjestyksenä, muistiinpanot sen mukaan, aikatermit, kuittaus arkistoon, roskakori 30 pv, pitkän painalluksen valikko. Suunnitelman vaihe 8, ei rakennettu.
 
 - Emil hyväksyi 21.10.2026 kaikki suositukset dokumentista *Päätöspuu: avoimet kysymykset* (https://claude.ai/artifact/RFMnrpTAm7fb7r9prDPz8q). Toteutus etenee vaihe kerrallaan: `SUUNNITELMA-vaiheet.md` (pelisäännöt, vaiheiden tila ja kunkin vaiheen kysymykset). Seuraavaan vaiheeseen vasta Emilin kuittauksen ja vastausten jälkeen.
 - Ratkaistu: suhteellisten päivien pohja on luontihetki (17), nimi ”kierros” jää (24), päivän muistiinpanoihin lasketaan välit (Emil: ”Juu!”).
