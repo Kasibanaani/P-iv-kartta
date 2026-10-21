@@ -26,6 +26,8 @@ Päivitetty 21.10.2026. Emil sanoi kyllä kaikkiin suosituksiin dokumentissa *P�
 | 10 | Projektit ja puut: projekti (esim. Mätsik Forest) sisältää useita päätöspuita, puukohtainen Eteneminen (Emil 21.10.2026) | 1–2 versiota | Valmis (1.20) |
 | 11 | Toistuvat muistutukset: Muistiot → Toistuvat, tasavälein tai kuittauksesta, erä avoimeksi eri värisenä (Emil 21.10.2026) | 1 versio | Valmis (1.21) |
 | 12 | Muistutus, jos ei tapahdu: valitut termit (jokin / kaikki samassa) eivät ole olleet kuitatussa muistiinpanossa N ajassa → automaattinen avoin muistiinpano (Emil 21.10.2026) | 1 versio | Valmis (1.23) |
+| 13 | Projektin vienti ja lisäys tiedostosta/tekstistä, ei korvaa; muoto tekoälylle (Emil 21.10.2026) | 1 versio | Valmis (1.24) |
+| 14 | Tietokoneversio: kaikki puhelimen ominaisuudet, leveän ruudun asettelu, samat tiedostot, ei lisää vahvistuksia (Emil 21.10.2026) | 1–2 versiota | Seuraavaksi |
 
 Kohta 17 (luontihetki) on jo nyt käytössä, joten työtä ei tarvita. Kohta 24 (”kierros”) jää ennalleen. Molemmat poistetaan TILA:n avoimista kysymyksistä vaiheessa 1. Myös välit päivän muistiinpanoissa on ratkaistu (Emil: ”Juu!”).
 
@@ -127,3 +129,11 @@ Kohta 17 (luontihetki) on jo nyt käytössä, joten työtä ei tarvita. Kohta 24
 - Toistuvat-näkymässä toinen laji: *Jos ei tapahdu*. Sääntö = teksti (omat termit → tärkeys), termit kaikista nykyisistä termeistä, *Jokin näistä / Kaikki samassa*, aika (”2 viikkoon”) ja seurannan alku. Sääntöjä voi olla kuinka monta tahansa.
 - Ehto katsotaan kuitatuista muistiinpanoista (kuittauspäivä). Aika alkaa myöhäisimmästä osumasta, seurannan alusta tai edellisen muistutuksen kuittauksesta. Muistutus on samanvärinen kuin toistuvat.
 - Rakentajan ratkaisut (Emil valtuutti): sama välilehti kuin toistuvilla, muistutuksen oma kuittaus ei ole osuma, uutta ei tule edellisen ollessa auki.
+
+### Vaihe 13: projektin vienti ja lisäys (Emil 21.10.2026)
+
+- Yksittäinen projekti viedään ja lisätään projekti-ikkunasta; lisäys ei korvaa mitään (nimi (2)). Koko varmuuskopio Asetuksissa ennallaan. Muoto: `paatospuu/PROJEKTIMUOTO.md` (tekoäly voi kirjoittaa, myöhemmin skilli).
+
+### Vaihe 14: tietokoneversio (Emil 21.10.2026)
+
+- Jonon viimeinen. Kaikki puhelimen ominaisuudet, yhteensopivat tiedostot. Asettelu leveän ruudun ehdoilla (esim. kalenterissa monta päivää), ei yhtään lisää kuittauksia tai vahvistuksia. Toteutustapa rakentajan päätös.

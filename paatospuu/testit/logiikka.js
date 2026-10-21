@@ -334,6 +334,14 @@ eq('laukaisimen nimi',[E.trigLabel({n:2,unit:'w'}),E.trigLabel({n:1,unit:'m'})],
 eq('ilman termilistaa ei laukaisua',E.repsDue([RT],[],'2026-10-20','t').length,0);
 var NT=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'a',name:'A',toistuvat:[{id:'g',text:'X',mode:'trig',terms:['s',3],all:true,n:2,unit:'w',start:'2026-10-01'}]}]});
 eq('laukaisin tallessa',[NT.reps[0].mode,NT.reps[0].terms,NT.reps[0].all],['trig',['s'],true]);
+// projektin vienti ja lisäys (1.24)
+var AIP={app:'paatospuu',laji:'projekti',projekti:{name:'Sali',puut:[{name:'Treeni',text:'Jalat\nSelkä\n\n=Alku avaa:\nJalat\n\n=Jalat avaa: Selkä'}],termit:[{name:'Salitreeni',yes:['sali-']}],muistiinpanot:[{text:'Sali ma klo 17'}],toistuvat:[{text:'Venyttely',mode:'every',n:1,unit:'w'}]}};
+var PL=E.projectsFromFile(AIP,'2026-10-21'),PS=PL[0];
+eq('tekoälyn projekti ilman tunnisteita',[PL.length,PS.name,PS.projects.length,PS.cur===PS.projects[0].id,PS.projects[0].rules.jalat.o,PS.terms[0].yes,PS.notes.length,PS.reps[0].start],[1,'Sali',1,true,['selkä'],['sali-'],1,'2026-10-21']);
+var RT2=E.projectsFromFile(JSON.parse(JSON.stringify(E.projectFile({name:'X',cur:PS.cur,projects:PS.projects,notes:PS.notes,terms:PS.terms,words:{},imp:[],reps:PS.reps},'t'))))[0];
+eq('vienti ja lisäys takaisin',[RT2.name,RT2.projects[0].text,RT2.notes[0].text,RT2.reps.length],['X',PS.projects[0].text,'Sali ma klo 17',1]);
+eq('koko varmuuskopiosta kaikki projektit',E.projectsFromFile({app:'paatospuu',kokonaisuudet:[{id:'a',name:'A'},{id:'b',name:'B'}]}).map(function(k){return k.name;}),['A','B']);
+eq('vieras tiedosto',E.projectsFromFile({app:'muu'}),null);
 // kalenteri 7b
 var mkn=function(t){return {text:t,created:'2026-10-21T08:00:00',date:''};},MN=mkn('Hammas pe klo 14');eq('päivän siirto tekstiin',[E.moveDay(MN,E.noteDates(MN)[0],'2026-10-24'),MN.text],['','Hammas 24.10.2026 klo 14']);
 MN=mkn('Juttu perjantaisin');eq('toistuva ei siirry',[E.moveDay(MN,E.noteDates(MN)[0],'2026-10-24')!=='',MN.text],[true,'Juttu perjantaisin']);

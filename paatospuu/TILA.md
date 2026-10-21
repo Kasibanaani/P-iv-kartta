@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.23 (vaihe 12 laukaisinmuistutukset); kaikki suunnitellut vaiheet tehty, odottaa Emilin kokeilua ja kuittausta · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.24 (vaihe 13 projektin vienti ja lisäys); seuraavaksi tietokoneversio (vaihe 14); kaikki suunnitellut vaiheet tehty, odottaa Emilin kokeilua ja kuittausta · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -200,8 +200,16 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 - 1.23.2 (Emilin toive): Kalenterin yläriviltä +-nappi avaa *Uusi kalenterimerkintä* -ikkunan valitun päivän päivämäärällä. Napautus aikajanan tyhjään kohtaan avaa saman: alku edellisestä vartista, kesto tunti. Merkintä on tavallinen muistiinpano ja näkyy heti Muistioissa. Pitkää painallusta ei käytetty (Emil: maalaa tekstiä).
 
+## Versio 1.24 (21.10.2026, Emilin toive, vaihe 13): projektin vienti ja lisäys
+
+- Projekti-ikkunan *Uusi projekti, vienti ja tuonti, nimi* -osiossa: *Lisää projekti: Tiedostosta / Tekstistä* ja *Nykyinen projekti: Vie projekti / Vie tekstinä*. Lisäys ei koskaan korvaa: uusi projekti, saman niminen saa (2), lisätty avautuu. Koko varmuuskopion antaminen lisäykseen lisää sen kaikki projektit.
+- Asetusten koko appin varmuuskopio ennallaan (korvaa kaiken). Jos sinne antaa yksittäisen projektin, appi tunnistaa sen ja tarjoaa *Lisää projekti*, ei korvausta.
+- Projektitiedoston muoto `{app:'paatospuu', laji:'projekti', ver, savedAt, projekti:{name, cur, puut, muistiinpanot, termit, termisanat, tarkeat, toistuvat}}`. Tunnisteet saavat puuttua, säännöt ovat puun tekstissä. Ohje tekoälylle ja tulevalle skillille: `paatospuu/PROJEKTIMUOTO.md`.
+- GitHub-tallennusta ei tehty (Emil perui).
+
 ## Ei tarkistettu
 
+- Oikealla iPhonella ei kokeiltu (1.24): projektin jako tiedostona ja tiedoston valinta Tiedostot-appista.
 - Oikealla iPhonella ei kokeiltu (1.23.2): aikajanan napautus vs. vieritys (napautuksen pitäisi tulla vain ilman vieritystä).
 - Oikealla iPhonella ei kokeiltu (1.23): termisirujen vieritys ikkunassa, rajauskenttä näppäimistön kanssa.
 
