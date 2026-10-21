@@ -34,7 +34,12 @@ async def run(p,w,h):
     print('leveys',w)
     await check('alku')
     await pg.fill('#firstproj','Lemmikit'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
-    await pg.click('#p-use .btn'); await pg.fill('#xs-text',TEXT); await check('tekstikenttä'); await pg.click('#xs-ok'); await pg.wait_for_timeout(100)
+    await pg.click('#p-use .btn'); await pg.fill('#xs-text',TEXT+'\n// oma osio\nkissa\nKeskeneräi'); await pg.wait_for_timeout(50); await check('tekstikenttä')
+    ks=await pg.evaluate("Array.prototype.map.call(document.querySelectorAll('#xs-hl > span'),function(e){return e.className;})")
+    want('värit rivityypeistä', 'k-q' in ks and 'k-g' in ks and 'k-t' in ks and 'k-c' in ks and ks.count('k-w')==1)
+    al=await pg.evaluate("(function(){var a=document.getElementById('xs-text'),b=document.getElementById('xs-hl');return [a.scrollHeight,b.scrollHeight,b.textContent.replace(/\u200b/,'')===a.value,a.clientHeight,b.clientHeight,a.clientWidth,b.clientWidth];})()")
+    want('väripinta kohdallaan', abs(al[0]-al[1])<=2 and al[2] and al[3]==al[4] and al[5]==al[6])
+    await pg.fill('#xs-text',TEXT); await pg.click('#xs-ok'); await pg.wait_for_timeout(100)
     # opetus
     await pg.click('[data-tab="teach"]'); await pg.wait_for_timeout(100)
     rows=lambda: pg.locator('#tlist [data-id]')

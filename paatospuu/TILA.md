@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.8, kokeilussa · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.9, kokeilussa · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -68,9 +68,14 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Muutos aiempaan:** ennen sana tunnistui alusta (”eläi” löysi eläimen). Nyt taivutukset tarvitsevat tavuviivan. Myös palikoiden nimet tunnistuvat vain kokonaisina.
 - Muistiinpanoissa hakukenttä *Hae sanalla* termien yläpuolella: osa sanaa riittää. Toimii yhdessä termisuodattimen kanssa.
 
+## Versio 1.9 (21.10.2026, Emilin toive): värit tekstikentässä
+
+- Puun tekstikentässä rivi värittyy heti, kun se on tulkittu: nappula tavallisella värillä, ryhmä violetti, ilmoitus vihreä, apukysymys oranssinruskea, `//`-rivi harmaa, jo käytössä oleva nimi punainen aaltoviivalla. Kirjoitettava rivi värittyy vasta, kun kursorin edessä on välilyönti tai kun siirryt muualle. Ohjeen esimerkit ovat samoissa väreissä.
+- Tekniikka: värikerros tekstikentän alla (sama kuin ajankohtien korostus), tekstikentän oma teksti läpinäkyvä. Termilohkoille (`=`) varattu väri tulee, kun ne rakennetaan.
+
 ## Ei tarkistettu
 
-- Oikealla iPhonella ei kokeiltu: zoomauksen esto ja yläreunan lisätila (näkyy vain kotinäytön appina), jakoikkunan tiedostovienti, päivämäärävalitsin, näppäimistö alapalkin kanssa, tekstikentän koko.
+- Oikealla iPhonella ei kokeiltu: tekstikentän värikerroksen kohdistus Safarissa (kursori, valinta, vieritys), zoomauksen esto ja yläreunan lisätila (näkyy vain kotinäytön appina), jakoikkunan tiedostovienti, päivämäärävalitsin, näppäimistö alapalkin kanssa, tekstikentän koko.
 - Säännöt ovat nimissä: jos nimen vaihtaa suoraan tekstikentässä, säännöt eivät seuraa (Opetus näyttää ”Säännöt ilman riviä”). Muokkaa-tilassa vaihto seuraa.
 
 ## Seuraavaksi

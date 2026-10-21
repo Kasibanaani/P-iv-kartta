@@ -112,7 +112,7 @@ Tämä osio on vain minulle.
 - **Miksi `=` eikä pelkkä kaksoispiste lopussa:** tavallinen rivi on nyt palikka, ja kaksi samannimistä riviä on virhe (toinen ohitetaan). Etumerkki erottaa termilohkon palikasta yksiselitteisesti ja sopii nykyiseen sarjaan `# > ? //`. Kaksoispiste pelkästään lopussa tekisi rivistä ”Koira:” arvoituksen: onko se palikka vai termi?
 - **Omat osiot:** `//`-kommenttirivit ovat jo olemassa, ja appi ohittaa ne. Ehdotan, että `//` rivin alussa näkyy kentässä väliotsikkona, jonka yläpuolella on viiva. Kenttään saa siis kirjoittaa itselleen osioita.
 
-**Näkyvä palaute kirjoittaessa** (sama tekniikka kuin ajankohtien korostuksessa):
+**Näkyvä palaute kirjoittaessa** (rivityyppien värit rakennettu 1.9:ssä; termilohko saa oman värinsä, kun se rakennetaan):
 - Termilohkon rivit saavat taustasävyn, ja lohkon loppuun piirtyy ohut viiva. Silloin näkee heti, mihin lohko katkesi.
 - Jokaisen sanarivin loppuun tulee pieni rivinvaihtomerkki ↵. Jos pitkä lause rivittyy, näkee silti, että se on yksi rivi eikä kaksi.
 - Palikat, ryhmät, ilmoitukset ja apukysymykset saavat omat hillityt merkintänsä, ja rivi, jota ei ymmärretty, näkyy varoitusvärillä. Korostus päivittyy, kun rivi vaihtuu (sama kuin ajankohdissa: tulkinta näkyy, kun siirryt eteenpäin).
