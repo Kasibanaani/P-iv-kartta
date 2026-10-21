@@ -98,6 +98,15 @@ button,input,textarea{font:inherit;color:inherit;letter-spacing:inherit}
 .calsticky{position:sticky;top:-10px;z-index:6;margin:-10px -16px 8px;padding:8px 16px 6px;background:var(--bg);border-bottom:.5px solid var(--sep)}
 .calsticky .calhead h2{font-size:16px}.top .mini.calplus{flex:none;min-width:40px;background:var(--solid);color:var(--on-solid);box-shadow:none;font-size:22px;font-weight:500;padding:0 10px}.calsticky .calhead .mini{min-width:40px}
 .calsticky .calgrid{margin-top:6px}
+.mtitle{display:inline-flex;align-items:center;gap:4px;padding:2px 6px;border:0;background:none;font:inherit;color:inherit;cursor:pointer}
+.mtitle::first-letter{text-transform:uppercase}.mtitle svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;opacity:.6}
+#csheet{max-width:440px}
+.mhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 42px 12px 0}.mhead h2{margin:0;min-width:9em;text-align:center;font-size:19px}.mhead h2::first-letter{text-transform:uppercase}.mhead .mini{min-width:40px}
+.mgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.mwd{font-size:12px;color:var(--label2);text-align:center;padding:2px 0 4px}
+.mday{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;height:50px;border:0;border-radius:10px!important;background:var(--cell);cursor:pointer;font-variant-numeric:tabular-nums}
+.mday b{font-size:16px;font-weight:500}.mday small{min-height:14px;font-size:12px;font-weight:700;color:var(--accent)}
+.mday.today{box-shadow:inset 0 0 0 2px var(--accent)}.mday.on{background:var(--solid);color:var(--on-solid)}.mday.on small{color:var(--on-solid)}
 .calhead .wk{font-size:13px;color:var(--label2);font-weight:500}
 .cday{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;height:48px;line-height:1.1}
 .cday small{font-size:11px;font-weight:500;opacity:.8}
@@ -551,6 +560,10 @@ html.standalone .top{padding-top:calc(env(safe-area-inset-top,0px) + 30px)}
     <div class="btnrow"><button type="button" class="btn danger" id="pk-del">Poista projekti</button></div>
     <p class="msg" id="pk-mmsg"></p>
 </div></div>
+<dialog id="csheet" aria-labelledby="cs-h">
+  <div class="mhead"><button type="button" class="mini" id="cs-prev" aria-label="Edellinen kuukausi">‹</button><h2 id="cs-h"></h2><button type="button" class="mini" id="cs-next" aria-label="Seuraava kuukausi">›</button></div>
+  <div class="mgrid" id="cs-grid"></div>
+</dialog>
 <dialog id="xsheet" aria-labelledby="xs-h">
   <h2 id="xs-h">Tekstikenttä</h2>
   <p class="syntax">Yksi rivi on yksi asia. Ylempi rivi on oletuksena tärkeämpi. Säännöt voi opettaa napauttamalla tai kirjoittaa lohkoina.<br>
@@ -1398,7 +1411,7 @@ function openSheet(d){if(d.showModal)d.showModal();else d.setAttribute('open',''
 function closeSheet(d){if(d.close)d.close();else d.removeAttribute('open');}
 /* Ikkunan sulkeminen ohi napauttamalla tai Esc tallentaa samoin kuin Valmis */
 function sheetDone(d){var ok=d.querySelector('[data-done]');if(ok)ok.click();else closeSheet(d);}
-['psheet','xsheet','lsheet','esheet','nsheet','tsheet','msheet','rsheet','hsheet'].forEach(function(id){var d=$(id);d.addEventListener('click',function(ev){if(ev.target===d&&!d.classList.contains('dock'))sheetDone(d);});
+['psheet','xsheet','lsheet','esheet','nsheet','tsheet','msheet','rsheet','hsheet','csheet'].forEach(function(id){var d=$(id);d.addEventListener('click',function(ev){if(ev.target===d&&!d.classList.contains('dock'))sheetDone(d);});
   d.addEventListener('cancel',function(ev){ev.preventDefault();sheetDone(d);});});
 /* Ikkunan voi vetää alas mistä tahansa vapaasta kohdasta (ei kentästä tai napista), kun se on vieritetty ylös asti.
    Riittävä veto sulkee ja tallentaa kuten Valmis. */
@@ -1416,7 +1429,7 @@ function sheetDrag(d){var st=null;
   d.addEventListener('mousedown',function(ev){if(ev.button===0)start(ev.clientY,ev.target);});
   document.addEventListener('mousemove',function(ev){if(st)move(ev.clientY,ev);});document.addEventListener('mouseup',end);}
 /* Sulkeminen oikean yläkulman ruksista (Emil 21.10.2026: alasveto sekoittui alla olevan tason raahaukseen). Ruksi toimii kuten Valmis. */
-['psheet','xsheet','lsheet','esheet','nsheet','tsheet','msheet','rsheet','hsheet'].forEach(function(id){var d=$(id),x=el('button','sx');x.type='button';x.setAttribute('aria-label','Sulje');
+['psheet','xsheet','lsheet','esheet','nsheet','tsheet','msheet','rsheet','hsheet','csheet'].forEach(function(id){var d=$(id),x=el('button','sx');x.type='button';x.setAttribute('aria-label','Sulje');
   x.innerHTML='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9"/></svg>';x.addEventListener('click',function(){sheetDone(d);});d.insertBefore(x,d.firstChild);});
 function firstProjForm(p){p.appendChild(el('h2','','Ensimmäinen päätöspuu'));
   p.appendChild(el('p','sub','Anna puulle nimi, sitten kirjoitat tai liität sisällön tekstikenttään. Projektin ja muut puut löydät yläreunan nimestä.'));
@@ -1817,7 +1830,8 @@ function renderCal(){var p=panels.cal,today=todayIso();p.textContent='';if(!calD
   setInfo((calDay===today?'Tänään, ':'')+(calDay===today?WD[dl.getDay()]:WD[dl.getDay()].charAt(0).toUpperCase()+WD[dl.getDay()].slice(1))+' '+fiDate(calDay)+(ct.length?' · '+ct.join(', '):''));
   var top=el('div','calsticky');top.id='calsticky';p.appendChild(top);
   var h=el('div','calhead');button(h,'‹','mini',function(){calSet(isoD(addDays(fromIso(calDay),-7)));}).setAttribute('aria-label','Edellinen viikko');
-  var t=el('h2','',MON[ws.getMonth()]+' '+ws.getFullYear());t.appendChild(el('span','wk',' · vk '+isoWeekNo(ws)));h.appendChild(t);
+  var t=el('h2');var tb=button(t,'','mtitle',function(){openMonth();});tb.id='calmonth';tb.setAttribute('aria-label','Kuukausi');var mn=MON[ws.getMonth()];tb.appendChild(document.createTextNode(mn.charAt(0).toUpperCase()+mn.slice(1)+' '+ws.getFullYear()));
+  tb.appendChild(el('span','wk',' · vk '+isoWeekNo(ws)));tb.insertAdjacentHTML('beforeend','<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg>');h.appendChild(t);
   var hr=el('div','btnrow');hr.style.margin='0';if(calDay!==today)button(hr,'Tänään','mini',function(){calTop=null;calSet(today);}).id='caltoday';
   button(hr,'›','mini',function(){calSet(isoD(addDays(fromIso(calDay),7)));}).setAttribute('aria-label','Seuraava viikko');h.appendChild(hr);top.appendChild(h);
   var g=el('div','calgrid');g.id='week';
@@ -1851,6 +1865,17 @@ function renderWeek(p,top,days,today){$('week').classList.add('wk7');
     dayEntries(data.notes,d).timed.forEach(function(x){x.day=d;a.appendChild(evBox(x));});areaTap(a,d);tl.appendChild(a);});
   p.appendChild(tl);
   requestAnimationFrame(function(){if(calTop===null){calTop=main.scrollTop+tl.getBoundingClientRect().top-main.getBoundingClientRect().top+7*HOURPX-top.offsetHeight-6;}main.scrollTop=calTop;});}
+/* Kuukausi-ikkuna (Emil 21.10.2026): päivän kohdalla vain sitä koskevien muistiinpanojen määrä. Napautus vie päivään. */
+var monCur=null,MONN=['tammikuu','helmikuu','maaliskuu','huhtikuu','toukokuu','kesäkuu','heinäkuu','elokuu','syyskuu','lokakuu','marraskuu','joulukuu'];
+function openMonth(){var d=fromIso(calDay||todayIso());monCur=new Date(d.getFullYear(),d.getMonth(),1);renderMonth();openSheet($('csheet'));}
+function renderMonth(){var g=$('cs-grid'),today=todayIso();g.textContent='';$('cs-h').textContent=MONN[monCur.getMonth()]+' '+monCur.getFullYear();
+  ['ma','ti','ke','to','pe','la','su'].forEach(function(w){g.appendChild(el('span','mwd',w));});
+  for(var k=0;k<(monCur.getDay()+6)%7;k++)g.appendChild(el('span'));
+  var y=monCur.getFullYear(),m=monCur.getMonth(),n=new Date(y,m+1,0).getDate();
+  for(var i=1;i<=n;i++){(function(iso,i){var c=notesOnDay(data.notes,iso).length,b=button(g,'','mday'+(iso===today?' today':'')+(iso===calDay?' on':''),function(){calDay=iso;calTop=null;closeSheet($('csheet'));render();});
+    b.dataset.day=iso;b.appendChild(el('b','',String(i)));b.appendChild(el('small','',c?String(c):''));b.setAttribute('aria-label',fiDate(iso)+(c?', '+c+(c===1?' muistiinpano':' muistiinpanoa'):''));})(isoD(new Date(y,m,i)),i);}}
+$('cs-prev').addEventListener('click',function(){monCur=new Date(monCur.getFullYear(),monCur.getMonth()-1,1);renderMonth();});
+$('cs-next').addEventListener('click',function(){monCur=new Date(monCur.getFullYear(),monCur.getMonth()+1,1);renderMonth();});
 function isoWeekNo(d){var t=new Date(d.getFullYear(),d.getMonth(),d.getDate()+3-((d.getDay()+6)%7)),j=new Date(t.getFullYear(),0,4);return 1+Math.round(((t-j)/864e5-3+((j.getDay()+6)%7))/7);}
 function evPos(b,x,s,e){b.style.top=(s/60*HOURPX)+'px';b.style.height=Math.max(20,(e-s)/60*HOURPX-2)+'px';b.classList.toggle('short',(e-s)<45);
   function lab(m){return fromMin(m).replace(/^0/,'').replace(':','.');}

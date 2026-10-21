@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.25 (vaihe 14 tietokoneversio); jono tyhjä, odottaa Emilin kokeilua; kaikki suunnitellut vaiheet tehty, odottaa Emilin kokeilua ja kuittausta · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.28 (käytettävyyskorjaukset, ajan tulkinta, kuukausi-ikkuna); jono tyhjä, odottaa Emilin kokeilua; kaikki suunnitellut vaiheet tehty, odottaa Emilin kokeilua ja kuittausta · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -215,6 +215,13 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Kalenteri**: viikko seitsemänä sarakkeena, ajattomat päivän sarakkeen yläosassa, valittu päivä korostettu. Napautus sarakkeeseen = uusi merkintä sille päivälle ja vartille. Merkinnän raahaus toiseen sarakkeeseen siirtää päivän (kellonaika säilyy); ajattoman sirun raahaus sarakkeeseen antaa päivän ja kellonajan. Hiirellä raahaus alkaa heti liikkeestä, kosketuksella pitkästä painalluksesta kuten ennen.
 - **Muistiot**: kortit ruudukkona (2–3 saraketta). Muut näkymät samat, leveämpinä. Ei uusia vahvistuksia.
 - Tunnettu (myös puhelimessa): jos tekstikentässä kirjoittaa rivin alkuun, se tulkitaan nimen vaihdoksi ja säännöt seuraavat. Uusi rivi kannattaa aloittaa edellisen rivin lopusta Enterillä.
+
+## Versiot 1.26–1.28 (21.10.2026, Emilin toiveet)
+
+- 1.26: Kaikissa ikkunoissa ruksi oikeassa yläkulmassa (toimii kuten Valmis), vetokahva ja alasveto poistettu. Ilmoitukset eivät enää ole yläpalkissa: yläpalkki on aina samankorkuinen, ilmoitusrivi on sisällön yläosassa (tyhjänä piilossa); kalenterin + on yläpalkissa. **Yläpalkin nimi = projekti** (avaa projektit: valinta sulkee ikkunan, uusi projekti, lisäys tiedostosta/tekstistä). **Puu valitaan Käytön ja Opetuksen yläosan *Puu ⌄* -napista** (puut, uusi puu, nykyisen puun asetukset; valinta sulkee ikkunan). Tyhjä puu: ”Puu ’X’ on tyhjä” ja nappi *Kirjoita puun sisältö* (vie Opetukseen ja avaa tekstikentän). Asetukset jaettu: *Appi · kaikki projektit* (ulkoasu, koko varmuuskopio) ja *Projekti · nimi* (nimi, vienti, poisto, roskakori).
+- Rakentajan ratkaisu: tekstikenttä on **puun** sisältö (jokaisella puulla oma), ei koko projektin, joten se pysyy Opetuksessa (puun rakentaminen); Käytössä vain linkki tyhjälle puulle. Projektin yhteisiä ovat termit, muistiinpanot ja tärkeät.
+- 1.27: Vajaa ajanilmaus on seuraava mahdollinen kirjoitushetkestä: mennyt ”ke klo 8” keskiviikkona → ensi keskiviikko; mennyt pelkkä ”klo 8” → huomenna; käynnissä oleva väli (”ke klo 13–16” klo 14) tänään (Emil vahvisti). Päivämäärä ja toistuvat ennallaan; pelkkä kello + päivämääräkenttä koskee kentän päivää. Lasketaan muistiinpanon luontihetkestä, joten vanhat eivät hypi. Samalla korjattu: *keskiviikkoisin* ei tunnistunut.
+- 1.28: Kalenterin kuukausi-ikkuna: napauta kuukauden nimeä. Nuolet vaihtavat kuukautta, päivän kohdalla vain sitä koskevien (kuittaamattomien) muistiinpanojen määrä, toistuvat ja välit jokaiselle päivälle. Päivän napautus sulkee ja vie päivään; ulkopuoli ja ruksi sulkevat.
 
 ## Ei tarkistettu
 
