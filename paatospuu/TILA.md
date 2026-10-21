@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.13 (suunnitelman vaihe 3), odottaa Emilin kuittausta · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.14 (suunnitelman vaihe 4), odottaa Emilin kuittausta · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -100,9 +100,16 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Emil kuittasi vaiheen 2 ja hyväksyi oletuksen *vain seuraava askel*.
 - Projektin ikkunassa *Muisti: Vain seuraava askel / Kaikki mukana* (`mem:'all'`). Kaikki mukana: jokaisen yhä voimassa olevan valinnan avaamat pysyvät tarjolla koko kierroksen, kunnes ne suljetaan pois tai niiden avaaja puretaan. Valitut näkyvät valmiiksi valittuina. Ehdot (kaikki tarvitaan) toimivat samoin molemmissa.
 
+## Versio 1.14 (21.10.2026, suunnitelman vaihe 4): termilohkot ja Liitä termiin
+
+- Emil kuittasi vaiheen 3 ja hyväksyi suositukset (Liitä termiin kirjoittaa termin ikkunaan; tuntematon lohkon nimi luo uuden termin).
+- Puun tekstissä termilohko: `=Nimi:` ja sanat seuraavilta riveiltä (myös samalla rivillä kaksoispisteen jälkeen), `!` alussa poissulkeva, tyhjä rivi päättää. Lohkon rivit eivät ole palikoita. Saman nimen lohkot (myös eri puissa) lasketaan yhteen. Nimi osuu palikkaan, omaan termiin tai luo uuden termin (laji *tekstilohko*). Termin ikkunassa näkyy *Puun tekstistä: …* (muokataan tekstissä).
+- Tekstikentässä lohkon otsikko turkoosi lihavoitu, sanarivit taustasävyllä ja ↵ lopussa, poissulkeva punainen, lohkon loppuun viiva. `//`-rivi lihavoitu väliotsikko.
+- Muistiinpanossa tekstiä valitessa kentän alle tulee *Liitä ”…” termiin*: sanaa voi lyhentää, sitten napautetaan termiä tai luodaan uusi. Sana tallentuu termin ikkunan sanoihin.
+
 ## Ei tarkistettu
 
-- Oikealla iPhonella ei kokeiltu: tekstikentän värikerroksen kohdistus Safarissa (kursori, valinta, vieritys), zoomauksen esto ja yläreunan lisätila (näkyy vain kotinäytön appina), jakoikkunan tiedostovienti, päivämäärävalitsin, näppäimistö alapalkin kanssa, tekstikentän koko.
+- Oikealla iPhonella ei kokeiltu: tekstin valinta ja Liitä termiin -nappi (iOS:n oma valintavalikko), tekstikentän värikerroksen kohdistus Safarissa (kursori, valinta, vieritys), zoomauksen esto ja yläreunan lisätila (näkyy vain kotinäytön appina), jakoikkunan tiedostovienti, päivämäärävalitsin, näppäimistö alapalkin kanssa, tekstikentän koko.
 - Säännöt ovat nimissä: jos nimen vaihtaa suoraan tekstikentässä, säännöt eivät seuraa (Opetus näyttää ”Säännöt ilman riviä”). Muokkaa-tilassa vaihto seuraa.
 
 ## Seuraavaksi

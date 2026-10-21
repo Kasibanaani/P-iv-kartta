@@ -188,4 +188,13 @@ eq('kaikki mukana: valitut valmiina',E.sessionView(mp,MS).picked,['a','c']);
 MS.steps[1].d=[];MS.steps.push({p:['d'],d:['a']});eq('purettu avaaja vie sen avaamat (C:n valinta jää voimaan)',E.sessionView(mp,MS).opts,['a','b','d']);
 eq('muisti tallessa',E.normalizeData({app:'paatospuu',projektit:[{id:'p',name:'n',text:'',mem:'all'}]}).projects[0].mem,'all');
 
+// vaihe 4: termilohkot
+var tx='Koira\n=Koira:\nhauva\n!pehmo\n\nKissa\n=Eläimet: lemmik\nkoir\n\n\n=Koira:\nrakki';
+eq('lohkon rivit eivät ole palikoita',E.parseText(tx).items.map(function(i){return i.id;}),['koira','kissa']);
+eq('rivien lajit',E.lineKinds(tx).map(function(l){return l.k;}),['','xh','xw','xn','','','xh','xw','','','xh','xw']);
+var bt=E.blockTerms([{name:'P',text:tx}]);eq('lohkot yhteen',[bt['koira'].yes,bt['koira'].no,bt['eläimet'].yes],[['hauva','rakki'],['pehmo'],['lemmik','koir']]);
+var at2=E.autoTerms([{name:'P',text:tx}],{},[]);eq('uusi termi lohkosta',at2.map(function(t){return t.id+'/'+t.kind;}),['a:koira/b','a:kissa/b','x:eläimet/x']);
+eq('lohkosana osuu',E.noteTerms(at2,'Hauvan kanssa ulos'),['a:koira']);eq('lohkon poissulku',E.noteTerms(at2,'hauva ja pehmolelu'),[]);
+eq('lohko omaan termiin',E.noteTerms(E.withText([{id:'t',name:'Eläimet',yes:[],no:[]}],[{name:'P',text:tx}]),'koirat'),['t']);
+
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);
