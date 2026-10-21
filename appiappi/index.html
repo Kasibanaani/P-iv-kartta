@@ -331,6 +331,9 @@ textarea.fld{resize:none;flex:1}
 .lrows{flex:1;overflow-y:auto;min-height:0;margin:0 -4px;padding:0 4px}
 .lr{display:flex;align-items:center;gap:9px;padding:6px 2px;border-bottom:1px solid var(--sep2)}
 .lr .lt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+/* Jonon 42a: rivin teksti on kenttä, joka näyttää tavalliselta tekstiltä, kunnes sitä napautetaan (sama ilme kuin Lisää rivi -kentällä). */
+.lr input.lt{font:inherit;color:inherit;background:transparent;border:1px solid transparent;border-radius:9px;padding:3px 6px;margin:-4px -7px;outline:none;cursor:text}
+.lr input.lt:focus{border-color:var(--hc);background:var(--tint);text-decoration:none;color:var(--label)}
 .lr.done .lt{color:var(--label3);text-decoration:line-through}
 .lr .box{width:20px;height:20px;cursor:pointer}
 .lr .ld{width:86px;border:1px solid transparent;background:transparent;border-radius:7px;padding:3px 5px;font-size:12px;color:var(--label2);text-align:right}
@@ -7625,7 +7628,7 @@ function listHTML(b,E,tx){
   var h='<div class="card w-card"><div class="ttl">'+(tx||'&nbsp;')+'<small>'+c+'/'+rows.length+'</small></div><div class="lrows">';
   rows.forEach(function(r){
     var late=r.d&&!r.c&&r.d<today;
-    h+='<div class="lr'+(r.c?' done':'')+'" data-row="'+esc(r.id)+'"><span class="box'+(r.c?' on':'')+'" data-act="rowchk"></span><span class="lt">'+esc(r.tx)+'</span>'+
+    h+='<div class="lr'+(r.c?' done':'')+'" data-row="'+esc(r.id)+'"><span class="box'+(r.c?' on':'')+'" data-act="rowchk"></span><span class="lt" data-act="rowedit" title="Napauta muokataksesi">'+esc(r.tx)+'</span>'+
       (b.pvmsar?'<input class="ld'+(late?' late':'')+'" data-act="rowdate" placeholder="pvm" value="'+esc(r.d?KK.fmtDate(r.d,Dt.cfg.df):'')+'">':'')+
       '<button class="x" data-act="rowdel" title="Poista rivi">×</button></div>';
   });
@@ -8045,6 +8048,10 @@ function bindUIStage(){
       case 'rowchk':case 'rowdel':{var rid=t.closest('[data-row]').getAttribute('data-row');var rows=KK.listRows(P,id).map(function(r){return {id:r.id,tx:r.tx,c:r.c,d:r.d};});
         if(act==='rowchk')rows.forEach(function(r){if(r.id===rid)r.c=!r.c;});else rows=rows.filter(function(r){return r.id!==rid;});
         var lv=E.val(id);P.st[id]={rows:rows};KK.muuttui(P,id,lv,C,true);KK.tick(P,C);break;}
+      /* Jonon 42a: rivin napautus avaa sen kentäksi (ilme kuin Lisää rivi -kentässä); Enter tallentaa, Esc peruu. */
+      case 'rowedit':{var ri=document.createElement('input');ri.className='lt';ri.setAttribute('data-act','rowtx');ri.spellcheck=false;ri.value=ri.defaultValue=t.textContent;
+        var rue=t.closest('.ue');if(rue)rue._uh=null;t.replaceWith(ri);ri.focus();try{ri.setSelectionRange(ri.value.length,ri.value.length);}catch(x){}
+        ri.addEventListener('blur',function(){setTimeout(function(){if(document.activeElement!==ri)renderUIStage();},0);});return;}
       case 'pvsel':KK.kalenteriValitse(P,id,t.getAttribute('data-d'),C);break;
       case 'calprev':S.calm[id]=(S.calm[id]||0)-1;break;
       case 'calnext':S.calm[id]=(S.calm[id]||0)+1;break;
@@ -8070,6 +8077,9 @@ function bindUIStage(){
     var act=t.getAttribute('data-act'),C=cardC(el,id);
     if(act==='num'){var x=KK.parseLit(t.value);KK.userSet(P,id,typeof x==='number'?x:b&&b.trv&&KK.isBound(P,b)&&!t.value.trim()?null:0,C);t.blur();afterUse();}
     else if(act==='date'){var d=KK.parseDate(t.value,new Date());if(t.value.trim()&&!d){toast('Päivämäärää ei tunnistettu. Kirjoita esim. 24.12.2026, 24.12. tai +5.');}KK.userSet(P,id,d||'',C);t.blur();afterUse();}
+    else if(act==='rowtx'){var rid2=t.closest('[data-row]').getAttribute('data-row'),nt=t.value.trim();var rows2=KK.listRows(P,id).map(function(r){return {id:r.id,tx:r.tx,c:r.c,d:r.d};});var r2=rows2.filter(function(r){return r.id===rid2;})[0];
+      /* Tyhjäksi pyyhitty rivi ei katoa vahingossa: teksti palaa, poisto on ×. */
+      if(!r2||!nt||nt===r2.tx){t.value=r2?r2.tx:t.defaultValue;t.blur();return;}r2.tx=nt;var lv2=cardE(C).val(id);P.st[id]={rows:rows2};KK.muuttui(P,id,lv2,C,true);KK.tick(P,C);t.blur();afterUse();}
     else if(act==='rowdate'){var rid=t.closest('[data-row]').getAttribute('data-row');var dd=KK.parseDate(t.value,new Date());var rows=KK.listRows(P,id).map(function(r){return {id:r.id,tx:r.tx,c:r.c,d:r.d};});rows.forEach(function(r){if(r.id===rid)r.d=dd||'';});var lv=cardE(C).val(id);P.st[id]={rows:rows};KK.muuttui(P,id,lv,C,true);KK.tick(P,C);t.blur();afterUse();}
     /* Appi-appi 25: Tekstikenttä lähettää muuttui, kun kirjoitus päättyy (kenttä menettää kohdistuksen tai Enter). */
     else if(act==='text'&&('_alku' in t)){var va=t._alku;delete t._alku;if(KK.muuttui(P,id,va,C)){KK.tick(P,C);afterUse(true);}}
@@ -8081,7 +8091,8 @@ function bindUIStage(){
       var lv=ev().val(id);rows.push({id:'r'+(++P.seq),tx:t.value.trim(),c:false,d:''});P.st[id]={rows:rows};KK.muuttui(P,id,lv,ctx(),true);KK.tick(P,ctx());t.value='';t.blur();afterUse();
       var again=$('.ue[data-id="'+id+'"] .ladd');if(again)again.focus();
     }
-    if((t.getAttribute('data-act')==='num'||t.getAttribute('data-act')==='date')&&e.key==='Enter')t.blur();
+    if((t.getAttribute('data-act')==='num'||t.getAttribute('data-act')==='date'||t.getAttribute('data-act')==='rowtx')&&e.key==='Enter')t.blur();
+    if(t.getAttribute('data-act')==='rowtx'&&e.key==='Escape'){e.preventDefault();e.stopPropagation();t.value=t.defaultValue;t.blur();}
   });
   // näkymien välilehdet
   $('#vtabs').addEventListener('click',function(e){

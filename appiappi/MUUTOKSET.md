@@ -4,6 +4,16 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
 
 ## Versiot
 
+- Appi-appi 103 (21.10., kaista A, jonon 42a, suunnitelma 31 V1; ei tallennusmuodon muutosta): **Listan rivit muokattaviksi.**
+  - Käytössä Listan valmiin rivin tekstin napautus avaa sen kentäksi, joka näyttää samalta kuin alin *＋ Lisää rivi* -kenttä kohdistettuna; ennen napautusta rivi on tavallista tekstiä (sama paikka ja korkeus). Enter tai napautus muualle tallentaa ja lähettää *muuttui*; Esc peruu; tyhjäksi pyyhitty rivi palaa ennalleen (poisto on yhä ×). Rasti, ×, päivämäärä ja lisäys ennallaan. Muokkaus on käyttötietoa kuten rastit (Palauta pohjariveihin palauttaa).
+  - Toteutus: rivin teksti on `span.lt` (`data-act="rowedit"`), napautus vaihtaa sen kenttään `input.lt` (`rowtx`, `change` kirjoittaa `P.st[id].rows`). Kenttä luodaan vasta napautuksessa, koska valmiina kenttänä Chromiumin kosketuksen kohdistus vei pienen rastiruudun napautuksen tekstikenttään (selain_66, 320 px).
+  - Testit: `selain_139_lista_muokkaus.py` (1440 ja 1280 hiirellä, 390 ja 320 sormella).
+  - Manuaaliin: luku 3 *Lista*, rivi *Käytössä*: lisää ”napauta rivin tekstiä muokataksesi (Enter tallentaa, Esc peruu, tyhjäksi pyyhitty palaa)”. Luku 3 *Lista*, *Ulos*: muuttui myös rivin muokkauksesta.
+  - Ei tehty: Toistimen kortissa olevan Listan rivin muokkaus testattiin vain koodista (sama käsittelijä); päivämäärää ei vielä poimita rivin tekstistä (42f).
+  - Ei tarkistettu: oikea iPhone/Safari (kosketus testattu Chromiumin puhelinemulaatiolla).
+  - Ristikokeilu: kaista B (jono 19 jatkot) ei ole vienyt uutta versiota 102:n jälkeen, joten ristikokeiltavaa ei ollut; koko sarja 249/249 102:n päällä (Chromium).
+  - Kokeile koneella (Chromium): näkymään Lista, Kokeile-tila (tai lukitse), lisää rivi *Kauppa*. Napauta tekstiä *Kauppa*: se aukeaa kentäksi. Kirjoita perään *ja apteekki*, Enter. Napauta uudelleen ja paina Esc: muutos peruuntuu.
+
 - Appi-appi 102 (20.10., Emilin bugi kehitystauon aikana, ketju *Lista, taulukko ja ryhmät*; ei tallennusmuodon muutosta): **Auki olevan yleispalikan siirto.**
   - **Bugi:** kun yleispalikan kirjoitusosa oli auki, tarttuminen sen reunaan tai tyhjään kohtaan vei kohdistuksen kentästä (`focusout` → `ylEditEnd`), joten palikka napsahti pieneksi eikä liikkunut. Kirjoitusosa peittää palikan, joten itse palikkaan ei voinut tarttua.
   - **Korjaus:** kirjoitusosan reunasta, otsikkorivin tyhjästä kohdasta tai ohjetekstistä raahaus (`ylSiirto`) siirtää palikkaa ja kirjoitusosaa yhdessä kanvaasin mittakaavassa; kirjoitus pysyy auki ja kohdistettuna, Enter tallentaa kuten ennen. Kentät, napit ja ehdotukset toimivat ennallaan, eikä kentän painaminen siirrä. Pudotus ikkunan päälle liittää ikkunaan kuten tavallinen raahaus. Siirto on yksi Kumoa-askel (jos kirjoitusta oli jo muutettu, sama askel). Ohjeteksti: *… · reunasta siirtyy*.

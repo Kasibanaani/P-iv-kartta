@@ -296,3 +296,4 @@ Asetuksissa on rakennusympäristön ja projektin käyttönäkymän erilliset val
 - `logiikka_110_kello.js` – Appi-appi 101 (jonot 41, 40f): päivän sanojen ominaisuudet, `nyt.aika` ja `klo`, h.mm-näyttö, kello kun-rivin laukaisijana, säännön odota-ketju (eteneminen, ei uudelleenkäynnistystä, kunnostus, väliin jääneet, virheet).
 - `selain_137_kello.py` – (1440, 1280 px; Appi-appi 101) paletin Kello ja Päivä, kellonaika h.mm palikassa, säännön ketjun tila paneelissa.
 - `selain_138_yleispalikka_siirto.py` – (1440, 1280 px; Appi-appi 102) auki olevan yleispalikan siirto kirjoitusosan reunasta: pysyy auki, Enter tallentaa, kenttä ei siirrä, Kumoa, zoom 2, pudotus ikkunaan.
+- `selain_139_lista_muokkaus.py` – (1440, 1280 hiirellä, 390, 320 sormella; Appi-appi 103, jonon 42a) Listan rivin napautus avaa kentän, Enter tallentaa ja lähettää muuttui, Esc peruu, tyhjä palaa, napautus muualle tallentaa, rasti, lisäys ja lataus ennallaan.
