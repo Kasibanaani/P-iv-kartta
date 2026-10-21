@@ -23,7 +23,8 @@ Päivitetty 21.10.2026. Emil sanoi kyllä kaikkiin suosituksiin dokumentissa *P�
 | 7 | Kalenteri (20, 21, 22) | 2–3 versiota | 7a valmis (1.17); 7b odottaa (vaihe 8 tehtiin ensin) |
 | 8 | Tärkeysjärjestys, kuittaus, roskakori, pitkän painalluksen valikko (Emil 21.10.2026) | 2 versiota | Valmis (1.18), kuitattu |
 | 9 | Merkitykset, kääntöpuolet, vain tärkeät järjestykseen, tärkeysjärjestyksessä etenevä kierros (Emil 21.10.2026) | 1 versio | Valmis (1.19–1.19.3); Emil valtuutti jatkamaan suositusten mukaan |
-| 10 | Projektit ja puut: projekti (esim. Mätsik Forest) sisältää useita päätöspuita, puukohtainen Eteneminen (Emil 21.10.2026) | 1–2 versiota | Ehdotus; Emil päätti: termit, muistiinpanot, tärkeät ja kalenteri projektin omia |
+| 10 | Projektit ja puut: projekti (esim. Mätsik Forest) sisältää useita päätöspuita, puukohtainen Eteneminen (Emil 21.10.2026) | 1–2 versiota | Valmis (1.20) |
+| 11 | Toistuvat muistutukset: Muistiot → Toistuvat, tasavälein tai kuittauksesta, erä avoimeksi eri värisenä (Emil 21.10.2026) | 1 versio | Työn alla |
 
 Kohta 17 (luontihetki) on jo nyt käytössä, joten työtä ei tarvita. Kohta 24 (”kierros”) jää ennalleen. Molemmat poistetaan TILA:n avoimista kysymyksistä vaiheessa 1. Myös välit päivän muistiinpanoissa on ratkaistu (Emil: ”Juu!”).
 
@@ -113,3 +114,9 @@ Kohta 17 (luontihetki) on jo nyt käytössä, joten työtä ei tarvita. Kohta 24
 - Vanhat puut siirtyvät ensimmäiseen projektiin automaattisesti (vanha tallennusmuoto luetaan).
 - Emil päätti 21.10.: termit, muistiinpanot, tärkeät ja kalenteri ovat projektin omia (korvaa linjauksen ”yhteisiä kaikille puille”; puut saman projektin sisällä jakavat ne).
 - Suositus: tehdään ennen 7b:tä, kun vaihe 9 on kuitattu.
+
+### Vaihe 11: toistuvat muistutukset (Emil 21.10.2026)
+
+- Muistioissa *Avoimet / Kuitatut / Toistuvat*. Toistuvat = rekisteri: oma teksti (termit toimivat), toisto tasavälein (päivä … vuosi, oma luku ja yksikkö, aloituspäivä) tai kuittauksesta (N pv/vk/kk edellisestä kuittauksesta).
+- Erä tulee avoimeksi muistiinpanoksi eri värisenä (*toistuva*), päivämääränä eräpäivä; järjestys tärkeyden mukaan kuten muut.
+- Rakentajan ratkaisut (Emil valtuutti): jos edellinen on kuittaamatta, uutta ei tehdä; erät tarkistetaan appia avattaessa, ei taustailmoituksia.

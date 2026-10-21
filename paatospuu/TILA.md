@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.19.3 (vaihe 9 valmis; seuraavaksi vaihe 10 projektit ja puut, sitten 7b), odottaa Emilin kuittausta; seuraavaksi 7b · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.20 (vaihe 10 projektit ja puut); seuraavaksi vaihe 11 toistuvat muistutukset, sitten 7b, odottaa Emilin kuittausta; seuraavaksi 7b · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -168,6 +168,13 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Yläpalkin lukumäärä muodossa ”3 kpl”. Alapalkki nostettu puolimatkaa takaisin ylös (kotiviiva tuli esiin).
 - Puun kopiointi lukee nyt säännöt tekstistä (aiemmin kopio olisi pudottanut kääntöpuoli- ja tärkeät-lohkot ensimmäisessä tallennuksessa).
 
+## Versio 1.20 (21.10.2026, suunnitelman vaihe 10): projektit ja puut
+
+- Emil päätti: projekti (esim. Mätsik Forest) sisältää useita puita, ja sillä on omat muistiinpanot, termit, termisanat, tärkeät ja roskakori. Puulla on omat säännöt, järjestys ja asetukset (Muisti, Eteneminen, Lopuksi). Teema ja koko ovat koko appin.
+- Yläreunan nimi avaa ikkunan: ylhäällä projektit (napautus vaihtaa; *Uusi projekti, nimi tai poisto* avautuva kohta), alla nykyisen projektin puut (*Uusi puu tähän projektiin*, nimi, asetukset, Kopioi puu, Poista puu). Projektin poisto kahdella painalluksella poistaa sen puut ja muistiinpanot; viimeistä ei voi poistaa.
+- Tallennusmuoto `ver:2`: `{app, ver, savedAt, kcur, kokonaisuudet:[{id,name,cur,puut,muistiinpanot,termit,termisanat,roskakori,tarkeat}], cfg}`. Versio 1 (puut ylätasolla kentässä `projektit`) luetaan yhdeksi projektiksi nimeltä *Projekti*; nimen voi vaihtaa. Varmuuskopion tuonti osaa molemmat.
+- Muistiokortin ⋯-nappi on nyt kulmassa kiinni, ei vie omaa riviä.
+
 ## Ei tarkistettu
 
 - Oikealla iPhonella ei kokeiltu (1.19.2): alapalkin uusi korkeus kotinäytön appina (kotiviiva ei saa peittää nimiä), reunimmaisten välilehtien paikka.
@@ -186,7 +193,8 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 ## Avoimet kysymykset
 
 - Vaihe 9 valmis: Emil valtuutti 21.10. illalla jatkamaan suositusten mukaan, joten Hoidettavat ja Puuttuu pysyvät molemmat muistiinpanossa.
-- Vaihe 10 (Emil 21.10.): projekti puiden yläpuolelle, useita puita per projekti. Emil päätti: termit, muistiinpanot, tärkeät ja kalenteri ovat projektin omia. Ei rakennettu; tehdään ennen 7b:tä. Seuraavaksi 7b (vastaukset jo annettu: pudotus viikkonauhan päivälle, ajattomat aikajanalle ja takaisin, väliotsikkotermit).
+- Vaihe 11 (Emil 21.10.): toistuvat muistutukset Muistioiden kolmanneksi valinnaksi (Avoimet / Kuitatut / Toistuvat). Tasavälein tai kuittauksesta laskettuna, erä tulee avoimeksi eri värisenä. Ei vielä rakennettu.
+- Avoin: siirretäänkö puu tai muistiinpano projektista toiseen? Ei rakennettu (ehdotus: ⋯-valikkoon *Siirrä projektiin*). Seuraavaksi 7b (vastaukset jo annettu: pudotus viikkonauhan päivälle, ajattomat aikajanalle ja takaisin, väliotsikkotermit).
 
 - Emil hyväksyi 21.10.2026 kaikki suositukset dokumentista *Päätöspuu: avoimet kysymykset* (https://claude.ai/artifact/RFMnrpTAm7fb7r9prDPz8q). Toteutus etenee vaihe kerrallaan: `SUUNNITELMA-vaiheet.md` (pelisäännöt, vaiheiden tila ja kunkin vaiheen kysymykset). Seuraavaan vaiheeseen vasta Emilin kuittauksen ja vastausten jälkeen.
 - Ratkaistu: suhteellisten päivien pohja on luontihetki (17), nimi ”kierros” jää (24), päivän muistiinpanoihin lasketaan välit (Emil: ”Juu!”).

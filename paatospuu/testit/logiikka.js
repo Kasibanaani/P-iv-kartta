@@ -300,6 +300,12 @@ eq('nimen vaihto tärkeissä',E.renameInText(IT,'b','Bee').split('\n').slice(-1)
 IP.text=IT;E.rulesFromText(IP);IP.flow='prio';var IS=E.newSession(IP,'x'),iv=E.sessionView(IP,IS);eq('tärkeä ryhmä: jäsenet ensin',[iv.cur,iv.opts],['g',['c','d']]);
 E.commitStep(IP,IS,{p:['c'],d:[]});iv=E.sessionView(IP,IS);eq('sitten tähdellä merkitty nappula',[iv.cur,iv.opts],['b',['b']]);
 E.commitStep(IP,IS,{p:[],d:[]});iv=E.sessionView(IP,IS);eq('lopuksi Alun avaamat säännöin',[iv.cur,iv.opts],[null,['a','b','c','d']]);
+// projektit ja puut (vaihe 10)
+var V1={app:'paatospuu',ver:1,cur:'p',projektit:[{id:'p',name:'Puu',text:'A',rt:1}],muistiinpanot:[{id:'n',text:'x'}],termit:[{id:'t',name:'T'}],tarkeat:['t'],cfg:{mode:'dark'}},N1=E.normalizeData(V1);
+eq('versio 1 yhdeksi projektiksi',[N1.K.length,N1.K[0].name,N1.k,N1.projects[0].id,N1.notes.length,N1.terms.length,N1.imp,N1.cfg.mode],[1,'Projekti','k1','p',1,1,['t'],'dark']);
+var V2={app:'paatospuu',ver:2,kcur:'b',kokonaisuudet:[{id:'a',name:'Oma',puut:[{id:'p',name:'Puu',text:'A',rt:1}],muistiinpanot:[{id:'n',text:'x'}]},{id:'b',name:'Mätsik Forest',cur:'q',puut:[{id:'q',name:'Arvio',text:'B',rt:1,flow:'prio'},{id:'r',name:'Toinen',text:'C',rt:1}],muistiinpanot:[],termit:[{id:'u',name:'U'}]},{id:'a',name:'tupla'}]};
+var N2=E.normalizeData(V2);eq('versio 2: projektit ja aktiivinen',[N2.K.map(function(k){return k.name;}),N2.k,N2.cur,N2.projects.map(function(P){return P.id;}),N2.notes.length,N2.terms[0].id,N2.projects[0].flow],[['Oma','Mätsik Forest'],'b','q',['q','r'],0,'u','prio']);
+eq('tuntematon kcur: ensimmäinen',E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'a',name:'A'}],kcur:'x'}).k,'a');
 eq('raahaus kohtaan',[E.moveToIdx(['a','b','c'],'c',0),E.moveToIdx(['a','b','c'],'a',2),E.moveToIdx(['a','b','c'],'b',1)],[['c','a','b'],['b','c','a'],['a','b','c']]);
 
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);
