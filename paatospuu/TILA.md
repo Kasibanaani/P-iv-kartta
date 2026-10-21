@@ -196,6 +196,8 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Rakentajan ratkaisut (Emil valtuutti): sama välilehti kuin toistuvilla (yksi automaattisten rekisteri, välilehti nimeltään yhä *Toistuvat*), muistutuksen oma kuittaus ei lasketa osumaksi vaan vain nollaa ajan, poistunut termi näkyy ”(poistunut termi)” eikä koskaan osu.
 - Tallennus samassa listassa: `toistuvat[]` rivillä `mode:'trig', terms:[termi-id], all:true|false`. Puun termin id on `a:<kohdan id>`, joten nimen vaihto puussa irrottaa sen säännöstä.
 
+- 1.23.1 (Emilin toive): Muistioiden järjestysvalinta (Tulevat/Uusimmat/Tärkeys) on nyt alisteinen Avoimet/Kuitatut/Toistuvat-valinnalle: ei laatikkoa, hieman sisennetty, pienempi harmaa teksti, valittuna korostusvärinen alleviivaus.
+
 ## Ei tarkistettu
 
 - Oikealla iPhonella ei kokeiltu (1.23): termisirujen vieritys ikkunassa, rajauskenttä näppäimistön kanssa.
