@@ -69,6 +69,8 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 ## Avoimet kysymykset
 
+- **Emilin idea 21.10.2026 (vain pohdittu, ei rakennettu):** järjestys nappien välille (”kumpi ensin”) ja sen kautta työnkulku. Ehdotus: oma Järjestys-tila, jossa valitut napit napautetaan haluttuun järjestykseen. Siitä syntyy ehto ”A ennen B”. Käytössä appi näyttää avautuneista kohdista ”Seuraavaksi: …” ja kuittauksen jälkeen seuraavan. Rivijärjestys on oletusjärjestys. Kysymys: onko ”tärkeämpi” sama kuin ”pakko ensin”?
+
 - Lyhenteet (ma, ti, pe) ja ”viikko 43” välilyönnillä eivät tunnistu (Vk42 vain yhteen, Emilin päätös). Lyhenteet voisi lisätä, jos ne ovat peräkkäin muun ajankohdan kanssa.
 - ”klo 14.” lauseen lopussa (piste perässä) ei tunnistu kellonajaksi.
 
