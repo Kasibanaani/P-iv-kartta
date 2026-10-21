@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.15 (suunnitelman vaihe 5), odottaa Emilin kuittausta · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.16 (suunnitelman vaihe 6), odottaa Emilin kuittausta · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -114,10 +114,19 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Muistiinpanon kentän alle tulee nappi *N apukysymystä*. Siitä aukeavat kysymyskortit: vastauskenttä ja *Kyllä*. Vastaus kirjoittuu heti tekstin loppuun muodossa `▸ Kysymys` ja vastausrivit; muutos päivittää sen ja tyhjä poistaa. Vastaus on tavallista tekstiä, joten haku ja termit näkevät sen.
 - Apukysymys ei kulje kierroksen päivän yhteenvetoon termiosumana.
 
+## Versio 1.16 (21.10.2026, suunnitelman vaihe 6): säännöt tekstissä, kaksisuuntaisesti
+
+- Emil kuittasi vaiheen 5 ja hyväksyi suositukset (lohkomuoto, lohko paikallaan ja uudet loppuun, *Termit tekstinä* -kenttä).
+- Säännöt ovat puun tekstissä lohkoina: `=Koira avaa:`, `=Koira sulkee:`, `=Koira vaatii kaikki:`, `=Koira vaatii yhden:` (jokainen rivi avaa Koiran), `=Koira ennen:` (alla olevat vähemmän tärkeitä), `=Alku avaa:` ja `=Toisensa poissulkevat:`. Kohteet riveittäin, tyhjä rivi päättää. Teksti on totuus: Valmis lukee säännöt tekstistä, ja opetuksen napautus kirjoittaa muutoksen lohkoon (olemassa oleva lohko pysyy paikallaan, uusi menee loppuun, tyhjäksi jäävä poistuu). Napautus kirjoittaa lohkon siistiin muotoon (rivi per kohde, oikea nimi).
+- Tallennus: projektissa `rt:1`. Vanha tallennus kirjoitetaan tekstiin kerran avattaessa; `rules`, `need`, `order` ja `mx` tallentuvat edelleen kopiona.
+- Palikan nimen vaihto tekstikentässä kirjoittaessa vie sääntö- ja termilohkojen viittaukset mukana (vain kun yksi palikkarivi muuttuu eikä uusi nimi ole jo käytössä). Muokkaa-ikkunan nimenvaihto samoin.
+- Termit-ikkunassa *Termit tekstinä*: omat termit ja puiden termien sanat lohkoina. Valmis lukee takaisin; uusi nimi luo termin, poistettu lohko tyhjentää sanat (termi jää).
+
 ## Ei tarkistettu
 
 - Oikealla iPhonella ei kokeiltu: apukysymyskortit näppäimistön kanssa, tekstin valinta ja Liitä termiin -nappi (iOS:n oma valintavalikko), tekstikentän värikerroksen kohdistus Safarissa (kursori, valinta, vieritys), zoomauksen esto ja yläreunan lisätila (näkyy vain kotinäytön appina), jakoikkunan tiedostovienti, päivämäärävalitsin, näppäimistö alapalkin kanssa, tekstikentän koko.
-- Säännöt ovat nimissä: jos nimen vaihtaa suoraan tekstikentässä, säännöt eivät seuraa (Opetus näyttää ”Säännöt ilman riviä”). Muokkaa-tilassa vaihto seuraa.
+- Nimen vaihto tekstikentässä seuraa vain, kun yksi rivi muuttuu kerrallaan. Leikkaa–liitä tai usean rivin muutos ei vie viittauksia mukana (Opetus näyttää ”Säännöt ilman riviä”). Termien sanat (`termisanat`) eivät seuraa nimen vaihtoa.
+- Oikealla iPhonella ei kokeiltu kursorin pysymistä, kun nimen vaihto muuttaa muita rivejä.
 
 ## Seuraavaksi
 

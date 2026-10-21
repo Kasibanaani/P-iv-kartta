@@ -209,4 +209,36 @@ var n2=E.setAnswer(nt,'Toinen?','Joo');eq('kaksi osiota',E.getAnswer(n2,'Toinen?
 eq('tyhjä poistaa',E.setAnswer(n2,'Onko?',''),'Muistiinpano\n\n▸ Toinen?\nJoo');
 eq('puuttuva vastaus',E.getAnswer('Teksti','Onko?'),null);
 
+// säännöt tekstissä (1.16)
+var rt='Kissa\nKoira\nRuoka\n#Eläimet: kaikki\n\n=Alku avaa:\nKissa\nKoira\n\n=Kissa avaa: Ruoka\n\n=Koira sulkee:\nRuoka\n\n=Ruoka vaatii kaikki:\nKissa\nKoira\n\n=Kissa ennen:\nKoira\n\n=Toisensa poissulkevat:\nKissa\nKoira';
+var RM=E.rulesOf(rt);
+eq('lohkot eivät ole palikoita',E.parseText(rt).items.map(function(i){return i.id;}),['kissa','koira','ruoka','eläimet']);
+eq('avaa ja alku',[RM.rules[E.ALKU].o,RM.rules.kissa.o],[['kissa','koira'],['ruoka']]);
+eq('sulkee',RM.rules.koira.x,['ruoka']);eq('vaatii kaikki',RM.need,{ruoka:['kissa','koira']});eq('ennen',RM.order,{kissa:['koira']});eq('toisensa poissulkevat',RM.mx,[['kissa','koira']]);
+eq('vaatii yhden',E.rulesOf('A\nB\nC\n\n=C vaatii yhden:\nA\nB').rules,{a:{o:['c'],x:[]},b:{o:['c'],x:[]}});
+eq('ryhmä merkillä',E.rulesOf('#G: x\nA\n\n=Alku avaa:\n#G').rules[E.ALKU].o,['g']);
+var RP={text:rt};E.rulesFromText(RP);eq('ilman muutosta teksti ei muutu',E.rulesToText(RP).text,rt);eq('kirjoitus ja luku samat',E.canonR(E.rulesOf(E.writeRules(rt,RP))),E.canonR(RP));
+E.toggleRule(RP,'kissa','koira','o');E.rulesToText(RP);eq('napautus lohkoon paikallaan',RP.text.indexOf('=Kissa avaa: Ruoka')<0&&RP.text.indexOf('=Kissa avaa:\nRuoka\nKoira\n\n=Koira sulkee:')>0,true);
+E.toggleRule(RP,'ruoka','kissa','x');E.rulesToText(RP);eq('uusi lohko loppuun',RP.text.slice(-22),'\n\n=Ruoka sulkee:\nKissa');
+E.toggleRule(RP,'koira','ruoka','x');E.rulesToText(RP);eq('tyhjä lohko poistuu',RP.text.indexOf('Koira sulkee')<0&&RP.text.indexOf('\n\n\n')<0,true);
+eq('kierros tekstin säännöillä',(function(){var P2={text:rt};E.rulesFromText(P2);var S=E.newSession(P2,'x');return E.sessionView(P2,S).opts;})(),['kissa','koira']);
+var rp1={text:'A\nB\n\n=C vaatii yhden:\nA'};E.rulesFromText(rp1);rp1.text='A\nB\nC\n\n=C vaatii yhden:\nA';E.toggleRule(rp1,'b','c','o');E.rulesToText(rp1);eq('vaatii yhden pysyy muodossaan',rp1.text,'A\nB\nC\n\n=C vaatii yhden:\nA\nB');
+var rp2={text:'A\nB\nC'};E.rulesFromText(rp2);E.setNeedMode(rp2,E.parseText(rp2.text),'c',true);E.rulesToText(rp2);eq('kaikki tarvitaan ilman syitä',rp2.text,'A\nB\nC\n\n=C vaatii kaikki:');
+E.toggleNeed(rp2,'c','a');E.rulesToText(rp2);eq('syy lisätään',rp2.text,'A\nB\nC\n\n=C vaatii kaikki:\nA');eq('luetaan takaisin',E.rulesOf(rp2.text).need,{c:['a']});
+eq('nimen vaihto tekstissä',E.renameInText('Kissa\n\n=Kissa avaa: Koira\n\n=Alku avaa:\nKissa\n\n=Kissa:\nmirri','kissa','Mirri'),'Kissa\n\n=Mirri avaa: Koira\n\n=Alku avaa:\nMirri\n\n=Mirri:\nmirri');
+eq('kirjoittaessa vaihto',E.renameLive('Kissa\nKoira\n\n=Alku avaa:\nKissa','Kissat\nKoira\n\n=Alku avaa:\nKissa'),'Kissat\nKoira\n\n=Alku avaa:\nKissat');
+eq('ei vaihtoa jos nimi on jo',E.renameLive('Kissa\nKoira\n\n=Alku avaa:\nKissa','Koira\nKoira\n\n=Alku avaa:\nKissa'),null);
+eq('ei vaihtoa uudella rivillä',E.renameLive('Kissa\n','Kissa\nK'),null);
+var old={app:'paatospuu',ver:1,projektit:[{id:'p1',name:'P',text:'Kissa\nKoira',rules:{__alku:{o:['kissa'],x:[]},kissa:{o:['koira'],x:[]}},mx:[]}]};
+var nd=E.normalizeData(old);eq('vanha tallennus tekstiin',nd.projects[0].text,'Kissa\nKoira\n\n=Alku avaa:\nKissa\n\n=Kissa avaa:\nKoira');eq('rt',nd.projects[0].rt,1);
+var nd2=E.normalizeData({app:'paatospuu',ver:1,projektit:[{id:'p1',name:'P',rt:1,text:'Kissa\nKoira\n\n=Kissa avaa: Koira',rules:{}}]});eq('uusi tallennus tekstistä',nd2.projects[0].rules,{kissa:{o:['koira'],x:[]}});
+eq('termilohko ei sääntö',E.blocksOf(rt).length,0);
+// termit tekstinä
+var D={terms:[{id:'t1',name:'Eläin',yes:['koir'],no:['pehmo']}],words:{kissa:{yes:['mirri'],no:[]},apu:{yes:[],no:[],pop:false}}};
+var tt=E.termsToText(D.terms,D.words,{kissa:'Kissa'});eq('termit tekstiksi',tt,'=Eläin:\nkoir\n!pehmo\n\n=Kissa:\nmirri');
+E.termsFromText('=Eläin:\nkoir\nhauva\n\n=Kissa:\nmirri\n!leijona\n\n=Uusi:\nsana',D,{kissa:'Kissa',koira:'Koira'});
+eq('oma termi päivittyy',D.terms[0].yes,['koir','hauva']);eq('palikan sanat',D.words.kissa,{yes:['mirri'],no:['leijona']});eq('pop säilyy',D.words.apu,{yes:[],no:[],pop:false});
+eq('uusi termi',D.terms.length===2&&D.terms[1].name==='Uusi'&&D.terms[1].yes[0]==='sana',true);
+E.termsFromText('=Uusi:\nsana',D,{kissa:'Kissa'});eq('puuttuva lohko tyhjentää',[D.terms[0].yes,D.words.kissa],[[],undefined]);
+
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);

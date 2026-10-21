@@ -18,8 +18,8 @@ Päivitetty 21.10.2026. Emil sanoi kyllä kaikkiin suosituksiin dokumentissa *P�
 | 2 | Arvojärjestys ja Hoidettavat-tulos (1, 5) | 2 versiota | Valmis (1.12), kuitattu |
 | 3 | Muistiasetus: vain seuraava / kaikki mukana (4) | 1 versio | Valmis (1.13), kuitattu |
 | 4 | Termilohkot tekstissä ja Liitä termiin (13, 11) | 1–2 versiota | Valmis (1.14), kuitattu |
-| 5 | Apukysymykset nousevat esiin muistiinpanosta (15) | 1 versio | Valmis (1.15), odottaa Emilin kuittausta |
-| 6 | Teksti ↔ appi kaksisuuntaisesti (12, 25) | 2 versiota | Odottaa |
+| 5 | Apukysymykset nousevat esiin muistiinpanosta (15) | 1 versio | Valmis (1.15), kuitattu |
+| 6 | Teksti ↔ appi kaksisuuntaisesti (12, 25) | 2 versiota | Valmis (1.16), odottaa Emilin kuittausta |
 | 7 | Kalenteri (20, 21, 22) | 2–3 versiota | Odottaa |
 
 Kohta 17 (luontihetki) on jo nyt käytössä, joten työtä ei tarvita. Kohta 24 (”kierros”) jää ennalleen. Molemmat poistetaan TILA:n avoimista kysymyksistä vaiheessa 1. Myös välit päivän muistiinpanoissa on ratkaistu (Emil: ”Juu!”).

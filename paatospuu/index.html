@@ -333,7 +333,7 @@ body.small #opts .row .tag,body.small #tlist .row .tag{font-size:11.5px}
 .hlwrap textarea.mono::placeholder{-webkit-text-fill-color:var(--label2)}
 .k-g{color:var(--k-g)}.k-t{color:var(--k-t)}.k-q{color:var(--k-q)}.k-c{color:var(--label2)}
 .hl .k-c{font-weight:700}
-.k-xh{color:var(--ehto);font-weight:700}.k-xw,.k-xn{background:var(--fill)}.k-xn{color:var(--k-w)}.k-xe{border-bottom:2px solid var(--ehto)}
+.k-xh{color:var(--ehto);font-weight:700}.k-rh{color:var(--accent);font-weight:700}.k-rw{background:var(--fill2)}.k-re{border-bottom:2px solid var(--accent)}.k-xw,.k-xn{background:var(--fill)}.k-xn{color:var(--k-w)}.k-xe{border-bottom:2px solid var(--ehto)}
 .eol{display:inline-block;width:0;font-style:normal;overflow:visible}.eol::after{content:'↵';color:var(--label2);padding-left:3px}.k-w{color:var(--k-w);text-decoration:underline wavy}
 code.k-b{color:var(--label)}
 /* ei vahingossa zoomausta: kaksoisnapautus ei suurenna, kentät vähintään 16 px (Safari suurentaa pienemmät) */
@@ -402,8 +402,8 @@ html.standalone .top{padding-top:calc(env(safe-area-inset-top,0px) + 30px)}
 <dialog id="xsheet" aria-labelledby="xs-h">
   <div class="grab"></div>
   <h2 id="xs-h">Tekstikenttä</h2>
-  <p class="syntax">Yksi rivi on yksi asia. Järjestyksellä ei ole väliä, koska järjestys opetetaan napauttamalla.<br>
-  <code class="k-b">Koira</code> nappula · <code class="k-g">#Eläimet: selitys</code> ryhmä (ei näy käytössä) · <code class="k-t">&gt;Perustelu: teksti</code> ilmoitus (vain teksti näkyy) · <code class="k-q">?Apu: kysymys</code> apukysymys (näkyy vain sen askeleen ajan) · tavuviiva nappulan nimessä vaihtaa riviä · <code> // </code> tekstin sisällä vaihtaa kappaletta · rivi joka alkaa <code class="k-c">//</code> on oma väliotsikko (ohitetaan) · <code class="k-xh">=Eläimet:</code> termilohko: alle sanat riveittäin, <code>!</code> alussa poissulkeva, tyhjä rivi päättää · <span class="k-w">punainen</span> = nimi on jo käytössä. Rivi saa värinsä heti, kun se on tulkittu.</p>
+  <p class="syntax">Yksi rivi on yksi asia. Ylempi rivi on oletuksena tärkeämpi. Säännöt voi opettaa napauttamalla tai kirjoittaa lohkoina.<br>
+  <code class="k-b">Koira</code> nappula · <code class="k-g">#Eläimet: selitys</code> ryhmä (ei näy käytössä) · <code class="k-t">&gt;Perustelu: teksti</code> ilmoitus (vain teksti näkyy) · <code class="k-q">?Apu: kysymys</code> apukysymys (näkyy vain sen askeleen ajan) · tavuviiva nappulan nimessä vaihtaa riviä · <code> // </code> tekstin sisällä vaihtaa kappaletta · rivi joka alkaa <code class="k-c">//</code> on oma väliotsikko (ohitetaan) · <code class="k-xh">=Eläimet:</code> termilohko: alle sanat riveittäin, <code>!</code> alussa poissulkeva, tyhjä rivi päättää · <code class="k-rh">=Koira avaa:</code> sääntölohko, alle palikat riveittäin; myös <code>sulkee</code>, <code>vaatii kaikki</code>, <code>vaatii yhden</code>, <code>ennen</code> (alla olevat ovat vähemmän tärkeitä), <code class="k-rh">=Alku avaa:</code> ja <code class="k-rh">=Toisensa poissulkevat:</code>. Opetuksen napautukset kirjoittuvat näihin lohkoihin · <span class="k-w">punainen</span> = nimi on jo käytössä. Rivi saa värinsä heti, kun se on tulkittu.</p>
   <div class="hlwrap"><div class="hl mono" id="xs-hl" aria-hidden="true"></div><textarea class="mono" id="xs-text" style="min-height:46vh" aria-label="Projektin sisältö tekstinä" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea></div>
   <p class="msg" id="xs-msg" aria-live="polite"></p>
   <div class="btnrow"><button type="button" class="btn solid" id="xs-ok" data-done="1">Valmis</button></div>
@@ -483,12 +483,80 @@ function bodyText(s){return String(s||'').split(/\s+\/\/\s+/).join('\n\n');}
 function lineKinds(text){var out=[],blk=null;
   String(text||'').split(/\r?\n/).forEach(function(line,n){var t=line.trim(),m;
     if(!t){blk=null;out.push({k:''});return;}
+    if((m=MX_RE.exec(t))){blk={rule:true,rel:'mx',src:'',items:[],line:n};out.push({k:'rh',b:blk});if(clean(m[1]))blk.items.push(itemName(m[1]));return;}
+    if((m=RULE_RE.exec(t))&&clean(m[1])){blk={rule:true,rel:RELS[m[2].toLowerCase().replace(/\s+/,' ')],src:clean(m[1]),items:[],line:n};out.push({k:'rh',b:blk});if(clean(m[3]))blk.items.push(itemName(m[3]));return;}
     if((m=/^=([^:]+):(.*)$/.exec(t))&&clean(m[1])){blk={name:clean(m[1]),yes:[],no:[],line:n};out.push({k:'xh',b:blk});if(clean(m[2]))blk.yes.push(clean(m[2]));return;}
     if(t.slice(0,2)==='//'){out.push({k:'c'});return;}
+    if(blk&&blk.rule){blk.items.push(itemName(t));out.push({k:'rw',b:blk});return;}
     if(blk){if(t.charAt(0)==='!'){if(clean(t.slice(1)))blk.no.push(clean(t.slice(1)));out.push({k:'xn',b:blk});}else{blk.yes.push(clean(t));out.push({k:'xw',b:blk});}return;}
     out.push({k:''});});
   return out;}
 function blocksOf(text){var out=[];lineKinds(text).forEach(function(l){if(l.k==='xh')out.push(l.b);});return out;}
+/* Säännöt tekstissä (Emil 21.10.2026): lohko "=Koira avaa:" ja kohteet riveittäin, tyhjä rivi päättää lohkon.
+   avaa, sulkee, vaatii kaikki, vaatii yhden (= jokainen rivi avaa tämän), ennen (rivit ovat vähemmän tärkeitä) ja
+   "=Toisensa poissulkevat:". Lähde Alku = kierroksen alku. Teksti on totuus: P.rules, need, order ja mx luetaan siitä,
+   ja napautus kirjoittaa muutoksen takaisin lohkoon (olemassa oleva lohko paikallaan, uusi tekstin loppuun). */
+var RELS={'avaa':'o','sulkee':'x','vaatii kaikki':'need','vaatii yhden':'one','ennen':'ord'},RELW={o:'avaa',x:'sulkee',need:'vaatii kaikki',one:'vaatii yhden',ord:'ennen'};
+var RULE_RE=/^=(.+?)\s+(avaa|sulkee|vaatii\s+kaikki|vaatii\s+yhden|ennen)\s*:(.*)$/i,MX_RE=/^=\s*toisensa\s+poissulkevat\s*:(.*)$/i;
+function itemName(s){var p=parseLine(s);return p?p.name:clean(s);}
+function srcKey(s){var k=keyOf(itemName(s));return k==='alku'?ALKU:k;}
+function ruleBlocks(text){var out=[];lineKinds(text).forEach(function(l){if(l.k==='rh')out.push(l.b);});return out;}
+function rulesOf(text){var M={rules:{},need:{},order:{},mx:[]};
+  function add(s,f,d){if(!s||!d||s===d||d===ALKU||(s===ALKU&&f==='x'))return;var r=M.rules[s]||(M.rules[s]={o:[],x:[]});if(r[f].indexOf(d)<0)r[f].push(d);}
+  ruleBlocks(text).forEach(function(b){var s=srcKey(b.src),ks=[];b.items.forEach(function(x){var k=srcKey(x);if(k&&k!==ALKU&&ks.indexOf(k)<0)ks.push(k);});
+    if(b.rel==='mx'){if(ks.length>1)M.mx.push(ks);}
+    else if(b.rel==='o'||b.rel==='x')ks.forEach(function(d){add(s,b.rel,d);});
+    else if(b.rel==='one')ks.forEach(function(c){add(c,'o',s);});
+    else if(s&&s!==ALKU){var N=b.rel==='need'?M.need:M.order,l=N[s]||(N[s]=[]);ks.forEach(function(d){if(d!==s&&l.indexOf(d)<0)l.push(d);});}});
+  Object.keys(M.order).forEach(function(k){if(!M.order[k].length)delete M.order[k];});
+  return M;}
+function canonR(M){var r={};Object.keys(M.rules||{}).sort().forEach(function(k){var x=M.rules[k]||{},o=(x.o||[]).slice().sort(),y=(x.x||[]).slice().sort();if(o.length||y.length)r[k]=[o,y];});
+  function mp(N,keep){var o={};Object.keys(N||{}).sort().forEach(function(k){var l=Array.isArray(N[k])?N[k].slice().sort():[];if(l.length||keep)o[k]=l;});return o;}
+  return JSON.stringify([r,mp(M.need,true),mp(M.order),(M.mx||[]).map(function(x){return x.slice().sort();})]);}
+/* Kirjoittaa projektin säännöt tekstin lohkoihin */
+function writeRules(text,P){var L=String(text||'').split(/\r?\n/),lk=lineKinds(text),pt=parseText(text),names={},ex=[],one={},want={},order=[];
+  pt.items.forEach(function(it){names[it.id]=it.name;});
+  lk.forEach(function(l,n){if(l.k==='rh'){l.b.end=n;ex.push(l.b);}else if(l.k==='rw')l.b.end=n;});
+  ex.forEach(function(b){[b.src].concat(b.items).forEach(function(x){var k=srcKey(x);if(k&&!names[k])names[k]=itemName(x);});if(b.rel==='one')one[srcKey(b.src)]=1;});
+  function nm(k){return k===ALKU?'Alku':(names[k]||k);}
+  function put(key,head,ks,keep){want[key]={head:head,items:ks.map(nm),keep:keep};order.push(key);}
+  var srcs=[ALKU].concat(pt.items.map(function(it){return it.id;}));
+  [P.rules,P.need,P.order,one].forEach(function(N){Object.keys(N||{}).sort().forEach(function(k){if(srcs.indexOf(k)<0)srcs.push(k);});});
+  srcs.forEach(function(s){var r=rl(P,s),h='='+nm(s)+' ';
+    var o=r.o.filter(function(t){return s===ALKU||!one[t];});if(o.length)put(s+'|o',h+'avaa:',o);
+    if(s!==ALKU&&r.x.length)put(s+'|x',h+'sulkee:',r.x);
+    if(s!==ALKU&&P.need&&Array.isArray(P.need[s]))put(s+'|need',h+'vaatii kaikki:',P.need[s],true);
+    if(one[s])put(s+'|one',h+'vaatii yhden:',srcs.filter(function(k){return k!==ALKU&&rl(P,k).o.indexOf(s)>=0;}));
+    if(s!==ALKU&&orderOf(P,s).length)put(s+'|ord',h+'ennen:',orderOf(P,s));});
+  (P.mx||[]).forEach(function(set,i){if(set.length>1)put('mx|'+i,'=Toisensa poissulkevat:',set);});
+  var used={},edits=[],mi=0;
+  ex.forEach(function(b){var key=b.rel==='mx'?'mx|'+(mi++):srcKey(b.src)+'|'+b.rel,w=want[key];
+    if(w&&!used[key]&&(w.items.length||w.keep)){used[key]=1;edits.push({a:b.line,z:b.end,l:[w.head].concat(w.items)});}else edits.push({a:b.line,z:b.end,l:null});});
+  for(var i=edits.length-1;i>=0;i--){var e=edits[i],a=e.a,z=e.z;
+    if(e.l)L.splice.apply(L,[a,z-a+1].concat(e.l));
+    else{if(z+1<L.length&&!L[z+1].trim())z++;else if(a>0&&!L[a-1].trim())a--;L.splice(a,z-a+1);}}
+  var add=order.filter(function(k){return !used[k]&&(want[k].items.length||want[k].keep);});
+  if(add.length){while(L.length&&!L[L.length-1].trim())L.pop();add.forEach(function(k){if(L.length)L.push('');L.push(want[k].head);want[k].items.forEach(function(x){L.push(x);});});}
+  return L.join('\n');}
+/* Teksti -> säännöt, ja säännöt -> teksti vain, jos ne eroavat (napautus) */
+function rulesFromText(P){var M=rulesOf(P.text);P.rules=M.rules;P.need=M.need;P.order=M.order;P.mx=M.mx;return P;}
+function rulesToText(P){if(canonR(rulesOf(P.text))!==canonR(P))P.text=writeRules(P.text,P);return P;}
+/* Nimen vaihto tekstissä: sääntölohkojen ja termilohkojen viittaukset seuraavat */
+function renameInText(text,a,nn){var L=String(text||'').split(/\r?\n/),lk=lineKinds(text);
+  function sw(x){return srcKey(x)===a?nn:x;}
+  lk.forEach(function(l,n){var t=L[n],ind=/^\s*/.exec(t)[0],u=t.trim(),m;
+    if(l.k==='rh'){if((m=MX_RE.exec(u)))L[n]=ind+u.slice(0,u.indexOf(':')+1)+(clean(m[1])?' '+sw(clean(m[1])):'');
+      else if((m=RULE_RE.exec(u)))L[n]=ind+'='+sw(clean(m[1]))+' '+m[2]+':'+(clean(m[3])?' '+sw(clean(m[3])):'');}
+    else if(l.k==='rw'&&srcKey(u)===a)L[n]=ind+nn;
+    else if(l.k==='xh'&&(m=/^=([^:]+):(.*)$/.exec(u))&&keyOf(m[1])===a)L[n]=ind+'='+nn+':'+m[2];});
+  return L.join('\n');}
+/* Kirjoittaessa: jos vain yksi palikkarivi muuttui ja sen nimi vaihtui, viittaukset seuraavat. Palauttaa uuden tekstin tai null. */
+function renameLive(oldT,newT){var a=String(oldT||'').split('\n'),b=String(newT||'').split('\n'),d=-1;if(a.length!==b.length)return null;
+  for(var i=0;i<a.length;i++)if(a[i]!==b[i]){if(d>=0)return null;d=i;}
+  if(d<0)return null;var po=parseText(oldT),pn=parseText(newT),io=null,inn=null;
+  po.items.forEach(function(it){if(it.line===d)io=it;});pn.items.forEach(function(it){if(it.line===d)inn=it;});
+  if(!io||!inn||io.id===inn.id||pn.by[io.id]||po.by[inn.id])return null;
+  var r=renameInText(newT,io.id,inn.name);return r===newT?null:r;}
 function parseText(text){var items=[],by={},warn=[],lk=lineKinds(text);
   String(text||'').split(/\r?\n/).forEach(function(line,n){if(lk[n].k)return;var p=parseLine(line);if(!p)return;var id=keyOf(p.name);
     if(!id||id===ALKU)return;
@@ -687,6 +755,21 @@ function autoTerms(projects,words,manual){var out=[],seen={},bt=blockTerms(proje
   Object.keys(bt).forEach(function(k){if(seen[k])return;seen[k]=1;var b=bt[k],w=(words&&words[k])||{};
     out.push({id:'x:'+k,key:k,name:b.name,yes:strs(w.yes),no:strs(w.no),tyes:b.yes,tno:b.no,auto:true,kind:'x',proj:b.projs.join(', '),pop:w.pop===true});});
   return out;}
+/* Termit tekstinä: omat termit ja puiden termien sanat lohkoina "=Nimi:" (sanat riveittäin, "!" poissulkeva).
+   Lukiessa lohko korvaa termin sanat; puuttuva lohko tyhjentää ne (termi jää). Uusi nimi: palikan termi tai uusi oma termi. */
+function termsToText(terms,words,names){var out=[];function blk(n,y,x){out.push(['='+n+':'].concat(y||[],(x||[]).map(function(w){return '!'+w;})).join('\n'));}
+  (terms||[]).forEach(function(t){blk(t.name,t.yes,t.no);});
+  Object.keys(words||{}).forEach(function(k){var w=words[k];if((w.yes||[]).length||(w.no||[]).length)blk((names&&names[k])||k,w.yes,w.no);});
+  return out.join('\n\n');}
+function termsFromText(txt,D,names){var bs={},ks=[];blocksOf(txt).forEach(function(b){var k=keyOf(b.name),x=bs[k];if(!x){x=bs[k]={name:b.name,yes:[],no:[]};ks.push(k);}
+    b.yes.forEach(function(w){if(x.yes.indexOf(w)<0)x.yes.push(w);});b.no.forEach(function(w){if(x.no.indexOf(w)<0)x.no.push(w);});});
+  (D.terms||[]).forEach(function(t){var b=bs[keyOf(t.name)];t.yes=b?b.yes:[];t.no=b?b.no:[];if(b)b.done=1;});
+  Object.keys(D.words||{}).forEach(function(k){var w=D.words[k],b=bs[k];if(b&&!b.done){w.yes=b.yes;w.no=b.no;b.done=1;}else{w.yes=[];w.no=[];}
+    if(!w.yes.length&&!w.no.length&&typeof w.pop!=='boolean')delete D.words[k];});
+  ks.forEach(function(k){var b=bs[k];if(b.done)return;
+    if(names&&names[k]){if(b.yes.length||b.no.length)D.words[k]={yes:b.yes,no:b.no};}
+    else D.terms.push({id:'t'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:b.name.slice(0,60),yes:b.yes,no:b.no});});
+  return D;}
 /* Esiin nousevat: termit, joilla pop ja jotka osuvat tekstiin. Kysymys = apukysymyksen teksti tai termin nimi. */
 function popTerms(terms,text){var T={n:normT(text)};return (terms||[]).filter(function(t){return t.pop&&termOn(t,T);});}
 /* Vastaukset muistiinpanon lopussa: rivi "▸ Kysymys" ja vastaus sen alla seuraavaan ▸-riviin asti */
@@ -823,7 +906,7 @@ function fiDate(iso){var p=String(iso).split('-');return (+p[2])+'.'+(+p[1])+'.'
 function stamp(ts){var d=new Date(ts);return d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear()+' klo '+d.getHours()+'.'+pad(d.getMinutes());}
 
 /* ---- tallennusmuoto ----
-   {app:'paatospuu', ver, savedAt, cur, projektit:[{id,name,text,rules,mx,need?,order?,end?,mem?,session}], muistiinpanot:[{id,created,edited,text,date}],
+   {app:'paatospuu', ver, savedAt, cur, projektit:[{id,name,text,rt,rules,mx,need?,order?,end?,mem?,session}] (rt:1 = säännöt luetaan tekstistä, rules ym. ovat kopio), muistiinpanot:[{id,created,edited,text,date}],
     termit:[{id,name,yes,no}], termisanat:{nimi:{yes,no}}, cfg:{tint,mode}} */
 function strs(a){return Array.isArray(a)?a.filter(function(x){return typeof x==='string';}):[];}
 function normalizeData(o){if(!o||typeof o!=='object'||o.app!=='paatospuu')return null;
@@ -835,6 +918,8 @@ function normalizeData(o){if(!o||typeof o!=='object'||o.app!=='paatospuu')return
     if(p.need&&typeof p.need==='object'){P.need={};Object.keys(p.need).forEach(function(k){var n=strs(p.need[k]);if(n.length)P.need[k]=n;});}
     if(p.order&&typeof p.order==='object'){P.order={};Object.keys(p.order).forEach(function(k){var n=strs(p.order[k]);if(n.length)P.order[k]=n;});}
     if(p.end==='hoid')P.end='hoid';if(p.mem==='all')P.mem='all';
+    /* Versiosta 1.16 säännöt ovat tekstissä (rt:1). Vanha tallennus: säännöt kirjoitetaan tekstiin kerran. */
+    if(p.rt===1)rulesFromText(P);else P.text=writeRules(P.text,P);P.rt=1;
     var S=p.session;if(S&&Array.isArray(S.steps)&&S.steps.length){P.session={start:String(S.start||new Date().toISOString()),steps:S.steps.map(function(st){return Array.isArray(st)?{p:strs(st),d:[]}:{p:strs(st&&st.p),d:strs(st&&st.d)};}).filter(function(st){return st.p.length;}),date:/^\d{4}-\d\d-\d\d$/.test(S.date||'')?S.date:undefined,log:strs(S.log),logAt:Array.isArray(S.logAt)?S.logAt.filter(function(n){return typeof n==='number';}):[]};}
     out.projects.push(P);});
   (Array.isArray(o.muistiinpanot)?o.muistiinpanot:[]).forEach(function(n){if(!n||typeof n.id!=='string'||typeof n.text!=='string')return;
@@ -846,9 +931,9 @@ function normalizeData(o){if(!o||typeof o!=='object'||o.app!=='paatospuu')return
   return out;}
 function looseJson(txt){var s=String(txt||''),a=s.indexOf('{'),b=s.lastIndexOf('}');if(a<0||b<=a)return null;s=s.slice(a,b+1);
   try{return JSON.parse(s);}catch(e){}try{return JSON.parse(s.replace(/[“”„]/g,'"'));}catch(e){}return null;}
-if(typeof module!=='undefined')module.exports={VER:VER,ALKU:ALKU,parseLine:parseLine,lineOf:lineOf,bodyText:bodyText,parseText:parseText,lineKinds:lineKinds,blocksOf:blocksOf,blockTerms:blockTerms,withText:withText,rl:rl,ruleState:ruleState,toggleRule:toggleRule,needOf:needOf,orderOf:orderOf,cycleIf:cycleIf,toggleOrder:toggleOrder,priorityList:priorityList,hoidettavat:hoidettavat,termWords:termWords,needOpen:needOpen,setNeedMode:setNeedMode,toggleNeed:toggleNeed,causesOf:causesOf,
+if(typeof module!=='undefined')module.exports={VER:VER,ALKU:ALKU,parseLine:parseLine,lineOf:lineOf,bodyText:bodyText,parseText:parseText,lineKinds:lineKinds,blocksOf:blocksOf,rulesOf:rulesOf,writeRules:writeRules,rulesFromText:rulesFromText,rulesToText:rulesToText,canonR:canonR,renameInText:renameInText,renameLive:renameLive,blockTerms:blockTerms,withText:withText,rl:rl,ruleState:ruleState,toggleRule:toggleRule,needOf:needOf,orderOf:orderOf,cycleIf:cycleIf,toggleOrder:toggleOrder,priorityList:priorityList,hoidettavat:hoidettavat,termWords:termWords,needOpen:needOpen,setNeedMode:setNeedMode,toggleNeed:toggleNeed,causesOf:causesOf,
   sessionView:sessionView,moveItem:moveItem,shownName:shownName,blockedNow:blockedNow,tapDraft:tapDraft,replay:replay,exclOf:exclOf,newSession:newSession,notesOnDay:notesOnDay,dayCarry:dayCarry,commitStep:commitStep,undoStep:undoStep,sessionNote:sessionNote,sessionGroups:sessionGroups,renameKey:renameKey,removeKey:removeKey,
-  replaceLine:replaceLine,orphans:orphans,dropOrphans:dropOrphans,hasWord:hasWord,normT:normT,termHits:termHits,popTerms:popTerms,getAnswer:getAnswer,setAnswer:setAnswer,termOn:termOn,noteTerms:noteTerms,autoTerms:autoTerms,parseDates:parseDates,occursOn:occursOn,nextOcc:nextOcc,dateLabel:dateLabel,tokensOf:tokensOf,noteDates:noteDates,nextDate:nextDate,
+  replaceLine:replaceLine,orphans:orphans,dropOrphans:dropOrphans,hasWord:hasWord,normT:normT,termHits:termHits,popTerms:popTerms,termsToText:termsToText,termsFromText:termsFromText,getAnswer:getAnswer,setAnswer:setAnswer,termOn:termOn,noteTerms:noteTerms,autoTerms:autoTerms,parseDates:parseDates,occursOn:occursOn,nextOcc:nextOcc,dateLabel:dateLabel,tokensOf:tokensOf,noteDates:noteDates,nextDate:nextDate,
   sortNotes:sortNotes,fiDate:fiDate,stamp:stamp,isoD:isoD,normalizeData:normalizeData,looseJson:looseJson};
 </script>
 <script id="ui">
@@ -872,7 +957,7 @@ var storeOk=true;
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(function(){});}catch(e){}
 function snapshot(){return {app:'paatospuu',ver:VER,savedAt:nowIso(),cur:data.cur,projektit:data.projects,muistiinpanot:data.notes,termit:data.terms,termisanat:data.words,cfg:data.cfg};}
 function save(){try{var o=snapshot();o.meta=data.meta;localStorage.setItem(KEY,JSON.stringify(o));storeOk=true;}catch(e){storeOk=false;}}
-function touch(){data.meta.dirty=(data.meta.dirty||0)+1;save();renderStatus();}
+function touch(){var P=proj();if(P)rulesToText(P);data.meta.dirty=(data.meta.dirty||0)+1;save();renderStatus();}
 function proj(){for(var i=0;i<data.projects.length;i++)if(data.projects[i].id===data.cur)return data.projects[i];return null;}
 if(!proj())data.cur=data.projects.length?data.projects[0].id:null;
 
@@ -917,7 +1002,7 @@ function firstProjForm(p){p.appendChild(el('h2','','Ensimmäinen päätöspuu'))
   p.appendChild(el('p','sub','Jokainen projekti on oma päätöspuunsa. Anna nimi, sitten kirjoitat tai liität sisällön tekstikenttään.'));
   var r=el('div','addrow'),i=el('input');i.type='text';i.id='firstproj';i.placeholder='Nimi';i.autocomplete='off';r.appendChild(i);
   button(r,'Luo','btn solid',function(){newProject(i.value);});i.addEventListener('keydown',function(ev){if(ev.key==='Enter')newProject(i.value);});p.appendChild(r);}
-function newProject(name){name=clean(name);if(!name)return false;var P={id:uid('p'),name:name.slice(0,80),text:'',rules:{},mx:[],session:null};
+function newProject(name){name=clean(name);if(!name)return false;var P={id:uid('p'),name:name.slice(0,80),text:'',rt:1,rules:{},mx:[],session:null};
   data.projects.push(P);data.cur=P.id;touch();renderHead();render();return true;}
 
 /* ---- projektit ---- */
@@ -934,7 +1019,7 @@ $('ps-add').addEventListener('click',function(){if(newProject($('ps-new').value)
 $('ps-new').addEventListener('keydown',function(ev){if(ev.key==='Enter'&&newProject($('ps-new').value)){$('ps-new').value='';renderProjSheet();}});
 $('ps-name').addEventListener('change',function(){var P=proj(),n=clean($('ps-name').value);if(P&&n){P.name=n.slice(0,80);touch();renderHead();renderProjSheet();}});
 $('ps-copy').addEventListener('click',function(){var P=proj();if(!P)return;
-  var Q={id:uid('p'),name:(P.name+' (kopio)').slice(0,80),text:P.text,rules:JSON.parse(JSON.stringify(P.rules||{})),mx:JSON.parse(JSON.stringify(P.mx||[])),need:JSON.parse(JSON.stringify(P.need||{})),order:JSON.parse(JSON.stringify(P.order||{})),end:P.end,mem:P.mem,session:null};
+  var Q={id:uid('p'),name:(P.name+' (kopio)').slice(0,80),text:P.text,rt:1,rules:JSON.parse(JSON.stringify(P.rules||{})),mx:JSON.parse(JSON.stringify(P.mx||[])),need:JSON.parse(JSON.stringify(P.need||{})),order:JSON.parse(JSON.stringify(P.order||{})),end:P.end,mem:P.mem,session:null};
   data.projects.splice(data.projects.indexOf(P)+1,0,Q);data.cur=Q.id;resetDraft();ed=null;touch();renderHead();renderProjSheet();render();
   $('ps-msg').textContent='Kopio tehty ja avattu. Vaihda nimi yllä.';});
 var delArm=0;
@@ -944,21 +1029,27 @@ $('ps-del').addEventListener('click',function(){var P=proj();if(!P)return;
 $('ps-close').addEventListener('click',function(){closeSheet($('psheet'));});
 
 /* ---- tekstikenttä ---- */
-function openText(){var P=proj();if(!P)return;$('xs-text').value=P.text;$('xs-msg').textContent='';openSheet($('xsheet'));paintCode();}
+var xsPrev='';
+function openText(){var P=proj();if(!P)return;$('xs-text').value=xsPrev=P.text;$('xs-msg').textContent='';openSheet($('xsheet'));paintCode();}
 /* Värit rivityypin mukaan. Kirjoitettava rivi värittyy vasta, kun kursorin edessä on välilyönti (sana valmis). */
-function paintCode(){var ta=$('xs-text'),hl=$('xs-hl'),txt=ta.value,cur=ta.selectionStart,pos=0,seen={},ls=txt.split('\n'),lk=lineKinds(txt);hl.textContent='';
+function paintCode(ta,hl){if(!ta||!ta.nodeType){ta=$('xs-text');hl=$('xs-hl');}var txt=ta.value,cur=ta.selectionStart,pos=0,seen={},ls=txt.split('\n'),lk=lineKinds(txt);hl.textContent='';
   ls.forEach(function(line,i){var end=pos+line.length,k='',typing=cur>pos&&cur<=end&&/\S/.test(txt.charAt(cur-1));
-    if(lk[i].k&&lk[i].k!=='c'&&!typing){var cls='k-'+lk[i].k+((lk[i].k!=='xh'&&!(lk[i+1]&&(lk[i+1].k==='xw'||lk[i+1].k==='xn')))?' k-xe':'');
-      var sx=el('span',cls,line);if(lk[i].k!=='xh')sx.appendChild(el('i','eol'));hl.appendChild(sx);if(i<ls.length-1)hl.appendChild(document.createTextNode('\n'));pos=end+1;return;}
+    if(lk[i].k&&lk[i].k!=='c'&&!typing){var hk=lk[i].k==='xh'||lk[i].k==='rh',cls='k-'+lk[i].k+((!hk&&!(lk[i+1]&&lk[i+1].b===lk[i].b))?(lk[i].b&&lk[i].b.rule?' k-re':' k-xe'):'');
+      var sx=el('span',cls,line);if(!hk)sx.appendChild(el('i','eol'));hl.appendChild(sx);if(i<ls.length-1)hl.appendChild(document.createTextNode('\n'));pos=end+1;return;}
     if(!typing){var t=line.trim();
       if(t.slice(0,2)==='//')k='c';else if(!lk[i].k){var p=parseLine(line);if(p){var id=keyOf(p.name);if(id&&id!==ALKU){k=seen[id]?'w':p.k;seen[id]=1;}}}}
     if(k&&k!=='b'){var sp=el('span','k-'+k);if(k==='t'||k==='q'){line.split(/(\s\/\/\s)/).forEach(function(part,j){if(j%2)sp.appendChild(el('span','k-c',part));else sp.appendChild(document.createTextNode(part));});}else sp.textContent=line;hl.appendChild(sp);}
     else hl.appendChild(document.createTextNode(line));
     if(i<ls.length-1)hl.appendChild(document.createTextNode('\n'));pos=end+1;});
   hl.appendChild(document.createTextNode('\u200b'));hl.scrollTop=ta.scrollTop;}
+/* Palikan nimen vaihto kirjoittaessa vie sääntö- ja termilohkojen viittaukset mukana */
+$('xs-text').addEventListener('input',function(){var ta=$('xs-text'),v=ta.value,r=renameLive(xsPrev,v);
+  if(r){var pre=v.slice(0,ta.selectionStart).split('\n'),ln=pre.length-1,col=pre[ln].length,L=r.split('\n'),pos=0;for(var i=0;i<ln;i++)pos+=L[i].length+1;
+    ta.value=r;ta.setSelectionRange(pos+col,pos+col);}
+  xsPrev=ta.value;});
 ['input','keyup','click','focus'].forEach(function(ev){$('xs-text').addEventListener(ev,paintCode);});
 $('xs-text').addEventListener('scroll',function(){$('xs-hl').scrollTop=$('xs-text').scrollTop;});
-$('xs-ok').addEventListener('click',function(){var P=proj();if(!P)return;P.text=$('xs-text').value;var pt=parseText(P.text),o=orphans(P);touch();
+$('xs-ok').addEventListener('click',function(){var P=proj();if(!P)return;P.text=$('xs-text').value;rulesFromText(P);var pt=parseText(P.text),o=orphans(P);touch();
   var m=pt.items.length+' riviä luettu.';if(pt.warnings.length)m+=' '+pt.warnings.join(' ');if(o.length)m+=' Säännöt viittaavat nimiin, joita ei enää ole: '+o.join(', ')+'. Ne näkyvät Opetuksessa.';
   closeSheet($('xsheet'));render();if(pt.warnings.length||o.length)setInfo(m);});
 function copy(txt,b,ta){function sel(){if(ta){ta.focus();ta.select();}b.textContent='Valittu, kopioi';}
@@ -1078,7 +1169,7 @@ function openLine(it){lineIt=it;lineArm=0;$('ls-text').value=lineOf(it);$('ls-ms
 $('ls-ok').addEventListener('click',function(){var P=proj();if(!P||!lineIt)return;var raw=$('ls-text').value.replace(/\s*\n\s*/g,' ').trim(),l=parseLine(raw);
   if(!l){removeKey(P,lineIt.id);P.text=replaceLine(P.text,lineIt.line,null);touch();closeSheet($('lsheet'));render();return;}
   var nk=keyOf(l.name),pt=parseText(P.text);if(nk!==lineIt.id&&pt.by[nk]){$('ls-msg').textContent='Nimi ”'+l.name+'” on jo käytössä.';return;}
-  if(nk!==lineIt.id)renameKey(P,lineIt.id,nk);P.text=replaceLine(P.text,lineIt.line,raw);touch();closeSheet($('lsheet'));render();});
+  P.text=replaceLine(P.text,lineIt.line,raw);if(nk!==lineIt.id){P.text=renameInText(P.text,lineIt.id,l.name);rulesFromText(P);}touch();closeSheet($('lsheet'));render();});
 
 function pt0(P){return parseText(P.text);}
 /* Ristiriitainen napautus hylätään: nappi värähtää ja ilmoitus näyttää ketjun */
@@ -1214,8 +1305,10 @@ function renderTerms(){var b=$('ts-body');b.textContent='';termCache=null;
     function add(){var n=clean(i.value);if(!n)return;var t={id:uid('t'),name:n.slice(0,60),yes:[],no:[]};data.terms.push(t);touch();termCur=t;renderTerms();}
     button(a,'Lisää','btn solid',add);i.addEventListener('keydown',function(ev){if(ev.key==='Enter')add();});b.appendChild(a);
     var au=autoTerms(data.projects,data.words,data.terms);
+    var tr=el('div','btnrow');button(tr,'Termit tekstinä','btn',function(){termCur='text';renderTerms();}).id='tt-open';b.appendChild(tr);
     if(au.length){b.appendChild(el('h3','','Päätöspuista (nappulat, ryhmät ja ilmoitukset)'));var l2=el('div','rows');l2.id='autoterms';au.forEach(function(t){l2.appendChild(termRow(t));});b.appendChild(l2);}
     var r2=el('div','btnrow');button(r2,'Valmis','btn',function(){closeSheet($('tsheet'));render();}).dataset.done='1';b.appendChild(r2);return;}
+  if(termCur==='text'){renderTermsText(b);return;}
   var t=termCur;$('ts-h').textContent=t.auto?t.name:'Termi';
   var n=null;
   if(t.auto)b.appendChild(el('p','sub',KINDN[t.kind].charAt(0).toUpperCase()+KINDN[t.kind].slice(1)+' päätöspuussa '+t.proj+'. Nimi tunnistaa itsensä; nimeä muutetaan päätöspuun puolella.'));
@@ -1232,6 +1325,18 @@ function renderTerms(){var b=$('ts-body');b.textContent='';termCache=null;
     else{var nn=clean(n.value);if(nn){t.name=nn.slice(0,60);t.yes=ys;t.no=xs;if(pop)t.pop=true;else delete t.pop;}else data.terms=data.terms.filter(function(q){return q!==t;});}
     touch();termCur=null;renderTerms();});tb.id='tok';tb.dataset.done='1';
   b.appendChild(r);}
+
+/* Termit tekstinä: kaikkien termien sanat yhdessä kentässä. Valmis lukee lohkot takaisin. */
+function termNames(){var nm={};autoTerms(data.projects,data.words,data.terms).forEach(function(t){nm[t.key]=t.name;});return nm;}
+function renderTermsText(b){$('ts-h').textContent='Termit tekstinä';
+  b.appendChild(el('p','sub','Jokainen termi on lohko: =Nimi: ja alle sanat riveittäin, ! alussa poissulkeva, tyhjä rivi päättää. Uusi nimi luo termin. Jos poistat lohkon, termin sanat tyhjenevät, mutta termi jää. Puiden omat =-lohkot muokataan puun tekstikentässä.'));
+  var w=el('div','hlwrap'),hl=el('div','hl mono'),ta=el('textarea','mono');hl.id='tt-hl';hl.setAttribute('aria-hidden','true');ta.id='tt-text';ta.style.minHeight='46vh';
+  ta.setAttribute('aria-label','Termit tekstinä');ta.autocomplete='off';ta.setAttribute('autocapitalize','off');ta.spellcheck=false;
+  ta.value=termsToText(data.terms,data.words,termNames());w.appendChild(hl);w.appendChild(ta);b.appendChild(w);
+  function paint(){paintCode(ta,hl);}['input','keyup','click','focus'].forEach(function(ev){ta.addEventListener(ev,paint);});ta.addEventListener('scroll',function(){hl.scrollTop=ta.scrollTop;});
+  var r=el('div','btnrow');button(r,'Peru','btn',function(){termCur=null;renderTerms();});
+  var ok=button(r,'Valmis','btn solid',function(){termsFromText(ta.value,data,termNames());touch();termCur=null;renderTerms();});ok.id='tt-ok';ok.dataset.done='1';b.appendChild(r);
+  setTimeout(paint,0);}
 
 /* ---- asetukset, vienti ja tuonti ---- */
 var pendingImport=null;
