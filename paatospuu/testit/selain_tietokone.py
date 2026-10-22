@@ -55,8 +55,9 @@ async def run(p,w,h):
     d0=datetime.date.fromisoformat(await pg.locator('#timeline .dcol').first.get_attribute('data-day')); tue=(d0+datetime.timedelta(days=1)).isoformat(); wed=(d0+datetime.timedelta(days=2)).isoformat()
     col=pg.locator('#timeline .dcol[data-day="%s"]'%tue); await col.scroll_into_view_if_needed(); cb=await col.bounding_box()
     await pg.evaluate("document.getElementById('main').scrollTop=0"); await pg.wait_for_timeout(50)
-    await col.click(position={'x':40,'y':6*48+30}); await pg.wait_for_timeout(80)
-    want('napautus sarakkeeseen: oikea päivä', [await pg.input_value('#ns-date'),await pg.input_value('#ns-ts')]==[tue,'06:30']); await pg.fill('#ns-text','Aamulenkki'); await pg.click('#ns-ok'); await pg.wait_for_timeout(80)
+    await col.click(position={'x':40,'y':6*48+30}); await pg.wait_for_timeout(80); want('napautus sarakkeeseen ei tee merkintää', not await pg.is_visible('#nsheet'))
+    await pg.click('#week .cday[data-day="%s"]'%tue); await pg.wait_for_timeout(80); await pg.click('#calplus'); await pg.wait_for_timeout(80)
+    want('plus: valittu päivä', await pg.input_value('#ns-date')==tue); await pg.fill('#ns-ts','06:30'); await pg.fill('#ns-text','Aamulenkki'); await pg.click('#ns-ok'); await pg.wait_for_timeout(80)
     ev=pg.locator('#timeline .ev:has-text("Aamulenkki")'); want('näkyy tiistaina', await ev.count()==1 and await ev.evaluate("e=>e.closest('.dcol').dataset.day")==tue)
     await pg.evaluate("document.getElementById('main').scrollTop-=120"); await pg.wait_for_timeout(50)  # vartin merkintä esiin kiinteän yläosan alta
     eb=await ev.bounding_box(); tb=await pg.locator('#timeline .dcol[data-day="%s"]'%wed).bounding_box()

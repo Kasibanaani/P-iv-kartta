@@ -281,9 +281,16 @@ async def run(p,w,h):
     want('plus avaa kalenterimerkinnän', await pg.inner_text('#ns-h')=='Uusi kalenterimerkintä' and await pg.input_value('#ns-date')==tday)
     want('alku yläreunan viivasta seuraavaan varttiin', tm%15==0 and 0<=tm-edge<15 and await pg.input_value('#ns-te')=='')
     await pg.fill('#ns-text','Kalenterista lisätty'); await pg.click('#ns-ok'); await pg.wait_for_timeout(50); want('plus tallentaa muistiinpanoksi', (await nts('Kalenterista'))['date']==tday)
-    await pg.locator('#timeline .area').click(position={'x':150,'y':3*48+20}); await pg.wait_for_timeout(50)
-    want('aikajanan napautus: varttiin, ei loppuaikaa', [await pg.input_value('#ns-ts'),await pg.input_value('#ns-te'),await pg.input_value('#ns-date')]==['03:15','',tday]); await pg.fill('#ns-text','Vartti'); await check('kalenterimerkintä ikkuna'); await pg.click('#ns-ok'); await pg.wait_for_timeout(80)
-    want('ilman loppuaikaa vartin mittainen', abs((await pg.locator('#timeline .ev:has-text("Vartti")').bounding_box())['height']-20)<=2)
+    n0ev=await pg.locator('#timeline .ev').count(); await pg.locator('#timeline .area').click(position={'x':150,'y':3*48+20}); await pg.wait_for_timeout(80)
+    want('tyhjän kohdan napautus ei tee merkintää', not await pg.is_visible('#nsheet') and await pg.locator('#timeline .ev').count()==n0ev)
+    await pg.click('#calplus'); await pg.wait_for_timeout(50); await pg.fill('#ns-ts','03:15'); await pg.fill('#ns-te',''); await pg.fill('#ns-text','Vartti'); await check('kalenterimerkintä ikkuna'); await pg.click('#ns-ok'); await pg.wait_for_timeout(80)
+    want('ilman loppuaikaa vartin mittainen', abs((await pg.locator('#timeline .ev:has-text("Vartti")').bounding_box())['height']-20)<=2 and (await nts('Vartti')).get('time',{}).get('e','')=='')
+    # kuittaus kalenterista: jää näkyviin erinäköisenä, arkistointi vie pois
+    await pg.click('#timeline .ev:has-text("Kalenterista lisätty")'); await pg.wait_for_timeout(50); want('kuittausnappi ikkunassa', await pg.is_visible('#ns-done') and not await pg.is_visible('#ns-arch'))
+    await pg.click('#ns-done'); want('arkistointi toisena valintana', await pg.is_visible('#ns-arch') and await pg.inner_text('#ns-done')=='Palauta avoimeksi'); await pg.click('#ns-ok'); await pg.wait_for_timeout(80)
+    kev=pg.locator('#timeline .ev:has-text("Kalenterista lisätty")'); want('kuitattu jää kalenteriin erinäköisenä', await kev.count()==1 and 'done' in await kev.get_attribute('class')); await check('kuitattu kalenterissa')
+    await kev.click(); await pg.wait_for_timeout(50); await pg.click('#ns-arch'); await pg.click('#ns-ok'); await pg.wait_for_timeout(80)
+    want('arkistoitu pois kalenterista', await pg.locator('#timeline .ev:has-text("Kalenterista lisätty")').count()==0 and (await nts('Kalenterista')).get('arch'))
     async def drag(src,tx,ty,shot=None):
         bb=await pg.locator(src).bounding_box(); x0=bb['x']+min(30,bb['width']/2); y0=bb['y']+bb['height']/2
         await pg.mouse.move(x0,y0); await pg.mouse.down(); await pg.wait_for_timeout(450)
@@ -308,7 +315,7 @@ async def run(p,w,h):
     dump=await pg.input_value('#dataout textarea'); await check('asetukset')
     await pg.evaluate("localStorage.clear()"); await pg.reload(); await pg.wait_for_timeout(100)
     await pg.click('[data-tab="set"]'); await pg.click('#p-set details summary'); await pg.fill('#imptext',dump); await pg.click('#impcheck'); await pg.click('#impok'); await pg.wait_for_timeout(50)
-    await pg.click('[data-tab="notes"]'); want('tuonti palautti', await pg.locator('#nlist .ncard').count()==7)
+    await pg.click('[data-tab="notes"]'); want('tuonti palautti', await pg.locator('#nlist .ncard').count()==6)
     # merkitykset: etenevä kierros ja kääntöpuolet (1.19)
     await pg.evaluate("(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1'));o.kokonaisuudet[0].puut.push({id:'pm',name:'Merkitykset',text:%s,rt:1,flow:'prio',session:null});o.kokonaisuudet[0].cur='pm';localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()"%json.dumps(MT))
     await pg.reload(); await pg.wait_for_timeout(100); await pg.click('[data-tab="use"]'); await pg.click('#start'); await pg.wait_for_timeout(50)

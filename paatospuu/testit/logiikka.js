@@ -266,6 +266,8 @@ eq('kuittaus, roskakori ja tärkeät tallessa',[nd3.notes[0].done,nd3.trash.map(
 
 // merkitykset, kääntöpuolet, tärkeät ja etenevä kierros (1.19)
 eq('kuitattu ei päivässä',E.notesOnDay([{id:'a',text:'Asia 21.10.2026',created:'2026-10-01T08:00:00Z'},{id:'b',text:'Asia 21.10.2026',created:'2026-10-01T08:00:00Z',done:'x'}],'2026-10-21').map(function(n){return n.id;}),['a']);
+eq('kalenteriin kuitattu mutta ei arkistoitu',E.notesOnDay([{id:'a',text:'Asia 21.10.2026',created:'2026-10-01T08:00:00Z',done:'x'},{id:'b',text:'Asia 21.10.2026',created:'2026-10-01T08:00:00Z',done:'x',arch:'y'}],'2026-10-21',true).map(function(n){return n.id;}),['a']);
+eq('arch säilyy tallennuksessa',E.normalizeData({app:'paatospuu',muistiinpanot:[{id:'x',text:'t',done:'2026-10-22T00:00:00Z',arch:'2026-10-22T01:00:00Z'}]}).notes[0].arch,'2026-10-22T01:00:00Z');
 var MT='#Turvallisuus: Turvallisuus on varmistettu\n#Allianssi: Allianssi on kunnossa\nAjantasainen turvasuunnitelma\nKriisikontaktit sovittu\nAllianssi vanhemman kanssa\nAllianssi lapsen kanssa\n\n=Turvallisuus vaatii kaikki:\nAjantasainen turvasuunnitelma\nKriisikontaktit sovittu\n\n=Allianssi vaatii kaikki:\nAllianssi vanhemman kanssa\nAllianssi lapsen kanssa\n\n=Ajantasainen turvasuunnitelma kääntöpuoli:\nTurvasuunnitelma puuttuu\n\n=Turvallisuus kääntöpuoli:\nTurvallisuutta ei ole varmistettu';
 var MP={id:'m',name:'Testi',text:MT,rt:1};E.rulesFromText(MP);
 eq('kääntöpuoli luettu',MP.flip,{'ajantasainen turvasuunnitelma':['Turvasuunnitelma puuttuu'],turvallisuus:['Turvallisuutta ei ole varmistettu']});

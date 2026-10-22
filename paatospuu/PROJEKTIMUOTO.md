@@ -71,7 +71,7 @@ Lohko alkaa `=`-rivillä ja jatkuu riveinä tyhjään riviin asti. Ensimmäisen 
 
 Ryhmään viitataan `#`-merkillä tai pelkällä nimellä. Isot kirjaimet eivät vaikuta.
 
-### Termilohko tekstissä
+### Asiasanalohko (termilohko) tekstissä
 
 `=Nimi:`-rivi, jota ei seuraa sääntösana, on termin sanalista. Alla olevat rivit tunnistavat termin, ja `!`-alkuiset rivit estävät sen.
 
@@ -82,7 +82,7 @@ kyykky-
 !salibandy-
 ```
 
-## Termit (`termit`)
+## Asiasanat (`termit`)
 
 Puun ulkopuoliset omat termit: `{ "name": "...", "yes": [...], "no": [...] }`. Valinnaiset kentät: `"pop": true` (nousee esiin muistiinpanosta) ja `"cal": true` (näkyy kalenterissa alaotsikkona).
 
@@ -97,6 +97,7 @@ Sanasäännöt:
 - `"date": "2026-10-24"`
 - `"time": {"s": "14:00", "e": "15:00"}`
 - `"done": "<ISO-aika>"` (kuitattu)
+- `"arch": "<ISO-aika>"` (kuitattu ja arkistoitu: ei näy kalenterissa; vain yhdessä `done`:n kanssa)
 
 ## Toistuvat ja muistutukset (`toistuvat`)
 

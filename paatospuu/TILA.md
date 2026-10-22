@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.29 (yhtenäisyyskierros: asiasanat, Rakenna päätöspuun sisällä, ohjeet i-napin takana, suodatus usealla asiasanalla, kalenterin kelluva +, tyylin hienosäätö, nimiehdotus Lehto); odottaa Emilin kokeilua · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
+**Vaihe:** versio 1.29.1 (yhtenäisyyskierros: asiasanat, Rakenna päätöspuun sisällä, ohjeet i-napin takana, suodatus usealla asiasanalla, kalenterin kelluva +, tyylin hienosäätö, nimiehdotus Lehto); odottaa Emilin kokeilua · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -236,6 +236,8 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Asetukset → Ulkoasu:** Fontti (Järjestelmä / Pyöreä / Antiikva / Tasalevyinen), Reunat (Pehmeät / Kulmikkaat / Viivat), Lasisuus (Peittävä / Lasinen: yläpalkki, alapalkki, kiinteät rivit ja ikkunat läpikuultavia sumennuksella). Tallennus `cfg.font/edge/glass`, oletukset = entinen ulkoasu. Tiedot-kohdan laskuri sanoo nyt ”Puita” (oli virheellisesti ”Projekteja”).
 - **Siivous:** kuollut koodi pois (vetosulku `sheetDrag`, `longPress`, `shortD`) ja käyttämättömät CSS-luokat (Päätöskartan perintöä). Päällekkäiset id:t Päätöspuu/Rakenna-paneelien välillä estetty tyhjentämällä toinen paneeli vaihdossa.
 - Testit: logiikka ok; selainpolku 390 ja 320 px (Rakenna-nappi, viiva, ohjeet, suodatusikkuna ja/tai + määrä, kelluva +, viivasta alkava aika, 15 min, tyyliasetukset, nimi) ja 1440/1280 px tietokoneen Chromiumissa.
+
+- 1.29.1 (22.10.2026, Emilin toiveet): raahauksen nosto ilman 3D-siirtymää (merkintä pysyy tarkalleen paikallaan, korostus 3 px reunuksella ja täytöllä). Napautus aikajanan tyhjään kohtaan ei enää tee merkintää (tuli vahingossa), vain +. Muistiinpanon ikkunassa *Kuittaa / Palauta avoimeksi* ja kuitatulle *Arkistoi (pois kalenterista) / Palauta kalenteriin*; sama ⋯-valikossa. Kuitatut jäävät kalenteriin haalennettuina ja katkoviivalla (`.ev.done`, `.chip.done`), aukeavat samoin; arkistoidut (`arch`, aikaleima) eivät näy kalenterissa, kuukausilaskurissa eivätkä päivän alaotsikoissa, mutta ovat Kuitatuissa merkinnällä *arkistoitu*. Kierros päivälle hakee edelleen vain avoimet. Tallennusmuoto: muistiinpanolle valinnainen `arch`. Avoin jatkoidea (Emil): päiväkohtainen valikko, josta arkistoi kaikki päivän kuitatut.
 
 ## Ei tarkistettu
 
