@@ -508,6 +508,17 @@ async def run(p,w,h):
     want('ryhmä ei näy rivillä, jäsenet näkyvät', await rg.locator('.cpill').count()==3 and 'Kotityöt' not in await rg.inner_text())
     st=json.loads(await pg.evaluate("localStorage.getItem('paatospuu:v1')"))['kokonaisuudet'][0]; want('ryhmä tallessa', len(st.get('ryhmat',[]))==1 and len(st['ryhmat'][0]['m'])==2)
     await rg.locator('text=Muokkaa').click(); await pg.wait_for_timeout(40); await pg.click('#ks-del'); await pg.click('#ksheet .delok'); await pg.wait_for_timeout(60)
+    # 1.44.1: ryhmä Asiasanoista (#Nimi) ja poistotila
+    await pg.click('#terms'); await pg.wait_for_timeout(50); await pg.fill('#newterm','#Siivous'); await pg.press('#newterm','Enter'); await pg.wait_for_timeout(40)
+    want('ryhmän muokkaus asiasanoissa', await pg.is_visible('#gmem') and await pg.input_value('#gname-in')=='Siivous')
+    await pg.locator('#gmem .chip').nth(0).click(); await pg.locator('#gmem .chip').nth(1).click(); want('ryhmän jäsenet asiasanoissa', await pg.locator('#gmem .chip[aria-pressed="true"]').count()==2); await check('ryhmä asiasanoissa')
+    await pg.click('#gok'); await pg.wait_for_timeout(40); gt=await pg.inner_text('#grplist'); want('ryhmä luettelossa', '2 jäsentä' in gt)
+    await pg.click('#tdel-mode'); await pg.wait_for_timeout(30); want('poistotila', await pg.locator('#tdel-list .row').count()>=2 and await pg.is_disabled('#tdel-ok'))
+    await pg.locator('#tdel-list .row:has-text("Siivous")').click(); await pg.locator('#tdel-list .row:has-text("Imurointi")').click(); await pg.wait_for_timeout(30)
+    want('valitut', 'Poista valitut (2)' in await pg.inner_text('#tdel-ok')); await check('poistotila')
+    await pg.click('#tdel-ok'); want('poisto kysyy', await pg.locator('#tsheet .delbox').count()==1); await pg.click('#tsheet .delok'); await pg.wait_for_timeout(40)
+    want('poistettu asiasanoista', await pg.locator('#grplist .row:has-text("Siivous")').count()==0 and await pg.locator('#tsheet .row:has-text("Imurointi")').count()==0)
+    await pg.click('#tsheet > .sx'); await pg.wait_for_timeout(50)
     # 1.44: Mainittu – avoin muistiinpano, jossa rivin nimi ja tämä päivä, näkyy rivillä ja linkittää muistiinpanoon
     await pg.click('#noteview [data-nv="open"]'); await pg.wait_for_timeout(40); await pg.click('#newnote'); await pg.wait_for_timeout(50); await pg.fill('#ns-text','TISKIKONEEN suodatin tänään'); await pg.dispatch_event('#ns-text','input'); await pg.click('#nsheet > .sx'); await pg.wait_for_timeout(60)
     await pg.click('#noteview [data-nv="chk"]'); await pg.wait_for_timeout(40); await pg.click('#newnote'); await pg.wait_for_timeout(50); await pg.fill('#ks-name','Tiskikone')

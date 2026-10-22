@@ -469,6 +469,8 @@ var MM=E.chkMentions(MR,MNS,T0);eq('mainittu: vain avoin, päivällinen, ei oma,
 eq('mainittu: nostaa rivin',[E.chkOpenN(MR,NOW,{mn:MM.mn}),E.chkRank(MR,rk,T0,NOW,{mn:MM.mn})],[1,2]);
 eq('mainittu: ilman valintaa nimi ei vaikuta',E.chkMentions({id:'x',name:'Tiskikone',it:[]},MNS,T0).mn.length,0);
 eq('mainittu: normalisointi',E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',tarkistuslista:[{id:'c',name:'R',men:true,it:[]}]}]}).K[0].chk[0].men,1);
+var HG=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',termit:[{id:'t9',name:'#Kotityöt'},{id:'t8',name:'Kissa'}],tarkeat:['t9','t8']}]}).K[0];
+eq('1.44.1: #-asiasana muuttuu ryhmäksi',[HG.terms.map(function(t){return t.name;}),HG.grp.map(function(g){return g.name;}),HG.imp],[['Kissa'],['Kotityöt'],['t8']]);
 eq('lista: projektitiedostossa',E.projectFile({id:'k',name:'K',chk:[{id:'c'}]},'t').projekti.tarkistuslista.length,1);
 
 // 1.39 useat ajat samalle päivälle
