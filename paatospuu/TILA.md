@@ -1,6 +1,6 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.33 (kalenteri: kaksi kellonaikaa samalle päivälle, oletuspituus asetuksista, kalenterin kohta napista, vierityksen pyöristys); jonossa kohtakohtainen kuittaus, päällekkäisyysväri ja suhteellisten aikojen lukitus · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
+**Vaihe:** versio 1.34 (kohtakohtainen kuittaus kalenterista, päällekkäisen ajan väri kirjoittaessa); jonossa kalenterin uusi luontitapa ja koko päivän merkinnät, kuukausi-ikkuna, suhteellisten aikojen lukitus · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -266,6 +266,12 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Kellonaika ilman klo-sanaa:** numero tai väli heti päivää tarkoittavan ilmauksen perässä pelkällä välilyönnillä on kellonaika, jos se on kelvollinen 24 tunnin aika (minuutit alle 60): ”torstaina 22-23”, ”to 22-23”, ”24.10. 9.30”, ”24.10.26 14”. Pilkku tai piste välissä estää; ilman päivää numero ei ole kellonaika. Tunnettu raja: ”huomenna 2 kertaa” tulkitaan klo 2:ksi (Emilin säännön mukaista; tunnistus näkyy aina tulkinnassa).
 - **Päivä- ja aikakentät** (muistiinpano, lopetus, toistuvan aloitus, kierroksen päivä) näyttävät pp.kk.vvvv ja hh.mm laitteen kielestä riippumatta; laitteen oma valitsin aukeaa napautuksesta. Vuosi tekstissä kelpaa nelinumeroisena tai kaksinumeroisena (26 = 2026), kuten ennenkin.
 - Testit: logiikka 291 ok; selain 390/320 (kentän suomalainen muoto, uudet tiedostonimet) ja 1440/1280 px.
+
+## Versio 1.34 (22.10.2026, Emilin toiveet)
+
+- **Kohtakohtainen kuittaus:** kalenterista avatussa muistiinpanossa nappi *Kuittaa tämä kohta (pv klo)* kuittaa vain sen kohdan (päivä + alkuaika, `pts`); muut kohdat pysyvät avoimina. Kun kaikki rajallisen määrän kohdat on kuitattu, koko muistiinpano kuittautuu. Koko muistiinpano kuitataan muuten Muistioista; palautus avoimeksi tyhjentää kohtakuittaukset. Toistuvat ja yli 62 päivän välit kuitataan vain Muistioista.
+- **Päällekkäinen aika:** kun kirjoitettu kellonaika osuu saman päivän toiseen merkintään (ei tämä, ei kuitatut; ilman loppuaikaa oletuspituus), korostus muuttuu oranssiksi tekstissä ja tulkintarivillä (*päällekkäin*). Napautus aikaan tekstissä tai tulkintarivillä näyttää ruudun *Samaan aikaan pv:* merkintöineen ja aikaväleineen. Ei estä mitään.
+- Testit: logiikka 299 ok; selain 390/320 ja 1440/1280 px.
 
 ## Versio 1.33 (22.10.2026, Emilin toiveet): kalenteri
 

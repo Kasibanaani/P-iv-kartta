@@ -124,6 +124,11 @@ eq('kaksi merkintää aikajanalle',E.dayEntries([two],'2026-10-23',45).timed.map
 var pin={id:'p1',created:'2026-10-22T08:00:00.000Z',text:'Muistutus pe klo 10',date:'2026-10-22',time:{s:'14:00',e:''},pin:1};
 eq('kalenterin kohta liitetty',[E.dayEntries([pin],'2026-10-22',30).timed.map(function(x){return x.s;}),E.dayEntries([pin],'2026-10-23',30).timed.map(function(x){return x.s;})],[[840],[600]]);
 eq('pin säilyy',E.normalizeData({app:'paatospuu',ver:2,kokonaisuudet:[{id:'k',name:'A',muistiinpanot:[pin]}]}).K[0].notes[0].pin,1);
+// Kohtakohtainen kuittaus (1.34)
+eq('kohdat',E.occList(two),['2026-10-23 10:00','2026-10-23 14:00']);
+eq('toistuvalla ei rajallisia kohtia',E.occList({id:'r',created:'2026-10-22T08:00:00.000Z',text:'joka tiistai klo 10'}),null);
+var pd2={id:'q',created:'2026-10-22T08:00:00.000Z',text:'Palaveri 23.10.2026 klo 10 ja klo 14',pts:{'2026-10-23 10:00':'x'}};
+eq('yksi kohta kuitattu',[E.ptDone(pd2,'2026-10-23 10:00'),E.ptDone(pd2,'2026-10-23 14:00')],[true,false]);
 // Vienti (1.31)
 eq('tiedostonimet',[E.expName(),E.expName('Mätsik Forest'),E.expName('A/B: "x"?'),E.expName('  ..  ')],['Juuri.json','Mätsik Forest (Juuri).json','AB x (Juuri).json','Projekti (Juuri).json']);
 eq('pallero vasta vuorokauden vaihduttua',[E.staleK({chg:'2026-10-22'},'2026-10-22'),E.staleK({chg:'2026-10-21'},'2026-10-22'),E.staleK({chg:null},'2026-10-23')],[false,true,false]);

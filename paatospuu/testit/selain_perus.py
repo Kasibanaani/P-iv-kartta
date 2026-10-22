@@ -298,6 +298,11 @@ async def run(p,w,h):
     want('kohdan nappi näkyy, kun tekstissä on aika', await pg.is_visible('#ns-pin') and await pg.get_attribute('#ns-pin','aria-pressed')=='false'); await check('kalenterin kohta nappi')
     await pg.click('#ns-pin'); want('nappi painettu', await pg.get_attribute('#ns-pin','aria-pressed')=='true'); await pg.click('#ns-ok'); await pg.wait_for_timeout(80)
     lk=await nts('Liitetty kohta'); want('kalenterin kohta tallessa', lk.get('pin')==1 and lk['time']['s']==pts and await pg.locator('#timeline .ev:has-text("Liitetty kohta")').count()==1)
+    # 1.34: päällekkäinen aika näkyy kirjoittaessa, napautus kertoo mitä samaan aikaan on
+    await pg.click('#calplus'); await pg.wait_for_timeout(50); await pg.fill('#ns-text','Päällekkäin klo '+pts[:2]+' '); await pg.dispatch_event('#ns-text','input'); await pg.wait_for_timeout(30)
+    want('päällekkäinen aika oranssina', await pg.locator('#ns-hl mark.ov').count()==1 and await pg.locator('#ns-found i.ov').count()>=1)
+    await pg.click('#ns-found i.ov'); want('napautus näyttää samaan aikaan', await pg.is_visible('#ns-ov') and 'Liitetty kohta' in await pg.inner_text('#ns-ov')); await check('päällekkäin')
+    await pg.fill('#ns-text',''); await pg.click('#ns-ok'); await pg.wait_for_timeout(50)
     lb=await pg.evaluate("(function(){var h=document.querySelectorAll('#timeline .hr')[10],b=h.querySelector('b');return b.getBoundingClientRect().top-h.getBoundingClientRect().top;})()")
     want('tunnin numero viivan alla', 0<=lb<=4)
     await pg.mouse.move(20,560); await pg.mouse.wheel(0,37); await pg.wait_for_timeout(1200)
