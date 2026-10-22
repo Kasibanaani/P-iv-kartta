@@ -471,6 +471,10 @@ eq('mainittu: ilman valintaa nimi ei vaikuta',E.chkMentions({id:'x',name:'Tiskik
 eq('mainittu: normalisointi',E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',tarkistuslista:[{id:'c',name:'R',men:true,it:[]}]}]}).K[0].chk[0].men,1);
 var HG=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',termit:[{id:'t9',name:'#Kotityöt'},{id:'t8',name:'Kissa'}],tarkeat:['t9','t8']}]}).K[0];
 eq('1.44.1: #-asiasana muuttuu ryhmäksi',[HG.terms.map(function(t){return t.name;}),HG.grp.map(function(g){return g.name;}),HG.imp],[['Kissa'],['Kotityöt'],['t8']]);
+var GV={id:'gv',it:[{id:'a',g:1,ok:'2026-10-22T08:00:00'},{id:'c'},{id:'d',g:1}],g:['g1']};
+eq('1.46: ryhmän jäsenet elävinä',E.chkView(GV,{gm:['a','b']},NOW).map(function(v){return v.id+(v.g?'g':'')+(v.ok?'+':'');}),['ag+','c','bg']);
+var GM=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',ryhmat:[{id:'g1',name:'G',m:['a','b']}],tarkistuslista:[{id:'r1',it:[{id:'a'},{id:'b',ok:'x'},{id:'c'}]},{id:'r2',it:[{id:'a'}]}]}]}).K[0];
+eq('1.46: vanha kertalisäys linkiksi',[GM.chk[0].g,GM.chk[0].it.map(function(x){return x.id+(x.g?'g':'');}),GM.chk[1].g],[['g1'],['ag','bg','c'],undefined]);
 eq('lista: projektitiedostossa',E.projectFile({id:'k',name:'K',chk:[{id:'c'}]},'t').projekti.tarkistuslista.length,1);
 
 // 1.39 useat ajat samalle päivälle

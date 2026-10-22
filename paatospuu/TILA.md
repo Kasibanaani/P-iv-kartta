@@ -1,6 +1,6 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.45 (avattu listarivi tiiviiksi: värinapit, teksti suoraan, tähti tärkeäksi; ryhmät myös Asiasanoissa, asiasanojen poistotila; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
+**Vaihe:** versio 1.46 (ryhmä listarivillä elävä linkki; ryhmät myös Asiasanoissa, asiasanojen poistotila; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -335,6 +335,12 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Päivä ja kellonajat samalla rivillä** pieninä (40 px korkeat) tekstikentän alla, napautus avaa valitsimen; kellonajat näkyvät vain, kun tekstissä ei ole aikaa. Tekstikenttä 32 → 40 % näytön korkeudesta.
 - **Poista** ikkunan alalaidassa oikealla (vain olemassa olevalla muistiinpanolla). Avaa joka kerta varmistuksen: ”Poistetaanko koko muistiinpano? Samalla poistuvat kaikki sen kalenterimerkinnät. … roskakoriin”. Varmistusnappi vasemmalla, Peruuta oikealla Poista-napin kohdalla, joten tuplanapautus ei poista (testattu 390 ja 320 px). Aiemmat poistotavat: Muistioiden kortin ⋯ → Poista ja tekstin tyhjennys.
 - **1.39.3:** Valmis pois myös listan rivin ja toistuvan ikkunoista; niiden Poista avaa saman varmistuslaatikon (Poista vasemmalla, Peruuta oikealla). Korjattu samalla 1.38:n bugi: listan rivin poisto sulki väärän ikkunan (rivin muokkausikkunan tunnus sekoittui).
+
+## Versio 1.46 (22.10.2026, Emilin toive): ryhmä elävänä linkkinä
+- Rivillä `g:[ryhmien id:t]` (listan ryhmä tai puun ryhmä `a:…`). Jäsenet näkyvät kohteina (`ctx.gm`), ja niiden kuittaus tallentuu kohteeseen merkillä `g:1`. Jäsenen lisäys ryhmään näkyy heti kaikilla linkitetyillä riveillä. Poistettu jäsen katoaa riviltä, ellei se ole valittu käsin. Ryhmän nimi näkyy avatulla rivillä mainintana (▦) nappien yläpuolella.
+- Rivin ikkunassa ryhmänappi liittää ja irrottaa linkin, eikä jäseniä enää kopioida käsin valituiksi.
+- Vanhat kertalisäykset: jos rivillä on käsin kaikki listan ryhmän jäsenet, ryhmä linkitetään latauksessa ja jäsenet merkitään ryhmästä tulleiksi. Puun ryhmiä ei muunneta.
+- Korjattu samalla: tekstistä tai ryhmästä tullut kuittaamaton kohde kaatoi seuraavan laukeamisen laskennan (evOf(null)).
 
 ## Versio 1.45 (22.10.2026, Emilin toiveet): avattu listarivi
 - Kohdenapit tiiviitä ja kulmikkaampia (radius 9 px, 34 px), ilman palleroa: punainen reunus ja teksti = odottaa kuittausta, vihreä täyttö = kuitattu. Kaikki kohteet näkyvät aina (myös kuitatut).

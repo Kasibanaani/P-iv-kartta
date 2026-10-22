@@ -502,12 +502,15 @@ async def run(p,w,h):
     want('jäsenet valittu', await pg.locator('#ks-f .chip[aria-pressed="true"]').count()==2); await check('ryhmän jäsenet')
     await pg.click('#ks-g .chip.kgrp'); await pg.click('#ks-gedit'); await pg.wait_for_timeout(30)
     gc=pg.locator('#ks-g .chip.kgrp:has-text("Kotityöt")'); want('ryhmä lukittu', '(2)' in await gc.inner_text() and await pg.locator('#ks-f .chip[aria-pressed="true"]').count()==0)
-    await gc.click(); await pg.wait_for_timeout(30); want('ryhmä lisää jäsenet', await pg.locator('#ks-f .chip[aria-pressed="true"]').count()==2 and await gc.get_attribute('aria-pressed')=='true')
-    await pg.fill('#ks-find','Imurointi'); await pg.press('#ks-find','Enter'); await pg.wait_for_timeout(30); want('uusi asiasana riville', await pg.locator('#ks-f .chip[aria-pressed="true"]').count()==3); await check('ryhmä lisätty')
+    await gc.click(); await pg.wait_for_timeout(30); want('ryhmä liitetty linkiksi', await pg.locator('#ks-f .chip[aria-pressed="true"]').count()==0 and await gc.get_attribute('aria-pressed')=='true')
+    await pg.fill('#ks-find','Imurointi'); await pg.press('#ks-find','Enter'); await pg.wait_for_timeout(30); want('uusi asiasana riville', await pg.locator('#ks-f .chip[aria-pressed="true"]').count()==1); await check('ryhmä lisätty')
     tk=json.loads(await pg.evaluate("localStorage.getItem('paatospuu:v1')"))['kokonaisuudet'][0]; iid=[t['id'] for t in tk['termit'] if t['name']=='Imurointi']; want('uusi asiasana tärkeäksi', len(iid)==1 and iid[0] in tk.get('tarkeat',[]))
     await pg.click('#ksheet > .sx'); await pg.wait_for_timeout(60); rg=pg.locator('#chlist .crow:has-text("Ryhmätesti")')
-    want('ryhmä ei näy rivillä, jäsenet näkyvät', await rg.locator('.cpill').count()==3 and 'Kotityöt' not in await rg.inner_text())
+    want('ryhmä mainintana, jäsenet nappeina', await rg.locator('.cpill').count()==3 and 'Kotityöt' in await rg.locator('.cgrp').inner_text())
     st=json.loads(await pg.evaluate("localStorage.getItem('paatospuu:v1')"))['kokonaisuudet'][0]; want('ryhmä tallessa', len(st.get('ryhmat',[]))==1 and len(st['ryhmat'][0]['m'])==2)
+    # 1.46: uusi jäsen ryhmään näkyy rivillä heti
+    await pg.click('#terms'); await pg.wait_for_timeout(50); await pg.locator('#grplist .row:has-text("Kotityöt")').click(); await pg.wait_for_timeout(30); await pg.locator('#gmem .chip[aria-pressed="false"]:not(:has-text("Imurointi"))').first.click(); await pg.click('#gok'); await pg.click('#tsheet > .sx'); await pg.wait_for_timeout(60)
+    want('ryhmän uusi jäsen rivillä', await pg.locator('#chlist .crow:has-text("Ryhmätesti") .cpill').count()==4)
     await rg.locator('text=Muokkaa').click(); await pg.wait_for_timeout(40); await pg.click('#ks-del'); await pg.click('#ksheet .delok'); await pg.wait_for_timeout(60)
     # 1.44.1: ryhmä Asiasanoista (#Nimi) ja poistotila
     await pg.click('#terms'); await pg.wait_for_timeout(50); await pg.fill('#newterm','Pyykit *'); await pg.press('#newterm','Enter'); await pg.wait_for_timeout(40)
