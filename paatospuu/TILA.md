@@ -1,6 +1,6 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.39.1 (kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
+**Vaihe:** versio 1.39.2 (muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -328,6 +328,13 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 ## Versio 1.39.1 (22.10.2026, Emilin toive): kuittausnapin ilme
 
 - Merkinnän ikkunan kuittausnappi (kalenterista ja Muistioista avattuna, myös listan rivin *Huomioitu kalenterissa*): kuittaamatta ilman täyttöä, teksti ja reuna korostusvärillä; kuitattuna vihreä täyttö ja ”✓ Kuitattu” (vaalea #2E7D32 valkoisella, tumma #5CB868 tummalla tekstillä). Napautus palauttaa kuten ennen. Kuvat vaaleasta ja tummasta tarkistettu.
+
+## Versio 1.39.2 (22.10.2026, Emilin toive): muistiinpanon ikkuna
+
+- **Valmis-nappi pois** (teki saman kuin ruksi). Ruksi, taustan napautus ja Esc tallentavat kuten ennen. Tyhjäksi pyyhitty teksti + ruksi poistaa edelleen (roskakoriin).
+- **Päivä ja kellonajat samalla rivillä** pieninä (40 px korkeat) tekstikentän alla, napautus avaa valitsimen; kellonajat näkyvät vain, kun tekstissä ei ole aikaa. Tekstikenttä 32 → 40 % näytön korkeudesta.
+- **Poista** ikkunan alalaidassa oikealla (vain olemassa olevalla muistiinpanolla). Avaa joka kerta varmistuksen: ”Poistetaanko koko muistiinpano? Samalla poistuvat kaikki sen kalenterimerkinnät. … roskakoriin”. Varmistusnappi vasemmalla, Peruuta oikealla Poista-napin kohdalla, joten tuplanapautus ei poista (testattu 390 ja 320 px). Aiemmat poistotavat: Muistioiden kortin ⋯ → Poista ja tekstin tyhjennys.
+- Listan rivin ja toistuvan ikkunoissa Valmis on vielä (ehdotus: sama muutos niihin yhtenäisyyden vuoksi).
 
 ## Tietokoneversio: pohdinta (Emil 22.10.2026, ei rakennettu)
 
