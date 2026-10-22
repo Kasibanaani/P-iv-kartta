@@ -1,6 +1,6 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.32 (nimi **Juuri**, Emilin päätös; kellonaika ilman klo-sanaa päivän perässä; päivä- ja aikakentät suomalaisessa muodossa); suhteellisten aikojen lukitus odottaa Emilin valintaa · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
+**Vaihe:** versio 1.33 (kalenteri: kaksi kellonaikaa samalle päivälle, oletuspituus asetuksista, kalenterin kohta napista, vierityksen pyöristys); jonossa kohtakohtainen kuittaus, päällekkäisyysväri ja suhteellisten aikojen lukitus · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -267,8 +267,18 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Päivä- ja aikakentät** (muistiinpano, lopetus, toistuvan aloitus, kierroksen päivä) näyttävät pp.kk.vvvv ja hh.mm laitteen kielestä riippumatta; laitteen oma valitsin aukeaa napautuksesta. Vuosi tekstissä kelpaa nelinumeroisena tai kaksinumeroisena (26 = 2026), kuten ennenkin.
 - Testit: logiikka 291 ok; selain 390/320 (kentän suomalainen muoto, uudet tiedostonimet) ja 1440/1280 px.
 
+## Versio 1.33 (22.10.2026, Emilin toiveet): kalenteri
+
+- **Kaksi kellonaikaa samana päivänä:** pelkkä kellonaika saa saman lauseen edellisen yhden päivän ajankohdan päivän (”pe klo 10 ja klo 14” = kaksi merkintää perjantaille). Rivinvaihto tai lauseen loppu katkaisee; viikko- tai muut välit eivät periydy. Aikajanalla jokainen saman päivän kellonaika on oma merkintänsä.
+- **Oletuspituus** Asetuksiin (Appi → Kalenterimerkinnän oletuspituus 15/30/45/60 min, oletus 30). Tallennus `cfg.dur`.
+- **Kalenterin kohta napista:** kun merkintä tehdään +:lla ja tekstissä on oma kellonaika, ikkunaan tulee nappi *+ Myös kalenterin kohta klo …*. Painettuna kohta tallentuu omaksi merkinnäkseen tekstin aikojen lisäksi (muistiinpanolle `pin: 1`, aika kentissä `date`/`time`). Painamatta ei lisätä.
+- **Tunnin numero viivan alla:** numero alkaa tunnin viivasta (ennen viiva kulki numeron keskeltä), joten yläreunan vahvaan viivaan vieritetty tunti näkyy kokonaan.
+- **Vierityksen pyöristys:** kun vieritys pysähtyy (sormi irti, liike loppunut), aikajana liukuu seuraavan vartin viivaan yläreunassa (aina eteenpäin). Ei sormen ollessa ruudulla eikä raahatessa. Aikajanan alle lisätty tilaa, jotta 23.45 asti saa yläreunaan.
+- Testit: logiikka 296 ok; selain 390/320 (kalenterin kohta, numeron paikka, pyöristys, myöhäinen aika, 30 min) ja 1440/1280 px.
+
 ## Ei tarkistettu
 
+- Oikealla iPhonella ei kokeiltu (1.33): vierityksen pyöristys hitausvierityksen (momentum) kanssa, voiko pyöristys tuntua nykivältä.
 - Oikealla iPhonella ei kokeiltu (1.32): päivä- ja aikakentän valitsimen aukeaminen näkyvän tekstin alta Safarissa, valitsimen *Tyhjennä*.
 - Oikealla iPhonella ei kokeiltu (1.31): jakoikkunan tiedostonimi Tiedostot-appiin tallennettaessa ja *Korvaa*-kysymys, pallero kotiviivan/Dynamic Islandin läheisyydessä, vuorokauden vaihtuminen appin ollessa taustalla.
 - Oikealla iPhonella ei kokeiltu (1.30): tekstikentän arvon vaihto kirjoittaessa Safarissa (kohdistimen pysyminen, iOS:n ennakoiva teksti ja sanelu voivat käyttäytyä eri tavalla kuin tietokoneen näppäimistö).

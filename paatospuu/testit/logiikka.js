@@ -116,6 +116,14 @@ eq('2/27',pz('2/27'),['1.2.2027–28.2.2027 | 2027-02-01']);
 var B2=new Date(2026,9,22,10,0);function ptm(t){return E.parseDates(t,B2).map(function(o){return o.a+(o.time?' '+o.time.s+'-'+o.time.e:'');});}
 eq('päivän perässä aika',[ptm('torstaina 22-23'),ptm('to 22-23'),ptm('24.10. 9.30'),ptm('24.10.26 14'),ptm('1.7.26–3.8.26 9')],[['2026-10-22 22:00-23:00'],['2026-10-22 22:00-23:00'],['2026-10-24 09:30-'],['2026-10-24 14:00-'],['2026-07-01 09:00-']]);
 eq('ei aikaa ilman päivää tai välimerkin jälkeen',[ptm('Ostin 3 kissaa'),ptm('pe, 14'),ptm('24.10.2026. 9'),ptm('torstaina 25-26'),ptm('torstaina 9.75')],[[],[],['2026-10-24'],['2026-10-22'],['2026-10-22']]);
+// Kaksi kellonaikaa samana päivänä, oletuspituus ja kalenterin kohta (1.33)
+eq('kaksi aikaa samalle päivälle',ptm('pe klo 10 ja klo 14'),['2026-10-23 10:00-','2026-10-23 14:00-']);
+eq('lauseen loppu katkaisee perinnän',ptm('pe klo 10. Soita klo 14').length,2);
+var two={id:'t2',created:'2026-10-22T08:00:00.000Z',text:'Palaveri 23.10.2026 klo 10 ja klo 14'};
+eq('kaksi merkintää aikajanalle',E.dayEntries([two],'2026-10-23',45).timed.map(function(x){return [x.s,x.e];}),[[600,645],[840,885]]);
+var pin={id:'p1',created:'2026-10-22T08:00:00.000Z',text:'Muistutus pe klo 10',date:'2026-10-22',time:{s:'14:00',e:''},pin:1};
+eq('kalenterin kohta liitetty',[E.dayEntries([pin],'2026-10-22',30).timed.map(function(x){return x.s;}),E.dayEntries([pin],'2026-10-23',30).timed.map(function(x){return x.s;})],[[840],[600]]);
+eq('pin säilyy',E.normalizeData({app:'paatospuu',ver:2,kokonaisuudet:[{id:'k',name:'A',muistiinpanot:[pin]}]}).K[0].notes[0].pin,1);
 // Vienti (1.31)
 eq('tiedostonimet',[E.expName(),E.expName('Mätsik Forest'),E.expName('A/B: "x"?'),E.expName('  ..  ')],['Juuri.json','Mätsik Forest (Juuri).json','AB x (Juuri).json','Projekti (Juuri).json']);
 eq('pallero vasta vuorokauden vaihduttua',[E.staleK({chg:'2026-10-22'},'2026-10-22'),E.staleK({chg:'2026-10-21'},'2026-10-22'),E.staleK({chg:null},'2026-10-23')],[false,true,false]);
@@ -276,7 +284,7 @@ eq('notes säilyy tallennuksessa',E.normalizeData({app:'paatospuu',projektit:[{i
 var cn=[{id:'a',created:'2026-10-20T08:00:00Z',text:'Palaveri 22.10.2026 klo 14–15.30\nmuuta',date:''},{id:'b',created:'2026-10-20T08:00:00Z',text:'Soita 22.10.2026 klo 14.30.',date:''},
   {id:'c',created:'2026-10-20T08:00:00Z',text:'Ajaton',date:'2026-10-22'},{id:'d',created:'2026-10-20T08:00:00Z',text:'Kentästä',date:'2026-10-22',time:{s:'09:00',e:''}}];
 var de=E.dayEntries(cn,'2026-10-22');
-eq('aikajanalla',de.timed.map(function(x){return [x.n.id,x.s,x.e,x.col,x.cols];}),[['d',540,555,0,1],['a',840,930,0,2],['b',870,885,1,2]]);
+eq('aikajanalla',de.timed.map(function(x){return [x.n.id,x.s,x.e,x.col,x.cols];}),[['d',540,570,0,1],['a',840,930,0,2],['b',870,900,1,2]]);
 eq('ajattomat',de.untimed.map(function(x){return x.n.id;}),['c']);
 E.moveEntry(de.timed[1],900,990,false);eq('siirto tekstiin',cn[0].text,'Palaveri 22.10.2026 klo 15–16.30\nmuuta');
 E.moveEntry(de.timed[2],885,945,true);eq('avoin pysyy, piste säilyy',cn[1].text,'Soita 22.10.2026 klo 14.45.');
