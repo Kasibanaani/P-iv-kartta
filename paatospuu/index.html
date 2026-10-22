@@ -1030,10 +1030,16 @@ function wdOf(w){var m=/^(maanantai|tiistai|keskiviikko|torstai|perjantai|lauant
 function isoWeek(y,n){var j=new Date(y,0,4),mon=addDays(j,-((j.getDay()+6)%7));return addDays(mon,7*(n-1));}
 function tokensOf(text){var out=[],re=/\S+/g,m,prev=0,src=String(text||'');
   while((m=re.exec(src))){var raw=m[0],s=m.index,e=s+raw.length,w=raw,brk=false,nl=/\n/.test(src.slice(prev,s));prev=e;
-    while(/^[(\["'“”]/.test(w)){w=w.slice(1);s++;}
-    while(/[,;:!?)\]"'“”]$/.test(w)){w=w.slice(0,-1);e--;brk=true;}
-    if(/\.$/.test(w)&&!/^\d{1,2}\.\d{1,2}\.(\d{2}|\d{4})?$/.test(w)&&!/\d\.$/.test(w)){w=w.slice(0,-1);e--;brk=true;}
-    out.push({w:w.toLowerCase(),s:s,e:e,brk:brk,nl:nl});}
+    /* Välimerkit ja erikoismerkit sanan ympäriltä eivät estä tunnistusta (Emil 22.10.2026). Pilkku ym. katkaisee sanaparin (klo, 14),
+       mutta ei ajankohtaa: ”24.10., klo 14” on yksi ajankohta. Lause päättyy vain pisteeseen, huutoon tai kysymykseen (hard). */
+    var hard=false;if(/[\p{L}\p{N}]/u.test(w)){
+      while(/^[^\p{L}\p{N}+]/u.test(w)){w=w.slice(1);s++;}
+      while(/[^\p{L}\p{N}.]$/u.test(w)){if(/[!?]$/.test(w))hard=true;w=w.slice(0,-1);e--;brk=true;}
+      if(/\.{2,}$/.test(w)){w=w.replace(/\.+$/,function(x){e-=x.length;return '';});brk=hard=true;}
+      if(/^\d{1,2}\.\d{1,2}\.(\d{2}|\d{4})\.$/.test(w)){w=w.slice(0,-1);e--;brk=hard=true;}
+      else if(/\.$/.test(w)&&!/^\d{1,2}\.\d{1,2}\.(\d{2}|\d{4})?$/.test(w)&&!/\d\.$/.test(w)){w=w.slice(0,-1);e--;brk=hard=true;}
+      while(/[^\p{L}\p{N}.]$/u.test(w)){w=w.slice(0,-1);e--;brk=true;}}
+    out.push({w:w.toLowerCase(),s:s,e:e,brk:brk,hard:hard,nl:nl});}
   return out;}
 /* Yrittää tunnistaa ajankohdan osan kohdasta i. Palauttaa {n: käytetyt sanat, sp: osa} tai null. */
 function specAt(tk,i,b){var w=tk[i].w,n1=tk[i+1]&&!tk[i].brk?tk[i+1].w:null,n2=n1!==null&&tk[i+2]&&!tk[i+1].brk?tk[i+2].w:null,n3=n2!==null&&tk[i+3]&&!tk[i+2].brk?tk[i+3].w:null,m,x,r;
@@ -1092,14 +1098,14 @@ function finishChunk(c,b,text,nm){var bi=isoD(b),o={s:c.s,e:c.e,src:text.slice(c
 function parseDates(text,base){var bd=base||new Date(),b=dayOf(bd),nm=isNaN(bd.getTime())?null:bd.getHours()*60+bd.getMinutes(),tk=tokensOf(text),out=[],c=null,i=0;text=String(text||'');
   function close(){if(c){var o=finishChunk(c,b,text,nm);if(o)out.push(o);}c=null;}
   while(i<tk.length){if(tk[i].nl)close();var r=specAt(tk,i,b);
-    if(r&&r.sp.abbr&&!c){var nx=!tk[i].brk&&tk[i+1]&&!tk[i+1].nl?specAt(tk,i+1,b):null;if(!nx||nx.sp.abbr)r=null;}
+    if(r&&r.sp.abbr&&!c){var nx=!tk[i].hard&&tk[i+1]&&!tk[i+1].nl?specAt(tk,i+1,b):null;if(!nx||nx.sp.abbr)r=null;}
     if(!r){close();i++;continue;}
     var sp=r.sp,last=tk[i+r.n-1];
     if(c&&((sp.R&&c.R)||(sp.time&&c.time)||(sp.mon&&c.mon)))close();
     if(!c)c={s:tk[i].s,e:last.e,wds:[],every:1,rec:false};
     if(sp.R)c.R=sp.R;if(sp.time){c.time=sp.time;c.ts=tk[i].s;c.te=last.e;}if(sp.mon)c.mon=sp.mon;
     if(sp.wd!==undefined){if(c.wds.indexOf(sp.wd)<0)c.wds.push(sp.wd);if(sp.rec)c.rec=true;if(sp.every>1)c.every=sp.every;}
-    c.e=last.e;i+=r.n;if(last.brk)close();}
+    c.e=last.e;i+=r.n;if(last.hard)close();}
   close();
   return out.sort(function(x,y){return x.a<y.a?-1:x.a>y.a?1:0;});}
 function noteDates(N){var d=parseDates(N.text,new Date(N.created||Date.now()));

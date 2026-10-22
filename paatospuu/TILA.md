@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.30 (asiasanat lisäävät ilmoitustekstit muistiinpanoon kirjoittaessa; puun asetus *Muistiinpanoissa*); 1.29 yhtenäisyyskierros ja nimiehdotus Lehto odottavat Emilin kokeilua · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
+**Vaihe:** versio 1.30.1 (välimerkit ajan ympärillä eivät estä tunnistusta; asiasanat lisäävät ilmoitustekstit muistiinpanoon kirjoittaessa; puun asetus *Muistiinpanoissa*); 1.29 yhtenäisyyskierros ja nimiehdotus Lehto odottavat Emilin kokeilua · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -47,7 +47,7 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 - Emil vahvisti: päiväväli = jokainen välin päivä (toistuu, ei kopioita).
 - Tunnistetaan: 1.7.26, 1.7.2026, 1.7., 010726, välit (1.7.26–3.8.26, myös välilyönnein), 2/27 (koko kuu), Vk42 (vain yhteen kirjoitettuna), klo13-16 / klo 13.30-16 / kello 13.16, viikonpäivät (perjantai, perjantaina = seuraava), tiistaisin ja joka tiistai (joka viikko), joka toinen/kolmas/neljäs tiistai, kuun viimeinen viikko (viimeinen täysi ma–su-viikko, joka kuu), kuun viimeiset 3pv (joka kuu), tänään/huomenna/ylihuomenna, ensi/tällä viikolla, tässä/ensi kuussa, N päivän/viikon sisällä/päästä.
-- **Yhdistäminen (Emilin sääntö):** välilyönnillä peräkkäin kirjoitetut tunnistetut osat ovat yksi ajankohta ja tarkentavat toisiaan missä järjestyksessä tahansa (vk43 perjantai klo13-16 = 23.10. klo 13–16). Tunnistamaton sana, rivinvaihto tai välimerkki (pilkku ym.) sanan perässä katkaisee; erillään olevat ovat eri ajankohtia. Jos samaa osaa tulee toinen (kaksi päivämäärää, kaksi kellonaikaa), alkaa uusi ajankohta. Pelkkä kellonaika = pohjapäivä.
+- **Yhdistäminen (Emilin sääntö):** välilyönnillä peräkkäin kirjoitetut tunnistetut osat ovat yksi ajankohta ja tarkentavat toisiaan missä järjestyksessä tahansa (vk43 perjantai klo13-16 = 23.10. klo 13–16). Tunnistamaton sana, rivinvaihto tai lauseen loppu (piste, !, ?) katkaisee; pilkku, sulut ja muut erikoismerkit eivät (Emil 22.10.2026, versio 1.30.1: ”24.10., klo 14” on yksi ajankohta); erillään olevat ovat eri ajankohtia. Jos samaa osaa tulee toinen (kaksi päivämäärää, kaksi kellonaikaa), alkaa uusi ajankohta. Pelkkä kellonaika = pohjapäivä.
 - Muistiinpanon kirjoitusikkunassa tunnistettu ajankohta korostuu (täyttö + alleviivaus) heti, kun sen perään tulee välilyönti tai rivinvaihto; jatkokirjoitus liittää uudet osat samaan korostukseen. Alla lista *Ajankohdat: teksti → tulkinta*. Muistiinpanoon jää Emilin oma kirjoitusmuoto.
 - Toistuvat ajankohdat: järjestys ”Tulevat” käyttää seuraavaa esiintymää; päivän muistiinpanoihin (kierros päivälle) lasketaan jokainen esiintymä. Kellonaika näkyy kortissa; kalenteri käyttää sitä myöhemmin.
 
@@ -247,6 +247,8 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Teksti:** oma tekstiin kirjoitettu osa pysyy täsmälleen ennallaan (myös välilyönnit), sen perään tyhjä rivi, otsikko `◆ Lisätty asiasanoista`, ilmoitukset tyhjällä rivillä erotettuina; apukysymysten vastaukset (`▸`) pysyvät osion jälkeen. Osion sisältö kirjoitetaan joka kerralla uudelleen, eli omat muokkaukset osion sisällä eivät säily (kerrotaan ohjeessa). Kohdistin pysyy kirjoituskohdassa.
 - Ohje: Muistiinpano-ikkunan i ja Projektit-ikkunan i kertovat asetuksesta ja osiosta.
 - Testit: logiikka 280 ok (uusi lohko: ketju, poissulku, ehto, päivitys, poisto, välilyönnin säilyminen); selainpolku 390/320 ja 1440/1280 px (asetus päälle, lisäys kirjoittaessa, kohdistin, poisto sanan vaihtuessa).
+
+- 1.30.1 (22.10.2026, Emilin bugi): päivämäärä tai kellonaika ei tunnistunut yhdeksi ajankohdaksi, kun perässä oli pilkku (”24.10.2026, klo 14” → kello meni tälle päivälle). Nyt sanan ympäriltä riisutaan kaikki välimerkit ja erikoismerkit (pilkku, sulut, lainausmerkit, *, …, —, / ym.), ja pilkku ei katkaise ajankohtaa. Lause katkaisee edelleen (piste, !, ?). Myös ”24.10.2026.” lauseen lopussa tunnistuu. Ei rakennettu: ”24.10” ilman loppupistettä (sekoittuisi desimaalilukuihin) ja ”klo 9:llä”-taivutus.
 
 ## Ei tarkistettu
 

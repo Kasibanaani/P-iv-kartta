@@ -112,6 +112,13 @@ function pz(s){return E.parseDates(s,base).map(function(o){return E.dateLabel(o)
 eq('010726',pz('010726'),['ke 1.7.2026 | 2026-07-01']);
 eq('1.7.26 klo13-16',pz('1.7.26 klo13-16'),['ke 1.7.2026 klo 13.00–16.00 | 2026-07-01']);
 eq('2/27',pz('2/27'),['1.2.2027–28.2.2027 | 2027-02-01']);
+// Välimerkit ajan ympärillä (Emil 22.10.2026)
+eq('pilkku päivän jälkeen',pz('Hammaslääkäri 24.10.2026, klo 14'),['la 24.10.2026 klo 14.00 | 2026-10-24']);
+eq('pilkku viikonpäivän jälkeen',pz('pe, klo 14'),['pe 23.10.2026 klo 14.00 | 2026-10-23']);
+eq('pilkku ajan jälkeen',pz('klo 14.30, sitten'),['ke 21.10.2026 klo 14.30 | 2026-10-21']);
+eq('piste ja erikoismerkit',[pd('kokous 24.10.2026.'),pd('*24.10.2026*'),pd('(24.10.2026)'),pd('24.10.2026…'),pd('24.10.2026—'),pd('«24.10.»')],[['2026-10-24'],['2026-10-24'],['2026-10-24'],['2026-10-24'],['2026-10-24'],['2026-10-24']]);
+eq('väli ja pilkku',pd('24.10. – 26.10., x'),['2026-10-24..2026-10-26']);
+eq('lause katkaisee yhä',pd('Kokous 24.10.2026. Klo 14 soitto').length,2);
 eq('klo13-16 perjantai',pz('klo13-16 perjantai'),['pe 23.10.2026 klo 13.00–16.00 | 2026-10-23']);
 eq('tiistaisin',pz('tiistaisin'),['joka ti | 2026-10-20 toistuu']);
 eq('maanantaisin',pz('maanantaisin'),['joka ma | 2026-10-26 toistuu']);
@@ -121,7 +128,7 @@ eq('kuun viimeiset 3pv',pz('kuun viimeiset 3pv'),['kuun viimeiset 3 pv | 2026-10
 eq('Vk42 yhteen',pz('Vk42'),['18.10.2027–24.10.2027 | 2027-10-18']);eq('vk 42 erikseen ei',pz('vk 42'),[]);
 eq('peräkkäin tarkentavat',pz('vk43 perjantai klo13-16'),['pe 23.10.2026 klo 13.00–16.00 | 2026-10-23']);
 eq('erillään erikseen',pz('Vk43 ja sitten klo13-16'),['19.10.2026–25.10.2026 | 2026-10-19','ke 21.10.2026 klo 13.00–16.00 | 2026-10-21']); // klo 21 kirjoitettu: mennyt kello huomenna
-eq('pilkku katkaisee',pz('perjantaina, klo 14'),['ke 21.10.2026 klo 14.00 | 2026-10-21','pe 23.10.2026 | 2026-10-23']);
+eq('pilkku ei katkaise (Emil 22.10.2026)',pz('perjantaina, klo 14'),['pe 23.10.2026 klo 14.00 | 2026-10-23']);
 eq('järjestys vapaa',pz('klo 9.30-11 1.7.26'),['ke 1.7.2026 klo 9.30–11.00 | 2026-07-01']);
 eq('väli välilyönnein',pz('1.7.26 – 3.8.26 tiistaisin'),['joka ti 1.7.2026–3.8.2026 | 2026-07-07 toistuu']);
 var cs=E.parseDates('Palaveri 1.7.26 klo13-16 tärkeä',base)[0];eq('kohta tekstissä',[cs.s,cs.e,cs.src],[9,24,'1.7.26 klo13-16']);
