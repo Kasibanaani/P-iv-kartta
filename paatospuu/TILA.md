@@ -1,6 +1,6 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.44.2 (poistotila kattaa myös puiden palikat; ryhmät myös Asiasanoissa, asiasanojen poistotila; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
+**Vaihe:** versio 1.45 (avattu listarivi tiiviiksi: värinapit, teksti suoraan, tähti tärkeäksi; ryhmät myös Asiasanoissa, asiasanojen poistotila; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -335,6 +335,13 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Päivä ja kellonajat samalla rivillä** pieninä (40 px korkeat) tekstikentän alla, napautus avaa valitsimen; kellonajat näkyvät vain, kun tekstissä ei ole aikaa. Tekstikenttä 32 → 40 % näytön korkeudesta.
 - **Poista** ikkunan alalaidassa oikealla (vain olemassa olevalla muistiinpanolla). Avaa joka kerta varmistuksen: ”Poistetaanko koko muistiinpano? Samalla poistuvat kaikki sen kalenterimerkinnät. … roskakoriin”. Varmistusnappi vasemmalla, Peruuta oikealla Poista-napin kohdalla, joten tuplanapautus ei poista (testattu 390 ja 320 px). Aiemmat poistotavat: Muistioiden kortin ⋯ → Poista ja tekstin tyhjennys.
 - **1.39.3:** Valmis pois myös listan rivin ja toistuvan ikkunoista; niiden Poista avaa saman varmistuslaatikon (Poista vasemmalla, Peruuta oikealla). Korjattu samalla 1.38:n bugi: listan rivin poisto sulki väärän ikkunan (rivin muokkausikkunan tunnus sekoittui).
+
+## Versio 1.45 (22.10.2026, Emilin toiveet): avattu listarivi
+- Kohdenapit tiiviitä ja kulmikkaampia (radius 9 px, 34 px), ilman palleroa: punainen reunus ja teksti = odottaa kuittausta, vihreä täyttö = kuitattu. Kaikki kohteet näkyvät aina (myös kuitatut).
+- i-nappi ja kuvaus poistettu listasta toistaiseksi. Lisätieto jää asiasanan muokkaukseen.
+- Rivin teksti näkyy avatulla rivillä muokattavana kenttänä, joka tallentuu kentästä poistuttaessa. Se on sama muistiinpano, ja tyhjennys vie muistiinpanon roskakoriin. Muokkaa on pieni katkoviivanappi kohteiden perässä, ja Muistiinpano-nappi poistettiin.
+- Uusi asiasana listan rivin ikkunasta (Luo) on oletuksena tärkeä (★-nappi Luon vieressä, napautus ☆ = ei tärkeä). Nimen loppuun kirjoitettu `*` merkitsee tärkeäksi kaikissa luontikohdissa (Asiasanat, listan Luo, muistiinpanon Liitä asiasanaan), eikä tähti jää nimeen.
+- Avoin pohdinta (Emil): Asiasanat-editorin tärkeiden valinta, järjestys ja ryhmittely ovat monivaiheisia, ja valinnat skrollautuvat piiloon. Sujuvoitus on suunnittelematta.
 
 ## Versio 1.44.1 (22.10.2026, Emilin palaute)
 - Emil ei löytänyt ryhmää: hän kirjoitti `#Nimi` Asiasanat-ikkunaan, joka teki siitä tavallisen asiasanan. Nyt `#Nimi` Asiasanoissa tekee listan ryhmän ja avaa jäsenten valinnan (nimi, tyhjä poistaa). Ryhmät näkyvät Asiasanoissa omana luettelonaan. Aiemmin tehty #-alkuinen oma asiasana muuttuu latauksessa ryhmäksi (ilman jäseniä).
