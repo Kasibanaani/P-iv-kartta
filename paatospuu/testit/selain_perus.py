@@ -515,8 +515,10 @@ async def run(p,w,h):
     await pg.click('#gok'); await pg.wait_for_timeout(40); gt=await pg.inner_text('#grplist'); want('ryhmä luettelossa', '2 jäsentä' in gt)
     await pg.click('#tdel-mode'); await pg.wait_for_timeout(30); want('poistotila', await pg.locator('#tdel-list .row').count()>=2 and await pg.is_disabled('#tdel-ok'))
     await pg.locator('#tdel-list .row:has-text("Siivous")').click(); await pg.locator('#tdel-list .row:has-text("Imurointi")').click(); await pg.wait_for_timeout(30)
-    want('valitut', 'Poista valitut (2)' in await pg.inner_text('#tdel-ok')); await check('poistotila')
+    pr=pg.locator('#tdel-list .row:has-text("nappula ·")').last; want('puun palikat poistotilassa', await pr.count()==1); pn=(await pr.locator('.t').evaluate("e=>e.firstChild.textContent")).strip(); await pr.click(); await pg.wait_for_timeout(30)
+    want('valitut', 'Poista valitut (3)' in await pg.inner_text('#tdel-ok')); await check('poistotila')
     await pg.click('#tdel-ok'); want('poisto kysyy', await pg.locator('#tsheet .delbox').count()==1); await pg.click('#tsheet .delok'); await pg.wait_for_timeout(40)
+    pt=json.loads(await pg.evaluate("localStorage.getItem('paatospuu:v1')"))['kokonaisuudet'][0]['puut']; want('palikka poistui puusta', not any(pn in [l.strip() for l in P['text'].split('\n')] for P in pt))
     want('poistettu asiasanoista', await pg.locator('#grplist .row:has-text("Siivous")').count()==0 and await pg.locator('#tsheet .row:has-text("Imurointi")').count()==0)
     await pg.click('#tsheet > .sx'); await pg.wait_for_timeout(50)
     # 1.44: Mainittu – avoin muistiinpano, jossa rivin nimi ja tämä päivä, näkyy rivillä ja linkittää muistiinpanoon

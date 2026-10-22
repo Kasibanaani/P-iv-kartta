@@ -1,6 +1,6 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.44.1 (ryhmät myös Asiasanoissa, asiasanojen poistotila; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
+**Vaihe:** versio 1.44.2 (poistotila kattaa myös puiden palikat; ryhmät myös Asiasanoissa, asiasanojen poistotila; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -338,6 +338,7 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 ## Versio 1.44.1 (22.10.2026, Emilin palaute)
 - Emil ei löytänyt ryhmää: hän kirjoitti `#Nimi` Asiasanat-ikkunaan, joka teki siitä tavallisen asiasanan. Nyt `#Nimi` Asiasanoissa tekee listan ryhmän ja avaa jäsenten valinnan (nimi, tyhjä poistaa). Ryhmät näkyvät Asiasanoissa omana luettelonaan. Aiemmin tehty #-alkuinen oma asiasana muuttuu latauksessa ryhmäksi (ilman jäseniä).
+- **1.44.2** (Emil 22.10. klo 20.45): poistotila kattaa myös puiden palikat (nappula, ryhmä, ilmoitus, apukysymys). Rivi poistuu puun tekstistä ja säännöistä kaikissa puissa, joissa se on, ja samalla sen sanat (termisanat). Kääntöpuolen tekstejä ei listata.
 - Asiasanoissa on Poista…-tila: napautetaan useita omia asiasanoja ja ryhmiä, ja *Poista valitut (N)* kysyy varmistuksen (Poista vasemmalla, Peruuta napin paikalla). Poistot lähtevät myös listan riveiltä, ryhmistä ja tärkeistä. Puun palikoita ei poisteta täältä.
 
 ## Versio 1.44 (22.10.2026, Emilin ”Go”): Mainittu
