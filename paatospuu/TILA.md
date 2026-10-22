@@ -347,6 +347,7 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 ## Avoimet kysymykset
 
+- Avoin (Emil 22.10.2026, pohdinta, ei rakennettu): (1) automaattimuistutus suoraan tekstin sanoista, (2) palikat yhdeksi tunnistettavaksi sanaksi, jolle valitaan käytöt Rakenna-puolella, (3) suhteellinen aika (Myöhässä/Tänään/Huomenna) triggerinä JA-ehdoissa. Rakentajan suositus: ensin 3 (aika-asiasanat suodattimeen ja JA-ehtoihin, nyt vain Tärkeys-järjestyksessä), sitten 1 asiasanan käyttönä, 2 suunnitelmana ennen rakentamista; käytöt kytkiminä, ei rullaamalla. Odottaa Emilin valintaa.
 - Vaihe 9 valmis: Emil valtuutti 21.10. illalla jatkamaan suositusten mukaan, joten Hoidettavat ja Puuttuu pysyvät molemmat muistiinpanossa.
 - Avoin: Muistioihin järjestys *Termin mukaan*? Suositus: tehdään hakuun liittyvänä suodattimena (termisirut jo suodattavat), ei neljättä järjestystä. Vaihtoehto: korvataan Uusimmat sillä.
 - Avoin: siirretäänkö puu tai muistiinpano projektista toiseen? Ei rakennettu (ehdotus: ⋯-valikkoon *Siirrä projektiin*).
