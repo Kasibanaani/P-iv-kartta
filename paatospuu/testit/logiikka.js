@@ -462,6 +462,13 @@ var NE=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',termit:[
 eq('1.43: uusiutuminen asiasanalle',[NE.terms[0].ev,NE.terms[0].info,NE.terms[1].ev,NE.words.koira.ev,NE.words.uusi.ev,NE.chk[0].it.some(function(x){return x.ev;})],[2,'Pese.',6,7,4,false]);
 var RV={id:'r',it:[{id:'t',ok:'2026-10-20T08:00:00'}]};eq('1.43: asiasanan uusiutuminen raukeaa',[E.chkOpenN(RV,NOW,{ev:{t:1}}),E.chkOpenN(RV,NOW,{ev:{t:3}}),E.chkOpenN(RV,NOW,{})],[1,0,0]);
 var JT={id:'j',name:'JO',yes:[],no:[]};eq('1.43: lyhyt nimi vain kokonaisena sanana',[E.noteTerms([JT],'Onko jokainen kohta selkeä'),E.noteTerms([JT],'Varaa JO-aika'),E.termHits([JT],'jokainen jo').map(function(h){return h.s;})],[[],['j'],[9]]);
+// 1.44 Mainittu: avoin muistiinpano, jossa rivin nimi ja päivä
+var MR={id:'mr',name:'Tiskikone',men:1,nid:'own',it:[]},MNS=[{id:'own',text:'Tiskikone tänään',created:'2026-10-20T08:00:00'},{id:'n1',text:'TISKIKONEEN huolto 22.10.2026',created:'2026-10-20T08:00:00'},
+  {id:'n2',text:'tiskikone joskus',created:'2026-10-20T08:00:00'},{id:'n3',text:'Tiskikone 22.10.2026',created:'2026-10-20T08:00:00',done:'x'},{id:'n4',text:'Tiskikone 30.10.2026',created:'2026-10-20T08:00:00'}];
+var MM=E.chkMentions(MR,MNS,T0);eq('mainittu: vain avoin, päivällinen, ei oma, kirjainkoko ei vaikuta',[MM.mn.map(function(m){return m.nid+' '+m.z.id;}),new Date(MM.mnz).getDate()],[['n1 z:today'],29]);
+eq('mainittu: nostaa rivin',[E.chkOpenN(MR,NOW,{mn:MM.mn}),E.chkRank(MR,rk,T0,NOW,{mn:MM.mn})],[1,2]);
+eq('mainittu: ilman valintaa nimi ei vaikuta',E.chkMentions({id:'x',name:'Tiskikone',it:[]},MNS,T0).mn.length,0);
+eq('mainittu: normalisointi',E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',tarkistuslista:[{id:'c',name:'R',men:true,it:[]}]}]}).K[0].chk[0].men,1);
 eq('lista: projektitiedostossa',E.projectFile({id:'k',name:'K',chk:[{id:'c'}]},'t').projekti.tarkistuslista.length,1);
 
 // 1.39 useat ajat samalle päivälle
