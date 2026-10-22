@@ -1,6 +1,6 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.34 (kohtakohtainen kuittaus kalenterista, päällekkäisen ajan väri kirjoittaessa); jonossa kalenterin uusi luontitapa ja koko päivän merkinnät, kuukausi-ikkuna, suhteellisten aikojen lukitus · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
+**Vaihe:** versio 1.35 (kalenterin uusi luontitapa, koko päivän merkinnät alhaalla, vakaa kuukausi-ikkuna; yläreunan viivatoiminto ja vierityksen pyöristys poistettu); jonossa suhteellisten aikojen lukitus · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -282,8 +282,24 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Vierityksen pyöristys:** kun vieritys pysähtyy (sormi irti, liike loppunut), aikajana liukuu seuraavan vartin viivaan yläreunassa (aina eteenpäin). Ei sormen ollessa ruudulla eikä raahatessa. Aikajanan alle lisätty tilaa, jotta 23.45 asti saa yläreunaan.
 - Testit: logiikka 296 ok; selain 390/320 (kalenterin kohta, numeron paikka, pyöristys, myöhäinen aika, 30 min) ja 1440/1280 px.
 
+## Versio 1.35 (22.10.2026, Emilin toiveet): kalenterin luonti ja koko päivä
+
+- **Yläreunan viivatoiminto poistettu** (Emil: ei intuitiivinen) ja samalla 1.33:n vierityksen pyöristys ja aikajanan alatila; yläreunan viiva on taas ohut tyylin mukainen. **+** alkaa tänään seuraavasta vartista, muina päivinä klo 9.
+- **Puhelin:** lyhyt pito (0,25 s) tyhjässä kohdassa ja nosto luo merkinnän siihen kohtaan (lähin vartti). Hipaisu ja vieritys eivät luo. Aikajanalla tekstin valinta ja iOS:n valikko estetty. Rakentajan ratkaisu: pito ratkeaa vasta sormen noustessa, jotta vieritys peruu sen luotettavasti.
+- **Hiiri (myös kapealla ikkunalla):** napsautus mihin tahansa tekee merkinnän; veto samalla liikkeellä venyttää pituuden (haamu näyttää ajan), pyöristys lähimpään varttiin. Viikkonäkymässä sarakkeen päivälle.
+- **Koko päivän merkinnät** (päivä ilman kellonaikaa) aikajanan alla kohdassa *Koko päivä* (myös viikkonäkymässä), ei yläreunassa. Päiväruudussa pieni rengas, jos niitä on. Merkinnän pudotus saman päivän ruutuun viikkonauhalla tai Koko päivä -kohtaan poistaa kellonajan.
+- **Kuukausi-ikkuna vakaa:** viikonpäivät otsikkorivissä, ruudukko aina 6 viikkoa, joten nuolet ja ikkunan koko eivät pompi.
+- Testit: logiikka 299 ok; selain 390/320 (napsautus tekee merkinnän, koko päivä alhaalla, rengas, pudotus päivän ruutuun) ja 1440/1280 (veto tekee merkinnän pituuksineen). Kosketuksen pito ei ole testattavissa Chromiumin hiirellä.
+
+## Tietokoneversio: pohdinta (Emil 22.10.2026, ei rakennettu)
+
+- Emilin toive: sama appi, johon voi lisätä vain tietokoneella käytettäviä toimintoja (esim. laskentataulukkomainen, ehtojen mukaan priorisoituva tarkistuslista). Vaihtoehto: erillinen tietokoneappi, jonka projektit siirtyvät puhelimeen, ja projektin yhteensopivuuden tarkistus.
+- **Suositus: pysytään yhdessä appissa.** Sama tallennusmuoto ja sama moottori pitävät puhelimen ja koneen automaattisesti linjassa, eikä yhteensopivuutta tarvitse tarkistaa. Koneen lisäominaisuudet rakennetaan niin, että niiden tieto on projektissa omassa kentässään: puhelin säilyttää sen koskematta ja näyttää korkeintaan lukunäkymän. Erillinen appi vasta, jos koneosa kasvaa niin isoksi, että se hidastaa puhelinta tai sotkee sen käyttöä.
+- Avoin: laskentataulukko/tarkistuslista-idean sisältö ja paikka (oma välilehti koneella?). Vaatii suunnitelman ennen rakentamista.
+
 ## Ei tarkistettu
 
+- Oikealla iPhonella ei kokeiltu (1.35): lyhyen pidon tuntuma (0,25 s), aukeaako tekstin valinta tai iOS:n suurennuslasi pidossa, renkaan näkyvyys päiväruudussa.
 - Oikealla iPhonella ei kokeiltu (1.33): vierityksen pyöristys hitausvierityksen (momentum) kanssa, voiko pyöristys tuntua nykivältä.
 - Oikealla iPhonella ei kokeiltu (1.32): päivä- ja aikakentän valitsimen aukeaminen näkyvän tekstin alta Safarissa, valitsimen *Tyhjennä*.
 - Oikealla iPhonella ei kokeiltu (1.31): jakoikkunan tiedostonimi Tiedostot-appiin tallennettaessa ja *Korvaa*-kysymys, pallero kotiviivan/Dynamic Islandin läheisyydessä, vuorokauden vaihtuminen appin ollessa taustalla.
