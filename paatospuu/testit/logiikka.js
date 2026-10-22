@@ -421,16 +421,21 @@ E.relSweep(XN,'2026-10-30');eq('itse kirjoitettu ei muutu',XN.text,'Kokous 24.10
 var WN=rlk('Sauna lauantaina','2026-10-22T09:00:00');E.relSweep(WN,'2026-10-23');eq('viikonpäivä pysyy viikon sisällä',WN.text,'Sauna huomenna');
 eq('normalisointi säilyttää',E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',muistiinpanot:[{id:'n',text:'a huomenna',created:'2026-10-22T09:00:00',rel:[{w:'huomenna',o:'huomenna',at:'2026-10-22T09:00:00.000Z',d:'2026-10-23'},{w:'x'}]}]}]}).K[0].notes[0].rel.length,1);
 
-// 1.38 tarkistuslista
-var rk={'a':0,'b':1,'z:today':2},T0='2026-10-22';
-var C1={id:'c1',text:'x',f:[{id:'b'}]},C2={id:'c2',text:'y',f:[{id:'a',neg:1}]},C3={id:'c3',text:'z',f:[]};
-eq('lista: puuttuva nostaa kuittaamatta',E.chkSort([C3,C1,C2],rk,T0).map(function(r){return r.id;}),['c2','c1','c3']);
-C2.ok='2026-10-22T08:00:00Z';eq('lista: kuitattu puuttuva väistyy, oma järjestys',E.chkSort([C3,C1,C2],rk,T0).map(function(r){return r.id;}),['c1','c3','c2']);
-var C4={id:'c4',text:'Tarkista 22.10.2026',created:'2026-10-20T08:00:00',f:[{id:'a',neg:1},{id:'z:today'}]};
-eq('lista: aikaehto täyttyy',E.chkRank(C4,rk,T0),0);eq('lista: aikaehto ei täyty',E.chkRank(C4,rk,'2026-10-21'),Infinity);
-var CF={f:[]};E.cycleF(CF,'a');var s1=JSON.stringify(CF.f);E.cycleF(CF,'a');var s2=JSON.stringify(CF.f);E.cycleF(CF,'a');eq('lista: tekijä kiertää',[s1,s2,CF.f.length],['[{"id":"a"}]','[{"id":"a","neg":1}]',0]);
-var ND=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',tarkistuslista:[{id:'c',name:'Lääkkeet',text:'klo 9',f:[{id:'a',neg:true},{id:'a'},{x:1}],ok:'2026-10-22T08:00:00Z',pts:{'2026-10-22 09:00':'t'}},{name:'ei id'}]}]});
-eq('lista: normalisointi',[ND.K[0].chk.length,ND.K[0].chk[0].f,ND.K[0].chk[0].ok,Object.keys(ND.K[0].chk[0].pts)],[1,[{id:'a',neg:1}],'2026-10-22T08:00:00Z',['2026-10-22 09:00']]);
+// 1.40 tarkistuslista: kohteet, voimassaolo, yksi riittää / kaikki
+var rk={'a':0,'b':1,'z:today':2},T0='2026-10-22',NOW=new Date('2026-10-22T12:00:00');
+var C1={id:'c1',text:'x',it:[{id:'b'}]},C2={id:'c2',text:'y',it:[{id:'a'},{id:'b'}]},C3={id:'c3',text:'z',it:[]};
+eq('lista: tekemätön tärkein ensin',E.chkSort([C3,C1,C2],rk,T0,NOW).map(function(r){return r.id;}),['c2','c1','c3']);
+C2.it[0].ok='2026-10-22T08:00:00';eq('lista: tehty kohde ei nosta',[E.chkRank(C2,rk,T0,NOW),E.chkDone(C2,NOW)],[1,false]);
+C2.it[1].ok='2026-10-22T08:00:00';eq('lista: kaikki tehty → alimmaksi',E.chkSort([C3,C1,C2],rk,T0,NOW).map(function(r){return r.id;}),['c1','c3','c2']);
+var IT={id:'a',ok:'2026-10-16T10:00:00',ev:6};eq('lista: voimassa 6 pv',[E.itemOk(IT,new Date('2026-10-22T09:00:00')),E.itemOk(IT,new Date('2026-10-22T11:00:00')),E.itemUntil(IT)],[true,false,'2026-10-22']);
+var C4={id:'c4',any:1,it:[{id:'a'},{id:'b',ok:'2026-10-22T08:00:00'}]};eq('lista: yksi riittää',[E.chkDone(C4,NOW),E.chkRank(C4,rk,T0,NOW)],[true,Infinity]);
+var C5={id:'c5',text:'Tarkista 22.10.2026',created:'2026-10-20T08:00:00',it:[{id:'a'},{id:'z:today'}]};
+eq('lista: aikaehto',[E.chkRank(C5,rk,T0,NOW),E.chkRank(C5,rk,'2026-10-21',NOW)],[0,Infinity]);
+var X5={id:'a'};E.toggleItem(X5,NOW);var t1=!!X5.ok;E.toggleItem(X5,NOW);eq('lista: kohteen kuittaus kääntyy',[t1,X5.ok],[true,undefined]);
+var RX={id:'a',ok:'2026-10-01T08:00:00',ev:1};E.toggleItem(RX,NOW);eq('lista: rauennut kuitataan uudelleen',RX.ok,NOW.toISOString());
+var ND=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',tarkistuslista:[{id:'c',name:'Keittiö',it:[{id:'a',ok:'2026-10-22T08:00:00Z',ev:6},{id:'a'},{x:1},{id:'b',ev:-3}],any:true,pts:{'2026-10-22 09:00':'t'}},{name:'ei id'},{id:'old',f:[{id:'a',neg:1},{id:'z:today'}],ok:'2026-10-21T08:00:00Z'}]}]});
+eq('lista: normalisointi',[ND.K[0].chk.length,ND.K[0].chk[0].it,ND.K[0].chk[0].any,Object.keys(ND.K[0].chk[0].pts)],[2,[{id:'a',ok:'2026-10-22T08:00:00Z',ev:6},{id:'b'}],1,['2026-10-22 09:00']]);
+eq('lista: 1.38:n rivi muuttuu kohteiksi',[ND.K[0].chk[1].it,ND.K[0].chk[1].ok],[[{id:'a',ok:'2026-10-21T08:00:00Z'},{id:'z:today'}],undefined]);
 eq('lista: projektitiedostossa',E.projectFile({id:'k',name:'K',chk:[{id:'c'}]},'t').projekti.tarkistuslista.length,1);
 
 // 1.39 useat ajat samalle päivälle

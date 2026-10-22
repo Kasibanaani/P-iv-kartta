@@ -1,6 +1,6 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.39.3 (muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
+**Vaihe:** versio 1.40 (tarkistuslista uusiksi: rivit jatkuvia, kohteet kuitataan yksitellen voimassaoloajalla; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -336,6 +336,14 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Poista** ikkunan alalaidassa oikealla (vain olemassa olevalla muistiinpanolla). Avaa joka kerta varmistuksen: ”Poistetaanko koko muistiinpano? Samalla poistuvat kaikki sen kalenterimerkinnät. … roskakoriin”. Varmistusnappi vasemmalla, Peruuta oikealla Poista-napin kohdalla, joten tuplanapautus ei poista (testattu 390 ja 320 px). Aiemmat poistotavat: Muistioiden kortin ⋯ → Poista ja tekstin tyhjennys.
 - **1.39.3:** Valmis pois myös listan rivin ja toistuvan ikkunoista; niiden Poista avaa saman varmistuslaatikon (Poista vasemmalla, Peruuta oikealla). Korjattu samalla 1.38:n bugi: listan rivin poisto sulki väärän ikkunan (rivin muokkausikkunan tunnus sekoittui).
 
+## Versio 1.40 (22.10.2026, Emilin korjaus): tarkistuslista kohteineen
+- Rivi (esim. Keittiö) on jatkuva: sitä ei kuitata koskaan, rivin kuittauspallero poistettu. Poisto vain Muokkaa → Poista → varmistus.
+- Rivillä on kohteita (asiasanoja), jotka kuitataan yksitellen. Kohteelle valitaan voimassaoloaika (ei vanhene, 1–365 pv); umpeuduttuaan kuittaus raukeaa.
+- Rivi on tarkistettava, kun yksikin / kaikki kohteet ovat kuittaamatta (valinta rivikohtainen). Silloin punainen reuna ja ”! N tarkistettavaa”, muuten ”seuraava <pvm>”.
+- Järjestys: tarkistettavat ensin kuittaamattomien kohteiden tärkeyden mukaan (yhteinen tähtijärjestys), sitten muut seuraavan raukeamisen mukaan. Aika-asiasanat ovat rivin ehtoja.
+- Lista-välilehdellä punainen pallero, jos jotain on tarkistettavaa. 1.38:n rivit muuttuvat kohteiksi (vanha muoto luetaan).
+- Toisensa poissulkevat kohteet: lykätty.
+
 ## Tietokoneversio: pohdinta (Emil 22.10.2026, ei rakennettu)
 
 - Emilin toive: sama appi, johon voi lisätä vain tietokoneella käytettäviä toimintoja (esim. laskentataulukkomainen, ehtojen mukaan priorisoituva tarkistuslista). Vaihtoehto: erillinen tietokoneappi, jonka projektit siirtyvät puhelimeen, ja projektin yhteensopivuuden tarkistus.
@@ -377,7 +385,7 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 ## Avoimet kysymykset
 
-- Avoin (1.38): nollautuuko rivin kuittaus itsestään (esim. kun rivin seuraava aika tulee)? Pitääkö rivejä voida raahata omaan järjestykseen? Miten kääntöpuoli näkyy kuitatulla rivillä?
+- Avoin (Emil 22.10. klo 13.36, pohdinta): listan aika-asiasanat (Tänään/Huomenna/Myöhässä) koskemaan vain tekstin päivämäärää, ja päivämäärän kuittaus tekstistä = sama kuin kalenterissa. Laukeavien tekijöiden näyttö rivin otsikossa.
 - Avoin (Emil 22.10.2026, pohdinta, ei rakennettu): (1) automaattimuistutus suoraan tekstin sanoista, (2) palikat yhdeksi tunnistettavaksi sanaksi, jolle valitaan käytöt Rakenna-puolella, (3) suhteellinen aika (Myöhässä/Tänään/Huomenna) triggerinä JA-ehdoissa. Rakentajan suositus: ensin 3 (aika-asiasanat suodattimeen ja JA-ehtoihin, nyt vain Tärkeys-järjestyksessä), sitten 1 asiasanan käyttönä, 2 suunnitelmana ennen rakentamista; käytöt kytkiminä, ei rullaamalla. Odottaa Emilin valintaa.
 - Avoin (Emil 22.10.2026, pohdinta, ei rakennettu): **sääntötaulukko** ensisijaisesti muistiinpanoille (myöhemmin ehkä puille): sarakkeet *mikä triggeröi* (tekstin sana, asiasana, palikka, aika-asiasana, kielto) ja *mitä* (asiasana, ilmoitus, automaattinen muistiinpano suhteelliseen aikaan), ja/tai, lisäävä/poissulkeva. Rakentajan kanta: tulospuoli aina "kaikki nämä", yksi rivi joko kaikki tai jokin, puhelimella kortti "Kun … → niin …", taulukko tietokoneella, säännöt tekstinä, kehän esto. Ehdotettu seuraava askel: suunnitelma "Sääntötaulukko" (Emilin "suunnittele"). Emil: tulostyypit ainakin (a) muistutus (uusi automaattinen muistiinpano), (b) lisäys triggeröivään muistiinpanoon (rakentajan tulkinta: tekstiä sen perään kuten 1.30:n ilmoitukset), (c) uusia liitettyjä asiasanoja. Emilin päätökset 22.10. klo 12: yksi rivi = yksi sääntö; ristiriidassa ylempi rivi voittaa ja alempi ei tallennu; triggerit ja tulokset valitaan valikosta; triggerisarakkeessa ja/tai-nappi, kummassakin sarakkeessa lisäys/poissulku-nappi, jotka kiertävät napauttamalla; tulospuolella ei "tai":ta, kaikki tulokset toteutuvat (Emil 22.10.). Tyhjän solun napautus avaa vaihtoehdot. Avoin: tallentuuko ristiriitainen alempi rivi punaisena "ei voimassa" (rakentajan ehdotus) vai estetäänkö tallennus.
 - Vaihe 9 valmis: Emil valtuutti 21.10. illalla jatkamaan suositusten mukaan, joten Hoidettavat ja Puuttuu pysyvät molemmat muistiinpanossa.
