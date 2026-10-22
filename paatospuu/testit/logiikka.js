@@ -451,13 +451,17 @@ var X5={id:'a'};E.toggleItem(X5,NOW);var t1=!!X5.ok;E.toggleItem(X5,NOW);eq('lis
 var RX={id:'a',ok:'2026-10-01T08:00:00',ev:1};E.toggleItem(RX,NOW);eq('lista: rauennut kuitataan uudelleen',RX.ok,NOW.toISOString());
 var ND=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',muistiinpanot:[{id:'m1',text:'Oma',created:'2026-10-20T08:00:00'}],tarkistuslista:[{id:'c',name:'Keittiö',text:'Suodatin to 9',created:'2026-10-20T08:00:00',it:[{id:'a',ok:'2026-10-22T08:00:00Z',ev:6},{id:'a'},{x:1},{id:'b',ev:-3,t:1,at:'x'}],any:true,pts:{'2026-10-22 09:00':'t'}},{name:'ei id'},{id:'old',f:[{id:'a',neg:1},{id:'z:today'}],ok:'2026-10-21T08:00:00Z'},{id:'l',nid:'m1',it:[]},{id:'l2',nid:'puuttuu',it:[]}]}]});
 var NK=ND.K[0],NC=NK.chk[0],NN=NK.notes.filter(function(n){return n.id===NC.nid;})[0];
-eq('lista: normalisointi',[NK.chk.length,NC.it,NC.any,NC.text,NC.pts],[4,[{id:'a',ok:'2026-10-22T08:00:00Z',ev:6},{id:'b',at:'x',t:1}],1,undefined,undefined]);
+eq('lista: normalisointi',[NK.chk.length,NC.it,NC.any,NC.text,NC.pts],[4,[{id:'a',ok:'2026-10-22T08:00:00Z'},{id:'b',at:'x',t:1}],1,undefined,undefined]);
 eq('lista: vanha teksti muuttuu muistiinpanoksi',[NN&&NN.text,NN&&Object.keys(NN.pts),NK.notes.length],['Suodatin to 9',['2026-10-22 09:00'],2]);
 eq('lista: liitos säilyy, puuttuva katoaa',[NK.chk[2].nid,NK.chk[3].nid],['m1',undefined]);
 eq('lista: 1.38:n rivi muuttuu kohteiksi',[NK.chk[1].it,NK.chk[1].ok],[[{id:'a',ok:'2026-10-21T08:00:00Z'},{id:'z:today'}],undefined]);
 var NG=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',ryhmat:[{id:'g1',name:' Kotityöt ',m:['a','a','z:today',3,'b']},{id:'g1',name:'tupla'},{id:'g2',name:''}]}]}).K[0].grp;
 eq('ryhmät: normalisointi',NG,[{id:'g1',name:'Kotityöt',m:['a','b']}]);
 eq('ryhmät: projektitiedostossa',E.projectFile({id:'k',name:'K',grp:[{id:'g',name:'G',m:[]}]},'t').projekti.ryhmat.length,1);
+var NE=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',termit:[{id:'t1',name:'Suodatin',info:'Pese. ',ev:2},{id:'t2',name:'Kissa'}],termisanat:{koira:{ev:7,info:'x'}},tarkistuslista:[{id:'c',name:'R',it:[{id:'t2',ev:6},{id:'t1',ev:9},{id:'a:koira',ev:3},{id:'a:uusi',ev:4}]}]}]}).K[0];
+eq('1.43: uusiutuminen asiasanalle',[NE.terms[0].ev,NE.terms[0].info,NE.terms[1].ev,NE.words.koira.ev,NE.words.uusi.ev,NE.chk[0].it.some(function(x){return x.ev;})],[2,'Pese.',6,7,4,false]);
+var RV={id:'r',it:[{id:'t',ok:'2026-10-20T08:00:00'}]};eq('1.43: asiasanan uusiutuminen raukeaa',[E.chkOpenN(RV,NOW,{ev:{t:1}}),E.chkOpenN(RV,NOW,{ev:{t:3}}),E.chkOpenN(RV,NOW,{})],[1,0,0]);
+var JT={id:'j',name:'JO',yes:[],no:[]};eq('1.43: lyhyt nimi vain kokonaisena sanana',[E.noteTerms([JT],'Onko jokainen kohta selkeä'),E.noteTerms([JT],'Varaa JO-aika'),E.termHits([JT],'jokainen jo').map(function(h){return h.s;})],[[],['j'],[9]]);
 eq('lista: projektitiedostossa',E.projectFile({id:'k',name:'K',chk:[{id:'c'}]},'t').projekti.tarkistuslista.length,1);
 
 // 1.39 useat ajat samalle päivälle
