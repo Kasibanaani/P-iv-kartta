@@ -429,13 +429,32 @@ C2.it[0].ok='2026-10-22T08:00:00';eq('lista: tehty kohde ei nosta',[E.chkRank(C2
 C2.it[1].ok='2026-10-22T08:00:00';eq('lista: kaikki tehty → alimmaksi',E.chkSort([C3,C1,C2],rk,T0,NOW).map(function(r){return r.id;}),['c1','c3','c2']);
 var IT={id:'a',ok:'2026-10-16T10:00:00',ev:6};eq('lista: voimassa 6 pv',[E.itemOk(IT,new Date('2026-10-22T09:00:00')),E.itemOk(IT,new Date('2026-10-22T11:00:00')),E.itemUntil(IT)],[true,false,'2026-10-22']);
 var C4={id:'c4',any:1,it:[{id:'a'},{id:'b',ok:'2026-10-22T08:00:00'}]};eq('lista: yksi riittää',[E.chkDone(C4,NOW),E.chkRank(C4,rk,T0,NOW)],[true,Infinity]);
-var C5={id:'c5',text:'Tarkista 22.10.2026',created:'2026-10-20T08:00:00',it:[{id:'a'},{id:'z:today'}]};
-eq('lista: aikaehto',[E.chkRank(C5,rk,T0,NOW),E.chkRank(C5,rk,'2026-10-21',NOW)],[0,Infinity]);
+// 1.41: aika tulee tekstin päivistä (muistiinpano), ei käsin valitusta ehdosta; nostaa kuittauksista riippumatta
+var C5={id:'c5',it:[{id:'b',ok:'2026-10-22T08:00:00'}]},N5={id:'n5',text:'Suodatin 22.10.2026',created:'2026-10-20T08:00:00'};
+var X5t=E.chkTime(N5,T0);eq('lista: aikakohde tekstistä',[X5t.z&&X5t.z.id,X5t.z&&X5t.z.keys],['z:today',['2026-10-22']]);
+eq('lista: aika nostaa kuitatunkin rivin',[E.chkDone(C5,NOW,{z:X5t.z}),E.chkRank(C5,rk,T0,NOW,{z:X5t.z}),E.chkOpenN(C5,NOW,{z:X5t.z})],[false,2,1]);
+eq('lista: huomenna ja myöhässä',[E.chkTime(N5,'2026-10-21').z.id,E.chkTime(N5,'2026-10-24').z.id,E.chkTime(N5,'2026-10-15').z],['z:tomorrow','z:late',null]);
+eq('lista: seuraava laukeaminen tekstin päivästä',new Date(E.chkTime(N5,'2026-10-15').nz).getDate(),21);
+N5.pts={'2026-10-22':'t'};eq('lista: kalenterin kuittaus kuittaa aikakohteen',E.chkTime(N5,T0).z,null);
+var N6={id:'n6',text:'Kokous 20.10.2026 ja 22.10.2026',created:'2026-10-19T08:00:00'};eq('lista: myöhässä ennen tänään',E.chkTime(N6,T0).z.id,'z:late');
+// tekstin asiasanat ovat kohteita; kuittaus tallentuu t-merkillä ja näkyy vain, kun teksti laukaisee
+var C7={id:'c7',it:[{id:'b',ok:'2026-10-22T08:00:00'}]};
+eq('lista: tekstin asiasana nostaa',[E.chkRank(C7,rk,T0,NOW,{tt:['a']}),E.chkView(C7,{tt:['a']},NOW).map(function(v){return v.id+(v.t?'*':'');})],[0,['b','a*']]);
+C7.it.push({id:'a',t:1,ok:'2026-10-22T09:00:00'});eq('lista: tekstin kohteen kuittaus',[E.chkDone(C7,NOW,{tt:['a']}),E.chkView(C7,{},NOW).length],[true,1]);
+// tasatilanne: sama tärkein kohde, varhemmin laukeava ensin; muuten tärkeys voittaa ajan
+var D1={id:'d1',it:[{id:'b',ok:'2026-10-10T08:00:00',ev:5}]},D2={id:'d2',it:[{id:'b',ok:'2026-10-12T08:00:00',ev:5}]},D3={id:'d3',it:[{id:'a',at:'2026-10-21T08:00:00'}]};
+eq('lista: sama asiasana, varhemmin laukesi ensin',E.chkSort([D2,D1,D3],rk,T0,NOW).map(function(r){return r.id;}),['d3','d1','d2']);
+// tehdyt: seuraavan laukeamisen mukaan tärkeydestä riippumatta
+var F1={id:'f1',it:[{id:'a',ok:'2026-10-22T08:00:00',ev:30}]},F2={id:'f2',it:[{id:'b',ok:'2026-10-22T08:00:00',ev:3}]};
+eq('lista: tehdyt seuraavan laukeamisen mukaan',E.chkSort([F1,F2],rk,T0,NOW).map(function(r){return r.id;}),['f2','f1']);
 var X5={id:'a'};E.toggleItem(X5,NOW);var t1=!!X5.ok;E.toggleItem(X5,NOW);eq('lista: kohteen kuittaus kääntyy',[t1,X5.ok],[true,undefined]);
 var RX={id:'a',ok:'2026-10-01T08:00:00',ev:1};E.toggleItem(RX,NOW);eq('lista: rauennut kuitataan uudelleen',RX.ok,NOW.toISOString());
-var ND=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',tarkistuslista:[{id:'c',name:'Keittiö',it:[{id:'a',ok:'2026-10-22T08:00:00Z',ev:6},{id:'a'},{x:1},{id:'b',ev:-3}],any:true,pts:{'2026-10-22 09:00':'t'}},{name:'ei id'},{id:'old',f:[{id:'a',neg:1},{id:'z:today'}],ok:'2026-10-21T08:00:00Z'}]}]});
-eq('lista: normalisointi',[ND.K[0].chk.length,ND.K[0].chk[0].it,ND.K[0].chk[0].any,Object.keys(ND.K[0].chk[0].pts)],[2,[{id:'a',ok:'2026-10-22T08:00:00Z',ev:6},{id:'b'}],1,['2026-10-22 09:00']]);
-eq('lista: 1.38:n rivi muuttuu kohteiksi',[ND.K[0].chk[1].it,ND.K[0].chk[1].ok],[[{id:'a',ok:'2026-10-21T08:00:00Z'},{id:'z:today'}],undefined]);
+var ND=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',muistiinpanot:[{id:'m1',text:'Oma',created:'2026-10-20T08:00:00'}],tarkistuslista:[{id:'c',name:'Keittiö',text:'Suodatin to 9',created:'2026-10-20T08:00:00',it:[{id:'a',ok:'2026-10-22T08:00:00Z',ev:6},{id:'a'},{x:1},{id:'b',ev:-3,t:1,at:'x'}],any:true,pts:{'2026-10-22 09:00':'t'}},{name:'ei id'},{id:'old',f:[{id:'a',neg:1},{id:'z:today'}],ok:'2026-10-21T08:00:00Z'},{id:'l',nid:'m1',it:[]},{id:'l2',nid:'puuttuu',it:[]}]}]});
+var NK=ND.K[0],NC=NK.chk[0],NN=NK.notes.filter(function(n){return n.id===NC.nid;})[0];
+eq('lista: normalisointi',[NK.chk.length,NC.it,NC.any,NC.text,NC.pts],[4,[{id:'a',ok:'2026-10-22T08:00:00Z',ev:6},{id:'b',at:'x',t:1}],1,undefined,undefined]);
+eq('lista: vanha teksti muuttuu muistiinpanoksi',[NN&&NN.text,NN&&Object.keys(NN.pts),NK.notes.length],['Suodatin to 9',['2026-10-22 09:00'],2]);
+eq('lista: liitos säilyy, puuttuva katoaa',[NK.chk[2].nid,NK.chk[3].nid],['m1',undefined]);
+eq('lista: 1.38:n rivi muuttuu kohteiksi',[NK.chk[1].it,NK.chk[1].ok],[[{id:'a',ok:'2026-10-21T08:00:00Z'},{id:'z:today'}],undefined]);
 eq('lista: projektitiedostossa',E.projectFile({id:'k',name:'K',chk:[{id:'c'}]},'t').projekti.tarkistuslista.length,1);
 
 // 1.39 useat ajat samalle päivälle
