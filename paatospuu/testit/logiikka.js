@@ -433,4 +433,27 @@ var ND=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',tarkistu
 eq('lista: normalisointi',[ND.K[0].chk.length,ND.K[0].chk[0].f,ND.K[0].chk[0].ok,Object.keys(ND.K[0].chk[0].pts)],[1,[{id:'a',neg:1}],'2026-10-22T08:00:00Z',['2026-10-22 09:00']]);
 eq('lista: projektitiedostossa',E.projectFile({id:'k',name:'K',chk:[{id:'c'}]},'t').projekti.tarkistuslista.length,1);
 
+// 1.39 useat ajat samalle päivälle
+function tms(t){return E.noteDates({text:t,created:'2026-10-22T07:00:00'}).filter(function(o){return o.time;}).map(function(o){return o.a.slice(8)+' '+o.time.s+(o.time.e?'-'+o.time.e:'');});}
+eq('ketju väleinä',tms('to 9-10, 11-12, 13-14, 15-16'),['22 09:00-10:00','22 11:00-12:00','22 13:00-14:00','22 15:00-16:00']);
+eq('ketju ja-sanalla',tms('huomenna 9 ja 10 ja 11'),['23 09:00','23 10:00','23 11:00']);
+eq('rivit perivät päivän',tms('Huomenna:\nklo 9 palaveri\nklo 12 lounas\nklo 15 sali.'),['23 09:00','23 12:00','23 15:00']);
+eq('lauseet perivät päivän, uusi päivä vaihtaa',tms('Pe klo 10. La klo 12. Klo 14 sauna'),['23 10:00','24 12:00','24 14:00']);
+eq('pilkun jälkeen pelkkä luku ei ole aika',tms('pe klo 9, 3 kertaa'),['23 09:00']);
+var DN={text:'Tänään klo 9 a. Klo 9 b. Klo 9 c.',created:'2026-10-22T07:00:00'},DE=E.dayEntries([DN],'2026-10-22',30).timed;
+eq('sama aika kolmesti = kolme merkintää omilla kohdillaan',[DE.length,DE.map(function(x){return E.occKey('2026-10-22',x.o);})],[3,['2026-10-22 09:00','2026-10-22 09:00#1','2026-10-22 09:00#2']]);
+
+// 1.39 siirtohistoria
+var MV={text:'huomenna 9 ja 10 ja 11, Klo 14 sauna',created:'2026-10-22T07:00:00'};var mo=E.noteDates(MV).filter(function(o){return o.time;});
+var mx=E.dayEntries([MV],mo[1].a,30).timed.filter(function(x){return x.o.ts===mo[1].ts;})[0];E.moveEntry(mx,11*60,0,true);
+eq('siirto ilman klo-sanaa pysyy tyylissä',MV.text,'huomenna 9 ja 11 ja 11, Klo 14 sauna');
+mo=E.noteDates(MV).filter(function(o){return o.time;});mx=E.dayEntries([MV],mo[3].a,30).timed.filter(function(x){return x.o.ts===mo[3].ts;})[0];E.moveEntry(mx,15*60,0,true);
+eq('Klo säilyy isolla',MV.text,'huomenna 9 ja 11 ja 11, Klo 15 sauna');
+mo=E.noteDates(MV).filter(function(o){return o.time;});mx=E.dayEntries([MV],mo[3].a,30).timed.filter(function(x){return x.o.ts===mo[3].ts;})[0];E.moveEntry(mx,16*60,0,true);
+eq('historia ketjuuntuu',MV.mv.map(function(m){return m.w+'<'+m.h.map(function(x){return x.t;}).join('<');}),['11<10','Klo 16<Klo 14<Klo 15']);
+eq('historian kohta tekstissä',E.mvSpans(MV).map(function(x){return MV.text.slice(x.s,x.e);}),['11','Klo 16']);
+MV.text='huomenna 9 ja 12';E.mvClean(MV);eq('muokkauksessa kadonnut poistuu',MV.mv,undefined);
+var DY={text:'Hammas pe klo 14',created:'2026-10-22T07:00:00'};E.moveDay(DY,E.noteDates(DY)[0],'2026-10-27');eq('päivän siirto historiaan',[DY.text,DY.mv[0].h[0].t],['Hammas 27.10.2026 klo 14','pe klo 14']);
+eq('historia normalisoituu',E.normalizeData({app:'paatospuu',muistiinpanot:[{id:'x',text:'klo 9',mv:[{w:'klo 9',h:[{t:'klo 8',at:'a'},{t:1}]},{w:''}]}]}).notes[0].mv,[{w:'klo 9',h:[{t:'klo 8',at:'a'}]}]);
+
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);

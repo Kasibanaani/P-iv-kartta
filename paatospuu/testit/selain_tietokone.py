@@ -37,6 +37,11 @@ async def run(p,w,h):
         await pg.click('[data-tab="%s"]'%t); await pg.wait_for_timeout(120); await check('tab '+t)
     await pg.click('[data-tab="notes"]'); await pg.locator('#nlist .ncard').first.click(); await pg.wait_for_timeout(150); await check('muistiinpano ikkuna')
     await pg.click('#ns-ok'); await pg.wait_for_timeout(50)
+    # 1.39: napsautus Muistioiden tyhjään kohtaan tekee uuden
+    mb=await pg.locator('#main').bounding_box(); await pg.mouse.click(mb['x']+mb['width']/2,mb['y']+mb['height']-80); await pg.wait_for_timeout(80)
+    want('tyhjän kohdan napsautus avaa uuden muistiinpanon', await pg.is_visible('#nsheet') and await pg.inner_text('#ns-stamp')=='Uusi')
+    await pg.click('#ns-ok'); await pg.wait_for_timeout(50)
+    await pg.locator('#nlist .ncard').first.click(); await pg.wait_for_timeout(80); want('kortin napsautus avaa sen', await pg.inner_text('#ns-stamp')!='Uusi'); await pg.click('#ns-ok'); await pg.wait_for_timeout(50)
     st=lambda: pg.evaluate("JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0]")
     want('sivupalkki vasemmalla', (await pg.locator('#nav').bounding_box())['x']==0 and (await pg.locator('#nav').bounding_box())['height']>=h-1)
     # Opetus: tekstikenttä auki oikealla, kirjoitus päivittää puun ja napautus tekstin

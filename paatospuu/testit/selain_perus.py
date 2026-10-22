@@ -275,6 +275,13 @@ async def run(p,w,h):
     await pg.mouse.move(g['x']+30,g['y']+30); await pg.mouse.down(); want('väkänen katkoviivaksi', 'rs' in await ev.get_attribute('class'))
     for k in range(1,4): await pg.mouse.move(g['x']+30,g['y']+30+k*8)
     await pg.mouse.up(); await pg.wait_for_timeout(100); want('koon muutos', await nt()=='Kalenteritesti klo 11–12.30')
+    # 1.39: siirtohistoria tekstissä
+    hist=await pg.evaluate("JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0].muistiinpanot.filter(function(n){return n.text.indexOf('Kalenteritesti')===0;})[0].mv")
+    want('siirtohistoria tallessa', hist and hist[0]['w']=='klo 11–12.30' and [x['t'] for x in hist[0]['h']]==['klo 10–11','klo 11–12'])
+    await pg.locator('#timeline .ev:has-text("Kalenteritesti")').click(); await pg.wait_for_timeout(60); want('siirretty aika korostettu', await pg.locator('#ns-hl .rel').count()==1)
+    await pg.evaluate("(function(){var t=document.getElementById('ns-text');t.focus();t.setSelectionRange(17,17);t.dispatchEvent(new Event('click'));})()"); await pg.wait_for_timeout(40)
+    want('napautus näyttää historian', 'Muutettu kalenterissa' in await pg.inner_text('#ns-ov') and '”klo 10–11” → ”klo 11–12”' in await pg.inner_text('#ns-ov')); await check('siirtohistoria')
+    await pg.click('#ns-ok'); await pg.wait_for_timeout(50)
     ev=pg.locator('#timeline .ev:has-text("Kenttäaika")'); await pg.evaluate("(function(){var m=document.getElementById('main');m.scrollTop+=200;})()"); await pg.wait_for_timeout(50); bb=await ev.bounding_box()
     await pg.mouse.move(bb['x']+10,bb['y']+10); await pg.mouse.down(); await pg.wait_for_timeout(450)
     for k in range(1,4): await pg.mouse.move(bb['x']+10,bb['y']+10+k*8)

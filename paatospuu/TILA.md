@@ -1,6 +1,6 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.38 (tarkistuslista Muistioiden Lista-välilehdellä; kalenterin kuittaus vain kalenterin kerros); jonossa 1.39 raahauksen aikamuutokset ja historia, yhden päivän useat merkinnät, tietokoneella klikkaus tyhjään = uusi muistiinpano · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
+**Vaihe:** versio 1.39 (kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -316,6 +316,14 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Kalenteri on oma kerroksensa** (Emil): kalenterin kuittaus on aina vain ”huomioitu kalenterin osalta”. 1.34:n sääntö (kaikki kohdat kuitattu → koko muistiinpano kuitattu) poistettu; koko muistiinpano kuitataan Muistioista.
 - Rakentajan ratkaisut: kääntöpuolta ei vielä käytetä erikseen (kuittaus = tekijät valittuina); listan järjestystä ei voi vielä raahata; kuittaus ei nollaudu itsestään.
 - Testit: logiikka 318 ok; selain 390/320 (rivin luonti, tekijän kierto, kuittaus, ☰-merkintä kalenterissa, huomiointi kalenterissa) ja 1440/1280 ennallaan; 1440-kuva sarakkeista tarkistettu.
+
+## Versio 1.39 (22.10.2026, Emilin toiveet): useat ajat, siirtohistoria
+
+- **Niin monta merkintää kuin aikoja:** pelkkä kellonaika perii edellisen yhden päivän ajankohdan myös seuraavilla riveillä ja lauseissa, kunnes tulee uusi päivä (aiemmin rivinvaihto ja piste katkaisivat). Ketju ilman klo-sanaa: pilkun jälkeen väli tai minuutit (*to 9–10, 11–12*), ja-sanan jälkeen myös tasatunti (*huomenna 9 ja 10*). Pilkun jälkeinen pelkkä luku ei ole aika (*klo 9, 3 kertaa*). Sama aika monta kertaa = monta merkintää, kullakin oma kuittauskohta (`päivä aika#n`). Korjattu samalla: *Pe klo 10. La klo 12.* antoi lauantainkin perjantaille.
+- **Siirto muuttaa oikean kohdan** ja säilyttää tyylin: klo-sanaton pysyy klo-sanattomana, *Klo* isolla pysyy. Tarkistettu: ketjun keskimmäinen, väli, perityn päivän aika, päivän perässä oleva luku, minuutit.
+- **Siirtohistoria:** muistiinpanon kenttä `mv: [{w, h:[{t, at}]}]`. Muutettu kohta katkoviivalla tekstikentässä ja kortissa; napautus näyttää ”Muutettu kalenterissa: 22.10.2026 klo 12.40: ”klo 10–11” → ”klo 11–12””. Ketju jatkuu siirrosta toiseen; muokkauksessa kadonnut kohta poistuu historiasta. Päivän siirto (pudotus toiselle päivälle) kirjautuu samoin. Listan rivillä historia näkyy rivin ikkunan Kalenteriin-kohdan alla.
+- **Tietokone:** napsautus Muistioiden tyhjään kohtaan tekee uuden (Listalla rivin, Toistuvissa toistuvan). Vain hiirellä (hover + tarkka osoitin), puhelimella ei.
+- Testit: logiikka 331 ok; selain 390/320 (siirtohistoria tallessa, korostus, napautus näyttää historian) ja 1440/1280 (tyhjän kohdan napsautus, kortin napsautus avaa kortin).
 
 ## Tietokoneversio: pohdinta (Emil 22.10.2026, ei rakennettu)
 
