@@ -16,7 +16,8 @@ async def main():
             await pg.click(L);await pg.wait_for_timeout(200)
             J=await P(pg,"KK.jkFind(P,'eläimet')")
             sel=pg.locator('#insp [data-k="ryh"]')
-            if await pg.evaluate("()=>{var e=document.querySelector('#insp [data-k=\"ryh\"]');return e&&e.tagName==='SELECT';}"):await sel.select_option(J)
+            if await pg.locator('#insp [data-lsl]').count():await pg.select_option('#insp [data-lsl]','j:'+J)  # 119: Lähde-valinta
+            elif await pg.evaluate("()=>{var e=document.querySelector('#insp [data-k=\"ryh\"]');return e&&e.tagName==='SELECT';}"):await sel.select_option(J)
             else:await pg.click('#insp [data-k="ryh"] [data-v="%s"], #insp [data-seg="ryh"] [data-v="%s"]'%(J,J))
             await pg.wait_for_timeout(250)
             async def tila():return await pg.evaluate("(s)=>[Array.from(document.querySelectorAll(s+' .lr .lt')).map(e=>e.textContent),!!document.querySelector(s+' .ladd'),document.querySelectorAll(s+' .lr.done').length]",L)
