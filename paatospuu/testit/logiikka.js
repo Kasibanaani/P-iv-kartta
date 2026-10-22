@@ -421,4 +421,16 @@ E.relSweep(XN,'2026-10-30');eq('itse kirjoitettu ei muutu',XN.text,'Kokous 24.10
 var WN=rlk('Sauna lauantaina','2026-10-22T09:00:00');E.relSweep(WN,'2026-10-23');eq('viikonpäivä pysyy viikon sisällä',WN.text,'Sauna huomenna');
 eq('normalisointi säilyttää',E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',muistiinpanot:[{id:'n',text:'a huomenna',created:'2026-10-22T09:00:00',rel:[{w:'huomenna',o:'huomenna',at:'2026-10-22T09:00:00.000Z',d:'2026-10-23'},{w:'x'}]}]}]}).K[0].notes[0].rel.length,1);
 
+// 1.38 tarkistuslista
+var rk={'a':0,'b':1,'z:today':2},T0='2026-10-22';
+var C1={id:'c1',text:'x',f:[{id:'b'}]},C2={id:'c2',text:'y',f:[{id:'a',neg:1}]},C3={id:'c3',text:'z',f:[]};
+eq('lista: puuttuva nostaa kuittaamatta',E.chkSort([C3,C1,C2],rk,T0).map(function(r){return r.id;}),['c2','c1','c3']);
+C2.ok='2026-10-22T08:00:00Z';eq('lista: kuitattu puuttuva väistyy, oma järjestys',E.chkSort([C3,C1,C2],rk,T0).map(function(r){return r.id;}),['c1','c3','c2']);
+var C4={id:'c4',text:'Tarkista 22.10.2026',created:'2026-10-20T08:00:00',f:[{id:'a',neg:1},{id:'z:today'}]};
+eq('lista: aikaehto täyttyy',E.chkRank(C4,rk,T0),0);eq('lista: aikaehto ei täyty',E.chkRank(C4,rk,'2026-10-21'),Infinity);
+var CF={f:[]};E.cycleF(CF,'a');var s1=JSON.stringify(CF.f);E.cycleF(CF,'a');var s2=JSON.stringify(CF.f);E.cycleF(CF,'a');eq('lista: tekijä kiertää',[s1,s2,CF.f.length],['[{"id":"a"}]','[{"id":"a","neg":1}]',0]);
+var ND=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',tarkistuslista:[{id:'c',name:'Lääkkeet',text:'klo 9',f:[{id:'a',neg:true},{id:'a'},{x:1}],ok:'2026-10-22T08:00:00Z',pts:{'2026-10-22 09:00':'t'}},{name:'ei id'}]}]});
+eq('lista: normalisointi',[ND.K[0].chk.length,ND.K[0].chk[0].f,ND.K[0].chk[0].ok,Object.keys(ND.K[0].chk[0].pts)],[1,[{id:'a',neg:1}],'2026-10-22T08:00:00Z',['2026-10-22 09:00']]);
+eq('lista: projektitiedostossa',E.projectFile({id:'k',name:'K',chk:[{id:'c'}]},'t').projekti.tarkistuslista.length,1);
+
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);

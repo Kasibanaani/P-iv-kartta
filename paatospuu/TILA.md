@@ -1,6 +1,6 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.37 (puhelimen pitoviiva kalenterissa; 1.36 suhteellisten aikojen lukitus) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
+**Vaihe:** versio 1.38 (tarkistuslista Muistioiden Lista-välilehdellä; kalenterin kuittaus vain kalenterin kerros); jonossa 1.39 raahauksen aikamuutokset ja historia, yhden päivän useat merkinnät, tietokoneella klikkaus tyhjään = uusi muistiinpano · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -307,6 +307,16 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Hipaisu tai vieritys ennen pitoaikaa ei tee mitään, kuten ennen. Hiiri ennallaan (napsautus ja veto).
 - Testit: selain 390/320 kosketuksen osoitintapahtumilla (ei viivaa ennen pitoaikaa, viiva 4.00, raahaus 6.45, nosto avaa 06:45, himmennys, peruutus, hipaisu ei avaa).
 
+## Versio 1.38 (22.10.2026, Emilin toive): tarkistuslista, kalenteri omana kerroksenaan
+
+- **Lista** on Muistioiden neljäs välilehti (Avoimet, Kuitatut, Toistuvat, Lista). Rivi: **nimi** (vapaa, ehdottaa asiasanoja), **teksti** ja **tärkeyden tekijät**. Tietokoneella sarakkeet otsikkoineen, puhelimella kortti. Tallennus projektin kenttään `tarkistuslista` (myös projektin vienti); vanhat tiedostot toimivat.
+- **Teksti:** aika tekstissä tekee rivistä kalenterimerkinnän (merkki ☰, katkoviivareuna). Kalenterissa sitä voi siirtää kuten muitakin (teksti muuttuu), napautus avaa rivin ikkunan, jossa *Huomioitu kalenterissa (pv klo)*. Se ei kuittaa riviä eikä poista sitä listalta; listalla näkyy ”Kalenterissa huomioitu …” ilman yliviivausta.
+- **Tärkeys** samoin perustein kuin muistiinpanoissa (tähdellä merkityt asiasanat ja niiden perimät sijat). Tekijän napautus kiertää: **+** (sija aina) → **ei** (puuttuminen: sija vain, kun riviä ei ole kuitattu) → pois. Aika-asiasanat ovat ehtoja (+ jokin osuu, ei = ei saa osua). Samantärkeät omassa järjestyksessä (lisäysjärjestys).
+- **Koko rivin kuittaus** ympyrästä: tekijät ovat silloin valittuina, puuttumisen sija väistyy. Teksti ei yliviivaudu, uusi napautus palauttaa.
+- **Kalenteri on oma kerroksensa** (Emil): kalenterin kuittaus on aina vain ”huomioitu kalenterin osalta”. 1.34:n sääntö (kaikki kohdat kuitattu → koko muistiinpano kuitattu) poistettu; koko muistiinpano kuitataan Muistioista.
+- Rakentajan ratkaisut: kääntöpuolta ei vielä käytetä erikseen (kuittaus = tekijät valittuina); listan järjestystä ei voi vielä raahata; kuittaus ei nollaudu itsestään.
+- Testit: logiikka 318 ok; selain 390/320 (rivin luonti, tekijän kierto, kuittaus, ☰-merkintä kalenterissa, huomiointi kalenterissa) ja 1440/1280 ennallaan; 1440-kuva sarakkeista tarkistettu.
+
 ## Tietokoneversio: pohdinta (Emil 22.10.2026, ei rakennettu)
 
 - Emilin toive: sama appi, johon voi lisätä vain tietokoneella käytettäviä toimintoja (esim. laskentataulukkomainen, ehtojen mukaan priorisoituva tarkistuslista). Vaihtoehto: erillinen tietokoneappi, jonka projektit siirtyvät puhelimeen, ja projektin yhteensopivuuden tarkistus.
@@ -315,6 +325,7 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 ## Ei tarkistettu
 
+- Oikealla iPhonella ei kokeiltu (1.38): neljän välilehden mahtuminen (320 px:llä tiukka), nimikentän asiasanaehdotukset (datalist) Safarissa.
 - Oikealla iPhonella ei kokeiltu (1.37): pysyykö vieritys lukossa viivaa raahatessa Safarissa (estetään touchmove-tapahtumalla), osuuko aikalappu sormen alle, onko 56 px sopiva peruutusraja.
 - Oikealla iPhonella ei kokeiltu (1.36): kursorin osuminen katkoviivaiseen sanaan napautuksella, sanan vaihtuminen kun appi on ollut taustalla yön yli. Päivän vaihtumista ei kokeiltu oikeasti, vaan tallennettua dataa muokkaamalla.
 - Oikealla iPhonella ei kokeiltu (1.35): lyhyen pidon tuntuma (0,25 s), aukeaako tekstin valinta tai iOS:n suurennuslasi pidossa, renkaan näkyvyys päiväruudussa.
@@ -347,6 +358,7 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 ## Avoimet kysymykset
 
+- Avoin (1.38): nollautuuko rivin kuittaus itsestään (esim. kun rivin seuraava aika tulee)? Pitääkö rivejä voida raahata omaan järjestykseen? Miten kääntöpuoli näkyy kuitatulla rivillä?
 - Avoin (Emil 22.10.2026, pohdinta, ei rakennettu): (1) automaattimuistutus suoraan tekstin sanoista, (2) palikat yhdeksi tunnistettavaksi sanaksi, jolle valitaan käytöt Rakenna-puolella, (3) suhteellinen aika (Myöhässä/Tänään/Huomenna) triggerinä JA-ehdoissa. Rakentajan suositus: ensin 3 (aika-asiasanat suodattimeen ja JA-ehtoihin, nyt vain Tärkeys-järjestyksessä), sitten 1 asiasanan käyttönä, 2 suunnitelmana ennen rakentamista; käytöt kytkiminä, ei rullaamalla. Odottaa Emilin valintaa.
 - Avoin (Emil 22.10.2026, pohdinta, ei rakennettu): **sääntötaulukko** ensisijaisesti muistiinpanoille (myöhemmin ehkä puille): sarakkeet *mikä triggeröi* (tekstin sana, asiasana, palikka, aika-asiasana, kielto) ja *mitä* (asiasana, ilmoitus, automaattinen muistiinpano suhteelliseen aikaan), ja/tai, lisäävä/poissulkeva. Rakentajan kanta: tulospuoli aina "kaikki nämä", yksi rivi joko kaikki tai jokin, puhelimella kortti "Kun … → niin …", taulukko tietokoneella, säännöt tekstinä, kehän esto. Ehdotettu seuraava askel: suunnitelma "Sääntötaulukko" (Emilin "suunnittele"). Emil: tulostyypit ainakin (a) muistutus (uusi automaattinen muistiinpano), (b) lisäys triggeröivään muistiinpanoon (rakentajan tulkinta: tekstiä sen perään kuten 1.30:n ilmoitukset), (c) uusia liitettyjä asiasanoja. Emilin päätökset 22.10. klo 12: yksi rivi = yksi sääntö; ristiriidassa ylempi rivi voittaa ja alempi ei tallennu; triggerit ja tulokset valitaan valikosta; triggerisarakkeessa ja/tai-nappi, kummassakin sarakkeessa lisäys/poissulku-nappi, jotka kiertävät napauttamalla; tulospuolella ei "tai":ta, kaikki tulokset toteutuvat (Emil 22.10.). Tyhjän solun napautus avaa vaihtoehdot. Avoin: tallentuuko ristiriitainen alempi rivi punaisena "ei voimassa" (rakentajan ehdotus) vai estetäänkö tallennus.
 - Vaihe 9 valmis: Emil valtuutti 21.10. illalla jatkamaan suositusten mukaan, joten Hoidettavat ja Puuttuu pysyvät molemmat muistiinpanossa.

@@ -319,9 +319,12 @@ async def run(p,w,h):
     want('tunnin numero viivan alla', 0<=lb<=4)
     # kuittaus kalenterista: jää näkyviin erinäköisenä, arkistointi vie pois
     await pg.click('#timeline .ev:has-text("Kalenterista lisätty")'); await pg.wait_for_timeout(50); want('kuittausnappi ikkunassa', await pg.is_visible('#ns-done') and not await pg.is_visible('#ns-arch'))
-    await pg.click('#ns-done'); want('arkistointi toisena valintana', await pg.is_visible('#ns-arch') and await pg.inner_text('#ns-done')=='Palauta avoimeksi'); await pg.click('#ns-ok'); await pg.wait_for_timeout(80)
+    await pg.click('#ns-done'); want('kalenterin kuittaus vain kohta', await pg.inner_text('#ns-done')=='Palauta tämä kohta' and not await pg.is_visible('#ns-arch')); await pg.click('#ns-ok'); await pg.wait_for_timeout(80)
+    kn=await nts('Kalenterista'); want('kalenteri ei kuittaa muistiinpanoa', not kn.get('done') and kn.get('pts'))
     kev=pg.locator('#timeline .ev:has-text("Kalenterista lisätty")'); want('kuitattu jää kalenteriin erinäköisenä', await kev.count()==1 and 'done' in await kev.get_attribute('class')); await check('kuitattu kalenterissa')
-    await kev.click(); await pg.wait_for_timeout(50); await pg.click('#ns-arch'); await pg.click('#ns-ok'); await pg.wait_for_timeout(80)
+    await pg.evaluate("(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1'));o.kokonaisuudet[0].muistiinpanot.forEach(function(x){if(x.text.indexOf('Kalenterista')===0)x.done=new Date().toISOString();});localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()")
+    await pg.reload(); await pg.wait_for_timeout(120); await pg.click('[data-tab="cal"]'); await pg.wait_for_timeout(120)
+    await kev.click(); await pg.wait_for_timeout(50); want('Muistioista kuitattu: arkistointi tarjolla', await pg.is_visible('#ns-arch')); await pg.click('#ns-arch'); await pg.click('#ns-ok'); await pg.wait_for_timeout(80)
     want('arkistoitu pois kalenterista', await pg.locator('#timeline .ev:has-text("Kalenterista lisätty")').count()==0 and (await nts('Kalenterista')).get('arch'))
     async def drag(src,tx,ty,shot=None):
         bb=await pg.locator(src).bounding_box(); x0=bb['x']+min(30,bb['width']/2); y0=bb['y']+bb['height']/2
@@ -437,6 +440,20 @@ async def run(p,w,h):
     await pg.click('[data-tab="notes"]'); await pg.wait_for_timeout(50); await check('tyyli muistiot'); await pg.click('[data-tab="cal"]'); await pg.wait_for_timeout(100); await check('tyyli kalenteri')
     await pg.click('[data-tab="set"]'); await pg.click('#set-font [data-v="system"]'); await pg.click('#set-edge [data-v="soft"]'); await pg.click('#set-glass [data-v="off"]')
     await pg.reload(); await pg.wait_for_timeout(100); want('tyyliasetus tallessa', await pg.evaluate("document.documentElement.dataset.font")=='system' and await pg.evaluate("document.title")=='Juuri')
+    # 1.38: tarkistuslista
+    await pg.click('[data-tab="notes"]'); await pg.click('#noteview [data-nv="chk"]'); await pg.wait_for_timeout(50); await check('lista tyhjä')
+    await pg.click('#newnote'); await pg.wait_for_timeout(50); want('listan rivin ikkuna', await pg.is_visible('#ksheet'))
+    await pg.fill('#ks-name','Lääkkeet'); await pg.fill('#ks-text','Aamulääkkeet tänään klo 8'); await pg.dispatch_event('#ks-text','input')
+    want('listan aika tunnistuu', 'Kalenteriin' in await pg.inner_text('#ks-found'))
+    fc=pg.locator('#ks-f .chip').first; ftxt=(await fc.inner_text()); await fc.click(); await pg.locator('#ks-f .chip').first.click()
+    want('tekijä puuttuvaksi', (await pg.locator('#ks-f .chip').first.inner_text()).startswith('ei ')); await check('listan rivi ikkuna'); await pg.click('#ks-ok'); await pg.wait_for_timeout(60)
+    cr=pg.locator('#chlist .crow'); want('rivi listalla', await cr.count()==1 and 'Lääkkeet' in await cr.inner_text() and await cr.locator('.cf i.neg').count()==1); await check('lista rivi')
+    await cr.locator('.ck').click(); await pg.wait_for_timeout(40); want('rivin kuittaus', await pg.locator('#chlist .crow .ck[aria-pressed="true"]').count()==1 and 'Aamulääkkeet' in await pg.inner_text('#chlist'))
+    await pg.click('[data-tab="cal"]'); await pg.wait_for_timeout(100); lev=pg.locator('#timeline .ev.lst:has-text("Lääkkeet")'); want('listan rivi kalenterissa merkillä', await lev.count()==1)
+    await lev.click(); await pg.wait_for_timeout(60); want('kalenterista avautuu rivin ikkuna', await pg.is_visible('#ksheet') and await pg.is_visible('#ks-occ'))
+    await pg.click('#ks-occ'); await pg.click('#ks-ok'); await pg.wait_for_timeout(60); want('huomioitu kalenterissa', 'done' in await pg.locator('#timeline .ev.lst').get_attribute('class'))
+    await pg.click('[data-tab="notes"]'); await pg.wait_for_timeout(50); want('listalla näkyy kalenterin huomiointi', 'Kalenterissa huomioitu' in await pg.inner_text('#chlist') and await pg.locator('#chlist .crow').count()==1)
+    await pg.click('#noteview [data-nv="open"]'); await pg.wait_for_timeout(40)
     # 1.36: suhteellinen sana lukittuu ja muuttuu päivän tullen, napautus näyttää alkuperäisen
     await pg.click('[data-tab="notes"]'); await pg.click('#newnote'); await pg.wait_for_timeout(50); await pg.fill('#ns-text','Lukkotesti huomenna'); await pg.dispatch_event('#ns-text','input'); await pg.click('#ns-ok'); await pg.wait_for_timeout(80)
     lt=await pg.evaluate("JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0].muistiinpanot.filter(function(n){return n.text.indexOf('Lukkotesti')===0;})[0]"); want('lukko tallessa', len(lt.get('rel') or [])==1 and lt['rel'][0]['o']=='huomenna')
