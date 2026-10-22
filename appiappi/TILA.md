@@ -1,12 +1,12 @@
 # Appi-appi: tila
 
-**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 22.10.2026 (Appi-appi 112, Kuolema-alue, Avain ja ovi, Portti)
+**Vaihe:** kokeilussa, laajennus kehitteillä · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/appiappi/ · **Päivitetty:** 22.10.2026 (Appi-appi 114, hyllyjen nimet)
 
 Kytköskartan kopio, johon tuodaan Masterin ominaisuuksia vaiheittain (puhelin- ja iPad-näkymät, maailma ja hahmon liike, myöhemmin vienti omaksi appiksi). Ristiriidoissa Kytköskartan logiikka voittaa. Suunnitelma: `SUUNNITELMA.md` ja `suunnitelmat/`; vanhempien vaiheiden päätökset `VERTAILU.md`. Toteutettujen versioiden yksityiskohdat, tallennuskentät ja kokeiluohjeet: `MUUTOKSET.md`.
 
 ## Valmiina
 
-- Appi-appi 0–113 ja Pajakone 1–4: versioittain `MUUTOKSET.md` (uusin ensin, myös kunkin version *Ei tarkistettu* ja *Kokeile koneella*). Käyttäjän näkökulmasta koko appi: `manuaali/`. Vanhat Valmiina-rivit: `TILA-arkisto.md`.
+- Appi-appi 0–114 ja Pajakone 1–4: versioittain `MUUTOKSET.md` (uusin ensin, myös kunkin version *Ei tarkistettu* ja *Kokeile koneella*). Käyttäjän näkökulmasta koko appi: `manuaali/`. Vanhat Valmiina-rivit: `TILA-arkisto.md`.
 - **Uusi versio** kirjataan vain `MUUTOKSET.md`:hen; tänne ei lisätä riviä.
 
 ## Jono
@@ -27,7 +27,7 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 19. **2D-pelit F35, vaihe D, jatkot: tehty Appi-appi 104** (kaista B: laattalajin liukkaus = jää, rakennuslaatikon Jää-laji, Kolikot laattoina ja Painelaatta, koeappi D `master-tiedot/appiappi/ptasoloikka.json`; yksityiskohdat `MUUTOKSET.md`). Jonon 21:n Kuolema-alue, Avain ja ovi, Portti tehty Appi-appi 112.
 20. **2D-pelit F35, vaihe E1: piirtoruudukko ja pikseliulkoasu: tehty Appi-appi 108** (kaista B; piirroskirjasto `P.px`, piirtoikkuna, Kuvan ja kuvasarjan piirrokset, laattalajin ilme, rakennuslaatikon *＋ Piirrä uusi palikka*, näkymän Pikselitarkka `pxt`; yksityiskohdat `MUUTOKSET.md`). Seuraava: 20b (ohjainten tilakohtaiset piirrokset, `ilme`-ominaisuus).
 20b. **2D-pelit F35, vaihe E2: piirretty ilme ohjaimille: tehty Appi-appi 110** (kaista B; osio Ilme Tavallinen/Piirros, tilakohtaiset piirrokset, osat kisko/täyttö/nuppi/pohja, ominaisuus `ilme`; yksityiskohdat `MUUTOKSET.md`). Ei tehty: valmiit piirretyt presetit rakennuslaatikkoon.
-21. **2D-pelit F35, vaihe F: kelluva rakennuslaatikko** (suunnitelma 19 kohta 7): **laatikko tehty Appi-appi 61:ssä, Laatat-hylly, tasoloikkahahmo, lentäjä sekä painovoima-, vesi- ja tikasalueet Appi-appi 84:ssä, kamera (pelaaja seurattavaksi, ohjaimet lukittuun kerrokseen, Kameran rajat, Kamera seuraa) Appi-appi 96:ssa.** Jäljellä: Painelaatta (vaiheen D *astuttu*), Pikselitarkka (E1), Kuolema-alue, Avain ja ovi, Portti **tehty Appi-appi 112** (kaista B, `RL_IT`); hyllyjen uudelleennimeäminen ei tehty. Ei tallennusmuotoa.
+21. **2D-pelit F35, vaihe F: kelluva rakennuslaatikko** (suunnitelma 19 kohta 7): **laatikko tehty Appi-appi 61:ssä, Laatat-hylly, tasoloikkahahmo, lentäjä sekä painovoima-, vesi- ja tikasalueet Appi-appi 84:ssä, kamera (pelaaja seurattavaksi, ohjaimet lukittuun kerrokseen, Kameran rajat, Kamera seuraa) Appi-appi 96:ssa.** Jäljellä: Painelaatta (vaiheen D *astuttu*), Pikselitarkka (E1), Kuolema-alue, Avain ja ovi, Portti **tehty Appi-appi 112** (kaista B, `RL_IT`); hyllyjen uudelleennimeäminen **tehty Appi-appi 114**. Kohta valmis. Ei tallennusmuotoa.
 22b. **Aukot ja paikat F43, vaihe 1: Alueen pikakoot ja raja** (Emil hyväksyi 18.10.; `suunnitelmat/27-aukot-ja-paikat.md` kohdat 3.2–3.3; **tallennusmuoto laajenee**, Alueen `kork:'sis'`, näkymän uusi `lrul`-arvo): Alueen napit *Ruudun kokoinen*, *Ruudun levyinen*, valinta *Korkeus: sisällön mukaan*; laitenäkymässä Siirry alueeseen vaihtaa myös maailman rajan (nyt kiinteä `v.kam.ra`); ruudulle vieritystapa *Koko alue näkyy*. Vanha projekti ennallaan.
 22c. **Aukot ja paikat F43, vaihe 2: Aukko-palikka** (suunnitelma 27 kohta 3.1; **tallennusmuoto laajenee**, uusi laji ja Alueen `va`; 22b:n jälkeen): näkymäpalikka näyttää Alueen omassa vierivässä kehyksessään (samat palikat, ei kopioita), *Vain aukossa*, vieritystavat (oletus *pystyyn, leveys sovitettu*), elävä esikatselu, ✎ Muokkaa sisältöä, ominaisuudet `alue`, `vieritysx/y`, `auki`, tapahtumat avautui/sulkeutui/napautettu ulkopuolelta/vieritetty loppuun, sisään vieritä alkuun; sama Alue yhdessä aukossa kerrallaan. Nimi *Aukko*.
 22d. **Aukot ja paikat F43, vaihe 3: kiinnitys ja presetit** (suunnitelma 27 kohdat 3.1 ja 4; **tallennusmuoto laajenee**, Aukon kiinnitys; 22c:n jälkeen): kiinnitys palikan alle/viereen, ruudun keskelle, alareunasta, pysyy ruudun sisällä; presetit *Avattava valikko*, *Alareunasta nouseva paneeli*, *Ponnahdus keskelle*; kalenteriesimerkki kohdasta 4 kokeena.
@@ -46,9 +46,9 @@ Emilin päätös 17.10.2026: kaikki alla olevat linjaukset tekoälyn suositusten
 
 ## Seuraavaksi
 
-- **Uusin vienti:** Appi-appi 113 (kaista A, jono 42e osa 1: Lista ryhmästä; tallennusmuoto laajeni, FORMAT-vuoro vapautuu). Versiot ja kokeiluohjeet vain `MUUTOKSET.md`:ssä; tähän vain uusin vienti ja laskuri (korvaa edellinen). Edelliset: 112 (kaista B, Kuolema-alue, Avain ja ovi, Portti) ja 111 (kaista A, tekstin osat). **Kartoituslaskuri 8/10** (kartoitus 14 tehty 105:n jälkeen).
+- **Uusin vienti:** Appi-appi 114 (kaista B, jonon 21 loppu: rakennuslaatikon hyllyjen nimet; ei tallennusmuotoa). Versiot ja kokeiluohjeet vain `MUUTOKSET.md`:ssä; tähän vain uusin vienti ja laskuri (korvaa edellinen). Edelliset: 113 (kaista A, jono 42e osa 1: Lista ryhmästä, FORMAT) ja 112 (kaista B, Kuolema-alue, Avain ja ovi, Portti). **Kartoituslaskuri 9/10** (kartoitus 14 tehty 105:n jälkeen).
 - **Linjakkuuskartoitus 14 tehty 21.10.** (95–105, `kartoitukset/2026-10-21-linjakkuus-14.md`): linja pitää; saumat Kello-esiasetuksessa ja palikan nimessä tekstinä → jonon 1y. Manuaali koottu *Manuaaliin:*-riveistä 95–105. S4 päätetty (Emil 21.10.): `=` pysyy vertailuna ja asetuksena, vihje jonon 40g:ssä.
-- **Seuraavaksi:** kehitys jatkuu (Emil 21.10.): kaista A jonon 42e2; kaista B seuraava vapaa 2D-kohta (jonon 21 jatkot tehty 112:ssa). Tallennusmuodon vuoro kaista A:lla (42e2). 37d–f odottavat Emiliä.
+- **Seuraavaksi:** kehitys jatkuu (Emil 21.10.): kaista A jonon 42e2; kaista B: jono 21 valmis 114:ssä; seuraava vapaa kohta (esim. 35 (a)) vasta linjakkuuskartoituksen 15 jälkeen. Tallennusmuodon vuoro kaista A:lla (42e2). 37d–f odottavat Emiliä.
 - **Linjakkuuskartoitukset:** viimeisin ja aiemmat luetellaan `PALIKKASAANNOT.md`:n lopussa; tehtyjen kartoitusten yhteenvedot `TILA-arkisto.md`:ssä.
 - **Koeapit (Appi-appi 23) toivat esiin:** tekstihaku (Appi-appi 30) ja taulukon `eka`/`vika` (Appi-appi 31) tehty. Ei jonossa: kapeassa kortissa Lukukentän omat −/+ peittävät luvun, joten C näyttää määrän Tekstinä.
 - Järjestys: Jono yllä. Kokonaiskuva ja loput paketit (P4–P7): `SUUNNITELMA.md`.

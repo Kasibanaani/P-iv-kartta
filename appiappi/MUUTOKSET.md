@@ -4,6 +4,14 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
 
 ## Versiot
 
+- Appi-appi 114 (22.10., kaista B, jonon 21 viimeinen osa, suunnitelma 19 kohta 7; **ei tallennusmuodon muutosta**: nimet ovat laitteen asetus kuten laatikon paikka): **Rakennuslaatikon hyllyt voi nimetä uudelleen.**
+  - *muokkaa*-tilassa valitun hyllyn yläpuolella kenttä **Hyllyn nimi** (enintään 24 merkkiä). Enter tai kentästä poistuminen vaihtaa välilehden nimen; alkuperäinen näkyy vihjeenä ja välilehden työkaluvihjeenä. Tyhjä tai alkuperäinen nimi palauttaa. Sisältö ei muutu.
+  - Tallennus vain tällä laitteella (`localStorage`, rakennuslaatikon asetukset, kenttä `nimet`), ei projektiin eikä vientiin.
+  - Testi: `selain_150_hyllynimet.py` (1440 ja 1280: nimi, vihje, uudelleenlataus, tyhjä palauttaa, kirjoitus ei poista valittua palikkaa). Pieni käyttöliittymän muutos ilman moottoria: kohdennetut testit (logiikka kaikki, rakennuslaatikon selaintestit 100, 123, 133, 148, 150), ei koko sarjaa.
+  - Ristikokeilu kaista A:n 113:n (Lista ryhmästä, FORMAT) ja 111:n kanssa: ei yhteistä koodia (rakennuslaatikon UI), kohdennetut testit 113:n päällä läpi (126 testiä, myös A:n selain_149).
+  - Manuaaliin: rakennuslaatikon luku, kohta *muokkaa*: hyllyn nimen vaihto (vain tällä laitteella, tyhjä palauttaa). Hakemistoon: *hyllyn nimi*.
+  - Ei tarkistettu: oikea iPhone/Safari; tumma tila silmämääräisesti.
+  - Kokeile koneella (Chromium): Rakennuslaatikko → muokkaa → kirjoita Hyllyn nimi → Enter → valmis.
 - Appi-appi 113 (22.10., kaista A, jonon 42e osa 1, suunnitelma 31 V3; **tallennusmuoto laajenee** valinnaisella kentällä Listan `ryh` ja käyttötiedon avaimella `ra:<palikka>`, versio pysyy 12; vanhat projektit ennallaan): **Lista ryhmästä.**
   - Listan paneelissa **Rivit**: *Omat rivit* (ennallaan) tai *Ryhmästä #eläimet*. Ryhmästä: rivit ovat ryhmän jäsenet ryhmän järjestyksessä (tagit, `@x`-rivit, `kuuluu, kun` -rivi, Lisää joukkoon), rivin teksti on jäsenen arvo tekstinä (tyhjä → nimi). Pohjarivit, päivämääräsarake ja *Lisää rivi* -kenttä eivät näy ryhmälistassa.
   - Käytössä: rasti on jäsenen uusi ominaisuus **`.rasti`** (kyllä/ei, käyttötietoa, Palauta nollaa; `@koira.rasti`, `#eläimet.rasti.summa`); rivin muokkaus muuttaa jäsentä (Muisti saa käyttöarvon, Arvo-yleispalikka uuden tekstin kuten logiikassa kirjoitettuna); × poistaa jäsenen ryhmästä (Poista joukosta, Palauta palauttaa). Listan `rastitettuja`, `rivejä`, `kaikki`, `rivi1.teksti`, `rivi1.rastitettu` ja 42f:n `rivi1.päivä` toimivat.
