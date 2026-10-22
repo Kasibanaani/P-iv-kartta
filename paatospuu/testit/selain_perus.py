@@ -291,6 +291,18 @@ async def run(p,w,h):
     await pg.locator('#timeline .area').click(position={'x':150,'y':3*48+20}); await pg.wait_for_timeout(80)
     want('hiiren napsautus tyhjään tekee merkinnän lähimpään varttiin', await pg.is_visible('#nsheet') and await pg.input_value('#ns-ts')=='03:30' and await pg.input_value('#ns-te')=='')
     await pg.click('#ns-ok'); await pg.wait_for_timeout(50)
+    # 1.37: kosketuksen pito tuo viivan, raahaus siirtää, nosto avaa; reilu veto sivulle peruu
+    TP="(function(t,x,y){var a=document.querySelector('#timeline .area'),r=a.getBoundingClientRect();a.dispatchEvent(new PointerEvent(t,{bubbles:true,pointerType:'touch',pointerId:7,isPrimary:true,clientX:r.left+x,clientY:r.top+y}));})"
+    await pg.evaluate(TP+"('pointerdown',150,4*48+5)"); await pg.wait_for_timeout(120); want('ei viivaa ennen pitoaikaa', await pg.locator('.holdline').count()==0)
+    await pg.wait_for_timeout(250); want('pito tuo viivan pyöristettyyn aikaan', await pg.locator('.holdline').count()==1 and await pg.inner_text('.holdline b')=='4.00'); await check('pitoviiva')
+    await pg.evaluate(TP+"('pointermove',160,6*48+40)"); want('viiva seuraa sormea', await pg.inner_text('.holdline b')=='6.45')
+    await pg.evaluate(TP+"('pointerup',160,6*48+40)"); await pg.wait_for_timeout(80)
+    want('nosto avaa merkinnän viivan kohtaan', await pg.is_visible('#nsheet') and await pg.input_value('#ns-ts')=='06:45' and await pg.locator('.holdline').count()==0)
+    await pg.click('#ns-ok'); await pg.wait_for_timeout(50)
+    await pg.evaluate(TP+"('pointerdown',150,8*48)"); await pg.wait_for_timeout(350); await pg.evaluate(TP+"('pointermove',190,8*48)"); want('pieni sivuveto himmentää', await pg.locator('.holdline.fade').count()==1)
+    await pg.evaluate(TP+"('pointermove',230,8*48)"); want('reilu sivuveto poistaa viivan', await pg.locator('.holdline').count()==0)
+    await pg.evaluate(TP+"('pointermove',150,8*48)"); await pg.evaluate(TP+"('pointerup',150,8*48)"); await pg.wait_for_timeout(80); want('peruttu ei avaa', not await pg.is_visible('#nsheet'))
+    await pg.evaluate(TP+"('pointerdown',150,9*48)"); await pg.wait_for_timeout(100); await pg.evaluate(TP+"('pointerup',150,9*48)"); await pg.wait_for_timeout(80); want('hipaisu ei avaa', not await pg.is_visible('#nsheet'))
     await pg.click('#calplus'); await pg.wait_for_timeout(50); await pg.fill('#ns-ts','03:15'); await pg.fill('#ns-te',''); await pg.fill('#ns-text','Vartti'); await check('kalenterimerkintä ikkuna'); await pg.click('#ns-ok'); await pg.wait_for_timeout(80)
     want('ilman loppuaikaa oletuspituus 30 min', abs((await pg.locator('#timeline .ev:has-text("Vartti")').bounding_box())['height']-22)<=1 and (await nts('Vartti')).get('time',{}).get('e','')=='')
     # 1.33: kalenterin kohta napista, tunnin numero viivan alla, vierityksen pyöristys

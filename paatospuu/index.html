@@ -120,6 +120,9 @@ button,input,textarea{font:inherit;color:inherit;letter-spacing:inherit}
 .tl .hr b{position:absolute;left:0;top:2px;width:40px;font-size:11px;font-weight:500;color:var(--label2);background:var(--bg);font-variant-numeric:tabular-nums}
 .tl .hr:first-child b{top:2px}
 .tl .area{position:absolute;left:44px;right:0;top:0;bottom:0}
+.tl .holdline{position:absolute;left:-4px;right:0;height:2px;margin-top:-1px;background:var(--accent);border-radius:1px;pointer-events:none;z-index:5;transition:opacity .12s}
+.tl .holdline b{position:absolute;right:6px;bottom:6px;padding:2px 8px;border-radius:9px;background:var(--solid);color:var(--on-solid);font-size:13px;font-weight:600}
+.tl .holdline.fade{opacity:.35}
 .tl .now{position:absolute;left:-4px;right:0;height:2px;background:var(--red);border-radius:1px;pointer-events:none}
 .ev{position:absolute;box-sizing:border-box;padding:3px 8px 3px 8px;border-radius:8px;background:var(--fill);border:1px solid var(--accent);border-left-width:4px;color:var(--label);overflow:hidden;
   font-size:13px;line-height:1.25;cursor:pointer;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;transition:box-shadow .15s,transform .15s}
@@ -2065,18 +2068,29 @@ function calFab(p){var r=el('div','fabrow'),b=button(r,'+','fab',function(){open
 /* +:n alkuaika (1.35, yläreunan viivatoiminto poistettu): tänään seuraava vartti nykyhetkestä, muina päivinä 9.00 */
 function plusMin(){if((calDay||todayIso())!==todayIso())return 540;var n=new Date();return Math.min(1425,Math.ceil((n.getHours()*60+n.getMinutes()+1)/STEP)*STEP);}
 /* Uusi merkintä aikajanalta (Emil 22.10.2026): hiirellä painallus mihin tahansa ja veto venyttää pituuden (lähin vartti);
-   kosketuksella lyhyt pito (0,25 s) paikallaan luo merkinnän sormen noustessa, pelkkä hipaisu tai vieritys ei. */
+   kosketuksella lyhyt pito (0,25 s) paikallaan tuo oman värisen viivan pyöristettyyn aikaan. Viivaa voi raahata ylös ja alas
+   (vieritys lukossa), nosto avaa merkinnän viivan kohtaan. Reilu veto sivulle peruu: viiva katoaa eikä mitään avaudu.
+   Pelkkä hipaisu tai vieritys ennen pitoaikaa ei tee mitään. */
+var HOLDX=56;
 var HOLD=250;
 function areaNew(a,day){var st=null;
   function minAt(cy){var r=a.getBoundingClientRect();return Math.max(0,Math.min(1440-STEP,Math.round((cy-r.top)/HOURPX*60/STEP)*STEP));}
   function paint(){var s=Math.min(st.m,st.e),e=Math.max(st.m,st.e);if(!st.drag)e=Math.min(1440,s+durMin());st.g.style.top=(s/60*HOURPX)+'px';st.g.style.height=Math.max(18,(e-s)/60*HOURPX-2)+'px';st.g.textContent=fmtTime(fromMin(s))+'–'+fmtTime(fromMin(e));}
   a.addEventListener('pointerdown',function(ev){if(ev.button>0||(ev.target!==a&&!ev.target.classList.contains('now')))return;
     var m=minAt(ev.clientY);st={m:m,e:m,y0:ev.clientY,x0:ev.clientX,t0:Date.now(),mouse:ev.pointerType==='mouse',g:null,drag:false};
-    if(st.mouse){ev.preventDefault();try{a.setPointerCapture(ev.pointerId);}catch(e){}st.g=el('div','evghost new');a.appendChild(st.g);paint();}});
+    if(st.mouse){ev.preventDefault();try{a.setPointerCapture(ev.pointerId);}catch(e){}st.g=el('div','evghost new');a.appendChild(st.g);paint();return;}
+    var pid=ev.pointerId,s1=st;st.timer=setTimeout(function(){if(st!==s1)return;st.on=true;st.l=el('div','holdline');st.l.appendChild(el('b'));a.appendChild(st.l);line();try{a.setPointerCapture(pid);}catch(e){}},HOLD);});
+  function line(){st.l.style.top=(st.m/60*HOURPX)+'px';st.l.firstChild.textContent=Math.floor(st.m/60)+'.'+pad(st.m%60);}
+  a.addEventListener('touchmove',function(ev){if(st&&(st.on||st.dead))ev.preventDefault();},{passive:false});
+  a.addEventListener('contextmenu',function(ev){if(st)ev.preventDefault();});
   a.addEventListener('pointermove',function(ev){if(!st)return;
     if(st.mouse){var e=minAt(ev.clientY);if(Math.abs(ev.clientY-st.y0)>4)st.drag=true;st.e=e>=st.m?Math.max(st.m+STEP,e):e;paint();}
-    else if(Math.abs(ev.clientY-st.y0)>8||Math.abs(ev.clientX-st.x0)>8)st=null;});
-  function done(cancel){if(!st)return;var s0=st;st=null;if(s0.g)s0.g.remove();if(cancel)return;if(!s0.mouse&&Date.now()-s0.t0<HOLD)return;
+    else if(st.dead)return;
+    else if(st.on){ev.preventDefault();var dx=Math.abs(ev.clientX-st.x0);if(dx>HOLDX){st.l.remove();st.l=null;st.on=false;st.dead=true;return;}
+      st.l.classList.toggle('fade',dx>HOLDX/2);st.m=minAt(ev.clientY);line();}
+    else if(Math.abs(ev.clientY-st.y0)>8||Math.abs(ev.clientX-st.x0)>8){clearTimeout(st.timer);st=null;}});
+  function done(cancel){if(!st)return;var s0=st;st=null;clearTimeout(s0.timer);if(s0.g)s0.g.remove();if(s0.l)s0.l.remove();if(cancel||s0.dead)return;if(!s0.mouse&&!s0.on)return;
+    if(!s0.mouse)s0.e=s0.m;
     var s=Math.min(s0.m,s0.e),e=Math.max(s0.m,s0.e);openNote(null,{date:day,s:fromMin(s),e:s0.drag&&e>s?fromMin(e):''});}
   a.addEventListener('pointerup',function(){done(false);});a.addEventListener('pointercancel',function(){done(true);});}
 /* Tietokone (vaihe 14): viikko seitsemänä sarakkeena. Ajattomat päivän sarakkeen yläosassa, merkinnän voi raahata toiselle päivälle ja kellonajalle. */

@@ -1,6 +1,6 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.36 (suhteelliset sanat lukittuvat kirjoitushetkeen ja vaihtuvat päivän tullen sanaksi tänään, eilen ja päiväykseksi) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
+**Vaihe:** versio 1.37 (puhelimen pitoviiva kalenterissa; 1.36 suhteellisten aikojen lukitus) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -300,6 +300,13 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Rakentajan ratkaisu: vanhat muistiinpanot ilman lukkoa toimivat kuten ennen (pohja luontihetki). Lukko syntyy, kun ne seuraavan kerran tallennetaan.
 - Testit: logiikka 311 ok (lukitus, uusi sana omaan hetkeensä, tänään/eilen/päiväys, itse kirjoitettu ei muutu, normalisointi); selain 390/320 (lukko tallessa, eilen kirjoitettu *huomenna* näkyy *tänään* katkoviivalla, napautus näyttää alkuperäisen) ja 1440/1280.
 
+## Versio 1.37 (22.10.2026, Emilin toive): pitoviiva puhelimella
+
+- Kosketuksen pito 0,25 s aikajanan tyhjässä kohdassa tuo **oman värisen viivan** (tyylin korostusväri, nykyhetken viiva on punainen) lähimpään varttiin, aika viivan päällä oikealla. Viivaa voi raahata ylös ja alas, kalenterin vieritys on sillä aikaa lukossa. **Nosto avaa** uuden merkinnän viivan kohtaan oletuspituudella.
+- **Peruutus:** veto sivulle himmentää viivan (puolet rajasta), reilu veto (56 px) poistaa sen, eikä nosto avaa mitään. Takaisin palaaminen ei herätä viivaa.
+- Hipaisu tai vieritys ennen pitoaikaa ei tee mitään, kuten ennen. Hiiri ennallaan (napsautus ja veto).
+- Testit: selain 390/320 kosketuksen osoitintapahtumilla (ei viivaa ennen pitoaikaa, viiva 4.00, raahaus 6.45, nosto avaa 06:45, himmennys, peruutus, hipaisu ei avaa).
+
 ## Tietokoneversio: pohdinta (Emil 22.10.2026, ei rakennettu)
 
 - Emilin toive: sama appi, johon voi lisätä vain tietokoneella käytettäviä toimintoja (esim. laskentataulukkomainen, ehtojen mukaan priorisoituva tarkistuslista). Vaihtoehto: erillinen tietokoneappi, jonka projektit siirtyvät puhelimeen, ja projektin yhteensopivuuden tarkistus.
@@ -308,6 +315,7 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 ## Ei tarkistettu
 
+- Oikealla iPhonella ei kokeiltu (1.37): pysyykö vieritys lukossa viivaa raahatessa Safarissa (estetään touchmove-tapahtumalla), osuuko aikalappu sormen alle, onko 56 px sopiva peruutusraja.
 - Oikealla iPhonella ei kokeiltu (1.36): kursorin osuminen katkoviivaiseen sanaan napautuksella, sanan vaihtuminen kun appi on ollut taustalla yön yli. Päivän vaihtumista ei kokeiltu oikeasti, vaan tallennettua dataa muokkaamalla.
 - Oikealla iPhonella ei kokeiltu (1.35): lyhyen pidon tuntuma (0,25 s), aukeaako tekstin valinta tai iOS:n suurennuslasi pidossa, renkaan näkyvyys päiväruudussa.
 - Oikealla iPhonella ei kokeiltu (1.32): päivä- ja aikakentän valitsimen aukeaminen näkyvän tekstin alta Safarissa, valitsimen *Tyhjennä*.
