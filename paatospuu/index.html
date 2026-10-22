@@ -668,7 +668,7 @@ html.standalone .top{padding-top:calc(env(safe-area-inset-top,0px) + 30px)}
   <div id="rs-own" hidden><div class="two" style="margin-top:8px"><input type="number" id="rs-n" min="1" max="999" inputmode="numeric" aria-label="Montako"><select id="rs-unit" aria-label="Yksikkö"><option value="d">päivää</option><option value="w">viikkoa</option><option value="m">kuukautta</option><option value="y">vuotta</option></select></div></div>
   <label class="fl" for="rs-start" id="rs-startl">Aloituspäivä</label><input type="date" id="rs-start">
   <p class="msg" id="rs-msg"></p>
-  <div class="btnrow"><button type="button" class="btn solid" id="rs-ok" data-done="1">Valmis</button><button type="button" class="btn danger" id="rs-del">Poista</button></div>
+  <div class="delrow"><button type="button" class="mini dangerline" id="rs-del">Poista</button></div><button type="button" id="rs-ok" data-done="1" hidden>Valmis</button>
 </dialog>
 <dialog id="ksheet" aria-labelledby="ks-h">
   <div class="hrow"><h2 id="ks-h">Listan rivi</h2><button class="ibtn" type="button" data-help="lista" aria-label="Ohje">i</button></div>
@@ -679,7 +679,7 @@ html.standalone .top{padding-top:calc(env(safe-area-inset-top,0px) + 30px)}
   <label class="fl">Tärkeys</label><input type="search" id="ks-find" placeholder="Rajaa" aria-label="Rajaa tekijöitä" autocomplete="off">
   <div class="chips" id="ks-f" style="margin-top:8px"></div>
   <p class="msg" id="ks-msg"></p>
-  <div class="btnrow"><button type="button" class="btn solid" id="ks-ok" data-done="1">Valmis</button><button type="button" class="btn danger" id="ks-del">Poista</button></div>
+  <div class="delrow"><button type="button" class="mini dangerline" id="ks-del">Poista</button></div><button type="button" id="ks-ok" data-done="1" hidden>Valmis</button>
 </dialog>
 <dialog id="msheet" aria-labelledby="ms-h">
   <h2 id="ms-h">Muistiinpano</h2>
@@ -1971,6 +1971,12 @@ $('ns-done').addEventListener('click',function(){if(!noteCur)return;
   if(noteOcc&&!noteCur.done){var P=noteCur.pts||(noteCur.pts={});if(P[noteOcc])delete P[noteOcc];else P[noteOcc]=nowIso();if(!Object.keys(P).length)delete noteCur.pts;
     touch();stateRow(noteCur);return;}
   setDone(noteCur,!noteCur.done);stateRow(noteCur);});
+/* Sama poiston varmistus listan riville ja toistuvalle (1.39.3): laatikko Poista-rivin paikalle, varmistus vasemmalla, Peruuta oikealla */
+function delAsk(btn,title,txt,ok){var row=btn.parentNode;delReset(row.parentNode);
+  var box=el('div','delbox');box.setAttribute('role','alertdialog');box.appendChild(el('b','',title));box.appendChild(el('p','',txt));var bs=el('div','delbtns');
+  button(bs,'Poista','btn danger delok',function(){box.remove();row.hidden=false;ok();});button(bs,'Peruuta','btn delno',function(){box.remove();row.hidden=false;});box.appendChild(bs);
+  row.hidden=true;row.parentNode.insertBefore(box,row.nextSibling);try{box.scrollIntoView({block:'nearest'});}catch(e){}}
+function delReset(d){Array.prototype.forEach.call(d.querySelectorAll('.delbox:not(#ns-delbox)'),function(b){b.remove();});Array.prototype.forEach.call(d.querySelectorAll('.delrow:not(#ns-delrow)'),function(r){r.hidden=false;});}
 /* Poisto (Emil 22.10.2026): varmistus joka kerta, ja varmistusnappi eri kohdassa kuin Poista (Peruuta on sen paikalla), ettei tuplanapautus poista */
 $('ns-del').addEventListener('click',function(){$('ns-delrow').hidden=true;$('ns-delbox').hidden=false;try{$('ns-delbox').scrollIntoView({block:'nearest'});}catch(e){}});
 $('ns-delno').addEventListener('click',function(){$('ns-delbox').hidden=true;$('ns-delrow').hidden=false;});
@@ -2098,7 +2104,7 @@ function renderChk(p){var today=todayIso(),AT=termCache=allTerms(),list=el('div'
   if(!data.chk.length)p.appendChild(el('p','sub','Ei vielä rivejä. + Uusi lisää rivin.'));p.appendChild(list);}
 var chkCur=null,chkF=[],chkOcc=null,chkArm=0;
 function openChk(r,occ){chkCur=r;chkOcc=r&&occ?occ:null;chkArm=0;chkF=r?(r.f||[]).map(function(x){return x.neg?{id:x.id,neg:1}:{id:x.id};}):[];
-  $('ks-name').value=r?r.name:'';$('ks-text').value=r?r.text:'';$('ks-find').value='';$('ks-msg').textContent='';$('ks-del').hidden=!r;
+  $('ks-name').value=r?r.name:'';$('ks-text').value=r?r.text:'';$('ks-find').value='';$('ks-msg').textContent='';$('ks-del').hidden=!r;delReset($('ksheet'));
   var dl=$('ks-names');dl.textContent='';allTerms().forEach(function(t){var o=el('option');o.value=t.name;dl.appendChild(o);});termCache=null;
   chkForm();openSheet($('ksheet'));}
 function chkForm(){var box=$('ks-f'),q=clean($('ks-find').value||'').toLowerCase(),T={f:chkF};box.textContent='';
@@ -2114,8 +2120,7 @@ $('ks-ok').addEventListener('click',function(){var nm=clean($('ks-name').value).
   if(!nm&&!clean(tx)){if(chkCur){data.chk=data.chk.filter(function(x){return x!==chkCur;});touch();}closeSheet($('ksheet'));render();return;}
   var t=nowIso(),r=chkCur;if(!r){r={id:uid('c'),created:t};data.chk.push(r);}
   if(r.name!==nm||r.text!==tx||JSON.stringify(r.f||[])!==JSON.stringify(chkF)){r.name=nm;r.text=tx;r.f=chkF;r.edited=t;mvClean(r);touch();}closeSheet($('ksheet'));render();});
-$('ks-del').addEventListener('click',function(){if(!chkCur)return;if(Date.now()-chkArm>4000){chkArm=Date.now();$('ks-msg').textContent='Paina uudelleen poistaaksesi rivin.';return;}
-  data.chk=data.chk.filter(function(x){return x!==chkCur;});closeSheet($('lsheet'));touch();render();});
+$('ks-del').addEventListener('click',function(){if(!chkCur)return;delAsk($('ks-del'),'Poistetaanko rivi?','Rivi ja sen kalenterimerkinnät poistuvat listalta.',function(){data.chk=data.chk.filter(function(x){return x!==chkCur;});closeSheet($('ksheet'));touch();render();});});
 /* ---- toistuvat ---- */
 function renderReps(p){
   var list=el('div','nlist');list.id='replist';var today=todayIso(),AT=allTerms();termCache=null;
@@ -2150,7 +2155,7 @@ function openRep(R){repCur=R;repArm=0;$('rs-msg').textContent='';$('rs-text').va
   $('rs-int').value=REP_INT.some(function(x){return x[0]===v;})?v:'own';$('rs-n').value=R?R.n:2;$('rs-unit').value=R?R.unit:'d';$('rs-start').value=R?R.start:todayIso();
   var trig=!!R&&R.mode==='trig';press('rs-kind','rk',trig?'trig':'rep');press('rs-mode','rm',R&&R.mode==='after'?'after':'every');press('rs-all','ra',R&&R.all?'1':'0');
   repSel=trig?(R.terms||[]).slice():[];$('rs-tfind').value='';
-  $('rs-del').hidden=!R;repForm();openSheet($('rsheet'));}
+  $('rs-del').hidden=!R;delReset($('rsheet'));repForm();openSheet($('rsheet'));}
 [['rs-mode','rm'],['rs-kind','rk'],['rs-all','ra']].forEach(function(g){Array.prototype.forEach.call($(g[0]).children,function(b){b.addEventListener('click',function(){press(g[0],g[1],b.dataset[g[1]]);repForm();});});});
 $('rs-int').addEventListener('change',repForm);
 $('rs-ok').addEventListener('click',function(){var t=$('rs-text').value.replace(/\s+$/,''),iv=$('rs-int').value,n,u;
@@ -2161,8 +2166,7 @@ $('rs-ok').addEventListener('click',function(){var t=$('rs-text').value.replace(
   var R=repCur||{id:uid('t'),created:nowIso()};R.text=t;R.mode=mode;R.n=n;R.unit=u;if(R.start!==st){R.start=st;delete R.lastDue;}
   if(mode==='trig'){R.terms=repSel.slice();R.all=pressed('rs-all','ra')==='1';}else{delete R.terms;delete R.all;}if(!repCur)data.reps.push(R);
   closeSheet($('rsheet'));touch();render();});
-$('rs-del').addEventListener('click',function(){if(!repCur)return;if(Date.now()-repArm>4000){repArm=Date.now();$('rs-msg').textContent='Paina uudelleen poistaaksesi toistuvan. Jo tulleet muistiinpanot jäävät.';return;}
-  data.reps=data.reps.filter(function(x){return x!==repCur;});closeSheet($('rsheet'));touch();render();});
+$('rs-del').addEventListener('click',function(){if(!repCur)return;delAsk($('rs-del'),'Poistetaanko toistuva?','Uusia ei enää tule. Jo tulleet muistiinpanot jäävät.',function(){data.reps=data.reps.filter(function(x){return x!==repCur;});closeSheet($('rsheet'));touch();render();});});
 $('terms').addEventListener('click',function(){openTerms();});
 /* ---- kalenteri ----
    Viikkonauha (ma–su) ja valitun päivän aikajana. Pitkä painallus (350 ms) nostaa merkinnän ja siirtää sitä 15 min askelin,
