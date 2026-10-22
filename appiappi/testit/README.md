@@ -323,3 +323,5 @@ Asetuksissa on rakennusympäristön ja projektin käyttönäkymän erilliset val
 - `selain_153_rivijasenet_ikkuna.py` – (1440, 1280 px; Appi-appi 118) ryhmän ikkunassa rivijäsenet riveinä (☑/☐) ikkunan sisällä, summa laskee ne, Palauta poistaa.
 - `logiikka_122_taulukko.js` – Appi-appi 119 (jono 42g): Listan sarakkeet (`lsSar`, esiasetus ja `lsSarAuki`), lajit ja `lsNorm`, `lsAseta` omille, ryhmä- ja Tietotaulukko-riveille (lajin tarkistus), kellonaika `kloLue`, `lsTlLk`, painike-tapahtuma, `rivi2.sarake`-kaava, `repair` (sar, tl, pvv, s), vanha Lista ennallaan.
 - `selain_154_taulukko.py` – (1440, 1280 px; Appi-appi 119) Taulukko paletista, otsikot ja sarakkeet, solun muokkaus 3,5, väärän arvon ilmoitus, painike → *painettu*, pystyviivat, Tietotaulukko lähteenä ja rasti kirjoittaa taulukkoon.
+- `logiikka_123_aluekoot.js` – Appi-appi 120 (jono 22b): Alueen Korkeus: sisällön mukaan, tallennus `kork` ja `lrul:'koko'`, laitenäkymän raja Siirry-alueesta.
+- `selain_155_aluekoot.py` – (1440, 1280 px; Appi-appi 120, jono 22b) Alueen pikakoot ja Kumoa, sisällön mukaan, Koko alue näkyy, Siirry vaihtaa rajan ja Palaa takaisin palauttaa.
