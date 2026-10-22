@@ -91,6 +91,7 @@ Laitenäkymästä voi tehdä ruutua isomman maailman, jota rullataan kaikkiin su
 
 **Kojelauta:** palikat, joiden pitää pysyä ruudulla (tatti, pisteet, napit), laitetaan kerrokseen, jonka rullausvauhti on **lukittu**, ja asetellaan kehyksen sisään (ks. Kerrokset käytössä).
 
+- **Pikselitarkka** (näkymän paneeli, osio Laite; myös vapaassa näkymässä; Appi-appi 108): kuvat ja laatat terävinä, käytössä palikat ja kamera kokonaisiin pikseleihin, sormilla (ja ⌘ + rulla) zoomaus 100 %:n portain. Pikseligrafiikalle ([Piirtoikkuna ja piirroskirjasto](#piirtoikkuna-ja-piirroskirjasto-appi-appi-108)).
 - Tekninen: `v.lrul` (puuttuu = pystyyn, `kaikki`, `ei`), `v.kam = {o, ka, pe, ra}`. Kameran paikka on vain selaimen tietoa (ei tallennu projektiin).
 
 ## Zoomaus
@@ -537,7 +538,7 @@ Laattakartta on ruudukko, johon maalataan laattoja klik klik: seinät, lattiat, 
 - **Asetukset (paneeli), osio Sisältö:**
   - **Maalaa**: aloittaa maalauksen (nappi muuttuu muotoon **● Maalataan…**, uusi napautus lopettaa).
   - **Ruutukoko px** (4–256), **Sarakkeet** ja **Rivit** (1–200). Palikan koko on sarakkeet × ruutukoko. Kulman venytys ja *Paikka ja koko* -kentät pyöristyvät kokonaisiin ruutuihin; pois jääneet laatat poistuvat (Kumoa palauttaa).
-  - **Laattalajit:** jokaisella nimi, laattojen määrä, tapa **kiinteä** / **läpi** / **taso**, väri paletista 1–8 ja (kiinteällä ja tasolla) **Kimmoisuus %** (0 = tömähtää, 100 = pomppaa, yli 100 = pomppulevy), rasti **Ilmoittaa** (Appi-appi 100) ja **Liukkaus %** (Appi-appi 104, kaikille lajeille 1–100, tyhjä = ei).
+  - **Laattalajit:** jokaisella nimi, laattojen määrä, tapa **kiinteä** / **läpi** / **taso**, väri paletista 1–8 ja (kiinteällä ja tasolla) **Kimmoisuus %** (0 = tömähtää, 100 = pomppaa, yli 100 = pomppulevy), rasti **Ilmoittaa** (Appi-appi 100) ja **Liukkaus %** (Appi-appi 104, kaikille lajeille 1–100, tyhjä = ei). Lajin rivillä **✎ Piirrä ilme** tai *kirjastosta* (Appi-appi 108): laji piirtyy piirroksena (enintään piirroksen koko ruutua kohden), **×** palauttaa värin; piirros säilyy lajin nimeä vaihdettaessa.
   - **Palauta maalattu kartta** (näkyy, kun käyttö on maalannut laattoja): poistaa käytön muutokset. **×** poistaa lajin ja pyyhkii sen laatat. **＋ Uusi laji** (enintään 35).
 - **Ominaisuudet:** `sarakkeet`, `rivit`, `ruutukoko` (luettavia), `määrä` (kaikki laatat), `määrä.<lajin nimi>`, lisäksi näkymäpalikan tavalliset (näkyy, paikka, koko, väri ym.). Laattakartalla ei ole omaa `este`-, `massa`- eikä `kimmoisuus`-ominaisuutta: ne ovat lajeilla. `leveys` ja `korkeus` ovat pikseleinä kuten muillakin.
 - **Kaavassa:** `@kartta.määrä.seinä`, `@kartta.määrä` (lajin nimi pienellä, ä ja ö käyvät myös a:na ja o:na, välilyönti = `_`), `@kartta.sarakkeet`.
@@ -564,10 +565,23 @@ Laattakartta on ruudukko, johon maalataan laattoja klik klik: seinät, lattiat, 
 - **Maalaa laatta** -toiminto (luku [Toiminnot](05-ketjut-ja-toiminnot.md#toimintolajit)): muuttaa ruudun käytössä; muutos on käyttötietoa, ja Palauta, käyttötietojen tyhjennys, rakentajan maalaus ja *Palauta maalattu kartta* poistavat sen.
 - **Liukkaus %** (jää): painovoimassa vaikuttaa vain maassa jalkojen alla olevasta ruudusta, ilman painovoimaa keskipisteen ruudusta; ilmassa ei. Liikkeen liukkaus on suurempi Liikkeen omasta ja laatan liukkaudesta, ja töytäisyvauhdin kitka kerrotaan (1 − laatan liukkaus). Liikkeen `liukkaus`-ominaisuus näyttää Liikkeen oman arvon, ei laatan.
 - **Taso-laatan läpi pudotus:** hyppy, kun ohjaus osoittaa painovoiman suuntaan (tatti tai nuoli alas) ja jalkojen alla on taso, pudottaa läpi. Kiinteän läpi ei pudota.
-- **Lajin nimi on teksti:** `tapahtuma.laji = "Kolikko"` ja `@kartta.määrä.kolikko` käyttävät lajin nimeä. Lajin uudelleennimeäminen ei päivitä niitä (ei tarkistettu korjaantuvaksi; kartoitus 14).
+- **Lajin nimi on teksti:** `tapahtuma.laji = "Kolikko"` ja `@kartta.määrä.kolikko` käyttävät lajin nimeä. Lajin nimen vaihto paneelissa päivittää kaavojen `.määrä.vanha`-polut ja `"Vanha"`-tekstit kaavoissa, joissa on `.laji` tai `.laatta` (myös Säännön osat); ilmoitus kertoo montako kaavaa muuttui, ja Kumoa peruu yhdellä painalluksella (Appi-appi 106). Muualla olevat tekstit eivät päivity.
 - Valmiit: rakennuslaatikon *Jää-laji*, *Kolikot laattoina* ja Alueilla tehty *Painelaatta* ([Rakennuslaatikko](02-tyoymparisto.md#rakennuslaatikko)).
 
-Ei vielä: laattojen haku kaavassa (ei kuulu linjaan, A7). Tekninen: `rk`, `lw`, `lh2`, `lj` (`c`, `n`, `hue`, `t`, `kim`, `il`, `liu`), `lrt` (rivit merkkijonoina, `.` = tyhjä), käytön muutokset `st['lt:'+id]`.
+Ei vielä: laattojen haku kaavassa (ei kuulu linjaan, A7). Tekninen: `rk`, `lw`, `lh2`, `lj` (`c`, `n`, `hue`, `t`, `kim`, `il`, `liu`, `px`), `lrt` (rivit merkkijonoina, `.` = tyhjä), käytön muutokset `st['lt:'+id]`.
+
+## Piirtoikkuna ja piirroskirjasto (Appi-appi 108)
+
+Projektin oma pikseligrafiikka. Piirros on kirjastossa kerran, ja käyttäjät (Kuva, kuvasarja, laattalaji, ohjainten [Ilme](03-nakymapalikat.md#ilme-piirretty-ulkoasu-appi-appi-110)) viittaavat siihen: muokkaus päivittää kaikki.
+
+- **Mistä aukeaa:** Kuvan paneeli *✎ Piirrä*, piirroksen rivi *Muokkaa*, valikko *Piirros kirjastosta…*; kuvasarjaan *＋ Piirrä seuraava kuva*; laattalajin *✎ Piirrä ilme*; rakennuslaatikon Rakenne-hylly *＋ Piirrä uusi palikka* (64 × 64 Kuva + ikkuna auki); Ilme-osion *✎ Piirrä*.
+- **Työkalut:** leveys ja korkeus 8/16/32/64 erikseen (vasen yläkulma säilyy), **Kynä** (napautus tai veto; ensimmäinen ruutu päättää, maalataanko vai pyyhitäänkö kuten laatoissa), **Täyttö**, **⇋ Peilaus** (maalaa samalla peilikuvana), **Käännä**, **Tyhjennä**. Oikea painike pyyhkii, ⇧ + napautus vetää viivan, yksi veto = yksi Kumoa (Ctrl+Z toimii ikkunan ollessa auki). Esikatselu oikeassa koossa ja 4×.
+- **Värit:** paletin 8 väriä kolmena sävynä (vaalea, perus, tumma) + **Läpinäkyvä**. Piirros viittaa paletin paikkaan, joten se seuraa teemaa ja tummaa tilaa.
+- **Kirjasto:** nimi, käyttäjien määrä ja *Poista piirros kirjastosta* (viitteet tyhjenevät: Kuvasta tulee tyhjä, laattalaji saa värin takaisin; Kumoa palauttaa). Nimi on kirjastossa yksilöllinen.
+- **Kopio ja presetti:** ⌘C/⌘V, Monista ja presetit kantavat käytetyt piirrokset. Toiseen projektiin: sama sisältö käytetään, varattu tunniste saa uuden.
+- **Piirto:** Kuva näyttää piirroksen aina terävänä; piirretyt laatat tarkempana (kangas enintään 4096 px ja 4 Mpx). Läpinäkyvä pikseli näyttää taustan. Teräväksi käytössä: [Pikselitarkka](#maailma-ja-kamera).
+- **Rajat:** ei kiinteää omaa väriä (vain paletin paikat); piirros ei voi olla kaavan tai VALITSE-palikan tulos nimellä (Kuvan *kuva*-kohta tuntee vain tunnisteen `px:d1`). Vanha appi (välimuistissa) näyttää piirretyt kuvat tyhjinä: sulje appi kokonaan ja avaa uudelleen. Ei tarkistettu oikealla iPhonella (kosketusveto, Safarin terävyys).
+- Tekninen: `P.px` {`d1`: {n, w, h, d}}, `d` = yksi merkki per pikseli riveittäin (`.` läpinäkyvä, `a`–`x` = väri 1–8 × sävy).
 
 ## Reitinhaku esteiden ohi
 

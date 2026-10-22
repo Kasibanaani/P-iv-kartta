@@ -41,6 +41,7 @@ Paneeli on ylhäältä alas suunnilleen tässä järjestyksessä:
 | **Arvo, kun valittu** | Painike (ei kertapainallus), Valintaruutu, Kytkin. |
 | **Näkyvyys** | Näkyy kun, harmaana kun, syy. |
 | **Väri** | Väri, vaihtoväri, vaihtovärin ehto, läpinäkyvyys. |
+| **Ilme** | *Tavallinen* tai *Piirros* (Appi-appi 110; ei Kuvalla, Laattakartalla, Sijainnilla, Alueella, Reitillä eikä Toistimella). Ks. alla. |
 | **Animointi** | Ilmestyy, katoaa, kesto, pehmeys, arvo vaihtuu, paikka vaihtuu (kiinni, kun mitään ei ole valittu). Ks. alla. |
 | **Este ja osuma-alue** | Este, osuma-alue, massa, kimmoisuus (luku [Maailma ja liike](08-maailma-ja-liike.md)). |
 | **Napautus** | Teksti, Muoto, Kuva, Monitori ja Ilmoitus: Napautettava käytössä, Painuu painettaessa (kiinni oletuksena). Ks. alla. |
@@ -148,6 +149,28 @@ Useimmilla palikoilla on tekstikenttä (*Painikkeen teksti*, *Teksti* tai *Otsik
 
 Teksti ilmestyy -efekti (logiikka) voi vaihtaa Tekstin, Muodon, Ilmoituksen ja Painikkeen tekstin; uusi teksti jää voimaan, kunnes toiminto *Palauta perusarvo* poistaa sen. Nuoli kohtaan *teksti* voittaa sen.
 
+## Ilme: piirretty ulkoasu (Appi-appi 110)
+
+Osio **Ilme** vaihtaa palikan pohjan ja reunan piirrokseen ([Piirtoikkuna ja piirroskirjasto](08-maailma-ja-liike.md#piirtoikkuna-ja-piirroskirjasto-appi-appi-108)). Toiminta, tapahtumat, *näkyy kun*, *harmaana kun*, siirto, animointi ja käyttöraahaus pysyvät ennallaan.
+
+- **Tavallinen** (oletus, kuten ennen) tai **Piirros**.
+- **Tilat** (kukin valinnainen; puuttuva käyttää perus-piirrosta, ja puuttuva osa pysyy tavallisena):
+
+| Palikka | Tilat |
+|---|---|
+| Painike | perus, painettu (pohjassa, myös peliohjaimen painallus), valittu (päällä), harmaana |
+| Valintaruutu, Kytkin | pois, päällä, harmaana |
+| Säädin | kisko, täytetty osa, nuppi |
+| Tatti | pohja, nuppi |
+| Monitori | pohja, täyttö (palkki ja pylväs leikkaavat täytön arvon mukaan) |
+| muut | perus, vaihtovärin aikana |
+
+- Jokaisella tilalla **✎ Piirrä** (uusi tilan piirros on kopio perus-piirroksesta, jos se on), **kirjastosta…**, **Muokkaa** ja **×**.
+- **Teksti näkyy piirroksen päällä** (rasti; pois = teksti piiloon). Painikkeelle **Myös yleinen painallus**: oletuksena painetun piirroksen kanssa vain kuva vaihtuu.
+- **Ominaisuus `ilme`** (kun perus on piirretty): perus-piirroksen nimi. **Aseta** ilme = toisen piirroksen nimi (tai tunniste `d2`) vaihtaa piirroksen käytössä (hahmon asento), **Palauta** palauttaa; tuntematon nimi jättää perusilmeen.
+- Presetit, ⌘C/⌘V ja piirroksen poisto käsittelevät tilojen piirrokset kuten Kuvan piirroksen.
+- **Huomio:** `ilme` on piirroksen nimi tekstinä: piirroksen uudelleennimeäminen ei päivitä kaavoja eikä toimintoja (kartoitus 15, korjataan). Ei tarkistettu oikealla iPhonella (painettu-tila Safarissa).
+
 ## Yhteiset ominaisuudet (Ominaisuudet-osio)
 
 Ominaisuudet-osio luettelee rivi kerrallaan kaiken, mihin kaava voi viitata, ja nykyisen arvon. Rivin viite (esim. `painike.leveys`) on nappi: napautus kopioi viitteen. Ohjattavilla ominaisuuksilla rivin lopussa on napit:
@@ -191,7 +214,11 @@ Kaikilla näkymäpalikoilla (paitsi Sijainti, Alue, Toistin) on nämä:
 | `.animointi.pehmeys` | valinta | kyllä | `pehmeä` (oletus), `tasainen`, `joustava` |
 | `.animointi.arvo` | valinta | kyllä | vain Teksti, Muoto, Monitori: `töks` (oletus), `ristihäivytys`, `luku rullaa` (1–3); Kuva, Painike, Ilmoitus: `töks`, `ristihäivytys` (1–2). Projektin oletus *luku rullaa* on näillä ristihäivytys |
 | `.animointi.paikka` | valinta | kyllä | `töks` (oletus), `liukuu` (1–2) |
+| `.nimi` | teksti | ei | palikan nimi tekstinä, seuraa uudelleennimeämistä (kaikilla palikoilla paitsi Ryhmä ✦; Appi-appi 106): `tapahtuma.kohde = @vihollinen.nimi` |
+| `.ilme` | teksti | kyllä (Aseta, Palauta) | vain kun Ilme on *Piirros* ja perus on piirretty: perus-piirroksen nimi (Appi-appi 110, ks. Ilme yllä) |
 | `.ruutux`, `.ruutuy` | luku | ei (laskettu) | keskipisteen ruutu kerroksen ruudukossa (1 = ensimmäinen); tyhjä ilman ruudukkoa |
+
+Tekstillä (ja yleispalikalla) on lisäksi tekstin osat `.päivä`, `.kello`, `.luku` ja `.sanoja` ([Tekstin osat](06-kaavat.md#tekstin-osat-päivä-kello-luku-sanoja-appi-appi-111)).
 
 Näkyvyyttä, tilaa, tekstiä ja vaihtoväriä ei ohjata Ominaisuuksista vaan omista kohdistaan (*näkyy kun*, *harmaana kun*, *teksti*, *vaihtoväri kun*). Monet ominaisuudet hyväksyvät myös muita nimiä (esim. `vari`, `lapinakyvyys`, `kulma`).
 
@@ -247,7 +274,7 @@ Lukitussa käytössä palikkaa voi siirtää sormella tai hiirellä, kun osiossa
 | **pudotettu** | palikka jäi uuteen paikkaan |
 | **raahaus peruttu** | pudotus hylättiin (vain alueisiin ja ei alueella), kosketus keskeytyi tai toinen sormi aloitti nipistyksen |
 
-Tapahtuman tiedoissa (Tapahtuman tiedot -palikka, viite yleensä `tapahtuma`): `tapahtuma.kohde` (pienin Alue, jonka sisään palikan keskipiste osui, nimenä), `tapahtuma.x`, `tapahtuma.y` (uusi paikka), `tapahtuma.ruutux`, `tapahtuma.ruutuy` (jos ruudukko). Jos palikka pudotettiin sellaisen palikan päälle, jolla on [oma ruudukko](#oma-ruudukko-osio-oma-ruudukko-appi-appi-86), ruutu on sen ruudukon ruutu, ja ilman Aluetta `tapahtuma.kohde` on se palikka.
+Tapahtuman tiedoissa (Tapahtuman tiedot -palikka, viite yleensä `tapahtuma`): `tapahtuma.kohde` (pienin Alue, jonka sisään palikan keskipiste osui, nimenä; vertaa `= @alue.nimi`), `tapahtuma.x`, `tapahtuma.y` (uusi paikka), `tapahtuma.ruutux`, `tapahtuma.ruutuy` (jos ruudukko). Jos palikka pudotettiin sellaisen palikan päälle, jolla on [oma ruudukko](#oma-ruudukko-osio-oma-ruudukko-appi-appi-86), ruutu on sen ruudukon ruutu, ja ilman Aluetta `tapahtuma.kohde` on se palikka.
 
 ## Oma ruudukko (osio *Oma ruudukko*, Appi-appi 86)
 
@@ -453,8 +480,12 @@ Rastilista: käyttäjä lisää, rastittaa ja poistaa rivejä. Rivillä voi olla
 - **Sisään:** yhteiset.
 - **Ulos:** **rastitettuja** (luku, palikan arvo), **rivejä** (luku), **kaikki rastitettu** (kyllä/ei; tyhjä lista = ei), **muuttui** (myös rivin tekstin muokkauksesta).
 - **Asetukset:** **Otsikko** (oletus ”Lista”), **Pohjarivit** (yksi rivi per rivi), **Päivämääräsarake (myöhästyneet punaisella)**, **Rastisarake (rivin voi kuitata tehdyksi)** (Appi-appi 105; oletus päällä, myös vanhoissa projekteissa; pois: ei rastiruutuja eikä otsikon *n/m*, `.rastitettuja` ja arvo 0, `.kaikki` = ei, `rivi1.rastitettu` = ei, `.myöhässä` ja `.seuraava` laskevat kaikki rivit; tallennetut rastit säilyvät ja palaavat, kun sarake laitetaan takaisin), nappi **Palauta pohjariveihin**.
+- **Rivit** (Appi-appi 113): *Omat rivit* (ennallaan) tai **Ryhmästä #eläimet**. Ryhmälistan rivit ovat ryhmän jäsenet ryhmän järjestyksessä (tagit, `@x`-rivit, `kuuluu, kun` -rivi, Lisää joukkoon); rivin teksti on jäsenen arvo tekstinä (tyhjä → nimi). Pohjarivit ja päivämääräsarake eivät näy ryhmälistassa. Pikatie: ryhmäpalikan **Tee näkymään** ▾ → *Lista ryhmän jäsenistä*.
+- **Ryhmälista käytössä:** rasti on jäsenen ominaisuus **`.rasti`** (kyllä/ei, käyttötietoa, Palauta nollaa; myös `@koira.rasti`, `#eläimet.rasti.summa`). Rivin muokkaus muuttaa jäsentä: Muisti saa käyttöarvon, Arvo-yleispalikka uuden tekstin kuten logiikassa kirjoitettuna (rakenteen muutos: Palauta ei palauta sitä). × poistaa jäsenen ryhmästä (kuten Poista joukosta; Palauta palauttaa). *＋ Lisää jäsen* tekee **rivijäsenen** (Appi-appi 115): käyttötietoa, ei palikka; se kuuluu ryhmään (`#eläimet`, `.jäsenet`, `.summa`, `.rasti.summa`, ryhmäpalikan määrä) ja Palauta poistaa sen. Rivijäsenellä on vain teksti ja rasti; ryhmän ikkunassa ja *Jäsenille*-laskennassa se ei vielä ole.
+- **Tee palikaksi** (Appi-appi 115, rakentajalle Listan paneelissa *Käytössä lisätyt jäsenet*; myös *Tee kaikista palikat*): rivijäsenestä tulee yleispalikka ryhmäpalikan viereen, rivillä `#eläimet`, ja rasti siirtyy.
+- **Huomio (kartoitus 15, korjataan):** ryhmälistan rivi, jonka jäsen laskee (kaava), on muokattavissa ja muokkaus korvaa kaavan tekstillä. Jäsenellä ilman `.rastia` (esim. tagilla liitetty Muoto) rasti ja muokkaus eivät tee mitään, eikä säännön ohjaama rasti kerro miksi se ei vaihdu.
 - **Käytössä:** napauta ruutua rastiaksesi, napauta rivin tekstiä muokataksesi (Appi-appi 103: Enter tai napautus muualle tallentaa, Esc peruu, tyhjäksi pyyhitty palaa ennalleen), × poistaa rivin, alin kenttä *＋ Lisää rivi ja paina Enter*. Päivämääräsarakkeessa kirjoita päivä riville. Otsikon vieressä näkyy ”rastitettuja/rivejä”.
-- **Ominaisuudet:** yhteiset; lisäksi `.rivejä`, `.rastitettuja`, `.kaikki`, `.myöhässä` (rastittamattomia, joiden päivä on mennyt), `.seuraava` (lähin tuleva päivä rastittamattomista), sekä rivit järjestysnumerolla: `lista.rivi1`, `lista.rivi1.rastitettu`, `lista.rivi1.pvm` (ylin = 1).
+- **Ominaisuudet:** yhteiset; lisäksi `.rivejä`, `.rastitettuja`, `.kaikki`, `.myöhässä` (rastittamattomia, joiden päivä on mennyt), `.seuraava` (lähin tuleva päivä rastittamattomista), sekä rivit järjestysnumerolla: `lista.rivi1`, `lista.rivi1.rastitettu`, `lista.rivi1.pvm` (ylin = 1) ja rivin tekstin osat `lista.rivi2.päivä`, `.kello`, `.luku`, `.sanoja` (Appi-appi 111).
 - **Kaavassa:** `lista` = rastitettujen määrä.
 - **Aika ja tila:** rivit ovat käyttötietoa. Kun listaa on kerran käytetty, *Pohjarivien* muuttaminen ei enää näy, ennen kuin painetaan *Palauta pohjariveihin* (joka hävittää käyttäjän rivit ja rastit). Toiminto *Lisää riviksi listaan* lisää rivin logiikasta (teksti tai päivämäärä), *Tyhjennä* palauttaa pohjariveihin.
 - **Esimerkki:** Lista ”Aamu” pohjariveillä Hampaat, Vesi, Venyttely; Teksti ”Valmis!” näkyy, kun `aamu.kaikki`.
@@ -513,6 +544,7 @@ Näyttää kuvan (SVG-teksti, kuvatiedosto tai https-osoite) tai kuvasarjan anim
   - **Kuvasarja (animaatio):** pääkuva on kuva 1. *＋ Lisää kuvatiedostoja…* tai liitä SVG/osoite kenttään ja *＋ Lisää*. Rivien ↑ ↓ muuttaa järjestystä, ✕ poistaa. Enintään 32 lisäkuvaa.
   - Kun kuvia on vähintään kaksi: **Nopeus (kuvaa sekunnissa)** (oletus 8), **Pyörii** *Ei / Aina / Kun liikkuu* (Kun liikkuu = Liike-palikka liikuttaa tätä palikkaa). Nuoli kohtaan *pyörii kun* korvaa valinnan.
   - Teksti on kuvan vaihtoehtoinen teksti (ei näy).
+  - **Piirros** (Appi-appi 108): **✎ Piirrä** tekee piirroksen kuvan tilalle (Kumoa palauttaa), piirroksen rivillä **Muokkaa**, valikko **Piirros kirjastosta…**; kuvasarjaan **＋ Piirrä seuraava kuva** (kopio viimeisestä piirroksesta, animaation seuraava asento) ja **＋ Piirros kirjastosta sarjaan**. Piirros näkyy aina terävänä. Kuvan *kuva*-kohtaan piirros viitataan tunnisteella `px:d1` (ei nimellä).
 - **Ominaisuudet:** yhteiset; lisäksi `.kuvanopeus` (ohjattava, 0–60), `.kuvanro` (monesko kuva näkyy, 1 = pääkuva), `.pyörii`.
 - **Aika ja tila:** pysähtyneenä näkyy pääkuva. Efekti *Kuva vaihtuu* vaihtaa pääkuvan, kunnes *Palauta perusarvo* palauttaa oman kuvan.
 - **Esimerkki:** kuvasta painettava: osio *Napautus* → *Napautettava käytössä* (Appi-appi 68), tapahtuma *napautettu*, kohta kuvassa `tapahtuma.x`/`tapahtuma.y`. Vain osa kuvasta painettavaksi: päälle Painike, jonka *Ulkoasu* on *Näkymätön kosketusalue* (*Tuo eteen*).

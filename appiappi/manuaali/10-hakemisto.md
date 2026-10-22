@@ -104,6 +104,18 @@ Tästä löytää oikean kohdan nopeasti. Tekoäly: etsi ensin tehtävä alta, l
 | lisätä monta samaa nopeasti (seiniä, kolikoita, hahmoja) | Rakennuslaatikko, klik klik | [Rakennuslaatikko](02-tyoymparisto.md#rakennuslaatikko) |
 | aloittaa tasoloikan nopeasti (hahmo, hyppy, painovoima, vesi, tikkaat) | Rakennuslaatikko → Hahmot → Pelaaja: tasoloikka; Alueet → Painovoima-alue, Vesi, Tikkaat | [Rakennuslaatikko](02-tyoymparisto.md#rakennuslaatikko) |
 | saada kamera seuraamaan pelaajaa ja ohjaimet pysymään ruudulla | laitenäkymässä Rakennuslaatikko → Hahmot (tekee itse) tai Näkymä → Kamera seuraa; Alueet → Kameran rajat | [Rakennuslaatikko](02-tyoymparisto.md#rakennuslaatikko), [Maailma ja kamera](08-maailma-ja-liike.md) |
+| piirtää oman kuvan, hahmon tai laatan pikseleinä | Kuva → ✎ Piirrä, laattalaji → ✎ Piirrä ilme, Rakennuslaatikko → Rakenne → ＋ Piirrä uusi palikka | [Piirtoikkuna ja piirroskirjasto](08-maailma-ja-liike.md#piirtoikkuna-ja-piirroskirjasto-appi-appi-108) |
+| näyttää pikseligrafiikan terävänä | näkymän paneeli → Laite → Pikselitarkka | [Maailma ja kamera](08-maailma-ja-liike.md#maailma-ja-kamera) |
+| tehdä painikkeesta, kytkimestä tai säätimestä piirretyn | paneeli → Ilme → Piirros, tilakohtaiset piirrokset; hahmon asento: Aseta ilme | [Ilme](03-nakymapalikat.md#ilme-piirretty-ulkoasu-appi-appi-110) |
+| tehdä kuolema-alueen, avaimen ja oven tai portin (teleportti) | Rakennuslaatikko → Alueet → Kuolema-alue; Esineet → Avain ja ovi, Portti | [Rakennuslaatikko](02-tyoymparisto.md#rakennuslaatikko) |
+| nimetä rakennuslaatikon hyllyn uudelleen | Rakennuslaatikko → muokkaa → Hyllyn nimi | [Rakennuslaatikko](02-tyoymparisto.md#rakennuslaatikko) |
+| verrata tapahtuman kohdetta palikkaan niin, että nimen vaihto ei riko | `tapahtuma.kohde = @vihollinen.nimi` | [Yleiset ominaisuudet](06-kaavat.md#yleiset-ominaisuudet) |
+| lukea päivän, kellonajan tai luvun tekstistä | `@muistutus.päivä`, `.kello`, `.luku`, `.sanoja` | [Tekstin osat](06-kaavat.md#tekstin-osat-päivä-kello-luku-sanoja-appi-appi-111) |
+| koota ryhmän säännöllä (esim. kaikki, joissa on sana koira, tai tämän päivän asiat) | ryhmäpalikkaan rivi `kuuluu, kun jäsen sisältää "koira"` / `kuuluu, kun jäsen.päivä = tänään` | [Ryhmä on palikka](04-logiikkapalikat.md#ryhmä-on-palikka-appi-appi-93) |
+| tehdä ryhmän ikkunan kirjoittamalla | ikkunan Nimi-kenttään `#eläimet` | [Ryhmän ikkuna](04-logiikkapalikat.md#ryhmän-ikkuna-appi-appi-94) |
+| näyttää ryhmän jäsenet rastilistana | ryhmäpalikka → Tee näkymään ▾ → Lista ryhmän jäsenistä, tai Listan Rivit: Ryhmästä | [Lista](03-nakymapalikat.md#lista-lista) |
+| antaa käyttäjän lisätä ryhmään (rivijäsen) ja tehdä siitä myöhemmin palikan | ryhmälistan ＋ Lisää jäsen; Listan paneeli → Tee palikaksi | [Lista](03-nakymapalikat.md#lista-lista) |
+| rastittaa jäsenen logiikasta | `.rasti` (Toiminto Aseta, sääntö `jos … niin @koira.rasti = kyllä`) | [Ryhmä on palikka](04-logiikkapalikat.md#ryhmä-on-palikka-appi-appi-93) |
 | maalata laattoja rakennuslaatikosta | Rakennuslaatikko → Laatat → kartta, sitten laji | [Rakennuslaatikko](02-tyoymparisto.md#rakennuslaatikko), [Maalaus](08-maailma-ja-liike.md#maalaus) |
 
 ## Palikat
@@ -233,6 +245,8 @@ Kokeiltavat vaiheohjeet lukujen lopussa.
 | kaavan tulos | kaavan nimetty arvo: `uni = a + b` |
 | kanvaasi | piirtoalue: Näkymä tai Logiikka |
 | ketju | tapahtumaketju: ikkuna, jonka palikat etenevät viivoja pitkin vaihe kerrallaan |
+| piirros | projektin piirroskirjaston pikselikuva; Kuva, laattalaji ja Ilme viittaavat siihen (Appi-appi 108) |
+| rivijäsen | ryhmälistaan käytössä lisätty rivi: ryhmän jäsen käyttötietona, ei palikka; *Tee palikaksi* (Appi-appi 115) |
 | käyttötieto | käytössä syntyvä tieto (valinnat, tekstit, muistit, rivit); erillään rakenteesta |
 | lukittu, käyttötila | Lukitse: näkymää käytetään kuin valmista appia |
 | muokkaustila | Muokkaa: palikoita lisätään ja muutetaan |

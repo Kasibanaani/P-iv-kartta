@@ -365,11 +365,24 @@ Päivämäärän osat (viikko, viikonpäivä, kuukausi …) saa Päivämäärä-
 
 Väärät muodot antavat virheen, joka luettelee oikeat: `nyt.x ei ole käytössä (nyt.aika, nyt.kello, nyt.tunti, nyt.minuutti, nyt.sekunti, nyt.päivä)`, `ruutu: käytössä ruutu.leveys ja ruutu.korkeus`, `näkymä.x: käytössä näkymä ja näkymä.numero`, `tumma on kyllä/ei ilman ominaisuutta`.
 
-`nyt` on kellonaika tekstinä (`9.30`), ei laskettava aika. Laskettava aika on `nyt.aika` (Appi-appi 101): `nyt.aika >= klo 18.30`, `klo 22 - nyt.aika` (aikaa kymmeneen, näkyy h.mm, esim. 3.31; negatiivinen `−0.15`). Kellonaikana näkyy kaavan tulos, jossa on `nyt.aika` tai `klo` (myös summa, erotus tai `jos`-haara); Monitoriin aika menee sekunteina kuten Sekuntikellon kulunut. Kun-rivin ehtona kello laukaisee kerran ([Sääntö ♛](04-logiikkapalikat.md#sääntö--appi-appi-98)). Tunteja ja minuutteja voi edelleen verrata luvuilla: `nyt.tunti >= 18`.
+`nyt` on kellonaika tekstinä (`9.30`), ei laskettava aika. Laskettava aika on `nyt.aika` (Appi-appi 101): `nyt.aika >= klo 18.30`, `klo 22 - nyt.aika` (aikaa kymmeneen, näkyy h.mm, esim. 3.31; negatiivinen `−0.15`). Kellonaikana näkyy kaavan tulos, jossa on `nyt.aika`, `klo`, tekstin `.kello` tai viite kellonaikaa laskevaan palikkaan (myös summa, erotus tai `jos`-haara; Appi-appi 106, 111). Ryhmän kooste (`#x.kello.pienin`) näkyy vielä sekunteina (kartoitus 15); Monitoriin aika menee sekunteina kuten Sekuntikellon kulunut. Kun-rivin ehtona kello laukaisee kerran ([Sääntö ♛](04-logiikkapalikat.md#sääntö--appi-appi-98)). Tunteja ja minuutteja voi edelleen verrata luvuilla: `nyt.tunti >= 18`.
 
 `tänään` vai `nyt.päivä`? `tänään` on aina kalenteripäivä (vaihtuu keskiyöllä). `nyt.päivä` noudattaa projektin päivän rajaa samalla säännöllä kuin kirjauksen `aika.päivä`, joten historian ehto kirjoitetaan `kirjaus.aika.päivä = nyt.päivä` (luku [Tieto](07-tieto.md#kirjaushistoria)). Ilman päivän rajaa ne ovat sama päivä. Huom. `loki.tänään` (taulukon ominaisuus) on kirjausten määrä tänään, ei päivämäärä.
 
 (Huom. Tietotaulukon *Lisää rivi* -toiminnon kentissä `nyt` tallentaa ajankohdan. Ei tarkistettu tässä luvussa tarkemmin.)
+
+### Tekstin osat: .päivä, .kello, .luku, .sanoja (Appi-appi 111)
+
+Tekstiarvolle luettavat ominaisuudet (ei funktioita). Teksti pysyy tekstinä; tulkinta on vain luettava ominaisuus.
+
+| Kaavassa | Mitä antaa |
+|---|---|
+| `.päivä` | ensimmäinen päivämäärä tekstissä: `24.10.`, `24.10.2026`, `2026-10-24`, `tänään`, `huomenna`, `ylihuomenna`, `eilen`. Vuosi puuttuu → lähin tuleva |
+| `.kello` | ensimmäinen kellonaika: `klo 14`, `kello 9.30`, `18:45` (`14.30` ilman klo-sanaa ei ole kello, koska se voi olla päivä). Näkyy h.mm ja laskee kuten `klo 14` (`@muistutus.kello >= klo 12`) |
+| `.luku` | ensimmäinen luku, joka ei ole osa päivää tai kelloa (`2,5`) |
+| `.sanoja` | sanojen määrä (myös numerot) |
+
+Puuttuva = tyhjä. **Missä:** yleispalikka (`@muistutus.päivä`), näkymän Teksti, Listan rivi (`lista.rivi2.päivä`), ryhmän jäsen (`kuuluu, kun jäsen.päivä = tänään`). **Ketju:** `@muistutus.päivä.viikonpäivä`, `lista.rivi2.päivä.kuukausi`. Päivämäärä-kentän oma `.päivä` (kuukauden päivä) on ennallaan. Ei tunnistu: englanninkieliset muodot (10/24) ja kuukausien nimet (24. lokakuuta). Esimerkki: yleispalikka *Muistutus* tekstillä *Hammaslääkäri 24.10. klo 14*: `= @muistutus.päivä` → 24.10.2026, `= @muistutus.kello` → 14.00.
 
 ### Tilasanat
 
@@ -506,6 +519,8 @@ Ominaisuus on joko **vain luettava** (lasketaan palikan tilasta, esim. `nimi.pit
 ### Yleiset ominaisuudet
 
 **Kaikilla palikoilla, joilla on arvo ulos:** `arvo` (luettava) = palikan arvo.
+
+**Kaikilla palikoilla paitsi Ryhmällä ✦ (Appi-appi 106):** `nimi` (luettava, teksti) = palikan nimi; seuraa uudelleennimeämistä, joten `tapahtuma.kohde = @vihollinen.nimi` kestää nimen vaihdon. Palikka, jolla on jo oma `nimi` (peliohjaimen pohja), pitää omansa.
 
 **Kaikilla palikoilla paitsi Ryhmällä (Appi-appi 57):** `joukot` (luettava, teksti) = joukot, joihin palikka kuuluu nyt, nimet pilkulla erotettuna (`uni.joukot sisältää "terveys"`).
 

@@ -4,6 +4,12 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
 
 ## Versiot
 
+- Linjakkuuskartoitus 15 (22.10., Appi-appi 106–115, samalla suunnitelma 31:n kartoitus ennen 42g:tä; ei versiota, ei sovelluskoodia): raportti `kartoitukset/2026-10-22-linjakkuus-15.md`.
+  - Löydökset: S1 ryhmälistan rivin muokkaus muuttaa rakennetta (kaavajäsenen kaava korvautuu tekstillä, Palauta ei palauta); S2 jäsenen ilman `.rastia` rasti ja muokkaus kuolleita, säännön ohjaama rasti ei kerro ♛:tä; S3 rivijäsenellä ei tekstin osia koosteissa (`#x.päivä.pienin` ohittaa), ei ikkunassa eikä Jäsenille-laskennassa, `@x.nimi.sanoja` virhe; S4 piirroksen nimen vaihto ei päivitä `ilme`-kaavoja; S5 `#x.kello.pienin` sekunteina; S6 ryhmälistan poikkeus (ei jonoon). Korjaukset jonon 1z:aan (kaista A, FORMAT) ja 42e3:een (V3/D1:n tekemätön osa).
+  - Manuaali koottu *Manuaaliin:*-riveistä 106–115 (luvut 2, 3, 4, 6, 7, 8, 9, 10, 11): uudet otsikot *Ilme: piirretty ulkoasu*, *Tekstin osat*, *Piirtoikkuna ja piirroskirjasto*. Seuraava koonti kartoitus 16:ssa; *Manuaaliin:*-rivit 116:sta alkaen.
+  - `PALIKKASAANNOT.md`: viimeisin kartoitus; rekisteri ennallaan. Kartoituslaskuri 0/10.
+  - Koko sarja: kaikki 268 läpi (logiikka 118/118, selain 150/150) commitilla `e267e01`; `selain_91_keveys` 1440 px 59,0 kuvaa/s, moottori 2,5 ms, joukkosuhde 2,5. Vain tietokoneen Chromiumissa.
+
 - Appi-appi 115 (22.10., kaista A, jonon 42e2, suunnitelma 31 V3 ja D1; **tallennusmuoto laajenee** käyttötiedon avaimella `jkr:<ryhmä>`, versio pysyy 12; 113:n `ra:`-avain luetaan ja siirretään): **Rivijäsenet, Tee palikaksi ja asetettava .rasti.**
   - Ryhmälistan *＋ Lisää jäsen* -kenttä on taas näkyvissä: käytössä lisätty rivi on ryhmän **rivijäsen** (käyttötietoa, ei palikka, D1). Se kuuluu ryhmään: `#eläimet` (määrä), `.jäsenet`, `.summa` ym. (arvo = teksti, luku jos luku), `.rasti.summa`, ryhmäpalikan määrä ja listan rivit. Rasti, muokkaus ja × toimivat kuten muillakin riveillä. Palauta poistaa rivijäsenet.
   - Rakentaja: Listan paneelissa *Käytössä lisätyt jäsenet* ja **Tee palikaksi** (tai *Tee kaikista palikat*): rivistä tulee yleispalikka ryhmäpalikan viereen, rivillä `#eläimet`, ja rasti siirtyy.
