@@ -31,7 +31,7 @@ Koko appin varmuuskopio (*Asetukset → Vie tiedosto*) on eri asia: se sisältä
 }
 ```
 
-Tunnisteita (`id`) ei tarvitse kirjoittaa: appi lisää ne. Vain `app`, `laji` ja `projekti.name` ovat pakollisia; tyhjät listat voi jättää pois. Tekstin rivinvaihto on JSONissa `\n`.
+Tunnisteita (`id`) ei tarvitse kirjoittaa: appi lisää ne. Appin oma vienti lisää projektille `id`:n ja `muokattu`-aikaleiman; tuonnissa samalla id:llä tai nimellä oleva projekti voidaan korvata. Vain `app`, `laji` ja `projekti.name` ovat pakollisia; tyhjät listat voi jättää pois. Tekstin rivinvaihto on JSONissa `\n`.
 
 ## Puu (`puut`)
 

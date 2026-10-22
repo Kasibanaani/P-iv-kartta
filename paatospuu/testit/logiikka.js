@@ -112,6 +112,11 @@ function pz(s){return E.parseDates(s,base).map(function(o){return E.dateLabel(o)
 eq('010726',pz('010726'),['ke 1.7.2026 | 2026-07-01']);
 eq('1.7.26 klo13-16',pz('1.7.26 klo13-16'),['ke 1.7.2026 klo 13.00–16.00 | 2026-07-01']);
 eq('2/27',pz('2/27'),['1.2.2027–28.2.2027 | 2027-02-01']);
+// Vienti (1.31)
+eq('tiedostonimet',[E.expName(),E.expName('Mätsik Forest'),E.expName('A/B: "x"?'),E.expName('  ..  ')],['Lehto.json','Mätsik Forest (Lehto).json','AB x (Lehto).json','Projekti (Lehto).json']);
+eq('pallero vasta vuorokauden vaihduttua',[E.staleK({chg:'2026-10-22'},'2026-10-22'),E.staleK({chg:'2026-10-21'},'2026-10-22'),E.staleK({chg:null},'2026-10-23')],[false,true,false]);
+var nd=E.normalizeData({app:'paatospuu',ver:2,kokonaisuudet:[{id:'k1',name:'A',puut:[],muokattu:'2026-10-22T05:00:00.000Z',viety:'2026-10-21T05:00:00.000Z',viematta:'2026-10-22'}],cfg:{font:'mono',glass:'on'}});
+eq('seuranta ja tyyli säilyvät',[nd.K[0].mod,nd.K[0].ex,nd.K[0].chg,nd.cfg.font,nd.cfg.glass],['2026-10-22T05:00:00.000Z','2026-10-21T05:00:00.000Z','2026-10-22','mono','on']);
 // Välimerkit ajan ympärillä (Emil 22.10.2026)
 eq('pilkku päivän jälkeen',pz('Hammaslääkäri 24.10.2026, klo 14'),['la 24.10.2026 klo 14.00 | 2026-10-24']);
 eq('pilkku viikonpäivän jälkeen',pz('pe, klo 14'),['pe 23.10.2026 klo 14.00 | 2026-10-23']);
