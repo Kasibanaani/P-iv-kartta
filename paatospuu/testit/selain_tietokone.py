@@ -33,14 +33,14 @@ async def run(p,w,h):
         print('  %-30s %s'%(label,'ok' if cond else 'VIRHE'))
         if not cond: bad.append(label)
     print('leveys',w)
-    for t in ['use','teach','notes','cal','set']:
+    for t in ['use','notes','cal','set']:
         await pg.click('[data-tab="%s"]'%t); await pg.wait_for_timeout(120); await check('tab '+t)
     await pg.click('[data-tab="notes"]'); await pg.locator('#nlist .ncard').first.click(); await pg.wait_for_timeout(150); await check('muistiinpano ikkuna')
     await pg.click('#ns-ok'); await pg.wait_for_timeout(50)
     st=lambda: pg.evaluate("JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0]")
     want('sivupalkki vasemmalla', (await pg.locator('#nav').bounding_box())['x']==0 and (await pg.locator('#nav').bounding_box())['height']>=h-1)
     # Opetus: tekstikenttä auki oikealla, kirjoitus päivittää puun ja napautus tekstin
-    await pg.click('[data-tab="teach"]'); await pg.wait_for_timeout(100)
+    await pg.click('[data-tab="use"]'); await pg.wait_for_timeout(50); await pg.click('#build'); await pg.wait_for_timeout(100)
     want('tekstikenttä telakassa', await pg.is_visible('#xs-text') and not await pg.is_visible('#opentext') and not await pg.is_visible('#xs-ok'))
     bb=await pg.locator('#xsheet').bounding_box(); tb=await pg.locator('#tlist').bounding_box(); want('ei päällekkäin', tb['x']+tb['width']<=bb['x']+1)
     await pg.click('#xs-text'); await pg.evaluate("(function(){var t=document.getElementById('xs-text'),i=t.value.indexOf('\\n\\n');t.setSelectionRange(i,i);})()"); await pg.keyboard.type('\nVatsa'); await pg.wait_for_timeout(450)
@@ -58,6 +58,7 @@ async def run(p,w,h):
     await col.click(position={'x':40,'y':6*48+30}); await pg.wait_for_timeout(80)
     want('napautus sarakkeeseen: oikea päivä', [await pg.input_value('#ns-date'),await pg.input_value('#ns-ts')]==[tue,'06:30']); await pg.fill('#ns-text','Aamulenkki'); await pg.click('#ns-ok'); await pg.wait_for_timeout(80)
     ev=pg.locator('#timeline .ev:has-text("Aamulenkki")'); want('näkyy tiistaina', await ev.count()==1 and await ev.evaluate("e=>e.closest('.dcol').dataset.day")==tue)
+    await pg.evaluate("document.getElementById('main').scrollTop-=120"); await pg.wait_for_timeout(50)  # vartin merkintä esiin kiinteän yläosan alta
     eb=await ev.bounding_box(); tb=await pg.locator('#timeline .dcol[data-day="%s"]'%wed).bounding_box()
     x0=eb['x']+20; y0=eb['y']+eb['height']/2
     await pg.mouse.move(x0,y0); await pg.mouse.down(); await pg.wait_for_timeout(450)

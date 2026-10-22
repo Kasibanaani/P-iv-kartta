@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.28 (käytettävyyskorjaukset, ajan tulkinta, kuukausi-ikkuna); jono tyhjä, odottaa Emilin kokeilua; kaikki suunnitellut vaiheet tehty, odottaa Emilin kokeilua ja kuittausta · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 21.10.2026
+**Vaihe:** versio 1.29 (yhtenäisyyskierros: asiasanat, Rakenna päätöspuun sisällä, ohjeet i-napin takana, suodatus usealla asiasanalla, kalenterin kelluva +, tyylin hienosäätö, nimiehdotus Lehto); odottaa Emilin kokeilua · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -223,7 +223,23 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - 1.27: Vajaa ajanilmaus on seuraava mahdollinen kirjoitushetkestä: mennyt ”ke klo 8” keskiviikkona → ensi keskiviikko; mennyt pelkkä ”klo 8” → huomenna; käynnissä oleva väli (”ke klo 13–16” klo 14) tänään (Emil vahvisti). Päivämäärä ja toistuvat ennallaan; pelkkä kello + päivämääräkenttä koskee kentän päivää. Lasketaan muistiinpanon luontihetkestä, joten vanhat eivät hypi. Samalla korjattu: *keskiviikkoisin* ei tunnistunut.
 - 1.28: Kalenterin kuukausi-ikkuna: napauta kuukauden nimeä. Nuolet vaihtavat kuukautta, päivän kohdalla vain sitä koskevien (kuittaamattomien) muistiinpanojen määrä, toistuvat ja välit jokaiselle päivälle. Päivän napautus sulkee ja vie päivään; ulkopuoli ja ruksi sulkevat.
 
+## Versio 1.29 (22.10.2026, Emilin toiveet): yhtenäisyyskierros
+
+- **Sanasto:** ”termi” → ”asiasana” kaikkialla näkyvässä tekstissä (tallennusmuodon kentät `termit`/`termisanat` ja koodin nimet ennallaan). Aikatermi → ”aikasana”.
+- **Nimi:** otsikko ja kotinäytön nimi ovat nyt **Lehto** (rakentajan ehdotus: lehto = useita puita, oksat = asiasanojen verkko, lehdet = muistiinpanot; ”Puu” sekoittuisi appin sisäisiin puihin). Kansio, osoite ja tallennusavain ennallaan; nimen vaihto on kaksi riviä `<title>`/`apple-mobile-web-app-title`. Odottaa Emilin kantaa.
+- **Opetus → Rakenna:** oma alapalkkipainike poistettu (4 välilehteä: Päätöspuu, Muistiot, Kalenteri, Asetukset). Päätöspuu-välilehden yläriville *Puu ⌄* -valitsimen viereen samantyylinen *Rakenna*-nappi (painettuna korostettu), joka avaa entisen Opetuksen: alavalinnat *Säännöt / Muokkaa / Järjestys / Toisensa poissulkevat*. Sisäisesti `tab==='teach'` säilyy; alapalkissa Päätöspuu pysyy valittuna.
+- **Yläpalkki:** ei täyttöväriä missään tilassa. Korostus yläpalkin ja sisällön erottavalla viivalla: 3 px, väri tilan mukaan (korostus = rakentaminen, punainen = sulkee pois, sinivihreä = ehdot). Osion nimi pelkkänä tekstinä (ei pilleriä), tilan värillä.
+- **Ohjeet:** kaikki ohjetekstit i-napin takana. Yläpalkin i avaa näkymän ohjeen (Päätöspuu, Rakentaminen, Muistiot, Kalenteri, Asetukset), ikkunoiden otsikon vieressä oma i (tekstikenttä, rivin muokkaus, lopetus, muistiinpano, toistuvat, asiasanat, projektit, suodatus). Ohjeet laajemmat ja tarkemmat (`HELP`-taulukko koodissa). Asetusten Ohje-osio ja näkymien seliteriviset poistettu; näkymässä näkyy vain tila ja varoitus.
+- **Muistiot:** asiasanasirut korvattu rivillä *Asiasanat ⌄ (valinta)* + hakukenttä. Valitsin avaa ikkunan: *Jokin näistä / Kaikki näistä*, sirut, ylhäällä osumien määrä nykyisessä näkymässä päivittyy joka napautuksella, *Tyhjennä valinta*, ruksi sulkee. Napissa lukee valinta (”Kissa ja Ruoka”). Valinta pysyy näkymien välillä, nollautuu projektin vaihdossa.
+- **Kalenteri:** + kelluu oikeassa alakulmassa kalenterin päällä (sticky, ei alapalkin päällä), pois yläpalkista. Uuden merkinnän alku = näkyvän alueen yläreunan viivan kohta pyöristettynä seuraavaan varttiin (vain aikakentän oletus; tekstin tai kentän aika voittaa). Viikkonauhan alareunan viiva 2 px. Ilman loppuaikaa merkintä on **15 min** (aiemmin 60): aikajanan napautus, raahaus aikajanalle ja + antavat vain alkuajan. Lyhyen merkinnän kulmaväkänen kapeampi (26 px), jotta siitä saa kiinni siirtoa varten. Nosto raahatessa selkeämpi (isompi varjo, 1,05×, −3 px).
+- **Alapalkki:** aktiivisen välilehden kuvakkeen takana pehmeä täyttö (`--fill`) ja paksumpi viiva, nimi lihavoitu; painallus pienentää kuvakkeen hetkeksi (0,12 s). Sama kieli kuin valitulla Rakenna-/Puu-napilla.
+- **Asetukset → Ulkoasu:** Fontti (Järjestelmä / Pyöreä / Antiikva / Tasalevyinen), Reunat (Pehmeät / Kulmikkaat / Viivat), Lasisuus (Peittävä / Lasinen: yläpalkki, alapalkki, kiinteät rivit ja ikkunat läpikuultavia sumennuksella). Tallennus `cfg.font/edge/glass`, oletukset = entinen ulkoasu. Tiedot-kohdan laskuri sanoo nyt ”Puita” (oli virheellisesti ”Projekteja”).
+- **Siivous:** kuollut koodi pois (vetosulku `sheetDrag`, `longPress`, `shortD`) ja käyttämättömät CSS-luokat (Päätöskartan perintöä). Päällekkäiset id:t Päätöspuu/Rakenna-paneelien välillä estetty tyhjentämällä toinen paneeli vaihdossa.
+- Testit: logiikka ok; selainpolku 390 ja 320 px (Rakenna-nappi, viiva, ohjeet, suodatusikkuna ja/tai + määrä, kelluva +, viivasta alkava aika, 15 min, tyyliasetukset, nimi) ja 1440/1280 px tietokoneen Chromiumissa.
+
 ## Ei tarkistettu
+
+- Oikealla iPhonella ei kokeiltu (1.29): kelluvan +:n paikka kotiviivan yläpuolella, 2 px viivan ja sumennuksen (Lasinen) ulkonäkö Dynamic Islandin alla, ui-rounded/ui-serif-fonttien saatavuus Safarissa, alapalkin painallusanimaatio, ohjeikkuna toisen ikkunan päällä (sisäkkäinen dialog).
 
 - Tietokoneversio (1.25): kokeiltu vain Chromiumilla 1440 ja 1280 px; Safari/Mac ja iPad (leveys 1024+ vaakatasossa saa tietokoneasettelun) kokeilematta.
 - Oikealla iPhonella ei kokeiltu (1.24): projektin jako tiedostona ja tiedoston valinta Tiedostot-appista.
@@ -240,6 +256,8 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Oikealla iPhonella ei kokeiltu kursorin pysymistä, kun nimen vaihto muuttaa muita rivejä.
 
 ## Seuraavaksi
+
+- Emil kokeilee 1.29:n puhelimella ja ottaa kantaa nimeen (Lehto vai muu). Jos nimi hyväksytään, `PROJEKTIMUOTO.md`:n ja README:n maininnat päivitetään samalla.
 
 - Arvio ja jatkokehitys 21.10.2026 (Claude Doc): https://claude.ai/artifact/UXJ416PaGLHh7mwufxmuaH. Suositus: iPhone-kokeilu, sitten näkyvyys (miksi tämä, termiosumat, nimen vaihto tekstikentässä, varmuuskopion muistutus), termilohkot, JA-ehdot, esiin nousevat apukysymykset.
 
