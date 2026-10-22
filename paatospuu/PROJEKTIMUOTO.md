@@ -1,6 +1,6 @@
-# Päätöspuun projektitiedosto
+# Juuren (ent. Päätöspuu) projektitiedosto
 
-Tämä ohje kuvaa yksittäisen projektin tiedoston, jonka Päätöspuu vie (*Projekti → Vie projekti*) ja lisää (*Lisää projekti → Tiedostosta / Tekstistä*). Se on kirjoitettu niin, että tekoäly voi keskustelun pohjalta tehdä projektin, jonka Emil liittää appiin. Lisäys ei korvaa mitään: projekti tulee uudeksi, ja jos nimi on jo käytössä, perään tulee (2).
+Tämä ohje kuvaa yksittäisen projektin tiedoston, jonka Juuri vie (yläpalkin vientinappi → *Tämä projekti*, tiedosto `Projektin nimi (Juuri).json`) ja lisää (*Lisää projekti → Tiedostosta / Tekstistä*). Se on kirjoitettu niin, että tekoäly voi keskustelun pohjalta tehdä projektin, jonka Emil liittää appiin. Lisäys ei korvaa mitään: projekti tulee uudeksi, ja jos nimi on jo käytössä, perään tulee (2).
 
 Koko appin varmuuskopio (*Asetukset → Vie tiedosto*) on eri asia: se sisältää kaikki projektit ja palauttaa tilan. Jos varmuuskopion antaa *Lisää projekti* -kohtaan, sen kaikki projektit lisätään uusina.
 

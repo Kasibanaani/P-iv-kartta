@@ -358,6 +358,10 @@ async def run(p,w,h):
     await pg.click('[data-tab="set"]'); await pg.click('#p-set details summary'); await pg.fill('#imptext',ptxt); await pg.click('#impcheck'); want('varmuuskopion tuonti tunnistaa projektin', await pg.is_visible('#impadd') and not await pg.is_visible('#impok'))
     nK=len(json.loads(await pg.evaluate("localStorage.getItem('paatospuu:v1')"))['kokonaisuudet']); await pg.click('#impadd'); await pg.wait_for_timeout(50)
     want('lisätty projektina', len(json.loads(await pg.evaluate("localStorage.getItem('paatospuu:v1')"))['kokonaisuudet'])==nK+1)
+    # suomalainen päivämuoto kentissä (1.32)
+    await pg.click('[data-tab="use"]'); await pg.wait_for_timeout(50)
+    if await pg.locator('#startdate').count():
+        await pg.fill('#startdate','2026-12-24'); await pg.dispatch_event('#startdate','change'); want('päivä suomalaisittain', await pg.inner_text('#startdate >> xpath=preceding-sibling::span')=='24.12.2026'); await pg.fill('#startdate',''); await pg.dispatch_event('#startdate','change')
     # vienti yläpalkista (1.31)
     for t in ['use','notes','cal','set']:
         await pg.click(f'[data-tab="{t}"]'); await pg.wait_for_timeout(30); want(f'vientinappi {t}', await pg.is_visible('#xbtn'))
@@ -366,12 +370,12 @@ async def run(p,w,h):
     await pg.evaluate("(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1'));o.kokonaisuudet.forEach(function(k){k.viematta='2026-01-01';});localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()")
     await pg.reload(); await pg.wait_for_timeout(100); want('pallero näkyy', await pg.is_visible('#xdot'))
     await pg.click('#xbtn'); await check('vienti-ikkuna')
-    want('kaksi vaihtoehtoa', await pg.locator('#vs-rows .row').count()==2 and 'Lehto.json' in await pg.inner_text('#vs-all') and '(Lehto).json' in await pg.inner_text('#vs-proj') and 'Viety viimeksi' in await pg.inner_text('#vs-when'))
+    want('kaksi vaihtoehtoa', await pg.locator('#vs-rows .row').count()==2 and 'Juuri.json' in await pg.inner_text('#vs-all') and '(Juuri).json' in await pg.inner_text('#vs-proj') and 'Viety viimeksi' in await pg.inner_text('#vs-when'))
     async with pg.expect_download() as dl: await pg.click('#vs-proj')
-    d=await dl.value; want('projektin tiedostonimi', d.suggested_filename==(await pg.inner_text('#tname'))+' (Lehto).json')
+    d=await dl.value; want('projektin tiedostonimi', d.suggested_filename==(await pg.inner_text('#tname'))+' (Juuri).json')
     await pg.wait_for_timeout(50); want('projektin vienti ei kuittaa muita', await pg.is_visible('#xdot') and await pg.locator('#vs-proj .xdot').count()==0 and await pg.locator('#vs-all .xdot').count()==1)
     async with pg.expect_download() as dl: await pg.click('#vs-all')
-    d=await dl.value; want('koko appin tiedostonimi', d.suggested_filename=='Lehto.json')
+    d=await dl.value; want('koko appin tiedostonimi', d.suggested_filename=='Juuri.json')
     await pg.wait_for_timeout(50); want('koko appin vienti kuittaa', not await pg.is_visible('#xdot') and 'koko appi' in await pg.inner_text('#vs-when'))
     await pg.click('#vsheet .sx')
     # vanhentuneen projektin tuonti varoittaa
@@ -406,7 +410,7 @@ async def run(p,w,h):
     want('tyyliasetukset päällä', await pg.evaluate("document.documentElement.dataset.font+document.documentElement.dataset.edge+document.documentElement.dataset.glass")=='seriflineon' and 'serif' in await pg.evaluate("getComputedStyle(document.body).fontFamily"))
     await pg.click('[data-tab="notes"]'); await pg.wait_for_timeout(50); await check('tyyli muistiot'); await pg.click('[data-tab="cal"]'); await pg.wait_for_timeout(100); await check('tyyli kalenteri')
     await pg.click('[data-tab="set"]'); await pg.click('#set-font [data-v="system"]'); await pg.click('#set-edge [data-v="soft"]'); await pg.click('#set-glass [data-v="off"]')
-    await pg.reload(); await pg.wait_for_timeout(100); want('tyyliasetus tallessa', await pg.evaluate("document.documentElement.dataset.font")=='system' and await pg.evaluate("document.title")=='Lehto')
+    await pg.reload(); await pg.wait_for_timeout(100); want('tyyliasetus tallessa', await pg.evaluate("document.documentElement.dataset.font")=='system' and await pg.evaluate("document.title")=='Juuri')
     for mode in ['Tumma']:
         await pg.click('[data-tab="set"]'); await pg.click('#p-set .seg button:has-text("%s")'%mode); await check('tumma')
     print('  errs',errs); await b.close(); return bad+(['virheet'] if errs else [])

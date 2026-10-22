@@ -112,8 +112,12 @@ function pz(s){return E.parseDates(s,base).map(function(o){return E.dateLabel(o)
 eq('010726',pz('010726'),['ke 1.7.2026 | 2026-07-01']);
 eq('1.7.26 klo13-16',pz('1.7.26 klo13-16'),['ke 1.7.2026 klo 13.00–16.00 | 2026-07-01']);
 eq('2/27',pz('2/27'),['1.2.2027–28.2.2027 | 2027-02-01']);
+// Kellonaika ilman klo-sanaa päivän perässä (1.32)
+var B2=new Date(2026,9,22,10,0);function ptm(t){return E.parseDates(t,B2).map(function(o){return o.a+(o.time?' '+o.time.s+'-'+o.time.e:'');});}
+eq('päivän perässä aika',[ptm('torstaina 22-23'),ptm('to 22-23'),ptm('24.10. 9.30'),ptm('24.10.26 14'),ptm('1.7.26–3.8.26 9')],[['2026-10-22 22:00-23:00'],['2026-10-22 22:00-23:00'],['2026-10-24 09:30-'],['2026-10-24 14:00-'],['2026-07-01 09:00-']]);
+eq('ei aikaa ilman päivää tai välimerkin jälkeen',[ptm('Ostin 3 kissaa'),ptm('pe, 14'),ptm('24.10.2026. 9'),ptm('torstaina 25-26'),ptm('torstaina 9.75')],[[],[],['2026-10-24'],['2026-10-22'],['2026-10-22']]);
 // Vienti (1.31)
-eq('tiedostonimet',[E.expName(),E.expName('Mätsik Forest'),E.expName('A/B: "x"?'),E.expName('  ..  ')],['Lehto.json','Mätsik Forest (Lehto).json','AB x (Lehto).json','Projekti (Lehto).json']);
+eq('tiedostonimet',[E.expName(),E.expName('Mätsik Forest'),E.expName('A/B: "x"?'),E.expName('  ..  ')],['Juuri.json','Mätsik Forest (Juuri).json','AB x (Juuri).json','Projekti (Juuri).json']);
 eq('pallero vasta vuorokauden vaihduttua',[E.staleK({chg:'2026-10-22'},'2026-10-22'),E.staleK({chg:'2026-10-21'},'2026-10-22'),E.staleK({chg:null},'2026-10-23')],[false,true,false]);
 var nd=E.normalizeData({app:'paatospuu',ver:2,kokonaisuudet:[{id:'k1',name:'A',puut:[],muokattu:'2026-10-22T05:00:00.000Z',viety:'2026-10-21T05:00:00.000Z',viematta:'2026-10-22'}],cfg:{font:'mono',glass:'on'}});
 eq('seuranta ja tyyli säilyvät',[nd.K[0].mod,nd.K[0].ex,nd.K[0].chg,nd.cfg.font,nd.cfg.glass],['2026-10-22T05:00:00.000Z','2026-10-21T05:00:00.000Z','2026-10-22','mono','on']);

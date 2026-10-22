@@ -1,6 +1,6 @@
-# Päätöspuu: tila
+# Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.31 (vienti yläpalkista: koko appi / projekti JSON-tiedostona, aikaleimat, punainen pallero, aina sama tiedostonimi, vanhentuneen tuonnin varoitus); 1.29–1.30 odottavat Emilin kokeilua · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
+**Vaihe:** versio 1.32 (nimi **Juuri**, Emilin päätös; kellonaika ilman klo-sanaa päivän perässä; päivä- ja aikakentät suomalaisessa muodossa); suhteellisten aikojen lukitus odottaa Emilin valintaa · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -253,15 +253,23 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 ## Versio 1.31 (22.10.2026, Emilin toive): vienti yläpalkista
 
 - **Yläpalkki:** projektin nimi vasemmalla, osion nimi keskellä, oikealla i ja vientinappi (sama paikka kaikissa osioissa). Asetukset-välilehden vanha pallero poistettu, Asetusten *Vie tiedosto* ja projektin *Vie projekti* poistettu (vienti tekstinä jäi Asetuksiin varalle).
-- **Vienti-ikkuna:** tasan kaksi vaihtoehtoa JSON-tiedostona: *Koko appi* (`Lehto.json`) ja *Tämä projekti* (`Projektin nimi (Lehto).json`, tiedostonimeen kelpaamattomat merkit pois). Ylärivillä pienellä kummankin viimeisin vienti (projektille koko appin vienti, jos se on uudempi, merkinnällä *koko appin mukana*).
+- **Vienti-ikkuna:** tasan kaksi vaihtoehtoa JSON-tiedostona: *Koko appi* (`Juuri.json`) ja *Tämä projekti* (`Projektin nimi (Juuri).json`, tiedostonimeen kelpaamattomat merkit pois). Ylärivillä pienellä kummankin viimeisin vienti (projektille koko appin vienti, jos se on uudempi, merkinnällä *koko appin mukana*).
 - **Punainen pallero** vientinapissa: jossain projektissa on viemättömiä muutoksia, ja vuorokausi on vaihtunut ensimmäisen viemättömän muutoksen jälkeen. Koko appin vienti kuittaa kaikki projektit, projektin vienti vain sen. Ikkunassa pallero sen rivin vieressä, joka kuittaa; koko appin rivillä luetellaan muut viemättömät projektit. Tarkistus myös, kun appi palaa näkyviin.
 - **Seuranta:** projektille `muokattu` (viimeisin muutos), `viety` (projektin viimeisin vienti), `viematta` (ensimmäisen viemättömän muutoksen päivä); vanhasta tallennuksesta viemättömät muutokset lasketaan avauspäivälle. Projektitiedostoon lisätty `id` ja `muokattu`.
 - **Tuonti (Asetukset):** projektitiedosto, jonka id tai nimi on jo appissa, tarjoaa *Korvaa projekti* / *Lisää kopiona* / *Peru* (roskakori säilyy korvatessa). **Varoitus**, jos tiedosto on viety ennen projektin viimeisintä muutosta tällä laitteella; koko varmuuskopion tuonnissa sama vertailu tuoreimpaan muutokseen.
 - Korjattu samalla: fontti, reunat ja lasisuus eivät säilyneet uudelleenlatauksessa eivätkä tuonnissa (1.29:n bugi).
 - Testit: logiikka 289 ok (tiedostonimet, pallero, seuranta); selain 390/320 (nappi kaikissa osioissa, sijainti, pallero, latauksen tiedostonimet, kuittaukset, korvaa/kopio, vanhentuneen varoitus) ja 1440/1280 px.
 
+## Versio 1.32 (22.10.2026, Emilin päätökset ja toiveet)
+
+- **Nimi Juuri** (Emil 22.10.2026, korvaa ehdotuksen Lehto): otsikko, kotinäytön nimi, tyhjän projektin nimi, vientitiedostot `Juuri.json` ja `Projektin nimi (Juuri).json`, ohjeet, README ja PROJEKTIMUOTO. Kansio, osoite, tallennusavain ja tiedoston sisäinen tunniste `app:'paatospuu'` ennallaan, joten vanhat varmuuskopiot (myös Lehto-nimiset tiedostot) tuodaan kuten ennen.
+- **Kellonaika ilman klo-sanaa:** numero tai väli heti päivää tarkoittavan ilmauksen perässä pelkällä välilyönnillä on kellonaika, jos se on kelvollinen 24 tunnin aika (minuutit alle 60): ”torstaina 22-23”, ”to 22-23”, ”24.10. 9.30”, ”24.10.26 14”. Pilkku tai piste välissä estää; ilman päivää numero ei ole kellonaika. Tunnettu raja: ”huomenna 2 kertaa” tulkitaan klo 2:ksi (Emilin säännön mukaista; tunnistus näkyy aina tulkinnassa).
+- **Päivä- ja aikakentät** (muistiinpano, lopetus, toistuvan aloitus, kierroksen päivä) näyttävät pp.kk.vvvv ja hh.mm laitteen kielestä riippumatta; laitteen oma valitsin aukeaa napautuksesta. Vuosi tekstissä kelpaa nelinumeroisena tai kaksinumeroisena (26 = 2026), kuten ennenkin.
+- Testit: logiikka 291 ok; selain 390/320 (kentän suomalainen muoto, uudet tiedostonimet) ja 1440/1280 px.
+
 ## Ei tarkistettu
 
+- Oikealla iPhonella ei kokeiltu (1.32): päivä- ja aikakentän valitsimen aukeaminen näkyvän tekstin alta Safarissa, valitsimen *Tyhjennä*.
 - Oikealla iPhonella ei kokeiltu (1.31): jakoikkunan tiedostonimi Tiedostot-appiin tallennettaessa ja *Korvaa*-kysymys, pallero kotiviivan/Dynamic Islandin läheisyydessä, vuorokauden vaihtuminen appin ollessa taustalla.
 - Oikealla iPhonella ei kokeiltu (1.30): tekstikentän arvon vaihto kirjoittaessa Safarissa (kohdistimen pysyminen, iOS:n ennakoiva teksti ja sanelu voivat käyttäytyä eri tavalla kuin tietokoneen näppäimistö).
 - Oikealla iPhonella ei kokeiltu (1.29): kelluvan +:n paikka kotiviivan yläpuolella, 2 px viivan ja sumennuksen (Lasinen) ulkonäkö Dynamic Islandin alla, ui-rounded/ui-serif-fonttien saatavuus Safarissa, alapalkin painallusanimaatio, ohjeikkuna toisen ikkunan päällä (sisäkkäinen dialog).
@@ -283,7 +291,6 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 ## Seuraavaksi
 
 - Emil kokeilee 1.30:n (asetus puun ⋯-valikosta) ja sanoo, tuntuuko ketjutus oikealta. Jatkoideoita, ei rakennettu: lisäykset vasta tallennettaessa (ei kirjoittaessa), osion piilotus kortissa.
-- Emil kokeilee 1.29:n puhelimella ja ottaa kantaa nimeen (Lehto vai muu). Jos nimi hyväksytään, `PROJEKTIMUOTO.md`:n ja README:n maininnat päivitetään samalla.
 
 - Arvio ja jatkokehitys 21.10.2026 (Claude Doc): https://claude.ai/artifact/UXJ416PaGLHh7mwufxmuaH. Suositus: iPhone-kokeilu, sitten näkyvyys (miksi tämä, termiosumat, nimen vaihto tekstikentässä, varmuuskopion muistutus), termilohkot, JA-ehdot, esiin nousevat apukysymykset.
 

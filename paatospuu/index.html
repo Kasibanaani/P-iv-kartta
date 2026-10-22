@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Lehto</title>
+<title>Juuri</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Lehto">
+<meta name="apple-mobile-web-app-title" content="Juuri">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#F5F3EE">
 <style>
@@ -368,6 +368,16 @@ main{padding-bottom:28px}
 #rsheet select{width:100%;min-height:48px;padding:10px 40px 10px 16px;border:0;border-radius:10px;background:var(--cell) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5 8l5 5 5-5' fill='none' stroke='%23888' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 14px center/16px;font-size:17px;color:var(--label);-webkit-appearance:none;appearance:none}
 input[type="date"],input[type="time"]{width:100%;box-sizing:border-box;min-height:48px;padding:10px 16px;border:0;border-radius:10px;background:var(--cell);font-size:17px;color:var(--label)}
 input[type="time"]{min-width:0;padding:10px 10px;font-size:16px}
+/* Suomalainen päivämäärä ja 24 tunnin aika (Emil 22.10.2026): laitteen oma valitsin aukeaa, mutta kentässä näkyy pp.kk.vvvv / hh.mm
+   laitteen kielestä riippumatta (iPhone näytti muotoa Oct 24, 2026). */
+.fipick{position:relative;display:block;min-width:0}
+.fipick>input{position:absolute;inset:0;width:100%;height:100%;min-height:0;margin:0;opacity:0;cursor:pointer}
+.fishow{display:flex;align-items:center;min-height:48px;padding:10px 16px;border-radius:10px;background:var(--cell);font-size:17px;color:var(--label);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden}
+.fipick.t .fishow{padding:10px;font-size:16px}
+.fishow.ph{color:var(--label2)}
+.fipick:focus-within .fishow{box-shadow:0 0 0 2px var(--accent)}
+html[data-edge="sharp"] .fishow{border-radius:3px}
+html[data-edge="line"] .fishow{box-shadow:inset 0 0 0 1px var(--sep)}
 .syntax{font-size:13.5px;line-height:1.5;color:var(--label2);margin:6px 0 10px}
 .syntax code{font:12.5px ui-monospace,Menlo,Consolas,monospace;background:var(--cell);padding:1px 5px;border-radius:5px;color:var(--label)}
 .mxcard{background:var(--cell);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:15px}
@@ -1036,7 +1046,7 @@ function oneDate(w,b){var m=/^(\d{1,2})\.(\d{1,2})\.(\d{4}|\d{2})?$/.exec(w),x;
 function rangeOf(l,r,b){var A=oneDate(l,b),B=oneDate(r,b);if(!A||!B)return null;var a=A.x,e=B.x;
   if(!A.y){a=mkDate(e.getFullYear(),A.m,A.d);if(a&&a>e)a=mkDate(e.getFullYear()-1,A.m,A.d);}
   return a&&a<=e?[a,e]:null;}
-function timeOf(w){var m=/^(\d{1,2})(?:[.:](\d{2}))?(?:[-–](\d{1,2})(?:[.:](\d{2}))?)?$/.exec(w);if(!m||+m[1]>24||(m[3]&&+m[3]>24))return null;
+function timeOf(w){var m=/^(\d{1,2})(?:[.:](\d{2}))?(?:[-–](\d{1,2})(?:[.:](\d{2}))?)?$/.exec(w);if(!m||+m[1]>24||(m[3]&&+m[3]>24)||(m[2]&&+m[2]>59)||(m[4]&&+m[4]>59))return null;
   return {s:pad(+m[1])+':'+(m[2]||'00'),e:m[3]?pad(+m[3])+':'+(m[4]||'00'):''};}
 var WDA=['su','ma','ti','ke','to','pe','la'];
 function wdOf(w){var m=/^(maanantai|tiistai|keskiviikko|torstai|perjantai|lauantai|sunnuntai)(na|sin|isin|t)?$/.exec(w);if(m&&m[2]==='isin'&&m[1]!=='keskiviikko')m=null;return m?{d:WD.indexOf(m[1]),sin:m[2]==='sin'||m[2]==='isin',base:!m[2]}:null;}
@@ -1110,8 +1120,12 @@ function finishChunk(c,b,text,nm){var bi=isoD(b),o={s:c.s,e:c.e,src:text.slice(c
   return o;}
 function parseDates(text,base){var bd=base||new Date(),b=dayOf(bd),nm=isNaN(bd.getTime())?null:bd.getHours()*60+bd.getMinutes(),tk=tokensOf(text),out=[],c=null,i=0;text=String(text||'');
   function close(){if(c){var o=finishChunk(c,b,text,nm);if(o)out.push(o);}c=null;}
-  while(i<tk.length){if(tk[i].nl)close();var r=specAt(tk,i,b);
-    if(r&&r.sp.abbr&&!c){var nx=!tk[i].hard&&tk[i+1]&&!tk[i+1].nl?specAt(tk,i+1,b):null;if(!nx||nx.sp.abbr)r=null;}
+  /* Kellonaika ilman klo-sanaa (Emil 22.10.2026): numero tai väli heti päivää tarkoittavan ilmauksen perässä pelkällä välilyönnillä
+     (torstaina 22-23, 24.10. 9.30) on kellonaika, jos se on kelvollinen 24 tunnin aika. Pilkku tai piste välissä estää. */
+  function bareT(j){var t=tk[j];return j>0&&t&&!t.nl&&!tk[j-1].brk&&/^\d/.test(t.w)?timeOf(t.w):null;}
+  while(i<tk.length){if(tk[i].nl)close();var r=specAt(tk,i,b),x;
+    if(!r&&c&&!c.time&&(c.R||c.wds.length)&&(x=bareT(i)))r={n:1,sp:{time:x}};
+    if(r&&r.sp.abbr&&!c){var nx=!tk[i].hard&&tk[i+1]&&!tk[i+1].nl?specAt(tk,i+1,b):null;if(!nx&&bareT(i+1))nx={sp:{}};if(!nx||nx.sp.abbr)r=null;}
     if(!r){close();i++;continue;}
     var sp=r.sp,last=tk[i+r.n-1];
     if(c&&((sp.R&&c.R)||(sp.time&&c.time)||(sp.mon&&c.mon)))close();
@@ -1269,9 +1283,9 @@ function fillIds(k,one,today){var c={},n=0;Object.keys(k).forEach(function(f){c[
   ['puut','muistiinpanot','termit','toistuvat'].forEach(function(f){if(!Array.isArray(c[f]))return;c[f]=c[f].map(function(x){if(!x||typeof x!=='object')return x;var y={};Object.keys(x).forEach(function(q){y[q]=x[q];});
     if(typeof y.id!=='string'||!y.id)y.id=f.charAt(0)+'_'+(++n);if(f==='puut'&&one&&y.rt===undefined)y.rt=1;if(f==='toistuvat'&&!y.start)y.start=today;return y;});});
   return c;}
-/* Vientitiedoston nimi aina sama (Emil 22.10.2026): projekti = ”Nimi (Lehto).json”, koko appi = ”Lehto.json”. Tiedostonimeen
+/* Vientitiedoston nimi aina sama (Emil 22.10.2026): projekti = ”Nimi (Juuri).json”, koko appi = ”Juuri.json” (nimi Juuri, Emil 22.10.2026; app-tunniste paatospuu ennallaan, joten vanhat varmuuskopiot käyvät). Tiedostonimeen
    kelpaamattomat merkit jätetään pois, jotta puhelin tarjoaa korvaamista. */
-var APPNAME='Lehto';
+var APPNAME='Juuri';
 function safeName(t){return String(t||'').replace(/[\\\/:*?"<>|\u0000-\u001f]/g,'').replace(/\s+/g,' ').trim().replace(/^\.+|\.+$/g,'').slice(0,80);}
 function expName(name){return name===undefined||name===null?APPNAME+'.json':(safeName(name)||'Projekti')+' ('+APPNAME+').json';}
 /* Pallero: viemättömiä muutoksia ja vuorokausi on vaihtunut ensimmäisen viemättömän muutoksen jälkeen */
@@ -1322,6 +1336,16 @@ try{if(window.navigator.standalone)document.documentElement.classList.add('stand
 document.addEventListener('gesturestart',function(ev){ev.preventDefault();}); // Safari: ei nipistyszoomausta
 'use strict';
 var KEY='paatospuu:v1';
+/* Päivä- ja aikakentät suomalaiseen muotoon: näkyvä teksti kentän päällä, laitteen valitsin pysyy käytössä */
+var VAL=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
+function fiPick(inp){if(inp.dataset.fi||!inp.parentNode)return;inp.dataset.fi='1';var dt=inp.type==='date',w=document.createElement('span'),sh=document.createElement('span');
+  w.className='fipick'+(dt?'':' t');sh.className='fishow';sh.setAttribute('aria-hidden','true');inp.parentNode.insertBefore(w,inp);w.appendChild(sh);w.appendChild(inp);
+  function upd(){var v=VAL.get.call(inp),p=v.split('-');sh.textContent=v?(dt?(+p[2])+'.'+(+p[1])+'.'+p[0]:v.slice(0,5).replace(':','.')):(dt?'pp.kk.vvvv':'hh.mm');sh.classList.toggle('ph',!v);}
+  Object.defineProperty(inp,'value',{configurable:true,get:function(){return VAL.get.call(inp);},set:function(v){VAL.set.call(inp,v);upd();}});
+  inp.addEventListener('input',upd);inp.addEventListener('change',upd);
+  inp.addEventListener('click',function(){try{if(inp.showPicker)inp.showPicker();}catch(e){}});upd();}
+function fiAll(root){Array.prototype.forEach.call((root||document).querySelectorAll('input[type="date"],input[type="time"]'),fiPick);}
+try{new MutationObserver(function(){fiAll();}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
 function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e;}
 function $(id){return document.getElementById(id);}
 function nowIso(){return new Date().toISOString();}
@@ -1394,7 +1418,7 @@ function exportProj(){$('vs-out').textContent='';stashK();var k=kOf(),now=nowIso
 $('xbtn').addEventListener('click',function(){vsMsg('');$('vs-out').textContent='';renderVs();openSheet($('vsheet'));});
 $('status').addEventListener('click',function(){showTab('set');});
 /* Yläpalkki = projekti, puu valitaan Käytön ja Opetuksen yläosasta (Emil 21.10.2026) */
-function renderHead(){var k=kOf();$('tname').textContent=k?k.name:'Lehto';}
+function renderHead(){var k=kOf();$('tname').textContent=k?k.name:'Juuri';}
 var CHEV='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg>';
 /* Puun valinta ja Rakenna samassa rivissä ja samalla tyylillä kuin Muistioiden asiasanojen valinta (Emil 22.10.2026) */
 function treeBar(p){var P=proj(),r=el('div','treebar'),b=button(r,'','treepick',function(){openProj('p');});b.id='treepick';b.setAttribute('aria-label','Vaihda puuta');
@@ -1413,7 +1437,7 @@ $('hint').addEventListener('click',function(){showHelp(hintKey);});
 document.addEventListener('click',function(ev){var b=ev.target.closest('[data-help]');if(b)showHelp(b.dataset.help);});
 $('hs-close').addEventListener('click',function(){closeSheet($('hsheet'));});
 var HELP={
-vienti:['Vie varmuuskopio','<p>Vientinappi on yläpalkissa samassa paikassa kaikissa osioissa. Vaihtoehtoja on kaksi, molemmat JSON-tiedostona: <b>Koko appi</b> (kaikki projektit ja asetukset, tiedosto <code>Lehto.json</code>) ja <b>Tämä projekti</b> (auki oleva projekti, tiedosto <code>Projektin nimi (Lehto).json</code>). Nimi on aina sama, joten tallentaessa voi valita <i>Korvaa</i>.</p><p>Ylärivi kertoo, milloin kumpikin on viety viimeksi. <b>Punainen pallero</b> tulee, kun jossain projektissa on muutoksia, joita ei ole viety, ja vuorokausi on vaihtunut ensimmäisen muutoksen jälkeen. Koko appin vienti kuittaa kaikki projektit, projektin vienti vain sen projektin. Pallero rivin vieressä kertoo, kumpi vienti sen kuittaa.</p>'],
+vienti:['Vie varmuuskopio','<p>Vientinappi on yläpalkissa samassa paikassa kaikissa osioissa. Vaihtoehtoja on kaksi, molemmat JSON-tiedostona: <b>Koko appi</b> (kaikki projektit ja asetukset, tiedosto <code>Juuri.json</code>) ja <b>Tämä projekti</b> (auki oleva projekti, tiedosto <code>Projektin nimi (Juuri).json</code>). Nimi on aina sama, joten tallentaessa voi valita <i>Korvaa</i>.</p><p>Ylärivi kertoo, milloin kumpikin on viety viimeksi. <b>Punainen pallero</b> tulee, kun jossain projektissa on muutoksia, joita ei ole viety, ja vuorokausi on vaihtunut ensimmäisen muutoksen jälkeen. Koko appin vienti kuittaa kaikki projektit, projektin vienti vain sen projektin. Pallero rivin vieressä kertoo, kumpi vienti sen kuittaa.</p>'],
 paatospuu:['Päätöspuu','<p><b>Puu ⌄</b> vaihtaa puuta ja avaa puun asetukset (muisti, eteneminen, lopuksi), uuden puun, kopion ja poiston. Yläreunan nimi vaihtaa projektia.</p><p><b>Rakenna</b> avaa puun rakentamisen: tekstikenttä, säännöt napauttamalla, rivien muokkaus, järjestys ja toisensa poissulkevat.</p><p><b>Kierros</b> käy puun läpi alusta. Valinnainen päivä hakee sen päivän muistiinpanot valmiiksi mukaan. Valinta tuo näkyviin siihen liitetyt vaihtoehdot; <b>Jatka</b> ilman valintaa ohittaa askeleen. Valinnat ja poissulut muistuvat koko kierroksen, kunnes valinnan purkaa. Ryhmän poissulku sulkee pois myös sen jäsenet, ja toisensa poissulkevat menevät samassa askeleessa harmaiksi. <b>Peru askel</b> palaa, <b>Lopeta</b> tallentaa kierroksen muistiinpanoksi aikaleiman kanssa.</p><p>Tärkeysjärjestyksessä etenevä puu näyttää askeleessa tärkeimmän täyttymättömän merkityksen ehdot; Jatka ilman valintaa ohittaa sen.</p>'],
 rakenna:['Rakentaminen','<p><b>Tekstikenttä</b> on puun sisältö: yksi rivi on yksi asia. Kaikki säännöt tallentuvat tekstiin =-lohkoina, joten koko puun voi kirjoittaa tai liittää tekstinä (ohje tekstikentän i-napista).</p><p><b>Säännöt</b> napauttamalla: napauta nappulaa, ryhmää tai Alkua. <b>Kerran</b> = valitse, mitä se tuo näkyviin (sininen). <b>Toisen kerran</b> = mitä se sulkee pois koko kierroksen ajaksi (punainen). <b>Kolmannen</b> = ehdot eli mistä se itse tulee näkyviin: <i>Yksi riittää</i> tai <i>Kaikki tarvitaan</i> (vihreä). Neljäs napautus tai Valmis lopettaa. Ilmoitus ja apukysymys menevät suoraan ehtoihin, koska ne eivät avaa mitään. Alku kertoo, mitkä näkyvät kierroksen alussa; opettamattomana kaikki, joita mikään ei tuo.</p><p><b>Muokkaa</b>: napauta riviä muokataksesi sen tekstiä, nuolet vaihtavat järjestystä. Nimen vaihto vie säännöt mukana. Tyhjäksi jätetty rivi poistuu.</p><p><b>Järjestys</b>: tähti merkitsee palikan tärkeäksi, tärkeät ovat ensin ja ylin on tärkein. Järjestä tärkeät painamalla riviä pitkään ja raahaamalla. Napauta palikkaa ja sitten muita sanoaksesi, että se on niitä tärkeämpi (ennen-sääntö). Tähti on sama kuin asiasanan tähti Muistioissa.</p><p><b>Toisensa poissulkevat</b>: ryhmittely nappuloista, joista vain yksi voi olla valittuna samassa askeleessa. Seuraavassa askeleessa ne voivat taas tulla.</p><p>Ristiriitainen sääntö (kehä) hylätään, ja yläreuna kertoo ketjun.</p>'],
 teksti:['Tekstikenttä','<p>Yksi rivi on yksi asia. Ylempi rivi on oletuksena tärkeämpi. Rivi saa värinsä heti, kun se on tulkittu; <span class="k-w">punainen</span> nimi on jo käytössä.</p><ul><li><code class="k-b">Koira</code> nappula. Tavuviiva nimessä vaihtaa riviä nappulan sisällä.</li><li><code class="k-g">#Eläimet: selitys</code> ryhmä. Ei näy käytössä; avaa jäsenensä ja voi avata tai sulkea pois toisen ryhmän.</li><li><code class="k-t">&gt;Perustelu: teksti</code> ilmoitus. Käytössä näkyy vain teksti, joka kertyy ruutuun ja muistiinpanoon.</li><li><code class="k-q">?Apu: kysymys</code> apukysymys. Näkyy pienenä ylhäällä vain sen askeleen ajan, ei muistiinpanoon.</li><li><code> // </code> tekstin sisällä vaihtaa kappaletta. Rivi, joka alkaa <code class="k-c">//</code>, on oma väliotsikko ja ohitetaan.</li></ul><p><b>Lohkot</b> alkavat =-rivillä, alla rivit, tyhjä rivi päättää:</p><ul><li><code class="k-rh">=Koira avaa:</code> sääntö, alle palikat riveittäin. Samoin <code>sulkee</code>, <code>vaatii kaikki</code>, <code>vaatii yhden</code> ja <code>ennen</code> (alla olevat ovat vähemmän tärkeitä). Myös <code class="k-rh">=Alku avaa:</code>, <code class="k-rh">=Toisensa poissulkevat:</code> ja <code class="k-rh">=Tärkeät:</code>.</li><li><code class="k-xh">=Eläimet:</code> asiasanalohko: sanat, joista palikka tunnistuu muistiinpanosta, <code>!</code> alussa poissulkeva. Lohko, joka ei ole palikka, on uusi asiasana.</li><li><code>=Koira kääntöpuoli:</code> teksti, joka kirjataan muistiinpanon Puuttuu-osioon, jos palikkaa tarjottiin mutta sitä ei valittu.</li></ul><p>Napautetut säännöt kirjoittuvat näihin lohkoihin, ja lohkojen muutokset näkyvät heti rakentamisessa. Kun vaihdat nimen rivin alusta, säännöt seuraavat mukana; usean rivin liittäminen kerralla ei vie viittauksia.</p>'],
@@ -1527,9 +1551,9 @@ function slug(t){return clean(t).toLowerCase().replace(/[^a-z0-9åäö]+/g,'-').
 function mMsg(t){$('pk-mmsg').textContent=t||'';}
 $('pk-exptxt').addEventListener('click',function(){mMsg('');pkText(projTxt());});
 $('pk-addfile').addEventListener('click',function(){$('pk-file').click();});
-$('pk-file').addEventListener('change',function(){var fi=$('pk-file'),f=fi.files&&fi.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){var n=addProjects(looseJson(String(rd.result||'')));pkMsg(n?(n===1?'Projekti lisätty ja avattu.':n+' projektia lisätty.'):'Tiedosto ei ole Lehdon projekti.',!n);};rd.readAsText(f);fi.value='';});
+$('pk-file').addEventListener('change',function(){var fi=$('pk-file'),f=fi.files&&fi.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){var n=addProjects(looseJson(String(rd.result||'')));pkMsg(n?(n===1?'Projekti lisätty ja avattu.':n+' projektia lisätty.'):'Tiedosto ei ole Juuren projekti.',!n);};rd.readAsText(f);fi.value='';});
 $('pk-addtext').addEventListener('click',function(){$('pk-textbox').hidden=false;$('pk-text').focus();});
-$('pk-textok').addEventListener('click',function(){var n=addProjects(looseJson($('pk-text').value));if(n){$('pk-text').value='';$('pk-textbox').hidden=true;}pkMsg(n?(n===1?'Projekti lisätty ja avattu.':n+' projektia lisätty.'):'Teksti ei ole Lehdon projekti.',!n);});
+$('pk-textok').addEventListener('click',function(){var n=addProjects(looseJson($('pk-text').value));if(n){$('pk-text').value='';$('pk-textbox').hidden=true;}pkMsg(n?(n===1?'Projekti lisätty ja avattu.':n+' projektia lisätty.'):'Teksti ei ole Juuren projekti.',!n);});
 function addK(){var n=clean($('pk-new').value);if(!n)return;stashK();var k=newK(n);data.K.push(k);loadK(k);$('pk-new').value='';resetDraft();ed=null;termCache=null;noteFilter=[];touch();renderHead();renderProjSheet();render();$('pk-msg').textContent='Projekti ”'+k.name+'” luotu ja avattu. Lisää sille puu alla.';}
 $('pk-add').addEventListener('click',addK);$('pk-new').addEventListener('keydown',function(ev){if(ev.key==='Enter')addK();});
 $('pk-name').addEventListener('change',function(){var k=kOf(),n=clean($('pk-name').value);if(k&&n){k.name=n.slice(0,80);touch();renderHead();render();}});
@@ -2174,14 +2198,14 @@ function offerImport(txt){var out=$('dataout');out.textContent='';pendingImport=
       button(r0,'Lisää kopiona','btn',added).id='impadd';}
     button(r0,'Peru','btn',function(){out.textContent='';});c0.appendChild(r0);out.appendChild(c0);return;}
   var nd=normalizeData(o);
-  if(!nd){setMsg('Sisältö ei ole Lehdon varmuuskopio.',true);return;}
+  if(!nd){setMsg('Sisältö ei ole Juuren varmuuskopio.',true);return;}
   pendingImport=nd;setMsg('');var c=el('div','confirm');stashK();
   var newest=data.K.reduce(function(a,k){return k.mod&&k.mod>a?k.mod:a;},''),old=olderThan(o.savedAt,newest);
   c.appendChild(el('p','','Varmuuskopiossa on '+nd.K.length+(nd.K.length===1?' projekti':' projektia')+', '+cnt(nd.K,'projects')+' puuta ja '+cnt(nd.K,'notes')+' muistiinpanoa. Tämän laitteen nykyiset tiedot ('+(stashK(),data.K.length)+(data.K.length===1?' projekti':' projektia')+', '+cnt(data.K,'projects')+' puuta, '+cnt(data.K,'notes')+' muistiinpanoa) korvataan.'));if(old){var w=el('p','msg warn',old);w.id='impold';c.appendChild(w);}
   var r=el('div','btnrow');button(r,'Korvaa tiedot','btn solid',function(){var o2=pendingImport;if(!o2)return;applyND(o2);data.K.forEach(function(k){k.chg=null;});data.meta.dirty=0;resetDraft();ed=null;save();applyCfg();pendingImport=null;renderHead();renderStatus();render();setMsg('Tiedot tuotu.');}).id='impok';
   button(r,'Peru','btn',function(){pendingImport=null;out.textContent='';});c.appendChild(r);out.appendChild(c);}
 
-renderStatus();renderHead();showTab('use');
+fiAll();renderStatus();renderHead();showTab('use');
 })();
 </script>
 </body>
