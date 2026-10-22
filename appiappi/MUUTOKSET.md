@@ -10,7 +10,7 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
   - Ryhmäpalikan **Tee näkymään** ▾ → *Lista ryhmän jäsenistä* tekee ryhmälistan näkymään.
   - Ei vielä (jono 42e2): käytössä lisätty rivi rivijäseneksi (D1) ja *Tee palikaksi*; `.rasti` asetettavaksi Toiminnolla ja säännöllä (nyt vain luettava).
   - Huomio: Arvo-yleispalikan tekstin muutos listasta on rakenteen muutos (kuten logiikassa kirjoitettuna), joten Palauta ei palauta sitä; Muisti-jäsenen muutos on käyttötietoa.
-  - Testit: `logiikka_118_lista_ryhmasta.js`, `selain_149_lista_ryhmasta.py`.
+  - Testit: `logiikka_118_lista_ryhmasta.js`, `selain_149_lista_ryhmasta.py`. Koko sarja ennen 112:n yhdistämistä 265/266: `selain_68_logiikkapinta` kaatui kerran läpinäkyvyyden siirtymään kuormassa (0,71 ≠ 1) ja meni läpi yksin kahdesti; 112:n jälkeen kohdennetusti 130/130 (logiikka, lista, ryhmä, tekstin osat, selain_148, selain_68).
   - Ristiintarkistus kaista B:n kanssa: 112:n Kuolema-alue, Avain ja ovi ja Portti, 110:n ilme ja 108:n piirrokset eivät koske Listaa (molempien testit läpi samassa sarjassa).
   - Ei tarkistettu: oikea iPhone; vain tietokoneen Chromium. Kalenterin merkinnät ryhmälistasta (ryhmälistalla ei ole päivämääräsaraketta).
   - **Varmuuskopio:** tallennusmuoto laajeni; vie projekti tiedostoksi ennen kokeilua.
