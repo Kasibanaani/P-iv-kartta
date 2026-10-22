@@ -50,7 +50,9 @@ function seisoo(P,h,tb,m){A.strictEqual(E(P).val(h.li.id,'maa'),true,m+': maassa
 
 // --- 5. Hyppy tasolta irrottaa; paikallaan oleva taso ei muuta mitään eikä pidä kuvasilmukkaa käynnissä ---
 (function(){var P=KK.newProject('j');alue(P);var tb=taso(P,0,400,60,0),h=hahmo(P,80,340);KK.repair(P);run(P,0.3);
-  A.ok(KK.liikeHyppyKomento(P,h.li.id,'hyp'));run(P,0.1);A.strictEqual(E(P).val(h.li.id,'maa'),false,'hyppäsi irti');var xa=X(P,h.b);run(P,0.2);near(X(P,h.b),xa,0.5,'ilmassa ei kanneta');})();
+  A.ok(KK.liikeHyppyKomento(P,h.li.id,'hyp'));run(P,0.1);A.strictEqual(E(P).val(h.li.id,'maa'),false,'hyppäsi irti');var xa=X(P,h.b),ta=X(P,tb.b);run(P,0.2);
+  /* Jonon 35 (a): ilmassa ei kanneta, mutta tason vauhti 60 px/s jäi hyppyyn: 0,2 s = 12 px, ja hahmo pysyy tason kohdalla. */
+  near(X(P,h.b)-xa,12,0.5,'tason vauhti jäi hyppyyn');near(X(P,h.b)-xa,X(P,tb.b)-ta,0.5,'hahmo pysyy tason kohdalla');})();
 (function(){var P=KK.newProject('p');alue(P);var tb=laatikko(P,0,200,200,20,'Taso'),h=hahmo(P,80,140);KK.repair(P);run(P,1);
   near(X(P,h.b),80,1e-9,'paikallaan oleva alusta: x ennallaan');A.ok(!KK.frame(P,1/60,C),'kuvasilmukka pysähtyy');})();
 

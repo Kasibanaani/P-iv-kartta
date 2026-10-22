@@ -33,7 +33,7 @@ async def main():
             assert ku==[True,True,True],'pelaaja on Sankari, ei vihollinen %s'%ku
             lo=await P(pg,"""(()=>{var a="""+NM+"""('Kuolema-alue: alue'),an=P.lg.n.filter(n=>n.p===a.id).map(n=>n.id);
               return P.lg.l.filter(l=>an.indexOf(l.f)>=0).map(l=>{var b=P.b[P.lg.n.find(n=>n.id===l.t).p];return b.do+(b.om||'');}).sort();})()""")
-            print(W,'kuolema',lo);assert lo==['lisaa','palautax','palautay'],lo
+            print(W,'kuolema',lo);assert lo==['asetaux','asetauy','lisaa','palautax','palautay'],lo
             mu=await P(pg,"""(()=>{var m="""+NM+"""('Avain löydetty'),k=Object.values(P.b).filter(x=>x.k==='kaava');return [m&&m.k,m&&m.v,"""+NM+"""('Ovi').este,k.length];})()""")
             print(W,'avain',mu);assert mu==['muisti',False,True,1],mu
             await pg.evaluate("(()=>{var q="+NM.replace('P.b','APP.P.b')+"('Portti: kohde');q.x=1500;q.y=250;})()")
