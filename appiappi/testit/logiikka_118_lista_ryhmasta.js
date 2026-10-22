@@ -13,10 +13,10 @@ var e=E(P);A.strictEqual(e.val(li.id,'n'),3,'kolme jäsentä riveinä');A.strict
 var rows=KK.listNyt(P,li.id,{jk:e.jkJasenet,val:e.val});A.deepStrictEqual(rows.map(function(r){return r.id;}),[ko.id,ki.id,le.id]);A.ok(rows.every(function(r){return r.jm;}));
 A.deepStrictEqual(KK.listRows(P,li.id).map(function(r){return r.id;}),[ko.id,ki.id],'ilman arviointia vain tagit');
 // rasti
-P.st['ra:'+ki.id]=true;KK.tick(P,C);e=E(P);A.strictEqual(e.val(li.id,'v'),1);A.strictEqual(e.prop(ki.id,'rasti'),true);A.strictEqual(e.prop(ko.id,'rasti'),false);
+KK.setOmi(P,ki.id,'rasti',true);KK.tick(P,C);e=E(P);A.strictEqual(e.val(li.id,'v'),1);A.strictEqual(e.prop(ki.id,'rasti'),true);A.strictEqual(e.prop(ko.id,'rasti'),false);
 A.strictEqual(e.prop(li.id,'rivi2.rastitettu'),true);
 var k=KK.addBlock(P,'kaava',{f:KK.kaavaToIds(P,'#eläimet.rasti.summa')});KK.addNode(P,k.id,0,0);KK.repair(P);KK.tick(P,C);A.strictEqual(E(P).val(k.id),1,'#eläimet.rasti.summa');
-P.st['ra:'+ko.id]=true;P.st['ra:'+le.id]=true;KK.tick(P,C);A.strictEqual(E(P).val(li.id,'all'),true,'kaikki rastitettu');
+KK.setOmi(P,ko.id,'rasti',true);KK.setOmi(P,le.id,'rasti',true);KK.tick(P,C);A.strictEqual(E(P).val(li.id,'all'),true,'kaikki rastitettu');
 // Poista joukosta → rivi pois
 P.st['jk:'+J]={};P.st['jk:'+J][ko.id]=false;KK.tick(P,C);A.strictEqual(E(P).val(li.id,'n'),2);
 // Palauta (käyttötieto pois) → rastit ja poistot pois
@@ -27,4 +27,15 @@ var vanha=KK.addBlock(P,'lista',{v:P.views[0].id,rivit:'a\nb'});KK.repair(P);KK.
 li.ryh='j999';KK.repair(P);A.ok(!li.ryh,'tuntematon ryhmä → lähde pois');
 // .rasti omat-rekisterissä yleispalikalle, ei muille
 A.ok(KK.omat(ko).some(function(x){return x.n==='rasti';}));A.ok(!KK.omat(vanha).some(function(x){return x.n==='rasti';}));
+// Jonon 42e2: 113:n ra:-avain luetaan (repair siirtää .rasti-käyttöarvoksi)
+li.ryh=J;KK.repair(P);P.st={};P.st['ra:'+ki.id]=true;KK.repair(P);A.ok(!P.st['ra:'+ki.id]);KK.tick(P,C);A.strictEqual(E(P).prop(ki.id,'rasti'),true,'vanha ra: luetaan');
+// .rasti asetettavissa säännöllä
+P.st={};var sa=yl(P,'Sääntö1','jos 1 = 1 niin @koira.rasti = kyllä');KK.tick(P,C);A.strictEqual(E(P).prop(ko.id,'rasti'),true,'sääntö asettaa .rasti');A.strictEqual(E(P).val(li.id,'v'),1);KK.removeBlock(P,sa.id);KK.repair(P);
+// rivijäsenet (D1): käytössä lisätty rivi kuuluu ryhmään käyttötietona
+P.st={};P.st['jkr:'+J]=[{id:'q1',tx:'Hevonen'},{id:'q2',tx:'5',c:true}];KK.repair(P);KK.tick(P,C);e=E(P);
+A.strictEqual(e.val(li.id,'n'),5,'3 palikkaa + 2 rivijäsentä');A.strictEqual(e.val(li.id,'v'),1);A.strictEqual(e.prop(li.id,'rivi4.teksti'),'Hevonen');
+var f2=function(t){var k2=KK.addBlock(P,'kaava',{f:KK.kaavaToIds(P,t)});KK.addNode(P,k2.id,0,0);KK.repair(P);KK.tick(P,C);var v=E(P).val(k2.id);KK.removeBlock(P,k2.id);KK.repair(P);return v;};
+A.strictEqual(f2('#eläimet'),5);A.ok(/Hevonen, 5$/.test(f2('#eläimet.jäsenet')),f2('#eläimet.jäsenet'));A.strictEqual(f2('#eläimet.rasti.summa'),1);A.strictEqual(E(P).val(g.id),5,'ryhmäpalikan määrä');
+var P3=JSON.parse(JSON.stringify(P));KK.repair(P3);A.strictEqual(P3.st['jkr:'+J].length,2,'tallennus');P.st['jkr:'+J].push({id:3});KK.repair(P);A.strictEqual(P.st['jkr:'+J].length,2,'rikkinäinen rivi pois');
+P.st={};KK.tick(P,C);A.strictEqual(E(P).val(li.id,'n'),3,'Palauta poistaa rivijäsenet');
 console.log('ok');

@@ -20,15 +20,20 @@ async def main():
             else:await pg.click('#insp [data-k="ryh"] [data-v="%s"], #insp [data-seg="ryh"] [data-v="%s"]'%(J,J))
             await pg.wait_for_timeout(250)
             async def tila():return await pg.evaluate("(s)=>[Array.from(document.querySelectorAll(s+' .lr .lt')).map(e=>e.textContent),!!document.querySelector(s+' .ladd'),document.querySelectorAll(s+' .lr.done').length]",L)
-            t=await tila();print(W,'ryhmästä:',t,await P(pg,"P.b[%r].ryh"%lid));assert t==[['Koira','Kissa'],False,0],t
+            t=await tila();print(W,'ryhmästä:',t,await P(pg,"P.b[%r].ryh"%lid));assert t==[['Koira','Kissa'],True,0],t
             await pg.click('#lockbtn');await pg.wait_for_timeout(300)
             await pg.click(L+' [data-row="%s"] .box'%c);await pg.wait_for_timeout(200)
-            r=await P(pg,"[P.st['ra:'+%r]===true,APP.ev().prop(%r,'rasti'),APP.ev().val(%r)]"%(c,c,lid));print(W,'rasti:',r);assert r==[True,True,1],r
+            r=await P(pg,"[!!(P.st['o:'+%r]&&P.st['o:'+%r].rasti===true),APP.ev().prop(%r,'rasti'),APP.ev().val(%r)]"%(c,c,c,lid));print(W,'rasti:',r);assert r==[True,True,1],r
             await pg.click(L+' [data-row="%s"] .lt'%a);await pg.keyboard.press('End');await pg.keyboard.type(' Rekku');await pg.keyboard.press('Enter');await pg.wait_for_timeout(250)
             r=await P(pg,"[APP.ev().val(%r),P.b[%r].nm]"%(a,a));print(W,'muokkaus:',r);assert r[0]=='Koira Rekku',r
             await pg.click(L+' [data-row="%s"] .x'%c);await pg.wait_for_timeout(250)
             t=await tila();print(W,'poisto:',t);assert t[0]==['Koira Rekku'],t
+            await pg.fill(L+' .ladd','Hevonen');await pg.press(L+' .ladd','Enter');await pg.wait_for_timeout(250)
+            t=await tila();r=await P(pg,"[KK.jkRivit(P,%r).map(function(q){return q.tx;}),APP.ev().val(%r)]"%(J,g));print(W,'rivijäsen:',t,r);assert t[0]==['Koira Rekku','Hevonen'] and r==[['Hevonen'],2],(t,r)
             await pg.click('#lockbtn');await pg.wait_for_timeout(300)
+            await pg.click(L);await pg.wait_for_timeout(200);await pg.click('#insp [data-tpk]');await pg.wait_for_timeout(300)
+            r=await P(pg,"[KK.jkRivit(P,%r).length,Object.values(P.b).filter(function(x){return x.yl&&x.jkt&&x.jkt.indexOf(%r)>=0&&APP.ev().val(x.id)==='Hevonen';}).length,document.querySelectorAll('%s .lr').length]"%(J,J,L))
+            print(W,'tee palikaksi:',r);assert r==[0,1,2],r
             # Tee näkymään → Lista ryhmän jäsenistä
             await pg.click('#tabs [data-t="logiikka"]');await pg.wait_for_timeout(250)
             await pg.evaluate("(id)=>{APP.S.sel={t:'n',id:KK.nodesOfBlock(APP.P,id)[0].id};APP.renderAll();}",g);await pg.wait_for_timeout(200)

@@ -4,6 +4,18 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
 
 ## Versiot
 
+- Appi-appi 115 (22.10., kaista A, jonon 42e2, suunnitelma 31 V3 ja D1; **tallennusmuoto laajenee** käyttötiedon avaimella `jkr:<ryhmä>`, versio pysyy 12; 113:n `ra:`-avain luetaan ja siirretään): **Rivijäsenet, Tee palikaksi ja asetettava .rasti.**
+  - Ryhmälistan *＋ Lisää jäsen* -kenttä on taas näkyvissä: käytössä lisätty rivi on ryhmän **rivijäsen** (käyttötietoa, ei palikka, D1). Se kuuluu ryhmään: `#eläimet` (määrä), `.jäsenet`, `.summa` ym. (arvo = teksti, luku jos luku), `.rasti.summa`, ryhmäpalikan määrä ja listan rivit. Rasti, muokkaus ja × toimivat kuten muillakin riveillä. Palauta poistaa rivijäsenet.
+  - Rakentaja: Listan paneelissa *Käytössä lisätyt jäsenet* ja **Tee palikaksi** (tai *Tee kaikista palikat*): rivistä tulee yleispalikka ryhmäpalikan viereen, rivillä `#eläimet`, ja rasti siirtyy.
+  - **`.rasti` asetettavaksi:** yleispalikan `.rasti` on nyt tavallinen ohjattava ominaisuus (Toiminto, sääntö `jos … niin @koira.rasti = kyllä`, nuoli, ryhmän säännöt), käyttöarvo kuten muilla ominaisuuksilla; listan rasti asettaa saman arvon.
+  - Ei vielä: rivijäsenet ryhmän ikkunassa ja *Jäsenille*-laskennassa (Toiminto jokaiselle jäsenelle koskee vain palikoita); rivijäsenellä ei ole muita ominaisuuksia kuin teksti ja rasti.
+  - Testit: `logiikka_118_lista_ryhmasta.js` laajeni (rivijäsenet, koosteet, tallennus, Palauta, `ra:` luetaan, sääntö asettaa `.rasti`), `selain_149_lista_ryhmasta.py` (jäsenen lisäys, Tee palikaksi).
+  - Ristiintarkistus kaista B:n kanssa: 114:n hyllyjen uudelleennimeäminen ja 112:n Kuolema-alue, Avain ja ovi, Portti eivät koske Listaa eivät ryhmiä; kaikki samassa koko sarjassa.
+  - Ei tarkistettu: oikea iPhone; vain tietokoneen Chromium.
+  - **Varmuuskopio:** tallennusmuoto laajeni; vie projekti tiedostoksi ennen kokeilua.
+  - Kokeile koneella: ryhmälistaan käytössä *＋ Lisää jäsen* → `#eläimet` kasvaa. Lukitus pois, valitse lista: paneelin *Tee palikaksi* tekee rivistä palikan logiikkaan.
+  - Manuaaliin: luku Lista: ryhmälistan *Lisää jäsen* = rivijäsen (käyttötietoa, Palauta poistaa), *Tee palikaksi*; ryhmäluku: rivijäsenet laskuissa, `.rasti` ohjattava; hakemistoon *rivijäsen*, *Tee palikaksi*; luku 9: `jkr:`.
+
 - Appi-appi 114 (22.10., kaista B, jonon 21 viimeinen osa, suunnitelma 19 kohta 7; **ei tallennusmuodon muutosta**: nimet ovat laitteen asetus kuten laatikon paikka): **Rakennuslaatikon hyllyt voi nimetä uudelleen.**
   - *muokkaa*-tilassa valitun hyllyn yläpuolella kenttä **Hyllyn nimi** (enintään 24 merkkiä). Enter tai kentästä poistuminen vaihtaa välilehden nimen; alkuperäinen näkyy vihjeenä ja välilehden työkaluvihjeenä. Tyhjä tai alkuperäinen nimi palauttaa. Sisältö ei muutu.
   - Tallennus vain tällä laitteella (`localStorage`, rakennuslaatikon asetukset, kenttä `nimet`), ei projektiin eikä vientiin.
