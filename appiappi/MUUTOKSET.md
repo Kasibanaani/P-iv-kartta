@@ -4,6 +4,19 @@ Toteutettujen versioiden yksityiskohdat siirrettiin tähän `TILA.md`:stä 17.10
 
 ## Versiot
 
+- Appi-appi 113 (22.10., kaista A, jonon 42e osa 1, suunnitelma 31 V3; **tallennusmuoto laajenee** valinnaisella kentällä Listan `ryh` ja käyttötiedon avaimella `ra:<palikka>`, versio pysyy 12; vanhat projektit ennallaan): **Lista ryhmästä.**
+  - Listan paneelissa **Rivit**: *Omat rivit* (ennallaan) tai *Ryhmästä #eläimet*. Ryhmästä: rivit ovat ryhmän jäsenet ryhmän järjestyksessä (tagit, `@x`-rivit, `kuuluu, kun` -rivi, Lisää joukkoon), rivin teksti on jäsenen arvo tekstinä (tyhjä → nimi). Pohjarivit, päivämääräsarake ja *Lisää rivi* -kenttä eivät näy ryhmälistassa.
+  - Käytössä: rasti on jäsenen uusi ominaisuus **`.rasti`** (kyllä/ei, käyttötietoa, Palauta nollaa; `@koira.rasti`, `#eläimet.rasti.summa`); rivin muokkaus muuttaa jäsentä (Muisti saa käyttöarvon, Arvo-yleispalikka uuden tekstin kuten logiikassa kirjoitettuna); × poistaa jäsenen ryhmästä (Poista joukosta, Palauta palauttaa). Listan `rastitettuja`, `rivejä`, `kaikki`, `rivi1.teksti`, `rivi1.rastitettu` ja 42f:n `rivi1.päivä` toimivat.
+  - Ryhmäpalikan **Tee näkymään** ▾ → *Lista ryhmän jäsenistä* tekee ryhmälistan näkymään.
+  - Ei vielä (jono 42e2): käytössä lisätty rivi rivijäseneksi (D1) ja *Tee palikaksi*; `.rasti` asetettavaksi Toiminnolla ja säännöllä (nyt vain luettava).
+  - Huomio: Arvo-yleispalikan tekstin muutos listasta on rakenteen muutos (kuten logiikassa kirjoitettuna), joten Palauta ei palauta sitä; Muisti-jäsenen muutos on käyttötietoa.
+  - Testit: `logiikka_118_lista_ryhmasta.js`, `selain_149_lista_ryhmasta.py`.
+  - Ristiintarkistus kaista B:n kanssa: 112:n Kuolema-alue, Avain ja ovi ja Portti, 110:n ilme ja 108:n piirrokset eivät koske Listaa (molempien testit läpi samassa sarjassa).
+  - Ei tarkistettu: oikea iPhone; vain tietokoneen Chromium. Kalenterin merkinnät ryhmälistasta (ryhmälistalla ei ole päivämääräsaraketta).
+  - **Varmuuskopio:** tallennusmuoto laajeni; vie projekti tiedostoksi ennen kokeilua.
+  - Kokeile koneella: tee ryhmäpalikka *Eläimet* ja kaksi yleispalikkaa, joissa rivi `#eläimet`. Valitse ryhmäpalikka → Tee näkymään ▾ → *Lista ryhmän jäsenistä*. Käytössä rastita, muokkaa riviä ja poista ×:llä; Palauta tuo poistetun takaisin.
+  - Manuaaliin: luku Lista: *Rivit: Omat rivit / Ryhmästä*, mitä rasti, muokkaus ja × tekevät ryhmälistassa; ryhmäluku: `.rasti` (luettava) ja *Tee näkymään → Lista ryhmän jäsenistä*; hakemistoon `.rasti`, *Lista ryhmästä*; luku 9 tallennus: `ryh`, `ra:`.
+
 - Appi-appi 112 (21.10., kaista B, jonon 21 jatkot, suunnitelma 19 kohta 7 hyllyt Alueet ja Esineet; **ei tallennusmuodon muutosta**): **Rakennuslaatikkoon Kuolema-alue, Avain ja ovi sekä Portti.**
   - **Kuolema-alue** (Alueet ✕): punainen laatta 160 × 24 ja sen päällä Alue. Kun pelaaja osuu siihen, Palauta x ja Palauta y vievät pelaajan alkukohtaansa (paikka, johon se on muokatessa asetettu). Jos projektissa on Elämät-muisti, Lisää Elämät −1.
   - **Avain ja ovi** (Esineet ⚿): avain (ympyrä), sen Alue ja 200 px oikealle ovi (este 24 × 100). Oma Muisti *Avain löydetty* (alkuarvo ei); osuma → Aseta = kyllä; Kaava `ei @avainlöydetty` avaimen ja oven *näkyy kun* -kohtaan, joten avain katoaa ja piilotettu ovi ei enää ole este. Seuraavat: Avain 2, Ovi 2, Avain 2 löydetty.
