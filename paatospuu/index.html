@@ -151,6 +151,12 @@ button,input,textarea{font:inherit;color:inherit;letter-spacing:inherit}
 .chead{display:none}
 .chlist{display:flex;flex-direction:column;gap:10px}
 .chip.neg{background:transparent;box-shadow:inset 0 0 0 1.5px currentColor;font-weight:600}
+/* Kuittausnappi (Emil 22.10.2026): kuittaamatta ilman täyttöä korostusvärillä, kuitattuna vihreä ”✓ Kuitattu” */
+:root{--okbg:#2E7D32;--okfg:#FFFFFF}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--okbg:#5CB868;--okfg:#0E2412}}
+:root[data-theme="dark"]{--okbg:#5CB868;--okfg:#0E2412}
+.mini.okbtn{background:transparent;color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent);font-weight:650}
+.mini.okbtn[aria-pressed="true"]{background:var(--okbg);color:var(--okfg);box-shadow:none}
 .chip.done{opacity:.55;text-decoration:line-through;box-shadow:inset 0 0 0 1px var(--sep)}
 .ev.rs{z-index:5;border-style:dashed;border-width:2px}
 .ev .grip{position:absolute;right:0;bottom:0;width:36px;height:36px;touch-action:none}
@@ -620,7 +626,7 @@ html.standalone .top{padding-top:calc(env(safe-area-inset-top,0px) + 30px)}
 <dialog id="nsheet" aria-labelledby="ns-h">
   <div class="hrow"><h2 id="ns-h">Muistiinpano</h2><button class="ibtn" type="button" data-help="muistiinpano" aria-label="Ohje">i</button></div>
   <p class="sub" id="ns-stamp" style="font-size:13px"></p>
-  <div class="btnrow" id="ns-staterow" hidden style="margin:0 0 10px"><button type="button" class="mini" id="ns-done"></button><button type="button" class="mini" id="ns-arch" hidden></button></div>
+  <div class="btnrow" id="ns-staterow" hidden style="margin:0 0 10px"><button type="button" class="mini okbtn" id="ns-done"></button><button type="button" class="mini" id="ns-arch" hidden></button></div>
   <div class="hlwrap"><div class="hl" id="ns-hl" aria-hidden="true"></div><textarea id="ns-text" style="min-height:32vh" aria-label="Muistiinpanon teksti"></textarea></div>
   <div class="btnrow" id="ns-poprow" hidden style="margin-top:8px"><button type="button" class="mini" id="ns-popbtn"></button></div>
   <div id="ns-pop" hidden style="margin-top:8px"></div>
@@ -657,7 +663,7 @@ html.standalone .top{padding-top:calc(env(safe-area-inset-top,0px) + 30px)}
   <label class="fl" for="ks-name">Nimi</label><input type="text" id="ks-name" list="ks-names" autocomplete="off" placeholder="Esim. asiasana"><datalist id="ks-names"></datalist>
   <label class="fl" for="ks-text">Teksti</label><textarea id="ks-text" style="min-height:14vh" aria-label="Rivin teksti"></textarea>
   <p class="found" id="ks-found"></p>
-  <div class="btnrow" id="ks-occrow" hidden><button type="button" class="btn" id="ks-occ"></button></div>
+  <div class="btnrow" id="ks-occrow" hidden><button type="button" class="mini okbtn" id="ks-occ"></button></div>
   <label class="fl">Tärkeys</label><input type="search" id="ks-find" placeholder="Rajaa" aria-label="Rajaa tekijöitä" autocomplete="off">
   <div class="chips" id="ks-f" style="margin-top:8px"></div>
   <p class="msg" id="ks-msg"></p>
@@ -1945,9 +1951,10 @@ function fromIsoW(iso){var p=iso.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]);retu
 function setDone(n,on){if(on){n.done=nowIso();repSignOff(data.reps,n,todayIso());}else{delete n.done;delete n.arch;delete n.pts;}touch();}
 var noteOcc=null;
 function occLabel(k){var p=k.split(' ');return fiDate(p[0])+(p[1]?' klo '+fmtTime(p[1]):'');}
+function okState(b,on){b.setAttribute('aria-pressed',on?'true':'false');if(on)b.setAttribute('aria-label','Kuitattu, napauta palauttaaksesi');else b.removeAttribute('aria-label');}
 function stateRow(n){var r=$('ns-staterow');r.hidden=!n;if(!n)return;
-  if(noteOcc&&!n.done){var on=!!(n.pts&&n.pts[noteOcc]);$('ns-done').textContent=on?'Palauta tämä kohta':'Kuittaa tämä kohta ('+occLabel(noteOcc)+')';$('ns-arch').hidden=true;return;}
-  $('ns-done').textContent=n.done?'Palauta avoimeksi':'Kuittaa';$('ns-arch').hidden=!n.done;$('ns-arch').textContent=n.arch?'Palauta kalenteriin':'Arkistoi (pois kalenterista)';}
+  if(noteOcc&&!n.done){var on=!!(n.pts&&n.pts[noteOcc]);$('ns-done').textContent=on?'✓ Kuitattu':'Kuittaa tämä kohta ('+occLabel(noteOcc)+')';okState($('ns-done'),on);$('ns-arch').hidden=true;return;}
+  $('ns-done').textContent=n.done?'✓ Kuitattu':'Kuittaa';okState($('ns-done'),!!n.done);$('ns-arch').hidden=!n.done;$('ns-arch').textContent=n.arch?'Palauta kalenteriin':'Arkistoi (pois kalenterista)';}
 $('ns-done').addEventListener('click',function(){if(!noteCur)return;
   if(noteOcc&&!noteCur.done){var P=noteCur.pts||(noteCur.pts={});if(P[noteOcc])delete P[noteOcc];else P[noteOcc]=nowIso();if(!Object.keys(P).length)delete noteCur.pts;
     touch();stateRow(noteCur);return;}
@@ -2084,7 +2091,7 @@ function chkForm(){var box=$('ks-f'),q=clean($('ks-find').value||'').toLowerCase
   var N={text:$('ks-text').value,created:chkCur?chkCur.created:nowIso()},ds=noteDates(N),f=$('ks-found');f.textContent='';
   if(ds.length){f.appendChild(document.createTextNode('Kalenteriin: '));ds.forEach(function(o){f.appendChild(el('i','',o.src+' → '+dateLabel(o)));});}
   if(chkCur&&chkCur.mv)mvSpans(chkCur).forEach(function(m){f.appendChild(el('br'));f.appendChild(document.createTextNode('Muutettu kalenterissa: '+mvLines(m.m).join('; ')));});
-  var on=!!(chkCur&&chkOcc);$('ks-occrow').hidden=!on;if(on)$('ks-occ').textContent=chkCur.pts&&chkCur.pts[chkOcc]?'Palauta tämä kohta kalenterissa':'Huomioitu kalenterissa ('+occLabel(chkOcc)+')';}
+  var on=!!(chkCur&&chkOcc);$('ks-occrow').hidden=!on;if(on){var ko=!!(chkCur.pts&&chkCur.pts[chkOcc]);okState($('ks-occ'),ko);}if(on)$('ks-occ').textContent=chkCur.pts&&chkCur.pts[chkOcc]?'✓ Kuitattu kalenterissa':'Huomioitu kalenterissa ('+occLabel(chkOcc)+')';}
 $('ks-text').addEventListener('input',chkForm);$('ks-find').addEventListener('input',chkForm);
 $('ks-occ').addEventListener('click',function(){if(!chkCur||!chkOcc)return;var P=chkCur.pts||(chkCur.pts={});if(P[chkOcc])delete P[chkOcc];else P[chkOcc]=nowIso();if(!Object.keys(P).length)delete chkCur.pts;touch();chkForm();});
 $('ks-ok').addEventListener('click',function(){var nm=clean($('ks-name').value).slice(0,120),tx=$('ks-text').value.replace(/\s+$/,'');

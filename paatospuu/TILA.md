@@ -1,6 +1,6 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.39 (kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
+**Vaihe:** versio 1.39.1 (kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -324,6 +324,10 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Siirtohistoria:** muistiinpanon kenttä `mv: [{w, h:[{t, at}]}]`. Muutettu kohta katkoviivalla tekstikentässä ja kortissa; napautus näyttää ”Muutettu kalenterissa: 22.10.2026 klo 12.40: ”klo 10–11” → ”klo 11–12””. Ketju jatkuu siirrosta toiseen; muokkauksessa kadonnut kohta poistuu historiasta. Päivän siirto (pudotus toiselle päivälle) kirjautuu samoin. Listan rivillä historia näkyy rivin ikkunan Kalenteriin-kohdan alla.
 - **Tietokone:** napsautus Muistioiden tyhjään kohtaan tekee uuden (Listalla rivin, Toistuvissa toistuvan). Vain hiirellä (hover + tarkka osoitin), puhelimella ei.
 - Testit: logiikka 331 ok; selain 390/320 (siirtohistoria tallessa, korostus, napautus näyttää historian) ja 1440/1280 (tyhjän kohdan napsautus, kortin napsautus avaa kortin).
+
+## Versio 1.39.1 (22.10.2026, Emilin toive): kuittausnapin ilme
+
+- Merkinnän ikkunan kuittausnappi (kalenterista ja Muistioista avattuna, myös listan rivin *Huomioitu kalenterissa*): kuittaamatta ilman täyttöä, teksti ja reuna korostusvärillä; kuitattuna vihreä täyttö ja ”✓ Kuitattu” (vaalea #2E7D32 valkoisella, tumma #5CB868 tummalla tekstillä). Napautus palauttaa kuten ennen. Kuvat vaaleasta ja tummasta tarkistettu.
 
 ## Tietokoneversio: pohdinta (Emil 22.10.2026, ei rakennettu)
 

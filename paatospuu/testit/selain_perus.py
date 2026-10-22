@@ -326,7 +326,7 @@ async def run(p,w,h):
     want('tunnin numero viivan alla', 0<=lb<=4)
     # kuittaus kalenterista: jää näkyviin erinäköisenä, arkistointi vie pois
     await pg.click('#timeline .ev:has-text("Kalenterista lisätty")'); await pg.wait_for_timeout(50); want('kuittausnappi ikkunassa', await pg.is_visible('#ns-done') and not await pg.is_visible('#ns-arch'))
-    await pg.click('#ns-done'); want('kalenterin kuittaus vain kohta', await pg.inner_text('#ns-done')=='Palauta tämä kohta' and not await pg.is_visible('#ns-arch')); await pg.click('#ns-ok'); await pg.wait_for_timeout(80)
+    await pg.click('#ns-done'); want('kalenterin kuittaus vain kohta', await pg.inner_text('#ns-done')=='✓ Kuitattu' and await pg.get_attribute('#ns-done','aria-pressed')=='true' and not await pg.is_visible('#ns-arch')); await pg.click('#ns-ok'); await pg.wait_for_timeout(80)
     kn=await nts('Kalenterista'); want('kalenteri ei kuittaa muistiinpanoa', not kn.get('done') and kn.get('pts'))
     kev=pg.locator('#timeline .ev:has-text("Kalenterista lisätty")'); want('kuitattu jää kalenteriin erinäköisenä', await kev.count()==1 and 'done' in await kev.get_attribute('class')); await check('kuitattu kalenterissa')
     await pg.evaluate("(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1'));o.kokonaisuudet[0].muistiinpanot.forEach(function(x){if(x.text.indexOf('Kalenterista')===0)x.done=new Date().toISOString();});localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()")
