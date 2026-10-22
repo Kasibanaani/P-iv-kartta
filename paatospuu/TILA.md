@@ -1,6 +1,6 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.41 (muistiinpano on juuri: listan teksti on oikea muistiinpano, tekstin asiasanat ja aika rivin kohteina; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
+**Vaihe:** versio 1.42 (listan ryhmät pikavalintoina; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -335,6 +335,11 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Päivä ja kellonajat samalla rivillä** pieninä (40 px korkeat) tekstikentän alla, napautus avaa valitsimen; kellonajat näkyvät vain, kun tekstissä ei ole aikaa. Tekstikenttä 32 → 40 % näytön korkeudesta.
 - **Poista** ikkunan alalaidassa oikealla (vain olemassa olevalla muistiinpanolla). Avaa joka kerta varmistuksen: ”Poistetaanko koko muistiinpano? Samalla poistuvat kaikki sen kalenterimerkinnät. … roskakoriin”. Varmistusnappi vasemmalla, Peruuta oikealla Poista-napin kohdalla, joten tuplanapautus ei poista (testattu 390 ja 320 px). Aiemmat poistotavat: Muistioiden kortin ⋯ → Poista ja tekstin tyhjennys.
 - **1.39.3:** Valmis pois myös listan rivin ja toistuvan ikkunoista; niiden Poista avaa saman varmistuslaatikon (Poista vasemmalla, Peruuta oikealla). Korjattu samalla 1.38:n bugi: listan rivin poisto sulki väärän ikkunan (rivin muokkausikkunan tunnus sekoittui).
+
+## Versio 1.42 (22.10.2026, Emilin toive): listan ryhmät
+- Ryhmä on pikavalinta (▦): napautus lisää kaikki jäsenet riville yksittäisiksi kohteiksi, ja uusi napautus poistaa ne. Ryhmä ei näy rivillä eikä sillä ole omia asetuksia (Emil: ”ryhmälle ei tarvitse määrittää mitään”).
+- Luonti: kirjoita `#Nimi` hakukenttään ja Luo (tai Enter). Ryhmä aktivoituu, jäsenet valitaan napauttamalla ja ryhmän uusi napautus lukitsee. *Ryhmät…* avaa muokkauksen, jossa on myös Poista ryhmä. Ilman #-merkkiä Luo tekee uuden asiasanan ja lisää sen riville.
+- Tallennus projektikohtaisesti `ryhmat:[{id,name,m}]` (data.grp). Puun ryhmät (#-rivit) näkyvät samalla rivillä jäsenineen, ja niitä muokataan puussa.
 
 ## Versio 1.41 (22.10.2026, Emilin päätös ”muistiinpano on juuri”)
 - Listan rivin ei-tyhjä teksti on oikea muistiinpano (rivillä `nid`). Muistioissa sen kortissa näkyy ☰ ja rivin nimi, muistiinpanon ikkunassa nappi ”☰ Listassa: …”. Kalenterimerkinnät tulevat muistiinpanosta. Rivin poisto jättää muistiinpanon, ja tekstin tyhjennys vie sen roskakoriin. Vanhojen rivien teksti, ajat ja kalenterikuittaukset siirtyvät latauksessa muistiinpanoksi.

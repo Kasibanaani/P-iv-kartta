@@ -455,6 +455,9 @@ eq('lista: normalisointi',[NK.chk.length,NC.it,NC.any,NC.text,NC.pts],[4,[{id:'a
 eq('lista: vanha teksti muuttuu muistiinpanoksi',[NN&&NN.text,NN&&Object.keys(NN.pts),NK.notes.length],['Suodatin to 9',['2026-10-22 09:00'],2]);
 eq('lista: liitos säilyy, puuttuva katoaa',[NK.chk[2].nid,NK.chk[3].nid],['m1',undefined]);
 eq('lista: 1.38:n rivi muuttuu kohteiksi',[NK.chk[1].it,NK.chk[1].ok],[[{id:'a',ok:'2026-10-21T08:00:00Z'},{id:'z:today'}],undefined]);
+var NG=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',ryhmat:[{id:'g1',name:' Kotityöt ',m:['a','a','z:today',3,'b']},{id:'g1',name:'tupla'},{id:'g2',name:''}]}]}).K[0].grp;
+eq('ryhmät: normalisointi',NG,[{id:'g1',name:'Kotityöt',m:['a','b']}]);
+eq('ryhmät: projektitiedostossa',E.projectFile({id:'k',name:'K',grp:[{id:'g',name:'G',m:[]}]},'t').projekti.ryhmat.length,1);
 eq('lista: projektitiedostossa',E.projectFile({id:'k',name:'K',chk:[{id:'c'}]},'t').projekti.tarkistuslista.length,1);
 
 // 1.39 useat ajat samalle päivälle
