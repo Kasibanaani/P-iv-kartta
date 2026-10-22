@@ -40,6 +40,7 @@ Tunnisteita (`id`) ei tarvitse kirjoittaa: appi lisää ne. Vain `app`, `laji` j
 - `"flow": "prio"`: Eteneminen tärkeysjärjestyksessä (oletus: säännöt).
 - `"mem": "all"`: Muisti ”kaikki mukana” (oletus: vain seuraava askel).
 - `"end": "hoid"`: lopuksi Hoidettavat-muistiinpano.
+- `"notes": "on"`: Muistiinpanoissa: puun sääntöjen mukaan avautuvat ilmoitukset lisätään muistiinpanon perään kirjoittaessa (otsikko `◆ Lisätty asiasanoista`). Oletus: ei vaikuta.
 
 ### Rivit
 

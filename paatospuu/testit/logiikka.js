@@ -241,6 +241,21 @@ eq('oma termi päivittyy',D.terms[0].yes,['koir','hauva']);eq('palikan sanat',D.
 eq('uusi termi',D.terms.length===2&&D.terms[1].name==='Uusi'&&D.terms[1].yes[0]==='sana',true);
 E.termsFromText('=Uusi:\nsana',D,{kissa:'Kissa'});eq('puuttuva lohko tyhjentää',[D.terms[0].yes,D.words.kissa],[[],undefined]);
 
+// asiasanat lisäävät tekstiä muistiinpanoon (1.30)
+var NP={id:'np',name:'Muistio',text:'Kissa\nKoira\nRuoka\n>Hoito: Anna ruokaa. // Vaihda vesi.\n>Kaikki: Kaikki kotona.\n>Ei: Ei näy.\n\n=Kissa avaa:\n>Hoito\n\n=Kaikki vaatii kaikki:\nKissa\nKoira\n\n=Ruoka sulkee:\n>Hoito\n\n=Koira avaa:\n>Ei',rt:1,notes:'on'};
+E.rulesFromText(NP);
+eq('kissa avaa hoidon',E.noteAdds(NP,['kissa']),['Anna ruokaa.\n\nVaihda vesi.']);
+eq('kaikki tarvitaan',E.noteAdds(NP,['kissa','koira']).length,3);
+eq('sulkee voittaa',E.noteAdds(NP,['kissa','ruoka']),[]);
+var NT=E.autoTerms([NP],{},[]);
+eq('lisäys tekstiin',E.applyAdds('Kissa söi hyvin',[NP],NT),'Kissa söi hyvin\n\n'+E.ADD_H+'\nAnna ruokaa.\n\nVaihda vesi.');
+eq('lisäys päivittyy',E.applyAdds('Kissa söi hyvin\n\n'+E.ADD_H+'\nAnna ruokaa.\n\nVaihda vesi.',[NP],NT),'Kissa söi hyvin\n\n'+E.ADD_H+'\nAnna ruokaa.\n\nVaihda vesi.');
+eq('lisäys poistuu kun sana poistuu',E.applyAdds('Söi hyvin\n\n'+E.ADD_H+'\nAnna ruokaa.\n\nVaihda vesi.',[NP],NT),'Söi hyvin');
+eq('vastaus osion jälkeen säilyy',E.applyAdds('Kissa\n\n'+E.ADD_H+'\nvanha\n\n▸ Kysymys\nKyllä',[NP],NT),'Kissa\n\n'+E.ADD_H+'\nAnna ruokaa.\n\nVaihda vesi.\n\n▸ Kysymys\nKyllä');
+eq('välilyönti säilyy kirjoittaessa',E.applyAdds('Kissa \n\n'+E.ADD_H+'\nAnna ruokaa.',[NP],NT),'Kissa \n\n'+E.ADD_H+'\nAnna ruokaa.\n\nVaihda vesi.');
+eq('ei vaikuta ilman asetusta',E.applyAdds('Kissa',[{id:'q',name:'x',text:NP.text,rt:1}],NT),'Kissa');
+eq('notes säilyy tallennuksessa',E.normalizeData({app:'paatospuu',projektit:[{id:'p',name:'n',text:'A',notes:'on'}]}).projects[0].notes,'on');
+
 // kalenteri (1.17)
 var cn=[{id:'a',created:'2026-10-20T08:00:00Z',text:'Palaveri 22.10.2026 klo 14–15.30\nmuuta',date:''},{id:'b',created:'2026-10-20T08:00:00Z',text:'Soita 22.10.2026 klo 14.30.',date:''},
   {id:'c',created:'2026-10-20T08:00:00Z',text:'Ajaton',date:'2026-10-22'},{id:'d',created:'2026-10-20T08:00:00Z',text:'Kentästä',date:'2026-10-22',time:{s:'09:00',e:''}}];

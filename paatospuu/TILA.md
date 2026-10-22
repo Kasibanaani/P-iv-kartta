@@ -1,6 +1,6 @@
 # Päätöspuu: tila
 
-**Vaihe:** versio 1.29.1 (yhtenäisyyskierros: asiasanat, Rakenna päätöspuun sisällä, ohjeet i-napin takana, suodatus usealla asiasanalla, kalenterin kelluva +, tyylin hienosäätö, nimiehdotus Lehto); odottaa Emilin kokeilua · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
+**Vaihe:** versio 1.30 (asiasanat lisäävät ilmoitustekstit muistiinpanoon kirjoittaessa; puun asetus *Muistiinpanoissa*); 1.29 yhtenäisyyskierros ja nimiehdotus Lehto odottavat Emilin kokeilua · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -239,8 +239,18 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 - 1.29.1 (22.10.2026, Emilin toiveet): raahauksen nosto ilman 3D-siirtymää (merkintä pysyy tarkalleen paikallaan, korostus 3 px reunuksella ja täytöllä). Napautus aikajanan tyhjään kohtaan ei enää tee merkintää (tuli vahingossa), vain +. Muistiinpanon ikkunassa *Kuittaa / Palauta avoimeksi* ja kuitatulle *Arkistoi (pois kalenterista) / Palauta kalenteriin*; sama ⋯-valikossa. Kuitatut jäävät kalenteriin haalennettuina ja katkoviivalla (`.ev.done`, `.chip.done`), aukeavat samoin; arkistoidut (`arch`, aikaleima) eivät näy kalenterissa, kuukausilaskurissa eivätkä päivän alaotsikoissa, mutta ovat Kuitatuissa merkinnällä *arkistoitu*. Kierros päivälle hakee edelleen vain avoimet. Tallennusmuoto: muistiinpanolle valinnainen `arch`. Avoin jatkoidea (Emil): päiväkohtainen valikko, josta arkistoi kaikki päivän kuitatut.
 
+## Versio 1.30 (22.10.2026, Emilin toive): asiasanat lisäävät tekstiä muistiinpanoon
+
+- **Idea:** kun muistiinpanoon kirjoitettu sana tunnistetaan puun asiasanaksi, puun sääntöjen mukaan avautuvat ilmoitukset liitetään muistiinpanon perään heti kirjoittaessa. Lisätty teksti on tavallista tekstiä ja voi tunnistua uusiksi asiasanoiksi (ketju).
+- **Rakentaminen samalla välineellä:** ei erillistä muistioiden rakennusvalikkoa. Puun asetuksissa (⋯ → *Muistiinpanoissa: Ei vaikuta / Lisää ilmoitukset*) kytketään puu päälle; sen Rakenna-säännöt (avaa, sulkee pois, vaatii kaikki/yhden) pätevät sellaisinaan. Halutessaan Emil tekee muistioita varten oman puun ja kytkee vain sen päälle. Tallennusmuoto: puulle valinnainen `notes: "on"`; kopiointi säilyttää sen.
+- **Laskenta (`noteAdds`, `applyAdds`):** tekstistä tunnistetut puun rivit (nappula, ryhmä, ilmoitus) toimivat valittuina; niistä avautuvat rivit avataan ketjussa, poissulut pätevät, ehdot (vaatii) tarkistetaan; mukaan tulevat avautuvat ilmoitukset, joita teksti ei itse jo sisällä. Joukko vain kasvaa kirjoituskierroksen aikana (korkeintaan 8 kierrosta), jotta lisätty teksti ei voi poistaa omaa lähdettään ja osio ei värähtele. Sanan poisto poistaa lisäyksen, jos mikään ei enää avaa sitä.
+- **Teksti:** oma tekstiin kirjoitettu osa pysyy täsmälleen ennallaan (myös välilyönnit), sen perään tyhjä rivi, otsikko `◆ Lisätty asiasanoista`, ilmoitukset tyhjällä rivillä erotettuina; apukysymysten vastaukset (`▸`) pysyvät osion jälkeen. Osion sisältö kirjoitetaan joka kerralla uudelleen, eli omat muokkaukset osion sisällä eivät säily (kerrotaan ohjeessa). Kohdistin pysyy kirjoituskohdassa.
+- Ohje: Muistiinpano-ikkunan i ja Projektit-ikkunan i kertovat asetuksesta ja osiosta.
+- Testit: logiikka 280 ok (uusi lohko: ketju, poissulku, ehto, päivitys, poisto, välilyönnin säilyminen); selainpolku 390/320 ja 1440/1280 px (asetus päälle, lisäys kirjoittaessa, kohdistin, poisto sanan vaihtuessa).
+
 ## Ei tarkistettu
 
+- Oikealla iPhonella ei kokeiltu (1.30): tekstikentän arvon vaihto kirjoittaessa Safarissa (kohdistimen pysyminen, iOS:n ennakoiva teksti ja sanelu voivat käyttäytyä eri tavalla kuin tietokoneen näppäimistö).
 - Oikealla iPhonella ei kokeiltu (1.29): kelluvan +:n paikka kotiviivan yläpuolella, 2 px viivan ja sumennuksen (Lasinen) ulkonäkö Dynamic Islandin alla, ui-rounded/ui-serif-fonttien saatavuus Safarissa, alapalkin painallusanimaatio, ohjeikkuna toisen ikkunan päällä (sisäkkäinen dialog).
 
 - Tietokoneversio (1.25): kokeiltu vain Chromiumilla 1440 ja 1280 px; Safari/Mac ja iPad (leveys 1024+ vaakatasossa saa tietokoneasettelun) kokeilematta.
@@ -259,6 +269,7 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 ## Seuraavaksi
 
+- Emil kokeilee 1.30:n (asetus puun ⋯-valikosta) ja sanoo, tuntuuko ketjutus oikealta. Jatkoideoita, ei rakennettu: lisäykset vasta tallennettaessa (ei kirjoittaessa), osion piilotus kortissa.
 - Emil kokeilee 1.29:n puhelimella ja ottaa kantaa nimeen (Lehto vai muu). Jos nimi hyväksytään, `PROJEKTIMUOTO.md`:n ja README:n maininnat päivitetään samalla.
 
 - Arvio ja jatkokehitys 21.10.2026 (Claude Doc): https://claude.ai/artifact/UXJ416PaGLHh7mwufxmuaH. Suositus: iPhone-kokeilu, sitten näkyvyys (miksi tämä, termiosumat, nimen vaihto tekstikentässä, varmuuskopion muistutus), termilohkot, JA-ehdot, esiin nousevat apukysymykset.
