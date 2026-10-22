@@ -425,6 +425,17 @@ async def run(p,w,h):
     await pg.click('[data-tab="notes"]'); await pg.wait_for_timeout(50); await check('tyyli muistiot'); await pg.click('[data-tab="cal"]'); await pg.wait_for_timeout(100); await check('tyyli kalenteri')
     await pg.click('[data-tab="set"]'); await pg.click('#set-font [data-v="system"]'); await pg.click('#set-edge [data-v="soft"]'); await pg.click('#set-glass [data-v="off"]')
     await pg.reload(); await pg.wait_for_timeout(100); want('tyyliasetus tallessa', await pg.evaluate("document.documentElement.dataset.font")=='system' and await pg.evaluate("document.title")=='Juuri')
+    # 1.36: suhteellinen sana lukittuu ja muuttuu päivän tullen, napautus näyttää alkuperäisen
+    await pg.click('[data-tab="notes"]'); await pg.click('#newnote'); await pg.wait_for_timeout(50); await pg.fill('#ns-text','Lukkotesti huomenna'); await pg.dispatch_event('#ns-text','input'); await pg.click('#ns-ok'); await pg.wait_for_timeout(80)
+    lt=await pg.evaluate("JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0].muistiinpanot.filter(function(n){return n.text.indexOf('Lukkotesti')===0;})[0]"); want('lukko tallessa', len(lt.get('rel') or [])==1 and lt['rel'][0]['o']=='huomenna')
+    await pg.evaluate("""(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1')),d=new Date(),y=new Date(d.getTime()-864e5),iso=function(x){return x.getFullYear()+'-'+('0'+(x.getMonth()+1)).slice(-2)+'-'+('0'+x.getDate()).slice(-2);};
+      o.kokonaisuudet[0].muistiinpanot.unshift({id:'nrel',text:'Eilinen huomenna klo 9 tänne',created:y.toISOString(),rel:[{w:'huomenna',o:'huomenna',at:y.toISOString(),d:iso(d)}]});localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()""")
+    await pg.reload(); await pg.wait_for_timeout(120); await pg.click('[data-tab="notes"]'); await pg.wait_for_timeout(50)
+    rc=pg.locator('#nlist .ncard:has-text("Eilinen")'); want('sana vaihtui tänään', 'Eilinen tänään klo 9 tänne' in await rc.inner_text() and await rc.locator('.rel').count()==1); await check('lukittu sana kortissa')
+    await rc.click(); await pg.wait_for_timeout(60); want('korostus muokatessa', await pg.locator('#ns-hl .rel').count()==1)
+    await pg.evaluate("(function(){var t=document.getElementById('ns-text');t.focus();t.setSelectionRange(10,10);t.dispatchEvent(new Event('click'));})()"); await pg.wait_for_timeout(40)
+    want('napautus näyttää alkuperäisen', await pg.is_visible('#ns-ov') and '”huomenna”' in await pg.inner_text('#ns-ov') and 'Kirjoitettu' in await pg.inner_text('#ns-ov')); await check('alkuperäinen sana')
+    await pg.click('#ns-ok'); await pg.wait_for_timeout(50)
     for mode in ['Tumma']:
         await pg.click('[data-tab="set"]'); await pg.click('#p-set .seg button:has-text("%s")'%mode); await check('tumma')
     print('  errs',errs); await b.close(); return bad+(['virheet'] if errs else [])

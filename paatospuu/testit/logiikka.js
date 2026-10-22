@@ -403,4 +403,22 @@ eq('alaotsikkotermit',E.calTerms([{name:'Kissa',yes:[],no:[],cal:true},{name:'Ko
 eq('kalenteritermi tallessa',[E.normalizeData({app:'paatospuu',termit:[{id:'t',name:'T',cal:true}],termisanat:{k:{cal:true}}}).terms[0].cal,E.normalizeData({app:'paatospuu',termisanat:{k:{cal:true}}}).words.k.cal],[true,true]);
 eq('raahaus kohtaan',[E.moveToIdx(['a','b','c'],'c',0),E.moveToIdx(['a','b','c'],'a',2),E.moveToIdx(['a','b','c'],'b',1)],[['c','a','b'],['b','c','a'],['a','b','c']]);
 
+// 1.36 suhteellisten aikojen lukitus
+function rlk(text,at){var N={text:text,created:at};E.lockRel(N,new Date(at));return N;}
+function rdd(N){return E.noteDates(N).map(function(o){return o.a;});}
+var RN=rlk('Hammas huomenna klo 14 ja perjantaina.','2026-10-22T09:00:00');
+eq('lukko syntyy',RN.rel.map(function(l){return l.w+'>'+l.d;}),['huomenna>2026-10-23','perjantaina>2026-10-23']);
+RN.text='Hammas huomenna klo 14 ja perjantaina, soita huomenna.';E.lockRel(RN,new Date('2026-10-23T09:00:00'));
+eq('uusi sana omaan hetkeensä',rdd(RN),['2026-10-23','2026-10-23','2026-10-24']);
+E.relSweep(RN,'2026-10-23');eq('päivä tulee',RN.text,'Hammas tänään klo 14 ja tänään, soita huomenna.');
+E.relSweep(RN,'2026-10-24');eq('eilen',RN.text,'Hammas eilen klo 14 ja eilen, soita tänään.');
+E.relSweep(RN,'2026-10-27');eq('päiväys',RN.text,'Hammas pe 23.10.2026 klo 14 ja pe 23.10.2026, soita la 24.10.2026.');
+eq('päiväys pitää lukon ja ajan',[RN.rel.length,rdd(RN)],[3,['2026-10-23','2026-10-23','2026-10-24']]);
+eq('alkuperäinen tallessa',RN.rel.map(function(l){return l.o;}),['huomenna','perjantaina','huomenna']);
+E.lockRel(RN,new Date('2026-10-28T09:00:00'));eq('muokkaus säilyttää päiväyslukon',RN.rel.length,3);
+var XN=rlk('Kokous 24.10. klo 10 ja lauantaina','2026-10-22T09:00:00');eq('itse kirjoitettu päiväys ei lukkoon',XN.rel.map(function(l){return l.w;}),['lauantaina']);
+E.relSweep(XN,'2026-10-30');eq('itse kirjoitettu ei muutu',XN.text,'Kokous 24.10. klo 10 ja la 24.10.2026');
+var WN=rlk('Sauna lauantaina','2026-10-22T09:00:00');E.relSweep(WN,'2026-10-23');eq('viikonpäivä pysyy viikon sisällä',WN.text,'Sauna huomenna');
+eq('normalisointi säilyttää',E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',muistiinpanot:[{id:'n',text:'a huomenna',created:'2026-10-22T09:00:00',rel:[{w:'huomenna',o:'huomenna',at:'2026-10-22T09:00:00.000Z',d:'2026-10-23'},{w:'x'}]}]}]}).K[0].notes[0].rel.length,1);
+
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);

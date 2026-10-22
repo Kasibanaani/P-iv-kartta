@@ -1,6 +1,6 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.35 (kalenterin uusi luontitapa, koko päivän merkinnät alhaalla, vakaa kuukausi-ikkuna; yläreunan viivatoiminto ja vierityksen pyöristys poistettu); jonossa suhteellisten aikojen lukitus · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
+**Vaihe:** versio 1.36 (suhteelliset sanat lukittuvat kirjoitushetkeen ja vaihtuvat päivän tullen sanaksi tänään, eilen ja päiväykseksi) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -291,6 +291,15 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Kuukausi-ikkuna vakaa:** viikonpäivät otsikkorivissä, ruudukko aina 6 viikkoa, joten nuolet ja ikkunan koko eivät pompi.
 - Testit: logiikka 299 ok; selain 390/320 (napsautus tekee merkinnän, koko päivä alhaalla, rengas, pudotus päivän ruutuun) ja 1440/1280 (veto tekee merkinnän pituuksineen). Kosketuksen pito ei ole testattavissa Chromiumin hiirellä.
 
+## Versio 1.36 (22.10.2026, Emilin valinta ”Lukitus + teksti muuttuu”): suhteelliset ajat
+
+- **Lukitus:** yhden päivän suhteellinen ilmaus (huomenna, ylihuomenna, perjantaina, 3 päivän päästä, tänään, eilen) lukittuu kirjoitushetkeensä, kun muistiinpano tallennetaan. Muistiinpanossa kenttä `rel: [{w, o, at, d}]` (sana nyt, alkuperäinen, kirjoitusaika, päivä). Myöhempi muokkaus ei siirrä lukittua päivää; uusi suhteellinen sana lukittuu omaan hetkeensä. Esikatselu (korostus, *Ajankohdat*) laskee samoin jo kirjoittaessa.
+- **Teksti muuttuu päivän tullen:** appin avautuessa, palatessa taustalta ja minuutin välein tarkistetaan päivä. Sana vaihtuu: *tänään* → *eilen* → päiväys muodossa *pe 23.10.2026*. Tulevaan päivään osoittava sana päivittyy myös (perjantaina → huomenna). Viikonpäivän nimi saa jäädä, kun päivä on alle viikon päässä. Muutos ei laske viemättömäksi muutokseksi (ei punaista palleroa).
+- **Näkyvyys:** vaihtunut sana katkoviivan sisällä muistiinpanokortissa ja tekstikentässä. Napautus sanaan muokatessa näyttää ”Kirjoitettu 21.10.2026 klo 8.36: ”huomenna” → to 22.10.2026”. *Ajankohdat*-rivillä myös ”kirjoitettu ”huomenna””. Päiväykseksi muuttunut sana pitää lukkonsa, joten alkuperäinen näkyy yhä.
+- **Ei muuteta koskaan:** itse kirjoitettu päiväys (24.10., 24.10.2026, vk43), toistuvat (perjantaisin), välit (ensi viikolla, ma–pe) ja pelkkä lyhenne *pe* (se ei ole yksi päivä).
+- Rakentajan ratkaisu: vanhat muistiinpanot ilman lukkoa toimivat kuten ennen (pohja luontihetki). Lukko syntyy, kun ne seuraavan kerran tallennetaan.
+- Testit: logiikka 311 ok (lukitus, uusi sana omaan hetkeensä, tänään/eilen/päiväys, itse kirjoitettu ei muutu, normalisointi); selain 390/320 (lukko tallessa, eilen kirjoitettu *huomenna* näkyy *tänään* katkoviivalla, napautus näyttää alkuperäisen) ja 1440/1280.
+
 ## Tietokoneversio: pohdinta (Emil 22.10.2026, ei rakennettu)
 
 - Emilin toive: sama appi, johon voi lisätä vain tietokoneella käytettäviä toimintoja (esim. laskentataulukkomainen, ehtojen mukaan priorisoituva tarkistuslista). Vaihtoehto: erillinen tietokoneappi, jonka projektit siirtyvät puhelimeen, ja projektin yhteensopivuuden tarkistus.
@@ -299,8 +308,8 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 ## Ei tarkistettu
 
+- Oikealla iPhonella ei kokeiltu (1.36): kursorin osuminen katkoviivaiseen sanaan napautuksella, sanan vaihtuminen kun appi on ollut taustalla yön yli. Päivän vaihtumista ei kokeiltu oikeasti, vaan tallennettua dataa muokkaamalla.
 - Oikealla iPhonella ei kokeiltu (1.35): lyhyen pidon tuntuma (0,25 s), aukeaako tekstin valinta tai iOS:n suurennuslasi pidossa, renkaan näkyvyys päiväruudussa.
-- Oikealla iPhonella ei kokeiltu (1.33): vierityksen pyöristys hitausvierityksen (momentum) kanssa, voiko pyöristys tuntua nykivältä.
 - Oikealla iPhonella ei kokeiltu (1.32): päivä- ja aikakentän valitsimen aukeaminen näkyvän tekstin alta Safarissa, valitsimen *Tyhjennä*.
 - Oikealla iPhonella ei kokeiltu (1.31): jakoikkunan tiedostonimi Tiedostot-appiin tallennettaessa ja *Korvaa*-kysymys, pallero kotiviivan/Dynamic Islandin läheisyydessä, vuorokauden vaihtuminen appin ollessa taustalla.
 - Oikealla iPhonella ei kokeiltu (1.30): tekstikentän arvon vaihto kirjoittaessa Safarissa (kohdistimen pysyminen, iOS:n ennakoiva teksti ja sanelu voivat käyttäytyä eri tavalla kuin tietokoneen näppäimistö).
@@ -336,7 +345,7 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Avoin (1.23): nimetäänkö Toistuvat-välilehti uudelleen (esim. *Automaattiset*), kun siellä on nyt kaksi lajia? Suositus: ei vielä, nimi mahtuu ja on tuttu.
 
 - Emil hyväksyi 21.10.2026 kaikki suositukset dokumentista *Päätöspuu: avoimet kysymykset* (https://claude.ai/artifact/RFMnrpTAm7fb7r9prDPz8q). Toteutus etenee vaihe kerrallaan: `SUUNNITELMA-vaiheet.md` (pelisäännöt, vaiheiden tila ja kunkin vaiheen kysymykset). Seuraavaan vaiheeseen vasta Emilin kuittauksen ja vastausten jälkeen.
-- Ratkaistu: suhteellisten päivien pohja on luontihetki (17), nimi ”kierros” jää (24), päivän muistiinpanoihin lasketaan välit (Emil: ”Juu!”).
+- Ratkaistu: suhteellisten päivien pohja on luontihetki (17); 1.36 lukitsee jokaisen suhteellisen sanan omaan kirjoitushetkeensä, nimi ”kierros” jää (24), päivän muistiinpanoihin lasketaan välit (Emil: ”Juu!”).
 - Termin opetus on kaksi tekstikenttää (tunnistavat / poissulkevat), ei napautuskierto: vaiheet 4 ja 6 tuovat lohkot tekstiin.
 
 ## Emilin kommentit
