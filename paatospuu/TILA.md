@@ -460,6 +460,10 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Ratkaistu: suhteellisten päivien pohja on luontihetki (17); 1.36 lukitsee jokaisen suhteellisen sanan omaan kirjoitushetkeensä, nimi ”kierros” jää (24), päivän muistiinpanoihin lasketaan välit (Emil: ”Juu!”).
 - Termin opetus on kaksi tekstikenttää (tunnistavat / poissulkevat), ei napautuskierto: vaiheet 4 ja 6 tuovat lohkot tekstiin.
 
+## Suunnitelmat
+
+- 23.10.2026 (suunnittelija, ei rakennettu): käytön yksinkertaistus, https://claude.ai/artifact/Gw6YsnZdK9AXniF7oYQnw1 (tiivistelmä projektikansiossa `paatospuu/SUUNNITELMA-yksinkertaistus.md`). Periaate: yksi paikka per kohde, sama rivirakenne joka näkymässä, neljä ohjainlajia. A (1.50): järjestyssegmentti, kortin ⋯, Rakennan toinen rivi ja ylimääräiset Valmis-napit pois, tähti suoraan riveille, Tänään paikallaan. B: vienti+tuonti yhteen ikkunaan, projektin asiat Projekti-ikkunaan, muistiinpanon ikkunan vakaa järjestys, Muistioiden alapalkki → kelluva +. C (Emilin kanta): kierros alkaa napautuksesta, yksi asiasanakortti kaikkialta, Tärkeät-luettelon yhdistäminen. Odottaa Emilin "toteuta".
+
 ## Emilin kommentit
 
 - (tyhjä)
