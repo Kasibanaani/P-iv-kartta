@@ -350,6 +350,7 @@ Suunnitelma: https://claude.ai/artifact/Gw6YsnZdK9AXniF7oYQnw1 (vaiheet A, B ja 
 - **Kierros (C1, Emil):** alkuaskel näkyy heti; ensimmäinen valinta tai Jatka aloittaa kierroksen (aikaleima siitä). *Päivä ⌄* Puu-napin vieressä ennen aloitusta hakee päivän muistiinpanot mukaan. Ensimmäisen valinnan purku ilman päivää palaa alkuun ilman kierrosta. Lopeta toimii myös heti.
 - **Aikaehdotukset (Emil):** vain kohteet, joiden asiasanalle on annettu kesto; kalenterin oletuspituus ei ole enää varakesto (valinta "ei aikaehdotuksia"). Kellokuvake pois.
 - **Kuvakkeet (Emil: ei 2005-estetiikkaa):** ★/☆ ohueksi viivatähdeksi, listan ☰ ja ryhmän ▦ viivakuvakkeiksi, ↗ viivanuoleksi, "▶ Alku" → "Alku". Tekstin merkit ◆ ja ▸ jäivät, koska ne ovat muistiinpanon tekstiä (lisäysosio ja apukysymysten vastaukset). ✓ Kuitattu jäi.
+- 1.50.1 (Emil): Listan aikaehdotusten laatikko "Kaikki kuitattu…" poistettu (johti harhaan); laatikkoa ei näytetä, kun ehdotettavaa ei ole.
 - Tallennusmuoto ei muuttunut.
 - Testit: logiikka 378 ok, selain 390/320 ja 1440/1280 px tietokoneen Chromiumissa; kuvat 390 ja 320 px tarkistettu. iPhonella ei kokeiltu.
 - Ei tehty (suunnitelman suositus: kokeilun jälkeen): C2 yksi asiasanakortti kaikkialta, C3 Tärkeät-luettelon yhdistäminen Rakennan Järjestykseen.
