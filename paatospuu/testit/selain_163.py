@@ -37,7 +37,7 @@ async def run(p,w,h):
     await pg.click('#pk-add'); await pg.wait_for_timeout(100)
     want('uusi projekti perii nykyisen tyylin', await pg.evaluate("document.documentElement.dataset.font")=='mono')
     await pg.click('#psheet .sx'); await pg.wait_for_timeout(60)
-    want('alapalkissa kolme välilehteä', await pg.locator('nav .tab').count()==3)
+    want('alapalkissa neljä välilehteä: Muistiot, Kalenteri, Listat, Päätöspuu', await pg.evaluate("Array.prototype.map.call(document.querySelectorAll('nav .tab'),function(b){return b.dataset.tab;}).join()")=='notes,cal,list,use')
     await pg.click('#status') if await pg.is_visible('#status') else None
     want('ei sivuvirheitä', not errs)
     await b.close(); return bad

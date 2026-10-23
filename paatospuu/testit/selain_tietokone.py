@@ -33,7 +33,7 @@ async def run(p,w,h):
         print('  %-30s %s'%(label,'ok' if cond else 'VIRHE'))
         if not cond: bad.append(label)
     print('leveys',w)
-    for t in ['use','notes','cal']:
+    for t in ['use','notes','cal','list']:
         await pg.click('[data-tab="%s"]'%t); await pg.wait_for_timeout(120); await check('tab '+t)
     await pg.click('[data-tab="notes"]'); await pg.locator('#nlist .ncard').first.click(); await pg.wait_for_timeout(150); await check('muistiinpano ikkuna')
     await pg.click('#nsheet .sx'); await pg.wait_for_timeout(50)
