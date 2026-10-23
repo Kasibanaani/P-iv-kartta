@@ -564,6 +564,18 @@ label.fl{margin:12px 0 4px}
 .calhead h2{min-width:0;text-align:center}
 .calhead .mtitle{max-width:100%}
 .calhead .mt{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* 1.60 (Emil 23.10.2026): otsikot lähes leipätekstin kokoisiksi, korostus lihavoinnilla. Ikkunan otsikkorivi (paluukohde, i, X) pysyy ylhäällä vieritettäessä. */
+h2{font-size:17px;letter-spacing:-0.01em;margin:16px 0 4px}
+h3{font-size:14px;margin:14px 0 6px}
+.title .tn{font-size:17px}
+.mhead h2,.calhead h2{font-size:16px}
+.sub{font-size:14px}
+dialog h2{font-size:17px}
+dialog .hrow,dialog.big>h2{position:sticky;top:-12px;z-index:2;margin:-12px 0 6px;padding:12px 0 6px;background:inherit}
+dialog.big>h2{padding-right:40px}
+dialog .hrow .sx{position:static;float:none;flex:none;margin:0}
+dialog .hrow h2,dialog .hrow h3{margin:0}
+dialog .sx{top:0;margin-top:-2px}
 .chipw{display:inline-flex;align-items:center;gap:2px}
 .chipw .ibtn{margin-right:4px}
 #ns-found i.th[role="button"]{cursor:pointer}
@@ -1927,7 +1939,7 @@ SHEETS.forEach(function(id){var d=$(id);d.addEventListener('click',function(ev){
   d.addEventListener('cancel',function(ev){ev.preventDefault();sheetDone(d);});});
 /* Sulkeminen oikean yläkulman ruksista (Emil 21.10.2026: alasveto sekoittui alla olevan tason raahaukseen). Ruksi toimii kuten Valmis. */
 SHEETS.forEach(function(id){var d=$(id),x=el('button','sx');x.type='button';x.setAttribute('aria-label','Sulje');
-  x.innerHTML='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9"/></svg>';x.addEventListener('click',function(){sheetDone(d);});d.insertBefore(x,d.firstChild);});
+  x.innerHTML='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9"/></svg>';x.addEventListener('click',function(){sheetDone(d);});var hr=d.querySelector('.hrow');if(hr)hr.appendChild(x);else d.insertBefore(x,d.firstChild);});
 function firstProjForm(p){p.appendChild(el('h2','','Ensimmäinen päätöspuu'));
   p.appendChild(el('p','sub','Anna puulle nimi, sitten kirjoitat tai liität sisällön tekstikenttään.'));
   var r=el('div','addrow'),i=el('input');i.type='text';i.id='firstproj';i.placeholder='Nimi';i.autocomplete='off';r.appendChild(i);
@@ -2660,7 +2672,7 @@ function renderCal(){var p=panels.cal,today=todayIso();p.textContent='';if(!calD
   var ws=weekStart(calDay),days=[];for(var i=0;i<7;i++){var di=isoD(addDays(ws,i));if(!dayOff(di))days.push(di);}
   var dl=fromIso(calDay),MON=['tammikuu','helmikuu','maaliskuu','huhtikuu','toukokuu','kesäkuu','heinäkuu','elokuu','syyskuu','lokakuu','marraskuu','joulukuu'];
   var AT=allTerms(),ct=calTerms(AT,calNotes(),calDay);termCache=null;
-  /* 1.59 (Emil): päiväteksti kalenterin palkin yläpuolelta pois, palkki alkaa heti ylhäältä eikä vieritys paljasta mitään sen yläpuolelta */
+  /* 1.60 (Emil): kalenterin kelluva + poistettu; uusi merkintä pitämällä (puhelin) tai napsauttamalla/vetämällä (kone) aikajanalla. 1.59 (Emil): päiväteksti kalenterin palkin yläpuolelta pois, palkki alkaa heti ylhäältä eikä vieritys paljasta mitään sen yläpuolelta */
   setInfo('');
   var top=el('div','calsticky');top.id='calsticky';p.appendChild(top);
   var h=el('div','calhead');button(h,'‹','mini',function(){calSet(isoD(addDays(fromIso(calDay),-7)));}).setAttribute('aria-label','Edellinen viikko');
@@ -2677,7 +2689,7 @@ function renderCal(){var p=panels.cal,today=todayIso();p.textContent='';if(!calD
   /* pyyhkäisy viikkonauhalla vaihtaa viikkoa */
   var sx=null;g.addEventListener('touchstart',function(ev){sx=ev.touches[0].clientX;},{passive:true});
   g.addEventListener('touchend',function(ev){if(sx===null)return;var dx=ev.changedTouches[0].clientX-sx;sx=null;if(Math.abs(dx)>50)calSet(isoD(addDays(fromIso(calDay),dx<0?7:-7)));});
-  if(wide()){renderWeek(p,top,days,today);calFab(p);return;}
+  if(wide()){renderWeek(p,top,days,today);return;}
   var E=dayView(calDay);
   /* Koko päivän merkinnät (Emil 22.10.2026) aikajanan alla, ei yläreunassa */
   var u=el('div','allday');u.id='untimed';u.appendChild(el('h3','','Koko päivä'));if(E.untimed.length){E.untimed.forEach(function(x){var c=udayChip(u,x,calDay);if(!x.od)chipDrag(c,x);else c.addEventListener('click',function(){openNote(x.n,null,occKey(x.od,x.o));});});}
@@ -2687,12 +2699,9 @@ function renderCal(){var p=panels.cal,today=todayIso();p.textContent='';if(!calD
   E.timed.forEach(function(x){area.appendChild(evBox(x));});
   p.appendChild(tl);if(u)p.appendChild(u);
   if(!E.timed.length&&!E.untimed.length)p.insertBefore(el('p','sub','Ei merkintöjä tälle päivälle.'),tl);
-  calFab(p);
   requestAnimationFrame(function(){if(calTop===null){calTop=main.scrollTop+tl.getBoundingClientRect().top-main.getBoundingClientRect().top+Math.max(0,yOf(420))-top.offsetHeight-6;}main.scrollTop=calTop;});}
 /* + kelluu kalenterin oikeassa alakulmassa (Emil 22.10.2026); tekstissä tai kentässä ilmaistu aika voittaa aina. */
-function calFab(p){var r=el('div','fabrow'),b=button(r,'+','fab',function(){openNote(null,{date:calDay||todayIso(),s:fromMin(plusMin())});});b.id='calplus';b.setAttribute('aria-label','Uusi merkintä tälle päivälle');p.appendChild(r);}
 /* +:n alkuaika (1.35, yläreunan viivatoiminto poistettu): tänään seuraava vartti nykyhetkestä, muina päivinä 9.00 */
-function plusMin(){var m=540;if((calDay||todayIso())===todayIso()){var n=new Date();m=Math.min(1425,Math.ceil((n.getHours()*60+n.getMinutes()+1)/STEP)*STEP);}return Math.max(CVs,Math.min(CVe-STEP,m));}
 /* Uusi merkintä aikajanalta (Emil 22.10.2026): hiirellä painallus mihin tahansa ja veto venyttää pituuden (lähin vartti);
    kosketuksella lyhyt pito (0,25 s) paikallaan tuo oman värisen viivan pyöristettyyn aikaan. Viivaa voi raahata ylös ja alas
    (vieritys lukossa), nosto avaa merkinnän viivan kohtaan. Reilu veto sivulle peruu: viiva katoaa eikä mitään avaudu.
