@@ -546,6 +546,7 @@ async def run(p,w,h):
     await pg.click('#noteview [data-nv="chk"]'); await pg.wait_for_timeout(40); await pg.click('#newnote'); await pg.wait_for_timeout(50); await pg.fill('#ks-name','Tiskikone')
     await pg.click('#ks-men'); want('mainittu valittu', await pg.get_attribute('#ks-men','aria-pressed')=='true'); await pg.click('#ksheet > .sx'); await pg.wait_for_timeout(60)
     mr=pg.locator('#chlist .crow:has-text("Tiskikone")'); mp=mr.locator('.cpill.cmen'); want('mainittu rivillä', await mp.count()==1 and 'suodatin' in (await mp.inner_text()).lower() and '1 kuittaamatta' in await mr.inner_text()); await check('mainittu')
+    want('1.52.1: linkki kohdenapin sisällä', await mp.locator('.clink').count()==1 and await mr.locator('.cpw > .clink').count()==0)
     await mr.locator('.clink').click(); await pg.wait_for_timeout(80); want('linkki avaa muistiinpanon', await pg.is_visible('#nsheet') and 'TISKIKONEEN' in await pg.input_value('#ns-text') and await pg.get_attribute('#noteview [data-nv="open"]','aria-pressed')=='true')
     await pg.click('#nsheet > .sx'); await pg.wait_for_timeout(50); await pg.click('#noteview [data-nv="chk"]'); await pg.wait_for_timeout(40)
     # 1.51: Mainittu ryhmän jäsenenä toimii kuten rivin oma valinta

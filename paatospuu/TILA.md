@@ -1,6 +1,6 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.52 (tekstin aikalinkki napautusvalikkona: kuittaus, ajan muokkaus, historia, purku; 1.51 aikasanat ja Mainittu valittavina riville ja ryhmän jäseniksi; 1.50 käytön yksinkertaistus: yksi paikka per kohde, kierros alkaa napautuksesta, vienti ja tuonti samassa ikkunassa, viivakuvakkeet; 1.49 listan ⏱-aikaehdotukset; jaksot ja pelkkä kellonaika seuraava mahdollinen kirjoitushetkestä; ryhmät myös Asiasanoissa, asiasanojen poistotila; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 23.10.2026
+**Vaihe:** versio 1.52.1 (tekstin aikalinkki napautusvalikkona: kuittaus, ajan muokkaus, historia, purku; 1.51 aikasanat ja Mainittu valittavina riville ja ryhmän jäseniksi; 1.50 käytön yksinkertaistus: yksi paikka per kohde, kierros alkaa napautuksesta, vienti ja tuonti samassa ikkunassa, viivakuvakkeet; 1.49 listan ⏱-aikaehdotukset; jaksot ja pelkkä kellonaika seuraava mahdollinen kirjoitushetkestä; ryhmät myös Asiasanoissa, asiasanojen poistotila; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 23.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -335,6 +335,10 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Päivä ja kellonajat samalla rivillä** pieninä (40 px korkeat) tekstikentän alla, napautus avaa valitsimen; kellonajat näkyvät vain, kun tekstissä ei ole aikaa. Tekstikenttä 32 → 40 % näytön korkeudesta.
 - **Poista** ikkunan alalaidassa oikealla (vain olemassa olevalla muistiinpanolla). Avaa joka kerta varmistuksen: ”Poistetaanko koko muistiinpano? Samalla poistuvat kaikki sen kalenterimerkinnät. … roskakoriin”. Varmistusnappi vasemmalla, Peruuta oikealla Poista-napin kohdalla, joten tuplanapautus ei poista (testattu 390 ja 320 px). Aiemmat poistotavat: Muistioiden kortin ⋯ → Poista ja tekstin tyhjennys.
 - **1.39.3:** Valmis pois myös listan rivin ja toistuvan ikkunoista; niiden Poista avaa saman varmistuslaatikon (Poista vasemmalla, Peruuta oikealla). Korjattu samalla 1.38:n bugi: listan rivin poisto sulki väärän ikkunan (rivin muokkausikkunan tunnus sekoittui).
+
+## Versio 1.52.1 (23.10.2026, Emilin palaute)
+
+- Listan Mainittu-kohteen ↗-linkki on nyt kohdenapin sisällä oikeassa reunassa ohuen erotinviivan takana. Linkin napautus avaa muistiinpanon eikä kuittaa. Testit ok (tietokoneen selain, ei iPhone).
 
 ## Versio 1.52 (23.10.2026, Emilin "Voitko toteuttaa?"): aikalinkin valikko
 
