@@ -554,6 +554,7 @@ Suunnitelma: https://claude.ai/artifact/Gw6YsnZdK9AXniF7oYQnw1 (vaiheet A, B ja 
 
 ## Suunnitelmat
 
+- 23.10.2026 illalla (arvio, ei rakennettu): toisen tekoälyn 12-kohtaisen arvion seula, https://claude.ai/artifact/PTV2yAPZgyReZDCExj1MQy (tiivistelmä projektikansiossa `paatospuu/ARVIO-ulkopuolinen.md`). Varmistettu 1.60:ssa bugeiksi: Pura linkki ei tallennu yksinään (ns-ok ei vertaa nsNl), addTermWord hävittää puun asiasanan ev/dur/info/cal, kalenterisiirto ei siirrä pts-kuittausta, luonnos ei säily, setDone(false) poistaa pts:t, chkSetText ei siivoa nl:ää. Suositus: 1.61 korjaukset → yksi päivitysreitti + luonnos → S1 → kalenterin otsikot/ikkuna → asiasanaluettelo → V1, L1–L4, P (Lista alapalkkiin samalla) → K1–K2. 12 kysymystä Emilille artefaktissa.
 - 23.10.2026 (suunnittelija, ei rakennettu): käytön yksinkertaistus, https://claude.ai/artifact/Gw6YsnZdK9AXniF7oYQnw1 (tiivistelmä projektikansiossa `paatospuu/SUUNNITELMA-yksinkertaistus.md`). Periaate: yksi paikka per kohde, sama rivirakenne joka näkymässä, neljä ohjainlajia. A (1.50): järjestyssegmentti, kortin ⋯, Rakennan toinen rivi ja ylimääräiset Valmis-napit pois, tähti suoraan riveille, Tänään paikallaan. B: vienti+tuonti yhteen ikkunaan, projektin asiat Projekti-ikkunaan, muistiinpanon ikkunan vakaa järjestys, Muistioiden alapalkki → kelluva +. C (Emilin kanta): kierros alkaa napautuksesta, yksi asiasanakortti kaikkialta, Tärkeät-luettelon yhdistäminen. Rakennettu 1.50:ssä (A, B, C1); C2 ja C3 odottavat kokeilua.
 
 ## Emilin kommentit
