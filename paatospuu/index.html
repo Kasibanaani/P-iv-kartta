@@ -312,7 +312,7 @@ details.more summary::after{content:"";flex:none;width:6px;height:6px;margin:-3p
 details.more[open] summary::after{margin-top:3px;transform:rotate(225deg)}
 
 /* välilehdet */
-nav{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);background:var(--bar);
+nav{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(3,1fr);background:var(--bar);
   -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-top:.5px solid var(--sep)}
 .dot{position:absolute;top:7px;left:50%;margin-left:9px;width:8px;height:8px;border-radius:4px;background:var(--accent)}
 .tab{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 2px 7px;border:0;background:none;font-size:11px;font-weight:500;color:var(--label2);cursor:pointer;-webkit-touch-callout:none}
@@ -690,7 +690,6 @@ dialog h2[data-crumb]::before{content:attr(data-crumb);color:var(--label2);font-
     <button class="tab" type="button" role="tab" data-tab="use"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="12" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M8.4 12H11c2.4 0 2.2-6 4.6-6M11 12c2.4 0 2.2 6 4.6 6"/></svg>Päätöspuu</button>
     <button class="tab" type="button" role="tab" data-tab="notes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h9l4 4V20a.5.5 0 0 1-.5.5h-12A.5.5 0 0 1 6 20z"/><path d="M9 11h7M9 14.5h7M9 18h4"/></svg>Muistiot</button>
     <button class="tab" type="button" role="tab" data-tab="cal"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Kalenteri</button>
-    <button class="tab" type="button" role="tab" data-tab="set"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M19 7h1M4 17h1M11 17h9"/><circle cx="16" cy="7" r="2.6"/><circle cx="8" cy="17" r="2.6"/></svg>Asetukset<i class="dot" id="setdot" hidden></i></button>
   </nav>
 </div>
 
@@ -729,6 +728,7 @@ dialog h2[data-crumb]::before{content:attr(data-crumb);color:var(--label2);font-
   <div class="lrow"><label class="fl" for="pk-name">Nimi</label><input type="text" id="pk-name" autocomplete="off" enterkeyhint="done"></div>
   <label class="fl">Kalenterin päivät</label><div class="chips" id="pk-days"></div>
   <label class="fl">Kalenterin näkyvä aika</label><div class="dtrow"><select id="pk-cs" aria-label="Päivä alkaa"></select><span aria-hidden="true">–</span><select id="pk-ce" aria-label="Päivä päättyy"></select></div>
+  <div id="pk-set"></div>
   <div class="btnrow"><button type="button" class="btn danger" id="pk-del">Poista projekti</button></div>
   <p class="msg" id="pk-mmsg"></p>
   </div>
@@ -1664,19 +1664,23 @@ function strs(a){return Array.isArray(a)?a.filter(function(x){return typeof x===
    Versio 1 (kaikki ylätasolla, puut kentässä projektit) luetaan yhdeksi projektiksi. Palauttaa myös aktiivisen projektin kentät ylätasolla. */
 function normalizeData(o){if(!o||typeof o!=='object'||o.app!=='paatospuu')return null;
   var K=[];(Array.isArray(o.kokonaisuudet)?o.kokonaisuudet:[]).forEach(function(k){if(!k||typeof k!=='object'||typeof k.id!=='string'||K.some(function(x){return x.id===k.id;}))return;
-    var st=normSet(k);st.id=k.id;st.name=clean(k.name).slice(0,80)||'Projekti';
+    var st=normSet(k);st.id=k.id;var kc=cfgOf(k.asetukset);if(kc)st.cfg=kc;st.name=clean(k.name).slice(0,80)||'Projekti';
     if(typeof k.muokattu==='string')st.mod=k.muokattu;if(typeof k.viety==='string')st.ex=k.viety;if(typeof k.viematta==='string'&&/^\d{4}-\d\d-\d\d$/.test(k.viematta))st.chg=k.viematta;K.push(st);});
   if(!K.length){var st=normSet(o);st.id='k1';st.name='Projekti';K.push(st);}
   var kc=K.some(function(x){return x.id===o.kcur;})?o.kcur:K[0].id,a=K.filter(function(x){return x.id===kc;})[0];
   var out={K:K,k:kc,cur:a.cur,projects:a.projects,notes:a.notes,terms:a.terms,words:a.words,trash:a.trash,imp:a.imp,reps:a.reps,chk:a.chk,grp:a.grp,win:a.win,calv:a.calv,lists:a.lists,cfg:{}};
-  if(o.cfg&&typeof o.cfg==='object')['tint','mode','size','font','edge','glass','dur','plan'].forEach(function(k){if(typeof o.cfg[k]==='string')out.cfg[k]=o.cfg[k];});
+  out.cfg=cfgOf(o.cfg)||{};
+  /* 1.63 (Emil 23.10.2026): asetukset ovat projektikohtaisia (asetukset). Vanhassa tallennuksessa kaikki projektit saavat yhteiset asetukset. */
+  K.forEach(function(k){if(!k.cfg)k.cfg=cfgOf(o.cfg)||{};});out.cfg=a.cfg;
   return out;}
+var CFGK=['tint','mode','size','font','edge','glass','dur','plan'];
+function cfgOf(c){if(!c||typeof c!=='object')return null;var o={};CFGK.forEach(function(k){if(typeof c[k]==='string')o[k]=c[k];});return o;}
 /* Yksittäisen projektin tiedosto (1.24): {app:'paatospuu', laji:'projekti', projekti:{name, puut, muistiinpanot, termit, ...}}.
    Tunnisteet saavat puuttua (tekoälyn kirjoittama, ks. PROJEKTIMUOTO.md); puun säännöt ovat tekstissä. Myös koko varmuuskopiosta
    saa projektit lisättäviksi. Palauttaa normalisoidut projektit (ilman id:tä) tai null. */
 function projectsFromFile(o,today){if(!o||typeof o!=='object'||o.app!=='paatospuu')return null;
   var one=o.laji==='projekti'||!!o.projekti,list=o.projekti&&typeof o.projekti==='object'?[o.projekti]:Array.isArray(o.kokonaisuudet)?o.kokonaisuudet:[o],out=[];
-  list.forEach(function(k){if(!k||typeof k!=='object')return;var c=fillIds(k,one,today||isoD(new Date())),st=normSet(c);st.name=clean(k.name).slice(0,80)||'Projekti';
+  list.forEach(function(k){if(!k||typeof k!=='object')return;var c=fillIds(k,one,today||isoD(new Date())),st=normSet(c),kc=cfgOf(k.asetukset);if(kc)st.cfg=kc;st.name=clean(k.name).slice(0,80)||'Projekti';
     if(!st.projects.some(function(P){return P.id===st.cur;}))st.cur=st.projects.length?st.projects[0].id:null;out.push(st);});
   return out.length?out:null;}
 function fillIds(k,one,today){var c={},n=0;Object.keys(k).forEach(function(f){c[f]=k[f];});
@@ -1690,7 +1694,7 @@ function safeName(t){return String(t||'').replace(/[\\\/:*?"<>|\u0000-\u001f]/g,
 function expName(name){return name===undefined||name===null?APPNAME+'.json':(safeName(name)||'Projekti')+' ('+APPNAME+').json';}
 /* Pallero: viemättömiä muutoksia ja vuorokausi on vaihtunut ensimmäisen viemättömän muutoksen jälkeen */
 function staleK(k,today){return !!(k&&k.chg&&k.chg<today);}
-function projectFile(k,now){return {app:'paatospuu',laji:'projekti',ver:VER,savedAt:now,projekti:{id:k.id,name:k.name,muokattu:k.mod||undefined,cur:k.cur,puut:k.projects,muistiinpanot:k.notes,termit:k.terms,termisanat:k.words,tarkeat:k.imp,toistuvat:k.reps,tarkistuslista:k.chk&&k.chk.length?k.chk:undefined,ryhmat:k.grp&&k.grp.length?k.grp:undefined,listat:k.lists&&k.lists.length?k.lists:undefined,aikavalit:k.win&&Object.keys(k.win).length?k.win:undefined,kalenteri:calvOut(k.calv)}};}
+function projectFile(k,now){return {app:'paatospuu',laji:'projekti',ver:VER,savedAt:now,projekti:{id:k.id,name:k.name,muokattu:k.mod||undefined,cur:k.cur,puut:k.projects,muistiinpanot:k.notes,termit:k.terms,termisanat:k.words,tarkeat:k.imp,toistuvat:k.reps,tarkistuslista:k.chk&&k.chk.length?k.chk:undefined,ryhmat:k.grp&&k.grp.length?k.grp:undefined,listat:k.lists&&k.lists.length?k.lists:undefined,asetukset:k.cfg||undefined,aikavalit:k.win&&Object.keys(k.win).length?k.win:undefined,kalenteri:calvOut(k.calv)}};}
 function normSet(o){var out={cur:typeof o.cur==='string'?o.cur:null,projects:[],notes:[],terms:[],words:{}},ids={};
   (Array.isArray(o.puut)?o.puut:Array.isArray(o.projektit)?o.projektit:[]).forEach(function(p){if(!p||typeof p.id!=='string'||ids[p.id])return;ids[p.id]=1;
     var P={id:p.id,name:clean(p.name)||'Nimetön',text:typeof p.text==='string'?p.text:'',rules:{},mx:[],session:null};
@@ -1795,11 +1799,12 @@ function button(parent,txt,cls,fn){var b=el('button',cls||'btn',txt);b.type='but
 var data={K:[],k:null,cur:null,projects:[],notes:[],terms:[],words:{},trash:[],imp:[],reps:[],chk:[],grp:[],win:{},calv:null,lists:[],cfg:{tint:'forest',mode:'auto',size:'normal',font:'system',edge:'soft',glass:'off',dur:'30'},meta:{lastExport:null,dirty:0}};
 /* Projektit (kokonaisuudet): data.K. Aktiivisen projektin puut, muistiinpanot, termit ja tärkeät ovat data.*-kentissä. */
 function kOf(){for(var i=0;i<data.K.length;i++)if(data.K[i].id===data.k)return data.K[i];return null;}
-var KF=['cur','projects','notes','terms','words','trash','imp','reps','chk','grp','win','calv','lists'];
+var KF=['cur','projects','notes','terms','words','trash','imp','reps','chk','grp','win','calv','lists','cfg'];
+var CFG0={tint:'forest',mode:'auto',size:'normal',font:'system',edge:'soft',glass:'off',dur:'30'};
 function stashK(){var k=kOf();if(k)KF.forEach(function(f){k[f]=data[f];});}
-function loadK(k){data.k=k.id;KF.forEach(function(f){data[f]=k[f];});}
-function newK(name){return {id:uid('k'),name:clean(name).slice(0,80)||'Projekti',cur:null,projects:[],notes:[],terms:[],words:{},trash:[],imp:[],reps:[],chk:[],grp:[],win:{},calv:null,lists:[]};}
-function applyND(nd){data.K=nd.K;data.K.forEach(function(k){k.trash=purgeTrash(k.trash,Date.now());});loadK(data.K.filter(function(k){return k.id===nd.k;})[0]);Object.keys(nd.cfg).forEach(function(k){data.cfg[k]=nd.cfg[k];});}
+function loadK(k){if(!k.cfg)k.cfg=Object.assign({},data.cfg||CFG0);Object.keys(CFG0).forEach(function(c){if(typeof k.cfg[c]!=='string')k.cfg[c]=CFG0[c];});data.k=k.id;KF.forEach(function(f){data[f]=k[f];});}
+function newK(name){return {id:uid('k'),name:clean(name).slice(0,80)||'Projekti',cur:null,projects:[],notes:[],terms:[],words:{},trash:[],imp:[],reps:[],chk:[],grp:[],win:{},calv:null,lists:[],cfg:Object.assign({},data.cfg||CFG0)};}
+function applyND(nd){data.K=nd.K;data.K.forEach(function(k){k.trash=purgeTrash(k.trash,Date.now());});loadK(data.K.filter(function(k){return k.id===nd.k;})[0]);}
 try{var raw=JSON.parse(localStorage.getItem(KEY)||'null'),nd=normalizeData(raw);
   if(nd){applyND(nd);if(raw.meta)data.meta={lastExport:raw.meta.lastExport||null,dirty:raw.meta.dirty||0};
     /* 1.31: vanha tallennus ilman projektikohtaista seurantaa: viemättömät muutokset lasketaan tälle päivälle */
@@ -1807,7 +1812,7 @@ try{var raw=JSON.parse(localStorage.getItem(KEY)||'null'),nd=normalizeData(raw);
 if(!data.K.length){var k0=newK('Projekti');data.K.push(k0);loadK(k0);}
 var storeOk=true;
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(function(){});}catch(e){}
-function snapshot(){stashK();return {app:'paatospuu',ver:VER,savedAt:nowIso(),kcur:data.k,kokonaisuudet:data.K.map(function(k){return {id:k.id,name:k.name,cur:k.cur,puut:k.projects,muistiinpanot:k.notes,termit:k.terms,termisanat:k.words,roskakori:k.trash,tarkeat:k.imp,toistuvat:k.reps,tarkistuslista:k.chk&&k.chk.length?k.chk:undefined,ryhmat:k.grp&&k.grp.length?k.grp:undefined,listat:k.lists&&k.lists.length?k.lists:undefined,aikavalit:k.win&&Object.keys(k.win).length?k.win:undefined,kalenteri:calvOut(k.calv),muokattu:k.mod||undefined,viety:k.ex||undefined,viematta:k.chg||undefined};}),cfg:data.cfg};}
+function snapshot(){stashK();return {app:'paatospuu',ver:VER,savedAt:nowIso(),kcur:data.k,kokonaisuudet:data.K.map(function(k){return {id:k.id,name:k.name,cur:k.cur,puut:k.projects,muistiinpanot:k.notes,termit:k.terms,termisanat:k.words,roskakori:k.trash,tarkeat:k.imp,toistuvat:k.reps,tarkistuslista:k.chk&&k.chk.length?k.chk:undefined,ryhmat:k.grp&&k.grp.length?k.grp:undefined,listat:k.lists&&k.lists.length?k.lists:undefined,asetukset:k.cfg||undefined,aikavalit:k.win&&Object.keys(k.win).length?k.win:undefined,kalenteri:calvOut(k.calv),muokattu:k.mod||undefined,viety:k.ex||undefined,viematta:k.chg||undefined};}),cfg:data.cfg};}
 function save(){try{var o=snapshot();o.meta=data.meta;localStorage.setItem(KEY,JSON.stringify(o));storeOk=true;}catch(e){storeOk=false;}}
 /* Muutosseuranta viennin pallerolle ja tuonnin varoitukselle (Emil 22.10.2026): mod = viimeisin muutos, chg = ensimmäisen viemättömän
    muutoksen päivä (paikallinen), ex = projektin viimeisin vienti. Koko appin vienti nollaa kaikkien chg:n, projektin vienti oman. */
@@ -1838,7 +1843,7 @@ function statusText(){return data.K.some(function(k){return k.chg;})?'Muutoksia 
 /* Vanha tallennus piti päivän (VVVV-KK-PP), uusi aikaleiman */
 function whenTxt(t){return !t?'ei vielä kertaakaan':/^\d{4}-\d\d-\d\d$/.test(t)?fiDate(t):stamp(t);}
 function renderStatus(){var b=$('status'),t=todayIso();
-  b.hidden=storeOk;b.textContent=storeOk?'':'Tallennus ei onnistu';$('setdot').hidden=true;$('xdot').hidden=!data.K.some(function(k){return staleK(k,t);});}
+  b.hidden=storeOk;b.textContent=storeOk?'':'Tallennus ei onnistu';$('xdot').hidden=!data.K.some(function(k){return staleK(k,t);});}
 document.addEventListener('visibilitychange',function(){if(!document.hidden){if(relDay!==todayIso())render();renderStatus();if($('vsheet').open)renderVs();}});
 setInterval(function(){if(relDay!==todayIso()&&!$('nsheet').open)render();},60000);
 /* Vienti (Emil 22.10.2026): tasan kaksi vaihtoehtoa, molemmat JSON-tiedostona. */
@@ -1864,7 +1869,7 @@ function exportAll(){$('vs-out').textContent='';shareFile(JSON.stringify(snapsho
 function exportProj(){$('vs-out').textContent='';stashK();var k=kOf(),now=nowIso();
   shareFile(JSON.stringify(projectFile(k,now),null,1),expName(k.name),vsMsg,vsText,function(){k.ex=now;k.chg=null;save();renderStatus();renderVs();});}
 $('xbtn').addEventListener('click',function(){vsMsg('');$('vs-out').textContent='';$('dataout').textContent='';setMsg('');$('impbox').hidden=true;renderVs();openSheet($('vsheet'));});
-$('status').addEventListener('click',function(){showTab('set');});
+$('status').addEventListener('click',function(){openProj('k');setTimeout(function(){var h=$('sec-data');if(h)try{h.scrollIntoView({block:'start'});}catch(e){}},60);});
 /* Yläpalkki = projekti, puu valitaan Käytön ja Opetuksen yläosasta (Emil 21.10.2026) */
 function renderHead(){var k=kOf();$('tname').textContent=k?k.name:'Juuri';}
 /* Kuvakkeet ohuina viivoina, ei emojimerkkejä (Emil 23.10.2026) */
@@ -1901,8 +1906,8 @@ muistiinpano:['Muistiinpano','<p>Kirjoita vapaasti. Tunnistetut ajankohdat koros
 toistuvat:['Toistuvat ja muistutukset','<p>Automaattinen muistutus tulee avoimiin muistiinpanoihin eri värisenä. Uusi tulee vasta, kun edellinen on kuitattu. Asiasanat tunnistuvat tekstistä kuten muistiinpanoissa, ja järjestys tulee tärkeydestä.</p><p><b>Ajallaan</b>: <i>Tasavälein</i> laskee aina aloituspäivästä (kuun 31. ei valu 28. päivään), <i>Kuittauksesta</i> laskee seuraavan edellisen kuittauksesta. Myöhästyneistä tehdään vain viimeisin.</p><p><b>Jos ei tapahdu</b>: muistutus tulee, kun valittuja asiasanoja ei ole ollut kuitatuissa muistiinpanoissa tietyssä ajassa. <i>Jokin näistä</i> tai <i>Kaikki samassa</i> muistiinpanossa. Aika lasketaan myöhäisimmästä: osuvan muistiinpanon kuittaus, seurannan alku tai edellisen muistutuksen kuittaus.</p><p>Tyhjä teksti tai Poista (kaksi painallusta) poistaa; jo tulleet muistiinpanot jäävät.</p>'],
 asiasanat:['Asiasanat','<p><b>#Nimi</b> uuden asiasanan kenttään tekee listan ryhmän: valitse jäsenet napauttamalla ja paina Valmis. Ryhmät näkyvät omassa luettelossaan. <b>Poista…</b> avaa poistotilan: napauta poistettavat (omat asiasanat, ryhmät ja puiden palikat) ja vahvista <i>Poista valitut</i>. Palikka poistuu puusta sääntöineen.</p><p>Asiasana tunnistuu muistiinpanosta nimestään ja liitetyistä sanoista. Yksi sana tai lause riville. Sana löytyy osana mistä kohdasta tahansa, joten kirjoita vain se osa, joka ei taivu: <code>koir</code> löytää koirien ja kotikoiran. Isot kirjaimet ja välimerkit eivät vaikuta. Poissulkeva sana voittaa.</p><p>Jokainen päätöspuun palikka on itsestään asiasana (vähintään 3 kirjainta). Omat asiasanat ovat puista riippumattomia; samanniminen oma korvaa palikan. Asiasanat ja muistiinpanot ovat projektin yhteisiä kaikille sen puille.</p><p><b>Tärkeät</b> ovat aina muiden yläpuolella, ylin tärkein. Muistiinpano saa tärkeimmän osumansa paikan (Muistiot → Tärkeys). Rivin <b>tähti</b> merkitsee tärkeäksi tai poistaa heti; järjestä tärkeät painamalla riviä pitkään ja raahaamalla. Ehto, ryhmän jäsen ja kääntöpuoli perivät tärkeän merkityksensä paikan, ellet merkitse niitä itse. Tähti on sama kuin palikan tähti puun Järjestyksessä.</p><p><b>Nousee esiin</b>: apukysymys tai asiasanan nimi tarjotaan muistiinpanossa, kun teksti osuu siihen. <b>Näytä kalenterissa</b>: nimi näkyy pienenä alaotsikkona viikkonauhan päivän alla ja päivän otsikossa.</p><p><b>Asiasanat tekstinä</b>: jokainen asiasana on lohko <code>=Nimi:</code> ja alle sanat riveittäin, <code>!</code> alussa poissulkeva, tyhjä rivi päättää. Uusi nimi luo asiasanan. Puuttuva lohko tyhjentää sanat, mutta asiasana jää. Puiden =-lohkot muokataan puun tekstikentässä.</p>'],
 kalenteri:['Kalenteri','<p>Projektin asetuksista (Projekti-ikkuna) voi poistaa viikonpäiviä ja lyhentää päivää alusta ja lopusta. Viikkonauha (ma–su) ja valitun päivän aikajana. Pyyhkäisy nauhalla vaihtaa viikkoa, kuukauden nimi avaa kuukausinäkymän, jossa päivän kohdalla on muistiinpanojen määrä. Pieni rengas päivän ruudussa kertoo, että päivällä on koko päivän merkintöjä; ne ovat aikajanan alla kohdassa <b>Koko päivä</b>.</p><p><b>Uusi merkintä:</b> <b>+</b> tekee merkinnän valitulle päivälle (tänään seuraavasta vartista, muina päivinä klo 9). Puhelimella <b>pidä sormea hetki</b> (noin neljännessekunti) tyhjässä kohdassa ja nosta: merkintä alkaa siitä kohdasta lähimpään varttiin. Pelkkä hipaisu tai vieritys ei tee mitään. Hiirellä napsautus mihin tahansa tekee merkinnän, ja vetämällä samalla liikkeellä valitset pituuden. Ilman loppuaikaa pituus on Asetusten oletuspituus. Tekstissä tai aikakentässä ilmaistu aika voittaa aina; +:lla tehdessä nappi <i>Myös kalenterin kohta</i> liittää kohdan mukaan, vaikka tekstissä on oma aika.</p><p>Napautus avaa muistiinpanon. Kalenterista kuitataan <b>vain se kohta</b> (päivä ja aika); koko muistiinpano kuitataan Muistioista, tai se kuittautuu, kun kaikki sen kohdat on kuitattu. Kuitattu jää kalenteriin haalennettuna ja katkoviivalla. <b>Arkistoi</b> ottaa kuitatun pois kalenterista (näkyy edelleen Kuitatuissa).</p><p><b>Pitkä painallus</b> nostaa merkinnän: siirrä 15 minuutin askelin, pudota viikkonauhan päivälle (päivä vaihtuu, kellonaika säilyy) tai Koko päivä -kohtaan (kellonaika pois). Koko päivän sirun voi raahata aikajanalle. Kulmaväkänen muuttaa loppuaikaa heti. Toistuva tai monen päivän merkintä ei siirry raahaamalla; muuta ajankohta tekstiin.</p><p>Merkintä on tavallinen muistiinpano: raahaus kirjoittaa ajan sinne, mistä se tuli (tekstiin tai kenttään). Leveällä ruudulla viikko näkyy sarakkeina.</p><p><b>Useita aikoja samalle päivälle:</b> jokainen kellonaika on oma merkintänsä, myös päällekkäiset ja sama aika kahdesti. Pelkkä kellonaika saa edellisen päivän myös seuraavilla riveillä (<code>Huomenna:</code> ja alle <code>klo 9 …</code>, <code>klo 12 …</code>), ja ketju jatkuu ilman klo-sanaa: <code>to 9–10, 11–12</code>, <code>huomenna 9 ja 10</code>.</p><p><b>Siirto</b> muuttaa tekstin aikaa samassa tyylissä kuin se oli kirjoitettu. Muutettu kohta on katkoviivan sisällä; napauta sitä muistiinpanossa, niin näet, mitä siinä oli aiemmin ja milloin se muutettiin.</p>'],
-asetukset:['Asetukset','<p>Asetukset koskevat koko appia, kaikkia projekteja: teema, vaalea/tumma, fontti, reunat, lasisuus, kalenterimerkinnän oletuspituus ja nappuloiden koko (pienet asettuvat vierekkäin).</p><p><b>Tiedot</b> ovat vain tämän laitteen selaimen muistissa. Vienti ja tuonti (myös tekstinä) ovat yläpalkin vientinapissa. Projektin nimi ja poisto ovat yläpalkin projektin nimen takana, roskakori Muistioiden Kuitatuissa.</p>'],
-projektit:['Projektit ja puut','<p><b>Kalenterin päivät</b> ja <b>näkyvä aika</b> (Nykyinen projekti) koskevat vain tätä projektia: napauta viikonpäivä pois käytöstä, ja valitse, mistä mihin päivä näkyy. Näkyvän ajan ulkopuolinen kellonaika näkyy päivän <i>Koko päivä</i> -osiossa. Pois käytöstä olevan päivän merkinnät näkyvät seuraavan käytössä olevan päivän Koko päivä -osiossa päivän nimen kanssa, joten mikään ei katoa. Aikaehdotukset eivät käytä pois olevia päiviä eivätkä piilotettuja tunteja.</p><p>Projektilla (esim. Mätsik Forest) on omat puut, muistiinpanot, asiasanat, tärkeät ja toistuvat. Napautus vaihtaa projektia. <i>Uusi projekti</i> luodaan nimellä. <b>Nykyinen projekti</b>: nimen vaihto ja poisto (kaksi painallusta, poistaa puut ja muistiinpanot). Projektin lisäys tiedostosta tai tekstistä ja vienti ovat yläpalkin vientinapissa: lisäys ei korvaa mitään, ja saman niminen saa perään (2).</p><p>Puun asetukset: <b>Muisti</b> <i>Vain seuraava askel</i> tarjoaa vain viimeisen valinnan avaamat, <i>Kaikki mukana</i> pitää kerran avautuneet tarjolla, kunnes ne suljetaan pois tai avaaja puretaan. <b>Eteneminen</b> <i>Säännöt</i> etenee avaa-säännöin, <i>Tärkeysjärjestys</i> näyttää askeleessa tärkeimmän täyttymättömän merkityksen ehdot. <b>Lopuksi</b> <i>Hoidettavat</i> listaa kierroksen lopussa valitsematta jääneet tärkeysjärjestyksessä. <b>Muistiinpanoissa</b> <i>Lisää ilmoitukset</i>: puun säännöt toimivat muistiinpanoa kirjoittaessa, ja avautuvien ilmoitusten tekstit lisätään muistiinpanon loppuun (ohje muistiinpanon i-napista). Rakenna tällainen puu samoin kuin muutkin.</p>']
+asetukset:['Asetukset','<p>Asetukset ovat Projekti-ikkunassa (yläpalkin projektin nimi) ja koskevat vain sitä projektia, joten eri projekteilla voi olla eri tyyli. Uusi projekti saa aluksi nykyisen projektin asetukset: teema, vaalea/tumma, fontti, reunat, lasisuus, kalenterimerkinnän oletuspituus ja nappuloiden koko (pienet asettuvat vierekkäin).</p><p><b>Tiedot</b> ovat vain tämän laitteen selaimen muistissa. Vienti ja tuonti (myös tekstinä) ovat yläpalkin vientinapissa. Projektin nimi ja poisto ovat yläpalkin projektin nimen takana, roskakori Muistioiden Kuitatuissa.</p>'],
+projektit:['Projektit ja puut','<p><b>Ulkoasu ja Tiedot</b> (teema, vaalea/tumma, fontti, reunat, lasisuus, kalenterimerkinnän oletuspituus, nappuloiden koko) ovat tämän ikkunan alaosassa ja koskevat vain tätä projektia.</p><p><b>Kalenterin päivät</b> ja <b>näkyvä aika</b> (Nykyinen projekti) koskevat vain tätä projektia: napauta viikonpäivä pois käytöstä, ja valitse, mistä mihin päivä näkyy. Näkyvän ajan ulkopuolinen kellonaika näkyy päivän <i>Koko päivä</i> -osiossa. Pois käytöstä olevan päivän merkinnät näkyvät seuraavan käytössä olevan päivän Koko päivä -osiossa päivän nimen kanssa, joten mikään ei katoa. Aikaehdotukset eivät käytä pois olevia päiviä eivätkä piilotettuja tunteja.</p><p>Projektilla (esim. Mätsik Forest) on omat puut, muistiinpanot, asiasanat, tärkeät ja toistuvat. Napautus vaihtaa projektia. <i>Uusi projekti</i> luodaan nimellä. <b>Nykyinen projekti</b>: nimen vaihto ja poisto (kaksi painallusta, poistaa puut ja muistiinpanot). Projektin lisäys tiedostosta tai tekstistä ja vienti ovat yläpalkin vientinapissa: lisäys ei korvaa mitään, ja saman niminen saa perään (2).</p><p>Puun asetukset: <b>Muisti</b> <i>Vain seuraava askel</i> tarjoaa vain viimeisen valinnan avaamat, <i>Kaikki mukana</i> pitää kerran avautuneet tarjolla, kunnes ne suljetaan pois tai avaaja puretaan. <b>Eteneminen</b> <i>Säännöt</i> etenee avaa-säännöin, <i>Tärkeysjärjestys</i> näyttää askeleessa tärkeimmän täyttymättömän merkityksen ehdot. <b>Lopuksi</b> <i>Hoidettavat</i> listaa kierroksen lopussa valitsematta jääneet tärkeysjärjestyksessä. <b>Muistiinpanoissa</b> <i>Lisää ilmoitukset</i>: puun säännöt toimivat muistiinpanoa kirjoittaessa, ja avautuvien ilmoitusten tekstit lisätään muistiinpanon loppuun (ohje muistiinpanon i-napista). Rakenna tällainen puu samoin kuin muutkin.</p>']
 };
 function syncChrome(){var tp=$('top');tp.dataset.mode=tab;tp.dataset.ed=(tab==='teach'&&ed&&(ed.m==='x'||ed.m==='c'))?ed.m:'';$('mode').textContent=MODE[tab];}
 /* Rakentaminen (ent. Opetus) on Päätöspuu-välilehden sisällä: tab 'teach' korostaa alapalkissa Päätöspuun (Emil 22.10.2026) */
@@ -1991,10 +1996,10 @@ function newProject(name){name=clean(name);if(!name)return false;var P={id:uid('
 var psMode='k';
 function openProj(m){psMode=m;renderProjSheet();openSheet($('psheet'));}
 $('title').addEventListener('click',function(){openProj('k');});
-function renderProjSheet(){var l=$('ps-list'),P=proj(),k0=kOf();l.textContent='';renderCalv();$('pk-name').value=k0?k0.name:'';$('pk-del').disabled=data.K.length<2;$('pk-mmsg').textContent='';$('ps-msg').textContent='';$('pk-msg').textContent='';$('psheet').dataset.m=psMode;$('ps-h').textContent=psMode==='k'?'Projekti':'Puut: '+((kOf()||{}).name||'');
+function renderProjSheet(){var l=$('ps-list'),P=proj(),k0=kOf();l.textContent='';renderCalv();if(psMode==='k')renderPkSet();$('pk-name').value=k0?k0.name:'';$('pk-del').disabled=data.K.length<2;$('pk-mmsg').textContent='';$('ps-msg').textContent='';$('pk-msg').textContent='';$('psheet').dataset.m=psMode;$('ps-h').textContent=psMode==='k'?'Projekti':'Puut: '+((kOf()||{}).name||'');
   var kl=$('pk-list');kl.textContent='';data.K.forEach(function(k){var b=el('button','row'+(k.id===data.k?' sel':''));b.type='button';b.dataset.k=k.id;var t=el('span','t',k.name);
     var pj=k.id===data.k?data.projects:k.projects,nn=k.id===data.k?data.notes:k.notes;t.appendChild(el('small','',pj.length+(pj.length===1?' puu':' puuta')+' · '+nn.length+(nn.length===1?' muistiinpano':' muistiinpanoa')));b.appendChild(t);
-    b.addEventListener('click',function(){if(k.id!==data.k){stashK();loadK(k);resetDraft();ed=null;termCache=null;noteFilter=[];save();renderHead();render();}closeSheet($('psheet'));});kl.appendChild(b);});
+    b.addEventListener('click',function(){if(k.id!==data.k){stashK();loadK(k);resetDraft();ed=null;termCache=null;noteFilter=[];save();applyCfg();renderHead();render();}closeSheet($('psheet'));});kl.appendChild(b);});
   data.projects.forEach(function(Q){var b=el('button','row'+(Q.id===data.cur?' sel':''));b.type='button';var t=el('span','t',Q.name);
     if(Q.session)t.appendChild(el('small','','kierros kesken'));b.appendChild(t);
     b.addEventListener('click',function(){if(data.cur!==Q.id){data.cur=Q.id;resetDraft();ed=null;save();render();}closeSheet($('psheet'));});l.appendChild(b);});
@@ -2024,7 +2029,7 @@ function addProjects(o){var L=projectsFromFile(o,todayIso());if(!L)return 0;stas
   loadK(first);resetDraft();ed=null;termCache=null;noteFilter=[];touch();renderHead();renderProjSheet();render();return L.length;}
 function projTxt(){stashK();return JSON.stringify(projectFile(kOf(),nowIso()),null,1);}
 function slug(t){return clean(t).toLowerCase().replace(/[^a-z0-9åäö]+/g,'-').replace(/^-|-$/g,'').slice(0,40)||'projekti';}
-function addK(){var n=clean($('pk-new').value);if(!n)return;stashK();var k=newK(n);data.K.push(k);loadK(k);$('pk-new').value='';resetDraft();ed=null;termCache=null;noteFilter=[];touch();renderHead();renderProjSheet();render();$('pk-msg').textContent='Projekti ”'+k.name+'” luotu ja avattu. Puu valitaan ja luodaan Päätöspuun Puu ⌄ -napista.';}
+function addK(){var n=clean($('pk-new').value);if(!n)return;stashK();var k=newK(n);data.K.push(k);loadK(k);applyCfg();$('pk-new').value='';resetDraft();ed=null;termCache=null;noteFilter=[];touch();renderHead();renderProjSheet();render();$('pk-msg').textContent='Projekti ”'+k.name+'” luotu ja avattu. Puu valitaan ja luodaan Päätöspuun Puu ⌄ -napista.';}
 $('pk-add').addEventListener('click',addK);$('pk-new').addEventListener('keydown',function(ev){if(ev.key==='Enter')addK();});
 /* Kalenterin päivät ja näkyvä aika projektikohtaisesti (Emil 23.10.2026, 1.54): vain alku ja loppu, ei taukoja */
 function renderCalv(){var v=data.calv||{s:0,e:1440,off:[]},box=$('pk-days');box.textContent='';
@@ -3082,24 +3087,27 @@ function renderTermsText(b){$('ts-h').textContent='Asiasanat tekstinä';
 /* ---- asetukset, vienti ja tuonti ---- */
 var pendingImport=null,trashArm=0;
 function setMsg(t,warn){var m=$('datamsg');if(!m)return;m.textContent=t||'';m.className='msg'+(warn?' warn':'');}
-function renderSettings(){var p=panels.set;p.textContent='';setInfo(statusText());
-  p.appendChild(el('h2','','Ulkoasu'));
-  var cs=el('div','chips');cs.id='set-pal';APPIPAJA_THEMES.forEach(function(t){var b=button(cs,'','chip',function(){data.cfg.tint=t.id;save();applyCfg();render();});b.dataset.v=t.id;
+/* 1.63 (Emil 23.10.2026): asetukset ovat projektikohtaisia ja ne ovat Projekti-ikkunassa (yläpalkin projektin nimi). Alapalkissa ei Asetuksia. */
+function renderSettings(){var p=panels.set;p.textContent='';setInfo(statusText());setUi(p,function(){render();});}
+function renderPkSet(){var p=$('pk-set');p.textContent='';setUi(p,function(){render();renderPkSet();},true);}
+function setUi(p,again,inSheet){var H=inSheet?'h3':'h2';
+  p.appendChild(el(H,'','Ulkoasu'));if(inSheet)p.appendChild(el('p','sub','Koskee vain tätä projektia.'));
+  var cs=el('div','chips');cs.id='set-pal';APPIPAJA_THEMES.forEach(function(t){var b=button(cs,'','chip',function(){data.cfg.tint=t.id;save();applyCfg();again();});b.dataset.v=t.id;
     var sw=el('span','sw');sw.style.background=t.light.accent;b.appendChild(sw);b.appendChild(document.createTextNode(t.name));b.setAttribute('aria-pressed',data.cfg.tint===t.id?'true':'false');});p.appendChild(cs);
-  var seg=el('div','seg');seg.style.marginTop='12px';MODES.forEach(function(m){var b=button(seg,m[1],'',function(){data.cfg.mode=m[0];save();applyCfg();render();});b.className='';b.setAttribute('aria-pressed',data.cfg.mode===m[0]?'true':'false');});p.appendChild(seg);
+  var seg=el('div','seg');seg.style.marginTop='12px';MODES.forEach(function(m){var b=button(seg,m[1],'',function(){data.cfg.mode=m[0];save();applyCfg();again();});b.className='';b.setAttribute('aria-pressed',data.cfg.mode===m[0]?'true':'false');});p.appendChild(seg);
   /* Tyylin hienosäätö (Emil 22.10.2026) */
   function cfgSeg(key,label,opts,dflt){p.appendChild(el('label','fl',label));var g=el('div','seg');g.id='set-'+key;
-    opts.forEach(function(m){var b=button(g,m[1],'',function(){data.cfg[key]=m[0];save();applyCfg();render();});b.className='';b.dataset.v=m[0];b.setAttribute('aria-pressed',(data.cfg[key]||dflt)===m[0]?'true':'false');});p.appendChild(g);}
+    opts.forEach(function(m){var b=button(g,m[1],'',function(){data.cfg[key]=m[0];save();applyCfg();again();});b.className='';b.dataset.v=m[0];b.setAttribute('aria-pressed',(data.cfg[key]||dflt)===m[0]?'true':'false');});p.appendChild(g);}
   cfgSeg('font','Fontti',[['system','Järjestelmä'],['rounded','Pyöreä'],['serif','Antiikva'],['mono','Tasalevyinen']],'system');
   cfgSeg('edge','Reunat',[['soft','Pehmeät'],['sharp','Kulmikkaat'],['line','Viivat']],'soft');
   cfgSeg('glass','Lasisuus',[['off','Peittävä'],['on','Lasinen']],'off');
   cfgSeg('dur','Kalenterimerkinnän oletuspituus',[['15','15 min'],['30','30 min'],['45','45 min'],['60','60 min']],'30');
   cfgSeg('size','Nappuloiden koko',[['normal','Normaali'],['small','Pieni']],'normal');
-  var h=el('h2','','Tiedot');h.id='sec-data';p.appendChild(h);
+  var h=el(H,'','Tiedot');h.id='sec-data';p.appendChild(h);
   p.appendChild(el('p','sub','Tiedot ovat vain tällä laitteella. Vie varmuuskopio aika ajoin yläpalkin vientinapista, josta myös tuodaan.'));
   var ac=0;data.projects.forEach(function(P){ac+=parseText(P.text).items.length;});var k=kOf();
   p.appendChild(el('p','foot','Projekteja '+data.K.length+'. Tässä projektissa ('+(k?k.name:'')+') puita '+data.projects.length+', rivejä '+ac+', muistiinpanoja '+data.notes.length+', omia asiasanoja '+data.terms.length+'. Koko appi viety: '+whenTxt(data.meta.lastExport)+'.'+(data.K.some(function(x){return x.chg;})?' Sen jälkeen on tehty muutoksia.':'')));
-  p.appendChild(el('p','foot','Projektin nimi ja poisto: yläpalkin projektin nimi. Roskakori: Muistiot → Kuitatut.'));}
+  if(!inSheet)p.appendChild(el('p','foot','Projektin nimi ja poisto: yläpalkin projektin nimi. Roskakori: Muistiot → Kuitatut.'));else p.appendChild(el('p','foot','Roskakori: Muistiot → Kuitatut.'));}
 function markAll(){stashK();data.K.forEach(function(k){k.chg=null;});data.meta.lastExport=nowIso();data.meta.dirty=0;save();renderStatus();renderVs();}
 /* Tiedoston anto: jakoikkuna, latauslinkki tai varalla teksti. msg(teksti), text(teksti) näyttää kopioitavan, done() kun annettu. */
 function shareFile(txt,name,msg,text,done){
@@ -3115,7 +3123,7 @@ function olderThan(saved,mod){if(!mod||typeof saved!=='string'||!saved||saved>=m
   return 'Varoitus: tiedosto on viety '+stamp(saved)+', mutta tätä on muutettu tällä laitteella sen jälkeen ('+stamp(mod)+'). Tuonti hävittää myöhemmät muutokset.';}
 function sameK(pr){var n=clean(pr.name||'');return data.K.filter(function(k){return typeof pr.id==='string'&&k.id===pr.id;})[0]||data.K.filter(function(k){return n&&k.name===n;})[0]||null;}
 function replaceK(k,o){var L=projectsFromFile(o,todayIso());if(!L)return false;stashK();var st=L[0];KF.forEach(function(f){if(f!=='trash')k[f]=st[f];});k.name=st.name;k.mod=nowIso();k.chg=null;
-  if(k.id===data.k)loadK(k);resetDraft();ed=null;termCache=null;noteFilter=[];save();renderHead();renderStatus();render();return true;}
+  if(k.id===data.k){loadK(k);applyCfg();}resetDraft();ed=null;termCache=null;noteFilter=[];save();renderHead();renderStatus();render();return true;}
 function cnt(K,f){return K.reduce(function(a,k){return a+k[f].length;},0);}
 function offerImport(txt){var out=$('dataout');out.textContent='';pendingImport=null;var o=looseJson(txt);
   if(o&&o.app==='paatospuu'&&(o.laji==='projekti'||o.projekti)){setMsg('');var c0=el('div','confirm'),pr=o.projekti||{},same=sameK(pr),r0=el('div','btnrow');

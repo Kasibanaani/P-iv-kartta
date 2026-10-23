@@ -59,7 +59,7 @@ async def run(p,w,h):
     al=await pg.evaluate("(function(){var a=document.getElementById('xs-text'),b=document.getElementById('xs-hl');return [a.scrollHeight,b.scrollHeight];})()"); want('lohko kohdallaan', abs(al[0]-al[1])<=2)
     await pg.fill('#xs-text',TEXT+'\n=Eläimet:\nhauva'); await pg.click('#xsheet .sx'); await pg.wait_for_timeout(100)
     # rakentaminen (ent. opetus) Päätöspuu-välilehden sisällä
-    await teach(); want('Rakenna-nappi painettuna, Päätöspuu-välilehti valittuna', await pg.get_attribute('#build','aria-pressed')=='true' and await pg.get_attribute('[data-tab="use"]','aria-selected')=='true' and await pg.locator('nav .tab').count()==4)
+    await teach(); want('Rakenna-nappi painettuna, Päätöspuu-välilehti valittuna', await pg.get_attribute('#build','aria-pressed')=='true' and await pg.get_attribute('[data-tab="use"]','aria-selected')=='true' and await pg.locator('nav .tab').count()==3)
     want('yläpalkki ilman täyttöä, viiva korostaa', await pg.evaluate("getComputedStyle(document.getElementById('top')).backgroundColor")==await pg.evaluate("getComputedStyle(document.body).backgroundColor") and 'inset' in await pg.evaluate("getComputedStyle(document.getElementById('top')).boxShadow"))
     rows=lambda: pg.locator('#tlist [data-id]')
     want('opetuksessa 8 riviä', await rows().count()==8)
@@ -362,7 +362,7 @@ async def run(p,w,h):
         await pg.click('#week .cday[data-day="%s"]'%_d.date.today().isoformat()); await pg.wait_for_timeout(50)
     await pg.click('#week button.cday:not(.on)'); await pg.wait_for_timeout(50); want('päivän vaihto', await pg.locator('#timeline .ev').count()==0)
     # asetukset ja varmuuskopio
-    await pg.click('[data-tab="set"]'); await pg.wait_for_timeout(30); await check('asetukset'); await pg.click('#xbtn'); await pg.click('#vs-txtall'); await pg.wait_for_timeout(50)
+    await pg.click('#title'); await pg.wait_for_timeout(60); await check('asetukset'); await pg.click('#psheet .sx'); await pg.wait_for_timeout(60); await pg.click('#xbtn'); await pg.click('#vs-txtall'); await pg.wait_for_timeout(50)
     dump=await pg.input_value('#vs-out textarea'); await check('vienti tekstinä'); await pg.click('#vsheet .sx')
     await pg.evaluate("localStorage.clear()"); await pg.reload(); await pg.wait_for_timeout(100)
     await pg.click('#xbtn'); await pg.click('#imptextbtn'); await pg.fill('#imptext',dump); await pg.click('#impcheck'); await pg.click('#impok'); await pg.wait_for_timeout(50); await pg.click('#vsheet .sx')
@@ -404,13 +404,13 @@ async def run(p,w,h):
     await pg.fill('#pk-name','Tekoälyltä 2'); await pg.dispatch_event('#pk-name','change'); await pg.wait_for_timeout(40); want('nimen vaihto', await pg.inner_text('#tname')=='Tekoälyltä 2' and 'Tekoälyltä 2' in await pg.inner_text('#pk-list .row.sel'))
     await pg.click('#pk-del'); await pg.click('#pk-del'); await pg.wait_for_timeout(50); want('projektin poisto', await pg.locator('#pk-list .row').count()==nK+1)
     await pg.click('#pk-list .row >> nth=0'); await pg.wait_for_timeout(50)
-    await pg.click('[data-tab="set"]'); await pg.wait_for_timeout(40); want('asetuksissa ei projektia eikä tuontia', await pg.locator('#p-set #pk-name, #p-set #imptext, #p-set #trash').count()==0); await check('asetukset')
+    want('alapalkissa ei Asetuksia (1.63)', await pg.locator('[data-tab="set"]').count()==0); await pg.click('#title'); await pg.wait_for_timeout(60); want('asetukset projekti-ikkunassa', await pg.is_visible('#pk-set #set-font')); await check('asetukset'); await pg.click('#psheet .sx'); await pg.wait_for_timeout(60)
     # suomalainen päivämuoto kentissä (1.32)
     await pg.click('[data-tab="use"]'); await pg.wait_for_timeout(50)
     if await pg.locator('#startdate').count():
         await pg.fill('#startdate','2026-12-24'); await pg.dispatch_event('#startdate','change'); want('päivä suomalaisittain', await pg.inner_text('#startdate >> xpath=preceding-sibling::span')=='24.12.2026'); await pg.fill('#startdate',''); await pg.dispatch_event('#startdate','change')
     # vienti yläpalkista (1.31)
-    for t in ['use','notes','cal','set']:
+    for t in ['use','notes','cal']:
         await pg.click(f'[data-tab="{t}"]'); await pg.wait_for_timeout(30); want(f'vientinappi {t}', await pg.is_visible('#xbtn'))
     bx=await pg.locator('#xbtn').bounding_box(); bi=await pg.locator('#hint').bounding_box(); bm=await pg.locator('#mode').bounding_box()
     want('i ja vienti oikealla, osio keskellä', bx['x']>bi['x']>bm['x'] and bx['x']+bx['width']<=w-8)
@@ -450,13 +450,13 @@ async def run(p,w,h):
     await pg.click('#noteview [data-nv="open"]'); await pg.wait_for_timeout(50); want('laukaisin avoimissa', 'Salille?' in await pg.inner_text('#nlist'))
     await pg.click('#noteview [data-nv="rep"]'); await pg.click('#replist .ncard >> nth=1'); want('laukaisin aukeaa', await pg.locator('#rs-terms .chip[aria-pressed="true"]').count()==1); await pg.click('#rsheet .sx')
     await pg.click('#noteview [data-nv="open"]')
-    await pg.click('[data-tab="set"]'); await pg.click('#set-size [data-v="small"]'); await teach(); await pg.click('[data-tm="build"]'); await check('pienet nappulat opetus')
-    await pg.click('[data-tab="set"]'); await pg.click('#set-size [data-v="normal"]'); await check('asetukset tyyli')
+    await pg.click('#title'); await pg.wait_for_timeout(60); await pg.click('#set-size [data-v="small"]'); await pg.click('#psheet .sx'); await pg.wait_for_timeout(60); await teach(); await pg.click('[data-tm="build"]'); await check('pienet nappulat opetus')
+    await pg.click('#title'); await pg.wait_for_timeout(60); await pg.click('#set-size [data-v="normal"]'); await check('asetukset tyyli'); await pg.click('#psheet .sx'); await pg.wait_for_timeout(60)
     want('osion nimi pelkkänä tekstinä', await pg.evaluate("getComputedStyle(document.getElementById('mode')).backgroundColor")=='rgba(0, 0, 0, 0)')
-    await pg.click('#set-font [data-v="serif"]'); await pg.click('#set-edge [data-v="line"]'); await pg.click('#set-glass [data-v="on"]'); await pg.wait_for_timeout(50)
+    await pg.click('#title'); await pg.wait_for_timeout(60); await pg.click('#set-font [data-v="serif"]'); await pg.click('#set-edge [data-v="line"]'); await pg.click('#set-glass [data-v="on"]'); await pg.wait_for_timeout(50); await pg.click('#psheet .sx'); await pg.wait_for_timeout(60)
     want('tyyliasetukset päällä', await pg.evaluate("document.documentElement.dataset.font+document.documentElement.dataset.edge+document.documentElement.dataset.glass")=='seriflineon' and 'serif' in await pg.evaluate("getComputedStyle(document.body).fontFamily"))
     await pg.click('[data-tab="notes"]'); await pg.wait_for_timeout(50); await check('tyyli muistiot'); await pg.click('[data-tab="cal"]'); await pg.wait_for_timeout(100); await check('tyyli kalenteri')
-    await pg.click('[data-tab="set"]'); await pg.click('#set-font [data-v="system"]'); await pg.click('#set-edge [data-v="soft"]'); await pg.click('#set-glass [data-v="off"]')
+    await pg.click('#title'); await pg.wait_for_timeout(60); await pg.click('#set-font [data-v="system"]'); await pg.click('#set-edge [data-v="soft"]'); await pg.click('#set-glass [data-v="off"]'); await pg.click('#psheet .sx'); await pg.wait_for_timeout(60)
     await pg.reload(); await pg.wait_for_timeout(100); want('tyyliasetus tallessa', await pg.evaluate("document.documentElement.dataset.font")=='system' and await pg.evaluate("document.title")=='Juuri')
     # 1.39.2: poisto varmistuksella, Peruuta ensimmäisen napautuksen kohdalla
     await pg.click('[data-tab="notes"]'); await pg.click('#newnote'); await pg.fill('#ns-text','Poistettava'); await pg.click('#nsheet .sx'); await pg.wait_for_timeout(50)
@@ -661,7 +661,7 @@ async def run(p,w,h):
     cg=await pg.evaluate("(function(){var b=document.querySelectorAll('#calsticky .calhead > .mini'),a=b[0].getBoundingClientRect(),z=b[b.length-1].getBoundingClientRect(),t=document.querySelector('#calmonth').getBoundingClientRect();return [Math.abs(a.top-z.top)<2,Math.abs(t.height)<40,document.getElementById('info-text').textContent]})()")
     want('kalenterin palkki yhdellä rivillä', cg[0] and cg[1] and cg[2]==''); await check('kalenterin palkki')
     for mode in ['Tumma']:
-        await pg.click('[data-tab="set"]'); await pg.click('#p-set .seg button:has-text("%s")'%mode); await check('tumma')
+        await pg.click('#title'); await pg.wait_for_timeout(60); await pg.click('#pk-set .seg button:has-text("%s")'%mode); await check('tumma'); await pg.click('#psheet .sx'); await pg.wait_for_timeout(60)
     print('  errs',errs); await b.close(); return bad+(['virheet'] if errs else [])
 async def main():
     async with async_playwright() as p:
