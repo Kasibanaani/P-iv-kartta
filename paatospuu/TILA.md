@@ -1,6 +1,6 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.55 (tiiviit kentät, isot ikkunat koko ruudulle yläpalkin ja alapalkin väliin; 1.54 kalenterin päivät ja näkyvä aika projektikohtaisesti; 1.53 asiasanalinkit tekstissä; tekstin aikalinkki napautusvalikkona: kuittaus, ajan muokkaus, historia, purku; 1.51 aikasanat ja Mainittu valittavina riville ja ryhmän jäseniksi; 1.50 käytön yksinkertaistus: yksi paikka per kohde, kierros alkaa napautuksesta, vienti ja tuonti samassa ikkunassa, viivakuvakkeet; 1.49 listan ⏱-aikaehdotukset; jaksot ja pelkkä kellonaika seuraava mahdollinen kirjoitushetkestä; ryhmät myös Asiasanoissa, asiasanojen poistotila; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 23.10.2026
+**Vaihe:** versio 1.56 (yksi asiasanakortti kaikkialta, kuitattu aika yliviivattuna korteissa; 1.55 tiiviit kentät, isot ikkunat koko ruudulle yläpalkin ja alapalkin väliin; 1.54 kalenterin päivät ja näkyvä aika projektikohtaisesti; 1.53 asiasanalinkit tekstissä; tekstin aikalinkki napautusvalikkona: kuittaus, ajan muokkaus, historia, purku; 1.51 aikasanat ja Mainittu valittavina riville ja ryhmän jäseniksi; 1.50 käytön yksinkertaistus: yksi paikka per kohde, kierros alkaa napautuksesta, vienti ja tuonti samassa ikkunassa, viivakuvakkeet; 1.49 listan ⏱-aikaehdotukset; jaksot ja pelkkä kellonaika seuraava mahdollinen kirjoitushetkestä; ryhmät myös Asiasanoissa, asiasanojen poistotila; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 23.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -336,6 +336,13 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Poista** ikkunan alalaidassa oikealla (vain olemassa olevalla muistiinpanolla). Avaa joka kerta varmistuksen: ”Poistetaanko koko muistiinpano? Samalla poistuvat kaikki sen kalenterimerkinnät. … roskakoriin”. Varmistusnappi vasemmalla, Peruuta oikealla Poista-napin kohdalla, joten tuplanapautus ei poista (testattu 390 ja 320 px). Aiemmat poistotavat: Muistioiden kortin ⋯ → Poista ja tekstin tyhjennys.
 - **1.39.3:** Valmis pois myös listan rivin ja toistuvan ikkunoista; niiden Poista avaa saman varmistuslaatikon (Poista vasemmalla, Peruuta oikealla). Korjattu samalla 1.38:n bugi: listan rivin poisto sulki väärän ikkunan (rivin muokkausikkunan tunnus sekoittui).
 
+## Versio 1.56 (23.10.2026, Emilin "jatka keskeneräisiä"): yksi asiasanakortti, yliviivaus korteissa
+- C2: muistiinpanon Asiasanat-rivin nimi ja suodatinikkunan sirun perässä oleva pieni i avaavat saman asiasanakortin kuin Asiasanat-luettelo. Valmis tai ruksi palaa sinne, mistä kortti avattiin (muistiinpanoon tai suodattimeen), otsikossa paluukohde. Kortissa Poista samalla varmistuksella kuin Poista…-tilassa (sama poistofunktio, myös puun palikalle). Listan kohteeseen ei lisätty i-nappia (kohdenapit pidetty tiiviinä 1.45:stä; kysytään tarvittaessa).
+- 1.52:n puute korjattu: kuitattu aikalinkki näkyy yliviivattuna myös Muistioiden korteissa.
+- Korjaus samalla: suodatinikkunan sirut päivittyvät, kun asiasana muuttuu ikkunan ollessa auki.
+- Testit: logiikka 390 ok, selain 390/320 (uudet: kortti muistiinpanosta ja suodattimesta, paluu, poisto kortista, yliviivaus kortissa) ja 1440/1280 px tietokoneen Chromiumissa.
+- Ei tarkistettu oikealla iPhonella: kortti muistiinpanon päällä (sisäkkäinen ikkuna), pienen i:n osuma sormella sirun vieressä.
+
 ## Versio 1.55 (23.10.2026, Emilin "aloita suosittelemistasi"): tiiviit kentät ja koko ruudun ikkunat
 - Suunnitelma: https://claude.ai/artifact/7NbzauN9ebcZ3FrU9EdHKK (kerrokset R1, R2, I1; muut kerrokset odottavat).
 - R1: tekstikentät, päivä- ja aikakentät sekä valikot noin 48 → 40 px (reunus 13 → 8 px). Fontti pysyy 16 px:ssä, koska iPhone suurentaa sivun pienemmällä. Tekstilaatikot kasvavat sisällön mukaan (vähintään kaksi riviä, enintään puoli ruutua); isot tekstikentät (muistiinpano, tekstikenttä) ennallaan.
@@ -393,7 +400,7 @@ Suunnitelma: https://claude.ai/artifact/Gw6YsnZdK9AXniF7oYQnw1 (vaiheet A, B ja 
 - 1.50.1 (Emil): Listan aikaehdotusten laatikko "Kaikki kuitattu…" poistettu (johti harhaan); laatikkoa ei näytetä, kun ehdotettavaa ei ole.
 - Tallennusmuoto ei muuttunut.
 - Testit: logiikka 378 ok, selain 390/320 ja 1440/1280 px tietokoneen Chromiumissa; kuvat 390 ja 320 px tarkistettu. iPhonella ei kokeiltu.
-- Ei tehty (suunnitelman suositus: kokeilun jälkeen): C2 yksi asiasanakortti kaikkialta, C3 Tärkeät-luettelon yhdistäminen Rakennan Järjestykseen.
+- C2 tehty 1.56:ssa. Ei tehty: C3 Tärkeät-luettelon yhdistäminen Rakennan Järjestykseen.
 
 ## Versio 1.49 (23.10.2026, Emilin hyväksymä): listan aikaehdotukset (⏱)
 

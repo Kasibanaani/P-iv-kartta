@@ -631,6 +631,23 @@ async def run(p,w,h):
     bb=await pg.locator('[data-tab="cal"]').bounding_box(); await pg.mouse.click(bb['x']+bb['width']/2,bb['y']+bb['height']/2); await pg.wait_for_timeout(80)
     want('alapalkki sulkee ja vaihtaa', not await pg.is_visible('#nsheet') and await pg.get_attribute('[data-tab="cal"]','aria-selected')=='true')
     await pg.click('[data-tab="notes"]'); await pg.wait_for_timeout(40)
+    # 1.56 (C2): yksi asiasanakortti muistiinpanosta ja suodattimesta, Valmis palaa lähtöpaikkaan, poisto kortista
+    await pg.locator('#nlist .ncard:has-text("hammaslääkäri")').first.click(); await pg.wait_for_timeout(80)
+    await pg.locator('#ns-found i.th[role="button"]').first.click(); await pg.wait_for_timeout(80)
+    want('kortti muistiinpanosta', await pg.is_visible('#tsheet') and await pg.get_attribute('#ts-h','data-crumb')=='Muistiinpano / ' and await pg.is_visible('#tname-in') and await pg.is_visible('#tdel1')); await check('asiasanakortti')
+    await pg.click('#tok'); await pg.wait_for_timeout(60); want('Valmis palaa muistiinpanoon', not await pg.is_visible('#tsheet') and await pg.is_visible('#nsheet'))
+    await pg.click('#nsheet > .sx'); await pg.wait_for_timeout(60)
+    await pg.click('#filterpick'); await pg.wait_for_timeout(40); await pg.locator('#fs-chips .chipw:has-text("Hammaslääkäri") .ibtn').click(); await pg.wait_for_timeout(60)
+    want('kortti suodattimesta', await pg.is_visible('#tsheet') and await pg.input_value('#tname-in')=='Hammaslääkäri')
+    await pg.click('#tdel1'); await pg.wait_for_timeout(30); await pg.click('#tsheet .delok'); await pg.wait_for_timeout(60)
+    want('poisto kortista palaa suodattimeen', not await pg.is_visible('#tsheet') and await pg.is_visible('#fsheet') and await pg.locator('#fs-chips .chipw:has-text("Hammaslääkäri")').count()==0)
+    await pg.click('#fsheet > .sx'); await pg.wait_for_timeout(40)
+    # 1.56: kuitattu aikalinkki yliviivattuna myös kortissa
+    await pg.click('#newnote'); await pg.wait_for_timeout(60); await pg.fill('#ns-text','Soita huomenna klo 10 Pekalle'); await pg.dispatch_event('#ns-text','input'); await pg.click('#nsheet > .sx'); await pg.wait_for_timeout(60)
+    await pg.locator('#nlist .ncard:has-text("Soita huomenna")').click(); await pg.wait_for_timeout(60)
+    await pg.evaluate("(function(){var t=document.getElementById('ns-text');t.focus();t.setSelectionRange(9,9);t.dispatchEvent(new Event('click'));})()"); await pg.wait_for_timeout(40)
+    await pg.click('#tm-done'); await pg.wait_for_timeout(40); await pg.click('#nsheet > .sx'); await pg.wait_for_timeout(60)
+    cd=pg.locator('#nlist .ncard:has-text("Soita huomenna") .nt .dn'); want('kortissa yliviivaus', await cd.count()==1 and 'huomenna' in await cd.inner_text()); await check('kortin yliviivaus')
     for mode in ['Tumma']:
         await pg.click('[data-tab="set"]'); await pg.click('#p-set .seg button:has-text("%s")'%mode); await check('tumma')
     print('  errs',errs); await b.close(); return bad+(['virheet'] if errs else [])
