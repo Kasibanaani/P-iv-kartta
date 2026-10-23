@@ -456,7 +456,7 @@ eq('lista: vanha teksti muuttuu muistiinpanoksi',[NN&&NN.text,NN&&Object.keys(NN
 eq('lista: liitos säilyy, puuttuva katoaa',[NK.chk[2].nid,NK.chk[3].nid],['m1',undefined]);
 eq('lista: 1.38:n rivi muuttuu kohteiksi',[NK.chk[1].it,NK.chk[1].ok],[[{id:'a',ok:'2026-10-21T08:00:00Z'},{id:'z:today'}],undefined]);
 var NG=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',ryhmat:[{id:'g1',name:' Kotityöt ',m:['a','a','z:today',3,'b']},{id:'g1',name:'tupla'},{id:'g2',name:''}]}]}).K[0].grp;
-eq('ryhmät: normalisointi',NG,[{id:'g1',name:'Kotityöt',m:['a','b']}]);
+eq('ryhmät: normalisointi (aikasana säilyy, 1.51)',NG,[{id:'g1',name:'Kotityöt',m:['a','z:today','b']}]);
 eq('ryhmät: projektitiedostossa',E.projectFile({id:'k',name:'K',grp:[{id:'g',name:'G',m:[]}]},'t').projekti.ryhmat.length,1);
 var NE=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',termit:[{id:'t1',name:'Suodatin',info:'Pese. ',ev:2},{id:'t2',name:'Kissa'}],termisanat:{koira:{ev:7,info:'x'}},tarkistuslista:[{id:'c',name:'R',it:[{id:'t2',ev:6},{id:'t1',ev:9},{id:'a:koira',ev:3},{id:'a:uusi',ev:4}]}]}]}).K[0];
 eq('1.43: uusiutuminen asiasanalle',[NE.terms[0].ev,NE.terms[0].info,NE.terms[1].ev,NE.words.koira.ev,NE.words.uusi.ev,NE.chk[0].it.some(function(x){return x.ev;})],[2,'Pese.',6,7,4,false]);
@@ -532,5 +532,11 @@ eq('historian kohta tekstissä',E.mvSpans(MV).map(function(x){return MV.text.sli
 MV.text='huomenna 9 ja 12';E.mvClean(MV);eq('muokkauksessa kadonnut poistuu',MV.mv,undefined);
 var DY={text:'Hammas pe klo 14',created:'2026-10-22T07:00:00'};E.moveDay(DY,E.noteDates(DY)[0],'2026-10-27');eq('päivän siirto historiaan',[DY.text,DY.mv[0].h[0].t],['Hammas 27.10.2026 klo 14','pe klo 14']);
 eq('historia normalisoituu',E.normalizeData({app:'paatospuu',muistiinpanot:[{id:'x',text:'klo 9',mv:[{w:'klo 9',h:[{t:'klo 8',at:'a'},{t:1}]},{w:''}]}]}).notes[0].mv,[{w:'klo 9',h:[{t:'klo 8',at:'a'}]}]);
+// 1.51: aikasanat ja Mainittu valittavina (rivi tai ryhmä)
+var N51={id:'n51',text:'Imuroi 20.10.2026 ja 22.10.2026',created:'2026-10-19T08:00:00'};
+eq('1.51: ilman valintaa kaikki aikasanat, valinta rajaa',[E.chkTime(N51,T0).z.id,E.chkTime(N51,T0,[]).z.id,E.chkTime(N51,T0,['z:today']).z.id,E.chkTime(N51,T0,['z:tomorrow']).z],['z:late','z:late','z:today',null]);
+eq('1.51: Mainittu ryhmästä (on-lippu)',E.chkMentions({id:'x',name:'Tiskikone',nid:'own',it:[]},MNS,T0,true).mn.length,1);
+eq('1.51: erikoisjäsenet säilyvät ryhmässä',E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',ryhmat:[{id:'g',name:'G',m:['z:late','m:men','z:week','t1']}]}]}).K[0].grp[0].m,['z:late','m:men','t1']);
+eq('1.51: erikoisjäsenet eivät ole kohteita',E.chkView({id:'r',it:[{id:'z:today'}]},{gm:[]},NOW).length,0);
 
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);

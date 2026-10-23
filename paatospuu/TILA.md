@@ -1,6 +1,6 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.50 (käytön yksinkertaistus: yksi paikka per kohde, kierros alkaa napautuksesta, vienti ja tuonti samassa ikkunassa, viivakuvakkeet; 1.49 listan ⏱-aikaehdotukset; jaksot ja pelkkä kellonaika seuraava mahdollinen kirjoitushetkestä; ryhmät myös Asiasanoissa, asiasanojen poistotila; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 23.10.2026
+**Vaihe:** versio 1.51 (aikasanat ja Mainittu valittavina riville ja ryhmän jäseniksi; 1.50 käytön yksinkertaistus: yksi paikka per kohde, kierros alkaa napautuksesta, vienti ja tuonti samassa ikkunassa, viivakuvakkeet; 1.49 listan ⏱-aikaehdotukset; jaksot ja pelkkä kellonaika seuraava mahdollinen kirjoitushetkestä; ryhmät myös Asiasanoissa, asiasanojen poistotila; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 23.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -336,6 +336,13 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Poista** ikkunan alalaidassa oikealla (vain olemassa olevalla muistiinpanolla). Avaa joka kerta varmistuksen: ”Poistetaanko koko muistiinpano? Samalla poistuvat kaikki sen kalenterimerkinnät. … roskakoriin”. Varmistusnappi vasemmalla, Peruuta oikealla Poista-napin kohdalla, joten tuplanapautus ei poista (testattu 390 ja 320 px). Aiemmat poistotavat: Muistioiden kortin ⋯ → Poista ja tekstin tyhjennys.
 - **1.39.3:** Valmis pois myös listan rivin ja toistuvan ikkunoista; niiden Poista avaa saman varmistuslaatikon (Poista vasemmalla, Peruuta oikealla). Korjattu samalla 1.38:n bugi: listan rivin poisto sulki väärän ikkunan (rivin muokkausikkunan tunnus sekoittui).
 
+## Versio 1.51 (23.10.2026, Emilin toive): aikasanat ja Mainittu ryhmiin
+
+- Rivin muokkauksessa ja ryhmän jäsenissä (myös Asiasanat-ikkunan ryhmässä) ovat nyt punareunaiset erikoiskohteet *Mainittu muistiinpanoissa*, *Myöhässä*, *Tänään*, *Huomenna*.
+- Aikasanat laukeavat rivin tekstistä edelleen itsestään, kun mitään niistä ei ole valittu (vanha toiminta säilyy). Jos riville tai liitettyyn ryhmään on valittu osa, vain valitut laukeavat. *Tällä viikolla* ei ole mukana, koska lista ei tunne sitä aikakohteena.
+- Mainittu ryhmän jäsenenä toimii kuten rivin oma valinta. Tallennusmuoto ei muuttunut (ryhmän `m` voi sisältää `z:late`, `z:today`, `z:tomorrow`, `m:men`).
+- Ohje (i): Lista. Testit: logiikka 382 ok, selaimet 390/320/1440/1280 ok. Ei tarkistettu oikealla iPhonella.
+
 ## Versio 1.50 (23.10.2026, Emilin "toteuta"): käytön yksinkertaistus
 
 Suunnitelma: https://claude.ai/artifact/Gw6YsnZdK9AXniF7oYQnw1 (vaiheet A, B ja C1; Emilin vastaukset 23.10. klo 10.48).
@@ -465,6 +472,8 @@ Suunnitelma: https://claude.ai/artifact/Gw6YsnZdK9AXniF7oYQnw1 (vaiheet A, B ja 
 - Arvio ja jatkokehitys 21.10.2026 (Claude Doc): https://claude.ai/artifact/UXJ416PaGLHh7mwufxmuaH. Suositus: iPhone-kokeilu, sitten näkyvyys (miksi tämä, termiosumat, nimen vaihto tekstikentässä, varmuuskopion muistutus), termilohkot, JA-ehdot, esiin nousevat apukysymykset.
 
 - Emil kokeilee puhelimella. Mahdolliset seuraavat: säännöt myös tekstimuodossa (koko puu tekoälyllä), ilmoitusten kumoutuminen myöhemmin, termien opetus napauttamalla.
+
+- Jonossa (Emil 23.10.2026, ei rakennettu): tekstin tunnistettu aikalinkki yhden napautuksen valikoksi: *Kuittaa* (yliviivaus tekstissä, sama kuittaus kuin kalenterissa, kumpaankin suuntaan), *Muokkaa aikaa* (päivä- ja kellovalitsin vasta tästä; muutos tekee suhteellisesta kiinteän päiväyksen), *Historia* (alkuperäinen ja muutokset aikoineen).
 
 ## Avoimet kysymykset
 
