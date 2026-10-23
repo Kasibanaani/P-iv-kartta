@@ -505,6 +505,7 @@ var PR2=[{id:'r1',created:'2026-10-01T00:00:00',it:[{id:'a',ok:'2026-10-22T08:00
 var PD=E.chkPlan(PR2,{c:0},PN,function(){return {ev:{a:3,c:5}};},{n:3,day:pday,dur:function(){return 30;}});
 eq('1.49: mitään ei lauennut: vain järjestys',[PD.dry,PD.list.map(function(it){return it.r.id;})],[true,['r2','r1']]);
 eq('1.49: kalenteriin viety ei saa uutta ehdotusta',E.chkPlan(PR,{},PN,null,{n:1,day:pday,dur:function(){return 30;},skip:function(r,v){return v.id==='a';}}).list.map(function(it){return it.v.id;}),['b','c']);
+eq('1.50: ehdotus vain asiasanoille, joilla on kesto',E.chkPlan(PR,{c:0,b:1},PN,null,{n:3,day:pday,dur:function(id){return id==='b'?30:0;}}).list.map(function(it){return it.v.id;}),['b']);
 eq('1.49: aikavälit ja kesto tallessa',(function(){var K=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',aikavalit:{1:{s:420,e:900},8:{s:1,e:2},2:{s:600,e:500}},termit:[{id:'t',name:'T',dur:45}],termisanat:{x:{dur:20}},muistiinpanot:[{id:'n',text:'x',pl:{r:'r1',i:'a'}}]}]}).K[0];return [K.win,K.terms[0].dur,K.words.x.dur,K.notes[0].pl];})(),[{1:{s:420,e:900}},45,20,{r:'r1',i:'a'}]);
 eq('1.49: aikavälit projektitiedostossa',E.projectFile({id:'k',name:'K',win:{1:{s:420,e:900}}},'t').projekti.aikavalit,{1:{s:420,e:900}});
 eq('lista: projektitiedostossa',E.projectFile({id:'k',name:'K',chk:[{id:'c'}]},'t').projekti.tarkistuslista.length,1);

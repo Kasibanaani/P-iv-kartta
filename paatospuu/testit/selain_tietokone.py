@@ -53,7 +53,7 @@ async def run(p,w,h):
     await pg.click('#tlist [data-id="__alku"]'); await pg.click('#tlist [data-id="vatsa"]'); await pg.click('#ed-done'); await pg.wait_for_timeout(100)
     v=await pg.input_value('#xs-text'); want('napautus näkyy tekstissä', 'Vatsa' in v.split('=Alku avaa:')[1].split('\n\n')[0] and v.startswith('Jalat\n')); await check('opetus telakka')
     await pg.click('[data-tab="use"]'); await pg.wait_for_timeout(50); want('telakka sulkeutuu muualla', not await pg.is_visible('#xs-text'))
-    await pg.click('#start'); await pg.wait_for_timeout(80); await check('kierros')
+    await pg.wait_for_timeout(80); await check('kierros')
     # Kalenteri: viikko sarakkeina
     await pg.click('[data-tab="cal"]'); await pg.wait_for_timeout(150)
     want('seitsemän päivää', await pg.locator('#timeline .dcol').count()==7)

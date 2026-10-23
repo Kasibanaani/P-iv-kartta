@@ -1,6 +1,6 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.49 (listan ⏱-aikaehdotukset; jaksot ja pelkkä kellonaika seuraava mahdollinen kirjoitushetkestä; ryhmät myös Asiasanoissa, asiasanojen poistotila; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 23.10.2026
+**Vaihe:** versio 1.50 (käytön yksinkertaistus: yksi paikka per kohde, kierros alkaa napautuksesta, vienti ja tuonti samassa ikkunassa, viivakuvakkeet; 1.49 listan ⏱-aikaehdotukset; jaksot ja pelkkä kellonaika seuraava mahdollinen kirjoitushetkestä; ryhmät myös Asiasanoissa, asiasanojen poistotila; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 23.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -336,6 +336,24 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Poista** ikkunan alalaidassa oikealla (vain olemassa olevalla muistiinpanolla). Avaa joka kerta varmistuksen: ”Poistetaanko koko muistiinpano? Samalla poistuvat kaikki sen kalenterimerkinnät. … roskakoriin”. Varmistusnappi vasemmalla, Peruuta oikealla Poista-napin kohdalla, joten tuplanapautus ei poista (testattu 390 ja 320 px). Aiemmat poistotavat: Muistioiden kortin ⋯ → Poista ja tekstin tyhjennys.
 - **1.39.3:** Valmis pois myös listan rivin ja toistuvan ikkunoista; niiden Poista avaa saman varmistuslaatikon (Poista vasemmalla, Peruuta oikealla). Korjattu samalla 1.38:n bugi: listan rivin poisto sulki väärän ikkunan (rivin muokkausikkunan tunnus sekoittui).
 
+## Versio 1.50 (23.10.2026, Emilin "toteuta"): käytön yksinkertaistus
+
+Suunnitelma: https://claude.ai/artifact/Gw6YsnZdK9AXniF7oYQnw1 (vaiheet A, B ja C1; Emilin vastaukset 23.10. klo 10.48).
+- **Muistiot:** järjestysrivi pois, *Järjestys*-nappi (⇅ Tulevat/Uusimmat/Tärkeys, napautus kiertää) suodattimen ja haun kanssa samalla rivillä, joka pysyy ylhäällä vierittäessä. Kortin ⋯-valikko pois: oikean yläkulman **kuittausympyrä** kuittaa yhdellä napautuksella ja palauttaa toisella. Arkistoi, Liitä asiasanaan ja Poista ovat muistiinpanon ikkunassa (⋯-valikon "lisää asiasanan nimi tekstin loppuun" poistui; nimen voi kirjoittaa). Alapalkki (+ Uusi, Asiasanat) pois: **kelluva +** oikeassa alakulmassa kuten kalenterissa. Asiasanojen hallinta: *Asiasanat ⌄* -ikkunan alalaidasta *Muokkaa asiasanoja* (Emil), Listassa nappi *Asiasanat…*. **Roskakori** Kuitattujen lopussa (Emil).
+- **Muistiinpanon ikkuna:** Kuittaa (ja Arkistoi) alalaidassa vasemmalla, Poista oikealla; apukysymykset ja Liitä asiasanaan tulkinnan alla, eivät tekstin ja päivärivin välissä.
+- **Rakenna:** yksi työkalurivi: tila *Säännöt / Muokkaa / Järjestys / Poissulkevat* (Emil hyväksyi nimen), muokatessa sen paikalla muokattava rivi, ehtotila ja Valmis. *Teksti*-nappi Puu- ja Rakenna-napin vieressä (tietokoneella piilossa, kenttä on auki).
+- **Ikkunat:** ylimääräiset Valmis-napit pois (Ohje, Tekstikenttä, Muokkaa riviä, Projekti) ja Lopeta-ikkunan *Jatka kierrosta*: ruksi, taustan napautus ja Esc tekevät saman.
+- **Asiasanat:** tähti suoraan joka rivillä (Valitse tärkeät / OK pois).
+- **Kalenteri:** Tänään-nappi aina paikallaan, himmeänä tänään.
+- **Vienti ja tuonti** yläpalkin vientinapissa: tiedostona ja tekstinä (koko appi / projekti), tuonti tiedostosta tai tekstistä (korvaa/lisää/varoitus ennallaan). Projekti-ikkunan Lisää projekti ja Asetusten Tiedot-napit pois.
+- **Projekti-ikkuna:** projektien lista, Uusi projekti, Nykyinen projekti: nimi ja poisto. Asetuksissa vain ulkoasu, oletuspituus, nappuloiden koko ja laskurit.
+- **Kierros (C1, Emil):** alkuaskel näkyy heti; ensimmäinen valinta tai Jatka aloittaa kierroksen (aikaleima siitä). *Päivä ⌄* Puu-napin vieressä ennen aloitusta hakee päivän muistiinpanot mukaan. Ensimmäisen valinnan purku ilman päivää palaa alkuun ilman kierrosta. Lopeta toimii myös heti.
+- **Aikaehdotukset (Emil):** vain kohteet, joiden asiasanalle on annettu kesto; kalenterin oletuspituus ei ole enää varakesto (valinta "ei aikaehdotuksia"). Kellokuvake pois.
+- **Kuvakkeet (Emil: ei 2005-estetiikkaa):** ★/☆ ohueksi viivatähdeksi, listan ☰ ja ryhmän ▦ viivakuvakkeiksi, ↗ viivanuoleksi, "▶ Alku" → "Alku". Tekstin merkit ◆ ja ▸ jäivät, koska ne ovat muistiinpanon tekstiä (lisäysosio ja apukysymysten vastaukset). ✓ Kuitattu jäi.
+- Tallennusmuoto ei muuttunut.
+- Testit: logiikka 378 ok, selain 390/320 ja 1440/1280 px tietokoneen Chromiumissa; kuvat 390 ja 320 px tarkistettu. iPhonella ei kokeiltu.
+- Ei tehty (suunnitelman suositus: kokeilun jälkeen): C2 yksi asiasanakortti kaikkialta, C3 Tärkeät-luettelon yhdistäminen Rakennan Järjestykseen.
+
 ## Versio 1.49 (23.10.2026, Emilin hyväksymä): listan aikaehdotukset (⏱)
 
 - Listan yläreunassa kytkin **⏱ Aikaehdotukset** (`data.cfg.plan`). Päällä: lauenneet kohteet tärkeysjärjestyksessä riveistä riippumatta (tasatilanteessa varhaisin lauennut) saavat ajan ensimmäisestä vapaasta välistä, johon mahtuvat kokonaan (first fit, peräkkäin useita); mahtumattomat seuraaville päiville (enintään 14 pv). Moottori: `planSlots`, `chkPlan`, `winOf`, `durOf`.
@@ -415,6 +433,7 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 ## Ei tarkistettu
 
+- Oikealla iPhonella ei kokeiltu (1.50): kelluvan +:n paikka Muistioissa kotiviivan yläpuolella, näkymätön päivävalitsin Päivä ⌄ -napin alla Safarissa, suodatinrivin mahtuminen 320 px:iin oikealla fontilla, kuittausympyrän osuma sormella.
 - Oikealla iPhonella ei kokeiltu (1.38): neljän välilehden mahtuminen (320 px:llä tiukka), nimikentän asiasanaehdotukset (datalist) Safarissa.
 - Oikealla iPhonella ei kokeiltu (1.37): pysyykö vieritys lukossa viivaa raahatessa Safarissa (estetään touchmove-tapahtumalla), osuuko aikalappu sormen alle, onko 56 px sopiva peruutusraja.
 - Oikealla iPhonella ei kokeiltu (1.36): kursorin osuminen katkoviivaiseen sanaan napautuksella, sanan vaihtuminen kun appi on ollut taustalla yön yli. Päivän vaihtumista ei kokeiltu oikeasti, vaan tallennettua dataa muokkaamalla.
@@ -462,7 +481,7 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 
 ## Suunnitelmat
 
-- 23.10.2026 (suunnittelija, ei rakennettu): käytön yksinkertaistus, https://claude.ai/artifact/Gw6YsnZdK9AXniF7oYQnw1 (tiivistelmä projektikansiossa `paatospuu/SUUNNITELMA-yksinkertaistus.md`). Periaate: yksi paikka per kohde, sama rivirakenne joka näkymässä, neljä ohjainlajia. A (1.50): järjestyssegmentti, kortin ⋯, Rakennan toinen rivi ja ylimääräiset Valmis-napit pois, tähti suoraan riveille, Tänään paikallaan. B: vienti+tuonti yhteen ikkunaan, projektin asiat Projekti-ikkunaan, muistiinpanon ikkunan vakaa järjestys, Muistioiden alapalkki → kelluva +. C (Emilin kanta): kierros alkaa napautuksesta, yksi asiasanakortti kaikkialta, Tärkeät-luettelon yhdistäminen. Odottaa Emilin "toteuta".
+- 23.10.2026 (suunnittelija, ei rakennettu): käytön yksinkertaistus, https://claude.ai/artifact/Gw6YsnZdK9AXniF7oYQnw1 (tiivistelmä projektikansiossa `paatospuu/SUUNNITELMA-yksinkertaistus.md`). Periaate: yksi paikka per kohde, sama rivirakenne joka näkymässä, neljä ohjainlajia. A (1.50): järjestyssegmentti, kortin ⋯, Rakennan toinen rivi ja ylimääräiset Valmis-napit pois, tähti suoraan riveille, Tänään paikallaan. B: vienti+tuonti yhteen ikkunaan, projektin asiat Projekti-ikkunaan, muistiinpanon ikkunan vakaa järjestys, Muistioiden alapalkki → kelluva +. C (Emilin kanta): kierros alkaa napautuksesta, yksi asiasanakortti kaikkialta, Tärkeät-luettelon yhdistäminen. Rakennettu 1.50:ssä (A, B, C1); C2 ja C3 odottavat kokeilua.
 
 ## Emilin kommentit
 
