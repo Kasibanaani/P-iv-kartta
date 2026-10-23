@@ -167,6 +167,7 @@ i.gi{display:inline-block;width:.9em;height:.9em;vertical-align:-.1em;background
 .cpills{display:flex;flex-wrap:wrap;gap:6px;padding-top:10px;border-top:1px solid var(--sep)}
 .cpw{display:inline-flex;align-items:center;gap:4px;max-width:100%}
 .cpill{display:inline-flex;align-items:center;gap:6px;min-height:34px;max-width:100%;padding:5px 11px;border:1.5px solid var(--red);border-radius:9px;background:transparent;color:var(--red);font:inherit;font-size:14.5px;font-weight:600;line-height:1.25;cursor:pointer;text-align:left;overflow-wrap:anywhere}
+.cpill.ctop{background:var(--red);border-color:var(--red);color:var(--bg);box-shadow:0 2px 8px rgba(0,0,0,.15)}
 .cpill.ok{background:var(--okbg);border-color:var(--okbg);color:var(--okfg);font-weight:500}
 .cedit{min-height:34px;padding:5px 11px;border:1px dashed var(--label2);border-radius:9px;background:transparent;color:var(--label2);font:inherit;font-size:13.5px;cursor:pointer}
 .crow .cta{width:100%;min-height:0;margin-top:2px;padding:9px 11px;border:1px solid var(--sep);border-radius:10px;background:var(--bg2,transparent);color:var(--label);font:inherit;font-size:14.5px;line-height:1.4;resize:vertical}
@@ -2708,7 +2709,9 @@ function renderChk(p){var now=new Date(),today=todayIso(),list=el('div','chlist'
   if(LC){button(pb0,'Lopeta','mini',function(){kierReset(LC,true);}).id='chk-end';}
   else{var pt=button(pb0,'Aikaehdotukset','chip',function(){data.cfg.plan=planOn()?'off':'on';save();render();});pt.id='chplan-t';pt.setAttribute('aria-pressed',PL?'true':'false');}($('nbar')||p).appendChild(pb0);
   if(PL)renderPlan(p,PL,today);
-  SR.forEach(function(r){var cx=CX[r.id],V=chkView(r,cx,now).sort(function(a,b){return (a.off?1:0)-(b.off?1:0);}),D=chkDue(r,now,cx),RD=LC&&chkDone(r,now,cx),due=D.length>0,open=!!chkOpen[r.id],N=noteOf(r),c=el('div','crow'+(due?' due':'')+(open?' open':''));c.dataset.id=r.id;
+  SR.forEach(function(r){var cx=CX[r.id],V=chkView(r,cx,now).sort(function(a,b){return (a.off?1:0)-(b.off?1:0);}),D=chkDue(r,now,cx),RD=LC&&chkDone(r,now,cx),
+    /* Tärkein kuittaamaton (Emil 23.10.2026, 1.68): täytetty punainen; tähtijärjestys, tasatilanteessa varhaisin lauennut, sitten järjestys. Kuittauksen jälkeen seuraava. */
+    TOP=(D.slice().sort(function(a,b){var x=rk[a.id]===undefined?Infinity:rk[a.id],y=rk[b.id]===undefined?Infinity:rk[b.id];if(x!==y)return x<y?-1:1;var p=a.since===null?Infinity:a.since,q=b.since===null?Infinity:b.since;return p-q;})[0]||{}).id,due=D.length>0,open=!!chkOpen[r.id],N=noteOf(r),c=el('div','crow'+(due?' due':'')+(open?' open':''));c.dataset.id=r.id;
     var hd=el('button','chd');hd.type='button';hd.setAttribute('aria-expanded',open?'true':'false');
     var hn=el('span','cn');hn.appendChild(el('span','',r.name||(N?noteTitle(N):'')||'(nimetön)'));
     hd.appendChild(hn);hd.appendChild(el('span','cs'+(due?' late':''),chkStatus(r,now,cx)));hd.insertAdjacentHTML('beforeend',CHEV);
@@ -2716,7 +2719,7 @@ function renderChk(p){var now=new Date(),today=todayIso(),list=el('div','chlist'
     if(open){var b=el('div','cbody'),pl=el('div','cpills'),inf=el('div','cinfo');
       /* Kohteet tiiviinä nappeina; kuvaus aukeaa vain pienestä ⓘ-napista (Emil 22.10.2026, 1.43) */
       V.forEach(function(v){var x=v.x,ok=v.ok,MN=v.mn?data.notes.filter(function(n){return n.id===v.mn;})[0]:null,nm=MN?noteTitle(MN).slice(0,48)||'(muistiinpano)':itemName(v.id),T=MN?null:termOf(v.id),w=el('span','cpw');
-        var pb=el('button','cpill'+(ok?' ok':'')+(v.z?' ctime':'')+(MN?' cmen':'')+((LC&&!ok&&RD)||v.off?' cno':''),'');pb.type='button';pb.dataset.tid=v.id;pb.setAttribute('aria-pressed',ok?'true':'false');pb.setAttribute('aria-label',(ok?'Kuitattu: ':'Kuittaa: ')+nm);
+        var pb=el('button','cpill'+(ok?' ok':'')+(v.z?' ctime':'')+(MN?' cmen':'')+((LC&&!ok&&RD)||v.off?' cno':'')+(!ok&&v.id===TOP?' ctop':''),'');pb.type='button';pb.dataset.tid=v.id;pb.setAttribute('aria-pressed',ok?'true':'false');pb.setAttribute('aria-label',(ok?'Kuitattu: ':v.id===TOP?'Tärkein, kuittaa: ':'Kuittaa: ')+nm);
         if(MN)pb.appendChild(el('small','cmz',itemName(v.id)));pb.appendChild(document.createTextNode(nm));if(!ok&&PV[r.id+'|'+v.id])pb.appendChild(el('small','cvar','varattu '+PV[r.id+'|'+v.id]));
         pb.addEventListener('click',function(){
           /* Aikakohde kuittaa saman päivän kalenterissa (sama tila kuin kalenterin ja muistiinpanon kuittaus) */
