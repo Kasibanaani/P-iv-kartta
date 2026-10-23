@@ -511,6 +511,7 @@ body.small #opts .row .tag,body.small #tlist .row .tag{font-size:11.5px}
 .hl mark{color:transparent;background:var(--fill);border-radius:4px;box-shadow:0 2px 0 var(--accent)}
 .hl .th{color:transparent;text-decoration:underline;text-decoration-color:var(--k-g);text-decoration-thickness:2px;text-underline-offset:4px}
 .found i.th{box-shadow:inset 0 -2px 0 var(--k-g)}
+.found i.tml{box-shadow:inset 0 -2px 0 var(--accent);cursor:pointer}
 /* Päällekkäinen aika (Emil 22.10.2026): oranssi korostus kirjoittaessa, napautus näyttää mitä samaan aikaan on */
 :root{--ov:#c2410c;--ovbg:rgba(234,88,12,.20)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ov:#fb923c;--ovbg:rgba(251,146,60,.24)}}
@@ -519,6 +520,10 @@ body.small #opts .row .tag,body.small #tlist .row .tag{font-size:11.5px}
 .hl .rel{border-radius:4px;outline:1.5px dashed var(--accent);outline-offset:1px}
 .nt .rel,.ct .rel{border-bottom:1.5px dashed var(--accent)}
 .found i.ov{background:var(--ovbg);box-shadow:inset 0 -2px 0 var(--ov);cursor:pointer}
+/* 1.64: tekstin linkki kuin nappi puhelimella: valikko päälle, tausta lukittu, ulkopuolen napautus sulkee */
+#ns-tmbg{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.18);touch-action:none}
+#ns-tm.pop{position:fixed;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));z-index:31;margin:0;max-height:70vh;overflow:auto;overscroll-behavior:contain;background:var(--cell);box-shadow:0 8px 30px rgba(0,0,0,.22),inset 0 0 0 1px var(--sep)}
+@media (min-width:600px){#ns-tm.pop{left:50%;right:auto;width:520px;transform:translateX(-50%)}}
 .tmenu{margin:8px 0 0;padding:10px 12px;border-radius:12px;background:transparent;box-shadow:inset 0 0 0 1px var(--accent)}
 .tmenu b{display:block;font-size:13px;color:var(--label2);font-weight:600;margin-bottom:8px}
 .tmenu .btnrow{margin:0;flex-wrap:wrap;gap:8px}.tmenu .tmed{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.tmenu .tmed input{flex:1 1 120px;min-width:0}
@@ -778,7 +783,7 @@ dialog h2[data-crumb]::before{content:attr(data-crumb);color:var(--label2);font-
   <div class="hrow"><h2 id="ns-h">Muistiinpano</h2><button class="ibtn" type="button" data-help="muistiinpano" aria-label="Ohje">i</button></div>
   <p class="sub" id="ns-stamp" style="font-size:13px"></p>
   <div class="hlwrap"><div class="hl" id="ns-hl" aria-hidden="true"></div><textarea id="ns-text" style="min-height:40vh" aria-label="Muistiinpanon teksti"></textarea></div>
-  <div class="tmenu" id="ns-tm" hidden></div>
+  <div class="tmenu" id="ns-tm" hidden></div><div id="ns-tmbg" hidden></div>
   <div class="dtrow"><input type="date" id="ns-date" aria-label="Päivämäärä (valinnainen)"><span id="ns-timerow" class="dtt"><input type="time" id="ns-ts" aria-label="Alkaa (valinnainen, jos tekstissä ei ole aikaa)"><span aria-hidden="true">–</span><input type="time" id="ns-te" aria-label="Päättyy"></span></div>
   <div class="btnrow" id="ns-pinrow" hidden style="margin:8px 0 0"><button type="button" class="mini" id="ns-pin" aria-pressed="false"></button></div>
   <div class="found" id="ns-found"></div>
@@ -1968,7 +1973,20 @@ document.addEventListener('input',function(ev){if(ev.target.tagName==='TEXTAREA'
 function modalSync(){document.documentElement.classList.toggle('modal',!!document.querySelector('dialog[open]:not(.dock)'));}
 document.addEventListener('touchmove',function(ev){if(!document.documentElement.classList.contains('modal'))return;var t=ev.target;
   if(t.tagName==='DIALOG'||!t.closest||!t.closest('dialog[open]'))ev.preventDefault();},{passive:false});
-if(window.visualViewport)visualViewport.addEventListener('resize',function(){if(document.querySelector('dialog.big[open]'))barSizes();});
+/* 1.64 (Emil 23.10.2026): muistiinpanon tekstikenttä ei pomppaa yläpalkin alle, kun näppäimistö avautuu. Palkkien mitat jäädytetään
+   näppäimistön ajaksi, ja kentän saadessa fokuksen sivun ja ikkunan vieritys palautetaan ennalleen; näppäimistö saa mieluummin peittää alareunan. */
+function kbOpen(){var v=window.visualViewport;return !!v&&v.height<innerHeight*0.85;}
+if(window.visualViewport){visualViewport.addEventListener('resize',function(){if(document.querySelector('dialog.big[open]')&&!kbOpen())barSizes();});
+  visualViewport.addEventListener('scroll',function(){if(kbHold&&(window.scrollY||visualViewport.offsetTop))window.scrollTo(0,0);});}
+var kbHold=0;
+/* Kaikki tekstikentät: sivu ei saa siirtyä palkkien alle. Ikkunan sisäinen vieritys palautetaan, jos kentän yläreuna jäisi silloinkin
+   näppäimistön yläpuolelle; muuten iOS saa vierittää, mutta kentän yläreuna ei jää yläpalkin alle. */
+function kbKeep(ta){var d=ta.closest('dialog')||ta.closest('#main'),st=d?d.scrollTop:0,y0=ta.getBoundingClientRect().top,
+  fix=function(){if(window.scrollY)window.scrollTo(0,0);if(!d)return;var v=window.visualViewport,vh=kbOpen()?v.height:innerHeight*0.55,top=d.getBoundingClientRect().top;
+    if(d.scrollTop!==st&&y0<vh-48)d.scrollTop=st;else{var y=ta.getBoundingClientRect().top;if(y<top+4)d.scrollTop-=top+4-y;}};
+  kbHold=Date.now();ta.addEventListener('focus',function f(){ta.removeEventListener('focus',f);[0,50,150,300,500,800].forEach(function(ms){setTimeout(fix,ms);});setTimeout(function(){kbHold=0;},900);});}
+document.addEventListener('touchstart',function(ev){var t=ev.target;if(!t||!t.matches||t===document.activeElement)return;
+  if(t.matches('textarea,input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]):not([type=color]),[contenteditable]'))kbKeep(t);},{passive:true,capture:true});
 function openSheet(d){if(!SMALL[d.id]){d.classList.add('big');barSizes();var h=d.querySelector('h2');if(h)h.setAttribute('data-crumb',crumbOf(d));}
   if(d.showModal)d.showModal();else d.setAttribute('open','');modalSync();
   requestAnimationFrame(function(){[].forEach.call(d.querySelectorAll('textarea'),growTa);});}
@@ -2388,7 +2406,8 @@ function foundInfo(){var txt=$('ns-text').value,N=relLive({text:txt,created:note
   var ds=noteDates(N),ts=noteTerms(allTerms(),txt);termCache=null;popRow();
   var ovs=ovHits(N);termCache=null;
   if(ds.length){f.appendChild(document.createTextNode('Ajankohdat: '));ds.forEach(function(o){var h=ovs.filter(function(x){return x.o.src===o.src&&x.o.a===o.a&&x.o.s===o.s;})[0],i=el('i',h?'ov':'',o.src+' → '+dateLabel(o)+(o.locked&&o.locked.w!==o.locked.o?' · kirjoitettu ”'+o.locked.o+'”':'')+(h?' · päällekkäin':''));
-      if(h){i.setAttribute('role','button');i.tabIndex=0;i.addEventListener('click',function(){showOv($('ns-ov').hidden?h:null);});}f.appendChild(i);
+      if(h){i.setAttribute('role','button');i.tabIndex=0;i.addEventListener('click',function(){showOv($('ns-ov').hidden?h:null);});}
+      else if(o.s!==undefined){i.className='tml';i.setAttribute('role','button');i.tabIndex=0;i.addEventListener('click',function(){var c=whenSpan(o).s,m=tmAt(c);if(m)tmPop(m,i.getBoundingClientRect().top,c);});}f.appendChild(i);
       /* Päivän kuittaus tekstistä (Emil 22.10.2026, 1.41): sama kuittaus kuin kalenterissa ja listan aikakohteessa */
       var key=noteCur&&!noteCur.done&&o.s===undefined?dateKey(o):null;if(key){var on=!!(noteCur.pts&&noteCur.pts[key]),cb=el('button','dck',on?'✓ '+occLabel(key):'Kuittaa '+occLabel(key));cb.type='button';cb.setAttribute('aria-pressed',on?'true':'false');
         cb.addEventListener('click',function(){var P=noteCur.pts||(noteCur.pts={});if(P[key])delete P[key];else P[key]=nowIso();if(!Object.keys(P).length)delete noteCur.pts;touch();stateRow(noteCur);foundInfo();});f.appendChild(cb);}});}
@@ -2425,7 +2444,7 @@ function tmAt(c){var N=liveN(),o=noteDates(N).filter(function(x){if(x.s===undefi
   var txt=$('ns-text').value,H=termHits(allTerms(),txt).filter(function(h){return c>=h.s&&c<=h.e;}),ids=[];termCache=null;H.forEach(function(h){if(ids.indexOf(h.id)<0)ids.push(h.id);});
   return ids.length?{terms:ids,w:txt.slice(H[0].s,H[0].e)}:null;}
 function tmOpen(){var ta=$('ns-text'),c=ta.selectionStart;if(ta.selectionEnd!==c){$('ns-tm').hidden=true;return;}var h=tmAt(c);tmEdit=false;$('ns-ov').hidden=true;renderTm(h);}
-function tmRefresh(){paintHl();foundInfo();var ta=$('ns-text');renderTm(tmAt(ta.selectionStart));}
+function tmRefresh(){paintHl();foundInfo();var ta=$('ns-text'),pop=$('ns-tm').classList.contains('pop');renderTm(tmAt(pop?tmPos:ta.selectionStart));}
 function renderTm(h){var b=$('ns-tm');b.textContent='';if(!h){b.hidden=true;return;}var ta=$('ns-text'),txt=ta.value,r=el('div','btnrow');
   if(h.terms){b.appendChild(el('b','','”'+h.w+'” → muistiinpanot asiasanalla'));
     h.terms.forEach(function(id){button(r,termName(id)||'?','mini tmterm',function(){$('ns-ok').click();noteFilter=[id];noteView='open';showTab('notes');main.scrollTop=0;render();}).dataset.tid=id;});termCache=null;b.appendChild(r);b.hidden=false;return;}
@@ -2448,6 +2467,23 @@ function renderTm(h){var b=$('ns-tm');b.textContent='';if(!h){b.hidden=true;retu
       syncAdds();paintHl();foundInfo();}).id='tm-save';b.appendChild(er);}
   b.hidden=false;}
 $('ns-text').addEventListener('click',function(){setTimeout(tmOpen,0);});
+/* 1.64 (Emil 23.10.2026): puhelimella tekstin aika- ja asiasanalinkki toimii kuin nappi. Lyhyt napautus linkkiin ei vie kursoria
+   eikä avaa näppäimistöä (touchend estetään), vaan avaa valikon päälle; tausta lukittuu ja ulkopuolen napautus sulkee.
+   Vieritys alkaa linkin päältäkin normaalisti. Hiirellä ennallaan. Kohta haetaan väripinnan (ns-hl) osien sijainneista. */
+function hlOffsetAt(x,y){var hl=$('ns-hl'),at=0,hit=-1;Array.prototype.forEach.call(hl.childNodes,function(n){var len=(n.textContent||'').replace(/​/g,'').length;
+    if(hit<0&&n.nodeType===1){var R=n.getClientRects();for(var i=0;i<R.length;i++){var r=R[i];if(x>=r.left-2&&x<=r.right+2&&y>=r.top-3&&y<=r.bottom+3){hit=at+Math.max(0,Math.min(len-1,Math.floor(len/2)));break;}}}at+=len;});return hit;}
+var tmTouch=null;
+$('ns-text').addEventListener('touchstart',function(ev){var t=ev.touches[0];tmTouch=ev.touches.length===1?{x:t.clientX,y:t.clientY,at:Date.now()}:null;},{passive:true});
+$('ns-text').addEventListener('touchmove',function(ev){if(!tmTouch)return;var t=ev.touches[0];if(Math.abs(t.clientX-tmTouch.x)>8||Math.abs(t.clientY-tmTouch.y)>8)tmTouch=null;},{passive:true});
+$('ns-text').addEventListener('touchend',function(ev){var T=tmTouch;tmTouch=null;if(!T||Date.now()-T.at>600)return;var c=hlOffsetAt(T.x,T.y);if(c<0)return;var h=tmAt(c);if(!h)return;
+  ev.preventDefault();if(document.activeElement===this)this.blur();tmPop(h,T.y,c);},{passive:false});
+function tmPop(h,y,c){var b=$('ns-tm');tmEdit=false;$('ns-ov').hidden=true;tmCur=h;tmPos=c;b.classList.add('pop');renderTm(h);if(b.hidden)return;$('ns-tmbg').hidden=false;
+  var H=b.offsetHeight,top=y+28;if(top+H>innerHeight-12)top=Math.max(12,y-H-20);b.style.top=top+'px';}
+var tmCur=null,tmPos=-1;
+function tmSync(){var b=$('ns-tm');if(b.hidden){b.classList.remove('pop');b.style.top='';}$('ns-tmbg').hidden=b.hidden||!b.classList.contains('pop');}
+new MutationObserver(tmSync).observe($('ns-tm'),{attributes:true,attributeFilter:['hidden']});
+$('ns-tmbg').addEventListener('click',function(ev){ev.preventDefault();$('ns-tm').hidden=true;tmEdit=false;});
+$('ns-tmbg').addEventListener('touchmove',function(ev){ev.preventDefault();},{passive:false});
 $('ns-text').addEventListener('input',function(){$('ns-tm').hidden=true;tmEdit=false;});
 function paintHl(){var ta=$('ns-text'),hl=$('ns-hl'),txt=ta.value,N={text:txt,created:noteCur?noteCur.created:nowIso()},f=[],i;hl.textContent='';
   for(i=0;i<=txt.length;i++)f.push(0);
