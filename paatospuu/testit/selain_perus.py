@@ -607,6 +607,14 @@ async def run(p,w,h):
     want('purettu pysyy, palautus tarjolla', await pg.is_visible('#tm-relink') and await pg.locator('#ns-hl .nl').count()==1)
     await pg.click('#tm-relink'); await pg.wait_for_timeout(40); want('palautettu linkiksi', await pg.locator('#ns-hl mark').count()>=1 and await pg.locator('#ns-hl .nl').count()==0)
     await pg.click('#nsheet > .sx'); await pg.wait_for_timeout(50)
+    # 1.53: asiasanalinkki tekstissä vie suodatettuun listaan
+    await terms(); await pg.wait_for_timeout(50); await pg.fill('#newterm','Hammaslääkäri'); await pg.press('#newterm','Enter'); await pg.wait_for_timeout(40)
+    if await pg.is_visible('#tok'): await pg.click('#tok'); await pg.wait_for_timeout(30)
+    await pg.click('#tsheet > .sx'); await pg.wait_for_timeout(50)
+    await pg.click('#noteview [data-nv="open"]'); await pg.wait_for_timeout(40); await pg.click('#newnote'); await pg.wait_for_timeout(50); await pg.fill('#ns-text','Varaa hammaslääkäri pian '); await pg.dispatch_event('#ns-text','input'); await pg.wait_for_timeout(40)
+    await caret(9); await pg.wait_for_timeout(40); want('asiasanalinkin valikko', await pg.locator('#ns-tm .tmterm').count()==1 and 'Hammaslääkäri' in await pg.inner_text('#ns-tm')); await check('asiasanalinkki')
+    await pg.click('#ns-tm .tmterm'); await pg.wait_for_timeout(80); want('suodatettu lista', not await pg.is_visible('#nsheet') and 'Hammaslääkäri' in await pg.inner_text('#filterpick') and await pg.locator('#nlist .ncard').count()==1)
+    await pg.click('#filterpick'); await pg.wait_for_timeout(30); await pg.click('#fs-clear'); await pg.click('#fsheet > .sx'); await pg.wait_for_timeout(40)
     for mode in ['Tumma']:
         await pg.click('[data-tab="set"]'); await pg.click('#p-set .seg button:has-text("%s")'%mode); await check('tumma')
     print('  errs',errs); await b.close(); return bad+(['virheet'] if errs else [])
