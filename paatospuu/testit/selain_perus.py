@@ -147,7 +147,7 @@ async def run(p,w,h):
     await pg.fill('#tt-text',v+'\n\n=Ruoka:\nnappula'); await pg.click('#tt-ok'); await pg.wait_for_timeout(50)
     want('termit tekstistä', json.loads(await pg.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0].termisanat.ruoka)"))=={'yes':['nappula'],'no':[]})
     want('päätöspuun rivit termeinä', await pg.locator('#termlist [data-id^="a:"]').count()==7)
-    await pg.click('#termlist [data-id="a:ruoka"]'); want('nousee-valinta', await pg.is_visible('#tpop')); await pg.fill('#tyes','nappula'); await pg.click('#tok'); await check('automaattinen termi')
+    await pg.click('#termlist [data-id="a:ruoka"]'); want('osiot suljettuina', not await pg.is_visible('#tpop') and await pg.is_visible('#tyes')); await pg.click('#tsec-muut summary'); want('nousee-valinta', await pg.is_visible('#tpop')); await pg.fill('#tyes','nappula'); await pg.click('#tok'); await check('automaattinen termi')
     await pg.click('#ts-body [data-done]'); await pg.wait_for_timeout(50)
     want('automaattinen termi kortissa', 'Kissa' in await pg.inner_text('#nlist .nf'))
     want('termi näkyy kortissa', 'eläin' in await pg.inner_text('#nlist .nf'))
@@ -483,7 +483,7 @@ async def run(p,w,h):
     # 1.43: uusiutuminen ja lisätieto asiasanan muokkauksessa
     nm0=(await pg.locator('#chlist .cpill').nth(0).inner_text()).replace('✓','').strip()
     await terms(); await pg.wait_for_timeout(50); await pg.locator('#tsheet .row:has-text("'+nm0+'")').first.click(); await pg.wait_for_timeout(40)
-    await pg.select_option('#tev','6'); await pg.fill('#tinfo','Pese suodatin ja kuivaa.'); await check('asiasanan lisätieto'); await pg.click('#tok'); await pg.wait_for_timeout(40); await pg.click('#tsheet .sx'); await pg.wait_for_timeout(60)
+    await pg.evaluate("['lista','muut'].forEach(function(k){document.getElementById('tsec-'+k).open=true;})"); await pg.select_option('#tev','6'); await pg.fill('#tinfo','Pese suodatin ja kuivaa.'); want('osion yhteenveto', 'uusiutuu' in await pg.inner_text('#tsec-lista summary') and 'lisätieto' in await pg.inner_text('#tsec-muut summary')); await check('asiasanan lisätieto'); await pg.click('#tok'); await pg.wait_for_timeout(40); await pg.click('#tsheet .sx'); await pg.wait_for_timeout(60)
     want('ei palleroa eikä i-nappia', await pg.locator('#chlist .cib').count()==0 and await pg.locator('#chlist .cpill .ck').count()==0 and await pg.locator('#chlist .cpill.ok').count()==1)
     ta=pg.locator('#chlist .cta'); want('teksti suoraan näkyvissä', await ta.input_value()=='Tarkistus tänään klo 8'); await ta.fill('Tarkistus tänään klo 8\nPese myös suodatin'); await ta.dispatch_event('change'); await pg.wait_for_timeout(50)
     st=json.loads(await pg.evaluate("localStorage.getItem('paatospuu:v1')"))['kokonaisuudet'][0]; lk=st['tarkistuslista'][0]['it']; want('kohteet tallessa', lk[0].get('ok') and not lk[1].get('ok') and 'ev' not in lk[0])

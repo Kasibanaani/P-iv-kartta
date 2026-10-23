@@ -551,4 +551,13 @@ var CD=E.clipDay({timed:[{s:120,e:150},{s:450,e:540},{s:600,e:660}],untimed:[{u:
 eq('1.54: näkyvän ajan ulkopuolinen koko päivään',[CD.timed.map(function(x){return x.s;}),CD.untimed.length],[[450,600],2]);
 eq('1.54: kalenteri projektitiedostoon',E.projectFile({id:'k',name:'K',calv:{s:480,e:1260,off:[0]}},'t').projekti.kalenteri,{s:480,e:1260,off:[0]});
 
+
+// 1.61: kalenterin kuittaus kulkee siirron mukana (Emil 23.10.2026)
+var kn=[{id:'k1',created:'2026-10-20T08:00:00Z',text:'Juttu 22.10.2026 klo 14',date:'',pts:{'2026-10-22 14:00':'2026-10-21T10:00:00Z'}},
+  {id:'k2',created:'2026-10-20T08:00:00Z',text:'Kenttä',date:'2026-10-22',time:{s:'09:00',e:''},pts:{'2026-10-22 09:00':'x'}}];
+var ke=E.dayEntries(kn,'2026-10-22');
+E.moveEntry(ke.timed.filter(function(x){return x.n.id==='k1';})[0],960,1020,false);eq('1.61: siirto säilyttää kuittauksen',kn[0].pts,{'2026-10-22 16:00':'2026-10-21T10:00:00Z'});
+E.moveEntry(ke.timed.filter(function(x){return x.n.id==='k2';})[0],600,630,false);eq('1.61: kenttäajan siirto säilyttää kuittauksen',kn[1].pts,{'2026-10-22 10:00':'x'});
+var o1=E.noteDates(kn[0])[0];eq('1.61: päivän vaihto säilyttää kuittauksen',[E.moveDay(kn[0],o1,'2026-10-24'),kn[0].pts],['',{'2026-10-24 16:00':'2026-10-21T10:00:00Z'}]);
+var o2=E.noteDates(kn[0])[0];E.clearTime(kn[0],o2);eq('1.61: ajattomaksi säilyttää kuittauksen',kn[0].pts,{'2026-10-24':'2026-10-21T10:00:00Z'});
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);
