@@ -569,4 +569,12 @@ cr[0].it[1].ok='x';var cc=E.chkCond(cR,cr,cK,cn);eq('1.67: ja-ehto sulkee pois',
 var cx2=cK();cx2.hid=cc.hid;cx2.off=cc.off;eq('1.67: poissuljettu ei estä valmistumista',E.chkDone(cr[1],cn,cx2),true);
 eq('1.67: ehtojen normalisointi',E.condsIn({eh:1,ehdot:[{k:['a'],on:['b','b'],off:['b','c']},{}]}),{ehdot:[{id:'e0',k:['a'],on:['b'],off:['c']}],eh:1});
 eq('1.67: tyhjä ei tallennu',E.condsIn({ehdot:[]}),null);
+/* 1.70 tekstimuoto */
+eq('1.70: ehTok tunnetut nimet ja-sanalla',E.ehTok('Kipu ja särky tai Kuume',['Kipu ja särky','Kuume']),{items:['Kipu ja särky','Kuume'],all:false});
+eq('1.70: ehTok ja = kaikki',E.ehTok('A ja B',[]),{items:['A','B'],all:true});
+var tx=E.termsToText([{name:'A',yes:['a'],no:[]},{name:'B',yes:[],no:[]}],{},{},{stars:['B','A'],ehdot:[{k:['A','B'],all:1,on:['C'],off:['D']}]});
+eq('1.70: tähdet ja ehdot tekstiin',tx,'=B*:\n\n=A*:\na\n\nEhdot:\nKun A ja B, niin C esiin, D pois.');
+var xx=E.textExtras(tx,['A','B','C','D']);eq('1.70: tekstistä takaisin',[xx.stars,xx.ehdot,xx.body],[['B','A'],[{k:['A','B'],on:['C'],off:['D'],all:1}],'=B:\n\n=A:\na\n']);
+eq('1.70: ei Ehdot-osiota',E.textExtras('=A:',[]).ehdot,null);
+eq('1.70: pelkät nimet asiasanoiksi',[E.textExtras('A\nB*\n\n=C:\nsana\nsana2',[]).body,E.textExtras('A\nB*',[]).stars],['=A:\n\n=B:\n\n\n=C:\nsana\nsana2',['B']]);
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);
