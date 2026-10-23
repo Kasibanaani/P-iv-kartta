@@ -652,6 +652,10 @@ async def run(p,w,h):
     await terms(); await pg.wait_for_timeout(60)
     rh=await pg.evaluate("(function(){var r=document.querySelector('#termlist .drow'),a=r.querySelector('.row').getBoundingClientRect(),b=r.querySelector('.sbtn').getBoundingClientRect();return [Math.round(a.height),b.right<=a.right&&b.left>=a.left]})()")
     want('rivi tiivis, tähti sisällä', rh[0]<=46 and rh[1]); await check('tiiviit rivit'); await pg.click('#tsheet > .sx'); await pg.wait_for_timeout(40)
+    # 1.58: Listan rajausrivi pysyy ylhäällä
+    await pg.click('[data-tab="notes"]'); await pg.click('#noteview [data-nv="chk"]'); await pg.wait_for_timeout(60)
+    want('listan rivi jäädytetty', await pg.locator('#nbar #chterms').count()==1 and await pg.locator('#nbar #chplan-t').count()==1); await check('listan rivi ylhäällä')
+    await pg.click('#noteview [data-nv="open"]'); await pg.wait_for_timeout(40)
     for mode in ['Tumma']:
         await pg.click('[data-tab="set"]'); await pg.click('#p-set .seg button:has-text("%s")'%mode); await check('tumma')
     print('  errs',errs); await b.close(); return bad+(['virheet'] if errs else [])

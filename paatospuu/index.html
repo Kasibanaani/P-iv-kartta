@@ -549,6 +549,10 @@ label.fl{margin:12px 0 4px}
 .drow>.sbtn{position:absolute;right:4px;top:50%;width:38px;height:38px;min-height:0;margin-top:-19px;background:transparent;box-shadow:none!important;z-index:1}
 .drow.lift>.sbtn{z-index:4}
 .btn{min-height:44px;padding:0 16px;font-size:16px}
+/* 1.58 (Emil 23.10.2026): Listan Asiasanat- ja Aikaehdotukset-rivi pysyy ylhäällä Muistioiden valinnan alla, ja avatun rivin otsikko jää sen alle vieritettäessä */
+.nbar .plbar{margin:6px 0 0}
+.nbar .plbar .mini,.nbar .plbar .chip{min-height:36px;height:36px}
+.crow.open .chd{position:sticky;top:calc(var(--nbh,0px) - 10px);z-index:3;background:var(--cell);border-radius:14px 14px 0 0}
 .chipw{display:inline-flex;align-items:center;gap:2px}
 .chipw .ibtn{margin-right:4px}
 #ns-found i.th[role="button"]{cursor:pointer}
@@ -2175,7 +2179,7 @@ function relText(n,cls){var d=el('div',cls||'nt'),txt=String(n.text||''),at=0,dn
 function renderNotes(){var p=panels.notes;p.textContent='';var today=todayIso();
   var NS=data.notes.filter(function(n){return noteView==='done'?!!n.done:!n.done;}),nd=data.notes.length-data.notes.filter(function(n){return !n.done;}).length;
   var cn=$('count');cn.hidden=false;cn.textContent=NS.length+' kpl';cn.setAttribute('aria-label',NS.length+(NS.length===1?' muistiinpano':' muistiinpanoa'));
-  var nb=el('div','nbar');nb.id='nbar';p.appendChild(nb);
+  var nb=el('div','nbar');nb.id='nbar';p.appendChild(nb);requestAnimationFrame(function(){document.documentElement.style.setProperty('--nbh',nb.offsetHeight+'px');});
   var vs=el('div','seg');vs.id='noteview';[['open','Avoimet'],['done','Kuitatut'+(nd?' ('+nd+')':'')],['rep','Toistuvat'],['chk','Lista']].forEach(function(m){var b=button(vs,m[1],'',function(){noteView=m[0];main.scrollTop=0;render();});b.className='';b.dataset.nv=m[0];b.setAttribute('aria-pressed',noteView===m[0]?'true':'false');
     /* Pallero: jokin tarkistuslista on tekemättä (1.40) */
     if(m[0]==='chk'&&data.chk.some(function(r){return chkOpenN(r,new Date(),chkCtx(r))>0;})){var dd=el('i','segdot');dd.setAttribute('aria-hidden','true');b.appendChild(dd);b.setAttribute('aria-label','Lista, tekemättä olevia');}});nb.appendChild(vs);
@@ -2432,7 +2436,7 @@ function renderChk(p){var now=new Date(),today=todayIso(),list=el('div','chlist'
   var SR=chkSort(data.chk,rk,today,now,function(r){return CX[r.id];}),PL=planOn()?planNow(now,today,CX,rk):null;
   /* ⏱ päällä eikä mikään ole lauennut: rivit siinä järjestyksessä, jossa niiden seuraavat kohteet mahtuisivat kalenteriin (1.49) */
   if(PL&&PL.dry){var fo={};PL.list.forEach(function(it,i){if(fo[it.r.id]===undefined)fo[it.r.id]=i;});SR=SR.map(function(r,i){return {r:r,i:i};}).sort(function(a,b){var x=fo[a.r.id],y=fo[b.r.id];x=x===undefined?1e9+a.i:x;y=y===undefined?1e9+b.i:y;return x-y;}).map(function(o){return o.r;});}
-  var pb0=el('div','plbar');button(pb0,'Asiasanat…','mini',openTerms).id='chterms';var pt=button(pb0,'Aikaehdotukset','chip',function(){data.cfg.plan=planOn()?'off':'on';save();render();});pt.id='chplan-t';pt.setAttribute('aria-pressed',PL?'true':'false');p.appendChild(pb0);
+  var pb0=el('div','plbar');button(pb0,'Asiasanat…','mini',openTerms).id='chterms';var pt=button(pb0,'Aikaehdotukset','chip',function(){data.cfg.plan=planOn()?'off':'on';save();render();});pt.id='chplan-t';pt.setAttribute('aria-pressed',PL?'true':'false');($('nbar')||p).appendChild(pb0);
   if(PL)renderPlan(p,PL,today);
   SR.forEach(function(r){var cx=CX[r.id],V=chkView(r,cx,now),D=chkDue(r,now,cx),due=D.length>0,open=!!chkOpen[r.id],N=noteOf(r),c=el('div','crow'+(due?' due':'')+(open?' open':''));c.dataset.id=r.id;
     var hd=el('button','chd');hd.type='button';hd.setAttribute('aria-expanded',open?'true':'false');
