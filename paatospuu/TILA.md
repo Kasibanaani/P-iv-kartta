@@ -343,7 +343,7 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Jos mikään ei ole lauennut (dry): ei aikoja, rivit järjestetään sen mukaan, missä järjestyksessä niiden seuraavat (uusiutuvat) kohteet mahtuisivat kalenteriin.
 - Asiasanan asetus *Listassa: kesto aikaehdotuksiin* (`dur`, minuutit; oletus kalenterin oletuspituus). Käytetään toistaiseksi vain tässä (Emil).
 - Aikaväli viikonpäivittäin projektikohtaisesti (`win`, vienti `aikavalit`, oletus 8–16). Näkyy vain ⏱ päällä: pystyviiva kalenterin päivänäkymän kellonaikasarakkeessa, päiden raahaus 15 min askelin muuttaa kaikkia saman viikonpäivän päiviä.
-- Ei tehty: viiva tietokoneen viikkonäkymään (sarakkeet); päiväkohtainen väkänen lauenneista (Emil: myöhemmin). Lista-ehdotukset eivät huomioi Toistuvien rekisteriä erikseen, vain kalenterin aikamerkinnät.
+- Ei tehty: viiva tietokoneen viikkonäkymään (sarakkeet); päiväkohtainen väkänen lauenneista (Emil: myöhemmin)..
 - Testit tietokoneen Chromiumissa; iPhonella ei kokeiltu (erityisesti viivan päiden raahaus sormella).
 
 ## Versio 1.48 (23.10.2026, Emilin hyväksymä korjaus): jakso kirjoitushetkestä
