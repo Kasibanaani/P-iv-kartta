@@ -538,5 +538,12 @@ eq('1.51: ilman valintaa kaikki aikasanat, valinta rajaa',[E.chkTime(N51,T0).z.i
 eq('1.51: Mainittu ryhmästä (on-lippu)',E.chkMentions({id:'x',name:'Tiskikone',nid:'own',it:[]},MNS,T0,true).mn.length,1);
 eq('1.51: erikoisjäsenet säilyvät ryhmässä',E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',ryhmat:[{id:'g',name:'G',m:['z:late','m:men','z:week','t1']}]}]}).K[0].grp[0].m,['z:late','m:men','t1']);
 eq('1.51: erikoisjäsenet eivät ole kohteita',E.chkView({id:'r',it:[{id:'z:today'}]},{gm:[]},NOW).length,0);
+// 1.52: aikalinkin muokkaus ja purku
+var W52={text:'Hammas huomenna klo 10 ja kokous',created:'2026-10-23T08:00:00'};E.lockRel(W52,new Date('2026-10-23T08:00:00'));
+eq('1.52: muokkaa aikaa kiinteäksi',[E.setWhen(W52,E.noteDates(W52)[0],'2026-10-26','09:30','11:00'),W52.text,W52.mv[0].h[0].t,E.noteDates(W52)[0].a],['','Hammas 26.10.2026 klo 9.30–11 ja kokous','huomenna klo 10','2026-10-26']);
+W52.nl=[{w:'26.10.2026 klo 9.30–11',at:'x'}];eq('1.52: purettu ei ole ajankohta',E.noteDates(W52).length,0);
+W52.text='Hammas 26.10.2026 klo 9.30–12 ja kokous';eq('1.52: muokattu tunnistetaan taas',[E.noteDates(W52).length,E.nlClean(W52).nl],[1,undefined]);
+eq('1.52: toistuva ei muokkaudu',E.setWhen({text:'tiistaisin'},{s:0,e:10,rec:1,a:'2026-10-27',b:'2026-10-27'},'2026-10-28').length>0,true);
+eq('1.52: purku normalisoituu',E.normalizeData({app:'paatospuu',muistiinpanot:[{id:'x',text:'pe',nl:[{w:'pe',at:'a'},{w:1}]}]}).notes[0].nl,[{w:'pe',at:'a'}]);
 
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);
