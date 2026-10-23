@@ -545,5 +545,10 @@ W52.nl=[{w:'26.10.2026 klo 9.30–11',at:'x'}];eq('1.52: purettu ei ole ajankoht
 W52.text='Hammas 26.10.2026 klo 9.30–12 ja kokous';eq('1.52: muokattu tunnistetaan taas',[E.noteDates(W52).length,E.nlClean(W52).nl],[1,undefined]);
 eq('1.52: toistuva ei muokkaudu',E.setWhen({text:'tiistaisin'},{s:0,e:10,rec:1,a:'2026-10-27',b:'2026-10-27'},'2026-10-28').length>0,true);
 eq('1.52: purku normalisoituu',E.normalizeData({app:'paatospuu',muistiinpanot:[{id:'x',text:'pe',nl:[{w:'pe',at:'a'},{w:1}]}]}).notes[0].nl,[{w:'pe',at:'a'}]);
+// 1.54: kalenterin näkyvä aika ja päivät
+eq('1.54: calv normalisointi',[E.calvOf({s:480,e:1260,off:[6,0,0,9]}),E.calvOf({s:0,e:1440,off:[]}),E.calvOf({s:600,e:500})],[{s:480,e:1260,off:[0,6]},null,null]);
+var CD=E.clipDay({timed:[{s:120,e:150},{s:450,e:540},{s:600,e:660}],untimed:[{u:1}]},{s:480,e:1260});
+eq('1.54: näkyvän ajan ulkopuolinen koko päivään',[CD.timed.map(function(x){return x.s;}),CD.untimed.length],[[450,600],2]);
+eq('1.54: kalenteri projektitiedostoon',E.projectFile({id:'k',name:'K',calv:{s:480,e:1260,off:[0]}},'t').projekti.kalenteri,{s:480,e:1260,off:[0]});
 
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);

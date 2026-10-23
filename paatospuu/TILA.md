@@ -1,6 +1,6 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.53 (asiasanalinkit tekstissä; tekstin aikalinkki napautusvalikkona: kuittaus, ajan muokkaus, historia, purku; 1.51 aikasanat ja Mainittu valittavina riville ja ryhmän jäseniksi; 1.50 käytön yksinkertaistus: yksi paikka per kohde, kierros alkaa napautuksesta, vienti ja tuonti samassa ikkunassa, viivakuvakkeet; 1.49 listan ⏱-aikaehdotukset; jaksot ja pelkkä kellonaika seuraava mahdollinen kirjoitushetkestä; ryhmät myös Asiasanoissa, asiasanojen poistotila; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 23.10.2026
+**Vaihe:** versio 1.54 (kalenterin päivät ja näkyvä aika projektikohtaisesti; 1.53 asiasanalinkit tekstissä; tekstin aikalinkki napautusvalikkona: kuittaus, ajan muokkaus, historia, purku; 1.51 aikasanat ja Mainittu valittavina riville ja ryhmän jäseniksi; 1.50 käytön yksinkertaistus: yksi paikka per kohde, kierros alkaa napautuksesta, vienti ja tuonti samassa ikkunassa, viivakuvakkeet; 1.49 listan ⏱-aikaehdotukset; jaksot ja pelkkä kellonaika seuraava mahdollinen kirjoitushetkestä; ryhmät myös Asiasanoissa, asiasanojen poistotila; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 23.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -335,6 +335,13 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Päivä ja kellonajat samalla rivillä** pieninä (40 px korkeat) tekstikentän alla, napautus avaa valitsimen; kellonajat näkyvät vain, kun tekstissä ei ole aikaa. Tekstikenttä 32 → 40 % näytön korkeudesta.
 - **Poista** ikkunan alalaidassa oikealla (vain olemassa olevalla muistiinpanolla). Avaa joka kerta varmistuksen: ”Poistetaanko koko muistiinpano? Samalla poistuvat kaikki sen kalenterimerkinnät. … roskakoriin”. Varmistusnappi vasemmalla, Peruuta oikealla Poista-napin kohdalla, joten tuplanapautus ei poista (testattu 390 ja 320 px). Aiemmat poistotavat: Muistioiden kortin ⋯ → Poista ja tekstin tyhjennys.
 - **1.39.3:** Valmis pois myös listan rivin ja toistuvan ikkunoista; niiden Poista avaa saman varmistuslaatikon (Poista vasemmalla, Peruuta oikealla). Korjattu samalla 1.38:n bugi: listan rivin poisto sulki väärän ikkunan (rivin muokkausikkunan tunnus sekoittui).
+
+## Versio 1.54 (23.10.2026, Emilin toive): kalenterin päivät ja näkyvä aika projektikohtaisesti
+
+- Projekti-ikkunan *Nykyinen projekti* -kohdassa: *Kalenterin päivät* (viikonpäivät napautuksella pois/päälle, vähintään yksi jää) ja *Kalenterin näkyvä aika* (tasatunnit, vain alku ja loppu, Emil: ei taukoja keskelle). Kalenteriin ei tullut valikkoa. Tallennus: projektin kenttä `kalenteri:{s,e,off}` (puuttuu = koko vuorokausi, kaikki päivät); vanha tallennus luetaan ennallaan.
+- Näkyvän ajan kokonaan ylittävä kellonaika näkyy päivän *Koko päivä* -osiossa ilman varoitusta; osittain näkyvä piirretään rajattuna. Pelkkä kellonaika menee entiseen tapaan seuraavaan mahdolliseen hetkeen.
+- Rakentajan päätös: pois käytöstä olevan päivän merkinnät näytetään seuraavan käytössä olevan päivän Koko päivä -osiossa päivän nimellä (esim. "la 24.10. · pyykit"); napautus avaa muistiinpanon, raahaus ei toimi niille. Aikaehdotukset ohittavat pois olevat päivät ja piilotetut tunnit. Aikavälin pystyviiva säilyi.
+- Testit: logiikka 390 ok, selaimet 390/320/1440/1280 ok. Ei tarkistettu oikealla iPhonella.
 
 ## Versio 1.53 (23.10.2026, Emilin toive): asiasanalinkit
 

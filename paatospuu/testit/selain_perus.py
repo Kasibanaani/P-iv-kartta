@@ -615,6 +615,15 @@ async def run(p,w,h):
     await caret(9); await pg.wait_for_timeout(40); want('asiasanalinkin valikko', await pg.locator('#ns-tm .tmterm').count()==1 and 'Hammaslääkäri' in await pg.inner_text('#ns-tm')); await check('asiasanalinkki')
     await pg.click('#ns-tm .tmterm'); await pg.wait_for_timeout(80); want('suodatettu lista', not await pg.is_visible('#nsheet') and 'Hammaslääkäri' in await pg.inner_text('#filterpick') and await pg.locator('#nlist .ncard').count()==1)
     await pg.click('#filterpick'); await pg.wait_for_timeout(30); await pg.click('#fs-clear'); await pg.click('#fsheet > .sx'); await pg.wait_for_timeout(40)
+    # 1.54: kalenterin päivät ja näkyvä aika projektin asetuksissa
+    await pg.click('#title'); await pg.wait_for_timeout(50); await pg.click('#pk-days [data-wd="6"]'); await pg.click('#pk-days [data-wd="0"]')
+    await pg.select_option('#pk-cs','480'); await pg.select_option('#pk-ce','1260'); await pg.wait_for_timeout(30); await check('kalenterin asetukset')
+    cv=await pg.evaluate("JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet.filter(function(k){return k.kalenteri;}).map(function(k){return k.kalenteri;})[0]")
+    want('kalenterin asetus tallessa', cv and cv['s']==480 and cv['e']==1260 and sorted(cv['off'])==[0,6])
+    await pg.click('#psheet > .sx'); await pg.click('[data-tab="cal"]'); await pg.wait_for_timeout(120)
+    want('viikonloppu pois, päivä 8–21', await pg.locator('#week .cday').count()==5 and (await pg.locator('#timeline .hr b').first.inner_text())=='8.00' and await pg.locator('#timeline .hr').count()==13); await check('kalenteri lyhennetty')
+    await pg.click('#title'); await pg.wait_for_timeout(50); await pg.click('#pk-days [data-wd="6"]'); await pg.click('#pk-days [data-wd="0"]'); await pg.select_option('#pk-cs','0'); await pg.select_option('#pk-ce','1440'); await pg.click('#psheet > .sx'); await pg.wait_for_timeout(50)
+    want('palautus koko päivään', await pg.evaluate("!JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet.some(function(k){return k.kalenteri;})") and await pg.locator('#week .cday').count()==7)
     for mode in ['Tumma']:
         await pg.click('[data-tab="set"]'); await pg.click('#p-set .seg button:has-text("%s")'%mode); await check('tumma')
     print('  errs',errs); await b.close(); return bad+(['virheet'] if errs else [])
