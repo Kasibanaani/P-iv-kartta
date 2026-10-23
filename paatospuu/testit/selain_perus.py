@@ -648,6 +648,10 @@ async def run(p,w,h):
     await pg.evaluate("(function(){var t=document.getElementById('ns-text');t.focus();t.setSelectionRange(9,9);t.dispatchEvent(new Event('click'));})()"); await pg.wait_for_timeout(40)
     await pg.click('#tm-done'); await pg.wait_for_timeout(40); await pg.click('#nsheet > .sx'); await pg.wait_for_timeout(60)
     cd=pg.locator('#nlist .ncard:has-text("Soita huomenna") .nt .dn'); want('kortissa yliviivaus', await cd.count()==1 and 'huomenna' in await cd.inner_text()); await check('kortin yliviivaus')
+    # 1.57: tiiviit luettelorivit, tähti rivin sisällä
+    await terms(); await pg.wait_for_timeout(60)
+    rh=await pg.evaluate("(function(){var r=document.querySelector('#termlist .drow'),a=r.querySelector('.row').getBoundingClientRect(),b=r.querySelector('.sbtn').getBoundingClientRect();return [Math.round(a.height),b.right<=a.right&&b.left>=a.left]})()")
+    want('rivi tiivis, tähti sisällä', rh[0]<=46 and rh[1]); await check('tiiviit rivit'); await pg.click('#tsheet > .sx'); await pg.wait_for_timeout(40)
     for mode in ['Tumma']:
         await pg.click('[data-tab="set"]'); await pg.click('#p-set .seg button:has-text("%s")'%mode); await check('tumma')
     print('  errs',errs); await b.close(); return bad+(['virheet'] if errs else [])
