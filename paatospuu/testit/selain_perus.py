@@ -656,6 +656,10 @@ async def run(p,w,h):
     await pg.click('[data-tab="notes"]'); await pg.click('#noteview [data-nv="chk"]'); await pg.wait_for_timeout(60)
     want('listan rivi jäädytetty', await pg.locator('#nbar #chterms').count()==1 and await pg.locator('#nbar #chplan-t').count()==1); await check('listan rivi ylhäällä')
     await pg.click('#noteview [data-nv="open"]'); await pg.wait_for_timeout(40)
+    # 1.59: kalenterin palkki: nuolet samalla rivillä reunoissa, ei päivätekstiä yläpuolella
+    await pg.click('[data-tab="cal"]'); await pg.wait_for_timeout(100)
+    cg=await pg.evaluate("(function(){var b=document.querySelectorAll('#calsticky .calhead > .mini'),a=b[0].getBoundingClientRect(),z=b[b.length-1].getBoundingClientRect(),t=document.querySelector('#calmonth').getBoundingClientRect();return [Math.abs(a.top-z.top)<2,Math.abs(t.height)<40,document.getElementById('info-text').textContent]})()")
+    want('kalenterin palkki yhdellä rivillä', cg[0] and cg[1] and cg[2]==''); await check('kalenterin palkki')
     for mode in ['Tumma']:
         await pg.click('[data-tab="set"]'); await pg.click('#p-set .seg button:has-text("%s")'%mode); await check('tumma')
     print('  errs',errs); await b.close(); return bad+(['virheet'] if errs else [])

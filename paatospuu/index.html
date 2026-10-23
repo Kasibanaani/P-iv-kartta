@@ -553,6 +553,17 @@ label.fl{margin:12px 0 4px}
 .nbar .plbar{margin:6px 0 0}
 .nbar .plbar .mini,.nbar .plbar .chip{min-height:36px;height:36px}
 .crow.open .chd{position:sticky;top:calc(var(--nbh,0px) - 10px);z-index:3;background:var(--cell);border-radius:14px 14px 0 0}
+.calsticky{padding-top:4px;padding-bottom:4px}
+.calsticky .calhead .mini{min-height:32px;height:32px}
+.calsticky .calgrid{margin-top:4px}
+.calsticky .cday{height:42px}
+.calsticky .calhead .mini{padding:0 9px}
+@media (max-width:359px){.calhead .yr{display:none}}
+@media (max-width:419px){.calhead .wk{display:none}.calhead .mtitle{padding:2px 2px}}
+.calhead{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:6px}
+.calhead h2{min-width:0;text-align:center}
+.calhead .mtitle{max-width:100%}
+.calhead .mt{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chipw{display:inline-flex;align-items:center;gap:2px}
 .chipw .ibtn{margin-right:4px}
 #ns-found i.th[role="button"]{cursor:pointer}
@@ -1886,7 +1897,7 @@ var relDay=null;
 function runRel(){var t=todayIso();if(relDay===t)return false;relDay=t;stashK();var ch=false;
   data.K.forEach(function(k){(k.notes||[]).forEach(function(n){if(relSweep(n,t))ch=true;});});if(ch)save();return ch;}
 function runReps(){var m=repsDue(data.reps,data.notes,todayIso(),nowIso(),allTerms());termCache=null;if(m.length){data.notes=m.concat(data.notes);touch();}}
-function render0(){runRel();runReps();setInfo();$('actbar').hidden=true;
+function render0(){runRel();runReps();setInfo();main.style.overscrollBehaviorY=tab==='cal'?'none':'';$('actbar').hidden=true;
   if(tab==='use')renderUse();else if(tab==='teach')renderTeach();else if(tab==='notes')renderNotes();else if(tab==='cal')renderCal();else renderSettings();syncChrome();}
 $('nav').addEventListener('click',function(ev){var b=ev.target.closest('[data-tab]');if(b)showTab(b.dataset.tab);});
 /* 1.55 (I1): isot ikkunat täyttävät tilan yläpalkin ja alapalkin välissä. Otsikon edessä harmaana se, minne ruksi palaa
@@ -2649,13 +2660,14 @@ function renderCal(){var p=panels.cal,today=todayIso();p.textContent='';if(!calD
   var ws=weekStart(calDay),days=[];for(var i=0;i<7;i++){var di=isoD(addDays(ws,i));if(!dayOff(di))days.push(di);}
   var dl=fromIso(calDay),MON=['tammikuu','helmikuu','maaliskuu','huhtikuu','toukokuu','kesäkuu','heinäkuu','elokuu','syyskuu','lokakuu','marraskuu','joulukuu'];
   var AT=allTerms(),ct=calTerms(AT,calNotes(),calDay);termCache=null;
-  setInfo((calDay===today?'Tänään, ':'')+(calDay===today?WD[dl.getDay()]:WD[dl.getDay()].charAt(0).toUpperCase()+WD[dl.getDay()].slice(1))+' '+fiDate(calDay)+(ct.length?' · '+ct.join(', '):''));
+  /* 1.59 (Emil): päiväteksti kalenterin palkin yläpuolelta pois, palkki alkaa heti ylhäältä eikä vieritys paljasta mitään sen yläpuolelta */
+  setInfo('');
   var top=el('div','calsticky');top.id='calsticky';p.appendChild(top);
   var h=el('div','calhead');button(h,'‹','mini',function(){calSet(isoD(addDays(fromIso(calDay),-7)));}).setAttribute('aria-label','Edellinen viikko');
-  var t=el('h2');var tb=button(t,'','mtitle',function(){openMonth();});tb.id='calmonth';tb.setAttribute('aria-label','Kuukausi');var mn=MON[ws.getMonth()];tb.appendChild(document.createTextNode(mn.charAt(0).toUpperCase()+mn.slice(1)+' '+ws.getFullYear()));
-  tb.appendChild(el('span','wk',' · vk '+isoWeekNo(ws)));tb.insertAdjacentHTML('beforeend','<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg>');h.appendChild(t);
-  var hr=el('div','btnrow');hr.style.margin='0';var tdb=button(hr,'Tänään','mini',function(){calTop=null;calSet(today);});tdb.id='caltoday';tdb.disabled=calDay===today;
-  button(hr,'›','mini',function(){calSet(isoD(addDays(fromIso(calDay),7)));}).setAttribute('aria-label','Seuraava viikko');h.appendChild(hr);top.appendChild(h);
+  var t=el('h2');var tb=button(t,'','mtitle',function(){openMonth();});tb.id='calmonth';tb.setAttribute('aria-label','Kuukausi');var mn=MON[ws.getMonth()];var mt=el('span','mt',mn.charAt(0).toUpperCase()+mn.slice(1));mt.appendChild(el('span','yr',' '+ws.getFullYear()));mt.appendChild(el('span','wk',' · vk '+isoWeekNo(ws)));tb.appendChild(mt);tb.insertAdjacentHTML('beforeend','<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg>');h.appendChild(t);
+  /* 1.59: ‹ ja › rivin reunoilla symmetrisesti, otsikko keskellä yhdellä rivillä, Tänään ennen ›:ta */
+  var tdb=button(h,'Tänään','mini',function(){calTop=null;calSet(today);});tdb.id='caltoday';tdb.disabled=calDay===today;var hr=h;
+  button(hr,'›','mini',function(){calSet(isoD(addDays(fromIso(calDay),7)));}).setAttribute('aria-label','Seuraava viikko');top.appendChild(h);
   var g=el('div','calgrid');g.id='week';g.style.gridTemplateColumns='repeat('+days.length+',minmax(0,1fr))';
   days.forEach(function(d,i){var b=button(g,'','cday'+(d===today?' today':'')+(d===calDay?' on':'')+(notesOnDay(calNotes(),d,true).length?' has':''),function(){calSet(d);});
     b.dataset.day=d;b.appendChild(el('small','',WDS[fromIso(d).getDay()]));b.appendChild(document.createTextNode(fromIso(d).getDate()));
