@@ -482,6 +482,13 @@ BT.text='Ostokset klo 16\nklo 9\nklo 20';E.lockRel(BT,new Date('2026-10-24T21:00
 eq('1.47: vanha lukko pysyy, uusi omaan hetkeensä',E.noteDates(BT).map(function(o){return o.a+' '+o.time.s;}),['2026-10-23 16:00','2026-10-24 09:00','2026-10-25 20:00']);
 eq('1.47: tänään klo 13 ja klo 16',E.noteDates({text:'tänään klo 13 ja klo 16',created:'2026-10-23T06:00:00'}).map(function(o){return o.a+' '+o.time.s;}),['2026-10-23 13:00','2026-10-23 16:00']);
 eq('1.47: lukko tallessa',E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',muistiinpanot:[{id:'n',text:'klo 9',bt:[{w:'klo 9',d:'2026-10-24',at:'x'},{w:1}]}]}]}).K[0].notes[0].bt,[{w:'klo 9',d:'2026-10-24',at:'x'}]);
+// 1.48 jakso kirjoitushetkestä
+var RG={text:'Siivous ensi viikolla',created:'2026-10-10T08:00:00'};E.lockRel(RG,new Date('2026-10-23T10:00:00'));
+eq('1.48: jakso kirjoitushetkestä',E.noteDates(RG).map(function(o){return o.a+'/'+o.b;}),['2026-10-26/2026-11-01']);
+RG.text='Siivous ensi viikolla\nPesu kahden viikon sisällä';E.lockRel(RG,new Date('2026-10-28T10:00:00'));
+eq('1.48: vanha jakso pysyy, uusi omaan hetkeensä',E.noteDates(RG).map(function(o){return o.a+'/'+o.b;}).sort(),['2026-10-26/2026-11-01','2026-10-28/2026-11-11']);
+var RR={text:'tiistaisin',created:'2026-10-10T08:00:00'};E.lockRel(RR,new Date('2026-10-23T10:00:00'));eq('1.48: toistuva ei lukitu',RR.rg,undefined);
+eq('1.48: lukko tallessa',E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',muistiinpanot:[{id:'n',text:'ensi viikolla',rg:[{w:'ensi viikolla',a:'2026-10-26',b:'2026-11-01',at:'x'},{w:1}]}]}]}).K[0].notes[0].rg,[{w:'ensi viikolla',a:'2026-10-26',b:'2026-11-01',at:'x'}]);
 eq('lista: projektitiedostossa',E.projectFile({id:'k',name:'K',chk:[{id:'c'}]},'t').projekti.tarkistuslista.length,1);
 
 // 1.39 useat ajat samalle päivälle

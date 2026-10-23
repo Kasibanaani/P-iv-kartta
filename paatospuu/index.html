@@ -1279,7 +1279,12 @@ function lockRel(N,now){var D=parseDates(N.text,now),spans=relSpans(N.text,D,tru
      N.bt = [{w: ajan teksti, d: päivä, at}]; lukko säilyy muokatessa, uusi aika lukitaan omaan hetkeensä. Teksti ei muutu. */
   var ob=(N.bt||[]).slice(),bo=[];D.forEach(function(o){if(!o.bare)return;var w=bareKey(o);
     for(var k=0;k<ob.length;k++)if(ob[k]&&ob[k].w===w){bo.push(ob[k]);ob[k]=null;return;}bo.push({w:w,d:o.a,at:now.toISOString()});});
-  if(bo.length)N.bt=bo;else delete N.bt;return N;}
+  if(bo.length)N.bt=bo;else delete N.bt;
+  /* Jakso (Emil 23.10.2026, 1.48): ensi viikolla, tässä kuussa, kahden viikon sisällä, vk45 … lasketaan kirjoitushetkestä.
+     N.rg = [{w: jakson teksti, a, b, at}]; sama periaate kuin pelkällä kellonajalla. Toistuva ei lukitu. */
+  var og=(N.rg||[]).slice(),go=[];D.forEach(function(o){if(o.bare||o.rec||!o.R||o.a===o.b)return;var w=bareKey(o);
+    for(var k=0;k<og.length;k++)if(og[k]&&og[k].w===w){go.push(og[k]);og[k]=null;return;}go.push({w:w,a:o.R[0],b:o.R[1],at:now.toISOString()});});
+  if(go.length)N.rg=go;else delete N.rg;return N;}
 function bareKey(o){return clean(String(o.src||'')).toLowerCase().replace(/[.,;:!?]+$/,'');}
 var RELWD=/^(maanantai|tiistai|keskiviikko|torstai|perjantai|lauantai|sunnuntai)(na)?$|^(ma|ti|ke|to|pe|la|su)$/i;
 function relWord(L,today){var wd=isoD(new Date(L.at));if(wd===today)return L.o;var t=fromIso(today),dd=Math.round((fromIso(L.d)-t)/864e5);
@@ -1292,6 +1297,7 @@ function relSweep(N,today){if(!N.rel||!N.rel.length)return false;var M=relMatch(
   if(ch)N.text=txt;return ch;}
 function noteDates(N){var d=parseDates(N.text,new Date(N.created||Date.now()));
   if(N.rel&&N.rel.length)relMatch(N,relSpans(N.text,d,true)).forEach(function(m){var o=m.sp.o;o.R=[m.lock.d,m.lock.d];o.a=o.b=m.lock.d;o.locked=m.lock;});
+  if(N.rg&&N.rg.length){var gu={};d.forEach(function(o){if(o.bare||o.rec||!o.R||o.a===o.b)return;var w=bareKey(o);for(var k=0;k<N.rg.length;k++)if(!gu[k]&&N.rg[k].w===w){gu[k]=1;o.R=[N.rg[k].a,N.rg[k].b];o.a=N.rg[k].a;o.b=N.rg[k].b;return;}});}
   if(N.bt&&N.bt.length){var bu={};d.forEach(function(o){if(!o.bare)return;var w=bareKey(o);for(var k=0;k<N.bt.length;k++)if(!bu[k]&&N.bt[k].w===w){bu[k]=1;o.R=[N.bt[k].d,N.bt[k].d];o.a=o.b=N.bt[k].d;return;}});}
   /* pelkkä kellonaika ja päivämääräkenttä: aika koskee kentän päivää */
   if(N.date)d.forEach(function(o){if(o.bare){o.R=[N.date,N.date];o.a=o.b=N.date;}});
@@ -1551,7 +1557,7 @@ function normSet(o){var out={cur:typeof o.cur==='string'?o.cur:null,projects:[],
     if(Array.isArray(n.rel)){var rl=n.rel.filter(function(L){return L&&typeof L.w==='string'&&typeof L.o==='string'&&typeof L.at==='string'&&/^\d{4}-\d\d-\d\d$/.test(String(L.d));}).map(function(L){return {w:L.w,o:L.o,at:L.at,d:L.d};});if(rl.length)out.notes[out.notes.length-1].rel=rl;}
     if(n.pts&&typeof n.pts==='object'){var pts={};Object.keys(n.pts).forEach(function(k){if(typeof n.pts[k]==='string')pts[k]=n.pts[k];});if(Object.keys(pts).length)out.notes[out.notes.length-1].pts=pts;}
     if(typeof n.rep==='string'&&n.rep)out.notes[out.notes.length-1].rep=n.rep;
-    if(Array.isArray(n.bt)){var bt=n.bt.filter(function(L){return L&&typeof L.w==='string'&&typeof L.at==='string'&&/^\d{4}-\d\d-\d\d$/.test(String(L.d));}).map(function(L){return {w:L.w,d:L.d,at:L.at};});if(bt.length)out.notes[out.notes.length-1].bt=bt;}var mv=normMv(n.mv);if(mv)out.notes[out.notes.length-1].mv=mv;});
+    if(Array.isArray(n.bt)){var bt=n.bt.filter(function(L){return L&&typeof L.w==='string'&&typeof L.at==='string'&&/^\d{4}-\d\d-\d\d$/.test(String(L.d));}).map(function(L){return {w:L.w,d:L.d,at:L.at};});if(bt.length)out.notes[out.notes.length-1].bt=bt;}if(Array.isArray(n.rg)){var rg=n.rg.filter(function(L){return L&&typeof L.w==='string'&&typeof L.at==='string'&&/^\d{4}-\d\d-\d\d$/.test(String(L.a))&&/^\d{4}-\d\d-\d\d$/.test(String(L.b));}).map(function(L){return {w:L.w,a:L.a,b:L.b,at:L.at};});if(rg.length)out.notes[out.notes.length-1].rg=rg;}var mv=normMv(n.mv);if(mv)out.notes[out.notes.length-1].mv=mv;});
   var ISO=/^\d{4}-\d\d-\d\d$/;out.reps=[];(Array.isArray(o.toistuvat)?o.toistuvat:[]).forEach(function(R){if(!R||typeof R.id!=='string'||typeof R.text!=='string'||!ISO.test(R.start||''))return;
     var X={id:R.id,text:R.text,mode:R.mode==='after'||R.mode==='trig'?R.mode:'every',n:Math.max(1,Math.min(999,Math.round(+R.n)||1)),unit:REP_UNITS[R.unit]?R.unit:'d',start:R.start,created:String(R.created||'')};
     if(ISO.test(R.lastDue||''))X.lastDue=R.lastDue;if(ISO.test(R.lastDone||''))X.lastDone=R.lastDone;

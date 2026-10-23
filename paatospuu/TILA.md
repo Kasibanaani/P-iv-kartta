@@ -1,6 +1,6 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.47 (pelkkä kellonaika seuraava mahdollinen kirjoitushetkestä; ryhmät myös Asiasanoissa, asiasanojen poistotila; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 23.10.2026
+**Vaihe:** versio 1.48 (jaksot ja pelkkä kellonaika seuraava mahdollinen kirjoitushetkestä; ryhmät myös Asiasanoissa, asiasanojen poistotila; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 23.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -335,6 +335,12 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Päivä ja kellonajat samalla rivillä** pieninä (40 px korkeat) tekstikentän alla, napautus avaa valitsimen; kellonajat näkyvät vain, kun tekstissä ei ole aikaa. Tekstikenttä 32 → 40 % näytön korkeudesta.
 - **Poista** ikkunan alalaidassa oikealla (vain olemassa olevalla muistiinpanolla). Avaa joka kerta varmistuksen: ”Poistetaanko koko muistiinpano? Samalla poistuvat kaikki sen kalenterimerkinnät. … roskakoriin”. Varmistusnappi vasemmalla, Peruuta oikealla Poista-napin kohdalla, joten tuplanapautus ei poista (testattu 390 ja 320 px). Aiemmat poistotavat: Muistioiden kortin ⋯ → Poista ja tekstin tyhjennys.
 - **1.39.3:** Valmis pois myös listan rivin ja toistuvan ikkunoista; niiden Poista avaa saman varmistuslaatikon (Poista vasemmalla, Peruuta oikealla). Korjattu samalla 1.38:n bugi: listan rivin poisto sulki väärän ikkunan (rivin muokkausikkunan tunnus sekoittui).
+
+## Versio 1.48 (23.10.2026, Emilin hyväksymä korjaus): jakso kirjoitushetkestä
+
+- Jaksot (ensi viikolla, tässä kuussa, kahden viikon sisällä, vk45, 2/27, välit) lukittuvat kirjoitushetkeen kuten pelkkä kellonaika: `N.rg=[{w,a,b,at}]` `lockRel`issä, käyttö `noteDates`issa, normalisointi säilyttää. Toistuvat eivät lukitu. Ennen 1.48:aa kirjoitetut jaksot lukittuvat seuraavassa tallennuksessa sen hetken mukaan.
+- Tarkistettu: "klo 13 ja 16" (myös ilman klo-sanaa, viikonpäivällä, väleillä) toimi jo 1.39:stä. Tiedossa: numero ja-sanan perässä luetaan aina ajaksi ("klo 13 ja 3 muuta" → klo 3); `sekä`/`tai` toimivat kuten `ja`.
+- Testit tietokoneen Chromiumissa; iPhonella ei kokeiltu.
 
 ## Versio 1.47 (23.10.2026, Emilin toive): pelkkä kellonaika
 - Syy: pelkkä kellonaika ("klo 16") laskettiin muistiinpanon luontihetkestä. Jos aika lisättiin vanhaan muistiinpanoon, se meni luontipäivälle eli menneisyyteen.
