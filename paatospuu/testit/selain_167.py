@@ -37,7 +37,7 @@ async def run(p,w,h):
     await pg.locator('#ws-eh button:has-text("Käytössä")').click(); await pg.wait_for_timeout(60)
     await fits('Listat-ikkuna ehdoilla')
     await pg.click('#ws-ehb'); await pg.wait_for_timeout(80)
-    want('ehtojen ikkuna', await pg.is_visible('#ehsheet') and 'Arvio' in await pg.inner_text('#eh-h'))
+    want('ehtojen ikkuna', await pg.is_visible('#ehsheet') and 'Ehdot' in await pg.inner_text('#eh-h'))
     # Ehto 1: Kipu ja Kuume -> esiin Lääkäri, pois Odotus
     await pg.click('#eh-add'); await pg.wait_for_timeout(60)
     want('tärkeät erikseen ensin', await pg.evaluate("document.querySelector('#eh-body .ehps[data-sec=\"k\"] .ehp').dataset.tid")=='tc')
@@ -54,8 +54,8 @@ async def run(p,w,h):
     want('yhteenveto kahtena sarakkeena', 'Kipu ja Kuume' in t and 'esiin: Lääkäri' in t and 'pois: Odotus' in t)
     await fits('Ehtojen yhteenveto')
     await pg.click('#ehsheet .sx'); await pg.wait_for_timeout(80)
-    E=json.loads(await pg.evaluate("JSON.stringify("+K+".listat[0])"))
-    want('tallennus listalle', E.get('eh')==1 and E['ehdot'][0]['k']==['ta','tb'] and E['ehdot'][0].get('all')==1 and E['ehdot'][0]['on']==['tc'] and E['ehdot'][0]['off']==['td'])
+    E=json.loads(await pg.evaluate("JSON.stringify("+K+")"))
+    want('tallennus: projektin ehdot, listalla kytkin', E['listat'][0].get('eh')==1 and 'ehdot' not in E['listat'][0] and E['ehdot'][0]['k']==['ta','tb'] and E['ehdot'][0].get('all')==1 and E['ehdot'][0]['on']==['tc'] and E['ehdot'][0]['off']==['td'])
     want('esiin tuotava piilossa alussa', sorted(await pills('r2'))==['td','te'])
     # Kipu kuitattu: ei vielä (Kaikki näistä)
     await pills('r1'); await pg.locator('#chlist .crow[data-id="r1"] .cpill[data-tid="ta"]').click(); await pg.wait_for_timeout(60)
@@ -75,16 +75,25 @@ async def run(p,w,h):
     want('alusta: Lääkäri taas piilossa', sorted(await pills('r2'))==['td','te'])
     # Ehdot pois -> kaikki näkyvät
     await pg.click('#chlist-pick'); await pg.wait_for_timeout(50); await pg.locator('#ws-eh button:has-text("Pois")').click(); await pg.wait_for_timeout(50); await pg.click('#wsheet .sx'); await pg.wait_for_timeout(60)
-    want('ehdot pois: kaikki näkyvät, ehdot säilyvät', sorted(await pills('r2'))==['tc','td','te'] and len(await pg.evaluate("JSON.parse(JSON.stringify("+K+".listat[0].ehdot))"))==1)
+    want('ehdot pois: kaikki näkyvät, ehdot säilyvät', sorted(await pills('r2'))==['tc','td','te'] and len(await pg.evaluate("JSON.parse(JSON.stringify("+K+".ehdot))"))==1)
     # Jatkuva lista: sama, tallennus projektin jatkuvalista-kenttään
     await pg.click('#chlist-pick'); await pg.wait_for_timeout(50); await pg.locator('#ws-list .row[data-l=""]').click(); await pg.wait_for_timeout(60)
     await pg.evaluate("""(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1')),k=o.kokonaisuudet[0];k.tarkistuslista.push({id:'j1',name:'Arki',created:'2026-10-01T00:00:00.000Z',it:[{id:'ta'},{id:'te'}]});
-      k.jatkuvalista={eh:1,ehdot:[{id:'e1',k:['ta'],on:['te'],off:[]}]};localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()""")
+      k.jatkuvalista={eh:1,ehdot:[{id:'e1',k:['ta'],on:['te'],off:[]}]};k.tarkistuslista.push({id:'j2',name:'Toinen',created:'2026-10-01T00:00:00.000Z',it:[{id:'tc'},{id:'td'}]});localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()""")
     await pg.reload(); await pg.wait_for_timeout(150); await pg.click('[data-tab="list"]'); await pg.wait_for_timeout(60)
     want('jatkuva: piilossa', await pills('j1')==['ta'])
     await pills('j1'); await pg.locator('#chlist .crow[data-id="j1"] .cpill[data-tid="ta"]').click(); await pg.wait_for_timeout(60)
     want('jatkuva: kuittaus tuo esiin', sorted(await pills('j1'))==['ta+','te'])
-    want('jatkuvalista tallessa', await pg.evaluate(K+".jatkuvalista.eh")==1)
+    want('vanhan muodon ehdot yhdistyvät projektiin', await pg.evaluate(K+".jatkuvalista.eh")==1 and await pg.evaluate(K+".ehdot.length")==2 and await pg.evaluate("!"+K+".jatkuvalista.ehdot"))
+    want('sama ehto pätee toisellakin listalla', await pills('j2')==['td'])
+    # Uusi asiasana ehtojen ikkunasta, myös Asiasanat-ikkunan kautta
+    await pg.click('#chterms'); await pg.wait_for_timeout(60); await pg.click('#tt-eh'); await pg.wait_for_timeout(80)
+    want('Asiasanat-ikkunasta Ehdot', await pg.is_visible('#ehsheet') and await pg.locator('#eh-body .ehr[data-eh]').count()==2)
+    await pg.click('#eh-add'); await pg.wait_for_timeout(50); await pg.fill('#eh-new','Kuvaus*'); await pg.click('#eh-newb'); await pg.wait_for_timeout(80)
+    nid=await pg.evaluate(K+".termit.filter(function(t){return t.name==='Kuvaus';})[0].id")
+    want('uusi asiasana tärkeäksi ja valittavaksi', await pg.locator('#eh-body .ehps[data-sec="k"] .ehp[data-tid="%s"]'%nid).count()==1 and nid in await pg.evaluate("JSON.parse(JSON.stringify("+K+".tarkeat))"))
+    await pg.click('#eh-body .ehps[data-sec="k"] .ehp[data-tid="%s"]'%nid); await pg.click('#eh-done'); await pg.wait_for_timeout(50); await pg.click('#ehsheet .sx'); await pg.wait_for_timeout(60)
+    want('ehto tallentui', await pg.evaluate(K+".ehdot.length")==3)
     want('ei sivuvirheitä', not errs)
     await b.close(); return bad
 async def main():
