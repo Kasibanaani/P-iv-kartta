@@ -560,4 +560,13 @@ E.moveEntry(ke.timed.filter(function(x){return x.n.id==='k1';})[0],960,1020,fals
 E.moveEntry(ke.timed.filter(function(x){return x.n.id==='k2';})[0],600,630,false);eq('1.61: kenttäajan siirto säilyttää kuittauksen',kn[1].pts,{'2026-10-22 10:00':'x'});
 var o1=E.noteDates(kn[0])[0];eq('1.61: päivän vaihto säilyttää kuittauksen',[E.moveDay(kn[0],o1,'2026-10-24'),kn[0].pts],['',{'2026-10-24 16:00':'2026-10-21T10:00:00Z'}]);
 var o2=E.noteDates(kn[0])[0];E.clearTime(kn[0],o2);eq('1.61: ajattomaksi säilyttää kuittauksen',kn[0].pts,{'2026-10-24':'2026-10-21T10:00:00Z'});
+/* 1.67 listojen ehdot */
+var cr=[{id:'r1',created:'2026-10-01T00:00:00Z',it:[{id:'a',ok:'2026-10-02T00:00:00Z'},{id:'b'}]},{id:'r2',created:'2026-10-01T00:00:00Z',it:[{id:'c'},{id:'d'}]}],
+  cR=[{k:['a'],on:['c']},{k:['c'],on:['d']},{k:['a','b'],all:1,off:['d']}],cK=function(){return {kier:1};},cn=new Date();
+eq('1.67: tai-ehto tuo esiin, ketjun loppu piilossa',E.chkCond(cR,cr,cK,cn),{hid:{d:1},off:{}});
+cr[1].it[0].ok='2026-10-02T00:00:00Z';eq('1.67: esiin tullut ja kuitattu laukaisee seuraavan',E.chkCond(cR,cr,cK,cn),{hid:{},off:{}});
+cr[0].it[1].ok='x';var cc=E.chkCond(cR,cr,cK,cn);eq('1.67: ja-ehto sulkee pois',cc.off,{d:1});
+var cx2=cK();cx2.hid=cc.hid;cx2.off=cc.off;eq('1.67: poissuljettu ei estä valmistumista',E.chkDone(cr[1],cn,cx2),true);
+eq('1.67: ehtojen normalisointi',E.condsIn({eh:1,ehdot:[{k:['a'],on:['b','b'],off:['b','c']},{}]}),{ehdot:[{id:'e0',k:['a'],on:['b'],off:['c']}],eh:1});
+eq('1.67: tyhjä ei tallennu',E.condsIn({ehdot:[]}),null);
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);
