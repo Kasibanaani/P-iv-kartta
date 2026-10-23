@@ -538,6 +538,27 @@ async def run(p,w,h):
     await pg.locator('#chlist .crow:has-text("Tiskikone") >> text=Muokkaa').click(); await pg.wait_for_timeout(40); await pg.click('#ks-del'); await pg.click('#ksheet .delok'); await pg.wait_for_timeout(60)
     await pg.click('#noteview [data-nv="open"]'); await pg.wait_for_timeout(40); await pg.locator('#nlist .ncard:has-text("TISKIKONEEN")').click(); await pg.wait_for_timeout(50); await pg.click('#ns-del'); await pg.click('#ns-delok'); await pg.wait_for_timeout(60)
     await pg.click('#noteview [data-nv="open"]'); await pg.wait_for_timeout(40)
+    # 1.49: aikaehdotukset – ⏱ listassa, + Kalenteriin tekee muistiinpanon, aikavälin viiva kalenterissa
+    await pg.evaluate("""(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1')),k=o.kokonaisuudet[0];k.termit=(k.termit||[]).concat([{id:'tp1',name:'Pyykit',yes:[],no:[],dur:45}]);
+      k.tarkistuslista=(k.tarkistuslista||[]).concat([{id:'rp',name:'Pyykkirivi',created:'2026-10-01T00:00:00.000Z',it:[{id:'tp1'}]}]);localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()""")
+    await pg.reload(); await pg.wait_for_timeout(120); await pg.click('[data-tab="notes"]'); await pg.wait_for_timeout(40); await pg.click('#noteview [data-nv="chk"]'); await pg.wait_for_timeout(40)
+    want('ei ehdotuksia ennen kytkintä', await pg.locator('#chplan').count()==0 and await pg.get_attribute('#chplan-t','aria-pressed')=='false')
+    await pg.click('#chplan-t'); await pg.wait_for_timeout(50); pr=pg.locator('#chplan .plrow:has-text("Pyykit")')
+    tt=(await pr.locator('.plt').inner_text()) if await pr.count()==1 else ''
+    def mins(x): a,b=x.split('.') if '.' in x else (x,'0'); return int(a)*60+int(b)
+    want('ehdotus kestolla 45 min', '–' in tt and mins(tt.split('–')[1])-mins(tt.split('–')[0])==45 and 'Pyykkirivi' in await pr.inner_text()); await check('aikaehdotukset')
+    await pr.locator('button').click(); await pg.wait_for_timeout(60)
+    pn=await pg.evaluate("JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0].muistiinpanot.filter(function(n){return n.pl&&n.pl.i==='tp1';})[0]")
+    want('kalenterimerkintä tehty', pn and pn['text']=='Tarkistuslistasta: Pyykkirivi – Pyykit' and pn['time']['s'] and pn['date'])
+    want('viety ei ehdotu uudelleen', await pg.locator('#chplan .plrow:has-text("Pyykit")').count()==0)
+    await pg.click('[data-tab="cal"]'); await pg.wait_for_timeout(80); want('aikavälin viiva', await pg.locator('#winbar').count()==1)
+    he=pg.locator('#winbar .winh.e'); await he.scroll_into_view_if_needed(); bx=await he.bounding_box()
+    await pg.mouse.move(bx['x']+14,bx['y']+14); await pg.mouse.down(); await pg.mouse.move(bx['x']+14,bx['y']+14+24,steps=4); await pg.mouse.move(bx['x']+14,bx['y']+14+48,steps=4); await pg.mouse.up(); await pg.wait_for_timeout(80)
+    wn=await pg.evaluate("(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1')),w=o.kokonaisuudet[0].aikavalit||{};return w[String(new Date().getDay())]||null;})()")
+    want('loppu raahattu tunnilla', wn=={'s':480,'e':1020}); want('ei uutta merkintää raahauksesta', not await pg.is_visible('#nsheet')); await check('aikaväli kalenterissa')
+    await pg.click('[data-tab="notes"]'); await pg.wait_for_timeout(40); await pg.click('#noteview [data-nv="chk"]'); await pg.wait_for_timeout(40); await pg.click('#chplan-t'); await pg.wait_for_timeout(40)
+    await pg.click('[data-tab="cal"]'); await pg.wait_for_timeout(60); want('viiva pois kytkimen kanssa', await pg.locator('#winbar').count()==0)
+    await pg.click('[data-tab="notes"]'); await pg.wait_for_timeout(40); await pg.click('#noteview [data-nv="open"]'); await pg.wait_for_timeout(40)
     # 1.36: suhteellinen sana lukittuu ja muuttuu päivän tullen, napautus näyttää alkuperäisen
     await pg.click('[data-tab="notes"]'); await pg.click('#newnote'); await pg.wait_for_timeout(50); await pg.fill('#ns-text','Lukkotesti huomenna'); await pg.dispatch_event('#ns-text','input'); await pg.click('#nsheet > .sx'); await pg.wait_for_timeout(80)
     lt=await pg.evaluate("JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0].muistiinpanot.filter(function(n){return n.text.indexOf('Lukkotesti')===0;})[0]"); want('lukko tallessa', len(lt.get('rel') or [])==1 and lt['rel'][0]['o']=='huomenna')

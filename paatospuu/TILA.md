@@ -1,6 +1,6 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.48 (jaksot ja pelkkä kellonaika seuraava mahdollinen kirjoitushetkestä; ryhmät myös Asiasanoissa, asiasanojen poistotila; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 23.10.2026
+**Vaihe:** versio 1.49 (listan ⏱-aikaehdotukset; jaksot ja pelkkä kellonaika seuraava mahdollinen kirjoitushetkestä; ryhmät myös Asiasanoissa, asiasanojen poistotila; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 23.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -335,6 +335,16 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Päivä ja kellonajat samalla rivillä** pieninä (40 px korkeat) tekstikentän alla, napautus avaa valitsimen; kellonajat näkyvät vain, kun tekstissä ei ole aikaa. Tekstikenttä 32 → 40 % näytön korkeudesta.
 - **Poista** ikkunan alalaidassa oikealla (vain olemassa olevalla muistiinpanolla). Avaa joka kerta varmistuksen: ”Poistetaanko koko muistiinpano? Samalla poistuvat kaikki sen kalenterimerkinnät. … roskakoriin”. Varmistusnappi vasemmalla, Peruuta oikealla Poista-napin kohdalla, joten tuplanapautus ei poista (testattu 390 ja 320 px). Aiemmat poistotavat: Muistioiden kortin ⋯ → Poista ja tekstin tyhjennys.
 - **1.39.3:** Valmis pois myös listan rivin ja toistuvan ikkunoista; niiden Poista avaa saman varmistuslaatikon (Poista vasemmalla, Peruuta oikealla). Korjattu samalla 1.38:n bugi: listan rivin poisto sulki väärän ikkunan (rivin muokkausikkunan tunnus sekoittui).
+
+## Versio 1.49 (23.10.2026, Emilin hyväksymä): listan aikaehdotukset (⏱)
+
+- Listan yläreunassa kytkin **⏱ Aikaehdotukset** (`data.cfg.plan`). Päällä: lauenneet kohteet tärkeysjärjestyksessä riveistä riippumatta (tasatilanteessa varhaisin lauennut) saavat ajan ensimmäisestä vapaasta välistä, johon mahtuvat kokonaan (first fit, peräkkäin useita); mahtumattomat seuraaville päiville (enintään 14 pv). Moottori: `planSlots`, `chkPlan`, `winOf`, `durOf`.
+- **+ Kalenteriin** tekee muistiinpanon "Tarkistuslistasta: Rivi – Asiasana" päivällä ja ajalla, kenttä `pl:{r,i}`; viety kohde ei saa uutta ehdotusta. Kalenteriin ei kirjoiteta mitään itsestään.
+- Jos mikään ei ole lauennut (dry): ei aikoja, rivit järjestetään sen mukaan, missä järjestyksessä niiden seuraavat (uusiutuvat) kohteet mahtuisivat kalenteriin.
+- Asiasanan asetus *Listassa: kesto aikaehdotuksiin* (`dur`, minuutit; oletus kalenterin oletuspituus). Käytetään toistaiseksi vain tässä (Emil).
+- Aikaväli viikonpäivittäin projektikohtaisesti (`win`, vienti `aikavalit`, oletus 8–16). Näkyy vain ⏱ päällä: pystyviiva kalenterin päivänäkymän kellonaikasarakkeessa, päiden raahaus 15 min askelin muuttaa kaikkia saman viikonpäivän päiviä.
+- Ei tehty: viiva tietokoneen viikkonäkymään (sarakkeet); päiväkohtainen väkänen lauenneista (Emil: myöhemmin). Lista-ehdotukset eivät huomioi Toistuvien rekisteriä erikseen, vain kalenterin aikamerkinnät.
+- Testit tietokoneen Chromiumissa; iPhonella ei kokeiltu (erityisesti viivan päiden raahaus sormella).
 
 ## Versio 1.48 (23.10.2026, Emilin hyväksymä korjaus): jakso kirjoitushetkestä
 
