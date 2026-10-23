@@ -475,6 +475,13 @@ var GV={id:'gv',it:[{id:'a',g:1,ok:'2026-10-22T08:00:00'},{id:'c'},{id:'d',g:1}]
 eq('1.46: ryhmän jäsenet elävinä',E.chkView(GV,{gm:['a','b']},NOW).map(function(v){return v.id+(v.g?'g':'')+(v.ok?'+':'');}),['ag+','c','bg']);
 var GM=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',ryhmat:[{id:'g1',name:'G',m:['a','b']}],tarkistuslista:[{id:'r1',it:[{id:'a'},{id:'b',ok:'x'},{id:'c'}]},{id:'r2',it:[{id:'a'}]}]}]}).K[0];
 eq('1.46: vanha kertalisäys linkiksi',[GM.chk[0].g,GM.chk[0].it.map(function(x){return x.id+(x.g?'g':'');}),GM.chk[1].g],[['g1'],['ag','bg','c'],undefined]);
+// 1.47 pelkkä kellonaika: seuraava mahdollinen kirjoitushetkestä, lukko säilyy
+var BT={text:'Ostokset',created:'2026-10-20T08:00:00'};BT.text='Ostokset klo 16\nklo 9';E.lockRel(BT,new Date('2026-10-23T10:00:00'));
+eq('1.47: pelkkä aika kirjoitushetkestä',E.noteDates(BT).map(function(o){return o.a+' '+o.time.s;}),['2026-10-23 16:00','2026-10-24 09:00']);
+BT.text='Ostokset klo 16\nklo 9\nklo 20';E.lockRel(BT,new Date('2026-10-24T21:00:00'));
+eq('1.47: vanha lukko pysyy, uusi omaan hetkeensä',E.noteDates(BT).map(function(o){return o.a+' '+o.time.s;}),['2026-10-23 16:00','2026-10-24 09:00','2026-10-25 20:00']);
+eq('1.47: tänään klo 13 ja klo 16',E.noteDates({text:'tänään klo 13 ja klo 16',created:'2026-10-23T06:00:00'}).map(function(o){return o.a+' '+o.time.s;}),['2026-10-23 13:00','2026-10-23 16:00']);
+eq('1.47: lukko tallessa',E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',muistiinpanot:[{id:'n',text:'klo 9',bt:[{w:'klo 9',d:'2026-10-24',at:'x'},{w:1}]}]}]}).K[0].notes[0].bt,[{w:'klo 9',d:'2026-10-24',at:'x'}]);
 eq('lista: projektitiedostossa',E.projectFile({id:'k',name:'K',chk:[{id:'c'}]},'t').projekti.tarkistuslista.length,1);
 
 // 1.39 useat ajat samalle päivälle

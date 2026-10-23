@@ -1,6 +1,6 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.46 (ryhmä listarivillä elävä linkki; ryhmät myös Asiasanoissa, asiasanojen poistotila; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 22.10.2026
+**Vaihe:** versio 1.47 (pelkkä kellonaika seuraava mahdollinen kirjoitushetkestä; ryhmät myös Asiasanoissa, asiasanojen poistotila; muistiinpanon ikkuna tiiviimmäksi, poisto varmistuksella; kuittausnapin ilme; kaikki saman päivän ajat omiksi merkinnöikseen, siirtohistoria, tietokoneella napsautus tyhjään = uusi; 1.38 tarkistuslista) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 23.10.2026
 
 Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
 
@@ -335,6 +335,12 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Päivä ja kellonajat samalla rivillä** pieninä (40 px korkeat) tekstikentän alla, napautus avaa valitsimen; kellonajat näkyvät vain, kun tekstissä ei ole aikaa. Tekstikenttä 32 → 40 % näytön korkeudesta.
 - **Poista** ikkunan alalaidassa oikealla (vain olemassa olevalla muistiinpanolla). Avaa joka kerta varmistuksen: ”Poistetaanko koko muistiinpano? Samalla poistuvat kaikki sen kalenterimerkinnät. … roskakoriin”. Varmistusnappi vasemmalla, Peruuta oikealla Poista-napin kohdalla, joten tuplanapautus ei poista (testattu 390 ja 320 px). Aiemmat poistotavat: Muistioiden kortin ⋯ → Poista ja tekstin tyhjennys.
 - **1.39.3:** Valmis pois myös listan rivin ja toistuvan ikkunoista; niiden Poista avaa saman varmistuslaatikon (Poista vasemmalla, Peruuta oikealla). Korjattu samalla 1.38:n bugi: listan rivin poisto sulki väärän ikkunan (rivin muokkausikkunan tunnus sekoittui).
+
+## Versio 1.47 (23.10.2026, Emilin toive): pelkkä kellonaika
+- Syy: pelkkä kellonaika ("klo 16") laskettiin muistiinpanon luontihetkestä. Jos aika lisättiin vanhaan muistiinpanoon, se meni luontipäivälle eli menneisyyteen.
+- Nyt pelkkä kellonaika on seuraava mahdollinen siitä hetkestä, kun se kirjoitettiin. Lukko on `N.bt=[{w,d,at}]`, ja se tehdään tallennettaessa (lockRel). Teksti ei muutu. Muokkaus ei siirrä jo lukittua aikaa, ja uusi aika lukitaan omaan hetkeensä.
+- Jokainen kellonaika on oma merkintänsä (oli jo 1.39). ”tänään klo 13 ja klo 16” antaa kaksi merkintää tälle päivälle, ja luettelo ”klo 8 / klo 12 / klo 16” antaa päivän ohjelman.
+- Vanhat muistiinpanot ilman lukkoa toimivat kuten ennen (luontihetki), kunnes ne tallennetaan seuraavan kerran.
 
 ## Versio 1.46 (22.10.2026, Emilin toive): ryhmä elävänä linkkinä
 - Rivillä `g:[ryhmien id:t]` (listan ryhmä tai puun ryhmä `a:…`). Jäsenet näkyvät kohteina (`ctx.gm`), ja niiden kuittaus tallentuu kohteeseen merkillä `g:1`. Jäsenen lisäys ryhmään näkyy heti kaikilla linkitetyillä riveillä. Poistettu jäsen katoaa riviltä, ellei se ole valittu käsin. Ryhmän nimi näkyy avatulla rivillä mainintana (▦) nappien yläpuolella.
