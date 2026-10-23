@@ -624,6 +624,13 @@ async def run(p,w,h):
     want('viikonloppu pois, päivä 8–21', await pg.locator('#week .cday').count()==5 and (await pg.locator('#timeline .hr b').first.inner_text())=='8.00' and await pg.locator('#timeline .hr').count()==13); await check('kalenteri lyhennetty')
     await pg.click('#title'); await pg.wait_for_timeout(50); await pg.click('#pk-days [data-wd="6"]'); await pg.click('#pk-days [data-wd="0"]'); await pg.select_option('#pk-cs','0'); await pg.select_option('#pk-ce','1440'); await pg.click('#psheet > .sx'); await pg.wait_for_timeout(50)
     want('palautus koko päivään', await pg.evaluate("!JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet.some(function(k){return k.kalenteri;})") and await pg.locator('#week .cday').count()==7)
+    # 1.55: iso ikkuna yläpalkin ja alapalkin välissä, otsikon edessä paluukohde, alapalkin napautus sulkee ja vaihtaa välilehden
+    await pg.click('[data-tab="notes"]'); await pg.wait_for_timeout(40); await pg.click('#newnote'); await pg.wait_for_timeout(250)
+    g=await pg.evaluate("(function(){var d=document.getElementById('nsheet').getBoundingClientRect(),t=document.querySelector('.top').getBoundingClientRect(),n=document.getElementById('nav').getBoundingClientRect();return [Math.round(d.top-t.bottom),Math.round(n.top-d.bottom),Math.round(d.width),document.getElementById('ns-h').getAttribute('data-crumb')]})()")
+    want('ikkuna palkkien välissä', abs(g[0])<=1 and abs(g[1])<=1 and g[2]==min(w,560) and g[3]=='Muistiot / '); await check('iso ikkuna')
+    bb=await pg.locator('[data-tab="cal"]').bounding_box(); await pg.mouse.click(bb['x']+bb['width']/2,bb['y']+bb['height']/2); await pg.wait_for_timeout(80)
+    want('alapalkki sulkee ja vaihtaa', not await pg.is_visible('#nsheet') and await pg.get_attribute('[data-tab="cal"]','aria-selected')=='true')
+    await pg.click('[data-tab="notes"]'); await pg.wait_for_timeout(40)
     for mode in ['Tumma']:
         await pg.click('[data-tab="set"]'); await pg.click('#p-set .seg button:has-text("%s")'%mode); await check('tumma')
     print('  errs',errs); await b.close(); return bad+(['virheet'] if errs else [])
