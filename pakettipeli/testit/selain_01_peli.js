@@ -43,6 +43,16 @@ async function run(b,w,h,full){
   // toinen tarjous: napautus hyväksyy myös kesken ajon
   await tapAt(await hit(ids[1],'tn'));
   chk('toinenkin tarjous hyväksytään ja nouto reitin perään',await pg.evaluate(id=>{const G=__pp.G,o=__pp.PP.ord(G,id),r=G.car.route;return o.state==='hyvaksytty'&&r[r.length-1]===__pp.PP.door(G,o.from);},ids[1]));
+  // osuvuus: kartan koko muuttuu ilman resize-tapahtumaa (alapalkki kasvaa), ja talon reunan napautus valitsee talon oven
+  await pg.evaluate(()=>{__pp.G.car.route=[];document.getElementById('bot').style.paddingBottom='60px';});await pg.waitForTimeout(200);
+  const tapCell=async(fx,fy,want)=>{const b=await pg.locator('#cv').boundingBox();const p=await pg.evaluate(([fx,fy,c])=>{const r=document.getElementById('mapwrap').getBoundingClientRect(),k=Math.min((r.width-8)/14,(r.height-8)/22),ox=(r.width-k*14)/2,oy=(r.height-k*22)/2,x=c%14,y=(c-x)/14;return [ox+(x+fx)*k,oy+(y+fy)*k];},[fx,fy,want]);
+    await pg.mouse.click(b.x+p[0],b.y+p[1]);await pg.waitForTimeout(120);return pg.evaluate(()=>{const r=__pp.G.car.route;return r[r.length-1];});};
+  const rc=await pg.evaluate(()=>{const M=__pp.G.M;for(let i=M.road.length-3*14;i>=0;i--)if(M.road[i]&&!__pp.hits.some(h=>h.b>=0&&__pp.G.M.blds[h.b].door===i))return i;});
+  chk('kartan koon muutos: tienapautus osuu oikeaan ruutuun',await tapCell(.5,.5,rc)===rc,rc);
+  const hb=await pg.evaluate(()=>{const M=__pp.G.M,hit=new Set(__pp.hits.map(h=>h.b));for(let i=0;i<M.bld.length;i++){const b=M.bld[i];if(b<0||hit.has(b)||M.blds[b].door===undefined)continue;
+    const x=i%14,y=(i-x)/14;for(const [dx,dy,fx,fy] of [[1,0,.95,.5],[-1,0,.05,.5],[0,1,.5,.95],[0,-1,.5,.05]]){const j=(y+dy)*14+x+dx;if(x+dx>=0&&x+dx<14&&y+dy>=0&&y+dy<22&&M.road[j])return {i,b,fx,fy,door:M.blds[b].door};}}});
+  chk('talon reunan napautus (tien vieressä) = talon ovi, ei tie',await tapCell(hb.fx,hb.fy,hb.i)===hb.door,hb);
+  await pg.evaluate(()=>{document.getElementById('bot').style.paddingBottom='';});await pg.waitForTimeout(200);
   // isompi auto lainalla
   chk('isompi auto pois käytöstä ilman kassaa',await pg.isDisabled('#bUp'));
   await pg.evaluate(()=>{__pp.G.cash=900;__pp.stats(true);});await pg.click('#bUp');await pg.click('#dlg button[data-x="up"]');

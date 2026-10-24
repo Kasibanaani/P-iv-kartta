@@ -480,7 +480,7 @@ function jobBadge(it,b,x,y,bs,col){
 }
 
 // ---------- napautus: tarjous hyväksytään, paikka menee reitin perään ----------
-function nearest(x,y,f){var b=null,bd=1e9;hits.forEach(function(h){if(!f(h))return;var d=Math.hypot(h.x-x,h.y-y);if(d<=h.r&&d<bd){bd=d;b=h;}});return b;}
+function nearest(x,y,f,any){var b=null,bd=1e9;hits.forEach(function(h){if(!f(h))return;var d=Math.hypot(h.x-x,h.y-y);if((any||d<=h.r)&&d<bd){bd=d;b=h;}});return b;}
 function roadAt(x,y){var gx=(x-L.ox)/L.cell,gy=(y-L.oy)/L.cell,best=-1,bd=.8;
   for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){var cxg=Math.floor(gx)+dx,cyg=Math.floor(gy)+dy;if(cxg<0||cyg<0||cxg>=C.W||cyg>=C.H)continue;
     var i=cyg*C.W+cxg;if(!G.M.road[i])continue;var d=Math.hypot(cxg+.5-gx,cyg+.5-gy);if(d<bd){bd=d;best=i;}}return best;}
@@ -493,13 +493,17 @@ function place(cell,label){var r=PP.addPlace(G,cell);
 function tap(x,y){
   if(!G||G.over||G.final||menuOpen)return;
   if(G.ending){toast('Peli päättyy: reittiä ei voi enää muuttaa.');return;}
-  var h=nearest(x,y,function(){return true;});
+  // sormen alla oleva talo voittaa naapuritalon merkin; tarjous ennen hyväksytyn merkkiä
+  var b=bldAt(x,y),h=null;
+  if(b>=0)h=nearest(x,y,function(q){return q.b===b&&q.k==='tn';},true)||nearest(x,y,function(q){return q.b===b;},true);
+  else h=nearest(x,y,function(){return true;});
   if(h&&h.k==='tn'){var o=PP.ord(G,h.o);
     if(o.n>PP.cap(G)){toast('Keikka '+o.L+' on '+o.n+' pakettia: ei mahdu autoon ('+PP.cap(G)+' paikkaa).');return;}
     PP.accept(G,o.id);if(place(PP.door(G,o.from)))toast('Keikka '+o.L+' hyväksytty, nouto reitille');else toast('Keikka '+o.L+' hyväksytty');return;}
   if(h){place(G.M.blds[h.b].door);return;}
-  var r=roadAt(x,y);if(r>=0){place(r);return;}
-  var b=bldAt(x,y);if(b>=0)place(G.M.blds[b].door);
+  // talon napautus = sen ovi tiellä; tie vain, jos sormi ei ole talon päällä
+  if(b>=0){place(G.M.blds[b].door);return;}
+  var r=roadAt(x,y);if(r>=0)place(r);
 }
 var down=null;
 cv.addEventListener('pointerdown',function(e){down=[e.clientX,e.clientY];});
@@ -586,6 +590,8 @@ var last=clock(),shownEnd=false;
 function speed(){if(menuOpen||G.over||G.final)return 0;return G.ending?8:1;}
 function loop(){
   var now=clock(),dt=Math.min(0.1,now-last);last=now;
+  // kartan koko voi muuttua ilman resize-tapahtumaa (alapalkin rivitys, iPhonen turvavälit): muuten napautukset osuvat väärään kohtaan
+  var wr=wrap.getBoundingClientRect();if(Math.abs(wr.width-L.w)>0.5||Math.abs(wr.height-L.h)>0.5||(window.devicePixelRatio||1)!==L.dpr)layout();
   if(G&&!document.hidden){
     var sp=speed();PP.step(G,dt*sp);
     G.ev.forEach(function(e){if(e.k==='pay')fx.push({b:e.b,amt:e.amt,t:now});});G.ev.length=0;
@@ -608,7 +614,7 @@ if(!set.ohje3)dialog(HELP+'<div class="col"><button class="pri" data-x="close">A
 requestAnimationFrame(loop);
 
 // testikoukut
-window.__pp={PP:PP,get G(){return G;},set G(g){G=g;},layout:layout,tap:tap,cxy:cxy,bCenter:bCenter,
+window.__pp={PP:PP,get G(){return G;},set G(g){G=g;},layout:layout,get L(){return L;},tap:tap,cxy:cxy,bCenter:bCenter,
   setClock:function(f){clock=f;},stats:stats,store:store,get hits(){return hits;},closeDlg:closeDlg};
 })();
 </script>
