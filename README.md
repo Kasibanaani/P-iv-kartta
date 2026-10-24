@@ -22,7 +22,7 @@ Henkilökohtaiseen käyttöön tehtyjä selainappeja. Jokainen appi on yksi HTML
 | `savellys/` | Sävellyspaja (tietokoneelle; MIDI-raidat, piano roll, yksinkertaiset syntikat, MIDI-vienti ja -tuonti, projektit GitHubiin tekoälyn luettaviksi; tila `savellys/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/savellys/ |
 | `animaatio/` | Animappi (2D-nukketeatteri, iPad ja kynä, toimii myös tietokoneella) | https://kasibanaani.github.io/P-iv-kartta/animaatio/ |
 | `headmaze/` | Headmaze (uloshengitysharjoitus, Minä-polku, Sokkelo-piilosta; kieli poskessa; tila `headmaze/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/headmaze/ |
-| `pakettipeli/` | Pakettipeli (kuljetusfirman ajojärjestelypeli valmiilla tieverkolla, Mini Motorwaysin tyyliin; tila `pakettipeli/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/pakettipeli/ |
+| `pakettipeli/` | Pakettipeli (yhden auton keikkapeli valmiilla tieverkolla, Mini Motorwaysin tyyliin; tila `pakettipeli/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/pakettipeli/ |
 
 Uusi appi tulee omaan kansioonsa nimellä `index.html`. Osoite on silloin `https://kasibanaani.github.io/P-iv-kartta/<kansio>/`.
 
