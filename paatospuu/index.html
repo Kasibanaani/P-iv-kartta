@@ -723,6 +723,24 @@ dialog h2[data-crumb]::before{content:attr(data-crumb);color:var(--label2);font-
   .pbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 }
 @media (max-width:999px) and (prefers-reduced-motion: reduce){.roll.slide .rn{animation:none}}
+/* 1.74 (Emil 24.10.2026, kuva 1): ison ikkunan otsikkoriviä ei ole puhelimella. Nimi näkyy yläreunan pienessä rivissä (Projekti · Osio › Ikkuna),
+   ja ikkunalla on alapalkin paikalla oma palkki: vasemmalla ‹ paluukohde (sulkee kuten ennen ruksi), oikealla ohje (i). */
+.dbar{display:none}
+@media (max-width:999px){
+  dialog.big{inset:var(--toph,0px) 0 0 0;padding-bottom:calc(var(--navh,64px) + 24px)}
+  dialog.big>.hrow,dialog.big>#hs-h{display:none}
+  dialog.big .dbar{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;align-items:center;gap:8px;max-width:560px;margin:0 auto;
+    padding:6px max(14px,env(safe-area-inset-right,0px)) max(8px,calc(env(safe-area-inset-bottom,0px) - 6px)) max(14px,env(safe-area-inset-left,0px));background:var(--bar);
+    -webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  .dbar .sp{flex:1}
+  .dbar .sx{position:static;float:none;display:flex;gap:6px;width:auto;height:40px;margin:0;padding:0 16px 0 12px;border-radius:20px!important;background:var(--seg);color:var(--accent);font-size:15px;font-weight:700;white-space:nowrap;max-width:70%;overflow:hidden}
+  .dbar .sx svg{display:none}
+  .dbar .sx .sxl{overflow:hidden;text-overflow:ellipsis}
+  .dbar .dhelp{font:italic 700 17px Georgia,serif}
+}
+.sx .sxl{display:none}
+.dbar .sx .sxl{display:inline}
+
 /* 1.73 (Emil 24.10.2026): osion ohjainrivi peukalon ulottuville alapalkin yläpuolelle; erotus sävyillä, ei viivoilla. */
 .sbar{display:none}
 @media (max-width:999px){
@@ -2079,7 +2097,7 @@ function syncChrome(){var tp=$('top');tp.dataset.mode=tab;tp.dataset.ed=(tab==='
    Järjestys Muistio · Kalenteri · Listat · Asiat (suositus: Listat ja Asiat vierekkäin). Päätöspuu on Valikon takana. */
 var ROLL=['notes','cal','list','terms'];
 function rollIdx(){var k=tabKey();return ROLL.indexOf(k==='teach'?'use':k);}
-function syncRoll(listDot){var k=tabKey(),i=rollIdx(),k0=kOf();$('crumb').textContent=(k0?k0.name:'Juuri')+' · '+(MODE[k]||'');
+function syncRoll(listDot){var k=tabKey(),i=rollIdx();crumbSync();
   $('roll-now').textContent=i<0?MODE[k==='teach'?'use':k]:MODE[ROLL[i]];$('roll-next').textContent=MODE[ROLL[(i+1)%ROLL.length]];
   var d=$('roll-dots');d.textContent='';ROLL.forEach(function(x,j){var e=el('i',j===i?'on':'');d.appendChild(e);});
   $('roll').setAttribute('aria-label','Osio: '+$('roll-now').textContent+'. Seuraava: '+$('roll-next').textContent);$('roll-dot').hidden=!listDot||k==='list';}
@@ -2161,7 +2179,7 @@ function sbarSync(){var s=$('sbar'),k=tabKey(),n=null;s.textContent='';
   s.hidden=!n;barSizes();}
 $('nav').addEventListener('click',function(ev){var b=ev.target.closest('[data-tab]');if(b)showTab(b.dataset.tab);});
 /* 1.55 (I1): isot ikkunat täyttävät tilan yläpalkin ja alapalkin välissä. Otsikon edessä harmaana se, minne ruksi palaa
-   (välilehti tai alla oleva ikkuna). Alapalkin napautus sulkee ikkunan kuten ruksi ja vaihtaa välilehden. */
+   (välilehti tai alla oleva ikkuna). Puhelimella 1.74:stä alkaen ikkunalla on oma alapalkki, jonka ‹-nappi sulkee kuten ruksi; osio ei vaihdu. */
 var SMALL={csheet:1};
 function barSizes(){var t=document.querySelector('.top'),n=$('pbar').offsetParent?$('pbar'):$('nav'),r=document.documentElement.style;
   if(t)r.setProperty('--toph',Math.max(0,Math.round(t.getBoundingClientRect().bottom))+'px');
@@ -2184,7 +2202,7 @@ function kbGap(){var g=$('kbgap'),v=window.visualViewport,a=document.activeEleme
 if(window.visualViewport){['resize','scroll'].forEach(function(e){visualViewport.addEventListener(e,function(){kbGap();if(document.activeElement===$('ns-text'))noteGrow();});});}
 document.addEventListener('focusin',function(){setTimeout(kbGap,350);});document.addEventListener('focusout',function(){setTimeout(kbGap,50);});
 /* 1.61 (Emil 23.10.2026): ikkunan ollessa auki tausta ei vierity sen ala- tai yläpuolelta */
-function modalSync(){document.documentElement.classList.toggle('modal',!!document.querySelector('dialog[open]:not(.dock)'));}
+function modalSync(){document.documentElement.classList.toggle('modal',!!document.querySelector('dialog[open]:not(.dock)'));crumbSync();}
 document.addEventListener('touchmove',function(ev){if(!document.documentElement.classList.contains('modal'))return;var t=ev.target;
   if(t.tagName==='DIALOG'||!t.closest||!t.closest('dialog[open]'))ev.preventDefault();},{passive:false});
 /* 1.64 (Emil 23.10.2026): muistiinpanon tekstikenttä ei pomppaa yläpalkin alle, kun näppäimistö avautuu. Palkkien mitat jäädytetään
@@ -2201,10 +2219,20 @@ function kbKeep(ta){var d=ta.closest('dialog')||ta.closest('#main'),st=d?d.scrol
   kbHold=Date.now();ta.addEventListener('focus',function f(){ta.removeEventListener('focus',f);[0,50,150,300,500,800].forEach(function(ms){setTimeout(fix,ms);});setTimeout(function(){kbHold=0;},900);});}
 document.addEventListener('touchstart',function(ev){var t=ev.target;if(!t||!t.matches||t===document.activeElement)return;
   if(t.matches('textarea,input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]):not([type=color]),[contenteditable]'))kbKeep(t);},{passive:true,capture:true});
-function openSheet(d){if(!SMALL[d.id]){d.classList.add('big');barSizes();var h=d.querySelector('h2');if(h)h.setAttribute('data-crumb',crumbOf(d));}
+function openSheet(d){if(!SMALL[d.id]){d.classList.add('big');barSizes();var h=d.querySelector('h2');if(h)h.setAttribute('data-crumb',crumbOf(d));dbarSync(d);}
   if(d.showModal)d.showModal();else d.setAttribute('open','');modalSync();
   requestAnimationFrame(function(){[].forEach.call(d.querySelectorAll('textarea'),growTa);});}
 function closeSheet(d){if(d.close)d.close();else d.removeAttribute('open');modalSync();}
+/* 1.74: ison ikkunan oma alapalkki puhelimella. Ruksi (.sx) siirtyy palkkiin ‹ paluukohde -napiksi, tietokoneella se palaa otsikkoriville.
+   Palkki on ikkunan ensimmäinen lapsi, jotta avautuva ikkuna antaa fokuksen paluunapille eikä tekstikentälle (ei näppäimistöä). */
+function dbarSync(d){var x=d.querySelector('.sx');if(!x)return;var bar=d.querySelector(':scope>.dbar');
+  if(!wide()){if(!bar){bar=el('div','dbar');bar.appendChild(el('span','sp'));var hb=button(bar,'i','pbtn dhelp',function(){var ib=d.querySelector('.hrow .ibtn');if(ib)ib.click();});hb.setAttribute('aria-label','Ohje');d.insertBefore(bar,d.firstChild);}
+    var back=clean((crumbOf(d)||'').replace(/ \/ $/,''))||'Takaisin',l=x.querySelector('.sxl');if(!l){l=el('span','sxl');x.appendChild(l);}l.textContent='‹ '+back;x.setAttribute('aria-label','Takaisin: '+back);
+    bar.insertBefore(x,bar.firstChild);bar.querySelector('.dhelp').hidden=!d.querySelector('.hrow .ibtn');}
+  else if(bar&&x.parentNode===bar){var hr=d.querySelector('.hrow');if(hr)hr.appendChild(x);else d.insertBefore(x,d.firstChild);x.setAttribute('aria-label','Sulje');}}
+/* 1.74: yläreunan pieni rivi kertoo myös avoimen ikkunan nimen (Projekti · Osio › Ikkuna) */
+function crumbSync(){var k=tabKey(),k0=kOf(),t=(k0?k0.name:'Juuri')+' · '+(MODE[k]||''),o=document.querySelectorAll('dialog.big[open]'),d=o[o.length-1];
+  if(d){var h=d.querySelector('h2'),ht=h?clean(h.textContent):'';if(ht)t+=' › '+ht;}$('crumb').textContent=t;}
 /* Ikkunan sulkeminen ohi napauttamalla tai Esc tallentaa samoin kuin Valmis */
 function sheetDone(d){var ok=d.querySelector('[data-done]');if(ok)ok.click();else closeSheet(d);}
 var SHEETS=['wsheet','ehsheet','vsheet','psheet','xsheet','lsheet','ksheet','esheet','nsheet','tsheet','rsheet','hsheet','csheet','fsheet'];
@@ -2216,6 +2244,7 @@ SHEETS.forEach(function(id){var d=$(id);d.addEventListener('close',modalSync);d.
 /* Sulkeminen oikean yläkulman ruksista (Emil 21.10.2026: alasveto sekoittui alla olevan tason raahaukseen). Ruksi toimii kuten Valmis. */
 SHEETS.forEach(function(id){var d=$(id),x=el('button','sx');x.type='button';x.setAttribute('aria-label','Sulje');
   x.innerHTML='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9"/></svg>';x.addEventListener('click',function(){sheetDone(d);});var hr=d.querySelector('.hrow');if(hr)hr.appendChild(x);else d.insertBefore(x,d.firstChild);});
+SHEETS.forEach(function(id){var h=$(id).querySelector('h2');if(h&&window.MutationObserver)new MutationObserver(function(){if($(id).open)crumbSync();}).observe(h,{childList:true,characterData:true,subtree:true});});
 function firstProjForm(p){p.appendChild(el('h2','','Ensimmäinen päätöspuu'));
   p.appendChild(el('p','sub','Anna puulle nimi, sitten kirjoitat tai liität sisällön tekstikenttään.'));
   var r=el('div','addrow'),i=el('input');i.type='text';i.id='firstproj';i.placeholder='Nimi';i.autocomplete='off';r.appendChild(i);

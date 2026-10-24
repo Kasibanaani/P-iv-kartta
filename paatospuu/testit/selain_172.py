@@ -85,7 +85,7 @@ async def phone(p,w,h):
     want('Enter avaa uuden kortin, ei muuta', await pg.is_visible('#tsheet') and await pg.input_value('#tname-in')=='Kuume' and not await pg.is_visible('#hsheet'))
     await pg.click('#tok'); await pg.wait_for_timeout(60)
     want('Valmis palaa Asioihin', not await pg.is_visible('#tsheet') and await pg.locator('#p-terms .row:has-text("Kuume")').count()==1)
-    await pg.locator('#p-terms .row:has-text("Kipu")').first.click(); await pg.wait_for_timeout(60)
+    await pg.locator('#p-terms .row:has-text("Kipu")').first.click(); await pg.wait_for_timeout(250)
     bb=await pg.locator('#roll').bounding_box(); await pg.mouse.click(bb['x']+20,bb['y']+bb['height']/2); await pg.wait_for_timeout(80)
     want('ikkunan ulkopuolinen napautus vain sulkee', not await pg.is_visible('#tsheet') and await pg.inner_text('#roll-now')=='Asiat')
     o=json.loads(await pg.evaluate("(function(){var w=document.documentElement.clientWidth,o=[];document.querySelectorAll('#pbar button,#p-terms button,#p-terms input').forEach(function(e){var r=e.getBoundingClientRect();if(r.width&&e.offsetParent&&(r.right>w+.5||r.left<-.5))o.push(e.id||e.className);});return JSON.stringify(o);})()"))
