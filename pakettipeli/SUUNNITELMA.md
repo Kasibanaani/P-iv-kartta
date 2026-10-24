@@ -51,24 +51,34 @@ Kasuaali puhelinpeli Mini Motorwaysin tyyliin. Kuvakulma on ylhäältä, ja tiet
 
 ## 6. Raha, maine ja kaatuminen
 
+- **Valuutta on keksitty** (ei euroja, ei realismia). **(E)**
 - **Tulot:** toimitus maksaa perusmaksun ja matkan mukaisen osan. **(T)**
-- **Maine (E):** yksi yhteinen mittari, koska maine leviää. Nopea toimitus nostaa mainetta: kellon alkupuolella reilusti, lopussa vähän. Myöhästyminen ja peruuntunut tilaus laskevat mainetta. Mittari on 0–100, ja sillä on katto. **(T: asteikko)**
-- **Maine ohjaa tilausten tahtia.** Nollassa tilauksia ei tule lainkaan, ja maine palautuu hitaasti itsestään (noin +1 / peliminuutti, kunnes se on 20). **(E: nollassa ei tilauksia ja hidas palautuminen; T: luvut)**
-- **Palkat:** auto = kuski. Palkka juoksee ajan mukaan koko ajan, ei kertasummana per päivä, koska päivän pituuden päättää pelaaja. **(E: palkat; T: ajan mukaan)**
-- **Kaatuminen:** peli kaatuu, kun kassa on miinuksella päivän päättyessä. Pelin aikana miinus näkyy punaisena varoituksena. **(E: kassa miinuksella kaataa; T: tarkistushetki)** Tyytymättömyys ei kaada peliä suoraan. **(E)**
-- **Tavoite:** yrityksen kasvu ja tulos. **(E)** Ennätyksiä ovat paras päivän tulos, suurin kassa ja pisin putki. Pakkoa kasvaa ei ole: pienellä porukalla voi rullata kannattavasti, mutta iso tulos vaatii kasvua. **(E)**
+- **Juoksevat kulut (E):** yksi luku, johon kuuluvat palkat, huollot ja bensat. Jokainen auto lisää siihen saman verran, ja se juoksee koko ajan. Erittelyä ei ole.
+- **Kassa (E):** aloituspääoma on puskuri. Tulos (tulot − juoksevat kulut) kasvattaa kassaa, ja tappiollinen kulurakenne syö sitä heti. Tappio ei kaada peliä, vasta tyhjä kassa kaataa sen.
+- **Pisteet = kassa (E).** Ennätyksiä ovat suurin kassa ja pisin kestänyt peli.
+- **Yläpalkissa** näkyvät kassa lukuna, tulot vs. kulut palkkina (vihreä tai punainen) ja maine palkkina. **(E: palkit; T: asettelu)**
+- **Maine (E):** yksi yhteinen mittari, koska maine leviää. Nopea toimitus nostaa mainetta, ja myöhästyminen tai peruuntunut tilaus laskee sitä. Kartalla välähtää, missä maine kärsi. Asteikko on 0–100, ja sillä on katto. **(T: asteikko)**
+- **Maine putoaa oikeasti (T):** yksi onnistuminen nostaa mainetta vähän (+1…+3 nopeuden mukaan), mutta epäonnistuminen pudottaa sitä paljon (−8 myöhästymisestä, −12 peruuntumisesta). Vastaanoton yläraja riippuu maineesta jyrkästi (∝ maine²). Kun maine putoaa 100:sta 70:een, yläraja puolittuu, joten ylikuorma korjaantuu tuntuvasti eikä vain vähän. Nollassa tilauksia ei tule lainkaan, ja maine palautuu hitaasti itsestään (noin +1/min, kunnes se on 20). **(E: lasku vähentää tilauksia ja nousu on hidas; T: luvut)**
+
+## 6b. Tilausten vastaanotto **(E)**
+
+- Alareunassa on hienovarainen säädin **Vastaanotto**, jota voi muuttaa lennosta. Arvo on suoraan tilaustahti, esimerkiksi 0,1 tilausta minuutissa kerrallaan. **(E: hienovarainen; T: yksikkö)**
+- Erillistä kysyntämittaria ei ole: kysyntää oletetaan olevan niin paljon kuin firma pystyy ottamaan. **(E)** Säätimellä on kuitenkin yläraja, jonka määräävät maine ja kartan yritykset (niiden määrä ja koko). Huono maine tuo ylärajan alas ja leikkaa tahtia, vaikka säädin olisi tapissa. **(T: ylärajan laskenta, ∝ maine²)**
+- Tämä on riskivipu: voit nostaa tahtia ostamatta autoa ja katsoa, pärjäätkö. Jos et pärjää, maine putoaa, yläraja laskee ja kassa ehtii kärsiä.
+- Säädin nollassa tarkoittaa, että uusia tilauksia ei oteta.
 
 ## 7. Päivä **(E)**
 
 - Päivä kestää niin kauan kuin pelaaja haluaa. Päivälle ei ole ylärajaa.
 - **Lopeta päivä:** uusia tilauksia ei enää tule. Avoimet tilaukset, joita ei ole annettu autoille, peruuntuvat **(T: ilman mainehaittaa)**. Järjestystä ei voi enää muuttaa, ja peli pikakelaa (noin 8×), kunnes annetut tilaukset on toimitettu tai ne myöhästyvät. Myöhästymiset rokottavat vielä mainetta.
-- **Päivän päätösruutu:** tulot, palkat, tulos, maine ja kysyntäilmoitukset (esimerkiksi "Kauppakeskuksen kysyntä kasvaa" tai "Uusi asiakas: Leipomo"). Täällä tehdään bisnespäätökset: osta auto (palkkaa kuski) tai myy auto (irtisano kuski). **(T: päätökset vain tällä ruudulla)**
+- **Päivän päätösruutu:** tulot, juoksevat kulut, tulos, kassa ja maine. Täällä voi myös ostaa tai myydä auton. **(T; auki, ks. kohta 14)**
 - Seuraava päivä jatkuu samasta kohdasta, ja autot jatkavat siitä mihin jäivät.
 
-## 8. Kasvu ja kysyntä
+## 8. Kasvu
 
-- Kysyntä kasvaa päivien myötä: yrityksiä tulee lisää (harmaa talo saa värin) ja olemassa olevien tahti nousee. Kasvu näkyy etukäteen päätösruudun ilmoituksina, jotta auton oston voi ajoittaa. **(E: ilmoitettu kysyntä; T: mekanismi)**
-- Rahalla ostetaan v1:ssä vain autoja. Isommat autot ja muut ostokset tulevat myöhemmin, jos tarvitaan. **(E: kysymys 7 jätettiin auki)**
+- Kasvu tulee vastaanottosäätimestä ja autoista. Säätimen ylärajan asettavat maine ja kartta. Kysyntäilmoituksia tai erillistä kysynnän kasvua ei ole. **(E)**
+- Rahalla ostetaan v1:ssä vain autoja. **(E: kysymys 7 jätettiin auki)**
+- **Tasapainotavoite (E):** kannattavuuden lisääminen on vaikeaa mutta onnistuu hyvällä pohdinnalla. Toteutus: botti pelaa simulaatiossa eri automäärillä ja vastaanottotasoilla, ja luvut säädetään niin, että hyvin ajettu auto tuottaa ohuen voiton (noin 15–25 % tuloista), huonosti ajettu tappiota ja ylikuormitus kääntää tuloksen punaiselle. **(T)**
 
 ## 9. Ilme **(T)**
 
@@ -85,17 +95,18 @@ Pieni ruudukko. Tie piirretään sormella kuten Mini Motorwaysissa, ja rakennus 
 
 ## 12. Versiot
 
-- **v1 (ensimmäinen pelattava):** yksi generoitu kaupunkityyppi (ruutukaava, siemen satunnainen tai annettu), spontaanit ja ennakkotilaukset, autojen ohjaus ja hidastus, kapasiteettisääntö, maine, palkat, päiväsykli päätösruutuineen, auton osto ja myynti, kaatuminen, ennätykset ja automaattitallennus.
-- **v2:** kaupunkityyppejä lisää, karttaeditori ja kysyntäilmoitusten hiominen.
+- **v1 (ensimmäinen pelattava):** yksi generoitu kaupunkityyppi (ruutukaava, siemen satunnainen tai annettu), spontaanit ja ennakkotilaukset, autojen ohjaus ja hidastus, kapasiteettisääntö, maine, juoksevat kulut ja kassa, vastaanottosäädin, päiväsykli päätösruutuineen, auton osto ja myynti, kaatuminen, ennätykset ja automaattitallennus.
+- **v2:** kaupunkityyppejä lisää, karttaeditori ja tasapainon hiominen.
 - **v3 (jos tarvitaan):** isommat autot, muut ostokset ja tasapainotus.
 
 ## 13. Testit
 
-- Logiikka nodella: reitinhaku, kapasiteetin siirtosääntö, ennakkotilauksen odotus, maineen nousu ja lasku sekä katto, palkat ajan mukaan, kaatuminen, päivän pikakelaus ja generaattorin yhtenäisyys (kaikki yritykset tavoitettavissa toimipaikasta).
+- Logiikka nodella: reitinhaku, kapasiteetin siirtosääntö, ennakkotilauksen odotus, maineen nousu ja lasku sekä katto, juoksevat kulut ajan mukaan, vastaanoton yläraja, kaatuminen, päivän pikakelaus ja generaattorin yhtenäisyys (kaikki yritykset tavoitettavissa toimipaikasta).
 - Selain 390 ja 320 px tietokoneen Chromiumilla: napautukset, hidastus ja paneeli.
 - Tasapainotus: botti pelaa yksinkertaisella säännöllä (lähin vapaa auto) useita päiviä, ja tarkistetaan, että yhdellä autolla pärjää alussa eikä kasvu ole ilmaista.
 
 ## 14. Avoimet
 
 - Peruuntuvatko avoimet, autoille antamattomat tilaukset päivän päättyessä ilman mainehaittaa? **(T-oletus: ilman haittaa)**
+- Ostetaanko auto lennosta (alareunan valikosta, peli hidastuu) vai vain päivän päätösruudulla? *Ehdotus:* lennosta, koska vastaanottokin säädetään lennosta, ja päivän lopetus jää pikakelaukseksi ja yhteenvedoksi.
 - Kapasiteetti 4, hidastus 0,25×, pikakelaus 8× ja kaikki rahaluvut ovat tekoälyn arvauksia, ja ne säädetään pelaamalla.

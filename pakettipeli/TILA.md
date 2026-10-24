@@ -19,6 +19,7 @@ Kasuaali puhelinpeli Mini Motorwaysin tyyliin: valmiit tiet ja kuljetusfirma, jo
 ## Avoimet kysymykset
 
 - Peruuntuvatko autoille antamattomat avoimet tilaukset päivän päättyessä ilman mainehaittaa? (oletus: kyllä)
+- Ostetaanko auto lennosta vai vain päivän päätösruudulla? (ehdotus: lennosta)
 
 ## Emilin kommentit
 
