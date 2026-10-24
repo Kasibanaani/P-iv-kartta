@@ -62,7 +62,7 @@ async function run(b,w,h,full){
     // Harjoitukset-sivu, kasvi ja uudet harjoitukset
     await pg.evaluate(()=>{window.T=900;__hm.setClock(()=>T)});
     await pg.click('nav [data-tab="harj"]');await pg.waitForTimeout(100);await pg.screenshot({path:shot('hm_9_harjoitukset.png'),fullPage:true});
-    chk('Harjoitukset: tilastot linkkinä otsikon vieressä, kasvi ja neljä harjoitusta',await pg.isVisible('.hrow #go-tilastot')&&await pg.isVisible('#kasvi-svg')&&(await pg.locator('#p-harj button.card').count())===4);
+    chk('Harjoitukset: tilastot linkkinä otsikon vieressä, kasvi ja kymmenen harjoitusta',await pg.isVisible('.hrow #go-tilastot')&&await pg.isVisible('#kasvi-svg')&&(await pg.locator('#p-harj button.card').count())===10);
     chk('kasvi on saanut uloshengitykset (11+11+4+12+20+22+20 = 100 s)',(await pg.innerText('#kasvi-txt')).includes('1 min 40 s')&&await pg.evaluate(()=>__hm.data().puhallus)===100,await pg.innerText('#kasvi-txt'));
     // Pilvikyyti
     await pg.click('#go-pilvi');await pg.waitForTimeout(100);
