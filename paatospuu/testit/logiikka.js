@@ -605,4 +605,12 @@ var qr=[{id:'r1',created:'2026-10-01T00:00:00Z',it:[{id:'a'},{id:'b'}]}];
 eq('1.79: teksti syynä rivien tekstistä (alusta)',E.chkCond([{k:['q:lääk'],on:['b']}],qr,gK,cn,{tx:[{n:E.normT('Soita lääkärille')}]}).hid,{});
 eq('1.79: ei osumaa',E.chkCond([{k:['q:lääk'],on:['b']}],qr,gK,cn,{tx:[{n:E.normT('Soita äidille')}]}).hid,{b:1});
 eq('1.79: teksti seurauksena = ilmoitus, ketjuttuu',E.chkCond([{k:['a'],on:['q:Soita ennen klo 10']},{k:['q:soita'],on:['q:Muista numero']},{k:['q:numero'],off:['q:Soita ennen klo 10']}],[{id:'r',created:'x',it:[{id:'a',ok:'x'}]}],gK,cn).say,['Muista numero']);
+/* 1.80 päättely muistiinpanossa */
+var iE2=[{k:['a','b'],all:1,on:['f']},{k:['f'],on:['g']},{k:['q:lääk'],on:['l']},{k:['c'],off:['g']},{k:['a','x'],ty:'x'},{k:['G'],on:['h']},{k:['z:week'],on:['w']}];
+eq('1.80: Kipu + Kuume → Flunssa, ketju',E.inferTerms(iE2,['a','b'],'',{}),['f','g']);
+eq('1.80: yksi ei riitä (Kaikki)',E.inferTerms(iE2,['a'],'',{}),[]);
+eq('1.80: teksti syynä muistiinpanossa',E.inferTerms(iE2,[],'Soitin lääkärille',{}),['l']);
+eq('1.80: Poissulkee poistaa päätellyn',E.inferTerms(iE2,['a','b','c'],'',{}),['f']);
+eq('1.80: tunnistettu ei tule päätellyksi',E.inferTerms(iE2,['a','b','f'],'',{}),['g']);
+eq('1.80: ryhmä ja aikasana syynä',E.inferTerms(iE2,['m'],'',{grp:{G:{m:['m','n']}},tt:'z:today'}),['h','w']);
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);
