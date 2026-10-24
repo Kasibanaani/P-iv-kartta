@@ -34,4 +34,14 @@ eq('Minä: vähintään 35 kohtaa, viimeinen on loppu',[H.MINA.length>=35,H.MINA
 eq('Minä: lainatut vastaukset kysytään ennen',H.MINA.every((m,i)=>(m.lainaa||[]).every(k=>H.MINA.slice(0,i).some(p=>p.key===k))),true);
 const c=12,R=9,seg=H.buildMaze(c,R,H.rngOf(5));
 eq('taustasokkelon seinämäärä',seg.length,(c*(R+1)+R*(c+1))-(c*R-1));
+// Odotus: puolet jäljellä olevasta joka jaksossa, ei koskaan 100 %
+eq('Odotus: 0 / 8 / 16 / 24 s → 0 / 50 / 75 / 87,5 %',[0,8,16,24].map(t=>H.zenoText(t).fill),['0,0','50,0','75,0','87,5']);
+eq('Odotus: täyttö kasvaa aina mutta ei koskaan ole 100',[60,600,3000,9000].every(t=>!/^100/.test(H.zenoText(t).fill)&&H.zenoText(t).fill.startsWith('99,')),true);
+eq('Odotus: desimaaleja tulee lisää',H.zenoText(400).d>H.zenoText(80).d,true);
+// uloshengityslaskuri ja kasvi
+eq('versio 2 → 3: laskuriin vanhojen harjoitusten uloshengitykset',H.normalize({ver:2,sessions:[{out:[5,6],inn:[1]},{out:[4],inn:[]}]}).puhallus,15);
+eq('versio 3: laskuri säilyy sellaisenaan',H.normalize({ver:3,puhallus:123.4,sessions:[{out:[5],inn:[]}]}).puhallus,123.4);
+eq('kasvi: 10 min → 10 lehteä, iloton mutta ei mökötä',H.kasvi(600,new Date().toISOString(),Date.now()),{leaves:10,sulky:false});
+eq('kasvi: 2 vrk ilman uloshengitystä → mököttää',H.kasvi(600,new Date(Date.now()-48*3600e3).toISOString(),Date.now()).sulky,true);
+eq('lajittelu ja pilvi korjataan',(()=>{const o=H.normalize({ver:3,laji:[{at:'x',dur:5,c:{ajatus:'3',tunne:-1}},null],pilvi:{n:'2'}});return [o.laji[0].c,o.pilvi.n]})(),[{ajatus:3,tunne:0,aistimus:0,keho:0},2]);
 console.log(ok?'KAIKKI OK':'VIRHEITÄ');process.exit(ok?0:1);

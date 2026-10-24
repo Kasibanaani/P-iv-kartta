@@ -59,6 +59,41 @@ async function run(b,w,h,full){
     chk('varmuuskopio tekstinä takaisin',await pg.evaluate(()=>[__hm.data().sessions.length,__hm.data().target].join())==='2,21.7');
     await pg.reload();await pg.waitForTimeout(200);
     chk('säilyy uudelleenlatauksessa',await pg.evaluate(()=>__hm.data().sessions.length)===2);
+    // Harjoitukset-sivu, kasvi ja uudet harjoitukset
+    await pg.evaluate(()=>{window.T=900;__hm.setClock(()=>T)});
+    await pg.click('nav [data-tab="harj"]');await pg.waitForTimeout(100);await pg.screenshot({path:shot('hm_9_harjoitukset.png'),fullPage:true});
+    chk('Harjoitukset: tilastot linkkinä otsikon vieressä, kasvi ja neljä harjoitusta',await pg.isVisible('.hrow #go-tilastot')&&await pg.isVisible('#kasvi-svg')&&(await pg.locator('#p-harj button.card').count())===4);
+    chk('kasvi on saanut uloshengitykset (11+11+4+12+20+22+20 = 100 s)',(await pg.innerText('#kasvi-txt')).includes('1 min 40 s')&&await pg.evaluate(()=>__hm.data().puhallus)===100,await pg.innerText('#kasvi-txt'));
+    // Pilvikyyti
+    await pg.click('#go-pilvi');await pg.waitForTimeout(100);
+    await pg.click('#pv-ok');chk('Pilvikyyti: tyhjä ajatus ei lähde',await pg.isVisible('#pv-write'));
+    await pg.fill('#pv-txt','en ehdi mitään');await pg.click('#pv-ok');await pg.waitForTimeout(100);
+    chk('Pilvikyyti: ajatus pilven alla, puhallusnappi alhaalla',(await pg.innerText('#pv-thought'))==='en ehdi mitään'&&await pg.isVisible('#pv-hold'));
+    let pb=await pg.locator('#pv-hold').boundingBox();
+    await pg.evaluate(()=>{T=1000});await pg.mouse.move(pb.x+pb.width/2,pb.y+pb.height/2);await pg.mouse.down();await pg.waitForTimeout(60);
+    await pg.evaluate(()=>{T=1003});await pg.waitForTimeout(120);await pg.screenshot({path:shot('hm_10_pilvi.png')});await pg.mouse.up();
+    chk('Pilvikyyti: pilvi liikkui puolet, mutta ei ole vielä perillä',await pg.isVisible('#pv-hold'));
+    await pg.evaluate(()=>{T=1010});await pg.mouse.down();await pg.waitForTimeout(60);await pg.evaluate(()=>{T=1014});await pg.waitForTimeout(150);await pg.mouse.up();
+    chk('Pilvikyyti: perillä, laskuri 1, ajatusta ei tallennettu, puhallus kertyi',await pg.isVisible('#pv-new')&&await pg.evaluate(()=>__hm.data().pilvi.n)===1&&!(await pg.evaluate(()=>localStorage.getItem('headmaze:v1'))).includes('ehdi')&&await pg.evaluate(()=>__hm.data().puhallus)>=106,await pg.evaluate(()=>__hm.data().puhallus));
+    // Lajittelija
+    await pg.click('#p-pilvi [data-back]');await pg.click('#go-laji');await pg.waitForTimeout(100);
+    ns=await pg.evaluate(NOSCROLL('#p-laji'));chk('Lajittelija mahtuu ruutuun',ns.sec&&ns.doc,ns);
+    await pg.evaluate(()=>{T=2000});
+    for(const l of ['ajatus','ajatus','tunne','keho','ajatus'])await pg.click('#lj-btns [data-l="'+l+'"]');
+    await pg.evaluate(()=>{T=2090});await pg.click('#lj-done');await pg.waitForTimeout(100);await pg.screenshot({path:shot('hm_11_lajittelu.png')});
+    const lj=await pg.evaluate(()=>__hm.data().laji[0]);
+    chk('Lajittelija: tallentui 3 ajatusta, 1 tunne, 1 keho, 90 s',JSON.stringify(lj.c)==='{"ajatus":3,"tunne":1,"aistimus":0,"keho":1}'&&lj.dur===90,lj);
+    chk('Lajittelija: yhteenveto näkyy',(await pg.innerText('#lj-main')).includes('5 havaintoa'));
+    // Odotus
+    await pg.click('#p-laji [data-back]');await pg.click('#go-odotus');await pg.waitForTimeout(100);
+    await pg.evaluate(()=>{T=3000});await pg.click('#od-start');await pg.evaluate(()=>{T=3016});await pg.waitForTimeout(100);
+    chk('Odotus: 16 s → 75,0 %',(await pg.innerText('#od-pct'))==='75,0 %',await pg.innerText('#od-pct'));
+    await pg.evaluate(()=>{T=3400});await pg.waitForTimeout(100);await pg.screenshot({path:shot('hm_12_odotus.png')});
+    chk('Odotus: 400 s → 99,99… % ja huomautus odottamisesta',(await pg.innerText('#od-pct')).startsWith('99,9999999')&&(await pg.innerText('#od-note')).includes('Odotit'));
+    ns=await pg.evaluate(NOSCROLL('#p-odotus'));chk('Odotus mahtuu ruutuun',ns.sec&&ns.doc,ns);
+    await pg.click('#od-stop');
+    chk('Odotus: luovutus tallentuu pisimpänä',await pg.evaluate(()=>__hm.data().odotus.best)===400&&(await pg.innerText('#od-note')).includes('Luovutit'));
+    await pg.click('#p-odotus [data-back]');
     // Minä loppuun
     await pg.evaluate(()=>__hm.setPauseScale(0.002));
     await pg.click('nav [data-tab="mina"]');await pg.waitForTimeout(200);
