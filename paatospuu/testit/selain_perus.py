@@ -655,11 +655,11 @@ async def run(p,w,h):
     want('rivi tiivis, tähti sisällä', rh[0]<=46 and rh[1]); await check('tiiviit rivit'); await tsx(pg); await pg.wait_for_timeout(40)
     # 1.58: Listan rajausrivi pysyy ylhäällä
     await tab(pg,'notes'); await tab(pg,'list'); await pg.wait_for_timeout(60)
-    want('listan rivi jäädytetty', await pg.locator('#nbar #chplan-t').count()==1); await check('listan rivi ylhäällä')
+    want('listan rivi alhaalla (1.73)', await pg.locator('#sbar #chplan-t').count()==1); await check('listan rivi ylhäällä')
     await tab(pg,'notes'); await pg.click('#noteview [data-nv="open"]'); await pg.wait_for_timeout(40)
     # 1.59: kalenterin palkki: nuolet samalla rivillä reunoissa, ei päivätekstiä yläpuolella
     await tab(pg,'cal'); await pg.wait_for_timeout(100)
-    cg=await pg.evaluate("(function(){var b=document.querySelectorAll('#calsticky .calhead > .mini'),a=b[0].getBoundingClientRect(),z=b[b.length-1].getBoundingClientRect(),t=document.querySelector('#calmonth').getBoundingClientRect();return [Math.abs(a.top-z.top)<2,Math.abs(t.height)<40,document.getElementById('info-text').textContent]})()")
+    cg=await pg.evaluate("(function(){var b=document.querySelectorAll('.calhead > .mini'),a=b[0].getBoundingClientRect(),z=b[b.length-1].getBoundingClientRect(),t=document.querySelector('#calmonth').getBoundingClientRect();return [Math.abs(a.top-z.top)<2,Math.abs(t.height)<40,document.getElementById('info-text').textContent]})()")
     want('kalenterin palkki yhdellä rivillä', cg[0] and cg[1] and cg[2]==''); await check('kalenterin palkki')
     for mode in ['Tumma']:
         await menu(pg,'#m-proj'); await pg.wait_for_timeout(60); await pg.click('#pk-set .seg button:has-text("%s")'%mode); await check('tumma'); await pg.click('#psheet .sx'); await pg.wait_for_timeout(60)
