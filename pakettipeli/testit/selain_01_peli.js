@@ -25,15 +25,19 @@ async function run(b,w,h,full){
   chk('tarjouksen napautus hyväksyy ja lisää reitille',await pg.evaluate(id=>__pp.PP.ord(__pp.G,id).state==='hyvaksytty'&&__pp.G.car.route.length===2,ids[0]));
   // Uusi reitti: nollaus, hidastus, paikat järjestyksessä
   await pg.click('#bRoute');await pg.waitForTimeout(150);
-  chk('Uusi reitti tyhjentää reitin ja hidastaa',await pg.evaluate(()=>__pp.editing&&__pp.G.car.route.length===0)&&(await pg.innerText('#speedtag'))==='Hidastettu');
+  chk('Uusi reitti: auto jatkaa vain seuraavaan pisteeseen, peli hidastuu',await pg.evaluate(()=>__pp.editing&&__pp.G.car.route.length<=1)&&(await pg.innerText('#speedtag'))==='Hidastettu');
+  chk('rakennustila näkyy: kehys, banneri ja Valmis-nappi',await pg.evaluate(()=>document.getElementById('mapwrap').classList.contains('edit')&&getComputedStyle(document.getElementById('banner')).display==='block')&&(await pg.innerText('#bRoute')).includes('Valmis'));
   await tapAt(await hit(ids[1],'n'));
-  chk('muokatessa tarjouksen napautus hyväksyy ja lisää vain noudon',await pg.evaluate(id=>{const G=__pp.G;return __pp.PP.ord(G,id).state==='hyvaksytty'&&G.car.route.length===1&&G.car.route[0]===__pp.PP.door(G,__pp.PP.ord(G,id).from);},ids[1]));
+  chk('muokatessa tarjouksen napautus hyväksyy ja lisää noudon luonnokseen',await pg.evaluate(id=>{const G=__pp.G;return __pp.PP.ord(G,id).state==='hyvaksytty'&&__pp.draft.length===1&&__pp.draft[0]===__pp.PP.door(G,__pp.PP.ord(G,id).from);},ids[1]));
   const road=await pg.evaluate(()=>{const G=__pp.G,M=G.M;for(let i=0;i<M.road.length;i++)if(M.road[i]&&!__pp.hits.some(h=>{const p=__pp.cxy(i);return Math.hypot(h.x-p[0],h.y-p[1])<h.r+6;}))return __pp.cxy(i);});
-  await tapAt(road);
-  chk('tien napautus lisää paikan',await pg.evaluate(()=>__pp.G.car.route.length===2));
+  const roads=await pg.evaluate(()=>{const G=__pp.G,M=G.M,out=[];for(let i=0;i<M.road.length&&out.length<8;i+=7)if(M.road[i]&&!__pp.hits.some(h=>{const p=__pp.cxy(i);return Math.hypot(h.x-p[0],h.y-p[1])<h.r+6;}))out.push(__pp.cxy(i));return out;});
+  await tapAt(road);for(const r of roads)await tapAt(r);
+  const nd=await pg.evaluate(()=>__pp.draft.length);
+  chk('paikkoja voi lisätä rajattomasti (yli 3)',nd>=6,nd);
+  chk('bannerissa paikkojen määrä',(await pg.innerText('#banner')).includes(nd+' paikkaa'));
   await pg.screenshot({path:shot('pp'+w+'_2_reitti.png')});
   await pg.click('#bRoute');await pg.waitForTimeout(150);
-  chk('Valmis täydentää puuttuvat hyväksytyt perään',await pg.evaluate(()=>{const G=__pp.G,s=__pp.PP.simulate(G,G.car.route);return !__pp.editing&&G.car.route.length>=4&&!s.load.length&&!s.missing.length;}));
+  chk('Valmis ottaa luonnoksen käyttöön ja täydentää puuttuvat',await pg.evaluate(n=>{const G=__pp.G,s=__pp.PP.simulate(G,G.car.route);return !__pp.editing&&G.car.route.length>=n&&!s.load.length&&!s.missing.length&&!document.getElementById('mapwrap').classList.contains('edit');},nd));
   // isompi auto lainalla
   chk('isompi auto pois käytöstä ilman kassaa',await pg.isDisabled('#bUp'));
   await pg.evaluate(()=>{__pp.G.cash=900;__pp.stats(true);});await pg.click('#bUp');await pg.click('#dlg button[data-x="up"]');

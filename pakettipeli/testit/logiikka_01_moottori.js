@@ -27,6 +27,12 @@ PP.clearRoute(G);eq('Uusi reitti tyhjentää',G.car.route.length,0);
 PP.addPlace(G,PP.door(G,b.from));PP.ensure(G);
 eq('valittu paikka ensin, puuttuvat perään',G.car.route[0],PP.door(G,b.from));
 const sim=PP.simulate(G,G.car.route);tr('täydennetyllä reitillä kaikki hoituu',!sim.load.length&&!sim.missing.length);
+G=fresh();const d1=mk(G,co[1],homes[1]),d2=mk(G,co[2],homes[2]);PP.accept(G,d1.id);PP.accept(G,d2.id);const nxt=G.car.route[0];
+tr('Uusi reitti: vain seuraava piste jää',PP.keepNext(G)&&G.car.route.length===1&&G.car.route[0]===nxt);
+const rc=[];for(let i=0;i<M.road.length&&rc.length<10;i+=5)if(M.road[i])rc.push(i);
+PP.applyDraft(G,rc);eq('luonnos (10 paikkaa) seuraavan pisteen perään',G.car.route.slice(0,11),[nxt].concat(rc).slice(0,11));
+tr('luonnoksen jälkeen kaikki hyväksytyt hoituvat',(()=>{const s=PP.simulate(G,G.car.route);return !s.load.length&&!s.missing.length;})());
+G=fresh();PP.keepNext(G);run(G,3);tr('ilman uutta reittiä auto odottaa',G.car.n<0&&!G.car.route.length);
 tr('tiepiste kelpaa paikaksi',PP.addPlace(G,M.road.findIndex(x=>x)));tr('rakennus ei kelpaa paikaksi',!PP.addPlace(G,M.bld.findIndex(x=>x>=0)));
 // kapasiteetti pakettimäärän mukaan
 G=fresh();const big=mk(G,co[0],homes[3],5);tr('liian iso keikka ei mahdu pieneen autoon',!PP.accept(G,big.id));

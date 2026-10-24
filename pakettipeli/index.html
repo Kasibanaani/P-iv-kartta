@@ -59,7 +59,14 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--tx);font-family:
 #bot{background:var(--surface);border-top:1px solid var(--line);padding:8px 10px max(env(safe-area-inset-bottom),10px);position:relative;z-index:2}
 #cInfo{font-size:13.5px;color:var(--tx2);margin:0 2px 8px;min-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #cInfo b{color:var(--tx)}
-#bot.edit #cInfo{color:var(--accent);font-weight:650}
+#bot.edit{background:var(--accent);border-top-color:var(--accent)}
+#bot.edit #cInfo,#bot.edit #cInfo b{color:var(--accentTx);font-weight:700}
+#bot.edit #bRoute{background:var(--good);border-color:var(--good);color:#fff}
+#mapwrap.edit{box-shadow:inset 0 0 0 4px var(--accent)}
+#banner{position:absolute;left:50%;top:8px;transform:translateX(-50%);background:var(--accent);color:var(--accentTx);font-weight:750;font-size:14px;
+  border-radius:12px;padding:7px 12px;display:none;white-space:nowrap;box-shadow:0 6px 22px var(--shadow);pointer-events:none}
+#mapwrap.edit #banner{display:block}
+#mapwrap.edit #toast{top:52px}
 button{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--line);border-radius:11px;min-height:44px;
   padding:0 10px;font-size:15px;font-weight:650;cursor:pointer;touch-action:manipulation}
 button:active{filter:brightness(.94)}
@@ -98,7 +105,7 @@ button.pri{background:var(--accent);color:var(--accentTx);border-color:var(--acc
     </div>
     <div class="mrow"><span>Maine</span><b id="sMaine">0</b><div class="bar"><i id="mBar"></i></div><span id="sOffers"></span></div>
   </header>
-  <div id="mapwrap"><canvas id="cv"></canvas><div id="toast"></div><div id="speedtag"></div></div>
+  <div id="mapwrap"><canvas id="cv"></canvas><div id="banner"></div><div id="toast"></div><div id="speedtag"></div></div>
   <footer id="bot">
     <div id="cInfo"></div>
     <div class="btns">
@@ -268,6 +275,10 @@ function accept(G,id,append){var o=ord(G,id);if(!o||o.state!=='tarjous'||G.endin
 function clearRoute(G){if(G.ending||G.over)return false;G.car.route=[];return true;}
 function addPlace(G,cell){if(G.ending||G.over||!(cell>=0)||!G.M.road[cell])return false;var r=G.car.route;
   if(r.length&&r[r.length-1]===cell)return false;r.push(cell);return true;}
+// Uusi reitti: auto jatkaa vain seuraavaan pisteeseen; valmis luonnos lisätään sen perään ja puuttuvat hyväksytyt täydennetään.
+function keepNext(G){if(G.ending||G.over)return false;G.car.route=G.car.route.slice(0,1);return true;}
+function applyDraft(G,draft){if(G.ending||G.over)return false;var N=G.M.W*G.M.H;
+  (draft||[]).forEach(function(x){if(x>=0&&x<N&&G.M.road[x]&&G.car.route[G.car.route.length-1]!==x)G.car.route.push(x);});ensure(G);return true;}
 function upgrade(G){var n=TIERS[G.tier+1];if(!n||G.over||G.ending||G.cash<n.raja)return false;G.cash-=n.kasi;G.tier++;G.ev.push({k:'up'});return true;}
 function endGame(G){if(G.ending||G.over||G.final)return false;G.ending=true;
   G.orders=G.orders.filter(function(o){return o.state!=='tarjous';});ensure(G);return true;}
@@ -327,7 +338,7 @@ function bot(G,look){
 }
 
 return {VER:VER,C:C,TIERS:TIERS,COLORS:COLORS,genMap:genMap,dist:dist,distFrom:distFrom,nextCell:nextCell,newGame:newGame,step:step,spawn:spawn,
-  accept:accept,clearRoute:clearRoute,addPlace:addPlace,ensure:ensure,simulate:simulate,upgrade:upgrade,endGame:endGame,obligations:obligations,
+  accept:accept,clearRoute:clearRoute,keepNext:keepNext,applyDraft:applyDraft,addPlace:addPlace,ensure:ensure,simulate:simulate,upgrade:upgrade,endGame:endGame,obligations:obligations,
   income:income,costs:costs,cap:cap,tier:tier,offerRate:offerRate,maxOffers:maxOffers,companies:companies,ord:ord,door:door,accepted:accepted,pk:pk,committed:committed,maxSize:maxSize,
   save:save,repair:repair,bot:bot,routeLen:routeLen};
 })();
@@ -341,7 +352,7 @@ var KEY='pakettipeli:v2',OLDKEY='pakettipeli:v1',C=PP.C,T=PP.TIERS;
 var $=function(id){return document.getElementById(id);};
 var cv=$('cv'),cx=cv.getContext('2d'),wrap=$('mapwrap');
 var G=null,rec={kassa:0,loppu:0},set={teema:'laite',ohje:false};
-var editing=false,menuOpen=false,hl=null,fx=[],hits=[],lastStat=0,lastSave=0,toastT=0,hinted=false;
+var editing=false,draft=[],pal=null,palT=0,UI={},menuOpen=false,hl=null,fx=[],hits=[],lastStat=0,lastSave=0,toastT=0,hinted=false;
 var L={cell:20,ox:0,oy:0,w:0,h:0,dpr:1};
 var clock=function(){return performance.now()/1000;};
 
@@ -375,11 +386,12 @@ function bCenter(b){return [L.ox+(b.x+b.w/2)*L.cell,L.oy+(b.y+b.h/2)*L.cell];}
 
 // ---------- piirto ----------
 function rr(x,y,w,h,r){cx.beginPath();cx.moveTo(x+r,y);cx.arcTo(x+w,y,x+w,y+h,r);cx.arcTo(x+w,y+h,x,y+h,r);cx.arcTo(x,y+h,x,y,r);cx.arcTo(x,y,x+w,y,r);cx.closePath();}
-function F(w,px){return w+' '+Math.round(px)+'px '+css('--font');}
+function palette(now){if(pal&&now-palT<1)return pal;palT=now;var f=css('--font');
+  pal={land:css('--land'),park:css('--park'),road:css('--road'),edge:css('--roadEdge'),house:css('--house'),depot:css('--depot'),depotTx:css('--depotTx'),
+    car:css('--car'),carTx:css('--carTx'),pill:css('--pill'),pillTx:css('--pillTx'),accent:css('--accent'),accentTx:css('--accentTx'),bad:css('--bad'),good:css('--good'),tx2:css('--tx2'),surface:css('--surface'),font:f};return pal;}
+function F(w,px){return w+' '+Math.round(px)+'px '+pal.font;}
 function draw(now){
-  var M=G.M,s=L.cell,col={land:css('--land'),park:css('--park'),road:css('--road'),edge:css('--roadEdge'),house:css('--house'),
-    depot:css('--depot'),depotTx:css('--depotTx'),car:css('--car'),carTx:css('--carTx'),pill:css('--pill'),pillTx:css('--pillTx'),
-    accent:css('--accent'),bad:css('--bad'),good:css('--good'),tx2:css('--tx2'),surface:css('--surface')};
+  var M=G.M,s=L.cell,col=palette(now);
   cx.setTransform(L.dpr,0,0,L.dpr,0,0);cx.fillStyle=col.land;cx.fillRect(0,0,L.w,L.h);
   var i,N=C.W*C.H,x,y,nco=PP.companies(G);
   cx.fillStyle=col.park;for(i=0;i<N;i++)if(M.park[i]){x=i%C.W;y=(i-x)/C.W;rr(L.ox+x*s+s*.12,L.oy+y*s+s*.12,s*.76,s*.76,s*.3);cx.fill();}
@@ -403,9 +415,12 @@ function draw(now){
   var car=G.car,pts=[carXY()],cur=car.n>=0?car.n:car.c,dir=car.dir;
   if(car.n>=0)pts.push(cxy(car.n));
   var marks=[];
-  car.route.forEach(function(q,k){var g=0;while(cur!==q&&g++<300){var nx=PP.nextCell(M,cur,q,dir);if(nx<0)break;dir=nx-cur;cur=nx;pts.push(cxy(cur));}marks.push([q,k+1]);});
-  if(pts.length>1){cx.strokeStyle=col.accent;cx.globalAlpha=editing?1:.85;cx.lineWidth=Math.max(3,s*.17);cx.setLineDash([s*.36,s*.24]);cx.beginPath();
-    pts.forEach(function(p,k){if(k)cx.lineTo(p[0],p[1]);else cx.moveTo(p[0],p[1]);});cx.stroke();cx.setLineDash([]);cx.globalAlpha=1;}
+  function walk(list,arr,num){list.forEach(function(q,k){var g=0;while(cur!==q&&g++<300){var nx=PP.nextCell(M,cur,q,dir);if(nx<0)break;dir=nx-cur;cur=nx;arr.push(cxy(cur));}if(num)marks.push([q,k+1]);});}
+  function line(arr,c,w,dash){if(arr.length<2)return;cx.strokeStyle=c;cx.lineWidth=w;cx.setLineDash(dash);cx.beginPath();
+    arr.forEach(function(p,k){if(k)cx.lineTo(p[0],p[1]);else cx.moveTo(p[0],p[1]);});cx.stroke();cx.setLineDash([]);}
+  if(!editing){walk(car.route,pts,true);line(pts,col.accent,Math.max(3,s*.17),[s*.36,s*.24]);}
+  else{walk(car.route,pts,false);line(pts,col.tx2,Math.max(2.5,s*.12),[s*.2,s*.2]);
+    var dp=[pts[pts.length-1]];walk(draft,dp,true);line(dp,col.accent,Math.max(4,s*.2),[]);}
   // badget
   hits=[];var per={},bs=Math.max(16,Math.min(26,s*.82));
   G.orders.forEach(function(o){
@@ -423,7 +438,7 @@ function draw(now){
   var fsN=Math.max(10,s*.36),seen={};
   marks.forEach(function(m){var p=cxy(m[0]),off=(seen[m[0]]=(seen[m[0]]||0)+1)-1,r=Math.max(8,s*.3);
     var px=p[0]+off*r*1.6,py=p[1];cx.fillStyle=col.accent;cx.beginPath();cx.arc(px,py,r,0,7);cx.fill();cx.strokeStyle=col.surface;cx.lineWidth=2;cx.stroke();
-    cx.fillStyle=css('--accentTx');cx.font=F(800,fsN);cx.textAlign='center';cx.textBaseline='middle';cx.fillText(m[1],px,py+.5);});
+    cx.fillStyle=col.accentTx;cx.font=F(800,fsN);cx.textAlign='center';cx.textBaseline='middle';cx.fillText(m[1],px,py+.5);});
   // auto
   var p=carXY(),d=car.dir,ang=d===1?0:d===-1?Math.PI:d===C.W?Math.PI/2:d===-C.W?-Math.PI/2:0,sc=1+G.tier*.07;
   var cw=Math.max(22,s*.98)*sc,ch=Math.max(14,s*.62)*sc;
@@ -474,16 +489,17 @@ function roadAt(x,y){var gx=(x-L.ox)/L.cell,gy=(y-L.oy)/L.cell,best=-1,bd=.8;
     var i=cyg*C.W+cxg;if(!G.M.road[i])continue;var d=Math.hypot(cxg+.5-gx,cyg+.5-gy);if(d<bd){bd=d;best=i;}}return best;}
 function bldAt(x,y){var gx=Math.floor((x-L.ox)/L.cell),gy=Math.floor((y-L.oy)/L.cell);if(gx<0||gy<0||gx>=C.W||gy>=C.H)return -1;return G.M.bld[gy*C.W+gx];}
 function tooBig(o){toast('Keikka '+o.L+' on '+o.n+' pakettia: ei mahdu autoon ('+PP.cap(G)+' paikkaa).');}
+function addDraft(c){if(draft[draft.length-1]===c){toast('Sama paikka on jo viimeisenä.');return;}draft.push(c);stats(true);}
 function tap(x,y){
   if(!G||G.over||G.final||menuOpen)return;
   if(G.ending){toast('Peli päättyy: reittiä ei voi enää muuttaa.');return;}
   var offer=nearest(x,y,function(q){if(q.k!=='n')return false;var o=PP.ord(G,q.o);return o&&o.state==='tarjous';});
   if(editing){
-    if(offer){var o=PP.ord(G,offer.o);if(o.n>PP.cap(G)){tooBig(o);return;}PP.accept(G,o.id,false);PP.addPlace(G,PP.door(G,o.from));toast('Keikka '+o.L+' hyväksytty');return;}
+    if(offer){var o=PP.ord(G,offer.o);if(o.n>PP.cap(G)){tooBig(o);return;}PP.accept(G,o.id,false);addDraft(PP.door(G,o.from));toast('Keikka '+o.L+' hyväksytty');return;}
     var any=nearest(x,y,function(q){return q.k==='n'||q.k==='v';});
-    if(any){var a=PP.ord(G,any.o);PP.addPlace(G,PP.door(G,any.k==='n'?a.from:a.to));return;}
-    var r=roadAt(x,y);if(r>=0){PP.addPlace(G,r);return;}
-    var b=bldAt(x,y);if(b>=0){PP.addPlace(G,G.M.blds[b].door);return;}
+    if(any){var a=PP.ord(G,any.o);addDraft(PP.door(G,any.k==='n'?a.from:a.to));return;}
+    var r=roadAt(x,y);if(r>=0){addDraft(r);return;}
+    var b=bldAt(x,y);if(b>=0){addDraft(G.M.blds[b].door);return;}
     return;
   }
   if(offer){var o2=PP.ord(G,offer.o);if(o2.n>PP.cap(G)){tooBig(o2);return;}PP.accept(G,o2.id);toast('Keikka '+o2.L+' hyväksytty: jonon viimeiseksi');return;}
@@ -497,9 +513,11 @@ cv.addEventListener('pointerup',function(e){if(!down)return;var r=cv.getBounding
   if(Math.hypot(e.clientX-down[0],e.clientY-down[1])<14)tap(e.clientX-r.left,e.clientY-r.top);down=null;});
 
 // ---------- napit ----------
-function setEdit(on){if(on&&(G.ending||G.over))return;editing=on;
-  if(on)PP.clearRoute(G);else PP.ensure(G);
-  $('bot').classList.toggle('edit',on);$('bRoute').firstChild.nodeValue=on?'Valmis':'Uusi reitti';$('bRouteS').textContent=on?'reitti valmis':'napauta paikat';stats(true);}
+function setEdit(on){if(on&&(G.ending||G.over))return;
+  if(on){PP.keepNext(G);draft=[];}else if(editing)PP.applyDraft(G,draft);
+  editing=on;if(!on)draft=[];
+  $('bot').classList.toggle('edit',on);$('mapwrap').classList.toggle('edit',on);
+  $('bRoute').firstChild.nodeValue=on?'Valmis ✓':'Uusi reitti';stats(true);}
 $('bRoute').onclick=function(){setEdit(!editing);};
 $('bUp').onclick=function(){var n=T[G.tier+1];if(!n)return;
   if(G.cash<n.raja){toast('Laina vaatii kassaan '+n.raja+'.');return;}
@@ -509,20 +527,24 @@ $('bEnd').onclick=function(){dialog('<h2>Lopeta peli?</h2><p>Uusia tarjouksia ei
   '<div class="col"><button class="pri" data-x="end">Lopeta peli</button><button data-x="close">Jatka ajamista</button></div>');};
 $('bMenu').onclick=function(){menu();};
 
+function put(id,v,html){if(UI[id]===v)return;UI[id]=v;if(html)$(id).innerHTML=v;else $(id).textContent=v;}
+function dis(id,v){if(UI['d'+id]===v)return;UI['d'+id]=v;$(id).disabled=v;}
 function stats(force){var now=clock();
   var k=PP.cap(G),acc=PP.accepted(G).length,ld=PP.pk(G,G.car.load);
-  $('cInfo').innerHTML=editing?'Napauta paikat järjestyksessä, lopuksi Valmis.':
-    G.ending?'Peli päättyy: hyväksytyt ajetaan loppuun.':'<b>'+esc(PP.tier(G).nimi)+'</b> · kyydissä '+ld+'/'+k+' · hyväksyttyjä noutamatta '+acc;
+  put('cInfo',editing?'REITIN RAKENNUS · napauta paikat, lopuksi Valmis':
+    G.ending?'Peli päättyy: hyväksytyt ajetaan loppuun.':'<b>'+esc(PP.tier(G).nimi)+'</b> · kyydissä '+ld+'/'+k+' · hyväksyttyjä noutamatta '+acc,true);
+  put('banner','Reitin rakennus · '+draft.length+(draft.length===1?' paikka':' paikkaa')+(G.car.route.length?'':' · auto odottaa'));
+  put('bRouteS',editing?draft.length+(draft.length===1?' paikka':' paikkaa'):'napauta paikat');
   var n=T[G.tier+1];
-  $('bUpS').textContent=n?(G.cash>=n.raja?n.cap+' paikkaa · käsiraha '+n.kasi:'vaatii kassan '+n.raja):'suurin auto';
-  $('bUp').disabled=!n||G.cash<n.raja||G.ending;$('bEnd').disabled=G.ending;$('bRoute').disabled=G.ending;
+  put('bUpS',n?(G.cash>=n.raja?n.cap+' paikkaa · käsiraha '+n.kasi:'vaatii kassan '+n.raja):'suurin auto');
+  dis('bUp',!n||G.cash<n.raja||G.ending||editing);dis('bEnd',G.ending||editing);dis('bRoute',G.ending);
   if(!force&&now-lastStat<1)return;lastStat=now;
   var inc=PP.income(G),out=PP.costs(G),net=inc-out;
-  $('sCash').textContent=fmt(G.cash);$('sCash').className=G.cash<60?'neg':'';
-  $('sIn').textContent=fmt(inc);$('sOut').textContent=fmt(out);
-  $('sNet').textContent=(net>0?'+':'')+fmt(net);$('sNet').className=net>=0?'pos':'neg';
-  $('sMaine').textContent=Math.round(G.maine);$('mBar').style.width=G.maine+'%';
-  $('sOffers').textContent='tarjouksia ~'+fmt1(PP.offerRate(G))+'/min';
+  put('sCash',fmt(G.cash));$('sCash').className=G.cash<60?'neg':'';
+  put('sIn',fmt(inc));put('sOut',fmt(out));
+  put('sNet',(net>0?'+':'')+fmt(net));$('sNet').className=net>=0?'pos':'neg';
+  put('sMaine',String(Math.round(G.maine)));$('mBar').style.width=G.maine+'%';
+  put('sOffers','tarjouksia ~'+fmt1(PP.offerRate(G))+'/min');
   if(G.cash>rec.kassa)rec.kassa=Math.round(G.cash);
 }
 
@@ -532,7 +554,7 @@ function closeDlg(){menuOpen=false;$('ovl').classList.remove('on');}
 var HELP='<h2>Näin pelaat</h2><ul>'+
   '<li>Olet yksityisyrittäjä, jolla on yksi auto. Värilliset talot tarjoavat keikkoja: <b>katkoviivaruutu</b> on tarjous, ja haalea rengas samalla kirjaimella näyttää, minne paketti menee. Harmaa kehä kertoo, kauanko tarjous on voimassa.</li>'+
   '<li><b>Napauta tarjousta</b>, niin keikka on hyväksytty ja menee jonon viimeiseksi. Hyväksytty nouto on täytetty ruutu ja kohde rengas. Kun paketti on kyydissä, kohteessa on täytetty ympyrä.</li>'+
-  '<li><b>Uusi reitti</b> hidastaa pelin ja tyhjentää reitin. Napauta paikat järjestyksessä (tarjouksia, kohteita tai mitä tahansa tietä) ja paina Valmis. Reitiltä pois jääneet hyväksytyt lisätään perään, koska kaikki hyväksytyt hoidetaan aina.</li>'+
+  '<li><b>Uusi reitti</b> hidastaa peliä, ja kartta saa sinisen kehyksen. Auto ajaa vain seuraavaan pisteeseensä ja jää odottamaan. Napauta niin monta paikkaa kuin haluat (tarjouksia, kohteita tai tietä) ja paina <b>Valmis</b>. Reitiltä pois jääneet hyväksytyt lisätään perään, koska kaikki hyväksytyt hoidetaan aina.</li>'+
   '<li>Auto noutaa ja jättää paketit automaattisesti, kun se ohittaa paikan. Autossa lukee kyydissä/paikat ja +hyväksytyt. Pallo merkin kulmassa kertoo pakettien määrän.</li>'+
   '<li>Kulut juoksevat koko ajan. Toimitukset kasvattavat mainetta, ja maine tuo lisää ja isompia keikkoja. Isompi auto ostetaan lainalla: käsiraha ja isommat kulut.</li>'+
   '<li>Konkurssi tulee heti, kun kassa menee miinukselle. <b>Lopeta peli</b> ajaa hyväksytyt loppuun, ja kassa on tulos.</li></ul>';
@@ -550,9 +572,9 @@ function finalDlg(){var f=G.final;var best=f.cash>rec.loppu;if(best)rec.loppu=Ma
 function gameover(){
   dialog('<h2>Konkurssi</h2><p>Kassa meni miinukselle, ja laina kaatui. Toimituksia ehti '+G.tot.del+', ja peliä kesti '+Math.round(G.t/60)+' min.</p><div class="kv"><span>Suurin kassa</span><b>'+fmt(rec.kassa)+'</b><span>Paras lopputulos</span><b>'+fmt(rec.loppu)+'</b></div>'+
     '<div class="col"><button class="pri" data-x="new2">Uusi peli</button></div>');}
-function startNew(){G=PP.newGame();editing=false;$('bot').classList.remove('edit');setEdit(false);fx=[];hl=null;closeDlg();layout();stats(true);store();}
+function startNew(){G=PP.newGame();editing=false;draft=[];setEdit(false);fx=[];hl=null;closeDlg();layout();stats(true);store();}
 $('dlg').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
-  if(b.dataset.t){set.teema=b.dataset.t;theme();store();menu();return;}
+  if(b.dataset.t){set.teema=b.dataset.t;theme();pal=null;store();menu();return;}
   var x=b.dataset.x;
   if(x==='close'){closeDlg();if(!set.ohje){set.ohje=true;store();}}
   else if(x==='help')dialog(HELP+'<div class="col"><button class="pri" data-x="close">Selvä</button></div>');
@@ -568,7 +590,7 @@ $('dlg').addEventListener('click',function(e){var b=e.target.closest('button');i
   else if(x==='imptxt')dialog('<h2>Palauta tekstistä</h2><textarea id="impt" placeholder="Liitä varmuuskopio tähän"></textarea><div class="col"><button class="pri" data-x="impgo">Palauta</button><button data-x="close">Peru</button></div>');
   else if(x==='impgo')importText($('impt').value);
 });
-function importText(t){try{var d=JSON.parse(t),g=PP.repair(d);if(!g)throw 0;if(d.ennatykset)rec=Object.assign(rec,d.ennatykset);G=g;editing=false;$('bot').classList.remove('edit');closeDlg();stats(true);store();toast('Peli palautettu.');}
+function importText(t){try{var d=JSON.parse(t),g=PP.repair(d);if(!g)throw 0;if(d.ennatykset)rec=Object.assign(rec,d.ennatykset);G=g;editing=false;draft=[];setEdit(false);closeDlg();stats(true);store();toast('Peli palautettu.');}
   catch(e){toast('Tämä ei ole Pakettipelin (versio 2) varmuuskopio.');}}
 
 // ---------- silmukka ----------
@@ -598,7 +620,7 @@ if(!set.ohje||!set.ohje2){set.ohje2=true;dialog(HELP+'<div class="col"><button c
 requestAnimationFrame(loop);
 
 // testikoukut
-window.__pp={PP:PP,get G(){return G;},set G(g){G=g;},layout:layout,tap:tap,cxy:cxy,bCenter:bCenter,setEdit:setEdit,get editing(){return editing;},
+window.__pp={PP:PP,get G(){return G;},set G(g){G=g;},layout:layout,tap:tap,cxy:cxy,bCenter:bCenter,setEdit:setEdit,get editing(){return editing;},get draft(){return draft;},
   setClock:function(f){clock=f;},stats:stats,store:store,get hits(){return hits;},closeDlg:closeDlg};
 })();
 </script>
