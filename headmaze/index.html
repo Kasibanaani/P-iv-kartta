@@ -19,7 +19,7 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 [hidden]{display:none!important}
-html{background:var(--bg)}
+html{background:var(--bg2)}   /* jos iOS jättää rungon lyhyeksi, alla näkyy alapalkin väri */
 body{margin:0;position:fixed;inset:0;display:flex;flex-direction:column;overflow:hidden;background:var(--bg);color:var(--text);
   font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
 button{font:inherit;color:inherit}
@@ -70,7 +70,7 @@ nav button[aria-selected="true"]{background:var(--mus-soft);color:var(--mus)}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .topbar{flex:none;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 12px}
 .topbar .back{border:0;background:none;color:var(--mus);font-weight:600;min-height:44px;padding:0 4px;white-space:nowrap}
-@media (max-height:640px){.koan{font-size:18px;margin:6px 0}.holdbtn.small{width:min(30vw,104px)}.holdbtn.small span:not(#hl-n){display:none}.bub{font-size:14px}#sun{width:50px;height:50px}#cloud{width:56px;height:50px;margin-top:4px}#say{font-size:13px;margin-top:4px;min-height:34px;padding:5px 9px}#info .intro{font-size:13px;line-height:1.35}}
+@media (max-height:640px){body[data-view="koani"] #crew-say{font-size:15px;padding:8px 11px}#ko-hold{width:min(46vw,150px,26dvh)}.koan{font-size:18px;margin:6px 0}.holdbtn.small{width:min(30vw,104px)}.holdbtn.small span:not(#hl-n){display:none}.bub{font-size:14px}#sun{width:50px;height:50px}#cloud{width:56px;height:50px;margin-top:4px}#say{font-size:13px;margin-top:4px;min-height:34px;padding:5px 9px}#info .intro{font-size:13px;line-height:1.35}}
 .topbar b{flex:1;text-align:center}
 .topbar .sp{min-width:84px;text-align:right}
 
@@ -138,11 +138,14 @@ svg.chart{width:100%;height:auto;display:block}
 .slot{flex:none;height:92px}
 body.crew header{display:none}
 body.crew main>section{top:calc(env(safe-area-inset-top,0px) + 6px)}
-#crew{position:absolute;left:12px;right:12px;top:0;height:86px;display:flex;align-items:center;gap:6px;z-index:2;pointer-events:none}
+#crew{position:absolute;left:12px;right:12px;top:0;min-height:86px;display:flex;align-items:center;gap:6px;z-index:2;pointer-events:none}
 #crew svg{display:block}
 #crew .cs svg{width:58px;height:58px}#crew .cc svg{width:64px;height:52px}
-#crew.fly .cs{animation:wob 0.9s ease-in-out infinite}
-#crew.fly .cc{animation:wob 1.1s ease-in-out infinite reverse}
+#crew.fly #crew-say,#crew-say:empty{visibility:hidden}
+#crew.fly .cs{animation:driftS 3.1s ease-in-out infinite}
+#crew.fly .cc{animation:driftC 2.3s ease-in-out infinite}
+@keyframes driftS{0%{transform:translate(0,-34px) rotate(-6deg)}22%{transform:translate(26px,-8px) rotate(5deg)}47%{transform:translate(8px,22px) rotate(-3deg)}71%{transform:translate(-14px,4px) rotate(8deg)}100%{transform:translate(0,-34px) rotate(-6deg)}}
+@keyframes driftC{0%{transform:translate(0,18px) rotate(4deg)}30%{transform:translate(-30px,-20px) rotate(-7deg)}55%{transform:translate(-6px,-36px) rotate(3deg)}80%{transform:translate(12px,6px) rotate(-4deg)}100%{transform:translate(0,18px) rotate(4deg)}}
 #crew.land .cs,#crew.land .cc{animation:bob .5s ease-in-out infinite}
 #crew.hop .cs,#crew.hop .cc{animation:hop .45s ease-out}
 @keyframes wob{0%,100%{transform:rotate(-9deg) translateY(0)}50%{transform:rotate(9deg) translateY(-6px)}}
@@ -154,7 +157,9 @@ body.crew main>section{top:calc(env(safe-area-inset-top,0px) + 6px)}
 #rk-step{min-height:80px;margin-top:6px}
 .koan{flex:none;font-size:22px;line-height:1.35;font-weight:700;margin:10px 0}
 #p-koani .intro{flex:0 1 auto;min-height:0;overflow:hidden}
-#ko-en[aria-pressed="true"]{background:var(--mus-soft);border-color:var(--mus);color:var(--mus)}
+#ko-slot{flex:1 1 auto;height:auto;min-height:120px}
+body[data-view="koani"] #crew-say{font-size:17px;line-height:1.32;padding:10px 13px}
+#ko-hold.ready{background:var(--mus);color:var(--mus-ink)}
 #md-scene{flex:1;min-height:0;position:relative;overflow:hidden}
 #md-svg{position:absolute;left:50%;bottom:0;transform:translateX(-50%);height:min(50%,280px);width:auto;max-width:100%}
 #md-svg .flame{transform-box:fill-box;transform-origin:50% 100%;animation:flick .5s ease-in-out infinite alternate}
@@ -348,12 +353,8 @@ body:not(.playing) #ebar{display:none}
   <!-- Koanikone -->
   <section id="p-koani" class="ex">
     <div class="topbar"><button class="back" type="button" data-back>‹ Takaisin</button><b>Koanikone</b><span class="sp muted" id="ko-n"></span></div>
-    <div class="grow">
-      <div id="ko-txt" class="koan"></div>
-      <div class="intro" id="ko-note"></div>
-    </div>
-    <div class="actions"><button class="btn" type="button" id="ko-en" aria-pressed="false">En tiedä</button><button class="btn main" type="button" id="ko-next">Seuraava</button></div>
-    <button class="holdbtn small" id="ko-hold" type="button">Hengitä ulos<span>pidä pohjassa</span></button>
+    <div class="slot" id="ko-slot"></div>
+    <button class="holdbtn" id="ko-hold" type="button">Hengitä ulos<span id="ko-s">0 / 20 s</span></button>
   </section>
 
   <!-- Hiljaisuus -->
@@ -1492,7 +1493,7 @@ function load(){try{return normalize(JSON.parse(localStorage.getItem(KEY)));}cat
 function save(){try{localStorage.setItem(KEY,JSON.stringify(D));}catch(e){}}
 
 // puhekupla: väkänen osoittaa puhujaa
-function sayLine(line){var b=document.body.classList.contains('crew')?$('crew-say'):$('say');b.textContent=textOf(line);b.classList.toggle('c',speakerOf(line)==='c');b.classList.remove('pop');void b.offsetWidth;b.classList.add('pop');}
+function sayLine(line){var b=document.body.classList.contains('crew')?$('crew-say'):$('say');b.textContent=textOf(line);b.classList.toggle('c',speakerOf(line)==='c');b.classList.remove('pop');void b.offsetWidth;b.classList.add('pop');if(b.id==='crew-say'&&!$('crew').classList.contains('fly'))crewPlace();}
 function say(kind){sayLine(bagPick(bags,kind,Math.random));}
 function happy(){document.body.classList.add('happy');setTimeout(function(){document.body.classList.remove('happy')},1200);}
 setInterval(function(){var t=document.body.dataset.tab,v=document.body.dataset.view;if(t==='peli'&&G&&!G.over&&!paused)return;if(S&&S.start!==null)return;
@@ -1693,7 +1694,7 @@ $('od-stop').onclick=function(){
 
 // pohjassa pidettävä nappi: aika kertyy koko appin uloshengityslaskuriin
 function holdify(btn,st,onUp){
-  btn.addEventListener('pointerdown',function(e){e.preventDefault();if(st.down!==null)return;try{btn.setPointerCapture(e.pointerId)}catch(_){}st.down=clock();btn.classList.add('down');});
+  btn.addEventListener('pointerdown',function(e){e.preventDefault();if(st.down!==null)return;if(st.tap&&st.tap())return;try{btn.setPointerCapture(e.pointerId)}catch(_){}st.down=clock();btn.classList.add('down');if(st.onDown)st.onDown();});
   var up=function(){if(st.down===null)return;var sec=clock()-st.down;st.down=null;btn.classList.remove('down');addOut(sec);onUp(sec);};
   ['pointerup','pointercancel','lostpointercapture'].forEach(function(n){btn.addEventListener(n,up)});
   btn.addEventListener('contextmenu',function(e){e.preventDefault()});
@@ -1723,8 +1724,10 @@ function crewOn(slot){
   c.className='fly';c.style.transition='top '+ms+'ms cubic-bezier(.45,0,.3,1)';c.style.top=crewTop()+'px';
   crew.land=setTimeout(function(){c.className='land';c.style.transition='none';c.style.top=crewTop()+'px';},ms+50);
 }
+function crewMs(){return 6000*Math.max(pauseScale,0.002);
+}
 function crewOff(){clearTimeout(crew.land);crew.slot=null;document.body.classList.remove('crew');var c=$('crew');c.hidden=true;c.className='';}
-function crewTop(){var sl=crew.slot,m=$('main').getBoundingClientRect(),r=sl.getBoundingClientRect();return r.top-m.top+(r.height-86)/2;}
+function crewTop(){var sl=crew.slot,m=$('main').getBoundingClientRect(),r=sl.getBoundingClientRect();return r.top-m.top+(r.height-Math.max(86,$('crew').offsetHeight))/2;}
 function crewPlace(){if(crew.slot&&!$('crew').hidden)$('crew').style.top=crewTop()+'px';}
 function crewHop(){var c=$('crew');if(c.className==='land'){c.className='hop';setTimeout(function(){if(c.className==='hop')c.className='land';},460);}}
 addEventListener('resize',function(){if(crew.slot){crewPlace();if(document.body.dataset.view==='kyna')knFit();}});
@@ -1757,17 +1760,19 @@ holdify($('rk-hold'),rk,function(sec){if(sec<1)return;
 $('rk-new').onclick=rkReset;
 
 // ---- Koanikone ----
-var ko={down:null,en:false};
-// Koanikoneessa aurinko ja pilvi sanovat aluksi yhden piikin ja sen jälkeen vain koaneja, vuorotellen.
-var koSay=0;
-function koNext(first){var k=bagPick(bags,'koani_txt',Math.random,KOANIT);ko.cur=k;$('ko-txt').textContent=k;$('ko-note').textContent='';ko.en=false;$('ko-en').setAttribute('aria-pressed','false');
+// Koanikone: aurinko ja pilvi laskeutuvat ja sanovat koanit puhekuplassa (aluksi yksi piikki). Koania hengitetään vähintään 20 s (yhdessä tai monessa erässä), sitten sama nappi on Seuraava.
+var KO_SEK=20,ko={down:null,cur:'',sek:0,ready:false,t:0,raf:0},koSay=0;
+function koNext(first){var k=bagPick(bags,'koani_txt',Math.random,KOANIT);ko.cur=k;ko.sek=0;ko.ready=false;koLabel();
   D.muut.koani++;save();$('ko-n').textContent=D.muut.koani+' luettu';clearTimeout(ko.t);
-  if(first){say('koani_alku');ko.t=setTimeout(function(){if(document.body.dataset.view==='koani'&&ko.cur===k)koSpeak(k);},4500*Math.max(pauseScale,0.1));}
-  else koSpeak(k);}
+  if(first){crewOn($('ko-slot'));say('koani_alku');ko.t=setTimeout(function(){if(document.body.dataset.view==='koani'&&ko.cur===k)koSpeak(k);},crewMs()+4000*Math.max(pauseScale,0.15));}
+  else{koSpeak(k);crewHop();}}
 function koSpeak(k){koSay=1-koSay;sayLine((koSay?'':'c:')+k);}
-$('ko-next').onclick=function(){koNext(false)};
-$('ko-en').onclick=function(){if(!ko.en){ko.en=true;D.muut.entieda++;save();}$('ko-en').setAttribute('aria-pressed','true');};
-holdify($('ko-hold'),ko,function(sec){if(sec<0.5)return;$('ko-note').textContent='Uloshengitys '+fmt(sec)+' s.';});
+function koLabel(live){var b=$('ko-hold'),s=Math.min(KO_SEK,ko.sek+(live||0));b.classList.toggle('ready',ko.ready);
+  b.innerHTML=ko.ready?'Seuraava<span>koani</span>':'Hengitä ulos<span id="ko-s">'+Math.floor(s)+' / '+KO_SEK+' s</span>';}
+function koLoop(){cancelAnimationFrame(ko.raf);if(ko.down===null)return;koLabel(clock()-ko.down);ko.raf=requestAnimationFrame(koLoop);}
+ko.tap=function(){if(!ko.ready)return false;koNext(false);return true;};
+ko.onDown=koLoop;
+holdify($('ko-hold'),ko,function(sec){cancelAnimationFrame(ko.raf);ko.sek+=sec;if(ko.sek>=KO_SEK)ko.ready=true;koLabel();});
 
 // ---- Hiljaisuus ----
 var hl={t0:null,raf:0,k:[],ki:0,huom:0};
@@ -1825,7 +1830,7 @@ function renderStats(){
     '<div class="tile"><b>'+D.laji.reduce(function(a,x){return a+x.c.ajatus},0)+'</b><span>ajatusta lajiteltu</span></div>'+
     '<div class="tile"><b>'+D.muut.kyna+'</b><span>valitusta kynällä (syvin '+D.muut.kynaSyvin+' kerrosta)</span></div>'+
     '<div class="tile"><b>'+D.muut.ratk+' / '+D.muut.elett+'</b><span>huolta ratkaistu / eletty</span></div>'+
-    '<div class="tile"><b>'+D.muut.koani+'</b><span>koania (en tiedä '+D.muut.entieda+')</span></div>'+
+    '<div class="tile"><b>'+D.muut.koani+'</b><span>koania</span></div>'+
     '<div class="tile"><b>'+D.muut.hilj+'</b><span>hiljaista minuuttia, huomattu '+D.muut.huom+'</span></div>'+
     '<div class="tile"><b>'+D.muut.tark+'</b><span>kertaa tarkkailijan jäljillä</span></div>'+
     '<div class="tile"><b>'+fmt(D.muut.meditSek/60)+'</b><span>minuuttia meditoijan seurassa</span></div>';
@@ -2025,14 +2030,6 @@ function figure(c,x,y,dir,ph,moving,fill,stroke,lamp){
   [-1,1].forEach(function(k){c.beginPath();c.arc(x+ca*r*0.45-sa*k*r*0.32,y+sa*r*0.45+ca*k*r*0.32,r*0.14,0,7);c.fill();});
 }
 
-// Kotinäytön appina (tilapalkki läpinäkyvä) iOS voi jättää rungon alareunan näytön alareunasta lyhyeksi:
-// jos runko loppuu ennen näytön alareunaa, venytetään se alas asti.
-function fitStandalone(){try{
-  if(!navigator.standalone)return;var b=document.body;b.style.bottom='';
-  var land=innerWidth>innerHeight,H=land?Math.min(screen.width,screen.height):Math.max(screen.width,screen.height),gap=H-b.getBoundingClientRect().bottom;
-  if(gap>2&&gap<120)b.style.bottom=(-gap)+'px';
-}catch(e){}}
-fitStandalone();addEventListener('resize',function(){setTimeout(fitStandalone,120)});addEventListener('orientationchange',function(){setTimeout(fitStandalone,300)});
 renderHarj();setTarget();holdLabel();say('idle');
 
 // testikoukku

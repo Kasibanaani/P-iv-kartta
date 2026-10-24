@@ -59,19 +59,22 @@ async function run(b,w,h){
 
   // Koanikone
   await open('koani');
-  const k1=await pg.innerText('#ko-txt');chk(w+' koani näkyy',k1.length>10);
+  chk(w+' koanikone: ei keskitekstiä eikä muita nappeja, aurinko ja pilvi laskeutuvat ilman tyhjää kuplaa',!(await pg.locator('#ko-txt,#ko-en,#ko-next').count())&&await pg.isVisible('#crew')&&!await pg.isVisible('header')&&await pg.evaluate(()=>{const c=document.getElementById('crew'),cl=c.className;c.className='fly';const v=getComputedStyle(document.getElementById('crew-say')).visibility;c.className=cl;return v})==='hidden');
+  await pg.waitForTimeout(150);
+  const jab=await pg.innerText('#crew-say');chk(w+' koanikone: laskeuduttuaan piikki',jab.length>10,jab);
+  await pg.waitForTimeout(400);
+  const k1=await pg.innerText('#crew-say');chk(w+' koanikone: sitten kupla sanoo koanin',k1!==jab&&k1.length>5,k1);
   ns=await pg.evaluate(NOSCROLL('#p-koani'));chk(w+' koanikone mahtuu ruutuun',ns.sec&&ns.doc,ns);
-  chk(w+' koanikone: ei ohjetekstiä, kupla alkaa piikillä',!(await pg.innerText('#p-koani')).includes('Älä ratkaise')&&(await pg.innerText('#say')).length>10&&(await pg.innerText('#say'))!==k1);
-  await pg.waitForTimeout(500);
-  chk(w+' koanikone: sitten kupla sanoo koanin',(await pg.innerText('#say'))===k1,await pg.innerText('#say'));
-  await pg.click('#ko-en');await pg.click('#ko-en');chk(w+' en tiedä lasketaan kerran per koani',(await D()).entieda===1&&await pg.getAttribute('#ko-en','aria-pressed')==='true');
-  await holdBtn('#ko-hold',300,306);chk(w+' koanin uloshengitys',(await pg.innerText('#ko-note'))==='Uloshengitys 6,0 s.');
-  await pg.screenshot({path:shot('hj'+w+'_4_koani.png')});
   const longest=require(path.resolve(__dirname,'hm.js')).KOANIT.reduce((a,x)=>x.length>a.length?x:a,'');
-  const kfit=await pg.evaluate(t=>{const k=document.getElementById('ko-txt'),old=k.textContent;k.textContent=t;const r=k.getBoundingClientRect(),g=k.parentNode.getBoundingClientRect(),q=document.querySelector('#p-koani .actions').getBoundingClientRect(),ok=r.top>=g.top-1&&r.bottom<=g.bottom+1&&r.bottom<=q.top;k.textContent=old;return ok},longest);
-  chk(w+' pisinkin koani mahtuu kokonaan näkyviin',kfit,longest);
-  await pg.click('#ko-next');const k2=await pg.innerText('#ko-txt');chk(w+' seuraava koani on eri ja kupla sanoo sen heti',k2!==k1&&(await D()).koani===2&&(await pg.innerText('#say'))===k2);
-  await back('koani');
+  const kfit=await pg.evaluate(t=>{const b=document.getElementById('crew-say'),old=b.textContent;b.textContent=t;const r=document.getElementById('crew').getBoundingClientRect(),h=document.getElementById('ko-hold').getBoundingClientRect(),tb=document.querySelector('#p-koani .topbar').getBoundingClientRect(),ok=r.bottom<=h.top+1&&r.top>=tb.bottom-1;b.textContent=old;return ok},longest);
+  chk(w+' pisinkin koani mahtuu kuplaan napin yläpuolelle',kfit,longest);
+  await holdBtn('#ko-hold',300,312);chk(w+' koani: 12 s → 12 / 20 s, ei vielä Seuraava',(await pg.innerText('#ko-hold')).includes('12 / 20 s'));
+  await pg.screenshot({path:shot('hj'+w+'_4_koani.png')});
+  await holdBtn('#ko-hold',320,328.5);chk(w+' koani: yhteensä 20,5 s → nappi Seuraava',(await pg.innerText('#ko-hold')).startsWith('Seuraava'));
+  const pz=await pg.evaluate(()=>__hm.data().puhallus);
+  await pg.click('#ko-hold');await pg.waitForTimeout(60);
+  chk(w+' Seuraava: uusi koani kuplaan, nappi taas 0 / 20 s',(await pg.innerText('#crew-say'))!==k1&&(await D()).koani===2&&(await pg.innerText('#ko-hold')).includes('0 / 20 s'));
+  await back('koani');chk(w+' koanikone: poistuttaessa otsikkorivi palaa',await pg.isVisible('header'));
 
   // Hiljaisuus
   await open('hilj');
