@@ -16,4 +16,8 @@ eq('laskurit korjataan, puuttuvat nollaksi',(()=>{const o=H.normalize({ver:3,muu
 eq('vanha v3-tieto ilman laskureita luetaan',H.normalize({ver:3,sessions:[]}).muut.tark,0);
 eq('kaikilla uusilla repliikkilajeilla repliikkejä',['kyna_alku','kyna','kyna_more','kyna_odotus','ratk_ratk','ratk_elett','koani_alku','hilj_alku','hilj_kesk','hilj_loppu','tark','medit'].every(x=>H.LINES[x]&&H.LINES[x].length>=2),true);
 eq('kynän repliikkejä paljon: hehkutus yli 40, ohjeita yli 10',[H.LINES.kyna_more.length>40,H.KYNA_OHJE.length>10],[true,true]);
+{const src=require('fs').readFileSync(__dirname+'/hm.js','utf8'),kinds=new Set();for(const m of src.matchAll(/(?:say|bagPick\(bags,)\(?'([a-z_0-9]+)'/g))kinds.add(m[1]);
+ for(const m of src.matchAll(/return i>=\d+\?'([a-z_0-9]+)'/g))kinds.add(m[1]);for(const m of src.matchAll(/:i>=\d+\?'([a-z_0-9]+)'/g))kinds.add(m[1]);for(const m of src.matchAll(/'(mina_kuka|tark_alku)'/g))kinds.add(m[1]);
+ ['koani_txt','medit_txt','kyna_ohje','laji_'].forEach(k=>kinds.delete(k));
+ eq('jokainen käytetty repliikkilaji on olemassa',[...kinds].filter(k=>!H.LINES[k]||!H.LINES[k].length),[]);}
 console.log(ok?'KAIKKI OK':'VIRHEITÄ');process.exit(ok?0:1);
