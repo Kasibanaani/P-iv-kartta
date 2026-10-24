@@ -1,6 +1,6 @@
 # Pakettipeli: suunnitelma
 
-**Tila:** suunnitelma, ei rakennettu · **Päivitetty:** 24.10.2026 · **Julkaisu (tuleva):** https://kasibanaani.github.io/P-iv-kartta/pakettipeli/
+**Tila:** v1 rakennettu 24.10.2026 (ks. TILA.md) · **Päivitetty:** 24.10.2026 · **Julkaisu (tuleva):** https://kasibanaani.github.io/P-iv-kartta/pakettipeli/
 
 Kasuaali puhelinpeli Mini Motorwaysin tyyliin. Kuvakulma on ylhäältä, ja tiet ovat valmiina. Pelaaja johtaa pakettikuljetusfirmaa: hän jakaa tilaukset autoille ja päättää, milloin firma kasvaa. Emilin päätökset on merkitty **(E)** ja tekoälyn valinnat **(T)**. T-valinnat ja luvut ovat säädettäviä oletuksia, eivät sopimus.
 
@@ -44,7 +44,7 @@ Kasuaali puhelinpeli Mini Motorwaysin tyyliin. Kuvakulma on ylhäältä, ja tiet
   - Kartalla korostuvat auton omien pakettien määränpäät ja kaikki avoimet noudot, joita ei ole annettu millekään autolle.
   - Kun noutoa napautetaan, reitin loppuun lisätään nouto ja sen toimitus. Toimitus tulee aina noudon jälkeen. **(E)**
   - Tien kohdan napautus lisää vapaan tiepisteen, ja niistä voi rakentaa kiertotien. **(E)**
-  - Alareunan paneelissa on pysähdyslista. Järjestystä voi muuttaa raahaamalla. Pysähdyksen voi poistaa ruksilla: poistettu nouto palaa avoimeksi, mutta kyydissä olevan paketin toimitusta ei voi poistaa. Tyhjän kohdan napautus poistaa valinnan. **(T)**
+  - Alareunan paneelissa on pysähdyslista. Järjestystä muutetaan ▲▼-napeilla (v1). Pysähdyksen voi poistaa ruksilla: poistettu nouto palaa avoimeksi, mutta kyydissä olevan paketin toimitusta ei voi poistaa. Tyhjän kohdan napautus poistaa valinnan. **(T)**
   - Ilman muutoksia auto hoitaa pysähdykset siinä järjestyksessä, jossa ne annettiin. **(E)**
 - **Kapasiteetti (E):** tilauksen saa ottaa, vaikka se ei hyväksymishetkellä mahtuisi kyytiin. Tarkistus tehdään vasta noudolle saavuttaessa: jos auto on silloin täynnä, nouto ja sen toimitus siirtyvät listan viimeisiksi, oli siinä järkeä tai ei. Paneeli näyttää kuorman jokaisen pysähdyksen jälkeen ja punaisena sen kohdan, jossa ylitys tapahtuu. **(T: ennakkovaroitus)**
 - **Lyhin reitti:** Dijkstra tieruudukossa, ja reitti lasketaan uudelleen aina, kun pysähdykset muuttuvat. Autot eivät törmää toisiinsa, eikä ruuhkaa ole. **(T)**
