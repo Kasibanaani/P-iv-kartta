@@ -232,6 +232,7 @@ body.playing #irti.on{opacity:1;visibility:visible;animation:kuisk 1.1s ease-in-
 #knob2{position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;background:rgba(236,230,207,.28)}
 #joy2.full #knob2{background:rgba(236,230,207,.75)}
 body:not(.playing) #joy2{display:none}
+body.hv #joy2,body.hv #ebar{display:none}
 #knob{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:rgba(196,173,44,.75)}
 .over{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;justify-content:center;gap:10px;padding:16px;background:rgba(21,20,15,.92);text-align:center}
 .over h3{margin:0;font-size:24px;color:var(--mus)}
@@ -455,7 +456,8 @@ body:not(.playing) #joy2{display:none}
       <button id="irti" type="button" tabindex="-1">en ole tässä pelissä</button>
       <div class="over" id="o-start">
         <h3>Sokkelo</h3>
-        <div class="muted desc">Kerää vihreitä palluroita, muuten palkki tyhjenee. Hipat etsivät sinua valokeilallaan, seinien läpi ne eivät näe. Mitä kovempaa juokset, sitä kauemmas ääni kuuluu. Oikealla tatilla voi heittää jotain kolisevaa, kun sen kehä on täynnä. Pelataan vaakatasossa.</div>
+        <div class="chips" id="pelit"></div>
+        <div class="muted desc" id="pdesc">Kerää vihreitä palluroita, muuten palkki tyhjenee. Hipat etsivät sinua valokeilallaan, seinien läpi ne eivät näe. Mitä kovempaa juokset, sitä kauemmas ääni kuuluu. Oikealla tatilla voi heittää jotain kolisevaa, kun sen kehä on täynnä. Pelataan vaakatasossa.</div>
         <div class="chips" id="maps"></div>
         <div class="chips" id="nhip"></div>
         <div class="chips" id="taso"></div>
@@ -488,7 +490,7 @@ body:not(.playing) #joy2{display:none}
 // ---------- logiikka (ei DOMia; testit lukevat tämän nodella) ----------
 var KEY='headmaze:v1',VER=3,T0=10,TMIN=2,TMAX=90;
 
-function newData(){return {app:'headmaze',ver:VER,target:T0,sessions:[],puhallus:0,lastOut:'',laji:[],pilvi:{n:0},odotus:{n:0,best:0,parasPct:''},peli:{kartta:'talo',hipat:2,taso:'normaali',best:{},irti:0},muut:newMuut()};}
+function newData(){return {app:'headmaze',ver:VER,target:T0,sessions:[],puhallus:0,lastOut:'',laji:[],pilvi:{n:0},odotus:{n:0,best:0,parasPct:''},peli:{laji:'hippa',kartta:'talo',hipat:2,taso:'normaali',best:{},irti:0},muut:newMuut()};}
 // Muiden harjoitusten laskurit. Kirjoitettuja tekstejä (valitus, huoli, askel) ei tallenneta koskaan.
 var MUUT=['kyna','kynaSyvin','ratk','elett','hilj','huom','tark','koani','entieda','medit','meditSek'];
 function newMuut(){var o={};MUUT.forEach(function(k){o[k]=0});return o;}
@@ -511,7 +513,7 @@ function normalize(d){
   var p=d.peli&&typeof d.peli==='object'?d.peli:{};
   o.peli.kartta=MAPS.some(function(m){return m.id===p.kartta})?p.kartta:'talo';
   o.peli.hipat=HIPAT.indexOf(p.hipat)>=0?p.hipat:2;
-  o.peli.irti=num(p.irti,0);
+  o.peli.irti=num(p.irti,0);o.peli.laji=p.laji==='hirvio'?'hirvio':'hippa';
   o.peli.taso=TASOT.some(function(t){return t.id===p.taso})?p.taso:'normaali';
   if(p.best&&typeof p.best==='object')Object.keys(p.best).forEach(function(k){var v=num(p.best[k],0);if(v>0)o.peli.best[k]=v;});
   // versio 3: uloshengityslaskuri koko appiin (vanhoille tiedoille harjoitusten summa), muut harjoitukset
@@ -2035,6 +2037,7 @@ function stepSeeker(G,s,dt){
 // input: tatin vektori (x, y), pituus 0–1
 function stepGame(G,dt,input){
   if(G.over)return;
+  if(G.laji==='hirvio')return stepHirvio(G,dt,input);
   G.t+=dt;var p=G.p,M=G.M,ix=input?input.x:0,iy=input?input.y:0,mag=Math.min(1,Math.hypot(ix,iy));
   p.mag=mag;
   if(mag>0.02){var sp=PMAX*mag,ox=p.x,oy=p.y;moveCircle(M,p,ix/Math.hypot(ix,iy)*sp*dt,iy/Math.hypot(ix,iy)*sp*dt,PR);
@@ -2060,6 +2063,83 @@ function stepGame(G,dt,input){
   p.lit=G.S.some(function(s){return seeFactor(M,s,p)>0});
   if(jahti(G))G.uhkaT=G.t;
   if(G.S.some(function(s){return Math.hypot(s.x-p.x,s.y-p.y)<CATCH})){G.over=true;G.why='kiinni';G.ev.push('caught');}
+}
+// ===== Hirviösokkelo (Emil 24.10.2026) =====
+// Kapeakäytäväinen sokkelo, yksi hirviö, joka tietää aina missä pelaaja on ja on selvästi nopeampi.
+// Vihreä teleporttipari: kummasta tahansa pääsee toiseen päähän, piste per käyttö, sen jälkeen molemmat päät vaihtavat paikkaa.
+var HV_SPD=4.2,HV_HERAA=1.5,HV_TMIN=14,HV_TMAX=28,HV_TAB=24,HV_TELE_R=0.55;
+// kymmenen sokkeloa: kasvava puu (q=1 pitkät käytävät, pieni q haarautuva), osa umpikujista avataan (braid)
+var HV_MAZES=[{cw:16,ch:9,q:1,braid:.55,seed:11},{cw:15,ch:9,q:.75,braid:.65,seed:23},{cw:17,ch:9,q:.5,braid:.6,seed:37},{cw:16,ch:10,q:.9,braid:.5,seed:41},{cw:15,ch:10,q:.3,braid:.7,seed:53},
+  {cw:17,ch:10,q:1,braid:.6,seed:67},{cw:16,ch:9,q:.6,braid:.55,seed:79},{cw:18,ch:9,q:.85,braid:.6,seed:83},{cw:15,ch:9,q:.4,braid:.65,seed:97},{cw:17,ch:9,q:.95,braid:.5,seed:101}];
+function mazeRows(c){
+  var rng=rngOf(c.seed),cw=c.cw,ch=c.ch,W=2*cw+1,H=2*ch+1,g=[],x,y,i;
+  for(y=0;y<H;y++){var r=[];for(x=0;x<W;x++)r.push('#');g.push(r);}
+  var D4=[[1,0],[-1,0],[0,1],[0,-1]],vis=new Uint8Array(cw*ch),act=[],s0=Math.floor(rng()*cw*ch);
+  vis[s0]=1;act.push(s0);g[2*Math.floor(s0/cw)+1][2*(s0%cw)+1]='.';
+  while(act.length){
+    i=rng()<c.q?act.length-1:Math.floor(rng()*act.length);var k=act[i];x=k%cw;y=(k-x)/cw;
+    var nb=D4.filter(function(o){var nx=x+o[0],ny=y+o[1];return nx>=0&&ny>=0&&nx<cw&&ny<ch&&!vis[ny*cw+nx]});
+    if(!nb.length){act.splice(i,1);continue;}
+    var o=nb[Math.floor(rng()*nb.length)],nx=x+o[0],ny=y+o[1];
+    g[2*y+1+o[1]][2*x+1+o[0]]='.';g[2*ny+1][2*nx+1]='.';vis[ny*cw+nx]=1;act.push(ny*cw+nx);
+  }
+  function aukot(x,y){return D4.filter(function(o){return g[2*y+1+o[1]][2*x+1+o[0]]==='.'}).length;}
+  for(y=0;y<ch;y++)for(x=0;x<cw;x++){
+    if(aukot(x,y)!==1||rng()>=c.braid)continue;
+    var sul=D4.filter(function(o){var nx=x+o[0],ny=y+o[1];return nx>=0&&ny>=0&&nx<cw&&ny<ch&&g[2*y+1+o[1]][2*x+1+o[0]]==='#'});
+    var um=sul.filter(function(o){return aukot(x+o[0],y+o[1])===1});var v=um.length?um:sul;if(!v.length)continue;
+    var o2=v[Math.floor(rng()*v.length)];g[2*y+1+o2[1]][2*x+1+o2[0]]='.';
+  }
+  g[1][1]=g[1][1]==='.'?'P':g[1][1];
+  return g.map(function(r){return r.join('')});
+}
+var HV_M=[];
+function hvMap(i){if(!HV_M[i])HV_M[i]=parseMap({id:'hv'+i,nimi:'Sokkelo '+(i+1),k:mazeRows(HV_MAZES[i])});return HV_M[i];}
+function hvSolut(M){if(!M.solut)M.solut=M.floor.filter(function(k){var x=k%M.w,y=(k-x)/M.w;return x%2===1&&y%2===1});return M.solut;}
+function kxy(M,k){return {x:k%M.w+.5,y:Math.floor(k/M.w)+.5};}
+// teleportin päät: lähempi 14–28 askeleen päässä reittiä pitkin, kumpikin vähintään 14, päät vähintään 24 toisistaan, ei hirviön vieressä
+function placeTele(G){
+  var M=G.M,C=hvSolut(M),dP=bfsDist(M,G.p.x,G.p.y),dM=bfsDist(M,G.S[0].x,G.S[0].y),rng=G.rng;
+  for(var rel=0;rel<8;rel++){
+    var lo=Math.max(2,HV_TMIN-rel*2),hi=HV_TMAX+rel*4,mon=Math.max(0,6-rel);
+    var A=C.filter(function(k){return dP[k]>=lo&&dP[k]<=hi&&dM[k]>=mon});if(!A.length)continue;
+    var a=A[Math.floor(rng()*A.length)],pa=kxy(M,a),dA=bfsDist(M,pa.x,pa.y);
+    var B=C.filter(function(k){return dP[k]>=lo&&dA[k]>=Math.max(4,HV_TAB-rel*3)&&dM[k]>=mon});if(!B.length)continue;
+    G.tele=[pa,kxy(M,B[Math.floor(rng()*B.length)])];return;
+  }
+  G.tele=[kxy(M,C[0]),kxy(M,C[C.length-1])];
+}
+function newHirvio(idx,seed){
+  idx=Math.max(0,Math.min(HV_MAZES.length-1,idx|0));
+  var M=hvMap(idx),rng=rngOf(seed||((Math.random()*1e9)|0)),C=hvSolut(M),st=kxy(M,C[Math.floor(rng()*C.length)]);
+  var d=bfsDist(M,st.x,st.y),mx=0;C.forEach(function(k){if(d[k]>mx)mx=d[k]});
+  var far=C.filter(function(k){return d[k]>=mx*0.7}),ms=kxy(M,far[Math.floor(rng()*far.length)]);
+  var G={laji:'hirvio',hv:idx,M:M,rng:rng,t:0,over:false,why:'',ev:[],rings:[],noiseT:0,p:{x:st.x,y:st.y,vx:0,vy:0,dir:0,ph:0,mag:0,lit:false},
+    S:[{i:0,x:ms.x,y:ms.y,dir:0,state:'chase',path:[],repl:0,spd:HV_SPD,flash:0,mark:'',ph:0,moving:false,head:0,expo:0}],nh:1,
+    taso:null,E:1,pallot:[],kerätty:0,irti:0,uhkaT:-9,lataus:1,heitot:[],heitetty:0,tele:null};
+  placeTele(G);return G;
+}
+// hirviön askel: ylijäävä matka jatkuu seuraavaan ruutuun, jottei vauhti hidastu käännöksissä
+function hvFollow(G,s,dt){var st=s.spd*dt,M=G.M;s.moving=true;s.ph+=st*5;
+  while(st>1e-6&&s.path.length){var t=s.path[0],dx=t.x-s.x,dy=t.y-s.y,d=Math.hypot(dx,dy);if(d>0.001)s.head=Math.atan2(dy,dx);
+    if(d<=st){moveCircle(M,s,dx,dy,SR);st-=d;s.path.shift();}else{moveCircle(M,s,dx/d*st,dy/d*st,SR);st=0;}}}
+function stepHirvio(G,dt,input){
+  G.t+=dt;var p=G.p,M=G.M,ix=input?input.x:0,iy=input?input.y:0,mag=Math.min(1,Math.hypot(ix,iy));
+  p.mag=mag;
+  if(mag>0.02){var sp=PMAX*mag,ox=p.x,oy=p.y;moveCircle(M,p,ix/Math.hypot(ix,iy)*sp*dt,iy/Math.hypot(ix,iy)*sp*dt,PR);
+    p.vx=(p.x-ox)/dt;p.vy=(p.y-oy)/dt;p.dir=Math.atan2(iy,ix);p.ph+=Math.hypot(p.x-ox,p.y-oy)*5;}
+  else{p.vx=p.vy=0;}
+  for(var i=0;i<2;i++){var a=G.tele[i];if(Math.hypot(a.x-p.x,a.y-p.y)<HV_TELE_R){var b=G.tele[1-i];
+    G.rings.push({x:a.x,y:a.y,R:2.2,t:0,L:0.7,tele:true});p.x=b.x;p.y=b.y;G.kerätty++;G.ev.push('tele');G.rings.push({x:b.x,y:b.y,R:2.6,t:0,L:0.9,tele:true});placeTele(G);break;}}
+  G.rings.forEach(function(r){r.t+=dt});G.rings=G.rings.filter(function(r){return r.t<(r.L||0.9)});
+  var s=G.S[0];
+  if(G.t>HV_HERAA){
+    s.repl-=dt;if(s.repl<=0){setPath(G,s,p.x,p.y);s.repl=0.2;}
+    if(s.path.length){hvFollow(G,s,dt);turnTo(s,s.head,10,dt);}
+    else{var dx=p.x-s.x,dy=p.y-s.y,d=Math.hypot(dx,dy),st=s.spd*dt;if(d>0.01){moveCircle(M,s,dx/d*Math.min(st,d),dy/d*Math.min(st,d),SR);s.moving=true;s.ph+=st*5;turnTo(s,Math.atan2(dy,dx),10,dt);}}
+  }
+  if(jahti(G))G.uhkaT=G.t;
+  if(Math.hypot(s.x-p.x,s.y-p.y)<CATCH){G.over=true;G.why='kiinni';G.ev.push('caught');}
 }
 // Harhautus (Emil 24.10.2026): oikealla tatilla heitetään esine, joka pitää osuessaan täyden äänen.
 // Valokeilaan osuessaan hippa luulee sitä pelaajaksi ja juoksee suoraan sen luo; muut kuulijat lähtevät katsomaan.
@@ -2091,7 +2171,7 @@ function conePoly(M,s,n){
   return pts;
 }
 
-if(typeof module!=='undefined')module.exports={heita:heita,heittoKohde:heittoKohde,HEITTO_S:HEITTO_S,HEITTO_R:HEITTO_R,jahti:jahti,uhka:uhka,irtiLaji:irtiLaji,KYNA_OHJE:KYNA_OHJE,kynaWrap:kynaWrap,hiljaKatkot:hiljaKatkot,HL_SEK:HL_SEK,KOANIT:KOANIT,MEDIT:MEDIT,TARK:TARK,MUUT:MUUT,zenoFill:zenoFill,zenoText:zenoText,kasvi:kasvi,LAJIT:LAJIT,KEY:KEY,VER:VER,T0:T0,newData:newData,normalize:normalize,newSession:newSession,press:press,release:release,finish:finish,ratio:ratio,nextTarget:nextTarget,fmt:fmt,fmtRatio:fmtRatio,fmtTime:fmtTime,totals:totals,LINES:LINES,bagPick:bagPick,speakerOf:speakerOf,rngOf:rngOf,buildMaze:buildMaze,MINA:MINA,clampT:clampT,
+if(typeof module!=='undefined')module.exports={mazeRows:mazeRows,HV_MAZES:HV_MAZES,hvMap:hvMap,newHirvio:newHirvio,placeTele:placeTele,HV_SPD:HV_SPD,HV_TMIN:HV_TMIN,HV_TMAX:HV_TMAX,HV_TAB:HV_TAB,heita:heita,heittoKohde:heittoKohde,HEITTO_S:HEITTO_S,HEITTO_R:HEITTO_R,jahti:jahti,uhka:uhka,irtiLaji:irtiLaji,KYNA_OHJE:KYNA_OHJE,kynaWrap:kynaWrap,hiljaKatkot:hiljaKatkot,HL_SEK:HL_SEK,KOANIT:KOANIT,MEDIT:MEDIT,TARK:TARK,MUUT:MUUT,zenoFill:zenoFill,zenoText:zenoText,kasvi:kasvi,LAJIT:LAJIT,KEY:KEY,VER:VER,T0:T0,newData:newData,normalize:normalize,newSession:newSession,press:press,release:release,finish:finish,ratio:ratio,nextTarget:nextTarget,fmt:fmt,fmtRatio:fmtRatio,fmtTime:fmtTime,totals:totals,LINES:LINES,bagPick:bagPick,speakerOf:speakerOf,rngOf:rngOf,buildMaze:buildMaze,MINA:MINA,clampT:clampT,
   MAPS:MAPS,parseMap:parseMap,castRay:castRay,clearLine:clearLine,bfsPath:bfsPath,bfsDist:bfsDist,newGame:newGame,stepGame:stepGame,TASOT:TASOT,HIPAT:HIPAT,PALLO_PLUS:PALLO_PLUS,addPallo:addPallo,seeFactor:seeFactor,noiseRadius:noiseRadius,startSearch:startSearch,conePoly:conePoly,hitsWall:hitsWall,
   consts:{PMAX:PMAX,RUN:RUN,WALK:WALK,FOVH:FOVH,RANGE:RANGE}};
 
@@ -2518,13 +2598,21 @@ function lock(el){el.dataset.lock='1';el.querySelectorAll('[data-go]').forEach(f
 // ---- Sokkelo ----
 var G=null,paused=false,graf=0,lastT=0,joy={on:false,id:null,x:0,y:0},cam={x:0,y:0},miniBg=null,dpr=1,TP=30,ZW=0,ZH=0,MW=0,MH=0;
 var MUS='#c4ad2c',BLUE='#5068e6',GREEN='#8bd450',VIEW_TILES=300,allowPortrait=false;  // 40 × 30 kartasta neljäsosa
+var HIPPA_DESC=null,HV_DESC='Hirviö tietää aina, missä olet, ja juoksee sinua nopeammin. Vihreä teleportti vie sokkelon toiseen kohtaan, ja sen jälkeen molemmat päät siirtyvät. Sokkelo arvotaan kymmenestä. Pelataan vaakatasossa.';
+function isHv(){return D.peli.laji==='hirvio';}
 function chips(){
+  if(HIPPA_DESC===null)HIPPA_DESC=$('pdesc').textContent;
+  $('pelit').innerHTML=[['hippa','Hipat'],['hirvio','Hirviö']].map(function(q){return '<button type="button" class="chip" data-peli="'+q[0]+'" aria-pressed="'+(D.peli.laji===q[0])+'">'+q[1]+'</button>'}).join('');
+  $('pelit').querySelectorAll('[data-peli]').forEach(function(b){b.onclick=function(){D.peli.laji=b.dataset.peli;save();chips();previewMap();}});
+  var hv=isHv();document.body.classList.toggle('hv',hv);['maps','nhip','taso'].forEach(function(id){$(id).hidden=hv});$('pdesc').textContent=hv?HV_DESC:HIPPA_DESC;
+  if(hv){var bh=D.peli.best.hirvio;$('best').textContent=bh?'Ennätys: '+bh+(bh===1?' teleportti':' teleporttia'):'Ei vielä ennätystä.';}
   $('maps').innerHTML=MAPS.map(function(m){return '<button type="button" class="chip" data-map="'+m.id+'" aria-pressed="'+(D.peli.kartta===m.id)+'">'+m.nimi+'</button>'}).join('');
   $('nhip').innerHTML=HIPAT.map(function(n){return '<button type="button" class="chip" data-nh="'+n+'" aria-pressed="'+(D.peli.hipat===n)+'">'+(n==='67'?'6-7 hippaa':n+(n===1?' hippa':' hippaa'))+'</button>'}).join('');
   $('taso').innerHTML=TASOT.map(function(t){return '<button type="button" class="chip" data-taso="'+t.id+'" aria-pressed="'+(D.peli.taso===t.id)+'">'+t.n+'</button>'}).join('');
   $('taso').querySelectorAll('[data-taso]').forEach(function(b){b.onclick=function(){D.peli.taso=b.dataset.taso;save();chips();}});
   $('maps').querySelectorAll('[data-map]').forEach(function(b){b.onclick=function(){D.peli.kartta=b.dataset.map;save();chips();previewMap();}});
   $('nhip').querySelectorAll('[data-nh]').forEach(function(b){b.onclick=function(){D.peli.hipat=b.dataset.nh==='67'?'67':+b.dataset.nh;save();chips();}});
+  if(hv)return;
   var b=D.peli.best[bestKey()];$('best').textContent=b?'Ennätys näillä valinnoilla: '+b+' palluraa':'Ei vielä ennätystä näillä valinnoilla.';
 }
 function sizeCanvas(c){dpr=Math.min(2,window.devicePixelRatio||1);c.width=Math.max(1,Math.round(c.clientWidth*dpr));c.height=Math.max(1,Math.round(c.clientHeight*dpr));return c;}
@@ -2536,10 +2624,10 @@ function fitCanvases(){var z=$('zoom'),m=$('minic'),k=Math.min(2,window.devicePi
   if(Math.round(z.clientWidth*k)!==z.width||Math.round(z.clientHeight*k)!==z.height||Math.round(m.clientWidth*k)!==m.width||Math.round(m.clientHeight*k)!==m.height){
     var zr=sizeCanvas(z);sizeCanvas(m);ZW=z.width;ZH=z.height;MW=m.width;MH=m.height;TP=Math.max(12*k,Math.sqrt(ZW*ZH/VIEW_TILES));miniBg=null;}}
 // ennätykset kartta:hipat:taso; versioiden 2–5 aikaennätykset (kartta:hipat) jäävät tallennukseen, mutta niitä ei näytetä
-function bestKey(){return D.peli.kartta+':'+D.peli.hipat+':'+D.peli.taso;}
-function previewMap(){G=null;var g=newGame(D.peli.kartta,D.peli.hipat,7,D.peli.taso);drawWorld(g);}
+function bestKey(){if(G&&G.laji==='hirvio')return 'hirvio';return D.peli.kartta+':'+D.peli.hipat+':'+D.peli.taso;}
+function previewMap(){G=null;var g=isHv()?newHirvio(0,7):newGame(D.peli.kartta,D.peli.hipat,7,D.peli.taso);drawWorld(g);}
 function startGame(){
-  G=newGame(D.peli.kartta,D.peli.hipat,0,D.peli.taso);G.ev=[];miniBg=null;paused=false;cam.x=G.p.x;cam.y=G.p.y;
+  G=isHv()?newHirvio(Math.floor(Math.random()*HV_MAZES.length),0):newGame(D.peli.kartta,D.peli.hipat,0,D.peli.taso);G.ev=[];document.body.classList.toggle('hv',isHv());miniBg=null;paused=false;cam.x=G.p.x;cam.y=G.p.y;
   $('o-start').hidden=true;$('o-over').hidden=true;$('o-pause').hidden=true;document.body.classList.add('playing');
   lastT=performance.now();cancelAnimationFrame(graf);graf=requestAnimationFrame(frame);
 }
@@ -2567,6 +2655,7 @@ $('enjaa').onclick=function(){this.hidden=true;$('otitle').textContent='Pelihahm
 function events(){
   if(!G.ev.length)return;var e=G.ev;G.ev=[];
   if(e.indexOf('caught')>=0||e.indexOf('starved')>=0)return;
+  if(e.indexOf('tele')>=0){cam.x=G.p.x;cam.y=G.p.y;}
   if(document.body.classList.contains('playing'))return;
   if(e.indexOf('spotted')>=0)say('spotted');else if(e.indexOf('lost')>=0)say('lost');else if(e.indexOf('heard')>=0&&Math.random()<0.5)say('heard');
 }
@@ -2577,7 +2666,8 @@ function gameOver(){
   // kiinni jäänyt on pelihahmo (Emil 24.10.2026): otsikko väittää muuta, napilla voi vastata
   if(G.irti){D.peli.irti=(D.peli.irti||0)+G.irti;save();}
   $('otitle').textContent=G.why==='nalka'?'Palkki loppui':'Kiinni jäit';$('enjaa').hidden=G.why==='nalka';$('irti').classList.remove('on');
-  $('otime').textContent=G.kerätty+' ●';$('obest').textContent=fmtTime(G.t)+' · '+G.nh+(G.nh===1?' hippa':' hippaa')+' · '+(rec?'uusi ennätys!':'ennätys '+b)+(G.irti?' · '+G.irti+' × en ole':'');
+  var hvp=G.laji==='hirvio';
+  $('otime').textContent=G.kerätty+(hvp?' ◎':' ●');$('obest').textContent=fmtTime(G.t)+' · '+(hvp?'sokkelo '+(G.hv+1):G.nh+(G.nh===1?' hippa':' hippaa'))+' · '+(rec?'uusi ennätys!':'ennätys '+b)+(G.irti?' · '+G.irti+' × en ole':'');
   // yksi kommentti per peli; sävy vilpittömöityy kuiskausten mukaan
   $('oline').textContent=textOf(bagPick(bags,irtiLaji(G.irti),Math.random));$('oline2').textContent='';$('o-over').hidden=false;joyEnd();
 }
@@ -2598,7 +2688,7 @@ function latausNäyttö(){if(!G)return;var j=$('joy2');j.style.setProperty('--l'
 zw.addEventListener('pointerdown',function(e){
   if(!G||G.over||paused||!$('o-start').hidden)return;
   var r=zw.getBoundingClientRect();if(e.clientY<r.top+r.height*0.3||!$('o-rot').hidden)return;
-  if(e.clientX>r.left+r.width*0.5){if(aim.on)return;e.preventDefault();aim.on=true;aim.id=e.pointerId;try{zw.setPointerCapture(e.pointerId)}catch(_){}aimMove(e);return;}
+  if(e.clientX>r.left+r.width*0.5){if(aim.on||G.laji==='hirvio')return;e.preventDefault();aim.on=true;aim.id=e.pointerId;try{zw.setPointerCapture(e.pointerId)}catch(_){}aimMove(e);return;}
   if(joy.on)return;e.preventDefault();joy.on=true;joy.id=e.pointerId;try{zw.setPointerCapture(e.pointerId)}catch(_){}joyMove(e);});
 zw.addEventListener('pointermove',function(e){if(joy.on&&e.pointerId===joy.id)joyMove(e);if(aim.on&&e.pointerId===aim.id)aimMove(e);});
 ['pointerup','pointercancel','lostpointercapture'].forEach(function(n){zw.addEventListener(n,function(e){if(joy.on&&e.pointerId===joy.id){joy.on=false;joy.id=null;joy.x=joy.y=0;$('knob').style.transform='';}if(aim.on&&e.pointerId===aim.id)aimEnd(n==='pointerup');});});
@@ -2615,21 +2705,29 @@ function drawWorld(g){
   mx.save();mx.beginPath();mx.rect(ox,oy,M.w*sc,M.h*sc);mx.clip();
   mx.fillStyle='rgba(236,230,207,.16)';mx.strokeStyle='rgba(236,230,207,.4)';mx.lineWidth=dpr;
   mx.fillRect(ox+(cx-vx/2)*sc,oy+(cy-vy/2)*sc,vx*sc,vy*sc);mx.strokeRect(ox+(cx-vx/2)*sc,oy+(cy-vy/2)*sc,vx*sc,vy*sc);
-  mx.fillStyle=GREEN;g.pallot.forEach(function(q){mx.beginPath();mx.arc(ox+q.x*sc,oy+q.y*sc,Math.max(1.6*dpr,sc*0.75),0,7);mx.fill();});mx.restore();
+  mx.fillStyle=GREEN;g.pallot.concat(g.tele||[]).forEach(function(q){mx.beginPath();mx.arc(ox+q.x*sc,oy+q.y*sc,Math.max(1.6*dpr,sc*(g.tele?1:0.75)),0,7);mx.fill();});
+  if(g.laji==='hirvio'){var hs=g.S[0];mx.fillStyle='#e5383b';mx.beginPath();mx.arc(ox+hs.x*sc,oy+hs.y*sc,Math.max(2*dpr,sc),0,7);mx.fill();}
+  mx.restore();
   // zoomattu näkymä
   var c=$('zoom').getContext('2d');
   if(g===G){cam.x+=(g.p.x-cam.x)*0.18;cam.y+=(g.p.y-cam.y)*0.18;}
+  // hirviösokkelo on pieni: kamera ei näytä tyhjää sokkelon ulkopuolelta, jos sokkelo on näkymää isompi
+  if(g.laji==='hirvio'){var hw=ZW/TP/2,hh=ZH/TP/2;cx=M.w>2*hw?Math.max(hw,Math.min(M.w-hw,cx)):M.w/2;cy=M.h>2*hh?Math.max(hh,Math.min(M.h-hh,cy)):M.h/2;}
   var X=function(x){return (x-cx)*TP+ZW/2},Y=function(y){return (y-cy)*TP+ZH/2};
   c.fillStyle='#000';c.fillRect(0,0,ZW,ZH);
   // valokeilat
   c.fillStyle='rgba(196,173,44,.78)';
-  g.S.forEach(function(s){var P=conePoly(M,s,40);c.beginPath();c.moveTo(X(s.x),Y(s.y));P.forEach(function(q){c.lineTo(X(q[0]),Y(q[1]))});c.closePath();c.fill();});
+  if(g.laji!=='hirvio')g.S.forEach(function(s){var P=conePoly(M,s,40);c.beginPath();c.moveTo(X(s.x),Y(s.y));P.forEach(function(q){c.lineTo(X(q[0]),Y(q[1]))});c.closePath();c.fill();});
   // äänipulssit
-  g.rings.forEach(function(r){var k=r.t/(r.L||0.9);c.strokeStyle=r.kova?'rgba(236,230,207,'+(0.8*(1-k))+')':'rgba(196,173,44,'+(0.55*(1-k))+')';c.lineWidth=2*dpr;c.beginPath();c.arc(X(r.x),Y(r.y),Math.max(1,r.R*TP*Math.min(1,k*1.4)),0,7);c.stroke();});
+  g.rings.forEach(function(r){var k=r.t/(r.L||0.9);c.strokeStyle=r.tele?'rgba(139,212,80,'+(0.9*(1-k))+')':r.kova?'rgba(236,230,207,'+(0.8*(1-k))+')':'rgba(196,173,44,'+(0.55*(1-k))+')';c.lineWidth=2*dpr;c.beginPath();c.arc(X(r.x),Y(r.y),Math.max(1,r.R*TP*Math.min(1,k*1.4)),0,7);c.stroke();});
   // vihreät pallurat: hyllyvät hieman
   g.pallot.forEach(function(q){var r=TP*(0.24+0.03*Math.sin(g.t*5+q.ph));c.fillStyle='rgba(139,212,80,.22)';c.beginPath();c.arc(X(q.x),Y(q.y),r*1.9,0,7);c.fill();
     c.fillStyle=GREEN;c.beginPath();c.ellipse(X(q.x),Y(q.y),r*1.08,r*0.92,Math.sin(g.t*3+q.ph)*0.4,0,7);c.fill();
     c.fillStyle='rgba(255,255,255,.55)';c.beginPath();c.arc(X(q.x)-r*0.35,Y(q.y)-r*0.35,r*0.25,0,7);c.fill();});
+  // teleportin päät: pyörivä vihreä kehä
+  (g.tele||[]).forEach(function(q,i){var r=TP*0.36,a=g.t*(i?-3:3);c.fillStyle='rgba(139,212,80,.18)';c.beginPath();c.arc(X(q.x),Y(q.y),r*1.7+Math.sin(g.t*4)*r*0.15,0,7);c.fill();
+    c.strokeStyle=GREEN;c.lineWidth=Math.max(2,TP*0.09);for(var j=0;j<3;j++){c.beginPath();c.arc(X(q.x),Y(q.y),r,a+j*2.09,a+j*2.09+1.3);c.stroke();}
+    c.fillStyle=GREEN;c.beginPath();c.arc(X(q.x),Y(q.y),r*0.35,0,7);c.fill();});
   // seinät ääriviivoina: reuna piirretään vain vapaan ruudun puolelle
   var x0=Math.max(0,Math.floor(cx-ZW/2/TP)-1),x1=Math.min(M.w-1,Math.ceil(cx+ZW/2/TP)+1),y0=Math.max(0,Math.floor(cy-ZH/2/TP)-1),y1=Math.min(M.h-1,Math.ceil(cy+ZH/2/TP)+1);
   c.strokeStyle=MUS;c.lineWidth=Math.max(2,TP*0.08);c.lineCap='square';c.beginPath();
@@ -2640,7 +2738,7 @@ function drawWorld(g){
     if(tx<M.w-1&&!M.wall[ty*M.w+tx+1]){c.moveTo(X(tx+1),Y(ty));c.lineTo(X(tx+1),Y(ty+1));}}
   c.stroke();
   // hahmot
-  g.S.forEach(function(s){figure(c,X(s.x),Y(s.y),s.dir,s.ph,s.moving,BLUE,'#000',true);
+  g.S.forEach(function(s){if(g.laji==='hirvio'){figure(c,X(s.x),Y(s.y),s.dir,s.ph,s.moving,'#e5383b','#000',true,1.25);return;}figure(c,X(s.x),Y(s.y),s.dir,s.ph,s.moving,BLUE,'#000',true);
     if(s.flash>0&&(Math.floor(s.flash*8)%2===0||s.mark==='?')){c.fillStyle=s.mark==='!'?'#e5383b':'#ece6cf';c.font='800 '+Math.round(TP*0.8)+'px -apple-system,sans-serif';c.textAlign='center';c.fillText(s.mark,X(s.x),Y(s.y)-TP*0.5);}});
   (g.heitot||[]).forEach(function(h){var k=h.maassa?1:h.t/h.T,x=h.x0+(h.x-h.x0)*k,y=h.y0+(h.y-h.y0)*k,z=h.maassa?0:Math.sin(Math.PI*k)*TP*0.9,r=TP*0.15;
     c.globalAlpha=h.maassa?Math.max(0,1-h.t/HEITTO_NAKYY):1;c.fillStyle='rgba(0,0,0,.5)';c.beginPath();c.ellipse(X(x),Y(y)+r*0.6,r,r*0.5,0,0,7);c.fill();
@@ -2648,12 +2746,12 @@ function drawWorld(g){
   if(g===G&&aim.on&&(aim.x||aim.y)&&g.lataus>=1){var hk=heittoKohde(g,aim.x,aim.y);if(hk){c.strokeStyle='rgba(236,230,207,.6)';c.lineWidth=1.5*dpr;c.setLineDash([4*dpr,5*dpr]);c.beginPath();c.moveTo(X(g.p.x),Y(g.p.y));c.lineTo(X(hk.x),Y(hk.y));c.stroke();c.setLineDash([]);
     c.beginPath();c.arc(X(hk.x),Y(hk.y),TP*0.35,0,7);c.stroke();}}
   var p=g.p;figure(c,X(p.x),Y(p.y),p.dir,p.ph,p.mag>0.02,p.lit?'#000':MUS,p.lit?MUS:'#000',false);
-  $('hud').innerHTML=g===G?fmtTime(g.t)+(g.taso?' · '+g.kerätty+' <span style="color:'+GREEN+'">●</span>':''):'';
+  $('hud').innerHTML=g===G?fmtTime(g.t)+(g.laji==='hirvio'?' · '+g.kerätty+' <span style="color:'+GREEN+'">◎</span>':g.taso?' · '+g.kerätty+' <span style="color:'+GREEN+'">●</span>':''):'';
   if(g===G){$('efill').style.width=(g.E*100)+'%';$('ebar').classList.toggle('low',g.E<0.25);}
 }
 // hahmo: pyöreä vartalo, kaksi jalkaa jotka vipattavat juostessa, silmät kulkusuuntaan
-function figure(c,x,y,dir,ph,moving,fill,stroke,lamp){
-  var r=TP*0.32,ca=Math.cos(dir),sa=Math.sin(dir),sw=moving?Math.sin(ph)*r*0.55:0;
+function figure(c,x,y,dir,ph,moving,fill,stroke,lamp,sc){
+  var r=TP*0.32*(sc||1),ca=Math.cos(dir),sa=Math.sin(dir),sw=moving?Math.sin(ph)*r*0.55:0;
   c.fillStyle=fill;c.strokeStyle=stroke;c.lineWidth=Math.max(1.5,TP*0.05);
   [-1,1].forEach(function(k){var fx=x-sa*k*r*0.55+ca*sw*k,fy=y+ca*k*r*0.55+sa*sw*k;c.beginPath();c.arc(fx,fy,r*0.32,0,7);c.fill();c.stroke();});
   c.beginPath();c.arc(x,y,r,0,7);c.fill();c.stroke();
