@@ -1,13 +1,16 @@
 # Headmaze: tila
 
-**Vaihe:** kehittelyssä · **Versio:** 8 · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/headmaze/ · **Päivitetty:** 24.10.2026
+**Vaihe:** kehittelyssä · **Versio:** 10 · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/headmaze/ · **Päivitetty:** 24.10.2026
 
 Mindfulnessia kieli poskessa (Headspace → Headmaze), omana appinaan (Emil 24.10.2026). Ilme: tumma tausta, sinapinkeltainen ja vähän kuvottava tehosteväri, yliiloinen aurinko ja pilvi vittuilevat puhekuplassa, sokkeloestetiikka. Ilme on tarkoituksella oma eikä Appipaja 2.0:n teemarekisteri.
 
-## Valmiina (versio 8, 24.10.2026)
+## Valmiina (versio 10, 24.10.2026)
+
+- **v9:** alapalkki takaisin (v7:n rungon venytys piilotti sen; nyt html-tausta on alapalkin värinen). Laskeutuminen leijailee eri tahdissa, kupla piilossa lennon ajan. Koanikone: ei keskitekstiä, aurinko ja pilvi laskeutuvat ja sanovat koanit kuplassa; yksi nappi, vähintään 20 s uloshengitystä per koani (yhdessä tai monessa erässä), sitten sama nappi on Seuraava.
+- **v10 (Emilin sisältöpankki):** noin 430 repliikkiä tilanteittain (Minän jaksot, kasvi, uloshengityksen vaiheet, Pilvikyyti, Lajittelija, kynä, Huoli, Hiljaisuus, Tarkkailijan vaiheet, meditoija, Odotus ja ”lähes täynnä”, Sokkelon valikko, tauko, ennätys ja pallurat loppuruudussa, Tilastot ja varmuuskopio, yleiset). 80 koania ja 51 ajatusta master-tiedoissa (Erä 5 / Erä 4). Taukorepliikit ovat näkymäkohtaisia.
 
 - **Linja (Emil 24.10.):** vitsiä ei sanota ääneen eikä harjoituksen ideaa selitetä; se näkyy auringon ja pilven toksisesta hehkutuksesta. Harjoituksissa aurinko ja pilvi puhuvat vain sen harjoituksen repliikkejä (Typerä kynä, Koanikone, Odotus tehty; muissa vielä osin yleisiä).
-- **Laskeutuva aurinko ja pilvi (v7–8):** Typerässä kynässä ja Odotuksessa ne laskeutuvat 6 sekunnissa yläreunasta napin yläpuolelle (`crewOn(slot)`), otsikkorivi piiloutuu siksi aikaa.
+- **Laskeutuva aurinko ja pilvi (v7–8):** Typerässä kynässä, Odotuksessa ja Koanikoneessa ne laskeutuvat 6 sekunnissa yläreunasta napin yläpuolelle (`crewOn(slot)`), otsikkorivi piiloutuu siksi aikaa.
 
 - **Välilehdet:** Minä · Harjoitukset · Sokkelo. Alapalkki kiinni alareunassa.
 - **Harjoitukset-lista:** kasvi, sitten Uloshengitys, Pilvikyyti, Lajittelija, Typerä kynä, Ratkaistava vai elettävä, Koanikone, Hiljaisuus, Tarkkailijan jäljillä, Meditoija, Odotus. Tilastot ja tallennus linkkinä otsikon vieressä.
