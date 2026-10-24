@@ -65,6 +65,10 @@ Kasuaali puhelinpeli Mini Motorwaysin tyyliin. Kuvakulma on ylhäältä, ja tiet
 - Alareunassa on hienovarainen säädin **Vastaanotto**, jota voi muuttaa lennosta. Arvo on suoraan tilaustahti, esimerkiksi 0,1 tilausta minuutissa kerrallaan. **(E: hienovarainen; T: yksikkö)**
 - Erillistä kysyntämittaria ei ole. Kysyntää on aina, joten liikaa tilauksia saa ottaa koko ajan, jos haluaa. **(E)** Ainoa raja on tekninen: avoimia tilauksia voi olla kerralla enintään 26 (kirjaimet A–Z), ja se on samalla pelin äärilaita. **(T)**
 - Maine kertoo, kuinka suuri osa pyydetystä tahdista toteutuu: todellinen tahti = säädin × maine-kerroin (∝ maine²). Kun maine putoaa 100:sta 70:een, tilauksia tulee puolet pyydetystä. Huono maine jarruttaa siis itsestään, vaikka säädin olisi tapissa. **(E: maine vaikuttaa tilausmääriin; T: kaava)**
+- **Ylikuorma rankaisee kasvavasti (E: iso tilausmäärä = iso haitta pienellekin firmalle; T: mekanismi):**
+  1. Jokainen myöhästyminen ja peruuntuminen on oma iskunsa, joten haitta kasvaa suoraan ylikuorman mukana. Jos otat kaksi kertaa sen, mitä pystyt hoitamaan, puolet tilauksista epäonnistuu, ja epäonnistuminen maksaa 4–8 onnistumista.
+  2. Ruuhkavuoto: kun odottavia, autoille antamattomia tilauksia on enemmän kuin 2 × autojen määrä, maine valuu koko ajan, ja vuoto kasvaa jonon pituuden mukaan (kulmakerroin).
+  3. Huono maine laskee myös hintaa: toimituksen maksu on maine-kertoimen verran pienempi (100 % = täysi, 50 % = 75 %). Ilman tätä ylikuormalle löytyisi tasapaino, jossa maine on matala mutta toimituksia yhtä paljon, eli ylikuorma ei oikeasti rankaisisi. Hinnanalennuksen kanssa matala maine on tappiollinen, ja juoksevat kulut syövät kassan.
 - Tämä on riskivipu: voit nostaa tahtia ostamatta autoa ja katsoa, pärjäätkö. Jos et pärjää, maine putoaa, yläraja laskee ja kassa ehtii kärsiä.
 - Säädin nollassa tarkoittaa, että uusia tilauksia ei oteta.
 
