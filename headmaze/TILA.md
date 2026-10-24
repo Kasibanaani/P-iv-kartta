@@ -15,10 +15,10 @@ Mindfulnessia kieli poskessa (Headspace → Headmaze), omana appinaan (Emil 24.1
 - **Odotus (v4):** Zenon palkki, täyttö 1 − 2^(−t/8 s), prosentit tarkkoina merkkijonoina, ei koskaan 100 %. Puolentoista minuutin jälkeen huomautus odottamisesta.
 - **Typerä kynä (v5):** valitus → ”Huomaan ajattelevani, että …”, Vielä kerran lisää kerroksen. Vain määrä ja syvin kerros tallentuvat.
 - **Ratkaistava vai elettävä (v5):** huoli, sitten Ratkaistava (yksi pieni seuraava askel), Elettävä tai En tiedä (→ elettävä: yksi uloshengitys pohjassa, ”Se on edelleen tässä. Ja niin olet sinäkin.”). Tekstejä ei tallenneta, vain määrät.
-- **Koanikone (v5):** yksi koani kerrallaan pussista (ei toistoa ennen kuin kaikki nähty), En tiedä, Seuraava ja Hengitä ulos -nappi (kertyy laskuriin). 155 koania, upotetaan rakennusvaiheessa tiedostosta `master-tiedot/headmaze/koanit.md`.
+- **Koanikone (v5):** yksi koani kerrallaan pussista (ei toistoa ennen kuin kaikki nähty), En tiedä, Seuraava ja Hengitä ulos -nappi (kertyy laskuriin). koanit upotetaan rakennusvaiheessa tiedostosta `master-tiedot/headmaze/koanit.md`.
 - **Hiljaisuus (v5):** aurinko ja pilvi lupaavat minuutin hiljaisuuden ja keskeyttävät 5–12 s välein. Huomasin-laskuri, lopuksi yhteenveto.
 - **Tarkkailijan jäljillä (v5):** 10 ohjattua kohtaa ajastetuin tauoin (ääni, kuuleminen, esine, katsoja, ajatus, huomaaminen, hengitys). Sama polkumoottori kuin Minässä.
-- **Meditoija (v5):** tyytyväinen meditoija risti-istunnassa, lepattavat kynttilät, kehä. Ajatuskuplia 2,5–4 s välein, enintään 3 kerrallaan, kukin 5–6 s. 290 ajatusta: tekoälyn aloituslista + `master-tiedot/headmaze/meditoijan-ajatukset.md`. Aika tallentuu, kun näkymästä poistutaan (yli 5 s).
+- **Meditoija (v5):** tyytyväinen meditoija risti-istunnassa, lepattavat kynttilät, kehä. Ajatuskuplia 2,5–4 s välein, enintään 3 kerrallaan, kukin 5–6 s. Ajatukset: tekoälyn aloituslista + `master-tiedot/headmaze/meditoijan-ajatukset.md`. Aika tallentuu, kun näkymästä poistutaan (yli 5 s).
 - **Minä:** 39 kohtaa: 1–6 Emilin tekstiä, 7–39 tekoälyn käsikirjoitus ja ”tietoinen”-silmukka. Vastaukset eivät tallennu.
 - **Sokkelo-peli:** vaakatasossa koko ruudulle, noin neljäsosa kartasta näkyvissä, pieni kartta vasemmalla ylhäällä, tatti vasemmalla alhaalla, 1–4 hippaa (oletus 2), valokeilat, ääni vauhdin mukaan, viisi karttaa, ennätykset.
 - **Puhekupla:** väkänen osoittaa puhujaa. Repliikit sekaisin pussista tilanteittain.
