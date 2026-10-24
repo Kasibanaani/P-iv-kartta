@@ -64,4 +64,12 @@ check('60 hippaa × 2 min: ei seinien sisällä, kaikki liikkuvat (> 60 ruutua)'
 // vaeltelu ei ole robottimaista: pysähdyksiä ja katselua
 G=H.newGame('talo',2,3);G.p.x=-50;let looks=0,bursts=0;for(let i=0;i<60*120;i++){H.stepGame(G,1/60,{x:0,y:0});G.S.forEach(o=>{if(o.state==='look')looks++;if(o.burst>0)bursts++;});}
 check('vaeltaessa välillä pysähtyy katselemaan ja välillä pyrähtää',looks>60*6&&bursts>60*4,'katselu '+(looks/60).toFixed(0)+' s, pyrähdys '+(bursts/60).toFixed(0)+' s');
+// kuiskausnappi: vain jahti lähellä, viipyy hetken, ei muuta peliä
+{const G=H.newGame('talo',1,5),s=G.S[0];s.x=-50;s.y=-50;s.state='wander';H.stepGame(G,1/60,{x:0,y:0});
+ const a=H.uhka(G);s.x=G.p.x+4;s.y=G.p.y;s.state='chase';s.last={x:G.p.x,y:G.p.y};s.seenT=G.t;s.path=[];s.repl=0;H.stepGame(G,1/60,{x:0,y:0});const b=H.uhka(G);
+ s.state='search';for(let i=0;i<30;i++){s.x=-50;s.y=-50;s.state='search';H.stepGame(G,1/60,{x:0,y:0});}const c=H.uhka(G);
+ for(let i=0;i<60;i++){s.x=-50;s.y=-50;s.state='search';H.stepGame(G,1/60,{x:0,y:0});}
+ eq('kuiskaus: ei vaeltaessa, näkyy jahdissa, viipyy 1,2 s',[a,b,c,H.uhka(G)],[false,true,true,false]);}
+eq('loppukommentin sävy kuiskausten mukaan',[0,1,2,3,6,7,30].map(H.irtiLaji),['peli_irti0','peli_irti1','peli_irti1','peli_irti2','peli_irti2','peli_irti3','peli_irti3']);
+check('loppukommentteja noin sata, En jäänyt -repliikkejä tusina',(()=>{const L=H.LINES;const n=['peli_irti0','peli_irti1','peli_irti2','peli_irti3'].reduce((t,k)=>t+L[k].length,0);return n>=95&&L.peli_enjaanyt.length>=10})());
 console.log(ok?'KAIKKI OK':'VIRHEITÄ');process.exit(ok?0:1);
