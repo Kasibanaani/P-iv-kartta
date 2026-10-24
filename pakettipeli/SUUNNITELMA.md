@@ -1,8 +1,21 @@
 # Pakettipeli: suunnitelma
 
-**Tila:** v1 rakennettu 24.10.2026 (ks. TILA.md) · **Päivitetty:** 24.10.2026 · **Julkaisu (tuleva):** https://kasibanaani.github.io/P-iv-kartta/pakettipeli/
+**Tila:** v2 käytössä 24.10.2026 (ks. TILA.md); luvut 1–14 ovat v1:n suunnitelma historiana · **Päivitetty:** 24.10.2026 · **Julkaisu (tuleva):** https://kasibanaani.github.io/P-iv-kartta/pakettipeli/
 
 Kasuaali puhelinpeli Mini Motorwaysin tyyliin. Kuvakulma on ylhäältä, ja tiet ovat valmiina. Pelaaja johtaa pakettikuljetusfirmaa: hän jakaa tilaukset autoille ja päättää, milloin firma kasvaa. Emilin päätökset on merkitty **(E)** ja tekoälyn valinnat **(T)**. T-valinnat ja luvut ovat säädettäviä oletuksia, eivät sopimus.
+
+## Versio 2 (Emilin päätökset 24.10.2026, voimassa)
+
+V1:n monen auton ohjaus lennossa oli liian stressaavaa. V2 korvaa v1:n siltä osin kuin ne eroavat; monen auton päiväsuunnittelu on oma idea *Ajojärjestelijä* (`master-tiedot/IDEAT.md`).
+
+- **Yksi auto.** Yksityisyrittäjä, aluksi 4 paikkaa. Isompi auto ostetaan lainalla (käsiraha heti, juoksevat kulut ylös), +2 paikkaa per taso. **(E)**
+- **Keikkatarjoukset.** Värilliset yritykset tarjoavat keikkoja; tarjous vanhenee ilman haittaa. Tarjouksia on aina jokunen enemmän kuin ehtii hoitaa, koska pelin ydin on reitin suunnittelu. **(E)** Tahti 10/min alussa, enintään 6 auki; maine nostaa (enintään 15/min ja 14 auki). **(T)**
+- **Reitti vain pelaajan napautuksista (E, 24.10. klo 19).** Ei erillistä tilaa eikä hidastusta. Jokainen napautus (merkki, talo tai tie) lisää paikan reitin perään, enintään 10. Tarjouksen napautus hyväksyy keikan ja lisää noudon. Mitään ei lisätä automaattisesti. *Nollaa reitti*: auto ajaa nykyiseen kohteeseensa ja jää odottamaan. Tyhjä auto seisoo.
+- **Hyväksytyt keikat** saavat kirjaimettoman merkin (nouto ↑, kohde ↓). Raha tulee vasta perillä, eikä toimitusajalla ole väliä. **(E)**
+- **Keikan koko 1–8 pakettia** (maksimi kasvaa maineella) on tekoälyn lisäys, jotta isompi auto voi kannattaa. **(T)**
+- **Maine** vain kasvaa (+1 per toimitus, katto 100) ja tuo lisää, isompia ja useamman yrityksen keikkoja. **(E)**
+- **Konkurssi** heti, kun kassa menee alle 0. **(E)**
+- **Lopeta peli:** uusia tarjouksia ei tule, hyväksytyt ajetaan pikakelauksella loppuun (vain tässä reitti täydennetään itsestään), ja kassa on lopputulos. **(E)**
 
 ## 1. Ydin
 

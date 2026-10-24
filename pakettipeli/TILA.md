@@ -2,36 +2,35 @@
 
 **Vaihe:** kokeilussa · **Versio:** 2 · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/pakettipeli/ · **Päivitetty:** 24.10.2026
 
-Kasuaali puhelinpeli Mini Motorwaysin tyyliin. Yksityisyrittäjä ajaa yhdellä autolla, valitsee keikat ja piirtää reitin napauttelemalla. Suunnitelma ja Emilin päätökset: `SUUNNITELMA.md` (versio 2 alussa, versio 1 historiana).
+Kasuaali puhelinpeli Mini Motorwaysin tyyliin. Yksityisyrittäjä ajaa yhdellä autolla, valitsee keikat ja tekee reitin napauttelemalla. Suunnitelma ja Emilin päätökset: `SUUNNITELMA.md` (osio *Versio 2* alussa, v1 historiana).
 
 ## Valmiina (versio 2, 24.10.2026)
 
-- Generoitu ruutukaavakaupunki 14 × 22 (tiheämpi tieverkko kuin v1:ssä). Siinä on 12 sopimusyritystä, jotka avautuvat maineen mukaan (alussa 4), ja varikko on lähtöpaikka.
-- Tarjoukset (katkoviivaruutu ja haalea rengas, harmaa voimassaolokehä), hyväksytyt (täytetty ruutu ja rengas) ja kyydissä (täytetty ympyrä määränpäässä). Keikan koko 1–6 pakettia näkyy pallona kulmassa.
-- Napautus hyväksyy keikan jonon perään. *Uusi reitti* (Emil 24.10. illalla): peli hidastuu 0,25×:iin, kartta saa sinisen kehyksen ja bannerin ("Reitin rakennus · N paikkaa"), alapalkki muuttuu siniseksi ja nappi vihreäksi *Valmis ✓*. Auto ajaa vain seuraavaan pisteeseensä (harmaa katkoviiva) ja jää odottamaan. Luonnokseen voi lisätä rajattomasti paikkoja (sininen yhtenäinen viiva, numerot). *Valmis* lisää luonnoksen seuraavan pisteen perään ja täydentää puuttuvat hyväksytyt.
-- Korjattu 24.10.: napit ja napautukset takkusivat, koska alapalkin teksti kirjoitettiin uudelleen joka ruudunpäivityksellä ja värit luettiin tyyleistä kymmeniä kertoja per ruutu. Nyt DOM päivittyy vain muuttuessa, ja värit ovat välimuistissa. Oikealla iPhonella ei ole varmistettu.
-- Auto noutaa ja jättää automaattisesti ohittaessaan. Tyhjä auto jää paikalleen. Autossa on kyydissä/paikat ja +hyväksytyt.
-- Talous: kassa, tuotto/min, kulut/min, tulos/min (päivitys kerran sekunnissa). Viisi autotasoa lainalla. Konkurssi heti, kun kassa on alle 0.
-- Maine vain kasvaa ja lisää tarjouksia, yrityksiä ja keikkojen kokoa.
-- *Lopeta peli*: pikakelaus 8×, lopputulos = kassa, ennätykset.
-- Teema, varmuuskopio tiedostona ja tekstinä, automaattitallennus `pakettipeli:v2`. V1:n peliä ei voi jatkaa, mutta sen suurin kassa ja teema siirtyvät.
-- Testit `sh pakettipeli/testit/aja.sh`.
+- Generoitu ruutukaavakaupunki 14 × 22, tiheä tieverkko. 12 sopimusyritystä avautuu maineen mukaan (alussa 5). Varikko on lähtöpaikka.
+- **Ohjaus (Emil 24.10. klo 19):** ei erillistä tilaa eikä hidastusta. Jokainen napautus lisää paikan reitin perään, enintään 10 (sininen viiva, numerot). Tarjouksen napautus hyväksyy ja lisää noudon. Mitään ei lisätä automaattisesti. *Nollaa reitti* jättää nykyisen kohteen; sen jälkeen auto jää odottamaan. Täysi reitti ja sama paikka peräkkäin kerrotaan ilmoituksella.
+- Merkit: tarjous = katkoviivaruutu kirjaimella ja haalea rengas kohteessa. Hyväksytty = kirjaimeton nouto ↑ (tumma ruutu), kohde ↓ (rengas), kyydissä olevan kohde täytetty ↓; pallo kertoo pakettimäärän.
+- Tarjontaa on enemmän kuin ehtii hoitaa: 10 tarjousta/min ja enintään 6 auki alussa, maine nostaa (15/min, 14 auki). Korjattu bugi: tarjoukset loppuivat, koska tahti oli 1 per 40 s ja epäonnistunut arvonta hukkasi vuoron.
+- Auto noutaa ja jättää ohittaessaan. Autossa luku kyydissä/paikat ja +noudettavana. Alapalkissa: kyydissä · nouto · reitti n/10.
+- Talous: kassa, tuotto/min (minuutin keskiarvo), kulut/min, tulos/min. Viisi autotasoa lainalla (kulut 24/32/42/52/64 per min). Keikan maksu on (3 + 0,45 × matka) × paketit, keikan koko 1–8 pakettia maineen mukaan. Konkurssi heti, kun kassa on alle 0.
+- *Lopeta peli*: pikakelaus 8×, hyväksytyt ajetaan loppuun (reitti täydennetään vain tässä), kassa on tulos.
+- Teema, varmuuskopio tiedostona ja tekstinä, automaattitallennus `pakettipeli:v2`. Tallennusmuoto ei muuttunut tässä vaiheessa.
+- Testit `sh pakettipeli/testit/aja.sh` (moottori nodella, selain 390 ja 320 px).
 
 ## Ei tarkistettu
 
-- Oikea iPhone: napautusten osuvuus, Dynamic Islandin turvaväli ja suorituskyky.
-- Tasapaino vain botilla (ottaa lähimmän mahtuvan keikan, ei järjestele reittiä). Ihmisen pelissä iso auto todennäköisesti kannattaa paremmin, koska ihminen niputtaa keikkoja.
-- Keikan koko on tekoälyn lisäys, jota Emil ei ole pyytänyt (perustelu suunnitelmassa).
+- Oikea iPhone: napautusten osuvuus tiheässä kartassa, Dynamic Islandin turvaväli ja suorituskyky. Testit ajettiin tietokoneen Chromiumilla.
+- Tasapaino vain botilla, joka ottaa kaiken minkä mahtuu ja järjestää reitin itse. Botilla alussa noin +45/min, isolla maineella pieni auto noin +75/min ja kuorma-auto noin +100/min. Ihmisen tulos jää todennäköisesti pienemmäksi.
+- Näkyykö 6–14 avointa tarjousta kartalla selkeästi vai tuleeko sotkua.
 
 ## Seuraavaksi
 
-- Emil pelaa v2:ta: tuntuuko yhden auton ohjaus hyvältä, ja ovatko keikkojen tahti, kulut ja tasojen hinnat kohdallaan?
+- Emil pelaa: toimiiko suora napautus ilman tilaa, riittääkö 10 paikkaa, ja onko tarjouksia sopivasti yli?
 - Myöhemmin: kaupunkityyppejä lisää ja karttaeditori.
 
 ## Avoimet kysymykset
 
 - Jääkö keikan koko (useampi paketti), vai riittääkö yksi paketti per keikka?
-- Pitäisikö *Uusi reitti* -tilan päättyä myös automaattisesti (esim. muutaman sekunnin kuluttua)?
+- Pitäisikö napautuksella voida poistaa viimeinen paikka (nyt vain *Nollaa reitti*)?
 
 ## Emilin kommentit
 

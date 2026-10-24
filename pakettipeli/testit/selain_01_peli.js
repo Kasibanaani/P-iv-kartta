@@ -1,4 +1,4 @@
-// Pelaa puhelinleveydellä oikeilla napautuksilla: ohje, tarjouksen hyväksyntä, Uusi reitti (hidastus, nollaus, paikat järjestyksessä, Valmis täydentää),
+// Pelaa puhelinleveydellä oikeilla napautuksilla: ohje, tarjouksen hyväksyntä (nouto reitille), kirjaimettomat merkit, paikat reitin perään (enintään 10), Nollaa reitti,
 // isompi auto lainalla, pelin lopetus pikakelauksella, valikko ja teema, varmuuskopio, jatkuminen uudelleenlatauksen jälkeen, konkurssi. Lopuksi 320 px.
 'use strict';
 const {chromium}=require('playwright');const path=require('path');
@@ -21,28 +21,33 @@ async function run(b,w,h,full){
   const ids=await pg.evaluate(()=>{const G=__pp.G;G.orders=[];G.acc=-1e9;const a=__pp.PP.spawn(G),b=__pp.PP.spawn(G);[a,b].forEach(o=>{o.n=1;o.exp=G.t+1e5;});return [a.id,b.id];});
   await pg.waitForTimeout(150);
   const hit=async(id,k)=>pg.evaluate(([id,k])=>{const h=__pp.hits.find(q=>q.o===id&&q.k===k);return [h.x,h.y];},[id,k]);
-  await tapAt(await hit(ids[0],'n'));
-  chk('tarjouksen napautus hyväksyy ja lisää reitille',await pg.evaluate(id=>__pp.PP.ord(__pp.G,id).state==='hyvaksytty'&&__pp.G.car.route.length===2,ids[0]));
-  // Uusi reitti: nollaus, hidastus, paikat järjestyksessä
-  await pg.click('#bRoute');await pg.waitForTimeout(150);
-  chk('Uusi reitti: auto jatkaa vain seuraavaan pisteeseen, peli hidastuu',await pg.evaluate(()=>__pp.editing&&__pp.G.car.route.length<=1)&&(await pg.innerText('#speedtag'))==='Hidastettu');
-  chk('rakennustila näkyy: kehys, banneri ja Valmis-nappi',await pg.evaluate(()=>document.getElementById('mapwrap').classList.contains('edit')&&getComputedStyle(document.getElementById('banner')).display==='block')&&(await pg.innerText('#bRoute')).includes('Valmis'));
-  await tapAt(await hit(ids[1],'n'));
-  chk('muokatessa tarjouksen napautus hyväksyy ja lisää noudon luonnokseen',await pg.evaluate(id=>{const G=__pp.G;return __pp.PP.ord(G,id).state==='hyvaksytty'&&__pp.draft.length===1&&__pp.draft[0]===__pp.PP.door(G,__pp.PP.ord(G,id).from);},ids[1]));
-  const road=await pg.evaluate(()=>{const G=__pp.G,M=G.M;for(let i=0;i<M.road.length;i++)if(M.road[i]&&!__pp.hits.some(h=>{const p=__pp.cxy(i);return Math.hypot(h.x-p[0],h.y-p[1])<h.r+6;}))return __pp.cxy(i);});
-  const roads=await pg.evaluate(()=>{const G=__pp.G,M=G.M,out=[];for(let i=0;i<M.road.length&&out.length<8;i+=7)if(M.road[i]&&!__pp.hits.some(h=>{const p=__pp.cxy(i);return Math.hypot(h.x-p[0],h.y-p[1])<h.r+6;}))out.push(__pp.cxy(i));return out;});
-  await tapAt(road);for(const r of roads)await tapAt(r);
-  const nd=await pg.evaluate(()=>__pp.draft.length);
-  chk('paikkoja voi lisätä rajattomasti (yli 3)',nd>=6,nd);
-  chk('bannerissa paikkojen määrä',(await pg.innerText('#banner')).includes(nd+' paikkaa'));
+  await tapAt(await hit(ids[0],'tn'));
+  chk('tarjouksen napautus hyväksyy ja lisää vain noudon reitille',await pg.evaluate(id=>{const G=__pp.G,o=__pp.PP.ord(G,id);return o.state==='hyvaksytty'&&G.car.route.length===1&&G.car.route[0]===__pp.PP.door(G,o.from);},ids[0]));
+  chk('peli kulkee normaalinopeudella, ei erillistä tilaa',await pg.evaluate(()=>getComputedStyle(document.getElementById('speedtag')).display==='none'&&!document.querySelector('.edit')));
+  chk('hyväksytty keikka saa kirjaimettoman merkin',await pg.evaluate(id=>__pp.hits.some(h=>h.k!=='tn'&&h.k!=='tv'&&h.b===__pp.PP.ord(__pp.G,id).from),ids[0]));
+  const dest=await pg.evaluate(id=>{const G=__pp.G,o=__pp.PP.ord(G,id);const h=__pp.hits.find(q=>q.b===o.to);return h?[h.x,h.y]:__pp.cxy(__pp.PP.door(G,o.to));},ids[0]);
+  await tapAt(dest);
+  chk('kohteen napautus lisää sen oven reitin perään',await pg.evaluate(id=>{const G=__pp.G,r=G.car.route;return r[r.length-1]===__pp.PP.door(G,__pp.PP.ord(G,id).to);},ids[0]));
+  const roads=await pg.evaluate(()=>{const G=__pp.G,M=G.M,out=[];for(let i=0;i<M.road.length&&out.length<12;i+=5)if(M.road[i]&&!__pp.hits.some(h=>{const p=__pp.cxy(i);return Math.hypot(h.x-p[0],h.y-p[1])<h.r+6;}))out.push(__pp.cxy(i));return out;});
+  for(const r of roads)await tapAt(r);
+  chk('reitissä enintään 10 paikkaa',await pg.evaluate(()=>__pp.G.car.route.length)===10);
+  chk('täysi reitti kerrotaan',(await pg.innerText('#toast')).includes('10 paikkaa'));
+  chk('infossa reitin paikat',(await pg.innerText('#cInfo')).includes('reitti 10/10'));
   await pg.screenshot({path:shot('pp'+w+'_2_reitti.png')});
+  const cur=await pg.evaluate(()=>__pp.G.car.route[0]);
   await pg.click('#bRoute');await pg.waitForTimeout(150);
-  chk('Valmis ottaa luonnoksen käyttöön ja täydentää puuttuvat',await pg.evaluate(n=>{const G=__pp.G,s=__pp.PP.simulate(G,G.car.route);return !__pp.editing&&G.car.route.length>=n&&!s.load.length&&!s.missing.length&&!document.getElementById('mapwrap').classList.contains('edit');},nd));
+  chk('Nollaa reitti: nykyinen kohde jää',await pg.evaluate(c=>__pp.G.car.route.length===1&&__pp.G.car.route[0]===c,cur));
+  chk('nappi sanoo Nollaa reitti',(await pg.innerText('#bRoute')).includes('Nollaa reitti'));
+  await tapAt(dest);
+  chk('nollauksen jälkeen napautus jatkaa reittiä',await pg.evaluate(()=>__pp.G.car.route.length===2));
+  // toinen tarjous: napautus hyväksyy myös kesken ajon
+  await tapAt(await hit(ids[1],'tn'));
+  chk('toinenkin tarjous hyväksytään ja nouto reitin perään',await pg.evaluate(id=>{const G=__pp.G,o=__pp.PP.ord(G,id),r=G.car.route;return o.state==='hyvaksytty'&&r[r.length-1]===__pp.PP.door(G,o.from);},ids[1]));
   // isompi auto lainalla
   chk('isompi auto pois käytöstä ilman kassaa',await pg.isDisabled('#bUp'));
   await pg.evaluate(()=>{__pp.G.cash=900;__pp.stats(true);});await pg.click('#bUp');await pg.click('#dlg button[data-x="up"]');
-  chk('isompi auto: 6 paikkaa, käsiraha pois, kulut ylös',await pg.evaluate(()=>__pp.PP.cap(__pp.G)===6&&Math.round(__pp.G.cash)<=650&&__pp.PP.costs(__pp.G)===38));
-  await pg.waitForTimeout(1100);chk('kulut/min yläpalkissa',(await pg.innerText('#sOut'))==='38');
+  chk('isompi auto: 6 paikkaa, käsiraha pois, kulut ylös',await pg.evaluate(()=>__pp.PP.cap(__pp.G)===6&&Math.round(__pp.G.cash)<=650&&__pp.PP.costs(__pp.G)===__pp.PP.TIERS[1].kulu));
+  await pg.waitForTimeout(1100);chk('kulut/min yläpalkissa',(await pg.innerText('#sOut'))===String(await pg.evaluate(()=>__pp.PP.TIERS[1].kulu)));
   // lopetus pikakelauksella
   await pg.click('#bEnd');await pg.click('#dlg button[data-x="end"]');await pg.waitForTimeout(150);
   chk('lopetus: pikakelaus ja napit lukossa',await pg.evaluate(()=>__pp.G.ending)&&(await pg.innerText('#speedtag'))==='Pikakelaus 8×'&&await pg.isDisabled('#bRoute'));
