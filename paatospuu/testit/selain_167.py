@@ -34,9 +34,10 @@ async def run(p,w,h):
     want('ilman ehtoja kaikki näkyvät', sorted(await pills('r2'))==['tc','td','te'])
     # Ehdot käyttöön Listat-ikkunasta
     await pg.click('#chlist-pick'); await pg.wait_for_timeout(60)
-    await pg.locator('#ws-eh button:has-text("Käytössä")').click(); await pg.wait_for_timeout(60)
+    await pg.click('#ws-eh'); want('kytkin päällä', await pg.get_attribute('#ws-eh','aria-checked')=='true'); await pg.wait_for_timeout(60)
     await fits('Listat-ikkuna ehdoilla')
-    await pg.click('#ws-ehb'); await pg.wait_for_timeout(80)
+    want('listan ikkunassa ei ehtojen muokkausta', await pg.locator('#ws-ehb').count()==0)
+    await pg.click('#wsheet .sx'); await pg.wait_for_timeout(60); await pg.click('#chterms'); await pg.wait_for_timeout(60); await pg.click('#tt-eh'); await pg.wait_for_timeout(80)
     want('ehtojen ikkuna', await pg.is_visible('#ehsheet') and 'Ehdot' in await pg.inner_text('#eh-h'))
     # Ehto 1: Kipu ja Kuume -> esiin Lääkäri, pois Odotus
     await pg.click('#eh-add'); await pg.wait_for_timeout(60)
@@ -74,7 +75,7 @@ async def run(p,w,h):
     want('lopetus: poissuljettu ei hoidettavissa', 'Hoidettavat' not in note and 'Odotus' not in note)
     want('alusta: Lääkäri taas piilossa', sorted(await pills('r2'))==['td','te'])
     # Ehdot pois -> kaikki näkyvät
-    await pg.click('#chlist-pick'); await pg.wait_for_timeout(50); await pg.locator('#ws-eh button:has-text("Pois")').click(); await pg.wait_for_timeout(50); await pg.click('#wsheet .sx'); await pg.wait_for_timeout(60)
+    await pg.click('#chlist-pick'); await pg.wait_for_timeout(50); await pg.click('#ws-eh'); await pg.wait_for_timeout(50); await pg.click('#wsheet .sx'); await pg.wait_for_timeout(60)
     want('ehdot pois: kaikki näkyvät, ehdot säilyvät', sorted(await pills('r2'))==['tc','td','te'] and len(await pg.evaluate("JSON.parse(JSON.stringify("+K+".ehdot))"))==1)
     # Jatkuva lista: sama, tallennus projektin jatkuvalista-kenttään
     await pg.click('#chlist-pick'); await pg.wait_for_timeout(50); await pg.locator('#ws-list .row[data-l=""]').click(); await pg.wait_for_timeout(60)

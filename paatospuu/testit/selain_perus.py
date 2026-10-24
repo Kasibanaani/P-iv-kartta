@@ -234,7 +234,7 @@ async def run(p,w,h):
     await pg.click('[data-tab="notes"]'); await pg.click('#noteview [data-nv="open"]'); await pg.wait_for_timeout(50)
     await terms(); want('asiasanojen hallinta suodatinikkunasta', await pg.is_visible('#tsheet') and not await pg.is_visible('#fsheet'))
     await pg.click('#ts-body [data-done]'); await pg.wait_for_timeout(50)
-    want('lukumäärä yläpalkissa', await pg.is_visible('#count') and not await pg.is_visible('#info') and await pg.inner_text('#count')==str(await pg.locator('#nlist .ncard').count())+' kpl')
+    want('ei lukumäärää yläpalkissa (1.71)', not await pg.is_visible('#count') and not await pg.is_visible('#info'))
     await pg.evaluate("document.getElementById('main').scrollTop=600"); await pg.wait_for_timeout(30); want('järjestys kiinni ylhäällä', (await pg.locator('#notesort').bounding_box())['y']<200); await check('muistiot vieritetty'); await pg.evaluate("document.getElementById('main').scrollTop=0")
     await terms(); await pg.wait_for_timeout(50)
     await pg.click('[data-tstar="a:koira"]'); await pg.wait_for_timeout(40); await pg.click('[data-tstar="a:kissa"]'); await pg.wait_for_timeout(40)
@@ -627,7 +627,7 @@ async def run(p,w,h):
     # 1.55: iso ikkuna yläpalkin ja alapalkin välissä, otsikon edessä paluukohde, alapalkin napautus sulkee ja vaihtaa välilehden
     await pg.click('[data-tab="notes"]'); await pg.wait_for_timeout(40); await pg.click('#newnote'); await pg.wait_for_timeout(250)
     g=await pg.evaluate("(function(){var d=document.getElementById('nsheet').getBoundingClientRect(),t=document.querySelector('.top').getBoundingClientRect(),n=document.getElementById('nav').getBoundingClientRect();return [Math.round(d.top-t.bottom),Math.round(n.top-d.bottom),Math.round(d.width),document.getElementById('ns-h').getAttribute('data-crumb')]})()")
-    want('ikkuna palkkien välissä', abs(g[0])<=1 and abs(g[1])<=1 and g[2]==min(w,560) and g[3]=='Muistiot / '); await check('iso ikkuna')
+    want('ikkuna palkkien välissä', abs(g[0])<=1 and abs(g[1])<=1 and g[2]==min(w,560) and g[3]=='Muistio / '); await check('iso ikkuna')
     bb=await pg.locator('[data-tab="cal"]').bounding_box(); await pg.mouse.click(bb['x']+bb['width']/2,bb['y']+bb['height']/2); await pg.wait_for_timeout(80)
     want('alapalkki sulkee ja vaihtaa', not await pg.is_visible('#nsheet') and await pg.get_attribute('[data-tab="cal"]','aria-selected')=='true')
     await pg.click('[data-tab="notes"]'); await pg.wait_for_timeout(40)
