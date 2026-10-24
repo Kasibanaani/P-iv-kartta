@@ -21,12 +21,22 @@ async function run(b,w,h){
   await pg.click('#kn-ok');chk(w+' kynä: tyhjä ei lähde',await pg.isVisible('#kn-a'));
   await pg.fill('#kn-txt','Kaikki on taas myöhässä');await pg.click('#kn-ok');
   chk(w+' kynä: kääritty kerran',(await pg.innerText('#kn-out'))==='Huomaan ajattelevani, että kaikki on taas myöhässä.');
+  chk(w+' kynä: aurinko ja pilvi lähtevät yläreunasta, otsikkorivi piiloon',!await pg.isVisible('header')&&await pg.isVisible('#kn-crew'));
+  await pg.waitForTimeout(80);
+  const crew=await pg.evaluate(()=>{const c=document.getElementById('kn-crew').getBoundingClientRect(),a=document.getElementById('kn-act').getBoundingClientRect();return {near:a.top-c.bottom<30&&a.top-c.bottom>-5,landed:document.getElementById('kn-crew').className,ct:c.top,cb:c.bottom,at:a.top}});
+  chk(w+' kynä: laskeutuivat napin yläpuolelle',crew.near,crew);
   for(let i=0;i<7;i++)await pg.click('#kn-more');
-  chk(w+' kynä: kahdeksan kerrosta, huomautus arkeologiasta',(await pg.innerText('#kn-out')).split('huomaan ajattelevani').length===8&&(await pg.innerText('#kn-note')).includes('arkeologiaa'));
-  let ns=await pg.evaluate(NOSCROLL('#p-kyna'));chk(w+' kynä mahtuu ruutuun, napit näkyvät',ns.sec&&ns.doc&&await pg.isVisible('#kn-more')&&(await pg.locator('#kn-more').boundingBox()).y+40<h,ns);
+  chk(w+' kynä: kahdeksan kerrosta, ohje kertoo kerroksen ja painamisen',(await pg.innerText('#kn-out')).split('huomaan ajattelevani').length===8&&(await pg.innerText('#kn-note')).startsWith('Kerros 8.'));
+  chk(w+' kynä: nappi Ajattelen vieläkin',(await pg.innerText('#kn-more'))==='Ajattelen vieläkin');
+  const said=await pg.innerText('#kn-say');
+  chk(w+' kynä: kupla on napin vieressä ja puhuu kynän repliikkejä',said.length>5&&(await pg.innerText('#say'))!==said);
+  for(let i=0;i<60;i++)await pg.click('#kn-more');
+  const fit=await pg.evaluate(()=>{const b=document.getElementById('kn-b'),a=document.getElementById('kn-act').getBoundingClientRect();return {fs:parseFloat(b.style.fontSize),inner:b.scrollHeight>b.clientHeight,btnIn:a.bottom<=document.querySelector('nav').getBoundingClientRect().top+1}});
+  let ns=await pg.evaluate(NOSCROLL('#p-kyna'));
+  chk(w+' kynä: 68 kerrosta – fontti pieneni 11 px:iin, sivu ei vieri, napit näkyvät',fit.fs===11&&ns.sec&&ns.doc&&fit.btnIn,[fit,ns]);
   await pg.screenshot({path:shot('hj'+w+'_1_kyna.png')});
-  let m=await D();chk(w+' kynä: laskuri 1, syvin 8, tekstiä ei tallennettu',m.kyna===1&&m.kynaSyvin===8&&!(await store()).includes('myöhässä'),m);
-  await back('kyna');
+  let m=await D();chk(w+' kynä: laskuri 1, syvin 68, tekstiä ei tallennettu',m.kyna===1&&m.kynaSyvin===68&&!(await store()).includes('myöhässä'),m);
+  await back('kyna');chk(w+' kynä: poistuttaessa otsikkorivi palaa',await pg.isVisible('header'));
 
   // Ratkaistava vai elettävä
   await open('ratk');
@@ -51,13 +61,16 @@ async function run(b,w,h){
   await open('koani');
   const k1=await pg.innerText('#ko-txt');chk(w+' koani näkyy',k1.length>10);
   ns=await pg.evaluate(NOSCROLL('#p-koani'));chk(w+' koanikone mahtuu ruutuun',ns.sec&&ns.doc,ns);
-  await pg.click('#ko-en');await pg.click('#ko-en');chk(w+' en tiedä lasketaan kerran per koani',(await D()).entieda===1&&(await pg.innerText('#ko-note')).startsWith('En tiedä'));
-  await holdBtn('#ko-hold',300,306);chk(w+' koanin uloshengitys',(await pg.innerText('#ko-note')).startsWith('Uloshengitys 6,0 s'));
+  chk(w+' koanikone: ei ohjetekstiä, kupla alkaa piikillä',!(await pg.innerText('#p-koani')).includes('Älä ratkaise')&&(await pg.innerText('#say')).length>10&&(await pg.innerText('#say'))!==k1);
+  await pg.waitForTimeout(500);
+  chk(w+' koanikone: sitten kupla sanoo koanin',(await pg.innerText('#say'))===k1,await pg.innerText('#say'));
+  await pg.click('#ko-en');await pg.click('#ko-en');chk(w+' en tiedä lasketaan kerran per koani',(await D()).entieda===1&&await pg.getAttribute('#ko-en','aria-pressed')==='true');
+  await holdBtn('#ko-hold',300,306);chk(w+' koanin uloshengitys',(await pg.innerText('#ko-note'))==='Uloshengitys 6,0 s.');
   await pg.screenshot({path:shot('hj'+w+'_4_koani.png')});
   const longest=require(path.resolve(__dirname,'hm.js')).KOANIT.reduce((a,x)=>x.length>a.length?x:a,'');
   const kfit=await pg.evaluate(t=>{const k=document.getElementById('ko-txt'),old=k.textContent;k.textContent=t;const r=k.getBoundingClientRect(),g=k.parentNode.getBoundingClientRect(),q=document.querySelector('#p-koani .actions').getBoundingClientRect(),ok=r.top>=g.top-1&&r.bottom<=g.bottom+1&&r.bottom<=q.top;k.textContent=old;return ok},longest);
   chk(w+' pisinkin koani mahtuu kokonaan näkyviin',kfit,longest);
-  await pg.click('#ko-next');chk(w+' seuraava koani on eri',(await pg.innerText('#ko-txt'))!==k1&&(await D()).koani===2);
+  await pg.click('#ko-next');const k2=await pg.innerText('#ko-txt');chk(w+' seuraava koani on eri ja kupla sanoo sen heti',k2!==k1&&(await D()).koani===2&&(await pg.innerText('#say'))===k2);
   await back('koani');
 
   // Hiljaisuus

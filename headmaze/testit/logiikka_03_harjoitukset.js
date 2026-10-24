@@ -14,5 +14,6 @@ eq('Tarkkailija-polku päättyy loppuun, valinnoilla vaihtoehdot',[H.TARK[H.TARK
 eq('uusi data: laskurit nollassa',H.newData().muut.koani,0);
 eq('laskurit korjataan, puuttuvat nollaksi',(()=>{const o=H.normalize({ver:3,muut:{kyna:'3',elett:-2,meditSek:'61.5',outo:9}});return [o.muut.kyna,o.muut.elett,o.muut.meditSek,o.muut.hilj,'outo' in o.muut]})(),[3,0,61.5,0,false]);
 eq('vanha v3-tieto ilman laskureita luetaan',H.normalize({ver:3,sessions:[]}).muut.tark,0);
-eq('kaikilla uusilla repliikkilajeilla repliikkejä',['kyna','kyna_more','ratk_ratk','ratk_elett','koani','koani_en','hilj_alku','hilj_kesk','hilj_loppu','tark','medit'].every(x=>H.LINES[x]&&H.LINES[x].length>=2),true);
+eq('kaikilla uusilla repliikkilajeilla repliikkejä',['kyna_alku','kyna','kyna_more','kyna_odotus','ratk_ratk','ratk_elett','koani_alku','hilj_alku','hilj_kesk','hilj_loppu','tark','medit'].every(x=>H.LINES[x]&&H.LINES[x].length>=2),true);
+eq('kynän repliikkejä paljon: hehkutus yli 40, ohjeita yli 10',[H.LINES.kyna_more.length>40,H.KYNA_OHJE.length>10],[true,true]);
 console.log(ok?'KAIKKI OK':'VIRHEITÄ');process.exit(ok?0:1);
