@@ -58,12 +58,13 @@ Kasuaali puhelinpeli Mini Motorwaysin tyyliin. Kuvakulma on ylhäältä, ja tiet
 - **Pisteet = kassa (E).** Ennätyksiä ovat suurin kassa ja pisin kestänyt peli.
 - **Yläpalkissa** näkyvät kassa lukuna, tulot vs. kulut palkkina (vihreä tai punainen) ja maine palkkina. **(E: palkit; T: asettelu)**
 - **Maine (E):** yksi yhteinen mittari, koska maine leviää. Nopea toimitus nostaa mainetta, ja myöhästyminen tai peruuntunut tilaus laskee sitä. Kartalla välähtää, missä maine kärsi. Asteikko on 0–100, ja sillä on katto. **(T: asteikko)**
-- **Maine putoaa oikeasti (T):** yksi onnistuminen nostaa mainetta vähän (+1…+3 nopeuden mukaan), mutta epäonnistuminen pudottaa sitä paljon (−8 myöhästymisestä, −12 peruuntumisesta). Vastaanoton yläraja riippuu maineesta jyrkästi (∝ maine²). Kun maine putoaa 100:sta 70:een, yläraja puolittuu, joten ylikuorma korjaantuu tuntuvasti eikä vain vähän. Nollassa tilauksia ei tule lainkaan, ja maine palautuu hitaasti itsestään (noin +1/min, kunnes se on 20). **(E: lasku vähentää tilauksia ja nousu on hidas; T: luvut)**
+- **Maine putoaa oikeasti (T):** yksi onnistuminen nostaa mainetta vähän (+1…+3 nopeuden mukaan), mutta epäonnistuminen pudottaa sitä paljon (−8 myöhästymisestä, −12 peruuntumisesta). Maine-kerroin on jyrkkä (∝ maine², ks. 6b), joten ylikuorma korjaantuu tuntuvasti eikä vain vähän. Nollassa tilauksia ei tule lainkaan, ja maine palautuu hitaasti itsestään (noin +1/min, kunnes se on 20). **(E: lasku vähentää tilauksia ja nousu on hidas; T: luvut)**
 
 ## 6b. Tilausten vastaanotto **(E)**
 
 - Alareunassa on hienovarainen säädin **Vastaanotto**, jota voi muuttaa lennosta. Arvo on suoraan tilaustahti, esimerkiksi 0,1 tilausta minuutissa kerrallaan. **(E: hienovarainen; T: yksikkö)**
-- Erillistä kysyntämittaria ei ole: kysyntää oletetaan olevan niin paljon kuin firma pystyy ottamaan. **(E)** Säätimellä on kuitenkin yläraja, jonka määräävät maine ja kartan yritykset (niiden määrä ja koko). Huono maine tuo ylärajan alas ja leikkaa tahtia, vaikka säädin olisi tapissa. **(T: ylärajan laskenta, ∝ maine²)**
+- Erillistä kysyntämittaria ei ole. Kysyntää on aina, joten liikaa tilauksia saa ottaa koko ajan, jos haluaa. **(E)** Ainoa raja on tekninen: avoimia tilauksia voi olla kerralla enintään 26 (kirjaimet A–Z), ja se on samalla pelin äärilaita. **(T)**
+- Maine kertoo, kuinka suuri osa pyydetystä tahdista toteutuu: todellinen tahti = säädin × maine-kerroin (∝ maine²). Kun maine putoaa 100:sta 70:een, tilauksia tulee puolet pyydetystä. Huono maine jarruttaa siis itsestään, vaikka säädin olisi tapissa. **(E: maine vaikuttaa tilausmääriin; T: kaava)**
 - Tämä on riskivipu: voit nostaa tahtia ostamatta autoa ja katsoa, pärjäätkö. Jos et pärjää, maine putoaa, yläraja laskee ja kassa ehtii kärsiä.
 - Säädin nollassa tarkoittaa, että uusia tilauksia ei oteta.
 
@@ -76,7 +77,7 @@ Kasuaali puhelinpeli Mini Motorwaysin tyyliin. Kuvakulma on ylhäältä, ja tiet
 
 ## 8. Kasvu
 
-- Kasvu tulee vastaanottosäätimestä ja autoista. Säätimen ylärajan asettavat maine ja kartta. Kysyntäilmoituksia tai erillistä kysynnän kasvua ei ole. **(E)**
+- Kasvu tulee vastaanottosäätimestä ja autoista, ja maine jarruttaa. Kysyntäilmoituksia tai erillistä kysynnän kasvua ei ole. **(E)**
 - Rahalla ostetaan v1:ssä vain autoja. **(E: kysymys 7 jätettiin auki)**
 - **Tasapainotavoite (E):** kannattavuuden lisääminen on vaikeaa mutta onnistuu hyvällä pohdinnalla. Toteutus: botti pelaa simulaatiossa eri automäärillä ja vastaanottotasoilla, ja luvut säädetään niin, että hyvin ajettu auto tuottaa ohuen voiton (noin 15–25 % tuloista), huonosti ajettu tappiota ja ylikuormitus kääntää tuloksen punaiselle. **(T)**
 
@@ -101,7 +102,7 @@ Pieni ruudukko. Tie piirretään sormella kuten Mini Motorwaysissa, ja rakennus 
 
 ## 13. Testit
 
-- Logiikka nodella: reitinhaku, kapasiteetin siirtosääntö, ennakkotilauksen odotus, maineen nousu ja lasku sekä katto, juoksevat kulut ajan mukaan, vastaanoton yläraja, kaatuminen, päivän pikakelaus ja generaattorin yhtenäisyys (kaikki yritykset tavoitettavissa toimipaikasta).
+- Logiikka nodella: reitinhaku, kapasiteetin siirtosääntö, ennakkotilauksen odotus, maineen nousu ja lasku sekä katto, juoksevat kulut ajan mukaan, maine-kerroin, kaatuminen, päivän pikakelaus ja generaattorin yhtenäisyys (kaikki yritykset tavoitettavissa toimipaikasta).
 - Selain 390 ja 320 px tietokoneen Chromiumilla: napautukset, hidastus ja paneeli.
 - Tasapainotus: botti pelaa yksinkertaisella säännöllä (lähin vapaa auto) useita päiviä, ja tarkistetaan, että yhdellä autolla pärjää alussa eikä kasvu ole ilmaista.
 
