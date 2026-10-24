@@ -10,7 +10,7 @@ Kasuaali puhelinpeli Mini Motorwaysin tyyliin. Kuvakulma on ylhäältä, ja tiet
 - Firma aloittaa yhdellä autolla toimipaikasta. Uudet autot lähtevät toimipaikasta, ja auto, jolla ei ole tehtäviä, ajaa sinne. **(E)**
 - Autot liikkuvat itse ja ajavat aina lyhintä reittiä. Pelaaja antaa vain pysähdykset ja niiden järjestyksen. **(E)**
 - Taukopaikkoja ei ole. **(E)**
-- Kaksi kerrosta: päivän aikana tehdään ajojärjestelyä, päivän päätösruudulla bisnespäätöksiä. **(T, Emil hyväksyi linjan)**
+- Kaikki tapahtuu lennosta: ajojärjestely, vastaanottosäädin ja autojen osto. Erillistä päätösruutua ei ole. **(E)**
 
 ## 2. Näkymä (pystynäyttö) **(E)**
 
@@ -74,10 +74,9 @@ Kasuaali puhelinpeli Mini Motorwaysin tyyliin. Kuvakulma on ylhäältä, ja tiet
 
 ## 7. Päivä **(E)**
 
-- Päivä kestää niin kauan kuin pelaaja haluaa. Päivälle ei ole ylärajaa.
-- **Lopeta päivä:** uusia tilauksia ei enää tule. Avoimet tilaukset, joita ei ole annettu autoille, peruuntuvat **(T: ilman mainehaittaa)**. Järjestystä ei voi enää muuttaa, ja peli pikakelaa (noin 8×), kunnes annetut tilaukset on toimitettu tai ne myöhästyvät. Myöhästymiset rokottavat vielä mainetta.
-- **Päivän päätösruutu:** tulot, juoksevat kulut, tulos, kassa ja maine. Täällä voi myös ostaa tai myydä auton. **(T; auki, ks. kohta 14)**
-- Seuraava päivä jatkuu samasta kohdasta, ja autot jatkavat siitä mihin jäivät.
+- Päätösruutua ei ole, vaan kaikki tehdään lennosta: vastaanotto säädetään ja autot ostetaan tai myydään alareunasta (peli hidastuu valikon ajaksi). **(E)**
+- Päivälle ei ole ylärajaa, joten peli on yksi ikuinen päivä.
+- **Lopeta päivä:** uusia tilauksia ei enää tule, ja autoille antamattomat avoimet tilaukset peruuntuvat **(T: ilman mainehaittaa)**. Järjestystä ei voi enää muuttaa, ja peli pikakelaa (noin 8×), kunnes annetut tilaukset on toimitettu tai ne myöhästyvät. Myöhästymiset rokottavat vielä mainetta, ja kulut juoksevat pikakelauksenkin ajan. Lopuksi näytetään lyhyt yhteenveto (tulos ja kassa), ja peli jatkuu samasta kohdasta aikahyppynä.
 
 ## 8. Kasvu
 
@@ -100,7 +99,7 @@ Pieni ruudukko. Tie piirretään sormella kuten Mini Motorwaysissa, ja rakennus 
 
 ## 12. Versiot
 
-- **v1 (ensimmäinen pelattava):** yksi generoitu kaupunkityyppi (ruutukaava, siemen satunnainen tai annettu), spontaanit ja ennakkotilaukset, autojen ohjaus ja hidastus, kapasiteettisääntö, maine, juoksevat kulut ja kassa, vastaanottosäädin, päiväsykli päätösruutuineen, auton osto ja myynti, kaatuminen, ennätykset ja automaattitallennus.
+- **v1 (ensimmäinen pelattava):** yksi generoitu kaupunkityyppi (ruutukaava, siemen satunnainen tai annettu), spontaanit ja ennakkotilaukset, autojen ohjaus ja hidastus, kapasiteettisääntö, maine, juoksevat kulut ja kassa, vastaanottosäädin, päivän lopetus pikakelauksella, auton osto ja myynti, kaatuminen, ennätykset ja automaattitallennus.
 - **v2:** kaupunkityyppejä lisää, karttaeditori ja tasapainon hiominen.
 - **v3 (jos tarvitaan):** isommat autot, muut ostokset ja tasapainotus.
 
@@ -113,5 +112,4 @@ Pieni ruudukko. Tie piirretään sormella kuten Mini Motorwaysissa, ja rakennus 
 ## 14. Avoimet
 
 - Peruuntuvatko avoimet, autoille antamattomat tilaukset päivän päättyessä ilman mainehaittaa? **(T-oletus: ilman haittaa)**
-- Ostetaanko auto lennosta (alareunan valikosta, peli hidastuu) vai vain päivän päätösruudulla? *Ehdotus:* lennosta, koska vastaanottokin säädetään lennosta, ja päivän lopetus jää pikakelaukseksi ja yhteenvedoksi.
 - Kapasiteetti 4, hidastus 0,25×, pikakelaus 8× ja kaikki rahaluvut ovat tekoälyn arvauksia, ja ne säädetään pelaamalla.
