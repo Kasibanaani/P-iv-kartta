@@ -64,6 +64,16 @@ check('60 hippaa × 2 min: ei seinien sisällä, kaikki liikkuvat (> 60 ruutua)'
 // vaeltelu ei ole robottimaista: pysähdyksiä ja katselua
 G=H.newGame('talo',2,3);G.p.x=-50;let looks=0,bursts=0;for(let i=0;i<60*120;i++){H.stepGame(G,1/60,{x:0,y:0});G.S.forEach(o=>{if(o.state==='look')looks++;if(o.burst>0)bursts++;});}
 check('vaeltaessa välillä pysähtyy katselemaan ja välillä pyrähtää',looks>60*6&&bursts>60*4,'katselu '+(looks/60).toFixed(0)+' s, pyrähdys '+(bursts/60).toFixed(0)+' s');
+// harhautus: heitto valokeilaan houkuttelee hipan suoraan sinne, latautuu 20 s
+{G=game(10.5,2.5,6.5,1.5,Math.PI);s=G.S[0];
+ const k=H.heittoKohde(G,-0.765,0),f=H.heita(G,-0.765,0),f2=H.heita(G,-0.765,0);
+ for(let i=0;i<40;i++)H.stepGame(G,1/60,{x:0,y:0});
+ check('heitto lentää, hippa näkee osuman ja lähtee suoraan sinne, toista ei heti',f&&!f2&&k.x<3&&s.state==='hear'&&s.mark==='!'&&s.path.length>0&&Math.hypot(s.path[s.path.length-1].x-k.x,s.path[s.path.length-1].y-k.y)<1.2&&G.rings.some(r=>r.kova),JSON.stringify([k,s.state,s.mark]));}
+{G=H.newGame('t',1,5);G.S=[];H.heita(G,1,0);for(let i=0;i<60*19;i++)H.stepGame(G,1/60,{x:0,y:0});const a=G.lataus;for(let i=0;i<70;i++)H.stepGame(G,1/60,{x:0,y:0});
+ eq('latauspalkki täyttyy 20 sekunnissa',[a<1,G.lataus,H.heita(G,1,0)],[true,1,true]);}
+{G=game(1.5,1.5,4.5,1.5,Math.PI);s=G.S[0];s.state='chase';s.last={x:1.5,y:1.5};s.seenT=G.t;s.path=[];s.repl=0;
+ G.heitot.push({x0:9.5,y0:5.5,x:9.5,y:5.5,t:0,T:0.01,maassa:false});H.stepGame(G,1/60,{x:0,y:0});
+ check('jahtaava hippa, joka näkee pelaajan, ei välitä harhautuksesta',s.state==='chase'||G.over);}
 // kuiskausnappi: vain jahti lähellä, viipyy hetken, ei muuta peliä
 {const G=H.newGame('talo',1,5),s=G.S[0];s.x=-50;s.y=-50;s.state='wander';H.stepGame(G,1/60,{x:0,y:0});
  const a=H.uhka(G);s.x=G.p.x+4;s.y=G.p.y;s.state='chase';s.last={x:G.p.x,y:G.p.y};s.seenT=G.t;s.path=[];s.repl=0;H.stepGame(G,1/60,{x:0,y:0});const b=H.uhka(G);

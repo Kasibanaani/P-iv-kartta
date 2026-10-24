@@ -141,6 +141,16 @@ async function run(b,w,h,full){
   await pg.mouse.up();
   const g1=await pg.evaluate(()=>{const G=__hm.game();return [G.p.x,G.p.y,G.rings.length,G.over]});
   chk(w+': tatti oikealle liikuttaa hahmoa oikealle',jv.x>0.9&&(g1[0]>g0[0]+0.5||g1[3])&&Math.abs(g1[1]-g0[1])<0.2,[jv,g0,g1]);
+  {const j2=await pg.evaluate(()=>{const r=document.getElementById('joy2').getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2,full:document.getElementById('joy2').classList.contains('full'),r:r.right<=innerWidth&&r.bottom<=innerHeight&&r.left>innerWidth/2}});
+   chk(w+': oikea tatti oikeassa alakulmassa, kehä täynnä',j2.full&&j2.r,j2);
+   await pg.mouse.move(j2.x,j2.y);await pg.mouse.down();await pg.mouse.move(j2.x-60,j2.y-30,{steps:4});
+   await pg.evaluate(()=>__hm.stepGame(1/60,{x:0,y:0}));
+   if(w>=568)await pg.screenshot({path:shot('hm'+w+'_8a_tahtays.png')});
+   await pg.mouse.up();
+   const th=await pg.evaluate(()=>{const G=__hm.game();__hm.stepGame(1/60,{x:0,y:0});return {n:G.heitetty,l:G.lataus,full:document.getElementById('joy2').classList.contains('full'),h:G.heitot.length,x:G.heitot[0]&&G.heitot[0].x-G.p.x}});
+   chk(w+': vedä ja irrota → heitto vasemmalle, kehä tyhjenee',th.n===1&&th.h===1&&th.x<-1&&th.l<0.01&&!th.full,th);
+   await pg.evaluate(()=>{for(let i=0;i<60;i++)__hm.stepGame(1/60,{x:0,y:0});});
+   if(w>=568)await pg.screenshot({path:shot('hm'+w+'_8a_heitto.png')});}
   const pal=await pg.evaluate(()=>{const G=__hm.game(),e=document.getElementById('ebar').getBoundingClientRect(),m=document.getElementById('minic'),x=m.getContext('2d').getImageData(0,0,m.width,m.height).data;let g=0;for(let i=0;i<x.length;i+=4)if(x[i+1]>150&&x[i]<170&&x[i+2]<110)g++;
     return {n:G.pallot.length,E:G.E,bar:e.width>60&&e.top<40,green:g}});
   chk(w+': kuusi palluraa, palkki ylhäällä keskellä ja laskee, pallurat näkyvät pikkukartassa',pal.n===6&&pal.E<1&&pal.E>0.9&&pal.bar&&pal.green>6,pal);
@@ -151,7 +161,7 @@ async function run(b,w,h,full){
   chk(w+': ei jahtia → kuiskausnappi piilossa',!(await pg.isVisible('#irti')));
   await pg.evaluate(()=>{const G=__hm.game(),s=G.S[0];s.state='chase';s.last={x:G.p.x,y:G.p.y};s.seenT=G.t;s.path=[];s.repl=0;__hm.stepGame(1/60,{x:0,y:0});});
   await pg.waitForTimeout(450);
-  chk(w+': hippa jahtaa lähellä → kuiskausnappi näkyy oikeassa alakulmassa',await pg.evaluate(()=>{const b=document.getElementById('irti'),r=b.getBoundingClientRect(),j=document.getElementById('joy').getBoundingClientRect();return b.classList.contains('on')&&getComputedStyle(b).visibility==='visible'&&r.left>innerWidth/2&&r.right<=innerWidth&&r.bottom<=innerHeight&&r.left>j.right}));
+  chk(w+': hippa jahtaa lähellä → kuiskausnappi näkyy, ei tattien päällä',await pg.evaluate(()=>{const b=document.getElementById('irti'),r=b.getBoundingClientRect(),j=document.getElementById('joy').getBoundingClientRect();return b.classList.contains('on')&&getComputedStyle(b).visibility==='visible'&&r.bottom<=innerHeight&&r.right<=innerWidth&&r.left>=0&&[j,document.getElementById('joy2').getBoundingClientRect()].every(q=>r.right<q.left||r.left>q.right||r.bottom<q.top-6||r.top>q.bottom)}));
   if(w>=568)await pg.screenshot({path:shot('hm'+w+'_8b_kuiskaus.png')});
   for(let i=0;i<3;i++){await pg.click('#irti');await pg.waitForTimeout(30);}
   chk(w+': kolme painallusta lasketaan, peli jatkuu ennallaan',await pg.evaluate(()=>{const G=__hm.game();return G.irti===3&&!G.over}));

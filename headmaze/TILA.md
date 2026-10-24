@@ -1,12 +1,13 @@
 # Headmaze: tila
 
-**Vaihe:** kehittelyssä · **Versio:** 11 · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/headmaze/ · **Päivitetty:** 24.10.2026
+**Vaihe:** kehittelyssä · **Versio:** 12 · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/headmaze/ · **Päivitetty:** 24.10.2026
 
 Mindfulnessia kieli poskessa (Headspace → Headmaze), omana appinaan (Emil 24.10.2026). Ilme: tumma tausta, sinapinkeltainen ja vähän kuvottava tehosteväri, yliiloinen aurinko ja pilvi vittuilevat puhekuplassa, sokkeloestetiikka. Ilme on tarkoituksella oma eikä Appipaja 2.0:n teemarekisteri.
 
-## Valmiina (versio 11, 24.10.2026)
+## Valmiina (versio 12, 24.10.2026)
 
 - **v9:** alapalkki takaisin (v7:n rungon venytys piilotti sen; nyt html-tausta on alapalkin värinen). Laskeutuminen leijailee eri tahdissa, kupla piilossa lennon ajan. Koanikone: ei keskitekstiä, aurinko ja pilvi laskeutuvat ja sanovat koanit kuplassa; yksi nappi, vähintään 20 s uloshengitystä per koani (yhdessä tai monessa erässä), sitten sama nappi on Seuraava.
+- **v12 harhautus (Emil 24.10.):** oikea tatti oikeassa alakulmassa: vedä tähdätäksesi (katkoviiva ja rengas, matka 1,5–10 ruutua, pysähtyy seinään), irrota heittääksesi. Esine pitää osuessaan täyden äänen (9 ruutua, valkoinen rengas). Hippa, jonka valokeilaan se osuu, juoksee suoraan sinne (!); muut kuulijat lähtevät katsomaan (?). Jahtaava hippa, joka näkee pelaajan juuri nyt, ei välitä. Uusi heitto vasta, kun tatin kehä on täynnä (20 s). Kuiskausnappi siirtyi alas keskelle tattien väliin (pystyssä oikean tatin yläpuolelle).
 - **v11 (Sokkelo, Emil 24.10.):** kun hippa jahtaa alle 6 ruudun päässä, oikeaan alakulmaan vilkkuu kuiskaava nappi ”en ole tässä pelissä” (näkyy vielä 1,2 s jahdin jälkeen). Painallukset lasketaan (`peli.irti` yhteensä), peliin ne eivät vaikuta. Loppuruudussa yksi kommentti 100:n kirjastosta, sävy painallusten mukaan: 0 sarkastinen, 1–2 sekoitus, 3–6 enimmäkseen vilpitön, 7+ vilpitön (`peli_irti0…3`). Otsikko ”Kiinni jäit” + nappi ”En jäänyt” → ”Pelihahmo jäi kiinni” ja ”ai niin” -repliikki (`peli_enjaanyt`, 12). Vanhat `caught`/`starved`/pallo-loppurepliikit eivät enää näy loppuruudussa.
 - **v10 (Emilin sisältöpankki):** noin 430 repliikkiä tilanteittain (Minän jaksot, kasvi, uloshengityksen vaiheet, Pilvikyyti, Lajittelija, kynä, Huoli, Hiljaisuus, Tarkkailijan vaiheet, meditoija, Odotus ja ”lähes täynnä”, Sokkelon valikko, tauko, ennätys ja pallurat loppuruudussa, Tilastot ja varmuuskopio, yleiset). 80 koania ja 51 ajatusta master-tiedoissa (Erä 5 / Erä 4). Taukorepliikit ovat näkymäkohtaisia.
 
@@ -38,6 +39,7 @@ Mindfulnessia kieli poskessa (Headspace → Headmaze), omana appinaan (Emil 24.1
 
 - Alapalkki kotinäytön appina: v7 pienensi alapalkin alatyhjää ja venyttää rungon näytön alareunaan, jos iOS jättää sen lyhyeksi. Ei kokeiltu oikealla iPhonella.
 - Pallurapalkin vaikeus (80/50/30 s, +22 %) on arvaus.
+- Harhautuksen arvot (20 s, 10 ruutua, ääni 9 ruutua) ovat arvauksia; kahden peukalon yhtäaikainen käyttö puhelimella kokeilematta.
 - Kuiskausnapin kohta ja vilkkeen voimakkuus puhelimella; ehtiikö sitä painaa jahdin keskellä peukalolla.
 - Testi ”pisinkin koani mahtuu kuplaan” 320 px:ssä on epävakaa (meni välillä läpi, välillä ei, myös ilman v11:n muutoksia).
 
@@ -47,7 +49,6 @@ Mindfulnessia kieli poskessa (Headspace → Headmaze), omana appinaan (Emil 24.1
 
 ## Seuraavaksi
 
-- Seuraavaksi rakenteilla (Emil 24.10.): oikea tatti heittää harhautuksen, joka pitää kovan äänen ja houkuttelee hipat; uusi heitto kun oma palkki täyttyy 20 s:ssa.
 - Emil kokeilee puhelimella uudet harjoitukset ja karsii koaneja ja meditoijan ajatuksia master-tiedoissa.
 - Ei jonossa: Kehokartta (Emil: ei nyt).
 
