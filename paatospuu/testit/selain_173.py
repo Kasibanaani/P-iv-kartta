@@ -1,15 +1,16 @@
 """Juuri 1.73: osion ohjainrivi alhaalla alapalkin yläpuolella (Emil 24.10.2026, kuva 2). Muistio: Avoimet/Kuitatut/Toistuvat,
 Listat: Lista ⌄, Kalenteri: kuukausi vasemmalla ja ‹ Tänään › oikealla. Asioissa ei riviä. Tietokoneella rivit ennallaan ylhäällä.
-Leveydet 390 ja 320 px, tietokone 1280 px. Käyttö: python3 testit/selain_173.py"""
+1.84: ohjainrivi on alapalkin sisällä kulmanappien välissä. Leveydet 390 ja 320 px, tietokone 1280 px. Käyttö: python3 testit/selain_173.py"""
 import asyncio, os, sys, json, datetime
 from playwright.async_api import async_playwright
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 from apu import tab, menu, tsx
 U='file://'+os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','index.html'))
 GEO="""(function(){var s=document.getElementById('sbar'),p=document.getElementById('pbar'),m=document.getElementById('main');
-  var a=s.getBoundingClientRect(),b=p.getBoundingClientRect(),c=m.getBoundingClientRect(),w=document.documentElement.clientWidth,o=[];
-  s.querySelectorAll('button').forEach(function(e){var r=e.getBoundingClientRect();if(r.right>w+.5||r.left<-.5||r.bottom>b.top+.5)o.push(e.id||e.textContent);});
-  return {vis:!s.hidden&&!!s.offsetParent,gap:Math.round(b.top-a.bottom),mainEnd:Math.round(a.top-c.bottom),yli:o,ids:Array.prototype.map.call(s.querySelectorAll('[id]'),function(e){return e.id;})};})()"""
+  /* 1.84: ohjainrivi on alapalkin sisällä kulmanappien välissä (display: contents), joten mitataan sen napit */
+  var b=p.getBoundingClientRect(),c=m.getBoundingClientRect(),w=document.documentElement.clientWidth,o=[],R=document.getElementById('roll').getBoundingClientRect(),M=document.getElementById('menu').getBoundingClientRect(),vis=false;
+  s.querySelectorAll('button').forEach(function(e){var r=e.getBoundingClientRect();if(!r.width)return;vis=true;if(r.right>w+.5||r.left<-.5||r.bottom>b.bottom+.5||r.top<b.top-.5||r.left<R.right-.5||r.right>M.left+.5)o.push(e.id||e.textContent);});
+  return {vis:!s.hidden&&vis,gap:0,mainEnd:Math.round(b.top-c.bottom),yli:o,ids:Array.prototype.map.call(s.querySelectorAll('[id]'),function(e){return e.id;})};})()"""
 async def phone(p,w,h):
     try: b=await p.chromium.launch()
     except Exception: b=await p.chromium.launch(executable_path='/opt/pw-browsers/chromium')
@@ -40,7 +41,8 @@ async def phone(p,w,h):
     g=await pg.evaluate(GEO)
     want('Kalenteri: kuukausi ja nuolet alhaalla', g['vis'] and 'calmonth' in g['ids'] and 'caltoday' in g['ids'] and not g['yli'])
     o=await pg.evaluate("(function(){function x(e){return e.getBoundingClientRect().left;}var h=document.querySelector('#sbar .calhead'),bs=h.querySelectorAll(':scope>button');return [x(document.getElementById('calmonth')),x(bs[0]),x(document.getElementById('caltoday')),x(bs[bs.length-1]),bs[0].textContent,bs[bs.length-1].textContent];})()")
-    want('järjestys: kuukausi, ‹, Tänään, ›', o[0]<o[1]<o[2]<o[3] and o[4]=='‹' and o[5]=='›')
+    yy=await pg.evaluate("(function(){var h=document.querySelector('#sbar .calhead');return [document.getElementById('calmonth').getBoundingClientRect().top,h.querySelector(':scope>button').getBoundingClientRect().top];})()")
+    want('järjestys (1.84): ‹ Tänään › ylempänä, kuukausi alla', o[1]<o[2]<o[3] and o[4]=='‹' and o[5]=='›' and yy[0]>yy[1])
     want('viikkonauha jää ylös', (await pg.locator('#week').bounding_box())['y']<80)
     d0=await pg.get_attribute('#week .cday.on','data-day')
     await pg.locator('#sbar .calhead > button').last.click(); await pg.wait_for_timeout(60)
@@ -60,7 +62,7 @@ async def phone(p,w,h):
     want('iso ikkuna peittää ohjainrivin ja alapalkin (1.74)', abs(r)<=1)
     await pg.click('#nsheet .sx'); await pg.wait_for_timeout(60)
     await pg.locator('#nlist .ncard .ncheck').first.click(); await pg.wait_for_timeout(60)
-    r=await pg.evaluate("(function(){var u=document.getElementById('undo').getBoundingClientRect(),s=document.getElementById('sbar').getBoundingClientRect();return [u.bottom<=s.top,u.height>0];})()")
+    r=await pg.evaluate("(function(){var u=document.getElementById('undo').getBoundingClientRect(),s=document.getElementById('pbar').getBoundingClientRect();return [u.bottom<=s.top,u.height>0];})()")
     want('Kumoa ohjainrivin yläpuolella', all(r))
     want('ei sivuvirheitä', not errs)
     await b.close(); return bad

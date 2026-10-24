@@ -29,7 +29,7 @@ async def run(p,w,h):
     await pg.goto(U); await pg.wait_for_timeout(200)
     await tab(pg,'use'); await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
     await pg.evaluate("""(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1')),k=o.kokonaisuudet[0];
-      k.termit=[{id:'ta',name:'Kipu',yes:[],no:[]},{id:'tb',name:'Kuume',yes:[],no:[]},{id:'tc',name:'Lääkäri',yes:[],no:[]}];k.tarkeat=['ta','tb'];
+      k.termit=[{id:'ta',name:'Kipu',yes:[],no:[]},{id:'tb',name:'Kuume',yes:[],no:[]},{id:'tc',name:'Lääkäri',yes:[],no:[]}].concat([1,2,3,4,5,6,7,8,9,10,11,12].map(function(i){return {id:'tz'+i,name:'Muu'+i,yes:[],no:[]};}));k.tarkeat=['ta','tb'];
       localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()""")
     await pg.reload(); await pg.wait_for_timeout(200); await tab(pg,'terms'); await pg.wait_for_timeout(80)
     imp=lambda: pg.evaluate(K+".tarkeat")
@@ -57,10 +57,11 @@ async def run(p,w,h):
     tt=json.loads(await pg.evaluate("JSON.stringify("+K+".termit)")); nid=[t['id'] for t in tt if t['name']=='Yskä']
     want('Muut: ilman tähteä', len(nid)==1 and nid[0] not in await imp() and await pg.locator('#termlist .row:has-text("Yskä")').count()==1)
     # Sivuveto peruu
-    r=await pg.evaluate("(function(){var m=document.querySelector('#termlist button.row[data-id=\"tc\"]').getBoundingClientRect();return {x:m.left+40,y:m.top+m.height/2};})()")
+    r=await pg.evaluate("(function(){var e=document.querySelector('#termlist button.row[data-id=\"tc\"]');var M=document.getElementById('main');M.scrollTop+=e.getBoundingClientRect().top-M.getBoundingClientRect().height/2;var m=e.getBoundingClientRect();return {x:m.left+40,y:m.top+m.height/2};})()")
     lab=await hold(r['x'],r['y'],moves=[(r['x']+40,r['y']),(r['x']+90,r['y'])])
     want('sivuveto peruu', not await pg.is_visible('#tnew-in') and not await pg.is_visible('#tsheet') and await pg.locator('.tline').count()==0)
     # Lyhyt napautus avaa kortin kuten ennen
+    r=await pg.evaluate("(function(){var m=document.querySelector('#termlist button.row[data-id=\"tc\"]').getBoundingClientRect();return {x:m.left+40,y:m.top+m.height/2};})()")
     await pg.touchscreen.tap(r['x'],r['y']); await pg.wait_for_timeout(250)
     want('napautus avaa kortin', await pg.is_visible('#tsheet')); await tsx(pg); await pg.wait_for_timeout(120)
     # Tyhjä kenttä ei tee mitään
@@ -69,6 +70,7 @@ async def run(p,w,h):
     await hold(r['x'],r['y']); await pg.keyboard.press('Escape'); await pg.wait_for_timeout(120)
     want('tyhjä peruu', not await pg.is_visible('#tnew-in') and len(json.loads(await pg.evaluate("JSON.stringify("+K+".termit)")))==n0)
     # Tärkeät-rivin pito siirtää edelleen riviä
+    await pg.evaluate("window.scrollTo(0,0);document.getElementById('main').scrollTop=0"); await pg.wait_for_timeout(60)
     r=await pg.evaluate("(function(){var a=document.querySelectorAll('#implist .drow .row');return {x:a[0].getBoundingClientRect().left+60,y:a[0].getBoundingClientRect().top+20,y2:a[1].getBoundingClientRect().bottom+6};})()")
     before=await imp()
     await touch('touchStart',r['x'],r['y']); await pg.wait_for_timeout(500)

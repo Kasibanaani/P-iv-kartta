@@ -32,7 +32,7 @@ async def phone(p,w,h):
     want('yläreunassa vain pieni rivi', await pg.inner_text('#crumb')=='Koti · Muistio' and not await pg.is_visible('#title') and not await pg.is_visible('#xbtn') and not await pg.is_visible('#hint'))
     g=await pg.evaluate("(function(){var t=document.querySelector('.top').getBoundingClientRect(),c=document.getElementById('crumb'),pb=document.getElementById('pbar').getBoundingClientRect();return [Math.round(t.height),getComputedStyle(c).pointerEvents,Math.round(innerHeight-pb.bottom),Math.round(pb.height)];})()")
     want('yläpalkki matala, rivi ei painettava', g[0]<=40 and g[1]=='none')
-    want('alapalkki alhaalla, matala', g[2]<=1 and g[3]<=60)
+    want('alapalkki alhaalla, kulmanappien korkuinen (1.84)', g[2]<=1 and g[3]<=100)
     want('vanha välilehtirivi piilossa', not await pg.is_visible('#nav'))
     r=await pg.evaluate("(function(){var a=document.getElementById('roll').getBoundingClientRect(),q=document.getElementById('qx').getBoundingClientRect(),m=document.getElementById('menu').getBoundingClientRect();return [a.left,q.left,m.right,innerWidth,a.right<q.left];})()")
     want('rullaus vasemmalla, vienti ja valikko oikealla', r[0]<=20 and r[1]>r[0] and r[2]<=r[3]-4 and r[4])

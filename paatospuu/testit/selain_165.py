@@ -50,7 +50,7 @@ async def run(p,w,h):
     want('Listat-välilehti: lista, otsikko, ei Muistioiden valitsinta', await pg.is_visible('#chlist-pick') and await pg.inner_text('#roll-now')=='Listat' and await pg.locator('#noteview').count()==0 and await pg.get_attribute('[data-tab="list"]','aria-selected')=='true')
     await tab(pg,'notes'); await pg.wait_for_timeout(80)
     want('Muistiot: ei Lista-valintaa', await pg.locator('#noteview [data-nv]').count()==3 and await pg.locator('#nlist').count()==1)
-    r=await pg.evaluate("(function(){var o=[];document.querySelectorAll('#pbar button').forEach(function(b){var r=b.getBoundingClientRect();o.push(r.left>=0&&r.right<=innerWidth+0.5&&b.scrollWidth<=b.clientWidth+1);});return o;})()")
+    r=await pg.evaluate("(function(){var o=[];document.querySelectorAll('#pbar>button,#pbar .prow>button').forEach(function(b){var r=b.getBoundingClientRect();o.push(r.left>=0&&r.right<=innerWidth+0.5&&b.scrollWidth<=b.clientWidth+1);});return o;})()")
     want('alapalkin napit mahtuvat (1.72)', len(r)==3 and all(r))
     want('ei sivuvirheitä', not errs)
     await b.close(); return bad

@@ -23,7 +23,7 @@ async def run(p,w,h):
       localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()""")
     await pg.reload(); await pg.wait_for_timeout(200)
     g=await pg.evaluate("""(function(){var p=document.getElementById('pbar').getBoundingClientRect(),m=document.getElementById('main'),mr=m.getBoundingClientRect(),cs=getComputedStyle(m);
-      return {top:!!document.querySelector('.top').offsetHeight,px:p.left,pw:p.width,ph:p.height,ptop:p.top,mainTop:mr.top,mainBottom:mr.bottom,padR:parseFloat(cs.paddingRight),sbar:!!document.getElementById('sbar').offsetHeight,app:document.querySelector('.app').getBoundingClientRect().width};})()""")
+      return {top:!!document.querySelector('.top').offsetHeight,px:p.left,pw:p.width,ph:p.height,ptop:p.top,mainTop:mr.top,mainBottom:mr.bottom,padR:parseFloat(cs.paddingRight),sbar:Array.prototype.some.call(document.querySelectorAll('#sbar button'),function(b){return b.offsetHeight>0;}),app:document.querySelector('.app').getBoundingClientRect().width};})()""")
     want('ei yläpalkkia, sisältö ylhäältä alas', not g['top'] and g['mainTop']<=1 and abs(g['mainBottom']-h)<=1)
     want('kapea sivupalkki oikealla koko korkeudelta', g['px']>=w-80 and g['pw']<=80 and abs(g['ph']-h)<=1 and g['ptop']<=1)
     want('sisältö ei jää palkin alle', g['padR']>=g['pw']-1)
@@ -53,7 +53,7 @@ async def run(p,w,h):
     want('ei mitään yli ruudun', not o)
     # Kääntö pystyyn
     await pg.set_viewport_size({'width':390,'height':844}); await pg.wait_for_timeout(250)
-    g=await pg.evaluate("(function(){var p=document.getElementById('pbar').getBoundingClientRect();return {top:!!document.querySelector('.top').offsetHeight,pb:Math.round(innerHeight-p.bottom),pw:Math.round(p.width),sbar:!!document.getElementById('sbar').offsetHeight,cols:document.querySelectorAll('#timeline .dcol').length};})()")
+    g=await pg.evaluate("(function(){var p=document.getElementById('pbar').getBoundingClientRect();return {top:!!document.querySelector('.top').offsetHeight,pb:Math.round(innerHeight-p.bottom),pw:Math.round(p.width),sbar:Array.prototype.some.call(document.querySelectorAll('#sbar button'),function(b){return b.offsetHeight>0;}),cols:document.querySelectorAll('#timeline .dcol').length};})()")
     want('pystyssä palkit palaavat', g['top'] and g['pb']==0 and g['pw']==390 and g['sbar'] and g['cols']==0)
     want('pystyssä nimi näkyy', await pg.is_visible('#roll-now') and not await pg.is_visible('#roll-ic'))
     want('ei sivuvirheitä', not errs)
