@@ -600,4 +600,9 @@ e4.k=['a'];e4.off=[];e4.on=['d'];eq('1.78: poissulkevan jäsen ei tuo toista',/p
 e4.all=1;e4.k=['a','c'];eq('1.78: ja-syy saa tuoda',E.ehIssues(iE,e4,nmf).block,'');
 e4.k=['a'];delete e4.all;e4.on=['a'];eq('1.78: syy ei voi olla oma seuraus',/oman ehtonsa/.test(E.ehIssues(iE,e4,nmf).block),true);
 eq('1.78: Poissulkevat tekstinä',[E.ehdotText([{k:['A','B'],ty:'x',on:[],off:[]}]),E.textExtras('Ehdot:\nPoissulkevat: A, B.',['A','B']).ehdot],[['Poissulkevat: A, B.'],[{k:['A','B'],on:[],off:[],ty:'x'}]]);
+/* 1.79 teksti syynä ja seurauksena */
+var qr=[{id:'r1',created:'2026-10-01T00:00:00Z',it:[{id:'a'},{id:'b'}]}];
+eq('1.79: teksti syynä rivien tekstistä (alusta)',E.chkCond([{k:['q:lääk'],on:['b']}],qr,gK,cn,{tx:[{n:E.normT('Soita lääkärille')}]}).hid,{});
+eq('1.79: ei osumaa',E.chkCond([{k:['q:lääk'],on:['b']}],qr,gK,cn,{tx:[{n:E.normT('Soita äidille')}]}).hid,{b:1});
+eq('1.79: teksti seurauksena = ilmoitus, ketjuttuu',E.chkCond([{k:['a'],on:['q:Soita ennen klo 10']},{k:['q:soita'],on:['q:Muista numero']},{k:['q:numero'],off:['q:Soita ennen klo 10']}],[{id:'r',created:'x',it:[{id:'a',ok:'x'}]}],gK,cn).say,['Muista numero']);
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);

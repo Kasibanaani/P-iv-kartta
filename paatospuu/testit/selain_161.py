@@ -75,7 +75,7 @@ async def run(p,w,h):
     want('sulkeminen vapauttaa', not await pg.evaluate("document.documentElement.classList.contains('modal')"))
     # Asiasanakortin osiot ja yhteenveto
     await tab(pg,'terms'); await pg.wait_for_timeout(50); await pg.locator('#p-terms .row:has-text("Kävely")').first.click(); await pg.wait_for_timeout(50)
-    want('osiot Tunnistus, Listassa, Muut', await pg.locator('#tsheet details.tsec').count()==3 and await pg.is_visible('#tyes') and not await pg.is_visible('#tdur'))
+    want('osiot Tunnistus, Listassa, Muut', await pg.locator('#tsheet details.tsec').count()==3 and await pg.is_visible('#ti-yes') and not await pg.is_visible('#tdur'))
     want('suljetun osion yhteenveto', 'kesto 30 min' in await pg.inner_text('#tsec-lista summary'))
     o=json.loads(await pg.evaluate("(function(){var w=document.documentElement.clientWidth,out=[];document.querySelectorAll('#tsheet summary').forEach(function(e){var r=e.getBoundingClientRect();if(r.right>w+0.5)out.push(1);});return JSON.stringify(out);})()"))
     want('ei yli ruudun', not o)

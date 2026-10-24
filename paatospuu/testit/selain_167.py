@@ -101,8 +101,9 @@ async def run(p,w,h):
     want('Asiasanat-ikkunasta Ehdot', await pg.is_visible('#ehsheet') and await pg.locator('#eh-body .ehr[data-eh]').count()==3)
     await pg.click('#eh-add'); await pg.wait_for_timeout(50); await pg.fill('#eh-new','Kuvaus*'); await pg.click('#eh-newb'); await pg.wait_for_timeout(80)
     nid=await pg.evaluate(K+".termit.filter(function(t){return t.name==='Kuvaus';})[0].id")
-    want('uusi asiasana tärkeäksi ja valittavaksi', await pg.locator('#eh-body .ehps[data-sec="k"] .ehp[data-tid="%s"]'%nid).count()==1 and nid in await pg.evaluate("JSON.parse(JSON.stringify("+K+".tarkeat))"))
-    await pg.click('#eh-body .ehps[data-sec="k"] .ehp[data-tid="%s"]'%nid); await pg.click('#eh-done'); await pg.wait_for_timeout(50); await pg.click('#ehsheet .sx'); await pg.wait_for_timeout(60)
+    # 1.79: uusi asiasana valitaan samalla avoimeen laatikkoon
+    want('uusi asiasana tärkeäksi ja valituksi', await pg.get_attribute('#eh-body .ehps[data-sec="k"] .ehp[data-tid="%s"]'%nid,'aria-pressed')=='true' and nid in await pg.evaluate("JSON.parse(JSON.stringify("+K+".tarkeat))"))
+    await pg.click('#eh-done'); await pg.wait_for_timeout(50); await pg.click('#ehsheet .sx'); await pg.wait_for_timeout(60)
     want('ehto tallentui', await pg.evaluate(K+".ehdot.length")==4)
     want('ei sivuvirheitä', not errs)
     await b.close(); return bad
