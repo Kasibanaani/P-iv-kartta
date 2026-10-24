@@ -3,6 +3,8 @@ rivi tai/ja, Alusta, Lopeta → muistiinpano, Kumoa, keskeneräinen säilyy, vie
 Käyttö: python3 testit/selain_162.py"""
 import asyncio, os, sys, json
 from playwright.async_api import async_playwright
+sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+from apu import tab, menu, tsx
 U='file://'+os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','index.html'))
 K="JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0]"
 OVER="""(function(){var w=document.documentElement.clientWidth,out=[];document.querySelectorAll('input,textarea,select,button').forEach(function(e){var r=e.getBoundingClientRect();
@@ -20,12 +22,12 @@ async def run(p,w,h):
         r=json.loads(await pg.evaluate(OVER)); want(label+' mahtuu',r['doc'] and not r['yli'])
     print('leveys',w)
     await pg.goto(U); await pg.wait_for_timeout(200)
-    await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
+    await tab(pg,'use'); await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
     # Asiasanat: A tärkein, B, C, D; jatkuvalla listalla yksi rivi
     await pg.evaluate("""(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1')),k=o.kokonaisuudet[0];
       k.termit=[{id:'ta',name:'Arvio',yes:[],no:[]},{id:'tb',name:'Turva',yes:[],no:[]},{id:'tc',name:'Soitto',yes:[],no:[]},{id:'td',name:'Kirje',yes:[],no:[]}];k.tarkeat=['ta','tb'];
       k.tarkistuslista=[{id:'j1',name:'Keittiö',created:'2026-10-01T00:00:00.000Z',it:[{id:'tc',ok:new Date().toISOString()}]}];localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()""")
-    await pg.reload(); await pg.wait_for_timeout(150); await pg.click('[data-tab="notes"]'); await pg.wait_for_timeout(40); await pg.click('[data-tab="list"]'); await pg.wait_for_timeout(60)
+    await pg.reload(); await pg.wait_for_timeout(150); await tab(pg,'notes'); await pg.wait_for_timeout(40); await tab(pg,'list'); await pg.wait_for_timeout(60)
     want('listavalitsin näkyy', await pg.is_visible('#chlist-pick') and 'Lista' in await pg.inner_text('#chlist-pick'))
     await fits('Listan ylärivi')
     # Uusi kierroslista
@@ -40,7 +42,7 @@ async def run(p,w,h):
       k.tarkistuslista=k.tarkistuslista.concat([{id:'r1',name:'Kirjaukset',l:L,created:'2026-10-02T00:00:00.000Z',it:[{id:'tc'},{id:'td'}]},
         {id:'r2',name:'Turvallisuus',l:L,any:1,created:'2026-10-03T00:00:00.000Z',it:[{id:'tb'},{id:'td'}]},{id:'r3',name:'Arviointi',l:L,created:'2026-10-04T00:00:00.000Z',it:[{id:'ta'}]}]);
       localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()"""%lid)
-    await pg.reload(); await pg.wait_for_timeout(150); await pg.click('[data-tab="notes"]'); await pg.wait_for_timeout(40); await pg.click('[data-tab="list"]'); await pg.wait_for_timeout(60)
+    await pg.reload(); await pg.wait_for_timeout(150); await tab(pg,'notes'); await pg.wait_for_timeout(40); await tab(pg,'list'); await pg.wait_for_timeout(60)
     want('valittu lista muistuu', 'Kotikäynti' in await pg.inner_text('#chlist-pick'))
     order=await pg.evaluate("Array.prototype.map.call(document.querySelectorAll('#chlist .crow'),function(c){return c.dataset.id;})")
     want('tärkein kärkeen, vain tämän listan rivit', order==['r3','r2','r1'])
@@ -59,7 +61,7 @@ async def run(p,w,h):
     want('ja-rivi edelleen kesken kärjessä', order[0]=='r1')
     want('kuittaus ei uusiudu (ei ev)', await pg.evaluate(K+".tarkistuslista.filter(function(r){return r.id==='r2';})[0].it.filter(function(x){return x.id==='td';})[0].ev===undefined"))
     # Keskeneräinen säilyy uudelleenlatauksessa
-    await pg.reload(); await pg.wait_for_timeout(150); await pg.click('[data-tab="notes"]'); await pg.wait_for_timeout(40); await pg.click('[data-tab="list"]'); await pg.wait_for_timeout(60)
+    await pg.reload(); await pg.wait_for_timeout(150); await tab(pg,'notes'); await pg.wait_for_timeout(40); await tab(pg,'list'); await pg.wait_for_timeout(60)
     want('keskeneräinen kierros säilyy', await pg.locator('#chlist .cpill.ok').count()>=0 and await pg.evaluate("%s.tarkistuslista.filter(function(r){return r.l;}).reduce(function(a,r){return a+r.it.filter(function(x){return x.ok;}).length;},0)"%K)==2)
     # Uusi rivi Muokkaa-ikkunasta kuuluu kierroslistaan ja ikkuna puhuu kierroksen kieltä
     await pg.click('#newnote'); await pg.wait_for_timeout(60)

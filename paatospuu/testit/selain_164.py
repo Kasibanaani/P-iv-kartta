@@ -4,6 +4,8 @@ Varareitti: Ajankohdat-rivin kellonaika avaa saman valikon. Hiirellä ennallaan.
 Käyttö: python3 testit/selain_164.py"""
 import asyncio, os, sys, json
 from playwright.async_api import async_playwright
+sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+from apu import tab, menu, tsx
 U='file://'+os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','index.html'))
 K="JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0]"
 LINK="""(function(){var m=document.querySelector('#ns-hl mark');var r=m.getClientRects()[0];return [r.left+r.width/2,r.top+r.height/2];})()"""
@@ -18,8 +20,8 @@ async def run(p,w,h):
         if not cond: bad.append(label)
     print('leveys',w)
     await pg.goto(U); await pg.wait_for_timeout(200)
-    await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
-    await pg.click('[data-tab="notes"]'); await pg.wait_for_timeout(50)
+    await tab(pg,'use'); await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
+    await tab(pg,'notes'); await pg.wait_for_timeout(50)
     await pg.click('#newnote'); await pg.fill('#ns-text','Palaveri 30.10.2026 klo 14 ja sitten muuta tekstiä'); await pg.dispatch_event('#ns-text','input'); await pg.click('#nsheet .sx'); await pg.wait_for_timeout(60)
     await pg.locator('#nlist .ncard:has-text("Palaveri")').click(); await pg.wait_for_timeout(80)
     await pg.evaluate("document.activeElement&&document.activeElement.blur()")
@@ -52,7 +54,7 @@ async def run(p,w,h):
     want('purku tallentui', bool(nl))
     # Asiasanalinkki samoin
     await pg.evaluate("""(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1')),k=o.kokonaisuudet[0];k.termit=[{id:'tk',name:'Kauppa',yes:['kauppa'],no:[]}];localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()""")
-    await pg.reload(); await pg.wait_for_timeout(150); await pg.click('[data-tab="notes"]'); await pg.wait_for_timeout(50)
+    await pg.reload(); await pg.wait_for_timeout(150); await tab(pg,'notes'); await pg.wait_for_timeout(50)
     await pg.click('#newnote'); await pg.fill('#ns-text','Käy kauppa huomenna'); await pg.dispatch_event('#ns-text','input'); await pg.wait_for_timeout(60); await pg.evaluate("document.activeElement.blur()")
     x,y=await pg.evaluate("""(function(){var r=document.querySelector('#ns-hl .th').getClientRects()[0];return [r.left+r.width/2,r.top+r.height/2];})()""")
     await pg.touchscreen.tap(x,y); await pg.wait_for_timeout(120)

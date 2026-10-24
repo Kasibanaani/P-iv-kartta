@@ -3,6 +3,8 @@ piilossa kunnes laukeaa, poissulku harmaana loppuun eikä estä valmistumista, A
 Jatkuvalla listalla sama. Leveydet 390 ja 320 px. Käyttö: python3 testit/selain_167.py"""
 import asyncio, os, sys, json
 from playwright.async_api import async_playwright
+sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+from apu import tab, menu, tsx
 U='file://'+os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','index.html'))
 K="JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0]"
 OVER="""(function(){var w=document.documentElement.clientWidth,out=[];document.querySelectorAll('input,textarea,select,button').forEach(function(e){var r=e.getBoundingClientRect();
@@ -24,20 +26,20 @@ async def run(p,w,h):
         return await pg.evaluate("Array.prototype.map.call(document.querySelectorAll('#chlist .crow[data-id=\"%s\"] .cpill'),function(b){return b.dataset.tid+(b.classList.contains('ok')?'+':'')+(b.classList.contains('cno')?'-':'');})"%rid)
     print('leveys',w)
     await pg.goto(U); await pg.wait_for_timeout(200)
-    await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
+    await tab(pg,'use'); await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
     await pg.evaluate("""(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1')),k=o.kokonaisuudet[0];
       k.termit=[{id:'ta',name:'Kipu',yes:[],no:[]},{id:'tb',name:'Kuume',yes:[],no:[]},{id:'tc',name:'Lääkäri',yes:[],no:[]},{id:'td',name:'Odotus',yes:[],no:[]},{id:'te',name:'Lepo',yes:[],no:[]}];k.tarkeat=['tc'];
       k.listat=[{id:'L1',name:'Arvio',created:'2026-10-01T00:00:00.000Z'}];
       k.tarkistuslista=[{id:'r1',name:'Oireet',l:'L1',created:'2026-10-02T00:00:00.000Z',it:[{id:'ta'},{id:'tb'}]},{id:'r2',name:'Toimet',l:'L1',created:'2026-10-03T00:00:00.000Z',it:[{id:'tc'},{id:'td'},{id:'te'}]}];
       localStorage.setItem('paatospuu:v1',JSON.stringify(o));localStorage.setItem('paatospuu:lista:'+k.id,'L1');})()""")
-    await pg.reload(); await pg.wait_for_timeout(150); await pg.click('[data-tab="list"]'); await pg.wait_for_timeout(60)
+    await pg.reload(); await pg.wait_for_timeout(150); await tab(pg,'list'); await pg.wait_for_timeout(60)
     want('ilman ehtoja kaikki näkyvät', sorted(await pills('r2'))==['tc','td','te'])
     # Ehdot käyttöön Listat-ikkunasta
     await pg.click('#chlist-pick'); await pg.wait_for_timeout(60)
     await pg.click('#ws-eh'); want('kytkin päällä', await pg.get_attribute('#ws-eh','aria-checked')=='true'); await pg.wait_for_timeout(60)
     await fits('Listat-ikkuna ehdoilla')
     want('listan ikkunassa ei ehtojen muokkausta', await pg.locator('#ws-ehb').count()==0)
-    await pg.click('#wsheet .sx'); await pg.wait_for_timeout(60); await pg.click('#chterms'); await pg.wait_for_timeout(60); await pg.click('#tt-eh'); await pg.wait_for_timeout(80)
+    await pg.click('#wsheet .sx'); await pg.wait_for_timeout(60); await tab(pg,'terms'); await pg.wait_for_timeout(60); await pg.click('#tt-eh'); await pg.wait_for_timeout(80)
     want('ehtojen ikkuna', await pg.is_visible('#ehsheet') and 'Ehdot' in await pg.inner_text('#eh-h'))
     # Ehto 1: Kipu ja Kuume -> esiin Lääkäri, pois Odotus
     await pg.click('#eh-add'); await pg.wait_for_timeout(60)
@@ -54,7 +56,7 @@ async def run(p,w,h):
     t=await pg.inner_text('#eh-body')
     want('yhteenveto kahtena sarakkeena', 'Kipu ja Kuume' in t and 'esiin: Lääkäri' in t and 'pois: Odotus' in t)
     await fits('Ehtojen yhteenveto')
-    await pg.click('#ehsheet .sx'); await pg.wait_for_timeout(80)
+    await pg.click('#ehsheet .sx'); await pg.wait_for_timeout(80); await tab(pg,'list'); await pg.wait_for_timeout(60)
     E=json.loads(await pg.evaluate("JSON.stringify("+K+")"))
     want('tallennus: projektin ehdot, listalla kytkin', E['listat'][0].get('eh')==1 and 'ehdot' not in E['listat'][0] and E['ehdot'][0]['k']==['ta','tb'] and E['ehdot'][0].get('all')==1 and E['ehdot'][0]['on']==['tc'] and E['ehdot'][0]['off']==['td'])
     want('esiin tuotava piilossa alussa', sorted(await pills('r2'))==['td','te'])
@@ -81,14 +83,14 @@ async def run(p,w,h):
     await pg.click('#chlist-pick'); await pg.wait_for_timeout(50); await pg.locator('#ws-list .row[data-l=""]').click(); await pg.wait_for_timeout(60)
     await pg.evaluate("""(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1')),k=o.kokonaisuudet[0];k.tarkistuslista.push({id:'j1',name:'Arki',created:'2026-10-01T00:00:00.000Z',it:[{id:'ta'},{id:'te'}]});
       k.jatkuvalista={eh:1,ehdot:[{id:'e1',k:['ta'],on:['te'],off:[]}]};k.tarkistuslista.push({id:'j2',name:'Toinen',created:'2026-10-01T00:00:00.000Z',it:[{id:'tc'},{id:'td'}]});localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()""")
-    await pg.reload(); await pg.wait_for_timeout(150); await pg.click('[data-tab="list"]'); await pg.wait_for_timeout(60)
+    await pg.reload(); await pg.wait_for_timeout(150); await tab(pg,'list'); await pg.wait_for_timeout(60)
     want('jatkuva: piilossa', await pills('j1')==['ta'])
     await pills('j1'); await pg.locator('#chlist .crow[data-id="j1"] .cpill[data-tid="ta"]').click(); await pg.wait_for_timeout(60)
     want('jatkuva: kuittaus tuo esiin', sorted(await pills('j1'))==['ta+','te'])
     want('vanhan muodon ehdot yhdistyvät projektiin', await pg.evaluate(K+".jatkuvalista.eh")==1 and await pg.evaluate(K+".ehdot.length")==2 and await pg.evaluate("!"+K+".jatkuvalista.ehdot"))
     want('sama ehto pätee toisellakin listalla', await pills('j2')==['td'])
     # Uusi asiasana ehtojen ikkunasta, myös Asiasanat-ikkunan kautta
-    await pg.click('#chterms'); await pg.wait_for_timeout(60); await pg.click('#tt-eh'); await pg.wait_for_timeout(80)
+    await tab(pg,'terms'); await pg.wait_for_timeout(60); await pg.click('#tt-eh'); await pg.wait_for_timeout(80)
     want('Asiasanat-ikkunasta Ehdot', await pg.is_visible('#ehsheet') and await pg.locator('#eh-body .ehr[data-eh]').count()==2)
     await pg.click('#eh-add'); await pg.wait_for_timeout(50); await pg.fill('#eh-new','Kuvaus*'); await pg.click('#eh-newb'); await pg.wait_for_timeout(80)
     nid=await pg.evaluate(K+".termit.filter(function(t){return t.name==='Kuvaus';})[0].id")

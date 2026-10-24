@@ -2,6 +2,8 @@
 Kaksisuuntainen: teksti rakennetaan nykytilasta, Valmis kirjoittaa takaisin. Leveydet 390 ja 320 px. Käyttö: python3 testit/selain_170.py"""
 import asyncio, os, sys, json
 from playwright.async_api import async_playwright
+sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+from apu import tab, menu, tsx
 U='file://'+os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','index.html'))
 K="JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0]"
 async def run(p,w,h):
@@ -15,13 +17,13 @@ async def run(p,w,h):
         if not cond: bad.append(label)
     print('leveys',w)
     await pg.goto(U); await pg.wait_for_timeout(200)
-    await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
+    await tab(pg,'use'); await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
     await pg.evaluate("""(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1')),k=o.kokonaisuudet[0];
       k.termit=[{id:'ta',name:'Kipu',yes:['kipua'],no:[]},{id:'tb',name:'Kuume',yes:[],no:[]},{id:'tc',name:'Lääkäri',yes:[],no:[]},{id:'td',name:'Odotus',yes:[],no:[]}];k.tarkeat=['tb','ta'];
       k.ehdot=[{id:'e1',k:['ta','tb'],all:1,on:['tc'],off:['td']}];localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()""")
-    await pg.reload(); await pg.wait_for_timeout(150); await pg.click('[data-tab="list"]'); await pg.wait_for_timeout(60)
+    await pg.reload(); await pg.wait_for_timeout(150); await tab(pg,'list'); await pg.wait_for_timeout(60)
     async def opentext():
-        await pg.click('#chterms'); await pg.wait_for_timeout(60); await pg.click('#tt-open'); await pg.wait_for_timeout(60)
+        await tab(pg,'terms'); await pg.wait_for_timeout(60); await menu(pg,'#tt-open'); await pg.wait_for_timeout(60)
         return await pg.input_value('#tt-text')
     t=await opentext()
     want('tähdelliset ensin tärkeysjärjestyksessä', t.index('=Kuume*:')<t.index('=Kipu*:')<t.index('=Lääkäri:'))
@@ -40,7 +42,7 @@ async def run(p,w,h):
     await pg.click('#tt-eh') if await pg.is_visible('#tt-eh') else None
     await pg.wait_for_timeout(60)
     if not await pg.is_visible('#ehsheet'):
-        await pg.click('#tsheet .sx'); await pg.wait_for_timeout(40); await pg.click('#chterms'); await pg.wait_for_timeout(60); await pg.click('#tt-eh'); await pg.wait_for_timeout(60)
+        await tsx(pg); await pg.wait_for_timeout(40); await tab(pg,'terms'); await pg.wait_for_timeout(60); await pg.click('#tt-eh'); await pg.wait_for_timeout(60)
     await pg.locator('#eh-body .ehr[data-eh]').nth(1).click(); await pg.wait_for_timeout(50)
     await pg.click('#eh-del'); await pg.wait_for_timeout(40); await pg.locator('#ehsheet .delbox button:has-text("Poista")').last.click(); await pg.wait_for_timeout(60)
     await pg.click('#ehsheet .sx'); await pg.wait_for_timeout(60)

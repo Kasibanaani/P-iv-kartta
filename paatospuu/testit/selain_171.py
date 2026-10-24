@@ -3,6 +3,8 @@ uusi muistiinpano kursori valmiina, kasvava kenttä (5 riviä + 1 tyhjä rivi), 
 Leveydet 390 ja 320 px kosketuksella. Käyttö: python3 testit/selain_171.py"""
 import asyncio, os, sys
 from playwright.async_api import async_playwright
+sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+from apu import tab, menu, tsx
 U='file://'+os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','index.html'))
 async def run(p,w,h):
     try: b=await p.chromium.launch()
@@ -15,7 +17,7 @@ async def run(p,w,h):
         if not cond: bad.append(label)
     print('leveys',w)
     await pg.goto(U); await pg.wait_for_timeout(200)
-    await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
+    await tab(pg,'use'); await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
     await pg.evaluate("""(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1')),k=o.kokonaisuudet[0];
       k.termit=[{id:'ta',name:'Kipu',yes:['kipu'],no:[]}];k.tarkeat=['ta'];
       k.muistiinpanot=[{id:'n1',created:'2026-10-01T08:00:00.000Z',edited:'2026-10-01T08:00:00.000Z',text:'kipu tänään',date:''},{id:'n2',created:new Date().toISOString(),edited:new Date().toISOString(),text:'jotain huomenna',date:''}];
@@ -27,7 +29,7 @@ async def run(p,w,h):
     want('nav: Muistio', 'Muistio' in await pg.inner_text('[data-tab="notes"]') and 'Muistiot' not in await pg.inner_text('[data-tab="notes"]'))
     want('ei määrää yläpalkissa', not await pg.is_visible('#count'))
     # Uusi muistiinpano: fokus kentässä, viisi riviä
-    await pg.tap('[data-tab="notes"]'); await pg.wait_for_timeout(100); await pg.tap('#newnote'); await pg.wait_for_timeout(150)
+    await tab(pg,'notes'); await pg.wait_for_timeout(100); await pg.tap('#newnote'); await pg.wait_for_timeout(150)
     want('uusi muistiinpano: kursori kentässä', await pg.evaluate("document.activeElement&&document.activeElement.id")=='ns-text')
     hgt=lambda: pg.evaluate("document.getElementById('ns-text').getBoundingClientRect().height")
     lh=await pg.evaluate("parseFloat(getComputedStyle(document.getElementById('ns-text')).lineHeight)")
@@ -45,13 +47,13 @@ async def run(p,w,h):
     want('vanha muistiinpano: ei fokusta', await pg.evaluate("document.activeElement&&document.activeElement.id")!='ns-text')
     await pg.click('#nsheet .sx'); await pg.wait_for_timeout(100)
     # Listan ehdot kytkimenä
-    await pg.click('[data-tab="list"]'); await pg.wait_for_timeout(80); await pg.click('#chlist-pick'); await pg.wait_for_timeout(80)
+    await tab(pg,'list'); await pg.wait_for_timeout(80); await pg.click('#chlist-pick'); await pg.wait_for_timeout(80)
     want('ehdot kytkimenä', await pg.get_attribute('#ws-eh','role')=='switch' and await pg.locator('#ws-ehb').count()==0)
     await pg.click('#ws-eh'); await pg.wait_for_timeout(50)
     want('kytkin päälle', await pg.get_attribute('#ws-eh','aria-checked')=='true')
     await pg.click('#wsheet .sx'); await pg.wait_for_timeout(80)
     # Kalenteri: pallero ei koske numeroon
-    await pg.click('[data-tab="cal"]'); await pg.wait_for_timeout(120)
+    await tab(pg,'cal'); await pg.wait_for_timeout(120)
     g=await pg.evaluate("""(function(){var d=[].filter.call(document.querySelectorAll('#week .cday'),function(x){return x.classList.contains('has')&&!x.classList.contains('hassub');})[0];if(!d)return {h:99,gap:-9};
       var r=d.getBoundingClientRect(),tn=[].filter.call(d.childNodes,function(n){return n.nodeType===3;})[0],rg=document.createRange();rg.selectNodeContents(tn);var t=rg.getBoundingClientRect(),a=getComputedStyle(d,'::after');
       return {h:r.height,gap:(r.bottom-parseFloat(a.bottom)-parseFloat(a.height))-t.bottom,has:d.classList.contains('has')};})()""")

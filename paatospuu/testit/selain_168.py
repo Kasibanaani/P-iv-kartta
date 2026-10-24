@@ -2,6 +2,8 @@
 Leveydet 390 ja 320 px. Käyttö: python3 testit/selain_168.py"""
 import asyncio, os, sys, json
 from playwright.async_api import async_playwright
+sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+from apu import tab, menu, tsx
 U='file://'+os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','index.html'))
 async def run(p,w,h):
     try: b=await p.chromium.launch()
@@ -14,11 +16,11 @@ async def run(p,w,h):
         if not cond: bad.append(label)
     print('leveys',w)
     await pg.goto(U); await pg.wait_for_timeout(200)
-    await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
+    await tab(pg,'use'); await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
     await pg.evaluate("""(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1')),k=o.kokonaisuudet[0];
       k.termit=[{id:'ta',name:'Sähköposti',yes:[],no:[]},{id:'tb',name:'Lähetteet',yes:[],no:[]},{id:'tc',name:'Kirjaukset',yes:[],no:[]}];k.tarkeat=['tb','tc'];
       k.tarkistuslista=[{id:'r1',name:'Rutiinit',created:'2026-10-01T00:00:00.000Z',it:[{id:'ta'},{id:'tb'},{id:'tc'}]}];localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()""")
-    await pg.reload(); await pg.wait_for_timeout(150); await pg.click('[data-tab="list"]'); await pg.wait_for_timeout(60)
+    await pg.reload(); await pg.wait_for_timeout(150); await tab(pg,'list'); await pg.wait_for_timeout(60)
     await pg.click('#chlist .crow[data-id="r1"] .chd'); await pg.wait_for_timeout(60)
     top=lambda: pg.evaluate("Array.prototype.map.call(document.querySelectorAll('#chlist .cpill.ctop'),function(b){return b.dataset.tid;})")
     want('tärkein erottuu, vain yksi', await top()==['tb'])

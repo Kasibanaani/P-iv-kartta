@@ -594,7 +594,7 @@ label.fl{margin:12px 0 4px}
 .rows{gap:6px}
 .row{min-height:44px;padding:8px 14px}
 .row .t small{font-size:12.5px;line-height:1.3}
-#tsheet .row .t small{display:inline;margin-left:8px}
+#tsheet .row .t small,#p-terms .row .t small{display:inline;margin-left:8px}
 .drow:has(>.sbtn)>.row{padding-right:46px}
 .drow>.sbtn{position:absolute;right:4px;top:50%;width:38px;height:38px;min-height:0;margin-top:-19px;background:transparent;box-shadow:none!important;z-index:1}
 .drow.lift>.sbtn{z-index:4}
@@ -690,6 +690,40 @@ dialog h2[data-crumb]::before{content:attr(data-crumb);color:var(--label2);font-
   .tl.wk .dcol.on{background:color-mix(in srgb,var(--fill) 35%,transparent)}
   .tl.wk .now{left:0}
 }
+/* 1.72 (Emil 24.10.2026): puhelimella yläreunassa vain pieni rivi, jota ei paineta, ja alhaalla osioiden rullaus, pikavienti ja Valikko.
+   Tietokoneella sivupalkki ja yläpalkki ennallaan. */
+.crumb{display:none}
+.pbar{display:none}
+#popbg{position:fixed;inset:0;z-index:45;background:transparent}
+.popm{position:fixed;z-index:46;display:flex;flex-direction:column;min-width:200px;max-width:calc(100% - 32px);padding:6px;border-radius:14px;background:var(--cell);box-shadow:0 10px 34px rgba(0,0,0,.24);
+  right:max(12px,env(safe-area-inset-right,0px));bottom:calc(var(--navh,64px) + 8px)}
+.popm button{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 14px;border:0;border-radius:10px;background:none;color:var(--label);font-size:16px;text-align:left;cursor:pointer}
+.popm button:active,.popm button:hover{background:var(--seg)}
+.popm button.danger{color:var(--red)}
+.popm .mh{padding:8px 14px 2px;font-size:12px;font-weight:600;color:var(--label2);letter-spacing:.02em}
+.popm .msep{height:6px}
+#qxpop{min-width:0}
+@media (max-width:999px){
+  #nav{display:none}
+  .top{padding:calc(env(safe-area-inset-top,0px) + 2px) 16px 4px;border-bottom:0;box-shadow:none}
+  .top .bar1{height:20px;justify-content:center}
+  .top .bar1>*:not(#crumb):not(#status){display:none!important}
+  .crumb{display:block;min-width:0;max-width:100%;font-size:12px;font-weight:600;color:var(--label2);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;-webkit-user-select:none;user-select:none}
+  .pbar{display:flex;flex:none;align-items:center;gap:8px;padding:6px max(14px,env(safe-area-inset-right,0px)) max(8px,calc(env(safe-area-inset-bottom,0px) - 6px)) max(14px,env(safe-area-inset-left,0px));background:var(--bar);
+    -webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  .pbar .sp{flex:1}
+  .roll{position:relative;display:flex;align-items:center;gap:9px;height:40px;padding:0 14px;border:0;border-radius:20px;background:var(--seg);color:var(--label);cursor:pointer;touch-action:pan-y;overflow:hidden}
+  .roll .rn{font-size:15px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .roll .rnext{font-size:13px;color:var(--label2);white-space:nowrap}
+  .rdots{display:flex;gap:4px}.rdots i{width:5px;height:5px;border-radius:3px;background:var(--sep)}.rdots i.on{background:var(--accent)}
+  .roll .segdot{position:absolute;top:5px;right:6px;width:7px;height:7px;border-radius:4px;background:var(--red)}
+  .roll.slide .rn{animation:rollin .2s ease-out}
+  @keyframes rollin{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
+  .pbtn{position:relative;display:flex;align-items:center;justify-content:center;width:40px;height:40px;padding:0;border:0;border-radius:20px;background:transparent;color:var(--accent);cursor:pointer}
+  .pbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+}
+@media (max-width:999px) and (prefers-reduced-motion: reduce){.roll.slide .rn{animation:none}}
+@media (max-width:359px){.roll .rnext{display:none}}
 </style>
 </head>
 <body>
@@ -702,7 +736,7 @@ dialog h2[data-crumb]::before{content:attr(data-crumb);color:var(--label2);font-
       </button>
       <button id="status" class="stat" type="button" hidden></button>
       <span class="count" id="count" hidden></span>
-      <span class="mode" id="mode" aria-live="polite"></span>
+      <span class="mode" id="mode" aria-live="polite"></span><span class="crumb" id="crumb" aria-live="polite"></span>
       <button class="ibtn" type="button" id="hint" aria-label="Ohje">i</button>
       <button class="ibtn xbtn" type="button" id="xbtn" aria-label="Vienti ja tuonti"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 13V3M6 6.5L10 2.5l4 4M4 11v5.5h12V11"/></svg><span class="xdot" id="xdot" hidden></span></button>
     </div>
@@ -714,6 +748,7 @@ dialog h2[data-crumb]::before{content:attr(data-crumb);color:var(--label2);font-
     <div class="panel" id="p-notes" role="tabpanel" hidden></div>
     <div class="panel" id="p-cal" role="tabpanel" hidden></div>
     <div class="panel" id="p-set" role="tabpanel" hidden></div>
+    <div class="panel" id="p-terms" role="tabpanel" hidden></div>
   </main>
   <div class="actbar" id="actbar" hidden>
     <button type="button" class="btn solid" id="act-go">Jatka</button>
@@ -726,9 +761,20 @@ dialog h2[data-crumb]::before{content:attr(data-crumb);color:var(--label2);font-
     <button class="tab" type="button" role="tab" data-tab="notes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h9l4 4V20a.5.5 0 0 1-.5.5h-12A.5.5 0 0 1 6 20z"/><path d="M9 11h7M9 14.5h7M9 18h4"/></svg>Muistio</button>
     <button class="tab" type="button" role="tab" data-tab="cal"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Kalenteri</button>
     <button class="tab" type="button" role="tab" data-tab="list"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5l1.6 1.6L8.5 5M4 12.5l1.6 1.6 2.9-3.1M4 18.5l1.6 1.6 2.9-3.1M11.5 7h8.5M11.5 13h8.5M11.5 19h8.5"/></svg>Listat</button>
+    <button class="tab" type="button" role="tab" data-tab="terms"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h4M4 12h4M4 17h4M11 7h9M11 12h9M11 17h6"/></svg>Asiat</button>
     <button class="tab" type="button" role="tab" data-tab="use"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="12" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M8.4 12H11c2.4 0 2.2-6 4.6-6M11 12c2.4 0 2.2 6 4.6 6"/></svg>Päätöspuu</button>
   </nav>
+  <!-- 1.72 (Emil 24.10.2026): puhelimen alapalkki. Vasemmalla osioiden rullaus, oikealla pikavienti ja Valikko. -->
+  <div class="pbar" id="pbar">
+    <button type="button" class="roll" id="roll" aria-label="Seuraava osio"><span class="rn" id="roll-now"></span><span class="rdots" id="roll-dots" aria-hidden="true"></span><span class="rnext" id="roll-next" aria-hidden="true"></span><i class="segdot" id="roll-dot" hidden aria-hidden="true"></i></button>
+    <span class="sp"></span>
+    <button type="button" class="pbtn" id="qx" aria-label="Vie"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 13V3M6 6.5L10 2.5l4 4M4 11v5.5h12V11"/></svg><span class="xdot" id="qx-dot" hidden></span></button>
+    <button type="button" class="pbtn" id="menu" aria-label="Valikko"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 6h13M3.5 10h13M3.5 14h13"/></svg></button>
+  </div>
 </div>
+<div id="popbg" hidden></div>
+<div class="popm" id="qxpop" hidden role="menu"><button type="button" id="qx-proj" role="menuitem"></button><button type="button" id="qx-all" role="menuitem">Vie kaikki (varmuuskopio)</button></div>
+<div class="popm" id="menupop" hidden role="menu"></div>
 
 <dialog id="hsheet" aria-labelledby="hs-h">
   <h2 id="hs-h">Ohje</h2>
@@ -1930,13 +1976,13 @@ if(mq){if(mq.addEventListener)mq.addEventListener('change',applyCfg);else if(mq.
 applyCfg();
 
 /* ---- runko ---- */
-var main=$('main'),panels={use:$('p-use'),teach:$('p-teach'),notes:$('p-notes'),cal:$('p-cal'),set:$('p-set')},tab='use',scrollPos={};
-var MODE={use:'Päätöspuu',teach:'Rakentaminen',notes:'Muistio',list:'Listat',cal:'Kalenteri',set:'Asetukset'};
+var main=$('main'),panels={use:$('p-use'),teach:$('p-teach'),notes:$('p-notes'),cal:$('p-cal'),set:$('p-set'),terms:$('p-terms')},tab='use',scrollPos={};
+var MODE={use:'Päätöspuu',teach:'Rakentaminen',notes:'Muistio',list:'Listat',cal:'Kalenteri',set:'Asetukset',terms:'Asiat'};
 function statusText(){return data.K.some(function(k){return k.chg;})?'Muutoksia viemättä':(data.meta.lastExport?'Viety '+whenTxt(data.meta.lastExport):'Tallessa laitteessa');}
 /* Vanha tallennus piti päivän (VVVV-KK-PP), uusi aikaleiman */
 function whenTxt(t){return !t?'ei vielä kertaakaan':/^\d{4}-\d\d-\d\d$/.test(t)?fiDate(t):stamp(t);}
 function renderStatus(){var b=$('status'),t=todayIso();
-  b.hidden=storeOk;b.textContent=storeOk?'':'Tallennus ei onnistu';$('xdot').hidden=!data.K.some(function(k){return staleK(k,t);});}
+  b.hidden=storeOk;b.textContent=storeOk?'':'Tallennus ei onnistu';$('xdot').hidden=!data.K.some(function(k){return staleK(k,t);});$('qx-dot').hidden=$('xdot').hidden;}
 document.addEventListener('visibilitychange',function(){if(!document.hidden){if(relDay!==todayIso())render();renderStatus();if($('vsheet').open)renderVs();}});
 setInterval(function(){if(relDay!==todayIso()&&!$('nsheet').open)render();},60000);
 /* Vienti (Emil 22.10.2026): tasan kaksi vaihtoehtoa, molemmat JSON-tiedostona. */
@@ -1986,13 +2032,13 @@ $('hint').addEventListener('click',function(){showHelp(hintKey);});
 document.addEventListener('click',function(ev){var b=ev.target.closest('[data-help]');if(b)showHelp(b.dataset.help);});
 $('hs-close').addEventListener('click',function(){closeSheet($('hsheet'));});
 var HELP={
-vienti:['Vienti ja tuonti','<p>Vientinappi on yläpalkissa samassa paikassa kaikissa osioissa. Vientejä on kaksi, molemmat JSON-tiedostona: <b>Koko appi</b> (kaikki projektit ja asetukset, tiedosto <code>Juuri.json</code>) ja <b>Tämä projekti</b> (auki oleva projekti, tiedosto <code>Projektin nimi (Juuri).json</code>). Nimi on aina sama, joten tallentaessa voi valita <i>Korvaa</i>.</p><p>Ylärivi kertoo, milloin kumpikin on viety viimeksi. <b>Punainen pallero</b> tulee, kun jossain projektissa on muutoksia, joita ei ole viety, ja vuorokausi on vaihtunut ensimmäisen muutoksen jälkeen. Koko appin vienti kuittaa kaikki projektit, projektin vienti vain sen projektin. Pallero rivin vieressä kertoo, kumpi vienti sen kuittaa.</p><p><b>Tekstinä</b> on varalla: teksti tulee kenttään kopioitavaksi, ja se lasketaan viennin kuittaukseksi.</p><p><b>Tuo</b> tiedostosta tai tekstistä. Koko appin varmuuskopio korvaa kaiken tämän laitteen tiedon (ensin kysytään). Yksittäinen projekti lisätään uudeksi; jos sama projekti on jo appissa, valitset <i>Korvaa projekti</i> tai <i>Lisää kopiona</i>. Varoitus tulee, jos tiedosto on vanhempi kuin tällä laitteella tehdyt muutokset.</p>'],
+vienti:['Vienti ja tuonti','<p>Puhelimella alapalkin vientinappi tekee suoraan tiedoston: <b>Vie projekti</b> tai <b>Vie kaikki (varmuuskopio)</b>. Tämä ikkuna, jossa on myös tuonti ja vienti tekstinä, on Valikossa kohdassa <b>Vienti ja tuonti</b> (tietokoneella yläpalkin vientinappi). Vientejä on kaksi, molemmat JSON-tiedostona: <b>Koko appi</b> (kaikki projektit ja asetukset, tiedosto <code>Juuri.json</code>) ja <b>Tämä projekti</b> (auki oleva projekti, tiedosto <code>Projektin nimi (Juuri).json</code>). Nimi on aina sama, joten tallentaessa voi valita <i>Korvaa</i>.</p><p>Ylärivi kertoo, milloin kumpikin on viety viimeksi. <b>Punainen pallero</b> tulee, kun jossain projektissa on muutoksia, joita ei ole viety, ja vuorokausi on vaihtunut ensimmäisen muutoksen jälkeen. Koko appin vienti kuittaa kaikki projektit, projektin vienti vain sen projektin. Pallero rivin vieressä kertoo, kumpi vienti sen kuittaa.</p><p><b>Tekstinä</b> on varalla: teksti tulee kenttään kopioitavaksi, ja se lasketaan viennin kuittaukseksi.</p><p><b>Tuo</b> tiedostosta tai tekstistä. Koko appin varmuuskopio korvaa kaiken tämän laitteen tiedon (ensin kysytään). Yksittäinen projekti lisätään uudeksi; jos sama projekti on jo appissa, valitset <i>Korvaa projekti</i> tai <i>Lisää kopiona</i>. Varoitus tulee, jos tiedosto on vanhempi kuin tällä laitteella tehdyt muutokset.</p>'],
 paatospuu:['Päätöspuu','<p><b>Puu ⌄</b> vaihtaa puuta ja avaa puun asetukset (muisti, eteneminen, lopuksi), uuden puun, kopion ja poiston. Yläreunan nimi vaihtaa projektia.</p><p><b>Rakenna</b> avaa puun rakentamisen: tekstikenttä, säännöt napauttamalla, rivien muokkaus, järjestys ja toisensa poissulkevat.</p><p><b>Kierros</b> käy puun läpi alusta. Alun vaihtoehdot näkyvät heti, ja ensimmäinen valinta (tai Jatka) aloittaa kierroksen. <b>Päivä ⌄</b> ennen sitä hakee sen päivän muistiinpanot valmiiksi mukaan. Ensimmäisen valinnan purku palaa alkuun ilman kierrosta. Valinta tuo näkyviin siihen liitetyt vaihtoehdot; <b>Jatka</b> ilman valintaa ohittaa askeleen. Valinnat ja poissulut muistuvat koko kierroksen, kunnes valinnan purkaa. Ryhmän poissulku sulkee pois myös sen jäsenet, ja toisensa poissulkevat menevät samassa askeleessa harmaiksi. <b>Peru askel</b> palaa, <b>Lopeta</b> tallentaa kierroksen muistiinpanoksi aikaleiman kanssa.</p><p>Tärkeysjärjestyksessä etenevä puu näyttää askeleessa tärkeimmän täyttymättömän merkityksen ehdot; Jatka ilman valintaa ohittaa sen.</p>'],
 rakenna:['Rakentaminen','<p><b>Teksti</b> (Rakenna-napin vieressä) avaa puun tekstikentän: yksi rivi on yksi asia. Kaikki säännöt tallentuvat tekstiin =-lohkoina, joten koko puun voi kirjoittaa tai liittää tekstinä (ohje tekstikentän i-napista).</p><p><b>Säännöt</b> napauttamalla: napauta nappulaa, ryhmää tai Alkua. <b>Kerran</b> = valitse, mitä se tuo näkyviin (sininen). <b>Toisen kerran</b> = mitä se sulkee pois koko kierroksen ajaksi (punainen). <b>Kolmannen</b> = ehdot eli mistä se itse tulee näkyviin: <i>Yksi riittää</i> tai <i>Kaikki tarvitaan</i> (vihreä). Neljäs napautus tai Valmis lopettaa; muokkauksen aikana työkalurivillä näkyy muokattava rivi. Ilmoitus ja apukysymys menevät suoraan ehtoihin, koska ne eivät avaa mitään. Alku kertoo, mitkä näkyvät kierroksen alussa; opettamattomana kaikki, joita mikään ei tuo.</p><p><b>Muokkaa</b>: napauta riviä muokataksesi sen tekstiä, nuolet vaihtavat järjestystä. Nimen vaihto vie säännöt mukana. Tyhjäksi jätetty rivi poistuu.</p><p><b>Järjestys</b>: tähti merkitsee palikan tärkeäksi, tärkeät ovat ensin ja ylin on tärkein. Järjestä tärkeät painamalla riviä pitkään ja raahaamalla. Napauta palikkaa ja sitten muita sanoaksesi, että se on niitä tärkeämpi (ennen-sääntö). Tähti on sama kuin asiasanan tähti Muistiossa.</p><p><b>Poissulkevat</b> (toisensa poissulkevat): ryhmittely nappuloista, joista vain yksi voi olla valittuna samassa askeleessa. Seuraavassa askeleessa ne voivat taas tulla.</p><p>Ristiriitainen sääntö (kehä) hylätään, ja yläreuna kertoo ketjun.</p>'],
 teksti:['Tekstikenttä','<p>Yksi rivi on yksi asia. Ylempi rivi on oletuksena tärkeämpi. Rivi saa värinsä heti, kun se on tulkittu; <span class="k-w">punainen</span> nimi on jo käytössä.</p><ul><li><code class="k-b">Koira</code> nappula. Tavuviiva nimessä vaihtaa riviä nappulan sisällä.</li><li><code class="k-g">#Eläimet: selitys</code> ryhmä. Ei näy käytössä; avaa jäsenensä ja voi avata tai sulkea pois toisen ryhmän.</li><li><code class="k-t">&gt;Perustelu: teksti</code> ilmoitus. Käytössä näkyy vain teksti, joka kertyy ruutuun ja muistiinpanoon.</li><li><code class="k-q">?Apu: kysymys</code> apukysymys. Näkyy pienenä ylhäällä vain sen askeleen ajan, ei muistiinpanoon.</li><li><code> // </code> tekstin sisällä vaihtaa kappaletta. Rivi, joka alkaa <code class="k-c">//</code>, on oma väliotsikko ja ohitetaan.</li></ul><p><b>Lohkot</b> alkavat =-rivillä, alla rivit, tyhjä rivi päättää:</p><ul><li><code class="k-rh">=Koira avaa:</code> sääntö, alle palikat riveittäin. Samoin <code>sulkee</code>, <code>vaatii kaikki</code>, <code>vaatii yhden</code> ja <code>ennen</code> (alla olevat ovat vähemmän tärkeitä). Myös <code class="k-rh">=Alku avaa:</code>, <code class="k-rh">=Toisensa poissulkevat:</code> ja <code class="k-rh">=Tärkeät:</code>.</li><li><code class="k-xh">=Eläimet:</code> asiasanalohko: sanat, joista palikka tunnistuu muistiinpanosta, <code>!</code> alussa poissulkeva. Lohko, joka ei ole palikka, on uusi asiasana.</li><li><code>=Koira kääntöpuoli:</code> teksti, joka kirjataan muistiinpanon Puuttuu-osioon, jos palikkaa tarjottiin mutta sitä ei valittu.</li></ul><p>Napautetut säännöt kirjoittuvat näihin lohkoihin, ja lohkojen muutokset näkyvät heti rakentamisessa. Kun vaihdat nimen rivin alusta, säännöt seuraavat mukana; usean rivin liittäminen kerralla ei vie viittauksia.</p>'],
 rivi:['Rivin muokkaus','<p>Kirjoita rivi samassa muodossa kuin tekstikentässä: alussa <code>#</code> tekee ryhmän, <code>&gt;</code> ilmoituksen ja <code>?</code> apukysymyksen. Kaksoispiste erottaa nimen tekstistä. Kun nimi muuttuu, säännöt seuraavat mukana. Tyhjä rivi poistaa asian ja sen säännöt.</p>'],
 lopetus:['Lopeta kierros','<p>Kierros tallentuu muistiinpanoksi: puun nimi, valinnat, ryhmät, ilmoitukset, lisähuomio ja aikaleima. Päivämäärä on valinnainen; kierrokselle valittu päivä on valmiina. Puun asetuksen <i>Lopuksi: Hoidettavat</i> kanssa muistiinpanoon tulee myös valitsematta jääneet tärkeysjärjestyksessä.</p><p>Ruksi palaa kierrokseen. <b>Lopeta tallentamatta</b> hylkää kierroksen (kaksi painallusta).</p>'],
-muistiot:['Muistio','<p><b>Avoimet</b>, <b>Kuitatut</b> ja <b>Toistuvat</b> (automaattisten muistutusten rekisteri). <b>Listat</b> ovat omana välilehtenään alapalkissa. <b>Järjestys</b>-nappi kiertää napautuksesta: <i>Tulevat</i> seuraavan ajankohdan mukaan, <i>Uusimmat</i> muokkausajan mukaan, <i>Tärkeys</i> asiasanojen tärkeysjärjestyksen mukaan.</p><p><b>Asiasanat ⌄</b> suodattaa: valitse yksi tai useampi, ja <i>Jokin näistä</i> tai <i>Kaikki näistä</i>. Saman ikkunan alalaidasta <i>Muokkaa asiasanoja</i> avaa asiasanojen hallinnan (Listassa nappi <i>Asiasanat…</i>). Hakukenttä hakee sanalla; osa sanaa riittää.</p><p>Kortin <b>ympyrä</b> kuittaa yhdellä napautuksella, ja uusi napautus palauttaa avoimeksi. Napautus muualle korttiin avaa muistiinpanon: siellä ovat myös Arkistoi (kuitattu pois kalenterista), Liitä asiasanaan ja Poista. <b>Roskakori</b> on Kuitattujen lopussa: poistetut säilyvät 30 päivää, ja napautus palauttaa.</p><p><b>+</b> oikeassa alakulmassa tekee uuden: muistiinpanon, Listassa rivin ja Toistuvissa toistuvan.</p><p><b>Ajankohdat</b> tunnistetaan tekstistä: 24.10.26, 24.10., 010726, 1.7.26–3.8.26 (jokainen välin päivä), 2/27 (koko kuu), vk43, klo 13–16, perjantaina, tiistaisin, joka toinen tiistai, kuun viimeinen viikko, tänään, huomenna, ensi viikolla, tässä kuussa, kahden viikon sisällä, 3 päivän päästä. Välilyönnillä peräkkäin kirjoitetut osat ovat yksi ajankohta (<code>vk43 perjantai klo13-16</code>). Vajaa ilmaus on seuraava mahdollinen kirjoitushetkestä. Tunnistettu ajankohta korostuu heti välilyönnin jälkeen.</p><p><b>Aikaehdotukset</b> (Listan yläreunassa): kuittaamattomat kohteet saavat tärkeysjärjestyksessä kellonajat kalenterin vapaista väleistä, joihin ne mahtuvat kokonaan; tälle päivälle mahtumattomat seuraaville päiville. Kalenteriin ei tule mitään ennen kuin napautat <b>+ Kalenteriin</b>, joka tekee tavallisen muistiinpanon. Ehdotuksia saavat vain kohteet, joiden asiasanalle on annettu kesto (Asiasanat → asiasana → <i>Listassa: kesto aikaehdotuksiin</i>). Jos mikään ei ole lauennut, aikoja ei ehdoteta, vaan rivit järjestyvät sen mukaan, missä järjestyksessä niiden seuraavat kohteet mahtuisivat kalenteriin. Aikaväli on viikonpäivän oma (oletus 8–16): kun aikaehdotukset ovat päällä, se näkyy kalenterissa pystyviivana, jonka päitä raahaamalla muutat kaikkia saman viikonpäivän päiviä.</p><p>Tietokoneella napsautus tyhjään kohtaan tekee uuden muistiinpanon (Listalla uuden rivin).</p>'],
+muistiot:['Muistio','<p><b>Avoimet</b>, <b>Kuitatut</b> ja <b>Toistuvat</b> (automaattisten muistutusten rekisteri). Osiot (Muistio, Kalenteri, Listat, Asiat) vaihtuvat alapalkin vasemman reunan napista: napautus vie seuraavaan, sivupyyhkäisy edelliseen. <b>Järjestys</b>-nappi kiertää napautuksesta: <i>Tulevat</i> seuraavan ajankohdan mukaan, <i>Uusimmat</i> muokkausajan mukaan, <i>Tärkeys</i> asiasanojen tärkeysjärjestyksen mukaan.</p><p><b>Asiasanat ⌄</b> suodattaa: valitse yksi tai useampi, ja <i>Jokin näistä</i> tai <i>Kaikki näistä</i>. Saman ikkunan alalaidasta <i>Muokkaa asiasanoja</i> avaa asiasanojen hallinnan (Listassa nappi <i>Asiasanat…</i>). Hakukenttä hakee sanalla; osa sanaa riittää.</p><p>Kortin <b>ympyrä</b> kuittaa yhdellä napautuksella, ja uusi napautus palauttaa avoimeksi. Napautus muualle korttiin avaa muistiinpanon: siellä ovat myös Arkistoi (kuitattu pois kalenterista), Liitä asiasanaan ja Poista. <b>Roskakori</b> on Kuitattujen lopussa: poistetut säilyvät 30 päivää, ja napautus palauttaa.</p><p><b>+</b> oikeassa alakulmassa tekee uuden: muistiinpanon, Listassa rivin ja Toistuvissa toistuvan.</p><p><b>Ajankohdat</b> tunnistetaan tekstistä: 24.10.26, 24.10., 010726, 1.7.26–3.8.26 (jokainen välin päivä), 2/27 (koko kuu), vk43, klo 13–16, perjantaina, tiistaisin, joka toinen tiistai, kuun viimeinen viikko, tänään, huomenna, ensi viikolla, tässä kuussa, kahden viikon sisällä, 3 päivän päästä. Välilyönnillä peräkkäin kirjoitetut osat ovat yksi ajankohta (<code>vk43 perjantai klo13-16</code>). Vajaa ilmaus on seuraava mahdollinen kirjoitushetkestä. Tunnistettu ajankohta korostuu heti välilyönnin jälkeen.</p><p><b>Aikaehdotukset</b> (Listan yläreunassa): kuittaamattomat kohteet saavat tärkeysjärjestyksessä kellonajat kalenterin vapaista väleistä, joihin ne mahtuvat kokonaan; tälle päivälle mahtumattomat seuraaville päiville. Kalenteriin ei tule mitään ennen kuin napautat <b>+ Kalenteriin</b>, joka tekee tavallisen muistiinpanon. Ehdotuksia saavat vain kohteet, joiden asiasanalle on annettu kesto (Asiasanat → asiasana → <i>Listassa: kesto aikaehdotuksiin</i>). Jos mikään ei ole lauennut, aikoja ei ehdoteta, vaan rivit järjestyvät sen mukaan, missä järjestyksessä niiden seuraavat kohteet mahtuisivat kalenteriin. Aikaväli on viikonpäivän oma (oletus 8–16): kun aikaehdotukset ovat päällä, se näkyy kalenterissa pystyviivana, jonka päitä raahaamalla muutat kaikkia saman viikonpäivän päiviä.</p><p>Tietokoneella napsautus tyhjään kohtaan tekee uuden muistiinpanon (Listalla uuden rivin).</p>'],
 suodatus:['Suodatus asiasanoilla','<p>Napauta asiasanoja. <b>Jokin näistä</b> näyttää muistiinpanot, joissa on vähintään yksi valituista. <b>Kaikki näistä</b> vaatii jokaisen. Luku ylhäällä kertoo, montako muistiinpanoa ehdoilla löytyy nykyisestä näkymästä (Avoimet tai Kuitatut). Puiden palikat näkyvät vain, jos ne osuvat johonkin muistiinpanoon. Valinta pysyy, kunnes tyhjennät sen.</p>'],
 lista:['Lista','<p><b>Listat:</b> ylärivin valitsimesta vaihdetaan listaa ja luodaan uusia <b>kierroslistoja</b>. Kierroslista on rakenteeltaan sama kuin Lista, mutta ilman aikaa: kierros alkaa kaikki kuittaamattomina, ja tärkein kuittaamaton rivi nousee kärkeen (asiasanojen tähtijärjestys). Kuittaus ei uusiudu. Rivi on ryhmä: <i>Kaikki kuitattu</i> tai <i>Yksi kuitattu</i>; valmiin rivin tarpeettomat kohteet harmaantuvat ja rivi siirtyy loppuun. Keskeneräinen kierros säilyy. <i>Lopeta</i> tallentaa kierroksen muistiinpanoksi (Kunnossa, Hoidettavat) ja aloittaa alusta; valitsimen <i>Aloita alusta</i> tyhjentää kuittaukset ilman muistiinpanoa. Kumoa palauttaa.</p><p><b>Lista</b> on jatkuvia tarkistuskohteita varten, esim. <i>Keittiö</i>. Riviä ei kuitata koskaan pois: se pysyy, kunnes poistat sen (Muokkaa → Poista → varmistus).</p><p><b>Teksti on muistiinpano.</b> Kun rivin tekstiin kirjoittaa jotain, siitä tulee oikea muistiinpano Muistioon (listan kuvake ja rivin nimi), ja ajasta tulee kalenterimerkintä. Muokkaus kummassa tahansa näkyy molemmissa. Rivin poisto jättää muistiinpanon; tekstin tyhjennys vie muistiinpanon roskakoriin.</p><p><b>Kohteet</b> ovat napit: punainen odottaa kuittausta, vihreä on kuitattu, ja napautus vaihtaa tilan. Kaikki kohteet näkyvät aina. Rivin teksti näkyy ja on muokattavissa suoraan avatulla rivillä. Kohteita ovat käsin valitut asiasanat, tekstin laukaisemat asiasanat (merkki <i>tekstistä</i>) ja aika. Kuittaus <b>uusiutuu</b> asiasanan oman ajan mukaan (Asiasanat → asiasana → <i>Listassa: kuittaus uusiutuu</i>); kun aika on kulunut, kohde on taas kuittaamatta. Rivin otsikossa näkyy vain kuittaamattomien määrä.</p><p><b>Ryhmät</b> ovat pikavalintoja. Ryhmän napautus liittää ryhmän riville, ja uusi napautus irrottaa sen. Jäsenet näkyvät rivillä yksittäisinä kohteina, ja ryhmän nimi näkyy niiden yläpuolella. Kun ryhmään lisätään tai siitä poistetaan jäsen, muutos näkyy heti kaikilla riveillä, joilla ryhmä on. Kirjoita <code>#Nimi</code> ja Luo, niin syntyy uusi ryhmä: napauta jäseniä ja lopuksi ryhmää, jolloin se lukittuu. <i>Ryhmät…</i> avaa ryhmien muokkauksen samalla tavalla. Puun ryhmät ovat mukana jäsenineen. Ilman #-merkkiä Luo tekee uuden asiasanan riville.</p><p><b>Mainittu muistiinpanoissa</b> on erikoiskohde. Kun se on valittu, avoin muistiinpano, jossa mainitaan rivin nimi (kirjainkoko ei vaikuta) ja jonka päivä on Myöhässä, Tänään tai Huomenna, näkyy rivillä omana punaisena nappinaan. Napautus kuittaa sen päivän, sama kuittaus kuin kalenterissa. Nuolinappi vie muistiinpanoon. Ilman tätä valintaa (rivillä tai liitetyssä ryhmässä) rivin nimi ei vaikuta mihinkään.</p><p><b>Aika</b> tulee tekstin päivistä: Myöhässä, Tänään tai Huomenna nostaa rivin tarkistettavaksi muista kuittauksista riippumatta. Sen kuittaus on sama kuin kalenterin ja muistiinpanon päivän kuittaus. Ilman valintaa kaikki kolme aikasanaa laukeavat itsestään. Jos valitset niistä osan riville tai liitettyyn ryhmään, vain valitut laukeavat (esim. pelkkä <i>Myöhässä</i>).</p><p>Mainittu ja aikasanat voi valita myös <b>ryhmän jäseneksi</b>, jolloin ne koskevat jokaista riviä, jolla ryhmä on.</p><p><b>Yksikin / kaikki:</b> rivi on tarkistettava joko kun yksikin kohde on kuittaamatta, tai vasta kun kaikki ovat.</p><p><b>Järjestys:</b> ensin rivit, joissa on tarkistettavaa (punainen <b>! N tarkistettavaa</b> ja lauenneet kohteet nimen alla), tärkeimmän kuittaamattoman asiasanan mukaan; tasatilanteessa ensin se, joka laukesi aiemmin. Tärkeys tulee samoista tähdellä merkityistä asiasanoista kuin muistiinpanoissa (Asiasanat…-nappi). Sen jälkeen muut siinä järjestyksessä kuin ne seuraavaksi laukeavat.</p>'],
 ehdot:['Ehdot','<p><b>Tekstinä</b> (Asiasanat tekstinä, saman tekstin lopussa): otsikkorivi <i>Ehdot:</i> ja rivit muotoa <i>Kun Kipu ja Kuume, niin Lääkäri esiin, Odotus pois.</i> (<i>tai</i> = jokin näistä). Tähti nimen perässä (<i>=Kipu*:</i>) tekee tärkeän, ja tähdellisten järjestys tekstissä on tärkeysjärjestys. Teksti on totuus: Valmis korvaa sanat, tärkeät ja ehdot tekstin mukaisiksi; ehdossa tuntematon nimi tekee uuden asiasanan.</p><p>Ehdot ovat projektin yhteisiä asiasanojen välisiä sääntöjä. Listakohtaisesti valitaan vain, ovatko ne käytössä (Listat-ikkunassa <i>Ehdot: Pois / Käytössä</i>). Ikkunaan pääsee myös Asiasanat-ikkunasta. Ehto on kaksi osaa: <b>Kun kuitataan</b> (yksi tai useampi asiasana; <i>Jokin näistä</i> tai <i>Kaikki näistä</i>) ja <b>Silloin</b>: napautus kiertää <i>esiin → pois → ei mitään</i>.</p><p><b>Esiin</b>: asiasana on listan riveillä piilossa, kunnes jokin sitä tuova ehto täyttyy; silloin se ilmestyy kuittaamattomana. <b>Pois</b>: kuittaamaton asiasana harmaantuu rivin loppuun kaikilla listan riveillä, eikä se estä rivin valmistumista. Poissulku voittaa esiintulon. Jo kuitattu pysyy kuitattuna. Ehdot vaikuttavat siitä eteenpäin; <i>Aloita alusta</i> palauttaa lähtötilan. Aikaan perustuvalla listalla ehto on voimassa niin kauan kuin laukaiseva kuittaus.</p><p>Ikkunassa näkyvät kaikki projektin asiasanat, tähdelliset ensin. Muokatessa voi tehdä uuden asiasanan (nimen loppuun * = tärkeä). Ylhäällä ehdot kahtena sarakkeena; napautus avaa ehdon muokattavaksi.</p>'],
@@ -2000,14 +2046,49 @@ muistiinpano:['Muistiinpano','<p>Kirjoita vapaasti. Tunnistetut ajankohdat koros
 toistuvat:['Toistuvat ja muistutukset','<p>Automaattinen muistutus tulee avoimiin muistiinpanoihin eri värisenä. Uusi tulee vasta, kun edellinen on kuitattu. Asiasanat tunnistuvat tekstistä kuten muistiinpanoissa, ja järjestys tulee tärkeydestä.</p><p><b>Ajallaan</b>: <i>Tasavälein</i> laskee aina aloituspäivästä (kuun 31. ei valu 28. päivään), <i>Kuittauksesta</i> laskee seuraavan edellisen kuittauksesta. Myöhästyneistä tehdään vain viimeisin.</p><p><b>Jos ei tapahdu</b>: muistutus tulee, kun valittuja asiasanoja ei ole ollut kuitatuissa muistiinpanoissa tietyssä ajassa. <i>Jokin näistä</i> tai <i>Kaikki samassa</i> muistiinpanossa. Aika lasketaan myöhäisimmästä: osuvan muistiinpanon kuittaus, seurannan alku tai edellisen muistutuksen kuittaus.</p><p>Tyhjä teksti tai Poista (kaksi painallusta) poistaa; jo tulleet muistiinpanot jäävät.</p>'],
 asiasanat:['Asiasanat','<p><b>#Nimi</b> uuden asiasanan kenttään tekee listan ryhmän: valitse jäsenet napauttamalla ja paina Valmis. Ryhmät näkyvät omassa luettelossaan. <b>Poista…</b> avaa poistotilan: napauta poistettavat (omat asiasanat, ryhmät ja puiden palikat) ja vahvista <i>Poista valitut</i>. Palikka poistuu puusta sääntöineen.</p><p>Asiasana tunnistuu muistiinpanosta nimestään ja liitetyistä sanoista. Yksi sana tai lause riville. Sana löytyy osana mistä kohdasta tahansa, joten kirjoita vain se osa, joka ei taivu: <code>koir</code> löytää koirien ja kotikoiran. Isot kirjaimet ja välimerkit eivät vaikuta. Poissulkeva sana voittaa.</p><p>Jokainen päätöspuun palikka on itsestään asiasana (vähintään 3 kirjainta). Omat asiasanat ovat puista riippumattomia; samanniminen oma korvaa palikan. Asiasanat ja muistiinpanot ovat projektin yhteisiä kaikille sen puille.</p><p><b>Tärkeät</b> ovat aina muiden yläpuolella, ylin tärkein. Muistiinpano saa tärkeimmän osumansa paikan (Muistio → Tärkeys). Rivin <b>tähti</b> merkitsee tärkeäksi tai poistaa heti; järjestä tärkeät painamalla riviä pitkään ja raahaamalla. Ehto, ryhmän jäsen ja kääntöpuoli perivät tärkeän merkityksensä paikan, ellet merkitse niitä itse. Tähti on sama kuin palikan tähti puun Järjestyksessä.</p><p><b>Nousee esiin</b>: apukysymys tai asiasanan nimi tarjotaan muistiinpanossa, kun teksti osuu siihen. <b>Näytä kalenterissa</b>: nimi näkyy pienenä alaotsikkona viikkonauhan päivän alla ja päivän otsikossa.</p><p><b>Asiasanat tekstinä</b>: jokainen asiasana on lohko <code>=Nimi:</code> ja alle sanat riveittäin, <code>!</code> alussa poissulkeva, tyhjä rivi päättää. Uusi nimi luo asiasanan. Puuttuva lohko tyhjentää sanat, mutta asiasana jää. Puiden =-lohkot muokataan puun tekstikentässä.</p>'],
 kalenteri:['Kalenteri','<p>Projektin asetuksista (Projekti-ikkuna) voi poistaa viikonpäiviä ja lyhentää päivää alusta ja lopusta. Viikkonauha (ma–su) ja valitun päivän aikajana. Pyyhkäisy nauhalla vaihtaa viikkoa, kuukauden nimi avaa kuukausinäkymän, jossa päivän kohdalla on muistiinpanojen määrä. Pieni rengas päivän ruudussa kertoo, että päivällä on koko päivän merkintöjä; ne ovat aikajanan alla kohdassa <b>Koko päivä</b>.</p><p><b>Uusi merkintä:</b> <b>+</b> tekee merkinnän valitulle päivälle (tänään seuraavasta vartista, muina päivinä klo 9). Puhelimella <b>pidä sormea hetki</b> (noin neljännessekunti) tyhjässä kohdassa ja nosta: merkintä alkaa siitä kohdasta lähimpään varttiin. Pelkkä hipaisu tai vieritys ei tee mitään. Hiirellä napsautus mihin tahansa tekee merkinnän, ja vetämällä samalla liikkeellä valitset pituuden. Ilman loppuaikaa pituus on Asetusten oletuspituus. Tekstissä tai aikakentässä ilmaistu aika voittaa aina; +:lla tehdessä nappi <i>Myös kalenterin kohta</i> liittää kohdan mukaan, vaikka tekstissä on oma aika.</p><p>Napautus avaa muistiinpanon. Kalenterista kuitataan <b>vain se kohta</b> (päivä ja aika); koko muistiinpano kuitataan Muistiosta, tai se kuittautuu, kun kaikki sen kohdat on kuitattu. Kuitattu jää kalenteriin haalennettuna ja katkoviivalla. <b>Arkistoi</b> ottaa kuitatun pois kalenterista (näkyy edelleen Kuitatuissa).</p><p><b>Pitkä painallus</b> nostaa merkinnän: siirrä 15 minuutin askelin, pudota viikkonauhan päivälle (päivä vaihtuu, kellonaika säilyy) tai Koko päivä -kohtaan (kellonaika pois). Koko päivän sirun voi raahata aikajanalle. Kulmaväkänen muuttaa loppuaikaa heti. Toistuva tai monen päivän merkintä ei siirry raahaamalla; muuta ajankohta tekstiin.</p><p>Merkintä on tavallinen muistiinpano: raahaus kirjoittaa ajan sinne, mistä se tuli (tekstiin tai kenttään). Leveällä ruudulla viikko näkyy sarakkeina.</p><p><b>Useita aikoja samalle päivälle:</b> jokainen kellonaika on oma merkintänsä, myös päällekkäiset ja sama aika kahdesti. Pelkkä kellonaika saa edellisen päivän myös seuraavilla riveillä (<code>Huomenna:</code> ja alle <code>klo 9 …</code>, <code>klo 12 …</code>), ja ketju jatkuu ilman klo-sanaa: <code>to 9–10, 11–12</code>, <code>huomenna 9 ja 10</code>.</p><p><b>Siirto</b> muuttaa tekstin aikaa samassa tyylissä kuin se oli kirjoitettu. Muutettu kohta on katkoviivan sisällä; napauta sitä muistiinpanossa, niin näet, mitä siinä oli aiemmin ja milloin se muutettiin.</p>'],
-asetukset:['Asetukset','<p>Asetukset ovat Projekti-ikkunassa (yläpalkin projektin nimi) ja koskevat vain sitä projektia, joten eri projekteilla voi olla eri tyyli. Uusi projekti saa aluksi nykyisen projektin asetukset: teema, vaalea/tumma, fontti, reunat, lasisuus, kalenterimerkinnän oletuspituus ja nappuloiden koko (pienet asettuvat vierekkäin).</p><p><b>Tiedot</b> ovat vain tämän laitteen selaimen muistissa. Vienti ja tuonti (myös tekstinä) ovat yläpalkin vientinapissa. Projektin nimi ja poisto ovat yläpalkin projektin nimen takana, roskakori Muistioiden Kuitatuissa.</p>'],
-projektit:['Projektit ja puut','<p><b>Ulkoasu ja Tiedot</b> (teema, vaalea/tumma, fontti, reunat, lasisuus, kalenterimerkinnän oletuspituus, nappuloiden koko) ovat tämän ikkunan alaosassa ja koskevat vain tätä projektia.</p><p><b>Kalenterin päivät</b> ja <b>näkyvä aika</b> (Nykyinen projekti) koskevat vain tätä projektia: napauta viikonpäivä pois käytöstä, ja valitse, mistä mihin päivä näkyy. Näkyvän ajan ulkopuolinen kellonaika näkyy päivän <i>Koko päivä</i> -osiossa. Pois käytöstä olevan päivän merkinnät näkyvät seuraavan käytössä olevan päivän Koko päivä -osiossa päivän nimen kanssa, joten mikään ei katoa. Aikaehdotukset eivät käytä pois olevia päiviä eivätkä piilotettuja tunteja.</p><p>Projektilla (esim. Mätsik Forest) on omat puut, muistiinpanot, asiasanat, tärkeät ja toistuvat. Napautus vaihtaa projektia. <i>Uusi projekti</i> luodaan nimellä. <b>Nykyinen projekti</b>: nimen vaihto ja poisto (kaksi painallusta, poistaa puut ja muistiinpanot). Projektin lisäys tiedostosta tai tekstistä ja vienti ovat yläpalkin vientinapissa: lisäys ei korvaa mitään, ja saman niminen saa perään (2).</p><p>Puun asetukset: <b>Muisti</b> <i>Vain seuraava askel</i> tarjoaa vain viimeisen valinnan avaamat, <i>Kaikki mukana</i> pitää kerran avautuneet tarjolla, kunnes ne suljetaan pois tai avaaja puretaan. <b>Eteneminen</b> <i>Säännöt</i> etenee avaa-säännöin, <i>Tärkeysjärjestys</i> näyttää askeleessa tärkeimmän täyttymättömän merkityksen ehdot. <b>Lopuksi</b> <i>Hoidettavat</i> listaa kierroksen lopussa valitsematta jääneet tärkeysjärjestyksessä. <b>Muistiinpanoissa</b> <i>Lisää ilmoitukset</i>: puun säännöt toimivat muistiinpanoa kirjoittaessa, ja avautuvien ilmoitusten tekstit lisätään muistiinpanon loppuun (ohje muistiinpanon i-napista). Rakenna tällainen puu samoin kuin muutkin.</p>']
+asetukset:['Asetukset','<p>Asetukset ovat Projekti-ikkunassa (Valikko → Projekti) ja koskevat vain sitä projektia, joten eri projekteilla voi olla eri tyyli. Uusi projekti saa aluksi nykyisen projektin asetukset: teema, vaalea/tumma, fontti, reunat, lasisuus, kalenterimerkinnän oletuspituus ja nappuloiden koko (pienet asettuvat vierekkäin).</p><p><b>Tiedot</b> ovat vain tämän laitteen selaimen muistissa. Pikavienti on alapalkin vientinapissa, täysi vienti ja tuonti (myös tekstinä) Valikossa. Projektin nimi ja poisto ovat Valikon kohdassa Projekti, roskakori Muistioiden Kuitatuissa.</p>'],
+projektit:['Projektit ja puut','<p><b>Ulkoasu ja Tiedot</b> (teema, vaalea/tumma, fontti, reunat, lasisuus, kalenterimerkinnän oletuspituus, nappuloiden koko) ovat tämän ikkunan alaosassa ja koskevat vain tätä projektia.</p><p><b>Kalenterin päivät</b> ja <b>näkyvä aika</b> (Nykyinen projekti) koskevat vain tätä projektia: napauta viikonpäivä pois käytöstä, ja valitse, mistä mihin päivä näkyy. Näkyvän ajan ulkopuolinen kellonaika näkyy päivän <i>Koko päivä</i> -osiossa. Pois käytöstä olevan päivän merkinnät näkyvät seuraavan käytössä olevan päivän Koko päivä -osiossa päivän nimen kanssa, joten mikään ei katoa. Aikaehdotukset eivät käytä pois olevia päiviä eivätkä piilotettuja tunteja.</p><p>Projektilla (esim. Mätsik Forest) on omat puut, muistiinpanot, asiasanat, tärkeät ja toistuvat. Napautus vaihtaa projektia. <i>Uusi projekti</i> luodaan nimellä. <b>Nykyinen projekti</b>: nimen vaihto ja poisto (kaksi painallusta, poistaa puut ja muistiinpanot). Projektin lisäys tiedostosta tai tekstistä ja vienti ovat Valikon kohdassa Vienti ja tuonti: lisäys ei korvaa mitään, ja saman niminen saa perään (2).</p><p>Puun asetukset: <b>Muisti</b> <i>Vain seuraava askel</i> tarjoaa vain viimeisen valinnan avaamat, <i>Kaikki mukana</i> pitää kerran avautuneet tarjolla, kunnes ne suljetaan pois tai avaaja puretaan. <b>Eteneminen</b> <i>Säännöt</i> etenee avaa-säännöin, <i>Tärkeysjärjestys</i> näyttää askeleessa tärkeimmän täyttymättömän merkityksen ehdot. <b>Lopuksi</b> <i>Hoidettavat</i> listaa kierroksen lopussa valitsematta jääneet tärkeysjärjestyksessä. <b>Muistiinpanoissa</b> <i>Lisää ilmoitukset</i>: puun säännöt toimivat muistiinpanoa kirjoittaessa, ja avautuvien ilmoitusten tekstit lisätään muistiinpanon loppuun (ohje muistiinpanon i-napista). Rakenna tällainen puu samoin kuin muutkin.</p>']
 };
 function syncChrome(){var tp=$('top');tp.dataset.mode=tab;tp.dataset.ed=(tab==='teach'&&ed&&(ed.m==='x'||ed.m==='c'))?ed.m:'';$('mode').textContent=MODE[tabKey()];
   var lb=document.querySelector('.tab[data-tab="list"]'),dot=lb&&data.chk&&data.chk.some(function(r){return !r.l&&chkOpenN(r,new Date(),ctxOf(r))>0;}),od=lb&&lb.querySelector('.segdot');
-  if(lb&&!!od!==!!dot){if(dot){var dd=el('i','segdot');dd.setAttribute('aria-hidden','true');lb.appendChild(dd);}else od.remove();lb.setAttribute('aria-label',dot?'Listat, tekemättä olevia':'Listat');}}
+  if(lb&&!!od!==!!dot){if(dot){var dd=el('i','segdot');dd.setAttribute('aria-hidden','true');lb.appendChild(dd);}else od.remove();lb.setAttribute('aria-label',dot?'Listat, tekemättä olevia':'Listat');}
+  syncRoll(!!dot);}
+/* 1.72 (Emil 24.10.2026): osiot rullataan vasemman alakulman napista. Napautus = seuraava, pyyhkäisy napin päällä = edellinen tai seuraava.
+   Järjestys Muistio · Kalenteri · Listat · Asiat (suositus: Listat ja Asiat vierekkäin). Päätöspuu on Valikon takana. */
+var ROLL=['notes','cal','list','terms'];
+function rollIdx(){var k=tabKey();return ROLL.indexOf(k==='teach'?'use':k);}
+function syncRoll(listDot){var k=tabKey(),i=rollIdx(),k0=kOf();$('crumb').textContent=(k0?k0.name:'Juuri')+' · '+(MODE[k]||'');
+  $('roll-now').textContent=i<0?MODE[k==='teach'?'use':k]:MODE[ROLL[i]];$('roll-next').textContent=MODE[ROLL[(i+1)%ROLL.length]];
+  var d=$('roll-dots');d.textContent='';ROLL.forEach(function(x,j){var e=el('i',j===i?'on':'');d.appendChild(e);});
+  $('roll').setAttribute('aria-label','Osio: '+$('roll-now').textContent+'. Seuraava: '+$('roll-next').textContent);$('roll-dot').hidden=!listDot||k==='list';}
+function rollTo(dir){var i=rollIdx(),n=i<0?(dir>0?0:ROLL.length-1):(i+dir+ROLL.length)%ROLL.length;showTab(ROLL[n]);var r=$('roll');r.classList.remove('slide');void r.offsetWidth;r.classList.add('slide');}
+(function(){var r=$('roll'),sx=null,sw=false;r.addEventListener('touchstart',function(ev){sx=ev.touches[0].clientX;sw=false;},{passive:true});
+  r.addEventListener('touchend',function(ev){if(sx===null)return;var dx=ev.changedTouches[0].clientX-sx;sx=null;if(Math.abs(dx)>28){sw=true;rollTo(dx<0?1:-1);}},{passive:true});
+  r.addEventListener('click',function(){if(sw){sw=false;return;}rollTo(1);});})();
+/* Valikko ja pikavienti: pieni ikkuna napin viereen. Napautus ulkopuolelle vain sulkee eikä tee muuta (Emil 24.10.2026). */
+function popClose(){['qxpop','menupop'].forEach(function(id){$(id).hidden=true;});$('menupop').textContent='';$('popbg').hidden=true;}
+function popOpen(id){['qxpop','menupop'].forEach(function(x){if(x!==id)$(x).hidden=true;});barSizes();$(id).hidden=false;$('popbg').hidden=false;}
+$('popbg').addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();popClose();});
+$('popbg').addEventListener('touchmove',function(ev){ev.preventDefault();},{passive:false});
+function toast(m){if(!m)return;undoS=null;$('undo-t').textContent=m;$('undo-b').hidden=true;$('undo').hidden=false;clearTimeout(undoT);undoT=setTimeout(undoHide,3500);}
+$('qx').addEventListener('click',function(){var k=kOf();$('qx-proj').textContent='Vie projekti'+(k?': '+k.name:'');popOpen('qxpop');});
+function qxText(txt){vsMsg('Tiedoston tallennus ei onnistunut. Kopioi teksti.');$('dataout').textContent='';$('impbox').hidden=true;renderVs();openSheet($('vsheet'));vsText(txt,true);}
+$('qx-all').addEventListener('click',function(){popClose();shareFile(JSON.stringify(snapshot(),null,1),expName(),toast,qxText,markAll);});
+$('qx-proj').addEventListener('click',function(){popClose();stashK();var k=kOf(),now=nowIso();
+  shareFile(JSON.stringify(projectFile(k,now),null,1),expName(k.name),toast,qxText,function(){k.ex=now;k.chg=null;save();renderStatus();});});
+function menuItem(m,id,txt,fn,cls){var b=el('button',cls||'',txt);b.type='button';b.id=id;b.setAttribute('role','menuitem');b.addEventListener('click',function(){popClose();fn();});m.appendChild(b);return b;}
+function openMenu(){var m=$('menupop'),k=kOf();m.textContent='';
+  if(tab==='terms'){m.appendChild(el('div','mh','Asiat'));menuItem(m,'tt-open','Asiat tekstinä',function(){termCur='text';renderTerms();});
+    menuItem(m,'tdel-mode','Poista asioita…',function(){termDel={};render();},'danger');m.appendChild(el('div','msep'));}
+  m.appendChild(el('div','mh','Projekti'));
+  menuItem(m,'m-proj',(k?k.name:'Projekti')+' ⌄',function(){openProj('k');});
+  menuItem(m,'m-x','Vienti ja tuonti',function(){$('xbtn').click();});
+  menuItem(m,'m-help','Ohje: '+(MODE[tabKey()]||''),function(){showHelp(hintKey);});
+  menuItem(m,'m-tree',tab==='use'||tab==='teach'?'Päätöspuu (auki)':'Päätöspuu',function(){showTab('use');});
+  popOpen('menupop');}
+$('menu').addEventListener('click',openMenu);
 /* Rakentaminen (ent. Opetus) on Päätöspuu-välilehden sisällä: tab 'teach' korostaa alapalkissa Päätöspuun (Emil 22.10.2026) */
-var HKEY={use:'paatospuu',teach:'rakenna',notes:'muistiot',list:'lista',cal:'kalenteri',set:'asetukset'};
+var HKEY={use:'paatospuu',teach:'rakenna',notes:'muistiot',list:'lista',cal:'kalenteri',set:'asetukset',terms:'asiasanat'};
 /* 1.66 (Emil 23.10.2026): Listat on oma päätoiminto alapalkissa (Muistiot · Kalenteri · Listat · Päätöspuu). Sisäisesti sama paneeli kuin
    Muistioilla (noteView 'chk'), mutta oma välilehti, otsikko, ohje ja vierityskohta. */
 function tabKey(){return tab==='notes'&&noteView==='chk'?'list':tab;}
@@ -2049,12 +2130,12 @@ function runRel(){var t=todayIso();if(relDay===t)return false;relDay=t;stashK();
   data.K.forEach(function(k){(k.notes||[]).forEach(function(n){if(relSweep(n,t))ch=true;});});if(ch)save();return ch;}
 function runReps(){var m=repsDue(data.reps,data.notes,todayIso(),nowIso(),allTerms());termCache=null;if(m.length){data.notes=m.concat(data.notes);touch();}}
 function render0(){runRel();runReps();setInfo();main.style.overscrollBehaviorY=tab==='cal'?'none':'';$('actbar').hidden=true;
-  if(tab==='use')renderUse();else if(tab==='teach')renderTeach();else if(tab==='notes')renderNotes();else if(tab==='cal')renderCal();else renderSettings();syncChrome();}
+  if(tab==='use')renderUse();else if(tab==='teach')renderTeach();else if(tab==='notes')renderNotes();else if(tab==='cal')renderCal();else if(tab==='terms')renderAsiat();else renderSettings();syncChrome();}
 $('nav').addEventListener('click',function(ev){var b=ev.target.closest('[data-tab]');if(b)showTab(b.dataset.tab);});
 /* 1.55 (I1): isot ikkunat täyttävät tilan yläpalkin ja alapalkin välissä. Otsikon edessä harmaana se, minne ruksi palaa
    (välilehti tai alla oleva ikkuna). Alapalkin napautus sulkee ikkunan kuten ruksi ja vaihtaa välilehden. */
 var SMALL={csheet:1};
-function barSizes(){var t=document.querySelector('.top'),n=$('nav'),r=document.documentElement.style;
+function barSizes(){var t=document.querySelector('.top'),n=$('pbar').offsetParent?$('pbar'):$('nav'),r=document.documentElement.style;
   if(t)r.setProperty('--toph',Math.max(0,Math.round(t.getBoundingClientRect().bottom))+'px');
   if(n)r.setProperty('--navh',Math.max(0,Math.round(innerHeight-n.getBoundingClientRect().top))+'px');}
 addEventListener('resize',barSizes);
@@ -2100,8 +2181,7 @@ function sheetDone(d){var ok=d.querySelector('[data-done]');if(ok)ok.click();els
 var SHEETS=['wsheet','ehsheet','vsheet','psheet','xsheet','lsheet','ksheet','esheet','nsheet','tsheet','rsheet','hsheet','csheet','fsheet'];
 SHEETS.forEach(function(id){var d=$(id);d.addEventListener('close',modalSync);d.addEventListener('click',function(ev){if(ev.target!==d||d.classList.contains('dock'))return;
     if(d.classList.contains('big')&&matchMedia('(max-width:999px)').matches){var q=d.getBoundingClientRect(),x=ev.clientX,y=ev.clientY;
-      if(x>=q.left&&x<=q.right&&y>=q.top&&y<=q.bottom)return;sheetDone(d);
-      if(!d.open&&!document.querySelector('dialog[open]')){var t=document.elementFromPoint(x,y),b=t&&t.closest('[data-tab]');if(b)showTab(b.dataset.tab);}return;}
+      if(x>=q.left&&x<=q.right&&y>=q.top&&y<=q.bottom)return;sheetDone(d);return;}
     sheetDone(d);});
   d.addEventListener('cancel',function(ev){ev.preventDefault();sheetDone(d);});});
 /* Sulkeminen oikean yläkulman ruksista (Emil 21.10.2026: alasveto sekoittui alla olevan tason raahaukseen). Ruksi toimii kuten Valmis. */
@@ -2434,7 +2514,7 @@ function noteWrite(N,tx,t){N.text=tx;N.edited=t||nowIso();nlClean(N);lockRel(N,n
 /* Kumoa (1.61, Emil 23.10.2026): kuittaus palautetaan täsmälleen edelliseen tilaansa. Kohteet = muutettavat oliot/taulukot. */
 var undoS=null,undoT=0;
 function undoArm(objs){return objs.filter(Boolean).map(function(o){return {o:o,c:JSON.parse(JSON.stringify(o))};});}
-function undoShow(snap,msg){undoS=snap;$('undo-t').textContent=msg;$('undo').hidden=false;clearTimeout(undoT);undoT=setTimeout(undoHide,5000);}
+function undoShow(snap,msg){undoS=snap;$('undo-b').hidden=false;$('undo-t').textContent=msg;$('undo').hidden=false;clearTimeout(undoT);undoT=setTimeout(undoHide,5000);}
 function undoHide(){clearTimeout(undoT);undoS=null;$('undo').hidden=true;}
 $('undo-b').addEventListener('click',function(ev){ev.stopPropagation();var S=undoS;undoHide();if(!S)return;S.forEach(function(x){var o=x.o,c=x.c;
   if(Array.isArray(o)){o.length=0;c.forEach(function(v){o.push(v);});}else{Object.keys(o).forEach(function(k){delete o[k];});Object.keys(c).forEach(function(k){o[k]=c[k];});}});touch();render();});
@@ -2637,7 +2717,7 @@ function backShow(B){backS=B;$('back').hidden=false;}
 function backHide(){backS=null;$('back').hidden=true;}
 $('back').addEventListener('click',function(){var B=backS;backHide();if(!B)return;noteView=B.nv;noteFilter=B.f;noteAnd=B.and;noteQuery=B.q;showTab(B.tab==='notes'&&B.nv==='chk'?'list':B.tab);main.scrollTop=B.st;
   if(B.n&&data.notes.indexOf(B.n)>=0)openNote(B.n,null,B.occ);});
-$('nav').addEventListener('click',function(ev){if(ev.target.closest('[data-tab]'))backHide();},true);
+$('nav').addEventListener('click',function(ev){if(ev.target.closest('[data-tab]'))backHide();},true);$('roll').addEventListener('click',backHide,true);
 newBtn.addEventListener('click',function(){if(tab==='notes'&&noteView==='rep')openRep(null);else if(tab==='notes'&&noteView==='chk')openChk(null);else openNote(null);});
 /* ---- tarkistuslista (Emil 22.10.2026, 1.38) ----
    Rivit näkyvät myös kalenterissa omalla merkillään (☰); siirto kalenterissa muuttaa rivin tekstin aikaa. Kalenterin kuittaus on vain kalenterin kerros. */
@@ -2768,7 +2848,7 @@ function renderChk(p){var now=new Date(),today=todayIso(),list=el('div','chlist'
   /* ⏱ päällä eikä mikään ole lauennut: rivit siinä järjestyksessä, jossa niiden seuraavat kohteet mahtuisivat kalenteriin (1.49) */
   if(PL&&PL.dry){var fo={};PL.list.forEach(function(it,i){if(fo[it.r.id]===undefined)fo[it.r.id]=i;});SR=SR.map(function(r,i){return {r:r,i:i};}).sort(function(a,b){var x=fo[a.r.id],y=fo[b.r.id];x=x===undefined?1e9+a.i:x;y=y===undefined?1e9+b.i:y;return x-y;}).map(function(o){return o.r;});}
   var pb0=el('div','plbar'),pbl=el('div','plgrp');pb0.appendChild(pbl);var lb0=button(pbl,'','treepick',openLists);lb0.id='chlist-pick';lb0.appendChild(el('span','',LC?LC.name:'Lista'));lb0.insertAdjacentHTML('beforeend',CHEV);lb0.setAttribute('aria-label','Valitse lista');
-  button(pbl,'Asiasanat…','mini',openTerms).id='chterms';
+  if(wide())button(pbl,'Asiasanat…','mini',openTerms).id='chterms';
   if(LC){button(pb0,'Lopeta','mini',function(){kierReset(LC,true);}).id='chk-end';}
   else{var pt=button(pb0,'Aikaehdotukset','chip',function(){data.cfg.plan=planOn()?'off':'on';save();render();});pt.id='chplan-t';pt.setAttribute('aria-pressed',PL?'true':'false');}($('nbar')||p).appendChild(pb0);
   if(PL)renderPlan(p,PL,today);
@@ -3159,7 +3239,7 @@ function dragList(l,onDrop){var rows=Array.prototype.slice.call(l.children);
 /* ---- termit ---- */
 var termCur=null,termArm=0,termSec={tun:1};
 var termDel=null;
-function openTerms(){termSolo=null;termCur=null;termDel=null;renderTerms();openSheet($('tsheet'));}
+function openTerms(){termSolo=null;termCur=null;termDel=null;if($('tsheet').open)closeSheet($('tsheet'));showTab('terms');}
 /* Yksi asiasanakortti kaikkialta (1.56, suunnitelma C2): muistiinpanon asiasanan nimi ja suodattimen sirun i avaavat saman kortin.
    Valmis tai ruksi palaa sinne, mistä kortti avattiin (back), ei Asiasanat-luetteloon. */
 var termSolo=null;
@@ -3177,17 +3257,17 @@ function termRow(t,extra){var r=el('button','row'+(t.auto&&t.kind==='g'?' grp':t
   var info=[];if(t.auto)info.push(KINDN[t.kind]+' · '+t.proj);if(t.yes.length)info.push(t.yes.length+(t.yes.length===1?' sana':' sanaa'));if(t.no.length)info.push(t.no.length+(t.no.length===1?' poissulkeva':' poissulkevaa'));if(t.ev)info.push('uusiutuu '+t.ev+' pv');
   if(extra)info.unshift(extra);s.appendChild(el('small','',info.join(' · ')||'vain oma nimi'));r.appendChild(s);
   r.addEventListener('click',function(){termCur=t;termArm=0;renderTerms();});return r;}
-function renderTerms(){var b=$('ts-body');b.textContent='';termCache=null;
-  if(!termCur){$('ts-h').textContent='Asiasanat';
+function termsList(b,inPanel){var SC=inPanel?main:$('tsheet');termCache=null;
     var a=el('div','addrow'),i=el('input');i.type='text';i.id='newterm';i.placeholder='Uusi asiasana (* lopussa = tärkeä), #Nimi = ryhmä';i.autocomplete='off';a.appendChild(i);
     function add(){var n=clean(i.value);if(!n)return;
       /* #Nimi tekee listan ryhmän (1.44.1) ja avaa sen jäsenten valinnan */
       if(n.charAt(0)==='#'){var gn=clean(n.slice(1)).slice(0,80);if(!gn)return;var g=(data.grp||[]).filter(function(x){return keyOf(x.name)===keyOf(gn);})[0];
         if(!g){g={id:uid('g'),name:gn,m:[]};data.grp=(data.grp||[]).concat([g]);touch();}termCur={grp:g};renderTerms();return;}
       var sn=starName(n);if(!sn.name)return;var t={id:uid('t'),name:sn.name.slice(0,60),yes:[],no:[]};data.terms.push(t);if(sn.imp)syncImp(t.id,true);touch();termCur=t;renderTerms();}
-    button(a,'Lisää','btn solid',add);i.addEventListener('keydown',function(ev){if(ev.key==='Enter')add();});b.appendChild(a);
-    var tr=el('div','btnrow');button(tr,'Asiasanat tekstinä','btn',function(){termCur='text';renderTerms();}).id='tt-open';button(tr,'Ehdot','btn',function(){closeSheet($('tsheet'));openEh();}).id='tt-eh';
-    button(tr,termDel?'Peruuta poisto':'Poista…','btn'+(termDel?'':' dangerline'),function(){termDel=termDel?null:{};renderTerms();}).id='tdel-mode';b.appendChild(tr);
+    button(a,'Lisää','btn solid',add);i.addEventListener('keydown',function(ev){if(ev.key==='Enter'){ev.preventDefault();add();}});b.appendChild(a);
+    /* 1.72: puhelimella osiossa Asiat tekstinä ja Poista ovat Valikossa, osiossa näkyy vain Ehdot (ja poistotilassa Peruuta). Tietokoneella napit osiossa. */
+    var tr=el('div','btnrow'),dk=!inPanel||wide();if(dk)button(tr,inPanel?'Asiat tekstinä':'Asiasanat tekstinä','btn',function(){termCur='text';renderTerms();}).id='tt-open';button(tr,'Ehdot'+(inPanel?' ('+(data.ehdot||[]).length+')':''),'btn',function(){if($('tsheet').open)closeSheet($('tsheet'));openEh();}).id='tt-eh';
+    if(dk||termDel)button(tr,termDel?'Peruuta poisto':'Poista…','btn'+(termDel?'':' dangerline'),function(){termDel=termDel?null:{};renderTerms();}).id='tdel-mode';b.appendChild(tr);
     /* Poistotila (Emil 22.10.2026, 1.44.1): valitse useita omia asiasanoja ja ryhmiä, vahvista Poista valitut -napista (varmistus eri kohtaan) */
     if(termDel){var nsel=Object.keys(termDel).length,dr=el('div','btnrow');var db=button(dr,'Poista valitut ('+nsel+')','btn danger',function(){if(!nsel)return;
         delAsk(db,'Poistetaanko '+nsel+(nsel===1?' valittu?':' valittua?'),'Valitut poistuvat myös listan riveiltä, ryhmistä ja tärkeistä. Puun palikat poistuvat puusta sääntöineen. Muistiinpanojen teksti ei muutu.',function(){
@@ -3197,7 +3277,7 @@ function renderTerms(){var b=$('ts-body');b.textContent='';termCache=null;
       (data.grp||[]).map(function(g){return {id:g.id,name:g.name,sub:'listan ryhmä',g:1};}).concat(data.terms.map(function(t){return {id:t.id,name:t.name,sub:'oma asiasana'};}),
         DA.map(function(t){return {id:t.id,name:t.name,sub:KINDN[t.kind]+' · '+t.proj};})).forEach(function(x){
         var on=!!termDel[x.id],r=el('button','row');r.type='button';r.dataset.id=x.id;r.setAttribute('aria-pressed',on?'true':'false');var sp=el('span','t',x.name);if(x.g)sp.insertBefore(el('i','gi'),sp.firstChild);sp.appendChild(el('small','',x.sub));r.appendChild(sp);r.appendChild(el('span','stars',on?'✓':''));
-        r.addEventListener('click',function(){var y=$('tsheet').scrollTop;if(termDel[x.id])delete termDel[x.id];else termDel[x.id]=1;renderTerms();$('tsheet').scrollTop=y;});pl.appendChild(r);});
+        r.addEventListener('click',function(){var y=SC.scrollTop;if(termDel[x.id])delete termDel[x.id];else termDel[x.id]=1;renderTerms();SC.scrollTop=y;});pl.appendChild(r);});
       b.appendChild(pl);return;}
     /* Listan ryhmät (1.44.1): pikavalintoja, jotka lisäävät jäsenensä listan riville */
     if((data.grp||[]).length){b.appendChild(el('h3','','Ryhmät'));var gl=el('div','rows');gl.id='grplist';
@@ -3208,17 +3288,25 @@ function renderTerms(){var b=$('ts-body');b.textContent='';termCache=null;
     /* Tähti suoraan rivillä (1.50, korvaa Valitse tärkeät / OK): napautus merkitsee tai poistaa heti */
     function tstar(t){var on=data.imp.indexOf(t.id)>=0,sb=el('button','sbtn');sb.innerHTML=starSvg(on);sb.type='button';sb.dataset.tstar=t.id;sb.setAttribute('aria-pressed',on?'true':'false');
       sb.setAttribute('aria-label',(on?'Poista tärkeistä: ':'Merkitse tärkeäksi: ')+t.name);sb.addEventListener('pointerdown',function(ev){ev.stopPropagation();});
-      sb.addEventListener('click',function(ev){ev.stopPropagation();var y=$('tsheet').scrollTop;syncImp(t.id,!on);touch();renderTerms();$('tsheet').scrollTop=y;});return sb;}
+      sb.addEventListener('click',function(ev){ev.stopPropagation();var y=SC.scrollTop;syncImp(t.id,!on);touch();renderTerms();SC.scrollTop=y;});return sb;}
     function tTime(t){var r=el('div','row');r.dataset.id=t.id;var sp=el('span','t',t.name);sp.appendChild(el('small','','aikasana'));r.appendChild(sp);return r;}
     {var il=el('div','rows');il.id='implist';
       imp.forEach(function(t,k){var row=el('div','drow');row.dataset.id=t.id;row.appendChild(el('span','num',(k+1)+'.'));row.appendChild(t.time?tTime(t):termRow(t));row.appendChild(tstar(t));il.appendChild(row);});
-      if(imp.length){b.appendChild(il);dragList(il,function(i,j){var ids=imp.map(function(t){return t.id;});data.imp=moveToIdx(ids,ids[i],j);touch();var y=$('tsheet').scrollTop;renderTerms();$('tsheet').scrollTop=y;});}
+      if(imp.length){b.appendChild(il);dragList(il,function(i,j){var ids=imp.map(function(t){return t.id;});data.imp=moveToIdx(ids,ids[i],j);touch();var y=SC.scrollTop;renderTerms();SC.scrollTop=y;});}
       else b.appendChild(el('p','sub','Ei vielä tärkeitä. Napauta tähteä.'));
       var rk=impRanks(data.imp,all,data.projects);
       b.appendChild(el('h3','','Muut'));var l=el('div','rows');l.id='termlist';
       all.forEach(function(t){if(imp.indexOf(t)>=0)return;var ex=rk[t.id]!==undefined?'perii '+(rk[t.id]+1)+'. '+imp[rk[t.id]].name:'';var w=el('div','drow');w.appendChild(t.time?tTime(t):termRow(t,ex));w.appendChild(tstar(t));l.appendChild(w);});
       b.appendChild(l);}
-    var r2=el('div','btnrow');button(r2,'Valmis','btn',function(){closeSheet($('tsheet'));render();}).dataset.done='1';b.appendChild(r2);return;}
+    if(!inPanel){var r2=el('div','btnrow');button(r2,'Valmis','btn',function(){closeSheet($('tsheet'));render();}).dataset.done='1';b.appendChild(r2);}return;}
+/* 1.72 (Emil 24.10.2026): Asiat on oma pääosionsa. Luettelo piirretään osioon; asiasanan kortti, ryhmä ja Asiat tekstinä aukeavat ikkunaan.
+   Kun ikkunan Valmis palauttaa luetteloon (termCur=null), ikkuna sulkeutuu ja osio piirretään uudelleen. */
+function renderAsiat(){var p=panels.terms;p.textContent='';termsList(p,true);}
+function renderTerms(){var b=$('ts-body');
+  if(!termCur&&tab==='terms'&&!termSolo){if($('tsheet').open)closeSheet($('tsheet'));render();return;}
+  b.textContent='';termCache=null;
+  if(!termCur){$('ts-h').textContent='Asiasanat';termsList(b,false);return;}
+  if(!$('tsheet').open)openSheet($('tsheet'));
   if(termCur==='text'){renderTermsText(b);return;}
   if(termCur.grp){renderGroupEd(b,termCur.grp);return;}
   var t=termCur;$('ts-h').textContent=t.auto?t.name:'Asiasana';
@@ -3314,10 +3402,10 @@ function setUi(p,again,inSheet){var H=inSheet?'h3':'h2';
   cfgSeg('dur','Kalenterimerkinnän oletuspituus',[['15','15 min'],['30','30 min'],['45','45 min'],['60','60 min']],'30');
   cfgSeg('size','Nappuloiden koko',[['normal','Normaali'],['small','Pieni']],'normal');
   var h=el(H,'','Tiedot');h.id='sec-data';p.appendChild(h);
-  p.appendChild(el('p','sub','Tiedot ovat vain tällä laitteella. Vie varmuuskopio aika ajoin yläpalkin vientinapista, josta myös tuodaan.'));
+  p.appendChild(el('p','sub','Tiedot ovat vain tällä laitteella. Vie varmuuskopio aika ajoin alapalkin vientinapista; tuonti on Valikossa.'));
   var ac=0;data.projects.forEach(function(P){ac+=parseText(P.text).items.length;});var k=kOf();
   p.appendChild(el('p','foot','Projekteja '+data.K.length+'. Tässä projektissa ('+(k?k.name:'')+') puita '+data.projects.length+', rivejä '+ac+', muistiinpanoja '+data.notes.length+', omia asiasanoja '+data.terms.length+'. Koko appi viety: '+whenTxt(data.meta.lastExport)+'.'+(data.K.some(function(x){return x.chg;})?' Sen jälkeen on tehty muutoksia.':'')));
-  if(!inSheet)p.appendChild(el('p','foot','Projektin nimi ja poisto: yläpalkin projektin nimi. Roskakori: Muistio → Kuitatut.'));else p.appendChild(el('p','foot','Roskakori: Muistio → Kuitatut.'));}
+  if(!inSheet)p.appendChild(el('p','foot','Projektin nimi ja poisto: Valikko → Projekti (tietokoneella yläpalkin projektin nimi). Roskakori: Muistio → Kuitatut.'));else p.appendChild(el('p','foot','Roskakori: Muistio → Kuitatut.'));}
 function markAll(){stashK();data.K.forEach(function(k){k.chg=null;});data.meta.lastExport=nowIso();data.meta.dirty=0;save();renderStatus();renderVs();}
 /* Tiedoston anto: jakoikkuna, latauslinkki tai varalla teksti. msg(teksti), text(teksti) näyttää kopioitavan, done() kun annettu. */
 function shareFile(txt,name,msg,text,done){
@@ -3352,7 +3440,7 @@ function offerImport(txt){var out=$('dataout');out.textContent='';pendingImport=
   var r=el('div','btnrow');button(r,'Korvaa tiedot','btn solid',function(){var o2=pendingImport;if(!o2)return;applyND(o2);data.K.forEach(function(k){k.chg=null;});data.meta.dirty=0;resetDraft();ed=null;save();applyCfg();pendingImport=null;renderHead();renderStatus();render();setMsg('Tiedot tuotu.');}).id='impok';
   button(r,'Peru','btn',function(){pendingImport=null;out.textContent='';});c.appendChild(r);out.appendChild(c);}
 
-fiAll();renderStatus();renderHead();showTab('use');draftRestore();
+fiAll();renderStatus();renderHead();showTab('notes');draftRestore();
 })();
 </script>
 </body>

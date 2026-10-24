@@ -2,6 +2,8 @@
 Käyttö: python3 testit/selain_tietokone.py [kuvakansio]"""
 import asyncio, os, sys, json, datetime
 from playwright.async_api import async_playwright
+sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+from apu import tab, menu, tsx
 U='file://'+os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','index.html'))
 SHOTS=sys.argv[1] if len(sys.argv)>1 else None
 T=datetime.date.today(); D=lambda n:(T+datetime.timedelta(days=n)).isoformat(); NOW=datetime.datetime.now().isoformat()
@@ -35,7 +37,7 @@ async def run(p,w,h):
     print('leveys',w)
     for t in ['use','notes','cal','list']:
         await pg.click('[data-tab="%s"]'%t); await pg.wait_for_timeout(120); await check('tab '+t)
-    await pg.click('[data-tab="notes"]'); await pg.locator('#nlist .ncard').first.click(); await pg.wait_for_timeout(150); await check('muistiinpano ikkuna')
+    await tab(pg,'notes'); await pg.locator('#nlist .ncard').first.click(); await pg.wait_for_timeout(150); await check('muistiinpano ikkuna')
     await pg.click('#nsheet .sx'); await pg.wait_for_timeout(50)
     # 1.39: napsautus Muistioiden tyhjään kohtaan tekee uuden
     mb=await pg.locator('#main').bounding_box(); await pg.mouse.click(mb['x']+mb['width']/2,mb['y']+mb['height']-80); await pg.wait_for_timeout(80)
@@ -45,17 +47,17 @@ async def run(p,w,h):
     st=lambda: pg.evaluate("JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0]")
     want('sivupalkki vasemmalla', (await pg.locator('#nav').bounding_box())['x']==0 and (await pg.locator('#nav').bounding_box())['height']>=h-1)
     # Opetus: tekstikenttä auki oikealla, kirjoitus päivittää puun ja napautus tekstin
-    await pg.click('[data-tab="use"]'); await pg.wait_for_timeout(50); await pg.click('#build'); await pg.wait_for_timeout(100)
+    await tab(pg,'use'); await pg.wait_for_timeout(50); await pg.click('#build'); await pg.wait_for_timeout(100)
     want('tekstikenttä telakassa', await pg.is_visible('#xs-text') and not await pg.is_visible('#opentext') and not await pg.is_visible('#xs-ok'))
     bb=await pg.locator('#xsheet').bounding_box(); tb=await pg.locator('#tlist').bounding_box(); want('ei päällekkäin', tb['x']+tb['width']<=bb['x']+1)
     await pg.click('#xs-text'); await pg.evaluate("(function(){var t=document.getElementById('xs-text'),i=t.value.indexOf('\\n\\n');t.setSelectionRange(i,i);})()"); await pg.keyboard.type('\nVatsa'); await pg.wait_for_timeout(450)
     want('kirjoitus näkyy opetuksessa heti', await pg.locator('#tlist [data-id="vatsa"]').count()==1)
     await pg.click('#tlist [data-id="__alku"]'); await pg.click('#tlist [data-id="vatsa"]'); await pg.click('#ed-done'); await pg.wait_for_timeout(100)
     v=await pg.input_value('#xs-text'); want('napautus näkyy tekstissä', 'Vatsa' in v.split('=Alku avaa:')[1].split('\n\n')[0] and v.startswith('Jalat\n')); await check('opetus telakka')
-    await pg.click('[data-tab="use"]'); await pg.wait_for_timeout(50); want('telakka sulkeutuu muualla', not await pg.is_visible('#xs-text'))
+    await tab(pg,'use'); await pg.wait_for_timeout(50); want('telakka sulkeutuu muualla', not await pg.is_visible('#xs-text'))
     await pg.wait_for_timeout(80); await check('kierros')
     # Kalenteri: viikko sarakkeina
-    await pg.click('[data-tab="cal"]'); await pg.wait_for_timeout(150)
+    await tab(pg,'cal'); await pg.wait_for_timeout(150)
     want('seitsemän päivää', await pg.locator('#timeline .dcol').count()==7)
     d0=datetime.date.fromisoformat(await pg.locator('#timeline .dcol').first.get_attribute('data-day')); tue=(d0+datetime.timedelta(days=1)).isoformat(); wed=(d0+datetime.timedelta(days=2)).isoformat()
     col=pg.locator('#timeline .dcol[data-day="%s"]'%tue); await col.scroll_into_view_if_needed(); cb=await col.bounding_box()
