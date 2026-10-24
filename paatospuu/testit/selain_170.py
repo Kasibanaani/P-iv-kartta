@@ -36,14 +36,15 @@ async def run(p,w,h):
     want('tärkeysjärjestys tekstistä', k['tarkeat']==[ids['Kipu'],ids['Lääkäri']])
     want('uudet asiasanat ehdoista', 'Lepo' in ids and 'Soitto' in ids)
     E=k.get('ehdot',[])
-    want('ehdot tekstistä', len(E)==2 and E[0]['k']==[ids['Kipu'],ids['Kuume']] and not E[0].get('all') and E[0]['on']==[ids['Lääkäri'],ids['Lepo']] and E[0]['off']==[ids['Odotus']] and E[1]['on']==[ids['Soitto']])
+    # 1.78: yksi ehto = yksi seuraus, joten Tuo- ja Poissulkee-osat ovat omat ehtonsa (tekstissä yhä yhdellä rivillä)
+    want('ehdot tekstistä', len(E)==3 and E[0]['k']==[ids['Kipu'],ids['Kuume']] and not E[0].get('all') and E[0]['on']==[ids['Lääkäri'],ids['Lepo']] and E[1]['off']==[ids['Odotus']] and E[1]['k']==E[0]['k'] and E[2]['on']==[ids['Soitto']])
     want('sanat säilyvät', [x for x in k['termit'] if x['name']=='Kipu'][0]['yes']==['kipua'])
     # Muutos napeista näkyy tekstissä: Ehdot-ikkunasta uusi tärkeä asiasana ja ehdon poisto
     await pg.click('#tt-eh') if await pg.is_visible('#tt-eh') else None
     await pg.wait_for_timeout(60)
     if not await pg.is_visible('#ehsheet'):
         await tsx(pg); await pg.wait_for_timeout(40); await tab(pg,'terms'); await pg.wait_for_timeout(60); await pg.click('#tt-eh'); await pg.wait_for_timeout(60)
-    await pg.locator('#eh-body .ehr[data-eh]').nth(1).click(); await pg.wait_for_timeout(50)
+    await pg.locator('#eh-body .ehr[data-eh]').nth(2).click(); await pg.wait_for_timeout(50)
     await pg.click('#eh-del'); await pg.wait_for_timeout(40); await pg.locator('#ehsheet .delbox button:has-text("Poista")').last.click(); await pg.wait_for_timeout(60)
     await pg.click('#ehsheet .sx'); await pg.wait_for_timeout(60)
     t=await opentext()

@@ -567,7 +567,7 @@ eq('1.67: tai-ehto tuo esiin, ketjun loppu piilossa',E.chkCond(cR,cr,cK,cn),{hid
 cr[1].it[0].ok='2026-10-02T00:00:00Z';eq('1.67: esiin tullut ja kuitattu laukaisee seuraavan',E.chkCond(cR,cr,cK,cn),{hid:{},off:{}});
 cr[0].it[1].ok='x';var cc=E.chkCond(cR,cr,cK,cn);eq('1.67: ja-ehto sulkee pois',cc.off,{d:1});
 var cx2=cK();cx2.hid=cc.hid;cx2.off=cc.off;eq('1.67: poissuljettu ei estä valmistumista',E.chkDone(cr[1],cn,cx2),true);
-eq('1.67: ehtojen normalisointi',E.condsIn({eh:1,ehdot:[{k:['a'],on:['b','b'],off:['b','c']},{}]}),{ehdot:[{id:'e0',k:['a'],on:['b'],off:['c']}],eh:1});
+eq('1.67: ehtojen normalisointi',E.condsIn({eh:1,ehdot:[{k:['a'],on:['b','b'],off:['b','c']},{}]}),{ehdot:[{id:'e0',k:['a'],on:['b'],off:[]},{id:'e0p',k:['a'],on:[],off:['c']}],eh:1});
 eq('1.67: tyhjä ei tallennu',E.condsIn({ehdot:[]}),null);
 /* 1.70 tekstimuoto */
 eq('1.70: ehTok tunnetut nimet ja-sanalla',E.ehTok('Kipu ja särky tai Kuume',['Kipu ja särky','Kuume']),{items:['Kipu ja särky','Kuume'],all:false});
@@ -577,4 +577,27 @@ eq('1.70: tähdet ja ehdot tekstiin',tx,'=B*:\n\n=A*:\na\n\nEhdot:\nKun A ja B, 
 var xx=E.textExtras(tx,['A','B','C','D']);eq('1.70: tekstistä takaisin',[xx.stars,xx.ehdot,xx.body],[['B','A'],[{k:['A','B'],on:['C'],off:['D'],all:1}],'=B:\n\n=A:\na\n']);
 eq('1.70: ei Ehdot-osiota',E.textExtras('=A:',[]).ehdot,null);
 eq('1.70: pelkät nimet asiasanoiksi',[E.textExtras('A\nB*\n\n=C:\nsana\nsana2',[]).body,E.textExtras('A\nB*',[]).stars],['=A:\n\n=B:\n\n\n=C:\nsana\nsana2',['B']]);
+/* 1.78 ehdot laatikkoina: ryhmä ja aikasana syynä, Poissulkevat, ristiriidat */
+var gr=[{id:'r1',created:'2026-10-01T00:00:00Z',g:['G'],it:[{id:'a'}]},{id:'r2',created:'2026-10-01T00:00:00Z',it:[{id:'b'},{id:'x'}]}],gK=function(){return {kier:1};};
+var gE=[{k:['G'],on:['x']}];
+eq('1.78: ryhmä syynä: ei vielä',E.chkCond(gE,gr,gK,cn,{grp:{G:{m:['a','b']}}}),{hid:{x:1},off:{}});
+gr[0].it[0].ok='x';eq('1.78: ryhmä Jokin toteutuu',E.chkCond(gE,gr,gK,cn,{grp:{G:{m:['a','b']}}}),{hid:{},off:{}});
+eq('1.78: ryhmä Kaikki odottaa',E.chkCond(gE,gr,gK,cn,{grp:{G:{m:['a','b'],all:1}}}),{hid:{x:1},off:{}});
+eq('1.78: ryhmä ei toteudu, jos ei listassa',E.chkCond(gE,gr,gK,cn,{}),{hid:{x:1},off:{}});
+eq('1.78: aikasana syynä',E.chkCond([{k:['z:today'],off:['b']}],gr,gK,cn,{tk:{'z:today':1}}).off,{b:1});
+eq('1.78: Poissulkevat',E.chkCond([{k:['a','b','x'],ty:'x',on:[],off:[]}],gr,gK,cn).off,{b:1,x:1});
+eq('1.78: grpHit',E.grpHit({G:{m:['a','b']},H:{m:['a','b'],all:1},J:{m:[]}},{a:1}),{G:1});
+eq('1.78: vanha ehto jaetaan kahdeksi',E.condsIn({ehdot:[{id:'e',k:['a'],all:1,on:['b'],off:['c']}]}).ehdot,[{id:'e',k:['a'],on:['b'],off:[],all:1},{id:'ep',k:['a'],on:[],off:['c'],all:1}]);
+eq('1.78: Poissulkevat tallentuu',E.condsIn({ehdot:[{id:'e',k:['a','b'],ty:'x',on:['c']}]}).ehdot,[{id:'e',k:['a','b'],on:[],off:[],ty:'x'}]);
+eq('1.78: toteamusrivi valmis, kun ryhmä toteutuu',[E.chkDone({id:'q',it:[]},cn,{gs:[{id:'G',ok:false}]}),E.chkDone({id:'q',it:[]},cn,{gs:[{id:'G',ok:true}]}),E.chkDone({id:'q',it:[]},cn,{})],[false,true,true]);
+var nmf=function(id){return id.toUpperCase();};
+var iE=[{id:'1',k:['a'],on:['b'],off:[]},{id:'2',k:['c'],on:[],off:['b']},{id:'3',k:['a','d'],ty:'x',on:[],off:[]}];
+var e4={id:'4',k:['a'],on:[],off:['b']};iE.push(e4);
+eq('1.78: suora ristiriita estetään',E.ehIssues(iE,e4,nmf).block,'Ristiriita: ehto 1 tuo B esiin samoilla syillä.');
+e4.k=['c'];eq('1.78: eri syyt: huomautus',[E.ehIssues(iE,e4,nmf).block,E.ehIssues(iE,e4,nmf).notes.map(function(n){return n.n;})],['',[1]]);
+eq('1.78: kaksoiskappale',E.ehIssues(iE,e4,nmf).dup,1);
+e4.k=['a'];e4.off=[];e4.on=['d'];eq('1.78: poissulkevan jäsen ei tuo toista',/poissulkevia/.test(E.ehIssues(iE,e4,nmf).block),true);
+e4.all=1;e4.k=['a','c'];eq('1.78: ja-syy saa tuoda',E.ehIssues(iE,e4,nmf).block,'');
+e4.k=['a'];delete e4.all;e4.on=['a'];eq('1.78: syy ei voi olla oma seuraus',/oman ehtonsa/.test(E.ehIssues(iE,e4,nmf).block),true);
+eq('1.78: Poissulkevat tekstinä',[E.ehdotText([{k:['A','B'],ty:'x',on:[],off:[]}]),E.textExtras('Ehdot:\nPoissulkevat: A, B.',['A','B']).ehdot],[['Poissulkevat: A, B.'],[{k:['A','B'],on:[],off:[],ty:'x'}]]);
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);
