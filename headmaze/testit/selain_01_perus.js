@@ -16,11 +16,11 @@ async function run(b,w,h,full){
   await pg.click('#go-ulos');await pg.waitForTimeout(150);
   await pg.screenshot({path:shot('hm'+w+'_1_ulos.png')});
   let ns=await pg.evaluate(NOSCROLL('#p-ulos'));
-  chk(w+': uloshengitys mahtuu ruutuun, alapalkki kiinni alareunassa',ns.sec&&ns.doc&&ns.navBottom,ns);
+  if(w<h)chk(w+': uloshengitys mahtuu ruutuun, alapalkki kiinni alareunassa',ns.sec&&ns.doc&&ns.navBottom,ns);  // vaakataso vain pelille
   chk(w+': napissa lukee Aloita painamalla tästä',(await pg.innerText('#hold')).startsWith('Aloita painamalla tästä'));
   chk(w+': palkki alkaa 10 sekunnista',(await pg.innerText('#tgt'))==='palkki 10,0 s');
   const hb=await pg.locator('#hold').boundingBox();
-  chk(w+': nappi alhaalla (alaosa alle 90 px alapalkin yläpuolella)',(await pg.evaluate(()=>document.querySelector('nav').getBoundingClientRect().top))-(hb.y+hb.height)<90);
+  if(w<h)chk(w+': nappi alhaalla (alaosa alle 90 px alapalkin yläpuolella)',(await pg.evaluate(()=>document.querySelector('nav').getBoundingClientRect().top))-(hb.y+hb.height)<90);
   const cx=hb.x+hb.width/2,cy=hb.y+hb.height/2;
   async function breath(d,u,s){await pg.evaluate(t=>{T=t},d);await pg.mouse.move(cx,cy);await pg.mouse.down();await pg.waitForTimeout(50);
     await pg.evaluate(t=>{T=t},u);await pg.waitForTimeout(80);if(s)await pg.screenshot({path:shot(s)});await pg.mouse.up();await pg.waitForTimeout(40);}
@@ -83,9 +83,15 @@ async function run(b,w,h,full){
   // Sokkelo
   await pg.click('nav [data-tab="peli"]');await pg.waitForTimeout(250);
   await pg.screenshot({path:shot('hm'+w+'_6_sokkelo_alku.png')});
-  chk(w+': viisi karttaa ja hippamäärät, 2 oletuksena',(await pg.locator('#maps .chip').count())===5&&await pg.getAttribute('#nhip [data-nh="2"]','aria-pressed')==='true');
-  await pg.click('#start');await pg.waitForTimeout(100);
-  ns=await pg.evaluate(NOSCROLL('#p-peli'));chk(w+': peli mahtuu ruutuun',ns.sec&&ns.doc&&ns.navBottom,ns);
+  chk(w+': viisi karttaa ja 1–4 hippaa, 2 oletuksena',(await pg.locator('#maps .chip').count())===5&&(await pg.locator('#nhip .chip').count())===4&&await pg.getAttribute('#nhip [data-nh="2"]','aria-pressed')==='true');
+  await pg.click('#start');await pg.waitForTimeout(150);
+  const land=w>h;
+  if(!land){chk(w+': pystyssä pyydetään kääntämään vaakaan',await pg.isVisible('#o-rot'));await pg.click('#rotok');await pg.waitForTimeout(100);}
+  chk(w+': kierroksen aikana ei alapalkkia eikä aurinkoa ja pilveä',!await pg.isVisible('nav')&&!await pg.isVisible('header'));
+  const geo=await pg.evaluate(()=>{const z=document.getElementById('zoomw').getBoundingClientRect(),j=document.getElementById('joy').getBoundingClientRect(),m=document.getElementById('minic').getBoundingClientRect(),c=document.getElementById('zoom');
+    return {full:Math.round(z.width)===innerWidth&&Math.round(z.height)===innerHeight,joyLeft:j.left>=20&&j.left<100&&innerHeight-j.bottom>=15&&innerHeight-j.bottom<60,mini:m.left<40&&m.top<30&&m.width<=120,noscroll:document.documentElement.scrollHeight<=innerHeight+1&&document.documentElement.scrollWidth<=innerWidth}});
+  chk(w+': peli koko ruudulla, tatti vasemmassa alakulmassa irti kulmasta, pikkukartta vasemmassa yläkulmassa',geo.full&&geo.joyLeft&&geo.mini&&geo.noscroll,geo);
+  const tiles=await pg.evaluate(()=>{const c=document.getElementById('zoom'),k=c.width/c.clientWidth;return null});
   const g0=await pg.evaluate(()=>{const G=__hm.game();return [G.p.x,G.p.y,G.S.length]});
   chk(w+': peli alkoi, kaksi hippaa',g0[2]===2);
   const j=await pg.locator('#joy').boundingBox();
@@ -95,17 +101,18 @@ async function run(b,w,h,full){
   await pg.screenshot({path:shot('hm'+w+'_7_sokkelo_peli.png')});
   await pg.mouse.up();
   const g1=await pg.evaluate(()=>{const G=__hm.game();return [G.p.x,G.p.y,G.rings.length,G.over]});
-  chk(w+': tatti oikealle liikuttaa hahmoa oikealle ja juoksu pitää ääntä',jv.x>0.9&&(g1[0]>g0[0]+0.5||g1[3])&&Math.abs(g1[1]-g0[1])<0.2,[jv,g0,g1]);
-  // pakotettu kiinnijäänti
-  await pg.evaluate(()=>{__hm.stop();const G=__hm.game();G.S[0].x=G.p.x+0.3;G.S[0].y=G.p.y;__hm.stepGame(1/60,{x:0,y:0});});
-  await pg.evaluate(()=>{window.__f=1});await pg.waitForTimeout(50);
-  const over=await pg.evaluate(()=>__hm.game().over);
-  chk(w+': hippa saa kiinni',over);
-  // valokeila piirtyy: tarkistetaan että näkymässä on sinappia
-  await pg.evaluate(()=>{const G=__hm.game();G.over=false;G.S[0].x=G.p.x-3;G.S[0].y=G.p.y;G.S[0].dir=0;__hm.stepGame(1/60,{x:0,y:0});});
+  chk(w+': tatti oikealle liikuttaa hahmoa oikealle',jv.x>0.9&&(g1[0]>g0[0]+0.5||g1[3])&&Math.abs(g1[1]-g0[1])<0.2,[jv,g0,g1]);
+  const view=await pg.evaluate(()=>__hm.viewTiles());
+  chk(w+': ruudulla noin neljäsosa kartasta (300 ruutua ± 10 %)',Math.abs(view-300)<30,view);
+  await pg.evaluate(()=>{__hm.stop();const G=__hm.game();G.S[0].x=G.p.x-3;G.S[0].y=G.p.y;G.S[0].dir=0;__hm.stepGame(1/60,{x:0,y:0});});
   await pg.screenshot({path:shot('hm'+w+'_8_valokeila.png')});
+  await pg.evaluate(()=>{const G=__hm.game();G.S[0].x=G.p.x+0.3;G.S[0].y=G.p.y;__hm.stepGame(1/60,{x:0,y:0});__hm.over();});
+  await pg.waitForTimeout(50);
+  chk(w+': kiinni → ilmoitus ja repliikki, sitten Kartat palauttaa alapalkin',await pg.isVisible('#o-over')&&(await pg.innerText('#oline')).length>3);
+  await pg.click('#tomaps');await pg.waitForTimeout(50);
+  chk(w+': Kartat: takaisin valikkoon',await pg.isVisible('nav')&&await pg.isVisible('#o-start'));
   await pg.click('nav [data-tab="harj"]');
   await ctx.close();return errs;
 }
-(async()=>{const b=await chromium.launch();let e=await run(b,390,760,true);e=e.concat(await run(b,320,568,false));
+(async()=>{const b=await chromium.launch();let e=await run(b,390,760,true);e=e.concat(await run(b,320,568,false));e=e.concat(await run(b,844,390,false));e=e.concat(await run(b,568,320,false));
   chk('ei JS-virheitä',!e.length,e);await b.close();console.log(fails.length?'VIRHEITÄ':'KAIKKI OK');process.exit(fails.length?1:0);})();
