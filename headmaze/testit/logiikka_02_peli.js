@@ -29,6 +29,17 @@ function noticeTime(px,py,dir,mag){const G=game(px,py,1.5,5.5,dir),s=G.S[0];let 
 const tEdge=noticeTime(5.5,5.5,-0.6,0),tMid=noticeTime(5.5,5.5,0,0);
 check('valokeilan reunalla liikkumatta huomaa hitaammin',tEdge>tMid*1.8,'reuna '+tEdge.toFixed(2)+' s, keskellä '+tMid.toFixed(2)+' s');
 // ääni
+eq('ääni v6: hiipiminen (0,3) alle 1,5, puolivauhti 1,7–2,7, täysi juoksu 8,5–9,5 ruutua',[H.noiseRadius(0.3)<1.5,H.noiseRadius(0.5)>1.7&&H.noiseRadius(0.5)<2.7,H.noiseRadius(1)>8.5&&H.noiseRadius(1)<9.5],[true,true,true]);
+{const n=new Set();for(let sd=1;sd<=30;sd++){const G=H.newGame('talo','67',sd,'normaali');n.add(G.S.length);}eq('6-7: arpa antaa kuusi tai seitsemän',[...n].sort(),[6,7]);}
+{const G=H.newGame('talo',1,4,'normaali');G.S[0].x=-50;G.S[0].y=-50;
+ eq('keräily: kuusi palluraa, kaukana pelaajasta (vähintään 4 askelta)',[G.pallot.length,G.pallot.every(q=>Math.hypot(q.x-G.p.x,q.y-G.p.y)>=2)],[6,true]);
+ for(let i=0;i<600;i++)H.stepGame(G,1/60,{x:0,y:0});
+ eq('normaali: 10 s → palkki 0,8',Math.round(G.E*100)/100,0.8);
+ const q=G.pallot[2];G.p.x=q.x;G.p.y=q.y;H.stepGame(G,1/60,{x:0,y:0});
+ eq('pallura: +0,22, uusi tilalle vähintään 8 askeleen päähän',[Math.round(G.E*100)/100,G.kerätty,G.pallot.length,Math.hypot(G.pallot[5].x-G.p.x,G.pallot[5].y-G.p.y)>=3],[1,1,6,true]);
+ for(let i=0;i<60*49&&!G.over;i++)H.stepGame(G,1/60,{x:0,y:0});eq('palkki ei vielä lopu 49 s:ssa',G.over,false);
+ for(let i=0;i<60*3&&!G.over;i++)H.stepGame(G,1/60,{x:0,y:0});eq('palkki loppuu: peli päättyy nälkään',[G.over,G.why],[true,'nalka']);}
+eq('ilman vaikeustasoa (vanhat testit): ei palluroita eikä laskua',(()=>{const G=H.newGame('talo',2,3);for(let i=0;i<600;i++)H.stepGame(G,1/60,{x:0,y:0});return [G.pallot.length,G.E]})(),[0,1]);
 eq('äänen kantama: hiipiminen lyhyt, juoksu pitkä',[H.noiseRadius(0.2)<1.2,H.noiseRadius(1)>5.5],[true,true]);
 G=game(4.5,1.5,8.5,1.5,0);s=G.S[0];
 for(let i=0;i<40;i++)H.stepGame(G,1/60,{x:0.15,y:0});

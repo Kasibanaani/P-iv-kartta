@@ -118,7 +118,7 @@ async function run(b,w,h,full){
   // Sokkelo
   await pg.click('nav [data-tab="peli"]');await pg.waitForTimeout(250);
   await pg.screenshot({path:shot('hm'+w+'_6_sokkelo_alku.png')});
-  chk(w+': viisi karttaa ja 1–4 hippaa, 2 oletuksena',(await pg.locator('#maps .chip').count())===5&&(await pg.locator('#nhip .chip').count())===4&&await pg.getAttribute('#nhip [data-nh="2"]','aria-pressed')==='true');
+  chk(w+': viisi karttaa, hipat 1–5 ja 6-7 (2 oletuksena), kolme vaikeustasoa (Normaali oletuksena)',(await pg.locator('#maps .chip').count())===5&&(await pg.locator('#nhip .chip').count())===6&&await pg.getAttribute('#nhip [data-nh="2"]','aria-pressed')==='true'&&(await pg.locator('#taso .chip').allInnerTexts()).join()==='Helppo,Normaali,Vaikea'&&await pg.getAttribute('#taso [data-taso="normaali"]','aria-pressed')==='true');
   await pg.click('#start');await pg.waitForTimeout(150);
   const land=w>h;
   if(!land){chk(w+': pystyssä pyydetään kääntämään vaakaan',await pg.isVisible('#o-rot'));await pg.click('#rotok');await pg.waitForTimeout(100);}
@@ -137,12 +137,23 @@ async function run(b,w,h,full){
   await pg.mouse.up();
   const g1=await pg.evaluate(()=>{const G=__hm.game();return [G.p.x,G.p.y,G.rings.length,G.over]});
   chk(w+': tatti oikealle liikuttaa hahmoa oikealle',jv.x>0.9&&(g1[0]>g0[0]+0.5||g1[3])&&Math.abs(g1[1]-g0[1])<0.2,[jv,g0,g1]);
+  const pal=await pg.evaluate(()=>{const G=__hm.game(),e=document.getElementById('ebar').getBoundingClientRect(),m=document.getElementById('minic'),x=m.getContext('2d').getImageData(0,0,m.width,m.height).data;let g=0;for(let i=0;i<x.length;i+=4)if(x[i+1]>150&&x[i]<170&&x[i+2]<110)g++;
+    return {n:G.pallot.length,E:G.E,bar:e.width>60&&e.top<40,green:g}});
+  chk(w+': kuusi palluraa, palkki ylhäällä keskellä ja laskee, pallurat näkyvät pikkukartassa',pal.n===6&&pal.E<1&&pal.E>0.9&&pal.bar&&pal.green>6,pal);
   const view=await pg.evaluate(()=>__hm.viewTiles());
   chk(w+': ruudulla noin neljäsosa kartasta (300 ruutua ± 10 %)',Math.abs(view-300)<30,view);
   await pg.evaluate(()=>{__hm.stop();const G=__hm.game();G.S[0].x=G.p.x-3;G.S[0].y=G.p.y;G.S[0].dir=0;__hm.stepGame(1/60,{x:0,y:0});});
   await pg.screenshot({path:shot('hm'+w+'_8_valokeila.png')});
   await pg.evaluate(()=>{const G=__hm.game();G.S[0].x=G.p.x+0.3;G.S[0].y=G.p.y;__hm.stepGame(1/60,{x:0,y:0});__hm.over();});
   await pg.waitForTimeout(50);
+  chk(w+': kiinni → otsikko Kiinni jäit, pallurat isona',(await pg.innerText('#otitle'))==='Kiinni jäit'&&/^\d+ ●$/.test(await pg.innerText('#otime')));
+  await pg.click('#again');await pg.waitForTimeout(80);
+  await pg.evaluate(()=>{__hm.stop();const G=__hm.game();const q=G.pallot[0];G.S.forEach(s=>{s.x=-50;s.y=-50});G.p.x=q.x;G.p.y=q.y;__hm.stepGame(1/60,{x:0,y:0});});
+  const pk=await pg.evaluate(()=>{const G=__hm.game();return [G.kerätty,G.pallot.length,G.E]});
+  chk(w+': pallura kerätään: määrä 1, uusi tilalle, palkki täydentyi',pk[0]===1&&pk[1]===6&&pk[2]>0.99,pk);
+  await pg.evaluate(()=>{const G=__hm.game();G.E=0.0001;__hm.stepGame(1/60,{x:0,y:0});__hm.over();});await pg.waitForTimeout(50);
+  chk(w+': palkki nollassa → Palkki loppui, ennätys = 1 pallura',(await pg.innerText('#otitle'))==='Palkki loppui'&&(await pg.innerText('#otime'))==='1 ●'&&await pg.evaluate(()=>__hm.data().peli.best['talo:2:normaali'])===1,await pg.evaluate(()=>__hm.data().peli.best));
+  await pg.waitForTimeout(10);
   chk(w+': kiinni → ilmoitus ja repliikki, sitten Kartat palauttaa alapalkin',await pg.isVisible('#o-over')&&(await pg.innerText('#oline')).length>3);
   await pg.click('#tomaps');await pg.waitForTimeout(50);
   chk(w+': Kartat: takaisin valikkoon',await pg.isVisible('nav')&&await pg.isVisible('#o-start'));
