@@ -904,8 +904,22 @@ html[data-tabst="line"] .tab[aria-selected="true"]::before{content:"";position:a
 html[data-tabst="dot"] .tab[aria-selected="true"]::after{content:"";position:absolute;bottom:1px;left:50%;margin-left:-2px;width:4px;height:4px;border-radius:2px;background:var(--hi)}
 html[data-tabst="block"] .tab[aria-selected="true"] svg{background:var(--hi);stroke:var(--hifg)}
 html[data-art="kuvio"] main{background-image:radial-gradient(var(--dot) 1.1px,transparent 1.6px),radial-gradient(var(--dot) .8px,transparent 1.3px);background-size:22px 22px;background-position:0 0,11px 13px;background-attachment:local}
-#artband{height:auto;aspect-ratio:300/110;max-height:120px;margin:0 0 10px;border-radius:var(--r-card,14px);overflow:hidden}
-#artband svg,.athumb svg{display:block;width:100%;height:100%}
+/* 1.85 (Emil 24.10.2026): kuvitus on taustana koko ruudulla (tai yläosassa häivyttäen) ja panoroituu osioiden välillä: M K L A näyttävät
+   saman leveän maiseman eri kohtaa, ja vaihdossa kuva liukuu. Päällä taustavärinen kerros pitää tekstin luettavana. Sisällön pinnat peittävät. */
+.app.hasart{isolation:isolate}
+#artband{position:absolute;inset:0 0 var(--navh,0px) 0;z-index:-1;overflow:hidden;pointer-events:none}
+#artband svg{display:block;position:absolute;left:0;bottom:0;max-width:none;transition:transform .55s cubic-bezier(.3,.7,.3,1);will-change:transform}
+#artband::after{content:"";position:absolute;inset:0;background:var(--bg);opacity:.5}
+#artband.top{background:none!important;-webkit-mask-image:linear-gradient(#000 calc(var(--arth,300px)*.55),transparent var(--arth,300px));mask-image:linear-gradient(#000 calc(var(--arth,300px)*.55),transparent var(--arth,300px))}
+#artband.top svg{top:0;bottom:auto}
+@media (min-width:1000px){#artband{bottom:0}}
+.app.hasart .top{background:transparent;border-bottom-color:transparent}
+.app.hasart main{background:transparent}
+/* Paljas teksti kuvan päällä saa taustavärisen hehkun, jotta kontrasti säilyy (4,5:1); pintojen sisällä ei hehkua */
+.app.hasart :is(main,.crumb){text-shadow:0 0 2px var(--bg),0 0 5px var(--bg),0 0 9px var(--bg)}
+.app.hasart main :is(button,input,textarea,select,.ncard,.card,.crow,.drow,.qcard,.chip,.seg,dialog){text-shadow:none}
+@media (prefers-reduced-motion: reduce){#artband svg{transition:none}}
+.athumb svg{display:block;width:100%;height:100%}
 .esvg .a0{fill:var(--a0);color:var(--a0)}.esvg .a1{fill:var(--a1);color:var(--a1)}.esvg .a2{fill:var(--a2);color:var(--a2)}
 .esvg .a3{fill:var(--a3);color:var(--a3)}.esvg .a4{fill:var(--a4);color:var(--a4)}.esvg .a5{fill:var(--a5);color:var(--a5)}
 .esvg .rj{stroke:currentColor;stroke-width:5;stroke-linejoin:round}.esvg .ln{fill:none;stroke:currentColor;stroke-width:1.2;stroke-linecap:round}
@@ -919,6 +933,7 @@ html[data-art="kuvio"] main{background-image:radial-gradient(var(--dot) 1.1px,tr
 </head>
 <body>
 <div class="app">
+<div class="esvg" id="artband" hidden aria-hidden="true"></div>
   <header class="top" id="top" data-mode="use">
     <div class="bar1">
       <button class="title" type="button" id="title" aria-label="Vaihda projektia tai puuta">
@@ -933,7 +948,6 @@ html[data-art="kuvio"] main{background-image:radial-gradient(var(--dot) 1.1px,tr
     </div>
   </header>
   <main id="main">
-  <div class="esvg" id="artband" hidden></div>
   <div class="info" id="info"><div class="itext" id="info-text" aria-live="polite"></div><button class="mini" type="button" id="info-done" hidden>Valmis</button></div>
     <div class="panel" id="p-use" role="tabpanel"></div>
     <div class="panel" id="p-teach" role="tabpanel" hidden></div>
@@ -2049,7 +2063,7 @@ function normalizeData(o){if(!o||typeof o!=='object'||o.app!=='paatospuu')return
   /* 1.63 (Emil 23.10.2026): asetukset ovat projektikohtaisia (asetukset). Vanhassa tallennuksessa kaikki projektit saavat yhteiset asetukset. */
   K.forEach(function(k){if(!k.cfg)k.cfg=cfgOf(o.cfg)||{};});out.cfg=a.cfg;
   return out;}
-var CFGK=['tint','mode','size','font','edge','glass','dur','plan','tun','read','pal','look','bshape','bsize','bedge','bfx','ck','art'];
+var CFGK=['tint','mode','size','font','edge','glass','dur','plan','tun','read','pal','look','bshape','bsize','bedge','bfx','ck','art','artpos'];
 function cfgOf(c){if(!c||typeof c!=='object')return null;var o={};CFGK.forEach(function(k){if(typeof c[k]==='string')o[k]=c[k];});return o;}
 /* Yksittäisen projektin tiedosto (1.24): {app:'paatospuu', laji:'projekti', projekti:{name, puut, muistiinpanot, termit, ...}}.
    Tunnisteet saavat puuttua (tekoälyn kirjoittama, ks. PROJEKTIMUOTO.md); puun säännöt ovat tekstissä. Myös koko varmuuskopiosta
@@ -2237,8 +2251,21 @@ function applyEste(dark,c0){var cf=data.cfg,P=esteOf(cf.pal,ESTE_PALS),LK=cf.loo
     if(LK.cl)esteSet('cl','1');if(LK.hf!=='system')esteSet('hf',LK.hf);if(LK.caps)esteSet('caps','1');if(LK.hz)esteSet('hz','1');if(LK.tab!=='pill')esteSet('tabst',LK.tab);root.dataset.edge='soft';}
   Object.keys(v).forEach(function(k){root.style.setProperty(k,v[k]);});
   var A=cf.art||'',ab=document.getElementById('artband');esteSet('art',A);
-  if(ab){var it=ESTE_ARTS.filter(function(x){return x[0]===A;})[0];ab.hidden=!it;ab.innerHTML=it?esteSvg(it[2],'ab'):'';}
+  if(ab){var it=ESTE_ARTS.filter(function(x){return x[0]===A;})[0];ab.hidden=!it;ab.innerHTML=it?esteSvg(it[2],'ab'):'';ab.classList.toggle('top',cf.artpos==='top');ab.parentNode.classList.toggle('hasart',!!it);artLay(true);}
   return bg;}
+/* 1.85: taustakuvan koko ja kohta. Kuva täyttää kerroksen korkeuden (leveys kuvasuhteen mukaan, vähintään ruudun levyinen),
+   ja osio valitsee kohdan: Muistio vasen reuna, Asiat oikea reuna, Päätöspuu keskellä. Ilman siirtymää ensimmäisellä kerralla ja koon muuttuessa. */
+var artAt=null;
+function artLay(now){var L=document.getElementById('artband');if(!L||L.hidden)return;var g=L.querySelector('svg');if(!g)return;
+  var vb=String(g.getAttribute('viewBox')||'0 0 300 110').split(/\s+/),ar=(+vb[2])/(+vb[3])||2.7,W=L.clientWidth,H0=L.clientHeight;if(!W||!H0)return;
+  /* Maisema on noin kahden ruudun levyinen (neljä osiota liukuvat sen yli), ja taivaan väri jatkuu kuvan yläpuolelle */
+  var H=Math.min(H0,Math.round(Math.max(2*W/ar,.42*H0))),w=Math.max(W,Math.round(H*ar));L.style.setProperty('--arth',H+'px');
+  if(now)artAt=null;if(now||!L.style.backgroundColor){var r0=g.querySelector('rect'),c=r0?getComputedStyle(r0).fill:'';L.style.backgroundColor=c&&c.indexOf('url')<0?c:'var(--a0)';}
+  var i=ROLL?rollIdx():-1,f=i<0?0.5:i/(ROLL.length-1),x=-Math.round((w-W)*f),k=w+'|'+H+'|'+x;
+  if(artAt===k)return;var jump=now||!artAt||artAt.split('|')[0]!==String(w);artAt=k;
+  if(jump)g.style.transition='none';g.style.width=w+'px';g.style.height=H+'px';g.style.transform='translateX('+x+'px)';
+  if(jump){void g.getBoundingClientRect();g.style.transition='';}}
+addEventListener('resize',function(){artLay(true);});
 var esteN=0;function esteSvg(svg,pre){var id=pre+(++esteN);return svg.replace(/@/g,id);}
 var MODES=[['auto','Laitteen mukaan'],['light','Vaalea'],['dark','Tumma']];
 var root=document.documentElement,mq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
@@ -2379,7 +2406,7 @@ function rollIdx(){var k=tabKey();return ROLL.indexOf(k==='teach'?'use':k);}
 function syncRoll(listDot){var k=tabKey(),i=rollIdx();crumbSync();var src=document.querySelector('#nav .tab[data-tab="'+(i<0?'use':ROLL[i])+'"] svg');$('roll-ic').innerHTML=src?src.outerHTML:'';
   $('roll-now').textContent=i<0?MODE[k==='teach'?'use':k]:MODE[ROLL[i]];$('roll-next').textContent=MODE[ROLL[(i+1)%ROLL.length]];
   var d=$('roll-dots'),L=$('roll-let');d.textContent='';L.textContent='';ROLL.forEach(function(x,j){var e=el('i',j===i?'on':'');d.appendChild(e);L.appendChild(el('i',j===i?'on':'',MODE[x].charAt(0)));});
-  $('roll').setAttribute('aria-label','Osio: '+$('roll-now').textContent+'. Seuraava: '+$('roll-next').textContent);$('roll-dot').hidden=!listDot||k==='list';}
+  $('roll').setAttribute('aria-label','Osio: '+$('roll-now').textContent+'. Seuraava: '+$('roll-next').textContent);$('roll-dot').hidden=!listDot||k==='list';artLay();}
 function rollTo(dir){var i=rollIdx(),n=i<0?(dir>0?0:ROLL.length-1):(i+dir+ROLL.length)%ROLL.length;showTab(ROLL[n]);var r=$('roll');r.classList.remove('slide');void r.offsetWidth;r.classList.add('slide');}
 (function(){var r=$('roll'),sx=null,sw=false;r.addEventListener('touchstart',function(ev){sx=ev.touches[0].clientX;sw=false;},{passive:true});
   r.addEventListener('touchend',function(ev){if(sx===null)return;var dx=ev.changedTouches[0].clientX-sx;sx=null;if(Math.abs(dx)>28){sw=true;rollTo(dx<0?1:-1);}},{passive:true});
@@ -3922,6 +3949,7 @@ function setUi(p,again,inSheet){var H=inSheet?'h3':'h2';
   p.appendChild(el('label','fl','Kuvitus'));var ag=el('div','chips arts esvg');ag.id='set-art';
   [['','Ei kuvitusta',''],['kuvio','Pelkkä kuvio','']].concat(ESTE_ARTS).forEach(function(a){var b=button(ag,'','chip',function(){data.cfg.art=a[0];save();applyCfg();again();});b.dataset.v=a[0];
     var t=el('span','athumb'+(a[0]==='kuvio'?' dots':''));if(a[2])t.innerHTML=esteSvg(a[2],'at');b.appendChild(t);b.appendChild(document.createTextNode(a[1]));b.setAttribute('aria-pressed',(data.cfg.art||'')===a[0]?'true':'false');});p.appendChild(ag);
+  if(ESTE_ARTS.some(function(x){return x[0]===data.cfg.art;}))cfgChips('artpos','Kuvituksen paikka',[['','Koko tausta'],['top','Yläosa, häivytys']],'');
 
   /* Tyylin hienosäätö (Emil 22.10.2026) */
   function cfgSeg(key,label,opts,dflt){p.appendChild(el('label','fl',label));var g=el('div','seg');g.id='set-'+key;
