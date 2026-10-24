@@ -56,7 +56,8 @@ Kasuaali puhelinpeli Mini Motorwaysin tyyliin. Kuvakulma on ylhäältä, ja tiet
 - **Juoksevat kulut (E):** yksi luku, johon kuuluvat palkat, huollot ja bensat. Jokainen auto lisää siihen saman verran, ja se juoksee koko ajan. Erittelyä ei ole.
 - **Kassa (E):** aloituspääoma on puskuri. Tulos (tulot − juoksevat kulut) kasvattaa kassaa, ja tappiollinen kulurakenne syö sitä heti. Tappio ei kaada peliä, vasta tyhjä kassa kaataa sen.
 - **Pisteet = kassa (E).** Ennätyksiä ovat suurin kassa ja pisin kestänyt peli.
-- **Yläpalkissa** näkyvät kassa lukuna, tulot vs. kulut palkkina (vihreä tai punainen) ja maine palkkina. **(E: palkit; T: asettelu)**
+- **Auton hinta (E):** kertasumma ostettaessa + oma lisäys juokseviin kuluihin. Myydessä saa osan hinnasta takaisin. Lähtöarvaukset: auto 500, kulut 10/min per auto, toimitus 15–40. **(T: luvut)**
+- **Yläpalkin luvut (E), päivitys kerran sekunnissa:** tuotto/min, kulut/min, tulos/min (vihreä tai punainen) ja kassa, sekä maine palkkina. Tuotto tulee toimitus kerrallaan, joten tuotto/min on liukuva keskiarvo viimeisen peliminuutin ajalta. Muuten luku hyppisi nollan ja piikkien väliä. **(T)** Lukujen pitää mahtua 320 px:n leveyteen, joten ne näytetään lyhyesti (esim. 1,2k).
 - **Maine (E):** yksi yhteinen mittari, koska maine leviää. Nopea toimitus nostaa mainetta, ja myöhästyminen tai peruuntunut tilaus laskee sitä. Kartalla välähtää, missä maine kärsi. Asteikko on 0–100, ja sillä on katto. **(T: asteikko)**
 - **Maine putoaa oikeasti (T):** yksi onnistuminen nostaa mainetta vähän (+1…+3 nopeuden mukaan), mutta epäonnistuminen pudottaa sitä paljon (−8 myöhästymisestä, −12 peruuntumisesta). Maine-kerroin on jyrkkä (∝ maine², ks. 6b), joten ylikuorma korjaantuu tuntuvasti eikä vain vähän. Nollassa tilauksia ei tule lainkaan, ja maine palautuu hitaasti itsestään (noin +1/min, kunnes se on 20). **(E: lasku vähentää tilauksia ja nousu on hidas; T: luvut)**
 
