@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Headmaze</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Headmaze">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#15140f">
+<style>
+:root{
+  --bg:#15140f;--bg2:#1e1c15;--card:#24221a;--line:#3a3626;
+  --text:#ece6cf;--muted:#a8a28a;
+  --mus:#c4ad2c;--mus2:#8f7d1c;--mus-ink:#15140f;--mus-soft:rgba(196,173,44,.14);
+  --inn:#6f6a57;--cheek:#d0894a;--cloud:#e9e3c9;
+  --r:16px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
+  font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+body{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+button{font:inherit;color:inherit}
+#maze{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.07;transition:opacity .8s}
+body[data-tab="mina"] #maze{opacity:.16}
+header,main,nav{position:relative;z-index:1}
+
+/* ylä: yliiloinen taivas */
+header{flex:none;display:flex;align-items:flex-start;gap:6px;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px 4px}
+#sun,#cloud{flex:none;width:74px;height:74px}
+#cloud{width:82px;margin-top:10px}
+#sun .rays{transform-origin:50px 50px;animation:spin 14s linear infinite}
+#sun .face{animation:bob 1.6s ease-in-out infinite}
+#cloud .body{animation:bob 2.1s ease-in-out infinite reverse}
+body.happy #sun .face,body.happy #cloud .body{animation-duration:.35s}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes bob{50%{transform:translateY(-3px)}}
+#say{flex:1;min-width:0;position:relative;background:var(--cloud);color:#2a2716;border-radius:14px;padding:8px 11px;
+  font-size:14px;line-height:1.3;font-weight:600;min-height:44px;margin-top:12px}
+#say:before{content:"";position:absolute;left:-7px;top:16px;border:7px solid transparent;border-right-color:var(--cloud);border-left:0}
+#say.pop{animation:pop .35s}
+@keyframes pop{30%{transform:scale(1.06) rotate(-1deg)}}
+
+main{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px 16px 16px}
+section{display:none;max-width:560px;margin:0 auto}
+section.on{display:block}
+h2{font-size:20px;margin:6px 0 4px}
+.muted{color:var(--muted);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin:10px 0}
+
+nav{flex:none;display:flex;gap:6px;padding:6px 12px calc(env(safe-area-inset-bottom,0px) + 6px);background:var(--bg2);border-top:1px solid var(--line)}
+nav button{flex:1;min-height:46px;border:0;border-radius:12px;background:transparent;color:var(--muted);font-weight:600}
+nav button[aria-selected="true"]{background:var(--mus-soft);color:var(--mus)}
+
+.btn{min-height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:var(--bg2);font-weight:600}
+.btn.main{background:var(--mus);color:var(--mus-ink);border-color:var(--mus)}
+.btn:disabled{opacity:.4}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* Hengitä */
+#bar{position:relative;height:30px;border-radius:15px;background:var(--bg2);border:1px solid var(--line);overflow:hidden;margin:4px 0 2px}
+#barfill{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--mus);border-radius:15px}
+#bar.full{box-shadow:0 0 0 3px var(--mus-soft),0 0 18px var(--mus)}
+#bar.short #barfill{background:var(--mus2)}
+.barends{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+#live{display:flex;justify-content:space-between;margin:8px 2px 0;font-variant-numeric:tabular-nums}
+#live b{font-size:22px}
+#hold{display:block;margin:14px auto 8px;width:min(64vw,250px);aspect-ratio:1;border-radius:50%;border:3px solid var(--mus);
+  background:radial-gradient(circle at 50% 40%,#2c2a1e,#1b1a13);color:var(--mus);font-size:18px;font-weight:700;
+  touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;transition:transform .12s,background .12s}
+#hold.down{transform:scale(.94);background:var(--mus);color:var(--mus-ink)}
+#hold span{display:block;font-size:13px;font-weight:500;opacity:.85;margin-top:2px}
+#count{text-align:center;font-size:14px;color:var(--muted);min-height:20px}
+#done{display:block;margin:10px auto 0}
+.big{font-size:34px;font-weight:800;color:var(--mus);font-variant-numeric:tabular-nums}
+.kv{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-variant-numeric:tabular-nums}
+.kv span:nth-child(even){text-align:right;font-weight:600}
+svg.chart{width:100%;height:auto;display:block}
+
+/* Minä */
+.step{margin:14px 0;animation:fade .6s}
+.step.past{opacity:.72}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}}
+.step p{margin:0 0 10px;font-size:18px}
+.quote{border-left:3px solid var(--mus);padding:4px 10px;margin:0 0 10px;font-style:italic;white-space:pre-wrap}
+textarea{width:100%;min-height:72px;font:inherit;font-size:16px;color:var(--text);background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.chip{min-height:40px;padding:0 14px;border-radius:20px;border:1px solid var(--line);background:var(--bg2);font-weight:500}
+.chip[aria-pressed="true"]{background:var(--mus);color:var(--mus-ink);border-color:var(--mus)}
+.chip.picked{background:var(--mus-soft);border-color:var(--mus);color:var(--mus)}
+
+/* Tilastot */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.tile b{display:block;font-size:22px;color:var(--mus);font-variant-numeric:tabular-nums}
+.tile span{font-size:13px;color:var(--muted)}
+.sess{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-top:1px solid var(--line);font-size:14px;font-variant-numeric:tabular-nums}
+.sess:first-child{border-top:0}
+.sess button{border:0;background:none;color:var(--muted);min-width:44px;min-height:32px}
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper b{min-width:70px;text-align:center;font-size:20px;font-variant-numeric:tabular-nums}
+#txt{width:100%;min-height:90px;font-size:12px;font-family:ui-monospace,Menlo,monospace}
+</style>
+</head>
+<body data-tab="hengita">
+<svg id="maze" aria-hidden="true"></svg>
+
+<header>
+  <svg id="sun" viewBox="0 0 100 100" aria-label="Yliiloinen aurinko">
+    <g class="rays" stroke="var(--mus)" stroke-width="5" stroke-linecap="round">
+      <line x1="50" y1="4" x2="50" y2="16"/><line x1="50" y1="84" x2="50" y2="96"/><line x1="4" y1="50" x2="16" y2="50"/><line x1="84" y1="50" x2="96" y2="50"/>
+      <line x1="17" y1="17" x2="26" y2="26"/><line x1="74" y1="74" x2="83" y2="83"/><line x1="17" y1="83" x2="26" y2="74"/><line x1="74" y1="26" x2="83" y2="17"/>
+    </g>
+    <g class="face">
+      <circle cx="50" cy="50" r="29" fill="var(--mus)"/>
+      <path d="M36 44q4-8 8 0M56 44q4-8 8 0" stroke="#2a2716" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+      <circle cx="35" cy="56" r="4.5" fill="var(--cheek)" opacity=".85"/><circle cx="65" cy="56" r="4.5" fill="var(--cheek)" opacity=".85"/>
+      <path d="M33 54q17 24 34 0z" fill="#2a2716"/><path d="M37 55h26l-2 4H39z" fill="#f4efd9"/>
+      <path d="M44 63q6 5 12 0" fill="var(--cheek)"/>
+    </g>
+  </svg>
+  <div id="say" role="status" aria-live="polite"></div>
+  <svg id="cloud" viewBox="0 0 110 80" aria-label="Yliiloinen pilvi">
+    <g class="body">
+      <path d="M22 66a16 16 0 0 1 2-32 22 22 0 0 1 40-12 18 18 0 0 1 30 14 15 15 0 0 1-4 30z" fill="var(--cloud)" stroke="var(--mus)" stroke-width="2.5"/>
+      <circle cx="44" cy="40" r="5" fill="#2a2716"/><circle cx="66" cy="40" r="5" fill="#2a2716"/>
+      <circle cx="46" cy="38" r="1.7" fill="#fff"/><circle cx="68" cy="38" r="1.7" fill="#fff"/>
+      <circle cx="36" cy="50" r="4" fill="var(--cheek)" opacity=".7"/><circle cx="75" cy="50" r="4" fill="var(--cheek)" opacity=".7"/>
+      <path d="M42 50q13 16 26 0z" fill="#2a2716"/>
+      <path d="M91 18l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="var(--mus)"/>
+    </g>
+  </svg>
+</header>
+
+<main id="main">
+  <!-- Hengitä -->
+  <section id="p-hengita" class="on">
+    <div class="barends"><span>alku</span><span id="tgt">palkki 6,0 s</span><span>loppu</span></div>
+    <div id="bar"><div id="barfill"></div></div>
+    <div id="live"><span>ulos <b id="lo">0,0</b></span><span>irti <b id="li">0,0</b></span></div>
+    <button id="hold" type="button">Pidä pohjassa<span>uloshengitys ja tyhjät keuhkot</span></button>
+    <div id="count">Aika alkaa ensimmäisestä painalluksesta. Ei kiirettä.</div>
+    <button id="done" class="btn" type="button" hidden>Valmis</button>
+    <div id="result"></div>
+    <div class="card muted" id="howto">
+      Paina nappi pohjaan, kun alat hengittää ulos, ja pidä pohjassa myös sen ajan, kun keuhkot ovat tyhjät. Päästä irti, kun hengität sisään.
+      Tavoite on pitää nappi pohjassa koko palkin ajan ja pitää irti-aika lyhyenä. Harjoitus mitataan ensimmäisestä painalluksesta viimeiseen irrotukseen, joten Valmis-napilla ei ole kiire.
+      Kun palkki täyttyy riittävän usein, se hidastuu vähän seuraavalla kerralla.
+    </div>
+  </section>
+
+  <!-- Tilastot -->
+  <section id="p-tilastot">
+    <h2>Tilastot</h2>
+    <div class="tiles" id="tiles"></div>
+    <div class="card"><div class="muted">Suhde harjoituksittain (ulos ÷ sisään, isompi on parempi)</div><div id="trend"></div></div>
+    <div class="card">
+      <div class="muted" style="margin-bottom:6px">Palkin pituus</div>
+      <div class="stepper"><button class="btn" id="tminus" type="button" aria-label="Lyhyempi palkki">−</button><b id="tval"></b><button class="btn" id="tplus" type="button" aria-label="Pidempi palkki">+</button></div>
+    </div>
+    <div class="card"><div class="muted">Harjoitukset</div><div id="list"></div></div>
+    <div class="card">
+      <div class="muted" style="margin-bottom:8px">Varmuuskopio</div>
+      <div class="row">
+        <button class="btn" id="exp" type="button">Vie tiedostona</button>
+        <button class="btn" id="imp" type="button">Tuo tiedosto</button>
+        <input type="file" id="file" accept=".json,application/json" hidden>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn" id="cpy" type="button">Näytä tekstinä</button>
+        <button class="btn" id="pst" type="button">Tuo tekstistä</button>
+      </div>
+      <textarea id="txt" hidden placeholder="Liitä varmuuskopion teksti tähän"></textarea>
+      <div id="bmsg" class="muted"></div>
+    </div>
+  </section>
+
+  <!-- Minä -->
+  <section id="p-mina">
+    <div id="steps"></div>
+  </section>
+</main>
+
+<nav role="tablist">
+  <button role="tab" data-tab="hengita" aria-selected="true">Hengitä</button>
+  <button role="tab" data-tab="mina" aria-selected="false">Minä</button>
+  <button role="tab" data-tab="tilastot" aria-selected="false">Tilastot</button>
+</nav>
+
+<script>
+'use strict';
+// ---------- logiikka (ei DOMia; testit lukevat tämän nodella) ----------
+var KEY='headmaze:v1',VER=1,T0=6,TMIN=2,TMAX=90;
+
+function newData(){return {app:'headmaze',ver:VER,target:T0,sessions:[]};}
+function num(x,d){x=+x;return isFinite(x)?x:d;}
+function clampT(t){return Math.round(Math.min(TMAX,Math.max(TMIN,num(t,T0)))*10)/10;}
+function normalize(d){
+  var o=newData();if(!d||typeof d!=='object')return o;
+  if(d.data&&d.data.sessions)d=d.data;            // varalla: kääreen sisältä
+  o.target=clampT(d.target);
+  (Array.isArray(d.sessions)?d.sessions:[]).forEach(function(s){
+    if(!s||!Array.isArray(s.out)||!s.out.length)return;
+    var out=s.out.map(function(x){return Math.max(0,num(x,0))}),inn=(Array.isArray(s.inn)?s.inn:[]).map(function(x){return Math.max(0,num(x,0))});
+    var tg=clampT(s.target);
+    o.sessions.push({at:String(s.at||''),out:out,inn:inn,target:tg,dur:num(s.dur,sum(out)+sum(inn)),hits:out.filter(function(x){return x>=tg}).length,next:clampT(num(s.next,tg))});
+  });
+  return o;
+}
+function sum(a){return a.reduce(function(p,x){return p+x},0);}
+
+// Harjoitus: aika juoksee ensimmäisestä painalluksesta viimeiseen irrotukseen.
+function newSession(target){return {target:clampT(target),start:null,down:null,up:null,out:[],inn:[]};}
+function press(S,t){
+  if(S.down!==null)return S;
+  if(S.start===null)S.start=t;else if(S.up!==null)S.inn.push(Math.max(0,t-S.up));
+  S.down=t;return S;
+}
+function release(S,t){
+  if(S.down===null)return S;
+  S.out.push(Math.max(0,t-S.down));S.down=null;S.up=t;return S;
+}
+function finish(S,at){
+  if(!S.out.length)return null;
+  var out=S.out.map(r2),inn=S.inn.map(r2);
+  var r={at:at||'',out:out,inn:inn,target:S.target,dur:r2(S.up-S.start),hits:out.filter(function(x){return x>=S.target}).length};
+  r.next=adapt(S.target,r);return r;
+}
+function r2(x){return Math.round(x*100)/100;}
+// Suhde = uloshengitykset yhteensä ÷ sisäänhengitykset yhteensä (yksinkertainen: ulos on yksi enemmän, se ei haittaa).
+function ratio(r){var i=sum(r.inn);return i>0?sum(r.out)/i:null;}
+// Palkki hidastuu, kun se täyttyi vähintään 60 %:lla uloshengityksistä (vähintään kolme). Ei koskaan lyhene itsestään.
+function adapt(t,r){
+  if(r.out.length<3||r.hits/r.out.length<0.6)return t;
+  return clampT(t+Math.max(0.2,t*0.05));
+}
+function fmt(x){return x===null||x===undefined?'–':(Math.round(x*10)/10).toFixed(1).replace('.',',');}
+function fmtRatio(x){return x===null?'–':(Math.round(x*100)/100).toFixed(2).replace('.',',');}
+function totals(d){
+  var out=0,inn=0,best=null,n=d.sessions.length;
+  d.sessions.forEach(function(s){out+=sum(s.out);inn+=sum(s.inn);var q=ratio(s);if(q!==null&&(best===null||q>best))best=q;});
+  return {n:n,out:out,inn:inn,best:best};
+}
+
+// Yliiloiset repliikit
+var LINES={
+  idle:['Hengitä! Se on ilmaista! Toistaiseksi! ☀️','Me ollaan NIIN ylpeitä susta! Me ollaan ylpeitä kaikista, se on meidän duuni.','Hymyile! Me hymyillään koko ajan. Me ei voida lopettaa. 🙂','Tänään on paras päivä ikinä! Niin oli eilenkin. Ja se oli kamala.','Paina nappia! Napit rakastaa sua! ✨','Aurinko paistaa aina! Se on ainoa asia jonka mä osaan.','Mä oon pilvi ja mäkin oon onnellinen! Kysy vaikka! Älä kysy.'],
+  hold:['Ulos, ulos, ulos! Sä oot luonnonlahjakkuus! 🌈','Keuhkot tyhjänä ja silti täynnä potentiaalia!','Kato, ilmaa lähtee! Ihan itsestään! Melkein!','Jatka! Me katotaan! Me katotaan aina!','Wau. Hengitystä. Ihan kuin ammattilaisella.'],
+  full:['PALKKI TÄYNNÄ!!! Soita äidille!!','Täynnä! Tää on sun elämän tärkein saavutus! Tähän asti!','Mä itkin vähän. Se oli sadetta. Mä oon pilvi.','Onneksi olkoon! Olet nyt parempi olemaan joku, joka ei ole kukaan.'],
+  short:['Irrotit liian aikaisin! Ei se mitään! Kyllä se vähän jotain.','Melkein! Melkein on puolet sanasta ”melkein onnistuin”!','Hups! Ilma loppui. Ilmaa on onneksi kaikkialla. Paitsi susta.','Ei haittaa! Me rakastetaan sua silti! Velvollisuudesta!'],
+  gap:['Sisäänhengitys kestää… ja kestää… me odotetaan… hymyillen…','Ilmaa haukotaan… siellä… yhä…','Saa hengittää sisään! Mutta ei ikuisesti! Paina!'],
+  done:['Valmista! Sä hengitit! Kaikki näki! ☀️','Upeaa! Ihan kuin olisit tehnyt jotain!','Tilastot on tallessa. Ne ei unohda. Ne ei ikinä unohda.'],
+  up:['PALKKI PITENI! Sä kasvat! Ihan kuin sieni! 🍄','Seuraavalla kerralla palkki on pidempi. Koska me uskotaan suhun. Liikaa.'],
+  mina:['Tutustutaan! Kerro kuka olet! Me ollaan ihan innoissamme!','Profiilisivu! Kaikki rakastaa profiilisivuja!','Kuka sä oot? Ei, oikeesti. Kuka?'],
+  mina2:['Hmm! Mielenkiintoista! Kerro lisää! Tai älä! Kumpikin on oikein!','Ooh, sokkelo! Kuka tänne tuli? Ihan sama, tervetuloa!']
+};
+function pick(list,rng,last){var i,x,g=0;do{i=Math.floor((rng||Math.random)()*list.length);x=list[i];}while(x===last&&list.length>1&&++g<9);return x;}
+
+// Sokkelo taustaksi (syvyyshaku): palauttaa seinäjanat ruutuyksiköissä
+function rngOf(seed){var s=seed>>>0||1;return function(){s^=s<<13;s>>>=0;s^=s>>17;s^=s<<5;s>>>=0;return s/4294967296;};}
+function buildMaze(c,r,rng){
+  var seen=new Array(c*r).fill(false),E=new Array(c*r),i;
+  for(i=0;i<c*r;i++)E[i]={n:1,e:1,s:1,w:1};
+  var st=[0];seen[0]=true;
+  while(st.length){
+    var k=st[st.length-1],x=k%c,y=(k-x)/c,nb=[];
+    if(y>0&&!seen[k-c])nb.push(['n',k-c,'s']);if(x<c-1&&!seen[k+1])nb.push(['e',k+1,'w']);
+    if(y<r-1&&!seen[k+c])nb.push(['s',k+c,'n']);if(x>0&&!seen[k-1])nb.push(['w',k-1,'e']);
+    if(!nb.length){st.pop();continue;}
+    var p=nb[Math.floor(rng()*nb.length)];E[k][p[0]]=0;E[p[1]][p[2]]=0;seen[p[1]]=true;st.push(p[1]);
+  }
+  var seg=[];
+  for(i=0;i<c*r;i++){var cx=i%c,cy=(i-cx)/c;
+    if(E[i].n)seg.push([cx,cy,cx+1,cy]);if(E[i].w)seg.push([cx,cy,cx,cy+1]);
+    if(cy===r-1&&E[i].s)seg.push([cx,cy+1,cx+1,cy+1]);if(cx===c-1&&E[i].e)seg.push([cx+1,cy,cx+1,cy+1]);}
+  return seg;
+}
+
+// Minä-polku: Emilin käsikirjoitus sanatarkasti (kohdat 1–6). Valinnat eivät haaraudu.
+var MINA=[
+  {t:'Tutustutaanpa; kuka olet?',k:'teksti',nappi:'Vastaa'},
+  {t:'Katso nyt kirjoittamaasi. Mistä vastauksesi tuli?',k:'yksi',v:['Mielestäni','En tiedä'],lainaa:true},
+  {t:'No mielestäsihän se tuli. Ajattelit kysymystä, ja ajattelit siihen vastauksen. Missä tuo vastaus olisi voinut olla, jos ei sinun tai jonkun muun mielessä?',k:'yksi',v:['Olen samaa mieltä','Olen eri mieltä']},
+  {t:'”En ole pelkästään mielessä, vaan myös oikeasti olemassa”, niinkö? Pysähdytään. Mitä sinuun liittyvää on olemassa? Valitse kaikki sopivat.',k:'monta',v:['Keho','Mieli','Nimi','Erilaisia rooleja elämässä','Kokemukset','Historia','Persoona','Identiteetti','Käsitys itsestä','Jotain mitä tässä ei mainittu'],nappi:'Jatka'},
+  {t:'Okei. Valitsit vain asioita jotka eivät tarvitse minuutta selittyäkseen. Ne ovat kaikki todellisia, mutta kaikista niistä voi ottaa sanan ”minä” pois ilman että asiat sinänsä muuttuvat lainkaan.',k:'jatka',nappi:'Jatka'},
+  {t:'Miksi noiden ajatusten ajatteleminen ”minuutena” tarkoittaisi mitään muuta?',k:'loppu'}
+];
+
+if(typeof module!=='undefined')module.exports={KEY:KEY,VER:VER,T0:T0,newData:newData,normalize:normalize,newSession:newSession,press:press,release:release,finish:finish,ratio:ratio,adapt:adapt,fmt:fmt,fmtRatio:fmtRatio,totals:totals,LINES:LINES,pick:pick,rngOf:rngOf,buildMaze:buildMaze,MINA:MINA,clampT:clampT};
+
+// ---------- käyttöliittymä ----------
+if(typeof document!=='undefined')(function(){
+var $=function(id){return document.getElementById(id)};
+var D=load(),S=null,raf=0,lastLine='',barState='',clock=function(){return performance.now()/1000};
+function load(){try{return normalize(JSON.parse(localStorage.getItem(KEY)));}catch(e){return newData();}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(D));}catch(e){}}
+
+// puhekupla
+function say(kind){var t=pick(LINES[kind],null,lastLine);lastLine=t;var b=$('say');b.textContent=t;b.classList.remove('pop');void b.offsetWidth;b.classList.add('pop');}
+function happy(){document.body.classList.add('happy');setTimeout(function(){document.body.classList.remove('happy')},1200);}
+var idleT=setInterval(function(){if(!S||S.start===null)say(document.body.dataset.tab==='mina'?'mina2':'idle');},14000);
+
+// sokkelotausta
+function drawMaze(){
+  var w=innerWidth,h=innerHeight,cs=34,c=Math.ceil(w/cs)+1,r=Math.ceil(h/cs)+1,seg=buildMaze(c,r,rngOf(20261024)),d='';
+  seg.forEach(function(s){d+='M'+s[0]*cs+' '+s[1]*cs+'H'+s[2]*cs+'V'+s[3]*cs;});
+  $('maze').setAttribute('viewBox','0 0 '+c*cs+' '+r*cs);$('maze').setAttribute('preserveAspectRatio','xMinYMin slice');
+  $('maze').innerHTML='<path d="'+d+'" stroke="#c4ad2c" stroke-width="3" fill="none" stroke-linecap="square"/>';
+}
+drawMaze();var rz;addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(drawMaze,200)});
+
+// välilehdet
+document.querySelectorAll('nav button').forEach(function(b){b.onclick=function(){tab(b.dataset.tab)}});
+function tab(t){
+  if(S&&S.down!==null)return;
+  document.body.dataset.tab=t;
+  document.querySelectorAll('nav button').forEach(function(b){b.setAttribute('aria-selected',String(b.dataset.tab===t))});
+  document.querySelectorAll('main section').forEach(function(s){s.classList.toggle('on',s.id==='p-'+t)});
+  $('main').scrollTop=0;
+  if(t==='tilastot')renderStats();
+  if(t==='mina'){if(!$('steps').children.length)minaStart();say('mina');}
+  if(t==='hengita')say('idle');
+}
+
+// ---- Hengitä ----
+function setTarget(){ $('tgt').textContent='palkki '+fmt(D.target)+' s'; }
+setTarget();say('idle');
+var hold=$('hold');
+function down(e){
+  e.preventDefault();if(S&&S.down!==null)return;
+  try{hold.setPointerCapture(e.pointerId)}catch(_){}
+  if(!S){S=newSession(D.target);$('result').innerHTML='';$('howto').hidden=true;}
+  press(S,clock());hold.classList.add('down');barState='';$('bar').className='';
+  $('done').hidden=true;say('hold');loop();
+}
+function up(e){
+  if(!S||S.down===null)return;
+  release(S,clock());hold.classList.remove('down');
+  var last=S.out[S.out.length-1];
+  if(last<S.target){$('bar').className='short';say('short');}
+  $('count').textContent='Uloshengityksiä '+S.out.length+' · palkki täynnä '+S.out.filter(function(x){return x>=S.target}).length;
+  $('done').hidden=false;
+}
+hold.addEventListener('pointerdown',down);
+hold.addEventListener('pointerup',up);hold.addEventListener('pointercancel',up);hold.addEventListener('lostpointercapture',up);
+hold.addEventListener('contextmenu',function(e){e.preventDefault()});
+function loop(){
+  cancelAnimationFrame(raf);
+  if(!S||S.start===null)return;
+  var t=clock();
+  if(S.down!==null){
+    var o=t-S.down,f=Math.min(1,o/S.target);
+    $('barfill').style.width=(f*100)+'%';$('lo').textContent=fmt(o);
+    if(f>=1&&barState!=='full'){barState='full';$('bar').className='full';say('full');happy();if(navigator.vibrate)navigator.vibrate(30);}
+  }else{
+    var g=t-S.up;$('li').textContent=fmt(g);
+    if(g>8&&barState!=='gap'){barState='gap';say('gap');}
+  }
+  raf=requestAnimationFrame(loop);
+}
+$('done').onclick=function(){
+  if(!S||S.down!==null)return;
+  cancelAnimationFrame(raf);
+  var r=finish(S,new Date().toISOString());S=null;
+  hold.classList.remove('down');$('done').hidden=true;$('barfill').style.width='0';$('bar').className='';
+  $('lo').textContent='0,0';$('li').textContent='0,0';$('count').textContent='Aika alkaa ensimmäisestä painalluksesta. Ei kiirettä.';
+  if(!r)return;
+  D.sessions.push(r);var grew=r.next>D.target;D.target=r.next;save();setTarget();
+  showResult(r,grew);say(grew?'up':'done');happy();
+  setTimeout(function(){$('sum').scrollIntoView({behavior:'smooth',block:'start'})},50);
+};
+function showResult(r,grew){
+  var q=ratio(r);
+  $('result').innerHTML='<div class="card" id="sum"><div class="muted">Suhde ulos ÷ sisään</div><div class="big">'+fmtRatio(q)+'</div>'+
+    '<div class="kv"><span>Kesto</span><span>'+fmt(r.dur)+' s</span><span>Uloshengityksiä</span><span>'+r.out.length+'</span>'+
+    '<span>Ulos yhteensä</span><span>'+fmt(sum(r.out))+' s</span><span>Irti yhteensä</span><span>'+fmt(sum(r.inn))+' s</span>'+
+    '<span>Palkki täynnä</span><span>'+r.hits+' / '+r.out.length+'</span></div>'+
+    chartBreaths(r)+
+    '<div class="muted" style="margin-top:6px">'+(grew?'Palkki pitenee: seuraavalla kerralla '+fmt(r.next)+' s.':'Palkki pysyy '+fmt(r.next)+' sekunnissa. Se pitenee, kun palkki täyttyy vähintään kolmella viidestä uloshengityksestä (vähintään kolme uloshengitystä).')+'</div></div>';
+}
+// pylväät: uloshengitys ylös, irti-aika alas, palkin pituus katkoviivana
+function chartBreaths(r){
+  var n=r.out.length,W=320,H=150,mid=95,mx=Math.max(r.target,Math.max.apply(null,r.out)),mi=Math.max(1,Math.max.apply(null,r.inn.concat([1])));
+  var bw=Math.min(22,(W-10)/n-3),s='',i,su=(mid-8)/mx,sd=(H-mid-6)/mi;
+  for(i=0;i<n;i++){var x=6+i*(bw+3),ho=r.out[i]*su;
+    s+='<rect x="'+x+'" y="'+(mid-ho)+'" width="'+bw+'" height="'+ho+'" rx="3" fill="'+(r.out[i]>=r.target?'#c4ad2c':'#8f7d1c')+'"/>';
+    if(i<r.inn.length){var hi=r.inn[i]*sd;s+='<rect x="'+(x+bw*0.25+(bw+3)/2)+'" y="'+(mid+2)+'" width="'+bw*0.5+'" height="'+hi+'" rx="2" fill="#6f6a57"/>';}}
+  var ty=mid-r.target*su;
+  s+='<line x1="0" x2="'+W+'" y1="'+ty+'" y2="'+ty+'" stroke="#ece6cf" stroke-dasharray="4 4" stroke-width="1"/>';
+  return '<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Uloshengitykset ylös, irti-ajat alas">'+s+'</svg>'+
+    '<div class="muted">Keltainen = ulos (katkoviiva = palkki), harmaa = irti.</div>';
+}
+
+// ---- Tilastot ----
+function renderStats(){
+  var T=totals(D);
+  $('tiles').innerHTML='<div class="tile"><b>'+T.n+'</b><span>harjoitusta</span></div>'+
+    '<div class="tile"><b>'+fmt(T.out/60)+'</b><span>minuuttia ulos yhteensä</span></div>'+
+    '<div class="tile"><b>'+fmtRatio(T.best)+'</b><span>paras suhde</span></div>'+
+    '<div class="tile"><b>'+fmt(D.target)+' s</b><span>palkki nyt</span></div>';
+  $('tval').textContent=fmt(D.target)+' s';
+  var ss=D.sessions.slice(-30),W=320,H=110,s='',mx=0;
+  ss.forEach(function(x){var q=ratio(x);if(q!==null&&q>mx)mx=q;});
+  if(!ss.length||!mx)$('trend').innerHTML='<div class="muted">Ei vielä harjoituksia. Aurinko odottaa. Se odottaa aina.</div>';
+  else{var bw=Math.min(24,W/ss.length-3);ss.forEach(function(x,i){var q=ratio(x)||0,h=q/mx*(H-16);s+='<rect x="'+(i*(bw+3))+'" y="'+(H-h)+'" width="'+bw+'" height="'+h+'" rx="3" fill="#c4ad2c"/>';});
+    $('trend').innerHTML='<svg class="chart" viewBox="0 0 '+W+' '+H+'">'+s+'</svg>';}
+  var L=D.sessions.map(function(x,i){return [x,i]}).reverse();
+  $('list').innerHTML=L.length?L.map(function(p){var x=p[0],d=new Date(x.at),ds=isNaN(d)?'':d.getDate()+'.'+(d.getMonth()+1)+'. '+d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');
+    return '<div class="sess"><span>'+ds+'<br><span class="muted">'+x.out.length+' × ulos · '+fmt(x.dur)+' s · palkki '+x.hits+'/'+x.out.length+'</span></span><span><b>'+fmtRatio(ratio(x))+'</b><button type="button" data-del="'+p[1]+'" aria-label="Poista harjoitus">✕</button></span></div>';}).join(''):'<div class="muted">Tyhjää. Kuin minuus.</div>';
+  $('list').querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){if(confirm('Poistetaanko tämä harjoitus?')){D.sessions.splice(+b.dataset.del,1);save();renderStats();}}});
+}
+$('tminus').onclick=function(){D.target=clampT(D.target-0.5);save();setTarget();renderStats();};
+$('tplus').onclick=function(){D.target=clampT(D.target+0.5);save();setTarget();renderStats();};
+function dump(){return JSON.stringify({app:'headmaze',ver:VER,savedAt:new Date().toISOString(),data:D});}
+function takeIn(txt){
+  var o;try{o=JSON.parse(txt)}catch(e){$('bmsg').textContent='Tekstistä ei saatu selvää.';return;}
+  var n=normalize(o.data||o);if(!n.sessions.length&&!(o.data||o).target){$('bmsg').textContent='Tämä ei näytä Headmazen varmuuskopiolta.';return;}
+  if(!confirm('Korvataanko nykyiset tiedot ('+D.sessions.length+' harjoitusta) varmuuskopiolla ('+n.sessions.length+' harjoitusta)?'))return;
+  D=n;save();setTarget();renderStats();$('bmsg').textContent='Tuotu.';
+}
+$('exp').onclick=function(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([dump()],{type:'application/json'}));a.download='headmaze-'+new Date().toISOString().slice(0,10)+'.json';a.click();};
+$('imp').onclick=function(){$('file').click()};
+$('file').onchange=function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){takeIn(r.result)};r.readAsText(f);this.value='';};
+$('cpy').onclick=function(){var t=$('txt');t.hidden=false;t.value=dump();t.select();$('bmsg').textContent='Kopioi teksti talteen.';};
+$('pst').onclick=function(){var t=$('txt');if(t.hidden||!t.value||t.value===dump()){t.hidden=false;t.value='';t.focus();$('bmsg').textContent='Liitä teksti ja paina uudelleen Tuo tekstistä.';return;}takeIn(t.value);};
+
+// ---- Minä ----
+// Vastaukset eivät tallennu: profiili on joka kerta tyhjä.
+var answer='';
+function minaStart(){$('steps').innerHTML='';answer='';minaStep(0);}
+function minaStep(i){
+  var M=MINA[i],box=$('steps'),el=document.createElement('div');
+  box.querySelectorAll('.step').forEach(function(s){s.classList.add('past')});
+  el.className='step';el.dataset.i=i;
+  var h='';if(M.lainaa)h+='<div class="quote"></div>';
+  h+='<p></p>';
+  if(M.k==='teksti')h+='<textarea aria-label="Vastauksesi"></textarea><div class="row"><button class="btn main" type="button" data-go>'+M.nappi+'</button></div>';
+  if(M.k==='yksi'||M.k==='monta')h+='<div class="chips">'+M.v.map(function(v){return '<button type="button" class="chip" aria-pressed="false">'+v+'</button>'}).join('')+'</div>';
+  if(M.k==='monta'||M.k==='jatka')h+='<div class="row"><button class="btn main" type="button" data-go'+(M.k==='monta'?' disabled':'')+'>'+M.nappi+'</button></div>';
+  if(M.k==='loppu')h+='<div class="muted" style="margin-top:14px">Käsikirjoitus jatkuu myöhemmin. Sokkelo ei.</div><div class="row" style="margin-top:10px"><button class="btn" type="button" data-again>Alusta</button></div>';
+  el.innerHTML=h;el.querySelector('p').textContent=M.t;if(M.lainaa)el.querySelector('.quote').textContent=answer;
+  box.appendChild(el);
+  var next=function(){lock(el);if(i+1<MINA.length){minaStep(i+1);if(i%2)say('mina2');}};
+  var go=el.querySelector('[data-go]');
+  if(M.k==='teksti')go.onclick=function(){var v=el.querySelector('textarea').value.trim();if(!v){el.querySelector('textarea').focus();return;}answer=v;el.querySelector('textarea').readOnly=true;next();};
+  if(M.k==='jatka')go.onclick=next;
+  el.querySelectorAll('.chip').forEach(function(c){c.onclick=function(){
+    if(el.dataset.lock)return;
+    if(M.k==='yksi'){c.classList.add('picked');next();return;}
+    c.setAttribute('aria-pressed',String(c.getAttribute('aria-pressed')!=='true'));
+    go.disabled=!el.querySelector('.chip[aria-pressed="true"]');}});
+  if(M.k==='monta')go.onclick=next;
+  var ag=el.querySelector('[data-again]');if(ag)ag.onclick=minaStart;
+  setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'nearest'})},30);
+}
+function lock(el){el.dataset.lock='1';el.querySelectorAll('[data-go]').forEach(function(b){b.remove()});}
+
+// testikoukku
+window.__hm={setClock:function(f){clock=f},data:function(){return D},session:function(){return S},tab:tab};
+})();
+</script>
+</body>
+</html>
