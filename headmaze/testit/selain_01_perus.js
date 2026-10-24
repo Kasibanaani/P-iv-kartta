@@ -89,10 +89,14 @@ async function run(b,w,h,full){
     await pg.evaluate(()=>{T=3000});await pg.click('#od-start');await pg.evaluate(()=>{T=3016});await pg.waitForTimeout(100);
     chk('Odotus: 16 s → 75,0 %',(await pg.innerText('#od-pct'))==='75,0 %',await pg.innerText('#od-pct'));
     await pg.evaluate(()=>{T=3400});await pg.waitForTimeout(100);await pg.screenshot({path:shot('hm_12_odotus.png')});
-    chk('Odotus: 400 s → 99,99… % ja huomautus odottamisesta',(await pg.innerText('#od-pct')).startsWith('99,9999999')&&(await pg.innerText('#od-note')).includes('Odotit'));
+    chk('Odotus: 400 s → 99,99… %, ei selityksiä',(await pg.innerText('#od-pct')).startsWith('99,9999999')&&(await pg.innerText('#od-note'))==='');
+    chk('Odotus: aurinko ja pilvi alhaalla, nappi Päätä harjoitus',await pg.isVisible('#crew')&&!await pg.isVisible('header')&&(await pg.innerText('#od-stop'))==='Päätä harjoitus');
     ns=await pg.evaluate(NOSCROLL('#p-odotus'));chk('Odotus mahtuu ruutuun',ns.sec&&ns.doc,ns);
+    const labels=[];for(let i=0;i<9;i++){await pg.click('#od-stop');labels.push(await pg.innerText('#od-stop'));}
+    chk('Odotus: nappi vaihtaa tekstiään 9 kertaa, viimeisenä Luovutan, harjoitus jatkuu',labels[8]==='Luovutan'&&new Set(labels).size===9&&await pg.isVisible('#od-stop')&&!labels.slice(0,8).some(l=>/luovu/i.test(l)),labels);
+    await pg.screenshot({path:shot('hm_12b_odotus_nappi.png')});
     await pg.click('#od-stop');
-    chk('Odotus: luovutus tallentuu pisimpänä',await pg.evaluate(()=>__hm.data().odotus.best)===400&&(await pg.innerText('#od-note')).includes('Luovutit'));
+    chk('Odotus: vasta Luovutan päättää, tallentuu pisimpänä',await pg.evaluate(()=>__hm.data().odotus.best)===400&&(await pg.innerText('#od-note')).startsWith('Lopetit kohdassa'));
     await pg.click('#p-odotus [data-back]');
     // Minä loppuun
     await pg.evaluate(()=>__hm.setPauseScale(0.002));

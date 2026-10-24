@@ -21,14 +21,14 @@ async function run(b,w,h){
   await pg.click('#kn-ok');chk(w+' kynä: tyhjä ei lähde',await pg.isVisible('#kn-a'));
   await pg.fill('#kn-txt','Kaikki on taas myöhässä');await pg.click('#kn-ok');
   chk(w+' kynä: kääritty kerran',(await pg.innerText('#kn-out'))==='Huomaan ajattelevani, että kaikki on taas myöhässä.');
-  chk(w+' kynä: aurinko ja pilvi lähtevät yläreunasta, otsikkorivi piiloon',!await pg.isVisible('header')&&await pg.isVisible('#kn-crew'));
+  chk(w+' kynä: aurinko ja pilvi lähtevät yläreunasta, otsikkorivi piiloon',!await pg.isVisible('header')&&await pg.isVisible('#crew'));
   await pg.waitForTimeout(80);
-  const crew=await pg.evaluate(()=>{const c=document.getElementById('kn-crew').getBoundingClientRect(),a=document.getElementById('kn-act').getBoundingClientRect();return {near:a.top-c.bottom<30&&a.top-c.bottom>-5,landed:document.getElementById('kn-crew').className,ct:c.top,cb:c.bottom,at:a.top}});
+  const crew=await pg.evaluate(()=>{const c=document.getElementById('crew').getBoundingClientRect(),a=document.getElementById('kn-act').getBoundingClientRect();return {near:a.top-c.bottom<30&&a.top-c.bottom>-5,landed:document.getElementById('crew').className,ct:c.top,cb:c.bottom,at:a.top}});
   chk(w+' kynä: laskeutuivat napin yläpuolelle',crew.near,crew);
   for(let i=0;i<7;i++)await pg.click('#kn-more');
   chk(w+' kynä: kahdeksan kerrosta, ohje kertoo kerroksen ja painamisen',(await pg.innerText('#kn-out')).split('huomaan ajattelevani').length===8&&(await pg.innerText('#kn-note')).startsWith('Kerros 8.'));
   chk(w+' kynä: nappi Ajattelen vieläkin',(await pg.innerText('#kn-more'))==='Ajattelen vieläkin');
-  const said=await pg.innerText('#kn-say');
+  const said=await pg.innerText('#crew-say');
   chk(w+' kynä: kupla on napin vieressä ja puhuu kynän repliikkejä',said.length>5&&(await pg.innerText('#say'))!==said);
   for(let i=0;i<60;i++)await pg.click('#kn-more');
   const fit=await pg.evaluate(()=>{const b=document.getElementById('kn-b'),a=document.getElementById('kn-act').getBoundingClientRect();return {fs:parseFloat(b.style.fontSize),inner:b.scrollHeight>b.clientHeight,btnIn:a.bottom<=document.querySelector('nav').getBoundingClientRect().top+1}});
@@ -84,7 +84,7 @@ async function run(b,w,h){
   await pg.screenshot({path:shot('hj'+w+'_5_hiljaisuus.png')});
   await pg.evaluate(()=>{T=1061});await pg.waitForTimeout(100);
   const hn=await pg.innerText('#hl-note');
-  chk(w+' minuutti ohi: yhteenveto, huomattu 3',hn.startsWith('Minuutti on ohi')&&hn.includes('huomasit mielesi puhuvan 3 kertaa')&&/keskeyttivät hiljaisuuden [1-9]\d? kertaa/.test(hn)&&(await D()).hilj===1&&(await D()).huom===3,hn);
+  chk(w+' minuutti ohi: yhteenveto, huomattu 3',hn==='Minuutti on ohi. Huomasit mielesi puhuvan 3 kertaa.'&&(await D()).hilj===1&&(await D()).huom===3,hn);
   await back('hilj');
 
   // Tarkkailijan jäljillä
