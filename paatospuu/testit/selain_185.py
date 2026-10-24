@@ -9,7 +9,7 @@ from apu import tab, menu
 U='file://'+os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','index.html'))
 K="JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0]"
 ST="""(function(){var L=document.getElementById('artband'),g=L.querySelector('svg'),m=new DOMMatrix(getComputedStyle(g).transform);
- return {hid:L.hidden,x:Math.round(m.m41),w:g.getBoundingClientRect().width,lw:L.clientWidth,top:L.classList.contains('top'),z:getComputedStyle(L).zIndex,
+ return {hid:L.hidden,x:Math.round(m.m41),w:g.getBoundingClientRect().width,lw:L.clientWidth,top:L.classList.contains('atop'),z:getComputedStyle(L).zIndex,
   bg:L.style.backgroundColor,tr:getComputedStyle(g).transitionDuration,halo:getComputedStyle(document.getElementById('main')).textShadow!=='none'};})()"""
 async def run(p,w,h,reduce=False):
     try: b=await p.chromium.launch()
@@ -48,6 +48,11 @@ async def run(p,w,h,reduce=False):
     want('asetus tallentuu projektille', await pg.evaluate(K+".asetukset.artpos")=='top' and await pg.evaluate(K+".asetukset.art")=='satu')
     await pg.reload(); await pg.wait_for_timeout(300)
     want('säilyy uudelleenlatauksessa', (await pg.evaluate(ST))['top'])
+    # 1.85.1: ikkuna aukeaa koko korkeudelle myös Yläosa-tilassa (luokka .top oli sekoittunut yläpalkkiin)
+    await tab(pg,'notes'); await pg.wait_for_timeout(100); await pg.click('#newnote'); await pg.wait_for_timeout(300)
+    r=await pg.evaluate("(function(){var d=document.getElementById('nsheet').getBoundingClientRect(),t=document.getElementById('top').getBoundingClientRect();return [Math.round(d.top),Math.round(d.height),Math.round(t.bottom),innerHeight];})()")
+    want('ikkuna koko korkeudelta (Yläosa-tila)', r[0]<=r[2]+1 and r[1]>=r[3]*0.9)
+    await pg.click('#nsheet .sx'); await pg.wait_for_timeout(150)
     # Ei kuvitusta: kerros pois
     await menu(pg,'#m-proj'); await pg.wait_for_timeout(150)
     l=pg.locator('#set-art button[data-v=""]'); await l.scroll_into_view_if_needed(); await l.click(); await pg.wait_for_timeout(100)
