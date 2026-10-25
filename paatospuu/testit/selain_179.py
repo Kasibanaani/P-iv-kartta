@@ -65,7 +65,7 @@ async def run(p,w,h):
     want('tekstiseuraus listan ilmoituksena', await pg.is_visible('#chk-say') and 'Soita ennen klo 10' in await pg.inner_text('#chk-say'))
     if os.environ.get('KUVA'): await pg.screenshot(path=os.environ['KUVA']+'/e179b_%d.png'%w)
     await pg.click('#chk-end'); await pg.wait_for_timeout(100)
-    want('Lopeta tallentaa ilmoituksen', 'Ilmoitukset: Soita ennen klo 10' in await pg.evaluate(K+".muistiinpanot[0].text"))
+    want('Lopeta tallentaa ilmoituksen omana kappaleena', '\n\nSoita ennen klo 10' in await pg.evaluate(K+".muistiinpanot[0].text"))
     # Asiasanakortti: ilmoitusosio
     await tab(pg,'terms'); await pg.wait_for_timeout(60); await pg.locator('#p-terms .row[data-id="ta"]').first.click(); await pg.wait_for_timeout(200)
     want('kortilla ei sanakenttiä', await pg.locator('#tyes').count()==0 and await pg.locator('#tno').count()==0)
