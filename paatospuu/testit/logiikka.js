@@ -628,4 +628,21 @@ eq('1.87: ei sääntöä',rA(new Date(2026,9,20,9).toISOString(),{wd:[],md:[]}),
 var IT2={id:'a',ok:new Date(2026,9,21,10).toISOString()};
 eq('1.87: voimassa sunnuntaihin asti',[E.itemOk(IT2,new Date(2026,9,25,23),{wd:[1]}),E.itemOk(IT2,new Date(2026,9,26,1),{wd:[1]})],[true,false]);
 eq('1.87: seuraava laukeaminen listan järjestykseen',E.chkNext({id:'r',created:'2026-10-01T00:00:00',it:[IT2]},new Date(2026,9,22),{ev:{a:{wd:[1]}}}),new Date(2026,9,26).getTime());
+/* 1.89: puun säännöt ehtoina ja takaisin (sama muoto kuin projektin ehdoissa, palikka = 'p:'+avain) */
+var q=P('A\nB\nC\nD\nE');t(q,A,'a');t(q,'a','c');t(q,'b','c');t(q,'a','d','x');q.need={e:['a','b']};q.mx=[['c','d']];
+var TE=E.treeEh(q);
+eq('1.89: avaa ryhmittyy samoista kohteista',TE.filter(function(e){return !e.all&&!e.ty&&e.on.length;}).map(function(e){return e.k.join('+')+'>'+e.on.join(',');}),['p:'+A+'>p:a','p:a+p:b>p:c']);
+eq('1.89: sulkee = poissulkee',TE.filter(function(e){return e.off.length;}).map(function(e){return e.k.join('+')+'>'+e.off.join(',');}),['p:a>p:d']);
+eq('1.89: vaatii kaikki = Kaikki tuo',TE.filter(function(e){return e.all;}).map(function(e){return e.k.join('+')+'>'+e.on.join(',');}),['p:a+p:b>p:e']);
+eq('1.89: toisensa poissulkevat',TE.filter(function(e){return e.ty==='x';}).map(function(e){return e.k.join(',');}),['p:c,p:d']);
+var q2=P(q.text);E.ehTree(q2,TE);eq('1.89: edestakaisin samat säännöt',[q2.rules,q2.need,q2.mx],[q.rules,q.need,q.mx]);
+TE[1].k.push('p:e');E.ehTree(q2,TE);eq('1.89: lisätty syy avaa',E.ruleState(q2,'e','c'),'o');
+q2.need.d=[];E.ehTree(q2,TE);eq('1.89: kesken oleva vaatii kaikki säilyy',q2.need.d,[]);
+var nm=function(id){return id.slice(2);};
+eq('1.89: Kaikki ei voi poissulkea',!!E.treeEhBlock(q,TE,{k:['p:a','p:b'],all:1,on:[],off:['p:c']},nm),true);
+var e2={k:['p:d'],on:['p:e'],off:[]};eq('1.89: Jokin ja Kaikki samaan kohteeseen estetään',!!E.treeEhBlock(q,TE.concat([e2]),e2,nm),true);
+var e3={k:['p:'+A],on:[],off:['p:b']};eq('1.89: Alku ei poissulje',!!E.treeEhBlock(q,TE.concat([e3]),e3,nm),true);
+var e4={k:['p:e'],all:1,on:['p:a'],off:[]};eq('1.89: kehä estetään',!!E.treeEhBlock(q,TE.concat([e4]),e4,nm),true);
+var e5={k:['p:a'],on:['p:b'],off:[]};eq('1.89: kelvollinen ehto kelpaa',E.treeEhBlock(q,TE.concat([e5]),e5,nm),'');
+var e6={k:['p:a'],on:['p:d'],off:[]};eq('1.89: sama syy ei tuo ja poissulje',!!E.treeEhBlock(q,TE.concat([e6]),e6,nm),true);
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);
