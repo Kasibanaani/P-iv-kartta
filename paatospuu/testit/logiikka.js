@@ -613,4 +613,19 @@ eq('1.80: teksti syynä muistiinpanossa',E.inferTerms(iE2,[],'Soitin lääkäril
 eq('1.80: Poissulkee poistaa päätellyn',E.inferTerms(iE2,['a','b','c'],'',{}),['f']);
 eq('1.80: tunnistettu ei tule päätellyksi',E.inferTerms(iE2,['a','b','f'],'',{}),['g']);
 eq('1.80: ryhmä ja aikasana syynä',E.inferTerms(iE2,['m'],'',{grp:{G:{m:['m','n']}},tt:'z:today'}),['h','w']);
+
+/* 1.87: uusiutuminen viikonpäivinä ja kuun päivinä, yksin tai aikavälin lisäksi (aikaisin ratkaisee) */
+var rA=function(ok,r){var t=E.renewAt(ok,r);return t===Infinity?'ei':(function(d){return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()+' '+d.getHours()+':'+d.getMinutes();})(new Date(t));};
+eq('1.87: maanantaisin',rA(new Date(2026,9,21,10).toISOString(),{wd:[1]}),'2026-10-26 0:0');
+eq('1.87: sama viikonpäivä = seuraava viikko',rA(new Date(2026,9,21,10).toISOString(),{wd:[3]}),'2026-10-28 0:0');
+eq('1.87: 7 pv tai perjantai, perjantai ensin',rA(new Date(2026,9,21,10).toISOString(),{ev:7,wd:[5]}),'2026-10-23 0:0');
+eq('1.87: 1 pv tai perjantai, aikaväli ensin',rA(new Date(2026,9,21,10).toISOString(),{ev:1,wd:[5]}),'2026-10-22 10:0');
+eq('1.87: kuun 31. = viimeinen päivä',rA(new Date(2026,10,5,10).toISOString(),{md:[31]}),'2026-11-30 0:0');
+eq('1.87: kuun 15. kuittauspäivänä = seuraava kuu',rA(new Date(2026,9,15,9).toISOString(),{md:[15]}),'2026-11-15 0:0');
+eq('1.87: kuun 1. ja 15.',rA(new Date(2026,9,20,9).toISOString(),{md:[1,15]}),'2026-11-1 0:0');
+eq('1.87: vanha muoto päivinä',rA(new Date(2026,9,20,9).toISOString(),3),'2026-10-23 9:0');
+eq('1.87: ei sääntöä',rA(new Date(2026,9,20,9).toISOString(),{wd:[],md:[]}),'ei');
+var IT2={id:'a',ok:new Date(2026,9,21,10).toISOString()};
+eq('1.87: voimassa sunnuntaihin asti',[E.itemOk(IT2,new Date(2026,9,25,23),{wd:[1]}),E.itemOk(IT2,new Date(2026,9,26,1),{wd:[1]})],[true,false]);
+eq('1.87: seuraava laukeaminen listan järjestykseen',E.chkNext({id:'r',created:'2026-10-01T00:00:00',it:[IT2]},new Date(2026,9,22),{ev:{a:{wd:[1]}}}),new Date(2026,9,26).getTime());
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);
