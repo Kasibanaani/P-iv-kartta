@@ -1,4 +1,4 @@
-"""Juuri 1.82: estetiikka-asetukset (paletti, muotokieli, napit, kuittaus, kuvitus) projektikohtaisesti.
+"""Juuri 1.82: estetiikka-asetukset (muotokieli, napit, kuittaus, kuvitus) projektikohtaisesti. 1.86: paletit korvattu värikoneella (selain_186).
 Leveydet 390 ja 320 px. Käyttö: python3 testit/selain_182.py"""
 import asyncio, os, sys, json
 from playwright.async_api import async_playwright
@@ -26,10 +26,9 @@ async def run(p,w,h):
     await tab(pg,'use'); await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
     await tab(pg,'notes'); await pg.wait_for_timeout(80)
     await opn()
-    want('paletit ja kuvat asetuksissa', await pg.locator('#set-pals button').count()==28 and await pg.locator('#set-art button').count()==26)
-    await pick('#set-pals button[data-v="piki0"]')
-    want('Pikimusta: tausta musta', (await var('--bg')).strip().upper()=='#000000' and await root('pal')=='piki0')
-    want('yhden asun paletti: ei vaalea/tumma-valintaa', await pg.evaluate("!Array.prototype.some.call(document.querySelectorAll('#pk-set .seg button'),function(b){return b.textContent==='Laitteen mukaan';})"))
+    want('ei valmiita paletteja, kuvat asetuksissa', await pg.locator('#set-pals').count()==0 and await pg.locator('#set-pal').count()==0 and await pg.locator('#set-art button').count()==32)
+    await pick('#set-mode button[data-v="dark"]')
+    want('Tumma-tila värikoneella', await root('pal')=='kone' and await pg.evaluate("document.documentElement.style.colorScheme")=='dark')
     await pick('#set-look button[data-v="satu"]')
     want('muotokieli Satumetsä: serif-otsikot, säteet', await root('hf')=='serif' and await root('rs')=='1' and await root('tabst')=='dot')
     want('muotokieli piilottaa Reunat-valinnan', await pg.locator('#set-edge').count()==0)
@@ -44,16 +43,14 @@ async def run(p,w,h):
     await pg.click('#psheet .sx'); await pg.wait_for_timeout(120)
     if os.environ.get('KUVA'): await pg.screenshot(path=os.environ['KUVA']+'/e182b_%d.png'%w)
     c=json.loads(await pg.evaluate("JSON.stringify(%s)"%K))
-    want('tallentuu projektiin', c.get('pal')=='piki0' and c.get('look')=='satu' and c.get('art')=='puu4' and c.get('bfx')=='offset')
+    want('tallentuu projektiin', c.get('mode')=='dark' and 'pal' not in c and c.get('look')=='satu' and c.get('art')=='puu4' and c.get('dbfx')=='offset')
     await pg.reload(); await pg.wait_for_timeout(250)
-    want('säilyy uudelleenlatauksessa', await root('pal')=='piki0' and await pg.evaluate("!document.getElementById('artband').hidden"))
+    want('säilyy uudelleenlatauksessa', await pg.evaluate("document.documentElement.style.colorScheme")=='dark' and await pg.evaluate("!document.getElementById('artband').hidden"))
     await opn()
     await pick('#set-art button[data-v="kuvio"]')
     want('pelkkä kuvio: kaista piiloon', await root('art')=='kuvio' and await pg.evaluate("document.getElementById('artband').hidden"))
-    await pick('#set-pal button[data-v="forest"]')
     await pick('#set-look button[data-v="juuri"]')
-    want('Juuren teema palauttaa vanhan tavan', await root('pal')=='' and (await var('--okbg'))=='' and await root('hf')=='')
-    want('vaalea/tumma-valinta takaisin', await pg.evaluate("Array.prototype.some.call(document.querySelectorAll('#pk-set .seg button'),function(b){return b.textContent==='Laitteen mukaan';})"))
+    want('Juuri-muotokieli palauttaa perusmuodot', await root('hf')=='' and await root('rs')=='')
     await pg.click('#psheet .sx'); await pg.wait_for_timeout(120)
     want('ei sivuvirheitä', not errs)
     await b.close(); return bad

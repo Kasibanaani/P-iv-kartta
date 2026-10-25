@@ -18,9 +18,10 @@ async def run(p,w,h):
     print('leveys',w)
     await pg.goto(U); await pg.wait_for_timeout(200)
     await tab(pg,'use'); await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
+    # 25.10.2026: toinen muistiinpano tänään (huomenna osui sunnuntaina seuraavalle viikolle, eikä viikkonäkymässä ollut merkittyä päivää)
     await pg.evaluate("""(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1')),k=o.kokonaisuudet[0];
       k.termit=[{id:'ta',name:'Kipu',yes:['kipu'],no:[]}];k.tarkeat=['ta'];
-      k.muistiinpanot=[{id:'n1',created:'2026-10-01T08:00:00.000Z',edited:'2026-10-01T08:00:00.000Z',text:'kipu tänään',date:''},{id:'n2',created:new Date().toISOString(),edited:new Date().toISOString(),text:'jotain huomenna',date:''}];
+      k.muistiinpanot=[{id:'n1',created:'2026-10-01T08:00:00.000Z',edited:'2026-10-01T08:00:00.000Z',text:'kipu tänään',date:''},{id:'n2',created:new Date().toISOString(),edited:new Date().toISOString(),text:'jotain tänään',date:''}];
       localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()""")
     await pg.reload(); await pg.wait_for_timeout(150)
     sel=await pg.evaluate("(function(){var c=matchMedia('(pointer:coarse)').matches,b=getComputedStyle(document.querySelector('#nav .tab')).userSelect,t=getComputedStyle(document.createElement('textarea'));return [c,b];})()")

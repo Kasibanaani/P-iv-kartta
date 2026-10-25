@@ -21,7 +21,7 @@ async def run(p,w,h):
     await pg.reload(); await pg.wait_for_timeout(150)
     want('vanhat asetukset molemmille', await pg.evaluate("document.documentElement.dataset.font")=='serif')
     await menu(pg,'#m-proj'); await pg.wait_for_timeout(80)
-    want('asetukset Projekti-ikkunassa', await pg.is_visible('#pk-set #set-font') and await pg.is_visible('#pk-set #set-pal'))
+    want('asetukset Projekti-ikkunassa', await pg.is_visible('#pk-set #set-font') and await pg.is_visible('#pk-set #set-kh'))
     r=await pg.evaluate("(function(){var w=document.documentElement.clientWidth,o=0;document.querySelectorAll('#psheet button,#psheet select').forEach(function(e){var r=e.getBoundingClientRect();if(r.width&&e.offsetParent&&r.right>w+.5)o++;});return o;})()")
     want('mahtuu', r==0)
     await pg.click('#set-font [data-v="mono"]'); await pg.wait_for_timeout(60)
