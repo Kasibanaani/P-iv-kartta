@@ -336,6 +336,12 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - **Poista** ikkunan alalaidassa oikealla (vain olemassa olevalla muistiinpanolla). Avaa joka kerta varmistuksen: ”Poistetaanko koko muistiinpano? Samalla poistuvat kaikki sen kalenterimerkinnät. … roskakoriin”. Varmistusnappi vasemmalla, Peruuta oikealla Poista-napin kohdalla, joten tuplanapautus ei poista (testattu 390 ja 320 px). Aiemmat poistotavat: Muistioiden kortin ⋯ → Poista ja tekstin tyhjennys.
 - **1.39.3:** Valmis pois myös listan rivin ja toistuvan ikkunoista; niiden Poista avaa saman varmistuslaatikon (Poista vasemmalla, Peruuta oikealla). Korjattu samalla 1.38:n bugi: listan rivin poisto sulki väärän ikkunan (rivin muokkausikkunan tunnus sekoittui).
 
+## Seuraavaksi (Emil 25.10.2026, ei vielä rakennettu)
+
+- Hyväksytty, mutta odottaa: **taustakuvan blurri** (Ei / Hento / Keskitaso / Vahva). Kuva pehmennetään kerran (canvas) ja tallennetaan välimuistiin, joten reaaliaikaista blurria ei käytetä. Hento = vain reunat pehmenevät noin 1–2 px. Terävät alkuperäiset säilyvät.
+- Hyväksytty, mutta odottaa: **omat taustakuvat**. Ne pienennetään tuotaessa noin 2000 px leveiksi ja tallennetaan selaimen kuvamuistiin (IndexedDB), koska tavallinen muisti on noin 5 Mt. Avoin kysymys Emilille: kulkevatko kuvat vienneissä (suositus: mukana varmuuskopiossa, ei projektin viennissä). Tallennusmuoto muuttuu, joten muistuta varmuuskopiosta.
+- Molemmat tehdään **samassa päivityksessä kuin uusi värikone** (Appiestetiikat-artefakti), kun Emil on kokeillut sitä ja antanut luvan viedä sen Juureen.
+
 ## Versio 1.85.1 (24.10.2026, Emilin bugi: ikkunat aukesivat vain alareunaan)
 
 - Syy: Kuvituksen paikka *Yläosa, häivytys* antoi taustakerrokselle luokan `top`, jota yläpalkki myös käyttää. Ikkunoiden yläreuna laskettiin ensimmäisestä `.top`-elementistä, eli taustakerroksen alareunasta, joten iso ikkuna jäi muutaman sentin korkuiseksi. Lisäksi yläpalkin tyylit osuivat taustakerrokseen.
