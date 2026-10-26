@@ -681,4 +681,20 @@ eq('1.92: esimerkki jäsentyy kokonaan',[xe.stars,(xe.ehdot||[]).length,E.ehdotT
 eq('1.92: ohjeessa aikasanat, tulkinta ja nykyteksti',[E.TIME_TERMS.concat(E.WD_TERMS).every(function(t){return oh.indexOf(t.name)>=0;}),oh.indexOf('Tärkeät tärkeimmästä alkaen: Kuume, Kipu.')>0,oh.indexOf('```\nKipu*\n\nEhdot:\nKun Kipu, niin Lepo esiin.\n```')>0,oh.indexOf('#Oireet.')>0],[true,true,true,true]);
 eq('1.92: tyhjä projekti',E.aiOhje({}).indexOf('Aloitetaan tyhjästä')>0,true);
 eq('1.92: koodilohkon aidat ohitetaan',E.textExtras('```\nKipu*\n```',[]).stars,['Kipu']);
+// 1.93: toistuvuuden alku ja loppu
+var b92=new Date(2026,9,26,8,0),L92=function(t){return E.parseDates(t,b92).map(function(o){return E.dateLabel(o);});};
+eq('1.93: alkaen ja vk saakka',L92('Sauna perjantaisin klo 14 alkaen 1.11. vk 50 saakka'),['joka pe 1.11.2026–13.12.2026 klo 14.00']);
+eq('1.93: mikä tahansa järjestys, ja-sana ja kuukausi',L92('alkaen marraskuun 1. ja päättyen joulukuun 5. perjantaisin kello 14'),['joka pe 1.11.2026–5.12.2026 klo 14.00']);
+eq('1.93: pilkku sallitaan, piste katkaisee',L92('perjantaisin, 5.12. asti. Kokous 3.12.'),['joka pe 26.10.2026–5.12.2026','to 3.12.2026']);
+eq('1.93: muu sana välissä katkaisee',L92('maanantaisin kokous 1.11.'),['joka ma','su 1.11.2026']);
+eq('1.93: ilman loppua vuoden loppuun',E.parseDates('Sauna perjantaisin',b92)[0].R,['2026-10-26','2026-12-31']);
+eq('1.93: viikko alkuna',L92('alkaen vk 45 perjantaisin'),['joka pe 2.11.2026 alkaen']);
+eq('1.93: joka toinen alkaa alusta',E.parseDates('joka toinen maanantai 2.11. alkaen',b92)[0].a,'2026-11-02');
+eq('1.93: vk 42 yksinään ei yhä',L92('vk 42'),[]);
+eq('1.93: taivutukset',L92('pe:nä klo 10. Perjantaihin. Perjantain kokous.').length,3);
+var o92=E.parseDates('perjantaisin klo 14 vk 50 saakka',b92)[0];
+eq('1.93: avoin kerta',[E.recKey(o92,'2026-10-28'),E.recKey(o92,'2026-10-31'),E.recKey(o92,'2026-11-06')],['2026-10-30 14:00','2026-10-30 14:00','2026-11-06 14:00']);
+eq('1.93: päättyminen',[E.recEnded(o92,'2026-12-13'),E.recEnded(o92,'2026-12-14')],[false,true]);
+var N92=[{id:'a',created:b92.toISOString(),text:'Sauna perjantaisin vk 50 saakka'}],x1=E.recExpiries(N92,'2026-12-14','2026-12-14T08:00:00.000Z'),x2=E.recExpiries(N92,'2026-12-15','2026-12-15T08:00:00.000Z');
+eq('1.93: ilmoitus kerran',[x1.length,x2.length,/^Järjestelmäilmoitus: toistuvuus päättyi 13\.12\.2026\./.test(x1[0].text),x1[0].date],[1,0,true,'2026-12-14']);
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);
