@@ -645,4 +645,26 @@ var e3={k:['p:'+A],on:[],off:['p:b']};eq('1.89: Alku ei poissulje',!!E.treeEhBlo
 var e4={k:['p:e'],all:1,on:['p:a'],off:[]};eq('1.89: kehä estetään',!!E.treeEhBlock(q,TE.concat([e4]),e4,nm),true);
 var e5={k:['p:a'],on:['p:b'],off:[]};eq('1.89: kelvollinen ehto kelpaa',E.treeEhBlock(q,TE.concat([e5]),e5,nm),'');
 var e6={k:['p:a'],on:['p:d'],off:[]};eq('1.89: sama syy ei tuo ja poissulje',!!E.treeEhBlock(q,TE.concat([e6]),e6,nm),true);
+
+// 1.91: tekstit erottimella (---)
+eq('1.91: ei erotinta',E.sepParts('a\n\nb — c – d'),null);
+eq('1.91: erotin omalla rivillä ja kesken',E.noteParts('Eka klo 10\n---\nToka---Kolmas').map(function(p){return p.t;}),['Eka klo 10','Toka','Kolmas']);
+eq('1.91: iPhonen pitkä viiva',E.noteParts('a —- b ——c').map(function(p){return p.t;}),['a','b','c']);
+eq('1.91: tyhjä teksti pois',E.noteParts('a\n---\n---\nb').map(function(p){return p.t;}),['a','b']);
+var b91=new Date(2026,9,26,8,0);
+var d1=E.parseDates('Pe 30.10. klo 10 ja klo 14',b91),d2=E.parseDates('Pe 30.10. klo 10\n---\nklo 14',b91);
+eq('1.91: ilman erotinta aika periytyy',d1.map(function(o){return o.a;}),['2026-10-30','2026-10-30']);
+eq('1.91: erotin katkaisee periytymisen',d2.map(function(o){return o.a;}).sort(),['2026-10-26','2026-10-30']);
+var tx='Pe 30.10. klo 10\n---\nklo 14',k14=d2.filter(function(o){return o.time.s==='14:00';})[0];eq('1.91: kohdat koko tekstissä',tx.slice(k14.ts,k14.te),'klo 14');
+eq('1.91: tekstin indeksi',E.partIx(E.noteParts(tx),k14),1);
+var TT=[{id:'s',name:'Sauna',yes:[],no:['kylmä']},{id:'k',name:'Kauppa',yes:[],no:[]}];
+eq('1.91: asiasanat teksteittäin',E.partTerms(TT,'Sauna kylmä\n---\nSauna ja kauppa'),[[],['s','k']]);
+eq('1.91: poissulkeva sana vain omassa tekstissään',E.noteTerms(TT,'Sauna\n---\nkylmä'),['s']);
+eq('1.91: ilman erotinta poissulku koskee koko tekstiä',E.noteTerms(TT,'Sauna\n\nkylmä'),[]);
+var R91={terms:['s','k'],all:true};
+eq('1.91: kaikki samassa tekstissä',[E.trigHit(R91,{text:'Sauna\n---\nkauppa'},TT),E.trigHit(R91,{text:'Sauna, kauppa\n---\nmuuta'},TT)],[false,true]);
+var N91={id:'n',created:b91.toISOString(),text:'Ostokset\npe 30.10.\n---\nHammaslääkäri ma 2.11. klo 9',pts:{'2026-11-02 09:00':'x'}};
+var pn=E.partNote(N91,1);eq('1.91: tekstin oma aika ja kuittaus',[pn.text,E.noteDates(pn).map(function(o){return o.a;}),pn.pts['2026-11-02 09:00']],['Hammaslääkäri ma 2.11. klo 9',['2026-11-02'],'x']);
+var de=E.dayEntries([{id:'m',created:b91.toISOString(),text:'A 30.10.\n---\nB 30.10.\n---\nC 30.10. klo 9',date:''}],'2026-10-30',30);
+eq('1.91: kalenterissa merkintä per teksti',[de.untimed.length,de.timed.length],[2,1]);
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);
