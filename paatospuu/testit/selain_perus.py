@@ -363,7 +363,8 @@ async def run(p,w,h):
         db=await pg.locator(cd).bounding_box(); await drag('#timeline .ev:has-text("Kalenteritesti")',db['x']+db['width']/2,db['y']+db['height']/2,'pudotus päivälle')
         n=await nts('Kalenteritesti'); want('siirto toiselle päivälle', '%d.%d.%d'%(nd.day,nd.month,nd.year) in n['text'] and n['date']==nd.isoformat())
         await pg.click('#week .cday[data-day="%s"]'%_d.date.today().isoformat()); await pg.wait_for_timeout(50)
-    await pg.click('#week button.cday:not(.on)'); await pg.wait_for_timeout(50); want('päivän vaihto', await pg.locator('#timeline .ev').count()==0)
+    # Päivä, joka ei ole tänään eikä huominen (huomiselle siirrettiin juuri merkintä; maanantaina ensimmäinen ei-valittu on huominen)
+    await pg.click('#week button.cday:not(.on):not([data-day="%s"])'%nd.isoformat()); await pg.wait_for_timeout(50); want('päivän vaihto', await pg.locator('#timeline .ev').count()==0)
     # asetukset ja varmuuskopio
     await menu(pg,'#m-proj'); await pg.wait_for_timeout(60); await check('asetukset'); await pg.click('#psheet .sx'); await pg.wait_for_timeout(60); await menu(pg,'#m-x'); await pg.click('#vs-txtall'); await pg.wait_for_timeout(50)
     dump=await pg.input_value('#vs-out textarea'); await check('vienti tekstinä'); await pg.click('#vsheet .sx')
