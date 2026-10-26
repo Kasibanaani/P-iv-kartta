@@ -674,4 +674,11 @@ eq('1.91: päivämäärän viikonpäivä',E.wdKeys({text:'Kokous 30.10.',created
 eq('1.91: toistuva viikonpäivä',E.wdKeys({text:'Sauna perjantaisin ja tiistaisin',created:'2026-10-26T06:00:00Z'},'2026-10-26').sort(),['z:2','z:5']);
 eq('1.91: viikonpäivä päättelyn syynä',E.inferTerms([{id:'e',k:['z:5'],on:['s'],off:[]}],[],'',{tw:['z:5']}),['s']);
 eq('1.91: väärä viikonpäivä ei laukaise',E.inferTerms([{id:'e',k:['z:5'],on:['s'],off:[]}],[],'',{tw:['z:4']}),[]);
+
+// 1.92: tekoälyohje samasta jäsentimestä
+var oh=E.aiOhje({text:'Kipu*\n\nEhdot:\nKun Kipu, niin Lepo esiin.',grp:['Oireet']}),xe=E.textExtras(E.AI_ESIM,['Kipu','Kuume','Lääkäri','Lepo','Lenkki','Apteekki','#Oireet'].concat(E.TIME_TERMS.concat(E.WD_TERMS).map(function(t){return t.name;})));
+eq('1.92: esimerkki jäsentyy kokonaan',[xe.stars,(xe.ehdot||[]).length,E.ehdotText(xe.ehdot).join('\n')===E.AI_ESIM.split('Ehdot:\n')[1]],[['Kuume','Kipu'],5,true]);
+eq('1.92: ohjeessa aikasanat, tulkinta ja nykyteksti',[E.TIME_TERMS.concat(E.WD_TERMS).every(function(t){return oh.indexOf(t.name)>=0;}),oh.indexOf('Tärkeät tärkeimmästä alkaen: Kuume, Kipu.')>0,oh.indexOf('```\nKipu*\n\nEhdot:\nKun Kipu, niin Lepo esiin.\n```')>0,oh.indexOf('#Oireet.')>0],[true,true,true,true]);
+eq('1.92: tyhjä projekti',E.aiOhje({}).indexOf('Aloitetaan tyhjästä')>0,true);
+eq('1.92: koodilohkon aidat ohitetaan',E.textExtras('```\nKipu*\n```',[]).stars,['Kipu']);
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);
