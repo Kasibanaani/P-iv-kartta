@@ -49,6 +49,14 @@ async def run(p,w,h):
     await pg.reload(); await pg.wait_for_timeout(300); await tab(pg,'cal'); await pg.wait_for_timeout(250)
     want('erottimen poisto: kuittaus säilyy', await pg.locator('#timeline .ev.done').count()==1)
     want('ilman erotinta koko muistiinpano yhtenä', await pg.evaluate("document.querySelector('#timeline .ev b').textContent")=='Kauppa: maito ja leipä')
+    # Viikonpäivät aikasanoina: Ehtojen valitsimessa oma osio
+    await tab(pg,'terms'); await pg.wait_for_timeout(200)
+    want('viikonpäivän nimi', await pg.evaluate("typeof timeName==='function'&&timeName('z:5')==='Perjantai'"))
+    await pg.click('#tt-eh'); await pg.wait_for_timeout(250); await pg.click('#eh-add'); await pg.wait_for_timeout(80)
+    secs=await pg.evaluate("Array.prototype.map.call(document.querySelectorAll('#eh-pick .ehsub'),function(e){return e.textContent;})")
+    want('syyn valinnassa Viikonpäivät', 'Viikonpäivät' in secs and await pg.locator('#eh-pick .ehp[data-tid="z:5"]').count()==1)
+    await pg.locator('#eh-pick .ehp[data-tid="z:5"]').click(); await pg.wait_for_timeout(60)
+    want('perjantai syylaatikossa', (await pg.inner_text('#eh-cause .ehchips')).startswith('Perjantai'))
     want('ei sivuvirheitä', not errs)
     await b.close(); return bad
 async def main():

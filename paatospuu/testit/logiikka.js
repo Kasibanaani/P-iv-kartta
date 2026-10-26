@@ -667,4 +667,11 @@ var N91={id:'n',created:b91.toISOString(),text:'Ostokset\npe 30.10.\n---\nHammas
 var pn=E.partNote(N91,1);eq('1.91: tekstin oma aika ja kuittaus',[pn.text,E.noteDates(pn).map(function(o){return o.a;}),pn.pts['2026-11-02 09:00']],['Hammaslääkäri ma 2.11. klo 9',['2026-11-02'],'x']);
 var de=E.dayEntries([{id:'m',created:b91.toISOString(),text:'A 30.10.\n---\nB 30.10.\n---\nC 30.10. klo 9',date:''}],'2026-10-30',30);
 eq('1.91: kalenterissa merkintä per teksti',[de.untimed.length,de.timed.length],[2,1]);
+
+// 1.91: viikonpäivät aikasanoina
+eq('1.91: viikonpäivien järjestys',E.WD_TERMS.map(function(t){return t.id;}),['z:1','z:2','z:3','z:4','z:5','z:6','z:0']);
+eq('1.91: päivämäärän viikonpäivä',E.wdKeys({text:'Kokous 30.10.',created:'2026-10-26T06:00:00Z'},'2026-10-26'),['z:5']);
+eq('1.91: toistuva viikonpäivä',E.wdKeys({text:'Sauna perjantaisin ja tiistaisin',created:'2026-10-26T06:00:00Z'},'2026-10-26').sort(),['z:2','z:5']);
+eq('1.91: viikonpäivä päättelyn syynä',E.inferTerms([{id:'e',k:['z:5'],on:['s'],off:[]}],[],'',{tw:['z:5']}),['s']);
+eq('1.91: väärä viikonpäivä ei laukaise',E.inferTerms([{id:'e',k:['z:5'],on:['s'],off:[]}],[],'',{tw:['z:4']}),[]);
 console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);
