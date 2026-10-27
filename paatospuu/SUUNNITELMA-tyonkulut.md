@@ -1,6 +1,6 @@
 # Juuren työnkulut — toteutus ja jatko
 
-Päivitetty 27.10.2026. Emilin keskustelussa hyväksymä suunta. Toteutuslupa annettu ensimmäiselle järkevälle kokonaisuudelle; tässä erotetaan toteutettu ja vielä tekemätön. Älä sekoita erilliseen flowchart-appiin.
+Päivitetty 27.10.2026. Emilin keskustelussa hyväksymä suunta. Vaiheet 1.94 ja 1.95 on toteutettu Emilin luvalla; tässä erotetaan toteutettu ja vielä tekemätön. Älä sekoita erilliseen flowchart-appiin.
 
 ## Toteutettu 1.94
 
@@ -14,14 +14,18 @@ Päivitetty 27.10.2026. Emilin keskustelussa hyväksymä suunta. Toteutuslupa an
 - Asiasanakortin Tunnistus-osiossa suora uuden saapuvan tai lähtevän ehdon luonti; lähtevän syyksi tulee valittu asiasana.
 - Ehdot ja ryhmät edelleen projektikohtaisia, suoritukset listakohtaisia; ei appin yhteiseksi tehtyä siirtoa.
 
-## Seuraava kokonaisuus: yhteiset vaiheet (ei rakennettu)
+## Toteutettu 1.95: yhteiset vaiheet
 
 1. Rivi on yhteisen ryhmän esiintymä; uusi rivi luo ryhmän pankkiin. Pankki näyttää avattavilta listariveiltä.
 2. Ryhmän nimi, jäsenet ja valmistuminen ovat yhteisiä; rivin kuittaukset paikallisia.
 3. Suppea ja laaja lista voivat valita osittain samoja vaiheita. Muokkaus näyttää käytössä olevat listat. Tee oma versio irrottaa ryhmän.
-4. Ensin täsmennetään kesken olevan suorituksen suhde muuttuvaan ryhmäpohjaan sekä yhden asiasanan kuittauksen jakaminen saman kierroksen riveillä. Vanhaa tallennusta ei saa hukata. Älä korvaa nykyisiä ryhmiä suoraan migraatiota suunnittelematta.
+4. Muutos yhteiseen vaiheeseen päivittyy myös keskeneräisiin listoihin. Rivin teksti ja kuittaukset ovat paikallisia. Saman asiasanan kuittaus yhdellä rivillä ei kuittaa toisen rivin esiintymää; ehtojen laukaisu katsoo edelleen koko kyseisen listan kuittauksia kuten 1.94:ssä.
+5. Vanhat työnkulkurivit saavat kukin oman vaiheen (nimi ei yhdistä niitä). Vanhat kuittaukset säilyvät; vanhojen ryhmien ehtoviittaukset säilyvät aliases-kentällä. Puun ryhmäjäsenet luetaan myös. Vanhat jatkuvat/kierrostavan listat ja ryhmät säilyvät ennallaan.
+6. Jäsenen poistaminen vaiheesta piilottaa sen ryhmäperäisen kuittauksen; saman jäsenen palautus saman kierroksen aikana palauttaa sen kuittauksen. Tapahtumahistoriaa ei hävitetä rakennetta muuttaessa.
+7. Vaihepankki on projektikohtainen, löytyy Listoista ja Asioista. Uusi työnkulkurivi avaa valinnan valmiista vaiheista tai uuden luomisen. Vaiheen saa poistaa pankista vain kun se ei ole käytössä. Rivin poisto ei poista pankin määritelmää.
+8. Tallennus: ryhmällä phase:1, jäsenet m ja sääntö all; rivillä sg yhteisen vaiheen tunniste, name/any/g yhteensopivuuspeilejä, it oma kuittaustila. Vanhojen tiedostojen siirto on idempotentti. Tee oma versio antaa uuden tunnisteen ja säilyttää rivin oman kuittaus- ja tekstitiedon.
 
-## Sen jälkeen: työnkulku kuittaustapana (ei rakennettu)
+## Seuraavaksi: työnkulku kuittaustapana (ei rakennettu)
 
 - Asiasanaan voi liittää yhteisen työnkulkupohjan. Tekstin aihe voi avata sen vapaaehtoisesti, tarkistuslistassa suoritus voi olla kuittauksen vaatimus.
 - Jokainen käynnistys sidotaan omaan lähtökohteeseen. Keskeneräiset säilyvät. Valmis suoritus kuittaa vain lähtökohteen kyseisen kerran.

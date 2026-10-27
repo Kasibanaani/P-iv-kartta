@@ -1,0 +1,12 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');const h=fs.readFileSync(require('path').join(__dirname,'../index.html'),'utf8');const box={module:{exports:{}}};vm.runInNewContext(h.match(/<script id="engine">([\s\S]*?)<\/script>/)[1],box);const E=box.module.exports,plain=x=>JSON.parse(JSON.stringify(x));
+const at='2026-10-27T12:00:00Z';
+let S={lists:[{id:'l1',wf:1},{id:'l2',wf:1}],grp:[{id:'old',name:'Old',m:['a','b']}],chk:[{id:'r',l:'l1',name:'Goals',g:['old'],it:[{id:'a',g:1,ok:at},{id:'z'}]}]};
+assert(E.phaseEnsure(S));const g=E.phaseOf(S,S.chk[0].sg);assert.deepEqual(plain(g.m),['z','a','b']);assert.deepEqual(plain(g.aliases),['old']);assert.equal(S.chk[0].it[0].ok,at);assert(!E.phaseEnsure(S));
+let r2=E.phaseAttach(S,g.id,'r2','l2',at);assert.equal(r2.it.length,0);g.name='New';g.m.push('c');delete g.all;E.phaseEnsure(S);assert(S.chk.every(r=>r.name==='New'&&r.any));assert.equal(S.chk[0].it[0].ok,at);assert.equal(r2.it.length,0);
+const before=JSON.stringify(S);E.phaseEnsure(S);assert.equal(JSON.stringify(S),before);
+g.m=g.m.filter(id=>id!=='a');E.phaseEnsure(S);assert.equal(S.chk[0].it[0].ok,at);assert(!E.chkView(S.chk[0],{gm:g.m,workflow:1},new Date()).some(v=>v.id==='a'));g.m.push('a');assert(E.chkView(S.chk[0],{gm:g.m,workflow:1},new Date()).find(v=>v.id==='a').ok);
+const file={app:'paatospuu',ver:1,puut:[],muistiinpanot:[],listat:S.lists.map(L=>({...L,name:L.id})),ryhmat:S.grp,tarkistuslista:S.chk};let N=E.normalizeData(file);assert.equal(N.chk[0].sg,g.id);assert(E.phaseOf(N,g.id));assert.equal(N.chk[0].it[0].ok,at);assert.equal(N.grp.filter(g=>g.phase).length,1);assert.deepEqual(plain(N.grp.find(g=>g.phase).aliases),['old']);
+let legacy={lists:[{id:'l',name:'Old'}],grp:[],chk:[{id:'x',l:'l',it:[{id:'a'}]}]};assert(!E.phaseEnsure(legacy));assert(!legacy.chk[0].sg);
+let twins={lists:[{id:'l',wf:1}],grp:[],chk:[{id:'x',name:'Same',l:'l',it:[]},{id:'y',name:'Same',l:'l',it:[]}]};E.phaseEnsure(twins);assert.notEqual(twins.chk[0].sg,twins.chk[1].sg);assert.equal(twins.grp.length,2);
+let tree={lists:[{id:'l',wf:1}],terms:[],words:{},projects:[{id:'p',name:'P',text:'#Group\nAlpha\nBeta',rules:{group:{o:['alpha','beta'],x:[]}},mx:[]}],grp:[],chk:[{id:'tree',l:'l',g:['a:group'],it:[]}]};E.phaseEnsure(tree);assert.deepEqual(plain(tree.grp.find(g=>g.phase).m),['a:alpha','a:beta']);
+console.log('1.95 migration, aliases, idempotence, shared edits, local receipts, export/import, legacy and tree groups OK');
