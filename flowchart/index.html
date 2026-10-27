@@ -39,8 +39,15 @@ textarea{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default
   text-align:center;cursor:default;transition:transform .12s ease,box-shadow .12s ease}
 .node.sel{background:var(--fill);color:var(--accent);font-weight:600;box-shadow:0 0 0 2px var(--accent),0 6px 22px var(--shadow)}
 .node.press{transform:translate(-50%,-50%) scale(1.06)}
-.node.drag{box-shadow:0 0 0 2px var(--accent),0 14px 30px var(--shade);transition:none}
+.node.drag{box-shadow:0 0 0 2px var(--accent),0 14px 30px var(--shade);transition:none;opacity:.85;z-index:2}
 .node.edit{width:200px;background:var(--cell);box-shadow:0 0 0 2px var(--accent),0 10px 28px var(--shade);text-align:left}
+.node.dropL{box-shadow:inset 5px 0 0 var(--accent),0 0 0 2px var(--accent),0 6px 22px var(--shadow)}
+.node.dropR{box-shadow:inset -5px 0 0 var(--accent),0 0 0 2px var(--accent),0 6px 22px var(--shadow)}
+.node.dropX{box-shadow:0 0 0 2px var(--red),0 6px 22px var(--shadow)}
+#drop{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 14px);transform:translateX(-50%);max-width:calc(100% - 120px);
+  padding:9px 14px;border-radius:11px;background:var(--accent);color:var(--on-solid);font-size:15px;font-weight:600;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;z-index:6;box-shadow:0 6px 22px var(--shade)}
+#drop.x{background:var(--red);color:#fff}
 .node textarea{display:block;width:100%;margin:0;padding:0;border:0;background:transparent;resize:none;outline:none;overflow:hidden;
   font-size:16px;line-height:1.3;min-height:21px;color:var(--label)}
 
@@ -82,6 +89,7 @@ textarea{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default
       <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" style="fill:var(--accent)"/></marker></defs><g id="lg"></g></svg>
   </div>
 </div>
+<div id="drop" hidden></div>
 <div id="empty">Napauta tyhjää kohtaa: uusi palikka</div>
 <div id="hintL" class="side" hidden>‹ Edelle</div>
 <div id="hintR" class="side" hidden>Jälkeen ›</div>
@@ -100,6 +108,7 @@ textarea{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default
   <h3>Ohje</h3>
   <p><b>Tyhjä kohta</b> ilman valintaa: uusi palikka, kirjoita, napauta ulos. Tyhjäksi jätetty palikka poistuu.</p>
   <p><b>Napautus palikkaan</b> valitsee sen. Sitten napautus ruudun <b>vasemmalle</b> puolelle tekee uuden palikan edelle, <b>oikealle</b> jälkeen, viivalla yhdistettynä. Napautus valittuun palikkaan poistaa valinnan.</p>
+  <p><b>Vedä palikka toisen päälle:</b> vasemmalle puolelle = ennen, oikealle = jälkeen. Yläreunan viesti kertoo, mitä irti päästäminen tekee. Jos yhteys on jo, pudotus irrottaa sen. Haarat järjestyvät itse.</p>
   <p><b>Pitkä painallus</b> palikkaan: muokkaus. <b>Vedä</b> palikkaa siirtääksesi, tyhjää kohtaa liikkuaksesi, kahdella sormella zoomaa.</p>
   <h3>Kartta</h3>
   <div class="row"><button class="btn warn" type="button" id="m-clear">Tyhjennä kartta</button></div>
@@ -206,21 +215,122 @@ var FC=(function(){
     s=Math.max(smin||.3,s);
     return {x:(view.x0+view.x1)/2-(bb.x0+bb.x1)/2*s,y:(view.y0+view.y1)/2-(bb.y0+bb.y1)/2*s,s:s};
   }
-  /* Viiva a → b: vaakaan, jos laatikoiden välissä on vaakarakoa, muuten pystyyn. Palauttaa SVG-polun. */
-  function path(a,b){
-    var gx=Math.abs(b.x-a.x)-(a.w+b.w)/2, gy=Math.abs(b.y-a.y)-(a.h+b.h)/2, x1,y1,x2,y2,c;
-    if(gx>=12||gx>=gy){
-      var d=b.x>=a.x?1:-1;
-      x1=a.x+d*(a.w/2+2);y1=a.y;x2=b.x-d*(b.w/2+4);y2=b.y;c=Math.max(24,Math.abs(x2-x1)/2);
+  /* Viiva a → b: vaakaan, jos laatikoiden välissä on vaakarakoa, muuten pystyyn. oa, ob = pään siirto reunaa pitkin. */
+  function orient(a,b){
+    var gx=Math.abs(b.x-a.x)-(a.w+b.w)/2, gy=Math.abs(b.y-a.y)-(a.h+b.h)/2;
+    if(gx>=12||gx>=gy){var d=b.x>=a.x?1:-1;return {h:1,d:d,sa:d>0?'r':'l',sb:d>0?'l':'r'}}
+    var e=b.y>=a.y?1:-1;return {h:0,d:e,sa:e>0?'b':'t',sb:e>0?'t':'b'};
+  }
+  function path(a,b,oa,ob){
+    oa=oa||0;ob=ob||0;
+    var o=orient(a,b),x1,y1,x2,y2,c,d=o.d;
+    if(o.h){
+      x1=a.x+d*(a.w/2+2);y1=a.y+oa;x2=b.x-d*(b.w/2+4);y2=b.y+ob;c=Math.max(24,Math.abs(x2-x1)/2);
       return 'M'+r1(x1)+','+r1(y1)+' C'+r1(x1+d*c)+','+r1(y1)+' '+r1(x2-d*c)+','+r1(y2)+' '+r1(x2)+','+r1(y2);
     }
-    var e=b.y>=a.y?1:-1;
-    x1=a.x;y1=a.y+e*(a.h/2+2);x2=b.x;y2=b.y-e*(b.h/2+4);c=Math.max(20,Math.abs(y2-y1)/2);
-    return 'M'+r1(x1)+','+r1(y1)+' C'+r1(x1)+','+r1(y1+e*c)+' '+r1(x2)+','+r1(y2-e*c)+' '+r1(x2)+','+r1(y2);
+    x1=a.x+oa;y1=a.y+d*(a.h/2+2);x2=b.x+ob;y2=b.y-d*(b.h/2+4);c=Math.max(20,Math.abs(y2-y1)/2);
+    return 'M'+r1(x1)+','+r1(y1)+' C'+r1(x1)+','+r1(y1+d*c)+' '+r1(x2)+','+r1(y2-d*c)+' '+r1(x2)+','+r1(y2);
   }
   function r1(v){return Math.round(v*10)/10}
+  /* Kaikki viivat: saman palikan saman reunan päät levitetään toisen pään järjestyksessä, jotteivät viivat mene päällekkäin.
+     rm = {id: rect}. Palauttaa [{a,b,d}]. */
+  function routes(rm,links){
+    var ends={},out=[];
+    links.forEach(function(l,i){
+      var a=rm[l.a],b=rm[l.b];if(!a||!b)return;
+      var o=orient(a,b),r={l:l,a:a,b:b,o:o,oa:0,ob:0};out.push(r);
+      (ends[l.a+o.sa]=ends[l.a+o.sa]||[]).push({r:r,end:'oa',k:o.h?b.y:b.x,t:o.h?b.x:b.y,i:i,len:o.h?a.h:a.w});
+      (ends[l.b+o.sb]=ends[l.b+o.sb]||[]).push({r:r,end:'ob',k:o.h?a.y:a.x,t:o.h?a.x:a.y,i:i,len:o.h?b.h:b.w});
+    });
+    Object.keys(ends).forEach(function(k){
+      var g=ends[k];if(g.length<2)return;
+      g.sort(function(p,q){return p.k-q.k||p.t-q.t||p.i-q.i});
+      var step=Math.min(14,(g[0].len-12)/(g.length-1));if(step<0)step=0;
+      g.forEach(function(e,j){e.r[e.end]=(j-(g.length-1)/2)*step});
+    });
+    return out.map(function(r){return {a:r.l.a,b:r.l.b,d:path(r.a,r.b,r.oa,r.ob)}});
+  }
+  /* Yhtenäiset osat (viivat suunnasta välittämättä) */
+  function components(p){
+    var adj={},seen={},res=[];
+    p.n.forEach(function(o){adj[o.id]=[]});
+    p.l.forEach(function(l){if(adj[l.a]&&adj[l.b]){adj[l.a].push(l.b);adj[l.b].push(l.a)}});
+    p.n.forEach(function(o){
+      if(seen[o.id])return;var c=[],st=[o.id];seen[o.id]=1;
+      while(st.length){var v=st.pop();c.push(v);adj[v].forEach(function(w){if(!seen[w]){seen[w]=1;st.push(w)}})}
+      res.push(c);
+    });
+    return res;
+  }
+  /* Automaattinen järjestys: ankkurin yhtenäinen osa sarakkeiksi vasemmalta oikealle (ennen → jälkeen).
+     Sarake = pisin polku alusta; alku ilman edeltäjää siirtyy seuraajansa viereen. Saman sarakkeen palikat
+     edeltäjiensä korkeudelle, päällekkäin menevät työnnetään erilleen. Ankkuri pysyy paikallaan, ja muut osat,
+     joiden päälle osa tulisi, siirtyvät alemmas. sz(id) = {w,h}. */
+  function arrange(p,sz,anchor){
+    var comps=components(p),comp=null;
+    comps.forEach(function(c){if(c.indexOf(anchor)>=0)comp=c});
+    if(!comp||comp.length<2)return;
+    var inC={},N={},pred={},succ={};
+    comp.forEach(function(id){inC[id]=1;N[id]=node(p,id);pred[id]=[];succ[id]=[]});
+    var ord=comp.slice().sort(function(a,b){return N[a].x-N[b].x||N[a].y-N[b].y});
+    /* kehät: syvyyshaun takaisin osoittavat viivat eivät vaikuta sarakkeisiin */
+    var es=p.l.filter(function(l){return inC[l.a]&&inC[l.b]}),out={},state={},back={};
+    comp.forEach(function(id){out[id]=[]});
+    es.forEach(function(l,i){out[l.a].push(i)});
+    function dfs(v){state[v]=1;out[v].forEach(function(i){var w=es[i].b;if(state[w]===1)back[i]=1;else if(!state[w])dfs(w)});state[v]=2}
+    ord.forEach(function(v){if(!state[v])dfs(v)});
+    es.forEach(function(l,i){if(!back[i]){pred[l.b].push(l.a);succ[l.a].push(l.b)}});
+    /* sarakkeet topologisessa järjestyksessä */
+    var indeg={},topo=[],q=[];
+    comp.forEach(function(id){indeg[id]=pred[id].length});
+    ord.forEach(function(id){if(!indeg[id])q.push(id)});
+    while(q.length){var v=q.shift();topo.push(v);succ[v].forEach(function(w){if(!--indeg[w])q.push(w)})}
+    var rank={};
+    topo.forEach(function(v){rank[v]=0;pred[v].forEach(function(u){rank[v]=Math.max(rank[v],rank[u]+1)})});
+    for(var i=topo.length-1;i>=0;i--){var v2=topo[i];
+      if(!pred[v2].length&&succ[v2].length)rank[v2]=Math.min.apply(null,succ[v2].map(function(w){return rank[w]}))-1}
+    var mn=Math.min.apply(null,comp.map(function(id){return rank[id]})),cols=[];
+    comp.forEach(function(id){rank[id]-=mn;(cols[rank[id]]=cols[rank[id]]||[]).push(id)});
+    var Y={},X={},old={};
+    comp.forEach(function(id){old[id]={x:N[id].x,y:N[id].y};Y[id]=N[id].y});
+    function pack(col,want){
+      col.sort(function(a,b){return want[a]-want[b]||old[a].y-old[b].y});
+      var pos={},prev=null,sum=0;
+      col.forEach(function(id){var h=sz(id).h,y=want[id];
+        if(prev!=null){var lim=Y[prev]+sz(prev).h/2+GAPY+h/2;if(y<lim)y=lim}
+        Y[id]=y;prev=id});
+      col.forEach(function(id){sum+=want[id]-Y[id]});
+      var sh=sum/col.length;col.forEach(function(id){Y[id]+=sh});
+    }
+    function avg(list){var s=0;list.forEach(function(u){s+=Y[u]});return s/list.length}
+    cols.forEach(function(col){if(!col)return;var want={};
+      col.forEach(function(id){var pr=pred[id].filter(function(u){return rank[u]<rank[id]});want[id]=pr.length?avg(pr):old[id].y});
+      pack(col,want)});
+    for(var k=cols.length-1;k>=0;k--){var col=cols[k];if(!col)continue;var want={},any=false;
+      col.forEach(function(id){var pr=pred[id].filter(function(u){return rank[u]<rank[id]});
+        if(!pr.length&&succ[id].length){want[id]=avg(succ[id]);any=true}else want[id]=Y[id]});
+      if(any)pack(col,want)}
+    var cx=0,prevW=null;
+    cols.forEach(function(col,k){if(!col)return;var w=Math.max.apply(null,col.map(function(id){return sz(id).w}));
+      if(prevW!=null)cx+=prevW/2+GAPX+w/2;col.forEach(function(id){X[id]=cx});prevW=w});
+    var dx=old[anchor].x-X[anchor],dy=old[anchor].y-Y[anchor];
+    comp.forEach(function(id){N[id].x=X[id]+dx;N[id].y=Y[id]+dy});
+    /* muut osat pois alta: ylhäältä alas, kukin alemmas, kunnes se ei osu jo sijoitettuihin */
+    var R=function(id){var o=node(p,id),z=sz(id);return {x:o.x,y:o.y,w:z.w,h:z.h}};
+    var placed=comp.map(R),others=comps.filter(function(c){return c!==comp});
+    others.sort(function(c1,c2){return bbox(c1.map(R)).y0-bbox(c2.map(R)).y0});
+    others.forEach(function(c){
+      for(var guard=0;guard<50;guard++){
+        var rs=c.map(R),lo=null;
+        rs.forEach(function(a){placed.forEach(function(b){if(hit(a,b,16)){var e=b.y+b.h/2;if(lo==null||e>lo)lo=e}})});
+        if(lo==null)break;
+        var sh=lo+GAPY+16-bbox(rs).y0;c.forEach(function(id){node(p,id).y+=sh});
+      }
+      placed=placed.concat(c.map(R));
+    });
+  }
   return {VER:VER,GAPX:GAPX,GAPY:GAPY,uid:uid,empty:empty,repair:repair,wrap:wrap,node:node,removeNode:removeNode,link:link,
-    hit:hit,freeSpot:freeSpot,snap:snap,besideSpot:besideSpot,bbox:bbox,clampCam:clampCam,fitCam:fitCam,path:path};
+    hit:hit,freeSpot:freeSpot,snap:snap,besideSpot:besideSpot,bbox:bbox,clampCam:clampCam,fitCam:fitCam,path:path,orient:orient,routes:routes,components:components,arrange:arrange};
 })();
 if(typeof module!=='undefined')module.exports=FC;
 </script>
@@ -298,14 +408,40 @@ function render(){
 }
 function grow(){if(!ta)return;ta.style.height='auto';ta.style.height=ta.scrollHeight+'px'}
 function measure(){P.n.forEach(function(o){var el=els[o.id];if(el)sizes[o.id]={w:el.offsetWidth,h:el.offsetHeight}})}
-function lines(){
-  var h='';
-  P.l.forEach(function(l){
-    var a=rectOf(l.a),b=rectOf(l.b);if(!a||!b)return;
-    var on=sel&&(l.a===sel||l.b===sel);
-    h+='<path class="ln'+(on?' on':'')+'" d="'+FC.path(a,b)+'" marker-end="url(#'+(on?'arr2':'arr')+')"/>';
+/* pos = valinnainen {id:{x,y}} liukuman ajaksi */
+function lines(pos){
+  var h='',rm={};
+  P.n.forEach(function(o){var z=sizes[o.id]||{w:80,h:42},q=pos&&pos[o.id]||o;rm[o.id]={x:q.x,y:q.y,w:z.w,h:z.h}});
+  FC.routes(rm,P.l).forEach(function(r){
+    var on=sel&&(r.a===sel||r.b===sel);
+    h+='<path class="ln'+(on?' on':'')+'" d="'+r.d+'" marker-end="url(#'+(on?'arr2':'arr')+')"/>';
   });
   lg.innerHTML=h;
+}
+function snapshot(){var m={};P.n.forEach(function(o){m[o.id]={x:o.x,y:o.y}});return m}
+/* Palikat liukuvat vanhoista paikoista uusiin (viivat mukana) */
+var glideA=null;
+function glide(prev){
+  cancelAnimationFrame(glideA);
+  var moving=P.n.filter(function(o){var q=prev[o.id];return q&&(Math.abs(q.x-o.x)>.5||Math.abs(q.y-o.y)>.5)});
+  if(!moving.length)return;
+  var t0=performance.now(),ms=260;
+  (function step(now){
+    var k=Math.min(1,(now-t0)/ms),e=1-Math.pow(1-k,3),pos={};
+    moving.forEach(function(o){var q=prev[o.id],x=q.x+(o.x-q.x)*e,y=q.y+(o.y-q.y)*e;pos[o.id]={x:x,y:y};
+      var el=els[o.id];if(el){el.style.left=x+'px';el.style.top=y+'px'}});
+    lines(pos);if(k<1)glideA=requestAnimationFrame(step);
+  })(t0);
+}
+function sz(id){return sizes[id]||{w:80,h:42}}
+/* Järjestys: yhtenäinen osa automaattisesti, yksittäinen palikka lähimpään vapaaseen kohtaan */
+function tidy(ids){
+  ids.forEach(function(id){
+    var o=FC.node(P,id);if(!o)return;
+    var linked=P.l.some(function(l){return l.a===id||l.b===id});
+    if(linked)FC.arrange(P,sz,id);
+    else{var rs=rects().filter(function(r){return r.id!==id}),q=FC.freeSpot(rs,rectOf(id));o.x=q.x;o.y=q.y}
+  });
 }
 function chrome(){
   $('empty').hidden=P.n.length>0;
@@ -356,14 +492,13 @@ function commit(){
   if(!o.t){FC.removeNode(P,id);delete sizes[id];sel=from&&FC.node(P,from.id)?from.id:null}
   else{
     var el=els[id];if(el){el.classList.remove('edit');el.textContent=o.t}
-    var old=sizes[id]||{w:EDITW,h:42};measure();var z=sizes[id];
-    /* Kapeneva palikka pitää viivan puoleisen reunansa paikallaan */
-    if(from&&from.dir===1)o.x=o.x-old.w/2+z.w/2;
-    else if(from&&from.dir===-1)o.x=o.x+old.w/2-z.w/2;
-    var rs=rects(),me=rectOf(id),q=FC.freeSpot(rs.filter(function(r){return r.id!==id}),me);o.x=q.x;o.y=q.y;
-    sel=id;
+    measure();var prev=snapshot();
+    tidy([from&&FC.node(P,from.id)?from.id:id]);
+    sel=id;save();render();glide(prev);setTimeout(settle,300);return;
   }
-  save();render();setTimeout(settle,30);
+  if(from&&FC.node(P,from.id)){var prev2=snapshot();tidy([from.id]);save();render();glide(prev2)}
+  else{save();render()}
+  setTimeout(settle,300);
 }
 function createAt(wx,wy){
   var rs=rects(),s=FC.snap(rs,{x:wx,y:wy}),q=FC.freeSpot(rs,{x:s.x,y:s.y,w:EDITW,h:42});
@@ -372,10 +507,11 @@ function createAt(wx,wy){
 }
 function createBeside(sid,dir){
   var s=rectOf(sid);if(!s)return;
-  var q=FC.besideSpot(rects(),s,EDITW,42,dir),o={id:FC.uid(),x:q.x,y:q.y,t:''};
+  var prev=snapshot(),q=FC.besideSpot(rects(),s,EDITW,42,dir),o={id:FC.uid(),x:q.x,y:q.y,t:''};
   P.n.push(o);sizes[o.id]={w:EDITW,h:42};
   if(dir===1)FC.link(P,sid,o.id);else FC.link(P,o.id,sid);
-  startEdit(o.id,{id:sid,dir:dir});
+  FC.arrange(P,sz,sid);
+  startEdit(o.id,{id:sid,dir:dir});glide(prev);
 }
 
 /* ---------- eleet ---------- */
@@ -393,7 +529,7 @@ stage.addEventListener('pointerdown',function(e){
   pts[e.pointerId]={x:e.clientX,y:e.clientY};
   var ids=Object.keys(pts);
   if(ids.length===2){
-    endLong();if(g&&g.mode==='node')dropNode();g=null;
+    endLong();if(g&&g.mode==='node'){showDrop(null);dropNode()}g=null;
     var a=pts[ids[0]],b=pts[ids[1]];
     pinch={d:Math.hypot(a.x-b.x,a.y-b.y)||1,c:{x:(a.x+b.x)/2,y:(a.y+b.y)/2},cam:{x:cam.x,y:cam.y,s:cam.s}};
     return;
@@ -430,11 +566,40 @@ addEventListener('pointermove',function(e){
   else if(g.mode==='node'){
     var o=FC.node(P,g.nid);if(!o)return;o.x+=dx/cam.s;o.y+=dy/cam.s;
     var el2=els[o.id];el2.style.left=o.x+'px';el2.style.top=o.y+'px';lines();
+    var w=toWorld(e.clientX,e.clientY);showDrop(dropAt(o.id,w.x,w.y));
   }
 });
+/* Pudotus toisen päälle: sormi palikan vasemmalla puolella = ennen (raahattu → kohde), oikealla = jälkeen (kohde → raahattu).
+   Jos sama viiva on jo, pudotus irrottaa. */
+var drop=null;
+function dropAt(id,wx,wy){
+  var best=null;
+  P.n.forEach(function(n){if(n.id===id)return;var r=rectOf(n.id);
+    if(Math.abs(wx-r.x)<=r.w/2+6&&Math.abs(wy-r.y)<=r.h/2+6)best={id:n.id,dir:wx<r.x?-1:1}});
+  if(!best)return null;
+  var a=best.dir<0?id:best.id,b=best.dir<0?best.id:id;
+  best.a=a;best.b=b;best.has=P.l.some(function(l){return l.a===a&&l.b===b});
+  return best;
+}
+function showDrop(d){
+  if(drop&&els[drop.id])els[drop.id].classList.remove('dropL','dropR','dropX');
+  drop=d;var pill=$('drop');
+  if(!d){pill.hidden=true;return}
+  var el=els[d.id],t=FC.node(P,d.id).t;if(t.length>22)t=t.slice(0,21)+'…';
+  if(el)el.classList.add(d.has?'dropX':d.dir<0?'dropL':'dropR');
+  pill.textContent=d.has?'Irrota yhteys: '+t:d.dir<0?'← Ennen kuin '+t:'Jälkeen '+t+' →';
+  pill.classList.toggle('x',!!d.has);pill.hidden=false;
+}
 function dropNode(){
   var o=FC.node(P,g.nid);if(!o)return;
   var el=els[o.id];if(el)el.classList.remove('drag');
+  var d=drop;showDrop(null);
+  if(d&&FC.node(P,d.id)){
+    var prev=snapshot();
+    if(d.has){P.l=P.l.filter(function(l){return !(l.a===d.a&&l.b===d.b)});tidy([d.id,o.id])}
+    else{P.l=P.l.filter(function(l){return !(l.a===d.b&&l.b===d.a)});FC.link(P,d.a,d.b);tidy([d.id])}
+    sel=o.id;save();render();glide(prev);setTimeout(function(){ensureVisible(o.id)},280);return;
+  }
   var rs=rects().filter(function(r){return r.id!==o.id}),me=rectOf(o.id);
   var s=FC.snap(rs,me,o.id),q=FC.freeSpot(rs,{x:s.x,y:s.y,w:me.w,h:me.h});
   o.x=q.x;o.y=q.y;save();render();
@@ -447,7 +612,7 @@ function up(e){
   endLong();
   var G=g;g=null;
   if(G.nid&&els[G.nid])els[G.nid].classList.remove('press');
-  if(e.type==='pointercancel'){if(G.mode==='node'){g=G;dropNode();g=null}settle();return}
+  if(e.type==='pointercancel'){if(G.mode==='node'){showDrop(null);g=G;dropNode();g=null}settle();return}
   if(G.mode==='pan'){settle();return}
   if(G.mode==='node'){g=G;dropNode();g=null;settle();return}
   if(G.consumed)return;

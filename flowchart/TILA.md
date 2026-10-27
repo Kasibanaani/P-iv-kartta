@@ -1,6 +1,6 @@
 # Flowchart: tila
 
-**Vaihe:** versio 1 · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/flowchart/ · **Päivitetty:** 27.10.2026
+**Vaihe:** versio 1.1 · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/flowchart/ · **Päivitetty:** 27.10.2026
 
 Hyvin yksinkertainen flowchart-appi puhelimelle (Emilin toive 27.10.2026). Toistaiseksi oma appinsa; voidaan myöhemmin liittää toiseen appiin. Palikan ilme Juuren (paatospuu) asiasana-nappulasta ja Appipaja 2.0:sta.
 
@@ -16,7 +16,16 @@ Hyvin yksinkertainen flowchart-appi puhelimelle (Emilin toive 27.10.2026). Toist
 - Kanvas hakeutuu karttaan: pieni kartta pysyy kokonaan ruudussa, iso kartta peittää ruudun. Liikutus vetämällä, zoomaus kahdella sormella (0,3–2,5). Muokattava palikka pysyy näkyvissä näppäimistön yläpuolella.
 - Valikko (⋯): Näytä koko kartta, vienti ja tuonti tiedostona ja tekstinä, Appipaja 2.0 -teemat ja vaalea/tumma/laitteen mukaan, lyhyt ohje, Tyhjennä kartta.
 - Tallennus selaimen muistiin `flowchart.v1`, ulkoasu `flowchart:appearance`. Muoto `{app:'flowchart', ver:1, savedAt, projekti:{id, name, n:[{id,x,y,t}], l:[{a,b}]}}`; x,y = palikan keskipiste. `FC.repair` lukee myös pelkän projektin.
-- Testit `sh flowchart/testit/aja.sh`: 20 moottoritarkistusta + kosketuspolku 390 ja 320 px tietokoneen Chromiumissa.
+- Testit `sh flowchart/testit/aja.sh`: 29 moottoritarkistusta + kosketuspolku (myös pudotus ennen/jälkeen/irrota) 390 ja 320 px tietokoneen Chromiumissa.
+
+## Versio 1.1 (27.10.2026, Emilin pyyntö)
+
+- Palikan veto toisen päälle = yhteys. Sormi kohteen vasemmalla puolella = ennen (raahattu → kohde), oikealla = jälkeen (kohde → raahattu). Yläreunassa viesti ennen irtipäästöä (*← Ennen kuin X* / *Jälkeen X →*), kohteen reunus korostuu sillä puolella. Raahattu palikka on läpikuultava, jotta kohde näkyy.
+- Jos sama yhteys on jo, viesti on punainen *Irrota yhteys: X* ja pudotus poistaa viivan (oma lisäys: muuta viivan poistotapaa ei ole). Vastakkainen viiva korvautuu uudella.
+- Pudotuksen jälkeen palikka luiskahtaa paikalleen ja kamera tuo sen näkyviin.
+- Automaattinen järjestys (`FC.arrange`): yhteen kytketyt palikat sarakkeisiin vasemmalta oikealle (ennen → jälkeen), haarat allekkain edeltäjänsä korkeudelle keskitettynä, kehät eivät kaada. Ajetaan, kun palikka tehdään edelle/jälkeen, kuitataan tai yhdistetään. Toimintaan liittyvä palikka pysyy paikallaan, muut kartan osat siirtyvät alta alemmas. Muutos liukuu näkyviin.
+- Viivat (`FC.routes`): saman palikan saman reunan viivanpäät levitetään toisen pään järjestyksessä, joten viivat eivät lähde samasta pisteestä eivätkä mene päällekkäin. Monen sarakkeen yli menevä viiva voi yhä kulkea palikan takaa.
+- Vapaasti vedetty palikka (ei kohdetta) jää siihen, mihin se pudotettiin, mutta kytketyn osan seuraava muutos järjestää sen taas.
 
 ## Ei tarkistettu
 
@@ -30,7 +39,8 @@ Emil kokeilee puhelimella ja kertoo, mikä tuntuu väärältä.
 ## Avoimet kysymykset
 
 - Pitääkö kuitatun palikan jäädä valituksi (nyt kyllä, ketjuttamisen takia) vai pitäisikö valinnan purkautua?
-- Palikan ja viivan poisto: nyt vain tyhjentämällä teksti. Tarvitaanko viivan poisto ja kahden olemassa olevan palikan yhdistäminen?
+- Palikan poisto vain tyhjentämällä teksti. Viivan irrotus pudottamalla uudelleen samalle puolelle: kelpaako?
+- Pitääkö vapaasti siirretyn palikan paikka säilyä automaattisesta järjestyksestä huolimatta?
 - Kumoa puuttuu.
 
 ## Emilin kommentit

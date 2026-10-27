@@ -30,4 +30,29 @@ ok(FC.clampCam({x:3,y:4,s:1},null,view).x===3,'tyhjä kartta ei rajaa');
 var d=FC.path({x:0,y:0,w:100,h:40},{x:300,y:0,w:100,h:40});ok(/^M52,0 C/.test(d)&&/ 246,0$/.test(d),'vaakaviiva reunasta reunaan: '+d);
 d=FC.path({x:0,y:0,w:100,h:40},{x:10,y:200,w:100,h:40});ok(/^M0,22 /.test(d)&&/ 10,176$/.test(d),'pystyviiva: '+d);
 d=FC.path({x:300,y:0,w:100,h:40},{x:0,y:0,w:100,h:40});ok(/^M248,0 /.test(d),'vasemmalle');
+
+// viivojen päät levitetään
+var rm={a:{x:0,y:0,w:100,h:60},b:{x:300,y:-80,w:100,h:40},c:{x:300,y:80,w:100,h:40},d:{x:-300,y:0,w:100,h:40}};
+var rt=FC.routes(rm,[{a:'a',b:'c'},{a:'a',b:'b'},{a:'d',b:'a'}]);
+var ys=rt.map(function(r){return +r.d.split(' ')[0].slice(1).split(',')[1]});
+ok(ys[1]<ys[0],'ylempi kohde lähtee ylempää: '+ys);
+ok(ys[0]!==ys[1],'saman reunan päät eri kohdissa');
+// automaattinen järjestys: haarat allekkain, ei päällekkäin, ankkuri paikallaan
+var q={n:[{id:'s',x:0,y:0,t:'S'},{id:'x',x:5,y:3,t:'X'},{id:'y',x:7,y:4,t:'Y'},{id:'z',x:9,y:5,t:'Z'},{id:'p',x:-3,y:2,t:'P'},{id:'f',x:200,y:0,t:'vapaa'}],
+  l:[{a:'s',b:'x'},{a:'s',b:'y'},{a:'s',b:'z'},{a:'p',b:'s'}]};
+var SZ=function(){return {w:80,h:40}};
+FC.arrange(q,SZ,'s');
+var Q={};q.n.forEach(function(o){Q[o.id]=o});
+ok(Q.s.x===0&&Q.s.y===0,'ankkuri pysyy');
+ok(Q.x.x===Q.y.x&&Q.y.x===Q.z.x&&Q.x.x>Q.s.x+80,'jälkeen-haarat samaan sarakkeeseen oikealle');
+ok(Q.p.x<Q.s.x-80&&Q.p.y===0,'edeltäjä vasemmalle samalle korkeudelle');
+var hy=[Q.x.y,Q.y.y,Q.z.y].sort(function(a,b){return a-b});
+ok(hy[1]-hy[0]>=40+FC.GAPY-1e-9&&hy[2]-hy[1]>=40+FC.GAPY-1e-9&&Math.abs(hy[0]+hy[2])<1e-9,'haarat allekkain keskitettynä: '+hy);
+var all=q.n.map(function(o){return {id:o.id,x:o.x,y:o.y,w:80,h:40}}),ov=0;
+for(var i=0;i<all.length;i++)for(var j=i+1;j<all.length;j++)if(FC.hit(all[i],all[j],0))ov++;
+ok(ov===0,'ei päällekkäisyyksiä, vapaa palikka siirtyi alta');
+// kehä ei kaada
+var cy={n:[{id:'a',x:0,y:0,t:'a'},{id:'b',x:100,y:0,t:'b'},{id:'c',x:200,y:0,t:'c'}],l:[{a:'a',b:'b'},{a:'b',b:'c'},{a:'c',b:'a'}]};
+FC.arrange(cy,SZ,'a');ok(cy.n.every(function(o){return isFinite(o.x)&&isFinite(o.y)}),'kehä järjestyy');
+ok(FC.components(q).length===2,'osat');
 console.log('  '+(n-bad)+'/'+n+' tarkistusta');process.exit(bad?1:0);
