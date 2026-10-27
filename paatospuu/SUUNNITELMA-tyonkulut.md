@@ -1,6 +1,6 @@
 # Juuren työnkulut — toteutus ja jatko
 
-Päivitetty 27.10.2026. Emilin keskustelussa hyväksymä suunta. Vaiheet 1.94 ja 1.95 on toteutettu Emilin luvalla; tässä erotetaan toteutettu ja vielä tekemätön. Älä sekoita erilliseen flowchart-appiin.
+Päivitetty 27.10.2026. Emilin keskustelussa hyväksymä suunta. Vaiheet 1.94–1.96 on toteutettu Emilin luvalla; tässä erotetaan toteutettu ja vielä tekemätön. Älä sekoita erilliseen flowchart-appiin.
 
 ## Toteutettu 1.94
 
@@ -25,11 +25,17 @@ Päivitetty 27.10.2026. Emilin keskustelussa hyväksymä suunta. Vaiheet 1.94 ja
 7. Vaihepankki on projektikohtainen, löytyy Listoista ja Asioista. Uusi työnkulkurivi avaa valinnan valmiista vaiheista tai uuden luomisen. Vaiheen saa poistaa pankista vain kun se ei ole käytössä. Rivin poisto ei poista pankin määritelmää.
 8. Tallennus: ryhmällä phase:1, jäsenet m ja sääntö all; rivillä sg yhteisen vaiheen tunniste, name/any/g yhteensopivuuspeilejä, it oma kuittaustila. Vanhojen tiedostojen siirto on idempotentti. Tee oma versio antaa uuden tunnisteen ja säilyttää rivin oman kuittaus- ja tekstitiedon.
 
-## Seuraavaksi: työnkulku kuittaustapana (ei rakennettu)
+## Toteutettu 1.96: työnkulku kuittaustapana
 
-- Asiasanaan voi liittää yhteisen työnkulkupohjan. Tekstin aihe voi avata sen vapaaehtoisesti, tarkistuslistassa suoritus voi olla kuittauksen vaatimus.
-- Jokainen käynnistys sidotaan omaan lähtökohteeseen. Keskeneräiset säilyvät. Valmis suoritus kuittaa vain lähtökohteen kyseisen kerran.
-- Varmistetaan toistuvan tarkistuksen uusiutuminen, keskeytys, lähdekohteen poisto, pohjan muutos ja sisäkkäisten työnkulkujen kehät.
+- Asiasanakortin Listassa → Kuittaustapa valitsee suoran kuittauksen tai Listoihin rakennetun työnkulun. Linkki toimii omissa ja puusta tulevissa asiasanoissa, myös tuonnin ja viennin jälkeen.
+- Listan aktiivisen, kuittaamattoman asiasanan painaminen avaa oman suorituksen. Toinen lähderivi saa oman suorituksensa. Sama lähtökohta jatkaa keskeneräistä myös uudelleenlatauksen jälkeen. Vanhat pohjan kuittaukset eivät kopioidu.
+- Muistiinpanon tunnistetun tai päätellyn asiasanan vieressä Avaa työnkulku avaa vapaaehtoisen suorituksen; se ei kuittaa tekstiä, muistiinpanoa eikä muuta listakohdetta. Sama linkki on kirjoitusikkunassa. Tässä vaiheessa vapaaehtoisen suorituksen lähde on koko muistiinpano ja asiasana, ei yksittäinen tekstiosa.
+- Valmis — kuittaa työnkulku avautuu vasta valmistumisehtojen täytyttyä. Perustilaiset/poissuljetut vaiheet jäävät edelleen neutraaleiksi. Valmistuminen kuittaa vain alkuperäisen rivin kyseisen asiasanan kerran ja tallentaa yhteenvedon muistiinpanoksi. Kumoa palauttaa suorituksen ja lähdekuittauksen. Valmis suoritus on katseltavissa listanvalitsimessa eikä sitä voi kuitata uudestaan.
+- Toistuvan lähdekohteen uusi tarkistuskerta aloittaa uuden suorituksen; aiemman kuittauksen aika vaihtuu vasta valmistumisessa. Kalenterista tehty kuittaus ei ohita työnkulkuvaatimusta. Kuittauksen voi perua lähdekohdassa entiseen tapaan.
+- Poistunut, muuttunut, perustilaan palautunut tai uudelle kierrokselle alustettu lähtökohta ei kuittaannu vanhalla suorituksella. Muuttunut kuittaustapa estää vanhan paluukuittauksen. Suoritus voi silti valmistua ja yhteenveto kertoo, ettei lähtökohtaa kuitattu. Sisäkkäinen työnkulku sallitaan, mutta saman pohjan kehät estetään kyseisessä suoritusketjussa.
+- Suorituksen rivivalikoima ja tekstit kopioidaan käynnistyshetkellä; tekstit ovat paikallisia eivätkä luo ylimääräisiä muistiinpanoja. Yhteisten vaiheiden nimi/jäsenet/valmistumissääntö sekä projektin ehdot päivittyvät myös keskeneräisiin. Pohjan rivin lisääminen/poisto vaikuttaa seuraaviin käynnistyksiin. Pohjan poisto ei hävitä jo aloitettua suoritusta. Historiallinen yhteenvetomuistiinpano säilyttää valmistumishetken tiedon, vaikka yhteistä vaihetta myöhemmin muutettaisiin.
+- Suorituksesta voi palata lähtökohtaan kuittaamatta, aloittaa saman suorituksen alusta tai poistaa sen. Suorituksen rakenteen muokkaus tehdään pohjassa/vaihepankissa. Valmiit ja keskeneräiset suoritukset ovat erikseen nimettyinä listanvalitsimessa. Tiedot ja suoritukset pysyvät projektikohtaisina.
+- Tallennuksen valinnaiset lisäykset: asiasanan/termisanojen `wflow` = pohjalistan id, listan `run` = pohja/asiasana/lähderivi tai lähdemuistio/aiempi kuittaus/lähdekierros/valmistuminen, listan `epoch` = kierroksen tunniste, suoritusrivin `runtext` = paikallinen teksti. Vanhojen tietojen lukeminen ja koko/projektivienti säilyvät.
 
 ## Tekstikohtaiset tehtävät (ei rakennettu)
 

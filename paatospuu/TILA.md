@@ -1,8 +1,20 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.95 — yhteiset vaiheet ja vaihepankki (1.94 työnkulun tilat ja valmistumisehdot säilyvät). **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 27.10.2026
+**Vaihe:** versio 1.96 — työnkulku asiasanan kuittaustapana. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 27.10.2026
 
-Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys opetetaan napauttamalla, jokainen kierros tallentuu aikaleimattuna muistiinpanoksi. Päätöskartan yksinkertaisempi sisarappi (Emilin toive Päätöskartan TILA:ssa), oma tallennusmuoto.
+Juuren ydin on teksti, asiasanat ja niiden ehdot; Muistio, Kalenteri ja Listat ovat niiden käyttönäkymiä. Päätöspuun opetus ja vanhat listat säilyvät.
+
+## Versio 1.96 (27.10.2026): työnkulku kuittaustapana
+
+- Asiasanakortin **Listassa → Kuittaustapa**: suora kuittaus tai olemassa oleva työnkulkulista pohjaksi. Aktiivisen listakohteen painaminen käynnistää oman työnkulun; se kuittaantuu vasta työnkulun valmistuessa. Samasta kohdasta jatketaan keskeneräistä, toisesta aloitetaan erillinen. Pohjan kuittaukset eivät kopioidu.
+- Muistiinpanon asiasanan vierestä **Avaa työnkulku** käynnistää vapaaehtoisen suorituksen (myös kirjoitusikkunasta). Se ei kuittaa muistiinpanoa tai listakohdetta. Vapaaehtoinen suoritus liittyy tässä vaiheessa koko muistiinpanoon ja asiasanaan; tekstiosakohtaiset tehtävät ovat vielä tekemättä.
+- Suorituksella on **Takaisin lähtökohtaan**, oma alustus/poisto ja valmistumisehtoihin sidottu kuittaus. Valmistuminen palaa lähtökohtaan ja tallentaa yhteenvedon muistiinpanoksi. Kumoa palauttaa sekä lähdekuittauksen että suorituksen. Valmiit ja keskeneräiset suoritukset löytyvät listanvalitsimesta. Valmis on katseltava eikä sitä kuitata uudestaan.
+- Uusiutuva tarkistus vaatii uuden suorituksen. Kalenterikuittaus ei ohita työnkulun vaatimusta. Poistunut, muuttunut, estynyt tai uudelle kierrokselle siirtynyt lähde ei saa vanhaa kuittausta. Sisäkkäisten suoritusten kehät estetään.
+- Rivivalikoima ja tekstit kopioituvat käynnistettäessä, kuittaukset alkavat tyhjinä. Yhteiset vaiheet ja projektin ehdot päivittyvät myös keskeneräisiin. Pohjan rivin lisääminen/poisto vaikuttaa tuleviin suorituksiin; jo aloitetun voi jatkaa pohjan poistamisen jälkeenkin. Historiallinen yhteenvetomuistiinpano säilyttää valmistumishetken tiedot. Kaikki projektikohtaista.
+- Tallennus: valinnaiset `wflow`, `listat[].run`, `listat[].epoch`, `tarkistuslista[].runtext`. Koko/projektivienti ja tuonti mukana, vanha muoto luetaan edelleen. **Ota varmuuskopio ennen käyttöönottoa.**
+- Testaus: uuden toiminnon moottori- ja selainpolut 390/320/1280/1440 px: asetukset, ehdollinen eteneminen, kuittauksen paluu/erillisyys, jatkaminen, uudelleenlataus, kumoa, muistiosta avaus, uusiutuminen, kalenteriohituksen esto, vienti/tuonti. Koko testisarja läpi: 491 vanhaa moottoritarkistusta, 1.94–1.96:n lisätestit sekä kaikki 36 selainpolkua. Laajennettu 1.96-polku ajettiin lisäksi viimeisten muutosten jälkeen kaikilla neljällä leveydellä: myös sisäkkäinen kehä, lähteen poisto, uuden muistiinpanon tallennus ennen käynnistystä, listanvalitsimen lähdetieto ja suorituksen oma alustus/poisto sekä valmiin suorituksen katselu. Ei oikeaa iPhonea: Safari, kotinäytön turva-alueet ja kosketustuntuma jäävät kokeiltaviksi.
+
+Seuraava vaihe: tekstikohtaiset kuitattavat asiasanat ja niiden ajaton tärkeysjärjestys. Ennen tallennusmuutosta täsmennetään tekstiosan pysyvä identiteetti muokkauksissa ja erottimien muutoksissa. Avoinna myös projektirajauksen laajennus ja ehtojen kokeilutila. Toteutus ja jatkojono `SUUNNITELMA-tyonkulut.md`.
 
 ## Versio 1.95 (27.10.2026): yhteiset vaiheet
 
@@ -13,7 +25,7 @@ Kevyt päätöspuu-appi puhelimelle: sisältö tuodaan tekstinä, järjestys ope
 - Ehdot ja pankki projektikohtaisia. Yksittäisen rivin kuittaus ei kuittaa toista esiintymää, mutta voi edelleen laukaista ehdon saman listan toisella rivillä.
 - Kohdennetut testit: siirto, uudelleenluku, puun/vanhojen ryhmien jäsenet, yhteinen muokkaus, paikalliset kuittaukset, oma versio, poistot ja vienti/tuonti. Selaimessa 390/320/1280/1440 px läpi, pankin ulkoasu katsottu kuvasta. Koko sarja läpi: 491 vanhaa moottoritarkistusta, 1.94/1.95:n lisätestit ja kaikki 35 selainpolkua. Lisäksi laajennettu 1.95-polku (vienti/tuonti, poistot, vanhan ryhmän ehtoviittaus ja editorin 320 px asettelu) uusittu läpi viimeisten muutosten jälkeen. Ei oikeaa iPhonea: Safari, kotinäytön appin turva-alueet ja kosketustuntuma jäävät kokeiltaviksi.
 
-Seuraava vaihe: asiasanasta avattava työnkulku ja valmistuneen työnkulun lähtökohteen kuittaus. Tekstikohtaiset kuitattavat asiat tulevat myöhemmin. Yksityiskohdat `SUUNNITELMA-tyonkulut.md`.
+Asiasanasta avattava työnkulku ja lähtökohteen kuittaus toteutettiin 1.96:ssa. Tekstikohtaiset kuitattavat asiat tulevat myöhemmin. Yksityiskohdat `SUUNNITELMA-tyonkulut.md`.
 
 ## Versio 1.94 (27.10.2026): työnkulun perusta
 
@@ -21,7 +33,7 @@ Valmis toteutus: perustila/aktiivinen/kuitattu kierroslistoissa, aktiivisten val
 
 Osiovalikko aukeaa vasemman alakulman napin lähelle, pyyhkäisy säilyy. Järjestys valitaan suoraan. Asiasanakortilla Tunnistus-osiossa saapuvan ja lähtevän ehdon luonti. Tallennuksen uusi valinnainen kenttä `listat[].wf`: vanhat tiedostot luetaan, uusi kenttä säilyy viennissä/tuonnissa. Varmuuskopio ennen käyttöönottoa.
 
-Koko keskustelun toteutettu rajaus ja jatkojono: `SUUNNITELMA-tyonkulut.md`. Ei rakennettu: yhteisten vaiheiden pankin migraatio, asiasanasta avattava työnkulku ja sen lähtökohteen kuittaus, tekstikohtaiset tehtäväesiintymät, kokeilutila ja muut suunnitelman lisäehdotukset. Avoinna: projektirajauksen laajennus, pohjamuutokset kesken kierroksen, tekstitehtävien identiteetti.
+Koko keskustelun toteutettu rajaus ja jatkojono: `SUUNNITELMA-tyonkulut.md`. 1.95/1.96 toteuttivat vaihepankin ja asiasanasta avattavan työnkulun. Vielä tekemättä tekstikohtaiset tehtäväesiintymät, kokeilutila ja muut suunnitelman lisäehdotukset. Avoinna: projektirajauksen laajennus, pohjamuutokset kesken kierroksen, tekstitehtävien identiteetti.
 
 Testaus: uuden toiminnon moottori- ja selaintestit 390/320/1280/1440 px tietokoneen Chromiumissa läpi. Koko sarja ajettu: 491 vanhaa moottoritarkistusta, uusi moottoritesti ja kaikki 34 selainpolkua. Muuttuneen navigoinnin/kierroslistan odotuksia päivitettiin; epäonnistuneet 1.62/1.76-polut läpäisivät uusinnan. Perustestin 320 px puun kopioinnin 2 px ylivuoto korjattu päivävalitsimen kutistumisen estolla ja pienellä näytöllä Puu-apuotsikon piilotuksella; koko 320 px peruspolku uusittu läpi. Uusi 1.94-selaintesti läpi myös viimeisen asettelukorjauksen jälkeen. Ei oikeaa iPhonea: kosketus/VoiceOver, Safari-näppäimistö ja kotinäytön turva-alueet jäävät kokeiltaviksi.
 
