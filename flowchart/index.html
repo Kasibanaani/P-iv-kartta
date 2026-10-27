@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Flowchart">
+<title>Flowchart</title>
+<style>
+/* Appipaja 2.0 (design/appipaja-2.0.json): oletuksena Metsä, vaalea. JS asettaa valitun teeman muuttujat. */
+:root{
+  --bg:#F5F3EE; --cell:#FFFEFA; --label:#252B28; --label2:#5E685F; --sep:#DDE2D9;
+  --accent:#39775A; --fill:#E7F0E7; --tint:#EDF1EA; --shadow:rgba(39,61,34,.055); --shade:rgba(20,30,25,.38);
+  --on-solid:#FFFFFF; --red:#D70015;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",system-ui,"Segoe UI",Roboto,Arial,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+*{-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{position:fixed;inset:0;margin:0;overflow:hidden;overscroll-behavior:none;background:var(--bg);color:var(--label);
+  font-family:var(--font);font-size:16px;line-height:1.35;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+button,input,textarea,select{font:inherit;color:inherit}
+textarea{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+
+/* Kanvas: rajaton maailma, kamera = siirto + zoomaus */
+#stage{position:fixed;inset:0;overflow:hidden;touch-action:none;background:var(--bg);
+  background-image:radial-gradient(circle,var(--sep) 1px,transparent 1.2px);background-size:24px 24px}
+#world{position:absolute;left:0;top:0;width:0;height:0;transform-origin:0 0;will-change:transform}
+#lines{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible;color:var(--label2);pointer-events:none}
+#lines path.ln{fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round}
+#lines path.ln.on{stroke:var(--accent);stroke-width:2.2}
+
+/* Palikka: kuten Juuren asiasana-nappula, peittävä pinta, pehmeät kulmat, hillitty reuna ja varjo */
+.node{position:absolute;transform:translate(-50%,-50%);width:max-content;min-width:44px;max-width:200px;min-height:42px;padding:10px 14px;
+  border:1px solid var(--sep);border-radius:14px;background:var(--cell);color:var(--label);
+  box-shadow:0 6px 22px var(--shadow);font-size:16px;line-height:1.3;white-space:pre-wrap;overflow-wrap:anywhere;
+  text-align:center;cursor:default;transition:transform .12s ease,box-shadow .12s ease}
+.node.sel{background:var(--fill);color:var(--accent);font-weight:600;box-shadow:0 0 0 2px var(--accent),0 6px 22px var(--shadow)}
+.node.press{transform:translate(-50%,-50%) scale(1.06)}
+.node.drag{box-shadow:0 0 0 2px var(--accent),0 14px 30px var(--shade);transition:none}
+.node.edit{width:200px;background:var(--cell);box-shadow:0 0 0 2px var(--accent),0 10px 28px var(--shade);text-align:left}
+.node textarea{display:block;width:100%;margin:0;padding:0;border:0;background:transparent;resize:none;outline:none;overflow:hidden;
+  font-size:16px;line-height:1.3;min-height:21px;color:var(--label)}
+
+/* Valitun palikan vihjeet: napautus vasemmalle = edelle, oikealle = jälkeen */
+.side{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);padding:8px 10px;border-radius:11px;background:var(--cell);color:var(--label2);
+  border:1px solid var(--sep);font-size:13px;font-weight:600;pointer-events:none;opacity:.92}
+#hintL{left:max(8px,env(safe-area-inset-left))}
+#hintR{right:max(8px,env(safe-area-inset-right))}
+#empty{position:fixed;left:16px;right:16px;top:50%;transform:translateY(-50%);text-align:center;color:var(--label2);font-size:15px;pointer-events:none}
+
+/* Valikko: pieni nappi oikeassa yläkulmassa, loput paneelissa */
+#menubtn{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);right:max(12px,env(safe-area-inset-right));width:44px;height:44px;
+  border-radius:22px;border:1px solid var(--sep);background:var(--cell);color:var(--label);font-size:22px;line-height:1;
+  box-shadow:0 6px 22px var(--shadow);cursor:pointer;z-index:5}
+#shade{position:fixed;inset:0;background:var(--shade);z-index:9}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-height:88%;overflow:auto;z-index:10;background:var(--bg);border-radius:24px 24px 0 0;
+  padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));box-shadow:0 20px 70px var(--shade);-webkit-overflow-scrolling:touch}
+@media (min-width:600px){.sheet{left:50%;width:480px;transform:translateX(-50%)}}
+.sheet h2{margin:0 0 4px;font-size:20px;letter-spacing:-.035em}
+.sheet h3{margin:16px 0 8px;font-size:11px;font-weight:700;letter-spacing:.075em;text-transform:uppercase;color:var(--label2)}
+.sheet p{margin:6px 0;font-size:14px;color:var(--label2)}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.btn{min-height:44px;padding:0 14px;border:1px solid var(--sep);border-radius:11px;background:var(--cell);color:var(--label);cursor:pointer;font-size:15px}
+.btn.solid{background:var(--accent);border-color:var(--accent);color:var(--on-solid)}
+.btn.warn{color:var(--red)}
+.btn[aria-pressed="true"]{background:var(--fill);color:var(--accent);border:2px solid var(--accent);font-weight:600}
+.sheet textarea.io{width:100%;min-height:140px;padding:10px;border:1px solid var(--sep);border-radius:10px;background:var(--cell);font-size:16px;
+  font-family:ui-monospace,Menlo,monospace}
+.hdr{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);padding:10px 14px;border-radius:11px;
+  background:var(--label);color:var(--bg);font-size:14px;z-index:20;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.node{transition:none}}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="world">
+    <svg id="lines" aria-hidden="true"><defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="currentColor"/></marker>
+      <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" style="fill:var(--accent)"/></marker></defs><g id="lg"></g></svg>
+  </div>
+</div>
+<div id="empty">Napauta tyhjää kohtaa: uusi palikka</div>
+<div id="hintL" class="side" hidden>‹ Edelle</div>
+<div id="hintR" class="side" hidden>Jälkeen ›</div>
+<button id="menubtn" type="button" aria-label="Valikko">⋯</button>
+<div id="shade" hidden></div>
+<div id="menu" class="sheet" hidden>
+  <div class="hdr"><h2>Flowchart</h2><button class="btn" type="button" data-close>Valmis</button></div>
+  <div class="row" style="margin-top:10px"><button class="btn" type="button" id="m-fit">Näytä koko kartta</button></div>
+  <h3>Tallennus</h3>
+  <p>Kartta on vain tällä laitteella. Ota varmuuskopio tiedostona.</p>
+  <div class="row"><button class="btn" type="button" id="m-exp">Vie tiedostona</button><button class="btn" type="button" id="m-imp">Tuo tiedostosta</button>
+    <button class="btn" type="button" id="m-txt">Tekstinä</button></div>
+  <h3>Ulkoasu</h3>
+  <div class="row" id="m-mode"></div>
+  <div class="row" id="m-theme" style="margin-top:8px"></div>
+  <h3>Ohje</h3>
+  <p><b>Tyhjä kohta</b> ilman valintaa: uusi palikka, kirjoita, napauta ulos. Tyhjäksi jätetty palikka poistuu.</p>
+  <p><b>Napautus palikkaan</b> valitsee sen. Sitten napautus ruudun <b>vasemmalle</b> puolelle tekee uuden palikan edelle, <b>oikealle</b> jälkeen, viivalla yhdistettynä. Napautus valittuun palikkaan poistaa valinnan.</p>
+  <p><b>Pitkä painallus</b> palikkaan: muokkaus. <b>Vedä</b> palikkaa siirtääksesi, tyhjää kohtaa liikkuaksesi, kahdella sormella zoomaa.</p>
+  <h3>Kartta</h3>
+  <div class="row"><button class="btn warn" type="button" id="m-clear">Tyhjennä kartta</button></div>
+</div>
+<div id="txt" class="sheet" hidden>
+  <div class="hdr"><h2>Tekstinä</h2><button class="btn" type="button" data-close>Sulje</button></div>
+  <p>Kopioi talteen tai liitä aiemmin kopioitu ja paina Tuo.</p>
+  <textarea class="io" id="t-io" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+  <div class="row" style="margin-top:8px"><button class="btn" type="button" id="t-copy">Kopioi</button><button class="btn solid" type="button" id="t-imp">Tuo</button></div>
+</div>
+<input type="file" id="file" accept="application/json,.json,text/plain" hidden>
+<div id="toast" hidden></div>
+
+<script id="engine">
+/* Moottori: tietomuoto ja geometria, ei DOMia. Palikan x,y = keskipiste maailman koordinaateissa. */
+var FC=(function(){
+  var VER=1, GAPX=56, GAPY=18;
+  function uid(){return 'n'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+  function empty(){return {id:'p1',name:'Flowchart',n:[],l:[]}}
+  /* Lukee tallennuksen: koko kääre {app,ver,projekti} tai pelkkä projekti. Korjaa puuttuvat ja rikkinäiset osat. */
+  function repair(d){
+    var p=d&&d.projekti?d.projekti:d;
+    if(!p||typeof p!=='object')return empty();
+    var out={id:String(p.id||'p1'),name:String(p.name||'Flowchart'),n:[],l:[]},seen={};
+    (Array.isArray(p.n)?p.n:[]).forEach(function(o){
+      if(!o||typeof o!=='object')return;
+      var id=String(o.id||uid());if(seen[id])return;seen[id]=1;
+      var x=+o.x,y=+o.y;
+      out.n.push({id:id,x:isFinite(x)?x:0,y:isFinite(y)?y:0,t:String(o.t==null?'':o.t)});
+    });
+    var ls={};
+    (Array.isArray(p.l)?p.l:[]).forEach(function(o){
+      if(!o)return;var a=String(o.a),b=String(o.b),k=a+'>'+b;
+      if(a===b||!seen[a]||!seen[b]||ls[k])return;ls[k]=1;out.l.push({a:a,b:b});
+    });
+    return out;
+  }
+  function wrap(p){return {app:'flowchart',ver:VER,savedAt:new Date().toISOString(),projekti:p}}
+  function node(p,id){for(var i=0;i<p.n.length;i++)if(p.n[i].id===id)return p.n[i];return null}
+  function removeNode(p,id){
+    p.n=p.n.filter(function(o){return o.id!==id});
+    p.l=p.l.filter(function(o){return o.a!==id&&o.b!==id});
+  }
+  function link(p,a,b){
+    if(a===b)return;
+    for(var i=0;i<p.l.length;i++){var o=p.l[i];if((o.a===a&&o.b===b))return}
+    p.l.push({a:a,b:b});
+  }
+  /* r = {x,y,w,h} keskipisteellä */
+  function hit(a,b,pad){pad=pad||0;
+    return Math.abs(a.x-b.x)<(a.w+b.w)/2+pad&&Math.abs(a.y-b.y)<(a.h+b.h)/2+pad}
+  /* Lähin vapaa paikka pystysuunnassa: 0, alas, ylös, kaksi alas … */
+  function freeSpot(rects,r,skip){
+    var step=r.h+GAPY,c={x:r.x,y:r.y,w:r.w,h:r.h};
+    for(var k=0;k<60;k++){
+      var off=k===0?0:(k%2?1:-1)*Math.ceil(k/2)*step;
+      c.y=r.y+off;
+      var ok=true;
+      for(var i=0;i<rects.length;i++){if(rects[i].id===skip)continue;if(hit(c,rects[i],10)){ok=false;break}}
+      if(ok)return {x:c.x,y:c.y};
+    }
+    return {x:r.x,y:r.y};
+  }
+  /* Magneetti: keskilinjat kohdistuvat lähimpään palikkaan, jos ero alle rajan; muuten 8 px:n ruudukko */
+  function snap(rects,r,skip,lim){
+    lim=lim||22;var bx=null,by=null,dx=lim,dy=lim;
+    rects.forEach(function(o){
+      if(o.id===skip)return;
+      var ex=Math.abs(o.x-r.x),ey=Math.abs(o.y-r.y);
+      if(ex<dx){dx=ex;bx=o.x}
+      if(ey<dy){dy=ey;by=o.y}
+    });
+    return {x:bx!=null?bx:Math.round(r.x/8)*8,y:by!=null?by:Math.round(r.y/8)*8};
+  }
+  /* Uuden palikan paikka valitun viereen: dir 1 = jälkeen (oikealle), -1 = edelle (vasemmalle) */
+  function besideSpot(rects,s,w,h,dir){
+    var r={x:s.x+dir*(s.w/2+GAPX+w/2),y:s.y,w:w,h:h};
+    return freeSpot(rects,r);
+  }
+  function bbox(rects){
+    if(!rects.length)return null;
+    var b={x0:1/0,y0:1/0,x1:-1/0,y1:-1/0};
+    rects.forEach(function(r){
+      b.x0=Math.min(b.x0,r.x-r.w/2);b.x1=Math.max(b.x1,r.x+r.w/2);
+      b.y0=Math.min(b.y0,r.y-r.h/2);b.y1=Math.max(b.y1,r.y+r.h/2);
+    });
+    return b;
+  }
+  /* Kamera ei päästä karttaa hukkaan: pienempi kuin ruutu = pysyy kokonaan ruudussa, isompi = ruutu pysyy kartan päällä.
+     cam = {x,y,s}, ruutu = maailma*s + (x,y). view = {x0,y0,x1,y1} ruudun käytettävä alue. */
+  function clampAxis(c,a0,a1,s,v0,v1){
+    var lo,hi;
+    if((a1-a0)*s<=v1-v0){lo=v0-a0*s;hi=v1-a1*s}else{lo=v1-a1*s;hi=v0-a0*s}
+    return Math.min(hi,Math.max(lo,c));
+  }
+  function clampCam(cam,bb,view){
+    if(!bb)return {x:cam.x,y:cam.y,s:cam.s};
+    return {x:clampAxis(cam.x,bb.x0,bb.x1,cam.s,view.x0,view.x1),y:clampAxis(cam.y,bb.y0,bb.y1,cam.s,view.y0,view.y1),s:cam.s};
+  }
+  function fitCam(bb,view,smin,smax){
+    if(!bb)return {x:(view.x0+view.x1)/2,y:(view.y0+view.y1)/2,s:1};
+    var w=Math.max(1,bb.x1-bb.x0),h=Math.max(1,bb.y1-bb.y0);
+    var s=Math.min(smax||1.2,(view.x1-view.x0)/w,(view.y1-view.y0)/h);
+    s=Math.max(smin||.3,s);
+    return {x:(view.x0+view.x1)/2-(bb.x0+bb.x1)/2*s,y:(view.y0+view.y1)/2-(bb.y0+bb.y1)/2*s,s:s};
+  }
+  /* Viiva a → b: vaakaan, jos laatikoiden välissä on vaakarakoa, muuten pystyyn. Palauttaa SVG-polun. */
+  function path(a,b){
+    var gx=Math.abs(b.x-a.x)-(a.w+b.w)/2, gy=Math.abs(b.y-a.y)-(a.h+b.h)/2, x1,y1,x2,y2,c;
+    if(gx>=12||gx>=gy){
+      var d=b.x>=a.x?1:-1;
+      x1=a.x+d*(a.w/2+2);y1=a.y;x2=b.x-d*(b.w/2+4);y2=b.y;c=Math.max(24,Math.abs(x2-x1)/2);
+      return 'M'+r1(x1)+','+r1(y1)+' C'+r1(x1+d*c)+','+r1(y1)+' '+r1(x2-d*c)+','+r1(y2)+' '+r1(x2)+','+r1(y2);
+    }
+    var e=b.y>=a.y?1:-1;
+    x1=a.x;y1=a.y+e*(a.h/2+2);x2=b.x;y2=b.y-e*(b.h/2+4);c=Math.max(20,Math.abs(y2-y1)/2);
+    return 'M'+r1(x1)+','+r1(y1)+' C'+r1(x1)+','+r1(y1+e*c)+' '+r1(x2)+','+r1(y2-e*c)+' '+r1(x2)+','+r1(y2);
+  }
+  function r1(v){return Math.round(v*10)/10}
+  return {VER:VER,GAPX:GAPX,GAPY:GAPY,uid:uid,empty:empty,repair:repair,wrap:wrap,node:node,removeNode:removeNode,link:link,
+    hit:hit,freeSpot:freeSpot,snap:snap,besideSpot:besideSpot,bbox:bbox,clampCam:clampCam,fitCam:fitCam,path:path};
+})();
+if(typeof module!=='undefined')module.exports=FC;
+</script>
+
+<script id="ui">
+(function(){
+var KEY='flowchart.v1', AKEY='flowchart:appearance', EDITW=200, SMIN=.3, SMAX=2.5, LONG=450, MOVE=8;
+var THEMES=[{"id":"forest","name":"Metsä","light":{"bg":"#F5F3EE","cell":"#FFFEFA","label":"#252B28","label2":"#5E685F","sep":"#DDE2D9","accent":"#39775A","fill":"#E7F0E7","tint":"#EDF1EA"},"dark":{"bg":"#151B18","cell":"#202922","label":"#EEF1E9","label2":"#ACB8AE","sep":"#3B473E","accent":"#A2C9B6","fill":"#2B4032","tint":"#1A251E"}},{"id":"lake","name":"Järvi","light":{"bg":"#F1F3F4","cell":"#FDFEFE","label":"#263039","label2":"#586977","sep":"#D9E0E5","accent":"#386EA2","fill":"#E3EDF7","tint":"#E9EFF4"},"dark":{"bg":"#151B22","cell":"#202B35","label":"#EAF0F5","label2":"#ADBCC9","sep":"#3B4A57","accent":"#A8C8E7","fill":"#293E52","tint":"#1A2631"}},{"id":"plum","name":"Luumu","light":{"bg":"#F5F1F3","cell":"#FFFCFE","label":"#322A31","label2":"#705D6D","sep":"#E4DCE2","accent":"#87597E","fill":"#F2E9EF","tint":"#F0E9EE"},"dark":{"bg":"#20191F","cell":"#2C222B","label":"#F4ECF3","label2":"#C2AFC0","sep":"#4B3A48","accent":"#D9B7D1","fill":"#483144","tint":"#291F27"}},{"id":"sand","name":"Hiekka","light":{"bg":"#F6F2EA","cell":"#FFFDFA","label":"#332D26","label2":"#726453","sep":"#E5DDD0","accent":"#8D642C","fill":"#F3EAD8","tint":"#F0E9DC"},"dark":{"bg":"#211C16","cell":"#2D261D","label":"#F4EEE2","label2":"#C4B7A2","sep":"#4E4334","accent":"#DCC18D","fill":"#493A25","tint":"#2A2219"}},{"id":"rose","name":"Ruusu","light":{"bg":"#F7F1EE","cell":"#FFFDFA","label":"#362C29","label2":"#795F59","sep":"#E7DDD7","accent":"#A05245","fill":"#F5E7E1","tint":"#F1E8E2"},"dark":{"bg":"#241B19","cell":"#302420","label":"#F7ECE7","label2":"#CCB1A6","sep":"#514039","accent":"#E7B2A2","fill":"#51352D","tint":"#2D211D"}},{"id":"graphite","name":"Harmaa","light":{"bg":"#F3F3F3","cell":"#FEFEFE","label":"#282828","label2":"#646464","sep":"#DDDDDD","accent":"#595959","fill":"#E9E9E9","tint":"#EEEEEE"},"dark":{"bg":"#191919","cell":"#262626","label":"#EFEFEF","label2":"#B4B4B4","sep":"#444444","accent":"#BFBFBF","fill":"#393939","tint":"#202020"}},{"id":"lagoon","name":"Laguuni","light":{"bg":"#EFF4F3","cell":"#FBFEFD","label":"#243330","label2":"#586D67","sep":"#D8E3DF","accent":"#276F6A","fill":"#E0EFEC","tint":"#E7F0ED"},"dark":{"bg":"#15211F","cell":"#21302D","label":"#E9F4F0","label2":"#ACC4BC","sep":"#3C514A","accent":"#9DCEC4","fill":"#2C4640","tint":"#1B2925"}},{"id":"lavender","name":"Laventeli","light":{"bg":"#F3F1F7","cell":"#FEFCFF","label":"#302B3A","label2":"#696175","sep":"#E1DCE9","accent":"#6F5B94","fill":"#ECE6F3","tint":"#ECE8F2"},"dark":{"bg":"#1D1925","cell":"#2A2434","label":"#F0EBF7","label2":"#BFB2D0","sep":"#493E57","accent":"#C4B5E2","fill":"#403350","tint":"#241E2D"}},{"id":"olive","name":"Oliivi","light":{"bg":"#F3F3EC","cell":"#FEFEF9","label":"#303226","label2":"#656B54","sep":"#DFE2D3","accent":"#616F32","fill":"#EBEFD9","tint":"#ECEFDF"},"dark":{"bg":"#1D2016","cell":"#292E20","label":"#F0F2E4","label2":"#BFC5A5","sep":"#484F35","accent":"#C1CD92","fill":"#3F482C","tint":"#24291C"}},{"id":"copper","name":"Kupari","light":{"bg":"#F6F0EA","cell":"#FFFCF8","label":"#372D26","label2":"#776456","sep":"#E7DCCF","accent":"#965F32","fill":"#F4E7D8","tint":"#F1E6DB"},"dark":{"bg":"#241B15","cell":"#32261D","label":"#F5ECE2","label2":"#CCB5A0","sep":"#554232","accent":"#E2BB93","fill":"#513A26","tint":"#2D2118"}}];
+var $=function(id){return document.getElementById(id)};
+var stage=$('stage'),world=$('world'),lg=$('lg');
+var P=load(), cam={x:0,y:0,s:1}, sizes={}, els={}, sel=null, edit=null, editFrom=null, ta=null;
+
+/* ---------- tallennus ---------- */
+function load(){
+  try{var s=localStorage.getItem(KEY);if(s)return FC.repair(JSON.parse(s))}catch(e){}
+  return FC.empty();
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(FC.wrap(P)))}catch(e){}}
+
+/* ---------- ulkoasu ---------- */
+var AP={theme:'forest',mode:'auto'};
+try{var a=JSON.parse(localStorage.getItem(AKEY)||'null');if(a){AP.theme=a.theme||AP.theme;AP.mode=a.mode||AP.mode}}catch(e){}
+var mq=window.matchMedia?matchMedia('(prefers-color-scheme: dark)'):null;
+function applyLook(){
+  var t=THEMES.filter(function(x){return x.id===AP.theme})[0]||THEMES[0];if(!t)return;
+  var dark=AP.mode==='dark'||(AP.mode==='auto'&&mq&&mq.matches),c=dark?t.dark:t.light,st=document.documentElement.style;
+  ['bg','cell','label','label2','sep','accent','fill','tint'].forEach(function(k){st.setProperty('--'+k,c[k])});
+  st.setProperty('--shadow',dark?'rgba(0,0,0,.13)':'rgba(39,61,34,.055)');
+  st.setProperty('--shade',dark?'rgba(0,0,0,.38)':'rgba(20,30,25,.38)');
+  st.setProperty('--on-solid',dark?c.bg:'#FFFFFF');
+  st.setProperty('--red',dark?'#FF453A':'#D70015');
+  document.documentElement.style.colorScheme=dark?'dark':'light';
+  document.documentElement.setAttribute('data-theme',dark?'dark':'light');
+}
+if(mq&&mq.addEventListener)mq.addEventListener('change',applyLook);
+function saveLook(){try{localStorage.setItem(AKEY,JSON.stringify(AP))}catch(e){}applyLook();lookButtons()}
+function lookButtons(){
+  $('m-mode').innerHTML='';$('m-theme').innerHTML='';
+  [['light','Vaalea'],['dark','Tumma'],['auto','Laitteen mukaan']].forEach(function(m){
+    var b=btn(m[1],function(){AP.mode=m[0];saveLook()});b.setAttribute('aria-pressed',AP.mode===m[0]);$('m-mode').appendChild(b);
+  });
+  THEMES.forEach(function(t){
+    var b=btn(t.name,function(){AP.theme=t.id;saveLook()});b.setAttribute('aria-pressed',AP.theme===t.id);$('m-theme').appendChild(b);
+  });
+}
+function btn(tx,fn){var b=document.createElement('button');b.type='button';b.className='btn';b.textContent=tx;b.onclick=fn;return b}
+
+/* ---------- piirto ---------- */
+function rects(){return P.n.map(function(o){var z=sizes[o.id]||{w:80,h:42};return {id:o.id,x:o.x,y:o.y,w:z.w,h:z.h}})}
+function rectOf(id){var o=FC.node(P,id);if(!o)return null;var z=sizes[id]||{w:80,h:42};return {id:id,x:o.x,y:o.y,w:z.w,h:z.h}}
+function render(){
+  var keep={};
+  P.n.forEach(function(o){
+    keep[o.id]=1;
+    var el=els[o.id];
+    if(!el){el=document.createElement('div');el.className='node';el.dataset.id=o.id;world.appendChild(el);els[o.id]=el}
+    el.style.left=o.x+'px';el.style.top=o.y+'px';
+    el.classList.toggle('sel',sel===o.id&&edit!==o.id);
+    if(edit===o.id){
+      el.classList.add('edit');
+      if(!ta||ta.parentNode!==el){el.textContent='';ta=document.createElement('textarea');ta.rows=1;ta.value=o.t;
+        ta.setAttribute('autocapitalize','sentences');ta.setAttribute('aria-label','Palikan teksti');
+        ta.addEventListener('input',function(){o.t=ta.value;grow();measure();lines()});
+        ta.addEventListener('blur',commit);
+        ta.addEventListener('keydown',function(e){if(e.key==='Escape'||(e.key==='Enter'&&(e.metaKey||e.ctrlKey))){e.preventDefault();ta.blur()}});
+        el.appendChild(ta);grow()}
+    }else{
+      el.classList.remove('edit');
+      if(el.firstChild&&el.firstChild.tagName==='TEXTAREA'){el.textContent=''}
+      if(el.textContent!==o.t)el.textContent=o.t;
+    }
+  });
+  Object.keys(els).forEach(function(id){if(!keep[id]){els[id].remove();delete els[id]}});
+  measure();lines();chrome();
+}
+function grow(){if(!ta)return;ta.style.height='auto';ta.style.height=ta.scrollHeight+'px'}
+function measure(){P.n.forEach(function(o){var el=els[o.id];if(el)sizes[o.id]={w:el.offsetWidth,h:el.offsetHeight}})}
+function lines(){
+  var h='';
+  P.l.forEach(function(l){
+    var a=rectOf(l.a),b=rectOf(l.b);if(!a||!b)return;
+    var on=sel&&(l.a===sel||l.b===sel);
+    h+='<path class="ln'+(on?' on':'')+'" d="'+FC.path(a,b)+'" marker-end="url(#'+(on?'arr2':'arr')+')"/>';
+  });
+  lg.innerHTML=h;
+}
+function chrome(){
+  $('empty').hidden=P.n.length>0;
+  var show=!!sel&&!edit;$('hintL').hidden=!show;$('hintR').hidden=!show;
+}
+function applyCam(){world.style.transform='translate('+cam.x+'px,'+cam.y+'px) scale('+cam.s+')'}
+
+/* ---------- kamera ---------- */
+function view(){
+  var vv=window.visualViewport,W=vv?vv.width:innerWidth,H=vv?vv.height:innerHeight,top=vv?vv.offsetTop:0,left=vv?vv.offsetLeft:0;
+  return {x0:left+20,y0:top+64,x1:left+W-20,y1:top+H-28};
+}
+var anim=null;
+function animTo(t,ms){
+  cancelAnimationFrame(anim);var f={x:cam.x,y:cam.y,s:cam.s},t0=performance.now();ms=ms||240;
+  if(Math.abs(f.x-t.x)<.5&&Math.abs(f.y-t.y)<.5&&Math.abs(f.s-t.s)<.001){cam=t;applyCam();return}
+  (function step(now){var k=Math.min(1,(now-t0)/ms),e=1-Math.pow(1-k,3);
+    cam={x:f.x+(t.x-f.x)*e,y:f.y+(t.y-f.y)*e,s:f.s+(t.s-f.s)*e};applyCam();if(k<1)anim=requestAnimationFrame(step)})(t0);
+}
+function settle(){if(edit)return;animTo(FC.clampCam(cam,FC.bbox(rects()),view()))}
+function fit(){animTo(FC.fitCam(FC.bbox(rects()),view(),SMIN,1.2),320)}
+/* Muokattava palikka pysyy näkyvissä myös näppäimistön kanssa */
+function ensureVisible(id){
+  var r=rectOf(id);if(!r)return;var v=view(),m=12;
+  var x0=(r.x-r.w/2)*cam.s+cam.x,x1=(r.x+r.w/2)*cam.s+cam.x,y0=(r.y-r.h/2)*cam.s+cam.y,y1=(r.y+r.h/2)*cam.s+cam.y,dx=0,dy=0;
+  if(x0<v.x0+m)dx=v.x0+m-x0;else if(x1>v.x1-m)dx=v.x1-m-x1;
+  if(y0<v.y0+m)dy=v.y0+m-y0;else if(y1>v.y1-m)dy=v.y1-m-y1;
+  if(dx||dy)animTo({x:cam.x+dx,y:cam.y+dy,s:cam.s},200);
+}
+if(window.visualViewport){
+  var vvf=function(){if(edit){ensureVisible(edit)}};
+  visualViewport.addEventListener('resize',vvf);visualViewport.addEventListener('scroll',vvf);
+}
+addEventListener('resize',function(){if(!edit)settle()});
+
+/* ---------- muokkaus ---------- */
+function startEdit(id,from){
+  edit=id;editFrom=from||null;sel=null;ta=null;render();
+  try{ta.focus({preventScroll:true})}catch(e){ta.focus()}
+  var n=ta.value.length;try{ta.setSelectionRange(n,n)}catch(e){}
+  ensureVisible(id);
+}
+function commit(){
+  if(!edit)return;
+  var id=edit,o=FC.node(P,id),from=editFrom;edit=null;editFrom=null;ta=null;
+  if(!o){render();return}
+  o.t=o.t.replace(/\s+$/,'').replace(/^\s+/,'');
+  if(!o.t){FC.removeNode(P,id);delete sizes[id];sel=from&&FC.node(P,from.id)?from.id:null}
+  else{
+    var el=els[id];if(el){el.classList.remove('edit');el.textContent=o.t}
+    var old=sizes[id]||{w:EDITW,h:42};measure();var z=sizes[id];
+    /* Kapeneva palikka pitää viivan puoleisen reunansa paikallaan */
+    if(from&&from.dir===1)o.x=o.x-old.w/2+z.w/2;
+    else if(from&&from.dir===-1)o.x=o.x+old.w/2-z.w/2;
+    var rs=rects(),me=rectOf(id),q=FC.freeSpot(rs.filter(function(r){return r.id!==id}),me);o.x=q.x;o.y=q.y;
+    sel=id;
+  }
+  save();render();setTimeout(settle,30);
+}
+function createAt(wx,wy){
+  var rs=rects(),s=FC.snap(rs,{x:wx,y:wy}),q=FC.freeSpot(rs,{x:s.x,y:s.y,w:EDITW,h:42});
+  var o={id:FC.uid(),x:q.x,y:q.y,t:''};P.n.push(o);sizes[o.id]={w:EDITW,h:42};
+  startEdit(o.id,null);
+}
+function createBeside(sid,dir){
+  var s=rectOf(sid);if(!s)return;
+  var q=FC.besideSpot(rects(),s,EDITW,42,dir),o={id:FC.uid(),x:q.x,y:q.y,t:''};
+  P.n.push(o);sizes[o.id]={w:EDITW,h:42};
+  if(dir===1)FC.link(P,sid,o.id);else FC.link(P,o.id,sid);
+  startEdit(o.id,{id:sid,dir:dir});
+}
+
+/* ---------- eleet ---------- */
+var pts={},g=null,pinch=null,longT=null;
+function nodeAt(t){var el=t&&t.closest?t.closest('.node'):null;return el?el.dataset.id:null}
+function toWorld(x,y){return {x:(x-cam.x)/cam.s,y:(y-cam.y)/cam.s}}
+stage.addEventListener('pointerdown',function(e){
+  if(e.button>0)return;
+  if(ta&&e.target===ta)return;
+  var nid=nodeAt(e.target);
+  if(edit&&nid===edit)return;
+  cancelAnimationFrame(anim);
+  var consumed=false;
+  if(edit){ta.blur();consumed=true}
+  pts[e.pointerId]={x:e.clientX,y:e.clientY};
+  var ids=Object.keys(pts);
+  if(ids.length===2){
+    endLong();if(g&&g.mode==='node')dropNode();g=null;
+    var a=pts[ids[0]],b=pts[ids[1]];
+    pinch={d:Math.hypot(a.x-b.x,a.y-b.y)||1,c:{x:(a.x+b.x)/2,y:(a.y+b.y)/2},cam:{x:cam.x,y:cam.y,s:cam.s}};
+    return;
+  }
+  if(ids.length>2)return;
+  if(nid&&!FC.node(P,nid))nid=null;
+  g={id:e.pointerId,type:e.pointerType,sx:e.clientX,sy:e.clientY,lx:e.clientX,ly:e.clientY,nid:nid,mode:'tap',long:false,consumed:consumed};
+  if(nid&&!consumed){
+    longT=setTimeout(function(){if(g&&g.mode==='tap'){g.long=true;els[nid]&&els[nid].classList.add('press')}},LONG);
+  }
+});
+function endLong(){clearTimeout(longT);longT=null}
+addEventListener('pointermove',function(e){
+  if(!pts[e.pointerId])return;
+  pts[e.pointerId]={x:e.clientX,y:e.clientY};
+  if(pinch){
+    var ids=Object.keys(pts);if(ids.length<2)return;
+    var a=pts[ids[0]],b=pts[ids[1]],d=Math.hypot(a.x-b.x,a.y-b.y)||1,c={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
+    var s=Math.min(SMAX,Math.max(SMIN,pinch.cam.s*d/pinch.d));
+    var w={x:(pinch.c.x-pinch.cam.x)/pinch.cam.s,y:(pinch.c.y-pinch.cam.y)/pinch.cam.s};
+    cam={x:c.x-w.x*s,y:c.y-w.y*s,s:s};applyCam();return;
+  }
+  if(!g||g.id!==e.pointerId)return;
+  var dx=e.clientX-g.lx,dy=e.clientY-g.ly;
+  if(g.mode==='tap'){
+    if(Math.hypot(e.clientX-g.sx,e.clientY-g.sy)<MOVE)return;
+    endLong();
+    if(g.nid&&!g.consumed){g.mode='node';var el=els[g.nid];if(el){el.classList.remove('press');el.classList.add('drag')}}
+    else g.mode='pan';
+    dx=e.clientX-g.sx;dy=e.clientY-g.sy;
+  }
+  g.lx=e.clientX;g.ly=e.clientY;
+  if(g.mode==='pan'){cam.x+=dx;cam.y+=dy;applyCam()}
+  else if(g.mode==='node'){
+    var o=FC.node(P,g.nid);if(!o)return;o.x+=dx/cam.s;o.y+=dy/cam.s;
+    var el2=els[o.id];el2.style.left=o.x+'px';el2.style.top=o.y+'px';lines();
+  }
+});
+function dropNode(){
+  var o=FC.node(P,g.nid);if(!o)return;
+  var el=els[o.id];if(el)el.classList.remove('drag');
+  var rs=rects().filter(function(r){return r.id!==o.id}),me=rectOf(o.id);
+  var s=FC.snap(rs,me,o.id),q=FC.freeSpot(rs,{x:s.x,y:s.y,w:me.w,h:me.h});
+  o.x=q.x;o.y=q.y;save();render();
+}
+function up(e){
+  if(!pts[e.pointerId])return;
+  delete pts[e.pointerId];
+  if(pinch){if(Object.keys(pts).length<2){pinch=null;settle()}return}
+  if(!g||g.id!==e.pointerId)return;
+  endLong();
+  var G=g;g=null;
+  if(G.nid&&els[G.nid])els[G.nid].classList.remove('press');
+  if(e.type==='pointercancel'){if(G.mode==='node'){g=G;dropNode();g=null}settle();return}
+  if(G.mode==='pan'){settle();return}
+  if(G.mode==='node'){g=G;dropNode();g=null;settle();return}
+  if(G.consumed)return;
+  /* napautus */
+  if(G.nid){
+    if(G.long){startEdit(G.nid,null);return}
+    sel=sel===G.nid?null:G.nid;render();return;
+  }
+  if(sel&&FC.node(P,sel)){createBeside(sel,G.sx<(window.visualViewport?visualViewport.width:innerWidth)/2?-1:1);return}
+  var w=toWorld(G.sx,G.sy);sel=null;createAt(w.x,w.y);
+}
+addEventListener('pointerup',up);addEventListener('pointercancel',up);
+/* iPhone: näppäimistö aukeaa vain käyttäjän eleestä. Varmistetaan kohdistus vielä kosketuksen päättyessä,
+   ja estetään perään tulevat hiiritapahtumat, jotka veisivät kohdistuksen pois. */
+stage.addEventListener('touchend',function(e){
+  if(ta&&e.target===ta)return;
+  if(e.cancelable)e.preventDefault();
+  if(edit&&ta&&document.activeElement!==ta){try{ta.focus({preventScroll:true})}catch(x){ta.focus()}}
+},{passive:false});
+stage.addEventListener('wheel',function(e){
+  e.preventDefault();cancelAnimationFrame(anim);
+  if(e.ctrlKey||e.metaKey){
+    var s=Math.min(SMAX,Math.max(SMIN,cam.s*Math.exp(-e.deltaY*.01))),w=toWorld(e.clientX,e.clientY);
+    cam={x:e.clientX-w.x*s,y:e.clientY-w.y*s,s:s};
+  }else{cam.x-=e.deltaX;cam.y-=e.deltaY}
+  applyCam();clearTimeout(stage._wt);stage._wt=setTimeout(settle,180);
+},{passive:false});
+stage.addEventListener('dblclick',function(e){var id=nodeAt(e.target);if(id&&id!==edit)startEdit(id,null)});
+document.addEventListener('gesturestart',function(e){e.preventDefault()});
+
+/* ---------- valikko, vienti ja tuonti ---------- */
+function openSheet(id){$('shade').hidden=false;$(id).hidden=false}
+function closeSheets(){$('shade').hidden=true;$('menu').hidden=true;$('txt').hidden=true}
+$('menubtn').onclick=function(){if(edit&&ta)ta.blur();lookButtons();openSheet('menu')};
+$('shade').onclick=closeSheets;
+Array.prototype.forEach.call(document.querySelectorAll('[data-close]'),function(b){b.onclick=closeSheets});
+$('m-fit').onclick=function(){closeSheets();fit()};
+$('m-exp').onclick=function(){
+  var s=JSON.stringify(FC.wrap(P),null,1),a=document.createElement('a'),d=new Date();
+  a.href=URL.createObjectURL(new Blob([s],{type:'application/json'}));
+  a.download='flowchart-'+d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)+'.json';
+  document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1000);
+};
+$('m-imp').onclick=function(){$('file').value='';$('file').click()};
+$('file').onchange=function(){
+  var f=this.files&&this.files[0];if(!f)return;
+  var r=new FileReader();r.onload=function(){importText(String(r.result))};r.readAsText(f);
+};
+$('m-txt').onclick=function(){$('menu').hidden=true;$('t-io').value=JSON.stringify(FC.wrap(P));openSheet('txt')};
+$('t-copy').onclick=function(){
+  var t=$('t-io');t.select();
+  if(navigator.clipboard)navigator.clipboard.writeText(t.value).then(function(){toast('Kopioitu')},function(){document.execCommand('copy');toast('Kopioitu')});
+  else{document.execCommand('copy');toast('Kopioitu')}
+};
+$('t-imp').onclick=function(){importText($('t-io').value)};
+function importText(s){
+  var d;try{d=JSON.parse(s)}catch(e){toast('Ei kelpaa: ei ole Flowchartin tallennus');return}
+  if(d&&d.app&&d.app!=='flowchart'){toast('Tämä on toisen appin tallennus');return}
+  if(P.n.length&&!confirm('Korvataanko nykyinen kartta tuodulla?'))return;
+  P=FC.repair(d);sel=null;edit=null;sizes={};
+  Object.keys(els).forEach(function(id){els[id].remove()});els={};
+  save();closeSheets();render();fit();toast('Tuotu: '+P.n.length+' palikkaa');
+}
+$('m-clear').onclick=function(){
+  if(!P.n.length){closeSheets();return}
+  if(!confirm('Tyhjennetäänkö koko kartta? Tätä ei voi perua.'))return;
+  P.n=[];P.l=[];sel=null;save();closeSheets();render();cam={x:innerWidth/2,y:innerHeight/2,s:1};applyCam();
+};
+function toast(t){var el=$('toast');el.textContent=t;el.hidden=false;clearTimeout(el._t);el._t=setTimeout(function(){el.hidden=true},1800)}
+
+/* ---------- käynnistys ---------- */
+applyLook();render();
+if(P.n.length){cam=FC.fitCam(FC.bbox(rects()),view(),SMIN,1)}else{cam={x:innerWidth/2,y:innerHeight/2,s:1}}
+applyCam();
+window.FCUI={get P(){return P},get cam(){return cam},get sel(){return sel},get edit(){return edit},sizes:sizes};
+})();
+</script>
+</body>
+</html>
