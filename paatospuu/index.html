@@ -961,6 +961,13 @@ input.hue::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:
 #set-kh{margin-top:10px}
 .athumb img{display:block;width:100%;height:100%;object-fit:cover}
 .kdel{flex-wrap:wrap;align-items:center}.kdel .sub{flex:1 1 100%;margin:0}.kdel #art-delok{margin-left:auto}
+/* 1.94: perustila ei ole kuittaus eikä virhe. */
+.treebar .treepick.daypick{flex:none}
+@media(max-width:359px){.treebar #treepick small{display:none}}
+.cpill.base{background:var(--seg);color:var(--label2);border:1px dashed var(--sep);opacity:1;cursor:default}
+.cpill small.cstate{display:block;font-size:11px;font-weight:400}
+#sectionpop,#sortpop{min-width:180px;max-height:calc(100dvh - 24px);overflow:auto}
+.popm button[aria-current="true"]{background:var(--seg);font-weight:650}
 </style>
 </head>
 <body>
@@ -1015,6 +1022,8 @@ input.hue::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:
 <div id="popbg" hidden></div>
 <div class="popm" id="qxpop" hidden role="menu"><button type="button" id="qx-proj" role="menuitem"></button><button type="button" id="qx-all" role="menuitem">Vie kaikki (varmuuskopio)</button></div>
 <div class="popm" id="menupop" hidden role="menu"></div>
+<div class="popm" id="sectionpop" hidden role="menu" aria-label="Valitse osio"></div>
+<div class="popm" id="sortpop" hidden role="menu" aria-label="Järjestys"></div>
 
 <dialog id="hsheet" aria-labelledby="hs-h">
   <h2 id="hs-h">Ohje</h2>
@@ -2032,8 +2041,8 @@ function evOf(x,ctx){if(!x||(ctx&&ctx.kier))return 0;return ctx&&ctx.ev&&ctx.ev[
 function ms(s){var t=s?new Date(s).getTime():NaN;return isNaN(t)?0:t;}
 /* Rivin näkyvät kohteet: [{id, x (tallennettu kohde tai null), ok, since (ms, milloin tuli tarkistettavaksi), t?, z?, keys?}] */
 function chkView(row,ctx,now){ctx=ctx||{};var tt=ctx.tt||[],gm=ctx.gm||[],out=[],seen={};
-  function add(x,id,t,g){if(ctx.hid&&ctx.hid[id]){seen[id]=1;return;}var ev=x?evOf(x,ctx):0,ok=itemOk(x,now,ev),since=null;if(!ok)since=x&&x.ok&&ev?renewAt(x.ok,ev):t?(ctx.nc||ms(row.created)):ms(x&&x.at||row.created);
-    var v={id:id,x:x,ok:ok,since:since};if(t)v.t=1;if(g)v.g=1;if(!ok&&ctx.off&&ctx.off[id])v.off=1;out.push(v);seen[id]=1;}
+  function add(x,id,t,g){if(ctx.hid&&ctx.hid[id]&&!ctx.workflow){seen[id]=1;return;}var ev=x?evOf(x,ctx):0,ok=itemOk(x,now,ev),since=null;if(!ok)since=x&&x.ok&&ev?renewAt(x.ok,ev):t?(ctx.nc||ms(row.created)):ms(x&&x.at||row.created);
+    var base=!!(ctx.workflow&&ctx.hid&&ctx.hid[id]);var v={id:id,x:x,ok:base?false:ok,since:since};if(base)v.base=1;if(t)v.t=1;if(g)v.g=1;if(!ok&&ctx.off&&ctx.off[id])v.off=1;out.push(v);seen[id]=1;}
   /* Kohde näkyy, jos se on valittu käsin, tai sen lähde (teksti t, linkitetty ryhmä g, 1.46) laukaisee sen yhä */
   (row.it||[]).forEach(function(x){if(x.id.slice(0,2)==='z:'||seen[x.id])return;if((x.t||x.g)&&!(x.t&&tt.indexOf(x.id)>=0)&&!(x.g&&gm.indexOf(x.id)>=0))return;add(x,x.id,x.t&&tt.indexOf(x.id)>=0,x.g);});
   gm.forEach(function(id){if(id.slice(0,2)==='z:'||seen[id])return;add(null,id,0,1);});
@@ -2042,18 +2051,18 @@ function chkView(row,ctx,now){ctx=ctx||{};var tt=ctx.tt||[],gm=ctx.gm||[],out=[]
   /* Mainittu (1.44): avoimen muistiinpanon aikakohde, kun siinä mainitaan rivin nimi; toimii kuten aika */
   (ctx.mn||[]).forEach(function(m){var q={id:m.z.id,x:null,ok:false,since:m.z.since,z:1,keys:m.z.keys,mn:m.nid};if(m.pi!==undefined)q.mp=m.pi;out.push(q);});
   return out;}
-function chkItems(row,ctx,now){return chkView(row,ctx,now).filter(function(v){return !v.z&&!v.off;});}
+function chkItems(row,ctx,now){return chkView(row,ctx,now).filter(function(v){return !v.z&&!v.off&&!v.base;});}
 /* Listan ehdot (Emil 23.10.2026, 1.67): E = [{id, k:[laukaisevat asiasanat], all (1 = kaikki näistä, muuten jokin), on:[esiin], off:[pois]}].
    Ehto täyttyy, kun sen laukaisijat on kuitattu jollain listan rivillä (näkyvä, voimassa oleva kuittaus). Jonkin ehdon esiin tuoma asiasana on
    piilossa (hid), kunnes jokin sitä tuova ehto täyttyy. Poissulku voittaa: poissuljettu kuittaamaton kohde (off) ei estä rivin valmistumista
    ja näkyy harmaana; kuitattu pysyy. Lasketaan kiintopisteeseen, koska esiin tullut ja kuitattu voi laukaista seuraavan. cx(r) = rivin ctx. */
 /* 1.78 (Emil 24.10.2026): syynä myös ryhmä (o.grp = {ryhmän id: {m:[jäsenet], all}}; vain listan omille riveille liitetyt ryhmät) ja aikasana
    (o.tk = {z:late|z:today|z:tomorrow|z:week: 1}, vain jatkuvalla listalla). Ehdon laji ty:'x' = Poissulkevat: kun yksi jäsen on kuitattu, muut ovat pois. */
-function grpHit(G,K){var o={};Object.keys(G||{}).forEach(function(id){var g=G[id],m=g.m||[];if(m.length&&(g.all?m.every(function(x){return K[x];}):m.some(function(x){return K[x];})))o[id]=1;});return o;}
+function grpHit(G,K,active){var o={};Object.keys(G||{}).forEach(function(id){var g=G[id],m=(g.m||[]).filter(function(id){return !active||active[id];});if(m.length&&(g.all?m.every(function(x){return K[x];}):m.some(function(x){return K[x];})))o[id]=1;});return o;}
 function chkCond(E,rows,cx,now,o){o=o||{};var tg={},shown={},off={},hid={},i,j;(E||[]).forEach(function(e){(e.on||[]).forEach(function(id){tg[id]=1;});});
-  for(i=0;i<20;i++){hid={};Object.keys(tg).forEach(function(id){if(!shown[id])hid[id]=1;});var K={};
-    rows.forEach(function(r){var c=cx(r)||{},d={};for(j in c)d[j]=c[j];d.hid=hid;d.off=null;chkView(r,d,now).forEach(function(v){if(v.ok&&!v.z&&!v.gs)K[v.id]=1;});});
-    var GH=grpHit(o.grp,K);Object.keys(GH).forEach(function(id){K[id]=1;});Object.keys(o.tk||{}).forEach(function(id){K[id]=1;});
+  for(i=0;i<Math.max(20,E.length*2+2);i++){hid={};Object.keys(tg).forEach(function(id){if(!shown[id])hid[id]=1;});var K={},active={};
+    rows.forEach(function(r){var c=cx(r)||{},d={};for(j in c)d[j]=c[j];d.hid=hid;d.off=null;chkView(r,d,now).forEach(function(v){if(!v.base&&!v.z&&!v.off)active[v.id]=1;if(v.ok&&!v.z&&!v.gs&&!v.base)K[v.id]=1;});});
+    var GH=grpHit(o.grp,K,o.workflow?active:null);Object.keys(GH).forEach(function(id){K[id]=1;});Object.keys(o.tk||{}).forEach(function(id){K[id]=1;});
     /* 1.79: teksti syynä ("q:sana"): löytyy listan rivien teksteistä tai listan jo esiin tuomista teksteistä (ketjuttuu); tunnistus alusta kuten asiasanoilla */
     var TX=(o.tx||[]).concat(Object.keys(shown).filter(function(id){return id.slice(0,2)==='q:';}).map(function(id){return {n:normT(id.slice(2))};}));
     (E||[]).forEach(function(e){(e.k||[]).forEach(function(id){if(id.slice(0,2)==='q:'&&!K[id]&&TX.some(function(t){return hasWord(t,id.slice(2));}))K[id]=1;});});
@@ -2061,7 +2070,7 @@ function chkCond(E,rows,cx,now,o){o=o||{};var tg={},shown={},off={},hid={},i,j;(
       if(e.ty==='x'){k.forEach(function(a){if(K[a])k.forEach(function(b){if(b!==a)of[b]=1;});});return;}
       var f=e.all?k.every(function(id){return K[id];}):k.some(function(id){return K[id];});
       if(f){(e.on||[]).forEach(function(id){sh[id]=1;});(e.off||[]).forEach(function(id){of[id]=1;});}});
-    shown=sh;off=of;if(Object.keys(sh).length===n0)break;}
+    var stable=JSON.stringify(Object.keys(sh).sort())===JSON.stringify(Object.keys(shown).sort());shown=sh;off=of;if(stable)break;}
   hid={};Object.keys(tg).forEach(function(id){if(!shown[id])hid[id]=1;});var R={hid:hid,off:off},say=Object.keys(shown).filter(function(id){return id.slice(0,2)==='q:'&&!off[id];}).map(function(id){return id.slice(2);});
   /* Teksti seurauksena (1.79): listan ilmoitus (say), ei kohde */
   if(say.length)R.say=say;return R;}
@@ -2138,8 +2147,9 @@ function ehIssues(E,e,nm){var r={block:'',notes:[],dup:-1};if(!e.k.length)return
   return r;}
 function chkDone(row,now,ctx){if(ctx&&(ctx.z||(ctx.mn&&ctx.mn.length)))return false;var L=chkItems(row,ctx,now);
   /* 1.78: rivi, jonka kaikki ryhmän jäsenet ovat listan muilla riveillä, on pelkkä toteamus: valmis, kun ryhmä toteutuu */
-  if(!L.length){var G=ctx&&ctx.gs||[];if(!G.length)return true;var g=G.filter(function(x){return x.ok;}).length;return row.any?g>0:g===G.length;}var n=L.filter(function(v){return v.ok;}).length;return row.any?n>0:n===L.length;}
-function chkDue(row,now,ctx){var V=chkView(row,ctx,now);if(chkDone(row,now,ctx)){return V.filter(function(v){return v.z;});}return V.filter(function(v){return !v.ok&&!v.off;});}
+  if(!L.length){if(ctx&&ctx.workflow)return true;var G=ctx&&ctx.gs||[];if(!G.length)return true;var g=G.filter(function(x){return x.ok;}).length;return row.any?g>0:g===G.length;}var n=L.filter(function(v){return v.ok;}).length;return row.any?n>0:n===L.length;}
+function workflowReady(rows,now,ctxOf){return rows.every(function(r){return chkDone(r,now,ctxOf(r));});}
+function chkDue(row,now,ctx){var V=chkView(row,ctx,now);if(chkDone(row,now,ctx)){return V.filter(function(v){return v.z;});}return V.filter(function(v){return !v.ok&&!v.off&&!v.base;});}
 function chkRank(row,rk,today,now,ctx){var r=Infinity;chkDue(row,now,ctx).forEach(function(v){var k=rk[v.id];if(k!==undefined&&k<r)r=k;});return r;}
 /* Tasatilanne: milloin tärkeimmän arvoinen kohde laukesi (varhaisin ensin) */
 function chkSince(row,rk,now,ctx){var r=chkRank(row,rk,null,now,ctx),s=Infinity;chkDue(row,now,ctx).forEach(function(v){var k=rk[v.id];if((r===Infinity||k===r)&&v.since!==null&&v.since<s)s=v.since;});return s;}
@@ -2326,7 +2336,7 @@ function normSet(o){var out={cur:typeof o.cur==='string'?o.cur:null,projects:[],
   /* Kierroslistat (Emil 23.10.2026, 1.62): {id, name, created}. Rivi kuuluu kierroslistaan kentällä l; ilman sitä se on jatkuvalla listalla. */
   out.ehdot=[];var mergeE=function(E){(E||[]).forEach(function(e){var k=JSON.stringify([e.k,e.all?1:0,e.on,e.off,e.ty||'']);if(out.ehdot.some(function(x){return x.id===e.id||JSON.stringify([x.k,x.all?1:0,x.on,x.off,x.ty||''])===k;}))return;out.ehdot.push(e);});};
   mergeE((condsIn({ehdot:o.ehdot})||{}).ehdot);
-  out.lists=[];(Array.isArray(o.listat)?o.listat:[]).forEach(function(L){if(!L||typeof L.id!=='string'||!clean(L.name)||out.lists.some(function(x){return x.id===L.id;}))return;var X={id:L.id,name:clean(L.name).slice(0,80),created:typeof L.created==='string'?L.created:''},C=condsIn(L);if(C){if(C.eh)X.eh=1;mergeE(C.ehdot);}if(L.vk)X.vk=1;if(L.mu)X.mu=1;out.lists.push(X);});
+  out.lists=[];(Array.isArray(o.listat)?o.listat:[]).forEach(function(L){if(!L||typeof L.id!=='string'||!clean(L.name)||out.lists.some(function(x){return x.id===L.id;}))return;var X={id:L.id,name:clean(L.name).slice(0,80),created:typeof L.created==='string'?L.created:''},C=condsIn(L);if(C){if(C.eh)X.eh=1;mergeE(C.ehdot);}if(L.wf)X.wf=1;if(L.vk)X.vk=1;if(L.mu)X.mu=1;out.lists.push(X);});
   /* 1.69 (Emil 23.10.2026): ehdot ovat projektin yhteisiä (ehdot), listalla vain kytkin eh. 1.67:n listakohtaiset ehdot yhdistetään. */
   var J=condsIn(o.jatkuvalista),JL={};if(J&&J.eh)JL.eh=1;if(o.jatkuvalista&&o.jatkuvalista.mu)JL.mu=1;out.jl=Object.keys(JL).length?JL:null;if(J)mergeE(J.ehdot);
   out.chk.forEach(function(r){if(r.l&&!out.lists.some(function(L){return L.id===r.l;}))delete r.l;});
@@ -2355,7 +2365,7 @@ function normSet(o){var out={cur:typeof o.cur==='string'?o.cur:null,projects:[],
   return out;}
 function looseJson(txt){var s=String(txt||''),a=s.indexOf('{'),b=s.lastIndexOf('}');if(a<0||b<=a)return null;s=s.slice(a,b+1);
   try{return JSON.parse(s);}catch(e){}try{return JSON.parse(s.replace(/[“”„]/g,'"'));}catch(e){}return null;}
-if(typeof module!=='undefined')module.exports={prevOcc:prevOcc,recKey:recKey,recEnded:recEnded,recExpiries:recExpiries,dateLabel:dateLabel,aiOhje:aiOhje,AI_ESIM:AI_ESIM,TIME_TERMS:TIME_TERMS,wdKeys:wdKeys,WD_TERMS:WD_TERMS,treeEh:treeEh,sepParts:sepParts,noteParts:noteParts,partIx:partIx,partNote:partNote,partTerms:partTerms,ehTree:ehTree,treeEhBlock:treeEhBlock,inferTerms:inferTerms,ehIssues:ehIssues,grpHit:grpHit,ehTok:ehTok,textExtras:textExtras,ehdotText:ehdotText,chkCond:chkCond,condsIn:condsIn,chkItems:chkItems,WIN0:WIN0,winOf:winOf,calvOf:calvOf,clipDay:clipDay,durOf:durOf,planSlots:planSlots,chkPlan:chkPlan,VER:VER,ALKU:ALKU,parseLine:parseLine,lineOf:lineOf,bodyText:bodyText,parseText:parseText,lineKinds:lineKinds,blocksOf:blocksOf,rulesOf:rulesOf,writeRules:writeRules,rulesFromText:rulesFromText,rulesToText:rulesToText,canonR:canonR,renameInText:renameInText,renameLive:renameLive,blockTerms:blockTerms,withText:withText,rl:rl,ruleState:ruleState,toggleRule:toggleRule,needOf:needOf,orderOf:orderOf,cycleIf:cycleIf,toggleOrder:toggleOrder,priorityList:priorityList,hoidettavat:hoidettavat,termWords:termWords,needOpen:needOpen,setNeedMode:setNeedMode,toggleNeed:toggleNeed,causesOf:causesOf,
+if(typeof module!=='undefined')module.exports={workflowReady:workflowReady,prevOcc:prevOcc,recKey:recKey,recEnded:recEnded,recExpiries:recExpiries,dateLabel:dateLabel,aiOhje:aiOhje,AI_ESIM:AI_ESIM,TIME_TERMS:TIME_TERMS,wdKeys:wdKeys,WD_TERMS:WD_TERMS,treeEh:treeEh,sepParts:sepParts,noteParts:noteParts,partIx:partIx,partNote:partNote,partTerms:partTerms,ehTree:ehTree,treeEhBlock:treeEhBlock,inferTerms:inferTerms,ehIssues:ehIssues,grpHit:grpHit,ehTok:ehTok,textExtras:textExtras,ehdotText:ehdotText,chkCond:chkCond,condsIn:condsIn,chkItems:chkItems,WIN0:WIN0,winOf:winOf,calvOf:calvOf,clipDay:clipDay,durOf:durOf,planSlots:planSlots,chkPlan:chkPlan,VER:VER,ALKU:ALKU,parseLine:parseLine,lineOf:lineOf,bodyText:bodyText,parseText:parseText,lineKinds:lineKinds,blocksOf:blocksOf,rulesOf:rulesOf,writeRules:writeRules,rulesFromText:rulesFromText,rulesToText:rulesToText,canonR:canonR,renameInText:renameInText,renameLive:renameLive,blockTerms:blockTerms,withText:withText,rl:rl,ruleState:ruleState,toggleRule:toggleRule,needOf:needOf,orderOf:orderOf,cycleIf:cycleIf,toggleOrder:toggleOrder,priorityList:priorityList,hoidettavat:hoidettavat,termWords:termWords,needOpen:needOpen,setNeedMode:setNeedMode,toggleNeed:toggleNeed,causesOf:causesOf,
   sessionView:sessionView,moveItem:moveItem,shownName:shownName,blockedNow:blockedNow,tapDraft:tapDraft,replay:replay,exclOf:exclOf,newSession:newSession,notesOnDay:notesOnDay,dayCarry:dayCarry,commitStep:commitStep,undoStep:undoStep,sessionNote:sessionNote,sessionGroups:sessionGroups,renameKey:renameKey,removeKey:removeKey,
   replaceLine:replaceLine,orphans:orphans,dropOrphans:dropOrphans,hasWord:hasWord,normT:normT,termHits:termHits,popTerms:popTerms,termsToText:termsToText,termsFromText:termsFromText,getAnswer:getAnswer,setAnswer:setAnswer,termOn:termOn,noteTerms:noteTerms,autoTerms:autoTerms,parseDates:parseDates,occursOn:occursOn,nextOcc:nextOcc,dateLabel:dateLabel,tokensOf:tokensOf,noteDates:noteDates,dayEntries:dayEntries,moveEntry:moveEntry,setTimeText:setTimeText,toMin:toMin,fromMin:fromMin,fmtTime:fmtTime,noteTitle:noteTitle,nextDate:nextDate,
   noteAdds:noteAdds,applyAdds:applyAdds,relSpans:relSpans,lockRel:lockRel,relWord:relWord,relSweep:relSweep,mvAdd:mvAdd,mvClean:mvClean,mvSpans:mvSpans,nlSpans:nlSpans,nlClean:nlClean,setWhen:setWhen,whenSpan:whenSpan,timeTok:timeTok,chkRank:chkRank,chkSort:chkSort,chkView:chkView,chkSince:chkSince,chkTime:chkTime,chkMentions:chkMentions,chkDue:chkDue,itemOk:itemOk,renewAt:renewAt,itemUntil:itemUntil,chkDone:chkDone,chkNext:chkNext,chkOpenN:chkOpenN,toggleItem:toggleItem,occKey:occKey,occList:occList,ptDone:ptDone,safeName:safeName,expName:expName,staleK:staleK,splitAdds:splitAdds,ADD_H:ADD_H,sortNotes:sortNotes,TIME_TERMS:TIME_TERMS,SPEC:SPEC,isSpec:isSpec,timeTermOf:timeTermOf,fullOrder:fullOrder,moveDay:moveDay,clearTime:clearTime,calTerms:calTerms,addUnit:addUnit,repNext:repNext,repLabel:repLabel,repsDue:repsDue,trigHit:trigHit,trigLast:trigLast,trigNext:trigNext,trigLabel:trigLabel,repSignOff:repSignOff,moveInOrder:moveInOrder,prioSort:prioSort,impRanks:impRanks,moveToIdx:moveToIdx,meaningsOf:meaningsOf,offeredIds:offeredIds,flipMissing:flipMissing,purgeTrash:purgeTrash,fiDate:fiDate,stamp:stamp,isoD:isoD,normalizeData:normalizeData,projectsFromFile:projectsFromFile,projectFile:projectFile,looseJson:looseJson};
@@ -2717,14 +2727,24 @@ function rollIdx(){var k=tabKey();return ROLL.indexOf(k==='teach'?'use':k);}
 function syncRoll(listDot){var k=tabKey(),i=rollIdx();crumbSync();var src=document.querySelector('#nav .tab[data-tab="'+(i<0?'use':ROLL[i])+'"] svg');$('roll-ic').innerHTML=src?src.outerHTML:'';
   $('roll-now').textContent=i<0?MODE[k==='teach'?'use':k]:MODE[ROLL[i]];$('roll-next').textContent=MODE[ROLL[(i+1)%ROLL.length]];
   var d=$('roll-dots'),L=$('roll-let');d.textContent='';L.textContent='';ROLL.forEach(function(x,j){var e=el('i',j===i?'on':'');d.appendChild(e);L.appendChild(el('i',j===i?'on':'',MODE[x].charAt(0)));});
-  $('roll').setAttribute('aria-label','Osio: '+$('roll-now').textContent+'. Seuraava: '+$('roll-next').textContent);$('roll-dot').hidden=!listDot||k==='list';artLay();}
+  $('roll').setAttribute('aria-label','Osio: '+$('roll-now').textContent+'. Valitse osio');$('roll').setAttribute('aria-haspopup','menu');$('roll').setAttribute('aria-controls','sectionpop');$('roll-dot').hidden=!listDot||k==='list';artLay();}
 function rollTo(dir){var i=rollIdx(),n=i<0?(dir>0?0:ROLL.length-1):(i+dir+ROLL.length)%ROLL.length;showTab(ROLL[n]);var r=$('roll');r.classList.remove('slide');void r.offsetWidth;r.classList.add('slide');}
 (function(){var r=$('roll'),sx=null,sw=false;r.addEventListener('touchstart',function(ev){sx=ev.touches[0].clientX;sw=false;},{passive:true});
   r.addEventListener('touchend',function(ev){if(sx===null)return;var dx=ev.changedTouches[0].clientX-sx;sx=null;if(Math.abs(dx)>28){sw=true;rollTo(dx<0?1:-1);}},{passive:true});
-  r.addEventListener('click',function(){if(sw){sw=false;return;}rollTo(1);});})();
+  r.addEventListener('click',function(){if(sw){sw=false;return;}sectionMenu();});})();
 /* Valikko ja pikavienti: pieni ikkuna napin viereen. Napautus ulkopuolelle vain sulkee eikä tee muuta (Emil 24.10.2026). */
-function popClose(){['qxpop','menupop'].forEach(function(id){$(id).hidden=true;});$('menupop').textContent='';$('popbg').hidden=true;}
-function popOpen(id){['qxpop','menupop'].forEach(function(x){if(x!==id)$(x).hidden=true;});barSizes();$(id).hidden=false;$('popbg').hidden=false;}
+var popAnchor=null;
+function popClose(){['qxpop','menupop','sectionpop','sortpop'].forEach(function(id){$(id).hidden=true;});$('roll').setAttribute('aria-expanded','false');$('menupop').textContent='';$('popbg').hidden=true;}
+function anchoredMenu(id,anchor){popAnchor=anchor;popOpen(id);var m=$(id),a=anchor.getBoundingClientRect(),r=m.getBoundingClientRect(),vh=innerHeight;
+  var left=Math.max(8,Math.min(a.left,innerWidth-r.width-8)),top=a.top-r.height-8;
+  if(top<8)top=Math.min(vh-r.height-8,a.bottom+8);m.style.left=left+'px';m.style.top=Math.max(8,top)+'px';m.style.right='auto';m.style.bottom='auto';
+  var b=m.querySelector('[aria-current="true"]')||m.querySelector('button');if(b)b.focus();}
+function sectionMenu(){var m=$('sectionpop');m.textContent='';ROLL.forEach(function(k){var b=menuItem(m,'section-'+k,MODE[k],function(){showTab(k);$('roll').focus();});b.setAttribute('aria-current',tabKey()===k?'true':'false');});$('roll').setAttribute('aria-expanded','true');anchoredMenu('sectionpop',$('roll'));}
+function sortMenu(anchor){var m=$('sortpop');m.textContent='';SORTO.forEach(function(k){var b=menuItem(m,'sort-'+k,SORTN[k],function(){noteSort=k;main.scrollTop=0;render();$('notesort').focus();});b.setAttribute('aria-current',noteSort===k?'true':'false');});anchoredMenu('sortpop',anchor);}
+addEventListener('resize',function(){if(!$('sectionpop').hidden||!$('sortpop').hidden)popClose();});
+document.addEventListener('keydown',function(e){var m=document.querySelector('.popm:not([hidden])');if(!m)return;if(e.key==='Escape'){e.preventDefault();popClose();if(popAnchor&&popAnchor.isConnected)popAnchor.focus();}
+  else if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();var bs=Array.prototype.slice.call(m.querySelectorAll('button')),i=bs.indexOf(document.activeElement);if(bs.length)bs[(i+(e.key==='ArrowDown'?1:bs.length-1))%bs.length].focus();}});
+function popOpen(id){['qxpop','menupop','sectionpop','sortpop'].forEach(function(x){if(x!==id)$(x).hidden=true;});barSizes();$(id).hidden=false;$('popbg').hidden=false;}
 $('popbg').addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();popClose();});
 $('popbg').addEventListener('touchmove',function(ev){ev.preventDefault();},{passive:false});
 function toast(m){if(!m)return;undoS=null;$('undo-t').textContent=m;$('undo-b').hidden=true;$('undo').hidden=false;clearTimeout(undoT);undoT=setTimeout(undoHide,3500);}
@@ -3155,7 +3175,7 @@ function renderNotes(){var p=panels.notes;p.textContent='';var today=todayIso();
   var tb=el('div','treebar'),fb=button(tb,'','treepick',function(){fsCtx={NS:NS,T:shownT,nt:nt};renderFilter();openSheet($('fsheet'));});fb.id='filterpick';if($('fsheet').open)fsCtx={NS:NS,T:shownT,nt:nt};fb.setAttribute('aria-label','Suodata asiasanoilla');
   fb.appendChild(el('small','','Asiasanat'));fb.appendChild(el('span','',filterLabel(AT)));fb.insertAdjacentHTML('beforeend',CHEV);fb.setAttribute('aria-pressed',noteFilter.length?'true':'false');
   /* Järjestys yhtenä nappina suodattimen vieressä (1.50): napautus kiertää Tulevat → Uusimmat → Tärkeys */
-  var sb=button(tb,'','treepick',function(){noteSort=SORTO[(SORTO.indexOf(noteSort)+1)%SORTO.length];main.scrollTop=0;render();});sb.id='notesort';sb.dataset.ns=noteSort;
+  var sb=button(tb,'','treepick',function(){sortMenu(this);});sb.id='notesort';sb.dataset.ns=noteSort;sb.setAttribute('aria-haspopup','menu');
   sb.setAttribute('aria-label','Järjestys: '+SORTN[noteSort]+'. Napauta vaihtaaksesi.');sb.insertAdjacentHTML('beforeend','<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M6.5 3.5v13M3.5 13.5l3 3 3-3M13.5 16.5v-13M10.5 6.5l3-3 3 3"/></svg>');sb.appendChild(el('span','',SORTN[noteSort]));
   var q=el('input');q.type='search';q.id='nsearch';q.placeholder='Hae';q.autocomplete='off';q.setAttribute('aria-label','Hae muistiinpanoista sanalla');q.value=noteQuery;tb.appendChild(q);
   q.addEventListener('input',function(){noteQuery=q.value;filterNotes();});nb.appendChild(tb);
@@ -3487,13 +3507,14 @@ function setList(id){var k=kOf();if(k)chkLists[k.id]=id||null;try{if(id)localSto
 function listRows(){var L=curList();return data.chk.filter(function(r){return (r.l||null)===(L?L.id:null);});}
 /* 1.78 (Emil 24.10.2026): ryhmä rivillä on toteamus. Rivin kohteiksi tulevat vain ne jäsenet, jotka eivät ole saman listan muilla riveillä. */
 function elseIds(r){var o={};data.chk.forEach(function(q){if(q===r||(q.l||null)!==(r.l||null))return;(q.it||[]).forEach(function(x){if(!x.t&&!x.g)o[x.id]=1;});});return o;}
-function ctxOf0(r,today){var c=chkCtx(r,today);if(r.g&&r.g.length&&c.gm.length){var O=elseIds(r);c.gm=c.gm.filter(function(id){return !O[id];});}if(!r.l)return c;return {ev:{},mn:[],mnz:null,gm:c.gm,tt:c.tt||[],nc:c.nc,kier:1};}
+function workflowOf(lid){return (data.lists||[]).some(function(L){return L.id===lid&&L.wf;});}
+function ctxOf0(r,today){var c=chkCtx(r,today);if(!workflowOf(r.l)&&r.g&&r.g.length&&c.gm.length){var O=elseIds(r);c.gm=c.gm.filter(function(id){return !O[id];});}if(!r.l)return c;return {ev:{},mn:[],mnz:null,gm:c.gm,tt:c.tt||[],nc:c.nc,kier:1,workflow:workflowOf(r.l)};}
 /* Listan ehdot (1.67): jatkuvan listan ehdot projektin kentässä jl, kierroslistan omassa listassa. Tulos välimuistissa tallennuskertaan ja minuuttiin. */
 function condCfg(lid){return lid?(data.lists||[]).filter(function(x){return x.id===lid;})[0]||null:data.jl;}
 var condC={};
 function condOf(lid,today){var C=condCfg(lid);if(!C||!C.eh||!(data.ehdot||[]).length)return null;var key=data.k+'|'+lid+'|'+(data.meta.dirty||0)+'|'+today+'|'+Math.floor(Date.now()/60000);
   if(condC[key])return condC[key];var rows=data.chk.filter(function(r){return (r.l||null)===(lid||null);});condC={};
-  return condC[key]=chkCond(data.ehdot,rows,function(r){return ctxOf0(r,today);},new Date(),{grp:grpOf(rows),tk:lid?{}:timeKeys(rows,today),tx:rows.map(function(r){var N=noteOf(r);return {n:normT((r.name||'')+' '+(N&&!N.done?N.text:''))};})});}
+  return condC[key]=chkCond(data.ehdot,rows,function(r){return ctxOf0(r,today);},new Date(),{workflow:workflowOf(lid),grp:grpOf(rows),tk:lid?{}:timeKeys(rows,today),tx:rows.map(function(r){var N=noteOf(r);return {n:normT((r.name||'')+' '+(N&&!N.done?N.text:''))};})});}
 /* 1.78: listan ryhmät (vain riveille liitetyt) jäsenineen ja Jokin/Kaikki-sääntöineen; aikasanat, jotka jatkuvan listan rivien ajoista ovat nyt voimassa */
 function grpOf(rows){var G={},AT=ctxAT||allTerms();rows.forEach(function(r){(r.g||[]).forEach(function(gid){if(G[gid])return;var g=(data.grp||[]).filter(function(x){return x.id===gid;})[0];
   G[gid]={m:grpMembers(gid,AT).filter(function(id){return !isSpec(id);}),all:g&&g.all?1:0};});});return G;}
@@ -3501,18 +3522,19 @@ function timeKeys(rows,today){var o={};o['z:'+fromIso(today).getDay()]=1;rows.fo
 var gstC={};
 function grpStat(lid,today){var key=data.k+'|'+lid+'|'+(data.meta.dirty||0)+'|'+today+'|'+Math.floor(Date.now()/60000);if(gstC[key])return gstC[key];gstC={};
   var rows=data.chk.filter(function(r){return (r.l||null)===(lid||null);}),G=grpOf(rows),K={},now=new Date();if(!Object.keys(G).length)return gstC[key]={G:G,ok:{}};
-  rows.forEach(function(r){chkView(r,ctxOf0(r,today),now).forEach(function(v){if(v.ok&&!v.z)K[v.id]=1;});});return gstC[key]={G:G,ok:grpHit(G,K)};}
+  rows.forEach(function(r){chkView(r,ctxOf0(r,today),now).forEach(function(v){if(v.ok&&!v.z)K[v.id]=1;});});var A=null;if(workflowOf(lid)){A={};K={};var C=condOf(lid,today);rows.forEach(function(r){var c=ctxOf0(r,today);if(C){c.hid=C.hid;c.off=C.off;}chkItems(r,c,now).forEach(function(v){A[v.id]=1;if(v.ok)K[v.id]=1;});});}return gstC[key]={G:G,ok:grpHit(G,K,A)};}
 function ctxOf(r,today){today=today||todayIso();var c=ctxOf0(r,today),K=condOf(r.l||null,today);if(K){c.hid=K.hid;c.off=K.off;}
   if(r.g&&r.g.length){var S=grpStat(r.l||null,today);c.gs=r.g.filter(function(gid){return S.G[gid];}).map(function(gid){return {id:gid,ok:!!S.ok[gid]};});}return c;}
 function kierReset(L,end){var rows=data.chk.filter(function(r){return r.l===L.id;}),U=undoArm(rows.concat([data.notes]));
-  if(end){var now=new Date(),today=todayIso(),rk=chkRk(),ok=[],ho=[];ctxAT=allTerms();
+  if(end&&L.wf&&!workflowReady(rows,new Date(),function(r){return ctxOf(r,todayIso());})){toast('Työnkulussa on vielä kuitattavaa. Voit jatkaa myöhemmin.');return;}
+  if(end){var now=new Date(),today=todayIso(),rk=chkRk(),ok=[],ho=[],skip=[];ctxAT=allTerms();
     chkSort(rows,rk,today,now,function(r){return ctxOf(r,today);}).forEach(function(r){var cx=ctxOf(r,today),V=chkItems(r,cx,now),nm=r.name||(noteOf(r)?noteTitle(noteOf(r)):'')||'rivi';
       var k=V.filter(function(v){return v.ok;}).map(function(v){return itemName(v.id);}),m=V.filter(function(v){return !v.ok;}).map(function(v){return itemName(v.id);});
-      if(chkDone(r,now,cx))ok.push(nm+(k.length?' ('+k.join(', ')+')':''));else ho.push(nm+(m.length?' ('+m.join(', ')+')':''));});ctxAT=null;
+      if(L.wf&&!V.some(function(v){return v.ok;})){skip.push(nm);return;}if(chkDone(r,now,cx))ok.push(nm+(k.length?' ('+k.join(', ')+')':''));else ho.push(nm+(m.length?' ('+m.join(', ')+')':''));});ctxAT=null;
     /* 1.88 (Emil 25.10.2026): sama muoto kuin päätöspuun kierroksella: nimi, valinnat (kuittausjärjestyksessä), Kunnossa, Hoidettavat ja ehtojen tuomat tekstit omina kappaleinaan */
     var lines=[L.name],KS=condOf(L.id,today),va=[];rows.forEach(function(r){(r.it||[]).forEach(function(x){if(x.ok&&x.id.slice(0,2)!=='z:')va.push(x);});});
     va.sort(function(a,b){return a.ok<b.ok?-1:a.ok>b.ok?1:0;});va=va.map(function(x){return itemName(x.id);}).filter(function(n,i,A){return A.indexOf(n)===i;});
-    if(va.length)lines.push('Valinnat: '+va.join(' → '));if(ok.length)lines.push('Kunnossa: '+ok.join(', '));if(ho.length)lines.push('Hoidettavat: '+ho.map(function(h,i){return (i+1)+'. '+h;}).join(', '));
+    if(skip.length)lines.push('Ei aktivoitunut: '+skip.join(', '));if(va.length)lines.push('Valinnat: '+va.join(' → '));if(ok.length)lines.push('Kunnossa: '+ok.join(', '));if(ho.length)lines.push('Hoidettavat: '+ho.map(function(h,i){return (i+1)+'. '+h;}).join(', '));
     var tx=lines.join('\n');if(KS&&KS.say&&KS.say.length)tx+='\n\n'+KS.say.join('\n\n');
     var t=nowIso();data.notes.unshift({id:uid('n'),created:t,edited:t,text:tx,date:''});}
   rows.forEach(function(r){(r.it||[]).forEach(function(x){delete x.ok;});});touch();render();undoAt=Date.now();undoShow(U,end?'Kierros tallennettu muistiinpanoksi':'Kierros alussa');}
@@ -3531,13 +3553,15 @@ function renderLists(){var c=$('ws-list'),L=curList();c.textContent='';
   var ms2=el('button','tgl');ms2.type='button';ms2.id='ws-mu';ms2.setAttribute('role','switch');ms2.setAttribute('aria-checked',mo?'true':'false');ms2.setAttribute('aria-label','Tuo tänään ja myöhässä olevat muistiinpanot');
   ms2.addEventListener('click',function(){var X=condCfg(L?L.id:null);if(!X){X={};data.jl=X;}if(X.mu)delete X.mu;else X.mu=1;touch();renderLists();});mr.appendChild(ms2);cu.appendChild(mr);
   if(!L)return;
+  var wf=el('div','lrow tglrow'),wt=el('label','fl','Työnkulku: perustilat ja valmistumisen tarkistus');wt.htmlFor='ws-wf';wf.appendChild(wt);var wb=el('button','tgl');wb.type='button';wb.id='ws-wf';wb.setAttribute('role','switch');wb.setAttribute('aria-label','Työnkulku');wb.setAttribute('aria-checked',L.wf?'true':'false');wb.addEventListener('click',function(){if(L.wf)delete L.wf;else{L.wf=1;L.eh=1;}touch();renderLists();render();});wf.appendChild(wb);cu.appendChild(wf);
+  cu.appendChild(el('p','sub','Työnkulussa perustilaiset näkyvät ilman kuittausta. Ehdot aktivoivat kohdat. Voit sulkea listan ja jatkaa myöhemmin.'));
   /* 1.77: Vain kuitattavat. Rivi näkyy vasta, kun siinä on kuitattavaa (ehdot tuovat kohteita esiin), kuten päätöspuussa. */
   var vk=el('div','lrow tglrow'),vt=el('label','fl','Vain kuitattavat');vt.htmlFor='ws-vk';vk.appendChild(vt);var vs=el('button','tgl');vs.type='button';vs.id='ws-vk';vs.setAttribute('role','switch');vs.setAttribute('aria-checked',L.vk?'true':'false');vs.setAttribute('aria-label','Vain rivit, joissa on kuitattavaa');
-  vs.addEventListener('click',function(){if(L.vk)delete L.vk;else L.vk=1;touch();renderLists();});vk.appendChild(vs);cu.appendChild(vk);
+  vs.addEventListener('click',function(){if(L.vk)delete L.vk;else L.vk=1;touch();renderLists();});vk.appendChild(vs);vk.hidden=!!L.wf;cu.appendChild(vk);
   cu.appendChild(el('h3','','Tämä kierroslista'));var ar=el('div','btnrow');button(ar,'Aloita alusta','mini',function(){closeSheet($('wsheet'));kierReset(L,false);}).id='chk-reset';button(ar,'Lopeta ja tallenna muistiinpanoksi','mini',function(){closeSheet($('wsheet'));kierReset(L,true);}).id='ws-end';cu.appendChild(ar);var lr=el('div','lrow');lr.appendChild(el('label','fl','Nimi'));var ni=el('input');ni.type='text';ni.id='ws-name';ni.value=L.name;lr.appendChild(ni);cu.appendChild(lr);
   ni.addEventListener('change',function(){var v=clean(ni.value).slice(0,80);if(v&&v!==L.name){L.name=v;touch();renderLists();}});
   var dr=el('div','delrow'),db=button(dr,'Poista lista','mini dangerline',function(){delAsk(db,'Poistetaanko '+L.name+'?','Lista ja sen rivit poistuvat. Rivien tekstit jäävät muistiinpanoiksi Muistioon.',function(){
-    data.chk=data.chk.filter(function(r){return r.l!==L.id;});data.lists=data.lists.filter(function(x){return x!==L;});setList(null);touch();closeSheet($('wsheet'));render();});});db.id='ws-del';cu.appendChild(dr);}
+    data.chk=data.chk.filter(function(r){return r.l!==L.id;});data.lists=data.lists.filter(function(x){return x!==L;});setList(null);touch();closeSheet($('wsheet'));render();});});db.id='ws-del';cu.appendChild(dr);var end=$('ws-end');if(end&&L.wf){end.textContent='Kuittaa työnkulku ja tallenna';end.disabled=!workflowReady(listRows(),new Date(),function(r){return ctxOf(r,todayIso());});}}
 /* Ehtojen ikkuna (Emil 23.10.2026, 1.67; 1.69 projektin yhteiset): ylhäällä ehdot kahtena sarakkeena (Kun kuitataan | Silloin), napautus avaa
    muokattavaksi. Muokkaus: Kun kuitataan = laukaisijat (Jokin näistä / Kaikki näistä), Silloin = napautus kiertää esiin → pois → ei mitään.
    Kaikki projektin asiasanat, tähdelliset ensin; + Uusi asiasana (nimen lopun * = tärkeä). Listalla vain kytkin, ovatko ehdot käytössä. */
@@ -3628,7 +3652,7 @@ function renderEh(){if(!ehCur){ehP=null;ehTL=null;}var C=EHC,b=$('eh-body');b.te
   var br=el('div','btnrow');br.style.marginTop='12px';button(br,'Valmis','mini okbtn',function(){ehLeave();if(ehSolo){ehBack();return;}renderEh();}).id='eh-done';b.appendChild(br);
   var dr=el('div','delrow'),db=button(dr,'Poista ehto','mini dangerline',function(){delAsk(db,'Poistetaanko ehto?',TP?'Ehto poistuu puusta '+TP.name+'.':'Ehto poistuu kaikilta listoilta.',function(){C.ehdot=C.ehdot.filter(function(x){return x!==e;});ehCur=null;touch();if(ehSolo){ehBack();return;}renderEh();});});db.id='eh-del';b.appendChild(dr);}
 $('eh-ok').addEventListener('click',function(){ehLeave();ehP=null;ehTL=null;if(ehSolo){ehBack();return;}closeSheet($('ehsheet'));render();});
-function addList(){var v=clean($('ws-new').value).slice(0,80);if(!v)return;var L={id:uid('l'),name:v,created:nowIso()};data.lists=(data.lists||[]).concat([L]);setList(L.id);touch();closeSheet($('wsheet'));render();}
+function addList(){var v=clean($('ws-new').value).slice(0,80);if(!v)return;var L={id:uid('l'),name:v,created:nowIso(),wf:1,eh:1};data.lists=(data.lists||[]).concat([L]);setList(L.id);touch();closeSheet($('wsheet'));render();}
 $('ws-add').addEventListener('click',addList);$('ws-new').addEventListener('keydown',function(ev){if(ev.key==='Enter')addList();});
 $('ws-ok').addEventListener('click',function(){var n=$('ws-name');if(n)n.dispatchEvent(new Event('change'));closeSheet($('wsheet'));render();});
 /* Listasta tehty varaus (1.61, Emil 23.10.2026): kun Aikaehdotuksista tehty kalenterimerkintä kuitataan (kohta tai koko muistiinpano),
@@ -3666,10 +3690,10 @@ function renderChk(p){var now=new Date(),today=todayIso(),list=el('div','chlist'
   if(PL&&PL.dry){var fo={};PL.list.forEach(function(it,i){if(fo[it.r.id]===undefined)fo[it.r.id]=i;});SR=SR.map(function(r,i){return {r:r,i:i};}).sort(function(a,b){var x=fo[a.r.id],y=fo[b.r.id];x=x===undefined?1e9+a.i:x;y=y===undefined?1e9+b.i:y;return x-y;}).map(function(o){return o.r;});}
   /* 1.77: avatun rivin aikana järjestys pysyy (kuittaus ei siirrä rivejä alta pois) */
   if(chkFreeze){var fzp={};chkFreeze.forEach(function(id,i){fzp[id]=i;});SR=SR.map(function(r,i){return {r:r,i:i};}).sort(function(a,b){var x=fzp[a.r.id],y=fzp[b.r.id];x=x===undefined?1e6+a.i:x;y=y===undefined?1e6+b.i:y;return x-y;}).map(function(o){return o.r;});}
-  var ORD=SR.map(function(r){return r.id;}),GL=chkGlow,PRV=chkPrev;chkGlow=null;chkPrev=null;var VK=!!(LC&&LC.vk),hidN=0;
+  var ORD=SR.map(function(r){return r.id;}),GL=chkGlow,PRV=chkPrev;chkGlow=null;chkPrev=null;var VK=!!(LC&&LC.vk&&!LC.wf),hidN=0;
   var pb0=el('div','plbar'),pbl=el('div','plgrp');pb0.appendChild(pbl);var lb0=button(pbl,'','treepick',openLists);lb0.id='chlist-pick';lb0.appendChild(el('span','',LC?LC.name:'Lista'));lb0.insertAdjacentHTML('beforeend',CHEV);lb0.setAttribute('aria-label','Valitse lista');
   if(wide())button(pbl,'Asiasanat…','mini',openTerms).id='chterms';
-  if(LC){button(pb0,'Lopeta','mini',function(){kierReset(LC,true);}).id='chk-end';}
+  if(LC){var ready=workflowReady(ROWS,now,function(r){return CX[r.id];}),end=button(pb0,LC.wf?'Kuittaa työnkulku':'Lopeta','mini',function(){kierReset(LC,true);});end.id='chk-end';end.disabled=!!(LC.wf&&!ready);end.title=end.disabled?'Käsittele avoimet kohdat ennen kuittausta':'';}
   else{var pt=button(pb0,'Aikaehdotukset','chip',function(){data.cfg.plan=planOn()?'off':'on';save();render();});pt.id='chplan-t';pt.setAttribute('aria-pressed',PL?'true':'false');}($('nbar')||p).appendChild(pb0);
   if(PL)renderPlan(p,PL,today);
   SR.forEach(function(r){var cx=CX[r.id],V=chkView(r,cx,now).concat(cx.zd?[{id:cx.zd.id,x:null,ok:true,since:null,z:1,keys:cx.zd.keys,zd:1}]:[]).sort(function(a,b){return (a.off?1:0)-(b.off?1:0);}),D=chkDue(r,now,cx),RD=LC&&chkDone(r,now,cx),
@@ -3681,7 +3705,7 @@ function renderChk(p){var now=new Date(),today=todayIso(),list=el('div','chlist'
     var hd=el('button','chd');hd.type='button';hd.setAttribute('aria-expanded',open?'true':'false');
     var hn=el('span','cn');hn.appendChild(el('span','',r.name||(N?partTitle(N,r.pi):'')||'(nimetön)'));if(r.mu)hn.appendChild(el('small','cmu','muistiinpano'));
     var gsT=!V.some(function(v){return !v.z;})&&cx.gs&&cx.gs.length?(chkDone(r,now,cx)?'toteutunut':'odottaa'):'';
-    hd.appendChild(hn);hd.appendChild(el('span','cs'+(due?' late':''),cx.zd?(cx.zd.tx||'kuitattu tänään'):chkStatus(r,now,cx)||gsT));hd.insertAdjacentHTML('beforeend',CHEV);
+    hd.appendChild(hn);hd.appendChild(el('span','cs'+(due?' late':''),cx.zd?(cx.zd.tx||'kuitattu tänään'):chkStatus(r,now,cx)||(cx.workflow?(V.some(function(v){return v.ok;})?'Valmis':'Perustila'):gsT)));hd.insertAdjacentHTML('beforeend',CHEV);
     hd.addEventListener('click',function(){if(chkOpen[r.id]){delete chkOpen[r.id];if(!Object.keys(chkOpen).length){chkFreeze=null;chkGlow=r.id;chkPrev=ORD;}}else{chkOpen[r.id]=1;chkFreeze=ORD;}render();});c.appendChild(hd);
     /* 1.77: suljetulla rivillä tärkein kuittaamaton kohde nappina; kuittaus suoraan, järjestys muuttuu 0,6 s myöhemmin */
     if(!open&&TOP&&!(LC&&RD)){var tv=V.filter(function(v){return v.id===TOP&&!v.ok;})[0];if(tv){var qw=el('div','cquick'),qb=el('button','cpill ctop','');qb.type='button';qb.dataset.tid=tv.id;
@@ -3689,16 +3713,16 @@ function renderChk(p){var now=new Date(),today=todayIso(),list=el('div','chlist'
         chkFzT=setTimeout(function(){if(!Object.keys(chkOpen).length){chkFreeze=null;chkGlow=r.id;chkPrev=ORD;}if(tab==='notes'&&noteView==='chk')render();},600);});qw.appendChild(qb);c.appendChild(qw);}}
     function isRep(v){return !v.z&&!v.mn&&!!evRule(evOf(v.x||{id:v.id},cx));}
     function vName(v){var MN=v.mn?data.notes.filter(function(n){return n.id===v.mn;})[0]:null;return MN?partTitle(MN,v.mp).slice(0,48)||'(muistiinpano)':itemName(v.id);}
-    function hit(v){var x=v.x,MN=v.mn?data.notes.filter(function(n){return n.id===v.mn;})[0]:null;
+    function hit(v){if(v.base||v.off||(LC&&RD&&!v.ok))return;var x=v.x,MN=v.mn?data.notes.filter(function(n){return n.id===v.mn;})[0]:null;
       /* Aikakohde kuittaa saman päivän kalenterissa (sama tila kuin kalenterin ja muistiinpanon kuittaus) */
       if(v.z){var NN=MN||N,U0=undoArm([NN]),P=NN.pts||(NN.pts={}),t=nowIso();v.keys.forEach(function(k){if(v.zd)delete P[k];else P[k]=t;});if(v.zd&&!Object.keys(P).length)delete NN.pts;touch();render();undoAt=Date.now();undoShow(U0,v.zd?'Kuittaus peruttu':'Kuitattu');return;}
       var U=undoArm([r]);if(!x){x={id:v.id};if(v.t)x.t=1;if(v.g)x.g=1;r.it=(r.it||[]).concat([x]);}toggleItem(x,undefined,evOf(x,cx));touch();render();undoAt=Date.now();undoShow(U,x.ok?'Kuitattu':'Kuittaus peruttu');}
     if(open){var b=el('div','cbody'),pl=el('div','cpills'),inf=el('div','cinfo');
       /* Kohteet tiiviinä nappeina; kuvaus aukeaa vain pienestä ⓘ-napista (Emil 22.10.2026, 1.43) */
       V.forEach(function(v){var x=v.x,ok=v.ok,MN=v.mn?data.notes.filter(function(n){return n.id===v.mn;})[0]:null,nm=MN?partTitle(MN,v.mp).slice(0,48)||'(muistiinpano)':itemName(v.id),T=MN?null:termOf(v.id),w=el('span','cpw');
-        var pb=el('button','cpill'+(ok?' ok':'')+(v.z?' ctime':'')+(MN?' cmen':'')+((LC&&!ok&&RD)||v.off?' cno':'')+(!ok&&v.id===TOP?' ctop':''),'');pb.type='button';pb.dataset.tid=v.id;pb.setAttribute('aria-pressed',ok?'true':'false');pb.setAttribute('aria-label',(ok?'Kuitattu: ':v.id===TOP?'Tärkein, kuittaa: ':'Kuittaa: ')+nm+(isRep(v)?', toistuva':''));
+        var pb=el('button','cpill'+(v.base?' base':'')+(ok?' ok':'')+(v.z?' ctime':'')+(MN?' cmen':'')+((LC&&!ok&&RD)||v.off?' cno':'')+(!ok&&v.id===TOP?' ctop':''),'');pb.type='button';pb.disabled=!!(v.base||v.off||(LC&&!ok&&RD));pb.dataset.tid=v.id;pb.setAttribute('aria-pressed',ok?'true':'false');pb.setAttribute('aria-label',(ok?'Kuitattu: ':v.id===TOP?'Tärkein, kuittaa: ':'Kuittaa: ')+nm+(isRep(v)?', toistuva':''));
         if(isRep(v))pb.appendChild(repMark());if(MN)pb.appendChild(el('small','cmz',itemName(v.id)));pb.appendChild(document.createTextNode(nm));if(!ok&&PV[r.id+'|'+v.id])pb.appendChild(el('small','cvar','varattu '+PV[r.id+'|'+v.id]));
-        pb.addEventListener('click',function(){hit(v);});w.appendChild(pb);
+        if(v.base){pb.setAttribute('aria-label',nm+', perustila, odottaa ehtoa');pb.appendChild(el('small','cstate','odottaa ehtoa'));}pb.addEventListener('click',function(){hit(v);});w.appendChild(pb);
         /* Mainitun muistiinpanon linkki: vie Muistioon ja avaa sen */
         /* Linkki kohdenapin sisällä (Emil 23.10.2026, 1.52.1): oma napautusalue, ei kuittaa */
         if(MN){var lb=el('span','clink');lb.innerHTML='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 13l6-6M8 7h5v5"/></svg>';lb.setAttribute('role','button');lb.tabIndex=0;lb.setAttribute('aria-label','Avaa muistiinpano: '+nm);
@@ -4251,7 +4275,7 @@ function tInfo(){var R=tInfoRef;if(!R||!R.box.isConnected)return;var box=R.box,t
   EHC.ehdot.forEach(function(e){var go=function(){openEhAt(e.id);};if(e.ty==='x'){if(e.k.indexOf(tid)>=0&&e.k.length>1)line('Pois, kun kuitattu',e.k.filter(function(x){return x!==tid;}).map(ehNm).join(' tai '),null,go);return;}
     if(e.on.indexOf(tid)>=0)line('Tulee, kun',ehName(e.k,e.all),null,go);if(e.off.indexOf(tid)>=0)line('Pois, kun',ehName(e.k,e.all),null,go);
     if(e.k.indexOf(tid)>=0&&(e.on.length||e.off.length))line(e.on.length?'Tuo':'Poissulkee',(e.on.length?e.on:e.off).map(ehNm).join(', '),null,go);});
-  var a=button(box,'+ Ehto tälle asialle','tlink',function(){var e={id:uid('e'),k:[],on:[tid],off:[]};EHC.ehdot.push(e);touch();openEhAt(e.id,'k');});a.id='t-addeh';
+  var a=button(box,'+ Ehto tälle asialle','tlink',function(){var e={id:uid('e'),k:[],on:[tid],off:[]};EHC.ehdot.push(e);touch();openEhAt(e.id,'k');});a.id='t-addeh';a.textContent='+ Mikä aktivoi tämän?';var out=button(box,'+ Mitä tämän kuittaus aktivoi?','tlink',function(){ehP=null;ehTL=null;var e={id:uid('e'),k:[tid],on:[],off:[]};EHC.ehdot.push(e);touch();openEhAt(e.id,'t');});out.id='t-addeh-out';
   if(R.sv)R.sv.textContent=W.yes.length||W.no.length?(W.yes.length?W.yes.length+(W.yes.length===1?' sana':' sanaa'):'')+(W.no.length?(W.yes.length?' · ':'')+W.no.length+' poissulkevaa':''):'';}
 /* Ehdot-ikkuna kortin päälle: Valmis ja paluu palaavat korttiin */
 var ehSolo=false;
@@ -4427,6 +4451,9 @@ function offerImport(txt){var out=$('dataout');out.textContent='';pendingImport=
   var r=el('div','btnrow');button(r,'Korvaa tiedot','btn solid',function(){var o2=pendingImport;if(!o2)return;applyND(o2);omatIn(pendingKuvat);data.K.forEach(function(k){k.chg=null;});data.meta.dirty=0;resetDraft();ed=null;save();applyCfg();pendingImport=null;renderHead();renderStatus();render();setMsg('Tiedot tuotu.');}).id='impok';
   button(r,'Peru','btn',function(){pendingImport=null;out.textContent='';});c.appendChild(r);out.appendChild(c);}
 
+HELP.lista[1]='<p><b>Työnkulku</b> (Listan asetuksista): perustilainen asiasana näkyy mutta ei ole kuitattavissa. Ehdot aktivoivat sen. Rivillä yksi kuittaus tai kaikki aktiiviset kuittaukset riittävät; perustilaiset saavat jäädä väliin. Kuittaa työnkulku on käytettävissä vasta kun vaaditut kohdat on käsitelty. Keskeneräisen voi sulkea ja jatkaa myöhemmin. Uudet kierroslistat ovat työnkulkuja, vanhoissa toiminnon voi kytkeä päälle. Vanhan kierroslistan Lopeta säilyy entisellään.</p>'+HELP.lista[1];
+HELP.ehdot[1]=HELP.ehdot[1].replace('asiasana on listan riveillä piilossa, kunnes ehto täyttyy','asiasana odottaa työnkulussa perustilassa, kunnes ehto aktivoi sen kuitattavaksi. Vanhassa kierrostavassa se on siihen asti piilossa');
+HELP.muistiot[1]=HELP.muistiot[1].replace('napautus vie seuraavaan, sivupyyhkäisy edelliseen','napautus avaa valikon napin lähelle, sivupyyhkäisy vaihtaa viereiseen osioon').replace('kiertää napautuksesta','avaa suoran valinnan');
 fiAll();renderStatus();renderHead();showTab('notes');draftRestore();omatLoad();
 })();
 </script>

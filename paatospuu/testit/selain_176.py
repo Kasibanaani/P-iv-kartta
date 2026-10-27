@@ -30,7 +30,7 @@ async def run(p,w,h):
     want('koko leveys käytössä', g['app']>=w-1)
     want('ohjainrivi piilossa', not g['sbar'])
     want('rullauksessa kuvake ja pisteet', await pg.locator('#roll-ic svg').count()==1 and await pg.locator('#roll-dots i').count()==4 and not await pg.is_visible('#roll-now'))
-    await pg.click('#roll'); await pg.wait_for_timeout(120)
+    await pg.click('#roll'); await pg.click('#section-cal'); await pg.wait_for_timeout(120)
     want('napautus vie Kalenteriin', await pg.inner_text('#roll-now')=='Kalenteri' and await pg.is_visible('#p-cal'))
     c=await pg.evaluate("(function(){var d=document.querySelectorAll('#timeline .dcol'),w=document.getElementById('week');return [d.length,w.classList.contains('wk7'),document.querySelectorAll('#timeline .ev').length,Math.round(document.getElementById('timeline').getBoundingClientRect().right)];})()")
     want('kalenteri: päivät rinnakkain', c[0]==7 and c[1] and c[2]>=1)

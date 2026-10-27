@@ -14,9 +14,8 @@ async def tab(pg,t):
         if await pg.evaluate("document.getElementById('roll-now').textContent")!='Päätöspuu': await menu(pg,'#m-tree'); await pg.wait_for_timeout(40)
         if await pg.locator('#build').count() and (await pg.get_attribute('#build','aria-pressed')=='true')!=(t=='teach'): await pg.click('#build'); await pg.wait_for_timeout(60)
         return
-    for _ in range(6):
-        if await pg.evaluate("document.getElementById('roll-now').textContent")==NAMES[t]: break
-        await pg.click('#roll'); await pg.wait_for_timeout(30)
+    if await pg.evaluate("document.getElementById('roll-now').textContent")!=NAMES[t]:
+        await pg.click('#roll'); await pg.click('#section-'+t); await pg.wait_for_timeout(30)
 async def tsx(pg):
     """Asiasanakortin sulku: 1.72:sta alkaen kortin Valmis sulkee ikkunan suoraan Asiat-osioon, joten ruksi vain, jos ikkuna on auki."""
     if await pg.is_visible('#tsheet .sx'): await pg.click('#tsheet .sx')

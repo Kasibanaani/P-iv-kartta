@@ -39,7 +39,7 @@ async def run(p,w,h):
     for k in range(4):
         sizes.add(tuple(await box('roll'))); seen.append((await pg.inner_text('#roll-now'),await L()))
         want('ei päällekkäisyyksiä: '+seen[-1][0], json.loads(await pg.evaluate(CLASH))==[])
-        await pg.click('#roll'); await pg.wait_for_timeout(250)
+        await pg.click('#roll'); await pg.click('#section-'+await pg.evaluate("({Muistio:'cal',Kalenteri:'list',Listat:'terms',Asiat:'notes'})[document.getElementById('roll-now').textContent]")); await pg.wait_for_timeout(250)
     want('järjestys ei rullaa, korostus siirtyy', [s[1] for s in seen]==['M* K L A','M K* L A','M K L* A','M K L A*'] and [s[0] for s in seen]==['Muistio','Kalenteri','Listat','Asiat'])
     want('koko ei muutu napautuksesta', len(sizes)==1 and await pg.inner_text('#roll-now')=='Muistio')
     want('vienti kulmien välissä', (await box('qx'))[0]>r0[0]+r0[2] and (await box('qx'))[0]+40<=m0[0])

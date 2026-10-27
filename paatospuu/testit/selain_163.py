@@ -41,7 +41,7 @@ async def run(p,w,h):
     await pg.click('#psheet .sx'); await pg.wait_for_timeout(60)
     want('osiot rullausnapissa: Muistio, Kalenteri, Listat, Asiat (1.72)', await pg.evaluate("Array.prototype.map.call(document.querySelectorAll('nav .tab'),function(b){return b.dataset.tab;}).join()")=='notes,cal,list,terms,use')
     seen=[]
-    for _ in range(4): seen.append(await pg.inner_text('#roll-now')); await pg.click('#roll'); await pg.wait_for_timeout(30)
+    for _ in range(4): seen.append(await pg.inner_text('#roll-now')); await pg.click('#roll'); await pg.click('#section-'+await pg.evaluate("({Muistio:'cal',Kalenteri:'list',Listat:'terms',Asiat:'notes'})[document.getElementById('roll-now').textContent]")); await pg.wait_for_timeout(30)
     want('rullaus kiertää neljä osiota', sorted(seen)==sorted(['Muistio','Kalenteri','Listat','Asiat']) and await pg.inner_text('#roll-now')==seen[0])
     await pg.click('#status') if await pg.is_visible('#status') else None
     want('ei sivuvirheitä', not errs)

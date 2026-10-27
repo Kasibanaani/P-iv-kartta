@@ -42,7 +42,7 @@ async def run(p,w,h):
     async def sortTo(k):
         for i in range(3):
             if await pg.get_attribute('#notesort','data-ns')==k: break
-            await pg.click('#notesort'); await pg.wait_for_timeout(40)
+            await pg.click('#notesort'); await pg.click('#sort-'+k); await pg.wait_for_timeout(40)
     def want(label,cond):
         print('  %-30s %s'%(label,'ok' if cond else 'VIRHE'))
         if not cond: bad.append(label)

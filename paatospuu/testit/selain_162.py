@@ -39,7 +39,7 @@ async def run(p,w,h):
     lid=await pg.evaluate(K+".listat[0].id")
     # Rivit kierroslistalle: R1 (ja: Soitto, Kirje), R2 (tai: Turva, Kirje), R3 (Arvio)
     await pg.evaluate("""(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1')),k=o.kokonaisuudet[0],L='%s';
-      k.tarkistuslista=k.tarkistuslista.concat([{id:'r1',name:'Kirjaukset',l:L,created:'2026-10-02T00:00:00.000Z',it:[{id:'tc'},{id:'td'}]},
+      delete k.listat[0].wf; /* legacy round mode remains available */ k.tarkistuslista=k.tarkistuslista.concat([{id:'r1',name:'Kirjaukset',l:L,created:'2026-10-02T00:00:00.000Z',it:[{id:'tc'},{id:'td'}]},
         {id:'r2',name:'Turvallisuus',l:L,any:1,created:'2026-10-03T00:00:00.000Z',it:[{id:'tb'},{id:'td'}]},{id:'r3',name:'Arviointi',l:L,created:'2026-10-04T00:00:00.000Z',it:[{id:'ta'}]}]);
       localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()"""%lid)
     await pg.reload(); await pg.wait_for_timeout(150); await tab(pg,'notes'); await pg.wait_for_timeout(40); await tab(pg,'list'); await pg.wait_for_timeout(60)

@@ -39,7 +39,7 @@ async def phone(p,w,h):
     # Rullaus
     seq=[]
     for _ in range(4):
-        seq.append((await pg.inner_text('#roll-now'),await pg.inner_text('#roll-next'))); await pg.click('#roll'); await pg.wait_for_timeout(40)
+        seq.append((await pg.inner_text('#roll-now'),await pg.inner_text('#roll-next'))); await pg.click('#roll'); await pg.click('#section-'+['cal','list','terms','notes'][_]); await pg.wait_for_timeout(40)
     want('napautus kiertää neljä osiota', [s[0] for s in seq]==['Muistio','Kalenteri','Listat','Asiat'] and await pg.inner_text('#roll-now')=='Muistio')
     want('seuraava näkyy vihjeenä', [s[1] for s in seq]==['Kalenteri','Listat','Asiat','Muistio'])
     want('pisteet: neljä, yksi korostettu', await pg.locator('#roll-dots i').count()==4 and await pg.locator('#roll-dots i.on').count()==1)
@@ -73,7 +73,7 @@ async def phone(p,w,h):
     want('ohje osion mukaan', await pg.is_visible('#hsheet') and await pg.inner_text('#hs-h')=='Muistio'); await pg.click('#hsheet .sx'); await pg.wait_for_timeout(40)
     await menu(pg,'#m-tree'); await pg.wait_for_timeout(80)
     want('Päätöspuu Valikosta', await pg.is_visible('#p-use') and await pg.inner_text('#roll-now')=='Päätöspuu' and await pg.inner_text('#crumb')=='Koti · Päätöspuu')
-    await pg.click('#roll'); await pg.wait_for_timeout(40)
+    await pg.click('#roll'); await pg.click('#section-notes'); await pg.wait_for_timeout(40)
     want('rullaus Päätöspuusta Muistioon', await pg.inner_text('#roll-now')=='Muistio')
     # Asiat-osio
     await tab(pg,'terms'); await pg.wait_for_timeout(60)

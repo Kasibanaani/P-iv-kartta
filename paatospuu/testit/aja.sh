@@ -11,6 +11,10 @@ PY
 node --check engine.js && node --check ui.js || exit 1
 virheet=0
 if node logiikka.js; then echo "ok    logiikka.js"; else echo "VIRHE logiikka.js"; virheet=1; fi
+for f in logiikka_*.js; do
+  [ -f "$f" ] || continue
+  if node "$f"; then echo "ok    $f"; else echo "VIRHE $f"; virheet=1; fi
+done
 for f in selain_*.py; do
   [ -f "$f" ] || continue
   if python3 "$f"; then echo "ok    $f"; else echo "VIRHE $f"; virheet=1; fi
