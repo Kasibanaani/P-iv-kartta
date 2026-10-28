@@ -24,6 +24,7 @@ Henkilökohtaiseen käyttöön tehtyjä selainappeja. Jokainen appi on yksi HTML
 | `headmaze/` | Headmaze (uloshengitysharjoitus, Minä-polku, Sokkelo-piilosta; kieli poskessa; tila `headmaze/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/headmaze/ |
 | `pakettipeli/` | Pakettipeli (yhden auton keikkapeli valmiilla tieverkolla, Mini Motorwaysin tyyliin; tila `pakettipeli/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/pakettipeli/ |
 | `flowchart/` | Flowchart (yksinkertainen kosketus-flowchart: tekstipalikat, edelle/jälkeen napautuksella, viivat; tila `flowchart/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/flowchart/ |
+| `shakki/` | Shakki (iPadille: litteät nappulat, botti viidellä tasolla, matti- ja taktiikkatehtävät; tila `shakki/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/shakki/ |
 
 Uusi appi tulee omaan kansioonsa nimellä `index.html`. Osoite on silloin `https://kasibanaani.github.io/P-iv-kartta/<kansio>/`.
 

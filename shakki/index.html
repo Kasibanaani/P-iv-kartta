@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Shakki">
+<link rel="apple-touch-icon" id="touchicon">
+<title>Shakki</title>
+<style>
+:root{--bg:#F5F3EE;--cell:#FFFEFA;--label:#252B28;--label2:#5E685F;--sep:#DDE2D9;--accent:#39775A;--fill:#E7F0E7;--tint:#EDF1EA;--shadow:rgba(39,61,34,.055);--shade:rgba(20,30,25,.38);--on-solid:#fff;--red:#D70015;
+  --sqL:#EEF1EC;--sqD:#9DB7A7;--hl:rgba(246,196,50,.42);--sel:rgba(246,196,50,.62);--dot:rgba(20,30,25,.22);--bs:320px;
+  --pwf:#FFFFFF;--pwo:#202124;--pwd:#202124;--pbf:#2A2B2E;--pbo:#2A2B2E;--pbd:#F2F2EE}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--label);font:16px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",system-ui,"Segoe UI",Roboto,Arial,sans-serif;-webkit-text-size-adjust:100%}
+body{overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+button{font:inherit;color:inherit}
+#app{height:100%;display:flex;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+header{display:flex;align-items:center;gap:12px;padding:10px 16px;min-height:60px}
+.brand{font-size:21px;font-weight:800;letter-spacing:-.045em;margin-right:auto;display:flex;align-items:center;gap:8px}
+.brand svg{width:26px;height:26px}
+.seg{display:inline-flex;background:var(--tint);border:1px solid var(--sep);border-radius:12px;padding:3px;gap:3px}
+.seg button{border:0;background:transparent;border-radius:9px;padding:0 14px;min-height:38px;font-weight:600;color:var(--label2);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--cell);color:var(--label);box-shadow:0 1px 4px var(--shadow),0 0 0 1px var(--sep)}
+.ibtn{border:1px solid var(--sep);background:var(--cell);border-radius:11px;min-width:44px;min-height:44px;font-size:20px;cursor:pointer}
+main{flex:1;min-height:0;display:flex;gap:24px;padding:4px 16px 16px;align-items:flex-start;justify-content:center}
+main.port{flex-direction:column;align-items:center;gap:14px}
+#boardwrap{flex:none;width:var(--bs);height:var(--bs);position:relative}
+#board{position:absolute;inset:0;border-radius:14px;overflow:hidden;touch-action:none;box-shadow:0 6px 22px var(--shadow),0 0 0 1px var(--sep)}
+.sq{position:absolute;width:12.5%;height:12.5%}
+.sq.l{background:var(--sqL)}.sq.d{background:var(--sqD)}
+.sq.hl::before,.sq.sel::before,.sq.hint::before{content:"";position:absolute;inset:0;background:var(--hl)}
+.sq.sel::before{background:var(--sel)}
+.sq.hint::before{background:transparent;box-shadow:inset 0 0 0 4px var(--accent)}
+.sq.chk::after{content:"";position:absolute;inset:0;background:radial-gradient(circle,rgba(230,40,40,.75) 0,rgba(230,40,40,.35) 45%,rgba(230,40,40,0) 72%)}
+.dotm{position:absolute;left:50%;top:50%;width:28%;height:28%;margin:-14% 0 0 -14%;border-radius:50%;background:var(--dot);pointer-events:none;z-index:3}
+.dotm.cap{width:88%;height:88%;margin:-44% 0 0 -44%;background:transparent;border:calc(var(--bs)*.009) solid var(--dot)}
+.co{position:absolute;font-size:calc(var(--bs)*.024);font-weight:700;line-height:1;pointer-events:none;opacity:.85}
+.co.f{right:5%;bottom:4%}.co.r{left:5%;top:5%}
+.sq.l .co{color:var(--sqD)}.sq.d .co{color:var(--sqL)}
+#pieces{position:absolute;inset:0;pointer-events:none}
+.pc{position:absolute;left:0;top:0;width:12.5%;height:12.5%;transition:transform .2s cubic-bezier(.3,.7,.3,1);will-change:transform;z-index:2}
+.pc svg{width:100%;height:100%;display:block}
+.pc.drag{transition:none;z-index:10}.pc.drag svg{transform:scale(1.18);filter:drop-shadow(0 6px 8px rgba(0,0,0,.25))}
+.pc.ghost{opacity:.35}
+.pc.noanim{transition:none}
+.o{stroke-width:7;stroke-linejoin:round;stroke-linecap:round}
+.w .o{fill:var(--pwo);stroke:var(--pwo)}.w .f{fill:var(--pwf)}.w .dt{fill:var(--pwd);stroke:var(--pwd)}
+.b .o{fill:var(--pbo);stroke:var(--pbo)}.b .f{fill:var(--pbf)}.b .dt{fill:var(--pbd);stroke:var(--pbd)}
+.dt{stroke-width:4.5;stroke-linecap:round}
+#promo{position:absolute;inset:0;background:var(--shade);display:flex;align-items:center;justify-content:center;z-index:20;border-radius:14px}
+#promo[hidden]{display:none}
+#promo .box{background:var(--cell);border-radius:18px;padding:10px;display:flex;gap:8px;box-shadow:0 20px 70px var(--shade)}
+#promo button{width:calc(var(--bs)*.15);height:calc(var(--bs)*.15);border:1px solid var(--sep);border-radius:12px;background:var(--tint);padding:6px;cursor:pointer}
+#over{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--cell);border-radius:18px;padding:18px 22px;text-align:center;box-shadow:0 20px 70px var(--shade);z-index:15;min-width:60%}
+#over[hidden]{display:none}
+#over b{display:block;font-size:22px;letter-spacing:-.03em;margin-bottom:4px}
+#over p{margin:0 0 12px;color:var(--label2)}
+#side{flex:1;min-width:0;max-width:400px;display:flex;flex-direction:column;gap:12px;align-self:stretch;min-height:0}
+main.port #side{width:var(--bs);max-width:none;flex:1}
+.card{background:var(--cell);border:1px solid var(--sep);border-radius:18px;padding:14px 16px;box-shadow:0 6px 22px var(--shadow)}
+.sec{font-size:11px;font-weight:700;letter-spacing:.075em;text-transform:uppercase;color:var(--label2);margin:0 0 6px}
+.status{font-size:20px;font-weight:700;letter-spacing:-.035em}
+.sub{color:var(--label2);font-size:14px}
+.btn{border:1px solid var(--sep);background:var(--cell);border-radius:11px;min-height:44px;padding:0 14px;font-weight:600;cursor:pointer}
+.btn.solid{background:var(--accent);border-color:var(--accent);color:var(--on-solid)}
+.btn:disabled{opacity:.4;cursor:default}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (min-width:600px){main.port .btns{grid-template-columns:repeat(4,1fr)}}
+.btns.three,main.port .btns.three{grid-template-columns:repeat(3,1fr)}
+#moves{flex:1;min-height:60px;overflow:auto;-webkit-overflow-scrolling:touch;font-variant-numeric:tabular-nums}
+#moves .row{display:grid;grid-template-columns:34px 1fr 1fr;gap:4px;padding:3px 0;font-size:15px}
+#moves .n{color:var(--label2)}
+#moves .last{background:var(--fill);border-radius:6px;padding:0 6px;margin-left:-6px;color:var(--accent);font-weight:700}
+.empty{color:var(--label2);font-size:14px}
+.plist{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:12px;min-height:0}
+.pitem{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1px solid var(--sep);background:var(--cell);border-radius:12px;padding:10px 12px;min-height:48px;cursor:pointer;margin-top:6px}
+.pitem .nro{width:26px;height:26px;border-radius:50%;background:var(--tint);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--label2);flex:none}
+.pitem.cur{border:2px solid var(--accent);background:var(--fill)}
+.pitem.ok .nro{background:var(--accent);color:var(--on-solid)}
+.pitem .nm{flex:1}
+.fb{margin-top:8px;font-weight:600;min-height:1.4em}
+.fb.good{color:var(--accent)}.fb.bad{color:var(--red)}
+#sheetbg{position:fixed;inset:0;background:var(--shade);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px}
+#sheetbg[hidden]{display:none}
+#sheet{background:var(--cell);border-radius:24px;padding:22px;width:100%;max-width:520px;max-height:100%;overflow:auto;box-shadow:0 20px 70px var(--shade)}
+#sheet h2{margin:0 0 14px;font-size:20px;letter-spacing:-.035em}
+#sheet .grp{margin-bottom:16px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--sep);background:var(--cell);border-radius:11px;min-height:44px;padding:6px 14px;cursor:pointer;font-weight:600;text-align:left}
+.chip[aria-pressed=true]{background:var(--fill);color:var(--accent);border:2px solid var(--accent)}
+.lvl{display:grid;gap:8px}
+.lvl .chip{display:flex;align-items:center;gap:12px;width:100%}
+.lvl .chip small{display:block;font-weight:400;color:var(--label2);font-size:13px}
+.pips{display:flex;gap:3px;flex:none}.pips i{width:7px;height:7px;border-radius:50%;background:var(--sep)}.pips i.on{background:var(--accent)}
+textarea{width:100%;min-height:140px;border:1px solid var(--sep);border-radius:10px;background:var(--bg);color:var(--label);font:13px/1.4 ui-monospace,Menlo,monospace;padding:10px;-webkit-user-select:text;user-select:text}
+.help p{margin:0 0 8px;font-size:15px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.pc{transition:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<symbol id="s-p" viewBox="0 0 100 100"><circle cx="50" cy="32" r="13"/><path d="M40 46H60L67 74H33Z"/><rect x="26" y="72" width="48" height="14" rx="4"/></symbol>
+<symbol id="s-r" viewBox="0 0 100 100"><path d="M29 16H39V24H45V16H55V24H61V16H71V35L64 41V70H36V41L29 35Z"/><rect x="23" y="70" width="54" height="16" rx="4"/></symbol>
+<symbol id="s-b" viewBox="0 0 100 100"><circle cx="50" cy="13" r="6"/><path d="M50 17C63 27 67 40 62 52H38C33 40 37 27 50 17Z"/><rect x="35" y="51" width="30" height="8" rx="4"/><path d="M41 58H59L64 72H36Z"/><rect x="24" y="71" width="52" height="15" rx="4"/></symbol>
+<symbol id="s-n" viewBox="0 0 100 100"><path d="M31 72C31 62 37 56 44 50L33 52C26 53 21 48 24 42L38 25L40 13L51 21C65 23 75 38 72 72Z"/><rect x="24" y="71" width="52" height="15" rx="4"/></symbol>
+<symbol id="s-q" viewBox="0 0 100 100"><path d="M21 31L34 53L36 23L46 49L50 17L54 49L64 23L66 53L79 31L70 71H30Z"/><circle cx="21" cy="29" r="5.5"/><circle cx="36" cy="21" r="5.5"/><circle cx="50" cy="14" r="5.5"/><circle cx="64" cy="21" r="5.5"/><circle cx="79" cy="29" r="5.5"/><rect x="24" y="70" width="52" height="16" rx="4"/></symbol>
+<symbol id="s-k" viewBox="0 0 100 100"><rect x="46" y="7" width="8" height="25" rx="2"/><rect x="38" y="13" width="24" height="8" rx="2"/><path d="M27 43C27 31 44 30 50 41C56 30 73 31 73 43C73 55 67 61 66 71H34C33 61 27 55 27 43Z"/><rect x="24" y="70" width="52" height="16" rx="4"/></symbol>
+<symbol id="d-b" viewBox="0 0 100 100"><path d="M55 29L46 41" fill="none"/></symbol>
+<symbol id="d-n" viewBox="0 0 100 100"><circle cx="45" cy="33" r="3.6" stroke="none"/></symbol>
+</defs>
+</svg>
+<div id="app">
+<header>
+  <div class="brand"><svg viewBox="0 0 100 100" class="w"><use href="#s-n" class="o"/><use href="#s-n" class="f"/><use href="#d-n" class="dt"/></svg>Shakki</div>
+  <div class="seg" role="tablist"><button id="tab-pelaa" aria-pressed="true">Pelaa</button><button id="tab-teht" aria-pressed="false">Tehtävät</button></div>
+  <button class="ibtn" id="b-menu" aria-label="Valikko">⋯</button>
+</header>
+<main id="main">
+  <div id="boardwrap">
+    <div id="board"><div id="squares"></div><div id="pieces"></div></div>
+    <div id="promo" hidden><div class="box" id="promobox"></div></div>
+    <div id="over" hidden><b id="over-t"></b><p id="over-p"></p><button class="btn solid" id="over-new">Uusi peli</button> <button class="btn" id="over-close">Sulje</button></div>
+  </div>
+  <div id="side">
+    <section id="v-pelaa">
+      <div class="card"><div class="sec" id="g-opp">Botti</div><div class="status" id="g-status">Sinun vuorosi</div><div class="sub" id="g-sub"></div></div>
+    </section>
+    <div class="card" id="moves"></div>
+    <div class="btns" id="g-btns"><button class="btn solid" id="b-new">Uusi peli</button><button class="btn" id="b-undo">↶ Peru siirto</button><button class="btn" id="b-hint">💡 Vihje</button><button class="btn" id="b-flip">⇅ Käännä lauta</button></div>
+    <section id="v-teht" hidden style="display:flex;flex-direction:column;gap:12px;min-height:0;flex:1">
+      <div class="card" id="t-card" hidden>
+        <div class="sec" id="t-grp"></div><div class="status" id="t-title"></div><div class="sub" id="t-ohje"></div><div class="fb" id="t-fb"></div>
+      </div>
+      <div class="btns three" id="t-btns" hidden><button class="btn" id="t-reset">↺ Alusta</button><button class="btn" id="t-show">Ratkaisu</button><button class="btn solid" id="t-next">Seuraava ›</button></div>
+      <div class="plist" id="t-plist"></div>
+    </section>
+  </div>
+</main>
+</div>
+<div id="sheetbg" hidden><div id="sheet" role="dialog" aria-modal="true"></div></div>
+<script id="engine">
+/* Shakkimoottori SH: säännöt (0x88-lauta), siirrot, SAN, botti (alfa-beta) ja mattiratkaisija. Ei DOMia: ajetaan myös Web Workerissa. */
+var SH=(function(){
+'use strict';
+var P=1,N=2,B=3,R=4,Q=5,K=6;
+var VAL=[0,100,320,330,500,900,0];
+var NDIR=[33,31,18,14,-33,-31,-18,-14],BDIR=[17,15,-17,-15],RDIR=[16,-16,1,-1],KDIR=[17,15,-17,-15,16,-16,1,-1];
+var START='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+var LET=' pnbrqk';
+var MATE=100000,INF=1000000;
+
+/* Zobrist: kiinteä siemen, sama pääsäikeessä ja workerissa */
+var seed=0x2545F491;
+function rnd32(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return (t^t>>>14)>>>0}
+var ZA=new Uint32Array(16*128),ZB=new Uint32Array(16*128),ZCA=new Uint32Array(16),ZCB=new Uint32Array(16),ZEA=new Uint32Array(8),ZEB=new Uint32Array(8),ZTA=rnd32(),ZTB=rnd32();
+(function(){for(var i=0;i<16*128;i++){ZA[i]=rnd32();ZB[i]=rnd32()}for(i=0;i<16;i++){ZCA[i]=rnd32();ZCB[i]=rnd32()}for(i=0;i<8;i++){ZEA[i]=rnd32();ZEB[i]=rnd32()}})();
+var CASM=new Int8Array(128);for(var i=0;i<128;i++)CASM[i]=15;CASM[0]=13;CASM[4]=12;CASM[7]=14;CASM[0x70]=7;CASM[0x74]=3;CASM[0x77]=11;
+
+function hx(p,pc,sq){var i=pc*128+sq;p.h1^=ZA[i];p.h2^=ZB[i]}
+function rehash(p){p.h1=0;p.h2=0;for(var s=0;s<128;s++){if(s&0x88){s+=7;continue}if(p.b[s])hx(p,p.b[s],s)}
+  p.h1^=ZCA[p.cas];p.h2^=ZCB[p.cas];if(p.ep>=0){p.h1^=ZEA[p.ep&7];p.h2^=ZEB[p.ep&7]}if(p.turn){p.h1^=ZTA;p.h2^=ZTB}}
+
+function sqName(s){return 'abcdefgh'[s&7]+((s>>4)+1)}
+function sqOf(n){return (n.charCodeAt(1)-49)*16+(n.charCodeAt(0)-97)}
+/* ruutu 0–63 (a8 = 0 … h1 = 63, FEN-järjestys) <-> 0x88 */
+function to64(s){return (7-(s>>4))*8+(s&7)}
+function from64(i){return (7-(i>>3))*16+(i&7)}
+
+function fromFen(fen){
+  var f=String(fen||START).trim().split(/\s+/),p={b:new Int8Array(128),turn:0,cas:0,ep:-1,half:0,full:1,k:[-1,-1],h1:0,h2:0,st:[],ha:[],hb:[]};
+  var rows=(f[0]||'').split('/');if(rows.length!==8)return null;
+  for(var r=0;r<8;r++){var file=0,row=rows[r];for(var j=0;j<row.length;j++){var c=row[j];
+    if(c>='1'&&c<='8'){file+=+c;continue}
+    var t=LET.indexOf(c.toLowerCase());if(t<1||file>7)return null;
+    var pc=t|(c===c.toLowerCase()?8:0),s=(7-r)*16+file;p.b[s]=pc;if(t===K)p.k[pc>>3]=s;file++}
+    if(file!==8)return null}
+  if(p.k[0]<0||p.k[1]<0)return null;
+  p.turn=f[1]==='b'?1:0;var c2=f[2]||'-';
+  if(c2.indexOf('K')>=0&&p.b[4]===K&&p.b[7]===R)p.cas|=1;if(c2.indexOf('Q')>=0&&p.b[4]===K&&p.b[0]===R)p.cas|=2;
+  if(c2.indexOf('k')>=0&&p.b[0x74]===(K|8)&&p.b[0x77]===(R|8))p.cas|=4;if(c2.indexOf('q')>=0&&p.b[0x74]===(K|8)&&p.b[0x70]===(R|8))p.cas|=8;
+  if(f[3]&&f[3]!=='-'&&/^[a-h][36]$/.test(f[3]))p.ep=sqOf(f[3]);
+  p.half=+f[4]||0;p.full=Math.max(1,+f[5]||1);
+  rehash(p);p.ha.push(p.h1);p.hb.push(p.h2);
+  if(attacked(p.b,p.k[p.turn^1],p.turn))return null; /* vuorossa olematon kuningas shakissa = virheellinen */
+  return p}
+
+function toFen(p){
+  var out='';for(var r=7;r>=0;r--){var e=0;for(var f=0;f<8;f++){var pc=p.b[r*16+f];
+    if(!pc){e++;continue}if(e){out+=e;e=0}var ch=LET[pc&7];out+=pc&8?ch:ch.toUpperCase()}
+    if(e)out+=e;if(r)out+='/'}
+  var c=(p.cas&1?'K':'')+(p.cas&2?'Q':'')+(p.cas&4?'k':'')+(p.cas&8?'q':'');
+  return out+' '+(p.turn?'b':'w')+' '+(c||'-')+' '+(p.ep>=0?sqName(p.ep):'-')+' '+p.half+' '+p.full}
+
+function clone(p){return fromFenHist(p)}
+function fromFenHist(p){var q={b:new Int8Array(p.b),turn:p.turn,cas:p.cas,ep:p.ep,half:p.half,full:p.full,k:p.k.slice(),h1:p.h1,h2:p.h2,st:[],ha:p.ha.slice(),hb:p.hb.slice()};return q}
+
+function attacked(b,sq,by){
+  var bb=by*8,s,i,d,pc;
+  if(by===0){s=sq-15;if(!(s&0x88)&&b[s]===P)return true;s=sq-17;if(!(s&0x88)&&b[s]===P)return true}
+  else{s=sq+15;if(!(s&0x88)&&b[s]===(P|8))return true;s=sq+17;if(!(s&0x88)&&b[s]===(P|8))return true}
+  for(i=0;i<8;i++){s=sq+NDIR[i];if(!(s&0x88)&&b[s]===(N|bb))return true;s=sq+KDIR[i];if(!(s&0x88)&&b[s]===(K|bb))return true}
+  for(i=0;i<4;i++){d=BDIR[i];s=sq+d;while(!(s&0x88)){pc=b[s];if(pc){if(pc===(B|bb)||pc===(Q|bb))return true;break}s+=d}
+    d=RDIR[i];s=sq+d;while(!(s&0x88)){pc=b[s];if(pc){if(pc===(R|bb)||pc===(Q|bb))return true;break}s+=d}}
+  return false}
+
+function mv(f,t,pc,c,pr,fl){return {f:f,t:t,pc:pc,c:c,pr:pr,fl:fl}}
+function promo(ms,f,t,pc,c,only){var col=pc&8;ms.push(mv(f,t,pc,c,Q|col,0));if(!only){ms.push(mv(f,t,pc,c,N|col,0));ms.push(mv(f,t,pc,c,R|col,0));ms.push(mv(f,t,pc,c,B|col,0))}}
+
+/* näennäiset siirrot; caps = vain lyönnit ja korotukset daamiksi */
+function gen(p,caps){
+  var ms=[],b=p.b,us=p.turn,them=us^1,sq,pc,t,to,c,i,d,j;
+  for(sq=0;sq<128;sq++){
+    if(sq&0x88){sq+=7;continue}
+    pc=b[sq];if(!pc||(pc>>3)!==us)continue;t=pc&7;
+    if(t===P){
+      d=us?-16:16;var last=us?0:7,start=us?6:1;to=sq+d;
+      if(!(to&0x88)&&!b[to]){
+        if((to>>4)===last)promo(ms,sq,to,pc,0,caps);
+        else if(!caps){ms.push(mv(sq,to,pc,0,0,0));if((sq>>4)===start&&!b[to+d])ms.push(mv(sq,to+d,pc,0,0,4))}}
+      for(j=-1;j<=1;j+=2){to=sq+d+j;if(to&0x88)continue;c=b[to];
+        if(c&&(c>>3)===them){if((to>>4)===last)promo(ms,sq,to,pc,c,caps);else ms.push(mv(sq,to,pc,c,0,0))}
+        else if(to===p.ep&&!c)ms.push(mv(sq,to,pc,P|(them*8),0,1))}
+      continue}
+    if(t===N||t===K){var dirs=t===N?NDIR:KDIR;
+      for(i=0;i<8;i++){to=sq+dirs[i];if(to&0x88)continue;c=b[to];
+        if(!c){if(!caps)ms.push(mv(sq,to,pc,0,0,0))}else if((c>>3)===them)ms.push(mv(sq,to,pc,c,0,0))}
+      if(t===K&&!caps){var base=us*0x70;
+        if(sq===base+4&&!attacked(b,sq,them)){
+          if((p.cas&(us?4:1))&&!b[base+5]&&!b[base+6]&&b[base+7]===(R|us*8)&&!attacked(b,base+5,them)&&!attacked(b,base+6,them))ms.push(mv(sq,base+6,pc,0,0,2));
+          if((p.cas&(us?8:2))&&!b[base+3]&&!b[base+2]&&!b[base+1]&&b[base]===(R|us*8)&&!attacked(b,base+3,them)&&!attacked(b,base+2,them))ms.push(mv(sq,base+2,pc,0,0,2))}}
+      continue}
+    var sl=t===B?BDIR:t===R?RDIR:KDIR;
+    for(i=0;i<sl.length;i++){d=sl[i];to=sq+d;
+      while(!(to&0x88)){c=b[to];
+        if(!c){if(!caps)ms.push(mv(sq,to,pc,0,0,0))}
+        else{if((c>>3)===them)ms.push(mv(sq,to,pc,c,0,0));break}
+        to+=d}}}
+  return ms}
+
+function make(p,m){
+  var b=p.b,us=p.turn;
+  p.st.push({cas:p.cas,ep:p.ep,half:p.half,h1:p.h1,h2:p.h2,m:m});
+  hx(p,m.pc,m.f);b[m.f]=0;
+  if(m.c){var cs=m.fl&1?m.t+(us?16:-16):m.t;hx(p,m.c,cs);b[cs]=0}
+  var np=m.pr||m.pc;b[m.t]=np;hx(p,np,m.t);
+  if(m.fl&2){var rf,rt;if(m.t>m.f){rf=m.f+3;rt=m.f+1}else{rf=m.f-4;rt=m.f-1}
+    var rk=b[rf];b[rf]=0;b[rt]=rk;hx(p,rk,rf);hx(p,rk,rt)}
+  if((m.pc&7)===K)p.k[us]=m.t;
+  p.h1^=ZCA[p.cas];p.h2^=ZCB[p.cas];p.cas&=CASM[m.f]&CASM[m.t];p.h1^=ZCA[p.cas];p.h2^=ZCB[p.cas];
+  if(p.ep>=0){p.h1^=ZEA[p.ep&7];p.h2^=ZEB[p.ep&7]}
+  p.ep=-1;if(m.fl&4){p.ep=(m.f+m.t)>>1;p.h1^=ZEA[p.ep&7];p.h2^=ZEB[p.ep&7]}
+  p.half=(m.c||(m.pc&7)===P)?0:p.half+1;
+  if(us)p.full++;
+  p.turn=us^1;p.h1^=ZTA;p.h2^=ZTB;
+  p.ha.push(p.h1);p.hb.push(p.h2)}
+
+function unmake(p){
+  var u=p.st.pop(),m=u.m,b=p.b;p.turn^=1;var us=p.turn;
+  b[m.t]=0;b[m.f]=m.pc;
+  if(m.c){var cs=m.fl&1?m.t+(us?16:-16):m.t;b[cs]=m.c}
+  if(m.fl&2){var rf,rt;if(m.t>m.f){rf=m.f+3;rt=m.f+1}else{rf=m.f-4;rt=m.f-1}b[rf]=b[rt];b[rt]=0}
+  if((m.pc&7)===K)p.k[us]=m.f;
+  if(us)p.full--;
+  p.cas=u.cas;p.ep=u.ep;p.half=u.half;p.h1=u.h1;p.h2=u.h2;p.ha.pop();p.hb.pop()}
+
+function inCheck(p){return attacked(p.b,p.k[p.turn],p.turn^1)}
+function legal(p){var ms=gen(p,false),out=[],us=p.turn;
+  for(var i=0;i<ms.length;i++){make(p,ms[i]);if(!attacked(p.b,p.k[us],us^1))out.push(ms[i]);unmake(p)}return out}
+
+function uci(m){return sqName(m.f)+sqName(m.t)+(m.pr?LET[m.pr&7]:'')}
+function fromUci(p,s){var ms=legal(p);for(var i=0;i<ms.length;i++)if(uci(ms[i])===s)return ms[i];return null}
+function same(a,b){return a&&b&&a.f===b.f&&a.t===b.t&&(a.pr||0)===(b.pr||0)}
+
+function reps(p){var n=0,a=p.h1,bb=p.h2;for(var i=p.ha.length-1;i>=0;i--)if(p.ha[i]===a&&p.hb[i]===bb)n++;return n}
+function material(p){var c=[[],[]];for(var s=0;s<128;s++){if(s&0x88){s+=7;continue}var pc=p.b[s];if(pc&&(pc&7)!==K)c[pc>>3].push({t:pc&7,s:s})}return c}
+function insufficient(p){var m=material(p),a=m[0],b=m[1];
+  function minorOnly(x){return x.every(function(o){return o.t===N||o.t===B})}
+  if(!minorOnly(a)||!minorOnly(b))return false;
+  if(a.length+b.length<=1)return true;
+  var all=a.concat(b);if(all.every(function(o){return o.t===B})){var col=((all[0].s>>4)+(all[0].s&7))&1;return all.every(function(o){return (((o.s>>4)+(o.s&7))&1)===col})}
+  return false}
+/* '' | 'matti' | 'patti' | 'toisto' | '50' | 'materiaali' */
+function status(p){var ms=legal(p);if(!ms.length)return inCheck(p)?'matti':'patti';
+  if(insufficient(p))return 'materiaali';if(p.half>=100)return '50';if(reps(p)>=3)return 'toisto';return ''}
+
+function san(p,m){
+  var t=m.pc&7,s;
+  if(m.fl&2)s=m.t>m.f?'O-O':'O-O-O';
+  else{
+    s='';if(t===P){if(m.c)s='abcdefgh'[m.f&7]}
+    else{s=LET[t].toUpperCase();var ms=legal(p),fileU=false,rankU=false,amb=false;
+      for(var i=0;i<ms.length;i++){var o=ms[i];if(o.t===m.t&&o.pc===m.pc&&o.f!==m.f){amb=true;if((o.f&7)===(m.f&7))fileU=true;if((o.f>>4)===(m.f>>4))rankU=true}}
+      if(amb){if(!fileU)s+='abcdefgh'[m.f&7];else if(!rankU)s+=((m.f>>4)+1);else s+=sqName(m.f)}}
+    if(m.c)s+='x';s+=sqName(m.t);if(m.pr)s+='='+LET[m.pr&7].toUpperCase()}
+  make(p,m);var ch=inCheck(p);if(ch)s+=legal(p).length?'+':'#';unmake(p);
+  return s}
+function fromSan(p,s){s=String(s).replace(/[+#!?]/g,'').replace(/0/g,'O');var ms=legal(p);
+  for(var i=0;i<ms.length;i++)if(san(p,ms[i]).replace(/[+#]/g,'')===s)return ms[i];return null}
+
+/* ---------- arvio ---------- */
+var PST_W={
+1:[0,0,0,0,0,0,0,0,50,50,50,50,50,50,50,50,10,10,20,30,30,20,10,10,5,5,10,25,25,10,5,5,0,0,0,20,20,0,0,0,5,-5,-10,0,0,-10,-5,5,5,10,10,-20,-20,10,10,5,0,0,0,0,0,0,0,0],
+2:[-50,-40,-30,-30,-30,-30,-40,-50,-40,-20,0,0,0,0,-20,-40,-30,0,10,15,15,10,0,-30,-30,5,15,20,20,15,5,-30,-30,0,15,20,20,15,0,-30,-30,5,10,15,15,10,5,-30,-40,-20,0,5,5,0,-20,-40,-50,-40,-30,-30,-30,-30,-40,-50],
+3:[-20,-10,-10,-10,-10,-10,-10,-20,-10,0,0,0,0,0,0,-10,-10,0,5,10,10,5,0,-10,-10,5,5,10,10,5,5,-10,-10,0,10,10,10,10,0,-10,-10,10,10,10,10,10,10,-10,-10,5,0,0,0,0,5,-10,-20,-10,-10,-10,-10,-10,-10,-20],
+4:[0,0,0,0,0,0,0,0,5,10,10,10,10,10,10,5,-5,0,0,0,0,0,0,-5,-5,0,0,0,0,0,0,-5,-5,0,0,0,0,0,0,-5,-5,0,0,0,0,0,0,-5,-5,0,0,0,0,0,0,-5,0,0,0,5,5,0,0,0],
+5:[-20,-10,-10,-5,-5,-10,-10,-20,-10,0,0,0,0,0,0,-10,-10,0,5,5,5,5,0,-10,-5,0,5,5,5,5,0,-5,0,0,5,5,5,5,0,-5,-10,5,5,5,5,5,0,-10,-10,0,5,0,0,0,0,-10,-20,-10,-10,-5,-5,-10,-10,-20],
+6:[-30,-40,-40,-50,-50,-40,-40,-30,-30,-40,-40,-50,-50,-40,-40,-30,-30,-40,-40,-50,-50,-40,-40,-30,-30,-40,-40,-50,-50,-40,-40,-30,-20,-30,-30,-40,-40,-30,-30,-20,-10,-20,-20,-20,-20,-20,-20,-10,20,20,0,0,0,0,20,20,20,30,10,0,0,10,30,20],
+7:[-50,-40,-30,-20,-20,-30,-40,-50,-30,-20,-10,0,0,-10,-20,-30,-30,-10,20,30,30,20,-10,-30,-30,-10,30,40,40,30,-10,-30,-30,-10,30,40,40,30,-10,-30,-30,-10,20,30,30,20,-10,-30,-30,-30,0,0,0,0,-30,-30,-50,-30,-30,-30,-30,-30,-30,-50]};
+/* PSTW[t][0x88] valkealle ja PSTB mustalle (peilattu) */
+var PSTW=[],PSTB=[];(function(){for(var t=1;t<=7;t++){PSTW[t]=new Int16Array(128);PSTB[t]=new Int16Array(128);
+  for(var s=0;s<128;s++){if(s&0x88)continue;var r=s>>4,f=s&7;PSTW[t][s]=PST_W[t][(7-r)*8+f];PSTB[t][s]=PST_W[t][r*8+f]}}})();
+var PH=[0,0,1,1,2,4,0];
+function cdist(s){var r=s>>4,f=s&7;return Math.max(3-r,r-4)+Math.max(3-f,f-4)}
+function evaluate(p){
+  var b=p.b,mg=[0,0],kmid=[0,0],kend=[0,0],phase=0,mat=[0,0],nonp=[0,0],bish=[0,0],pawns=[0,0];
+  for(var s=0;s<128;s++){if(s&0x88){s+=7;continue}var pc=b[s];if(!pc)continue;var c=pc>>3,t=pc&7,T=c?PSTB:PSTW;
+    if(t===K){kmid[c]=T[6][s];kend[c]=T[7][s];continue}
+    mg[c]+=VAL[t]+T[t][s];mat[c]+=VAL[t];phase+=PH[t];if(t!==P)nonp[c]+=VAL[t];else pawns[c]++;if(t===B)bish[c]++}
+  if(phase>24)phase=24;
+  var sc=[0,0];
+  for(c=0;c<2;c++){sc[c]=mg[c]+((kmid[c]*phase+kend[c]*(24-phase))/24|0);if(bish[c]>=2)sc[c]+=30}
+  /* lopetusapu: yksinäinen kuningas reunaan ja kuninkaat lähelle */
+  for(c=0;c<2;c++){var o=c^1;if(nonp[o]===0&&pawns[o]===0&&mat[c]>=500){var ek=p.k[o],ok=p.k[c];
+    sc[c]+=cdist(ek)*12+(14-(Math.abs((ek>>4)-(ok>>4))+Math.abs((ek&7)-(ok&7))))*5+200}}
+  var v=sc[0]-sc[1];return p.turn?-v:v}
+
+/* ---------- haku ---------- */
+function now(){return (typeof performance!=='undefined'&&performance.now)?performance.now():Date.now()}
+function mkey(m){return m.f|(m.t<<7)|((m.pr&7)<<14)}
+function Ctx(o){this.nodes=0;this.stop=false;this.t0=now();this.ms=o.ms||1e9;this.tt=new Map();this.kill=[];this.hist=new Int32Array(16*128);this.qs=o.qs!==false;this.maxNodes=o.maxNodes||0}
+function order(S,ms,ttm,ply){
+  var k1=S.kill[ply*2],k2=S.kill[ply*2+1];
+  for(var i=0;i<ms.length;i++){var m=ms[i],k=mkey(m),v;
+    if(k===ttm)v=1e7;else if(m.c)v=1e6+VAL[m.c&7]*10-VAL[m.pc&7]/10;else if(m.pr)v=9e5+VAL[m.pr&7];
+    else if(k===k1)v=8e5;else if(k===k2)v=7e5;else v=S.hist[m.pc*128+m.t];
+    m.o=v}
+  ms.sort(function(a,b){return b.o-a.o})}
+function qs(p,S,alpha,beta,ply){
+  S.nodes++;
+  var stand=evaluate(p);if(!S.qs||ply>40)return stand;
+  if(stand>=beta)return stand;if(stand>alpha)alpha=stand;
+  var ms=gen(p,true),us=p.turn;order(S,ms,-1,63);
+  for(var i=0;i<ms.length;i++){var m=ms[i];
+    if(m.c&&stand+VAL[m.c&7]+200<alpha&&!m.pr)continue;
+    make(p,m);if(attacked(p.b,p.k[us],us^1)){unmake(p);continue}
+    var s=-qs(p,S,-beta,-alpha,ply+1);unmake(p);
+    if(s>=beta)return s;if(s>alpha)alpha=s}
+  return alpha}
+function negamax(p,S,depth,alpha,beta,ply){
+  if((++S.nodes&1023)===0&&(now()-S.t0>S.ms||(S.maxNodes&&S.nodes>S.maxNodes)))S.stop=true;
+  if(S.stop)return 0;
+  if(ply>0){if(p.half>=100)return 0;var rp=0;for(var i=p.ha.length-2;i>=0&&i>=p.ha.length-1-p.half;i--)if(p.ha[i]===p.h1&&p.hb[i]===p.h2){rp=1;break}if(rp)return 0}
+  var us=p.turn,chk=attacked(p.b,p.k[us],us^1);
+  if(chk&&ply<30)depth++;
+  if(depth<=0)return qs(p,S,alpha,beta,ply);
+  var a0=alpha,e=S.tt.get(p.h1),ttm=-1;
+  if(e&&e.h2===p.h2){ttm=e.m;
+    if(ply>0&&e.d>=depth){var es=e.s;if(es>MATE-500)es-=ply;else if(es<-MATE+500)es+=ply;
+      if(e.f===0)return es;if(e.f===1&&es>=beta)return es;if(e.f===2&&es<=alpha)return es}}
+  var ms=gen(p,false);order(S,ms,ttm,ply);
+  var best=-INF,bm=null,n=0;
+  for(i=0;i<ms.length;i++){var m=ms[i];
+    make(p,m);if(attacked(p.b,p.k[us],us^1)){unmake(p);continue}n++;
+    var s=-negamax(p,S,depth-1,-beta,-alpha,ply+1);unmake(p);
+    if(S.stop)return 0;
+    if(s>best){best=s;bm=m}
+    if(s>alpha)alpha=s;
+    if(alpha>=beta){if(!m.c&&!m.pr){var kk=mkey(m);if(S.kill[ply*2]!==kk){S.kill[ply*2+1]=S.kill[ply*2];S.kill[ply*2]=kk}S.hist[m.pc*128+m.t]+=depth*depth}break}}
+  if(!n)return chk?-MATE+ply:0;
+  var st=best;if(st>MATE-500)st+=ply;else if(st<-MATE+500)st-=ply;
+  if(S.tt.size>400000)S.tt.clear();
+  S.tt.set(p.h1,{h2:p.h2,d:depth,s:st,f:best<=a0?2:best>=beta?1:0,m:bm?mkey(bm):-1});
+  return best}
+
+/* juurihaku: kaikkien siirtojen tarkat arvot (heikommille tasoille ja avausvaihteluun) */
+function rootScores(p,depth,o){
+  var S=new Ctx(o||{}),ms=legal(p),out=[];
+  order(S,ms,-1,0);
+  for(var i=0;i<ms.length;i++){make(p,ms[i]);var s=-negamax(p,S,depth-1,-INF,INF,1);unmake(p);out.push({m:ms[i],s:s})}
+  return out}
+
+/* iteratiivinen syveneminen */
+function search(p,o){
+  o=o||{};var S=new Ctx(o),ms=legal(p);if(!ms.length)return null;
+  var best=ms[0],bs=-INF,done=0,maxd=o.depth||64;
+  for(var d=1;d<=maxd;d++){
+    var e=S.tt.get(p.h1),ttm=e&&e.h2===p.h2?e.m:mkey(best);order(S,ms,ttm,0);
+    var alpha=-INF,cb=null,cs=-INF;
+    for(var i=0;i<ms.length;i++){make(p,ms[i]);var s=-negamax(p,S,d-1,-INF,-alpha,1);unmake(p);
+      if(S.stop)break;if(s>cs){cs=s;cb=ms[i]}if(s>alpha)alpha=s}
+    if(S.stop){if(cb&&cs>bs&&d>1&&i>0){best=cb;bs=cs}break}
+    best=cb;bs=cs;done=d;
+    S.tt.set(p.h1,{h2:p.h2,d:d,s:bs,f:0,m:mkey(best)});
+    if(Math.abs(bs)>MATE-500)break;
+    if(now()-S.t0>S.ms*0.55)break}
+  return {m:best,s:bs,d:done,n:S.nodes}}
+
+/* tasot: d = syvyys, k = kohina senttisotilaina, v = virhesiirron todennäköisyys, ms = aikaraja */
+var LEVELS=[null,
+  {nimi:'Aloittelija',k:320,v:.22,d:1},
+  {nimi:'Harrastaja',k:140,v:.07,d:2},
+  {nimi:'Kerhopelaaja',k:45,v:0,d:3},
+  {nimi:'Vahva',d:5,ms:1200},
+  {nimi:'Mestari',d:30,ms:3000}];
+function botMove(p,lvl,rand){
+  rand=rand||Math.random;var L=LEVELS[lvl]||LEVELS[3],ms=legal(p);if(!ms.length)return null;
+  if(ms.length===1)return {m:ms[0],s:0,d:0};
+  if(L.v&&rand()<L.v){
+    /* heikko taso tekee joskus satunnaisen siirron, mutta ei jätä mattia näkemättä */
+    var sc=rootScores(p,1);for(var i=0;i<sc.length;i++)if(sc[i].s>MATE-500)return {m:sc[i].m,s:sc[i].s,d:1};
+    return {m:ms[Math.floor(rand()*ms.length)],s:0,d:0,satunnainen:true}}
+  var ply=p.ha.length;
+  if(L.k||ply<10){
+    var d=L.k?L.d:3,k=L.k||12,list=rootScores(p,d),bm=null,bv=-INF;
+    for(i=0;i<list.length;i++){var v=list[i].s+(Math.abs(list[i].s)>MATE-500?0:(rand()*2-1)*k);if(v>bv){bv=v;bm=list[i]}}
+    return {m:bm.m,s:bm.s,d:d}}
+  return search(p,{depth:L.d,ms:L.ms})}
+
+/* ---------- mattiratkaisija (tehtävät) ---------- */
+function mates(p,n){ /* vuorossa oleva tekee matin enintään n siirrolla */
+  var ms=legal(p);ms.sort(function(a,b){return (b.c?1:0)-(a.c?1:0)});
+  for(var i=0;i<ms.length;i++){make(p,ms[i]);var r=lost(p,n-1);unmake(p);if(r)return true}return false}
+function lost(p,n){ /* vuorossa oleva on matissa tai joutuu mattiin enintään n hyökkääjän siirrolla */
+  var ms=legal(p);if(!ms.length)return inCheck(p);if(n<=0)return false;
+  for(var i=0;i<ms.length;i++){make(p,ms[i]);var r=mates(p,n);unmake(p);if(!r)return false}return true}
+function mateMoves(p,n){var out=[],ms=legal(p);for(var i=0;i<ms.length;i++){make(p,ms[i]);if(lost(p,n-1))out.push(ms[i]);unmake(p)}return out}
+/* puolustajan pisin vastarinta: palauttaa {m, n} (n = montako hyökkääjän siirtoa mattiin vielä tarvitaan) */
+function defend(p,n,rand){rand=rand||Math.random;var ms=legal(p),best=[],bn=-1;
+  for(var i=0;i<ms.length;i++){make(p,ms[i]);var k=1;while(k<=n&&!mates(p,k))k++;unmake(p);
+    if(k>bn){bn=k;best=[ms[i]]}else if(k===bn)best.push(ms[i])}
+  return best.length?{m:best[Math.floor(rand()*best.length)],n:bn}:null}
+
+return {START:START,LEVELS:LEVELS,MATE:MATE,fromFen:fromFen,toFen:toFen,clone:clone,legal:legal,make:make,unmake:unmake,inCheck:inCheck,
+  status:status,san:san,fromSan:fromSan,uci:uci,fromUci:fromUci,same:same,sqName:sqName,sqOf:sqOf,to64:to64,from64:from64,
+  evaluate:evaluate,search:search,rootScores:rootScores,botMove:botMove,mates:mates,lost:lost,mateMoves:mateMoves,defend:defend,
+  attacked:attacked,reps:reps,insufficient:insufficient,perft:function perft(p,d){if(!d)return 1;var ms=legal(p),n=0;if(d===1)return ms.length;for(var i=0;i<ms.length;i++){make(p,ms[i]);n+=perft(p,d-1);unmake(p)}return n}};
+})();
+</script>
+<script id="ui">
+/* Käyttöliittymä: lauta, peli botin tai kaverin kanssa, tehtävät, ulkoasu ja varmuuskopio. */
+var SHUI=(function(){
+'use strict';
+var KEY='shakki.v1',AKEY='shakki:appearance',VER=1;
+function $(id){return document.getElementById(id)}
+var THEMES=[{"id":"forest","name":"Metsä","light":{"bg":"#F5F3EE","cell":"#FFFEFA","label":"#252B28","label2":"#5E685F","sep":"#DDE2D9","accent":"#39775A","fill":"#E7F0E7","tint":"#EDF1EA"},"dark":{"bg":"#151B18","cell":"#202922","label":"#EEF1E9","label2":"#ACB8AE","sep":"#3B473E","accent":"#A2C9B6","fill":"#2B4032","tint":"#1A251E"}},{"id":"lake","name":"Järvi","light":{"bg":"#F1F3F4","cell":"#FDFEFE","label":"#263039","label2":"#586977","sep":"#D9E0E5","accent":"#386EA2","fill":"#E3EDF7","tint":"#E9EFF4"},"dark":{"bg":"#151B22","cell":"#202B35","label":"#EAF0F5","label2":"#ADBCC9","sep":"#3B4A57","accent":"#A8C8E7","fill":"#293E52","tint":"#1A2631"}},{"id":"plum","name":"Luumu","light":{"bg":"#F5F1F3","cell":"#FFFCFE","label":"#322A31","label2":"#705D6D","sep":"#E4DCE2","accent":"#87597E","fill":"#F2E9EF","tint":"#F0E9EE"},"dark":{"bg":"#20191F","cell":"#2C222B","label":"#F4ECF3","label2":"#C2AFC0","sep":"#4B3A48","accent":"#D9B7D1","fill":"#483144","tint":"#291F27"}},{"id":"sand","name":"Hiekka","light":{"bg":"#F6F2EA","cell":"#FFFDFA","label":"#332D26","label2":"#726453","sep":"#E5DDD0","accent":"#8D642C","fill":"#F3EAD8","tint":"#F0E9DC"},"dark":{"bg":"#211C16","cell":"#2D261D","label":"#F4EEE2","label2":"#C4B7A2","sep":"#4E4334","accent":"#DCC18D","fill":"#493A25","tint":"#2A2219"}},{"id":"rose","name":"Ruusu","light":{"bg":"#F7F1EE","cell":"#FFFDFA","label":"#362C29","label2":"#795F59","sep":"#E7DDD7","accent":"#A05245","fill":"#F5E7E1","tint":"#F1E8E2"},"dark":{"bg":"#241B19","cell":"#302420","label":"#F7ECE7","label2":"#CCB1A6","sep":"#514039","accent":"#E7B2A2","fill":"#51352D","tint":"#2D211D"}},{"id":"graphite","name":"Harmaa","light":{"bg":"#F3F3F3","cell":"#FEFEFE","label":"#282828","label2":"#646464","sep":"#DDDDDD","accent":"#595959","fill":"#E9E9E9","tint":"#EEEEEE"},"dark":{"bg":"#191919","cell":"#262626","label":"#EFEFEF","label2":"#B4B4B4","sep":"#444444","accent":"#BFBFBF","fill":"#393939","tint":"#202020"}},{"id":"lagoon","name":"Laguuni","light":{"bg":"#EFF4F3","cell":"#FBFEFD","label":"#243330","label2":"#586D67","sep":"#D8E3DF","accent":"#276F6A","fill":"#E0EFEC","tint":"#E7F0ED"},"dark":{"bg":"#15211F","cell":"#21302D","label":"#E9F4F0","label2":"#ACC4BC","sep":"#3C514A","accent":"#9DCEC4","fill":"#2C4640","tint":"#1B2925"}},{"id":"lavender","name":"Laventeli","light":{"bg":"#F3F1F7","cell":"#FEFCFF","label":"#302B3A","label2":"#696175","sep":"#E1DCE9","accent":"#6F5B94","fill":"#ECE6F3","tint":"#ECE8F2"},"dark":{"bg":"#1D1925","cell":"#2A2434","label":"#F0EBF7","label2":"#BFB2D0","sep":"#493E57","accent":"#C4B5E2","fill":"#403350","tint":"#241E2D"}},{"id":"olive","name":"Oliivi","light":{"bg":"#F3F3EC","cell":"#FEFEF9","label":"#303226","label2":"#656B54","sep":"#DFE2D3","accent":"#616F32","fill":"#EBEFD9","tint":"#ECEFDF"},"dark":{"bg":"#1D2016","cell":"#292E20","label":"#F0F2E4","label2":"#BFC5A5","sep":"#484F35","accent":"#C1CD92","fill":"#3F482C","tint":"#24291C"}},{"id":"copper","name":"Kupari","light":{"bg":"#F6F0EA","cell":"#FFFCF8","label":"#372D26","label2":"#776456","sep":"#E7DCCF","accent":"#965F32","fill":"#F4E7D8","tint":"#F1E6DB"},"dark":{"bg":"#241B15","cell":"#32261D","label":"#F5ECE2","label2":"#CCB5A0","sep":"#554232","accent":"#E2BB93","fill":"#513A26","tint":"#2D2118"}}];
+
+/* ---------- tehtävät (omat ja klassiset asetelmat; tarkistetaan testeissä moottorilla) ---------- */
+var RYHMAT=[['m1','Matti yhdellä siirrolla'],['m2','Matti kahdella siirrolla'],['v','Voita materiaalia']];
+var TEHTAVAT=[
+  {id:'narri',r:'m1',nimi:'Narrin matti',fen:'rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq g3 0 2',laji:'matti',n:1,selitys:'Lyhin mahdollinen shakkipeli: valkean kuningas jäi auki vinolle.'},
+  {id:'paimen',r:'m1',nimi:'Paimenen matti',fen:'r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4',laji:'matti',n:1,selitys:'f7 on mustan heikko ruutu: vain kuningas puolustaa sitä.'},
+  {id:'takarivi',r:'m1',nimi:'Takarivimatti',fen:'6k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 1',laji:'matti',n:1,selitys:'Omat sotilaat sulkevat kuninkaan pakotien.'},
+  {id:'tukahdutettu',r:'m1',nimi:'Tukahdutettu matti',fen:'6rk/6pp/8/6N1/8/8/8/6K1 w - - 0 1',laji:'matti',n:1,selitys:'Ratsu hyppää, eikä kuningas pääse omiensa keskeltä mihinkään.'},
+  {id:'arabia',r:'m1',nimi:'Arabialainen matti',fen:'7k/7p/5N2/8/8/8/8/6RK w - - 0 1',laji:'matti',n:1,selitys:'Ratsu suojaa tornia ja vartioi pakoruutua.'},
+  {id:'korotus',r:'m1',nimi:'Korotus mattiin',fen:'k7/2P5/1K6/8/8/8/8/8 w - - 0 1',laji:'matti',n:1,selitys:'Sotilas korottuu ja antaa saman tien matin. Torni kelpaa yhtä hyvin kuin daami.'},
+  {id:'daami',r:'m1',nimi:'Daami ja kuningas',fen:'7k/8/6K1/8/8/8/Q7/8 w - - 0 1',laji:'matti',n:1,selitys:'Oma kuningas vartioi pakoruudut, daami antaa matin.'},
+  {id:'mustatorni',r:'m1',nimi:'Musta iskee takariviin',fen:'5rk1/5ppp/8/8/8/8/r4PPP/6K1 b - - 0 1',laji:'matti',n:1,selitys:'Sama takarivin heikkous toimii molempiin suuntiin.'},
+  {id:'tornit',r:'m2',nimi:'Tornien tikapuut',fen:'7k/8/8/8/8/8/R7/1R4K1 w - - 0 1',laji:'matti',n:2,selitys:'Toinen torni sulkee rivin, toinen antaa matin.'},
+  {id:'philidor',r:'m2',nimi:'Philidorin perintö',fen:'4r2k/6pp/7N/3Q4/8/8/6PP/7K w - - 0 1',laji:'matti',n:2,selitys:'Daamiuhri pakottaa tornin tukkimaan kuninkaan, ja ratsu tekee tukahdutetun matin.'},
+  {id:'legal',r:'m2',nimi:'Légalin matti',fen:'rn1qkbnr/ppp2p1p/3p2p1/4N3/2B1P3/2N5/PPPP1PPP/R1BbK2R w KQkq - 0 6',laji:'matti',n:2,selitys:'Valkea antoi daamin, mutta kevyet upseerit tekevät matin.'},
+  {id:'haarukka',r:'v',nimi:'Ratsuhaarukka',fen:'3q3k/6pp/8/4N3/8/8/6PP/6K1 w - - 0 1',laji:'voita',ratkaisu:['e5f7'],ohje:'Voita mustan daami.',selitys:'Ratsu shakkaa ja uhkaa samalla daamia.'},
+  {id:'haarukka2',r:'v',nimi:'Kuninkaan ja daamin haarukka',fen:'6k1/5ppp/2q5/3N4/8/8/5PPP/6K1 w - - 0 1',laji:'voita',ratkaisu:['d5e7'],ohje:'Ratsu on uhattuna. Löydä siirto, joka voittaa daamin.',selitys:'Shakki ensin: kuninkaan pitää väistää, ja daami jää ratsun suuhun.'}];
+function tehtava(id){return TEHTAVAT.filter(function(t){return t.id===id})[0]||null}
+
+/* ---------- tila ---------- */
+var D={tab:'pelaa',peli:null,ratk:{},flip:false};
+function uusiPeli(o){return {fen0:SH.START,uci:[],vastus:o&&o.vastus||'botti',taso:o&&o.taso||3,oma:o&&o.oma||'w'}}
+function repair(d){
+  var out={tab:'pelaa',peli:uusiPeli(),ratk:{},flip:false};if(!d||typeof d!=='object')return out;
+  if(d.app==='shakki'&&d.data)d=d.data;
+  if(d.tab==='tehtavat')out.tab='tehtavat';
+  var g=d.peli;
+  if(g&&typeof g==='object'){var fen0=typeof g.fen0==='string'&&SH.fromFen(g.fen0)?g.fen0:SH.START,p=SH.fromFen(fen0),ok=[];
+    (Array.isArray(g.uci)?g.uci:[]).some(function(u){var m=SH.fromUci(p,String(u));if(!m)return true;SH.make(p,m);ok.push(SH.uci(m));return false});
+    out.peli={fen0:fen0,uci:ok,vastus:g.vastus==='kaveri'?'kaveri':'botti',taso:Math.min(5,Math.max(1,Math.round(+g.taso)||3)),oma:g.oma==='b'?'b':'w'}}
+  if(d.ratk&&typeof d.ratk==='object')Object.keys(d.ratk).forEach(function(k){if(d.ratk[k])out.ratk[k]=1});
+  out.flip=!!d.flip;
+  return out}
+function payload(){return {app:'shakki',ver:VER,savedAt:new Date().toISOString(),tab:D.tab,peli:D.peli,ratk:D.ratk,flip:D.flip}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(payload()))}catch(e){}}
+function load(){var d=null;try{d=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}D=repair(d)}
+
+/* ---------- ulkoasu ---------- */
+var AP={theme:'forest',mode:'auto'};
+try{var a0=JSON.parse(localStorage.getItem(AKEY)||'null');if(a0){AP.theme=a0.theme||AP.theme;AP.mode=a0.mode||AP.mode}}catch(e){}
+var mq=window.matchMedia?matchMedia('(prefers-color-scheme: dark)'):null;
+function hex(h){h=h.replace('#','');return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]}
+function mix(a,b,t){var x=hex(a),y=hex(b);return '#'+x.map(function(v,i){var c=Math.round(v+(y[i]-v)*t);return (c<16?'0':'')+c.toString(16)}).join('')}
+function isDark(){return AP.mode==='dark'||(AP.mode==='auto'&&mq&&mq.matches)}
+function applyLook(){
+  var t=THEMES.filter(function(x){return x.id===AP.theme})[0]||THEMES[0],dark=isDark(),c=dark?t.dark:t.light,st=document.documentElement.style;
+  ['bg','cell','label','label2','sep','accent','fill','tint'].forEach(function(k){st.setProperty('--'+k,c[k])});
+  st.setProperty('--shadow',dark?'rgba(0,0,0,.13)':'rgba(39,61,34,.055)');
+  st.setProperty('--shade',dark?'rgba(0,0,0,.38)':'rgba(20,30,25,.38)');
+  st.setProperty('--on-solid',dark?c.bg:'#FFFFFF');
+  st.setProperty('--red',dark?'#FF453A':'#D70015');
+  /* lauta teeman korostusväristä: vaaleissa sävyissä tummat ruudut, tummassa tilassa himmeämpi */
+  var L=t.light.accent;
+  st.setProperty('--sqL',dark?mix(c.bg,'#FFFFFF',.70):mix('#FFFFFF',L,.10));
+  st.setProperty('--sqD',dark?mix(mix(c.bg,'#FFFFFF',.70),L,.55):mix('#FFFFFF',L,.48));
+  st.setProperty('--dot',dark?'rgba(0,0,0,.28)':'rgba(20,30,25,.22)');
+  document.documentElement.style.colorScheme=dark?'dark':'light';
+  document.documentElement.setAttribute('data-theme',dark?'dark':'light');
+  var m=document.querySelector('meta[name=theme-color]');if(!m){m=document.createElement('meta');m.name='theme-color';document.head.appendChild(m)}m.content=c.bg;
+  icon(L)}
+if(mq&&mq.addEventListener)mq.addEventListener('change',applyLook);
+function saveLook(){try{localStorage.setItem(AKEY,JSON.stringify(AP))}catch(e){}applyLook()}
+var iconDone='';
+function icon(col){ /* kotinäytön kuvake: ratsu teeman värillä */
+  if(iconDone===col)return;iconDone=col;
+  try{var cv=document.createElement('canvas');cv.width=cv.height=180;var x=cv.getContext('2d');x.fillStyle=col;x.fillRect(0,0,180,180);
+    x.translate(18,14);x.scale(1.44,1.44);x.fillStyle='#fff';x.strokeStyle='#fff';x.lineJoin='round';x.lineWidth=7;
+    var pth=new Path2D('M31 72C31 62 37 56 44 50L33 52C26 53 21 48 24 42L38 25L40 13L51 21C65 23 75 38 72 72Z');x.fill(pth);x.stroke(pth);
+    x.beginPath();x.roundRect?x.roundRect(24,71,52,15,4):x.rect(24,71,52,15);x.fill();
+    x.fillStyle=col;x.beginPath();x.arc(45,33,3.6,0,7);x.fill();
+    $('touchicon').href=cv.toDataURL('image/png')}catch(e){}}
+
+/* ---------- peli ---------- */
+var G={p:null,san:[],over:'',think:false,req:0,hint:null,overShown:false};
+function rebuildGame(){
+  var g=D.peli;G.p=SH.fromFen(g.fen0);G.san=[];
+  g.uci.forEach(function(u){var m=SH.fromUci(G.p,u);G.san.push(SH.san(G.p,m));SH.make(G.p,m)});
+  G.over=SH.status(G.p);G.hint=null}
+function botTurn(){var g=D.peli;return g.vastus==='botti'&&!G.over&&(G.p.turn===1)!==(g.oma==='b')}
+
+/* botti workerissa, ettei lauta jähmety miettiessä; varalla pääsäikeessä */
+var worker=null,wfail=false,wcb={};
+function getWorker(){
+  if(worker||wfail)return worker;
+  try{var src=$('engine').textContent+'\nonmessage=function(e){var d=e.data,p=SH.fromFen(d.fen0);for(var i=0;i<d.uci.length;i++)SH.make(p,SH.fromUci(p,d.uci[i]));'+
+      'var r=d.vihje?SH.search(p,{depth:30,ms:1500}):SH.botMove(p,d.taso);postMessage({id:d.id,uci:r&&r.m?SH.uci(r.m):null,s:r?r.s:0,d:r?r.d:0})};';
+    worker=new Worker(URL.createObjectURL(new Blob([src],{type:'text/javascript'})));
+    worker.onmessage=function(e){var f=wcb[e.data.id];delete wcb[e.data.id];if(f)f(e.data)};
+    worker.onerror=function(){wfail=true;worker=null}}catch(e){wfail=true;worker=null}
+  return worker}
+var reqN=0;
+function think(msg,cb){
+  var id=++reqN,w=getWorker();
+  if(w){wcb[id]=cb;msg.id=id;w.postMessage(msg)}
+  else setTimeout(function(){var p=SH.fromFen(msg.fen0);msg.uci.forEach(function(u){SH.make(p,SH.fromUci(p,u))});
+    var r=msg.vihje?SH.search(p,{depth:30,ms:1200}):SH.botMove(p,msg.taso);cb({uci:r&&r.m?SH.uci(r.m):null})},30);
+  return id}
+function askBot(){
+  if(!botTurn())return;
+  var g=D.peli,my=++G.req,t0=Date.now();G.think=true;renderSide();
+  think({fen0:g.fen0,uci:g.uci.slice(),taso:g.taso},function(r){
+    var wait=Math.max(0,450-(Date.now()-t0));
+    setTimeout(function(){G.think=false;
+      if(my!==G.req)return;var m=r.uci&&SH.fromUci(G.p,r.uci);if(m)gameMove(m);else renderSide()},wait)})}
+function gameMove(m){
+  var g=D.peli;G.san.push(SH.san(G.p,m));SH.make(G.p,m);g.uci.push(SH.uci(m));
+  G.over=SH.status(G.p);G.hint=null;G.overShown=false;sel=-1;save();
+  if(D.tab==='pelaa')render(m);
+  if(botTurn())askBot()}
+function undo(){
+  var g=D.peli;if(!g.uci.length)return;
+  G.req++;G.think=false;
+  if(g.vastus==='botti'){var mine=g.oma==='b'?1:0;
+    do{g.uci.pop()}while(g.uci.length&&(SH.fromFen(g.fen0).turn+g.uci.length)%2!==mine);
+    if((SH.fromFen(g.fen0).turn+g.uci.length)%2!==mine)g.uci=[]}
+  else g.uci.pop();
+  rebuildGame();sel=-1;save();render();if(botTurn())askBot()}
+function hint(){
+  if(G.over||G.think||botTurn())return;var g=D.peli;$('b-hint').disabled=true;$('g-sub').textContent='Mietitään vihjettä…';
+  var my=G.req;
+  think({fen0:g.fen0,uci:g.uci.slice(),vihje:true},function(r){if(my!==G.req)return;var m=r.uci&&SH.fromUci(G.p,r.uci);
+    G.hint=m||null;render();if(m)$('g-sub').textContent='Vihje: '+SH.san(G.p,m)})}
+function startNew(o){D.peli=uusiPeli(o);D.flip=false;rebuildGame();G.req++;G.think=false;sel=-1;save();render();askBot()}
+
+/* ---------- tehtävä ---------- */
+var T=null;
+function startTask(id){var t=tehtava(id);if(!t)return;var p=SH.fromFen(t.fen);
+  T={t:t,p:p,side:p.turn,left:t.n||1,done:false,shown:false,busy:false,msg:'',cls:'',last:null};sel=-1;render()}
+function taskInstr(t){var who=SH.fromFen(t.fen).turn?'Musta':'Valkea';
+  if(t.laji==='matti')return who+' siirtää. Tee matti '+(t.n===1?'yhdellä siirrolla.':t.n===2?'kahdella siirrolla.':t.n+' siirrolla.');
+  return who+' siirtää. '+(t.ohje||'')}
+function taskMove(m,auto){
+  var t=T.t,p=T.p,ok;
+  if(t.laji==='matti'){SH.make(p,m);ok=SH.lost(p,T.left-1)}
+  else{ok=t.ratkaisu.indexOf(SH.uci(m))>=0;SH.make(p,m)}
+  T.last=m;sel=-1;
+  if(auto)T.shown=true;
+  if(!ok){T.msg='Ei ihan. '+(t.laji==='matti'?'Tuo ei pakota mattia.':'Tuolla ei voiteta.')+' Kokeile uudelleen.';T.cls='bad';T.busy=true;render(m);
+    var mine=T;setTimeout(function(){if(T!==mine)return;SH.unmake(p);T.last=null;T.busy=false;render()},900);return}
+  if(t.laji!=='matti'||SH.status(p)==='matti'){T.done=true;if(!T.shown)D.ratk[t.id]=1;save();
+    T.msg=(T.shown?'Ratkaisu näytetty. ':(t.laji==='matti'?'Matti! 🎉 ':'Oikein! 🎉 '))+(t.selitys||'');T.cls='good';render(m);return}
+  T.left--;T.msg='Hyvä siirto! Jatka.';T.cls='good';T.busy=true;render(m);
+  var mine2=T;setTimeout(function(){if(T!==mine2)return;var d=SH.defend(p,T.left);if(d){SH.make(p,d.m);T.last=d.m}T.busy=false;render(d&&d.m)},550)}
+function taskShow(){if(!T||T.done||T.busy||T.p.turn!==T.side)return;var t=T.t,m;
+  if(t.laji==='matti')m=SH.mateMoves(T.p,T.left)[0];else m=SH.fromUci(T.p,t.ratkaisu[0]);if(m)taskMove(m,true)}
+function firstTask(){var c=TEHTAVAT.filter(function(t){return !D.ratk[t.id]})[0]||TEHTAVAT[0];startTask(c.id)}
+function nextTask(){var i=T?TEHTAVAT.indexOf(T.t):-1;
+  for(var k=1;k<=TEHTAVAT.length;k++){var c=TEHTAVAT[(i+k)%TEHTAVAT.length];if(!D.ratk[c.id]){startTask(c.id);return}}
+  startTask(TEHTAVAT[(i+1)%TEHTAVAT.length].id)}
+
+/* ---------- lauta ---------- */
+var sel=-1,drag=null,pendingPromo=null;
+function curPos(){return D.tab==='pelaa'?G.p:(T?T.p:null)}
+function flipped(){if(D.tab==='pelaa'){var g=D.peli;return (g.vastus==='botti'&&g.oma==='b')!==D.flip}return T?T.side===1:false}
+function canMove(){if(D.tab==='pelaa')return !G.over&&!G.think&&!botTurn();return T&&!T.done&&!T.busy&&T.p.turn===T.side}
+function xy(s){var f=s&7,r=s>>4;return flipped()?[7-f,r]:[f,7-r]}
+function sqAt(cx,cy){var b=$('board').getBoundingClientRect(),x=Math.floor((cx-b.left)/b.width*8),y=Math.floor((cy-b.top)/b.height*8);
+  if(x<0||x>7||y<0||y>7)return -1;return flipped()?(y*16+(7-x)):((7-y)*16+x)}
+function pieceSvg(pc){var t=' pnbrqk'[pc&7],d=t==='b'||t==='n'?'<use href="#d-'+t+'" class="dt"/>':'';
+  return '<svg viewBox="0 0 100 100"><use href="#s-'+t+'" class="o"/><use href="#s-'+t+'" class="f"/>'+d+'</svg>'}
+function lastMove(){if(D.tab==='pelaa'){var p=G.p;return p.st.length?p.st[p.st.length-1].m:null}return T&&T.last}
+function targets(p,s){return s<0?[]:SH.legal(p).filter(function(m){return m.f===s})}
+function render(anim){
+  var p=curPos(),sq=$('squares'),pcs=$('pieces');
+  sq.innerHTML='';pcs.innerHTML='';
+  if(!p){renderSide();return}
+  var lm=lastMove(),chk=SH.inCheck(p)?p.k[p.turn]:-1,tg=canMove()?targets(p,sel):[],h=D.tab==='pelaa'?G.hint:null,fl=flipped(),html='';
+  for(var i=0;i<64;i++){var vx=i&7,vy=i>>3,s=fl?(vy*16+(7-vx)):((7-vy)*16+vx),light=((s>>4)+(s&7))&1,cls='sq '+(light?'l':'d');
+    if(lm&&(s===lm.f||s===lm.t))cls+=' hl';if(s===sel)cls+=' sel';if(s===chk)cls+=' chk';if(h&&(s===h.f||s===h.t))cls+=' hint';
+    var inner='';if(vy===7)inner+='<span class="co f">'+'abcdefgh'[s&7]+'</span>';if(vx===0)inner+='<span class="co r">'+((s>>4)+1)+'</span>';
+    var tm=tg.filter(function(m){return m.t===s})[0];if(tm)inner+='<i class="dotm'+(p.b[s]||tm.fl&1?' cap':'')+'"></i>';
+    html+='<div class="sq '+cls.slice(3)+'" style="left:'+vx*12.5+'%;top:'+vy*12.5+'%">'+inner+'</div>'}
+  sq.innerHTML=html;
+  var moving=[];
+  for(var s2=0;s2<128;s2++){if(s2&0x88){s2+=7;continue}var pc=p.b[s2];if(!pc)continue;
+    var el=document.createElement('div'),c=xy(s2);el.className='pc '+(pc&8?'b':'w');el.dataset.sq=s2;el.innerHTML=pieceSvg(pc);
+    var from=null;
+    if(anim&&s2===anim.t)from=anim.f;
+    if(anim&&anim.fl&2){var rt=anim.t>anim.f?anim.f+1:anim.f-1,rf=anim.t>anim.f?anim.f+3:anim.f-4;if(s2===rt)from=rf}
+    if(from!==null){var c0=xy(from);el.classList.add('noanim');el.style.transform='translate('+c0[0]*100+'%,'+c0[1]*100+'%)';moving.push([el,c])}
+    else el.style.transform='translate('+c[0]*100+'%,'+c[1]*100+'%)';
+    pcs.appendChild(el)}
+  if(moving.length){void pcs.offsetWidth;moving.forEach(function(o){o[0].classList.remove('noanim');o[0].style.transform='translate('+o[1][0]*100+'%,'+o[1][1]*100+'%)'})}
+  renderSide()}
+function pieceEl(s){return document.querySelector('.pc[data-sq="'+s+'"]')}
+function tryMove(f,t){
+  var p=curPos(),ms=SH.legal(p).filter(function(m){return m.f===f&&m.t===t});
+  if(!ms.length)return false;
+  if(ms.length>1&&ms[0].pr){askPromo(ms);return true}
+  doMove(ms[0]);return true}
+function doMove(m){if(D.tab==='pelaa')gameMove(m);else taskMove(m)}
+function askPromo(ms){
+  var box=$('promobox');box.innerHTML='';pendingPromo=ms;
+  [5,4,3,2].forEach(function(t){var m=ms.filter(function(x){return (x.pr&7)===t})[0];if(!m)return;
+    var b=document.createElement('button');b.className=m.pr&8?'b':'w';b.innerHTML=pieceSvg(m.pr);b.setAttribute('aria-label',['','','Ratsu','Lähetti','Torni','Daami'][t]);
+    b.onclick=function(){$('promo').hidden=true;pendingPromo=null;sel=-1;doMove(m)};box.appendChild(b)});
+  $('promo').hidden=false;promoAt=Date.now()}
+/* napautuksen perässä tuleva click ei saa sulkea juuri avautunutta ikkunaa */
+var promoAt=0;
+$('promo').addEventListener('click',function(e){if(e.target.id==='promo'&&Date.now()-promoAt>450){$('promo').hidden=true;pendingPromo=null;sel=-1;render()}});
+
+var board=$('board');
+board.addEventListener('pointerdown',function(e){
+  if(!canMove())return;var p=curPos(),s=sqAt(e.clientX,e.clientY);if(s<0)return;
+  e.preventDefault();
+  var own=p.b[s]&&(p.b[s]>>3)===p.turn;
+  drag={s:s,x:e.clientX,y:e.clientY,on:false,own:own,id:e.pointerId,wasSel:sel===s};
+  if(own&&sel!==s&&!(sel>=0&&targets(p,sel).some(function(m){return m.t===s}))){sel=s;render()}
+  try{board.setPointerCapture(e.pointerId)}catch(x){}});
+board.addEventListener('pointermove',function(e){
+  if(!drag||e.pointerId!==drag.id||!drag.own)return;
+  var dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+  if(!drag.on&&dx*dx+dy*dy>36){drag.on=true;var el=pieceEl(drag.s);if(el){el.classList.add('drag');drag.el=el}}
+  if(drag.on&&drag.el){var b=board.getBoundingClientRect(),w=b.width/8;
+    drag.el.style.transform='translate('+(e.clientX-b.left-w/2)+'px,'+(e.clientY-b.top-w/2)+'px)'}});
+function endDrag(e,cancel){
+  if(!drag||e.pointerId!==drag.id)return;var d=drag;drag=null;
+  var s=cancel?-1:sqAt(e.clientX,e.clientY);
+  if(d.on){if(s>=0&&s!==d.s&&tryMove(d.s,s))return;render();return}
+  /* napautus */
+  if(s<0)return;
+  if(sel>=0&&s!==sel&&tryMove(sel,s))return;
+  if(d.own){if(d.wasSel){sel=-1;render()}return}
+  if(sel>=0){sel=-1;render()}}
+board.addEventListener('pointerup',function(e){endDrag(e,false)});
+board.addEventListener('pointercancel',function(e){endDrag(e,true)});
+
+/* ---------- sivupaneeli ---------- */
+var LOPPU={matti:'Matti',patti:'Patti',toisto:'Tasapeli',50:'Tasapeli',materiaali:'Tasapeli'};
+function overText(){
+  var g=D.peli,st=G.over,p=G.p;if(!st)return null;
+  if(st==='matti'){var winW=p.turn===1;
+    if(g.vastus==='botti'){var me=(g.oma==='w')===winW;return [me?'Matti! Voitit 🎉':'Matti. Botti voitti.',me?'Hieno peli. Kokeile seuraavaksi vaikeampaa tasoa?':'Peru siirtoja ja kokeile toista reittiä, tai aloita alusta.']}
+    return ['Matti!',(winW?'Valkea':'Musta')+' voitti.']}
+  var why={patti:'Patti: vuorossa olevalla ei ole laillisia siirtoja, mutta kuningas ei ole shakissa.',toisto:'Sama asema toistui kolme kertaa.',50:'50 siirtoa ilman lyöntiä tai sotilaan siirtoa.',materiaali:'Kummallakaan ei ole tarpeeksi nappuloita mattiin.'}[st];
+  return [LOPPU[st]+(st==='patti'?' – tasapeli':''),why]}
+function renderSide(){
+  var pel=D.tab==='pelaa';
+  $('tab-pelaa').setAttribute('aria-pressed',pel);$('tab-teht').setAttribute('aria-pressed',!pel);
+  $('v-pelaa').hidden=!pel;$('moves').hidden=!pel;$('g-btns').hidden=!pel;$('v-teht').hidden=pel;
+  $('v-teht').style.display=pel?'none':'flex';
+  if(pel){
+    var g=D.peli,p=G.p;
+    $('g-opp').textContent=g.vastus==='botti'?'Botti · '+SH.LEVELS[g.taso].nimi+' · taso '+g.taso+'/5':'Kaveri samalla laitteella';
+    var s;
+    if(G.over)s=overText()[0];
+    else if(G.think)s='Botti miettii…';
+    else if(g.vastus==='botti')s='Sinun vuorosi'+(SH.inCheck(p)?' · shakki!':'');
+    else s=(p.turn?'Mustan':'Valkean')+' vuoro'+(SH.inCheck(p)?' · shakki!':'');
+    $('g-status').textContent=s;
+    if(!G.hint)$('g-sub').textContent=g.vastus==='botti'?'Pelaat '+(g.oma==='w'?'valkeilla':'mustilla')+'.':'';
+    var h='',n0=SH.fromFen(g.fen0).turn,list=G.san.slice();if(n0)list.unshift('…');
+    for(var i=0;i<list.length;i+=2){var last=list.length-1;
+      h+='<div class="row"><span class="n">'+(i/2+1)+'.</span><span'+(i===last?' class="last"':'')+'>'+list[i]+'</span><span'+(i+1===last?' class="last"':'')+'>'+(list[i+1]||'')+'</span></div>'}
+    $('moves').innerHTML=h||'<div class="empty">Siirrot näkyvät tässä. Siirrä nappulaa napauttamalla tai vetämällä.</div>';
+    $('moves').scrollTop=1e6;
+    $('b-undo').disabled=!g.uci.length;$('b-hint').disabled=!!(G.over||G.think||botTurn());
+    var ot=overText();
+    if(ot&&!G.overShown){$('over-t').textContent=ot[0];$('over-p').textContent=ot[1];$('over').hidden=false}else $('over').hidden=true;
+  }else{
+    $('over').hidden=true;
+    if(!T){firstTask();return}
+    var on=!!T;$('t-card').hidden=!on;$('t-btns').hidden=!on;
+    if(on){var t=T.t;$('t-grp').textContent=RYHMAT.filter(function(r){return r[0]===t.r})[0][1];$('t-title').textContent=t.nimi+(D.ratk[t.id]?' ✓':'');
+      $('t-ohje').textContent=taskInstr(t);var fb=$('t-fb');fb.textContent=T.msg;fb.className='fb '+(T.cls||'');
+      $('t-show').disabled=T.done||T.busy;$('t-next').textContent=T.done?'Seuraava ›':'Ohita ›'}
+    renderList()}}
+function renderList(){
+  var el=$('t-plist'),n=Object.keys(D.ratk).filter(function(k){return tehtava(k)}).length,h='<div class="card"><div class="sec">Harjoitukset</div><div class="status">Ratkaistu '+n+'/'+TEHTAVAT.length+'</div><div class="sub">Valitse tehtävä. Mikä tahansa oikea ratkaisu kelpaa, ei vain yksi.</div></div>';
+  RYHMAT.forEach(function(r){var items=TEHTAVAT.filter(function(t){return t.r===r[0]});if(!items.length)return;
+    h+='<div class="card"><div class="sec">'+r[1]+'</div>';
+    items.forEach(function(t,i){h+='<button class="pitem'+(D.ratk[t.id]?' ok':'')+(T&&T.t===t?' cur':'')+'" data-id="'+t.id+'"><span class="nro">'+(D.ratk[t.id]?'✓':(i+1))+'</span><span class="nm">'+t.nimi+'</span><span class="sub">'+(SH.fromFen(t.fen).turn?'musta':'valkea')+'</span></button>'});
+    h+='</div>'});
+  el.innerHTML=h}
+$('t-plist').addEventListener('click',function(e){var b=e.target.closest('.pitem');if(b)startTask(b.dataset.id)});
+
+/* ---------- arkki (uusi peli, valikko) ---------- */
+function sheet(html){$('sheet').innerHTML=html;$('sheetbg').hidden=false}
+function closeSheet(){$('sheetbg').hidden=true;$('sheet').innerHTML=''}
+$('sheetbg').addEventListener('click',function(e){if(e.target.id==='sheetbg')closeSheet()});
+var KUVAUS=['','Mokailee välillä tahallaan. Hyvä aloittaa.','Katsoo pari siirtoa eteenpäin, välillä hätäilee.','Laskee kolme siirtoa eteenpäin.','Miettii noin sekunnin. Vaatii jo tarkkuutta.','Miettii noin kolme sekuntia. Vahvin taso.'];
+function newSheet(){
+  var o={vastus:D.peli.vastus,taso:D.peli.taso,oma:D.peli.oma==='b'?'b':'w'};
+  function draw(){
+    var h='<h2>Uusi peli</h2><div class="grp"><div class="sec">Vastustaja</div><div class="chips">'+
+      ch('vastus','botti','🤖 Botti')+ch('vastus','kaveri','👥 Kaveri samalla laitteella')+'</div></div>';
+    if(o.vastus==='botti'){
+      h+='<div class="grp"><div class="sec">Taso</div><div class="lvl">';
+      for(var l=1;l<=5;l++){var pips='';for(var k=1;k<=5;k++)pips+='<i'+(k<=l?' class="on"':'')+'></i>';
+        h+='<button class="chip" data-k="taso" data-v="'+l+'" aria-pressed="'+(o.taso===l)+'"><span class="pips">'+pips+'</span><span>'+SH.LEVELS[l].nimi+'<small>'+KUVAUS[l]+'</small></span></button>'}
+      h+='</div></div><div class="grp"><div class="sec">Pelaat</div><div class="chips">'+ch('oma','w','Valkeilla')+ch('oma','b','Mustilla')+ch('oma','r','Arvotaan')+'</div></div>'}
+    h+='<div class="btns"><button class="btn" id="ns-x">Peruuta</button><button class="btn solid" id="ns-go">Aloita</button></div>';
+    sheet(h);
+    [].forEach.call($('sheet').querySelectorAll('.chip'),function(b){b.onclick=function(){var k=b.dataset.k,v=b.dataset.v;o[k]=k==='taso'?+v:v;draw()}});
+    $('ns-x').onclick=closeSheet;
+    $('ns-go').onclick=function(){var oma=o.oma==='r'?(Math.random()<.5?'w':'b'):o.oma;closeSheet();D.tab='pelaa';startNew({vastus:o.vastus,taso:o.taso,oma:oma})}}
+  function ch(k,v,t){return '<button class="chip" data-k="'+k+'" data-v="'+v+'" aria-pressed="'+(String(o[k])===v)+'">'+t+'</button>'}
+  draw()}
+function pgn(){var g=D.peli,h='[Event "Shakki"]\n[Date "'+new Date().toISOString().slice(0,10).replace(/-/g,'.')+'"]\n';
+  var bot='Botti (taso '+g.taso+')';h+='[White "'+(g.vastus==='botti'?(g.oma==='w'?'Minä':bot):'Valkea')+'"]\n[Black "'+(g.vastus==='botti'?(g.oma==='b'?'Minä':bot):'Musta')+'"]\n';
+  var res='*';if(G.over==='matti')res=G.p.turn?'1-0':'0-1';else if(G.over)res='1/2-1/2';h+='[Result "'+res+'"]\n';
+  if(g.fen0!==SH.START)h+='[SetUp "1"]\n[FEN "'+g.fen0+'"]\n';
+  var p=SH.fromFen(g.fen0),s='',n=p.full;
+  g.uci.forEach(function(u,i){var m=SH.fromUci(p,u);if(!p.turn)s+=p.full+'. ';else if(!i)s+=p.full+'... ';s+=SH.san(p,m)+' ';SH.make(p,m)});
+  return h+'\n'+s+res+'\n'}
+function copyText(t,ok){function fb(){var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}ta.remove();ok&&ok()}
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,fb);else fb()}
+function menuSheet(){
+  var h='<h2>Asetukset</h2><div class="grp"><div class="sec">Väritila</div><div class="chips">';
+  [['auto','Laitteen mukaan'],['light','Vaalea'],['dark','Tumma']].forEach(function(m){h+='<button class="chip" data-mode="'+m[0]+'" aria-pressed="'+(AP.mode===m[0])+'">'+m[1]+'</button>'});
+  h+='</div></div><div class="grp"><div class="sec">Teema</div><div class="chips">';
+  THEMES.forEach(function(t){h+='<button class="chip" data-theme="'+t.id+'" aria-pressed="'+(AP.theme===t.id)+'"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:'+t.light.accent+';margin-right:6px;vertical-align:-1px"></span>'+t.name+'</button>'});
+  h+='</div></div><div class="grp"><div class="sec">Peli tekstinä</div><div class="chips"><button class="chip" id="m-pgn">Kopioi peli (PGN)</button></div><div class="sub" id="m-pgnok"></div></div>'+
+    '<div class="grp"><div class="sec">Varmuuskopio</div><div class="chips"><button class="chip" id="m-exp">Tallenna tiedostoksi</button><button class="chip" id="m-imp">Lataa tiedostosta</button><button class="chip" id="m-txt">Tekstinä</button></div><div class="sub">Peli ja ratkaistut tehtävät. Tiedot ovat vain tämän laitteen selaimessa.</div><input type="file" id="m-file" accept=".json,application/json,text/plain" hidden></div>'+
+    '<div class="grp help"><div class="sec">Ohje</div><p>Siirrä nappulaa napauttamalla ensin sitä ja sitten ruutua, tai vetämällä sormella. Pisteet näyttävät mahdolliset siirrot.</p><p>Vihje näyttää vahvimman siirron, jonka moottori löytää noin puolessatoista sekunnissa. Peru siirto vie botin pelissä takaisin omaan vuoroosi.</p><p>Kotinäytölle: Safarin jakonappi → Lisää Koti-valikkoon.</p></div>'+
+    '<div class="btns"><span></span><button class="btn solid" id="m-x">Valmis</button></div>';
+  sheet(h);
+  [].forEach.call($('sheet').querySelectorAll('[data-mode]'),function(b){b.onclick=function(){AP.mode=b.dataset.mode;saveLook();menuSheet()}});
+  [].forEach.call($('sheet').querySelectorAll('[data-theme]'),function(b){b.onclick=function(){AP.theme=b.dataset.theme;saveLook();menuSheet()}});
+  $('m-x').onclick=closeSheet;
+  $('m-pgn').onclick=function(){copyText(pgn(),function(){$('m-pgnok').textContent='Kopioitu leikepöydälle.'})};
+  $('m-exp').onclick=function(){var a=document.createElement('a'),t=JSON.stringify(payload(),null,1);
+    a.href=URL.createObjectURL(new Blob([t],{type:'application/json'}));a.download='shakki-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();setTimeout(function(){a.remove()},500)};
+  $('m-imp').onclick=function(){$('m-file').click()};
+  $('m-file').onchange=function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){importText(r.result)};r.readAsText(f)};
+  $('m-txt').onclick=textSheet}
+function textSheet(){
+  sheet('<h2>Varmuuskopio tekstinä</h2><div class="sub" style="margin-bottom:8px">Kopioi teksti talteen, tai liitä aiemmin kopioitu teksti ja paina Lataa.</div><textarea id="tx"></textarea><div class="sub" id="txok" style="margin:6px 0 10px"></div><div class="btns"><button class="btn" id="tx-c">Kopioi</button><button class="btn" id="tx-l">Lataa tekstistä</button><button class="btn" id="tx-x">Sulje</button></div>');
+  $('tx').value=JSON.stringify(payload());
+  $('tx-c').onclick=function(){copyText($('tx').value,function(){$('txok').textContent='Kopioitu.'})};
+  $('tx-l').onclick=function(){importText($('tx').value)};$('tx-x').onclick=closeSheet}
+function importText(t){var d;try{d=JSON.parse(t)}catch(e){alert('Tekstiä ei voitu lukea varmuuskopioksi.');return}
+  if(!d||(d.app&&d.app!=='shakki')){alert('Tämä ei ole Shakki-appin varmuuskopio.');return}
+  if(!confirm('Korvataanko nykyinen peli ja ratkaistut tehtävät varmuuskopiolla?'))return;
+  D=repair(d);save();rebuildGame();T=null;closeSheet();render();askBot()}
+
+/* ---------- asettelu ---------- */
+function layout(){
+  var W=innerWidth,H=innerHeight,hh=$('app').querySelector('header').offsetHeight,land=W>=H*1.12&&W>=640,bs;
+  $('main').classList.toggle('port',!land);
+  if(land){var side=Math.min(400,Math.max(280,W*.3));bs=Math.min(H-hh-24,W-side-56)}
+  else bs=Math.min(W-32,H-hh-(W<500?250:300));
+  bs=Math.max(240,Math.floor(bs/8)*8);
+  document.documentElement.style.setProperty('--bs',bs+'px')}
+addEventListener('resize',function(){layout()});
+
+/* ---------- napit ---------- */
+$('tab-pelaa').onclick=function(){if(D.tab==='pelaa')return;D.tab='pelaa';sel=-1;save();render()};
+$('tab-teht').onclick=function(){if(D.tab==='tehtavat')return;D.tab='tehtavat';sel=-1;save();if(!T)firstTask();else render()};
+$('b-new').onclick=newSheet;$('over-new').onclick=function(){G.overShown=true;newSheet()};
+$('over-close').onclick=function(){G.overShown=true;$('over').hidden=true};
+$('b-undo').onclick=undo;$('b-hint').onclick=hint;
+$('b-flip').onclick=function(){D.flip=!D.flip;save();render()};
+$('b-menu').onclick=menuSheet;
+$('t-reset').onclick=function(){if(T)startTask(T.t.id)};
+$('t-show').onclick=taskShow;$('t-next').onclick=nextTask;
+
+load();applyLook();rebuildGame();layout();if(D.tab==='tehtavat')firstTask();else render();askBot();
+return {get D(){return D},get G(){return G},get T(){return T},TEHTAVAT:TEHTAVAT,startTask:startTask,startNew:startNew,repair:repair,payload:payload,render:render,pgn:pgn,
+  get sel(){return sel},sqCenter:function(n){var s=SH.sqOf(n),c=xy(s),b=$('board').getBoundingClientRect(),w=b.width/8;return [b.left+(c[0]+.5)*w,b.top+(c[1]+.5)*w]}};
+})();
+</script>
+</body>
+</html>
