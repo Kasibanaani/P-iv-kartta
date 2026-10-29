@@ -4,6 +4,10 @@
 
 Juuren ydin on teksti, asiasanat ja niiden ehdot; Muistio, Kalenteri ja Listat ovat niiden käyttönäkymiä. Päätöspuun opetus ja vanhat listat säilyvät.
 
+## Suunnitelmat
+
+- **29.10.2026 arvio, ei rakennettu:** tekstien linkitys tarkistuslistaan ja tekstikohtainen kuittaus (muistiinpanon oma kuittaus pois). Arvio https://claude.ai/artifact/RtdfaQw3zGhCQZtqViGNWU. Pääsuositus: tekstiruutu = asiasana, järjestys reunus → tekstikuittaus → rivi poimii tekstit → Kaikki sanat -tunnistus. Odottaa Emilin vastauksia kysymyksiin A, B, E, H, I.
+
 ## Versio 1.96 (27.10.2026): työnkulku kuittaustapana
 
 - Asiasanakortin **Listassa → Kuittaustapa**: suora kuittaus tai olemassa oleva työnkulkulista pohjaksi. Aktiivisen listakohteen painaminen käynnistää oman työnkulun; se kuittaantuu vasta työnkulun valmistuessa. Samasta kohdasta jatketaan keskeneräistä, toisesta aloitetaan erillinen. Pohjan kuittaukset eivät kopioidu.
