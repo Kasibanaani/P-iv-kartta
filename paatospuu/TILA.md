@@ -1,8 +1,18 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.97 — kirjoituskentän reunus, kun päivä puuttuu. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 29.10.2026
+**Vaihe:** versio 1.98 — kuittaus kuuluu tekstille, uusi arkistointi. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 29.10.2026
 
 Juuren ydin on teksti, asiasanat ja niiden ehdot; Muistio, Kalenteri ja Listat ovat niiden käyttönäkymiä. Päätöspuun opetus ja vanhat listat säilyvät.
+
+## Versio 1.98 (29.10.2026): kuittaus kuuluu tekstille
+
+- **Muistiinpanolla ei ole omaa kuittausta** (Emil). Jokainen teksti (`---`) kuitataan erikseen. Muistiinpano on Kuitatuissa, kun kaikki sen tekstit on kuitattu (`N.done` on nyt johdettu). Usean tekstin kortissa jokaisella tekstillä on oma ympyrä, ja kuitattu teksti on haalea. Usean tekstin ikkunassa ei ole Kuittaa-nappia.
+- **Kalenteri yhdistyy (arvion taulukko C):** yhden ajan tekstissä ympyrä ja kalenterin kuittaus ovat sama asia. Usean kerran teksti on kuitattu, kun jokainen kerta on kuitattu, ja ympyrä kuittaa kaikki. Toistuvasta tekstistä ympyrä kuittaa avoinna olevan kerran, ja teksti valmistuu vasta loppupäivän jälkeen (toistuva voittaa saman tekstin kerta-ajan). Kumoaa 1.39:n ”kalenteri omana kerroksenaan”.
+- **Kohdistus muokatessa:** ajattomien tekstien kuittaukset (`N.tx = [{t,i,ok}]`) seuraavat sisältöä. Sama teksti tai teksti, jonka sanoista vähintään 60 % on samoja, pitää kuittauksensa, myös järjestystä vaihdettaessa. Uusi tai täysin uudelleen kirjoitettu teksti on avoin. Ajallisten tekstien kuittaus on edelleen `pts`.
+- **Listoilla** tänään kuitattu teksti näkyy päivän loppuun (`gone`), kuten 1.88:ssa sovittiin.
+- **Arkistointi on itsenäinen** (Emil): aina tarjolla, piilottaa muistiinpanon Muistiosta, kalenterista ja listoilta. Varmistus, jossa Arkistoi-vahvistus on eri kohdassa kuin ensimmäinen napautus (Peruuta vasemmalla, Arkistoi oikealla). Arkisto on Kuitattujen lopussa ennen roskakoria, ja palautus tehdään muistiinpanon ikkunasta (Palauta arkistosta). Kumoa toimii.
+- **Vanha muoto:** kuitattu muistiinpano tarkoittaa, että kaikki sen tekstit ovat kuitattuja. Ajallisille kerroille kirjoitetaan kuittaus siirrossa. Arkistoinnin ei enää tarvitse olla kuitattu. Päättyneestä toistuvasta tulee edelleen ilmoitus. **Ota varmuuskopio ennen käyttöönottoa.**
+- Testit: uudet `logiikka_198.js` ja `selain_198.py` (390/320/1280/1440 px) läpi. Vanhoista päivitettiin uuden säännön mukaisiksi kohdat, jotka odottivat vanhaa toimintaa: `selain_perus.py` (kalenterikuittaus kuittaa yhden ajan tekstin, arkistoinnin varmistus, kuitattu Kuitatuissa), `selain_188.py` ja `selain_193.py` (päättynyt toistuva Kuitatuissa). Koko sarja läpi (1.94–1.96-polut Chromium-polulla). Ei oikeaa iPhonea: korttien ympyröiden osuma ja Safari jäävät kokeiltaviksi.
 
 ## Versio 1.97 (29.10.2026): kirjoituskentän reunus
 
@@ -11,7 +21,7 @@ Juuren ydin on teksti, asiasanat ja niiden ehdot; Muistio, Kalenteri ja Listat o
 
 ## Suunnitelmat
 
-- **29.10.2026 arvio** tekstien linkityksestä tarkistuslistaan ja tekstikohtaisesta kuittauksesta: https://claude.ai/artifact/RtdfaQw3zGhCQZtqViGNWU. Emilin vastaukset: A tekstiruutu = asiasana (kyllä); B uusiutuminen avaa tekstin vain listalla. Muistiinpanolla ei ole enää avoin/kuitattu-tilaa, vain sen teksteillä; muistiinpano on arkistoitu tai ei (tai poistettu), arkistointi on itsenäinen päätös Muistiossa ja lopettaa tekstien näkymisen kaikkialla, tuplavarmistus (ok eri kohdassa kuin Arkistoi). H kierroslistat myöhemmin; I päivä riittää (tehty 1.97). E erillinen valinta: rivin ikkunassa oma Poimii tekstit -osio (Nimi + asiasanat), kohteet eivät poimi tekstejä itsestään. Seuraava: vaihe 2 tekstin kuittaus + uusi arkistointi (tallennusmuutos, varmuuskopio).
+- **29.10.2026 arvio** tekstien linkityksestä tarkistuslistaan ja tekstikohtaisesta kuittauksesta: https://claude.ai/artifact/RtdfaQw3zGhCQZtqViGNWU. Emilin vastaukset: A tekstiruutu = asiasana (kyllä); B uusiutuminen avaa tekstin vain listalla. Muistiinpanolla ei ole enää avoin/kuitattu-tilaa, vain sen teksteillä; muistiinpano on arkistoitu tai ei (tai poistettu), arkistointi on itsenäinen päätös Muistiossa ja lopettaa tekstien näkymisen kaikkialla, tuplavarmistus (ok eri kohdassa kuin Arkistoi). H kierroslistat myöhemmin; I päivä riittää (tehty 1.97). E erillinen valinta: rivin ikkunassa oma Poimii tekstit -osio (Nimi + asiasanat), kohteet eivät poimi tekstejä itsestään. Vaihe 2 tehty (1.98). Seuraava: vaihe 3, listarivin Poimii tekstit -osio (Nimi + asiasanat), tekstikortit rivillä tärkeysjärjestyksessä, kuittaus ja muokkaus listalla. Odottaa Emilin toteuta-sanaa.
 
 ## Versio 1.96 (27.10.2026): työnkulku kuittaustapana
 

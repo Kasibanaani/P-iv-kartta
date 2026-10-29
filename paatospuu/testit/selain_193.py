@@ -44,7 +44,10 @@ async def run(p,w,h):
     # Muistiinpanossa: ei yliviivausta kesken, päättynyt yliviivattu
     await tab(pg,'notes'); await pg.wait_for_timeout(200)
     want('kesken ei yliviivattu', await pg.locator('#nlist .ncard:has-text("Sauna") .dn').count()==0)
+    # 1.98: päättynyt toistuva teksti on valmis, joten se on Kuitatuissa
+    await pg.click('#noteview [data-nv="done"]'); await pg.wait_for_timeout(150)
     want('päättynyt yliviivattu', await pg.locator('#nlist .ncard:has-text("Uinti") .dn').count()==1)
+    await pg.click('#noteview [data-nv="open"]'); await pg.wait_for_timeout(150)
     await pg.locator('#nlist .ncard:has-text("Sauna")').first.click(); await pg.wait_for_timeout(250)
     R=await pg.evaluate("Array.prototype.map.call(document.querySelectorAll('#ns-dlist .drow'),function(r){return r.querySelector('i').innerText;})")
     want('ajankohtana alku ja loppu', len(R)==1 and R[0].startswith('joka pe 26.10.2026–13.12.2026 klo 14.00') and 'kerta 6.11.2026 klo 14' in R[0])

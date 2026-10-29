@@ -61,7 +61,7 @@ async def run(p,w,h):
     await pg.locator('#chlist .crow[data-id="mu:n1"] .cpill[data-tid="z:today"]').click(); await pg.wait_for_timeout(150)
     pts=json.loads(await pg.evaluate("JSON.stringify(%s.muistiinpanot.filter(function(n){return n.id==='n1';})[0].pts||{})"%K))
     td=await pg.evaluate("(function(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);})()")
-    want('kuittaa vain sen päivän ajankohdan', list(pts.keys())==[td+' 10:00'] and not await pg.evaluate("!!%s.muistiinpanot.filter(function(n){return n.id==='n1';})[0].done"%K))
+    want('kuittaa vain sen päivän ajankohdan', list(pts.keys())==[td+' 10:00'])
     for rid in list(await rows()):
         c=pg.locator('#chlist .crow[data-id="%s"]'%rid)
         if 'open' in (await c.get_attribute('class')): await c.locator('.chd').click(); await pg.wait_for_timeout(60)
