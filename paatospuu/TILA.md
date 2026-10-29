@@ -11,7 +11,7 @@ Juuren ydin on teksti, asiasanat ja niiden ehdot; Muistio, Kalenteri ja Listat o
 
 ## Suunnitelmat
 
-- **29.10.2026 arvio** tekstien linkityksestä tarkistuslistaan ja tekstikohtaisesta kuittauksesta: https://claude.ai/artifact/RtdfaQw3zGhCQZtqViGNWU. Emilin vastaukset: A tekstiruutu = asiasana (kyllä); B uusiutuminen avaa tekstin vain listalla. Muistiinpanolla ei ole enää avoin/kuitattu-tilaa, vain sen teksteillä; muistiinpano on arkistoitu tai ei (tai poistettu), arkistointi on itsenäinen päätös Muistiossa ja lopettaa tekstien näkymisen kaikkialla, tuplavarmistus (ok eri kohdassa kuin Arkistoi). H kierroslistat myöhemmin; I päivä riittää (tehty 1.97). E selitetty uudelleen, odottaa vastausta. Seuraava: vaihe 2 tekstin kuittaus + uusi arkistointi (tallennusmuutos, varmuuskopio).
+- **29.10.2026 arvio** tekstien linkityksestä tarkistuslistaan ja tekstikohtaisesta kuittauksesta: https://claude.ai/artifact/RtdfaQw3zGhCQZtqViGNWU. Emilin vastaukset: A tekstiruutu = asiasana (kyllä); B uusiutuminen avaa tekstin vain listalla. Muistiinpanolla ei ole enää avoin/kuitattu-tilaa, vain sen teksteillä; muistiinpano on arkistoitu tai ei (tai poistettu), arkistointi on itsenäinen päätös Muistiossa ja lopettaa tekstien näkymisen kaikkialla, tuplavarmistus (ok eri kohdassa kuin Arkistoi). H kierroslistat myöhemmin; I päivä riittää (tehty 1.97). E erillinen valinta: rivin ikkunassa oma Poimii tekstit -osio (Nimi + asiasanat), kohteet eivät poimi tekstejä itsestään. Seuraava: vaihe 2 tekstin kuittaus + uusi arkistointi (tallennusmuutos, varmuuskopio).
 
 ## Versio 1.96 (27.10.2026): työnkulku kuittaustapana
 
