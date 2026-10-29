@@ -1,12 +1,17 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.96 — työnkulku asiasanan kuittaustapana. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 27.10.2026
+**Vaihe:** versio 1.97 — kirjoituskentän reunus, kun päivä puuttuu. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 29.10.2026
 
 Juuren ydin on teksti, asiasanat ja niiden ehdot; Muistio, Kalenteri ja Listat ovat niiden käyttönäkymiä. Päätöspuun opetus ja vanhat listat säilyvät.
 
+## Versio 1.97 (29.10.2026): kirjoituskentän reunus
+
+- Muistiinpanon kirjoituskentällä on keltainen reunus, kun koko kentässä ei ole yhtään päivää (Emil: päivän tarkkuus riittää). Päivämäärä, viikonpäivä, huomenna, toistuvuus, pelkkä kellonaika tai päivämääräkenttä sammuttaa sen. Tyhjällä ei reunusta. Ei estä tallennusta, ei näy korteissa. Ei tallennusmuutosta.
+- Testit: uusi `selain_197.py` 390/320/1280/1440 px läpi. Koko sarja ajettu; 1.94–1.96-polut ajettiin Chromium-polun kanssa erikseen (ympäristön Playwright-versio ei löytänyt selainta ilman sitä), kaikki läpi. Ei oikeaa iPhonea: Safari-näppäimistön ja kohdistusrenkaan kanssa yhdessä näkyvä reunus kokeiltava.
+
 ## Suunnitelmat
 
-- **29.10.2026 arvio, ei rakennettu:** tekstien linkitys tarkistuslistaan ja tekstikohtainen kuittaus (muistiinpanon oma kuittaus pois). Arvio https://claude.ai/artifact/RtdfaQw3zGhCQZtqViGNWU. Pääsuositus: tekstiruutu = asiasana, järjestys reunus → tekstikuittaus → rivi poimii tekstit → Kaikki sanat -tunnistus. Odottaa Emilin vastauksia kysymyksiin A, B, E, H, I.
+- **29.10.2026 arvio** tekstien linkityksestä tarkistuslistaan ja tekstikohtaisesta kuittauksesta: https://claude.ai/artifact/RtdfaQw3zGhCQZtqViGNWU. Emilin vastaukset: A tekstiruutu = asiasana (kyllä); B uusiutuminen avaa tekstin vain listalla. Muistiinpanolla ei ole enää avoin/kuitattu-tilaa, vain sen teksteillä; muistiinpano on arkistoitu tai ei (tai poistettu), arkistointi on itsenäinen päätös Muistiossa ja lopettaa tekstien näkymisen kaikkialla, tuplavarmistus (ok eri kohdassa kuin Arkistoi). H kierroslistat myöhemmin; I päivä riittää (tehty 1.97). E selitetty uudelleen, odottaa vastausta. Seuraava: vaihe 2 tekstin kuittaus + uusi arkistointi (tallennusmuutos, varmuuskopio).
 
 ## Versio 1.96 (27.10.2026): työnkulku kuittaustapana
 
