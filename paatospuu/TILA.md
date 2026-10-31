@@ -1,8 +1,13 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.99 — listarivi poimii tekstit. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 31.10.2026
+**Vaihe:** versio 1.100 — rivien järjestys huomioi poimitut tekstit. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 31.10.2026
 
 Juuren ydin on teksti, asiasanat ja niiden ehdot; Muistio, Kalenteri ja Listat ovat niiden käyttönäkymiä. Päätöspuun opetus ja vanhat listat säilyvät.
+
+## Versio 1.100 (31.10.2026): rivien järjestys tekstien mukaan
+
+- Avoin poimittu teksti tekee rivistä avoimen ja nostaa sitä listassa kuten kuittaamaton kohde, tekstin tärkeimmän asiasanan mukaan. Tasatilanteessa ensin se, jonka päivä on varhaisempi. Odottava toistuva teksti tuo seuraavan päivänsä odottavien rivien järjestykseen. Tänään kuitattu teksti ei nosta riviä. Avatun rivin aikana järjestys pysyy (1.77).
+- **Ei tarkistettu:** testit ajettiin tietokoneen selaimessa, ei oikealla iPhonella.
 
 ## Versio 1.99 (31.10.2026): listarivi poimii tekstit
 
@@ -11,7 +16,7 @@ Juuren ydin on teksti, asiasanat ja niiden ehdot; Muistio, Kalenteri ja Listat o
 - **Toistuva voittaa:** toistuva teksti avautuu kertansa mukaan ja odottaa välissä. Uusiutuminen tapahtuu vain listalla, asiasanan aikataulun kautta (sama sääntö kuin kohteilla).
 - **Muistiinpanon tulkinnassa ”Listalle: …”**, kun teksti osuu jonkin rivin poimintaan.
 - Korjattu matkalla: muokkauskentästä poistuminen ei enää piirrä listaa uudelleen kesken napautuksen (nuoli ja ympyrä toimivat heti muokkauksen jälkeen).
-- **Ei vielä:** rivien järjestys ei huomioi tekstejä; Mainittu-osio pysyy ennallaan (riviltä poimitut tekstit eivät näy siellä toiseen kertaan). Sanoilla poimiminen (”Kaikki sanat”) ja kierroslistat myöhemmin.
+- **Ei vielä:** Mainittu-osio pysyy ennallaan (riviltä poimitut tekstit eivät näy siellä toiseen kertaan). Sanoilla poimiminen (”Kaikki sanat”) ja kierroslistat myöhemmin.
 - **Ei tarkistettu:** testit ajettiin tietokoneen selaimessa (390 ja 320 px), ei oikealla iPhonella. Kosketus: muokkauskentästä poistuminen ja nuolen napautus samalla liikkeellä.
 
 ## Versio 1.98 (29.10.2026): kuittaus kuuluu tekstille
@@ -31,7 +36,7 @@ Juuren ydin on teksti, asiasanat ja niiden ehdot; Muistio, Kalenteri ja Listat o
 
 ## Suunnitelmat
 
-- **29.10.2026 arvio** tekstien linkityksestä tarkistuslistaan ja tekstikohtaisesta kuittauksesta: https://claude.ai/artifact/RtdfaQw3zGhCQZtqViGNWU. Emilin vastaukset: A tekstiruutu = asiasana (kyllä); B uusiutuminen avaa tekstin vain listalla. Muistiinpanolla ei ole enää avoin/kuitattu-tilaa, vain sen teksteillä; muistiinpano on arkistoitu tai ei (tai poistettu), arkistointi on itsenäinen päätös Muistiossa ja lopettaa tekstien näkymisen kaikkialla, tuplavarmistus (ok eri kohdassa kuin Arkistoi). H kierroslistat myöhemmin; I päivä riittää (tehty 1.97). E erillinen valinta: rivin ikkunassa oma Poimii tekstit -osio (Nimi + asiasanat), kohteet eivät poimi tekstejä itsestään. Vaihe 2 tehty (1.98), vaihe 3 tehty (1.99). Seuraavaksi auki: rivien järjestys tekstien mukaan, sanoilla poimiminen, kierroslistat (H).
+- **29.10.2026 arvio** tekstien linkityksestä tarkistuslistaan ja tekstikohtaisesta kuittauksesta: https://claude.ai/artifact/RtdfaQw3zGhCQZtqViGNWU. Emilin vastaukset: A tekstiruutu = asiasana (kyllä); B uusiutuminen avaa tekstin vain listalla. Muistiinpanolla ei ole enää avoin/kuitattu-tilaa, vain sen teksteillä; muistiinpano on arkistoitu tai ei (tai poistettu), arkistointi on itsenäinen päätös Muistiossa ja lopettaa tekstien näkymisen kaikkialla, tuplavarmistus (ok eri kohdassa kuin Arkistoi). H kierroslistat myöhemmin; I päivä riittää (tehty 1.97). E erillinen valinta: rivin ikkunassa oma Poimii tekstit -osio (Nimi + asiasanat), kohteet eivät poimi tekstejä itsestään. Vaihe 2 tehty (1.98), vaihe 3 tehty (1.99). Rivien järjestys tekstien mukaan tehty (1.100). Seuraavaksi auki: sanoilla poimiminen (päätös: yksittäiset sanat vai kaikki sanat -ehto), kierroslistat (H).
 
 ## Versio 1.96 (27.10.2026): työnkulku kuittaustapana
 
