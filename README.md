@@ -25,6 +25,7 @@ Henkilökohtaiseen käyttöön tehtyjä selainappeja. Jokainen appi on yksi HTML
 | `pakettipeli/` | Pakettipeli (yhden auton keikkapeli valmiilla tieverkolla, Mini Motorwaysin tyyliin; tila `pakettipeli/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/pakettipeli/ |
 | `flowchart/` | Flowchart (yksinkertainen kosketus-flowchart: tekstipalikat, edelle/jälkeen napautuksella, viivat; tila `flowchart/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/flowchart/ |
 | `shakki/` | Shakki (iPadille: litteät nappulat, botti viidellä tasolla, matti- ja taktiikkatehtävät; tila `shakki/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/shakki/ |
+| `laakso/` | Laakso (uudisasukkaiden sijoituspeli: botit, alkutuotanto, tuotantoketjut, vuodenajat ja yritysten rahoittaminen; tila `laakso/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/laakso/ |
 
 Uusi appi tulee omaan kansioonsa nimellä `index.html`. Osoite on silloin `https://kasibanaani.github.io/P-iv-kartta/<kansio>/`.
 
