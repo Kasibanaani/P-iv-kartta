@@ -35,7 +35,7 @@ function aineisto(){
       const s=await p.evaluate(()=>TK.S().treenit[0].sarjat);assert(s[1].t-s[0].t<=180000+1000);});
     await ok('lopetusnappi vahvistuksella',async()=>{await p.click('button.lopeta');await p.click('button.lopeta.sure');assert(await p.evaluate(()=>!!TK.S().treenit[0].loppu))});
     await ok('pikavienti tallentaa JSON-tiedoston',async()=>{await p.click('[data-act=pika]');const [dl]=await Promise.all([p.waitForEvent('download'),p.click('.sheet [data-act=viejson]')]);
-      assert(/^treenikartta-\d{4}-\d\d-\d\d\.json$/.test(dl.suggestedFilename()));const f=await dl.path();const d=JSON.parse(fs.readFileSync(f,'utf8'));assert.equal(d.app,'treenikartta');assert.equal(d.data.liikkeet[0].nimi,'Leuanveto');
+      assert(dl.suggestedFilename()==="treenikartta.json");const f=await dl.path();const d=JSON.parse(fs.readFileSync(f,'utf8'));assert.equal(d.app,'treenikartta');assert.equal(d.data.liikkeet[0].nimi,'Leuanveto');
       assert(await p.evaluate(()=>!!TK.S().as.viety))});
     const tmp=path.join(require('os').tmpdir(),'tk-test-'+w+'.json');fs.writeFileSync(tmp,JSON.stringify({app:'treenikartta',ver:3,data:aineisto()}));
     await ok('pikatuonti JSON-tiedostosta vahvistuksella',async()=>{await p.setInputFiles('#pikafile',tmp);await p.waitForSelector('[data-act=pikatuo2]');assert((await p.textContent('.sheet')).includes('3 liikettä'));await p.click('[data-act=pikatuo2]');
