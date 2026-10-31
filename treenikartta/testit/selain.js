@@ -79,6 +79,13 @@ function aineisto(){
     await ok('kenttien teksti vähintään 16 px (iPhone ei zoomaa)',async()=>{for(const v of ['treeni','liikkeet','asetukset']){await p.click('nav [data-tab='+v+']');if(v==='liikkeet'){await p.click('#subnav [data-id=liikkeet]');await p.click('text=Muokkaa >> nth=0')}if(v==='treeni'){await p.click('.exhead >> nth=0');if(await p.locator('[data-act=addset]').count())await p.click('[data-act=addset]')}
       const pienet=await p.evaluate(()=>[...document.querySelectorAll('input:not([type=file]):not([type=checkbox]),textarea,select')].filter(e=>parseFloat(getComputedStyle(e).fontSize)<16).map(e=>e.id));assert.deepEqual(pienet,[],v)}
       assert((await p.getAttribute('meta[name=viewport]','content')).includes('maximum-scale=1'))});
+    await ok('isot kirjaimet oletuksena, fontin vaihto ja caps pois',async()=>{await p.click('nav [data-tab=asetukset]');
+      assert.equal(await p.evaluate(()=>getComputedStyle(document.querySelector('h2')).textTransform),'uppercase');assert(await p.evaluate(()=>document.body.classList.contains('caps')));
+      assert(await p.locator('.fonts button').count()>=10);await p.click('[data-act=fontti][data-id=futura]');
+      assert((await p.evaluate(()=>getComputedStyle(document.body).fontFamily)).includes('Futura'));assert.equal(await p.evaluate(()=>TK.S().as.fontti),'futura');
+      assert((await p.evaluate(()=>getComputedStyle(document.querySelector('input,button')).fontFamily)).includes('Futura'));await leveys();
+      await p.click('[data-act=caps][data-id="0"]');assert(!(await p.evaluate(()=>document.body.classList.contains('caps'))));assert.equal(await p.evaluate(()=>TK.S().as.caps),false);
+      await p.click('[data-act=caps][data-id="1"]');await p.click('[data-act=fontti][data-id=system]');await leveys()});
     await ok('tiedot säilyvät uudelleenlatauksessa',async()=>{const a=await p.evaluate(()=>TK.S().treenit.length);await p.reload();assert.equal(await p.evaluate(()=>TK.S().treenit.length),a)});
     assert.deepEqual(errs,[]);await ctx.close();
   }

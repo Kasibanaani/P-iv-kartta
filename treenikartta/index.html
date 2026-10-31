@@ -19,6 +19,13 @@
 html,body{background:var(--bg);color:var(--label)}
 body{font-family:var(--font);font-size:16px;line-height:1.4;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px calc(84px + env(safe-area-inset-bottom,0px));-webkit-text-size-adjust:100%}
 body.iso main{zoom:1.12}
+body.caps,body.caps input,body.caps textarea,body.caps select,body.caps button{text-transform:uppercase}
+body.caps{letter-spacing:.02em}
+body.caps nav button{letter-spacing:0;font-size:clamp(10.5px,3.2vw,12.5px)}
+input,textarea,select,button{font-family:inherit}
+.fonts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.fonts button{border:1px solid var(--sep);border-radius:10px;background:var(--cell);min-height:42px;padding:4px 8px;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fonts button.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;font-weight:650}
 main{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
 h1{font-size:21px;font-weight:800;letter-spacing:-.045em;margin:4px 0 0}
 h2{font-size:11px;font-weight:700;letter-spacing:.075em;text-transform:uppercase;color:var(--label2);margin:6px 0 0}
@@ -186,7 +193,9 @@ var TEEMAT=[
 var S=load();
 var pika=false, pikaImp=null, ltila='liikkeet', gEdit=null, fv={}, prev=null, tuonti=null, outTxt='', outNimi='', alkuEdit=false, tab='treeni', draft=null, edit=null, sure=null, lform=null, histAuki={}, seur=null, seurTila='liike', yht='kaikki', err='', storeOk=true, importTxt='';
 
-function oletusAs(){return {jakso:7,sivu:0.5,tauko:2,tila:'auto',vari:'forest',koko:'normaali',tavoitteet:{}}}
+function oletusAs(){return {jakso:7,sivu:0.5,tauko:2,tila:'auto',vari:'forest',koko:'normaali',fontti:'system',caps:true,tavoitteet:{}}}
+var FONTIT=[['system','Perus','-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",system-ui,"Segoe UI",Roboto,Arial,sans-serif'],['rounded','Pyöreä','ui-rounded,"SF Pro Rounded",-apple-system,system-ui,"Arial Rounded MT Bold",sans-serif'],['avenir','Avenir','"Avenir Next",Avenir,"Segoe UI",system-ui,sans-serif'],['kapea','Kapea','"Avenir Next Condensed","Arial Narrow","Roboto Condensed",system-ui,sans-serif'],['futura','Futura','Futura,"Century Gothic","Trebuchet MS",system-ui,sans-serif'],['gill','Gill Sans','"Gill Sans","Gill Sans MT",Calibri,system-ui,sans-serif'],['din','DIN','"DIN Alternate","DIN Condensed",Bahnschrift,"Arial Narrow",system-ui,sans-serif'],['serif','Serif','ui-serif,"New York","Iowan Old Style",Georgia,serif'],['georgia','Georgia','Georgia,"Times New Roman",serif'],['mono','Tasaleveä','ui-monospace,"SF Mono",Menlo,Consolas,monospace'],['kone','Kirjoitin','"American Typewriter","Courier New",Courier,monospace'],['marker','Tussi','"Marker Felt","Chalkboard SE","Comic Sans MS",cursive']];
+function fonttiPino(id){for(var i=0;i<FONTIT.length;i++)if(FONTIT[i][0]===id)return FONTIT[i][2];return FONTIT[0][2]}
 function blank(){return {app:'treenikartta',ver:VER,liikkeet:[],ryhmat:[],treenit:[],auki:null,as:oletusAs()}}
 function load(){
   try{var r=localStorage.getItem(KEY); if(r)return repair(JSON.parse(r))}catch(e){storeOk=false}
@@ -309,7 +318,7 @@ function teemaCss(){
 function render(){
   var r=document.documentElement; r.removeAttribute('data-theme'); if(S.as.tila!=='auto')r.setAttribute('data-theme',S.as.tila);
   document.getElementById('themecss').textContent=teemaCss();
-  document.body.classList.toggle('iso',S.as.koko==='iso');
+  document.body.classList.toggle('iso',S.as.koko==='iso');document.body.classList.toggle('caps',S.as.caps!==false);document.documentElement.style.setProperty('--font',fonttiPino(S.as.fontti));
   [].forEach.call(document.querySelectorAll('nav button'),function(b){b.classList.toggle('on',b.dataset.tab===tab)});
   var h={treeni:vTreeni,liikkeet:vLiikkeet,historia:vHistoria,seuranta:vSeuranta,asetukset:vAsetukset}[tab]();
   if(!storeOk)h='<div class="card form err">Selaimen muisti ei ole käytössä, joten kirjaukset katoavat sivun sulkeutuessa. Kopioi varmuuskopio Asetuksista.</div>'+h;
@@ -794,8 +803,10 @@ function vAsetukset(){
     (sure==='imp'?'<button class="dang sure" data-act="imp2">Vahvista: korvaa kaikki nykyiset tiedot</button>':'<button data-act="imp">Palauta varmuuskopio</button>')+'</div>';
   h+='<h2>Ulkoasu</h2><div class="card form"><div class="themes">'+TEEMAT.map(function(t){var c=t[2],dk=t[3];return '<button class="'+(S.as.vari===t[0]?'on':'')+'" data-act="vari" data-id="'+t[0]+'"><span class="sw"><span style="background:'+c[0]+'"></span><span style="background:'+c[5]+'"></span><span style="background:'+dk[0]+'"></span><span style="background:'+dk[5]+'"></span></span>'+t[1]+'</button>'}).join('')+'</div>'+
     '<label>Tila<div class="seg">'+[['auto','Laitteen mukaan'],['light','Vaalea'],['dark','Tumma']].map(function(o){return '<button class="'+(S.as.tila===o[0]?'on':'')+'" data-act="tila" data-id="'+o[0]+'">'+o[1]+'</button>'}).join('')+'</div></label>'+
-    '<label>Koko<div class="seg">'+[['normaali','Normaali'],['iso','Iso']].map(function(o){return '<button class="'+(S.as.koko===o[0]?'on':'')+'" data-act="koko" data-id="'+o[0]+'">'+o[1]+'</button>'}).join('')+'</div></label></div>';
-  return h+'<div class="muted">Treenikartta 2.0 · 1.1 · '+S.liikkeet.length+' liikettä, '+S.treenit.length+' treeniä</div>';
+    '<label>Koko<div class="seg">'+[['normaali','Normaali'],['iso','Iso']].map(function(o){return '<button class="'+(S.as.koko===o[0]?'on':'')+'" data-act="koko" data-id="'+o[0]+'">'+o[1]+'</button>'}).join('')+'</div></label>'+
+    '<label>Isot kirjaimet<div class="seg">'+[['1','Päällä'],['0','Pois']].map(function(o){return '<button class="'+((S.as.caps!==false)===(o[0]==='1')?'on':'')+'" data-act="caps" data-id="'+o[0]+'">'+o[1]+'</button>'}).join('')+'</div></label>'+
+    '<label>Fontti</label><div class="fonts">'+FONTIT.map(function(f){return '<button class="'+(S.as.fontti===f[0]?'on':'')+'" data-act="fontti" data-id="'+f[0]+'" style="font-family:'+f[2].replace(/"/g,"'")+'">'+f[1]+'</button>'}).join('')+'</div></div>';
+  return h+'<div class="muted">Treenikartta 2.0 · 1.2 · '+S.liikkeet.length+' liikettä, '+S.treenit.length+' treeniä</div>';
 }
 function tuontiHtml(){
   if(!tuonti)return '';
@@ -992,7 +1003,7 @@ var acts={
     var bad='';[].forEach.call(document.querySelectorAll('.gt'),function(e){var v=e.value.trim(),g=e.dataset.g;if(!v){delete S.as.tavoitteet[g];return}var n=num(v);if(isNaN(n)||n<0)bad=g;else S.as.tavoitteet[g]=n});
     if(bad){err='Tarkista tavoite: '+bad;return} err='';save();toast('Tavoitteet tallennettu');
   },
-  vari:function(id){S.as.vari=id;save()}, tila:function(id){S.as.tila=id;save()}, koko:function(id){S.as.koko=id;save()},
+  vari:function(id){S.as.vari=id;save()}, tila:function(id){S.as.tila=id;save()}, koko:function(id){S.as.koko=id;save()}, fontti:function(id){S.as.fontti=id;save()}, caps:function(id){S.as.caps=id==='1';save()},
   pika:function(){pika=true;pikaImp=null;err=''},
   pikakiinni:function(){pika=false;pikaImp=null;err=''},
   viejson:function(){return vieJson()},
