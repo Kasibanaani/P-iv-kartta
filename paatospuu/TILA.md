@@ -36,6 +36,7 @@ Juuren ydin on teksti, asiasanat ja niiden ehdot; Muistio, Kalenteri ja Listat o
 
 ## Suunnitelmat
 
+- **31.10.2026 sanalinkit** (ei rakennettu): muistiinpanot linkittyvät yhteisen sanan alun perusteella (5 kirjainta, lyhyet kokonaisina, valmis estolista + yleisyysraja + oma esto/sallinta). Ehdotus projektikansiossa `paatospuu/SUUNNITELMA-sanalinkit.md`. Avoin: 5 vai 4 kirjainta; odottaa Emilin "toteuta".
 - **29.10.2026 arvio** tekstien linkityksestä tarkistuslistaan ja tekstikohtaisesta kuittauksesta: https://claude.ai/artifact/RtdfaQw3zGhCQZtqViGNWU. Emilin vastaukset: A tekstiruutu = asiasana (kyllä); B uusiutuminen avaa tekstin vain listalla. Muistiinpanolla ei ole enää avoin/kuitattu-tilaa, vain sen teksteillä; muistiinpano on arkistoitu tai ei (tai poistettu), arkistointi on itsenäinen päätös Muistiossa ja lopettaa tekstien näkymisen kaikkialla, tuplavarmistus (ok eri kohdassa kuin Arkistoi). H kierroslistat myöhemmin; I päivä riittää (tehty 1.97). E erillinen valinta: rivin ikkunassa oma Poimii tekstit -osio (Nimi + asiasanat), kohteet eivät poimi tekstejä itsestään. Vaihe 2 tehty (1.98), vaihe 3 tehty (1.99). Rivien järjestys tekstien mukaan tehty (1.100). Seuraavaksi auki: sanoilla poimiminen (päätös: yksittäiset sanat vai kaikki sanat -ehto), kierroslistat (H).
 
 ## Versio 1.96 (27.10.2026): työnkulku kuittaustapana
