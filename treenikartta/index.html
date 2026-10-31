@@ -110,6 +110,14 @@ td.r,th.r{text-align:right}
 .sw{display:flex;gap:3px}
 .sw span{width:16px;height:16px;border-radius:5px;border:1px solid rgba(128,128,128,.25)}
 .err{color:var(--danger);font-size:14px}
+#subnav{position:fixed;left:0;right:0;bottom:calc(61px + env(safe-area-inset-bottom,0px));z-index:4;padding:8px max(12px,env(safe-area-inset-right,0px)) 8px max(12px,env(safe-area-inset-left,0px));background:linear-gradient(transparent,var(--bg) 35%)}
+#subnav .seg{max-width:560px;margin:0 auto;background:var(--cell);border:1px solid var(--sep);box-shadow:0 4px 16px var(--shadow)}
+#subnav .seg button.on{background:var(--accent);color:var(--onaccent)}
+body.has-sub{padding-bottom:calc(140px + env(safe-area-inset-bottom,0px))}
+.row.add{display:flex;gap:8px;align-items:flex-end}
+.row.add label{flex:1}
+select{appearance:auto}
+.chips button:disabled{opacity:.35}
 h1{font-size:24px}
 .top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
 .eyebrow{font-size:11px;font-weight:700;letter-spacing:.075em;text-transform:uppercase;color:var(--accent)}
@@ -150,6 +158,7 @@ nav button.on::after{content:"";display:block;width:20px;height:3px;border-radiu
 <style id="themecss"></style>
 
 <main id="app"></main>
+<div id="subnav" hidden></div>
 <nav id="nav">
   <button data-tab="treeni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>Treeni</button>
   <button data-tab="liikkeet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg>Liikkeet</button>
@@ -161,7 +170,7 @@ nav button.on::after{content:"";display:block;width:20px;height:3px;border-radiu
 
 <script>
 (function(){
-var KEY='treenikartta.v2', VER=4, DAY=864e5;
+var KEY='treenikartta.v2', VER=5, DAY=864e5;
 var TEEMAT=[
  ['forest','Metsä',['#F5F3EE','#FFFEFA','#252B28','#5E685F','#DDE2D9','#39775A','#E7F0E7','#EDF1EA'],['#151B18','#202922','#EEF1E9','#ACB8AE','#3B473E','#A2C9B6','#2B4032','#1A251E']],
  ['lake','Järvi',['#F1F3F4','#FDFEFE','#263039','#586977','#D9E0E5','#386EA2','#E3EDF7','#E9EFF4'],['#151B22','#202B35','#EAF0F5','#ADBCC9','#3B4A57','#A8C8E7','#293E52','#1A2631']],
@@ -178,7 +187,7 @@ var S=load();
 var pika=false, pikaImp=null, ltila='liikkeet', gEdit=null, fv={}, prev=null, tuonti=null, outTxt='', outNimi='', alkuEdit=false, tab='treeni', draft=null, edit=null, sure=null, lform=null, histAuki={}, seur=null, seurTila='liike', yht='kaikki', err='', storeOk=true, importTxt='';
 
 function oletusAs(){return {jakso:7,sivu:0.5,tauko:2,tila:'auto',vari:'forest',koko:'normaali',tavoitteet:{}}}
-function blank(){return {app:'treenikartta',ver:VER,liikkeet:[],treenit:[],auki:null,as:oletusAs()}}
+function blank(){return {app:'treenikartta',ver:VER,liikkeet:[],ryhmat:[],treenit:[],auki:null,as:oletusAs()}}
 function load(){
   try{var r=localStorage.getItem(KEY); if(r)return repair(JSON.parse(r))}catch(e){storeOk=false}
   return blank();
@@ -194,6 +203,20 @@ function repair(d){
   Object.keys(b.as.tavoitteet).forEach(function(g){var v=b.as.tavoitteet[g]; if(typeof v==='number')b.as.tavoitteet[g]={n:v,pv:b.as.jakso}; else if(!v||typeof v!=='object'||v.n==null)delete b.as.tavoitteet[g]}); /* versio 2 */
   b.liikkeet.forEach(function(l){if(!Array.isArray(l.goals))l.goals=[]});
   if((d.ver||1)<4&&b.as.tauko===3)b.as.tauko=2; /* Emil 31.10.: oletus 2 h */
+  /* versio 5: lihasryhmät omana luettelona; isot ja pienet kirjaimet samanarvoisia */
+  var rl=[]; function lisaa(n){n=String(n||'').trim(); if(n&&!rl.some(function(x){return x.toLowerCase()===n.toLowerCase()}))rl.push(n)}
+  (Array.isArray(d.ryhmat)?d.ryhmat:[]).forEach(lisaa);
+  b.liikkeet.forEach(function(l){String(l.paa||'').split(',').concat(String(l.sivu||'').split(',')).forEach(lisaa)});
+  Object.keys(b.as.tavoitteet).forEach(lisaa);
+  b.ryhmat=rl;
+  function kan(n){n=n.trim().toLowerCase();return rl.filter(function(x){return x.toLowerCase()===n})[0]}
+  b.liikkeet.forEach(function(l){
+    var pa=String(l.paa||'').split(',').map(function(x){return x.trim()}).filter(Boolean).map(kan);
+    l.paa=pa.filter(function(x,i){return pa.indexOf(x)===i}).join(', ');
+    var sv=String(l.sivu||'').split(',').map(function(x){return x.trim()}).filter(Boolean).map(kan);
+    l.sivu=sv.filter(function(x,i){return sv.indexOf(x)===i&&pa.indexOf(x)<0}).join(', ');
+  });
+  var tv={}; Object.keys(b.as.tavoitteet).forEach(function(k){var c=kan(k);if(c&&!tv[c])tv[c]=b.as.tavoitteet[k]}); b.as.tavoitteet=tv;
   return b;
 }
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));storeOk=true}catch(e){storeOk=false}}
@@ -221,7 +244,7 @@ function ymd(t){var d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()
 function pvY(t){var d=new Date(t);return d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear()}
 function aikaS(s){return (s.arvio?'~':'')+hm(s.t)}
 function fvv(id,d){return fv[id]!=null?fv[id]:(d==null?'':d)}
-function muista(){[].forEach.call(document.querySelectorAll('#app input,#app textarea'),function(e){if(e.id&&e.type!=='checkbox'&&e.type!=='file')fv[e.id]=e.value})}
+function muista(){[].forEach.call(document.querySelectorAll('#app input,#app textarea,#app select'),function(e){if(e.id&&e.type!=='checkbox'&&e.type!=='file')fv[e.id]=e.value})}
 function hhmm(t){var d=new Date(t);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
 function aikaan(v,ref){var m=/^(\d{1,2})[:.](\d{2})$/.exec(String(v).trim()); if(!m||+m[1]>23||+m[2]>59)return null; var d=new Date(ref); d.setHours(+m[1],+m[2],0,0); return d.getTime()}
 function minuutit(v){v=String(v).trim(); var m=/^(\d+):(\d{1,2})$/.exec(v); if(m)return +m[1]+ +m[2]/60; var n=num(v); return isNaN(n)||n<0||n>600?null:n}
@@ -230,9 +253,11 @@ function talteen(){if(!draft)return; var k=document.getElementById('in-kg'),r=do
 function avg(a){return a.length?a.reduce(function(x,y){return x+y},0)/a.length:NaN}
 
 /* lihasryhmät: pääkohde 1, sivukohde asetuksen mukaan */
-function ryhmat(l){var o={};(l.paa||'').split(',').forEach(function(n){n=n.trim();if(n)o[n]=1});(l.sivu||'').split(',').forEach(function(n){n=n.trim();if(n&&!o[n])o[n]=S.as.sivu});return o}
-function paaRyhmat(l){return (l.paa||'').split(',').map(function(n){return n.trim()}).filter(Boolean)}
-function kaikkiRyhmat(){var o={};S.liikkeet.forEach(function(l){Object.keys(ryhmat(l)).forEach(function(k){o[k]=1})});Object.keys(S.as.tavoitteet).forEach(function(k){if(S.as.tavoitteet[k])o[k]=1});return Object.keys(o).sort(function(a,b){return a.localeCompare(b,'fi')})}
+function kanon(n){n=String(n||'').trim();var k=n.toLowerCase();return S.ryhmat.filter(function(x){return x.toLowerCase()===k})[0]||n}
+function nimiLista(v){var o=[];String(v||'').split(',').forEach(function(n){n=kanon(n);if(n&&o.indexOf(n)<0)o.push(n)});return o}
+function ryhmat(l){var o={};nimiLista(l.paa).forEach(function(n){o[n]=1});nimiLista(l.sivu).forEach(function(n){if(!o[n])o[n]=S.as.sivu});return o}
+function paaRyhmat(l){return nimiLista(l.paa)}
+function kaikkiRyhmat(){return S.ryhmat.slice()}
 
 function aktiivinen(){
   var t=S.treenit[S.treenit.length-1];
@@ -289,6 +314,10 @@ function render(){
   var h={treeni:vTreeni,liikkeet:vLiikkeet,historia:vHistoria,seuranta:vSeuranta,asetukset:vAsetukset}[tab]();
   if(!storeOk)h='<div class="card form err">Selaimen muisti ei ole käytössä, joten kirjaukset katoavat sivun sulkeutuessa. Kopioi varmuuskopio Asetuksista.</div>'+h;
   if(pika)h+=pikaHtml();
+  var sub=tab==='liikkeet'?['ltila',ltila,[['liikkeet','Liikkeet'],['ryhmat','Lihasryhmät'],['kaikki','Kaikki liikkeet']]]:tab==='seuranta'?['seurtila',seurTila,[['liike','Liike'],['ryhmat','Lihasryhmät'],['yhteydet','Yhteydet']]]:null, sn=document.getElementById('subnav');
+  sn.hidden=!sub; document.body.classList.toggle('has-sub',!!sub);
+  if(sub)sn.style.bottom=document.getElementById('nav').offsetHeight+'px';
+  sn.innerHTML=sub?'<div class="seg">'+sub[2].map(function(o){return '<button class="'+(sub[1]===o[0]?'on':'')+'" data-act="'+sub[0]+'" data-id="'+o[0]+'">'+o[1]+'</button>'}).join('')+'</div>':'';
   document.getElementById('app').innerHTML=h;
 }
 
@@ -384,7 +413,7 @@ function exBody(l,t){
 }
 
 function vLiikkeet(){
-  var h='<h1>Liikkeet</h1><div class="seg">'+[['liikkeet','Liikkeet'],['ryhmat','Lihasryhmät'],['kaikki','Kaikki liikkeet']].map(function(o){return '<button class="'+(ltila===o[0]?'on':'')+'" data-act="ltila" data-id="'+o[0]+'">'+o[1]+'</button>'}).join('')+'</div>';
+  var h='<h1>'+{liikkeet:'Liikkeet',ryhmat:'Lihasryhmät',kaikki:'Kaikki liikkeet'}[ltila]+'</h1>';
   return h+(ltila==='liikkeet'?lLista():ltila==='ryhmat'?lRyhmat():lKaikki());
 }
 function lLista(){
@@ -423,8 +452,7 @@ function liikeForm(){
     '<span class="muted"><b>Sarjaa / kerta</b> = tavoite yhteen treeniin (näkyy treenissä muodossa 2 / 3 sarjaa). <b>Sarjaa / jakso</b> = tämän liikkeen sarjat yhteensä jakson aikana, esim. 6 sarjaa 7 päivässä. Tyhjä jakso = yleinen seurantajakso ('+S.as.jakso+' pv, Liikkeet → Kaikki liikkeet).</span>'+
     (function(){var gs=paaRyhmat(l).filter(function(g){return S.as.tavoitteet[g]});return gs.length?'<span class="muted">Ryhmän tavoite on eri asia eikä korvaa tätä: '+gs.map(function(g){return esc(g)+' '+tavTeksti(S.as.tavoitteet[g])}).join(', ')+' laskee kaikkien ryhmän liikkeiden sarjat yhteen.</span>':''})()+
     inp('f-askel','Painoaskel (kg)',l.askel!=null?kg(num(l.askel)):'2,5')+'<span class="muted">Pienin painonmuutos tässä liikkeessä. Painoehdotus ja ennuste pyöristetään tähän.</span>'+
-    '<h2>Lihasryhmät</h2><span class="muted"><b>Pääkohde</b> lasketaan ryhmälle täytenä sarjana, <b>sivukohde</b> painolla '+kg(S.as.sivu)+'. Ryhmän nimi syntyy kirjoittamalla, sama nimi = sama ryhmä.</span>'+
-    '<div class="row2"><label>Pääkohde<input id="f-paa" value="'+esc(fvv('f-paa',l.paa))+'" placeholder="esim. Rinta"></label><label>Sivukohteet<input id="f-sivu" value="'+esc(fvv('f-sivu',l.sivu))+'" placeholder="pilkulla erotettuna"></label></div>';
+    '<h2>Lihasryhmät</h2><span class="muted"><b>Pääkohde</b> lasketaan ryhmälle täytenä sarjana, <b>sivukohde</b> painolla '+kg(S.as.sivu)+'. Ryhmät luodaan Lihasryhmät-välilehdellä.</span>'+ryhmaValinta(l);
   if(!lform.uusi){
     h+='<h2>Tavoitteet ja ennusteet</h2><span class="muted">Sarja, jonka haluat tehdä päivään mennessä, esim. 120 kg × 6 1.1.2027. Ennuste näkyy Seurannassa ja treenissä.</span>';
     (l.goals||[]).forEach(function(g){h+='<div class="lrow" style="padding:0"><div class="tx num">'+kg(g.kg)+' kg × '+g.rep+' viim. '+pvY(goalAika(g))+'</div><button class="small dang" data-act="delgoal" data-id="'+g.id+'">Poista</button></div>'});
@@ -435,16 +463,23 @@ function liikeForm(){
     (lform.uusi?'':(sure==='l'+l.id?'<button class="small dang sure" data-act="dell2" data-id="'+l.id+'">Vahvista poisto</button>':'<button class="small dang" data-act="dell" data-id="'+l.id+'">Poista</button>'))+
     '</div></div>';
 }
+function ryhmaValinta(l){
+  if(!S.ryhmat.length)return '<div class="draft"><span>Lihasryhmiä ei ole vielä luotu.</span><button class="small" data-act="ltila" data-id="ryhmat" style="align-self:flex-start">Luo lihasryhmät</button></div>';
+  var pa=kanon(fvv('f-paa',nimiLista(l.paa)[0]||'')), sv=nimiLista(fvv('f-sivu',l.sivu));
+  return '<label>Pääkohde<select id="f-paa"><option value="">Ei pääkohdetta</option>'+S.ryhmat.map(function(g){return '<option'+(g===pa?' selected':'')+'>'+esc(g)+'</option>'}).join('')+'</select></label>'+
+    '<label>Sivukohteet<input type="hidden" id="f-sivu" value="'+esc(sv.join(', '))+'"></label><div class="chips">'+S.ryhmat.map(function(g,i){var on=sv.indexOf(g)>=0;return '<button class="'+(on?'on':'')+'" data-act="sivut" data-id="'+i+'"'+(g===pa?' disabled':'')+' aria-pressed="'+on+'">'+esc(g)+'</button>'}).join('')+'</div>';
+}
 function ryhmanLiikkeet(g){return S.liikkeet.filter(function(l){return !l.arkisto&&paaRyhmat(l).indexOf(g)>=0})}
 function tavTeksti(t){return t?kg(t.n)+' sarjaa / '+pvNimi(t.pv):'ei tavoitetta'}
 function lRyhmat(){
   var gs=kaikkiRyhmat();
-  if(!gs.length)return '<div class="card empty"><b>Ei lihasryhmiä</b><span class="muted">Lihasryhmät syntyvät liikkeiden pää- ja sivukohteista. Lisää ne liikkeen asetuksissa.</span></div>';
-  var h='<div class="muted">Ryhmän sarjatavoite lasketaan omalla jaksollaan. Pääkohde on 1 sarja, sivukohde '+kg(S.as.sivu)+'.</div><div class="list">';
+  var h='<div class="card form"><div class="row add">'+inp('r-uusi','Uusi lihasryhmä','','esim. Rinta','text')+'<button class="pri" data-act="radd">Lisää</button></div>'+(gEdit?'':errHtml())+'</div>';
+  if(!gs.length)return h+'<div class="card empty"><b>Ei vielä lihasryhmiä</b><span class="muted">Lisää ryhmät yllä. Liikkeen asetuksissa ne valitaan sitten luettelosta pää- tai sivukohteeksi.</span></div>';
+  h+='<div class="muted">Järjestys on sama luetteloissa. Ryhmän sarjatavoite lasketaan omalla jaksollaan. Pääkohde on 1 sarja, sivukohde '+kg(S.as.sivu)+'.</div><div class="list">';
   gs.forEach(function(g,i){
     if(gEdit===g){h+=ryhmaForm(g);return}
     var ls=ryhmanLiikkeet(g);
-    h+='<div class="card lrow"><div class="tx"><b>'+esc(g)+'</b><span class="muted">'+tavTeksti(S.as.tavoitteet[g])+(ls.length?' · '+ls.map(function(l){return esc(l.nimi)}).join(', '):'')+'</span></div><button class="small" data-act="gedit" data-id="'+i+'">Muokkaa</button></div>';
+    h+='<div class="card lrow"><div class="tx"><b>'+esc(g)+'</b><span class="muted">'+tavTeksti(S.as.tavoitteet[g])+(ls.length?' · '+ls.map(function(l){return esc(l.nimi)}).join(', '):'')+'</span></div><button class="small" data-act="rup" data-id="'+i+'" aria-label="Siirrä ylös"'+(i===0?' disabled':'')+'>↑</button><button class="small" data-act="rdown" data-id="'+i+'" aria-label="Siirrä alas"'+(i===gs.length-1?' disabled':'')+'>↓</button><button class="small" data-act="gedit" data-id="'+i+'">Muokkaa</button></div>';
   });
   return h+'</div>';
 }
@@ -462,10 +497,10 @@ function prevHtml(){
 }
 function ryhmaForm(g){
   var t=S.as.tavoitteet[g]||{}, i=kaikkiRyhmat().indexOf(g);
-  return '<div class="card form"><h3>'+esc(g)+'</h3><h2>Ryhmän sarjatavoite</h2>'+
+  return '<div class="card form">'+inp('gf-nimi','Nimi',g,'','text')+'<h2>Ryhmän sarjatavoite</h2>'+
     '<div class="row2">'+inp('gf-n','Sarjaa',t.n!=null?kg(t.n):'','ei tavoitetta')+inp('gf-pv','Jakson pituus (pv)',t.pv||S.as.jakso)+'</div>'+
     '<h2>Aseta ryhmän liikkeille</h2><span class="muted">Koskee liikkeitä, joiden pääkohde on '+esc(g)+' ('+(ryhmanLiikkeet(g).map(function(l){return esc(l.nimi)}).join(', ')||'ei liikkeitä')+'). Tyhjä kenttä = ei muutosta.</span>'+bulkHtml()+
-    errHtml()+prevHtml()+'<div class="btns"><button class="pri small" data-act="gsave" data-id="'+i+'">'+(prev?'Käytä muutokset':'Tallenna')+'</button><button class="small" data-act="gcancel">Peru</button></div></div>';
+    errHtml()+prevHtml()+'<div class="btns"><button class="pri small" data-act="gsave" data-id="'+i+'">'+(prev?'Käytä muutokset':'Tallenna')+'</button><button class="small" data-act="gcancel">Peru</button>'+(sure==='r'+i?'<button class="small dang sure" data-act="rdel2" data-id="'+i+'">Vahvista poisto</button>':'<button class="small dang" data-act="rdel" data-id="'+i+'">Poista ryhmä</button>')+'</div></div>';
 }
 function lKaikki(){
   var h='<div class="card form"><h2>Seuranta</h2>'+
@@ -557,7 +592,7 @@ function jarjestys(t){var j=[];t.sarjat.forEach(function(s){if(j.indexOf(s.liike
 
 /* ---------- seuranta ---------- */
 function vSeuranta(){
-  var h='<h1>Seuranta</h1><div class="seg">'+[['liike','Liike'],['ryhmat','Lihasryhmät'],['yhteydet','Yhteydet']].map(function(o){return '<button class="'+(seurTila===o[0]?'on':'')+'" data-act="seurtila" data-id="'+o[0]+'">'+o[1]+'</button>'}).join('')+'</div>';
+  var h='<h1>Seuranta · '+{liike:'Liike',ryhmat:'Lihasryhmät',yhteydet:'Yhteydet'}[seurTila]+'</h1>';
   var has=S.treenit.some(function(t){return t.sarjat.length});
   if(!has)return h+'<div class="card empty"><b>Ei vielä dataa</b><span class="muted">Kun kirjaat sarjoja, tänne tulee liikkeittäin kehitys, lihasryhmien sarjat jaksoittain ja niiden yhteydet kehitykseen.</span></div>';
   return h+(seurTila==='liike'?sLiike():seurTila==='ryhmat'?sRyhmat():sYhteydet());
@@ -760,7 +795,7 @@ function vAsetukset(){
   h+='<h2>Ulkoasu</h2><div class="card form"><div class="themes">'+TEEMAT.map(function(t){var c=t[2],dk=t[3];return '<button class="'+(S.as.vari===t[0]?'on':'')+'" data-act="vari" data-id="'+t[0]+'"><span class="sw"><span style="background:'+c[0]+'"></span><span style="background:'+c[5]+'"></span><span style="background:'+dk[0]+'"></span><span style="background:'+dk[5]+'"></span></span>'+t[1]+'</button>'}).join('')+'</div>'+
     '<label>Tila<div class="seg">'+[['auto','Laitteen mukaan'],['light','Vaalea'],['dark','Tumma']].map(function(o){return '<button class="'+(S.as.tila===o[0]?'on':'')+'" data-act="tila" data-id="'+o[0]+'">'+o[1]+'</button>'}).join('')+'</div></label>'+
     '<label>Koko<div class="seg">'+[['normaali','Normaali'],['iso','Iso']].map(function(o){return '<button class="'+(S.as.koko===o[0]?'on':'')+'" data-act="koko" data-id="'+o[0]+'">'+o[1]+'</button>'}).join('')+'</div></label></div>';
-  return h+'<div class="muted">Treenikartta 2.0 · 1.0 · '+S.liikkeet.length+' liikettä, '+S.treenit.length+' treeniä</div>';
+  return h+'<div class="muted">Treenikartta 2.0 · 1.1 · '+S.liikkeet.length+' liikettä, '+S.treenit.length+' treeniä</div>';
 }
 function tuontiHtml(){
   if(!tuonti)return '';
@@ -896,13 +931,14 @@ var acts={
   cancell:function(){lform=null;fv={};err='';sure=null},
   savel:function(){
     var n=val('f-nimi').trim(); if(!n){err='Anna liikkeelle nimi.';return 'f-nimi'}
+    var tupla=etsiLiike(n); if(tupla&&(lform.uusi||tupla.id!==lform.id)){err='Liike '+tupla.nimi+' on jo olemassa.';return 'f-nimi'}
     var o={};
     try{o.tmin=optNum(val('f-tmin'),'Minimi');o.tideal=optNum(val('f-tideal'),'Ideaali');o.tmax=optNum(val('f-tmax'),'Maksimi');o.skerta=optNum(val('f-skerta'),'Sarjaa / kerta');o.sjakso=optNum(val('f-sjakso'),'Sarjaa / jakso');o.sjaksoPv=optNum(val('f-sjaksoPv'),'Jakso');if(o.sjaksoPv!==''){o.sjaksoPv=Math.round(o.sjaksoPv);if(o.sjaksoPv<1||o.sjaksoPv>60)throw new Error('Jakso 1–60 päivää.')}}catch(e){err=e.message;return}
     if(o.tmin!==''&&o.tmax!==''&&o.tmin>o.tmax){err='Minimi on suurempi kuin maksimi.';return}
     if(o.tideal!==''&&((o.tmin!==''&&o.tideal<o.tmin)||(o.tmax!==''&&o.tideal>o.tmax))){err='Ideaalin pitää olla minimin ja maksimin välissä.';return}
     var as=num(val('f-askel')); if(isNaN(as)||as<=0){err='Painoaskel numerona, esim. 2,5.';return}
     var l=lform.uusi?{id:uid(),goals:[]}:liike(lform.id);
-    l.nimi=n;l.askel=as;l.paa=val('f-paa').trim();l.sivu=val('f-sivu').trim(); for(var k in o)l[k]=o[k];
+    var pa=S.ryhmat.length?kanon(val('f-paa')):(l.paa||''); l.nimi=n;l.askel=as;l.paa=pa;l.sivu=S.ryhmat.length?nimiLista(val('f-sivu')).filter(function(x){return x!==pa}).join(', '):(l.sivu||''); for(var k in o)l[k]=o[k];
     if(lform.uusi)S.liikkeet.push(l); lform=null;fv={};err='';save();toast('Liike tallennettu');
   },
   dell:function(id){sure='l'+id},
@@ -923,7 +959,19 @@ var acts={
   ltila:function(id){ltila=id;lform=null;gEdit=null;prev=null;fv={};err='';sure=null},
   gedit:function(i){gEdit=kaikkiRyhmat()[+i];prev=null;fv={};err=''},
   gcancel:function(){gEdit=null;prev=null;fv={};err=''},
-  gsave:function(i){joukko(kaikkiRyhmat()[+i])},
+  gsave:function(i){var g=S.ryhmat[+i], u=String(fvv('gf-nimi',g)).trim();
+    if(!u){err='Anna ryhmälle nimi.';return}
+    if(u!==g){var t=S.ryhmat.filter(function(x){return x.toLowerCase()===u.toLowerCase()&&x!==g})[0]; if(t){err='Ryhmä '+t+' on jo olemassa.';return} nimeaRyhma(g,u); gEdit=u}
+    joukko(u)},
+  radd:function(){var n=String(fvv('r-uusi')).trim(); if(!n){err='Kirjoita ryhmän nimi.';return 'r-uusi'}
+    var t=S.ryhmat.filter(function(x){return x.toLowerCase()===n.toLowerCase()})[0]; if(t){err='Ryhmä '+t+' on jo olemassa.';return 'r-uusi'}
+    S.ryhmat.push(n);delete fv['r-uusi'];err='';save();toast('Lihasryhmä lisätty');return 'r-uusi'},
+  rup:function(i){siirraR(+i,-1)}, rdown:function(i){siirraR(+i,1)},
+  rdel:function(i){sure='r'+i},
+  rdel2:function(i){var g=S.ryhmat[+i];S.ryhmat.splice(+i,1);delete S.as.tavoitteet[g];
+    S.liikkeet.forEach(function(l){l.paa=nimiLista(l.paa).filter(function(x){return x!==g}).join(', ');l.sivu=nimiLista(l.sivu).filter(function(x){return x!==g}).join(', ')});
+    gEdit=null;sure=null;prev=null;fv={};err='';save();toast('Ryhmä poistettu')},
+  sivut:function(i){var g=S.ryhmat[+i], l=lform.uusi?{}:liike(lform.id), v=nimiLista(fvv('f-sivu',l.sivu)), k=v.indexOf(g); if(k>=0)v.splice(k,1);else v.push(g); fv['f-sivu']=v.join(', ')},
   ksave:function(){joukko('*')},
   kperu:function(){prev=null;fv={};err=''},
   pvt:function(k){prev.items.forEach(function(x){if(x.key===k)x.on=!x.on})},
@@ -964,6 +1012,13 @@ function parseImp(t){
   if(d&&d.data)d=d.data; if(!d||!Array.isArray(d.liikkeet))throw new Error('Tästä ei löytynyt Treenikartan tietoja.');
   return repair(d);
 }
+function siirraR(i,d){var j=i+d;if(j<0||j>=S.ryhmat.length)return;var x=S.ryhmat[i];S.ryhmat[i]=S.ryhmat[j];S.ryhmat[j]=x;save()}
+function nimeaRyhma(g,u){
+  S.ryhmat[S.ryhmat.indexOf(g)]=u;
+  if(S.as.tavoitteet[g]){S.as.tavoitteet[u]=S.as.tavoitteet[g];delete S.as.tavoitteet[g]}
+  function vaihda(v){return String(v||'').split(',').map(function(x){x=x.trim();return x.toLowerCase()===g.toLowerCase()?u:x}).filter(Boolean).join(', ')}
+  S.liikkeet.forEach(function(l){l.paa=vaihda(l.paa);l.sivu=vaihda(l.sivu)}); save();
+}
 function move(id,dir){
   var ls=S.liikkeet, i=ls.indexOf(liike(id)), j=i;
   do{j+=dir}while(j>=0&&j<ls.length&&ls[j].arkisto);
@@ -972,6 +1027,7 @@ function move(id,dir){
 
 document.addEventListener('click',function(ev){
   var b=ev.target.closest('[data-act],[data-tab]'); if(!b||b.disabled)return;
+  if(b.closest('#subnav'))window.scrollTo(0,0);
   if(b.dataset.tab){tab=b.dataset.tab;alkuEdit=false;gEdit=null;prev=null;fv={};tuonti=null;outTxt='';draft=null;edit=null;sure=null;lform=null;err='';render();window.scrollTo(0,0);return}
   var f=acts[b.dataset.act]; if(!f)return;
   if(tab==='liikkeet'||tab==='asetukset')muista();
