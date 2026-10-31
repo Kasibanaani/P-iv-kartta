@@ -1,8 +1,18 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.101 — käyttötila ja fokus-näkymä. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 31.10.2026
+**Vaihe:** versio 1.102 — sanalinkit muistiinpanojen välille. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 31.10.2026
 
 Juuren ydin on teksti, asiasanat ja niiden ehdot; Muistio, Kalenteri ja Listat ovat niiden käyttönäkymiä. Päätöspuun opetus ja vanhat listat säilyvät.
+
+## Versio 1.102 (31.10.2026): sanalinkit muistiinpanojen välille
+
+- **Emil valitsi 5 kirjainta.** Sanan avain on 5 ensimmäistä kirjainta (kokous, kokouksen, kokousmuistio). 3–4-kirjaiminen sana linkittyy vain kokonaisena, alle 3 ei koskaan. Linkki syntyy, kun sama avain on jossain toisessa arkistoimattomassa muistiinpanossa. Aika- ja asiasanalinkki voittaa.
+- **Esto:** valmis lista (partikkelit, pronominit, olla-muodot, apuverbit, luvut, aikasanat; vertaillaan avaimena, joten "olisi" estää myös "olisivat"), yleisyysraja (avain yli 30 %:ssa ja vähintään 6 muistiinpanossa ei linkity) ja oma lista. Oma sallinta ohittaa molemmat.
+- **Näkyminen:** ohut pisteviiva ilman väriä. Napautus (puhelimella kuin nappi, ei näppäimistöä): muut muistiinpanot tuorein ensin (6, sitten Kaikki (N) → haku Muistiossa), Tee asiasanaksi (nimi = sana, tunnistussana = avain; ei käyttötilassa), Älä linkitä. Muistiinpanon avaus linkistä jättää Takaisin-napin.
+- **Asetukset:** Projekti → Muistio: Sanalinkit Päällä/Pois, Sanan alusta verrataan 5/4, Ei linkitetä, Linkitetään aina. Tallennus `asetukset.wl, wlk, wlno, wlyes` (valinnaisia merkkijonoja, vanha muoto ennallaan). Indeksi lasketaan lennossa.
+- Testit: `logiikka_1102.js`, `selain_1102.py` (390 ja 320 kosketuksella, 1280 hiirellä).
+- **Huomio:** 5 kirjainta yhdistää myös eri sanoja, esim. *muistathan* ja *muistio* (muist). Ratkaisu Älä linkitä, ei sääntömuutos.
+- **Ei tarkistettu:** testit ajettiin tietokoneen selaimessa, ei oikealla iPhonella. Suurella muistiinpanomäärällä (satoja) kirjoittamisen sujuvuus puhelimella. Muistion korteissa sanalinkit eivät näy, vain avatussa muistiinpanossa.
 
 ## Versio 1.101 (31.10.2026): käyttötila ja fokus
 
@@ -44,7 +54,7 @@ Juuren ydin on teksti, asiasanat ja niiden ehdot; Muistio, Kalenteri ja Listat o
 
 ## Suunnitelmat
 
-- **31.10.2026 sanalinkit** (ei rakennettu): muistiinpanot linkittyvät yhteisen sanan alun perusteella (5 kirjainta, lyhyet kokonaisina, valmis estolista + yleisyysraja + oma esto/sallinta). Ehdotus projektikansiossa `paatospuu/SUUNNITELMA-sanalinkit.md`. Avoin: 5 vai 4 kirjainta; odottaa Emilin "toteuta".
+- **31.10.2026 sanalinkit** (rakennettu 1.102): muistiinpanot linkittyvät yhteisen sanan alun perusteella (5 kirjainta, lyhyet kokonaisina, valmis estolista + yleisyysraja + oma esto/sallinta). Ehdotus projektikansiossa `paatospuu/SUUNNITELMA-sanalinkit.md`. Avoin: 5 vai 4 kirjainta; odottaa Emilin "toteuta".
 - **29.10.2026 arvio** tekstien linkityksestä tarkistuslistaan ja tekstikohtaisesta kuittauksesta: https://claude.ai/artifact/RtdfaQw3zGhCQZtqViGNWU. Emilin vastaukset: A tekstiruutu = asiasana (kyllä); B uusiutuminen avaa tekstin vain listalla. Muistiinpanolla ei ole enää avoin/kuitattu-tilaa, vain sen teksteillä; muistiinpano on arkistoitu tai ei (tai poistettu), arkistointi on itsenäinen päätös Muistiossa ja lopettaa tekstien näkymisen kaikkialla, tuplavarmistus (ok eri kohdassa kuin Arkistoi). H kierroslistat myöhemmin; I päivä riittää (tehty 1.97). E erillinen valinta: rivin ikkunassa oma Poimii tekstit -osio (Nimi + asiasanat), kohteet eivät poimi tekstejä itsestään. Vaihe 2 tehty (1.98), vaihe 3 tehty (1.99). Rivien järjestys tekstien mukaan tehty (1.100). Seuraavaksi auki: sanoilla poimiminen (päätös: yksittäiset sanat vai kaikki sanat -ehto), kierroslistat (H).
 
 ## Versio 1.96 (27.10.2026): työnkulku kuittaustapana
