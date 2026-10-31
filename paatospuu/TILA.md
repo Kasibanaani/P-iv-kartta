@@ -1,8 +1,16 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.100 — rivien järjestys huomioi poimitut tekstit. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 31.10.2026
+**Vaihe:** versio 1.101 — käyttötila ja fokus-näkymä. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 31.10.2026
 
 Juuren ydin on teksti, asiasanat ja niiden ehdot; Muistio, Kalenteri ja Listat ovat niiden käyttönäkymiä. Päätöspuun opetus ja vanhat listat säilyvät.
+
+## Versio 1.101 (31.10.2026): käyttötila ja fokus
+
+- **Käyttötila** (Emil: rakennussarja piiloon käytössä, näyttää valmiilta appilta). Projektikohtainen kytkin projektin ikkunassa (myös koneella) ja puhelimella Valikossa (Käyttötila / Rakennustila). Tallentuu `asetukset.kt='on'` (valinnainen kenttä, vanha muoto ennallaan). Piilossa: Asiat-osio, Rakenna, Teksti, rivin Muokkaa ja rivin tekstikenttä, Asiasanat…, Vaihepankki, listan + -nappi, listaikkunan kytkimet, nimi, poisto ja Luo, projektin muokkaus ja asetukset, puun asetukset, suodattimen Muokkaa asiasanoja, muistiinpanon Liitä asiasanaan. Muistiinpanon kirjoitus, kalenteri, kuittaus, projektin vaihto, vienti ja i-ohjeet jäävät.
+- **Fokus** (Emil: se, minkä avasit, on se, mitä teet): käyttötilassa rivin napautus avaa rivin omaksi näkymäkseen (takaisin-linkki listan nimellä, otsikko, N/M, edistymispalkki). Kohteet ja poimitut tekstit samassa listassa tärkeysjärjestyksessä, tärkein ylimpänä ja lihavoituna; järjestys elää kuittausten mukaan vain tässä. Odottavat (toistuvan seuraava kerta) erikseen, tehdyt Tehty (N) -rivin takana. Kun kaikki on tehty: Valmis ja Takaisin-nappi (ei automaattista paluuta). Ehdoista tai ajastimesta muualla avautuneet rivit eivät siirrä mitään; palatessa niissä on oranssi piste.
+- Ei muutosta rakennustilaan: rivit avautuvat paikallaan kuten ennen.
+- **Ei tarkistettu:** testit ajettiin tietokoneen selaimessa (390/320/1280/1440 px), ei oikealla iPhonella. Pisteen ja fokuksen tuntuma, Safari.
+- **Seuraava askel:** Emil kokeilee. Auki: paluu valmiin jälkeen (nappi / lähimpään keskeneräiseen / alkuun, luonnos https://claude.ai/artifact/UPrafVgEym1aFFgXrvxaHQ); sisäkkäisyys (asiasana = lista) vaatii suunnitelman ja tallennusmuutoksen, ks. projektikansion solmut/. 1.100:n "teksti nostaa riviä" on ristiriidassa Emilin linjan "järjestys etenee ulkoa sisään" kanssa ja ratkaistaan sisäkkäisyyden yhteydessä.
 
 ## Versio 1.100 (31.10.2026): rivien järjestys tekstien mukaan
 

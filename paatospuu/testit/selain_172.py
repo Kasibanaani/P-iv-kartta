@@ -53,7 +53,7 @@ async def phone(p,w,h):
     # Valikko: ulkopuolinen napautus vain sulkee
     await pg.click('#menu'); await pg.wait_for_timeout(60)
     ids=await pg.evaluate("Array.prototype.map.call(document.querySelectorAll('#menupop button'),function(b){return b.id;})")
-    want('Valikossa projekti, vienti, ohje, Päätöspuu', ids==['m-proj','m-x','m-help','m-tree'])
+    want('Valikossa projekti, vienti, ohje, Päätöspuu, Käyttötila', ids==['m-proj','m-x','m-help','m-tree','m-kt'])
     want('Valikko ruudussa', await pg.evaluate("(function(){var r=document.getElementById('menupop').getBoundingClientRect(),p=document.getElementById('pbar').getBoundingClientRect();return r.right<=innerWidth&&r.left>=0&&r.bottom<=p.top+1;})()"))
     bb=await pg.locator('#nlist .ncard').first.bounding_box(); await pg.mouse.click(bb['x']+30,bb['y']+bb['height']/2); await pg.wait_for_timeout(80)
     want('ulkopuolinen napautus sulkee, ei avaa korttia', not await pg.is_visible('#menupop') and not await pg.is_visible('#nsheet'))
