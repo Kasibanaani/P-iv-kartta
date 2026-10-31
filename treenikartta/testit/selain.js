@@ -58,6 +58,9 @@ function aineisto(){
       await p.fill('#tt',txt);await p.click('[data-act=tuo]');assert((await p.textContent('.err')).includes('Ei uusia'))});
     await ok('ohje tekoälylle sisältää muodon ja liikkeiden nimet',async()=>{await p.click('[data-act=aiohje]');const o=await p.inputValue('#out');assert(o.includes('60x8x3')&&o.includes('Penkkipunnerrus'))});
     await ok('teemat ja tumma tila',async()=>{await p.click('[data-act=vari][data-id=lake]');await p.click('[data-act=tila][data-id=dark]');assert.equal(await p.evaluate(()=>document.documentElement.dataset.theme),'dark');await leveys()});
+    await ok('kenttien teksti vähintään 16 px (iPhone ei zoomaa)',async()=>{for(const v of ['treeni','liikkeet','asetukset']){await p.click('nav [data-tab='+v+']');if(v==='liikkeet'){await p.click('.seg [data-id=liikkeet]');await p.click('text=Muokkaa >> nth=0')}if(v==='treeni'){await p.click('.exhead >> nth=0');if(await p.locator('[data-act=addset]').count())await p.click('[data-act=addset]')}
+      const pienet=await p.evaluate(()=>[...document.querySelectorAll('input:not([type=file]):not([type=checkbox]),textarea,select')].filter(e=>parseFloat(getComputedStyle(e).fontSize)<16).map(e=>e.id));assert.deepEqual(pienet,[],v)}
+      assert((await p.getAttribute('meta[name=viewport]','content')).includes('maximum-scale=1'))});
     await ok('tiedot säilyvät uudelleenlatauksessa',async()=>{const a=await p.evaluate(()=>TK.S().treenit.length);await p.reload();assert.equal(await p.evaluate(()=>TK.S().treenit.length),a)});
     assert.deepEqual(errs,[]);await ctx.close();
   }

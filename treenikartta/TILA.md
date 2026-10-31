@@ -1,6 +1,6 @@
 # Treenikartta: tila
 
-**Vaihe:** ensimmäinen versio, Emil kokeilee · **Versio:** 1.0 · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/treenikartta/ · **Päivitetty:** 31.10.2026
+**Vaihe:** ensimmäinen versio, Emil kokeilee · **Versio:** 1.0.1 · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/treenikartta/ · **Päivitetty:** 31.10.2026
 
 Salitreenin kirjaus ja seuranta puhelimella. Omat liikkeet, ei valmiita. Suunnitelma ja perustelut: Claude Doc ”Salitreeniappi – speksi” (Appi-ideoita-projekti). Kehitetty ensin claude.ai-kokeiluna, siirretty repoon 31.10.2026. Tallennusavain `treenikartta.v2`, muoto `{app:'treenikartta',ver:4,liikkeet,treenit,auki,as}`; vanhat versiot korjaa `repair`.
 
@@ -14,7 +14,8 @@ Salitreenin kirjaus ja seuranta puhelimella. Omat liikkeet, ei valmiita. Suunnit
 - Seuranta: maksimiarvio ja käyrä tavoitteineen, sarjapituus vs. ideaali, sarjat jaksoittain; lihasryhmien jakso, sarjaa/kerta, väli; Yhteydet = Pearsonin korrelaatiot kerta- ja jaksotasolla (n ≥ 5).
 - Tiedot: pikanappi ”Tiedot” (vie JSON-tiedostona jakovalikon kautta tai lataa, tuo JSON-tiedostosta vahvistuksella; punainen piste, jos viennistä yli 7 pv), tekstivarmuuskopio, tekstituonti (`2026-10-28 17:05` + `Liike: 60x8x3, 62,5x7@17:12`) esikatselulla ja tuplien ohituksella, vienti tekstinä, ohje tekoälylle.
 - Appipaja 2.0: 10 teemaa, vaalea/tumma/laitteen mukaan, iso koko.
-- Testit `sh treenikartta/testit/aja.sh`: 34 selainskenaariota (390 ja 320 px) läpi tietokoneen Chromiumissa.
+- 1.0.1: kenttien teksti 16 px ja viewport maximum-scale=1, ettei iPhone zoomaa kenttään mennessä.
+- Testit `sh treenikartta/testit/aja.sh`: 36 selainskenaariota (390 ja 320 px) läpi tietokoneen Chromiumissa.
 
 ## Ei tarkistettu
 
