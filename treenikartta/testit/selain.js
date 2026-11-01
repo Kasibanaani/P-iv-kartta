@@ -86,6 +86,12 @@ function aineisto(){
       assert((await p.evaluate(()=>getComputedStyle(document.querySelector('input,button')).fontFamily)).includes('Futura'));await leveys();
       await p.click('[data-act=caps][data-id="0"]');assert(!(await p.evaluate(()=>document.body.classList.contains('caps'))));assert.equal(await p.evaluate(()=>TK.S().as.caps),false);
       await p.click('[data-act=caps][data-id="1"]');await p.click('[data-act=fontti][data-id=system]');await leveys()});
+    await ok('liikkeen nimen korjaus tallentuu myös ilman Tallenna-nappia ja näkyy Treenissä',async()=>{await p.click('nav [data-tab=liikkeet]');await p.click('#subnav [data-id=liikkeet]');
+      await p.click('text=Lisää liike');await p.fill('#f-nimi','Soutuu');await p.click('[data-act=savel]');
+      await p.click('.lrow:has-text("Soutuu") >> text=Muokkaa');await p.fill('#f-nimi','Soutu');await p.click('nav [data-tab=treeni]');
+      const t=await p.textContent('#app');assert(t.includes('Soutu')&&!t.includes('Soutuu'));
+      await p.click('nav [data-tab=liikkeet]');await p.click('.lrow:has-text("Soutu") >> text=Muokkaa');await p.fill('#f-nimi','');await p.click('nav [data-tab=historia]');
+      assert.equal(await p.evaluate(()=>document.querySelector('nav button.on').dataset.tab),'liikkeet');assert((await p.textContent('.err')).includes('nimi'));await p.click('[data-act=cancell]')});
     await ok('tiedot säilyvät uudelleenlatauksessa',async()=>{const a=await p.evaluate(()=>TK.S().treenit.length);await p.reload();assert.equal(await p.evaluate(()=>TK.S().treenit.length),a)});
     assert.deepEqual(errs,[]);await ctx.close();
   }
