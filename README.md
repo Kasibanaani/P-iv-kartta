@@ -10,6 +10,7 @@ Henkilökohtaiseen käyttöön tehtyjä selainappeja. Jokainen appi on yksi HTML
 | `paatoskartta/` | Päätöskartta | https://kasibanaani.github.io/P-iv-kartta/paatoskartta/ |
 | `projektikartta/` | Projektikartta | https://kasibanaani.github.io/P-iv-kartta/projektikartta/ |
 | `paatospuu/` | Juuri, ent. Päätöspuu (tekstinä tuotava päätöspuu, kierrokset muistiinpanoiksi, termit ja päivät; tila `paatospuu/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/paatospuu/ |
+| `matsik/` | Mätsik Forest: Juureen nojaava hoitosuunnitelmien demoappi kuvitteellisille esimerkeille (asiakaslista, hoitosuunnitelman osiot ja säännöt, muistio, kalenteri; tila `matsik/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/matsik/ |
 | `taitokartta/` | Taitokartta | https://kasibanaani.github.io/P-iv-kartta/taitokartta/ |
 | `oppikartta/` | Oppikartta | https://kasibanaani.github.io/P-iv-kartta/oppikartta/ |
 | `viidakkovahti/` | Viidakkovahti | https://kasibanaani.github.io/P-iv-kartta/viidakkovahti/ |

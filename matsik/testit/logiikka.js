@@ -1,0 +1,44 @@
+/* Mätsik Forest 0.1: moottorin säännöt (aikasanat, käynnit kahdelle täydelle viikolle, lääkäri, vanhentuminen, arviointi, tallennus). */
+const MF=require('./engine.js');let bad=0;
+function want(l,c){console.log('  '+l.padEnd(58)+(c?'ok':'VIRHE'));if(!c)bad++;}
+const T='2026-11-02'; /* maanantai, viikko 45 */
+want('viikko 46 alkaa 9.11.',MF.week('2026-11-09')===46&&MF.monday('2026-11-12')==='2026-11-09');
+want('päiväys ja klo',JSON.stringify(MF.lineDates('käynti ti 10.11. klo 14',T).map(x=>x.date))==='["2026-11-10"]'&&MF.lineTimes('ti 10.11. klo 14').length===1);
+want('viikonpäivä sanana',MF.lineDates('Kettu soitto keskiviikkona',T)[0].date==='2026-11-04');
+want('huomenna',MF.lineDates('huomenna',T)[0].date==='2026-11-03');
+want('lyhyt viikonpäivä vain ajan kanssa',!MF.lineDates('ti on hyvä',T).length&&MF.lineDates('ti klo 9',T)[0].date==='2026-11-03');
+want('vanha päiväys siirtyy seuraavaan vuoteen',MF.lineDates('5.1.',T)[0].date==='2027-01-05');
+const d=MF.empty();const k=MF.newClient('Kettu',T);const s=MF.newClient('Siili',T);d.asiakkaat.push(k,s);
+want('taivutettu nimi tunnistuu',MF.mentions('Ketulle soitto',d.asiakkaat).length===1&&MF.mentions('Siilin äiti',d.asiakkaat)[0]===s);
+want('vieras sana ei tunnistu',!MF.mentions('Kirje mummolle',d.asiakkaat).length);
+k.toimet.tiheys='1/vk';
+let H=MF.herjat(k,d,T);
+want('puuttuvat: tulosyy, diagnoosit, vahvuudet, tavoitteet',['tulosyy','diagnoosit','vahvuudet','tavoitteet'].every(o=>H.some(h=>h.osio===o&&h.laji==='puuttuu')));
+want('1/vk: molemmat viikot 46 ja 47 herjaavat',H.filter(h=>h.laji==='kaynnit').length===2);
+d.muistio.push({id:'a',text:'Kettu perhekäynti ti 10.11. klo 14',tila:{}});
+H=MF.herjat(k,d,T);want('viikko 46 sovittu, 47 puuttuu',H.filter(h=>h.laji==='kaynnit').length===1&&/47/.test(H.find(h=>h.laji==='kaynnit').teksti));
+d.muistio.push({id:'b',text:'Ketun yksilökäynti 17.11. klo 9',tila:{}});
+H=MF.herjat(k,d,T);want('molemmat viikot sovittu',!H.some(h=>h.laji==='kaynnit'));
+d.muistio[1].tila={'2026-11-17|0':'peruttu'};H=MF.herjat(k,d,T);want('peruttu ei kelpaa',H.some(h=>h.laji==='kaynnit'));
+d.muistio[1].tila={};
+s.toimet.tiheys='2/kk';H=MF.herjat(s,d,T);want('2/kk: ikkuna 46–47 tyhjä herjaa',H.some(h=>h.laji==='kaynnit'&&/46–47/.test(h.teksti)));
+d.muistio.push({id:'c',text:'Siili kotikäynti 20.11.',tila:{}});H=MF.herjat(s,d,T);want('2/kk: yksi käynti riittää',!H.some(h=>h.laji==='kaynnit'));
+s.toimet.tiheys='1/kk';d.muistio.pop();H=MF.herjat(s,d,T);want('1/kk: seuraava käynti puuttuu',H.some(h=>h.teksti==='Seuraavaa käyntiä ei ole sovittu'));
+d.muistio.push({id:'c',text:'Siili käynti 15.12.',tila:{}});H=MF.herjat(s,d,T);want('1/kk: ikkunan ulkopuolinen riittää',!H.some(h=>h.laji==='kaynnit'));
+s.luotu='2026-09-20';s.toimet.laakari='1';H=MF.herjat(s,d,T);want('lääkäri 1/kk myöhässä = kiire',H.some(h=>h.laji==='laakari'&&h.sev==='crit'));
+d.muistio.push({id:'e',text:'Siili käynti lääkäri mukana 12.11.',tila:{}});H=MF.herjat(s,d,T);want('lääkärikäynti sovittu',!H.some(h=>h.laji==='laakari'));
+k.esitiedot={perhe:'Äiti ja isä',u:'2026-04-01'};H=MF.herjat(k,d,T);want('esitiedot 7 kk vanha (väli 6)',H.some(h=>h.osio==='esitiedot'&&h.tark));
+k.esitiedot.u=T;H=MF.herjat(k,d,T);want('tarkistettu poistaa herjan',!H.some(h=>h.osio==='esitiedot'));
+k.seuranta.paino={vali:'3',arvot:[{pvm:'2026-07-01',arvo:'40'}]};H=MF.herjat(k,d,T);want('paino erääntynyt',H.some(h=>h.laji==='mittaus'));
+const g={id:'g1',taso:1,syy:'mahd',lapsi:'Turvallinen koti',tila:'alussa',luotu:'2026-07-01',arviot:[]};k.tavoitteet.push(g);
+H=MF.herjat(k,d,T);want('tason 1 arviointi myöhässä = kiire ensimmäisenä',H[0].laji==='arvio'&&H[0].sev==='crit');
+MF.saveArvio(g,[['q','a']],'Psykoedukaatio: miksi tavoite on tärkeä','',T);H=MF.herjat(k,d,T);
+want('arvio kirjattu, toimenpide auki',!H.some(h=>h.laji==='arvio')&&H.some(h=>h.laji==='toimenpide'));
+g.arviot[0].tehty=T;H=MF.herjat(k,d,T);want('tehty sulkee toimenpiteen',!H.some(h=>h.laji==='toimenpide'));
+MF.saveArvio(g,[],'Tavoite saavutettu','',T);want('saavutettu merkitsee tavoitteen',g.tila==='saavutettu');
+const L=MF.ordered(d,T);want('järjestys: kiireellinen ensin',L[0].h[0].sev==='crit'||L.length===2);
+const f=JSON.parse(JSON.stringify(MF.wrap(d,'2026-11-02T10:00:00Z')));want('vientimuoto',f.app==='matsik'&&f.ver===1&&f.data.asiakkaat.length===2);
+const back=MF.unwrap(f);want('tuonti palauttaa',back.asiakkaat[0].nimi==='Kettu'&&back.muistio.length===d.muistio.length);
+want('vieras tiedosto hylätään',MF.unwrap({app:'paatospuu',data:{asiakkaat:[]}})===null&&MF.unwrap({x:1})===null);
+const r=MF.repair({asiakkaat:[{nimi:'Vanha'}]});want('puutteellinen data korjautuu',r.asiakkaat[0].seuranta.paino.arvot.length===0&&Array.isArray(r.asiakkaat[0].tavoitteet));
+process.exit(bad?1:0);
