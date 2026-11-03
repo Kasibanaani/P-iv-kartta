@@ -17,7 +17,7 @@ Juureen (`paatospuu/`) nojaava, mutta erillinen hoitosuunnitelmien demo- ja kehi
   - Rivin voi lisätä, muokata, siirtää ylös tai alas ja poistaa vahvistuksella. Poisto kertoo käyttömäärän ja poistaa rivin myös eläinten valinnoista. Tyhjä uusi rivi ei jää luetteloon.
   - Tunnistussääntö: sanan alku tai osa riittää (paino → painoa). Enintään 3 merkin sana tunnistetaan vain kokonaisena (rr, ep, lk, isä). Siksi "lääk" ei ole enää lääkärisana, koska se osui myös lääkitykseen.
 - Tallennus: `asetukset.sisallot` ja `asetukset.muodot` (valinnaiset). Vanha data saa oletukset, ja `ver` on edelleen 1. Eläimellä `toimet.alku` ja `toimet.sykli` {vk1…kk3: [sisällön id]}. Vanhat kentät `tiheys`, `laakari` ja mittausvälit jäävät dataan käyttämättöminä.
-- Korjattu: laatikko käytti luokkaa `.now`, joka on kalenterin nykyhetken viiva. Tämä aiheutti päällekkäisen asettelun.
+- Korjattu: Lääkeseurannan esikatselurivi näyttää kirjatut mittaukset (näytti vanhoja välejä, jotka poistuivat). Laatikko käytti luokkaa `.now`, joka on kalenterin nykyhetken viiva. Tämä aiheutti päällekkäisen asettelun.
 - Testit: `logiikka.js` (39) ja `selain.js` (sykli, oma sisältö Valikosta laatikkoon ja herjaksi, poisto). Leveydet 390, 320 ja 1280 px, kaikki ok.
 
 ## Versio 0.2 (3.11.2026, Emil)
