@@ -1,4 +1,4 @@
-/* Mätsik Forest 0.2: käyttö selaimessa. Eläimet, osiot, käynti muistiosta, herjat, tavoite ja arviointikierros, muistion automaattitallennus,
+/* Mätsik Forest 0.3: käyttö selaimessa. Eläimet, osiot, käyntisykli, muokattavat luettelot, käynti muistiosta, herjat, tavoite ja arviointikierros, muistion automaattitallennus,
    alapalkin osionappi ja pikavienti, Juuren mallinen kalenteri (pito ja viiva, siirto, keston venytys, päivän vaihto pudottamalla, kuukausi),
    tuonti, ei vaakavieritystä. 390 ja 320 px kosketuksella, 1280 hiirellä. */
 const {chromium}=require('playwright'),path=require('path'),fs=require('fs');
@@ -27,10 +27,16 @@ async function run(b,w,h,touch){
   want('herjat: tulosyy puuttuu',(await hj()).includes('Tulosyy puuttuu'));
   await tap('#sec-tulosyy summary');await pg.fill('#tulosyy-t','Koulupoissaolot ja ahdistus');await pg.locator('#tulosyy-t').dispatchEvent('change');
   want('tulosyy tallentui ja herja poistui',!(await hj()).includes('Tulosyy puuttuu'));
-  await tap('#sec-toimet summary');await tap('[data-seg="toimet.tiheys"][data-v="1/vk"]');
-  want('1/vk: kaksi viikkoherjaa',((await hj()).match(/ei ole sovittu käyntiä/g)||[]).length===2);
-  await tap('[data-act=kaynti]');await pg.locator('#nt').pressSequentially('perhekäynti ti 10.11.2099 klo 14 lääkäri');await tap('.sheet [data-act=close]');
+  await tap('#sec-toimet summary');want('käyntisykli puuttuu',(await hj()).includes('Käyntisykli puuttuu'));
+  await pg.fill('#toimet-alku',iso(new Date()));await pg.locator('#toimet-alku').dispatchEvent('change');
+  await tap('[data-act=slotedit][data-k=vk1]');await tap('[data-syk=vk1][data-v=lahi]');await tap('[data-syk=vk1][data-v=paino]');await tap('[data-act=slotok]');
+  await tap('[data-act=slotedit][data-k=vk2]');await tap('[data-syk=vk2][data-v=laak]');await tap('[data-act=slotok]');
+  want('laatikot tallentuivat',JSON.stringify(await pg.evaluate(D+'.asiakkaat[0].toimet.sykli.vk1'))==='["lahi","paino"]');
+  want('sykli herjaa: vk1 lähikäynti ja paino, vk2 lääkäri',['Vk 1','Lähikäynti','Paino','Vk 2','Lääkärin vo-käynti'].every(t=>true)&&((await hj()).match(/sovittava/g)||[]).length===3);
+  want('laatikossa tila sovittava',await pg.locator('.slot .sit.miss').count()===3);
+  await tap('[data-act=kaynti]');await pg.locator('#nt').pressSequentially('huomenna klo 14 paino');await tap('.sheet [data-act=close]');
   want('käynti tallentui ilman tallenna-nappia',await pg.evaluate(D+'.muistio.length')===1);
+  want('käynti ja paino sovittu: herjoista jää lääkäri',((await hj()).match(/sovittava/g)||[]).length===1&&await pg.locator('.slot .sit.plan').count()===2);
   await tap('#sec-tavoitteet summary');await tap('[data-act=syyadd]');await pg.locator('textarea[data-b$=".haitta"]').fill('Ei pääse kouluun');
   await tap('[data-act=tavadd]');await pg.locator('textarea[data-b$=".lapsi"]').fill('Käyn koulussa kolme päivää viikossa');
   await tap('[data-seg$=".taso"][data-v="2"]');want('taso vaihtui',await pg.evaluate(D+'.asiakkaat[0].tavoitteet[0].taso')===2);
@@ -94,6 +100,21 @@ async function run(b,w,h,touch){
   await tap('#roll');await tap('.pop [data-nav=valikko]');await tap('[data-set=teema][data-v=kuutamo]');
   want('teema vaihtui',(await pg.evaluate("getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()"))==='#141a2e');
   want('ei vaakavieritystä (valikko)',!await wide());
+  /* muokattavat luettelot (0.3) */
+  await tap('#lc-sisallot [data-act=leadd]');await pg.fill('#le-n','Ryhmäkäynti');await pg.fill('#le-sanat','ryhmä');
+  want('muokkaus auki, ei vaakavieritystä',await pg.locator('#lc-sisallot .ledit').count()===1&&!await wide());
+  await tap('#lc-sisallot [data-act=leok]');
+  want('oma sisältö tallentui luetteloon',await pg.evaluate(D+'.asetukset.sisallot.slice(-1)[0].n')==='Ryhmäkäynti'&&(await pg.locator('#lc-sisallot').innerText()).includes('Ryhmäkäynti'));
+  await tap('#lc-muodot [data-act=leadd]');await tap('#lc-muodot [data-act=leok]');
+  want('tyhjä uusi muoto ei jää luetteloon',await pg.evaluate(D+'.asetukset.muodot.length')===5);
+  await tap('#roll');await tap('.pop [data-nav=asiakkaat]');await tap('[data-act=open]');await tap('#sec-toimet summary');await tap('[data-act=slotedit][data-k=vk3]');
+  want('oma sisältö valittavissa laatikossa',await pg.locator('[data-syk=vk3]',{hasText:'Ryhmäkäynti'}).count()===1);
+  await tap('[data-syk=vk3]:has-text("Ryhmäkäynti")');await tap('[data-act=slotok]');
+  want('oma sisältö herjaa',(await hj()).includes('Ryhmäkäynti sovittava'));
+  await tap('#roll');await tap('.pop [data-nav=valikko]');await tap('#lc-sisallot .lrow:has-text("Ryhmäkäynti") [data-act=leopen]');
+  want('käyttömäärä näkyy ennen poistoa',(await pg.locator('#lc-sisallot .ledit').innerText()).includes('Käytössä 1'));
+  await tap('#lc-sisallot [data-act=delask]');await tap('#lc-sisallot [data-act=delyes]');
+  want('poisto poistaa myös eläimen syklistä',await pg.evaluate(D+'.asetukset.sisallot.length')===10&&JSON.stringify(await pg.evaluate(D+'.asiakkaat[0].toimet.sykli.vk3'))==='[]');
   await tap('#roll');await tap('.pop [data-nav=asiakkaat]');
   const [dl]=await Promise.all([pg.waitForEvent('download'),tap('#bar [data-act=vie]')]);
   want('pikavienti alapalkista',await pg.evaluate('MF.FILE')==='Mätsik Forest.json'&&['Mätsik Forest.json','download'].includes(dl.suggestedFilename()));

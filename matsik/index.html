@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#1a1d22">
 <title>Mätsik Forest</title>
 <style>
-/* Mätsik Forest 0.1 (2.11.2026). Värit ja muodot teeman muuttujista (asetetaan koodissa), järjestelmäfontit kuten Juuressa. */
+/* Mätsik Forest 0.3 (3.11.2026). Värit ja muodot teeman muuttujista (asetetaan koodissa), järjestelmäfontit kuten Juuressa. */
 :root{--bg:#1a1d22;--surface:#23272e;--soft:#33363f;--fg:#eceaea;--muted:#aaa9ae;--line:#363a43;--card-line:#363a43;--accent:#d0354f;--accent-ink:#f07a8c;--on-accent:#fff;
   --crit:#f07a8c;--warn:#e3ac62;--ok:#6cc0a3;--r:3px;--r-s:2px;--r-chip:2px;--mono-r:3px;--card-shadow:none;--gap:6px;
   --body:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",system-ui,"Segoe UI",Roboto,Arial,sans-serif;--disp:var(--body);--disp-w:700;
@@ -146,6 +146,22 @@ textarea{resize:none;min-height:44px;line-height:1.4;overflow:hidden}
 .untwk{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:0 12px 0 56px}
 .ucell{min-height:44px;display:flex;flex-direction:column;gap:4px;padding:4px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--surface);min-width:0}
 .uchip{border:0;text-align:left;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:5px 9px;font-size:13px;touch-action:pan-y;-webkit-user-select:none;user-select:none}
+.syk{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (min-width:600px){.syk{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.slot{border:1px solid var(--line);border-radius:var(--r);padding:8px;display:flex;flex-direction:column;gap:6px;background:var(--bg);min-width:0}
+.slot.cur{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.slot.ed{grid-column:1/-1}
+.lrow{display:flex;gap:8px;align-items:center;padding:8px 0 0;border-top:1px solid var(--line);min-width:0}
+.lrow>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.lrow .meta{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ledit{display:flex;flex-direction:column;gap:8px;padding:10px 0 2px;border-top:1px solid var(--line)}
+.sh{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.seg.sm button{font-size:13px;padding:5px 9px;min-height:32px}
+.sitems{display:flex;flex-direction:column;gap:3px}
+.sit{display:flex;align-items:baseline;gap:6px;font-size:13px;line-height:1.3;min-width:0}
+.sit i{width:7px;height:7px;border-radius:50%;flex:none;background:var(--line);align-self:center}
+.sit small{margin-left:auto;color:var(--muted);font-size:11px;white-space:nowrap}
+.sit.ok i{background:var(--ok)}.sit.plan i{background:var(--accent-ink)}.sit.miss i{background:var(--crit)}.sit.miss small{color:var(--crit)}
 .mgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
 .mwd span{text-align:center;font-size:12px;color:var(--muted);font-weight:600}
 .mday{border:0;background:var(--bg);border-radius:var(--r-s);padding:6px 0;display:flex;flex-direction:column;align-items:center;min-height:46px;color:var(--fg)}
@@ -198,18 +214,53 @@ function fiShort(s){var d=parse(s);return d?d.getDate()+'.'+(d.getMonth()+1)+'.'
 /* ---------- tyhjä data ja korjaus ---------- */
 function uid(){return Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);}
 function empty(){return {asiakkaat:[],muistio:[],asetukset:{teema:'puolukka',shape:'auto',hf:'auto',bf:'auto',kuvitus:'kaista',diagnoosit:[],
-  valit:{esitiedot:6,koulu:6,sosiaali:6,tarve:6,toimet:6,tavoite:3,tilanne:12},kesto:30},meta:{lastExport:'',mod:''}};}
+  valit:{esitiedot:6,koulu:6,sosiaali:6,tarve:6,toimet:6,tavoite:3,tilanne:12},kesto:30,sisallot:defSis(),muodot:defMuo()},meta:{lastExport:'',mod:''}};}
 var SEK=['tulosyy','diagnoosit','esitiedot','kehitys','tilanne','koulu','sosiaali','vahvuudet','tarve','toimet','seuranta'];
-var MITAT=[['paino','Paino'],['pituus','Pituus'],['rr','Verenpaine'],['pulssi','Pulssi'],['neuro','Neurologiset oireet']];
+var MITAT=[['paino','Paino'],['pituus','Pituus'],['rr','Verenpaine'],['pulssi','Pulssi'],['vaste','Lääkityksen vaste ja haitat'],['neuro','EP-oireet']];
+var SLOTS=['vk1','vk2','vk3','vk4','kk2','kk3'],SLOTN={vk1:'Vk 1',vk2:'Vk 2',vk3:'Vk 3',vk4:'Vk 4',kk2:'Kk 2',kk3:'Kk 3'};
+/* Käyntisyklin sisällöt ja käyntien muodot ovat Valikon muokattavia luetteloita (Emil 3.11.2026).
+   Sana = sanan alku tai osa (paino → painon); enintään 3 merkin sana vain kokonaisena (rr, ep, lk). */
+var DEFSIS=[['lahi','Lähikäynti','kaynti','lähikäyn, käynti, käynnil, käynnin, vastaanot, kotikäyn, perhekäyn, yksilökäyn, tapaami',''],
+  ['vanh','Lähivanhemman kontakti','kaynti','lähivanhem, vanhem, äiti, äidi, isä, isän, huoltaj',''],['laak','Lääkärin vo-käynti','kaynti','lääkär, lk, vo-käyn',''],
+  ['verk','Verkosto','kaynti','verkosto',''],['neuv','Hoitoneuvottelu','kaynti','neuvottel',''],['rr','Verenpaine','seuranta','rr, verenpain','rr'],
+  ['pituus','Pituus','seuranta','pituu','pituus'],['paino','Paino','seuranta','paino','paino'],['vaste','Lääkityksen vaste – haitat','seuranta','vaste, haitat, haitta, sivuvaikut','vaste'],
+  ['ep','EP-oireet','seuranta','ep, ep-oire, ekstrapyram','neuro']];
+var DEFMUO=[['yksilo','Yksilö','yksilö'],['perhe','Perhe','perhe'],['koti','Koti','koti'],['puhelu','Puhelu','puhel, soitto, soitan'],['verkosto','Verkosto','verkosto']];
+function defSis(){return DEFSIS.map(function(x){return {id:x[0],n:x[1],laji:x[2],sanat:x[3],mit:x[4]};});}
+function defMuo(){return DEFMUO.map(function(x){return {id:x[0],n:x[1],sanat:x[2]};});}
+var WCH='0-9a-zåäöéüA-ZÅÄÖÉÜ';
+function words(s){return String(s||'').toLowerCase().split(/[,;\n]+/).map(function(x){return x.trim();}).filter(Boolean);}
+function wordRe(s){var w=words(s);if(!w.length)return null;
+  return new RegExp(w.map(function(x){var e=x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return x.length<=3?'(?:^|[^'+WCH+'])'+e+'(?!['+WCH+'])':e;}).join('|'),'i');}
+var LC={k:null,v:null};
+function lists(d){var A=(d&&d.asetukset)||{},S=Array.isArray(A.sisallot)?A.sisallot:defSis(),M=Array.isArray(A.muodot)?A.muodot:defMuo(),k=JSON.stringify([S,M]);
+  if(LC.k===k)return LC.v;var v={sis:S.map(function(x){return {id:x.id,n:x.n||'(nimetön)',laji:x.laji,mit:x.mit||'',re:wordRe(x.sanat)};}),
+    muo:M.map(function(x){return {id:x.id,n:x.n||'(nimetön)',re:wordRe(x.sanat)};}),byId:{},muoN:{}};
+  v.sis.forEach(function(x){v.byId[x.id]=x;});v.muo.forEach(function(x){v.muoN[x.id]=x.n;});LC={k:k,v:v};return v;}
+function cycleSlots(alku,today){/* nykyisen (tai ensimmäisen) syklin laatikot päivineen */var M=monday(alku);
+  while(addMonths(M,3)<=today){var nx=monday(addMonths(M,3));if(nx<=M)break;M=nx;}
+  var m2=addDays(M,28),m3=addMonths(M,2),e=addDays(monday(addMonths(M,3)),-1);if(m3<=m2)m3=addDays(m2,28);
+  return [{k:'vk1',start:M,end:addDays(M,6)},{k:'vk2',start:addDays(M,7),end:addDays(M,13)},{k:'vk3',start:addDays(M,14),end:addDays(M,20)},{k:'vk4',start:addDays(M,21),end:addDays(M,27)},
+    {k:'kk2',start:m2,end:addDays(m3,-1)},{k:'kk3',start:m3,end:e}];}
+function itemState(a,it,sl,E,today,L){var x=(L||lists(null)).byId[it];if(!x)return 'wait';/* ok = tehty, plan = sovittu, miss = puuttuu (laatikko alkanut tai lähellä), wait = myöhemmin */
+  var hit=E.filter(function(e){return e.as.indexOf(a.id)>=0&&e.date>=sl.start&&e.date<=sl.end&&e.tila!=='peruttu'&&x.re&&x.re.test(e.rivi);});
+  if(x.mit&&(a.seuranta[x.mit]||{arvot:[]}).arvot.some(function(v){return v.pvm>=sl.start&&v.pvm<=sl.end;}))return 'ok';
+  if(hit.some(function(e){return e.tila==='toteutui';}))return 'ok';
+  if(hit.some(function(e){return e.date>=today;}))return 'plan';
+  if(hit.length)return 'ok'; /* mennyt, ei merkitty peruutetuksi */
+  return sl.start>addDays(monday(today),20)?'wait':'miss';}
 function newClient(nimi,today){var a={id:uid(),nimi:String(nimi||'').trim(),luotu:today,syyt:[],tavoitteet:[]};SEK.forEach(function(k){a[k]={};});
-  a.diagnoosit.v=[];a.toimet.muodot=[];MITAT.forEach(function(m){a.seuranta[m[0]]={vali:'',arvot:[]};});return a;}
+  a.diagnoosit.v=[];a.toimet.muodot=[];a.toimet.sykli={};SLOTS.forEach(function(k){a.toimet.sykli[k]=[];});MITAT.forEach(function(m){a.seuranta[m[0]]={vali:'',arvot:[]};});return a;}
 function obj(x){return x&&typeof x==='object'&&!Array.isArray(x)?x:{};}
 function arr(x){return Array.isArray(x)?x:[];}
+function cleanL(x,def,sis){if(!Array.isArray(x))return def();var seen={};return x.filter(function(y){if(!y||!y.id||seen[y.id])return false;seen[y.id]=1;return true;}).map(function(y){
+  var o={id:String(y.id),n:typeof y.n==='string'?y.n:'',sanat:typeof y.sanat==='string'?y.sanat:''};if(sis){o.laji=y.laji==='seuranta'?'seuranta':'kaynti';o.mit=MITAT.some(function(m){return m[0]===y.mit;})?y.mit:'';}return o;});}
 function repair(d){var e=empty();d=obj(d);
   var o={asiakkaat:arr(d.asiakkaat).filter(function(a){return a&&typeof a.nimi==='string';}),muistio:arr(d.muistio).filter(function(n){return n&&typeof n.text==='string';}),
     asetukset:Object.assign({},e.asetukset,obj(d.asetukset)),meta:Object.assign({},e.meta,obj(d.meta))};
   o.asetukset.valit=Object.assign({},e.asetukset.valit,obj(o.asetukset.valit));o.asetukset.diagnoosit=arr(o.asetukset.diagnoosit).filter(function(x){return typeof x==='string';});
-  o.asiakkaat.forEach(function(a){if(!a.id)a.id=uid();SEK.forEach(function(k){a[k]=obj(a[k]);});a.diagnoosit.v=arr(a.diagnoosit.v);a.toimet.muodot=arr(a.toimet.muodot);
+  o.asetukset.sisallot=cleanL(d.asetukset&&d.asetukset.sisallot,defSis,true);o.asetukset.muodot=cleanL(d.asetukset&&d.asetukset.muodot,defMuo,false);
+  o.asiakkaat.forEach(function(a){if(!a.id)a.id=uid();SEK.forEach(function(k){a[k]=obj(a[k]);});a.diagnoosit.v=arr(a.diagnoosit.v);a.toimet.muodot=arr(a.toimet.muodot);a.toimet.sykli=obj(a.toimet.sykli);SLOTS.forEach(function(k){a.toimet.sykli[k]=arr(a.toimet.sykli[k]);});
     MITAT.forEach(function(m){var s=obj(a.seuranta[m[0]]);s.arvot=arr(s.arvot);if(s.vali==null)s.vali='';a.seuranta[m[0]]=s;});
     a.syyt=arr(a.syyt).filter(Boolean);a.tavoitteet=arr(a.tavoitteet).filter(Boolean);
     a.tavoitteet.forEach(function(t){if(!t.id)t.id=uid();t.arviot=arr(t.arviot);t.taso=[1,2,3].indexOf(+t.taso)>=0?+t.taso:3;});});
@@ -222,7 +273,6 @@ function unwrap(o){/* hyväksyy tiedoston tai pelkän datan; palauttaa korjatun 
 /* ---------- aikasanat muistiinpanosta ---------- */
 var VKS=[['maanantai','ma'],['tiistai','ti'],['keskiviikko','ke'],['torstai','to'],['perjantai','pe'],['lauantai','la'],['sunnuntai','su']];
 var KAYNTI=/(käyn|vastaanot|tapaami|puhel|soitto|soitan|neuvottel|verkostop|kotikäyn)/i, LAAK=/(lääkär|\blääk\b|\blk\b)/i;
-var MUOTO=[['perhe',/perhe/i],['koti',/koti/i],['puhelu',/(puhel|soitto|soitan)/i],['verkosto',/verkosto/i],['yksilo',/yksilö/i]];
 function nextDow(today,k){var n=(k-dow(today)+7)%7;return addDays(today,n);}
 function lineDates(line,today){/* [{pos,len,date,wd}] */var out=[],m,re;
   re=/(^|[^\d])(\d{1,2})\.(\d{1,2})\.(\d{4}|\d{2})?/g;
@@ -261,17 +311,17 @@ function mentions(text,asiakkaat){/* asiakkaat, joiden nimi esiintyy tekstissä 
   var low=' '+text.toLowerCase()+' ';return asiakkaat.filter(function(a){if(!a.nimi)return false;var full=a.nimi.toLowerCase().trim(),st=stems(a);
     var r=new RegExp('[^a-zåäö0-9]('+esc(full)+'|'+esc(st)+'[a-zåäö]*)(?![a-zåäö0-9])');return r.test(low);});}
 function esc(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
-function entries(note,asiakkaat,today){/* kalenterimerkinnät yhdestä muistiinpanosta */
+function entries(note,asiakkaat,today,L){L=L||lists(null);/* kalenterimerkinnät yhdestä muistiinpanosta */
   var res=[],all=mentions(note.text,asiakkaat);note.text.split('\n').forEach(function(line,li){
     var ds=lineDates(line,note.day||today);if(!ds.length)return;var ts=lineTimes(line),who=mentions(line,asiakkaat);if(!who.length)who=all;
     ds.forEach(function(d,i){var nx=ds[i+1]?ds[i+1].pos:1e9,t=ts.filter(function(x){return x.pos>=d.pos-12&&x.pos<nx;})[0];
       var cut=[[d.pos,d.len]].concat(t?[[t.pos,t.len]]:[]).sort(function(a,b){return b[0]-a[0];}),txt=line;cut.forEach(function(c){txt=txt.slice(0,c[0])+' '+txt.slice(c[0]+c[1]);});
-      var key=d.date+'|'+li,isK=KAYNTI.test(line);var muoto='';MUOTO.some(function(m){if(m[1].test(line)){muoto=m[0];return true;}return false;});
+      var key=d.date+'|'+li,isK=KAYNTI.test(line)||L.sis.some(function(x){return x.laji==='kaynti'&&x.re&&x.re.test(line);});var muoto='';L.muo.some(function(m){if(m.re&&m.re.test(line)){muoto=m.id;return true;}return false;});
       res.push({note:note.id,key:key,li:li,dpos:d.pos,dlen:d.len,wd:!!d.wd,rel:!!d.rel,tpos:t?t.pos:null,tlen:t?t.len:0,end:t?t.end:'',
         txt:txt.replace(/\s+/g,' ').replace(/^[\s,.:–-]+|[\s,.:–-]+$/g,''),date:d.date,klo:t?t.klo:'',as:who.map(function(a){return a.id;}),kaynti:isK&&who.length>0,laakari:LAAK.test(line),muoto:muoto,
         rivi:line.trim(),tila:(note.tila||{})[key]||''});});});
   return res;}
-function allEntries(d,today){var r=[];d.muistio.forEach(function(n){if(!n.arch)r=r.concat(entries(n,d.asiakkaat,today));});
+function allEntries(d,today){var r=[],L=lists(d);d.muistio.forEach(function(n){if(!n.arch)r=r.concat(entries(n,d.asiakkaat,today,L));});
   r.sort(function(a,b){return (a.date+(a.klo||'99'))<(b.date+(b.klo||'99'))?-1:1;});return r;}
 
 /* ---------- säännöt ja herjat ---------- */
@@ -296,21 +346,14 @@ function herjat(a,d,today,E){/* E = allEntries(d,today) valmiiksi laskettuna (va
     if(V.tavoite&&months(base,today)>=+V.tavoite)add(t.taso===1?'crit':'warn',t.taso,'arvio','tavoitteet','Arvioi tavoite: '+nm,{tav:t.id});
     t.arviot.forEach(function(r,i){if(r.toimenpide&&!r.tehty)add(t.taso===1?'crit':'warn',t.taso,'toimenpide','tavoitteet',r.toimenpide+': '+nm,{tav:t.id,ar:i});});
     if(t.tila==='jumissa')add(t.taso===1?'crit':'warn',t.taso,'jumissa','tavoitteet','Jumissa: '+nm,{tav:t.id});});
-  /* käynnit: kaksi seuraavaa täyttä kalenteriviikkoa */
-  var mine=E.filter(function(e){return e.kaynti&&e.as.indexOf(a.id)>=0&&e.tila!=='peruttu';}),T=TIHEYS[a.toimet.tiheys];
-  if(!a.toimet.tiheys)add('warn',0,'puuttuu','toimet','Käyntitiheys puuttuu');
-  else{var w1=addDays(monday(today),7),w2=addDays(w1,7),end=addDays(w2,6);
-    function cnt(f,t2){return mine.filter(function(e){return e.date>=f&&e.date<=t2;}).length;}
-    if(T.per==='vk'){[[w1,addDays(w1,6)],[w2,end]].forEach(function(w){var c=cnt(w[0],w[1]);if(c<T.n)add('warn',0,'kaynnit','toimet','Viikolle '+week(w[0])+' ei ole sovittu '+(T.n===1?'käyntiä':'kahta käyntiä')+' ('+TIHN[a.toimet.tiheys]+')');});}
-    else if(T.per==='ikk'){if(!cnt(w1,end))add('warn',0,'kaynnit','toimet','Viikoille '+week(w1)+'–'+week(w2)+' ei ole sovittu käyntiä ('+TIHN[a.toimet.tiheys]+')');}
-    else if(!mine.some(function(e){return e.date>today;}))add('warn',0,'kaynnit','toimet','Seuraavaa käyntiä ei ole sovittu');}
-  /* lääkäri */
-  var L=+a.toimet.laakari||0;if(L){var doc=mine.filter(function(e){return e.laakari;}),past=doc.filter(function(e){return e.date<=today;}),fut=doc.filter(function(e){return e.date>today;});
-    var lastD=past.length?past[past.length-1].date:(a.luotu||today),due=addMonths(lastD,L);
-    var lim=due>addDays(monday(today),20)?due:addDays(monday(today),20);if(!fut.some(function(e){return e.date<=lim;})&&due<=addDays(today,28))add(due<today?'crit':'warn',0,'laakari','toimet','Lääkärin käynti sovittava'+(past.length?' (viimeksi '+fiShort(lastD)+')':''));}
-  /* mittaukset */
-  MITAT.forEach(function(m){var s=a.seuranta[m[0]];if(!s||!+s.vali)return;var last=s.arvot.length?s.arvot[s.arvot.length-1].pvm:'';
-    if(!last)add('warn',0,'mittaus','seuranta',m[1]+': ei mittausta');else if(months(last,today)>=+s.vali)add('warn',0,'mittaus','seuranta',m[1]+' mitattu '+months(last,today)+' kk sitten');});
+  /* käyntisykli (Emil 3.11.2026): laatikot vk1–vk4, kk2, kk3 = 3 kk:n sykli, joka alkaa alkupäivän viikon maanantaista ja toistuu.
+     Laatikkoon valittu sisältö on sovittava tai tehtävä sen ajalla. Herja, kun laatikko on käynnissä tai alkaa kahden seuraavan täyden viikon aikana. */
+  var S=a.toimet.sykli||{},LL=lists(d),used=SLOTS.some(function(k){return (S[k]||[]).some(function(it){return LL.byId[it];});});
+  if(!used)add('warn',0,'puuttuu','toimet','Käyntisykli puuttuu');
+  else if(!a.toimet.alku)add('warn',0,'puuttuu','toimet','Syklin alkupäivä puuttuu');
+  else{var hz=addDays(monday(today),20),L=lists(d);cycleSlots(a.toimet.alku,today).forEach(function(sl){if(sl.end<today||sl.start>hz)return;
+    (S[sl.k]||[]).forEach(function(it){if(!L.byId[it])return;var st=itemState(a,it,sl,E,today,L);if(st==='ok'||st==='plan')return;
+      var soon=sl.end<=addDays(today,6);add(soon?'crit':'warn',0,'sykli','toimet',SLOTN[sl.k]+' ('+fiShort(sl.start)+'–'+fiShort(sl.end)+'): '+L.byId[it].n+' sovittava');});});}
   var rank=function(x){return (x.sev==='crit'?0:10)+(x.taso||4);};h.sort(function(x,y){return rank(x)-rank(y);});return h;}
 function ordered(d,today){var E=allEntries(d,today);return d.asiakkaat.filter(function(a){return !a.arch;}).map(function(a){var h=herjat(a,d,today,E);
   var nx=E.filter(function(e){return e.kaynti&&e.as.indexOf(a.id)>=0&&e.date>=today&&e.tila!=='peruttu';})[0];return {a:a,h:h,next:nx};}).sort(function(x,y){
@@ -334,7 +377,7 @@ function saveArvio(t,polku,tulos,lisa,today){var r={pvm:today,polku:polku,tulos:
 
 return {VER:VER,KEY:KEY,APP:APP,FILE:FILE,iso:iso,parse:parse,addDays:addDays,addMonths:addMonths,dow:dow,monday:monday,week:week,months:months,fi:fi,fiShort:fiShort,VK:VK,
   uid:uid,empty:empty,newClient:newClient,repair:repair,wrap:wrap,unwrap:unwrap,lineDates:lineDates,lineTimes:lineTimes,mentions:mentions,entries:entries,allEntries:allEntries,
-  herjat:herjat,ordered:ordered,toMin:toMin,fmtM:fmtM,whenText:whenText,rewrite:rewrite,filled:filled,MITAT:MITAT,TIHN:TIHN,OSAP:OSAP,FLOW:FLOW,isAction:isAction,saveArvio:saveArvio};
+  herjat:herjat,ordered:ordered,SLOTS:SLOTS,SLOTN:SLOTN,lists:lists,defSis:defSis,defMuo:defMuo,wordRe:wordRe,cycleSlots:cycleSlots,itemState:itemState,toMin:toMin,fmtM:fmtM,whenText:whenText,rewrite:rewrite,filled:filled,MITAT:MITAT,TIHN:TIHN,OSAP:OSAP,FLOW:FLOW,isAction:isAction,saveArvio:saveArvio};
 })();
 if(typeof module!=='undefined')module.exports=MF;
 </script>
@@ -497,17 +540,14 @@ var SECS=[
  {k:'tavoitteet',n:'Tavoitteet',sp:'tav'},
  {k:'tarve',n:'Hoidon tarve',f:[['q1','Tarvitaanko tiivistä seurantaa?','seg',KE],['q2','Tarvitaanko viikoittaista seurantaa ja jatkuvaa saatavilla oloa?','seg',KE],
    ['q3','Tarvitaanko joustavia vastaanottoaikoja, myös eri ympäristöissä?','seg',KE],['q4','Tarvitaanko tiivistä lääkärikontaktia lääkeseurannassa?','seg',KE],['t','Muuta','ta']]},
- {k:'toimet',n:'Hoitotoimet',f:[['tiheys','Käyntitiheys','seg',[['1/vk','1/vk'],['2/vk','2/vk'],['2/kk','2/kk'],['1/kk','1/kk'],['harv','Harvemmin']]],
-   ['muodot','Käyntien muoto','multi',[['yksilo','Yksilö'],['perhe','Perhe'],['koti','Koti'],['puhelu','Puhelu'],['verkosto','Verkosto']]],
-   ['osallAs','Osallistujat asiakaspuolelta','in'],['osallTy','Osallistujat työntekijäpuolelta','in'],['laakari','Lääkäri mukana vähintään','seg',[['','Ei vaadita'],['1','1/kk'],['3','1/3 kk'],['6','1/6 kk']]]],sp:'kay'},
+ {k:'toimet',n:'Hoitotoimet',f:[['alku','Syklin alku (3 kk, toistuu)','date']],sp:'kay'},
  {k:'seuranta',n:'Lääkeseuranta',sp:'mit'}];
-var MUOTON={yksilo:'Yksilö',perhe:'Perhe',koti:'Koti',puhelu:'Puhelu',verkosto:'Verkosto'};
 var TILA=[['alussa','Alussa','warn'],['etenee','Etenee','ok'],['jumissa','Jumissa','crit'],['saavutettu','Saavutettu','ok']];
 var TASO={1:'Turvallisuus ja akuutit riskit',2:'Hoidon mahdollistaminen',3:'Elämänlaatu'};
 
 function preview(a,s){var o=a[s.k];if(s.sp==='dg')return a.diagnoosit.v.join(', ');if(s.sp==='tav')return a.tavoitteet.length?a.tavoitteet.length+' tavoitetta':'';
   if(s.sp==='mit')return MF.MITAT.filter(function(m){return +a.seuranta[m[0]].vali;}).map(function(m){return m[1];}).join(', ');
-  if(s.k==='toimet')return [MF.TIHN[o.tiheys]||'',(o.muodot||[]).map(function(m){return MUOTON[m];}).join(', ')].filter(Boolean).join(' · ');
+  if(s.k==='toimet'){var nS=MF.SLOTS.reduce(function(t,k){return t+((o.sykli||{})[k]||[]).length;},0);return nS?(o.alku?'Sykli alkaen '+MF.fiShort(o.alku)+' · ':'')+nS+' valintaa':'';}
   for(var i=0;i<s.f.length;i++){var v=o[s.f[i][0]];if(s.f[i][2]==='seg'&&v){var q=s.f[i][3].filter(function(x){return x[0]===v;})[0];if(q)return s.f[i][1]+': '+q[1];}
     if(typeof v==='string'&&v.trim()&&s.f[i][2]!=='date')return v.trim().split('\n')[0];}return '';}
 function field(prefix,o,f){var key=f[0],lab=f[1],typ=f[2],v=o[key],id=prefix+'-'+key;
@@ -572,17 +612,33 @@ function goal(a,t){var tl=TILA.filter(function(x){return x[0]===t.tila;})[0],nm=
   return s+'</div>';}
 function delBtn(key){return confirmDel===key?'<button class="btn sm" data-act="delno">Peru</button><button class="btn sm del" data-act="delyes" data-k="'+key+'">Vahvista poisto</button>':
   '<button class="btn sm link del" data-act="delask" data-k="'+key+'">Poista</button>';}
+/* Käyntisykli (Emil 3.11.2026): kuusi laatikkoa, joihin valitaan käyntityypit ja lääkeseurannan sisällöt */
+var editSlot='';
+var STN={ok:'tehty',plan:'sovittu',miss:'sovittava',wait:'myöhemmin'};
+function secSykli(a,E){var S=a.toimet.sykli,al=a.toimet.alku,L=MF.lists(data),SL=al?MF.cycleSlots(al,TODAY):MF.SLOTS.map(function(k){return {k:k};});
+  var s='<div class="f"><span>Käyntisykli'+(al?' · nykyinen '+MF.fiShort(SL[0].start)+'–'+MF.fiShort(SL[5].end):'')+'</span><div class="syk">';
+  SL.forEach(function(sl){var sel=(S[sl.k]||[]).filter(function(id){return L.byId[id];}),now=al&&sl.start<=TODAY&&sl.end>=TODAY,ed=editSlot===sl.k;
+    s+='<div class="slot'+(now?' cur':'')+(ed?' ed':'')+'"><div class="sh"><b>'+MF.SLOTN[sl.k]+'</b><span class="meta">'+(al?MF.fiShort(sl.start)+'–'+MF.fiShort(sl.end):'')+(now?' · nyt':'')+'</span></div>';
+    if(ed)s+=(L.sis.length?[['kaynti','Käynnit'],['seuranta','Seuranta']].map(function(g){var G=L.sis.filter(function(x){return x.laji===g[0];});
+        return G.length?'<span class="meta">'+g[1]+'</span><div class="seg sm">'+G.map(function(x){return '<button data-syk="'+sl.k+'" data-v="'+h(x.id)+'" aria-pressed="'+(sel.indexOf(x.id)>=0)+'">'+h(x.n)+'</button>';}).join('')+'</div>':'';}).join(''):
+        '<p class="meta">Sisältöluettelo on tyhjä. Lisää sisältöjä: Valikko → Käyntisyklin sisällöt.</p>')+'<button class="btn sm pri" data-act="slotok">Valmis</button>';
+    else{s+=sel.length?'<div class="sitems">'+L.sis.filter(function(x){return sel.indexOf(x.id)>=0;}).map(function(x){var st=al?MF.itemState(a,x.id,sl,E,TODAY,L):'';
+        return '<span class="sit '+st+'"><i></i>'+h(x.n)+(st?'<small>'+STN[st]+'</small>':'')+'</span>';}).join('')+'</div>':'<p class="meta">Ei valintoja.</p>';
+      s+='<button class="btn sm link" data-act="slotedit" data-k="'+sl.k+'">Valitse</button>';}
+    s+='</div>';});
+  return s+'</div></div>';}
 function secKay(a,E){var mine=E.filter(function(e){return e.kaynti&&e.as.indexOf(a.id)>=0&&e.date>=MF.addDays(TODAY,-28);});
-  return '<div class="f"><span>Käynnit (muistiosta)</span>'+(mine.length?mine.map(entRow).join(''):'<p class="meta">Ei käyntejä. Kirjoita muistioon esim. "'+h(a.nimi)+' perhekäynti ti 10.11. klo 14 lääkäri".</p>')+
+  return secSykli(a,E)+field('toimet',a.toimet,['muodot','Käyntien muoto','multi',MF.lists(data).muo.map(function(x){return [x.id,x.n];})])+
+    field('toimet',a.toimet,['osallAs','Osallistujat eläimen puolelta','in'])+field('toimet',a.toimet,['osallTy','Osallistujat työntekijäpuolelta','in'])+
+    '<div class="f"><span>Käynnit (muistiosta)</span>'+(mine.length?mine.map(entRow).join(''):'<p class="meta">Ei käyntejä. Kirjoita muistioon esim. "'+h(a.nimi)+' lähikäynti ti 10.11. klo 14 lääkäri, paino ja RR".</p>')+
     '</div><button class="btn sm" data-act="kaynti" data-id="'+a.id+'">+ Käynti muistioon</button>';}
-function secMit(a){return MF.MITAT.map(function(m){var s=a.seuranta[m[0]],last=s.arvot[s.arvot.length-1];
-  return '<div class="f"><span>'+m[1]+(last?' · viimeksi '+h(last.arvo||'mitattu')+' ('+MF.fiShort(last.pvm)+')':'')+'</span>'+
-    field('mit:'+m[0],s,['vali','','seg',[['','Ei seurata'],['1','1 kk'],['3','3 kk'],['6','6 kk'],['12','12 kk']]]).replace('<span></span>','')+
-    (+s.vali?'<div class="btns"><input type="text" id="mv-'+m[0]+'" placeholder="Arvo" style="flex:1"><button class="btn sm" data-act="mitta" data-m="'+m[0]+'">Kirjaa tänään</button></div>':'')+'</div>';}).join('');}
+function secMit(a){return '<p class="meta">Kirjaus täyttää käyntisyklin mittauksen sen laatikon ajalle.</p>'+MF.MITAT.map(function(m){var s=a.seuranta[m[0]],last=s.arvot[s.arvot.length-1];
+  return '<div class="f"><span>'+m[1]+(last?' · viimeksi '+h(last.arvo||'kirjattu')+' ('+MF.fiShort(last.pvm)+')':'')+'</span>'+
+    '<div class="btns"><input type="text" id="mv-'+m[0]+'" placeholder="Arvo tai huomio" style="flex:1"><button class="btn sm" data-act="mitta" data-m="'+m[0]+'">Kirjaa tänään</button></div></div>';}).join('');}
 function byEdited(x,y){return (y.edited||y.created||'')<(x.edited||x.created||'')?-1:1;}
 function markup(text){var t=h(text),names=data.asiakkaat.map(function(a){return a;});
   return t.replace(/(^|[^0-9A-Za-zÅÄÖåäö])([A-ZÅÄÖ][a-zåäö]+)/g,function(m0,p,w){return p+(MF.mentions(w,names).length?'<mark>'+w+'</mark>':w);});}
-function noteCard(n){var E=MF.entries(n,data.asiakkaat,TODAY);
+function noteCard(n){var E=MF.entries(n,data.asiakkaat,TODAY,MF.lists(data));
   return '<div class="card note" data-act="note" data-id="'+n.id+'" role="button" tabindex="0"><div class="txt">'+markup(n.text)+'</div>'+
     (E.length?'<div class="btns">'+E.map(function(e){return '<span class="chip">'+MF.fi(e.date)+(e.klo?' '+e.klo:'')+(e.kaynti?' · käynti':'')+(e.laakari?' · lääkäri':'')+'</span>';}).join('')+'</div>':'')+
     '<span class="meta">'+MF.fiShort(MF.iso(new Date(n.edited||n.created)))+'</span></div>';}
@@ -604,7 +660,7 @@ function openNoteId(id){sheet={k:'note',id:id};confirmDel='';renderSheet();}
 function closeSheet(){if(sheet&&sheet.k==='note')sheetNoteSave();sheet=null;confirmDel='';render();}
 function entRow(e){var names=e.as.map(function(id){var a=cl(id);return a?a.nimi:'';}).filter(Boolean).join(', '),past=e.date<=TODAY;
   return '<div class="ent '+(e.tila||'')+'"><span class="tm">'+MF.VK[MF.dow(e.date)]+' '+MF.fiShort(e.date)+'<br><span class="meta">'+(e.klo||'')+'</span></span><div style="min-width:0;display:flex;flex-direction:column;gap:4px">'+
-    '<span class="rv">'+h(e.rivi)+'</span><div class="btns">'+(names?'<span class="chip">'+h(names)+'</span>':'')+(e.kaynti?'<span class="chip">Käynti'+(e.muoto?': '+MUOTON[e.muoto]:'')+'</span>':'')+(e.laakari?'<span class="chip">Lääkäri</span>':'')+
+    '<span class="rv">'+h(e.rivi)+'</span><div class="btns">'+(names?'<span class="chip">'+h(names)+'</span>':'')+(e.kaynti?'<span class="chip">Käynti'+(e.muoto?': '+MF.lists(data).muoN[e.muoto]:'')+'</span>':'')+(e.laakari?'<span class="chip">Lääkäri</span>':'')+
     (e.kaynti&&past&&!e.tila?'<button class="btn sm" data-act="tila" data-n="'+e.note+'" data-k="'+e.key+'" data-v="toteutui">Toteutui</button><button class="btn sm" data-act="tila" data-n="'+e.note+'" data-k="'+e.key+'" data-v="peruttu">Peruttu</button>':'')+
     (e.tila?'<span class="chip st '+(e.tila==='peruttu'?'crit':'ok')+'">'+(e.tila==='peruttu'?'Peruttu':'Toteutui')+'</span><button class="btn sm link" data-act="tila" data-n="'+e.note+'" data-k="'+e.key+'" data-v="">Kumoa</button>':'')+
     '</div></div></div>';}
@@ -714,6 +770,25 @@ function monthHtml(){var E=MF.allEntries(data,TODAY),y=monCur.getFullYear(),m=mo
     '<div class="mgrid mwd">'+MF.VK.map(function(v){return '<span>'+v+'</span>';}).join('')+'</div><div class="mgrid">'+s+'</div>'+
     '<div class="btns"><button class="btn" data-act="mprev">‹ Edellinen</button><span style="flex:1"></span><button class="btn" data-act="mnext">Seuraava ›</button></div>';}
 function seg(name,cur,opts){return '<div class="seg">'+opts.map(function(o){return '<button data-set="'+name+'" data-v="'+h(o[0])+'" aria-pressed="'+((cur||'')===o[0])+'">'+h(o[1])+'</button>';}).join('')+'</div>';}
+/* Valikon muokattavat luettelot (Emil 3.11.2026): sisällöt ja muodot */
+var leEd=null;
+function leList(l){return data.asetukset[l];}
+function leUse(l,id){return data.asiakkaat.filter(function(a){return l==='sisallot'?MF.SLOTS.some(function(k){return (a.toimet.sykli[k]||[]).indexOf(id)>=0;}):(a.toimet.muodot||[]).indexOf(id)>=0;}).length;}
+function listCard(l,title,ohje,addTxt){var L=leList(l),MN={};MF.MITAT.forEach(function(m){MN[m[0]]=m[1];});
+  var s='<div class="card" id="lc-'+l+'"><b>'+title+'</b><p class="meta">'+ohje+'</p>';
+  L.forEach(function(x,i){if(leEd&&leEd.l===l&&leEd.id===x.id){var u=leUse(l,x.id);
+      s+='<div class="ledit"><label class="f"><span>Nimi</span><input type="text" id="le-n" data-le="n" value="'+h(x.n)+'" placeholder="esim. Kotikäynti"></label>'+
+        '<label class="f"><span>Tunnistussanat (pilkulla erotettuina)</span><input type="text" id="le-sanat" data-le="sanat" value="'+h(x.sanat)+'" placeholder="esim. kotikäyn, kotona"></label>';
+      if(l==='sisallot'){s+='<div class="f"><span>Laji</span><div class="seg">'+[['kaynti','Käynti'],['seuranta','Seuranta']].map(function(o){return '<button data-act="leset" data-f="laji" data-v="'+o[0]+'" aria-pressed="'+(x.laji===o[0])+'">'+o[1]+'</button>';}).join('')+'</div>'+
+          '<span class="meta" style="font-weight:400">Käynti-lajin sana tekee rivistä käynnin.</span></div>';
+        if(x.laji==='seuranta')s+='<div class="f"><span>Täyttyy myös Lääkeseurannan kirjauksesta</span><div class="seg">'+[['','Ei']].concat(MF.MITAT).map(function(o){return '<button data-act="leset" data-f="mit" data-v="'+o[0]+'" aria-pressed="'+((x.mit||'')===o[0])+'">'+h(o[1])+'</button>';}).join('')+'</div></div>';}
+      s+=(u?'<p class="meta">Käytössä '+u+' eläimellä. Poisto poistaa sen myös heiltä.</p>':'')+
+        '<div class="btns"><button class="btn sm" data-act="lemove" data-d="-1"'+(i?'':' disabled')+'>Ylös</button><button class="btn sm" data-act="lemove" data-d="1"'+(i<L.length-1?'':' disabled')+'>Alas</button><span style="flex:1"></span>'+
+        delBtn('le:'+l+':'+x.id)+'<button class="btn sm pri" data-act="leok">Valmis</button></div></div>';}
+    else s+='<div class="lrow"><div><span>'+h(x.n||'(nimetön)')+'</span><span class="meta">'+(l==='sisallot'?(x.laji==='seuranta'?'Seuranta':'Käynti')+(x.mit?' · kirjaus: '+h(MN[x.mit]):'')+' · ':'')+h(x.sanat||'ei sanoja')+'</span></div>'+
+      '<button class="btn sm link" data-act="leopen" data-l="'+l+'" data-id="'+h(x.id)+'">Muokkaa</button></div>';});
+  return s+'<div class="btns"><button class="btn sm" data-act="leadd" data-l="'+l+'">'+addTxt+'</button></div></div>';}
+function leCur(){if(!leEd)return null;return leList(leEd.l).filter(function(x){return x.id===leEd.id;})[0]||null;}
 function vValikko(){var A=data.asetukset,V=A.valit,arch=data.asiakkaat.filter(function(a){return a.arch;});
   var s='<div class="hd"><h1>Valikko</h1></div><div class="main">';
   s+='<div class="card"><b>Tiedot</b><p class="msg">Tiedot ovat vain tällä laitteella. Vie varmuuskopio säännöllisesti. Viety viimeksi: '+(data.meta.lastExport?MF.fiShort(MF.iso(new Date(data.meta.lastExport))):'ei koskaan')+'.</p>'+
@@ -725,11 +800,13 @@ function vValikko(){var A=data.asetukset,V=A.valit,arch=data.asiakkaat.filter(fu
     '<div class="f"><span>Kuvitus</span>'+seg('kuvitus',A.kuvitus,[['kaista','Yläkaista'],['pieni','Kapea'],['pois','Pois']])+'</div></div>';
   s+='<div class="card"><b>Kalenteri</b><div class="f"><span>Uuden merkinnän oletuspituus</span>'+seg('kesto',String(A.kesto||30),[['15','15 min'],['30','30 min'],['45','45 min'],['60','1 h']])+'</div></div>';
   s+='<div class="card"><b>Diagnoosiluettelo</b><label class="f"><span>Yksi diagnoosi riville</span><textarea id="dglist" rows="4">'+h(A.diagnoosit.join('\n'))+'</textarea></label></div>';
+  s+=listCard('sisallot','Käyntisyklin sisällöt','Asiat, joita valitaan syklin laatikoihin. Muistiinpanon rivi, jossa on eläimen nimi, aika ja jokin sisällön sanoista, täyttää laatikon. Sana voi olla sanan alku tai osa (paino → painoa). Enintään 3 merkin sana tunnistetaan vain kokonaisena (rr, ep).','+ Lisää sisältö');
+  s+=listCard('muodot','Käyntien muodot','Hoitotoimien muotovalinnat. Sana muistiinpanon rivillä näyttää käynnin muodon kalenterissa.','+ Lisää muoto');
   s+='<div class="card"><b>Tarkistusvälit (kuukautta)</b>'+[['esitiedot','Esitiedot'],['koulu','Koulu'],['sosiaali','Sosiaalityö'],['tarve','Hoidon tarve'],['toimet','Hoitotoimet'],['tavoite','Tavoitteen arviointi'],['tilanne','Toimintakykyarvio']].map(function(x){
     return '<label class="f" style="flex-direction:row;align-items:center;justify-content:space-between"><span>'+x[1]+'</span><input type="number" min="0" max="36" data-val="'+x[0]+'" value="'+h(V[x[0]])+'" style="width:84px"></label>';}).join('')+
     '<p class="meta">0 = ei tarkisteta.</p></div>';
   if(arch.length)s+='<div class="card"><b>Arkistoidut eläimet</b>'+arch.map(function(a){return '<div class="btns"><span style="flex:1">'+h(a.nimi)+'</span><button class="btn sm" data-act="palauta" data-id="'+a.id+'">Palauta</button></div>';}).join('')+'</div>';
-  s+='<p class="meta" style="text-align:center">Mätsik Forest 0.1 · tallennusmuoto '+MF.VER+'</p>';
+  s+='<p class="meta" style="text-align:center">Mätsik Forest 0.3 · tallennusmuoto '+MF.VER+'</p>';
   return s+'</div>';}
 function needsExport(){var m=data.meta;return !!(m.mod&&(!m.lastExport||m.lastExport<m.mod)&&MF.iso(new Date(m.lastExport||0))<TODAY&&data.asiakkaat.length);}
 var NAV=[['asiakkaat','Eläimet'],['muistio','Muistio'],['kalenteri','Kalenteri'],['valikko','Valikko']],popOpen=false;
@@ -757,7 +834,7 @@ function renderSheet(){var el=$('sheet');if(!sheet){el.innerHTML='';return;}var 
   if(sheet.k==='uusi')s+='<h2><span>Uusi eläin</span><button class="x" data-act="close" aria-label="Sulje"></button></h2><label class="f"><span>Eläimen nimi (kuvitteellinen)</span><input type="text" id="nn" autocomplete="off"></label><div class="btns"><button class="btn pri" data-act="uusiok">Lisää</button></div>';
   if(sheet.k==='nimi'){var a=cl(view.id);s+='<h2><span>'+h(a.nimi)+'</span><button class="x" data-act="close" aria-label="Sulje"></button></h2><label class="f"><span>Nimi</span><input type="text" id="nn" value="'+h(a.nimi)+'"></label>'+
     '<div class="btns"><button class="btn pri" data-act="nimiok">Tallenna</button><button class="btn" data-act="arkistoi">Arkistoi</button><span style="flex:1"></span>'+delBtn('as:'+a.id)+'</div>';}
-  if(sheet.k==='note'){var n=sheet.id?noteById(sheet.id):null,NE=n?MF.entries(n,data.asiakkaat,TODAY).filter(function(e){return e.kaynti;}):[];
+  if(sheet.k==='note'){var n=sheet.id?noteById(sheet.id):null,NE=n?MF.entries(n,data.asiakkaat,TODAY,MF.lists(data)).filter(function(e){return e.kaynti;}):[];
     s+='<h2><span>Muistiinpano</span><button class="x" data-act="close" aria-label="Sulje"></button></h2><textarea id="nt" rows="5">'+h(n?n.text:sheet.text||'')+'</textarea>'+
     '<p class="meta">Tallentuu itsestään.</p>'+(NE.length?'<div class="f"><span>Käynnit</span>'+NE.map(entRow).join('')+'</div>':'')+
     '<div class="btns"><button class="btn pri" data-act="close">Valmis</button><span style="flex:1"></span>'+(n?delBtn('note:'+n.id):'')+'</div>';}
@@ -808,6 +885,7 @@ document.addEventListener('input',function(e){var t=e.target;if(t.tagName==='TEX
   if(t.id==='nt'){clearTimeout(draftT);draftT=setTimeout(sheetNoteSave,1200);}
   if(t.dataset.b){setPath(t.dataset.b,t.type==='date'?t.value:t.value);}
   if(t.dataset.val!=null){var n=Math.max(0,Math.min(36,parseInt(t.value,10)||0));data.asetukset.valit[t.dataset.val]=n;save();}
+  if(t.dataset.le){var lx=leCur();if(lx){lx[t.dataset.le]=t.value;save();}}
   if(t.id==='dglist'){data.asetukset.diagnoosit=t.value.split('\n').map(function(x){return x.trim();}).filter(Boolean);save();}});
 document.addEventListener('change',function(e){var t=e.target;if(t.dataset.b)refreshHerjat();
   if(t.id==='tuofile'&&t.files&&t.files[0]){var r=new FileReader();r.onload=function(){offerImport(String(r.result),'tuo');};r.readAsText(t.files[0]);t.value='';}});
@@ -823,12 +901,21 @@ document.addEventListener('click',function(e){var b=e.target.closest('button,[da
   if(D.nav){go(D.nav);return;}
   if(D.seg){var cur=getPath(D.seg),keep=/\.(taso|tila)$/.test(D.seg);setPath(D.seg,String(cur)===D.v&&!keep?'':D.v);render();return;}
   if(D.multi){var L=(getPath(D.multi)||[]).slice(),i=L.indexOf(D.v);if(i>=0)L.splice(i,1);else L.push(D.v);setPath(D.multi,L);render();return;}
+  if(D.syk){var SK=a.toimet.sykli,L2=SK[D.syk]=(SK[D.syk]||[]),q2=L2.indexOf(D.v);if(q2>=0)L2.splice(q2,1);else L2.push(D.v);a.toimet.u=TODAY;save();render();return;}
   if(D.dg!=null){var v=a.diagnoosit.v,j=v.indexOf(D.dg);if(j>=0)v.splice(j,1);else v.push(D.dg);a.diagnoosit.u=TODAY;save();render();return;}
   if(D.set){data.asetukset[D.set]=D.v;save();render();return;}
   switch(act){
    case 'open':view={v:'asiakas',id:D.id};openSec={};openGoal={};render();window.scrollTo(0,0);break;
    case 'home':view={v:'asiakkaat'};render();window.scrollTo(0,0);break;
    case 'uusi':sheet={k:'uusi'};renderSheet();break;
+   case 'slotedit':editSlot=D.k;render();break;
+   case 'slotok':editSlot='';render();break;
+   case 'leopen':leEd={l:D.l,id:D.id};confirmDel='';render();break;
+   case 'leadd':var nx2={id:MF.uid(),n:'',sanat:''};if(D.l==='sisallot'){nx2.laji='kaynti';nx2.mit='';}leList(D.l).push(nx2);leEd={l:D.l,id:nx2.id};save();render();var ln=$('le-n');if(ln)ln.focus();break;
+   case 'leset':var lx2=leCur();if(lx2){lx2[D.f]=D.v;if(D.f==='laji'&&D.v==='kaynti')lx2.mit='';save();render();}break;
+   case 'lemove':var LL=leList(leEd.l),li=LL.indexOf(leCur()),lj=li+(+D.d);if(li>=0&&lj>=0&&lj<LL.length){var tmp=LL[li];LL[li]=LL[lj];LL[lj]=tmp;save();render();}break;
+   case 'leok':var lx3=leCur();if(lx3&&!lx3.n.trim()&&!lx3.sanat.trim()&&!leUse(leEd.l,lx3.id)){data.asetukset[leEd.l]=leList(leEd.l).filter(function(x){return x!==lx3;});save();}
+     else if(lx3&&!lx3.n.trim()){lx3.n='(nimetön)';save();}leEd=null;render();break;
    case 'roll':if(rollSw){rollSw=false;break;}popOpen=!popOpen;renderBar();break;
    case 'popclose':popOpen=false;renderBar();break;
    case 'newfocus':window.scrollTo(0,0);var nf=$('newnote');if(nf)nf.focus();break;
@@ -859,6 +946,8 @@ document.addEventListener('click',function(e){var b=e.target.closest('button,[da
      if(k.indexOf('syy:')===0){a.syyt=a.syyt.filter(function(x){return x.id!==id;});a.tavoitteet.forEach(function(g){if(g.syy===id)g.syy='';});}
      if(k.indexOf('tav:')===0)a.tavoitteet=a.tavoitteet.filter(function(x){return x.id!==id;});
      if(k.indexOf('note:')===0){data.muistio=data.muistio.filter(function(x){return x.id!==id;});sheet=null;clearTimeout(draftT);}
+     if(k.indexOf('le:')===0){var lp=k.split(':'),ll=lp[1],lid=lp.slice(2).join(':');data.asetukset[ll]=leList(ll).filter(function(x){return x.id!==lid;});
+       data.asiakkaat.forEach(function(c){if(ll==='sisallot')MF.SLOTS.forEach(function(q){c.toimet.sykli[q]=(c.toimet.sykli[q]||[]).filter(function(x){return x!==lid;});});else c.toimet.muodot=(c.toimet.muodot||[]).filter(function(x){return x!==lid;});});leEd=null;}
      if(k.indexOf('as:')===0){data.asiakkaat=data.asiakkaat.filter(function(x){return x.id!==id;});sheet=null;view={v:'asiakkaat'};}
      save();render();toast('Poistettu');break;
    case 'arvioi':sheet={k:'arvio',t:D.t,step:'a',polku:[],per:{},res:''};renderSheet();break;
