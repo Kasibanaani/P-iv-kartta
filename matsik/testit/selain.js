@@ -1,4 +1,5 @@
-/* Mätsik Forest 0.3: käyttö selaimessa. Eläimet, osiot, käyntisykli, muokattavat luettelot, käynti muistiosta, herjat, tavoite ja arviointikierros, muistion automaattitallennus,
+/* Mätsik Forest 0.4: käyttö selaimessa. Eläimet, osiot vaiheittain, käyntisykli, muokattavat luettelot, käynti muistiosta, herjat, tahojen tavoitteet tasoittain, seuranta ja arviointikierros,
+   periaatteet, mittarit, ohjauksen arvio, haasteet, muistion automaattitallennus,
    alapalkin osionappi ja pikavienti, Juuren mallinen kalenteri (pito ja viiva, siirto, keston venytys, päivän vaihto pudottamalla, kuukausi),
    tuonti, ei vaakavieritystä. 390 ja 320 px kosketuksella, 1280 hiirellä. */
 const {chromium}=require('playwright'),path=require('path'),fs=require('fs');
@@ -38,8 +39,14 @@ async function run(b,w,h,touch){
   want('käynti tallentui ilman tallenna-nappia',await pg.evaluate(D+'.muistio.length')===1);
   want('käynti ja paino sovittu: herjoista jää lääkäri',((await hj()).match(/sovittava/g)||[]).length===1&&await pg.locator('.slot .sit.plan').count()===2);
   await tap('#sec-tavoitteet summary');await tap('[data-act=syyadd]');await pg.locator('textarea[data-b$=".haitta"]').fill('Ei pääse kouluun');
-  await tap('[data-act=tavadd]');await pg.locator('textarea[data-b$=".lapsi"]').fill('Käyn koulussa kolme päivää viikossa');
-  await tap('[data-seg$=".taso"][data-v="2"]');want('taso vaihtui',await pg.evaluate(D+'.asiakkaat[0].tavoitteet[0].taso')===2);
+  want('osiot vaiheittain, 4 vaihetta ja 9 tahon laatikkoa',await pg.locator('.grp.vaihe').count()===4&&await pg.locator('#sec-tavoitteet .taho').count()===9);
+  await tap('[data-act=tavadd][data-lv="2"][data-th=vanh]');await pg.locator('textarea[data-b$=".teksti"]').fill('Käyn koulussa kolme päivää viikossa');
+  want('uusi tavoite tasolle 2 vanhemmille',JSON.stringify(await pg.evaluate(D+'.asiakkaat[0].tavoitteet.map(t=>[t.taso,t.taho])'))==='[[2,"vanh"]]');
+  await tap('[data-seg$=".taho"][data-v=lapsi]');await tap('[data-seg$=".taso"][data-v="1"]');await tap('[data-seg$=".taso"][data-v="2"]');
+  want('taho ja taso vaihtuvat',JSON.stringify(await pg.evaluate(D+'.asiakkaat[0].tavoitteet.map(t=>[t.taso,t.taho])'))==='[[2,"lapsi"]]');
+  await tap('[data-seg$=".real"][data-v=e]');want('seuranta Ei herjaa',(await hj()).includes('Ei realistinen: Käyn koulussa'));
+  await tap('[data-seg$=".real"][data-v=e]');want('uusi napautus poistaa valinnan',!(await hj()).includes('Ei realistinen'));
+  await tap('[data-pp=CPS]');want('periaate valittu tasolla 2',JSON.stringify(await pg.evaluate(D+'.asiakkaat[0].periaatteet'))==='["CPS"]');
   await tap('.goal [data-act=arvioi]');for(const p of ['lapsi','vanh','tyont'])await tap(`[data-act=aper][data-p=${p}][data-v=k]`);
   await tap('[data-act=aperok]');await tap('[data-act=aopt][data-i="1"]');await tap('[data-act=aopt][data-i="1"]');
   want('kierros päätyy psykoedukaatioon',(await pg.locator('.res').innerText()).includes('Psykoedukaatio'));
@@ -47,6 +54,14 @@ async function run(b,w,h,touch){
   await tap('[data-act=aopt][data-i="1"]');await tap('[data-act=aok]');
   want('toimenpide herjana',(await hj()).includes('Psykoedukaatio'));
   await tap('#hjc [data-act=tehty]');want('tehty poistaa herjan',!(await hj()).includes('Psykoedukaatio'));
+  await tap('#sec-mittarit summary');await pg.fill('#mtr-fit','36');await tap('[data-act=mtrkirj][data-m=fit]');
+  want('mittarin kirjaus',(await pg.evaluate(D+'.asiakkaat[0].mittarit.fit.arvot[0].arvo'))==='36'&&(await pg.locator('#sec-mittarit summary').innerText()).includes('FIT'));
+  await tap('#sec-haasteet summary');await tap('[data-act=hstadd]');await pg.locator('textarea[data-b$=".teksti"][id^="hst:"]').fill('Riitely naapurin kanssa');
+  await pg.locator('textarea[id^="hst:"]').dispatchEvent('change');want('haaste ilman ohjausta herjaa',(await hj()).includes('Valitse, mihin haaste ohjataan'));
+  await tap('[data-seg^="hst:"][data-v=sos]');await tap('[data-act=hstoh]');
+  want('haaste ohjattu sosiaalityöhön',(await pg.evaluate(D+'.asiakkaat[0].haasteet[0].ohjaus'))==='sos'&&!!(await pg.evaluate(D+'.asiakkaat[0].haasteet[0].ohjattu'))&&!(await hj()).includes('haaste ohjataan'));
+  await tap('#sec-tarve summary');await pg.fill('#ohj-lisa','Hoito osuu oikeaan');await tap('[data-act=ohjkirj][data-v=oikea]');
+  want('ohjauksen arvio kirjattu',(await pg.evaluate(D+'.asiakkaat[0].ohjaus[0].tulos'))==='oikea'&&(await pg.locator('#sec-tarve').innerText()).includes('Oikea yksikkö'));
   want('ei vaakavieritystä (eläin)',!await wide());
   await tap('#bar [data-act=home]');want('listalla Kettu',await pg.locator('.row').count()===1);
   want('ei vaakavieritystä (lista)',!await wide());
@@ -107,6 +122,9 @@ async function run(b,w,h,touch){
   want('oma sisältö tallentui luetteloon',await pg.evaluate(D+'.asetukset.sisallot.slice(-1)[0].n')==='Ryhmäkäynti'&&(await pg.locator('#lc-sisallot').innerText()).includes('Ryhmäkäynti'));
   await tap('#lc-muodot [data-act=leadd]');await tap('#lc-muodot [data-act=leok]');
   want('tyhjä uusi muoto ei jää luetteloon',await pg.evaluate(D+'.asetukset.muodot.length')===5);
+  await tap('#lc-mittarit [data-act=leadd]');await pg.fill('#le-n','SDQ');await pg.fill('#le-mita','Vahvuudet ja vaikeudet');await tap('#lc-mittarit [data-act=leok]');
+  want('oma mittari luetteloon',(await pg.evaluate(D+'.asetukset.mittarit.slice(-1)[0].mita'))==='Vahvuudet ja vaikeudet');
+  await pg.fill('#pplist','CPS\nFIT\nMentalisaatio');want('periaateluettelo tallentui',(await pg.evaluate(D+'.asetukset.periaatteet.length'))===3);
   await tap('#roll');await tap('.pop [data-nav=asiakkaat]');await tap('[data-act=open]');await tap('#sec-toimet summary');await tap('[data-act=slotedit][data-k=vk3]');
   want('oma sisältö valittavissa laatikossa',await pg.locator('[data-syk=vk3]',{hasText:'Ryhmäkäynti'}).count()===1);
   await tap('[data-syk=vk3]:has-text("Ryhmäkäynti")');await tap('[data-act=slotok]');

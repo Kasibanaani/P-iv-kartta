@@ -1,8 +1,21 @@
 # Mätsik Forest: tila
 
-**Vaihe:** versio 0.3. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 3.11.2026
+**Vaihe:** versio 0.4. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 9.11.2026
 
 Juureen (`paatospuu/`) nojaava, mutta erillinen hoitosuunnitelmien demo- ja kehittämisappi. Kaikki sisältö on kuvitteellista, ja Emil kirjoittaa sen itse. Appi ei sisällä valmista dataa. Hahmotelma ja perustelut ovat projektikansiossa (`hoitojuuri/HAHMOTELMA.md`), ei tässä julkisessa repossa.
+
+## Versio 0.4 (9.11.2026, Emil: Mätsik-kartan muutokset 3.11.)
+
+- **Osiot vaiheittain**: 1 Mistä lähdetään (tulosyy, esitiedot, kehityshistoria, ajankohtainen tilanne, koulu, sosiaalityö, vahvuudet), 2 Mikä on ongelma ja onko siihen apua (diagnoosit, hoidon tarve, haasteet), 3 Mihin pyritään (tavoitteet, mittarit), 4 Miten toteutetaan (hoitotoimet, lääkeseuranta).
+- **Tavoitteet tasoittain ja tahoittain**: jokaisella tasolla (1 Turvallisuus ja akuutit riskit, 2 Hoitosuhde ja hoidon mahdollistaminen, 3 Elämänlaatu, toimintakyky ja kehitys) on oma laatikko lapselle, vanhemmille ja työntekijälle, ja kussakin oma *+ Tavoite*. Tavoite on yhden tahon tavoite (`taho`, `teksti`). Taho ja taso vaihdetaan avatusta tavoitteesta.
+  - Vanha tavoite, jossa oli kaikkien tahojen tekstit, jaetaan korjauksessa tahoittain. Ensimmäinen säilyttää id:n ja arvioinnit, muut saavat saman tason, syyn, keinot ja tilan. Täysin tyhjä vanha tavoite muuttuu lapsen tavoitteeksi.
+- **Tason 2 periaatteet ja mittarit**: valinnat (oletus CPS, FIT) eläimelle. Luettelo: Valikko → Periaatteet ja mittarit, yksi riville.
+- **Tavoitteen seuranta**: Mielekäs, Oleellinen, Realistinen, Vaikuttaa kokonaisvointiin, kukin Kyllä/Osittain/Ei. Ei tuo herjan (taso 1 kiireellinen). Uusi napautus poistaa valinnan.
+- **Mittarit-osio**: kirjaus tänään (tulos tai huomio), kolme viimeisintä näkyy. Luettelo Valikossa (nimi ja *Mitä mittaa*), oletus Oirekyselyt (relevanssi) ja FIT (yhteistyösuhteen laatu ja osin vaikutukset).
+- **Ohjauksen arvio** Hoidon tarpeessa: onko tämä yksikkö oikea paikka lastenpsykiatrian sisällä. Napautus *Oikea yksikkö / Harkitaan muuta / Ohjataan muualle* kirjaa arvion tälle päivälle, perustelu valinnainen. Herja "Arvioi ohjaus tähän yksikköön", kun edellisestä arviosta (tai eläimen lisäyksestä) on tarkistusvälin verran. Väli Valikossa, oletus 6 kk.
+- **Haasteet ilman psykiatrista hoitoa**: haaste, ohjataan (Sosiaalityö, Koulu, Somatiikka, Arjen keinot kotona, Muu) ja *Ohjattu tänään*. Herja, jos haasteelle ei ole valittu ohjausta (oma lisäys, poistettavissa).
+- Tallennus: `ver` edelleen 1. Uudet valinnaiset kentät: eläimellä `haasteet`, `ohjaus`, `mittarit` {id: {arvot}}, `periaatteet`; tavoitteella `taho`, `teksti`, `seur`; asetuksissa `periaatteet`, `mittarit`, `valit.ohjaus`.
+- Testit: `logiikka.js` (52) ja `selain.js` (uudet tavoitteet, seuranta, periaate, mittari, haaste, ohjauksen arvio, Valikon mittari ja periaatteet). Leveydet 390, 320 ja 1280 px, kaikki ok.
 
 ## Versio 0.3 (3.11.2026, Emil)
 
@@ -78,10 +91,12 @@ Juureen (`paatospuu/`) nojaava, mutta erillinen hoitosuunnitelmien demo- ja kehi
 
 ## Seuraava askel
 
-Emil kokeilee sykliä puhelimella. Avoimet kysymykset:
+Emil kokeilee 0.4:ää puhelimella. Avoimet kysymykset:
 1. Onko syklin rytmi oikein: alku viikon maanantaista, Kk 2 alkaa viidennen viikon alusta, ja sykli alkaa itsestään alusta?
 2. Mitä muita luetteloita tehdään muokattaviksi? Ehdokkaita ovat osallistujaroolit, koulun ja sosiaalityön tukitoimet sekä sijoitus.
 3. Tarvitaanko tason 2 tavoitteeseen linkki?
 4. Muokattava kaavioteksti.
+5. Pitääkö tavoitteen seurannan Ei olla herja vai pelkkä merkintä? Tuoko ohjauksen arvion "Harkitaan muuta" oman muistutuksen?
+6. Tarvitaanko mittareille asteikko tai kuvaaja, vai riittääkö vapaa tulos?
 
 ## Emilin kommentit

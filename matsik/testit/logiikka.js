@@ -1,4 +1,5 @@
-/* Mätsik Forest 0.3: moottorin säännöt (aikasanat, käyntisykli, muokattavat sisällöt ja muodot, vanhentuminen, arviointi, tallennus). */
+/* Mätsik Forest 0.4: moottorin säännöt (aikasanat, käyntisykli, muokattavat sisällöt ja muodot, vanhentuminen, arviointi, tahojen tavoitteet ja seuranta,
+   ohjauksen arvio, haasteet, mittarit, tallennus). */
 const MF=require('./engine.js');let bad=0;
 function want(l,c){console.log('  '+l.padEnd(58)+(c?'ok':'VIRHE'));if(!c)bad++;}
 const T='2026-11-02'; /* maanantai, viikko 45 */
@@ -59,4 +60,26 @@ d2.asetukset.sisallot=d2.asetukset.sisallot.filter(x=>x.id!=='ryhma');H2=MF.herj
 want('poistettu sisältö ei herjaa (sykli tyhjä)',H2.some(h=>h.teksti==='Käyntisykli puuttuu')&&!H2.some(h=>h.laji==='sykli'));
 const r2=MF.repair({asiakkaat:[],asetukset:{sisallot:[{id:'x',n:'X',laji:'outo',mit:'kenkä'},{id:'x',n:'tupla'},{n:'ei id'}]}});
 want('viallinen luettelo korjautuu',r2.asetukset.sisallot.length===1&&r2.asetukset.sisallot[0].laji==='kaynti'&&r2.asetukset.sisallot[0].mit===''&&r2.asetukset.muodot.length===5);
+/* 0.4: tahojen tavoitteet, seuranta, ohjauksen arvio, haasteet, mittarit */
+const old={asiakkaat:[{id:'v',nimi:'Vanha',luotu:'2026-10-01',tavoitteet:[{id:'t1',taso:2,syy:'mahd',lapsi:'Käyn koulussa',vanh:'',tyont:'Luottamus syntyy',keinot:'Tapaamiset',tila:'etenee',tilaT:'hyvä',luotu:'2026-10-01',arviot:[{pvm:'2026-10-20',tulos:'Jatketaan'}]},
+  {id:'t2',taso:1,lapsi:'',vanh:'',tyont:''}]}]};
+const r3=MF.repair(old),G3=r3.asiakkaat[0].tavoitteet;
+want('vanha tavoite jaetaan tahoittain',G3.length===3&&G3[0].id==='t1'&&G3[0].taho==='lapsi'&&G3[0].teksti==='Käyn koulussa'&&G3[0].arviot.length===1&&G3[1].taho==='tyont'&&G3[1].teksti==='Luottamus syntyy'&&G3[1].taso===2&&G3[1].keinot==='Tapaamiset'&&!G3[1].arviot.length);
+want('tyhjä vanha tavoite = lapsen tavoite, vanhat kentät pois',G3[2].id==='t2'&&G3[2].taho==='lapsi'&&G3[2].teksti===''&&G3[0].lapsi===undefined&&G3[0].tyont===undefined);
+want('uusi tavoite säilyy korjauksessa',MF.repair(JSON.parse(JSON.stringify(r3))).asiakkaat[0].tavoitteet.length===3);
+want('vanha data saa periaatteet, mittarit ja ohjausvälin',JSON.stringify(r3.asetukset.periaatteet)==='["CPS","FIT"]'&&r3.asetukset.mittarit.map(m=>m.n).join()==='Oirekyselyt,FIT'&&r3.asetukset.valit.ohjaus===6&&Array.isArray(r3.asiakkaat[0].haasteet));
+const d3=MF.empty(),k3=MF.newClient('Kettu','2026-11-02');d3.asiakkaat.push(k3);
+k3.tavoitteet.push({id:'s1',taso:1,taho:'vanh',teksti:'Kotona on turvallista',tila:'etenee',luotu:'2026-11-02',arviot:[],seur:{miel:'k',real:'e',vointi:'e'}});
+let H3=MF.herjat(k3,d3,'2026-11-03');const hs=H3.find(h=>h.laji==='seur');
+want('seuranta: Ei herjaa (taso 1 = kiire)',hs&&hs.sev==='crit'&&hs.teksti==='Ei realistinen, vaikuttaa kokonaisvointiin: Kotona on turvallista'&&hs.tav==='s1');
+want('ohjauksen arvio ei vielä uudelle',!H3.some(h=>h.laji==='ohjaus'));
+H3=MF.herjat(k3,d3,'2027-05-02');want('ohjauksen arvio 6 kk:n päästä',H3.some(h=>h.laji==='ohjaus'&&h.osio==='tarve'));
+k3.ohjaus.push({pvm:'2027-05-01',tulos:'oikea'});H3=MF.herjat(k3,d3,'2027-05-02');want('kirjattu arvio poistaa herjan',!H3.some(h=>h.laji==='ohjaus'));
+d3.asetukset.valit.ohjaus=0;want('väli 0 = ei muistutusta',!MF.herjat(k3,d3,'2029-01-01').some(h=>h.laji==='ohjaus'));
+k3.haasteet.push({id:'h1',teksti:'Riitely naapurin kanssa',ohjaus:''});H3=MF.herjat(k3,d3,'2027-05-02');
+want('haaste ilman ohjausta herjaa',H3.some(h=>h.laji==='haaste'&&h.osio==='haasteet'));
+k3.haasteet[0].ohjaus='sos';want('ohjaus valittu: ei herjaa',!MF.herjat(k3,d3,'2027-05-02').some(h=>h.laji==='haaste'));
+k3.mittarit.fit={arvot:[{pvm:'2027-05-02',arvo:'36'}]};const r4=MF.repair(JSON.parse(JSON.stringify(d3)));
+want('mittarit, haasteet ja ohjaus säilyvät tallennuksessa',r4.asiakkaat[0].mittarit.fit.arvot[0].arvo==='36'&&r4.asiakkaat[0].haasteet[0].ohjaus==='sos'&&r4.asiakkaat[0].ohjaus.length===1&&r4.asiakkaat[0].tavoitteet[0].seur.real==='e');
+want('mittariluettelo korjautuu',MF.repair({asiakkaat:[],asetukset:{mittarit:[{id:'a',n:'A',mita:'x'},{id:'a'},{n:'ei id'}]}}).asetukset.mittarit.length===1);
 process.exit(bad?1:0);
