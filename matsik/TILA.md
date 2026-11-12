@@ -99,4 +99,8 @@ Emil kokeilee 0.4:ää puhelimella. Avoimet kysymykset:
 5. Pitääkö tavoitteen seurannan Ei olla herja vai pelkkä merkintä? Tuoko ohjauksen arvion "Harkitaan muuta" oman muistutuksen?
 6. Tarvitaanko mittareille asteikko tai kuvaaja, vai riittääkö vapaa tulos?
 
+## Suunnitelmat
+
+- **Käytettävyyssuunnitelma (12.11.2026, ehdotus, ei rakennettu):** `matsik/SUUNNITELMA.md`. Neljä askelta: 0.5 tila ja selkeys, 0.6 lukutila ja muokkausarkki näppäimistön päällä, 0.7 tavoitekartta ja syklinauha, 0.8 omat säännöt. Emilille esitelty sivuna https://claude.ai/artifact/GgmFP5UEHTVNuSGCE164Md, jossa on seitsemän kysymyksen kysely. Rakennetaan vasta Emilin "toteuta"-sanalla, ja vastaukset luetaan sivun tietokannasta ensin.
+
 ## Emilin kommentit
