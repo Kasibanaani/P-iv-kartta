@@ -1,4 +1,4 @@
-/* Mätsik Forest 0.4: moottorin säännöt (aikasanat, käyntisykli, muokattavat sisällöt ja muodot, vanhentuminen, arviointi, tahojen tavoitteet ja seuranta,
+/* Mätsik Forest 0.8: moottorin säännöt (sääntöjen järjestys, portaat, mittaus muistiosta, aikasanat, käyntisykli, muokattavat sisällöt ja muodot, vanhentuminen, arviointi, tahojen tavoitteet ja seuranta,
    ohjauksen arvio, haasteet, mittarit, tallennus). */
 const MF=require('./engine.js');let bad=0;
 function want(l,c){console.log('  '+l.padEnd(58)+(c?'ok':'VIRHE'));if(!c)bad++;}
@@ -9,7 +9,7 @@ want('viikonpäivä sanana',MF.lineDates('Kettu soitto keskiviikkona',T)[0].date
 want('huomenna',MF.lineDates('huomenna',T)[0].date==='2026-11-03');
 want('lyhyt viikonpäivä vain ajan kanssa',!MF.lineDates('ti on hyvä',T).length&&MF.lineDates('ti klo 9',T)[0].date==='2026-11-03');
 want('vanha päiväys siirtyy seuraavaan vuoteen',MF.lineDates('5.1.',T)[0].date==='2027-01-05');
-const d=MF.empty();const k=MF.newClient('Kettu',T);const s=MF.newClient('Siili',T);d.asiakkaat.push(k,s);
+const d=MF.empty();d.asetukset.portaat=false;const k=MF.newClient('Kettu',T);const s=MF.newClient('Siili',T);d.asiakkaat.push(k,s);
 want('taivutettu nimi tunnistuu',MF.mentions('Ketulle soitto',d.asiakkaat).length===1&&MF.mentions('Siilin äiti',d.asiakkaat)[0]===s);
 want('vieras sana ei tunnistu',!MF.mentions('Kirje mummolle',d.asiakkaat).length);
 let H=MF.herjat(k,d,T);
@@ -48,7 +48,7 @@ const r=MF.repair({asiakkaat:[{nimi:'Vanha'}]});want('puutteellinen data korjaut
 want('vanha data saa oletussisällöt ja -muodot',r.asetukset.sisallot.length===10&&r.asetukset.muodot.length===5&&r.asetukset.sisallot[7].mit==='paino');
 want('lyhyt sana vain kokonaisena',MF.wordRe('ep').test('EP-oireet')&&!MF.wordRe('ep').test('epäily')&&MF.wordRe('paino').test('painoa')&&MF.wordRe('isä').test('isä soitti')&&!MF.wordRe('isä').test('isäntä'));
 want('lääkitys ei ole lääkärikäynti',!MF.lists(null).byId.laak.re.test('lääkityksen vaste'));
-const d2=MF.empty(),k2=MF.newClient('Kettu',T);d2.asiakkaat.push(k2);k2.toimet.alku=T;
+const d2=MF.empty(),k2=MF.newClient('Kettu',T);d2.asetukset.portaat=false;d2.asiakkaat.push(k2);k2.toimet.alku=T;
 d2.asetukset.sisallot.push({id:'ryhma',n:'Ryhmäkäynti',laji:'kaynti',sanat:'ryhmä',mit:''});d2.asetukset.muodot.push({id:'ulko',n:'Ulkona',sanat:'metsäkävely, ulkona'});
 k2.toimet.sykli.vk1=['ryhma'];let H2=MF.herjat(k2,d2,T);
 want('oma sisältö herjaa nimellään',H2.some(h=>h.teksti.includes('Ryhmäkäynti sovittava')));
@@ -82,4 +82,28 @@ k3.haasteet[0].ohjaus='sos';want('ohjaus valittu: ei herjaa',!MF.herjat(k3,d3,'2
 k3.mittarit.fit={arvot:[{pvm:'2027-05-02',arvo:'36'}]};const r4=MF.repair(JSON.parse(JSON.stringify(d3)));
 want('mittarit, haasteet ja ohjaus säilyvät tallennuksessa',r4.asiakkaat[0].mittarit.fit.arvot[0].arvo==='36'&&r4.asiakkaat[0].haasteet[0].ohjaus==='sos'&&r4.asiakkaat[0].ohjaus.length===1&&r4.asiakkaat[0].tavoitteet[0].seur.real==='e');
 want('mittariluettelo korjautuu',MF.repair({asiakkaat:[],asetukset:{mittarit:[{id:'a',n:'A',mita:'x'},{id:'a'},{n:'ei id'}]}}).asetukset.mittarit.length===1);
+/* 0.8: säännöt omassa järjestyksessä, portaat, mittaus muistiosta */
+want('oletusjärjestys',MF.empty().asetukset.saannot.map(r=>r.id).join()==='t1,sykli1,t2,sykli,t3,ohj,puu,vanha'&&MF.empty().asetukset.portaat===true);
+want('vanha data saa säännöt ja portaat',MF.repair({asiakkaat:[]}).asetukset.saannot.length===8&&MF.repair({asiakkaat:[]}).asetukset.portaat===true);
+want('viallinen sääntölista korjautuu',MF.repair({asiakkaat:[],asetukset:{saannot:[{id:'puu',tila:'kiire'},{id:'x'},{id:'puu',tila:'pois'},{id:'t1',tila:'outo'}]}}).asetukset.saannot.map(r=>r.id+':'+r.tila).slice(0,2).join()==='puu:kiire,t1:kiire'&&MF.repair({asiakkaat:[],asetukset:{saannot:[{id:'puu'}]}}).asetukset.saannot.length===8);
+const d4=MF.empty(),k4=MF.newClient('Kettu','2026-11-02');d4.asiakkaat.push(k4);
+let H4=MF.herjat(k4,d4,'2026-11-02');
+want('portaat: uusi eläin näkee vain vaiheen 1 puutteet',H4.length>0&&H4.every(h=>h.laji!=='puuttuu'||MF.VAIHEOSIO[h.osio]===1)&&H4.some(h=>h.osio==='tulosyy'));
+d4.asetukset.portaat=false;H4=MF.herjat(k4,d4,'2026-11-02');want('portaat pois: kaikki puutteet',H4.some(h=>h.osio==='diagnoosit')&&H4.some(h=>h.osio==='tavoitteet'));
+want('herjalla sääntö ja syy',H4.every(h=>h.r&&typeof h.ri==='number'&&h.rn));
+k4.toimet.alku='2026-11-02';k4.toimet.sykli.vk1=['lahi'];k4.tavoitteet.push({id:'q3',taso:3,taho:'lapsi',teksti:'Harrastus',tila:'etenee',luotu:'2026-11-02',arviot:[],seur:{real:'e'}});
+H4=MF.herjat(k4,d4,'2026-11-02');const iS=H4.findIndex(h=>h.laji==='sykli'),iT=H4.findIndex(h=>h.tav==='q3'),iP=H4.findIndex(h=>h.laji==='puuttuu');
+want('järjestys: sovittava käynti, taso 3, puuttuvat',iS===0&&iS<iT&&iT<iP&&H4[0].sev==='crit'&&H4[0].it==='lahi');
+d4.asetukset.saannot=[{id:'puu',tila:'kiire'}].concat(d4.asetukset.saannot.filter(r=>r.id!=='puu'));H4=MF.herjat(k4,d4,'2026-11-02');
+want('oma järjestys: puuttuvat ensin ja kiireellisinä',H4[0].laji==='puuttuu'&&H4[0].sev==='crit');
+d4.asetukset.saannot.forEach(r=>{if(r.id==='t3')r.tila='pois';});H4=MF.herjat(k4,d4,'2026-11-02');want('Pois piilottaa lajin',!H4.some(h=>h.tav==='q3'));
+want('ordered noudattaa sääntöjä',MF.ordered(d4,'2026-11-02')[0].h[0].laji==='puuttuu');
+const d5=MF.empty(),k5=MF.newClient('Kettu','2026-11-02');d5.asiakkaat.push(k5);const nt=(id,t)=>({id,text:t,tila:{},created:'2026-11-05T10:00:00Z',edited:'2026-11-05T10:00:00Z'});
+want('muistio: paino ja RR',(()=>{const m=MF.measOfNote(nt('m1','Kettu paino 41\nKettu RR 112/70'),[k5],d5,'2026-11-05');return JSON.stringify(m.map(x=>[x.id,x.arvo]))==='[["paino","41"],["rr","112/70"]]';})());
+want('muistio: päiväys, kellonaika ja tuleva ei ole mittaus',!MF.measOfNote(nt('m2','Kettu paino klo 14\nKettu paino 12.11.'),[k5],d5,'2026-11-05').length);
+want('muistio: mittari FIT',(()=>{const m=MF.measOfNote(nt('m3','Kettu FIT 36'),[k5],d5,'2026-11-05');return m.length===1&&m[0].arvo==='36';})());
+d5.muistio.push(nt('m1','Kettu paino 41'));const DM=MF.derivedFor(k5,d5,'2026-11-06');
+want('johdettu arvo eläimelle',DM.mit.paino&&DM.mit.paino[0].arvo==='41'&&DM.mit.paino[0].muistio===true);
+k5.toimet.alku='2026-11-02';k5.toimet.sykli.vk1=['paino'];const S5=MF.cycleSlots('2026-11-02','2026-11-06')[0];
+want('muistion mittaus täyttää laatikon',MF.itemState(k5,'paino',S5,MF.allEntries(d5,'2026-11-06'),'2026-11-06',MF.lists(d5),DM)==='ok'&&!MF.herjat(k5,d5,'2026-11-06').some(h=>h.laji==='sykli'));
 process.exit(bad?1:0);

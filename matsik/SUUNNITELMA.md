@@ -1,6 +1,6 @@
 # Mätsik Forest: käytettävyyssuunnitelma (12.11.2026)
 
-**Tila: ehdotus, ei rakennettu.** Emil ei ole vielä hyväksynyt tätä. Älä rakenna ennen kuin Emil sanoo "toteuta" ja nimeää askeleen. Emilin vastaukset kyselyyn ovat suunnitelmasivun tietokannassa (kokoelma `vastaukset`, dokumentit `k1`–`k7`, kentät `ok` ja `teksti`): https://claude.ai/artifact/GgmFP5UEHTVNuSGCE164Md. Lue ne ennen rakentamista ja päivitä tämän tiedoston kohta *Emilin vastaukset*.
+**Tila: rakennettu versiossa 0.8 (12.11.2026).** Emil pyysi tekemään kaikki suositellut muutokset. Kyselyyn ei ollut vastauksia, joten kohdat tehtiin suositusten mukaan (ks. *Emilin vastaukset*). Kyselyn vastaukset ovat suunnitelmasivun tietokannassa (kokoelma `vastaukset`, dokumentit `k1`–`k7`): https://claude.ai/artifact/GgmFP5UEHTVNuSGCE164Md.
 
 Suunnitelma koskee vain käyttöä ja ulkoasua. Osiot, säännöt, herjojen logiikka ja tallennettu tieto pysyvät ennallaan, ellei askeleessa toisin sanota.
 
@@ -91,4 +91,4 @@ Tason 2 tavoitteen linkki, arviointikaavion muokkaus, muut muokattavat luettelot
 
 ## Emilin vastaukset
 
-Ei vielä luettu (12.11.2026).
+Luettu 12.11.2026: ei vastauksia. Rakennettiin suositusten mukaan: lukutila ja muokkausarkki, portaat vain puuttuville tiedoille, oletusjärjestys t1, sykli1, t2, sykli, t3, ohjaus, puuttuvat, vanhentuneet, ja mittaus muistiosta Lääkeseurannalle ja Mittareille. Kysymys 5 (näppäimistö Emilin puhelimella) on yhä hyödyllinen.

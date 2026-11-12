@@ -1,8 +1,28 @@
 # Mätsik Forest: tila
 
-**Vaihe:** versio 0.4. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 9.11.2026
+**Vaihe:** versio 0.8. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 12.11.2026
 
 Juureen (`paatospuu/`) nojaava, mutta erillinen hoitosuunnitelmien demo- ja kehittämisappi. Kaikki sisältö on kuvitteellista, ja Emil kirjoittaa sen itse. Appi ei sisällä valmista dataa. Hahmotelma ja perustelut ovat projektikansiossa (`hoitojuuri/HAHMOTELMA.md`), ei tässä julkisessa repossa.
+
+## Versio 0.8 (12.11.2026, Emil: "tee kaikki suosittelemasi muutokset")
+
+Käytettävyyssuunnitelman (`SUUNNITELMA.md`) kaikki neljä askelta yhtenä julkaisuna. Periaate: kartta ylhäällä, valittu alla. Kyselyyn ei ollut vastauksia, joten avoimet kohdat tehtiin suositusten mukaan.
+
+- **Eläinlista:** rivi on yksi rivi (tilaraita, nimi, tärkein muistutus, +N). Ylhäällä rajaussirut *Kaikki / Käynnit / Tavoitteet / Puuttuu / Tarkista / Ohjaus*. Laji valittuna lista on työjono kaikilta eläimiltä, ja rivillä on suoraan toimintonappi (Sovi, Arvioi, Tehty, Lisää, Pitää paikkansa, Avaa).
+- **Eläimen sivu:** ylhäällä Nyt-kortti: tärkein muistutus, toimintonappi ja *Ensin, koska: …* (säännön nimi). Muut muistutukset ryhmäsiruina, napautus avaa ryhmän. Alla vaiheet 1–4 otsikkoina, joissa tilapiste ja vaiheen tärkein muistutus.
+- **Lukutila:** täytetty osio näkyy tekstirivinä (enintään 4 riviä). Tyhjät osiot ovat vaiheen lopussa *+ Osio* -nappeina, ja muistutuksen osio on korostettu. Huomiot muistiosta suljettuna sivun lopussa.
+- **Muokkausarkki:** rivin tai napin napautus avaa arkin, jossa on yksi kenttä kerrallaan. *‹ Edellinen / Seuraava ›* vaihtaa kentän samassa tekstikentässä, jolloin näppäimistö pysyy auki. Arkki asettuu näkyvän alueen (visualViewport) mukaan näppäimistön yläpuolelle, ja alapalkki piiloutuu näppäimistön ajaksi. Arkin sulkeminen palauttaa vierityskohdan.
+- **Alapalkki eläimen sivulla:** *‹ Eläimet* · vaihenapit 1–4 tilapisteineen (seuraavat vieritystä, napautus vierittää) · plus = uusi muistiinpano eläimen nimellä. 320 px:ssä Eläimet-sana piiloutuu.
+- **Tavoitekartta:** 3 × 3 (tasot riveinä, lapsi / vanhemmat / työntekijä sarakkeina), ruudussa tilaraita ja tavoitteen nimi. Napautus avaa ruudun kartan alle: tavoitekortit (Arvioi, Muokkaa, Seuranta), tasolla 2 periaatteet ja *+ X tavoite tasolle N*. Hoidon syyt siruina kartan yläpuolella.
+- **Syklinauha:** kuusi laatikkoa rinnakkain tilapisteillä (täytetty vihreä = tehty, vihreä rengas = sovittu, punainen = sovittava, harmaa = myöhemmin). Valitun laatikon sisällöt alla, *+ Sovi* avaa muistiinpanon valmiilla alulla ("Kettu lähikäynti "). *Muut sovittavat* lähiviikoilta ja *Käynnit muistiosta*.
+- **Mittaus muistiosta:** rivi, jossa on eläimen nimi, mittarin tai lääkeseurannan sana ja luku, kirjautuu itsestään (esim. "Kettu paino 41", "RR 112/70", "FIT 36"). Päiväys, kellonaika ja tuleva päivä eivät ole mittauksia. Arvo täyttää syklin laatikon ja näkyy rivillä merkinnällä *muistiosta*. Muistiinpanossa näkyy siru "Paino 41 · kirjattu".
+- **Omat säännöt:** Valikko → Säännöt ja välit. Muistutusten järjestys omana listana (Ylös/Alas), jokainen *Kiireellinen / Tavallinen / Pois*. Oletus: tason 1 asiat, sovittava käynti jonka laatikko päättyy viikon sisällä, taso 2, muut sovittavat, taso 3, ohjaus ja haasteet, puuttuvat, vanhentuneet. *Palauta oletukset*.
+- **Portaat** (oletus päällä): puuttuvista tiedoista näkyvät vain varhaisimman vaiheen puutteet. Käynnit, arvioinnit ja tavoitteiden asiat näkyvät aina.
+- **Valikko alasivuina:** Tiedot, Ulkoasu ja kalenteri, Luettelot, Säännöt ja välit, Arkisto. Alasivun alapalkissa *‹ Valikko*.
+- **Ulkoasu:** otsikot lähes leipätekstin kokoisia. Painettu valinta on käänteisväri, ja korostusväri on vain päätoiminnolla. Linkkinapit ovat alleviivattua tekstiä, ja poisto on hillitty, kunnes se vahvistetaan. Tietokoneella (≥ 900 px) vaiheet näkyvät kahtena sarakkeena ja ≥ 1500 px:ssä neljänä.
+- **Tallennus:** `ver` edelleen 1. Uudet valinnaiset kentät `asetukset.saannot` [{id, tila}] ja `asetukset.portaat`. Vanha data saa oletukset, ja viallinen sääntölista korjautuu. Muistion mittauksia ei tallenneta erikseen, vaan ne luetaan muistiinpanoista.
+- Korjattu samalla: Nyt-kortin päivitys viittasi poistettuun funktioon, ja Mittarit- ja Lääkeseuranta-lisäysnapit avasivat väärän arkin.
+- Testit: `logiikka.js` (68) ja `selain.js` (86 tarkistusta kolmella leveydellä: Nyt-kortti, portaat, arkki ja Seuraava samassa kentässä, simuloitu näppäimistö, syklinauha ja Sovi, mittaus muistiosta, vaihenapit, tavoitekartta, työjono, Valikon alasivut, säännöt). 390, 320 ja 1280 px, kaikki ok.
 
 ## Versio 0.4 (9.11.2026, Emil: Mätsik-kartan muutokset 3.11.)
 
@@ -81,26 +101,27 @@ Juureen (`paatospuu/`) nojaava, mutta erillinen hoitosuunnitelmien demo- ja kehi
 - Tason 2 tavoitteen linkki tavoitteeseen, jonka se mahdollistaa (avoin kysymys).
 - Hoidon tarpeen vastauksista johdettu yksikkösuositus.
 - Omat osiot.
+- Suunnitelman *Myöhemmin*-kohdat (esim. pyyhkäisy vaiheiden välillä, sääntöjen omat ehdot).
 
 ## Ei tarkistettu
 
 - Testit ajettiin tietokoneen selaimessa (Chromium, kosketus simuloituna), ei oikealla iPhonella: Safari, kotinäytön kirjanmerkki, sanelu, jakovalikko, kalenterin pito ja raahaus sekä vierityksen lukitus raahatessa.
+- 0.8: muokkausarkin asettuminen iPhonen näppäimistön yläpuolelle ja näppäimistön pysyminen auki Seuraava-napilla. Näppäimistö simuloitiin testissä vain muuttujilla, ei oikealla näppäimistöllä. Tämä on tärkein puhelimella kokeiltava asia.
+- 0.8: mittauksen tunnistus muistiosta on sanapohjainen (mittarin nimen alku). Väärät osumat ovat mahdollisia, jos rivillä on mittarin sana ja jokin muu luku.
 - Antiikva- ja Pyöreä-fontit näkyvät oikein vain Applen laitteilla.
 - Testiselain antoi ä-kirjaimelliselle tiedostonimelle nimen "download". iPhonen jakovalikossa nimen pitäisi säilyä. Jos ei säily, nimeksi vaihdetaan `Matsik Forest.json`.
 - Nimen tunnistus taivutuksista on karkea: nimen alusta otetaan kaikki paitsi kaksi viimeistä kirjainta, vähintään kolme kirjainta. Tämä voi tuottaa vääriä osumia.
 
 ## Seuraava askel
 
-Emil kokeilee 0.4:ää puhelimella. Avoimet kysymykset:
-1. Onko syklin rytmi oikein: alku viikon maanantaista, Kk 2 alkaa viidennen viikon alusta, ja sykli alkaa itsestään alusta?
-2. Mitä muita luetteloita tehdään muokattaviksi? Ehdokkaita ovat osallistujaroolit, koulun ja sosiaalityön tukitoimet sekä sijoitus.
-3. Tarvitaanko tason 2 tavoitteeseen linkki?
-4. Muokattava kaavioteksti.
-5. Pitääkö tavoitteen seurannan Ei olla herja vai pelkkä merkintä? Tuoko ohjauksen arvion "Harkitaan muuta" oman muistutuksen?
-6. Tarvitaanko mittareille asteikko tai kuvaaja, vai riittääkö vapaa tulos?
+Emil kokeilee 0.8:aa puhelimella, erityisesti kirjoittamista arkissa (näppäimistö, Seuraava, Valmis) ja Nyt-korttia. Avoimet kysymykset:
+1. Asettuuko arkki iPhonella näppäimistön päälle ilman pomppimista? (Kyselyn kysymys 5.)
+2. Onko oletusjärjestys oikea, ja pitääkö portaiden koskea muutakin kuin puuttuvia tietoja?
+3. Riittääkö mittaus muistiosta Lääkeseurannalle ja Mittareille, vai myös muille?
+4. 0.4:n avoimet: syklin rytmi, muut muokattavat luettelot, tason 2 linkki, muokattava kaavioteksti, seurannan Ei herjana vai merkintänä, mittarien asteikko.
 
 ## Suunnitelmat
 
-- **Käytettävyyssuunnitelma (12.11.2026, ehdotus, ei rakennettu):** `matsik/SUUNNITELMA.md`. Neljä askelta: 0.5 tila ja selkeys, 0.6 lukutila ja muokkausarkki näppäimistön päällä, 0.7 tavoitekartta ja syklinauha, 0.8 omat säännöt. Emilille esitelty sivuna https://claude.ai/artifact/GgmFP5UEHTVNuSGCE164Md, jossa on seitsemän kysymyksen kysely. Rakennetaan vasta Emilin "toteuta"-sanalla, ja vastaukset luetaan sivun tietokannasta ensin.
+- **Käytettävyyssuunnitelma (12.11.2026):** `matsik/SUUNNITELMA.md`, rakennettu kokonaan versiossa 0.8. Esittelysivu ja kysely: https://claude.ai/artifact/GgmFP5UEHTVNuSGCE164Md. Jos Emil vastaa kyselyyn myöhemmin, vastaukset luetaan sivun tietokannasta ja verrataan tehtyihin ratkaisuihin.
 
 ## Emilin kommentit
