@@ -22,20 +22,31 @@ function aineisto(){
     const ctx=await browser.newContext({viewport:{width:w,height:h},colorScheme:scheme,acceptDownloads:true});
     const p=await ctx.newPage(),errs=[];p.on('pageerror',e=>errs.push(e.message));
     const ok=async(nimi,f)=>{await f();n++;console.log('OK '+w+' '+nimi)};
+    const aset=async()=>{await p.click('nav [data-tab=asetukset]');for(const b of await p.locator('[data-act=asec][aria-expanded=false]').all().then(a=>Promise.all(a.map(x=>x.getAttribute('data-id')))))await p.click('[data-act=asec][data-id='+b+']')};
     const leveys=async()=>assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'vaakavieritys');
     await p.goto('http://127.0.0.1:8766/');
     await ok('tyhjä tila ohjaa lisäämään liikkeen',async()=>{assert((await p.textContent('#app')).includes('Lisää ensin omat liikkeesi'));await leveys()});
     await ok('liikkeen lisäys',async()=>{await p.click('text=Lisää liike');await p.fill('#f-nimi','Leuanveto');await p.fill('#f-tideal','8');await p.click('[data-act=savel]');
       assert.equal(await p.evaluate(()=>TK.S().liikkeet[0].nimi),'Leuanveto')});
-    await ok('sarja: + Sarja, paino OK, toistot OK, kursori kentässä',async()=>{await p.click('nav [data-tab=treeni]');await p.click('text=Leuanveto');await p.click('text=+ Sarja 1');
-      assert.equal(await p.evaluate(()=>document.activeElement.id),'in-kg');await p.keyboard.type('10');await p.click('[data-act=okset]');
-      assert.equal(await p.evaluate(()=>document.activeElement.id),'in-rep');assert.equal(await p.inputValue('#in-rep'),'8');await p.click('[data-act=okset]');
-      const S=await p.evaluate(()=>TK.S());assert.equal(S.treenit.length,1);assert.equal(S.treenit[0].sarjat[0].kg,10);assert(S.treenit[0].alku<=S.treenit[0].sarjat[0].t)});
-    await ok('ei lepoaikaa; sarjan kellonajan korjaus jälkikäteen',async()=>{await p.click('text=+ Sarja 2');const y0=await p.evaluate(()=>document.getElementById('in-kg').getBoundingClientRect().top);
-      await p.click('[data-act=okset]');assert.equal(await p.evaluate(()=>document.activeElement.id),'in-rep');assert.equal(await p.evaluate(()=>document.getElementById('in-rep').getBoundingClientRect().top),y0,'paino ja toistot samalla rivillä, ei pomppua');
-      await p.click('[data-act=okset]');assert(!/lepo/i.test(await p.textContent('#app')),'lepo näkyy yhä');
-      await p.click('.set >> nth=1');assert.equal(await p.locator('#ed-lepo').count(),0);await p.fill('#ed-aika','00:01');await p.click('[data-act=saveedit]');
-      const s=await p.evaluate(()=>TK.S().treenit[0].sarjat);assert.equal(new Date(s[0].t).getHours()*60+new Date(s[0].t).getMinutes(),1)});
+    await ok('sarja: toistot ensin, OK siirtää painoon, OK tallentaa; kirjausrivi pysyy paikallaan',async()=>{await p.click('nav [data-tab=treeni]');await p.click('text=Leuanveto');
+      assert.equal(await p.locator('[data-act=addset]').count(),0);assert.equal(await p.inputValue('#in-rep'),'8');
+      const o=await p.evaluate(()=>[...document.querySelectorAll('.drow input')].map(e=>e.id));assert.deepEqual(o,['in-rep','in-kg'],'toistot ennen painoa');
+      const y0=await p.evaluate(()=>document.getElementById('in-rep').getBoundingClientRect().top);
+      await p.click('#in-rep');await p.keyboard.type('9');await p.click('[data-act=okset]');
+      assert.equal(await p.evaluate(()=>document.activeElement.id),'in-kg');assert.equal(await p.evaluate(()=>TK.S().treenit.length),0,'ei tallennu vielä');
+      await p.keyboard.type('10');await p.click('[data-act=okset]');
+      const S=await p.evaluate(()=>TK.S());assert.equal(S.treenit.length,1);assert.equal(S.treenit[0].sarjat[0].kg,10);assert.equal(S.treenit[0].sarjat[0].toistot,9);assert(S.treenit[0].alku<=S.treenit[0].sarjat[0].t);
+      assert.equal(await p.evaluate(()=>document.getElementById('in-rep').getBoundingClientRect().top),y0,'kirjausrivi ei liiku tallennuksessa');await leveys()});
+    await ok('OK ilman kursoria tallentaa valmiit arvot; ei lepoaikaa; kellonajan korjaus',async()=>{assert.equal(await p.inputValue('#in-kg'),'10');await p.click('[data-act=okset]');
+      let s=await p.evaluate(()=>TK.S().treenit[0].sarjat);assert.equal(s.length,2);assert.equal(s[1].kg,10);assert.equal(s[1].toistot,8);
+      assert(!/lepo/i.test(await p.textContent('#app')),'lepo näkyy yhä');assert.equal(await p.locator('.panel .set').count(),2);
+      await p.fill('#in-rep','x');await p.click('#in-rep');await p.click('[data-act=okset]');assert((await p.textContent('.exbody .err')).includes('toistot'));await p.fill('#in-rep','8');
+      await p.click('.set >> nth=0');assert.equal(await p.locator('#ed-lepo').count(),0);await p.fill('#ed-aika','00:01');await p.click('[data-act=saveedit]');
+      s=await p.evaluate(()=>TK.S().treenit[0].sarjat);assert.equal(new Date(s[0].t).getHours()*60+new Date(s[0].t).getMinutes(),1)});
+    await ok('liikkeen avaaminen ei siirrä napautettua riviä',async()=>{await p.evaluate(()=>{const S=TK.S();for(let i=0;i<8;i++)S.liikkeet.push({id:'x'+i,nimi:'Liike '+i,askel:2.5,goals:[]});TK.acts.endperu()});await p.click('nav [data-tab=treeni]');
+      await p.click('.exhead >> nth=0');
+      const b=p.locator('.exhead[data-id=x5]');await b.evaluate(e=>e.scrollIntoView({block:'center'}));const y=(await b.boundingBox()).y;await b.click();const y2=(await p.locator('.exhead[data-id=x5]').boundingBox()).y;assert(Math.abs(y2-y)<2,'rivi pomppasi '+y+' '+y2+' '+await p.evaluate(()=>scrollY+' '+document.querySelector('.panel').offsetHeight));const pb=await p.locator('.panel').boundingBox();assert(pb.y>=0&&pb.y<60,'kirjauspaneeli ei pysy ylhäällä: '+pb.y);assert((await p.textContent('.panel')).includes('Liike 5'));
+      await p.evaluate(()=>{const S=TK.S();S.liikkeet=S.liikkeet.filter(l=>!/^x\d$/.test(l.id));S.auki=S.liikkeet[0].id;TK.acts.endperu()});await p.click('nav [data-tab=treeni]')});
     await ok('lopetusnappi alareunassa vahvistuksella',async()=>{const b=await p.locator('.lopbar').boundingBox(),nb=await p.locator('nav').boundingBox();assert(Math.abs(b.y+b.height-nb.y)<2,JSON.stringify([b,nb]));
       await p.click('button.lopeta');assert((await p.textContent('.lopbar')).includes('Vahvista lopetus'));await p.click('.lopbar [data-act=endperu]');assert(await p.evaluate(()=>!TK.S().treenit[0].loppu));
       await p.click('button.lopeta');await p.click('button.lopeta.sure');assert.equal(await p.locator('.lopbar').count(),0);assert(await p.evaluate(()=>!!TK.S().treenit[0].loppu))});
@@ -48,7 +59,7 @@ function aineisto(){
     await ok('painoehdotus tähtää ideaaliin',async()=>{const e=await p.evaluate(()=>TK.ehdotus(TK.S().liikkeet[0]));assert(e&&e.kg>0&&/ideaali 8/.test(e.syy),JSON.stringify(e));await p.click('text=Penkkipunnerrus');await leveys()});
     await ok('automaattinen päättyminen viimeisen sarjan aikaan',async()=>{const t0=await p.evaluate(()=>{const S=TK.S(),t0=Date.now()-3*3600e3;S.treenit.push({id:'auto',alku:t0,loppu:null,sarjat:[{id:'z',liike:'a',t:t0+60000,kg:60,toistot:8}]});return t0});await p.click('nav [data-tab=historia]');await p.click('nav [data-tab=treeni]');
       assert.equal(await p.evaluate(()=>TK.S().treenit.find(x=>x.id==='auto').loppu),t0+60000);assert(!(await p.textContent('#app')).includes('Treeni alkoi'))});
-    await ok('liikkeen tavoite ja ennuste',async()=>{await p.click('nav [data-tab=liikkeet]');await p.click('text=Muokkaa >> nth=0');await p.fill('#g-kg','80');await p.fill('#g-rep','8');await p.fill('#g-pvm','2027-06-01');await p.click('[data-act=addgoal]');await p.click('[data-act=savel]');
+    await ok('liikkeen tavoite ja ennuste',async()=>{await p.click('nav [data-tab=liikkeet]');await p.click('.lrow .tx >> nth=0');await p.fill('#g-kg','80');await p.fill('#g-rep','8');await p.fill('#g-pvm','2027-06-01');await p.click('[data-act=addgoal]');await p.click('[data-act=savel]');
       await p.click('nav [data-tab=seuranta]');const t=await p.textContent('#app');assert(t.includes('Tavoite 80 kg × 8'));assert(/Aikataulussa|Jäljessä/.test(t));await leveys()});
     await ok('ryhmän tavoite 10 pv: korvattavat rastilla, rasti pois = ennallaan',async()=>{await p.click('nav [data-tab=liikkeet]');await p.click('#subnav [data-id=ryhmat]');await p.click('.lrow:has-text("Rinta") [data-act=gedit]');
       await p.fill('#gf-n','14');await p.fill('#gf-pv','10');await p.fill('#b-tideal','9');await p.click('[data-act=gsave]');assert(await p.locator('.chk').count()>=2);
@@ -57,7 +68,7 @@ function aineisto(){
     await ok('kaikkien ryhmien tavoite kerralla',async()=>{await p.click('#subnav [data-id=kaikki]');await p.fill('#k-n','12');await p.click('[data-act=ksave]');if(await p.locator('[data-act=ksave]:has-text("Käytä")').count())await p.click('[data-act=ksave]');
       const t=await p.evaluate(()=>TK.S().as.tavoitteet);assert.equal(t.Etureidet.n,12);assert.equal(t.Ojentajat.n,12)});
     await ok('seuranta: lihasryhmät ja yhteydet',async()=>{await p.click('nav [data-tab=seuranta]');await p.click('#subnav [data-id=ryhmat]');assert((await p.textContent('#app')).includes('Etureidet'));await p.click('#subnav [data-id=yhteydet]');assert((await p.textContent('#app')).includes('Kertatasolla'));await leveys()});
-    await ok('tekstituonti esikatselulla ja tuplien ohitus',async()=>{await p.click('nav [data-tab=asetukset]');const txt='2026-09-01 17:05\nPenkkipunnerrus: 50x8x3, 52,5x7\nMaastaveto: 100kg x 5 @17:30\n';
+    await ok('tekstituonti esikatselulla ja tuplien ohitus',async()=>{await aset();const txt='2026-09-01 17:05\nPenkkipunnerrus: 50x8x3, 52,5x7\nMaastaveto: 100kg x 5 @17:30\n';
       await p.fill('#tt',txt);await p.click('[data-act=tuo]');assert((await p.textContent('.draft')).includes('Maastaveto'));const ennen=await p.evaluate(()=>TK.S().treenit.length);await p.click('[data-act=tuo2]');
       const S=await p.evaluate(()=>TK.S());assert.equal(S.treenit.length,ennen+1);const t=S.treenit.find(x=>x.tuotu);assert.deepEqual(t.sarjat.map(s=>s.kg),[50,50,50,52.5,100]);
       await p.fill('#tt',txt);await p.click('[data-act=tuo]');assert((await p.textContent('.err')).includes('Ei uusia'))});
@@ -81,10 +92,10 @@ function aineisto(){
       S=await p.evaluate(()=>TK.S());assert(!S.ryhmat.includes('Hauis'));assert.equal(S.liikkeet.find(x=>x.nimi==='Hauiskääntö').paa,'')});
     await ok('alavälilehdet ovat alareunassa',async()=>{await p.click('nav [data-tab=seuranta]');const sb=await p.locator('#subnav').boundingBox(),nb=await p.locator('nav').boundingBox();assert(sb.y+sb.height<=nb.y+1&&sb.y>h*0.6,JSON.stringify([sb,nb]));
       await p.click('nav [data-tab=treeni]');assert(await p.locator('#subnav').isHidden())});
-    await ok('kenttien teksti vähintään 16 px (iPhone ei zoomaa)',async()=>{for(const v of ['treeni','liikkeet','asetukset']){await p.click('nav [data-tab='+v+']');if(v==='liikkeet'){await p.click('#subnav [data-id=liikkeet]');await p.click('text=Muokkaa >> nth=0')}if(v==='treeni'){await p.click('.exhead >> nth=0');if(await p.locator('[data-act=addset]').count())await p.click('[data-act=addset]')}
+    await ok('kenttien teksti vähintään 16 px (iPhone ei zoomaa)',async()=>{for(const v of ['treeni','liikkeet','asetukset']){await p.click('nav [data-tab='+v+']');if(v==='asetukset')await aset();if(v==='liikkeet'){await p.click('#subnav [data-id=liikkeet]');await p.click('.lrow .tx >> nth=0')}if(v==='treeni'){await p.click('.exhead >> nth=0');if(await p.locator('[data-act=addset]').count())await p.click('[data-act=addset]')}
       const pienet=await p.evaluate(()=>[...document.querySelectorAll('input:not([type=file]):not([type=checkbox]),textarea,select')].filter(e=>parseFloat(getComputedStyle(e).fontSize)<16).map(e=>e.id));assert.deepEqual(pienet,[],v)}
       assert((await p.getAttribute('meta[name=viewport]','content')).includes('maximum-scale=1'))});
-    await ok('isot kirjaimet oletuksena, fontin vaihto ja caps pois',async()=>{await p.click('nav [data-tab=asetukset]');
+    await ok('isot kirjaimet oletuksena, fontin vaihto ja caps pois',async()=>{await aset();
       assert.equal(await p.evaluate(()=>getComputedStyle(document.querySelector('h2')).textTransform),'uppercase');assert(await p.evaluate(()=>document.body.classList.contains('caps')));
       assert(await p.locator('.fonts button').count()>=10);await p.click('[data-act=fontti][data-id=futura]');
       assert((await p.evaluate(()=>getComputedStyle(document.body).fontFamily)).includes('Futura'));assert.equal(await p.evaluate(()=>TK.S().as.fontti),'futura');
@@ -93,9 +104,9 @@ function aineisto(){
       await p.click('[data-act=caps][data-id="1"]');await p.click('[data-act=fontti][data-id=system]');await leveys()});
     await ok('liikkeen nimen korjaus tallentuu myös ilman Tallenna-nappia ja näkyy Treenissä',async()=>{await p.click('nav [data-tab=liikkeet]');await p.click('#subnav [data-id=liikkeet]');
       await p.click('text=Lisää liike');await p.fill('#f-nimi','Soutuu');await p.click('[data-act=savel]');
-      await p.click('.lrow:has-text("Soutuu") >> text=Muokkaa');await p.fill('#f-nimi','Soutu');await p.click('nav [data-tab=treeni]');
-      const t=await p.textContent('#app');assert(t.includes('Soutu')&&!t.includes('Soutuu'));
-      await p.click('nav [data-tab=liikkeet]');await p.click('.lrow:has-text("Soutu") >> text=Muokkaa');await p.fill('#f-nimi','');await p.click('nav [data-tab=historia]');
+      await p.click('.lrow:has-text("Soutuu") .tx');await p.fill('#f-nimi','Soutu');await p.click('nav [data-tab=treeni]');
+      const t=await p.locator('.rows .nm').allTextContents();assert(t.includes('Soutu')&&!t.includes('Soutuu'),JSON.stringify(t));
+      await p.click('nav [data-tab=liikkeet]');await p.click('.lrow:has-text("Soutu") .tx');await p.fill('#f-nimi','');await p.click('nav [data-tab=historia]');
       assert.equal(await p.evaluate(()=>document.querySelector('nav button.on').dataset.tab),'liikkeet');assert((await p.textContent('.err')).includes('nimi'));await p.click('[data-act=cancell]')});
     await ok('tiedot säilyvät uudelleenlatauksessa',async()=>{const a=await p.evaluate(()=>TK.S().treenit.length);await p.reload();assert.equal(await p.evaluate(()=>TK.S().treenit.length),a)});
     assert.deepEqual(errs,[]);await ctx.close();
