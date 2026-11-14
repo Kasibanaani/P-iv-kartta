@@ -116,5 +116,14 @@ want('Ei: muistutus, ei portaiden piilottama',e6&&e6.teksti==='Ei kunnossa: Esit
 MF.setChk(k6,'esitiedot.asuminen','ok',T6);want('OK päivittää osion tarkistuspäivän',k6.esitiedot.u===T6);
 const H7=MF.herjat(k6,d6,'2027-07-01');want('OK vanhenee välin mukaan, Ei ei vanhene',H7.some(h=>h.teksti==='Esitiedot: kuitattu 7 kk sitten'&&h.tark)&&H7.some(h=>h.laji==='ei'));
 MF.touchChk(k6,'esitiedot','2027-07-01');want('Pitää paikkansa uusii kuittaukset',!MF.herjat(k6,d6,'2027-07-01').some(h=>h.teksti.startsWith('Esitiedot: kuitattu')));
+/* 1.2: kaikki OK-kuittaukset vanhenevat osion välin mukaan */
+MF.setChk(k6,'tulosyy','ok','2026-01-01');MF.setChk(k6,'haasteet','ok','2026-11-01');
+want('tulosyyn OK vanhenee (väli 12 kk) ja tulosyy pyytää uutta kuittausta',!MF.herjat(k6,d6,'2026-12-01').some(h=>h.osio==='tulosyy')&&MF.herjat(k6,d6,'2027-01-02').some(h=>h.teksti==='Tulosyy: kuitattu 12 kk sitten'&&h.tark));
+want('haasteiden OK vanhenee 3 kk:ssa',MF.herjat(k6,d6,'2027-02-02').some(h=>h.osio==='haasteet'&&h.tark));
+MF.setChk(k6,'esitiedot.somaattiset','ok','2027-12-01');
+want('osa kohdista vanhentunut: muistutus kertoo määrän',MF.herjat(k6,d6,'2028-01-02').some(h=>h.teksti==='Esitiedot: 1 kohta kuitattava uudelleen'));
+const d8=MF.empty();d8.asetukset.valit.tulosyy=0;const k8=MF.newClient('Siili','2026-01-01');d8.asiakkaat.push(k8);MF.setChk(k8,'tulosyy','ok','2020-01-01');
+want('väli 0: kuittaus ei vanhene',!MF.herjat(k8,d8,'2027-01-01').some(h=>h.osio==='tulosyy'));
+want('vanha tallennus saa uudet välit oletuksina',MF.repair({asiakkaat:[],asetukset:{valit:{esitiedot:4}}}).asetukset.valit.tulosyy===12&&MF.repair({asiakkaat:[],asetukset:{valit:{esitiedot:4}}}).asetukset.valit.esitiedot===4);
 want('kuittaukset säilyvät ja viallinen poistuu korjauksessa',(()=>{const x=JSON.parse(JSON.stringify(d6));x.asiakkaat[0].kuit.huono={v:'x'};x.asiakkaat[0].kuit.puuttuu={v:'ok'};const r=MF.repair(x).asiakkaat[0].kuit;return r['esitiedot.perhe'].v==='ei'&&!r.huono&&!r.puuttuu;})()&&JSON.stringify(MF.repair({asiakkaat:[{nimi:'V'}]}).asiakkaat[0].kuit)==='{}');
 process.exit(bad?1:0);

@@ -1,8 +1,20 @@
 # Mätsik Forest: tila
 
-**Vaihe:** versio 1.1. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 14.11.2026
+**Vaihe:** versio 1.2. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 14.11.2026
 
 Juureen (`paatospuu/`) nojaava, mutta erillinen hoitosuunnitelmien demo- ja kehittämisappi. Kaikki sisältö on kuvitteellista, ja Emil kirjoittaa sen itse. Appi ei sisällä valmista dataa. Hahmotelma ja perustelut ovat projektikansiossa (`hoitojuuri/HAHMOTELMA.md`), ei tässä julkisessa repossa.
+
+## Versio 1.2 (14.11.2026, Emil: "niissä vain kuitataan, että kohta on ok tai ei"; "ne pitää määräajoin uudelleen kuitata")
+
+- **Eläimen sivulla ei kirjoiteta vapaata tekstiä.** Jokainen osio on kortti, jonka kohdat kuitataan **OK / Ei** samoin kuin listan tarkistusnäkymässä (samat kohdat, sama tallennus `kuit`). Yhden kohdan osiot (Tulosyy, Kehityshistoria, Vahvuudet, Haasteet) ovat yhtenä rivinä: nimi ja napit.
+  - Jäävät: päivämäärät (toimintakykyarvio, syklin alku, ohjattu), valinnat (sosiaalityön asiakkuus ja sijoitus, hoidon tarpeen kysymykset, diagnoosit luettelosta, tavoitteen tila ja seuranta, haasteen ohjaus), mittaukset, arviointikierros, käyntisykli, muistiinpanot ja kalenteri. Valinnat näkyvät kortissa *Valinnat*-rivinä, joka avaa arkin.
+  - Poistettu: tekstikentät (tulosyy, esitiedot, kehitys, tilanne, koulun ja sosiaalityön tiedot, vahvuudet, hoidon tarpeen *Muuta*, tavoitteen teksti ja keinot, hoidon syyt, haasteen teksti, uusi diagnoosi arkissa, ohjauksen ja arvioinnin lisätieto) sekä tyhjien osioiden *+ Osio* -napit, *+ Haaste* ja *+ Hoidon syy*.
+  - Vanha teksti näkyy pienenä harmaana kohdan alla vain luettavana; sitä ei poisteta tallennuksesta.
+  - **Tavoitekartta:** ruutu näyttää kuittauksen (OK pvm / Ei pvm / Kuittaa) ja tavoitteen tilan. Avattu ruutu: *Kunnossa? OK / Ei*. Jos ruudussa ei ole tavoitetta, *+ Seuranta ja arviointi* luo tekstittömän tavoitteen (tila, seuranta, arviointikierros). Tavoitekortilta pois Syy- ja Keinot-rivit.
+  - Nyt-kortin puuttuu-muistutus: *Kuittaa* vie osioon (diagnoosit, toimintakykyarvio ja sykli avaavat edelleen arkin).
+- **Kaikki OK-kuittaukset vanhenevat määräajoin.** Jokaisella osiolla on oma väli (Valikko → Säännöt ja välit): tulosyy, kehitys ja tilanne 12 kk; esitiedot, koulu, sosiaalityö, vahvuudet, diagnoosit ja hoidon tarve 6 kk; haasteet, tavoitteet, mittarit ja lääkeseuranta 3 kk. 0 = ei vanhene. Vanhentunut kohta näyttää *OK pvm, kuittaa uudelleen*, ja muistutus on "Esitiedot: kuitattu 7 kk sitten" tai, jos vain osa vanhentui, "Esitiedot: 1 kohta kuitattava uudelleen". *Kaikki pitää yhä paikkansa* uusii osion kaikki OK:t. Ei ei vanhene.
+- Tallennus: `ver` edelleen 1. Uudet välit tulevat vanhaan tallennukseen oletuksina.
+- Testit: `logiikka.js` (vanheneminen kaikille osioille, osittain vanhentunut, väli 0, vanhan tallennuksen välit) ja `selain.js` (ei tekstikenttiä eläimen sivulla, kuittaukset osioissa ja tavoitekartassa, valinnat arkissa ilman tekstiä). Kaikki ok 390, 320 ja 1280 px.
 
 ## Versio 1.1 (14.11.2026, Emil)
 
@@ -131,6 +143,7 @@ Käytettävyyssuunnitelman (`SUUNNITELMA.md`) kaikki neljä askelta yhtenä julk
 ## Ei tarkistettu
 
 - Testit ajettiin tietokoneen selaimessa (Chromium, kosketus simuloituna), ei oikealla iPhonella: Safari, kotinäytön kirjanmerkki, sanelu, jakovalikko, kalenterin pito ja raahaus sekä vierityksen lukitus raahatessa.
+- 1.2: korttien pituus puhelimella (eläimen sivu piteni, kun jokainen kohta on oma rivinsä) ja OK/Ei-nappien osuminen peukalolla.
 - 1.0: ankkuri ja arkin yläpuolelle jäävä kohta iPhonen näppäimistön kanssa (Safari voi vierittää itse).
 - 0.8: muokkausarkin asettuminen iPhonen näppäimistön yläpuolelle ja näppäimistön pysyminen auki Seuraava-napilla. Näppäimistö simuloitiin testissä vain muuttujilla, ei oikealla näppäimistöllä. Tämä on tärkein puhelimella kokeiltava asia.
 - 0.8: mittauksen tunnistus muistiosta on sanapohjainen (mittarin nimen alku). Väärät osumat ovat mahdollisia, jos rivillä on mittarin sana ja jokin muu luku.
@@ -140,7 +153,8 @@ Käytettävyyssuunnitelman (`SUUNNITELMA.md`) kaikki neljä askelta yhtenä julk
 
 ## Seuraava askel
 
-Emil kokeilee 1.0:aa puhelimella: listan tarkistusnäkymä (OK / Ei), pomppiminen arkkia avatessa ja näppäimistön kanssa, eläinlistan sivuveto sekä kirjoittamista arkissa (näppäimistö, Seuraava, Valmis) ja Nyt-korttia. Avoimet kysymykset:
+Emil kokeilee 1.2:ta puhelimella: eläimen sivun kuittaukset, tavoitekartta ilman tekstiä, listan tarkistusnäkymä ja pomppiminen. Avoimet kysymykset:
+0. 1.2: pitääkö vanhat tekstit näyttää kohtien alla vai piilottaa kokonaan? Ovatko välien oletukset oikeat? Tarvitaanko uusien diagnoosien lisäys muualta kuin Valikko → Luettelot?
 1. Asettuuko arkki iPhonella näppäimistön päälle ilman pomppimista? (Kyselyn kysymys 5.)
 2. Onko oletusjärjestys oikea, ja pitääkö portaiden koskea muutakin kuin puuttuvia tietoja?
 3. Riittääkö mittaus muistiosta Lääkeseurannalle ja Mittareille, vai myös muille?
