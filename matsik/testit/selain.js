@@ -1,4 +1,4 @@
-/* Mätsik Forest 0.8: käyttö selaimessa. Eläimet, Nyt-kortti ja portaat, lukutila ja muokkausarkki (Seuraava samassa kentässä, näppäimistö), syklinauha ja Sovi, mittaus muistiosta, tavoitekartta, työjono, Valikon alasivut ja säännöt, eläinlista vierivänä ruudukkona (0.9),
+/* Mätsik Forest 0.8: käyttö selaimessa. Eläimet, Nyt-kortti ja portaat, lukutila ja muokkausarkki (Seuraava samassa kentässä, näppäimistö), syklinauha ja Sovi, mittaus muistiosta, tavoitekartta, työjono, Valikon alasivut ja säännöt, eläinlista vierivänä ruudukkona (0.9), listan tarkistusnäkymä ja ankkuri (1.0),
    osiot vaiheittain, käyntisykli, muokattavat luettelot, käynti muistiosta, herjat, tahojen tavoitteet tasoittain, seuranta ja arviointikierros,
    periaatteet, mittarit, ohjauksen arvio, haasteet, muistion automaattitallennus,
    alapalkin osionappi ja pikavienti, Juuren mallinen kalenteri (pito ja viiva, siirto, keston venytys, päivän vaihto pudottamalla, kuukausi),
@@ -75,8 +75,11 @@ async function run(b,w,h,touch){
   await tap('[data-act=syyadd]');await pg.locator('#edf').fill('Ei pääse kouluun');await tap('.eda [data-act=close]');
   want('hoidon syy tallentui',(await pg.evaluate(A+'.syyt[0].haitta'))==='Ei pääse kouluun'&&await pg.locator('.syys [data-s=syy]').count()===1);
   want('tavoitekartta 3 × 3',await pg.locator('.gmap .cell').count()===9);
-  await tap('[data-act=cell][data-c="2:vanh"]');want('ruutu aukeaa kartan alle',(await pg.locator('.cellh').first().innerText()).includes('Vanhemmat')&&await pg.locator('[data-act=tavadd][data-lv="2"][data-th=vanh]').count()===1);
+  await pg.locator('[data-act=cell][data-c="2:vanh"]').scrollIntoViewIfNeeded();const cy0=await pg.locator('[data-act=cell][data-c="2:vanh"]').evaluate(e=>e.getBoundingClientRect().top);
+  await tap('[data-act=cell][data-c="2:vanh"]');want('ankkuri: painettu ruutu pysyy paikallaan',Math.abs((await pg.locator('[data-act=cell][data-c="2:vanh"]').evaluate(e=>e.getBoundingClientRect().top))-cy0)<2);
+  want('ruutu aukeaa kartan alle',(await pg.locator('.cellh').first().innerText()).includes('Vanhemmat')&&await pg.locator('[data-act=tavadd][data-lv="2"][data-th=vanh]').count()===1);
   await tap('[data-act=tavadd][data-lv="2"][data-th=vanh]');await pg.locator('#edf').fill('Käyn koulussa kolme päivää viikossa');
+  want('painettu ruutu näkyy korostettuna arkin yläpuolella',await pg.locator('.cell.anc').count()===1&&await pg.evaluate("document.querySelector('.cell.anc').getBoundingClientRect().bottom<=document.querySelector('#sheet .pn').getBoundingClientRect().top")&&(await pg.locator('.cell.anc').innerText()).includes('Käyn koulussa'));
   want('uusi tavoite tasolle 2 vanhemmille',JSON.stringify(await pg.evaluate(A+'.tavoitteet.map(t=>[t.taso,t.taho])'))==='[[2,"vanh"]]');
   await tap('[data-act=edgo][data-d="1"]');await tap('.sheet [data-seg$=".taho"][data-v=lapsi]');
   want('taho vaihtuu arkissa',JSON.stringify(await pg.evaluate(A+'.tavoitteet.map(t=>[t.taso,t.taho])'))==='[[2,"lapsi"]]');
@@ -106,15 +109,32 @@ async function run(b,w,h,touch){
   want('ei vaakavieritystä (eläin)',!await wide());
   await tap('#bar [data-act=home]');
   want('lista: rivi, 14 osioruutua, ei suodattimia',await pg.locator('.lr').count()===1&&await pg.locator('.lr .ot').count()===14&&await pg.locator('[data-act=lf]').count()===0);
-  want('ruutujen tilat: täytetty, tyhjä ja ensimmäinen tehtävä',await pg.locator('.ot.ok[data-o=tulosyy]').count()===1&&await pg.locator('.ot.tyh[data-o=kehitys]').count()===1&&await pg.locator('.ot.eka[data-o=toimet]').count()===1&&await pg.locator('.ot.eka').count()===1);
+  want('ruutujen tilat: täytetty, tyhjä ja ensimmäinen tehtävä',await pg.locator('.ot.ok[data-k=tulosyy]').count()===1&&await pg.locator('.ot.tyh[data-k=kehitys]').count()===1&&await pg.locator('.ot.eka[data-k=toimet]').count()===1&&await pg.locator('.ot.eka').count()===1);
   await tap('#bar [data-act=uusi]');await pg.fill('#nn','Siili');await tap('[data-act=uusiok]');await tap('#bar [data-act=home]');
-  want('järjestys: tärkein tekemätön asia ensin (Kettu ennen uutta Siiliä)',(await pg.locator('.nl b').allInnerTexts()).join()==='Kettu,Siili'&&await pg.locator('.lr:has-text("Siili") .ot.eka[data-o=tulosyy].puu').count()===1);
+  want('järjestys: tärkein tekemätön asia ensin (Kettu ennen uutta Siiliä)',(await pg.locator('.nl b').allInnerTexts()).join()==='Kettu,Siili'&&await pg.locator('.lr:has-text("Siili") .ot.eka[data-k=tulosyy].puu').count()===1);
   const nx0=(await pg.locator('.nl').first().boundingBox()).x;await pg.locator('#tbl').evaluate(e=>e.scrollLeft=e.scrollWidth);await pg.waitForTimeout(100);
-  want('ruudut vierivät yhdessä, nimet pysyvät',w>=900||(Math.abs((await pg.locator('.nl').first().boundingBox()).x-nx0)<4&&(await pg.locator('.lr').nth(0).locator('.ot[data-o=tulosyy]').boundingBox()).x<0&&(await pg.locator('.lr').nth(1).locator('.ot[data-o=tulosyy]').boundingBox()).x<0));
+  want('ruudut vierivät yhdessä, nimet pysyvät',w>=900||(Math.abs((await pg.locator('.nl').first().boundingBox()).x-nx0)<4&&(await pg.locator('.lr').nth(0).locator('.ot[data-k=tulosyy]').boundingBox()).x<0&&(await pg.locator('.lr').nth(1).locator('.ot[data-k=tulosyy]').boundingBox()).x<0));
   want('ei vaakavieritystä (lista vieritettynä)',!await wide());
   await pg.locator('#tbl').evaluate(e=>e.scrollLeft=0);
-  await tap('.lr:has-text("Kettu") .ot[data-o=haasteet]');await pg.waitForTimeout(500);
-  want('ruutu avaa eläimen kyseiseen osioon',(await pg.locator('h1').first().innerText()).includes('Kettu')&&await pg.evaluate("(()=>{const r=document.getElementById('sec-haasteet').getBoundingClientRect();return r.top>=0&&r.top<innerHeight/2;})()"));
+  /* tarkistusnäkymä (1.0) */
+  const SH=()=>pg.evaluate("(()=>{const d=MF.repair(JSON.parse(localStorage.getItem('matsik:v1')).data);const a=d.asiakkaat.find(x=>x.nimi==='Siili');return MF.herjat(a,d,MF.iso(new Date())).map(x=>x.teksti).join('|');})()");
+  const ry0=await pg.locator('.lr:has-text("Siili")').evaluate(e=>e.getBoundingClientRect().top);
+  await tap('.lr:has-text("Siili") .ot[data-k=tulosyy]');
+  want('ruutu avaa osion tarkistuslistan rivin alle, rivi pysyy',await pg.locator('#lp').count()===1&&(await pg.locator('#lp .lph b').innerText())==='Tulosyy'&&await pg.locator('#lp [data-act=kuit]').count()===2&&
+    Math.abs((await pg.locator('.lr:has-text("Siili")').evaluate(e=>e.getBoundingClientRect().top))-ry0)<2&&await pg.locator('.lr:has-text("Siili") + .lp').count()===1);
+  const by0=await pg.locator('#lp [data-key=tulosyy][data-v=ok]').evaluate(e=>e.getBoundingClientRect().top);
+  await tap('#lp [data-key=tulosyy][data-v=ok]');
+  want('OK kuittaa ilman tekstiä: muistutus pois, ruutu vihreä, nappi paikallaan',!(await SH()).includes('Tulosyy puuttuu')&&await pg.locator('.lr:has-text("Siili") .ot.ok[data-k=tulosyy]').count()===1&&
+    await pg.locator('#lp [data-key=tulosyy][data-v=ok][aria-pressed=true]').count()===1&&Math.abs((await pg.locator('#lp [data-key=tulosyy][data-v=ok]').evaluate(e=>e.getBoundingClientRect().top))-by0)<2);
+  want('rivien järjestys ei muutu, kun osio on auki',(await pg.locator('.nl b').allInnerTexts()).join()==='Kettu,Siili');
+  await tap('.lr:has-text("Siili") .ot[data-k=esitiedot]');want('saman rivin toinen ruutu vaihtaa osion',(await pg.locator('#lp .lph b').innerText())==='Esitiedot'&&await pg.locator('#lp .lci').count()===5);
+  await tap('#lp [data-key="esitiedot.perhe"][data-v=ei]');want('Ei nostaa asian muistutukseksi',(await SH()).includes('Ei kunnossa: Esitiedot · Perhe')&&(await pg.evaluate(D+'.asiakkaat[1].kuit["esitiedot.perhe"].v'))==='ei');
+  await tap('#lp [data-key="esitiedot.perhe"][data-v=ei]');want('uusi napautus tyhjentää kuittauksen',!(await SH()).includes('Ei kunnossa'));
+  await tap('.lr:has-text("Siili") .ot[data-k=tavoitteet]');want('tavoitteet: 9 kohtaa (taso × taho)',await pg.locator('#lp .lci').count()===9);
+  want('ei vaakavieritystä (tarkistusnäkymä)',!await wide());
+  await tap('#lp [data-act=lclose]');want('sulku',await pg.locator('#lp').count()===0);
+  await tap('.lr:has-text("Kettu") .ot[data-k=haasteet]');await tap('#lp [data-act=goto]');await pg.waitForTimeout(500);
+  want('Avaa eläin vie eläimen kyseiseen osioon',(await pg.locator('h1').first().innerText()).includes('Kettu')&&await pg.evaluate("(()=>{const r=document.getElementById('sec-haasteet').getBoundingClientRect();return r.top>=0&&r.top<innerHeight/2;})()"));
   await tap('#bar [data-act=home]');
   want('ei vaakavieritystä (lista)',!await wide());
   /* osionappi */

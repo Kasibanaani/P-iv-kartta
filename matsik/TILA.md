@@ -1,13 +1,25 @@
 # Mätsik Forest: tila
 
-**Vaihe:** versio 0.9. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 14.11.2026
+**Vaihe:** versio 1.0. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 14.11.2026
 
 Juureen (`paatospuu/`) nojaava, mutta erillinen hoitosuunnitelmien demo- ja kehittämisappi. Kaikki sisältö on kuvitteellista, ja Emil kirjoittaa sen itse. Appi ei sisällä valmista dataa. Hahmotelma ja perustelut ovat projektikansiossa (`hoitojuuri/HAHMOTELMA.md`), ei tässä julkisessa repossa.
+
+## Versio 1.0 (14.11.2026, Emil: "rakenna suosituksilla")
+
+- **Listan tarkistusnäkymä:** ruudun napautus ei enää avaa eläintä, vaan osion tarkistuslistan rivin alle (rivi pysyy paikallaan; jos lista ei mahdu, rivi nousee kerran ylös). Kohdat kuitataan **OK / Ei** ilman tekstiä, uusi napautus tyhjentää, ja kuittaukseen tallentuu päivä. Saman rivin toinen ruutu vaihtaa osion, ruksi sulkee, *Avaa eläin* vie eläimen sivulle kyseiseen osioon. Rivien järjestys pysyy ennallaan niin kauan kuin osio on auki.
+  - Kohdat: tavoitteet 9 (taso × lapsi/vanhemmat/työntekijä), esitiedot 5, ajankohtainen tilanne 2, koulu 3, sosiaalityö 3, hoidon tarve 4, mittarit luettelon mukaan, muut osiot yksi kohta. Käyntisykli ei ole kuitattava (täyttyy muistiosta).
+  - OK kumoaa osion puuttuu-muistutuksen ja tekee ruudusta vihreän. OK vanhenee osion tarkistusvälillä (esitiedot, koulu, sosiaalityö, hoidon tarve 6 kk, tilanne 12 kk, tavoitteet 3 kk), jolloin tulee "X: kuitattu N kk sitten" ja *Pitää paikkansa* uusii kuittaukset. OK päivittää myös osion tarkistuspäivän.
+  - Ei tekee muistutuksen "Ei kunnossa: Esitiedot · Perhe" (sääntö Puuttuvat tiedot, portaat eivät piilota). Ei ei vanhene.
+  - Muut osion muistutukset näkyvät kohtien alla, jotta kuittaus ei siirrä nappeja.
+- **Ankkuri koko appissa:** napautettu kohta pysyy samalla korkeudella, vaikka sivu piirretään uudelleen (esim. tavoitekartan ruutu, joka avaa sisällön alle). Listan sivuvieritys säilyy uudelleenpiirrossa.
+- **Muokkausarkki eläimen sivulla:** painettu kohta näkyy korostettuna arkin yläpuolella, ja sivu siirtyy vain jos kohta jäisi arkin alle. Tausta himmenee vähemmän. Tavoitekartassa uuden tavoitteen teksti päivittyy ruutuun kirjoitettaessa. Kenttä saa fokuksen ilman selaimen omaa vieritystä (preventScroll).
+- Tallennus: `ver` edelleen 1. Eläimellä uusi valinnainen `kuit` {kohta: {v:'ok'|'ei', pvm}}; vanha data saa tyhjän, viallinen poistuu.
+- Testit: `logiikka.js` ja `selain.js` (tarkistusnäkymä, OK ja Ei, järjestyksen pysyminen, ankkuri, korostettu ruutu arkin yläpuolella). Kaikki ok 390, 320 ja 1280 px.
 
 ## Versio 0.9 (14.11.2026, Emil: luonnoksen "eläinrivit" pohjalta)
 
 - **Eläinlista ruudukkona:** jokaisella eläimellä on nimirivi (nimi, tärkein tekemätön asia, +N) ja sen alla 14 osioruutua vaiheittain (Tul Esi Keh Til Kou Sos Vah | Dg Tar Hst | Tav Mit | Syk Lää). Kaikki rivit vierivät sivuttain yhdessä, ja nimirivi pysyy paikallaan. Ruudun väri: täytetty vihreä, tyhjä katkoviiva, vaadittu puuttuva keltainen katkoviiva, tarkista tai sovittava keltainen, kiireellinen punainen. Ensimmäisenä tehtävä ruutu on valkoisella kehyksellä.
-- Järjestys ennallaan (tärkein tekemätön asia omien sääntöjen mukaan). Nimirivin napautus avaa eläimen, ruudun napautus avaa eläimen ja vierittää kyseiseen osioon (tavoitteessa avaa oikean ruudun).
+- Järjestys ennallaan (tärkein tekemätön asia omien sääntöjen mukaan). Nimirivin napautus avaa eläimen, ruudun napautus avasi eläimen kyseiseen osioon (1.0:ssa tarkistusnäkymä).
 - Pois: rajaussirut ja työjono (Emil: ei tarvita). Ohjeluonnoksen vaihepalkkia 1–4 ei tehty listaan.
 - Tietokoneella ruudut mahtuvat kerralla näkyviin.
 - Testit: `selain.js` lisäksi ruudut ja tilat, järjestys kahdella eläimellä, yhteinen vieritys, ruudusta osioon. Kaikki ok 390, 320 ja 1280 px.
@@ -115,6 +127,7 @@ Käytettävyyssuunnitelman (`SUUNNITELMA.md`) kaikki neljä askelta yhtenä julk
 ## Ei tarkistettu
 
 - Testit ajettiin tietokoneen selaimessa (Chromium, kosketus simuloituna), ei oikealla iPhonella: Safari, kotinäytön kirjanmerkki, sanelu, jakovalikko, kalenterin pito ja raahaus sekä vierityksen lukitus raahatessa.
+- 1.0: ankkuri ja arkin yläpuolelle jäävä kohta iPhonen näppäimistön kanssa (Safari voi vierittää itse).
 - 0.8: muokkausarkin asettuminen iPhonen näppäimistön yläpuolelle ja näppäimistön pysyminen auki Seuraava-napilla. Näppäimistö simuloitiin testissä vain muuttujilla, ei oikealla näppäimistöllä. Tämä on tärkein puhelimella kokeiltava asia.
 - 0.8: mittauksen tunnistus muistiosta on sanapohjainen (mittarin nimen alku). Väärät osumat ovat mahdollisia, jos rivillä on mittarin sana ja jokin muu luku.
 - Antiikva- ja Pyöreä-fontit näkyvät oikein vain Applen laitteilla.
@@ -123,7 +136,7 @@ Käytettävyyssuunnitelman (`SUUNNITELMA.md`) kaikki neljä askelta yhtenä julk
 
 ## Seuraava askel
 
-Emil kokeilee 0.9:ää puhelimella: eläinlistan ruudukko (sivuveto, ruudun napautus) sekä kirjoittamista arkissa (näppäimistö, Seuraava, Valmis) ja Nyt-korttia. Avoimet kysymykset:
+Emil kokeilee 1.0:aa puhelimella: listan tarkistusnäkymä (OK / Ei), pomppiminen arkkia avatessa ja näppäimistön kanssa, eläinlistan sivuveto sekä kirjoittamista arkissa (näppäimistö, Seuraava, Valmis) ja Nyt-korttia. Avoimet kysymykset:
 1. Asettuuko arkki iPhonella näppäimistön päälle ilman pomppimista? (Kyselyn kysymys 5.)
 2. Onko oletusjärjestys oikea, ja pitääkö portaiden koskea muutakin kuin puuttuvia tietoja?
 3. Riittääkö mittaus muistiosta Lääkeseurannalle ja Mittareille, vai myös muille?

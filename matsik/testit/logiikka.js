@@ -1,4 +1,4 @@
-/* Mätsik Forest 0.8: moottorin säännöt (sääntöjen järjestys, portaat, mittaus muistiosta, aikasanat, käyntisykli, muokattavat sisällöt ja muodot, vanhentuminen, arviointi, tahojen tavoitteet ja seuranta,
+/* Mätsik Forest 1.0: moottorin säännöt (kuittaukset OK / Ei, sääntöjen järjestys, portaat, mittaus muistiosta, aikasanat, käyntisykli, muokattavat sisällöt ja muodot, vanhentuminen, arviointi, tahojen tavoitteet ja seuranta,
    ohjauksen arvio, haasteet, mittarit, tallennus). */
 const MF=require('./engine.js');let bad=0;
 function want(l,c){console.log('  '+l.padEnd(58)+(c?'ok':'VIRHE'));if(!c)bad++;}
@@ -106,4 +106,15 @@ d5.muistio.push(nt('m1','Kettu paino 41'));const DM=MF.derivedFor(k5,d5,'2026-11
 want('johdettu arvo eläimelle',DM.mit.paino&&DM.mit.paino[0].arvo==='41'&&DM.mit.paino[0].muistio===true);
 k5.toimet.alku='2026-11-02';k5.toimet.sykli.vk1=['paino'];const S5=MF.cycleSlots('2026-11-02','2026-11-06')[0];
 want('muistion mittaus täyttää laatikon',MF.itemState(k5,'paino',S5,MF.allEntries(d5,'2026-11-06'),'2026-11-06',MF.lists(d5),DM)==='ok'&&!MF.herjat(k5,d5,'2026-11-06').some(h=>h.laji==='sykli'));
+/* 1.0: kuittaukset OK / Ei */
+const d6=MF.empty(),k6=MF.newClient('Kettu','2026-11-02');d6.asiakkaat.push(k6);const T6='2026-11-14';
+want('kohdat: tavoitteet 9, esitiedot 5, tulosyy 1, mittarit luettelosta, sykli ei kuitattava',MF.chkItems('tavoitteet',d6).length===9&&MF.chkItems('esitiedot',d6).length===5&&MF.chkItems('tulosyy',d6).length===1&&MF.chkItems('mittarit',d6).length===2&&MF.chkItems('toimet',d6).length===0);
+MF.setChk(k6,'tulosyy','ok',T6);let H6=MF.herjat(k6,d6,T6);want('OK kumoaa puuttuvan',!H6.some(h=>h.osio==='tulosyy'));
+MF.setChk(k6,'tulosyy','ok',T6);want('sama valinta tyhjentää',!k6.kuit.tulosyy&&MF.herjat(k6,d6,T6).some(h=>h.teksti==='Tulosyy puuttuu'));
+MF.setChk(k6,'esitiedot.perhe','ei',T6);H6=MF.herjat(k6,d6,T6);const e6=H6.find(h=>h.laji==='ei');
+want('Ei: muistutus, ei portaiden piilottama',e6&&e6.teksti==='Ei kunnossa: Esitiedot · Perhe'&&e6.r==='puu'&&H6.some(h=>h.teksti==='Tulosyy puuttuu'));
+MF.setChk(k6,'esitiedot.asuminen','ok',T6);want('OK päivittää osion tarkistuspäivän',k6.esitiedot.u===T6);
+const H7=MF.herjat(k6,d6,'2027-07-01');want('OK vanhenee välin mukaan, Ei ei vanhene',H7.some(h=>h.teksti==='Esitiedot: kuitattu 7 kk sitten'&&h.tark)&&H7.some(h=>h.laji==='ei'));
+MF.touchChk(k6,'esitiedot','2027-07-01');want('Pitää paikkansa uusii kuittaukset',!MF.herjat(k6,d6,'2027-07-01').some(h=>h.teksti.startsWith('Esitiedot: kuitattu')));
+want('kuittaukset säilyvät ja viallinen poistuu korjauksessa',(()=>{const x=JSON.parse(JSON.stringify(d6));x.asiakkaat[0].kuit.huono={v:'x'};x.asiakkaat[0].kuit.puuttuu={v:'ok'};const r=MF.repair(x).asiakkaat[0].kuit;return r['esitiedot.perhe'].v==='ei'&&!r.huono&&!r.puuttuu;})()&&JSON.stringify(MF.repair({asiakkaat:[{nimi:'V'}]}).asiakkaat[0].kuit)==='{}');
 process.exit(bad?1:0);
