@@ -1,8 +1,17 @@
 # Mätsik Forest: tila
 
-**Vaihe:** versio 0.8. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 12.11.2026
+**Vaihe:** versio 0.9. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 14.11.2026
 
 Juureen (`paatospuu/`) nojaava, mutta erillinen hoitosuunnitelmien demo- ja kehittämisappi. Kaikki sisältö on kuvitteellista, ja Emil kirjoittaa sen itse. Appi ei sisällä valmista dataa. Hahmotelma ja perustelut ovat projektikansiossa (`hoitojuuri/HAHMOTELMA.md`), ei tässä julkisessa repossa.
+
+## Versio 0.9 (14.11.2026, Emil: luonnoksen "eläinrivit" pohjalta)
+
+- **Eläinlista ruudukkona:** jokaisella eläimellä on nimirivi (nimi, tärkein tekemätön asia, +N) ja sen alla 14 osioruutua vaiheittain (Tul Esi Keh Til Kou Sos Vah | Dg Tar Hst | Tav Mit | Syk Lää). Kaikki rivit vierivät sivuttain yhdessä, ja nimirivi pysyy paikallaan. Ruudun väri: täytetty vihreä, tyhjä katkoviiva, vaadittu puuttuva keltainen katkoviiva, tarkista tai sovittava keltainen, kiireellinen punainen. Ensimmäisenä tehtävä ruutu on valkoisella kehyksellä.
+- Järjestys ennallaan (tärkein tekemätön asia omien sääntöjen mukaan). Nimirivin napautus avaa eläimen, ruudun napautus avaa eläimen ja vierittää kyseiseen osioon (tavoitteessa avaa oikean ruudun).
+- Pois: rajaussirut ja työjono (Emil: ei tarvita). Ohjeluonnoksen vaihepalkkia 1–4 ei tehty listaan.
+- Tietokoneella ruudut mahtuvat kerralla näkyviin.
+- Testit: `selain.js` lisäksi ruudut ja tilat, järjestys kahdella eläimellä, yhteinen vieritys, ruudusta osioon. Kaikki ok 390, 320 ja 1280 px.
+- Luonnos: https://claude.ai/artifact/QqpDkKxSsfVrh9HAFw1Pd8
 
 ## Versio 0.8 (12.11.2026, Emil: "tee kaikki suosittelemasi muutokset")
 
@@ -114,7 +123,7 @@ Käytettävyyssuunnitelman (`SUUNNITELMA.md`) kaikki neljä askelta yhtenä julk
 
 ## Seuraava askel
 
-Emil kokeilee 0.8:aa puhelimella, erityisesti kirjoittamista arkissa (näppäimistö, Seuraava, Valmis) ja Nyt-korttia. Avoimet kysymykset:
+Emil kokeilee 0.9:ää puhelimella: eläinlistan ruudukko (sivuveto, ruudun napautus) sekä kirjoittamista arkissa (näppäimistö, Seuraava, Valmis) ja Nyt-korttia. Avoimet kysymykset:
 1. Asettuuko arkki iPhonella näppäimistön päälle ilman pomppimista? (Kyselyn kysymys 5.)
 2. Onko oletusjärjestys oikea, ja pitääkö portaiden koskea muutakin kuin puuttuvia tietoja?
 3. Riittääkö mittaus muistiosta Lääkeseurannalle ja Mittareille, vai myös muille?

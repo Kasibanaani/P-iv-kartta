@@ -1,4 +1,4 @@
-/* Mätsik Forest 0.8: käyttö selaimessa. Eläimet, Nyt-kortti ja portaat, lukutila ja muokkausarkki (Seuraava samassa kentässä, näppäimistö), syklinauha ja Sovi, mittaus muistiosta, tavoitekartta, työjono, Valikon alasivut ja säännöt,
+/* Mätsik Forest 0.8: käyttö selaimessa. Eläimet, Nyt-kortti ja portaat, lukutila ja muokkausarkki (Seuraava samassa kentässä, näppäimistö), syklinauha ja Sovi, mittaus muistiosta, tavoitekartta, työjono, Valikon alasivut ja säännöt, eläinlista vierivänä ruudukkona (0.9),
    osiot vaiheittain, käyntisykli, muokattavat luettelot, käynti muistiosta, herjat, tahojen tavoitteet tasoittain, seuranta ja arviointikierros,
    periaatteet, mittarit, ohjauksen arvio, haasteet, muistion automaattitallennus,
    alapalkin osionappi ja pikavienti, Juuren mallinen kalenteri (pito ja viiva, siirto, keston venytys, päivän vaihto pudottamalla, kuukausi),
@@ -104,9 +104,18 @@ async function run(b,w,h,touch){
   await tap('.rr[data-s=ohj]');await pg.fill('#ohj-lisa','Hoito osuu oikeaan');await tap('[data-act=ohjkirj][data-v=oikea]');
   want('ohjauksen arvio kirjattu',(await pg.evaluate(A+'.ohjaus[0].tulos'))==='oikea'&&(await pg.locator('#sec-tarve').innerText()).includes('Oikea yksikkö')&&await pg.locator('.sheet').count()===0);
   want('ei vaakavieritystä (eläin)',!await wide());
-  await tap('#bar [data-act=home]');want('listalla Kettu yhdellä rivillä',await pg.locator('.row').count()===1&&(await pg.locator('.row').boundingBox()).height<70);
-  await tap('[data-act=lf][data-g=kay]');want('rajaus: työjono kaikilta eläimiltä',await pg.locator('.qrow').count()>=1&&await pg.locator('.row').count()===0&&await pg.locator('.qrow [data-act=sovi]').count()>=1);
-  await tap('[data-act=lf][data-g=""]');
+  await tap('#bar [data-act=home]');
+  want('lista: rivi, 14 osioruutua, ei suodattimia',await pg.locator('.lr').count()===1&&await pg.locator('.lr .ot').count()===14&&await pg.locator('[data-act=lf]').count()===0);
+  want('ruutujen tilat: täytetty, tyhjä ja ensimmäinen tehtävä',await pg.locator('.ot.ok[data-o=tulosyy]').count()===1&&await pg.locator('.ot.tyh[data-o=kehitys]').count()===1&&await pg.locator('.ot.eka[data-o=toimet]').count()===1&&await pg.locator('.ot.eka').count()===1);
+  await tap('#bar [data-act=uusi]');await pg.fill('#nn','Siili');await tap('[data-act=uusiok]');await tap('#bar [data-act=home]');
+  want('järjestys: tärkein tekemätön asia ensin (Kettu ennen uutta Siiliä)',(await pg.locator('.nl b').allInnerTexts()).join()==='Kettu,Siili'&&await pg.locator('.lr:has-text("Siili") .ot.eka[data-o=tulosyy].puu').count()===1);
+  const nx0=(await pg.locator('.nl').first().boundingBox()).x;await pg.locator('#tbl').evaluate(e=>e.scrollLeft=e.scrollWidth);await pg.waitForTimeout(100);
+  want('ruudut vierivät yhdessä, nimet pysyvät',w>=900||(Math.abs((await pg.locator('.nl').first().boundingBox()).x-nx0)<4&&(await pg.locator('.lr').nth(0).locator('.ot[data-o=tulosyy]').boundingBox()).x<0&&(await pg.locator('.lr').nth(1).locator('.ot[data-o=tulosyy]').boundingBox()).x<0));
+  want('ei vaakavieritystä (lista vieritettynä)',!await wide());
+  await pg.locator('#tbl').evaluate(e=>e.scrollLeft=0);
+  await tap('.lr:has-text("Kettu") .ot[data-o=haasteet]');await pg.waitForTimeout(500);
+  want('ruutu avaa eläimen kyseiseen osioon',(await pg.locator('h1').first().innerText()).includes('Kettu')&&await pg.evaluate("(()=>{const r=document.getElementById('sec-haasteet').getBoundingClientRect();return r.top>=0&&r.top<innerHeight/2;})()"));
+  await tap('#bar [data-act=home]');
   want('ei vaakavieritystä (lista)',!await wide());
   /* osionappi */
   await tap('#roll');want('osiovalikko aukeaa alhaalta',await pg.locator('.pop [data-nav]').count()===4);
@@ -170,7 +179,7 @@ async function run(b,w,h,touch){
   await tap('#lc-mittarit [data-act=leadd]');await pg.fill('#le-n','SDQ');await pg.fill('#le-mita','Vahvuudet ja vaikeudet');await tap('#lc-mittarit [data-act=leok]');
   want('oma mittari luetteloon',(await pg.evaluate(D+'.asetukset.mittarit.slice(-1)[0].mita'))==='Vahvuudet ja vaikeudet');
   await pg.fill('#pplist','CPS\nFIT\nMentalisaatio');want('periaateluettelo tallentui',(await pg.evaluate(D+'.asetukset.periaatteet.length'))===3);
-  await tap('#roll');await tap('.pop [data-nav=asiakkaat]');await tap('[data-act=open]');await tap('[data-act=slotsel][data-k=vk3]');await tap('[data-act=slotedit][data-k=vk3]');
+  await tap('#roll');await tap('.pop [data-nav=asiakkaat]');await tap('.nl:has-text("Kettu")');await tap('[data-act=slotsel][data-k=vk3]');await tap('[data-act=slotedit][data-k=vk3]');
   want('oma sisältö valittavissa laatikossa',await pg.locator('[data-syk=vk3]',{hasText:'Ryhmäkäynti'}).count()===1);
   await tap('[data-syk=vk3]:has-text("Ryhmäkäynti")');await tap('[data-act=slotok]');
   want('oma sisältö herjaa',(await HJ()).includes('Ryhmäkäynti sovittava'));
@@ -191,7 +200,7 @@ async function run(b,w,h,touch){
   const ftxt=fs.readFileSync(await dl.path(),'utf8'),o=JSON.parse(ftxt);want('vientimuoto',o.app==='matsik'&&o.data.asiakkaat[0].nimi==='Kettu'&&o.data.muistio.length===4);
   await pg.evaluate('localStorage.clear()');await pg.reload();await pg.waitForTimeout(150);await tap('#roll');await tap('.pop [data-nav=valikko]');await tap('[data-act=vsub][data-k=tiedot]');
   await tap('[data-act=tuoteksti]');await pg.fill('#tt',ftxt);await tap('[data-act=ttok]');await tap('[data-act=tuook]');
-  want('tuonti palautti eläimen',await pg.locator('.row').count()===1);
+  want('tuonti palautti eläimet',await pg.locator('.lr').count()===2);
   want('ei sivuvirheitä',!errs.length);if(errs.length)console.log(errs);
   await ctx.close();return bad;}
 (async()=>{let b;try{b=await chromium.launch();}catch(e){b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium'});}

@@ -281,6 +281,30 @@ textarea.edf{min-height:96px;max-height:calc(var(--vvh,100vh) - 190px);overflow:
 @media (max-width:360px){.bl{display:none}.stb{max-width:44px}.bar .bbtn.plus{min-width:48px}.gmap{grid-template-columns:54px repeat(3,minmax(0,1fr))}.gh,.gl{font-size:11px}.cell{padding:0 4px 5px}.cell>.st{margin:0 -4px 2px}}
 @media (min-width:900px){.app.wide{max-width:1120px}.app.wide .stages{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 20px;align-items:start}}
 @media (min-width:1500px){.app.wide{max-width:1560px}.app.wide .stages{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* Eläinlista ruudukkona (0.9) */
+.tbl{overflow-x:auto;overscroll-behavior-x:contain;container-type:inline-size;scrollbar-width:none;margin-inline:-12px;padding-block:2px 4px}
+.tbl::-webkit-scrollbar{display:none}
+.tin{width:max-content;min-width:100%;padding:0 12px;display:flex;flex-direction:column;gap:6px}
+.tsh{display:flex;gap:12px;padding-left:9px}
+.tsh b{font-size:11px;color:var(--muted);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:none}
+.lr{background:var(--surface);border:1px solid var(--card-line);border-radius:var(--r);box-shadow:var(--card-shadow);padding:5px 0 8px;display:flex;flex-direction:column;gap:5px}
+.lr.crit{border-left:3px solid var(--crit)}.lr.warn{border-left:3px solid var(--warn)}
+.nl{position:sticky;left:13px;width:calc(100cqw - 26px);display:flex;align-items:baseline;gap:8px;padding:3px 10px;background:none;border:0;text-align:left;color:var(--fg);min-width:0}
+.nl b{font-size:15px;flex:none}
+.nl span{font-size:13px;color:var(--muted);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lr.crit .nl span{color:var(--crit)}
+.nl small{font-size:12px;color:var(--muted);flex:none;font-variant-numeric:tabular-nums}
+.tiles{display:flex;gap:12px;padding:0 9px}
+.tg{display:flex;gap:3px;position:relative}
+.tg+.tg::before{content:'';position:absolute;left:-7px;top:4px;bottom:4px;width:1px;background:var(--line)}
+.ot{width:40px;height:32px;border-radius:var(--r-s);border:1px solid transparent;font-size:11px;font-weight:700;display:grid;place-items:center;padding:0;flex:none;color:var(--fg);background:none}
+.ot.ok{background:color-mix(in srgb,var(--ok) 16%,var(--surface))}
+.ot.tyh{border:1px dashed var(--line);color:var(--muted)}
+.ot.puu{background:color-mix(in srgb,var(--warn) 8%,transparent);border:1px dashed var(--warn)}
+.ot.warn{background:color-mix(in srgb,var(--warn) 30%,var(--surface));border-color:color-mix(in srgb,var(--warn) 55%,transparent)}
+.ot.crit{background:color-mix(in srgb,var(--crit) 34%,var(--surface));border-color:var(--crit)}
+.ot.eka{outline:2px solid var(--fg);outline-offset:1px}
 </style>
 </head>
 <body>
@@ -739,19 +763,32 @@ function nowCard(a,H,E){if(!H.length){var nx=nextVisit(a,E||MF.allEntries(data,T
   return s+'</div>';}
 
 /* ---------- näkymät ---------- */
+/* Eläinlista ruudukkona (0.9, Emil 14.11.2026): nimirivi pysyy paikallaan, osioruudut vierivät sivuttain kaikilla riveillä yhdessä. Järjestys = tärkein tekemätön asia. */
+var ABBR={tulosyy:'Tul',esitiedot:'Esi',kehitys:'Keh',tilanne:'Til',koulu:'Kou',sosiaali:'Sos',vahvuudet:'Vah',diagnoosit:'Dg',tarve:'Tar',haasteet:'Hst',tavoitteet:'Tav',mittarit:'Mit',toimet:'Syk',seuranta:'Lää'};
+var VAIHEK={1:'Mistä lähdetään',2:'Ongelma ja apu',3:'Tavoitteet',4:'Toteutus'};
+function anyLen(o){return Object.keys(o||{}).some(function(k){var x=o[k];return Array.isArray(x)?x.length:x&&x.arvot&&x.arvot.length;});}
+function filled(a,sc,DM){var k=sc.k,o=a[k];
+  if(k==='diagnoosit')return a.diagnoosit.v.length>0;
+  if(k==='tavoitteet')return a.tavoitteet.length>0;
+  if(k==='haasteet')return a.haasteet.length>0;
+  if(k==='toimet')return !!a.toimet.alku;
+  if(k==='mittarit')return anyLen(a.mittarit)||anyLen(DM.mtr);
+  if(k==='seuranta')return anyLen(a.seuranta)||anyLen(DM.mit);
+  if(k==='tarve'&&a.ohjaus.length)return true;
+  return !!o&&(sc.f||[]).some(function(f){var v=o[f[0]];return v!=null&&String(v).trim()!=='';});}
+function tileSt(hs,fl){if(hs.some(function(x){return x.sev==='crit';}))return 'crit';if(hs.some(function(x){return x.laji==='puuttuu';}))return 'puu';if(hs.length)return 'warn';return fl?'ok':'tyh';}
 function vAsiakkaat(){var L=MF.ordered(data,TODAY),need=L.filter(function(x){return x.h.length;}).length;
   var s=band(false)+'<div class="hd"><h1>Eläimet</h1><span class="sub">'+MF.fi(TODAY)+(L.length?' · '+(need?need+' vaatii huomiota':'kaikki kunnossa'):'')+'</span></div><div class="main">';
   if(!L.length)return s+'<p class="empty">Ei vielä eläimiä. Lisää ensimmäinen alhaalta plusnapista.</p></div>';
-  var all=[],C={};L.forEach(function(x){x.h.forEach(function(q){all.push({a:x.a,x:q});var g=hgOf(q);C[g]=(C[g]||0)+1;});});if(listF&&!C[listF])listF='';
-  s+='<div class="filt"><button class="chipb" data-act="lf" data-g="" aria-pressed="'+(!listF)+'">Kaikki '+L.length+'</button>'+HG.filter(function(g){return C[g[0]];}).map(function(g){
-    return '<button class="chipb" data-act="lf" data-g="'+g[0]+'" aria-pressed="'+(listF===g[0])+'">'+g[1]+' '+C[g[0]]+'</button>';}).join('')+'</div>';
-  if(listF){/* työjono: yhden lajin muistutukset kaikilta eläimiltä */
-    all.filter(function(q){return hgOf(q.x)===listF;}).sort(function(p,q){return p.x.ri-q.x.ri;}).forEach(function(q){
-      s+='<div class="qrow"><i class="st '+q.x.sev+'"></i><button class="qt" data-act="open" data-id="'+q.a.id+'"><b>'+h(q.a.nimi)+'</b><span>'+h(q.x.teksti)+'</span></button>'+hjAction(q.x,q.a,false,q.a.id)+'</div>';});
-    return s+'</div>';}
-  L.forEach(function(x){var top=x.h[0];s+='<button class="row" data-act="open" data-id="'+x.a.id+'"><i class="st '+(top?top.sev:'ok')+'"></i><b class="nm">'+h(x.a.nimi)+'</b><span class="ht">'+
-    (top?h(top.teksti):'Kunnossa'+(x.next?' · käynti '+MF.fi(x.next.date)+(x.next.klo?' klo '+x.next.klo:''):''))+'</span><span class="more">'+(x.h.length>1?'+'+(x.h.length-1):'')+'</span></button>';});
-  return s+'</div>';}
+  s+='<div class="tbl" id="tbl"><div class="tin"><div class="tsh" aria-hidden="true">'+[1,2,3,4].map(function(v){var n=SECS.filter(function(sc){return sc.v===v;}).length;
+    return '<b style="width:'+(n*40+(n-1)*3)+'px">'+v+' '+VAIHEK[v]+'</b>';}).join('')+'</div>';
+  L.forEach(function(x){var a=x.a,top=x.h[0],DM=MF.derivedFor(a,data,TODAY);
+    s+='<div class="lr'+(top?' '+top.sev:'')+'"><button class="nl" data-act="open" data-id="'+a.id+'"><b>'+h(a.nimi)+'</b><span>'+
+      (top?h(top.teksti):'Kunnossa'+(x.next?' · käynti '+MF.fi(x.next.date)+(x.next.klo?' klo '+x.next.klo:''):''))+'</span><small>'+(x.h.length>1?'+'+(x.h.length-1):'')+'</small></button><div class="tiles">'+
+      [1,2,3,4].map(function(v){return '<div class="tg">'+SECS.filter(function(sc){return sc.v===v;}).map(function(sc){var hs=x.h.filter(function(q){return q.osio===sc.k;}),st=tileSt(hs,filled(a,sc,DM));
+        return '<button class="ot '+st+(top&&top.osio===sc.k?' eka':'')+'" data-act="goto" data-o="'+sc.k+'" data-a="'+a.id+'"'+(hs[0]&&hs[0].tav?' data-t="'+hs[0].tav+'"':'')+
+          ' aria-label="'+h(a.nimi+': '+sc.n+(hs[0]?', '+hs[0].teksti:''))+'">'+ABBR[sc.k]+'</button>';}).join('')+'</div>';}).join('')+'</div></div>';});
+  return s+'</div></div></div>';}
 function worst(H){return H.some(function(x){return x.sev==='crit';})?'crit':H.length?'warn':'';}
 var CHEV='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M6 8l4 4 4-4"/></svg>';
 function vAsiakas(){var a=cl(view.id);if(!a){view={v:'asiakkaat'};return vAsiakkaat();}var H=MF.herjat(a,data,TODAY),E=MF.allEntries(data,TODAY),DM=MF.derivedFor(a,data,TODAY);
@@ -1074,7 +1111,7 @@ function vValikko(){var A=data.asetukset,V=A.valit,arch=data.asiakkaat.filter(fu
   if(!sub){var D={tiedot:'Vienti ja tuonti. Viety viimeksi: '+last+'.',ulkoasu:'Teema, nappien muoto, fontit, kuvitus, merkinnän oletuspituus',luettelot:'Diagnoosit, periaatteet, käyntisyklin sisällöt, käyntien muodot, mittarit',
       saannot:'Muistutusten järjestys, portaat, tarkistusvälit',arkisto:arch.length?arch.length+(arch.length===1?' arkistoitu eläin':' arkistoitua eläintä'):'Ei arkistoituja eläimiä'};
     s+=VSUB.map(function(x){return '<button class="mrow" data-act="vsub" data-k="'+x[0]+'"><b>'+x[1]+'</b><span class="meta">'+h(D[x[0]])+'</span></button>';}).join('');
-    return s+'<p class="meta" style="text-align:center">Mätsik Forest 0.8 · tallennusmuoto '+MF.VER+'</p></div>';}
+    return s+'<p class="meta" style="text-align:center">Mätsik Forest 0.9 · tallennusmuoto '+MF.VER+'</p></div>';}
   if(sub==='tiedot')s+='<div class="card"><b>Vienti ja tuonti</b><p class="msg">Tiedot ovat vain tällä laitteella. Vie varmuuskopio säännöllisesti. Viety viimeksi: '+last+'.</p>'+
     '<div class="btns"><button class="btn pri" data-act="vie">Vie (Mätsik Forest.json)</button><label class="btn">Tuo tiedostosta<input type="file" id="tuofile" accept=".json,application/json,text/plain" hidden></label><button class="btn link" data-act="tuoteksti">Tuo tekstinä</button></div><div id="tuo"></div></div>';
   if(sub==='ulkoasu')s+='<div class="card"><b>Ulkoasu</b><div class="f"><span>Teema</span>'+seg('teema',A.teema,T.map(function(t){return [t.id,t.name];}))+'</div>'+
