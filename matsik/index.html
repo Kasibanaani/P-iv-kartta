@@ -250,6 +250,8 @@ i.dot.plan{background:none;box-shadow:inset 0 0 0 2px var(--ok)}i.dot.miss{--c:v
 .tagc{font-style:normal;font-size:12px;font-weight:700;padding:1px 8px;border-radius:var(--r-chip);background:color-mix(in srgb,var(--c,var(--line)) 22%,var(--surface));white-space:nowrap}
 .cl2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .bad{color:var(--crit)}
+.syal{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:14px}.syal input{min-height:36px;width:auto;max-width:60%}
+.syg{display:flex;flex-direction:column;gap:4px}
 .strip{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
 .slotb{border:1px solid var(--line);background:var(--bg);border-radius:var(--r-s);padding:6px 2px;min-height:52px;display:flex;flex-direction:column;align-items:center;gap:5px;color:var(--fg);min-width:0}
 .slotb b{font-size:12px;white-space:nowrap}
@@ -951,16 +953,18 @@ function sliRow(a,it,sl,E,L,DM,pre){var x=L.byId[it],st=sl.start?MF.itemState(a,
     st==='ok'?'<span class="meta">tehty</span>':sl.start?'<button class="btn sm" data-act="sovi" data-it="'+h(it)+'">+ Sovi</button>':'')+'</div>';}
 function sykli(a,E,DM){var S=a.toimet.sykli,al=a.toimet.alku,L=MF.lists(data),SL=al?MF.cycleSlots(al,TODAY):MF.SLOTS.map(function(k){return {k:k};});
   var cur=al?SL.filter(function(sl){return sl.start<=TODAY&&sl.end>=TODAY;})[0]:null,sel=selSlot[a.id]||(cur?cur.k:'vk1'),sl=SL.filter(function(x){return x.k===sel;})[0];
-  var s='<div class="blk"><div class="bh"><b>Hoitotoimet</b><span class="meta">'+(al?'sykli '+MF.fiShort(SL[0].start)+'–'+MF.fiShort(SL[5].end):'sykliä ei ole aloitettu')+'</span><button class="btn sm link" data-act="ed" data-s="toimet">'+(al?'Muokkaa':'Aloita')+'</button></div>';
+  var s='<div class="blk"><div class="bh"><b>Hoitotoimet</b><span class="meta">'+(al?'sykli '+MF.fiShort(SL[0].start)+'–'+MF.fiShort(SL[5].end):'sykliä ei ole aloitettu')+'</span><button class="btn sm link" data-act="ed" data-s="toimet" data-f="muodot">Muodot</button></div>'+
+    '<label class="syal"><span>Syklin alku</span><input type="date" data-syal="1" value="'+h(al||'')+'"></label>';
   s+='<div class="strip">'+SL.map(function(q){var it=(S[q.k]||[]).filter(function(id){return L.byId[id];});
     return '<button class="slotb'+(q.k===sel?' on':'')+(cur&&q.k===cur.k?' cur':'')+'" data-act="slotsel" data-k="'+q.k+'" aria-pressed="'+(q.k===sel)+'"><b>'+MF.SLOTN[q.k]+'</b><span class="dots">'+
       it.map(function(id){return '<i class="dot '+(al?MF.itemState(a,id,q,E,TODAY,L,DM):'wait')+'"></i>';}).join('')+'</span></button>';}).join('')+'</div>';
   var its=(S[sel]||[]).filter(function(id){return L.byId[id];});
-  s+='<div class="cellh"><b>'+MF.SLOTN[sel]+(al?' · '+MF.fiShort(sl.start)+'–'+MF.fiShort(sl.end):'')+(cur&&cur.k===sel?' · nyt':'')+'</b><button class="btn sm link" data-act="slotedit" data-k="'+sel+'">'+(editSlot===sel?'':its.length?'Muuta valintoja':'Valitse sisällöt')+'</button></div>';
-  if(editSlot===sel)s+=(L.sis.length?[['kaynti','Käynnit'],['seuranta','Seuranta']].map(function(g){var G=L.sis.filter(function(x){return x.laji===g[0];});
-      return G.length?'<span class="meta">'+g[1]+'</span><div class="seg sm">'+G.map(function(x){return '<button data-syk="'+sel+'" data-v="'+h(x.id)+'" aria-pressed="'+(its.indexOf(x.id)>=0)+'">'+h(x.n)+'</button>';}).join('')+'</div>':'';}).join(''):
-      '<p class="meta">Sisältöluettelo on tyhjä. Lisää sisältöjä: Valikko → Luettelot.</p>')+'<div class="btns"><button class="btn sm pri" data-act="slotok">Valmis</button></div>';
-  else s+=its.length?its.map(function(id){return sliRow(a,id,sl,E,L,DM);}).join(''):'<p class="meta">Ei valintoja tässä laatikossa.</p>';
+  /* 1.3 (Emil 15.11.2026): valinnat näkyvät aina, napautus lisää tai poistaa; alla valittujen tila ja + Sovi */
+  s+='<div class="cellh"><b>'+MF.SLOTN[sel]+(al?' · '+MF.fiShort(sl.start)+'–'+MF.fiShort(sl.end):'')+(cur&&cur.k===sel?' · nyt':'')+'</b></div>';
+  s+=L.sis.length?[['kaynti','Käynnit'],['seuranta','Seuranta']].map(function(g){var G=L.sis.filter(function(x){return x.laji===g[0];});
+      return G.length?'<div class="syg"><span class="meta">'+g[1]+'</span><div class="seg sm">'+G.map(function(x){return '<button data-syk="'+sel+'" data-v="'+h(x.id)+'" aria-pressed="'+(its.indexOf(x.id)>=0)+'">'+h(x.n)+'</button>';}).join('')+'</div></div>':'';}).join(''):
+      '<p class="meta">Sisältöluettelo on tyhjä. Lisää sisältöjä: Valikko → Luettelot.</p>';
+  if(its.length)s+=al?its.map(function(id){return sliRow(a,id,sl,E,L,DM);}).join(''):'<p class="meta">Valitse syklin alkupäivä, niin appi seuraa, onko valitut sovittu kalenteriin.</p>';
   if(al){var hz=MF.addDays(MF.monday(TODAY),20),up='';SL.forEach(function(q){if(q.k===sel||q.end<TODAY||q.start>hz)return;(S[q.k]||[]).forEach(function(id){if(L.byId[id]&&MF.itemState(a,id,q,E,TODAY,L,DM)==='miss')up+=sliRow(a,id,q,E,L,DM,MF.SLOTN[q.k]);});});
     if(up)s+='<div class="cellh"><b>Muut sovittavat</b></div>'+up;}
   var mine=E.filter(function(e){return e.kaynti&&e.as.indexOf(a.id)>=0&&e.date>=MF.addDays(TODAY,-28);});
@@ -1186,7 +1190,7 @@ function vValikko(){var A=data.asetukset,V=A.valit,arch=data.asiakkaat.filter(fu
   if(!sub){var D={tiedot:'Vienti ja tuonti. Viety viimeksi: '+last+'.',ulkoasu:'Teema, nappien muoto, fontit, kuvitus, merkinnän oletuspituus',luettelot:'Diagnoosit, periaatteet, käyntisyklin sisällöt, käyntien muodot, mittarit',
       saannot:'Muistutusten järjestys, portaat, tarkistusvälit',arkisto:arch.length?arch.length+(arch.length===1?' arkistoitu eläin':' arkistoitua eläintä'):'Ei arkistoituja eläimiä'};
     s+=VSUB.map(function(x){return '<button class="mrow" data-act="vsub" data-k="'+x[0]+'"><b>'+x[1]+'</b><span class="meta">'+h(D[x[0]])+'</span></button>';}).join('');
-    return s+'<p class="meta" style="text-align:center">Mätsik Forest 1.2 · tallennusmuoto '+MF.VER+'</p></div>';}
+    return s+'<p class="meta" style="text-align:center">Mätsik Forest 1.3 · tallennusmuoto '+MF.VER+'</p></div>';}
   if(sub==='tiedot')s+='<div class="card"><b>Vienti ja tuonti</b><p class="msg">Tiedot ovat vain tällä laitteella. Vie varmuuskopio säännöllisesti. Viety viimeksi: '+last+'.</p>'+
     '<div class="btns"><button class="btn pri" data-act="vie">Vie (Mätsik Forest.json)</button><label class="btn">Tuo tiedostosta<input type="file" id="tuofile" accept=".json,application/json,text/plain" hidden></label><button class="btn link" data-act="tuoteksti">Tuo tekstinä</button></div><div id="tuo"></div></div>';
   if(sub==='ulkoasu')s+='<div class="card"><b>Ulkoasu</b><div class="f"><span>Teema</span>'+seg('teema',A.teema,T.map(function(t){return [t.id,t.name];}))+'</div>'+
@@ -1303,7 +1307,7 @@ document.addEventListener('input',function(e){var t=e.target;if(t.tagName==='TEX
   if(t.dataset.le){var lx=leCur();if(lx){lx[t.dataset.le]=t.value;save();}}
   if(t.id==='pplist'){data.asetukset.periaatteet=t.value.split('\n').map(function(x){return x.trim();}).filter(Boolean);save();}
   if(t.id==='dglist'){data.asetukset.diagnoosit=t.value.split('\n').map(function(x){return x.trim();}).filter(Boolean);save();}});
-document.addEventListener('change',function(e){var t=e.target;if(t.dataset.b)refreshHerjat();
+document.addEventListener('change',function(e){var t=e.target;if(t.dataset.syal){var sa=cl(view.id);if(sa){sa.toimet.alku=t.value||'';sa.toimet.u=TODAY;save();render();}return;}if(t.dataset.b)refreshHerjat();
   if(t.id==='tuofile'&&t.files&&t.files[0]){var r=new FileReader();r.onload=function(){offerImport(String(r.result),'tuo');};r.readAsText(t.files[0]);t.value='';}});
 document.addEventListener('focusout',function(e){if(e.target.id==='newnote')setTimeout(function(){var a=document.activeElement;if(!a||a.id!=='newnote')draftEnd();},0);if(e.target.id==='nt')sheetNoteSave();});
 (function(){var sx=null;document.addEventListener('touchstart',function(ev){sx=ev.target.closest&&ev.target.closest('#roll')?ev.touches[0].clientX:null;},{passive:true});
@@ -1347,8 +1351,6 @@ document.addEventListener('click',function(e){var b=e.target.closest('button,[da
    case 'portaat':data.asetukset.portaat=D.v==='1';save();render();break;
    case 'home':view={v:'asiakkaat'};lOpen=null;lOrd=null;render();window.scrollTo(0,0);break;
    case 'uusi':sheet={k:'uusi'};renderSheet();break;
-   case 'slotedit':editSlot=editSlot===D.k?'':D.k;selSlot[a.id]=D.k;render();break;
-   case 'slotok':editSlot='';render();break;
    case 'leopen':leEd={l:D.l,id:D.id};confirmDel='';render();break;
    case 'leadd':var nx2={id:MF.uid(),n:''};if(D.l==='mittarit')nx2.mita='';else nx2.sanat='';if(D.l==='sisallot'){nx2.laji='kaynti';nx2.mit='';}leList(D.l).push(nx2);leEd={l:D.l,id:nx2.id};save();render();var ln=$('le-n');if(ln)ln.focus();break;
    case 'leset':var lx2=leCur();if(lx2){lx2[D.f]=D.v;if(D.f==='laji'&&D.v==='kaynti')lx2.mit='';save();render();}break;

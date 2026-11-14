@@ -1,8 +1,15 @@
 # Mätsik Forest: tila
 
-**Vaihe:** versio 1.2. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 14.11.2026
+**Vaihe:** versio 1.3. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 15.11.2026
 
 Juureen (`paatospuu/`) nojaava, mutta erillinen hoitosuunnitelmien demo- ja kehittämisappi. Kaikki sisältö on kuvitteellista, ja Emil kirjoittaa sen itse. Appi ei sisällä valmista dataa. Hahmotelma ja perustelut ovat projektikansiossa (`hoitojuuri/HAHMOTELMA.md`), ei tässä julkisessa repossa.
+
+## Versio 1.3 (15.11.2026, Emil: syklin vaihtoehdot näkyviin ilman muokkausnappeja)
+
+- **Käyntisykli:** valitun laatikon (Vk 1 … Kk 3) kaikki sisällöt näkyvät aina napteina Käynnit- ja Seuranta-ryhmissä; napautus lisää tai poistaa valinnan. *Valitse sisällöt / Muuta valintoja / Valmis* poistettu. Valittujen tila (sovittava, sovittu pvm, tehty) ja *+ Sovi* näkyvät nappien alla.
+- **Syklin alku** on päivämääräkenttä suoraan kortissa (ei arkkia). Käyntien muodot otsikon *Muodot*-linkistä.
+- Varausten tarkistus ennallaan: kun alkupäivä on asetettu, appi laskee joka avauksella käynnissä olevat ja kahden seuraavan täyden viikon laatikot. Jokainen valittu sisältö, jolle ei löydy muistiosta merkintää laatikon ajalle (eläimen nimi + sisällön sana + päivä), on muistutus "Vk 2 (…): Lähikäynti sovittava" ja *Sovi*-nappi; kiireellinen, jos laatikko päättyy viikon sisällä. Sykli toistuu 3 kk:n välein. Ilman alkupäivää tulee vain "Syklin alkupäivä puuttuu".
+- Testit: `selain.js` (valinnat näkyvissä ilman muokkausnappia, alkupäivä suoraan sivulla). Kaikki ok 390, 320 ja 1280 px.
 
 ## Versio 1.2 (14.11.2026, Emil: "niissä vain kuitataan, että kohta on ok tai ei"; "ne pitää määräajoin uudelleen kuitata")
 
