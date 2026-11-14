@@ -286,8 +286,9 @@ textarea.edf{min-height:96px;max-height:calc(var(--vvh,100vh) - 190px);overflow:
 .tbl{overflow-x:auto;overscroll-behavior-x:contain;container-type:inline-size;scrollbar-width:none;margin-inline:-12px;padding-block:2px 4px}
 .tbl::-webkit-scrollbar{display:none}
 .tin{width:max-content;min-width:100%;padding:0 12px;display:flex;flex-direction:column;gap:6px}
-.tsh{display:flex;gap:12px;padding-left:9px}
-.tsh b{font-size:11px;color:var(--muted);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:none}
+.tsh .tg{height:15px}.tsh .tg::before{display:none}
+.tsh .ot{height:0;visibility:hidden;border-width:0 1px}
+.tsh b{position:absolute;left:0;top:0;font-size:11px;color:var(--muted);font-weight:700;white-space:nowrap}
 .lr{background:var(--surface);border:1px solid var(--card-line);border-radius:var(--r);box-shadow:var(--card-shadow);padding:5px 0 8px;display:flex;flex-direction:column;gap:5px}
 .lr.crit{border-left:3px solid var(--crit)}.lr.warn{border-left:3px solid var(--warn)}
 .nl{position:sticky;left:13px;width:calc(100cqw - 26px);display:flex;align-items:baseline;gap:8px;padding:3px 10px;background:none;border:0;text-align:left;color:var(--fg);min-width:0}
@@ -298,7 +299,7 @@ textarea.edf{min-height:96px;max-height:calc(var(--vvh,100vh) - 190px);overflow:
 .tiles{display:flex;gap:12px;padding:0 9px}
 .tg{display:flex;gap:3px;position:relative}
 .tg+.tg::before{content:'';position:absolute;left:-7px;top:4px;bottom:4px;width:1px;background:var(--line)}
-.ot{width:40px;height:32px;border-radius:var(--r-s);border:1px solid transparent;font-size:11px;font-weight:700;display:grid;place-items:center;padding:0;flex:none;color:var(--fg);background:none}
+.ot{min-width:40px;height:32px;border-radius:var(--r-s);border:1px solid transparent;font-size:12px;font-weight:600;display:grid;place-items:center;padding:0 9px;flex:none;white-space:nowrap;color:var(--fg);background:none}
 .ot.ok{background:color-mix(in srgb,var(--ok) 16%,var(--surface))}
 .ot.tyh{border:1px dashed var(--line);color:var(--muted)}
 .ot.puu{background:color-mix(in srgb,var(--warn) 8%,transparent);border:1px dashed var(--warn)}
@@ -805,7 +806,7 @@ function nowCard(a,H,E){if(!H.length){var nx=nextVisit(a,E||MF.allEntries(data,T
 
 /* ---------- näkymät ---------- */
 /* Eläinlista ruudukkona (0.9, Emil 14.11.2026): nimirivi pysyy paikallaan, osioruudut vierivät sivuttain kaikilla riveillä yhdessä. Järjestys = tärkein tekemätön asia. */
-var ABBR={tulosyy:'Tul',esitiedot:'Esi',kehitys:'Keh',tilanne:'Til',koulu:'Kou',sosiaali:'Sos',vahvuudet:'Vah',diagnoosit:'Dg',tarve:'Tar',haasteet:'Hst',tavoitteet:'Tav',mittarit:'Mit',toimet:'Syk',seuranta:'Lää'};
+var ABBR={tulosyy:'Tulosyy',esitiedot:'Esitiedot',kehitys:'Kehitys',tilanne:'Tilanne',koulu:'Koulu',sosiaali:'Sosiaalityö',vahvuudet:'Vahvuudet',diagnoosit:'Diagnoosit',tarve:'Hoidon tarve',haasteet:'Haasteet',tavoitteet:'Tavoitteet',mittarit:'Mittarit',toimet:'Sykli',seuranta:'Lääkeseuranta'};
 var VAIHEK={1:'Mistä lähdetään',2:'Ongelma ja apu',3:'Tavoitteet',4:'Toteutus'};
 function anyLen(o){return Object.keys(o||{}).some(function(k){var x=o[k];return Array.isArray(x)?x.length:x&&x.arvot&&x.arvot.length;});}
 function filled(a,sc,DM){var k=sc.k,o=a[k];
@@ -834,8 +835,9 @@ function vAsiakkaat(){var L=MF.ordered(data,TODAY),need=L.filter(function(x){ret
   if(lOpen&&!L.some(function(x){return x.a.id===lOpen.a;}))lOpen=null;
   var s=band(false)+'<div class="hd"><h1>Eläimet</h1><span class="sub">'+MF.fi(TODAY)+(L.length?' · '+(need?need+' vaatii huomiota':'kaikki kunnossa'):'')+'</span></div><div class="main">';
   if(!L.length)return s+'<p class="empty">Ei vielä eläimiä. Lisää ensimmäinen alhaalta plusnapista.</p></div>';
-  s+='<div class="tbl" id="tbl"><div class="tin"><div class="tsh" aria-hidden="true">'+[1,2,3,4].map(function(v){var n=SECS.filter(function(sc){return sc.v===v;}).length;
-    return '<b style="width:'+(n*40+(n-1)*3)+'px">'+v+' '+VAIHEK[v]+'</b>';}).join('')+'</div>';
+  /* vaiheotsikot: näkymättömät ruutukopiot antavat ryhmille saman leveyden kuin riveillä */
+  s+='<div class="tbl" id="tbl"><div class="tin"><div class="tiles tsh" aria-hidden="true">'+[1,2,3,4].map(function(v){
+    return '<div class="tg"><b>'+v+' '+VAIHEK[v]+'</b>'+SECS.filter(function(sc){return sc.v===v;}).map(function(sc){return '<span class="ot">'+ABBR[sc.k]+'</span>';}).join('')+'</div>';}).join('')+'</div>';
   L.forEach(function(x){var a=x.a,top=x.h[0],DM=MF.derivedFor(a,data,TODAY);
     s+='<div class="lr'+(top?' '+top.sev:'')+'"><button class="nl" data-act="open" data-id="'+a.id+'"><b>'+h(a.nimi)+'</b><span>'+
       (top?h(top.teksti):'Kunnossa'+(x.next?' · käynti '+MF.fi(x.next.date)+(x.next.klo?' klo '+x.next.klo:''):''))+'</span><small>'+(x.h.length>1?'+'+(x.h.length-1):'')+'</small></button><div class="tiles">'+
@@ -1167,7 +1169,7 @@ function vValikko(){var A=data.asetukset,V=A.valit,arch=data.asiakkaat.filter(fu
   if(!sub){var D={tiedot:'Vienti ja tuonti. Viety viimeksi: '+last+'.',ulkoasu:'Teema, nappien muoto, fontit, kuvitus, merkinnän oletuspituus',luettelot:'Diagnoosit, periaatteet, käyntisyklin sisällöt, käyntien muodot, mittarit',
       saannot:'Muistutusten järjestys, portaat, tarkistusvälit',arkisto:arch.length?arch.length+(arch.length===1?' arkistoitu eläin':' arkistoitua eläintä'):'Ei arkistoituja eläimiä'};
     s+=VSUB.map(function(x){return '<button class="mrow" data-act="vsub" data-k="'+x[0]+'"><b>'+x[1]+'</b><span class="meta">'+h(D[x[0]])+'</span></button>';}).join('');
-    return s+'<p class="meta" style="text-align:center">Mätsik Forest 1.0 · tallennusmuoto '+MF.VER+'</p></div>';}
+    return s+'<p class="meta" style="text-align:center">Mätsik Forest 1.1 · tallennusmuoto '+MF.VER+'</p></div>';}
   if(sub==='tiedot')s+='<div class="card"><b>Vienti ja tuonti</b><p class="msg">Tiedot ovat vain tällä laitteella. Vie varmuuskopio säännöllisesti. Viety viimeksi: '+last+'.</p>'+
     '<div class="btns"><button class="btn pri" data-act="vie">Vie (Mätsik Forest.json)</button><label class="btn">Tuo tiedostosta<input type="file" id="tuofile" accept=".json,application/json,text/plain" hidden></label><button class="btn link" data-act="tuoteksti">Tuo tekstinä</button></div><div id="tuo"></div></div>';
   if(sub==='ulkoasu')s+='<div class="card"><b>Ulkoasu</b><div class="f"><span>Teema</span>'+seg('teema',A.teema,T.map(function(t){return [t.id,t.name];}))+'</div>'+

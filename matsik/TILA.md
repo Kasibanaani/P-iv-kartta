@@ -1,8 +1,12 @@
 # Mätsik Forest: tila
 
-**Vaihe:** versio 1.0. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 14.11.2026
+**Vaihe:** versio 1.1. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 14.11.2026
 
 Juureen (`paatospuu/`) nojaava, mutta erillinen hoitosuunnitelmien demo- ja kehittämisappi. Kaikki sisältö on kuvitteellista, ja Emil kirjoittaa sen itse. Appi ei sisällä valmista dataa. Hahmotelma ja perustelut ovat projektikansiossa (`hoitojuuri/HAHMOTELMA.md`), ei tässä julkisessa repossa.
+
+## Versio 1.1 (14.11.2026, Emil)
+
+- Eläinlistan ruuduissa koko sanat lyhenteiden sijaan (Tulosyy, Esitiedot, Kehitys, Tilanne, Koulu, Sosiaalityö, Vahvuudet, Diagnoosit, Hoidon tarve, Haasteet, Tavoitteet, Mittarit, Sykli, Lääkeseuranta). Ruudun leveys tekstin mukaan, vaiheotsikot seuraavat ryhmien leveyttä. Rivit pitenevät, joten myös tietokoneella vieritetään.
 
 ## Versio 1.0 (14.11.2026, Emil: "rakenna suosituksilla")
 
