@@ -1,8 +1,22 @@
 # Mätsik Forest: tila
 
-**Vaihe:** versio 1.13. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 15.11.2026
+**Vaihe:** versio 1.14. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 15.11.2026
 
 Juureen (`paatospuu/`) nojaava, mutta erillinen hoitosuunnitelmien demo- ja kehittämisappi. Kaikki sisältö on kuvitteellista, ja Emil kirjoittaa sen itse. Appi ei sisällä valmista dataa. Hahmotelma ja perustelut ovat projektikansiossa (`hoitojuuri/HAHMOTELMA.md`), ei tässä julkisessa repossa.
+
+## Versio 1.14 (15.11.2026, Emil: pikanapit = listan asiat, eläinkohtaiset välit pois, tavoitteet yhdeksi riviksi)
+
+- **Pikanapit ovat saman listan asioita.** Valikko → Tarkistusvälit ja järjestys -taulukossa on ensimmäisenä sarake *Pika* (pyöreä ruutu, vain käynneillä ja seurannalla): ruksi tekee asiasta pikamuistiinpanon napin. Napit näkyvät listan järjestyksessä. Erillinen pikanappiluettelo (`asetukset.pikat`, Luetteloiden kortti) poistui; pikaikkunan ratas vie taulukkoon. Pikaikkunan "+ Uusi valinta" lisää asian listaan (`sisallot[].pika`); jos nimi tai listan sana osuu olemassa olevaan asiaan (esim. Kotikäynti → Lähikäynti), se merkitään pikanapiksi eikä tuplaa tule.
+- Pikapäivä on edelleen kertaluontoinen tarkistus, ja sen OK aloittaa saman asian välin alusta. Pikamuistiinpano osuu nyt vain omaan asiaansa (`n.pika.it` → merkinnän `pit`, `MF.eHit`), ei toiseen asiaan, vaikka teksti sopisi siihenkin.
+- Uudet oletusasiat: Reseptiuusinta, Tiimausaika, Soitto (pika, ei väliä). Lääkärin vo-käynti, Verkosto ja Hoitoneuvottelu ovat oletuksena pikanappeja.
+- **Siirto kerran** (`asetukset.pikaSis`): vanhat pikanapit samoiksi listan asioiksi nimen tai listan sanojen perusteella (Lääkärin vo-aika → Lääkärin vo-käynti, Hoitoneuvottelu, Verkosto), muut uusiksi asioiksi; pikamuistiinpanot osoittavat listan asiaan. Pikanappi, jota ei tunnistettu samaksi (esim. oma "Lähiaikuisen kontakti"), tulee listaan omaksi rivikseen; turhan voi poistaa Luetteloista.
+- **Eläimellä ei ole omia välejä.** Välit tulevat vain listasta ja koskevat kaikkia eläimiä (`MF.effVali`). Eläimen sivun Hoitotoimet näyttää listan asioiden seuraavat kohdat listan järjestyksessä (+ Sovi / OK), käynnit muistiosta ja muodot; välinauha, välivalinnat ja "Välit alkaen" poistuivat. Siirto kerran (`asetukset.valiYht`): asia, jolla ei ollut yhteistä väliä, sai eläinten yleisimmän oman välin. Vanha `toimet.vali` jää dataan, mutta ei vaikuta. Eläinkohtainen herja "Käyntien ja seurannan välit valitsematta" poistui.
+- **Tavoitteet on yksi rivi** listassa (`o:tavoite`, väli `valit.tavoite`, 4 vk – 12 kk) ja yksi kuittaus eläintä kohden (`kuit.tavoitteet`, vain OK). Vanhat taso × taho -rivit muuttuivat yhdeksi riviksi ensimmäisen paikalle; `tavValit` ja `tavJarj` poistuivat. Tavoitekartta (taso × taho) säilyy: tyhjissä ruuduissa lukee "puuttuu", ruutukohtaiset kuittaukset poistuivat, kartan alla on rivi "Tavoitteet kunnossa? OK", jossa näkyvät alueet ilman tavoitetta. Sama OK-rivi eläinlistan Tavoitteet-ruudussa.
+- Muistutus "Tarkista tavoitteet", kun tavoitteita on eikä niitä ole kuitattu välin aikana (lasketaan vanhimmasta tavoitteesta); vanhentunut OK pyytää uutta. Tavoitekohtainen "Arvioi tavoite" -muistutus poistui; jumissa, seuranta (Ei), avoin toimenpide ja "Tavoitteet puuttuvat" jäivät. Arviointikierros on yhä tavoitekortilla.
+- Korjattu: vanhentuneen OK:n napautus uusii kuittauksen (aiemmin tyhjensi sen).
+- Testit: `logiikka.js` (siirrot, ei toistu, pikamuistiinpano vain omaan asiaansa, tavoitteiden yksi OK ja väli, vanhat tavoiterivit) ja `selain.js` (Pika-sarake, pikanapit listan järjestyksessä, sama asia tunnistetaan, eläimen sivulla ei välivalintoja, tavoitekartan yksi OK). Kaikki ok 390, 320 ja 1280 px. Ei tarkistettu oikealla iPhonella.
+- Myöhemmin, erillinen ominaisuus (Emil 15.11.): päätöspuu tavoitetasoista × henkilöiden näkökulmista. Se voi käyttää samaa suunnitelmamateriaalia (tavoitekartta), mutta tarkistuslista tulee ensin eikä tarvitse tasoja.
+- Avoin: kuuluuko pikanappien ja listan asioiden lajeihin (Käynti / Seuranta) lisätä kolmas laji muille (resepti, tiimaus).
 
 ## Versio 1.13 (15.11.2026, Emil: ohjetekstit pienen i-napin taakse, sarakeotsikot jäädytetyiksi)
 
@@ -29,15 +43,9 @@ Juureen (`paatospuu/`) nojaava, mutta erillinen hoitosuunnitelmien demo- ja kehi
 - Emilin linja: usein painettavat napit jäädytetään alareunaan, yläreunaan vain tieto.
 - Testi: `selain.js` (napit alapalkissa samalla rivillä, eivät mene päällekkäin, sijainnit samat molemmissa näkymissä). Kaikki ok 390, 320 ja 1280 px. Ei tarkistettu oikealla iPhonella.
 
-## Versio 1.10 (15.11.2026, Emil: tärkeysjärjestys samaan taulukkoon raahaamalla, tavoitteille oma taulukko)
+## Versio 1.10 (15.11.2026)
 
-- **Valikko → Tarkistusvälit:** jokaisella rivillä kahva vasemmassa reunassa, rivi raahataan ylös tai alas (ylempi = tärkeämpi). Taulukosta ei voi poistaa mitään; poisto on vain Luetteloissa vahvistuksen takana, ja osioita ja tavoiterivejä ei voi poistaa mistään.
-- Kolme taulukkoa: *Käynnit ja seuranta* (järjestys = `asetukset.sisallot`-järjestys, sama kuin Luetteloissa), *Tavoitteet* (taso × taho, 9 riviä, oma väli 1–12 kk `asetukset.tavValit['1.lapsi']`, järjestys tason sisällä `asetukset.tavJarj`; oletusväli entinen yhteinen `valit.tavoite`), *Osioiden kuittaukset* (`asetukset.osioJarj`).
-- Vaikutus: saman lajin muistutukset järjestyvät taulukon mukaan (Nyt-kortti, eläinlista, viikon lista). Lajien keskinäinen järjestys (esim. tason 1 tavoitteet ennen käyntejä) on yhä Valikko → Muistutusten säännöt, linkki sivun alussa. Puuttuvat tiedot etenevät yhä vaiheittain (portaat) ennen taulukon järjestystä.
-- Tavoitteen arviointi ja tavoitekartan kuittauksen vanheneminen käyttävät tason ja tahon omaa väliä (`MF.tavVali`).
-- Kuusi viikkosaraketta mahtuu 390 px:n ruudulle ilman vieritystä; 320 px:llä sarakkeet vierivät ja nimi pysyy.
-- Testit: `logiikka.js` (oma väli, järjestys, korjaus) ja `selain.js` (raahaus kolmessa taulukossa, tahoa ei voi viedä toiseen tasoon, ei poistonappeja). Kaikki ok 390, 320 ja 1280 px.
-- Ei tarkistettu: raahaus oikealla iPhonella sormella (testattu hiiritapahtumilla). Avoin: halutaanko lajien järjestys (Muistutusten säännöt) samalle sivulle tai yhdeksi listaksi.
+- Raahattava tärkeysjärjestys tarkistusvälien taulukossa. Korvattu: 1.12 (yksi lista) ja 1.14 (tavoitteet yhtenä rivinä, tavoitekohtaiset välit poistuivat).
 
 ## Versio 1.9 (15.11.2026, Emil: oletusvälit, pikapäivä tarkistettavaksi, kalenterin viikkonäkymä)
 
