@@ -23,7 +23,7 @@ async def main():
             await pg.click('#title'); await pg.wait_for_timeout(150)
             if not await pg.is_visible('#ti-text'): await pg.click('#ti-box summary')
         # asetukset: aloitusviesti
-        await pg.click('[data-tab="set"]'); print('1 otsikot:', ', '.join(await pg.locator('#p-set h2').all_inner_texts()))
+        await pg.click('#secbtn'); await pg.click('#secmenu [data-tab="set"]'); print('1 otsikot:', ', '.join(await pg.locator('#p-set h2').all_inner_texts()))
         await pg.locator('#sec-ai').scroll_into_view_if_needed(); await pg.screenshot(path='pt11_set.png')
         await pg.click('#ai-copy'); await pg.wait_for_timeout(200); c=await clip(); print('  kopioitu:', await pg.inner_text('#ai-msg'), '|', len(c), 'merkkiä |', c[:60].replace('\n',' '), '…', c[-70:].replace('\n',' '))
         await pg.click('#ai-show summary'); print('  näytä:', len(await pg.input_value('#ai-show textarea')), '| sama kuin kopioitu:', c==await pg.input_value('#ai-show textarea')); await pg.click('#ai-show summary')
@@ -33,7 +33,7 @@ async def main():
         await pg.fill('#ti-text', AI_REPLY); await pg.click('#ti-check'); await pg.wait_for_timeout(200); print('  yhteenveto:', (await pg.inner_text('#ti-out')).replace('\n',' | ')); await pg.locator('#ti-out').scroll_into_view_if_needed(); await pg.screenshot(path='pt11_offer.png')
         await pg.click('#ti-out [data-act="add"]'); await pg.wait_for_timeout(300)
         print('  lisätty:', await trees(), '| valittuna:', await pg.inner_text('#tname'), '| ikkuna kiinni:', not await pg.is_visible('#tsheet'), '| piste:', await pg.evaluate("!document.getElementById('setdot').hidden"))
-        await pg.click('[data-tab="use"]'); print('  käyttö:', await vis()); await pg.click('#p-use .row:has-text("Uusi potilas")'); print('  valinta:', await vis())
+        await pg.click('#secbtn'); await pg.click('#secmenu [data-tab="use"]'); print('  käyttö:', await vis()); await pg.click('#p-use .row:has-text("Uusi potilas")'); print('  valinta:', await vis())
         await pg.click('#p-use .row:has-text("Tarkista lääkelista")'); print('  huomio:', (await pg.inner_text('#info-text')).replace('\n',' / '), '|', await vis())
         # sama nimi: korvaa tai lisää uutena
         await openimport(); await pg.fill('#ti-text', AI_REPLY.replace('Kysy sivuvaikutuksista','Kysy haitoista')); await pg.click('#ti-check'); print('3 sama nimi:', (await pg.inner_text('#ti-out')).replace('\n',' | ')[-190:])
@@ -47,7 +47,7 @@ async def main():
         # kopioi tekstinä ja tuo takaisin
         await pg.click('#title'); await pg.click('#ts-list [data-edit="t1"]'); await pg.click('#ns-copy'); await pg.wait_for_timeout(200); t1=await clip(); print('5 kopioi tekstinä:', await pg.inner_text('#ns-msg'), '|', json.dumps(json.loads(t1),ensure_ascii=False)); await pg.click('#ns-ok')
         # asetusten tuonti tunnistaa yksittäisen puun
-        await pg.click('[data-tab="set"]'); await pg.click('summary:has-text("Tuo liittämällä")'); await pg.fill('#imptext', t1.replace('"Työpäivä"','"Työpäivä kopio"')); await pg.click('text=Tuo teksti'); await pg.wait_for_timeout(200)
+        await pg.click('#secbtn'); await pg.click('#secmenu [data-tab="set"]'); await pg.click('summary:has-text("Tuo liittämällä")'); await pg.fill('#imptext', t1.replace('"Työpäivä"','"Työpäivä kopio"')); await pg.click('text=Tuo teksti'); await pg.wait_for_timeout(200)
         print('6 asetusten tuonti:', await pg.inner_text('#datamsg'), '|', (await pg.inner_text('#dataout')).replace('\n',' | ')[:150]); await pg.click('#dataout [data-act="add"]'); await pg.wait_for_timeout(200); print('  ->', await pg.inner_text('#datamsg'), '|', await trees())
         same=await pg.evaluate("(function(){var d=JSON.parse(localStorage.getItem('paatoskartta:v1')),a=d.trees[0],b=d.trees[d.trees.length-1];function k(t){return JSON.stringify([t.opts,t.suf,t.req,t.rec,t.close])}return k(a)===k(b)})()"); print('  kopio vastaa alkuperäistä:', same)
         async with pg.expect_download() as dl:
@@ -61,7 +61,7 @@ async def main():
         ctx = await b.new_context(viewport={'width':320,'height':640}, device_scale_factor=2, color_scheme='dark')
         await ctx.add_init_script("navigator.clipboard.writeText=function(){return Promise.reject(new Error('x'))};"+SEED % json.dumps(state))
         pg = await ctx.new_page(); pg.on('pageerror', lambda e: errs.append(str(e)))
-        await pg.goto(U); await pg.click('[data-tab="set"]'); await pg.click('#ai-copy'); await pg.wait_for_timeout(200); print('8 ilman leikepöytää:', await pg.inner_text('#ai-msg'), '|', len(await pg.input_value('#ai-out textarea')))
+        await pg.goto(U); await pg.click('#secbtn'); await pg.click('#secmenu [data-tab="set"]'); await pg.click('#ai-copy'); await pg.wait_for_timeout(200); print('8 ilman leikepöytää:', await pg.inner_text('#ai-msg'), '|', len(await pg.input_value('#ai-out textarea')))
         await pg.locator('#sec-ai').scroll_into_view_if_needed(); await pg.screenshot(path='pt11_n_set.png')
         ow=[await pg.evaluate("[document.documentElement.scrollWidth, document.getElementById('main').scrollWidth, document.getElementById('main').clientWidth]")]
         await pg.click('#ai-import'); await pg.fill('#ti-text', BAD); await pg.click('#ti-check'); await pg.wait_for_timeout(200); await pg.locator('#ti-out .btnrow').scroll_into_view_if_needed(); await pg.screenshot(path='pt11_n_offer.png')

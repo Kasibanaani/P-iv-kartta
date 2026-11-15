@@ -1,24 +1,30 @@
 # Päätöskartta: tila
 
-**Vaihe:** käytössä, laajennus kehitteillä · **Versio:** 13 · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatoskartta/ · **Päivitetty:** 14.10.2026
+**Vaihe:** käytössä · **Versio:** 14 · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatoskartta/ · **Päivitetty:** 15.11.2026
 
-Sääntöpohjainen päätöspuu: itse lisätyt tekijät ja itse opetetut säännöt. Valinnat tuovat näkyviin, sulkevat pois ja suosittelevat muita tekijöitä.
+Päätöspuu omista vaihtoehdoista. Kaksi lajia: **yksinkertainen** (kaikki näkyvät aina, valinta korostaa suositellut) ja **monipuolinen** (säännöt tuovat näkyviin, sulkevat pois ja suosittelevat; ehdot, tekstit, pullonkaulat).
 
 ## Valmiina
 
-- Versio 13 (12.10.2026): kiinteä yläpalkki ohjeriveineen, tekstilinkit painikkeina, uusi tekijälaji teksti. Useita puita; välilehdet Käyttö, Opetus, Seuranta, Asetukset; säännöt (ei sovi yhteen, vaaditaan, riittää, suosittelija); pullonkaulat; kalenteri ja seuranta; tekstituonti ja varmuuskopio. Appipaja 2.0 -ilme 14.10.2026.
-- 6 logiikka- ja 7 selaintestiä läpi tietokoneselaimessa (390, 320 px), ei oikealla iPhonella.
+- Versio 14 (15.11.2026, Emil antoi vapaat kädet parantaa Appilinjan mukaan):
+  - **Yksinkertainen päätöspuu** (Emilin kommentin toive): uuden puun oletus. Ainoa sääntö on suositus; tekijäsivulla napautus merkitsee tai poistaa suosituksen (suunta: ”tämä suosittelee rivejä”). Ei poissulkua, ehtoja, tekstejä eikä pullonkauloja. Laji vaihdetaan nimen takaa (Muokkaa); monipuolisen säännöt jäävät talteen ja palaavat, kun vaihtaa takaisin. Tallennus `T.simple`, tiedostossa `simple: true`, tekstimuodossa `"yksinkertainen": true` (vientiversio 9, vanhat luetaan).
+  - **Uusi vaihtoehto käytön aikana:** Käytön listan alla `+ Uusi vaihtoehto ”X” jälkeen`. Uusi menee viimeksi valitun haaraan, ja valittu suosittelee sitä (monipuolisessa lisäksi riittää tuomaan sen näkyviin). Puuta voi siis kasvattaa kulkemalla sitä. Sama tekijäsivulla: `+ Uusi vaihtoehto, jota tämä suosittelee`.
+  - **Appilinja:** välilehtipalkki → alapalkki (osiovalikko vasemmalla, päivä ‹ › keskellä, pikavienti Vie oikealla ja punainen piste, kun vienti tekemättä). Ohjeet ja selityskappaleet i-napin taakse, ulkopuolinen napautus vain sulkee. Ilmoitukset ja Kumoa kelluvat alapalkin yllä. Viimeisen valinnan huomio listan alla. Yläosa 118 → 79 px. Suositus näyttää määrän (”suositus ×2”). Valitun rivin vaalea raita ei enää peitä tekstiä hetkeksi.
+- Testit: 7 logiikka- ja 8 selaintestiä läpi tietokoneen Chromiumissa (390 ja 320 px), uusina `logiikka_14_yksinkertainen.js` ja `selain_14_yksinkertainen.py`. Ei testattu oikealla iPhonella.
+
+## Ei tarkistettu
+
+- iPhonella: näppäimistö `+ Uusi vaihtoehto` -kentässä (pysyykö auki Enterin jälkeen), alapalkin ja kelluvan ilmoituksen paikka Safarissa, pikaviennin jakovalikko alapalkista.
 
 ## Seuraavaksi
 
-- Emil vastaa yksinkertaisen päätöspuun kysymyksiin (ks. kommentti). Ehdotettu järjestys: 1) yksinkertainen päätöspuu (puukohtainen valinta, vain suositukset), 2) pistelaajennuksen vaiheet 1 ja 2. Kumpaakaan ei ole rakennettu.
+- Emil kokeilee yksinkertaista puuta ja käytön aikana lisäämistä puhelimella.
+- Ehdotus (ei rakennettu): poiston vahvistus eri kohtaan Appilinjan mukaan (nyt toinen napautus samaan nappiin), järjestys raahaamalla kahvasta nuolien sijaan, muokkausikkunan Valmis-napit pois.
 
 ## Avoimet kysymykset
 
-- Yksinkertainen päätöspuu: onko se uuden puun oletus, mihin suuntaan suositus Opetuksessa, jääkö ”ei sovi yhteen” pois? Kumpi laajennus ensin?
-- Tekstin nimi näkyy lihavoituna ensimmäisenä rivinä: saako nimen piiloon? Tarvitaanko tekstin piilotus valinnan perusteella?
-- Opetuksen tekijäsivun yhteenveto on listan yläpuolella ja siirtää rivejä: siirretäänkö listan alle?
-- Ei varmistettu oikealla iPhonella: yläpalkin korkeus ja rivitys Safarin fontilla, näppäimistö painikkeesta + Teksti.
+- Pistelaajennus (arkistossa) on yhä rakentamatta: tarvitaanko sitä, kun yksinkertainen puu on olemassa?
+- Pitäisikö yksinkertaisessa puussa voida silti merkitä keskenään vaihtoehtoiset (esim. viikonpäivät)? Nyt ei, jotta laji pysyy yksinkertaisena.
 
 ## Emilin kommentit
 

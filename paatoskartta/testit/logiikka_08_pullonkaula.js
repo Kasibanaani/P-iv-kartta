@@ -13,7 +13,7 @@ eq('vaihtoehtopullonkaula ei riitä näkyvänä, vaan vasta valittuna',[e(T,['ma
 eq('puuttuvissa näkyy pullonkaula',evaluate(T,['ma']).sali.need,{req:['B'],suf:[],ok:false});
 // omat ehdot pätevät edelleen pullonkaulan lisäksi
 setRel(T,'dkt','valm','ps');setRec(T,'dkt','valm',true);
-eq('oma ehto + pullonkaula',[evaluate(T,['ma']).valm.s,evaluate(T,['ma','dkt']).valm,evaluate(T,['dkt']).valm.s],['lock',{s:'open',start:false,rec:true},'lock']);
+eq('oma ehto + pullonkaula',[evaluate(T,['ma']).valm.s,evaluate(T,['ma','dkt']).valm,evaluate(T,['dkt']).valm.s],['lock',{s:'open',start:false,rec:true,recBy:['dkt']},'lock']);
 // polku: pullonkaulan poistuminen pudottaa kaiken sen jälkeisen
 let r=settle(T,['ma','dkt','B','sali']);eq('kaikki täyttyy',r.sel,['ma','dkt','B','sali']);
 r=settle(T,['ma','dkt','sali']);eq('B pois: sen takana oleva putoaa',[r.sel,r.removed.map(x=>x.id)],[['ma','dkt'],['sali']]);

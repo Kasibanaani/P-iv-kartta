@@ -19,12 +19,12 @@ async def main():
         lst = lambda: pg.evaluate("[...document.querySelectorAll('#teach-list .row')].map(b=>b.querySelector('.t').firstChild.textContent+(b.classList.contains('bn')?' [bn]':'')+' ('+b.querySelector('small').textContent+')').join('; ')")
         rows = lambda: pg.evaluate("[...document.querySelectorAll('#p-teach .trow')].map(r=>r.querySelector('.t').textContent+': '+(r.querySelector('.tag').textContent||'-')).join(' ; ')")
         async def tolist():
-            await pg.click('[data-tab="teach"]'); await pg.wait_for_timeout(100)
+            await pg.click('#secbtn'); await pg.click('#secmenu [data-tab="teach"]'); await pg.wait_for_timeout(100)
             if await pg.is_visible('#ctx-back'): await pg.click('#ctx-back')
             if await pg.locator('#p-teach .btn:has-text("Valmis")').count(): await pg.click('#p-teach .btn:has-text("Valmis")')
         async def page(name):
             await tolist(); await pg.evaluate("(n)=>{[...document.querySelectorAll('#teach-list .row')].filter(b=>b.querySelector('.t').firstChild.textContent===n)[0].click()}", name); await pg.wait_for_timeout(150)
-        async def use(): await pg.click('[data-tab="use"]'); await pg.wait_for_timeout(150)
+        async def use(): await pg.click('#secbtn'); await pg.click('#secmenu [data-tab="use"]'); await pg.wait_for_timeout(150)
         print('1 ennen:', await vis())
         await page('Päivä valittu'); print('2 ehto ennen:', await inc()); await pg.click('#bn-toggle'); await pg.wait_for_timeout(300)
         print('  pullonkaulana:', await inc()); print('  rivit:', await rows()); await pg.screenshot(path='pt9_c.png')
@@ -47,7 +47,7 @@ async def main():
         await page('DKT-tiimi'); await pg.wait_for_timeout(300); print('7 dkt:', await inc()); print('  rivit:', await rows()); await pg.screenshot(path='pt9_i.png')
         await pg.click('#bn-toggle'); print('  poistettu:', await inc(), '|', await store('t.opts.map(function(o){return o.b?1:0})'))
         await use(); print('  ti:', await vis())
-        await pg.click('[data-tab="set"]')
+        await pg.click('#secbtn'); await pg.click('#secmenu [data-tab="set"]')
         async with pg.expect_download() as dl:
             await pg.click('.btn:has-text("Vie tiedosto")')
         obj=json.load(open(await (await dl.value).path(),encoding='utf8')); t=obj['trees'][0]; print('8 vienti:', [o['name'] for o in t['options'] if o.get('bottleneck')])
@@ -59,7 +59,7 @@ async def main():
         ctx = await b.new_context(viewport={'width':320,'height':640}, device_scale_factor=2, color_scheme='dark')
         await ctx.add_init_script(SEED % json.dumps(state))
         pg = await ctx.new_page(); pg.on('pageerror', lambda e: errs.append(str(e)))
-        await pg.goto(U); await pg.click('[data-tab="teach"]'); await pg.evaluate("[...document.querySelectorAll('#teach-list .row')].filter(b=>b.querySelector('.t').firstChild.textContent==='Päivä valittu')[0].click()"); await pg.wait_for_timeout(300); await pg.screenshot(path='pt9_n_c.png')
+        await pg.goto(U); await pg.click('#secbtn'); await pg.click('#secmenu [data-tab="teach"]'); await pg.evaluate("[...document.querySelectorAll('#teach-list .row')].filter(b=>b.querySelector('.t').firstChild.textContent==='Päivä valittu')[0].click()"); await pg.wait_for_timeout(300); await pg.screenshot(path='pt9_n_c.png')
         ow=[await pg.evaluate("[document.documentElement.scrollWidth, document.getElementById('main').scrollWidth, document.getElementById('main').clientWidth]")]
         await pg.click('#item-edit'); await pg.wait_for_timeout(300); await pg.screenshot(path='pt9_n_sheet.png')
         print(ow, await pg.evaluate("[document.getElementById('osheet').scrollWidth,document.getElementById('osheet').clientWidth,document.getElementById('osheet').scrollHeight,document.getElementById('osheet').clientHeight]"))

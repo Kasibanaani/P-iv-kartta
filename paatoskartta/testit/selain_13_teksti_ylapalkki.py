@@ -23,7 +23,7 @@ AUD="""(function(){var out=[];[].slice.call(document.querySelectorAll('button,su
   return out;})()"""
 USE="""(function(){var l=document.getElementById('use-list'),t=document.getElementById('top');
   return {palkki:t.offsetHeight,lista:l?Math.round(l.getBoundingClientRect().top):null,
-    ohje:document.getElementById('info-text').innerText.replace(/\\s+/g,' ').trim(),kumoa:!document.getElementById('info-undo').hidden,lisaa:!document.getElementById('info-more').hidden,
+    ohje:document.getElementById('info-text').innerText.replace(/\\s+/g,' ').trim(),kumoa:!document.getElementById('info-undo').hidden,lisaa:!true,
     nakyvat:[].slice.call(l?l.children:[]).filter(function(e){return !e.hidden;}).map(function(e){return e.classList.contains('tbox')?'['+e.innerText.replace(/\\n+/g,' / ')+']':e.querySelector('.t').textContent+(e.classList.contains('sel')?'*':(e.classList.contains('excl')?'~':''));})};})()"""
 async def run(w,h,scheme,shots,tag):
     async with async_playwright() as p:
@@ -44,7 +44,7 @@ async def run(w,h,scheme,shots,tag):
                 out.append(await pg.evaluate("(n)=>("+FIND+")(n).querySelector('.tag').textContent||'-'", name))
             return out
         async def tolist():
-            await pg.click('[data-tab="teach"]'); await pg.wait_for_timeout(100)
+            await pg.click('#secbtn'); await pg.click('#secmenu [data-tab="teach"]'); await pg.wait_for_timeout(100)
             if await pg.is_visible('#ctx-back'): await pg.click('#ctx-back')
         async def page(name):
             await tolist(); await pg.evaluate("(n)=>{[...document.querySelectorAll('#teach-list .row')].filter(b=>b.querySelector('.t').firstChild.textContent===n)[0].click()}", name); await pg.wait_for_timeout(150)
@@ -65,12 +65,9 @@ async def run(w,h,scheme,shots,tag):
         print('  ulkoasu (kulma, vasen reuna, tausta, koko, osoitin): teksti', st['teksti'], '| painike', st['painike'])
         await pg.click('#p-use .row:has-text("Pitkä huomio")'); await pg.wait_for_timeout(350); await step('  pitkä huomio')
         if shots: await pg.screenshot(path='pt13%s_u2.png' % tag)
-        await pg.click('#info-more'); await pg.wait_for_timeout(300)
-        full=(await pg.inner_text('#is-body')).strip()
-        print('  koko teksti avautuu:', await pg.inner_text('#is-h'), '|', len(full), 'merkkiä, loppu mukana:', full.endswith('LOPPU.'))
+        full=(await pg.inner_text('#use-note')).strip()
+        print('  huomio listan alla kokonaan:', len(full), 'merkkiä, loppu mukana:', full.endswith('LOPPU.'))
         if shots: await pg.screenshot(path='pt13%s_isheet.png' % tag)
-        await pg.click('#is-close'); await pg.wait_for_timeout(200)
-        await pg.click('#info-text'); await pg.wait_for_timeout(200); print('  myös tekstin napautus avaa sen:', await pg.evaluate("document.getElementById('isheet').open")); await pg.click('#is-close')
         await pg.click('#use-showall'); await pg.wait_for_timeout(100); await step('  näytä kaikki')
         if shots: await pg.screenshot(path='pt13%s_u3.png' % tag)
         await pg.click('#p-use .row:has-text("Lenkki")'); await step('  lukitun napautus')
@@ -101,16 +98,16 @@ async def run(w,h,scheme,shots,tag):
         await tap('Virkeä',2); print('  Virkeä vaadituksi:', await store('[t.req.o9,t.suf.o9||[]]'), '|', (await pg.inner_text('#teach-inc')).replace('\n',' '))
         if shots: await pg.screenshot(path='pt13%s_item.png' % tag)
         await aud('opetus, tekstin sivu')
-        await pg.click('#teach-legend summary'); print('  selitteet:', await pg.evaluate("[...document.querySelectorAll('#teach-legend .cyc')].map(p=>p.textContent.split(':')[0].slice(0,24)).join(' | ')")); await pg.click('#teach-legend summary')
+        await pg.click('#helpbtn'); print('  selitteet:', await pg.evaluate("[...document.querySelectorAll('.pkd p')].map(p=>p.textContent.split(':')[0].slice(0,24)).join(' | ')")); await pg.mouse.click(5,700); print('  ohje sulkeutui:', await pg.evaluate("!document.querySelector('.pkbg')"))
         # ---- 3 vaihtoehdon sivu: tekstirivit ----
         await page('Väsynyt')
         print('3 vaihtoehdon sivu, rivit:', await pg.evaluate("[...document.querySelectorAll('#p-teach .trow')].map(r=>r.querySelector('.t').textContent+(r.querySelector('.row').classList.contains('txt')?' [teksti]':'')+(r.querySelector('.star')?' ☆':'')).join(', ')"))
         print('  tekstirivi Ohje väsyneelle on jo:', await pg.evaluate("(n)=>("+FIND+")(n).querySelector('.tag').textContent", 'Ohje väsyneelle'), '| kierto Muista juoda vettä:', await tap('Muista juoda vettä',3), '| kierto vaihtoehtorivi Lenkki:', await tap('Lenkki',6))
         await tap('Muista juoda vettä',1); print('  Muista riittää-merkinnällä:', await store('[t.suf.o4,t.req.o4||[]]'))
         if shots: await pg.screenshot(path='pt13%s_opt.png' % tag)
-        await pg.click('#teach-legend summary'); print('  selitteissä maininta tekstiriveistä:', await pg.evaluate("[...document.querySelectorAll('#teach-legend .cyc')].some(p=>p.textContent.indexOf('Tekstirivillä')===0)")); await pg.click('#teach-legend summary')
+        await pg.click('#helpbtn'); print('  selitteissä maininta tekstiriveistä:', await pg.evaluate("[...document.querySelectorAll('.pkd p')].some(p=>p.textContent.indexOf('Tekstirivillä')===0)")); await pg.mouse.click(5,700)
         # ---- 4 Käyttö uusilla säännöillä ----
-        await pg.click('[data-tab="use"]'); await pg.wait_for_timeout(200); await step('4 käyttö alussa')
+        await pg.click('#secbtn'); await pg.click('#secmenu [data-tab="use"]'); await pg.wait_for_timeout(200); await step('4 käyttö alussa')
         await pg.click('#p-use .row:has-text("Virkeä")'); await pg.wait_for_timeout(350); await step('  virkeä')
         if shots: await pg.screenshot(path='pt13%s_u4.png' % tag)
         await pg.click('#p-use .row:has-text("Väsynyt")'); await pg.wait_for_timeout(350); await step('  vaihto väsyneeseen')
@@ -128,11 +125,11 @@ async def run(w,h,scheme,shots,tag):
         await aud('järjestys'); await pg.click('#p-teach .btn:has-text("Valmis")')
         await pg.click('#teach-group'); print('  ryhmässä vain vaihtoehdot:', await pg.evaluate("[...document.querySelectorAll('#p-teach .row')].map(b=>b.textContent).join(', ')")); await pg.click('#p-teach .btn:has-text("Peru")')
         # ---- 6 Seuranta, Asetukset, vienti ja tuonti ----
-        await pg.click('[data-tab="use"]'); await pg.wait_for_timeout(150); await pg.click('#p-use .row:has-text("Väsynyt")'); await pg.wait_for_timeout(200)
-        await pg.click('[data-tab="stat"]'); await pg.wait_for_timeout(200)
+        await pg.click('#secbtn'); await pg.click('#secmenu [data-tab="use"]'); await pg.wait_for_timeout(150); await pg.click('#p-use .row:has-text("Väsynyt")'); await pg.wait_for_timeout(200)
+        await pg.click('#secbtn'); await pg.click('#secmenu [data-tab="stat"]'); await pg.wait_for_timeout(200)
         print('6 seuranta:', (await pg.inner_text('#ctx')).strip(), '| ohjerivi:', await pg.inner_text('#info-text'), '| kortit:', await pg.evaluate("[...document.querySelectorAll('#stat-list .scard b, #stat-conds .scard b')].map(b=>b.textContent).join(', ')"))
         await aud('seuranta')
-        await pg.click('[data-tab="set"]'); await pg.wait_for_timeout(200)
+        await pg.click('#secbtn'); await pg.click('#secmenu [data-tab="set"]'); await pg.wait_for_timeout(200)
         print('  asetukset:', await pg.inner_text('#datainfo'))
         await aud('asetukset')
         exp=json.loads(await pg.evaluate("(function(){var d=document.querySelectorAll('#p-set details.more');d[1].open=true;d[1].dispatchEvent(new Event('toggle'));return document.querySelector('#textout textarea').value;})()"))
@@ -147,7 +144,7 @@ async def run(w,h,scheme,shots,tag):
         if shots: await pg.screenshot(path='pt13%s_tuonti.png' % tag)
         await aud('päätöspuut-ikkuna')
         await pg.click('#ti-out .btn:has-text("Lisää päätöspuu")'); await pg.wait_for_timeout(300)
-        await pg.click('[data-tab="use"]'); await pg.wait_for_timeout(200); await pg.click('#p-use .row:has-text("Alku")'); await pg.wait_for_timeout(350); u=await use(); print('  tuotu puu käytössä:', ', '.join(u['nakyvat']), '| ohjerivi:', u['ohje'])
+        await pg.click('#secbtn'); await pg.click('#secmenu [data-tab="use"]'); await pg.wait_for_timeout(200); await pg.click('#p-use .row:has-text("Alku")'); await pg.wait_for_timeout(350); u=await use(); print('  tuotu puu käytössä:', ', '.join(u['nakyvat']), '| ohjerivi:', u['ohje'])
         ow = await pg.evaluate("[document.documentElement.scrollWidth, document.getElementById('main').scrollWidth, document.getElementById('main').clientWidth]"); print('   leveys', ow, 'errs', errs)
         await b.close()
 asyncio.run(run(390,800,'light',True,'')); asyncio.run(run(320,640,'dark',True,'_n'))

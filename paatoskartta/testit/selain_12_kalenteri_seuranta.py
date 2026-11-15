@@ -7,7 +7,7 @@ old={'tseq':2,'cur':'t1','trees':[{'id':'t1','name':'Työpäivä','oseq':7,'opts
   'suf':{'o3':['o1','o2']},'req':{'o5':['o4']},'rec':{'o4':['o5'],'o1':['o6']},'close':{'o1':['o2'],'o2':['o1']},'sel':['o1','o4']},
   {'id':'t2','name':'Toinen','oseq':2,'opts':[{'id':'o1','n':'A','note':''},{'id':'o2','n':'B','note':''}],'suf':{},'req':{},'rec':{},'close':{},'sel':['o2']}],'cfg':{'tint':'sininen','mode':'auto','vis':'lukitutpois'},'meta':{}}
 SEED="if(!localStorage.getItem('paatoskartta:v1'))localStorage.setItem('paatoskartta:v1', %s);"
-GEO="(function(){function r(id){var e=document.getElementById(id);var q=e.getBoundingClientRect();return [Math.round(q.left),Math.round(q.top),Math.round(q.width),Math.round(q.height)];}return JSON.stringify([document.getElementById('top').offsetHeight,r('tname').slice(0,2),r('mode'),r('ctx')]);})()"
+GEO="(function(){function r(id){var e=document.getElementById(id);var q=e.getBoundingClientRect();return [Math.round(q.left),Math.round(q.top),Math.round(q.width),Math.round(q.height)];}return JSON.stringify([document.getElementById('top').offsetHeight,r('tname').slice(0,2),r('secname'),r('ctx')]);})()"
 async def main():
     async with async_playwright() as p:
         b = await p.chromium.launch(); errs=[]
@@ -38,23 +38,23 @@ async def main():
         # poisto tyhjentää päivän kirjauksen; kumoa palauttaa
         await pg.click('#ctx .pchip.reset'); print('5 alusta:', await days(0)); await pg.click('#info-undo'); print('  kumoa:', await days(0))
         # opetus ei näytä päivää
-        await pg.click('[data-tab="teach"]'); await pg.wait_for_timeout(200); print('6 opetus rivi2:', await ctxt(), '| päivänappi näkyvissä:', await pg.locator('.dnav').count()); geo['opetus']=await pg.evaluate(GEO)
+        await pg.click('#secbtn'); await pg.click('#secmenu [data-tab="teach"]'); await pg.wait_for_timeout(200); print('6 opetus rivi2:', await ctxt(), '| päivänappi näkyvissä:', await pg.locator('.dnav').count()); geo['opetus']=await pg.evaluate(GEO)
         await pg.evaluate("[...document.querySelectorAll('#teach-list .row')].filter(b=>b.querySelector('.t').firstChild.textContent==='Sali')[0].click()"); await pg.wait_for_timeout(200); print('  tekijän sivu rivi2:', await ctxt(), '| päivänappi:', await pg.locator('.dnav').count())
         # toinen puu: omat päivänsä
-        await pg.click('#title'); await pg.click('#ts-list [data-tree="t2"]'); await pg.click('[data-tab="use"]'); await pg.wait_for_timeout(200); print('7 toinen puu:', await ctxt(), '|', await vis(), '|', await days(1))
+        await pg.click('#title'); await pg.click('#ts-list [data-tree="t2"]'); await pg.click('#secbtn'); await pg.click('#secmenu [data-tab="use"]'); await pg.wait_for_timeout(200); print('7 toinen puu:', await ctxt(), '|', await vis(), '|', await days(1))
         await pg.click('#p-use .row:has-text("A")'); print('  valinta:', await days(1), '| t1 ennallaan:', await days(0))
         await pg.click('#title'); await pg.click('#ts-list [data-tree="t1"]'); await pg.wait_for_timeout(200); print('  takaisin:', await ctxt())
         # seuranta
-        await pg.click('[data-tab="stat"]'); await pg.wait_for_timeout(300); geo['seuranta']=await pg.evaluate(GEO); print('8 seuranta rivi2:', await ctxt()); await pg.screenshot(path='pt12_stat.png', full_page=False)
+        await pg.click('#secbtn'); await pg.click('#secmenu [data-tab="stat"]'); await pg.wait_for_timeout(300); geo['seuranta']=await pg.evaluate(GEO); print('8 seuranta rivi2:', await ctxt()); await pg.screenshot(path='pt12_stat.png', full_page=False)
         print('  kortit:', await pg.evaluate("[...document.querySelectorAll('#stat-list .scard,#stat-conds .scard')].map(c=>c.innerText.replace(/\\n/g,' ')).join(' || ')"))
         await pg.click('#stat-span [data-span="7"]'); print('  7 päivää:', await ctxt()); await pg.click('#stat-span [data-span="all"]')
-        await pg.click('[data-tab="set"]'); geo['asetukset']=await pg.evaluate(GEO); print('9 tiedot:', await pg.inner_text('#datainfo'))
+        await pg.click('#secbtn'); await pg.click('#secmenu [data-tab="set"]'); geo['asetukset']=await pg.evaluate(GEO); print('9 tiedot:', await pg.inner_text('#datainfo'))
         async with pg.expect_download() as dl:
             await pg.click('.btn:has-text("Vie tiedosto")')
         obj=json.load(open(await (await dl.value).path(),encoding='utf8')); print('  vienti:', obj['version'], sorted(obj['trees'][0]['days'].keys())==sorted(json.loads(await days(0)).keys()), list(obj['trees'][0]['days'].values())[0])
         before=await pg.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('paatoskartta:v1')).trees.map(function(t){return t.days}))")
         await pg.click('summary:has-text("Tuo liittämällä")'); await pg.fill('#imptext', json.dumps(obj)); await pg.click('text=Tuo teksti'); await pg.click('text=Korvaa tiedot'); print('  tuonti: päivät samat:', before==await pg.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('paatoskartta:v1')).trees.map(function(t){return t.days}))"))
-        await pg.click('[data-tab="use"]'); await pg.wait_for_timeout(200); print('  tuonnin jälkeen käyttö:', await ctxt())
+        await pg.click('#secbtn'); await pg.click('#secmenu [data-tab="use"]'); await pg.wait_for_timeout(200); print('  tuonnin jälkeen käyttö:', await ctxt())
         # puun korvaus tekstinä säilyttää kirjaukset nimien perusteella
         await pg.click('#title'); await pg.click('#ts-list [data-edit="t1"]'); 
         txt=await pg.evaluate("(function(){var d=JSON.parse(localStorage.getItem('paatoskartta:v1'));return 1})()")
@@ -71,8 +71,8 @@ async def main():
         pg = await ctx.new_page(); pg.on('pageerror', lambda e: errs.append(str(e)))
         await pg.goto(U); await pg.click('#p-use .row:has-text("Maanantai")'); await pg.click('#p-use .row:has-text("Sali")'); await pg.wait_for_timeout(300); await pg.screenshot(path='pt12_n_u.png')
         ow=[await pg.evaluate("[document.documentElement.scrollWidth, document.getElementById('main').scrollWidth, document.getElementById('main').clientWidth, document.getElementById('top').offsetHeight]")]
-        await pg.click('#day-label'); await pg.wait_for_timeout(250); await pg.screenshot(path='pt12_n_cal.png'); print('kalenteri 320:', await pg.evaluate("[document.getElementById('dsheet').scrollWidth,document.getElementById('dsheet').clientWidth]")); await pg.click('#ds-close')
-        await pg.click('[data-tab="stat"]'); await pg.wait_for_timeout(300); await pg.screenshot(path='pt12_n_stat.png'); ow.append(await pg.evaluate("[document.documentElement.scrollWidth, document.getElementById('main').scrollWidth, document.getElementById('main').clientWidth, document.getElementById('top').offsetHeight]")); print(ow)
+        await pg.click('#day-label'); await pg.wait_for_timeout(250); await pg.screenshot(path='pt12_n_cal.png'); print('kalenteri 320:', await pg.evaluate("[document.getElementById('dsheet').scrollWidth,document.getElementById('dsheet').clientWidth]")); await pg.mouse.click(5,5)
+        await pg.click('#secbtn'); await pg.click('#secmenu [data-tab="stat"]'); await pg.wait_for_timeout(300); await pg.screenshot(path='pt12_n_stat.png'); ow.append(await pg.evaluate("[document.documentElement.scrollWidth, document.getElementById('main').scrollWidth, document.getElementById('main').clientWidth, document.getElementById('top').offsetHeight]")); print(ow)
         print('välilehdet:', await pg.evaluate("[...document.querySelectorAll('.tab')].map(b=>b.textContent.trim()+' '+Math.round(b.getBoundingClientRect().width)).join(' | ')"))
         print('errs',errs); await b.close()
 asyncio.run(main())

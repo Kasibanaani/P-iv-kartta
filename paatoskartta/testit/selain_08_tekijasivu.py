@@ -16,7 +16,7 @@ async def main():
         pg = await ctx.new_page(); pg.on('pageerror', lambda e: errs.append(str(e)))
         await pg.goto(U); await pg.wait_for_timeout(300)
         async def vis(): return await pg.evaluate("[...document.querySelectorAll('#p-use .row')].filter(b=>!b.hidden).map(b=>b.querySelector('.t').textContent+'='+(b.className.replace('row','').trim()||'neutraali')).join(', ')")
-        async def bar(): return await pg.evaluate("(function(){var t=document.getElementById('top'),c=document.getElementById('ctx');return t.dataset.mode+' | '+document.getElementById('mode').textContent+' | korkeus '+t.offsetHeight+' | tausta '+getComputedStyle(t).backgroundColor+' | rivi2: '+(c.hidden?'-':c.innerText.replace(/\\n/g,' ').trim())+' | teemaväri '+document.querySelector('meta[name=theme-color]').content+' | piste '+!document.getElementById('setdot').hidden})()")
+        async def bar(): return await pg.evaluate("(function(){var t=document.getElementById('top'),c=document.getElementById('ctx');return t.dataset.mode+' | '+document.getElementById('secname').textContent+' | korkeus '+t.offsetHeight+' | tausta '+getComputedStyle(t).backgroundColor+' | rivi2: '+(c.hidden?'-':c.innerText.replace(/\\n/g,' ').trim())+' | teemaväri '+document.querySelector('meta[name=theme-color]').content+' | piste '+!document.getElementById('setdot').hidden})()")
         async def msg(): return (await pg.inner_text('#info')).replace('\n',' | ') if await pg.is_visible('#info') else '(ei viestiä)'
         inc = lambda: pg.evaluate("document.getElementById('teach-inc').innerText.replace(/\\n/g,' ')")
         store = lambda q: pg.evaluate("(function(){var d=JSON.parse(localStorage.getItem('paatoskartta:v1')),t=d.trees[0];return JSON.stringify(%s)})()" % q)
@@ -34,7 +34,7 @@ async def main():
             box = await pg.evaluate("(n)=>{var b=("+FIND+")(n).querySelector('.row');b.scrollIntoView({block:'center'});var q=b.getBoundingClientRect();return [q.x+40,q.y+20]}", name)
             await pg.mouse.move(box[0],box[1]); await pg.mouse.down(); await pg.wait_for_timeout(700); await pg.mouse.up(); await pg.wait_for_timeout(200)
         async def tolist():
-            await pg.click('[data-tab="teach"]'); await pg.wait_for_timeout(100)
+            await pg.click('#secbtn'); await pg.click('#secmenu [data-tab="teach"]'); await pg.wait_for_timeout(100)
             if await pg.is_visible('#ctx-back'): await pg.click('#ctx-back')
         async def page(name):
             await tolist(); await pg.evaluate("(n)=>{[...document.querySelectorAll('#teach-list .row')].filter(b=>b.querySelector('.t').firstChild.textContent===n)[0].click()}", name); await pg.wait_for_timeout(150)
@@ -58,14 +58,14 @@ async def main():
         # uusi vaihtoehto ja sen merkintä ehdon sivulta toistolla
         await tolist(); await pg.fill('#newopt','Etäpäivä'); await pg.click('#addplain'); await pg.fill('#newopt','Lounas'); await pg.click('#addplain')
         await page('Päivä valittu'); print('6 uudet:', await tap('Etäpäivä',2), '| toisto:', await tap('Lounas',1), '|', await store('[t.req.o10,t.req.o11]'))
-        await pg.click('[data-tab="use"]'); await pg.wait_for_timeout(200); print('  käyttö:', await vis())
+        await pg.click('#secbtn'); await pg.click('#secmenu [data-tab="use"]'); await pg.wait_for_timeout(200); print('  käyttö:', await vis())
         await pg.click('#p-use .row:has-text("Tiistai")'); print('  vaihto tiistaihin:', (await pg.inner_text('#ctx')).replace('\n',' '), '|', await msg(), '|', await vis())
         await pg.click('#p-use .row:has-text("Valmistaudu")'); await pg.click('#ctx .pchip >> nth=1'); print('  paluu kohtaan 2:', (await pg.inner_text('#ctx')).replace('\n',' '), '|', await msg())
         await pg.click('#ctx .pchip >> nth=0'); print('  paluu kohtaan 1:', (await pg.inner_text('#ctx')).replace('\n',' '), '|', await msg())
         await pg.click('#ctx .pchip.reset'); print('  alusta:', await bar(), '|', await msg()); await pg.click('#info-undo'); print('  kumoa:', (await pg.inner_text('#ctx')).replace('\n',' ')); await pg.click('#ctx .pchip.reset')
         await pg.click('#use-showall'); await pg.click('#p-use .row:has-text("Valmistaudu")'); print('  lukittu:', await pg.inner_text('#info-text')); await pg.click('#use-showall')
         # asetukset, vienti, tuonti
-        await pg.click('[data-tab="set"]'); print('7 asetukset, palkki:', await bar())
+        await pg.click('#secbtn'); await pg.click('#secmenu [data-tab="set"]'); print('7 asetukset, palkki:', await bar())
         assert await pg.locator('#set-tint [data-v]').evaluate_all("es=>es.map(e=>e.dataset.v).slice(-10)")==['forest','lake','plum','sand','rose','graphite','lagoon','lavender','olive','copper']
         async with pg.expect_download() as dl:
             await pg.click('.btn:has-text("Vie tiedosto")')
@@ -81,7 +81,7 @@ async def main():
         pg = await ctx.new_page(); pg.on('pageerror', lambda e: errs.append(str(e)))
         await pg.goto(U); await pg.click('#p-use .row:has-text("Maanantai")'); await pg.click('#p-use .row:has-text("DKT-tiimi")'); await pg.click('#p-use .row:has-text("Valmistaudu")'); await pg.wait_for_timeout(350); await pg.screenshot(path='pt8_n_u.png')
         ow=[await pg.evaluate("[document.documentElement.scrollWidth, document.getElementById('main').scrollWidth, document.getElementById('main').clientWidth, document.getElementById('top').offsetHeight]")]
-        await pg.click('[data-tab="teach"]'); await pg.wait_for_timeout(300); await pg.screenshot(path='pt8_n_list.png'); ow.append(await pg.evaluate("[document.documentElement.scrollWidth, document.getElementById('main').scrollWidth, document.getElementById('main').clientWidth, document.getElementById('top').offsetHeight]"))
+        await pg.click('#secbtn'); await pg.click('#secmenu [data-tab="teach"]'); await pg.wait_for_timeout(300); await pg.screenshot(path='pt8_n_list.png'); ow.append(await pg.evaluate("[document.documentElement.scrollWidth, document.getElementById('main').scrollWidth, document.getElementById('main').clientWidth, document.getElementById('top').offsetHeight]"))
         await pg.evaluate("[...document.querySelectorAll('#teach-list .row')].filter(b=>b.querySelector('.t').firstChild.textContent==='Valmistaudu 15 min etukäteen')[0].click()"); await pg.wait_for_timeout(300)
         await pg.evaluate("[...document.querySelectorAll('#p-teach .trow')].filter(r=>r.querySelector('.t').textContent==='Sali')[0].querySelector('.row').click()"); await pg.wait_for_timeout(300); await pg.screenshot(path='pt8_n_i.png')
         ow.append(await pg.evaluate("[document.documentElement.scrollWidth, document.getElementById('main').scrollWidth, document.getElementById('main').clientWidth, document.getElementById('top').offsetHeight]")); print(ow)
