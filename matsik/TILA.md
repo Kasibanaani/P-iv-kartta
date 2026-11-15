@@ -1,8 +1,19 @@
 # Mätsik Forest: tila
 
-**Vaihe:** versio 1.8. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 15.11.2026
+**Vaihe:** versio 1.9. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 15.11.2026
 
 Juureen (`paatospuu/`) nojaava, mutta erillinen hoitosuunnitelmien demo- ja kehittämisappi. Kaikki sisältö on kuvitteellista, ja Emil kirjoittaa sen itse. Appi ei sisällä valmista dataa. Hahmotelma ja perustelut ovat projektikansiossa (`hoitojuuri/HAHMOTELMA.md`), ei tässä julkisessa repossa.
+
+## Versio 1.9 (15.11.2026, Emil: oletusvälit, pikapäivä tarkistettavaksi, kalenterin viikkonäkymä)
+
+- **Valikko → Tarkistusvälit** (uusi alasivu, taulukko): asiat riveinä, välit sarakkeina, yksi valinta per rivi, uusi napautus poistaa. Nimisarake pysyy, sarakkeet vierivät kapealla ruudulla. *Käynnit ja seuranta*: 1, 2, 3, 4 vk, 2 kk, 3 kk (`asetukset.sisallot[].ov`), koskee kaikkia eläimiä. *Osioiden kuittaukset*: 1, 2, 3, 6, 12 kk (`asetukset.valit`, ennen numerokenttinä Säännöissä). Ei tekstikenttiä.
+- Eläimen oma valinta ohittaa oletuksen (`toimet.vali[it]`, `'0'` = ei tällä eläimellä); `MF.effVali(a,d)`.
+- **Pikamuistiinpanon päivä = tarkistettava päivä, ei varaus eikä tarkistus.** Jos pikanapin sana osuu sisältöön, jolla on väli (esim. hoitoneuvottelu), päivä näkyy tarkistettavana ("Hoitoneuvottelu tarkistettava 23.11. (3 kk)"), ja OK aloittaa välin siitä viikosta. Kuittaamaton mennyt pikapäivä siirtyy kuluvalle viikolle. Tavalliset muistion merkinnät toimivat kuten ennen (kirjattu aika = varattu).
+- **Kalenterin oletus on Viikko** (valinta Viikko / Aikajana ylhäällä, muistetaan laitteessa): tänään otsikkona, sen alla *Tällä viikolla* (asiat ilman päivää + menneiden päivien kuittaamattomat pikapäivät), sitten tulevat päivät. Muilla viikoilla viikon asiat ensin, sitten päivät ma–su. Järjestys otsikon alla: kiireelliset varattavat ja tason 1 arvioinnit, muut varattavat, pikapäivät, käynnit, muut merkinnät. Kuittaus ei muuta järjestystä: kuitattu jää paikalleen himmeänä.
+- Rivin napautus avaa pienen ikkunan (OK, Avaa muistiinpano / Avaa eläin), ulkopuolinen napautus sulkee. Viikon vaihto alapalkin ‹ Tänään › -napeista.
+- Testit: `logiikka.js` (oletusväli, pikapäivä ketjussa, OK nollaa, myöhässä oleva, viikkonäkymän sijoittelu) ja `selain.js` (taulukko, viikkonäkymä, OK-ikkuna, rivi ei liiku). Kaikki ok 390, 320 ja 1280 px.
+- Ei tarkistettu: oikealla iPhonella. Menneen päivän tavalliset merkinnät näkyvät vain Aikajanassa.
+- **Seuraavaksi (1.10, Emil 15.11. klo 10.35):** samaan taulukkoon rivien raahaus tärkeysjärjestykseen, tavoitteille oma taulukko (taso × taho, oma väli). Taulukosta ei saa voida poistaa mitään.
 
 ## Versio 1.8 (15.11.2026, Emil: kuukausivalitsin, monta päivää)
 

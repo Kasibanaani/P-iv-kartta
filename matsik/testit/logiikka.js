@@ -133,4 +133,24 @@ const d8=MF.empty();d8.asetukset.valit.tulosyy=0;const k8=MF.newClient('Siili','
 want('väli 0: kuittaus ei vanhene',!MF.herjat(k8,d8,'2027-01-01').some(h=>h.osio==='tulosyy'));
 want('vanha tallennus saa uudet välit oletuksina',MF.repair({asiakkaat:[],asetukset:{valit:{esitiedot:4}}}).asetukset.valit.tulosyy===12&&MF.repair({asiakkaat:[],asetukset:{valit:{esitiedot:4}}}).asetukset.valit.esitiedot===4);
 want('kuittaukset säilyvät ja viallinen poistuu korjauksessa',(()=>{const x=JSON.parse(JSON.stringify(d6));x.asiakkaat[0].kuit.huono={v:'x'};x.asiakkaat[0].kuit.puuttuu={v:'ok'};const r=MF.repair(x).asiakkaat[0].kuit;return r['esitiedot.perhe'].v==='ei'&&!r.huono&&!r.puuttuu;})()&&JSON.stringify(MF.repair({asiakkaat:[{nimi:'V'}]}).asiakkaat[0].kuit)==='{}');
+{/* 1.9: oletusväli, pikapäivä tarkistettavana, OK nollaa välin, kalenterin viikkonäkymä */
+ const T9='2026-11-11',d=MF.empty(),k=MF.newClient('Kettu','2026-09-01');d.asiakkaat.push(k);d.asetukset.sisallot.find(x=>x.id==='neuv').ov='k3';
+ want('oletusväli koskee eläintä, oma valinta ohittaa, 0 = ei tällä',MF.effVali(k,d).neuv==='k3'&&(k.toimet.vali={neuv:'v4'},MF.effVali(k,d).neuv==='v4')&&(k.toimet.vali={neuv:'0'},!MF.effVali(k,d).neuv)&&MF.repair(JSON.parse(JSON.stringify(d))).asiakkaat[0].toimet.vali.neuv==='0');
+ k.toimet.vali={};d.muistio.push({id:'n1',text:'Kettu neuvottelu 2.9.2026',tila:{}});
+ d.muistio.push({id:'pk',text:'Kettu hoitoneuvottelu 23.11.2026',tila:{},pika:{a:k.id,it:'neuvottelu',pv:['2026-11-23']}});
+ const ch=()=>MF.chain(k,'neuv','k3',MF.allEntries(d,T9),T9,MF.lists(d),MF.derivedFor(k,d,T9));
+ let c=ch();want('pikapäivä on tarkistettava kohta ennen välin eräpäivää (ei varaus)',c[0].st==='due'&&c[0].w==='2026-11-23'&&c[0].pk&&c[0].pk.date==='2026-11-23'&&MF.herjat(k,d,T9).some(h=>h.teksti==='Hoitoneuvottelu tarkistettava 23.11. (3 kk)'));
+ d.muistio[1].tila={'2026-11-23|0':'toteutui'};c=ch();
+ want('OK nollaa välin pikapäivästä: seuraava 3 kk päästä',c[0].st==='ok'&&c[0].w==='2026-11-23'&&c.filter(x=>x.st==='due').every(x=>x.w>='2026-02-23'));
+ d.muistio[1].tila={};c=MF.chain(k,'neuv','k3',MF.allEntries(d,'2026-11-26'),'2026-11-26',MF.lists(d),MF.derivedFor(k,d,'2026-11-26'));
+ want('kuittaamaton pikapäivä ei mene itsestään tehdyksi',c[0].st==='due'&&c[0].w==='2026-11-23');
+ c=MF.chain(k,'neuv','k3',MF.allEntries(d,'2026-12-02'),'2026-12-02',MF.lists(d),MF.derivedFor(k,d,'2026-12-02'));
+ want('myöhässä oleva pikapäivä siirtyy kuluvalle viikolle',c[0].st==='due'&&c[0].w==='2026-11-30'&&c[0].pk.date==='2026-11-23');
+ d.muistio.push({id:'n2',text:'Kettu soitto 12.11.2026 klo 10\nKettu kotikäynti 11.11.2026',tila:{}});
+ const G=MF.weekAgenda(d,'2026-11-09',T9),ke=G.days.find(x=>x.d==='2026-11-11'),to=G.days.find(x=>x.d==='2026-11-12');
+ want('viikkonäkymä: menneet päivät piilossa, tänään ja tulevat päivät otsikoina',G.cur&&G.days.find(x=>x.d==='2026-11-09').past&&ke.items.length===1&&to.items[0].klo.startsWith('10'));
+ const G2=MF.weekAgenda(d,'2026-11-23',T9),ma=G2.days.find(x=>x.d==='2026-11-23');
+ want('viikkonäkymä: pikapäivä päivänsä alla tarkistettavana, ei kahdesti',ma.items.length===1&&ma.items[0].k==='var'&&ma.items[0].pk.note==='pk'&&!G2.days.some(x=>x.items.some(i=>i.k==='e'&&i.n==='pk')));
+ d.muistio[1].tila={'2026-11-23|0':'toteutui'};const G3=MF.weekAgenda(d,'2026-11-23',T9);
+ want('kuitattu pysyy samassa kohdassa',G3.days.find(x=>x.d==='2026-11-23').items[0].done===true&&G3.days.find(x=>x.d==='2026-11-23').items[0].pk.note==='pk');}
 process.exit(bad?1:0);
