@@ -1,8 +1,15 @@
 # Mätsik Forest: tila
 
-**Vaihe:** versio 1.10. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 15.11.2026
+**Vaihe:** versio 1.11. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 15.11.2026
 
 Juureen (`paatospuu/`) nojaava, mutta erillinen hoitosuunnitelmien demo- ja kehittämisappi. Kaikki sisältö on kuvitteellista, ja Emil kirjoittaa sen itse. Appi ei sisällä valmista dataa. Hahmotelma ja perustelut ovat projektikansiossa (`hoitojuuri/HAHMOTELMA.md`), ei tässä julkisessa repossa.
+
+## Versio 1.11 (15.11.2026, Emil: kalenterin napit alapalkkiin, ei pomppimista)
+
+- Kalenterin näkymävalinta (Viikko / Päivä, tietokoneella Viikko / Aikajana) on alapalkissa nuolten ja Tänään-napin vieressä. Ylhäällä on vain yksi rivi: kuukausi, vuosi ja viikko (napautus avaa yhä kuukausivalitsimen). Yläpalkki ja alapalkki ovat täsmälleen samat molemmissa näkymissä, joten mikään ei liiku näkymää vaihtaessa.
+- Kalenterissa alapalkissa ei ole Vie-nappia (ei mahdu); tekemättömän viennin punainen piste näkyy osionapissa. 320 px:n ruudulla napit lyhenevät (Vk, Pv, Nyt).
+- Emilin linja: usein painettavat napit jäädytetään alareunaan, yläreunaan vain tieto.
+- Testi: `selain.js` (napit alapalkissa samalla rivillä, eivät mene päällekkäin, sijainnit samat molemmissa näkymissä). Kaikki ok 390, 320 ja 1280 px. Ei tarkistettu oikealla iPhonella.
 
 ## Versio 1.10 (15.11.2026, Emil: tärkeysjärjestys samaan taulukkoon raahaamalla, tavoitteille oma taulukko)
 

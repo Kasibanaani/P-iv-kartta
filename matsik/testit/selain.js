@@ -178,7 +178,11 @@ async function run(b,w,h,touch){
   const today=iso(new Date());
   want('1.9: kalenterin oletus viikkonäkymä, tänään otsikkona, sitten Tällä viikolla',await pg.locator('.ag').count()===1&&await pg.locator('[data-act=calmode][data-v=vk][aria-pressed=true]').count()===1&&
     (await pg.locator('.agh').first().innerText()).includes('tänään')&&(await pg.locator('.agh').nth(1).innerText()).startsWith('Tällä viikolla')&&!await wide());
-  await tap('[data-act=calmode][data-v=aj]');
+  const hb=async()=>JSON.stringify(await pg.evaluate(()=>['.calhead','#roll','#bar [data-act=calmode][data-v=vk]','#bar [data-act=calmode][data-v=aj]','#bar [data-act=calprev]','#bar [data-act=caltoday]','#bar [data-act=calnext]'].map(q=>{const r=document.querySelector(q).getBoundingClientRect();return [Math.round(r.left),Math.round(r.top),Math.round(r.width),Math.round(r.height)];})));
+  const hb0=await hb(),hbv=JSON.parse(hb0);
+  await tap('#bar [data-act=calmode][data-v=aj]');
+  want('1.11: näkymän valinta alapalkissa, mikään ei liiku näkymää vaihtaessa',(await hb())===hb0&&hbv[0][3]<=32&&await pg.locator('.calsticky [data-act=calmode]').count()===0&&
+    hbv.slice(1).every((r,k,A)=>r[1]===A[0][1]&&(k===0||A[k-1][0]+A[k-1][2]<=r[0]+2))&&hbv[6][0]+hbv[6][2]<=w&&await pg.locator('#bar [data-act=vie]').count()===0&&!await wide());
   want('kalenterin aikajana ja viikkonauha',await pg.locator('#timeline').count()===1&&await pg.locator('#week .cday').count()===7);
   want('tämän päivän merkintä aikajanalla klo 9',await pg.locator('.ev').count()>=1);
   const area=pg.locator(touch?'.area':`.area[data-day="${today}"]`).first(),ab=await area.boundingBox();
