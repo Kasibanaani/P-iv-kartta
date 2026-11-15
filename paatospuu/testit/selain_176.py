@@ -11,6 +11,8 @@ async def run(p,w,h):
     except Exception: b=await p.chromium.launch(executable_path='/opt/pw-browsers/chromium')
     errs=[]; bad=[]
     pg=await (await b.new_context(viewport={'width':w,'height':h})).new_page()
+    # 1.103: kalenterin oletus on Viikko; nämä polut testaavat aikajanaa (Päivä / Aikajana)
+    await pg.add_init_script("try{localStorage.setItem('paatospuu:calview','d')}catch(e){}")
     pg.on('pageerror',lambda e:(errs.append(str(e)),print('  PAGEERR',e)))
     def want(label,cond):
         print('  %-48s %s'%(label,'ok' if cond else 'VIRHE'))

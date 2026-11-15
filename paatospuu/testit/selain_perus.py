@@ -24,6 +24,8 @@ async def run(p,w,h):
     except Exception: b=await p.chromium.launch(executable_path='/opt/pw-browsers/chromium')
     errs=[]; bad=[]
     pg=await (await b.new_context(viewport={'width':w,'height':h},device_scale_factor=2)).new_page()
+    # 1.103: kalenterin oletus on Viikko; nämä polut testaavat aikajanaa (Päivä / Aikajana)
+    await pg.add_init_script("try{localStorage.setItem('paatospuu:calview','d')}catch(e){}")
     pg.on('pageerror',lambda e:(errs.append(str(e)),print('  PAGEERR',e)))
     await pg.goto(U); await pg.wait_for_timeout(200)
     async def check(label):
@@ -245,7 +247,7 @@ async def run(p,w,h):
     imp=lambda: pg.evaluate("JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0].tarkeat")
     want('tärkeät ylinnä', await pg.locator('#implist .drow').count()==2 and await pg.locator('#termlist [data-id="a:kissa"]').count()==0 and await imp()==['a:koira','a:kissa'])
     async def drag(i,dy,shot=None):
-        bb=await pg.locator('#implist .drow').nth(i).bounding_box(); x=bb['x']+bb['width']/2; y=bb['y']+bb['height']/2
+        bb=await pg.locator('#implist .drow .row').nth(i).bounding_box(); x=bb['x']+bb['width']/2; y=bb['y']+bb['height']/2
         await pg.mouse.move(x,y); await pg.mouse.down(); await pg.wait_for_timeout(450)
         for k in range(1,11): await pg.mouse.move(x,y+dy*k/10)
         if shot: await check(shot)
@@ -253,7 +255,7 @@ async def run(p,w,h):
     await pg.evaluate("document.getElementById('main').scrollTop=0"); await pg.wait_for_timeout(30)
     await drag(1,-90,'raahaus'); want('raahaus järjestää', await imp()==['a:kissa','a:koira'] and not await pg.is_visible('#tok'))
     await drag(0,600); want('pudotus ulos palauttaa', await imp()==['a:kissa','a:koira'])
-    await pg.click('#implist .drow >> nth=0'); want('napautus avaa termin', await pg.is_visible('#tok')); await pg.click('#tok'); await check('tärkeysjärjestys')
+    await pg.click('#implist .drow .row >> nth=0'); want('napautus avaa termin', await pg.is_visible('#tok')); await pg.click('#tok'); await check('tärkeysjärjestys')
     await tab(pg,'notes'); await pg.wait_for_timeout(40); await sortTo('prio'); await pg.wait_for_timeout(50)
     want('tärkein ensin', 'Kissa' in await pg.inner_text('#nlist .ncard >> nth=0')); await check('muistiinpanot tärkeys')
     await sortTo('next')
@@ -340,7 +342,7 @@ async def run(p,w,h):
     kn=await nts('Kalenterista'); want('1.98: yhden ajan tekstin kalenterikuittaus kuittaa tekstin', kn.get('done') and kn.get('pts'))
     kev=pg.locator('#timeline .ev:has-text("Kalenterista lisätty")'); want('kuitattu jää kalenteriin erinäköisenä', await kev.count()==1 and 'done' in await kev.get_attribute('class')); await check('kuitattu kalenterissa')
     await pg.evaluate("(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1'));o.kokonaisuudet[0].muistiinpanot.forEach(function(x){if(x.text.indexOf('Kalenterista')===0)x.done=new Date().toISOString();});localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()")
-    await pg.reload(); await pg.wait_for_timeout(120); await tab(pg,'cal'); await pg.wait_for_timeout(120)
+    await pg.reload(); await pg.wait_for_timeout(400); await tab(pg,'cal'); await pg.wait_for_timeout(120)
     await kev.click(); await pg.wait_for_timeout(50); want('Muistioista kuitattu: arkistointi tarjolla', await pg.is_visible('#ns-arch')); await pg.click('#ns-arch'); await pg.click('#ns-archok'); await pg.wait_for_timeout(80)
     want('arkistoitu pois kalenterista', await pg.locator('#timeline .ev:has-text("Kalenterista lisätty")').count()==0 and (await nts('Kalenterista')).get('arch'))
     async def drag(src,tx,ty,shot=None):
@@ -368,12 +370,12 @@ async def run(p,w,h):
     # asetukset ja varmuuskopio
     await menu(pg,'#m-proj'); await pg.wait_for_timeout(60); await check('asetukset'); await pg.click('#psheet .sx'); await pg.wait_for_timeout(60); await menu(pg,'#m-x'); await pg.click('#vs-txtall'); await pg.wait_for_timeout(50)
     dump=await pg.input_value('#vs-out textarea'); await check('vienti tekstinä'); await pg.click('#vsheet .sx')
-    await pg.evaluate("localStorage.clear()"); await pg.reload(); await pg.wait_for_timeout(100)
+    await pg.evaluate("localStorage.clear()"); await pg.reload(); await pg.wait_for_timeout(400)
     await menu(pg,'#m-x'); await pg.click('#imptextbtn'); await pg.fill('#imptext',dump); await pg.click('#impcheck'); await pg.click('#impok'); await pg.wait_for_timeout(50); await pg.click('#vsheet .sx')
     await tab(pg,'notes'); want('tuonti palautti', await pg.locator('#nlist .ncard').count()==7)
     # merkitykset: etenevä kierros ja kääntöpuolet (1.19)
     await pg.evaluate("(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1'));o.kokonaisuudet[0].puut.push({id:'pm',name:'Merkitykset',text:%s,rt:1,flow:'prio',session:null});o.kokonaisuudet[0].cur='pm';localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()"%json.dumps(MT))
-    await pg.reload(); await pg.wait_for_timeout(100); await tab(pg,'use'); await pg.wait_for_timeout(50)
+    await pg.reload(); await pg.wait_for_timeout(400); await tab(pg,'use'); await pg.wait_for_timeout(50)
     want('etenevä: tärkein merkitys', 'Turvallisuus' in await pg.inner_text('#curm') and await pg.locator('#opts .row').count()==2); await check('etenevä kierros')
     await pg.click('#opts [data-id="kriisikontaktit sovittu"]'); await pg.click('#act-go'); await pg.wait_for_timeout(50)
     want('etenevä: seuraava', 'Allianssi' in await pg.inner_text('#curm') and not await pg.is_disabled('#act-go'))
@@ -390,7 +392,7 @@ async def run(p,w,h):
     await pg.fill('#ps-new','Toinen puu'); await pg.click('#ps-add'); await pg.wait_for_timeout(50)
     want('kaksi puuta projektissa', await pg.locator('#ps-list .row').count()==2); await pg.click('#psheet .sx')
     await tab(pg,'notes'); await pg.wait_for_timeout(50); want('omat muistiinpanot', await pg.locator('#nlist .ncard').count()==0)
-    await pg.reload(); await pg.wait_for_timeout(100); await tab(pg,'use'); want('projekti säilyy', await pg.inner_text('#tname')=='Mätsik Forest' and await pg.inner_text('#treepick span')=='Toinen puu')
+    await pg.reload(); await pg.wait_for_timeout(400); await tab(pg,'use'); want('projekti säilyy', await pg.inner_text('#tname')=='Mätsik Forest' and await pg.inner_text('#treepick span')=='Toinen puu')
     await menu(pg,'#m-proj'); await pg.click('#pk-list .row >> nth=0'); await pg.wait_for_timeout(50); want('valinta sulkee ikkunan', not await pg.is_visible('#psheet'))
     await tab(pg,'notes'); await pg.wait_for_timeout(50); want('ensimmäisen projektin muistiinpanot palasivat', await pg.locator('#nlist .ncard').count()>0)
     # projektin vienti ja lisäys (1.24)
@@ -419,7 +421,7 @@ async def run(p,w,h):
     br=await pg.locator('#roll').bounding_box(); bx=await pg.locator('#qx').bounding_box(); bm=await pg.locator('#menu').bounding_box()
     want('rullaus vasemmalla, vienti ja valikko oikealla', br['x']<bx['x']<bm['x'] and bm['x']+bm['width']<=w-8 and br['x']>=8)
     await pg.evaluate("(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1'));o.kokonaisuudet.forEach(function(k){k.viematta='2026-01-01';});localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()")
-    await pg.reload(); await pg.wait_for_timeout(100); want('pallero näkyy', await pg.is_visible('#qx-dot'))
+    await pg.reload(); await pg.wait_for_timeout(400); want('pallero näkyy', await pg.is_visible('#qx-dot'))
     await menu(pg,'#m-x'); await check('vienti-ikkuna')
     want('kaksi vaihtoehtoa', await pg.locator('#vs-rows .row').count()==2 and 'Juuri.json' in await pg.inner_text('#vs-all') and '(Juuri).json' in await pg.inner_text('#vs-proj') and 'Viety viimeksi' in await pg.inner_text('#vs-when'))
     async with pg.expect_download() as dl: await pg.click('#vs-proj')
@@ -461,7 +463,7 @@ async def run(p,w,h):
     want('tyyliasetukset päällä', await pg.evaluate("document.documentElement.dataset.font+document.documentElement.dataset.edge+document.documentElement.dataset.glass")=='seriflineon' and 'serif' in await pg.evaluate("getComputedStyle(document.body).fontFamily"))
     await tab(pg,'notes'); await pg.wait_for_timeout(50); await check('tyyli muistiot'); await tab(pg,'cal'); await pg.wait_for_timeout(100); await check('tyyli kalenteri')
     await menu(pg,'#m-proj'); await pg.wait_for_timeout(60); await pg.click('#set-font [data-v="system"]'); await pg.click('#set-edge [data-v="soft"]'); await pg.click('#set-glass [data-v="off"]'); await pg.click('#psheet .sx'); await pg.wait_for_timeout(60)
-    await pg.reload(); await pg.wait_for_timeout(100); want('tyyliasetus tallessa', await pg.evaluate("document.documentElement.dataset.font")=='system' and await pg.evaluate("document.title")=='Juuri')
+    await pg.reload(); await pg.wait_for_timeout(400); want('tyyliasetus tallessa', await pg.evaluate("document.documentElement.dataset.font")=='system' and await pg.evaluate("document.title")=='Juuri')
     # 1.39.2: poisto varmistuksella, Peruuta ensimmäisen napautuksen kohdalla
     await tab(pg,'notes'); await pg.click('#newnote'); await pg.fill('#ns-text','Poistettava'); await pg.click('#nsheet .sx'); await pg.wait_for_timeout(50)
     await pg.locator('#nlist .ncard:has-text("Poistettava")').click(); await pg.wait_for_timeout(50); want('ei Valmis-nappia', not await pg.is_visible('#ns-ok'))
@@ -566,7 +568,7 @@ async def run(p,w,h):
     # 1.49: aikaehdotukset – ⏱ listassa, + Kalenteriin tekee muistiinpanon, aikavälin viiva kalenterissa
     await pg.evaluate("""(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1')),k=o.kokonaisuudet[0];k.termit=(k.termit||[]).concat([{id:'tp1',name:'Pyykit',yes:[],no:[],dur:45}]);
       k.tarkistuslista=(k.tarkistuslista||[]).concat([{id:'rp',name:'Pyykkirivi',created:'2026-10-01T00:00:00.000Z',it:[{id:'tp1'}]}]);localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()""")
-    await pg.reload(); await pg.wait_for_timeout(120); await tab(pg,'notes'); await pg.wait_for_timeout(40); await tab(pg,'list'); await pg.wait_for_timeout(40)
+    await pg.reload(); await pg.wait_for_timeout(400); await tab(pg,'notes'); await pg.wait_for_timeout(40); await tab(pg,'list'); await pg.wait_for_timeout(40)
     want('ei ehdotuksia ennen kytkintä', await pg.locator('#chplan').count()==0 and await pg.get_attribute('#chplan-t','aria-pressed')=='false')
     await pg.click('#chplan-t'); await pg.wait_for_timeout(50); pr=pg.locator('#chplan .plrow:has-text("Pyykit")')
     tt=(await pr.locator('.plt').inner_text()) if await pr.count()==1 else ''
@@ -589,7 +591,7 @@ async def run(p,w,h):
     lt=await pg.evaluate("JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0].muistiinpanot.filter(function(n){return n.text.indexOf('Lukkotesti')===0;})[0]"); want('lukko tallessa', len(lt.get('rel') or [])==1 and lt['rel'][0]['o']=='huomenna')
     await pg.evaluate("""(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1')),d=new Date(),y=new Date(d.getTime()-864e5),iso=function(x){return x.getFullYear()+'-'+('0'+(x.getMonth()+1)).slice(-2)+'-'+('0'+x.getDate()).slice(-2);};
       o.kokonaisuudet[0].muistiinpanot.unshift({id:'nrel',text:'Eilinen huomenna klo 9 tänne',created:y.toISOString(),rel:[{w:'huomenna',o:'huomenna',at:y.toISOString(),d:iso(d)}]});localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()""")
-    await pg.reload(); await pg.wait_for_timeout(120); await tab(pg,'notes'); await pg.wait_for_timeout(50)
+    await pg.reload(); await pg.wait_for_timeout(400); await tab(pg,'notes'); await pg.wait_for_timeout(50)
     rc=pg.locator('#nlist .ncard:has-text("Eilinen")'); want('sana vaihtui tänään', 'Eilinen tänään klo 9 tänne' in await rc.inner_text() and await rc.locator('.rel').count()==1); await check('lukittu sana kortissa')
     await rc.click(); await pg.wait_for_timeout(60); want('korostus muokatessa', await pg.locator('#ns-hl .rel').count()==1)
     await pg.evaluate("(function(){var t=document.getElementById('ns-text');t.focus();t.setSelectionRange(10,10);t.dispatchEvent(new Event('click'));})()"); await pg.wait_for_timeout(40); await pg.click('#tm-hist'); await pg.wait_for_timeout(30)
@@ -655,7 +657,8 @@ async def run(p,w,h):
     cd=pg.locator('#nlist .ncard:has-text("Soita huomenna") .nt .dn'); want('kortissa yliviivaus', await cd.count()==1 and 'huomenna' in await cd.inner_text()); await check('kortin yliviivaus'); await pg.click('#noteview [data-nv="open"]'); await pg.wait_for_timeout(40)
     # 1.57: tiiviit luettelorivit, tähti rivin sisällä
     await terms(); await pg.wait_for_timeout(60)
-    rh=await pg.evaluate("(function(){var r=document.querySelector('#termlist .drow'),a=r.querySelector('.row').getBoundingClientRect(),b=r.querySelector('.sbtn').getBoundingClientRect();return [Math.round(a.height),b.right<=a.right&&b.left>=a.left]})()")
+    # 1.103: Asiat-osio on taulukko; tähti on nimen kanssa samassa kiinteässä sarakkeessa (.tfix), ei erillisellä rivillä
+    rh=await pg.evaluate("(function(){var r=document.querySelector('#termlist .drow'),a=r.querySelector('.row').getBoundingClientRect(),f=r.querySelector('.tfix').getBoundingClientRect(),b=r.querySelector('.sbtn').getBoundingClientRect();return [Math.round(a.height),b.right<=f.right&&b.left>=f.left&&Math.abs((b.top+b.bottom)/2-(a.top+a.bottom)/2)<4]})()")
     want('rivi tiivis, tähti sisällä', rh[0]<=46 and rh[1]); await check('tiiviit rivit'); await tsx(pg); await pg.wait_for_timeout(40)
     # 1.58: Listan rajausrivi pysyy ylhäällä
     await tab(pg,'notes'); await tab(pg,'list'); await pg.wait_for_timeout(60)

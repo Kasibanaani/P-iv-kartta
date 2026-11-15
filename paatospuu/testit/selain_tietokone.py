@@ -24,8 +24,10 @@ async def run(p,w,h):
     except Exception: b=await p.chromium.launch(executable_path='/opt/pw-browsers/chromium')
     errs=[]; bad=[]
     pg=await (await b.new_context(viewport={'width':w,'height':h})).new_page()
+    # 1.103: kalenterin oletus on Viikko; nämä polut testaavat aikajanaa (Päivä / Aikajana)
+    await pg.add_init_script("try{localStorage.setItem('paatospuu:calview','d')}catch(e){}")
     pg.on('pageerror',lambda e:errs.append(str(e)))
-    await pg.goto(U); await pg.evaluate("s=>localStorage.setItem('paatospuu:v1',s)",json.dumps(SEED)); await pg.reload(); await pg.wait_for_timeout(200)
+    await pg.goto(U); await pg.wait_for_timeout(300); await pg.evaluate("s=>localStorage.setItem('paatospuu:v1',s)",json.dumps(SEED)); await pg.reload(); await pg.wait_for_timeout(200)
     async def check(label):
         r=json.loads(await pg.evaluate(OVER)); good=not r['yli'] and r['doc']<=r['w'] and r['main'][0]<=r['main'][1]
         print('  %-30s %s %s'%(label,'ok' if good else 'YLI',r if not good else ''))
