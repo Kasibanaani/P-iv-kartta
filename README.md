@@ -28,6 +28,7 @@ Henkilökohtaiseen käyttöön tehtyjä selainappeja. Jokainen appi on yksi HTML
 | `shakki/` | Shakki (iPadille: litteät nappulat, botti viidellä tasolla, matti- ja taktiikkatehtävät; tila `shakki/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/shakki/ |
 | `treenikartta/` | Treenikartta (salitreenin kirjaus ja seuranta: omat liikkeet, painoehdotus, tavoitteet ja ennusteet, lihasryhmät, korrelaatiot; tila `treenikartta/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/treenikartta/ |
 | `laakso/` | Laakso (uudisasukkaiden sijoituspeli: botit, alkutuotanto, tuotantoketjut, vuodenajat ja yritysten rahoittaminen; tila `laakso/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/laakso/ |
+| `minigo/` | Mini-Go (Go lasten kanssa samalla laitteella: Kaappaus-Go ja oikea Go laskentoineen, laudat 5/7/9, viisi ulkoasua; tila `minigo/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/minigo/ |
 
 Uusi appi tulee omaan kansioonsa nimellä `index.html`. Osoite on silloin `https://kasibanaani.github.io/P-iv-kartta/<kansio>/`.
 

@@ -1,0 +1,784 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mini-Go">
+<title>Mini-Go</title>
+<link rel="apple-touch-icon" id="touchicon">
+<style>
+/* ===== Pohja ===== */
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);background-attachment:fixed;color:var(--ink);font-family:var(--font);-webkit-tap-highlight-color:transparent;overscroll-behavior:none;-webkit-text-size-adjust:100%;transition:background-color .4s}
+button{font:inherit;color:inherit;touch-action:manipulation;cursor:pointer}
+#app{height:100vh;height:100dvh;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr auto auto auto auto auto .35fr;grid-template-areas:"hd" "." "p2" "bw" "hint" "p1" "ac" ".";gap:8px;
+  padding:calc(env(safe-area-inset-top) + 8px) calc(env(safe-area-inset-right) + 12px) calc(env(safe-area-inset-bottom) + 10px) calc(env(safe-area-inset-left) + 12px);max-width:760px;margin:0 auto}
+header{grid-area:hd;display:flex;align-items:center;gap:8px;min-height:40px}
+header h1{margin:0;font:var(--h1);letter-spacing:var(--h1ls);text-transform:var(--h1tt,none);white-space:nowrap}
+#info{flex:1;min-width:0;font-size:12.5px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ib{border:var(--bw) solid var(--btn-b);background:var(--btn);color:var(--btn-ink);border-radius:var(--rad);min-width:44px;height:40px;padding:0 10px;font-size:15px;box-shadow:var(--btn-sh)}
+#p1{grid-area:p1}#p2{grid-area:p2}
+.card{display:flex;align-items:center;gap:10px;padding:7px 12px;min-height:54px;border-radius:var(--rad);background:var(--surf);border:var(--bw) solid var(--surf-b);transition:box-shadow .25s,transform .25s,background-color .25s}
+.card .ico{width:38px;height:38px;flex:none;overflow:visible}
+.card .who{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.card b{font:var(--name);letter-spacing:var(--namels);text-transform:var(--h1tt,none)}
+.card b small{font-weight:500;font-size:12px;color:var(--ink2);text-transform:none;letter-spacing:0}
+.card .sub{font-size:13px;color:var(--ink2)}
+.card .turn{font-size:12.5px;font-weight:700;color:var(--turn-ink);background:var(--turn);border-radius:99px;padding:3px 10px;opacity:0;transition:opacity .25s}
+.card.on{box-shadow:0 0 0 2.5px var(--turn),var(--on-sh,none)}
+.card.on .turn{opacity:1}
+.card .seal{display:none}
+.dots{display:inline-flex;gap:5px;padding-top:3px}
+.dots i{width:12px;height:12px;border-radius:50%;border:2px solid var(--ink2);opacity:.6}
+.dots i.on{background:var(--acc);border-color:var(--acc);opacity:1}
+#bw{grid-area:bw;position:relative;display:grid;place-items:center;min-height:0;min-width:0}
+#board{display:block;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;border-radius:var(--board-rad);box-shadow:var(--board-sh);overflow:visible}
+#bw.shake #board{animation:shake .4s}
+@keyframes shake{20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(2px)}}
+#hint{grid-area:hint;margin:0;font-size:13.5px;text-align:center;color:var(--ink2);min-height:0}
+#hint:empty{display:none}
+#actions{grid-area:ac;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px}
+.btn{min-height:46px;border-radius:var(--rad);border:var(--bw) solid var(--btn-b);background:var(--btn);color:var(--btn-ink);font-size:16px;font-weight:600;padding:0 10px;box-shadow:var(--btn-sh);transition:transform .1s}
+.btn:active,.ib:active{transform:translateY(1px) scale(.98)}
+@media (max-width:360px){.btn{font-size:14px;padding:0 6px}.t-riso .btn{font-size:13px;letter-spacing:0}}
+.btn{white-space:nowrap}
+.btn.pri{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+#toast{position:absolute;left:50%;top:10px;transform:translate(-50%,-8px);max-width:min(92%,420px);background:var(--dlg);color:var(--ink);border:var(--bw) solid var(--surf-b);border-radius:var(--rad);padding:9px 14px;font-size:14.5px;line-height:1.35;box-shadow:0 8px 30px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;text-align:center;z-index:3}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#toast.bad{border-color:var(--bad)}
+body.vastakkain #p2 .card,body.vastakkain #p2.card{transform:rotate(180deg)}
+@media (orientation:landscape) and (min-width:700px){
+  #app{max-width:none;grid-template-columns:minmax(250px,320px) minmax(0,1fr);grid-template-rows:auto auto 1fr auto auto auto;grid-template-areas:"hd bw" "p2 bw" "sp bw" "hint bw" "p1 bw" "ac bw";column-gap:20px}
+  #actions{grid-auto-flow:row}
+  body.vastakkain #p2.card{transform:none}
+}
+/* kivet ja merkit: yhteiset */
+.st .sti,.st .bod,.st .eyes,.ghost,.lastm>*{transform-box:view-box;transform-origin:0 0}
+.zz,.worry{display:none}
+.st.atari .worry{display:inline}.st.atari .happy{display:none}
+.st.dead .zz{display:inline}.st.dead .eyes,.st.dead .happy,.st.dead .worry{display:none}
+.st.dead .sti{opacity:.42}
+.st.sel .sti{filter:brightness(1.15)}
+.ghost{opacity:.5;pointer-events:none}
+.ghost.bad{opacity:.22}
+.lib{fill:none;stroke:var(--lib);stroke-width:5;stroke-dasharray:6 5;animation:libp 1.1s ease-in-out infinite alternate}
+@keyframes libp{from{opacity:.35}to{opacity:1}}
+.lp{fill:var(--lib);opacity:.75}
+.burst circle{animation:fly .75s cubic-bezier(.15,.7,.3,1) forwards}
+@keyframes fly{to{transform:translate(var(--x),var(--y)) scale(.3);opacity:0}}
+.st.enter .sti{animation:enterDefault .2s ease-out both}
+@keyframes enterDefault{from{transform:scale(1.1);opacity:.5}}
+.st.leave .sti{animation:leaveDefault .4s ease-in forwards}
+@keyframes leaveDefault{to{transform:scale(.85);opacity:0}}
+#confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:50}
+#confetti i{position:absolute;top:-20px;width:10px;height:14px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(var(--r));opacity:.8}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
+/* valintaikkunat: nousevat alhaalta */
+dialog{scroll-padding-bottom:90px;border:var(--bw) solid var(--surf-b);background:var(--dlg);color:var(--ink);font-family:var(--font);padding:20px 18px calc(env(safe-area-inset-bottom) + 18px);width:min(560px,100%);max-width:100%;max-height:88dvh;overflow:auto;
+  margin:auto auto 0;border-radius:var(--rad-d) var(--rad-d) 0 0;box-shadow:0 -10px 50px rgba(0,0,0,.3)}
+dialog[open]{animation:up .28s cubic-bezier(.2,.8,.2,1)}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+dialog::backdrop{background:rgba(15,15,20,.42);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+@media (min-width:700px) and (min-height:600px){dialog{margin:auto;border-radius:var(--rad-d)}}
+dialog h2{margin:0 0 6px;font:var(--h2);letter-spacing:var(--h1ls);text-transform:var(--h1tt,none)}
+.dh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.dh h2{margin:0}
+.x{border:0;background:var(--surf);color:var(--ink);width:36px;height:36px;border-radius:50%;font-size:18px;flex:none}
+.lbl{display:block;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink2);margin:16px 0 7px}
+.help{font-size:14px;line-height:1.45;color:var(--ink2);margin:8px 0 0}
+.seg{display:flex;gap:4px;padding:4px;background:var(--surf);border:var(--bw) solid var(--surf-b);border-radius:calc(var(--rad) + 3px)}
+.seg button{flex:1;min-height:42px;border:0;background:transparent;border-radius:var(--rad);font-size:15px;font-weight:600;color:var(--ink2)}
+.seg button[aria-pressed=true]{background:var(--acc);color:var(--acc-ink)}
+.row{display:flex;gap:8px;margin-top:18px}.row .btn{flex:1}
+.row.stick{position:sticky;bottom:calc(-18px - env(safe-area-inset-bottom));background:var(--dlg);padding:10px 0 4px;margin-bottom:-4px}
+#looks{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:10px}
+.look{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;border:2px solid var(--surf-b);border-radius:16px;padding:8px 8px 10px;background:var(--dlg);color:var(--ink);font-family:var(--font)}
+.look[aria-pressed=true]{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
+.lookbg{display:block;width:100%;border-radius:11px;overflow:hidden;background:var(--pv-bg);margin-bottom:5px}
+.pv{display:block;width:100%;height:auto}
+.look b{font-size:16px}.look small{font-size:12.5px;color:var(--ink2);line-height:1.3}
+.opt{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--surf-b);font-size:16px}
+.opt small{display:block;font-size:13px;color:var(--ink2)}
+.opt input{width:22px;height:22px;accent-color:var(--acc);flex:none}
+details{margin-top:14px;font-size:15px;line-height:1.5}
+summary{font-weight:700;padding:8px 0;cursor:pointer}
+details p{margin:6px 0}
+textarea{width:100%;min-height:70px;font:13px ui-monospace,monospace;border-radius:10px;border:1px solid var(--surf-b);background:var(--surf);color:var(--ink);padding:8px}
+.bk{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.bk .btn{flex:1 1 40%;font-size:14.5px;min-height:42px}
+.filebtn{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.filebtn input{position:absolute;inset:0;opacity:0}
+#resicon{display:flex;justify-content:center;gap:6px;margin:6px 0 4px}
+#resicon .big{width:84px;height:84px;overflow:visible}
+#dlg-res{text-align:center}#dlg-res h2{margin-top:6px}#reslines p{margin:6px 0;color:var(--ink2);font-size:15.5px}
+
+/* ===== 1 Kaya ===== */
+.t-kaya{--bg:radial-gradient(130% 80% at 50% -10%,#5a3e28 0%,#2a1c12 55%,#170f09 100%);--ink:#f5e9d3;--ink2:#cdb89a;--surf:rgba(255,236,205,.06);--surf-b:rgba(233,194,127,.25);--acc:#e3b468;--acc-ink:#2a1708;
+  --btn:#3b2a1b;--btn-ink:#f5e9d3;--btn-b:rgba(233,194,127,.42);--btn-sh:0 2px 0 rgba(0,0,0,.35);--turn:#e9c27f;--turn-ink:#2a1708;--lib:#e2502f;--bad:#e2502f;--bw:1px;--rad:10px;--rad-d:22px;--dlg:#2b1e14;--pv-bg:#1d140d;
+  --font:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;--h1:700 22px var(--font);--h2:700 22px var(--font);--h1ls:.01em;--name:700 17px var(--font);--namels:.01em;
+  --board-rad:6px;--board-sh:0 2px 0 #c08a49,0 9px 0 #8d5b2b,0 11px 0 #5e3b1a,0 26px 42px rgba(0,0,0,.6);
+  --icon-bg:#e3b468;--icon-line:#2a1708;--icon-b:#151412;--icon-w:#f6f2e8}
+.t-kaya h1::before{content:"";display:inline-block;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#777,#0b0b0b 70%);margin-right:8px;vertical-align:1px}
+.t-kaya .st.enter .sti{animation:kyIn .22s cubic-bezier(.3,1.4,.5,1) both}
+@keyframes kyIn{from{transform:translate(-2px,-9px) scale(1.07)}}
+.t-kaya .st.leave .sti{animation:kyOut .45s ease-in forwards}
+@keyframes kyOut{to{transform:translate(0,-14px) scale(.92);opacity:0}}
+.t-kaya .st.atari .sti{animation:breathe 1.3s ease-in-out infinite alternate}
+@keyframes breathe{to{opacity:.72}}
+
+/* ===== 2 Tussi ===== */
+.t-sumi{--bg:#efe9dc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8 .035' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .4 0 0 0 0 .32 0 0 0 -2.4 1.3'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23f)' opacity='.55'/%3E%3C/svg%3E");
+  --ink:#1d1a17;--ink2:#5a5148;--surf:rgba(255,253,247,.55);--surf-b:rgba(29,26,23,.2);--acc:#1d1a17;--acc-ink:#f3eee2;--btn:transparent;--btn-ink:#1d1a17;--btn-b:rgba(29,26,23,.55);--btn-sh:none;
+  --turn:#b8322a;--turn-ink:#fff6ee;--lib:#b8322a;--bad:#b8322a;--bw:1.5px;--rad:3px;--rad-d:6px;--dlg:#f5f0e5;--pv-bg:#efe9dc;
+  --font:"Hiragino Mincho ProN","Yu Mincho","Songti SC","Noto Serif JP","Iowan Old Style",Georgia,serif;--h1:400 26px var(--font);--h2:400 24px var(--font);--h1ls:.08em;--name:600 17px var(--font);--namels:.06em;
+  --board-rad:0;--board-sh:none;--icon-bg:#f1ebde;--icon-line:#221e1a;--icon-b:#171513;--icon-w:#f1ebde}
+.t-sumi h1::after{content:"碁";display:inline-grid;place-items:center;width:26px;height:26px;margin-left:10px;background:#b8322a;color:#f6e9dc;font-size:17px;border-radius:3px;vertical-align:3px;transform:rotate(-4deg);letter-spacing:0}
+.t-sumi .card{border-width:0 0 1.5px;border-radius:0;background:transparent}
+.t-sumi .card.on{box-shadow:none}
+.t-sumi .card .turn{display:none}
+.t-sumi .card .seal{display:inline-grid;place-items:center;width:34px;height:34px;background:#b8322a;color:#f6e9dc;font-size:20px;border-radius:4px;transform:rotate(-6deg) scale(.6);opacity:0;transition:transform .35s cubic-bezier(.3,1.6,.5,1),opacity .2s;box-shadow:inset 0 0 0 2px rgba(246,233,220,.35)}
+.t-sumi .card.on .seal{opacity:1;transform:rotate(-6deg) scale(1)}
+.t-sumi .btn{border-width:0 0 1.5px;border-radius:0;font-weight:600;letter-spacing:.08em}
+.t-sumi .btn.pri{border-radius:3px}
+.t-sumi .dots i.on{background:#b8322a;border-color:#b8322a}
+.t-sumi .lib{stroke-dasharray:none;stroke-width:4;r:9}
+.t-sumi .st.enter.c1 .sti{animation:bleed .6s cubic-bezier(.2,.7,.2,1) both}
+@keyframes bleed{from{transform:scale(.35);opacity:.15}55%{opacity:1}}
+.t-sumi .st.enter.c2 .sti{animation:none}
+.enso-draw{stroke-dasharray:1}
+.st.enter .enso-draw{animation:draw .7s cubic-bezier(.4,0,.2,1) both}
+@keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+.t-sumi .st.leave .sti{animation:wash .7s ease-out forwards}
+@keyframes wash{to{transform:scale(1.15);opacity:0}}
+.t-sumi .st.atari .sti{animation:breathe 1.4s ease-in-out infinite alternate}
+
+/* ===== 3 Mustikkamaa ===== */
+.t-leikki{--bg:radial-gradient(60% 40% at 10% 5%,#fff7c2 0,rgba(255,247,194,0) 70%),radial-gradient(50% 40% at 95% 30%,#ffd6e6 0,rgba(255,214,230,0) 70%),radial-gradient(70% 50% at 50% 105%,#c6ecff 0,rgba(198,236,255,0) 70%),#fff1d6;
+  --ink:#2d2350;--ink2:#5b4f86;--surf:#fff;--surf-b:#2d2350;--acc:#ff7a59;--acc-ink:#fff;--btn:#fff;--btn-ink:#2d2350;--btn-b:#2d2350;--btn-sh:0 4px 0 #2d2350;--turn:#ffd84d;--turn-ink:#2d2350;--lib:#ff7a59;--bad:#ff4f6d;
+  --bw:2.5px;--rad:20px;--rad-d:28px;--dlg:#fffaf0;--pv-bg:#fff1d6;
+  --font:ui-rounded,"SF Pro Rounded","Arial Rounded MT Bold","Nunito","Varela Round",system-ui,sans-serif;--h1:800 24px var(--font);--h2:800 24px var(--font);--h1ls:-.01em;--name:800 18px var(--font);--namels:0;
+  --board-rad:46px;--board-sh:0 8px 0 #4fa89b,0 18px 30px rgba(45,35,80,.22);--on-sh:0 6px 0 #ffd84d;--icon-bg:#7fd0c3;--icon-line:#fff;--icon-b:#5d49cc;--icon-w:#fff7e8}
+.t-leikki h1{color:#5d49cc}
+.t-leikki .card.on{transform:translateY(-2px);box-shadow:0 0 0 3px #ffd84d,0 6px 0 #ffc61a}
+body.vastakkain.t-leikki #p2.card.on{transform:rotate(180deg) translateY(-2px)}
+.t-leikki .btn{font-weight:800}
+.t-leikki .btn:active{transform:translateY(3px);box-shadow:0 1px 0 #2d2350}
+.t-leikki .btn.pri{border-color:#2d2350}
+.t-leikki .eyes{animation:blink 5.5s infinite}
+@keyframes blink{0%,93%,100%{transform:translateY(-4px) scaleY(1) translateY(4px)}95.5%{transform:translateY(-4px) scaleY(.08) translateY(4px)}}
+.t-leikki .pup{transition:transform .45s cubic-bezier(.3,1.5,.5,1)}
+.t-leikki .st.enter .sti{animation:boing .6s cubic-bezier(.3,1.4,.5,1) both}
+@keyframes boing{0%{transform:scale(0)}55%{transform:scale(1.2,.85)}75%{transform:scale(.92,1.08)}100%{transform:scale(1)}}
+.t-leikki .st.leave .sti{animation:hop .6s cubic-bezier(.3,0,.8,.6) forwards}
+@keyframes hop{30%{transform:translateY(-40px) rotate(-12deg)}to{transform:translateY(40px) rotate(30deg) scale(.5);opacity:0}}
+.t-leikki .st.atari .bod{animation:wob .38s ease-in-out infinite alternate}
+@keyframes wob{from{transform:translateY(40px) rotate(-7deg) translateY(-40px)}to{transform:translateY(40px) rotate(7deg) translateY(-40px)}}
+.t-leikki .spark{transform-box:fill-box;transform-origin:center;animation:spin 3s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.t-leikki .lib{stroke-width:6;stroke-dasharray:4 6;stroke-linecap:round}
+
+/* ===== 4 Yötaivas ===== */
+.t-kosmos{--bg:radial-gradient(80% 50% at 20% 0%,rgba(122,77,255,.28),rgba(122,77,255,0) 70%),radial-gradient(70% 50% at 100% 100%,rgba(255,95,168,.16),rgba(255,95,168,0) 70%),radial-gradient(1px 1px at 20px 30px,#fff,transparent),radial-gradient(1px 1px at 120px 80px,#cfe0ff,transparent),radial-gradient(1.5px 1.5px at 200px 160px,#fff,transparent),radial-gradient(1px 1px at 60px 200px,#fff,transparent),#060818;
+  --ink:#e8edff;--ink2:#a3afdc;--surf:rgba(140,170,255,.08);--surf-b:rgba(140,170,255,.24);--acc:#8fd3ff;--acc-ink:#061026;--btn:rgba(140,170,255,.1);--btn-ink:#e8edff;--btn-b:rgba(140,170,255,.32);--btn-sh:none;
+  --turn:#8fd3ff;--turn-ink:#061026;--lib:#ffb347;--bad:#ff6b8b;--bw:1px;--rad:14px;--rad-d:24px;--dlg:#0c1130;--pv-bg:#060818;
+  --font:"Avenir Next","Avenir","Futura","Segoe UI",system-ui,sans-serif;--h1:300 20px var(--font);--h2:300 21px var(--font);--h1ls:.32em;--h1tt:uppercase;--name:500 14.5px var(--font);--namels:.18em;
+  --board-rad:28px;--board-sh:0 0 70px rgba(90,120,255,.28);--on-sh:0 0 26px rgba(143,211,255,.45);--icon-bg:#0a0f2c;--icon-line:#5d78c2;--icon-b:#1a1e40;--icon-w:#f3f4ff}
+.t-kosmos{background-size:auto,auto,300px 300px,300px 300px,300px 300px,300px 300px,auto}
+.t-kosmos .tw{animation:tw 3.2s ease-in-out infinite alternate}
+@keyframes tw{to{opacity:.05}}
+.t-kosmos .st.enter .sti{animation:orbit .7s cubic-bezier(.2,.8,.2,1) both}
+@keyframes orbit{from{transform:scale(1.7);opacity:0}}
+.t-kosmos .st.leave .sti{animation:implode .7s cubic-bezier(.6,0,.9,.4) forwards}
+@keyframes implode{to{transform:scale(0) rotate(200deg);opacity:0}}
+.t-kosmos .ping{animation:ping 2.2s ease-out infinite}
+@keyframes ping{from{transform:scale(.85);opacity:.9}to{transform:scale(1.35);opacity:0}}
+.t-kosmos .st.atari .sti{animation:flicker 1.1s ease-in-out infinite alternate}
+@keyframes flicker{to{opacity:.6}}
+.t-kosmos .lib{stroke-dasharray:none;stroke-width:3}
+
+/* ===== 5 Riso ===== */
+.t-riso{--bg:radial-gradient(circle at 2px 2px,rgba(255,72,176,.16) 1.3px,transparent 1.6px) 0 0/9px 9px,#f6f1e6;
+  --ink:#16285e;--ink2:#3c4a85;--surf:#fffaf0;--surf-b:#16285e;--acc:#ff48b0;--acc-ink:#16285e;--btn:#fffaf0;--btn-ink:#16285e;--btn-b:#16285e;--btn-sh:4px 4px 0 #0078bf;
+  --turn:#ffe14d;--turn-ink:#16285e;--lib:#ff48b0;--bad:#ff48b0;--bw:2.5px;--rad:3px;--rad-d:4px;--dlg:#f8f3e8;--pv-bg:#f6f1e6;
+  --font:"Futura","Avenir Next Condensed","Trebuchet MS",system-ui,sans-serif;--h1:800 24px var(--font);--h2:800 24px var(--font);--h1ls:.02em;--h1tt:uppercase;--name:800 16px var(--font);--namels:.05em;
+  --board-rad:0;--board-sh:9px 9px 0 #0078bf;--on-sh:5px 5px 0 #ff48b0;--icon-bg:#ffe14d;--icon-line:#0078bf;--icon-b:#0078bf;--icon-w:#ff48b0}
+.t-riso h1{color:#0078bf;text-shadow:2.5px 2px 0 rgba(255,72,176,.75)}
+.t-riso .card.on{box-shadow:0 0 0 2.5px #16285e,6px 6px 0 #ff48b0}
+.t-riso .card .turn{border:2px solid #16285e;border-radius:2px;text-transform:uppercase;letter-spacing:.06em;font-size:11px}
+.t-riso .btn{text-transform:uppercase;letter-spacing:.05em;font-weight:800;font-size:15px}
+.t-riso .btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 #0078bf}
+.t-riso .btn.pri{background:#ff48b0;color:#16285e;border-color:#16285e}
+.t-riso .seg button[aria-pressed=true]{background:#ffe14d;color:#16285e;box-shadow:inset 0 0 0 2px #16285e}
+.t-riso .dots i{border-radius:0;transform:rotate(45deg) scale(.85)}
+.t-riso .st.enter .sti{animation:stamp .3s steps(1,end) both,stampz .3s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes stamp{0%{opacity:0}20%{opacity:1}}
+@keyframes stampz{from{transform:scale(1.35) rotate(-10deg)}to{transform:none}}
+.t-riso .st.leave .sti{animation:peel .45s ease-in forwards}
+@keyframes peel{to{transform:translateY(30px) scaleY(0);opacity:0}}
+.t-riso .st.atari .sti{animation:jit .32s steps(2,end) infinite}
+@keyframes jit{0%{transform:translate(2px,-1px)}50%{transform:translate(-2px,1.5px)}100%{transform:translate(1px,2px)}}
+.t-riso .lib{stroke-dasharray:3 4;stroke-width:5}
+</style>
+</head>
+<body class="t-kaya">
+<div id="app">
+  <header><h1>Mini-Go</h1><span id="info"></span><button class="ib" id="b-look" aria-label="Ulkoasu">✦</button><button class="ib" id="b-menu" aria-label="Valikko">⋯</button></header>
+  <div id="p2" class="card" aria-live="polite"></div>
+  <div id="bw"><svg id="board" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Lauta"></svg><div id="toast" role="status"></div></div>
+  <p id="hint"></p>
+  <div id="p1" class="card" aria-live="polite"></div>
+  <div id="actions"></div>
+</div>
+<div id="confetti" aria-hidden="true"></div>
+
+<dialog id="dlg-new" closedby="any" aria-labelledby="h-new">
+  <div class="dh"><h2 id="h-new">Uusi peli</h2><button class="x" data-close aria-label="Sulje">✕</button></div>
+  <div id="newbody"></div>
+  <div class="row stick"><button class="btn pri" id="b-start">Aloita</button></div>
+</dialog>
+
+<dialog id="dlg-look" closedby="any" aria-labelledby="h-look">
+  <div class="dh"><h2 id="h-look">Ulkoasu</h2><button class="x" data-close aria-label="Sulje">✕</button></div>
+  <div id="looks"></div>
+</dialog>
+
+<dialog id="dlg-menu" closedby="any" aria-labelledby="h-menu">
+  <div class="dh"><h2 id="h-menu">Asetukset</h2><button class="x" data-close aria-label="Sulje">✕</button></div>
+  <label class="opt"><span>Äänet</span><input type="checkbox" id="o-aani"></label>
+  <label class="opt"><span>Atari-vihje<small>Näyttää kivet, joilla on enää yksi vapaus, ja sen vapauden.</small></span><input type="checkbox" id="o-vihje"></label>
+  <label class="opt"><span>Vastakkain<small>Ylempi pelaaja näkee tekstinsä oikein päin, kun lauta on pöydällä välissä.</small></span><input type="checkbox" id="o-vastakkain"></label>
+  <details><summary>Säännöt lyhyesti</summary>
+    <p><b>Siirto.</b> Musta aloittaa. Kivi laitetaan viivojen risteykseen, ja vuoro vaihtuu. Kiviä ei siirretä.</p>
+    <p><b>Vapaudet.</b> Kiven vapaat naapuripisteet (ylös, alas, sivuille) ovat sen vapauksia. Vierekkäiset samanväriset kivet ovat ryhmä, jolla on yhteiset vapaudet. Napauta kiveä, niin näet sen vapaudet.</p>
+    <p><b>Kaappaus.</b> Kun ryhmän viimeinen vapaus peitetään, ryhmä kaapataan pois laudalta. Jos ryhmällä on enää yksi vapaus, se on atarissa.</p>
+    <p><b>Itsemurha kielletty.</b> Kiveä ei saa laittaa paikkaan, jossa sillä ei olisi vapauksia, ellei se samalla kaappaa.</p>
+    <p><b>Ko.</b> Juuri kaapattua yksittäistä kiveä ei saa kaapata heti takaisin, jos lauta palaisi täsmälleen samaksi. Pelaa ensin muualle.</p>
+    <p><b>Kaappaus-Go.</b> Joka kaappaa ensimmäisenä sovitun määrän kiviä, voittaa.</p>
+    <p><b>Go ja pisteet.</b> Kun kumpikaan ei enää hyödy siirrosta, molemmat passaavat. Sitten napautetaan kuolleet kivet (ne, joita ei voi pelastaa), ja appi laskee alueen: omat kivet + omien kivien ympäröimät tyhjät pisteet. Valkea saa lisäksi komin, koska musta aloitti.</p>
+    <p><b>Tasoitus.</b> Heikompi pelaa mustilla ja saa valmiit kivet tähtipisteisiin. Silloin valkea aloittaa.</p>
+  </details>
+  <details><summary>Varmuuskopio</summary>
+    <div class="bk"><button class="btn" id="bk-save">Tallenna tiedostoksi</button><label class="btn filebtn">Avaa tiedosto<input type="file" id="bk-file" accept=".json,application/json"></label>
+    <button class="btn" id="bk-copy">Näytä tekstinä</button><button class="btn" id="bk-load">Tuo tekstistä</button></div>
+    <textarea id="bk-text" aria-label="Varmuuskopio tekstinä" placeholder="Liitä varmuuskopion teksti tähän ja paina Tuo tekstistä"></textarea>
+  </details>
+</dialog>
+
+<dialog id="dlg-res" closedby="any" aria-labelledby="restitle">
+  <div id="resicon"></div>
+  <h2 id="restitle"></h2>
+  <div id="reslines"></div>
+  <div class="row"><button class="btn" data-close>Katso lautaa</button><button class="btn" id="r-new">Asetukset</button><button class="btn pri" id="r-again">Uusi peli</button></div>
+</dialog>
+
+<script id="engine">
+var GO=(function(){
+'use strict';
+// Mini-Go-moottori: ei DOMia. Lauta = Int8Array (0 tyhjä, 1 musta, 2 valkea), piste i = y*n + x.
+var VER=1;
+var SIZES=[5,7,9];            // käyttöliittymän valinnat
+var ALL=[5,7,9,13,19];        // moottori osaa nämä (13 ja 19 = myöhemmin pelkkä asetus)
+var KOMIT=[0,0.5,3.5,5.5,7];
+var TARGETS=[1,3,5];
+var NBC={};
+function nbrs(n){
+  if(NBC[n])return NBC[n];
+  var a=[];
+  for(var i=0;i<n*n;i++){var x=i%n,y=(i-x)/n,r=[];
+    if(x>0)r.push(i-1);if(x<n-1)r.push(i+1);if(y>0)r.push(i-n);if(y<n-1)r.push(i+n);a.push(r)}
+  return NBC[n]=a;
+}
+// ryhmä ja sen vapaudet
+function group(b,n,i){
+  var c=b[i],nb=nbrs(n),seen={},st=[i],stones=[],libs={},la=[];seen[i]=1;
+  while(st.length){var p=st.pop();stones.push(p);var a=nb[p];
+    for(var k=0;k<a.length;k++){var q=a[k];
+      if(b[q]===0){if(!libs[q]){libs[q]=1;la.push(q)}}
+      else if(b[q]===c&&!seen[q]){seen[q]=1;st.push(q)}}}
+  return {c:c,stones:stones,libs:la};
+}
+function key(b){var s='';for(var i=0;i<b.length;i++)s+=b[i];return s}
+function edge(n){return n>=13?3:n>=7?2:1}
+function hoshi(n){
+  var m=(n-1)/2;
+  if(n<7)return n%2?[m*n+m]:[];
+  var a=edge(n),b=n-1-a,r=[a*n+a,a*n+b,b*n+a,b*n+b];
+  if(n%2)r.push(m*n+m);
+  if(n>=13&&n%2)r.push(a*n+m,b*n+m,m*n+a,m*n+b);
+  return r;
+}
+function maxHandicap(n){return n<7?2:n<9?4:n<13?5:9}
+function handicapList(n){var r=[0];for(var k=2;k<=maxHandicap(n);k++)r.push(k);return r}
+function handicapPoints(n,k){
+  k=Math.min(k|0,maxHandicap(n));if(k<2)return [];
+  var a=edge(n),b=n-1-a,m=(n-1)/2;
+  var tr=a*n+b,bl=b*n+a,br=b*n+b,tl=a*n+a,c=m*n+m,ml=m*n+a,mr=m*n+b,tm=a*n+m,bm=b*n+m;
+  return ({2:[tr,bl],3:[tr,bl,br],4:[tr,bl,br,tl],5:[tr,bl,br,tl,c],6:[tr,bl,br,tl,ml,mr],
+    7:[tr,bl,br,tl,ml,mr,c],8:[tr,bl,br,tl,ml,mr,tm,bm],9:[tr,bl,br,tl,ml,mr,tm,bm,c]})[k];
+}
+function cfgOf(c){
+  c=c&&typeof c==='object'?c:{};
+  var n=ALL.indexOf(+c.n)>=0?+c.n:9;
+  var mode=c.mode==='kaappaus'?'kaappaus':'go';
+  var komi=+c.komi;if(!isFinite(komi)||komi<0||komi>20)komi=0.5;
+  var h=c.handicap|0;if(h<2)h=0;if(h>maxHandicap(n))h=maxHandicap(n);
+  var t=c.target|0;if(t<1)t=1;if(t>30)t=30;
+  return {n:n,mode:mode,komi:komi,handicap:h,target:t};
+}
+function fresh(cfg){
+  cfg=cfgOf(cfg);var n=cfg.n,b=new Int8Array(n*n),hp=handicapPoints(n,cfg.handicap);
+  for(var k=0;k<hp.length;k++)b[hp[k]]=1;
+  return {n:n,b:b,turn:hp.length?2:1,cap:[0,0,0],kb:null,passes:0,last:-1,over:null,moves:0};
+}
+// siirto: palauttaa {ok, s, captured} tai {ok:false, err:'ohi'|'ulkona'|'varattu'|'itsemurha'|'ko'}
+function play(s,cfg,i){
+  if(s.over)return {ok:false,err:'ohi'};
+  if(i<0)return pass(s,cfg);
+  var n=s.n;if(!(i>=0&&i<n*n))return {ok:false,err:'ulkona'};
+  if(s.b[i])return {ok:false,err:'varattu'};
+  var b=new Int8Array(s.b),me=s.turn,opp=3-me,cap=[],nb=nbrs(n)[i];
+  b[i]=me;
+  for(var k=0;k<nb.length;k++){var q=nb[k];
+    if(b[q]===opp){var g=group(b,n,q);if(!g.libs.length)for(var j=0;j<g.stones.length;j++){b[g.stones[j]]=0;cap.push(g.stones[j])}}}
+  if(!cap.length&&!group(b,n,i).libs.length)return {ok:false,err:'itsemurha'};
+  if(s.kb!==null&&key(b)===s.kb)return {ok:false,err:'ko'};
+  var c2=s.cap.slice();c2[me]+=cap.length;
+  var ns={n:n,b:b,turn:opp,cap:c2,kb:key(s.b),passes:0,last:i,over:null,moves:s.moves+1};
+  if(cfg.mode==='kaappaus'&&c2[me]>=cfg.target)ns.over={winner:me,why:'kaappaus'};
+  return {ok:true,s:ns,captured:cap};
+}
+function pass(s,cfg){
+  if(s.over)return {ok:false,err:'ohi'};
+  var ns={n:s.n,b:s.b,turn:3-s.turn,cap:s.cap.slice(),kb:key(s.b),passes:s.passes+1,last:-1,over:null,moves:s.moves+1};
+  if(ns.passes>=2){
+    if(cfg.mode==='kaappaus'){var w=ns.cap[1]>ns.cap[2]?1:ns.cap[2]>ns.cap[1]?2:0;ns.over={winner:w,why:'passit'}}
+    else ns.over={winner:null,why:'laske'};   // Go: kuolleiden merkintä ja laskenta
+  }
+  return {ok:true,s:ns,captured:[]};
+}
+// pelaa siirtolistan alusta; pysähtyy ensimmäiseen laittomaan siirtoon
+function replay(cfg,moves){
+  cfg=cfgOf(cfg);var s=fresh(cfg),k=0;
+  for(;k<(moves||[]).length;k++){var r=play(s,cfg,moves[k]);if(!r.ok)break;s=r.s}
+  return {s:s,applied:k};
+}
+// alueen laskenta: omat elävät kivet + omien ympäröimät tyhjät (kuolleet kivet = tyhjää)
+function score(b,n,dead,komi){
+  var a=new Int8Array(b),i,own=new Int8Array(n*n),seen=new Uint8Array(n*n),nb=nbrs(n);
+  var deadSet={};(dead||[]).forEach(function(p){if(a[p]){deadSet[p]=b[p];a[p]=0}});
+  var st=[0,0,0],tr=[0,0,0];
+  for(i=0;i<n*n;i++){
+    if(a[i]){st[a[i]]++;own[i]=a[i];continue}
+    if(seen[i])continue;
+    var reg=[],q=[i],bd=0;seen[i]=1;
+    while(q.length){var p=q.pop();reg.push(p);var nn=nb[p];
+      for(var k=0;k<nn.length;k++){var r=nn[k];if(a[r])bd|=a[r];else if(!seen[r]){seen[r]=1;q.push(r)}}}
+    var o=bd===1?1:bd===2?2:0;
+    for(var j=0;j<reg.length;j++)own[reg[j]]=o;
+    tr[o]+=reg.length;
+  }
+  var bl=st[1]+tr[1],wh=st[2]+tr[2]+(+komi||0);
+  return {own:own,stones:st,terr:tr,komi:+komi||0,black:bl,white:wh,winner:bl>wh?1:wh>bl?2:0,margin:Math.abs(bl-wh)};
+}
+// kuolleen ryhmän merkintä: napautus vaihtaa koko ryhmän tilan
+function toggleDead(b,n,dead,i){
+  if(!b[i])return (dead||[]).slice();
+  var g=group(b,n,i).stones,set={};(dead||[]).forEach(function(p){set[p]=1});
+  var on=!set[i];g.forEach(function(p){if(on)set[p]=1;else delete set[p]});
+  return Object.keys(set).map(Number).sort(function(x,y){return x-y});
+}
+// vihjeet: ryhmät, joilla on yksi vapaus (atari), ja niiden viimeiset vapaudet
+function ataris(b,n){
+  var seen=new Uint8Array(n*n),stones=[],libs=[];
+  for(var i=0;i<n*n;i++){if(!b[i]||seen[i])continue;var g=group(b,n,i);
+    g.stones.forEach(function(p){seen[p]=1});
+    if(g.libs.length===1){stones=stones.concat(g.stones);if(libs.indexOf(g.libs[0])<0)libs.push(g.libs[0])}}
+  return {stones:stones,libs:libs};
+}
+function phaseOf(cfg,s,want){
+  if(cfg.mode==='go'&&s.over&&s.over.why==='laske')return want==='ohi'?'ohi':'laske';
+  if(s.over)return 'ohi';
+  return 'peli';
+}
+// tallennetun pelin korjaus: puutteellinen tieto ei kaada appia
+function repairGame(p){
+  p=p&&typeof p==='object'?p:{};
+  var cfg=cfgOf(p.cfg);
+  var mv=Array.isArray(p.moves)?p.moves.filter(function(m){return typeof m==='number'&&isFinite(m)}).map(function(m){return m<0?-1:m|0}):[];
+  var rp=replay(cfg,mv);mv=mv.slice(0,rp.applied);
+  var ph=phaseOf(cfg,rp.s,p.phase);
+  var dead=ph==='peli'?[]:(Array.isArray(p.dead)?p.dead:[]).filter(function(i){return typeof i==='number'&&rp.s.b[i]>0});
+  return {cfg:cfg,moves:mv,dead:dead,phase:ph};
+}
+return {VER:VER,SIZES:SIZES,ALL:ALL,KOMIT:KOMIT,TARGETS:TARGETS,nbrs:nbrs,group:group,key:key,hoshi:hoshi,
+  maxHandicap:maxHandicap,handicapList:handicapList,handicapPoints:handicapPoints,cfgOf:cfgOf,fresh:fresh,play:play,pass:pass,
+  replay:replay,score:score,toggleDead:toggleDead,ataris:ataris,phaseOf:phaseOf,repairGame:repairGame};
+})();
+
+</script>
+<script id="ui">
+// ===== Ulkoasut: jokaisella oma lauta, kivet, merkit, liike ja ääni =====
+var U=100,M=72,R=47;
+function rng(seed){var t=seed>>>0;return function(){t=t+0x6D2B79F5|0;var r=Math.imul(t^t>>>15,1|t);r=r+Math.imul(r^r>>>7,61|r)^r;return((r^r>>>14)>>>0)/4294967296}}
+function bw(n){return (n-1)*U+2*M}
+function gridD(n){var a=M,b=M+(n-1)*U,d='';for(var k=1;k<n-1;k++){var p=M+k*U;d+='M'+a+' '+p+'H'+b+'M'+p+' '+a+'V'+b}return d}
+function frameD(n){var a=M,b=M+(n-1)*U;return 'M'+a+' '+a+'H'+b+'V'+b+'H'+a+'Z'}
+function ptXY(i,n){return [M+(i%n)*U,M+Math.floor(i/n)*U]}
+function starD(cx,cy,ro,ri,k){var d='';for(var j=0;j<k*2;j++){var r=j%2?ri:ro,a=Math.PI*j/k-Math.PI/2;d+=(j?'L':'M')+(cx+r*Math.cos(a)).toFixed(1)+' '+(cy+r*Math.sin(a)).toFixed(1)}return d+'Z'}
+function f1(x){return Math.round(x*10)/10}
+var UID=0;
+
+var THEMES=[
+// ---------- 1 Kaya: perinteinen puulauta, liuskekivi ja simpukankuori ----------
+{id:'kaya',name:'Kaya',sub:'Kultainen puulauta, liuskekivi ja simpukka',names:['','Musta','Valkoinen'],
+ burst:null,celebrate:['#e9c27f','#f6e3b4','#b98545'],
+ defs:function(){return `
+<radialGradient id="ky-b" fx=".36" fy=".3" r=".5"><stop offset="0" stop-color="#77756f"/><stop offset=".3" stop-color="#2d2c2a"/><stop offset="1" stop-color="#0a0a09"/></radialGradient>
+<radialGradient id="ky-w" fx=".38" fy=".32" r=".5"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#f4f0e5"/><stop offset="1" stop-color="#cdc5b0"/></radialGradient>
+<radialGradient id="ky-sh"><stop offset="0" stop-color="#2a1500" stop-opacity=".6"/><stop offset=".72" stop-color="#2a1500" stop-opacity=".28"/><stop offset="1" stop-color="#2a1500" stop-opacity="0"/></radialGradient>
+<clipPath id="ky-clip"><circle r="46"/></clipPath>
+<linearGradient id="ky-wood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#efc882"/><stop offset=".5" stop-color="#e3b468"/><stop offset="1" stop-color="#cf9a50"/></linearGradient>
+<linearGradient id="ky-sheen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".2"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".1"/></linearGradient>
+<filter id="ky-grain" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.006 0.13" numOctaves="4" seed="3"/><feColorMatrix values="0 0 0 0 .36  0 0 0 0 .19  0 0 0 0 .05  2.6 0 0 0 -1.12"/></filter>
+<filter id="ky-fig" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB"><feTurbulence type="turbulence" baseFrequency="0.0016 0.016" numOctaves="2" seed="11"/><feColorMatrix values="0 0 0 0 .62  0 0 0 0 .34  0 0 0 0 .1  1.5 0 0 0 -.2"/></filter>`},
+ board:function(n){var w=bw(n);return `<rect width="${w}" height="${w}" rx="6" fill="url(#ky-wood)"/><rect width="${w}" height="${w}" rx="6" filter="url(#ky-fig)" opacity=".35"/><rect width="${w}" height="${w}" rx="6" filter="url(#ky-grain)" opacity=".5"/><rect width="${w}" height="${w}" rx="6" fill="url(#ky-sheen)"/>`},
+ grid:function(n){return `<path d="${gridD(n)}" stroke="#2a1708" stroke-opacity=".82" stroke-width="2.4" fill="none"/><path d="${frameD(n)}" stroke="#2a1708" stroke-opacity=".9" stroke-width="4" fill="none"/>`+GO.hoshi(n).map(function(i){var p=ptXY(i,n);return `<circle cx="${p[0]}" cy="${p[1]}" r="8" fill="#2a1708" fill-opacity=".9"/>`}).join('')},
+ stone:function(c,seed){
+   var sh=`<circle cx="3" cy="6" r="51" fill="url(#ky-sh)"/>`;
+   if(c===1)return sh+`<circle r="${R}" fill="url(#ky-b)"/><ellipse cx="-14" cy="-18" rx="15" ry="7" transform="rotate(-32 -14 -18)" fill="#fff" opacity=".08"/>`;
+   var r=rng(seed),a=Math.round(r()*180),l='';
+   for(var k=0;k<13;k++)l+=`<circle cy="-150" r="${f1(104+k*7.5+r()*3)}" stroke-width="${f1(.5+r()*1.3)}" stroke-opacity="${f1(.08+r()*.22)}"/>`;
+   return sh+`<circle r="${R}" fill="url(#ky-w)"/><g clip-path="url(#ky-clip)" transform="rotate(${a})" fill="none" stroke="#a89a7c">${l}</g><circle r="46.5" fill="none" stroke="#a79c84" stroke-opacity=".45"/>`;},
+ mark:function(c){return `<circle r="15" fill="none" stroke="${c===1?'#efe6d2':'#2b2620'}" stroke-width="4"/>`},
+ terr:function(c){return c===1?`<rect x="-15" y="-15" width="30" height="30" rx="3" fill="#1b1a18"/>`:`<rect x="-15" y="-15" width="30" height="30" rx="3" fill="#f6f2e8" stroke="#8e8470" stroke-width="2"/>`},
+ sound:function(k,A){if(k==='place'){A.noise(.05,2600,7,.9);A.tone(190,.06,.25,'triangle')}else if(k==='capture'){A.noise(.03,3200,5,.5);setTimeout(function(){A.noise(.03,2900,5,.4)},70)}else if(k==='end')A.tone(392,.9,.18,'sine')}
+},
+// ---------- 2 Tussi: riisipaperi, siveltimellä vedetyt viivat, mustetahra ja ensō ----------
+{id:'sumi',name:'Tussi',sub:'Riisipaperi, mustetahrat ja siveltimen ensō-renkaat',names:['','Muste','Rengas'],
+ burst:['#1d1a17','#3a3530','#b8322a'],celebrate:['#1d1a17','#b8322a','#6b625a'],
+ defs:function(){var f='';for(var k=0;k<4;k++)f+=`<filter id="sm-ink${k}" x="-25%" y="-25%" width="150%" height="150%"><feTurbulence type="fractalNoise" baseFrequency=".028" numOctaves="2" seed="${k*7+2}" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="8" xChannelSelector="R" yChannelSelector="G"/><feGaussianBlur stdDeviation="1.1"/></filter>`;
+   return f+`
+<filter id="sm-wash" x="-50%" y="-50%" width="200%" height="200%"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="2" seed="9" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="18" xChannelSelector="R" yChannelSelector="G"/><feGaussianBlur stdDeviation="3.5"/></filter>
+<filter id="sm-brush" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency=".09" numOctaves="2" seed="5" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="4" xChannelSelector="R" yChannelSelector="G"/></filter>
+<filter id="sm-line" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency=".018 .07" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="6" xChannelSelector="R" yChannelSelector="G"/></filter>
+<filter id="sm-fiber" x="0" y="0" width="1" height="1"><feTurbulence type="fractalNoise" baseFrequency=".9 .04" numOctaves="2" seed="21"/><feColorMatrix values="0 0 0 0 .45  0 0 0 0 .4  0 0 0 0 .33  0 0 0 -2.2 1.25"/></filter>`},
+ board:function(n){var w=bw(n);return `<rect x="${M-38}" y="${M-34}" width="${w-2*M+74}" height="${w-2*M+70}" fill="#b9ad98" opacity=".22" filter="url(#sm-wash)"/><rect width="${w}" height="${w}" filter="url(#sm-fiber)" opacity=".5"/>`},
+ grid:function(n){return `<g filter="url(#sm-line)"><path d="${gridD(n)}" stroke="#221e1a" stroke-opacity=".78" stroke-width="2.8" fill="none" stroke-linecap="round"/><path d="${frameD(n)}" stroke="#1b1815" stroke-width="5.5" fill="none" stroke-linejoin="round"/></g>`+GO.hoshi(n).map(function(i){var p=ptXY(i,n);return `<circle cx="${p[0]}" cy="${p[1]}" r="8" fill="#1b1815" filter="url(#sm-ink1)"/>`}).join('')},
+ stone:function(c,seed){
+   var r=rng(seed),k=Math.floor(r()*4),a=Math.floor(r()*360);
+   if(c===1)return `<circle r="53" fill="#2a2622" opacity=".14" filter="url(#sm-wash)"/><g transform="rotate(${a})"><circle r="45" fill="#171513" filter="url(#sm-ink${k})"/><circle cx="-10" cy="-12" r="19" fill="#4a443d" opacity=".3" filter="url(#sm-wash)"/></g>`;
+   // ensō: siveltimen rengas, paksu alusta, ohenee hännässä
+   var id='en'+(++UID),sw=300+r()*35,rc=38,o='',inn='',N=42;
+   for(var j=0;j<=N;j++){var t=j/N,ang=(a+sw*t)*Math.PI/180,w=2.2+8.5*Math.pow(Math.sin(Math.PI*Math.min(1,.12+t*.95)),.6);
+     o+=(j?'L':'M')+f1((rc+w/2)*Math.cos(ang))+' '+f1((rc+w/2)*Math.sin(ang));
+     inn=`L${f1((rc-w/2)*Math.cos(ang))} ${f1((rc-w/2)*Math.sin(ang))}`+inn;}
+   var a0=a*Math.PI/180,a1=(a+sw)*Math.PI/180;
+   var arc=`M${f1(rc*Math.cos(a0))} ${f1(rc*Math.sin(a0))}A${rc} ${rc} 0 1 1 ${f1(rc*Math.cos(a1))} ${f1(rc*Math.sin(a1))}`;
+   return `<mask id="${id}" maskUnits="userSpaceOnUse" x="-60" y="-60" width="120" height="120"><path class="enso-draw" d="${arc}" pathLength="1" stroke="#fff" stroke-width="24" fill="none" stroke-linecap="round"/></mask><circle r="45" fill="#f3eee2"/><circle r="45" fill="none" stroke="#2a2622" stroke-opacity=".06" stroke-width="6"/><g mask="url(#${id})"><path d="${o}${inn}Z" fill="#1d1a17" filter="url(#sm-brush)"/><path d="${arc}" fill="none" stroke="#1d1a17" stroke-opacity=".35" stroke-width="1.6" stroke-dasharray="18 5 30 3 9 6" transform="scale(1.09)"/></g>`;},
+ mark:function(){return `<circle r="9" fill="#b8322a" filter="url(#sm-ink2)"/>`},
+ terr:function(c){return c===1?`<circle r="13" fill="#2a2622" opacity=".55" filter="url(#sm-ink3)"/>`:`<circle r="12" fill="none" stroke="#2a2622" stroke-width="4" filter="url(#sm-brush)"/>`},
+ sound:function(k,A){if(k==='place'){A.noise(.22,700,.7,.35,'lowpass')}else if(k==='capture'){A.noise(.35,1400,.8,.22,'bandpass')}else if(k==='end'){A.tone(220,1.6,.12,'sine');A.tone(330,1.6,.06,'sine')}}
+},
+// ---------- 3 Mustikkamaa: lasten lauta, kivillä kasvot ----------
+{id:'leikki',name:'Mustikkamaa',sub:'Mustikat ja pilvet katsovat, säikähtävät ja pomppaavat',names:['','Mustikka','Pilvi'],
+ burst:['#ff7a59','#ffd84d','#6fd3ff','#b48cff','#7be08a'],celebrate:['#ff7a59','#ffd84d','#6fd3ff','#b48cff','#7be08a','#ff8fb8'],
+ defs:function(){return `
+<radialGradient id="lk-b" fx=".35" fy=".28" r=".55"><stop offset="0" stop-color="#9a8cf5"/><stop offset=".55" stop-color="#5d49cc"/><stop offset="1" stop-color="#33228a"/></radialGradient>
+<radialGradient id="lk-w" fx=".35" fy=".28" r=".55"><stop offset="0" stop-color="#fff"/><stop offset=".65" stop-color="#fff7e8"/><stop offset="1" stop-color="#f0d9b8"/></radialGradient>
+<radialGradient id="lk-sh"><stop offset="0" stop-color="#1d5a52" stop-opacity=".45"/><stop offset="1" stop-color="#1d5a52" stop-opacity="0"/></radialGradient>
+<pattern id="lk-dots" width="56" height="56" patternUnits="userSpaceOnUse"><circle cx="14" cy="14" r="6" fill="#fff" opacity=".2"/><circle cx="42" cy="42" r="6" fill="#fff" opacity=".2"/></pattern>`},
+ board:function(n){var w=bw(n);return `<rect x="6" y="6" width="${w-12}" height="${w-12}" rx="46" fill="#7fd0c3"/><rect x="6" y="6" width="${w-12}" height="${w-12}" rx="46" fill="url(#lk-dots)"/><rect x="6" y="6" width="${w-12}" height="${w-12}" rx="46" fill="none" stroke="#fff" stroke-width="10"/>`},
+ grid:function(n){return `<path d="${gridD(n)}" stroke="#fff" stroke-opacity=".9" stroke-width="6" stroke-linecap="round" fill="none"/><path d="${frameD(n)}" stroke="#fff" stroke-width="7" stroke-linejoin="round" fill="none"/>`+GO.hoshi(n).map(function(i){var p=ptXY(i,n);return `<path d="${starD(p[0],p[1],14,6,5)}" fill="#ffd84d" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>`}).join('')},
+ stone:function(c,seed){
+   var r=rng(seed),d=f1(r()*6),ink=c===1?'#1b1040':'#3b2a22';
+   var body=c===1?`<circle r="46" fill="url(#lk-b)"/><path d="${starD(0,-41,10,4,5)}" fill="#2a1a6e"/>`
+     :`<circle cx="-19" cy="-31" r="15" fill="url(#lk-w)"/><circle cx="0" cy="-38" r="16" fill="url(#lk-w)"/><circle cx="19" cy="-31" r="15" fill="url(#lk-w)"/><circle r="45" fill="url(#lk-w)"/><circle r="45" fill="none" stroke="#e6cfae" stroke-width="2"/>`;
+   return `<ellipse cx="0" cy="43" rx="38" ry="9" fill="url(#lk-sh)"/><g class="bod">${body}<ellipse cx="-17" cy="-22" rx="10" ry="5.5" transform="rotate(-28 -17 -22)" fill="#fff" opacity="${c===1?.35:.8}"/>
+<circle cx="-26" cy="12" r="7" fill="#ff8fb8" opacity=".55"/><circle cx="26" cy="12" r="7" fill="#ff8fb8" opacity=".55"/>
+<g class="eyes" style="animation-delay:${d}s">${c===1?'<ellipse cx="-14" cy="-4" rx="10" ry="12" fill="#fff"/><ellipse cx="14" cy="-4" rx="10" ry="12" fill="#fff"/>':''}<g class="pup"><circle cx="-14" cy="-3" r="${c===1?5.5:6}" fill="${ink}"/><circle cx="14" cy="-3" r="${c===1?5.5:6}" fill="${ink}"/><circle cx="-12" cy="-6" r="2" fill="#fff"/><circle cx="16" cy="-6" r="2" fill="#fff"/></g></g>
+<g class="zz"><path d="M-22 -3q8 6 16 0M6 -3q8 6 16 0" stroke="${ink}" stroke-width="3.5" fill="none" stroke-linecap="round"/></g>
+<path class="happy" d="M-9 17Q0 26 9 17" stroke="${ink}" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+<g class="worry"><ellipse cx="0" cy="21" rx="5" ry="6.5" fill="${ink}"/><path d="M-25 -15L-9 -22M25 -15L9 -22" stroke="${ink}" stroke-width="3.5" stroke-linecap="round"/><path d="M34 -24q7 10 0 14q-7 -4 0 -14z" fill="#7cc7ff" stroke="#fff" stroke-width="1.5"/></g></g>`;},
+ update:function(disp,S,n){var L=S.last;var lp=L>=0?ptXY(L,n):null;
+   for(var i in disp){var e=disp[i].el,pu=e.querySelector('.pup');if(!pu)continue;var dx=0,dy=1.5;
+     if(lp&&+i!==L){var p=ptXY(+i,n),vx=lp[0]-p[0],vy=lp[1]-p[1],m=Math.hypot(vx,vy)||1;dx=vx/m*4;dy=vy/m*4}
+     pu.style.transform=`translate(${f1(dx)}px,${f1(dy)}px)`}},
+ mark:function(){return `<path class="spark" d="${starD(31,-35,13,5.5,5)}" fill="#ffd84d" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>`},
+ terr:function(c){return c===1?`<circle r="12" fill="#5d49cc" stroke="#fff" stroke-width="3"/>`:`<circle r="12" fill="#fff7e8" stroke="#e6cfae" stroke-width="3"/>`},
+ sound:function(k,A){if(k==='place'){A.tone(520,.12,.28,'sine',980)}else if(k==='capture'){A.tone(700,.28,.22,'triangle',180)}else if(k==='end'){[523,659,784,1046].forEach(function(f,j){setTimeout(function(){A.tone(f,.25,.18,'triangle')},j*110)})}}
+},
+// ---------- 4 Yötaivas: tähtikartta, planeetat ja kuut ----------
+{id:'kosmos',name:'Yötaivas',sub:'Tähtikartta, tummat planeetat ja hehkuvat kuut',names:['','Planeetta','Kuu'],
+ burst:['#bfe3ff','#ffffff','#c9a6ff'],celebrate:['#bfe3ff','#ffffff','#c9a6ff','#ffe9b0'],
+ defs:function(){return `
+<radialGradient id="ks-b" fx=".32" fy=".3" r=".55"><stop offset="0" stop-color="#4a558f"/><stop offset=".5" stop-color="#1a1e40"/><stop offset="1" stop-color="#04050c"/></radialGradient>
+<radialGradient id="ks-bh"><stop offset=".74" stop-color="#6aa0ff" stop-opacity="0"/><stop offset=".84" stop-color="#78b4ff" stop-opacity=".35"/><stop offset="1" stop-color="#a070ff" stop-opacity="0"/></radialGradient>
+<linearGradient id="ks-rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#86e6ff"/><stop offset=".42" stop-color="#86e6ff" stop-opacity="0"/><stop offset=".72" stop-color="#b47dff" stop-opacity="0"/><stop offset="1" stop-color="#b47dff"/></linearGradient>
+<radialGradient id="ks-w" fx=".38" fy=".34" r=".55"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#eef0ff"/><stop offset="1" stop-color="#a9b1da"/></radialGradient>
+<radialGradient id="ks-wh"><stop offset=".55" stop-color="#fff4d6" stop-opacity=".5"/><stop offset="1" stop-color="#fff4d6" stop-opacity="0"/></radialGradient>
+<radialGradient id="ks-neb" cx=".3" cy=".25" r=".7"><stop offset="0" stop-color="#7a4dff" stop-opacity=".22"/><stop offset=".5" stop-color="#2a6cff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+<radialGradient id="ks-neb2" cx=".8" cy=".85" r=".55"><stop offset="0" stop-color="#ff5fa8" stop-opacity=".12"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+<filter id="ks-glow" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<clipPath id="ks-clip"><circle r="46"/></clipPath>`},
+ board:function(n){var w=bw(n),r=rng(n*97),s='';
+   for(var k=0;k<n*n*1.6+30;k++){var x=f1(r()*w),y=f1(r()*w),rr=f1(.7+Math.pow(r(),3)*2.4),tw=r()<.25;
+     s+=`<circle cx="${x}" cy="${y}" r="${rr}" fill="#fff" opacity="${f1(.25+r()*.6)}"${tw?` class="tw" style="animation-delay:${f1(r()*4)}s"`:''}/>`}
+   return `<rect width="${w}" height="${w}" rx="28" fill="#0a0f2c" fill-opacity=".72"/><rect width="${w}" height="${w}" rx="28" fill="url(#ks-neb)"/><rect width="${w}" height="${w}" rx="28" fill="url(#ks-neb2)"/>${s}<rect x="1" y="1" width="${w-2}" height="${w-2}" rx="27" fill="none" stroke="#96b4ff" stroke-opacity=".28" stroke-width="2"/>`},
+ grid:function(n){var dots='';for(var i=0;i<n*n;i++){var p=ptXY(i,n);dots+=`<circle cx="${p[0]}" cy="${p[1]}" r="2.6" fill="#d6e4ff" opacity=".65"/>`}
+   return `<g filter="url(#ks-glow)"><path d="${gridD(n)}" stroke="#9cc0ff" stroke-opacity=".36" stroke-width="1.8" fill="none"/><path d="${frameD(n)}" stroke="#9cc0ff" stroke-opacity=".55" stroke-width="2.4" fill="none"/></g>${dots}`+GO.hoshi(n).map(function(i){var p=ptXY(i,n);return `<path d="${starD(p[0],p[1],13,3,4)}" fill="#e6efff"/>`}).join('')},
+ stone:function(c,seed){var r=rng(seed),a=Math.floor(r()*180);
+   if(c===1){var b='';for(var k=0;k<3;k++)b+=`<ellipse cy="${f1(-26+k*22+r()*8)}" rx="70" ry="${f1(4+r()*6)}" fill="#9fb0ff" opacity="${f1(.05+r()*.07)}"/>`;
+     return `<circle r="58" fill="url(#ks-bh)"/><circle r="46" fill="url(#ks-b)"/><g clip-path="url(#ks-clip)" transform="rotate(${a-20})">${b}</g><circle r="45" fill="none" stroke="url(#ks-rim)" stroke-width="2.6"/>`}
+   var cr='';for(var j=0;j<4;j++){var ang=r()*6.283,d=r()*30,x=f1(Math.cos(ang)*d),y=f1(Math.sin(ang)*d),rr=f1(4+r()*7);
+     cr+=`<circle cx="${x}" cy="${y}" r="${rr}" fill="#8f98c6" opacity=".26"/><circle cx="${f1(+x+1)}" cy="${f1(+y+1.2)}" r="${f1(rr*.75)}" fill="#fff" opacity=".22"/>`}
+   return `<circle r="66" fill="url(#ks-wh)"/><circle r="46" fill="url(#ks-w)"/><g clip-path="url(#ks-clip)">${cr}</g>`;},
+ mark:function(){return `<circle class="ping" r="54" fill="none" stroke="#cfe0ff" stroke-width="2.5"/><circle r="6" fill="#ffcf7a"/>`},
+ terr:function(c){return c===1?`<path d="${starD(0,0,16,4,4)}" fill="#86e6ff"/>`:`<path d="${starD(0,0,16,4,4)}" fill="#fff4d6"/>`},
+ sound:function(k,A){if(k==='place'){A.tone(880,1.1,.09,'sine');A.tone(1320,.8,.04,'sine')}else if(k==='capture'){A.tone(1760,.6,.05,'sine',440);A.tone(660,.9,.06,'sine',220)}else if(k==='end'){[440,554,659,880].forEach(function(f,j){setTimeout(function(){A.tone(f,1.6,.07,'sine')},j*160)})}}
+},
+// ---------- 5 Riso: kaksivärinen painojälki, rasteripisteet ja kohdistusmerkit ----------
+{id:'riso',name:'Riso',sub:'Kaksivärinen painojälki, rasteri ja leimasin',names:['','Sininen','Pinkki'],
+ burst:['#0078bf','#ff48b0','#ffe14d'],celebrate:['#0078bf','#ff48b0','#ffe14d'],
+ defs:function(){return `
+<pattern id="rs-ht" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><circle cx="4.5" cy="4.5" r="2.5" fill="#f6f1e6"/></pattern>
+<pattern id="rs-htp" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(15)"><circle cx="7" cy="7" r="3.4" fill="#ff48b0"/></pattern>
+<radialGradient id="rs-fg" cx=".3" cy=".27" r=".62"><stop offset="0" stop-color="#fff"/><stop offset=".6" stop-color="#fff" stop-opacity=".15"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+<radialGradient id="rs-bg" cx="1" cy="1" r=".7"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+<mask id="rs-m" maskContentUnits="userSpaceOnUse"><circle r="47" fill="url(#rs-fg)"/></mask>
+<mask id="rs-bm" maskContentUnits="objectBoundingBox"><rect width="1" height="1" fill="url(#rs-bg)"/></mask>`},
+ board:function(n){var w=bw(n);return `<rect width="${w}" height="${w}" fill="#ffe14d"/><rect width="${w}" height="${w}" fill="url(#rs-htp)" mask="url(#rs-bm)" opacity=".55" style="mix-blend-mode:multiply"/>`},
+ grid:function(n){var g=`<path d="${gridD(n)}" stroke-width="4" fill="none"/><path d="${frameD(n)}" stroke-width="8" fill="none"/>`,h=GO.hoshi(n).map(function(i){var p=ptXY(i,n);return `<rect x="${p[0]-9}" y="${p[1]-9}" width="18" height="18"/>`}).join('');
+   return `<g transform="translate(3.5 2.5)" stroke="#ff48b0" fill="#ff48b0" opacity=".7" style="mix-blend-mode:multiply">${g}${h}</g><g stroke="#0078bf" fill="#0078bf">${g}${h}</g>`},
+ stone:function(c,seed){var r=rng(seed),dx=f1(r()*4-2),dy=f1(2+r()*2);
+   return c===1?`<circle cx="${dx}" cy="${dy}" r="46" fill="none" stroke="#ff48b0" stroke-width="3.5" opacity=".85"/><circle r="46" fill="#0078bf"/><circle r="46" fill="url(#rs-ht)" mask="url(#rs-m)"/>`
+     :`<circle cx="${-dx}" cy="${dy}" r="46" fill="none" stroke="#0078bf" stroke-width="3" opacity=".75"/><circle r="46" fill="#ff48b0"/><circle r="46" fill="url(#rs-ht)" mask="url(#rs-m)"/>`},
+ mark:function(){return `<g stroke="#f6f1e6" stroke-width="3.5" fill="none"><circle r="12"/><path d="M-21 0H21M0 -21V21"/></g>`},
+ terr:function(c){return `<rect x="-14" y="-14" width="28" height="28" fill="${c===1?'#0078bf':'#ff48b0'}" transform="rotate(${c===1?0:45})"/>`},
+ sound:function(k,A){if(k==='place'){A.tone(110,.09,.35,'square',70);A.noise(.04,1800,1.5,.5)}else if(k==='capture'){A.noise(.12,900,1,.4,'bandpass');A.tone(220,.12,.15,'square',90)}else if(k==='end'){A.tone(262,.15,.2,'square');setTimeout(function(){A.tone(392,.3,.2,'square')},150)}}
+}];
+function themeById(id){for(var k=0;k<THEMES.length;k++)if(THEMES[k].id===id)return THEMES[k];return THEMES[0]}
+
+// ===== Käyttöliittymä =====
+var GOUI=(function(){
+'use strict';
+var KEY='minigo.v1',NS='http://www.w3.org/2000/svg';
+function $(id){return document.getElementById(id)}
+var D=load(),S=null,disp={},boardKey='',flashT=0,toastT=0,down=null;
+function defSet(){return {teema:'kaya',aani:true,vihje:true,vastakkain:false}}
+function load(){var d=null;try{d=JSON.parse(localStorage.getItem(KEY))}catch(e){}return repair(d)}
+function repair(d){d=d&&typeof d==='object'?d:{};var a=defSet(),s=d.asetukset||{};
+  if(typeof s.teema==='string'&&THEMES.some(function(t){return t.id===s.teema}))a.teema=s.teema;
+  ['aani','vihje','vastakkain'].forEach(function(k){if(typeof s[k]==='boolean')a[k]=s[k]});
+  return {asetukset:a,peli:GO.repairGame(d.peli||{cfg:{n:9,mode:'kaappaus',target:1}})}}
+function payload(){return {app:'minigo',ver:GO.VER,savedAt:new Date().toISOString(),asetukset:D.asetukset,peli:D.peli}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(payload()))}catch(e){}}
+function T(){return themeById(D.asetukset.teema)}
+function cfg(){return D.peli.cfg}
+function recompute(){S=GO.replay(cfg(),D.peli.moves).s}
+recompute();
+
+// ---------- ääni ----------
+var AC=null;
+function unlock(){if(!D.asetukset.aani)return;if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){AC=null}}if(AC&&AC.state==='suspended')AC.resume()}
+var A={
+  tone:function(f,dur,g,type,to){if(!AC)return;var t=AC.currentTime,o=AC.createOscillator(),v=AC.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(to)o.frequency.exponentialRampToValueAtTime(to,t+dur);
+    v.gain.setValueAtTime(0,t);v.gain.linearRampToValueAtTime(g,t+.008);v.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(v);v.connect(AC.destination);o.start(t);o.stop(t+dur+.05)},
+  noise:function(dur,f,q,g,type){if(!AC)return;var t=AC.currentTime,len=Math.max(1,Math.floor(AC.sampleRate*dur)),buf=AC.createBuffer(1,len,AC.sampleRate),ch=buf.getChannelData(0);
+    for(var i=0;i<len;i++)ch[i]=(Math.random()*2-1)*Math.pow(1-i/len,2);var s=AC.createBufferSource();s.buffer=buf;var fl=AC.createBiquadFilter();fl.type=type||'bandpass';fl.frequency.value=f;fl.Q.value=q;
+    var v=AC.createGain();v.gain.value=g;s.connect(fl);fl.connect(v);v.connect(AC.destination);s.start(t)}};
+function snd(k){if(!D.asetukset.aani||!AC)return;try{T().sound(k,A)}catch(e){}}
+
+// ---------- lauta ----------
+var svg=$('board');
+function el(tag,attrs,html){var e=document.createElementNS(NS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);if(html!=null)e.innerHTML=html;return e}
+function L(name){return svg.querySelector('.'+name)}
+function buildBoard(){var t=T(),n=S.n,w=bw(n);
+  svg.setAttribute('viewBox','0 0 '+w+' '+w);
+  svg.innerHTML='<defs>'+t.defs()+'</defs><g class="bg">'+t.board(n)+'</g><g class="grid">'+t.grid(n)+'</g><g class="terr"></g><g class="libl"></g><g class="stones"></g><g class="marks"></g><g class="ghostl"></g><g class="fx"></g>';
+  disp={};boardKey=t.id+n;}
+function seedOf(i,c){return (i*2654435761+c*40503+S.n*977)>>>0}
+function addStone(i,c,anim){var p=ptXY(i,S.n),g=el('g',{class:'st c'+c,transform:'translate('+p[0]+' '+p[1]+')'});
+  g.appendChild(el('g',{class:'sti'},T().stone(c,seedOf(i,c))));L('stones').appendChild(g);disp[i]={c:c,el:g};
+  if(anim){g.classList.add('enter');setTimeout(function(){g.classList.remove('enter')},1000)}}
+function dropStone(i,anim){var d=disp[i];delete disp[i];if(!d)return;
+  if(!anim){d.el.remove();return}
+  d.el.classList.remove('atari','enter');d.el.classList.add('leave');setTimeout(function(){d.el.remove()},800);burst(i,d.c)}
+function burst(i,c){var t=T();if(!t.burst)return;var p=ptXY(i,S.n),g=el('g',{class:'burst',transform:'translate('+p[0]+' '+p[1]+')'}),h='';
+  for(var k=0;k<9;k++){var a=k/9*6.283+Math.random()*.5,d=60+Math.random()*50,col=t.burst[k%t.burst.length];
+    h+='<circle r="'+(4+Math.random()*6).toFixed(1)+'" fill="'+col+'" style="--x:'+(Math.cos(a)*d).toFixed(0)+'px;--y:'+(Math.sin(a)*d).toFixed(0)+'px"/>'}
+  g.innerHTML=h;L('fx').appendChild(g);setTimeout(function(){g.remove()},900)}
+function drawBoard(anim){var t=T(),n=S.n;if(boardKey!==t.id+n)buildBoard();
+  for(var i=0;i<n*n;i++){var c=S.b[i],d=disp[i];
+    if(d&&d.c!==c)dropStone(i,anim);
+    if(c&&!disp[i])addStone(i,c,anim&&i===S.last)}
+  var ph=D.peli.phase,dead={};D.peli.dead.forEach(function(p){dead[p]=1});
+  var at=(D.asetukset.vihje&&ph==='peli')?GO.ataris(S.b,n):{stones:[],libs:[]},as={};at.stones.forEach(function(p){as[p]=1});
+  for(var k in disp){disp[k].el.classList.toggle('atari',!!as[k]);disp[k].el.classList.toggle('dead',!!dead[k])}
+  // atarin viimeiset vapaudet
+  var lh='';at.libs.forEach(function(p){var q=ptXY(p,n);lh+='<circle class="lib" cx="'+q[0]+'" cy="'+q[1]+'" r="12"/>'});L('libl').innerHTML=lh;
+  // viimeinen siirto
+  var mk='';if(S.last>=0&&S.b[S.last]&&ph!=='laske'){var q=ptXY(S.last,n);mk='<g class="lastm" transform="translate('+q[0]+' '+q[1]+')">'+t.mark(S.b[S.last])+'</g>'}
+  L('marks').innerHTML=mk;
+  // alue laskennassa
+  var th='';if(ph!=='peli'&&cfg().mode==='go'){var sc=GO.score(S.b,n,D.peli.dead,cfg().komi);
+    for(var j=0;j<n*n;j++){var o=sc.own[j];if(o&&(!S.b[j]||dead[j])){var r=ptXY(j,n);th+='<g transform="translate('+r[0]+' '+r[1]+')">'+t.terr(o)+'</g>'}}}
+  L('terr').innerHTML=th;
+  if(t.update)t.update(disp,S,n);
+  svg.setAttribute('aria-label',statusText());}
+function showGhost(i){var gl=L('ghostl');gl.innerHTML='';if(i<0||S.b[i])return;var p=ptXY(i,S.n),ok=GO.play(S,cfg(),i).ok;
+  var g=el('g',{class:'ghost'+(ok?'':' bad'),transform:'translate('+p[0]+' '+p[1]+')'});g.innerHTML=T().stone(S.turn,seedOf(i,S.turn));gl.appendChild(g)}
+function showLibs(i){var g=GO.group(S.b,S.n,i),h='';g.libs.forEach(function(p){var q=ptXY(p,S.n);h+='<circle class="lp" cx="'+q[0]+'" cy="'+q[1]+'" r="11"/>'});
+  g.stones.forEach(function(p){if(disp[p])disp[p].el.classList.add('sel')});
+  L('ghostl').innerHTML=h;clearTimeout(flashT);flashT=setTimeout(hideLibs,1500);
+  toast(T().names[g.c]+': '+g.libs.length+' '+(g.libs.length===1?'vapaus':'vapautta'))}
+function hideLibs(){L('ghostl').innerHTML='';for(var k in disp)disp[k].el.classList.remove('sel')}
+function hit(e){var m=svg.getScreenCTM();if(!m)return -1;var pt=new DOMPoint(e.clientX,e.clientY).matrixTransform(m.inverse()),n=S.n;
+  var x=Math.round((pt.x-M)/U),y=Math.round((pt.y-M)/U);if(x<0||y<0||x>=n||y>=n)return -1;
+  if(Math.abs(pt.x-M-x*U)>U*.55||Math.abs(pt.y-M-y*U)>U*.55)return -1;return y*n+x}
+svg.addEventListener('pointerdown',function(e){unlock();if(e.button>0)return;var i=hit(e);if(i<0)return;e.preventDefault();
+  try{svg.setPointerCapture(e.pointerId)}catch(_){}down={id:e.pointerId,i:i};
+  if(D.peli.phase==='peli'&&!S.b[i])showGhost(i)});
+svg.addEventListener('pointermove',function(e){if(!down||e.pointerId!==down.id)return;var i=hit(e);if(i===down.i)return;down.i=i;
+  if(D.peli.phase==='peli'){if(i>=0&&!S.b[i])showGhost(i);else L('ghostl').innerHTML=''}});
+svg.addEventListener('pointerup',function(e){if(!down||e.pointerId!==down.id)return;var i=down.i;down=null;L('ghostl').innerHTML='';if(i>=0)tapPoint(i)});
+svg.addEventListener('pointercancel',function(){down=null;L('ghostl').innerHTML=''});
+
+// ---------- pelitoiminnot ----------
+var ERR={itsemurha:'Siinä kivellä ei olisi yhtään vapautta. Itsemurha on kielletty.',ko:'Ko! Juuri kaapattua ei saa kaapata heti takaisin. Pelaa ensin muualle.'};
+function tapPoint(i){var ph=D.peli.phase;
+  if(ph==='laske'){if(!S.b[i])return;D.peli.dead=GO.toggleDead(S.b,S.n,D.peli.dead,i);save();render(false);return}
+  if(ph!=='peli'||S.over)return;
+  if(S.b[i]){showLibs(i);return}
+  var r=GO.play(S,cfg(),i);
+  if(!r.ok){if(ERR[r.err]){toast(ERR[r.err],'bad');shake()}return}
+  D.peli.moves.push(i);S=r.s;snd('place');if(r.captured.length)setTimeout(function(){snd('capture')},90);
+  if(S.over){D.peli.phase='ohi';save();render(true);setTimeout(function(){snd('end');celebrate();showResult()},650);return}
+  save();render(true);}
+function pass(){if(D.peli.phase!=='peli'||S.over)return;var who=T().names[S.turn];var r=GO.pass(S,cfg());D.peli.moves.push(-1);S=r.s;
+  if(S.over){D.peli.phase=GO.phaseOf(cfg(),S);save();render(false);
+    if(D.peli.phase==='laske')toast('Molemmat passasivat. Napauta kuolleet kivet, sitten Laske tulos.');
+    else{snd('end');showResult()}return}
+  save();render(false);toast(who+' passasi.')}
+function undo(){if(!D.peli.moves.length){toast('Ei peruttavaa.');return}
+  D.peli.moves.pop();D.peli.dead=[];D.peli.phase='peli';recompute();save();render(false);toast('Siirto peruttu.')}
+function resume(){D.peli.moves.pop();D.peli.dead=[];D.peli.phase='peli';recompute();save();render(false);toast('Peli jatkuu.')}
+function finish(){D.peli.phase='ohi';save();render(false);snd('end');celebrate();showResult()}
+function newGame(c){D.peli={cfg:GO.cfgOf(c),moves:[],dead:[],phase:'peli'};recompute();save();boardKey='';render(false)}
+
+// ---------- tekstit ----------
+function komiTxt(k){return String(k).replace('.',',')}
+function infoTxt(){var c=cfg(),s=c.n+'×'+c.n;
+  if(c.mode==='kaappaus')return 'Kaappaus · '+s+' · '+c.target+(c.target===1?' kivi':' kiveä');
+  return 'Go · '+s+(c.handicap?' · tasoitus '+c.handicap:'')+' · komi '+komiTxt(c.komi)}
+function statusText(){var t=T(),ph=D.peli.phase;if(ph==='laske')return 'Kuolleiden kivien merkintä';
+  if(ph==='ohi')return 'Peli päättyi';return t.names[S.turn]+' vuorossa'}
+function result(){var t=T(),c=cfg();
+  if(c.mode==='kaappaus'){var w=S.over?S.over.winner:0;
+    return {w:w,title:w?t.names[w]+' voitti!':'Tasapeli',lines:[S.over&&S.over.why==='passit'?'Molemmat passasivat. Kaapatut kivet ratkaisivat.':t.names[w]+' kaappasi ensimmäisenä '+(c.target===1?'kiven':c.target+' kiveä')+'.',
+      t.names[1]+' kaappasi '+S.cap[1]+', '+t.names[2]+' '+S.cap[2]+'.']}}
+  var sc=GO.score(S.b,S.n,D.peli.dead,c.komi),f=function(x){return komiTxt(x)};
+  return {w:sc.winner,sc:sc,title:sc.winner?t.names[sc.winner]+' voitti '+f(sc.margin)+' pisteellä':'Tasapeli!',
+    lines:[t.names[1]+': '+sc.stones[1]+' kiveä + '+sc.terr[1]+' aluetta = '+f(sc.black),
+      t.names[2]+': '+sc.stones[2]+' kiveä + '+sc.terr[2]+' aluetta'+(sc.komi?' + komi '+f(sc.komi):'')+' = '+f(sc.white)]}}
+
+// ---------- näkymä ----------
+function icon(c,cls){var t=T();return '<svg class="'+(cls||'ico')+'" viewBox="-60 -60 120 120" aria-hidden="true"><defs>'+t.defs()+'</defs><g class="st c'+c+'"><g class="sti">'+t.stone(c,c*7+3)+'</g></g></svg>'}
+function card(c){var t=T(),c0=cfg(),ph=D.peli.phase,on=ph==='peli'&&!S.over&&S.turn===c,sub='';
+  if(c0.mode==='kaappaus'){var d='';for(var k=0;k<c0.target;k++)d+='<i class="'+(k<S.cap[c]?'on':'')+'"></i>';sub='<span class="dots" aria-label="kaapattu '+S.cap[c]+' / '+c0.target+'">'+d+'</span>'}
+  else if(ph==='peli')sub='Vankeja '+S.cap[c];
+  else{var sc=GO.score(S.b,S.n,D.peli.dead,c0.komi);sub='Pisteet '+komiTxt(c===1?sc.black:sc.white)}
+  var hc=c0.handicap&&c===1?' <small>tasoitus '+c0.handicap+'</small>':'';
+  return icon(c)+'<div class="who"><b>'+t.names[c]+hc+'</b><span class="sub">'+sub+'</span></div><span class="turn">'+(on?'Vuorossa':'')+'</span><span class="seal" aria-hidden="true">碁</span>'}
+function render(anim){var t=T(),ph=D.peli.phase;
+  document.body.className='t-'+t.id+(D.asetukset.vastakkain?' vastakkain':'')+' ph-'+ph;
+  $('info').textContent=infoTxt();
+  [1,2].forEach(function(c){var e=$('p'+c);e.innerHTML=card(c);e.classList.toggle('on',ph==='peli'&&!S.over&&S.turn===c)});
+  var acts=ph==='laske'?[['b-resume','Jatka peliä'],['b-finish','Laske tulos','pri']]
+    :ph==='ohi'?[['b-undo','↶ Peru'],['b-view','Tulos'],['b-new','Uusi peli','pri']]
+    :[['b-pass','Passaa'],['b-undo','↶ Peru'],['b-new','Uusi peli']];
+  $('actions').innerHTML=acts.map(function(a){return '<button class="btn '+(a[2]||'')+'" id="'+a[0]+'">'+a[1]+'</button>'}).join('');
+  $('hint').textContent=ph==='laske'?'Napauta kiviä, jotka eivät voi enää pelastua. Ne lasketaan vastustajan alueeksi.':'';
+  drawBoard(anim);if(LAND)fit();}
+var shakeT=0;function shake(){var b=$('bw');b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');clearTimeout(shakeT);shakeT=setTimeout(function(){b.classList.remove('shake')},500)}
+function toast(m,cls){var e=$('toast');e.textContent=m;e.className='show '+(cls||'');clearTimeout(toastT);toastT=setTimeout(function(){e.className=''},2600)}
+function celebrate(){var t=T(),w=$('confetti'),h='';for(var k=0;k<46;k++){var c=t.celebrate[k%t.celebrate.length];
+  h+='<i style="left:'+(Math.random()*100).toFixed(1)+'%;background:'+c+';animation-delay:'+(Math.random()*.6).toFixed(2)+'s;animation-duration:'+(1.6+Math.random()*1.4).toFixed(2)+'s;--r:'+(Math.random()*720-360).toFixed(0)+'deg"></i>'}
+  w.innerHTML=h;setTimeout(function(){w.innerHTML=''},3400)}
+// laudan koko: suurin neliö, joka mahtuu
+var LAND=window.matchMedia('(orientation:landscape) and (min-width:700px)');
+function fit(){var app=$('app'),cs=getComputedStyle(app),pt=parseFloat(cs.paddingTop)||0,pb=parseFloat(cs.paddingBottom)||0,h=app.clientHeight-pt-pb,s;
+  if(LAND.matches){var b=$('bw').getBoundingClientRect();s=Math.min(b.width-12,h-18)}
+  else{var used=0;['hd','p2','hint','p1','actions'].forEach(function(id){var e=id==='hd'?app.querySelector('header'):$(id);used+=e.getBoundingClientRect().height});
+    s=Math.min(app.clientWidth-(parseFloat(cs.paddingLeft)||0)-(parseFloat(cs.paddingRight)||0),h-used-7*8)}
+  s=Math.max(120,Math.floor(s));svg.style.width=s+'px';svg.style.height=s+'px'}
+if(LAND.addEventListener)LAND.addEventListener('change',fit);
+if(window.ResizeObserver)new ResizeObserver(fit).observe($('bw'));window.addEventListener('resize',fit);
+
+// ---------- valintaikkunat ----------
+function openDlg(id){var d=$(id);if(d.open)return;d.showModal()}
+document.querySelectorAll('dialog').forEach(function(d){
+  if(!('closedBy' in HTMLDialogElement.prototype))d.addEventListener('click',function(e){if(e.target!==d)return;var r=d.getBoundingClientRect();
+    if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)d.close()});
+  d.querySelectorAll('[data-close]').forEach(function(b){b.addEventListener('click',function(){d.close()})})});
+// Uusi peli
+var draft=null;
+function seg(id,vals,cur,lab){return '<div class="seg" role="group" id="'+id+'">'+vals.map(function(v){return '<button type="button" data-v="'+v+'" aria-pressed="'+(String(v)===String(cur))+'">'+(lab?lab(v):v)+'</button>'}).join('')+'</div>'}
+function drawNew(){var c=draft,h=GO.handicapList(c.n);
+  var x='<label class="lbl">Pelimuoto</label>'+seg('s-mode',['kaappaus','go'],c.mode,function(v){return v==='go'?'Go':'Kaappaus-Go'})+
+   '<p class="help">'+(c.mode==='go'?'Oikea Go: kaappaukset, itsemurhan ja kon kielto. Kun molemmat passaavat, merkitään kuolleet kivet ja appi laskee alueen (omat kivet + ympäröity tyhjä).':'Aloittelijan peli: joka kaappaa ensimmäisenä tarpeeksi kiviä, voittaa. Opettaa vapaudet ja atarin.')+'</p>'+
+   '<label class="lbl">Lauta</label>'+seg('s-n',GO.SIZES,c.n,function(v){return v+'×'+v});
+  if(c.mode==='kaappaus')x+='<label class="lbl">Voittoon tarvitaan</label>'+seg('s-t',GO.TARGETS,c.target,function(v){return v+(v===1?' kivi':' kiveä')});
+  else x+='<label class="lbl">Komi (valkealle hyvitys)</label>'+seg('s-k',GO.KOMIT,c.komi,komiTxt);
+  x+='<label class="lbl">Tasoitus (mustalle valmiit kivet)</label>'+seg('s-h',h,h.indexOf(c.handicap)>=0?c.handicap:0,function(v){return v?v:'Ei'});
+  $('newbody').innerHTML=x;
+  [['s-mode','mode'],['s-n','n'],['s-t','target'],['s-k','komi'],['s-h','handicap']].forEach(function(p){var e=$(p[0]);if(!e)return;
+    e.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){var v=b.dataset.v;draft[p[1]]=p[1]==='mode'?v:+v;
+      if(p[1]==='n'&&draft.handicap>GO.maxHandicap(draft.n))draft.handicap=0;drawNew()})})})}
+function openNew(){draft=Object.assign({},cfg());drawNew();openDlg('dlg-new')}
+$('b-start').addEventListener('click',function(){newGame(draft);$('dlg-new').close();toast(T().names[S.turn]+' aloittaa.')});
+// Ulkoasu
+function preview(t){var n=5,w=bw(n),pos=[[6,1],[7,2],[8,1],[12,2],[11,1],[13,2],[17,1],[16,2],[18,1]],st='';
+  pos.forEach(function(q){var p=ptXY(q[0],n);st+='<g class="st c'+q[1]+'" transform="translate('+p[0]+' '+p[1]+')"><g class="sti">'+t.stone(q[1],q[0]*31+q[1])+'</g></g>'});
+  var lm=ptXY(18,n);
+  return '<svg class="pv" viewBox="0 0 '+w+' '+w+'" aria-hidden="true"><defs>'+t.defs()+'</defs>'+t.board(n)+t.grid(n)+'<g class="stones">'+st+'</g><g class="marks"><g class="lastm" transform="translate('+lm[0]+' '+lm[1]+')">'+t.mark(1)+'</g></g></svg>'}
+function openLook(){$('looks').innerHTML=THEMES.map(function(t){return '<button type="button" class="look t-'+t.id+'" data-id="'+t.id+'" aria-pressed="'+(t.id===D.asetukset.teema)+'"><span class="lookbg">'+preview(t)+'</span><b>'+t.name+'</b><small>'+t.sub+'</small></button>'}).join('');
+  $('looks').querySelectorAll('.look').forEach(function(b){b.addEventListener('click',function(){setTheme(b.dataset.id);$('looks').querySelectorAll('.look').forEach(function(x){x.setAttribute('aria-pressed',String(x===b))})})});
+  openDlg('dlg-look')}
+function setTheme(id){D.asetukset.teema=themeById(id).id;save();render(false);setIcon()}
+// Valikko
+function openMenu(){var a=D.asetukset;['aani','vihje','vastakkain'].forEach(function(k){$('o-'+k).checked=a[k]});$('bk-text').value='';openDlg('dlg-menu')}
+['aani','vihje','vastakkain'].forEach(function(k){$('o-'+k).addEventListener('change',function(e){D.asetukset[k]=e.target.checked;save();render(false);if(k==='aani')unlock()})});
+$('bk-save').addEventListener('click',function(){var b=new Blob([JSON.stringify(payload(),null,1)],{type:'application/json'}),a=document.createElement('a');
+  a.href=URL.createObjectURL(b);a.download='minigo-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500)});
+$('bk-copy').addEventListener('click',function(){var s=JSON.stringify(payload());$('bk-text').value=s;try{navigator.clipboard.writeText(s).then(function(){toast('Kopioitu leikepöydälle.')},function(){})}catch(e){}});
+function importText(s){try{var d=JSON.parse(s);if(!d||d.app!=='minigo')throw 0;D=repair(d);recompute();save();boardKey='';render(false);$('dlg-menu').close();toast('Tuotu.')}catch(e){toast('Tämä ei ole Mini-Go-varmuuskopio.','bad')}}
+$('bk-file').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;f.text().then(importText);e.target.value=''});
+$('bk-load').addEventListener('click',function(){importText($('bk-text').value)});
+// Tulos
+function showResult(){var r=result();$('restitle').textContent=r.title;$('resicon').innerHTML=r.w?icon(r.w,'big'):icon(1,'big')+icon(2,'big');
+  $('reslines').innerHTML=r.lines.map(function(l){return '<p>'+l+'</p>'}).join('');openDlg('dlg-res')}
+$('r-again').addEventListener('click',function(){$('dlg-res').close();newGame(cfg());toast(T().names[S.turn]+' aloittaa.')});
+$('r-new').addEventListener('click',function(){$('dlg-res').close();openNew()});
+
+// napit
+document.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;unlock();
+  ({'b-pass':pass,'b-undo':undo,'b-new':openNew,'b-resume':resume,'b-finish':finish,'b-view':showResult,'b-look':openLook,'b-menu':openMenu}[b.id]||function(){})()});
+
+// kotinäytön kuvake
+function setIcon(){try{var cv=document.createElement('canvas');cv.width=cv.height=180;var x=cv.getContext('2d'),c=getComputedStyle(document.body);
+  x.fillStyle=c.getPropertyValue('--icon-bg')||'#e3b468';x.fillRect(0,0,180,180);x.strokeStyle=c.getPropertyValue('--icon-line')||'#2a1708';x.lineWidth=5;
+  for(var k=0;k<4;k++){x.beginPath();x.moveTo(30+k*40,30);x.lineTo(30+k*40,150);x.moveTo(30,30+k*40);x.lineTo(150,30+k*40);x.stroke()}
+  x.fillStyle=c.getPropertyValue('--icon-b')||'#111';x.beginPath();x.arc(70,70,18,0,7);x.fill();x.fillStyle=c.getPropertyValue('--icon-w')||'#f6f2e8';x.beginPath();x.arc(110,110,18,0,7);x.fill();
+  $('touchicon').href=cv.toDataURL('image/png')}catch(e){}}
+
+render(false);fit();setIcon();
+return {get D(){return D},get S(){return S},get disp(){return disp},T:T,tapPoint:tapPoint,pass:pass,undo:undo,resume:resume,finish:finish,newGame:newGame,setTheme:setTheme,
+  ptClient:function(i){var p=ptXY(i,S.n),m=svg.getScreenCTM(),q=new DOMPoint(p[0],p[1]).matrixTransform(m);return [q.x,q.y]},result:result};
+})();
+
+</script>
+</body>
+</html>
