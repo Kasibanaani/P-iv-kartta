@@ -32,7 +32,7 @@ Koko käyttöliittymä uudistettu Emilin appilinjan (`appilinja`-skill) mukaan, 
 - Testit ajettu vain tietokoneen Chromiumissa, ei oikealla iPhonella. Varmistamatta: raahaus sormella kahvasta (testattu hiirellä), kirjausrivin ja pienen ikkunan paikka näppäimistön ollessa auki (`visualViewport`), alapalkin piiloutuminen näppäimistön ajaksi, pysyykö näppäimistö auki kun OK siirtää kursorin toistoista painoon, jakovalikon ”Tallenna tiedostoihin”, kotinäytön kirjanmerkin turva-alueet.
 - Fontit testattu Linuxilla, jossa Avenir/Futura/Gill Sans/DIN/Tussi korvautuvat varafontilla.
 - Vanhaa 1.x-tyyliä on yhä tiedostossa käyttämättömänä (ei näy, ei siivottu).
-- Modern Web Guidance -hakua ei ajettu tälle kierrokselle; käytetyt tekniikat (sticky, pointer events, visualViewport, color-mix) ovat laajasti saatavilla, color-mix Safari 16.2+.
+- Modern Web Guidance -hakua ei ajettu tälle kierrokselle; käytetyt tekniikat (sticky, pointer events, visualViewport, color-mix) ovat laajasti saatavilla.
 
 ## Seuraavaksi
 
