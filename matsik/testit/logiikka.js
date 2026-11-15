@@ -101,9 +101,12 @@ want('herjalla sääntö ja syy',H4.every(h=>h.r&&typeof h.ri==='number'&&h.rn))
 k4.toimet.alku='2026-11-02';k4.toimet.vali={lahi:'v1'};k4.tavoitteet.push({id:'q3',taso:3,taho:'lapsi',teksti:'Harrastus',tila:'etenee',luotu:'2026-11-02',arviot:[],seur:{real:'e'}});
 H4=MF.herjat(k4,d4,'2026-11-02');const iS=H4.findIndex(h=>h.laji==='sykli'),iT=H4.findIndex(h=>h.tav==='q3'),iP=H4.findIndex(h=>h.laji==='puuttuu');
 want('järjestys: sovittava käynti, taso 3, puuttuvat',iS===0&&iS<iT&&iT<iP&&H4[0].sev==='crit'&&H4[0].it==='lahi');
-d4.asetukset.saannot=[{id:'puu',tila:'kiire'}].concat(d4.asetukset.saannot.filter(r=>r.id!=='puu'));H4=MF.herjat(k4,d4,'2026-11-02');
-want('oma järjestys: puuttuvat ensin ja kiireellisinä',H4[0].laji==='puuttuu'&&H4[0].sev==='crit');
-d4.asetukset.saannot.forEach(r=>{if(r.id==='t3')r.tila='pois';});H4=MF.herjat(k4,d4,'2026-11-02');want('Pois piilottaa lajin',!H4.some(h=>h.tav==='q3'));
+d4.asetukset.jarj=['o:tulosyy'].concat(MF.jarj(d4).filter(k=>k!=='o:tulosyy'));H4=MF.herjat(k4,d4,'2026-11-02');
+want('1.12: yksi lista määrää järjestyksen yli lajirajojen (osio käynnin edelle)',H4[0].laji==='puuttuu'&&H4[0].osio==='tulosyy'&&H4[0].sev==='warn'&&H4.findIndex(h=>h.laji==='sykli')>0);
+d4.asetukset.saannot=[{id:'puu',tila:'pois'},{id:'sykli1',tila:'pois'}];want('vanha lajien järjestys ja Pois eivät enää vaikuta',MF.herjat(k4,d4,'2026-11-02').map(h=>h.teksti).join()===H4.map(h=>h.teksti).join());
+want('listan oletus: tason 1 tavoitteet, käynnit ja seuranta, muut tavoitteet, osiot',MF.jarj(MF.empty()).map(k=>k.charAt(0)).join('')==='ttt'+'s'.repeat(10)+'t'.repeat(6)+'o'.repeat(14));
+want('lista: 33 riviä, uusi sisältö asettuu käyntien perään, tuntematon putoaa',(()=>{const x=MF.empty();x.asetukset.jarj=['o:koulu','s:paino','huono','s:paino'];x.asetukset.sisallot.push({id:'uusi',n:'Uusi',laji:'kaynti',sanat:'',mit:''});const J=MF.jarj(x);
+  return J.length===34&&J[0]==='o:koulu'&&J[1]==='s:paino'&&J.indexOf('huono')<0&&J.indexOf('s:uusi')===11&&J.filter(k=>k==='s:paino').length===1;})());
 want('ordered noudattaa sääntöjä',MF.ordered(d4,'2026-11-02')[0].h[0].laji==='puuttuu');
 const d5=MF.empty(),k5=MF.newClient('Kettu','2026-11-02');d5.asiakkaat.push(k5);const nt=(id,t)=>({id,text:t,tila:{},created:'2026-11-05T10:00:00Z',edited:'2026-11-05T10:00:00Z'});
 want('muistio: paino ja RR',(()=>{const m=MF.measOfNote(nt('m1','Kettu paino 41\nKettu RR 112/70'),[k5],d5,'2026-11-05');return JSON.stringify(m.map(x=>[x.id,x.arvo]))==='[["paino","41"],["rr","112/70"]]';})());

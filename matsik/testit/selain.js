@@ -60,6 +60,9 @@ async function run(b,w,h,touch){
   await tap('[data-act=slotsel][data-k=v1]');await tap('[data-syk=v1][data-v=lahi]');
   want('nauhassa tilapisteet',await pg.locator('.slotb[data-k=v1] .dot.miss').count()===1&&await pg.locator('.slotb[data-k=k2] .dot').count()===1&&await pg.locator('.slotb[data-k=v4] .dot').count()===1);
   want('viikoittainen: nykyinen ja 2 seuraavaa viikkoa näkyvissä',await pg.locator('#sec-toimet .sli').count()===3+2);
+  want('1.12: oletuslistassa tason 1 tavoiterivit ylinnä, joten puuttuvat tavoitteet nousevat käyntien edelle',/^Tavoitteet puuttuvat/.test(await hj()));
+  await pg.evaluate(()=>{const S=JSON.parse(localStorage.getItem('matsik:v1')),J=MF.jarj(MF.repair(S.data));S.data.asetukset.jarj=J.filter(k=>k.charAt(0)==='s').concat(J.filter(k=>k.charAt(0)!=='s'));localStorage.setItem('matsik:v1',JSON.stringify(S));});
+  await pg.reload();await pg.waitForTimeout(200);await tap('.nl:has-text("Kettu")');
   want('Nyt-kortti: varattava käynti ensin, Sovi-nappi',/Lähikäynti varattava/.test(await hj())&&await pg.locator('#hjc .nrow [data-act=sovi]').count()===1&&await nS()===5);
   await tap('#hjc [data-act=sovi]');
   want('Sovi avaa muistiinpanon valmiilla alulla',(await pg.locator('#nt').inputValue())==='Kettu lähikäynti ');
@@ -218,7 +221,7 @@ async function run(b,w,h,touch){
   want('ei vaakavieritystä (kalenteri)',!await wide());
   /* asetukset, pikavienti, tuonti */
   await tap('#roll');await tap('.pop [data-nav=valikko]');
-  want('Valikko alasivuina',await pg.locator('.mrow[data-act=vsub]').count()===6);
+  want('Valikko alasivuina',await pg.locator('.mrow[data-act=vsub]').count()===5);
   await tap('[data-act=vsub][data-k=ulkoasu]');want('alasivulla ‹ Valikko alapalkissa',await pg.locator('#bar [data-act=vback]').count()===1);
   await tap('[data-set=teema][data-v=kuutamo]');
   want('teema vaihtui',(await pg.evaluate("getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()"))==='#141a2e');
@@ -243,10 +246,7 @@ async function run(b,w,h,touch){
   await tap('#lc-sisallot [data-act=delask]');await tap('#lc-sisallot [data-act=delyes]');
   want('poisto poistaa myös eläimen väleistä',await pg.evaluate(D+'.asetukset.sisallot.length')===10&&Object.keys(await pg.evaluate(D+'.asiakkaat[0].toimet.vali')).length===3);
   /* säännöt (0.8) */
-  await tap('#bar [data-act=vback]');await tap('[data-act=vsub][data-k=saannot]');
-  await tap('[data-act=samove][data-id=puu][data-d="-1"]');await tap('[data-act=saset][data-id=puu][data-v=kiire]');
-  want('sääntö siirtyy ylös ja muuttuu kiireelliseksi',JSON.stringify(await pg.evaluate(D+".asetukset.saannot.map(r=>r.id).indexOf('puu')"))==='5'&&(await pg.evaluate(D+".asetukset.saannot.find(r=>r.id==='puu').tila"))==='kiire'&&(await pg.locator('#saannot .srow').nth(5).innerText()).includes('Puuttuvat'));
-  await tap('[data-act=sareset]');want('oletukset palautuvat',(await pg.evaluate(D+".asetukset.saannot.map(r=>r.id).join()"))==='t1,sykli1,t2,sykli,t3,ohj,puu,vanha');
+  await tap('#bar [data-act=vback]');want('1.12: Muistutusten säännöt -sivua ei enää ole',await pg.locator('[data-act=vsub][data-k=saannot]').count()===0);await tap('[data-act=vsub][data-k=valit]');
   await tap('[data-act=portaat][data-v="0"]');want('portaat pois',(await pg.evaluate(D+'.asetukset.portaat'))===false);
   want('ei vaakavieritystä (säännöt)',!await wide());
   await tap('#roll');await tap('.pop [data-nav=asiakkaat]');
@@ -286,26 +286,32 @@ async function run(b,w,h,touch){
   await tap('.sheet .gear');want('ratas vie pikanappien asetuksiin',await pg.locator('#lc-pikat').count()===1&&await pg.locator('.sheet').count()===0);
   /* 1.9: oletusväli, pikapäivä tarkistettavana, OK kalenterin viikkonäkymästä nollaa välin */
   await tap('#bar [data-act=vback]');await tap('[data-act=vsub][data-k=valit]');
-  want('Tarkistusvälit taulukkona: asiat riveinä, välit sarakkeina, ei näppäimistöä eikä poistoa',await pg.locator('#vl-sis .vtr[data-row]').count()===10&&await pg.locator('#vl-sis .vtc').count()===60&&await pg.locator('#vl-tav .vtc').count()===45&&await pg.locator('#vl-osio .vtc').count()===70&&
+  want('1.12: yksi lista: 33 riviä, 8 sarakeotsikkoa, ei näppäimistöä eikä poistoa',await pg.locator('.vt').count()===1&&await pg.locator('#vl .vtr[data-row]').count()===33&&await pg.locator('#vl .vthr .vth').count()===8&&await pg.locator('#vl .vtc').count()===10*6+23*5&&
     await pg.locator('#app input').count()===0&&await pg.locator('.vt [data-act^=del], .vt [data-act=leopen]').count()===0&&!await wide());
-  const vdrag=async(from,to,after)=>{const a=await pg.locator(from+' .vgrip').boundingBox(),b=await pg.locator(to).boundingBox();await pg.mouse.move(a.x+a.width/2,a.y+a.height/2);await pg.mouse.down();
-    const ty=after?b.y+b.height-3:b.y+3;for(let k=1;k<=6;k++)await pg.mouse.move(a.x+a.width/2,a.y+a.height/2+(ty-a.y-a.height/2)*k/6);await pg.mouse.up();await pg.waitForTimeout(80);};
-  await pg.locator('#vl-sis').scrollIntoViewIfNeeded();await vdrag('#vl-sis .vtr[data-row=verk]','#vl-sis .vtr[data-row=lahi]');
-  want('rivin raahaus kahvasta muuttaa tärkeysjärjestystä',(await pg.evaluate(D+'.asetukset.sisallot.map(x=>x.id).slice(0,2).join()'))==='verk,lahi'&&(await pg.locator('#vl-sis .vtr[data-row]').first().getAttribute('data-row'))==='verk'&&await pg.evaluate(D+'.asetukset.sisallot.length')===10);
-  await pg.locator('#vl-tav .vtr[data-row="1.tyont"]').scrollIntoViewIfNeeded();await vdrag('#vl-tav .vtr[data-row="1.tyont"]','#vl-tav .vtr[data-row="1.lapsi"]');
-  await tap('#vl-tav .vtc[data-id="1.tyont"][data-v="1"]');
-  want('tavoitteet taso × taho: oma väli ja järjestys tason sisällä',(await pg.evaluate(D+'.asetukset.tavJarj.slice(0,4).join()'))==='1.tyont,1.lapsi,1.vanh,2.lapsi'&&(await pg.evaluate(D+'.asetukset.tavValit["1.tyont"]'))===1&&await pg.locator('#vl-tav .vtc[data-id="1.lapsi"][data-v="3"][aria-pressed=true]').count()===1);
-  await pg.locator('#vl-tav .vtr[data-row="1.vanh"]').scrollIntoViewIfNeeded();await vdrag('#vl-tav .vtr[data-row="1.vanh"]','#vl-tav .vtr[data-row="3.tyont"]',true);
-  want('tahoa ei voi raahata toiseen tasoon',(await pg.evaluate(D+'.asetukset.tavJarj.join()')).startsWith('1.tyont,1.lapsi,1.vanh,2.'));
-  await pg.locator('#vl-osio .vtr[data-row=ohjaus]').scrollIntoViewIfNeeded();await vdrag('#vl-osio .vtr[data-row=ohjaus]','#vl-osio .vtr[data-row=toimet]');
-  want('osioiden järjestys raahaamalla',(await pg.evaluate(D+'.asetukset.osioJarj.slice(-2).join()'))==='ohjaus,toimet');
-  const vc='#vl-sis .vtc[data-id=verk]',vy0=await pg.locator(vc+'[data-v=k3]').evaluate(e=>e.getBoundingClientRect().top-document.getElementById('vl-sis').getBoundingClientRect().top);
-  await tap(vc+'[data-v=v2]');await tap(vc+'[data-v=k3]');
-  want('yksi väli per asia, ruutu paikallaan',(await pg.evaluate(D+".asetukset.sisallot.find(x=>x.id==='verk').ov"))==='k3'&&await pg.locator(vc+'[aria-pressed=true]').count()===1&&Math.abs((await pg.locator(vc+'[data-v=k3]').evaluate(e=>e.getBoundingClientRect().top-document.getElementById('vl-sis').getBoundingClientRect().top))-vy0)<1);
-  await tap('#vl-sis .vtc[data-id=lahi][data-v=v1]');await tap('#vl-sis .vtc[data-id=lahi][data-v=v1]');want('uusi napautus poistaa välin',!(await pg.evaluate(D+".asetukset.sisallot.find(x=>x.id==='lahi').ov")));
-  await tap('#vl-osio .vtc[data-id=tulosyy][data-v="6"]');want('osion väli taulukosta',(await pg.evaluate(D+'.asetukset.valit.tulosyy'))===6&&await pg.locator('#vl-osio .vtc[data-id=tulosyy][aria-pressed=true]').count()===1);
-  await tap('#vl-osio .vtc[data-id=tulosyy][data-v="12"]');
-  want('nimisarake pysyy, kun taulukkoa vieritetään',await pg.evaluate(()=>{const t=document.getElementById('vl-sis');t.scrollLeft=60;const n=t.querySelectorAll('.vtn')[1];return Math.abs(n.getBoundingClientRect().left-t.getBoundingClientRect().left)<1;}));
+  want('tuotu järjestys säilyy (käynnit siirretty aiemmin kärkeen)',(await pg.locator('#vl .vtr[data-row]').evaluateAll(R=>R.map(r=>r.dataset.row.charAt(0)).join('')))==='s'.repeat(10)+'t'.repeat(9)+'o'.repeat(14));
+  const vdrag=async(from,to,after)=>{await pg.locator(from).scrollIntoViewIfNeeded();const a=await pg.locator(from+' .vgrip').boundingBox();await pg.mouse.move(a.x+a.width/2,a.y+a.height/2);await pg.mouse.down();
+    for(let n=0;n<400;n++){const b=await pg.locator(to).evaluate(e=>{const r=e.getBoundingClientRect(),m=new DOMMatrix(getComputedStyle(e).transform).m42;return {y:r.top-m,height:r.height};}),ty=after?b.y+b.height+4:b.y-4,vh=pg.viewportSize().height;
+      if(ty>=95&&ty<=vh-145){for(let k=1;k<=4;k++)await pg.mouse.move(a.x+a.width/2,a.y+(ty-a.y)*k/4);break;}
+      await pg.mouse.move(a.x+a.width/2,ty<95?60:vh-100);await pg.waitForTimeout(40);}
+    await pg.mouse.up();await pg.waitForTimeout(80);};
+  const vtap=async q=>{await pg.locator(q).evaluate(e=>{e.scrollIntoView({block:'center'});const t=document.getElementById('vl');t.scrollLeft=Math.max(0,e.offsetLeft+e.offsetWidth+4-t.clientWidth);});await tap(q);};
+  const vc='#vl .vtc[data-id="s:verk"]',vtop=q=>pg.locator(q).evaluate(e=>e.getBoundingClientRect().top-document.getElementById('vl').getBoundingClientRect().top);
+  await pg.locator(vc+'[data-v=k3]').scrollIntoViewIfNeeded();const vy0=await vtop(vc+'[data-v=k3]');
+  await vtap(vc+'[data-v=v2]');await vtap(vc+'[data-v=k3]');
+  want('yksi väli per asia, ruutu paikallaan',(await pg.evaluate(D+".asetukset.sisallot.find(x=>x.id==='verk').ov"))==='k3'&&await pg.locator(vc+'[aria-pressed=true]').count()===1&&Math.abs((await vtop(vc+'[data-v=k3]'))-vy0)<1);
+  await vtap('#vl .vtc[data-id="s:lahi"][data-v=v1]');await vtap('#vl .vtc[data-id="s:lahi"][data-v=v1]');want('uusi napautus poistaa välin',!(await pg.evaluate(D+".asetukset.sisallot.find(x=>x.id==='lahi').ov")));
+  await vtap('#vl .vtc[data-id="o:tulosyy"][data-v=k6]');want('osion väli samasta listasta',(await pg.evaluate(D+'.asetukset.valit.tulosyy'))===6&&await pg.locator('#vl .vtc[data-id="o:tulosyy"][aria-pressed=true]').count()===1);
+  await vtap('#vl .vtc[data-id="o:tulosyy"][data-v=k12]');
+  await vtap('#vl .vtc[data-id="t:1.tyont"][data-v=v4]');
+  want('tavoitteella oma väli (4 vk = 1 kk), viikkovälejä ei tarjota',(await pg.evaluate(D+'.asetukset.tavValit["1.tyont"]'))===1&&await pg.locator('#vl .vtc[data-id="t:1.lapsi"][data-v=k3][aria-pressed=true]').count()===1&&await pg.locator('#vl .vtc[data-id="t:1.lapsi"][data-v=v1]').count()===0);
+  want('nimisarake pysyy, kun taulukkoa vieritetään',await pg.evaluate(()=>{const t=document.getElementById('vl');t.scrollLeft=60;const n=t.querySelectorAll('.vtn')[1];const ok=Math.abs(n.getBoundingClientRect().left-t.getBoundingClientRect().left)<1;t.scrollLeft=0;return ok;}));
+  await pg.evaluate(()=>{document.getElementById('vl').scrollLeft=0;});
+  const sx0=await pg.evaluate(()=>{const t=document.getElementById('vl');t.scrollLeft=40;return t.scrollLeft;});await tap('#vl .vtc[data-id="o:koulu"][data-v=v4]');
+  want('sivuvieritys säilyy, kun ruutua napautetaan',(await pg.evaluate(()=>document.getElementById('vl').scrollLeft))===sx0);await pg.evaluate(()=>{document.getElementById('vl').scrollLeft=0;});
+  await vdrag('#vl .vtr[data-row="t:1.lapsi"]','#vl .vtr[data-row="s:lahi"]');
+  want('raahaus yli lajirajan: tason 1 tavoite käyntien edelle',(await pg.evaluate(D+'.asetukset.jarj.slice(0,2).join()'))==='t:1.lapsi,s:lahi'&&(await pg.locator('#vl .vtr[data-row]').first().getAttribute('data-row'))==='t:1.lapsi'&&(await pg.evaluate(D+'.asetukset.jarj.length'))===33);
+  await vdrag('#vl .vtr[data-row="o:ohjaus"]','#vl .vtr[data-row="s:lahi"]');
+  want('pitkä raahaus listan lopusta alkuun (sivu vierii mukana)',(await pg.evaluate(D+".asetukset.jarj.indexOf('o:ohjaus')"))===(await pg.evaluate(D+".asetukset.jarj.indexOf('s:lahi')"))-1&&(await pg.evaluate(D+".asetukset.jarj.indexOf('o:ohjaus')"))<6);
   const EV=f=>pg.evaluate("(()=>{const d=MF.repair(JSON.parse(localStorage.getItem('matsik:v1')).data),a=d.asiakkaat.find(x=>x.nimi==='Kettu'),t=MF.iso(new Date());return ("+f+")(d,a,t);})()");
   want('oletusväli koskee eläintä ilman omaa valintaa',(await EV("(d,a)=>MF.effVali(a,d).verk"))==='k3');
   const nmon=await EV("(d,a,t)=>MF.addDays(MF.monday(t),7)");

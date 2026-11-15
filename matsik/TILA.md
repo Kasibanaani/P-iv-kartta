@@ -1,8 +1,18 @@
 # Mätsik Forest: tila
 
-**Vaihe:** versio 1.11. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 15.11.2026
+**Vaihe:** versio 1.12. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 15.11.2026
 
 Juureen (`paatospuu/`) nojaava, mutta erillinen hoitosuunnitelmien demo- ja kehittämisappi. Kaikki sisältö on kuvitteellista, ja Emil kirjoittaa sen itse. Appi ei sisällä valmista dataa. Hahmotelma ja perustelut ovat projektikansiossa (`hoitojuuri/HAHMOTELMA.md`), ei tässä julkisessa repossa.
+
+## Versio 1.12 (15.11.2026, Emil: yksi lista, ei rinnakkaista järjestyssivua)
+
+- **Valikko → Tarkistusvälit ja järjestys** on yksi lista (33 riviä): käynnit ja seuranta, tavoitteet (taso × taho) ja osiot samassa taulukossa. Rivit raahataan kahvasta mihin tahansa kohtaan, myös lajin yli. Sarakkeet 1, 2, 3, 4 vk, 2, 3, 6, 12 kk; käynneillä ja seurannoilla 1 vk – 3 kk, tavoitteilla ja osioilla 4 vk (= 1 kk) – 12 kk (muissa sarakkeissa ei ruutua). Pitkä raahaus vierittää sivua, sivuvieritys säilyy napautuksessa. Taulukosta ei voi poistaa mitään.
+- **Lista on ainoa tärkeysjärjestys** (`asetukset.jarj`, avaimet `s:id`, `t:taso.taho`, `o:osio`; `MF.jarj`). Muistutukset järjestyvät rivin mukaan Nyt-kortissa, eläinlistassa, viikon listassa ja kalenterin viikkonäkymässä. Oletus: tason 1 tavoitteet, käynnit ja seuranta, tasot 2–3, osiot. "Tavoitteet puuttuvat" noudattaa ylintä tavoiteriviä.
+- **Poistettu:** Valikko → Muistutusten säännöt (lajien järjestys, Kiireellinen / Tavallinen / Pois). Punainen = tason 1 tavoitteen asia tai varattava kuluvalla tai ensi viikolla, muut keltaisia; lajia ei voi enää piilottaa. Vanha `asetukset.saannot` luetaan, mutta ei vaikuta. Portaat-valinta siirtyi listan alle.
+- Luetteloiden Ylös/Alas (käyntien sisällöt) vaikuttaa enää vain näyttöjärjestykseen eläimen sivulla, ei tärkeyteen.
+- Testit: `logiikka.js` (oletuslista, järjestys yli lajien, vanha sääntölista ei vaikuta, uusi sisältö asettuu käyntien perään) ja `selain.js` (yksi taulukko, raahaus yli lajirajan ja listan lopusta alkuun, sivuvieritys säilyy). Kaikki ok 390, 320 ja 1280 px.
+- Ei tarkistettu: raahaus sormella iPhonessa (testattu hiiritapahtumilla), etenkin automaattinen vieritys pitkässä raahauksessa.
+- Avoin: tarvitaanko osioille ja tavoitteille viikkovälit (nyt lyhin 4 vk); tarvitaanko lajin piilotus takaisin.
 
 ## Versio 1.11 (15.11.2026, Emil: kalenterin napit alapalkkiin, ei pomppimista)
 
