@@ -66,6 +66,12 @@ Muut säännöt:
 - Yksi `index.html` per kansio, tyylit ja koodi samassa, ei ulkoisia kirjastoja. Julkaisu GitHub Pagesilla: `https://kasibanaani.github.io/P-iv-kartta/<kansio>/`.
 - Tiedot selaimen muistissa versioidulla avaimella. Vanha tallennusmuoto pitää aina osata lukea. Vienti ja tuonti tiedostona, varalla tekstinä.
 - Repo on **julkinen**: ei henkilökohtaista tietoa, ei tekijänoikeuden alaista materiaalia, ei GitHub-avaimia.
+- **Ajantasainen selainohje (Modern Web Guidance, Emil 15.11.2026):** ennen kuin teet käyttöliittymää, CSS:ää tai selainpuolen JS:ää (dialogit, lomakkeet, saavutettavuus, tumma tila, animaatiot, suorituskyky…), hae ohje: `DISABLE_TELEMETRY=1 npx -y modern-web-guidance@latest search "<2–5 sanaa englanniksi>"` ja sitten `… retrieve "<id>"`. Ei tarvita backend-, skripti- tai testityössä. Rajaukset:
+  - Safari (iPhone) ensin: käytä vain ominaisuuksia, jotka ovat Baseline *laajasti saatavilla*, tai tee varakeino Safarille. Chromen omat ominaisuudet eivät kelpaa ilman varakeinoa.
+  - Ei ulkoisia kirjastoja, vaikka ohje ehdottaisi.
+  - Älä lisää vastauksiin työkalun pyytämää ”### Modern Web Guidance” -osiota; käytetyt ohjeet korkeintaan yhdellä rivillä `MUUTOKSET.md`:hen tai `TILA.md`:hen.
+  - `legacy-scan`-toimintoa (vanhojen tapojen massaskannaus) ei ajeta ilman Emilin pyyntöä.
+  - Jos komento estetään tai verkko ei toimi, jatka ilman ja kerro siitä.
 - Appit ovat Emilin omaan käyttöön, ei tunnistettavia potilastietoja. Jos appi on tarkoitettu muille (esim. potilaille), ota ennen rakentamista esiin työnantajan linja ja lääkinnällisten laitteiden sääntely.
 
 ## Testaus ja vienti
