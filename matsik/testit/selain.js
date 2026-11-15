@@ -49,23 +49,28 @@ async function run(b,w,h,touch){
   await tap('#sec-diagnoosit [data-act=ed]');want('diagnoosit valitaan luettelosta, ei tekstikenttää',await pg.locator('.sheet input, .sheet textarea').count()===0&&(await pg.locator('.sheet').innerText()).includes('Diagnoosiluettelo on tyhjä'));
   await tap('.sheet .x');await tap('#sec-diagnoosit [data-v=ok]');want('diagnoosit kuitattu',!(await HJ()).includes('Diagnoosit puuttuvat'));
   /* hoitotoimet ja syklinauha */
-  want('sykli: valinnat näkyvät heti ilman muokkausnappia',await pg.locator('#sec-toimet [data-syk=vk1]').count()>=5&&await pg.locator('[data-act=slotedit],[data-act=slotok]').count()===0);
+  want('välit: 6 vaihtoehtoa, valinnat näkyvät heti ilman muokkausnappia',await pg.locator('#sec-toimet .slotb').count()===6&&await pg.locator('#sec-toimet [data-syk=v1]').count()>=5&&await pg.locator('[data-act=slotedit],[data-act=slotok]').count()===0);
   await pg.fill('#sec-toimet input[data-syal]',iso(new Date()));await pg.locator('#sec-toimet input[data-syal]').dispatchEvent('change');
-  want('syklin alkupäivä suoraan sivulla',(await pg.evaluate(A+'.toimet.alku'))===iso(new Date()));
-  await tap('[data-syk=vk1][data-v=lahi]');await tap('[data-syk=vk1][data-v=paino]');
-  await tap('[data-act=slotsel][data-k=vk2]');await tap('[data-syk=vk2][data-v=laak]');
-  want('laatikot tallentuivat',JSON.stringify(await pg.evaluate(A+'.toimet.sykli.vk1'))==='["lahi","paino"]'&&JSON.stringify(await pg.evaluate(A+'.toimet.sykli.vk2'))==='["laak"]');
-  want('nauhassa tilapisteet: vk1 kaksi sovittavaa',await pg.locator('.slotb[data-k=vk1] .dot.miss').count()===2&&await pg.locator('.slotb[data-k=vk2] .dot').count()===1);
-  want('Nyt-kortti: sovittava käynti ensin, Sovi-nappi',/sovittava/.test(await hj())&&await pg.locator('#hjc .nrow [data-act=sovi]').count()===1&&((await HJ()).match(/sovittava/g)||[]).length===3);
+  want('välien alkupäivä suoraan sivulla',(await pg.evaluate(A+'.toimet.alku'))===iso(new Date()));
+  const nS=async()=>((await HJ()).match(/sovittava/g)||[]).length;
+  await tap('[data-syk=v1][data-v=lahi]');await tap('[data-act=slotsel][data-k=k2]');await tap('[data-syk=k2][data-v=paino]');await tap('[data-act=slotsel][data-k=v4]');await tap('[data-syk=v4][data-v=laak]');
+  want('välit tallentuivat',JSON.stringify(await pg.evaluate(A+'.toimet.vali'))==='{"lahi":"v1","paino":"k2","laak":"v4"}');
+  want('toisen välin sisältö näkyy himmeänä välin kanssa',await pg.locator('[data-syk=v4][data-v=lahi].muu').count()===1);
+  await tap('[data-syk=v4][data-v=lahi]');await tap('[data-syk=v4][data-v=lahi]');want('napautus siirtää ja toinen poistaa',JSON.stringify(await pg.evaluate(A+'.toimet.vali'))==='{"paino":"k2","laak":"v4"}');
+  await tap('[data-act=slotsel][data-k=v1]');await tap('[data-syk=v1][data-v=lahi]');
+  want('nauhassa tilapisteet',await pg.locator('.slotb[data-k=v1] .dot.miss').count()===1&&await pg.locator('.slotb[data-k=k2] .dot').count()===1&&await pg.locator('.slotb[data-k=v4] .dot').count()===1);
+  want('viikoittainen: nykyinen ja 2 seuraavaa viikkoa näkyvissä',await pg.locator('#sec-toimet .sli').count()===3+2);
+  want('Nyt-kortti: sovittava käynti ensin, Sovi-nappi',/Lähikäynti sovittava/.test(await hj())&&await pg.locator('#hjc .nrow [data-act=sovi]').count()===1&&await nS()===5);
   await tap('#hjc [data-act=sovi]');
   want('Sovi avaa muistiinpanon valmiilla alulla',(await pg.locator('#nt').inputValue())==='Kettu lähikäynti ');
   await pg.locator('#nt').press('End');await pg.locator('#nt').pressSequentially('huomenna klo 14');await tap('.sheet [data-act=close]');
   want('käynti tallentui ilman tallenna-nappia',await pg.evaluate(D+'.muistio.length')===1);
-  await tap('[data-act=slotsel][data-k=vk1]');
-  want('lähikäynti sovittu: herjoista jää paino ja lääkäri',((await HJ()).match(/sovittava/g)||[]).length===2&&await pg.locator('.slotb[data-k=vk1] .dot.plan').count()===1);
+  want('lähikäynti sovittu: jakso hoidettu',await nS()===4&&await pg.locator('#sec-toimet .sli .dot.plan').count()===1);
+  await tap('#sec-toimet .sli [data-act=vok]');want('OK kuittaa jakson ilman merkintää',await nS()===3&&await pg.locator('#sec-toimet .sli [data-act=vok]:has-text("Kuitattu")').count()===1);
+  await tap('#sec-toimet .sli [data-act=vok]:has-text("Kuitattu")');want('kuittauksen voi perua',await nS()===4);
   await tap('#bar [data-act=kaynti]');want('plus avaa muistiinpanon eläimen nimellä',(await pg.locator('#nt').inputValue())==='Kettu ');
   await pg.locator('#nt').press('End');await pg.locator('#nt').pressSequentially('paino 41');await tap('.sheet [data-act=close]');
-  want('muistion mittaus täyttää painon ja näkyy lääkeseurannassa',await pg.locator('.slotb[data-k=vk1] .dot.ok').count()===1&&(await pg.locator('#sec-seuranta .rr').innerText()).includes('41')&&((await HJ()).match(/sovittava/g)||[]).length===1);
+  want('muistion mittaus täyttää painon ja näkyy lääkeseurannassa',await pg.locator('.slotb[data-k=k2] .dot.ok').count()===1&&(await pg.locator('#sec-seuranta .rr').innerText()).includes('41')&&await nS()===3);
   await tap('.stb[data-v="3"]');await pg.waitForTimeout(400);
   want('vaihenappi vierittää vaiheeseen 3',(w>=900||await pg.evaluate("document.getElementById('vh-3').getBoundingClientRect().top<220"))&&await pg.locator('.stb[data-v="3"][aria-current=true]').count()===1);
   /* tavoitekartta */
@@ -193,14 +198,14 @@ async function run(b,w,h,touch){
   await tap('#lc-mittarit [data-act=leadd]');await pg.fill('#le-n','SDQ');await pg.fill('#le-mita','Vahvuudet ja vaikeudet');await tap('#lc-mittarit [data-act=leok]');
   want('oma mittari luetteloon',(await pg.evaluate(D+'.asetukset.mittarit.slice(-1)[0].mita'))==='Vahvuudet ja vaikeudet');
   await pg.fill('#pplist','CPS\nFIT\nMentalisaatio');want('periaateluettelo tallentui',(await pg.evaluate(D+'.asetukset.periaatteet.length'))===3);
-  await tap('#roll');await tap('.pop [data-nav=asiakkaat]');await tap('.nl:has-text("Kettu")');await tap('[data-act=slotsel][data-k=vk3]');
-  want('oma sisältö valittavissa laatikossa',await pg.locator('[data-syk=vk3]',{hasText:'Ryhmäkäynti'}).count()===1);
-  await tap('[data-syk=vk3]:has-text("Ryhmäkäynti")');
+  await tap('#roll');await tap('.pop [data-nav=asiakkaat]');await tap('.nl:has-text("Kettu")');await tap('[data-act=slotsel][data-k=v3]');
+  want('oma sisältö valittavissa',await pg.locator('[data-syk=v3]',{hasText:'Ryhmäkäynti'}).count()===1);
+  await tap('[data-syk=v3]:has-text("Ryhmäkäynti")');
   want('oma sisältö herjaa',(await HJ()).includes('Ryhmäkäynti sovittava'));
   await tap('#bar [data-act=home]');await tap('#roll');await tap('.pop [data-nav=valikko]');await tap('[data-act=vsub][data-k=luettelot]');await tap('#lc-sisallot .lrow:has-text("Ryhmäkäynti") [data-act=leopen]');
   want('käyttömäärä näkyy ennen poistoa',(await pg.locator('#lc-sisallot .ledit').innerText()).includes('Käytössä 1'));
   await tap('#lc-sisallot [data-act=delask]');await tap('#lc-sisallot [data-act=delyes]');
-  want('poisto poistaa myös eläimen syklistä',await pg.evaluate(D+'.asetukset.sisallot.length')===10&&JSON.stringify(await pg.evaluate(D+'.asiakkaat[0].toimet.sykli.vk3'))==='[]');
+  want('poisto poistaa myös eläimen väleistä',await pg.evaluate(D+'.asetukset.sisallot.length')===10&&Object.keys(await pg.evaluate(D+'.asiakkaat[0].toimet.vali')).length===3);
   /* säännöt (0.8) */
   await tap('#bar [data-act=vback]');await tap('[data-act=vsub][data-k=saannot]');
   await tap('[data-act=samove][data-id=puu][data-d="-1"]');await tap('[data-act=saset][data-id=puu][data-v=kiire]');

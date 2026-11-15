@@ -1,8 +1,16 @@
 # Mätsik Forest: tila
 
-**Vaihe:** versio 1.3. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 15.11.2026
+**Vaihe:** versio 1.4. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 15.11.2026
 
 Juureen (`paatospuu/`) nojaava, mutta erillinen hoitosuunnitelmien demo- ja kehittämisappi. Kaikki sisältö on kuvitteellista, ja Emil kirjoittaa sen itse. Appi ei sisällä valmista dataa. Hahmotelma ja perustelut ovat projektikansiossa (`hoitojuuri/HAHMOTELMA.md`), ei tässä julkisessa repossa.
+
+## Versio 1.4 (15.11.2026, Emil: "syklin sijaan vaihtoehdot viikon välein … 3 kk välein")
+
+- **Sykli korvattu väleillä.** Hoitotoimet-kortissa kuusi välinappia: 1 vk, 2 vk, 3 vk, 4 vk, 2 kk, 3 kk (tilapisteineen). Valitun välin alla kaikki sisällöt (Käynnit, Seuranta) aina näkyvissä; napautus antaa sisällölle tämän välin, uusi napautus poistaa. Jokaisella sisällöllä on yksi väli; toiseen väliin valittu näkyy himmeänä välin kanssa (esim. "Lääkärin vo-käynti 2 kk"), ja napautus siirtää sen.
+- **Jaksot:** alkavat *Välit alkaen* -päivän viikon maanantaista (tyhjänä eläimen luontipäivästä) ja toistuvat. Viikkovälit tasan 7/14/21/28 vrk, kuukausivälit kalenterikuukausin.
+- **Tarkistus:** appi kysyy jokaiselle jaksolle, joka on käynnissä tai alkaa kahden seuraavan täyden kalenteriviikon aikana, varausta. Varaus = muistion merkintä jakson ajalle (eläimen nimi + sisällön sana + päivä) tai mittaus. Puuttuva on muistutus "Lähikäynti sovittava (1 vk, 16.11.–22.11.)", kiireellinen jos jakso päättyy viikon sisällä. Kortissa valitun välin sisällöt näkyvät jaksoittain (viikoittainen: tämä ja 2 seuraavaa viikkoa) napeilla *+ Sovi* ja **OK** (kuittaa jakson hoidetuksi ilman merkintää; *Kuitattu* perii kuittauksen). Muiden välien puuttuvat *Muut sovittavat* -kohdassa.
+- Tallennus: `ver` edelleen 1. Uudet `toimet.vali` {sisältö: v1|v2|v3|v4|k2|k3} ja `toimet.ok` {"sisältö|jakson alku": pvm}. Vanha `toimet.sykli` jää luettavaksi ja siirtyy kerran: kaikki 4 viikkoa → viikoittain, 2–3 viikkoa → 2 vk, 1 viikko → 4 vk, vain Kk 2/Kk 3 → 3 kk. "Syklin alkupäivä puuttuu" -muistutus poistui; "Käyntien ja seurannan välit valitsematta", jos mitään ei ole valittu. Listan ruutu *Sykli* → *Käynnit*.
+- Testit: `logiikka.js` (jaksot, 2 viikon horisontti, kiireellisyys, varaus, peruttu, OK-kuittaus, siirto vanhasta) ja `selain.js` (välit, siirto ja poisto, jaksorivit, OK ja peruminen). Kaikki ok 390, 320 ja 1280 px. Huom: testiajo, joka osuu keskiyön yli, voi kaataa kalenteritestin (aiempi ominaisuus, ei 1.4).
 
 ## Versio 1.3 (15.11.2026, Emil: syklin vaihtoehdot näkyviin ilman muokkausnappeja)
 
@@ -161,7 +169,7 @@ Käytettävyyssuunnitelman (`SUUNNITELMA.md`) kaikki neljä askelta yhtenä julk
 ## Seuraava askel
 
 Emil kokeilee 1.2:ta puhelimella: eläimen sivun kuittaukset, tavoitekartta ilman tekstiä, listan tarkistusnäkymä ja pomppiminen. Avoimet kysymykset:
-0. 1.2: pitääkö vanhat tekstit näyttää kohtien alla vai piilottaa kokonaan? Ovatko välien oletukset oikeat? Tarvitaanko uusien diagnoosien lisäys muualta kuin Valikko → Luettelot?
+0. 1.4: onko OK-kuittaus jaksolle tarpeen vai riittääkö muistion merkintä? Pitääkö 2 kk / 3 kk välin muistutus tulla jo aiemmin kuin 2 viikkoa ennen jakson alkua? 1.2: pitääkö vanhat tekstit näyttää kohtien alla vai piilottaa kokonaan? Ovatko välien oletukset oikeat? Tarvitaanko uusien diagnoosien lisäys muualta kuin Valikko → Luettelot?
 1. Asettuuko arkki iPhonella näppäimistön päälle ilman pomppimista? (Kyselyn kysymys 5.)
 2. Onko oletusjärjestys oikea, ja pitääkö portaiden koskea muutakin kuin puuttuvia tietoja?
 3. Riittääkö mittaus muistiosta Lääkeseurannalle ja Mittareille, vai myös muille?
