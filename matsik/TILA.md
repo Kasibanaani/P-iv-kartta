@@ -1,8 +1,18 @@
 # Mätsik Forest: tila
 
-**Vaihe:** versio 1.9. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 15.11.2026
+**Vaihe:** versio 1.10. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 15.11.2026
 
 Juureen (`paatospuu/`) nojaava, mutta erillinen hoitosuunnitelmien demo- ja kehittämisappi. Kaikki sisältö on kuvitteellista, ja Emil kirjoittaa sen itse. Appi ei sisällä valmista dataa. Hahmotelma ja perustelut ovat projektikansiossa (`hoitojuuri/HAHMOTELMA.md`), ei tässä julkisessa repossa.
+
+## Versio 1.10 (15.11.2026, Emil: tärkeysjärjestys samaan taulukkoon raahaamalla, tavoitteille oma taulukko)
+
+- **Valikko → Tarkistusvälit:** jokaisella rivillä kahva vasemmassa reunassa, rivi raahataan ylös tai alas (ylempi = tärkeämpi). Taulukosta ei voi poistaa mitään; poisto on vain Luetteloissa vahvistuksen takana, ja osioita ja tavoiterivejä ei voi poistaa mistään.
+- Kolme taulukkoa: *Käynnit ja seuranta* (järjestys = `asetukset.sisallot`-järjestys, sama kuin Luetteloissa), *Tavoitteet* (taso × taho, 9 riviä, oma väli 1–12 kk `asetukset.tavValit['1.lapsi']`, järjestys tason sisällä `asetukset.tavJarj`; oletusväli entinen yhteinen `valit.tavoite`), *Osioiden kuittaukset* (`asetukset.osioJarj`).
+- Vaikutus: saman lajin muistutukset järjestyvät taulukon mukaan (Nyt-kortti, eläinlista, viikon lista). Lajien keskinäinen järjestys (esim. tason 1 tavoitteet ennen käyntejä) on yhä Valikko → Muistutusten säännöt, linkki sivun alussa. Puuttuvat tiedot etenevät yhä vaiheittain (portaat) ennen taulukon järjestystä.
+- Tavoitteen arviointi ja tavoitekartan kuittauksen vanheneminen käyttävät tason ja tahon omaa väliä (`MF.tavVali`).
+- Kuusi viikkosaraketta mahtuu 390 px:n ruudulle ilman vieritystä; 320 px:llä sarakkeet vierivät ja nimi pysyy.
+- Testit: `logiikka.js` (oma väli, järjestys, korjaus) ja `selain.js` (raahaus kolmessa taulukossa, tahoa ei voi viedä toiseen tasoon, ei poistonappeja). Kaikki ok 390, 320 ja 1280 px.
+- Ei tarkistettu: raahaus oikealla iPhonella sormella (testattu hiiritapahtumilla). Avoin: halutaanko lajien järjestys (Muistutusten säännöt) samalle sivulle tai yhdeksi listaksi.
 
 ## Versio 1.9 (15.11.2026, Emil: oletusvälit, pikapäivä tarkistettavaksi, kalenterin viikkonäkymä)
 
@@ -13,7 +23,6 @@ Juureen (`paatospuu/`) nojaava, mutta erillinen hoitosuunnitelmien demo- ja kehi
 - Rivin napautus avaa pienen ikkunan (OK, Avaa muistiinpano / Avaa eläin), ulkopuolinen napautus sulkee. Viikon vaihto alapalkin ‹ Tänään › -napeista.
 - Testit: `logiikka.js` (oletusväli, pikapäivä ketjussa, OK nollaa, myöhässä oleva, viikkonäkymän sijoittelu) ja `selain.js` (taulukko, viikkonäkymä, OK-ikkuna, rivi ei liiku). Kaikki ok 390, 320 ja 1280 px.
 - Ei tarkistettu: oikealla iPhonella. Menneen päivän tavalliset merkinnät näkyvät vain Aikajanassa.
-- **Seuraavaksi (1.10, Emil 15.11. klo 10.35):** samaan taulukkoon rivien raahaus tärkeysjärjestykseen, tavoitteille oma taulukko (taso × taho, oma väli). Taulukosta ei saa voida poistaa mitään.
 
 ## Versio 1.8 (15.11.2026, Emil: kuukausivalitsin, monta päivää)
 

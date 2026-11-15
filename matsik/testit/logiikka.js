@@ -153,4 +153,16 @@ want('kuittaukset säilyvät ja viallinen poistuu korjauksessa',(()=>{const x=JS
  want('viikkonäkymä: pikapäivä päivänsä alla tarkistettavana, ei kahdesti',ma.items.length===1&&ma.items[0].k==='var'&&ma.items[0].pk.note==='pk'&&!G2.days.some(x=>x.items.some(i=>i.k==='e'&&i.n==='pk')));
  d.muistio[1].tila={'2026-11-23|0':'toteutui'};const G3=MF.weekAgenda(d,'2026-11-23',T9);
  want('kuitattu pysyy samassa kohdassa',G3.days.find(x=>x.d==='2026-11-23').items[0].done===true&&G3.days.find(x=>x.d==='2026-11-23').items[0].pk.note==='pk');}
+{/* 1.10: tavoitteen väli taso × taho, tärkeysjärjestys taulukosta */
+ const T='2026-11-11',d=MF.empty(),k=MF.newClient('Kettu','2026-01-01');d.asiakkaat.push(k);
+ k.tavoitteet.push({id:'g1',taso:3,taho:'lapsi',teksti:'A',arviot:[],luotu:'2026-10-01',seur:{}},{id:'g2',taso:3,taho:'tyont',teksti:'B',arviot:[],luotu:'2026-10-01',seur:{}});
+ const arv=()=>MF.herjat(k,d,T).filter(h=>h.laji==='arvio').map(h=>h.tav).join();
+ want('tavoitteen väli oletuksena yhteinen (3 kk): ei vielä arvioitavaa',MF.tavVali(d,'3.lapsi')===3&&arv()==='');
+ d.asetukset.tavValit={'3.tyont':1};want('oma väli tasolle ja taholle: vain työntekijän tavoite arvioitava',arv()==='g2'&&MF.tavVali(d,'3.tyont')===1);
+ d.asetukset.tavValit={'3.tyont':1,'3.lapsi':1};want('järjestys oletuksena lapsi ennen työntekijää',arv()==='g1,g2');
+ d.asetukset.tavJarj=['3.tyont','3.lapsi'];want('taulukon järjestys: työntekijä ennen lasta, tasot pysyvät järjestyksessä',arv()==='g2,g1'&&MF.tavJarj(d).join().startsWith('1.lapsi,1.vanh,1.tyont,2.')&&MF.tavJarj(d).slice(6,8).join()==='3.tyont,3.lapsi');
+ const r=MF.repair(JSON.parse(JSON.stringify({asiakkaat:[],muistio:[],asetukset:{osioJarj:['ohjaus','huono','ohjaus'],tavValit:{'1.lapsi':2,'x':5}}})));
+ want('korjaus: järjestykset täydentyvät, viallinen pois',r.asetukset.osioJarj[0]==='ohjaus'&&r.asetukset.osioJarj.length===14&&r.asetukset.tavJarj.length===9&&r.asetukset.tavValit['1.lapsi']===2&&!('x' in r.asetukset.tavValit));
+ k.kuit={'tulosyy':{v:'ei',pvm:T},'koulu.tuki':{v:'ei',pvm:T}};const ei=()=>MF.herjat(k,d,T).filter(h=>h.laji==='ei').map(h=>h.osio).join();const e0=ei();
+ d.asetukset.osioJarj=['koulu'];want('osioiden järjestys taulukosta vaikuttaa muistutusten järjestykseen',e0.split(',').length===2&&ei().split(',')[0]==='koulu');}
 process.exit(bad?1:0);
