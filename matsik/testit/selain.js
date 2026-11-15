@@ -52,7 +52,7 @@ async function run(b,w,h,touch){
   want('välit: 6 vaihtoehtoa, valinnat näkyvät heti ilman muokkausnappia',await pg.locator('#sec-toimet .slotb').count()===6&&await pg.locator('#sec-toimet [data-syk=v1]').count()>=5&&await pg.locator('[data-act=slotedit],[data-act=slotok]').count()===0);
   await pg.fill('#sec-toimet input[data-syal]',iso(new Date()));await pg.locator('#sec-toimet input[data-syal]').dispatchEvent('change');
   want('välien alkupäivä suoraan sivulla',(await pg.evaluate(A+'.toimet.alku'))===iso(new Date()));
-  const nS=async()=>((await HJ()).match(/sovittava/g)||[]).length;
+  const nS=async()=>((await HJ()).match(/varattava/g)||[]).length;
   await tap('[data-syk=v1][data-v=lahi]');await tap('[data-act=slotsel][data-k=k2]');await tap('[data-syk=k2][data-v=paino]');await tap('[data-act=slotsel][data-k=v4]');await tap('[data-syk=v4][data-v=laak]');
   want('välit tallentuivat',JSON.stringify(await pg.evaluate(A+'.toimet.vali'))==='{"lahi":"v1","paino":"k2","laak":"v4"}');
   want('toisen välin sisältö näkyy himmeänä välin kanssa',await pg.locator('[data-syk=v4][data-v=lahi].muu').count()===1);
@@ -60,7 +60,7 @@ async function run(b,w,h,touch){
   await tap('[data-act=slotsel][data-k=v1]');await tap('[data-syk=v1][data-v=lahi]');
   want('nauhassa tilapisteet',await pg.locator('.slotb[data-k=v1] .dot.miss').count()===1&&await pg.locator('.slotb[data-k=k2] .dot').count()===1&&await pg.locator('.slotb[data-k=v4] .dot').count()===1);
   want('viikoittainen: nykyinen ja 2 seuraavaa viikkoa näkyvissä',await pg.locator('#sec-toimet .sli').count()===3+2);
-  want('Nyt-kortti: sovittava käynti ensin, Sovi-nappi',/Lähikäynti sovittava/.test(await hj())&&await pg.locator('#hjc .nrow [data-act=sovi]').count()===1&&await nS()===5);
+  want('Nyt-kortti: varattava käynti ensin, Sovi-nappi',/Lähikäynti varattava/.test(await hj())&&await pg.locator('#hjc .nrow [data-act=sovi]').count()===1&&await nS()===5);
   await tap('#hjc [data-act=sovi]');
   want('Sovi avaa muistiinpanon valmiilla alulla',(await pg.locator('#nt').inputValue())==='Kettu lähikäynti ');
   await pg.locator('#nt').press('End');await pg.locator('#nt').pressSequentially('huomenna klo 14');await tap('.sheet [data-act=close]');
@@ -107,6 +107,8 @@ async function run(b,w,h,touch){
   want('ohjauksen arvio kirjattu',(await pg.evaluate(A+'.ohjaus[0].tulos'))==='oikea'&&(await pg.locator('#sec-tarve').innerText()).includes('Oikea yksikkö')&&await pg.locator('.sheet').count()===0);
   want('ei vaakavieritystä (eläin)',!await wide());
   await tap('#bar [data-act=home]');
+  want('lista avautuu viikkonäkymään',await pg.locator('.ot.wk').count()===14&&await pg.locator('[data-act=lmode][data-v=vk][aria-pressed=true]').count()===1);
+  await tap('[data-act=lmode][data-v=os]');
   want('lista: rivi, 14 osioruutua, ei suodattimia',await pg.locator('.lr').count()===1&&await pg.locator('.lr .ot').count()===14&&await pg.locator('[data-act=lf]').count()===0);
   want('ruutujen tilat: täytetty, tyhjä ja ensimmäinen tehtävä',await pg.locator('.ot.ok[data-k=tulosyy]').count()===1&&await pg.locator('.ot.tyh[data-k=kehitys]').count()===1&&await pg.locator('.ot.eka[data-k=toimet]').count()===1&&await pg.locator('.ot.eka').count()===1);
   await tap('#bar [data-act=uusi]');await pg.fill('#nn','Siili');await tap('[data-act=uusiok]');await tap('#bar [data-act=home]');
@@ -126,10 +128,11 @@ async function run(b,w,h,touch){
   want('OK kuittaa ilman tekstiä: muistutus pois, ruutu vihreä, nappi paikallaan',!(await SH()).includes('Tulosyy puuttuu')&&await pg.locator('.lr:has-text("Siili") .ot.ok[data-k=tulosyy]').count()===1&&
     await pg.locator('#lp [data-key=tulosyy][data-v=ok][aria-pressed=true]').count()===1&&Math.abs((await pg.locator('#lp [data-key=tulosyy][data-v=ok]').evaluate(e=>e.getBoundingClientRect().top))-by0)<2);
   want('rivien järjestys ei muutu, kun osio on auki',(await pg.locator('.nl b').allInnerTexts()).join()==='Kettu,Siili');
-  await tap('.lr:has-text("Siili") .ot[data-k=esitiedot]');want('saman rivin toinen ruutu vaihtaa osion',(await pg.locator('#lp .lph b').innerText())==='Esitiedot'&&await pg.locator('#lp .lci').count()===5);
+  await tap('.lr:has-text("Siili") .ot[data-k=esitiedot]');want('ulkopuolinen napautus vain sulkee',await pg.locator('#lp').count()===0);
+  await tap('.lr:has-text("Siili") .ot[data-k=esitiedot]');want('toinen ruutu avaa osion',(await pg.locator('#lp .lph b').innerText())==='Esitiedot'&&await pg.locator('#lp .lci').count()===5);
   await tap('#lp [data-key="esitiedot.perhe"][data-v=ei]');want('Ei nostaa asian muistutukseksi',(await SH()).includes('Ei kunnossa: Esitiedot · Perhe')&&(await pg.evaluate(D+'.asiakkaat[1].kuit["esitiedot.perhe"].v'))==='ei');
   await tap('#lp [data-key="esitiedot.perhe"][data-v=ei]');want('uusi napautus tyhjentää kuittauksen',!(await SH()).includes('Ei kunnossa'));
-  await tap('.lr:has-text("Siili") .ot[data-k=tavoitteet]');want('tavoitteet: 9 kohtaa (taso × taho)',await pg.locator('#lp .lci').count()===9);
+  await tap('.lr:has-text("Siili") .ot[data-k=tavoitteet]');await tap('.lr:has-text("Siili") .ot[data-k=tavoitteet]');want('tavoitteet: 9 kohtaa (taso × taho)',await pg.locator('#lp .lci').count()===9);
   want('ei vaakavieritystä (tarkistusnäkymä)',!await wide());
   await tap('#lp [data-act=lclose]');want('sulku',await pg.locator('#lp').count()===0);
   await tap('.lr:has-text("Kettu") .ot[data-k=haasteet]');await tap('#lp [data-act=goto]');await pg.waitForTimeout(500);
@@ -201,7 +204,7 @@ async function run(b,w,h,touch){
   await tap('#roll');await tap('.pop [data-nav=asiakkaat]');await tap('.nl:has-text("Kettu")');await tap('[data-act=slotsel][data-k=v3]');
   want('oma sisältö valittavissa',await pg.locator('[data-syk=v3]',{hasText:'Ryhmäkäynti'}).count()===1);
   await tap('[data-syk=v3]:has-text("Ryhmäkäynti")');
-  want('oma sisältö herjaa',(await HJ()).includes('Ryhmäkäynti sovittava'));
+  want('oma sisältö herjaa',(await HJ()).includes('Ryhmäkäynti varattava'));
   await tap('#bar [data-act=home]');await tap('#roll');await tap('.pop [data-nav=valikko]');await tap('[data-act=vsub][data-k=luettelot]');await tap('#lc-sisallot .lrow:has-text("Ryhmäkäynti") [data-act=leopen]');
   want('käyttömäärä näkyy ennen poistoa',(await pg.locator('#lc-sisallot .ledit').innerText()).includes('Käytössä 1'));
   await tap('#lc-sisallot [data-act=delask]');await tap('#lc-sisallot [data-act=delyes]');
@@ -220,6 +223,20 @@ async function run(b,w,h,touch){
   await pg.evaluate('localStorage.clear()');await pg.reload();await pg.waitForTimeout(150);await tap('#roll');await tap('.pop [data-nav=valikko]');await tap('[data-act=vsub][data-k=tiedot]');
   await tap('[data-act=tuoteksti]');await pg.fill('#tt',ftxt);await tap('[data-act=ttok]');await tap('[data-act=tuook]');
   want('tuonti palautti eläimet',await pg.locator('.lr').count()===2);
+  /* viikkonäkymä (1.5) */
+  want('oletuksena viikot: 14 viikkoa, kuluva ensin viikkonumerona',await pg.locator('.lr').first().locator('.ot.wk').count()===14&&(await pg.locator('.lr').first().locator('.ot.wk b').first().innerText())===String(await pg.evaluate('MF.isoWeek(MF.iso(new Date()))')));
+  await pg.evaluate(()=>{const S=JSON.parse(localStorage.getItem('matsik:v1')),d=new Date();d.setDate(d.getDate()+7);S.data.muistio.push({id:'wq',text:'Kettu neuvottelu koulun kanssa '+d.getDate()+'.'+(d.getMonth()+1)+'. klo 13\nOta lomake mukaan.',tila:{},created:new Date().toISOString(),edited:new Date().toISOString()});localStorage.setItem('matsik:v1',JSON.stringify(S));});
+  await pg.reload();await pg.waitForTimeout(200);
+  const ord0=(await pg.locator('.nl b').allInnerTexts()).join();
+  await tap('.lr:has-text("Kettu") .ot.wk >> nth=1');
+  want('viikon lista rivin alle, muistiinpano mukana',await pg.locator('.lr:has-text("Kettu") + .lp').count()===1&&(await pg.locator('#lp .lph b').innerText()).startsWith('Vk ')&&await pg.locator('#lp .nlink:has-text("neuvottelu")').count()===1);
+  await tap('#lp .nlink:has-text("neuvottelu")');want('pikakatselu päällimmäisenä',(await pg.locator('#qv').innerText()).includes('Ota lomake mukaan'));
+  await pg.mouse.click(4,200);await pg.waitForTimeout(150);want('ulkopuolinen napautus sulkee vain pikakatselun',await pg.locator('#qv').count()===0&&await pg.locator('#lp').count()===1);
+  await tap('#lp .lci:has(.nlink) [data-act=tila]');want('muistiinpano kuitattu OK, lista pysyy auki',(await pg.evaluate(D+".muistio.find(n=>n.id==='wq').tila"))[Object.keys(await pg.evaluate(D+".muistio.find(n=>n.id==='wq').tila"))[0]]==='toteutui'&&await pg.locator('#lp').count()===1);
+  if(await pg.locator('#lp [data-act=vok]').count())await tap('#lp [data-act=vok]');
+  want('järjestys pysyy, kun viikko on auki',(await pg.locator('.nl b').allInnerTexts()).join()===ord0);
+  await tap('.lr:has-text("Siili") .nl');want('napautus ulkopuolelle sulkee eikä avaa eläintä',await pg.locator('#lp').count()===0&&(await pg.locator('h1').first().innerText())==='Eläimet');
+  want('ei vaakavieritystä (viikot)',!await wide());
   want('ei sivuvirheitä',!errs.length);if(errs.length)console.log(errs);
   await ctx.close();return bad;}
 (async()=>{let b;try{b=await chromium.launch();}catch(e){b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium'});}

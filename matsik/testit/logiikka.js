@@ -19,14 +19,24 @@ want('välit valitsematta',H.some(h=>h.teksti==='Käyntien ja seurannan välit v
 k.toimet.alku='2026-11-04';k.toimet.vali={lahi:'v1',vanh:'v2',laak:'v4',paino:'k2'};
 want('jaksot: 1 vk, 3 vk ja 3 kk',(p=>p.start==='2026-11-02'&&p.end==='2026-11-08')(MF.periodAt('v1',MF.vAnchor(k),T))&&(p=>p.start==='2026-11-23'&&p.end==='2026-12-13')(MF.periodAt('v3',MF.vAnchor(k),'2026-11-25'))&&(p=>p.start==='2027-02-02'&&p.end==='2027-05-01')(MF.periodAt('k3',MF.vAnchor(k),'2027-02-10')));
 H=MF.herjat(k,d,T);const sy=H.filter(h=>h.laji==='sykli');const cnt=n=>sy.filter(h=>h.teksti.startsWith(n)).length;
-want('kysytään nyt ja 2 seuraavan täyden viikon ajalle: 1 vk 3 jaksoa, 2 vk 2, 4 vk 1, 2 kk 1',cnt('Lähikäynti')===3&&cnt('Lähivanhemman')===2&&cnt('Lääkärin')===1&&cnt('Paino')===1&&sy.length===7);
-want('käynnissä ja viikon sisällä päättyvä jakso on kiireellinen',sy.find(h=>h.teksti==='Lähikäynti sovittava (1 vk, 2.11.–8.11.)').sev==='crit'&&sy.find(h=>h.teksti==='Lähikäynti sovittava (1 vk, 9.11.–15.11.)').sev==='warn');
+want('kysytään kuluvalle ja 2 seuraavalle viikolle: 1 vk 3, 2 vk 2, 4 vk 1, 2 kk 1',cnt('Lähikäynti')===3&&cnt('Lähivanhemman')===2&&cnt('Lääkärin')===1&&cnt('Paino')===1&&sy.length===7);
+want('viikkonumerot ja kiire: kuluva ja ensi viikko kiireellisiä',MF.isoWeek('2026-11-02')===45&&MF.isoWeek('2027-01-01')===53&&MF.isoWeek('2027-01-04')===1&&sy.find(h=>h.teksti==='Lähikäynti varattava vk 46 (1 vk)').sev==='crit'&&sy.find(h=>h.teksti==='Lähikäynti varattava vk 47 (1 vk)').sev==='warn');
 d.muistio.push({id:'a',text:'Kettu lähikäynti ke 4.11. klo 14',tila:{}},{id:'b',text:'Ketun äidille soitto 10.11.\nKettu käynti 12.11.',tila:{}});
-H=MF.herjat(k,d,T);want('sovitut täyttävät jaksot',!H.some(h=>/Lähikäynti sovittava \(1 vk, (2|9)\.11/.test(h.teksti))&&H.some(h=>h.teksti==='Lähikäynti sovittava (1 vk, 16.11.–22.11.)'));
-d.muistio[0].tila={'2026-11-04|0':'peruttu'};H=MF.herjat(k,d,T);want('peruttu ei kelpaa',H.some(h=>h.teksti==='Lähikäynti sovittava (1 vk, 2.11.–8.11.)'));d.muistio[0].tila={};
-k.toimet.ok={'lahi|2026-11-16':T};want('OK-kuittaus hoitaa jakson ilman merkintää',!MF.herjat(k,d,T).some(h=>h.teksti.startsWith('Lähikäynti')));
+H=MF.herjat(k,d,T);want('varaukset täyttävät viikot',!H.some(h=>/Lähikäynti varattava vk 4[56]/.test(h.teksti))&&H.some(h=>h.teksti==='Lähikäynti varattava vk 47 (1 vk)'));
+d.muistio[0].tila={'2026-11-04|0':'peruttu'};H=MF.herjat(k,d,T);want('peruttu ei kelpaa',H.some(h=>h.teksti==='Lähikäynti varattava vk 45 (1 vk)'));d.muistio[0].tila={};
+k.toimet.ok={'lahi|2026-11-16':T};want('OK-kuittaus = varattu tälle viikolle',!MF.herjat(k,d,T).some(h=>h.teksti.startsWith('Lähikäynti')));
+{const d9=MF.empty(),k9=MF.newClient('Kettu',T);d9.asiakkaat.push(k9);k9.toimet.vali={paino:'v4'};d9.muistio.push({id:'p',text:'Kettu paino 26.11.',tila:{}});
+ const c9=MF.chain(k9,'paino','v4',MF.allEntries(d9,T),T,MF.lists(d9),MF.derivedFor(k9,d9,T));
+ want('varaus nollaa välin: paino vk 48 + 4 vk → seuraava vk 52',MF.isoWeek(c9[0].w)===48&&c9[0].st==='plan'&&MF.isoWeek(c9[1].w)===52&&c9[1].st==='due');}
 const T2='2026-11-16';k.seuranta.paino.arvot.push({pvm:'2026-11-24',arvo:'41'});d.muistio.push({id:'c',text:'Kettu lääkärin vo-käynti 25.11. RR',tila:{}});
-want('tila: paino tehty (2 kk), lääkäri sovittu (4 vk)',MF.vState(k,'paino',MF.periodAt('k2',MF.vAnchor(k),T2),MF.allEntries(d,T2),T2)==='ok'&&MF.vState(k,'laak',MF.periodAt('v4',MF.vAnchor(k),T2),MF.allEntries(d,T2),T2)==='plan');
+{const E2=MF.allEntries(d,T2),L2=MF.lists(d),D2=MF.derivedFor(k,d,T2),cp=MF.chain(k,'paino','k2',E2,T2,L2,D2)[0],cl=MF.chain(k,'laak','v4',E2,T2,L2,D2)[0];
+ want('mittaus tehty, lääkäri varattu vk 48',MF.isoWeek(cp.w)===48&&cp.st==='ok'&&MF.isoWeek(cl.w)===48&&cl.st==='plan');
+ const W=MF.weekItems(k,d,T2,E2,MF.herjat(k,d,T2,E2)),wk=Object.keys(W);
+ want('viikkonäkymä: 14 viikkoa, kuluvassa muistutukset, muistiinpano oikealla viikolla',wk.length===14&&wk[0]==='2026-11-16'&&W['2026-11-16'].some(x=>x.typ==='hj')&&W['2026-11-09']===undefined&&MF.weekSev(W['2026-11-16'])!=='tyh');}
+{const dA=MF.empty(),kA=MF.newClient('Siili',T);dA.asiakkaat.push(kA);MF.setChk(kA,'tulosyy','ok',T);dA.muistio.push({id:'n',text:'Siili neuvottelu 20.11.',tila:{}});
+ const W=MF.weekItems(kA,dA,T,MF.allEntries(dA,T),[]);
+ want('erääntyvä kuittaus ja muistiinpano viikoilla',!Object.values(W).flat().some(x=>x.typ==='chk')&&W['2026-11-16'].some(x=>x.typ==='note'&&x.sev==='info'));
+ dA.asetukset.valit.tulosyy=2;const W2=MF.weekItems(kA,dA,T,MF.allEntries(dA,T),[]);want('kuittaus erääntyy välin päästä (2 kk → vk 1)',W2['2026-12-28']&&W2['2026-12-28'].some(x=>x.typ==='chk'&&x.key==='tulosyy'));}
 want('vanha sykli siirtyy väleiksi',JSON.stringify(MF.migrateVali({vk1:['lahi','rr'],vk2:['lahi'],vk3:['lahi'],vk4:['lahi','rr'],kk2:['neuv'],kk3:[]}))==='{"lahi":"v1","rr":"v2","neuv":"k3"}'&&MF.repair({asiakkaat:[{nimi:'V',toimet:{sykli:{vk1:['ep'],kk3:['ep']}}}]}).asiakkaat[0].toimet.vali.ep==='v4');
 k.esitiedot={perhe:'Äiti ja isä',u:'2026-04-01'};H=MF.herjat(k,d,T);want('esitiedot 7 kk vanha (väli 6)',H.some(h=>h.osio==='esitiedot'&&h.tark));
 k.esitiedot.u=T;H=MF.herjat(k,d,T);want('tarkistettu poistaa herjan',!H.some(h=>h.osio==='esitiedot'));
@@ -48,11 +58,11 @@ want('lääkitys ei ole lääkärikäynti',!MF.lists(null).byId.laak.re.test('l�
 const d2=MF.empty(),k2=MF.newClient('Kettu',T);d2.asetukset.portaat=false;d2.asiakkaat.push(k2);k2.toimet.alku=T;
 d2.asetukset.sisallot.push({id:'ryhma',n:'Ryhmäkäynti',laji:'kaynti',sanat:'ryhmä',mit:''});d2.asetukset.muodot.push({id:'ulko',n:'Ulkona',sanat:'metsäkävely, ulkona'});
 k2.toimet.vali={ryhma:'v4'};let H2=MF.herjat(k2,d2,T);
-want('oma sisältö herjaa nimellään',H2.some(h=>h.teksti.includes('Ryhmäkäynti sovittava')));
+want('oma sisältö herjaa nimellään',H2.some(h=>h.teksti.includes('Ryhmäkäynti varattava')));
 d2.muistio.push({id:'r',text:'Kettu ryhmään to 5.11. klo 13 metsäkävely',tila:{}});H2=MF.herjat(k2,d2,T);const e2=MF.allEntries(d2,T)[0];
 want('oma sisältö täyttää laatikon ja tekee käynnin',!H2.some(h=>h.laji==='sykli')&&e2.kaynti&&e2.muoto==='ulko');
 d2.asetukset.sisallot.find(x=>x.id==='ryhma').sanat='ryhmäkäyn';H2=MF.herjat(k2,d2,T);
-want('sanan muutos vaikuttaa heti',H2.some(h=>h.teksti.includes('Ryhmäkäynti sovittava')));
+want('sanan muutos vaikuttaa heti',H2.some(h=>h.teksti.includes('Ryhmäkäynti varattava')));
 d2.asetukset.sisallot=d2.asetukset.sisallot.filter(x=>x.id!=='ryhma');H2=MF.herjat(k2,d2,T);
 want('poistettu sisältö ei herjaa (välit tyhjät)',H2.some(h=>h.teksti==='Käyntien ja seurannan välit valitsematta')&&!H2.some(h=>h.laji==='sykli'));
 const r2=MF.repair({asiakkaat:[],asetukset:{sisallot:[{id:'x',n:'X',laji:'outo',mit:'kenkä'},{id:'x',n:'tupla'},{n:'ei id'}]}});

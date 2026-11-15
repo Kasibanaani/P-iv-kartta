@@ -1,8 +1,17 @@
 # Mätsik Forest: tila
 
-**Vaihe:** versio 1.4. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 15.11.2026
+**Vaihe:** versio 1.5. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 15.11.2026
 
 Juureen (`paatospuu/`) nojaava, mutta erillinen hoitosuunnitelmien demo- ja kehittämisappi. Kaikki sisältö on kuvitteellista, ja Emil kirjoittaa sen itse. Appi ei sisällä valmista dataa. Hahmotelma ja perustelut ovat projektikansiossa (`hoitojuuri/HAHMOTELMA.md`), ei tässä julkisessa repossa.
+
+## Versio 1.5 (15.11.2026, Emil: viikkonäkymä eläinlistaan, "tehdään kuten suosittelet" + muistiinpanot viikon listaan)
+
+- **Eläinlista: Viikot / Osiot** yläreunassa (oletus Viikot, valinta muistetaan laitteessa). Viikot: rivi per eläin, nimi jäädytettynä, 14 viikkoruutua kuluvasta viikosta eteenpäin (Suomen/ISO-viikkonumero, kuluva alleviivattu), vieritys sivuttain yhdessä. Ruudussa viikkonumero ja avoimien asioiden määrä. Väri: punainen = kuluvalla tai ensi viikolla varaamatta / kiireellinen, keltainen = varattavaa tai kuitattavaa, ohut reuna = vain tulevia muistiinpanoja, vihreä = kaikki varattu/kuitattu, katkoviiva = ei mitään.
+- **Viikon napautus** avaa rivin alle viikon asiat kiireysjärjestyksessä: varattavat (OK = varattu tälle viikolle), kuluvalla viikolla kaikki muistutukset (kuittaukset OK/Ei, muut omalla napillaan), tulevilla viikoilla erääntyvät kuittaukset, tavoitteiden arvioinnit ja ohjauksen arvio, sekä muistiinpanojen rivit, joissa eläin ja viikon päivä (OK kuittaa rivin = kalenterin Toteutui; napautus avaa pikakatselun päällimmäiseksi). Rivien järjestys pysyy, kunnes lista suljetaan.
+- **Ulkopuolinen napautus** sulkee pikakatselun tai avatun viikon/osion eikä tee muuta (koskee myös Osiot-näkymää; osion vaihto on siis kaksi napautusta).
+- **Varattavat liukuvasti:** seuraava varattava viikko lasketaan viimeisestä varauksesta (muistion merkintä, mittaus tai OK): paino vk 48 + 4 vk → vk 52; myöhässä oleva siirtyy kuluvalle viikolle. Muistutus kuluvalle ja kahdelle seuraavalle viikolle ("Lähikäynti varattava vk 47 (1 vk)"), kuluva ja ensi viikko kiireellisiä. Eläimen sivulla valitun välin rivit viikoittain (vk, päivät, + Sovi, OK, Kuitattu). Muistutukset luettelon järjestyksessä.
+- Tallennus: ei uusia kenttiä (OK-kuittaus `toimet.ok` avaimella "sisältö|viikon maanantai").
+- Testit: `logiikka.js` (ISO-viikot, liukuva väli, viikkonäkymän asiat, erääntyvä kuittaus) ja `selain.js` (Viikot oletuksena, viikon lista, muistiinpano ja pikakatselu, ulkopuolinen napautus, järjestyksen pysyminen). Kaikki ok 390, 320 ja 1280 px.
 
 ## Versio 1.4 (15.11.2026, Emil: "syklin sijaan vaihtoehdot viikon välein … 3 kk välein")
 
@@ -169,7 +178,7 @@ Käytettävyyssuunnitelman (`SUUNNITELMA.md`) kaikki neljä askelta yhtenä julk
 ## Seuraava askel
 
 Emil kokeilee 1.2:ta puhelimella: eläimen sivun kuittaukset, tavoitekartta ilman tekstiä, listan tarkistusnäkymä ja pomppiminen. Avoimet kysymykset:
-0. 1.4: onko OK-kuittaus jaksolle tarpeen vai riittääkö muistion merkintä? Pitääkö 2 kk / 3 kk välin muistutus tulla jo aiemmin kuin 2 viikkoa ennen jakson alkua? 1.2: pitääkö vanhat tekstit näyttää kohtien alla vai piilottaa kokonaan? Ovatko välien oletukset oikeat? Tarvitaanko uusien diagnoosien lisäys muualta kuin Valikko → Luettelot?
+0. 1.5: riittääkö 14 viikkoa (3 kk)? Pitääkö tulevien viikkojen ennakoidut varattavat näkyä keltaisina (nyt näkyvät)? 1.4: onko OK-kuittaus jaksolle tarpeen vai riittääkö muistion merkintä? Pitääkö 2 kk / 3 kk välin muistutus tulla jo aiemmin kuin 2 viikkoa ennen jakson alkua? 1.2: pitääkö vanhat tekstit näyttää kohtien alla vai piilottaa kokonaan? Ovatko välien oletukset oikeat? Tarvitaanko uusien diagnoosien lisäys muualta kuin Valikko → Luettelot?
 1. Asettuuko arkki iPhonella näppäimistön päälle ilman pomppimista? (Kyselyn kysymys 5.)
 2. Onko oletusjärjestys oikea, ja pitääkö portaiden koskea muutakin kuin puuttuvia tietoja?
 3. Riittääkö mittaus muistiosta Lääkeseurannalle ja Mittareille, vai myös muille?
