@@ -1,6 +1,6 @@
 # Treenikartta: tila
 
-**Vaihe:** uudistettu appilinjan mukaan, Emil kokeilee · **Versio:** 2.0 · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/treenikartta/ · **Päivitetty:** 15.11.2026
+**Vaihe:** uudistettu appilinjan mukaan, Emil kokeilee · **Versio:** 2.1 · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/treenikartta/ · **Päivitetty:** 15.11.2026
 
 Salitreenin kirjaus ja seuranta puhelimella. Omat liikkeet, ei valmiita. Suunnitelma ja perustelut: Claude Doc ”Salitreeniappi – speksi” (Appi-ideoita-projekti). Kehitetty ensin claude.ai-kokeiluna, siirretty repoon 31.10.2026. Tallennusavain `treenikartta.v2`, muoto `{app:'treenikartta',ver:5,liikkeet,ryhmat,treenit,auki,as}`; vanhat versiot korjaa `repair`.
 
@@ -19,6 +19,14 @@ Koko käyttöliittymä uudistettu Emilin appilinjan (`appilinja`-skill) mukaan, 
 - Ennallaan: painoehdotus (Epley, ideaalitoistot), automaattinen päättyminen (2/3/4 h), tavoitteet ja ennuste, Seurannan kolme näkymää, tekstituonti ja ohje tekoälylle, 10 teemaa, 12 fonttia, iso koko.
 - Testit `sh treenikartta/testit/aja.sh`: 31 skenaariota × 2 leveyttä (390 vaalea, 320 tumma) = 62 läpi tietokoneen Chromiumissa. Mukana ”napautus ei siirrä nappeja”, ulkopuolinen napautus, raahaus hiirellä, alapalkin nappien sama paikka joka osiossa.
 
+### 2.1 (15.11.2026): graafit, Emilin pyynnöstä ("lisää helppoja graafeja, tavoitteiden lähestyminen, toteuta")
+
+- Uusi osio **Seuranta: yleiskuva** (osiovalikossa ensimmäinen Seuranta): treenipäivien ruudukko 12 viikolta (sarake = viikko, rivi = viikonpäivä, sävy = sarjamäärä) ja samoissa sarakkeissa viikon sarjat palkkeina; luvut Tällä viikolla, Treeniä / vk, Viikkoja putkeen.
+- **Tavoitteet** yleiskuvassa: jokaiselle tavoitteelle palkki lähtötasosta tavoitteeseen. Täyttö = matkasta kuljettu, pystyviiva = missä pitäisi olla tänään tasaisella tahdilla. Teksti tavoitteen toistomäärälle muunnettuna (”Nyt noin 62,5 kg × 5 · 37 %”), päiviä jäljellä, tila. Sama palkki liikkeen seurannan tavoitekortissa. Taso = kahden viimeisimmän kerran parempi maksimiarvio. Uusi valinnainen kenttä tavoitteessa: `luotu` (lähtöhetki); vanhalle tavoitteelle se asetetaan enintään 8 viikon taakse.
+- **Arvioitu maksimi, 12 viikkoa**: jokaiselle liikkeelle pieni käyrä, nykyarvo ja muutos 4 viikossa. Rivin napautus avaa liikkeen seurannan.
+- Liikkeen seuranta: toistojakauma palkkeina (ideaali korostettu) ja sarjat jaksoittain palkkeina tavoiteviivalla. Lihasryhmät: 6 edellistä jaksoa ja nykyinen palkkeina tavoiteviivalla.
+- Selitys i-napin takana. Testejä 32 × 2 = 64.
+
 ### Poikkeamat appilinjasta
 
 - Isot kirjaimet oletuksena päällä ja fontin valinta: Emilin oma päätös tälle appille (1.2).
@@ -29,6 +37,7 @@ Koko käyttöliittymä uudistettu Emilin appilinjan (`appilinja`-skill) mukaan, 
 
 ## Ei tarkistettu
 
+- 2.1: graafien luettavuus oikealla iPhonella ja oikealla datalla (testidata on tasaista); ruudukon sävyt eri teemoilla katsottu vain Metsä vaalea ja tumma.
 - Testit ajettu vain tietokoneen Chromiumissa, ei oikealla iPhonella. Varmistamatta: raahaus sormella kahvasta (testattu hiirellä), kirjausrivin ja pienen ikkunan paikka näppäimistön ollessa auki (`visualViewport`), alapalkin piiloutuminen näppäimistön ajaksi, pysyykö näppäimistö auki kun OK siirtää kursorin toistoista painoon, jakovalikon ”Tallenna tiedostoihin”, kotinäytön kirjanmerkin turva-alueet.
 - Fontit testattu Linuxilla, jossa Avenir/Futura/Gill Sans/DIN/Tussi korvautuvat varafontilla.
 - Vanhaa 1.x-tyyliä on yhä tiedostossa käyttämättömänä (ei näy, ei siivottu).

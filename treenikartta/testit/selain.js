@@ -55,7 +55,7 @@ function aineisto(){
       await attr('tmax');await cell('Leuanveto',10).click();await attr('askel');await cell('Leuanveto','2,5').click();assert.equal((await S()).liikkeet[0].askel,2.5);
       await attr('tideal');const x0=(await p.locator('#vl .vtn >> nth=0').boundingBox()).x;await p.evaluate(()=>{document.getElementById('vl').scrollLeft=200});await p.waitForTimeout(50);
       assert.equal((await p.locator('#vl .vtn >> nth=0').boundingBox()).x,x0,'nimisarake liikkui');assert.equal(await p.evaluate(()=>document.getElementById('vlh').scrollLeft),await p.evaluate(()=>document.getElementById('vl').scrollLeft),'otsikot eivät seuraa');await leveys()});
-    await ok('pieni ikkuna: ulkopuolinen napautus vain sulkee, ei mene läpi',async()=>{await p.click('[data-act=osiot]');assert.equal(await p.locator('.pkd .mrow').count(),7);
+    await ok('pieni ikkuna: ulkopuolinen napautus vain sulkee, ei mene läpi',async()=>{await p.click('[data-act=osiot]');assert.equal(await p.locator('.pkd .mrow').count(),8);
       const b=await p.locator('[data-act=newl]').boundingBox();await p.mouse.click(b.x+b.width/2,b.y+b.height/2);assert.equal(await p.evaluate(()=>TK.pop()),null);assert.equal(await p.locator('.pkd').count(),0);
       await p.click('.ib');assert((await p.textContent('.pkd')).includes('Raahaa'));await ulos();assert.equal(await p.locator('.pkd').count(),0)});
     await ok('lihasryhmät: lisäys, tavoite taulukosta, jakso vaatii sarjamäärän',async()=>{await os('ryhmat');
@@ -101,7 +101,7 @@ function aineisto(){
       const v0=await y('[data-act=viejson]'),m0=await y('[data-act=valikko]');
       const b=p.locator('.exhead[data-id=x5]');await b.evaluate(e=>e.scrollIntoView({block:'center'}));const y1=(await b.boundingBox()).y;await b.click();const y2=(await p.locator('.exhead[data-id=x5]').boundingBox()).y;assert(Math.abs(y2-y1)<2,'rivi pomppasi '+(y2-y1));
       const l=await p.locator('.exhead >> nth=-1').evaluate(e=>{window.scrollTo(0,1e6);return e.getBoundingClientRect().bottom});assert(l<=(await p.locator('#dock').boundingBox()).y+1,'viimeinen rivi jää kirjausrivin alle');
-      for(const o of ['liikkeet','ryhmat','historia','s-liike','s-ryhmat','s-yhteydet','treeni']){await os(o);assert.deepEqual(await y('[data-act=viejson]'),v0,o);assert.deepEqual(await y('[data-act=valikko]'),m0,o);assert.deepEqual((await y('#bar .roll'))[0],8,o);await leveys()}
+      for(const o of ['liikkeet','ryhmat','historia','s-yleis','s-liike','s-ryhmat','s-yhteydet','treeni']){await os(o);assert.deepEqual(await y('[data-act=viejson]'),v0,o);assert.deepEqual(await y('[data-act=valikko]'),m0,o);assert.deepEqual((await y('#bar .roll'))[0],8,o);await leveys()}
       await p.evaluate(()=>{const S=TK.S();S.liikkeet=S.liikkeet.filter(l=>!/^x\d$/.test(l.id));S.auki=S.liikkeet[0].id;TK.render()})});
     await ok('alkuajan korjaus inforivistä',async()=>{await p.click('#hd [data-act=alku]');await p.fill('#al-aika','00:00');const a=new Date((await S()).treenit[0].alku);assert.equal(a.getHours()*60+a.getMinutes(),0);assert.equal(await p.locator('.pkd').count(),0)});
     await ok('punainen pallero muistuttaa viennistä; pikavienti suoraan alapalkista nimellä treenikartta.json',async()=>{assert.equal(await p.locator('#bar .xdot').count(),1);
@@ -149,6 +149,23 @@ function aineisto(){
       const t=(await S()).as.tavoitteet;assert.equal(t.Etureidet.n,12);assert.equal(t.Ojentajat.n,12);await leveys()});
     await ok('seuranta: lihasryhmät ja yhteydet; ohje i-napin takana',async()=>{await os('s-ryhmat');assert((await p.textContent('#app')).includes('Etureidet'));assert(!(await p.textContent('#app')).includes('Pääkohde lasketaan'));await p.click('#hd .ib');assert((await p.textContent('.pkd')).includes('Pääkohde lasketaan'));await ulos();
       await os('s-yhteydet');assert((await p.textContent('#app')).includes('Kertatasolla'));await leveys()});
+    await ok('yleiskuva: ruudukko 12 viikkoa, viikkopalkit, tavoitepalkit ja käyrät; rivi avaa liikkeen',async()=>{await os('s-yleis');
+      assert.equal(await p.locator('#app svg.chart >> nth=0').locator('rect.h0,rect.h1,rect.h2,rect.h3,rect.hf').count(),84);assert.equal(await p.locator('#app svg.chart >> nth=0').locator('rect.bo,rect.bn').count(),12);assert.equal(await p.locator('#app rect.ht').count(),1,'tämä päivä');
+      const s=await S(),tr=s.treenit.filter(t=>t.sarjat.length),ma=new Date();ma.setHours(0,0,0,0);ma.setDate(ma.getDate()-(ma.getDay()+6)%7);
+      const vk=tr.filter(t=>t.alku>=ma.getTime()).length;assert((await p.textContent('#app .kv')).includes('Tällä viikolla'+vk+' treeni'));
+      assert.equal(await p.locator('#app rect.h1,#app rect.h2,#app rect.h3').count(),new Set(tr.filter(t=>t.alku>=ma.getTime()-77*864e5).map(t=>new Date(t.alku).toDateString())).size,'treenipäivät');
+      assert.equal(await p.locator('.grow').count(),1);const w=await p.evaluate(()=>{const g=document.querySelector('.grow .gbar'),i=g.querySelector('i'),u=g.querySelector('u');return [i.offsetWidth/g.offsetWidth,u.offsetLeft/g.offsetWidth]});
+      assert(w[0]>=0&&w[0]<0.05&&w[1]>-0.02&&w[1]<0.05,'tuore tavoite alkaa nollasta '+JSON.stringify(w));assert((await p.textContent('.grow')).includes('80 kg × 8'));assert(/Nyt noin [\d,]+ kg × 8 · \d+ %/.test(await p.textContent('.grow')));assert(/\d+ pv jäljellä/.test(await p.textContent('.grow')));
+      assert(s.liikkeet[0].goals[0].luotu>0,'tavoitteen lähtöhetki');
+      const m=await p.evaluate(()=>{const S=TK.S(),g=S.liikkeet[0].goals[0],old=[g.luotu,g.pvm],d=new Date(Date.now()+30*864e5);g.luotu=Date.now()-30*864e5;g.pvm=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');TK.render();
+        const b=document.querySelector('.grow .gbar'),r=[b.querySelector('i').offsetWidth/b.offsetWidth,b.querySelector('u').offsetLeft/b.offsetWidth];g.luotu=old[0];g.pvm=old[1];TK.render();return r});
+      assert(Math.abs(m[1]-0.5)<0.04,'aikaviiva puolivälissä '+m[1]);assert(m[0]>0.02&&m[0]<=1,'matkaa kuljettu '+m[0]);
+      assert.equal(await p.locator('.srow').count(),3);assert.equal(await p.locator('.srow svg path.ln').count(),3);assert(/[+−][\d,]+ \/ 4 vk/.test(await p.textContent('.srow >> nth=0')));
+      const y1=await y('[data-act=viejson]');await p.click('.srow >> nth=1');assert.equal(await p.inputValue('#seur-sel'),'b');assert((await p.textContent('#hd')).includes('Seuranta: liike'));assert.deepEqual(await y('[data-act=viejson]'),y1);
+      assert(await p.locator('#app svg[aria-label="Sarjat toistomäärän mukaan"] rect').count()>=3);assert.equal(await p.locator('#app svg[aria-label="Sarjat jaksoittain"] rect').count(),6);
+      await os('s-yleis');await p.click('.grow');assert.equal(await p.inputValue('#seur-sel'),'a');assert.equal(await p.locator('#app .gbar').count(),1);
+      await os('s-ryhmat');assert.equal(await p.locator('#app svg.chart').count(),s.ryhmat.length);assert.equal(await p.locator('#app svg.chart >> nth=0').locator('rect').count(),7);assert.equal(await p.locator('#app svg.chart >> nth=0').locator('line.tl').count(),1,'tavoiteviiva');await leveys();
+      await os('s-yleis');await p.click('#hd .ib');assert((await p.textContent('.pkd')).includes('Pystyviiva'));await ulos();await leveys()});
     await ok('historia: treeni aukeaa paikallaan, poisto vahvistuksella',async()=>{await os('historia');const b=p.locator('#app .exhead >> nth=1');const y1=(await b.boundingBox()).y;await b.click();assert(Math.abs((await p.locator('#app .exhead >> nth=1').boundingBox()).y-y1)<2);
       const m=(await S()).treenit.length;await p.click('[data-act=delt]');await p.click('.cf [data-act=popkiinni]');assert.equal((await S()).treenit.length,m);await p.click('[data-act=delt]');await p.click('.cf [data-act=delt2]');assert.equal((await S()).treenit.length,m-1);await leveys()});
     await ok('tekstituonti esikatselulla ja tuplien ohitus',async()=>{await vs('tuonti');const txt='2026-09-01 17:05\nPenkkipunnerrus: 50x8x3, 52,5x7\nMaastaveto: 100kg x 5 @17:30\n';
