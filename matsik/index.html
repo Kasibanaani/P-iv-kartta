@@ -323,6 +323,13 @@ textarea.edf{min-height:96px;max-height:calc(var(--vvh,100vh) - 190px);overflow:
 .pkbg{position:fixed;inset:0;z-index:70;background:color-mix(in srgb,#000 35%,transparent);display:flex;align-items:center;justify-content:center;padding:16px}
 .pkd{background:var(--surface);border:1px solid var(--card-line);border-radius:var(--r);box-shadow:var(--card-shadow);padding:14px 16px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:10px}
 .pks p{margin:2px 0}
+.pks{height:96px;overflow-y:auto;border-top:1px solid var(--line);padding-top:4px}
+.pkd{max-width:380px}.pcm{display:flex;align-items:center;justify-content:space-between}.pcm span{font-weight:700}
+.pcg{display:grid;grid-template-columns:24px repeat(7,minmax(0,1fr));gap:3px;align-items:center}
+.pch,.pcw{font-size:11px;color:var(--muted);text-align:center}
+.pcd{height:38px;border:1px solid var(--line);border-radius:var(--r-s);background:none;color:var(--fg);font-size:14px;padding:0;min-width:0}
+.pcd.om{color:var(--muted);opacity:.6}.pcd.today{font-weight:800;text-decoration:underline}
+.pcd[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--bg);opacity:1}
 [data-lp]{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 .lpc .meta{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .wks{gap:4px}
@@ -916,13 +923,30 @@ function weekGrid(L){var E=MF.allEntries(data,TODAY),W=MF.weeksAhead(TODAY),s='<
 function varRow(a,q){var V=MF.VALK[q.code],e=q.e;
   return '<div class="lci"><span>'+h(q.n)+'<small>'+V[2]+' · '+(q.st==='plan'?'varattu'+(e?' '+MF.VK[MF.dow(e.date)]+' '+MF.fiShort(e.date)+(e.klo?' klo '+e.klo:''):''):q.ack?'kuitattu varatuksi':q.st==='ok'?'tehty':'varattava')+'</small></span>'+
     (q.st==='due'||q.ack?'<div class="seg sm"><button data-act="vok" data-a="'+a.id+'" data-it="'+h(q.it)+'" data-ps="'+q.w+'" data-v="ok" aria-pressed="'+!!q.ack+'">OK</button></div>':'')+'</div>';}
+/* Pikamuistiinpano monella päivällä (1.8, Emil 15.11.2026): yksi muistiinpano per eläin + asia, päivät valitaan kuukausivalitsimesta.
+   n.pika={a,it,pv:[pvm]}; teksti johdetaan: "Siili reseptiuusinta 17.11.2026, 24.11.2026". */
+function pikaNote(aid,it){return data.muistio.filter(function(n){return !n.arch&&n.pika&&n.pika.a===aid&&n.pika.it===it;})[0]||null;}
+function pikaFmt(d){var p=d.split('-');return (+p[2])+'.'+(+p[1])+'.'+p[0];}
+function pikaSet(aid,it,dates){var a=cl(aid),x=(data.asetukset.pikat||[]).filter(function(q){return q.id===it;})[0],n=pikaNote(aid,it);if(!a||!x)return;
+  dates=dates.slice().sort();if(!dates.length){if(n)data.muistio=data.muistio.filter(function(q){return q!==n;});save();return;}
+  var t=a.nimi+' '+x.n.charAt(0).toLowerCase()+x.n.slice(1)+' '+dates.map(pikaFmt).join(', ');
+  if(!n){n={id:MF.uid(),text:t,tila:{},created:nowIso(),edited:nowIso()};data.muistio.push(n);}
+  n.text=t;n.edited=nowIso();n.pika={a:aid,it:it,pv:dates};save();}
+function pikaCal(){var a=cl(sheet.a),x=(data.asetukset.pikat||[]).filter(function(q){return q.id===sheet.it;})[0],n=pikaNote(sheet.a,sheet.it),sel=n?n.pika.pv:[];
+  var m0=sheet.pm||TODAY.slice(0,8)+'01',d0=MF.parse(m0),y=d0.getFullYear(),mo=d0.getMonth(),st=MF.monday(m0),s='';
+  for(var r=0;r<6;r++){var wk=MF.addDays(st,7*r);s+='<span class="pcw">'+MF.isoWeek(wk)+'</span>';for(var c=0;c<7;c++){var d=MF.addDays(wk,c),dd=MF.parse(d),inm=dd.getMonth()===mo;
+    s+='<button class="pcd'+(inm?'':' om')+(d===TODAY?' today':'')+'" data-act="pikad" data-d="'+d+'" aria-pressed="'+(sel.indexOf(d)>=0)+'">'+dd.getDate()+'</button>';}}
+  return '<div class="pkbg"><div class="pkd" role="dialog" aria-label="Päivät"><b>'+h(a?a.nimi:'')+' · '+h(x?x.n:'')+'</b>'+
+    '<div class="pcm"><button class="btn sm" data-act="pikam" data-d="-1" aria-label="Edellinen kuukausi">‹</button><span>'+MONN[mo].charAt(0).toUpperCase()+MONN[mo].slice(1)+' '+y+'</span><button class="btn sm" data-act="pikam" data-d="1" aria-label="Seuraava kuukausi">›</button></div>'+
+    '<div class="pcg"><span class="pcw">vk</span>'+MF.VK.map(function(v){return '<span class="pch">'+v+'</span>';}).join('')+s+'</div>'+
+    '<p class="meta">Napauta päiviä, uusi napautus poistaa. Sulje napauttamalla ulkopuolelle. Valittu: '+sel.length+'</p></div></div>';}
 /* pikamuistiinpanon poisto (Emil 15.11.2026): pitkä painallus + vahvistus eri kohdassa */
 var lpDel='',lpT=null,lpFired=false,lpXY=null;
-function lpRow(n,pre){if(lpDel==='pn:'+n.id)return '<div class="lci lpc"><button class="btn sm" data-act="lpno">Peru</button><span class="meta">'+h(n.text)+'</span><button class="btn sm delc" data-act="lpyes" data-n="'+n.id+'">Poista</button></div>';
-  return '<div class="lci"><span data-lp="pn:'+n.id+'">'+h(pre||'')+h(n.text)+'</span></div>';}
-function noteRow(a,q){var e=q.e,done=e.tila==='toteutui',nn=noteById(e.note);
-  if(nn&&nn.pika&&lpDel==='pn:'+nn.id)return lpRow(nn);
-  return '<div class="lci"><span'+(nn&&nn.pika?' data-lp="pn:'+nn.id+'"':'')+'><button class="nlink" data-act="nview" data-n="'+e.note+'">'+MF.VK[MF.dow(e.date)]+' '+MF.fiShort(e.date)+(e.klo?' klo '+e.klo:'')+' · '+h(e.rivi)+'</button><small>muistiinpano</small></span>'+
+function lpRow(n,pre,lab){var t=lab||n.text;if(lpDel==='pn:'+n.id)return '<div class="lci lpc"><button class="btn sm" data-act="lpno">Peru</button><span class="meta">'+h(t)+'</span><button class="btn sm delc" data-act="lpyes" data-n="'+n.id+'">Poista</button></div>';
+  return '<div class="lci"><span data-lp="pn:'+n.id+'">'+h(pre||'')+h(t)+'</span></div>';}
+function noteRow(a,q){var e=q.e,done=e.tila==='toteutui',nn=noteById(e.note),lk='pd:'+(nn?nn.id:'')+'|'+e.date;
+  if(nn&&nn.pika&&lpDel===lk)return '<div class="lci lpc"><button class="btn sm" data-act="lpno">Peru</button><span class="meta">'+MF.fiShort(e.date)+' · '+h(e.rivi)+'</span><button class="btn sm delc" data-act="lpday" data-n="'+nn.id+'" data-d="'+e.date+'">Poista päivä</button></div>';
+  return '<div class="lci"><span'+(nn&&nn.pika?' data-lp="'+lk+'"':'')+'><button class="nlink" data-act="nview" data-n="'+e.note+'">'+MF.VK[MF.dow(e.date)]+' '+MF.fiShort(e.date)+(e.klo?' klo '+e.klo:'')+' · '+h(e.rivi)+'</button><small>muistiinpano</small></span>'+
     '<div class="seg sm"><button data-act="tila" data-n="'+e.note+'" data-k="'+h(e.key)+'" data-v="'+(done?'':'toteutui')+'" aria-pressed="'+done+'" data-ok="1">OK</button></div></div>';}
 function weekPanel(x,IT){var a=x.a,w=lOpen.w,s='<div class="lp" id="lp" role="region" aria-label="'+h(a.nimi+': viikko '+MF.isoWeek(w))+'"><div class="lph"><b>Vk '+MF.isoWeek(w)+' · '+MF.fiShort(w)+'–'+MF.fiShort(MF.addDays(w,6))+'</b>'+
     '<button class="btn sm link" data-act="open" data-id="'+a.id+'">Avaa eläin</button><button class="x" data-act="lclose" aria-label="Sulje"></button></div>';
@@ -1315,7 +1339,7 @@ function vValikko(){var A=data.asetukset,V=A.valit,arch=data.asiakkaat.filter(fu
   if(!sub){var D={tiedot:'Vienti ja tuonti. Viety viimeksi: '+last+'.',ulkoasu:'Teema, nappien muoto, fontit, kuvitus, merkinnän oletuspituus',luettelot:'Diagnoosit, periaatteet, käyntien sisällöt, käyntien muodot, mittarit',
       saannot:'Muistutusten järjestys, portaat, tarkistusvälit',arkisto:arch.length?arch.length+(arch.length===1?' arkistoitu eläin':' arkistoitua eläintä'):'Ei arkistoituja eläimiä'};
     s+=VSUB.map(function(x){return '<button class="mrow" data-act="vsub" data-k="'+x[0]+'"><b>'+x[1]+'</b><span class="meta">'+h(D[x[0]])+'</span></button>';}).join('');
-    return s+'<p class="meta" style="text-align:center">Mätsik Forest 1.7 · tallennusmuoto '+MF.VER+'</p></div>';}
+    return s+'<p class="meta" style="text-align:center">Mätsik Forest 1.8 · tallennusmuoto '+MF.VER+'</p></div>';}
   if(sub==='tiedot')s+='<div class="card"><b>Vienti ja tuonti</b><p class="msg">Tiedot ovat vain tällä laitteella. Vie varmuuskopio säännöllisesti. Viety viimeksi: '+last+'.</p>'+
     '<div class="btns"><button class="btn pri" data-act="vie">Vie (Mätsik Forest.json)</button><label class="btn">Tuo tiedostosta<input type="file" id="tuofile" accept=".json,application/json,text/plain" hidden></label><button class="btn link" data-act="tuoteksti">Tuo tekstinä</button></div><div id="tuo"></div></div>';
   if(sub==='ulkoasu')s+='<div class="card"><b>Ulkoasu</b><div class="f"><span>Teema</span>'+seg('teema',A.teema,T.map(function(t){return [t.id,t.name];}))+'</div>'+
@@ -1380,10 +1404,9 @@ function renderSheet(){var el=$('sheet');document.documentElement.classList.togg
       '<span class="meta">Asia</span><div class="seg sm pki">'+PK.map(function(x){return '<button data-act="pikai" data-id="'+h(x.id)+'"'+(pa?'':' disabled')+'>'+h(x.n||'(nimetön)')+'</button>';}).join('')+
       (sheet.uusi?'<span class="pkn"><input type="text" id="pknew" enterkeyhint="done" autocomplete="off" placeholder="Uusi valinta"><button class="btn sm pri" data-act="pikanewok">Lisää</button></span>':'<button class="link" data-act="pikanew">+ Uusi valinta</button>')+'</div>'+
       '<div class="btns"><button class="btn sm" data-act="pikavapaa">Vapaa teksti</button></div>'+
-      (sheet.saved&&sheet.saved.length?'<div class="pks">'+sheet.saved.map(function(id){var n=noteById(id);return n?lpRow(n,'Tallennettu: '):'';}).join('')+'<p class="meta">Poisto: pitkä painallus riviin ja vahvistus.</p></div>':'');
-    if(sheet.it&&pa){var it=PK.filter(function(x){return x.id===sheet.it;})[0];
-      s+='<div class="pkbg"><div class="pkd" role="dialog" aria-label="Päivä"><b>'+h(pa.nimi)+' · '+h(it?it.n:'')+'</b><label class="f"><span>Päivä</span><input type="date" id="pkdate" value="'+(sheet.pv||TODAY)+'"></label>'+
-        '<div class="btns"><button class="btn" data-act="pikano">Peru</button><span style="flex:1"></span><button class="btn pri" data-act="pikaok">Tallenna</button></div></div></div>';}}
+      '<div class="pks">'+(pa?(function(){var NN=data.muistio.filter(function(n){return !n.arch&&n.pika&&n.pika.a===pa.id;});
+        return NN.length?NN.map(function(n){var x=PK.filter(function(q){return q.id===n.pika.it;})[0];return lpRow(n,'',(x?x.n:'')+': '+n.pika.pv.map(function(d){return MF.fiShort(d);}).join(', '));}).join(''):'<p class="meta">Ei vielä valittuja päiviä.</p>';})():'<p class="meta">Valitun eläimen päivät näkyvät tässä.</p>')+'</div>';
+    if(sheet.it&&pa)s+=pikaCal();}
   if(sheet.k==='uusi')s+='<h2><span>Uusi eläin</span><button class="x" data-act="close" aria-label="Sulje"></button></h2><label class="f"><span>Eläimen nimi (kuvitteellinen)</span><input type="text" id="nn" autocomplete="off"></label><div class="btns"><button class="btn pri" data-act="uusiok">Lisää</button></div>';
   if(sheet.k==='nimi'){var a=cl(view.id);s+='<h2><span>'+h(a.nimi)+'</span><button class="x" data-act="close" aria-label="Sulje"></button></h2><label class="f"><span>Nimi</span><input type="text" id="nn" value="'+h(a.nimi)+'"></label>'+
     '<div class="btns"><button class="btn pri" data-act="nimiok">Tallenna</button><button class="btn" data-act="arkistoi">Arkistoi</button><span style="flex:1"></span>'+delBtn('as:'+a.id)+'</div>';}
@@ -1499,15 +1522,15 @@ document.addEventListener('click',function(e){var b=e.target.closest('button,[da
    case 'uusi':sheet={k:'uusi'};renderSheet();break;
    case 'pika':sheet={k:'pika',a:D.id||(view.v==='asiakas'?view.id:''),saved:[]};confirmDel='';renderSheet();break;
    case 'pikaa':sheet.a=sheet.a===D.id?'':D.id;renderSheet();break;
-   case 'pikai':if(sheet.a){sheet.it=D.id;sheet.pv=TODAY;renderSheet();}break;
+   case 'pikai':if(sheet.a){sheet.it=D.id;sheet.pm=TODAY.slice(0,8)+'01';renderSheet();}break;
+   case 'pikam':var pm=MF.parse(sheet.pm||TODAY.slice(0,8)+'01');pm.setMonth(pm.getMonth()+(+D.d));sheet.pm=MF.iso(pm).slice(0,8)+'01';renderSheet();break;
+   case 'pikad':var pn5=pikaNote(sheet.a,sheet.it),pv5=pn5?pn5.pika.pv.slice():[],q5=pv5.indexOf(D.d);if(q5>=0)pv5.splice(q5,1);else pv5.push(D.d);pikaSet(sheet.a,sheet.it,pv5);renderSheet();break;
    case 'pikano':sheet.it=null;renderSheet();break;
    case 'pikanew':sheet.uusi=true;renderSheet();var pn2=$('pknew');if(pn2)pn2.focus({preventScroll:true});break;
    case 'pikanewok':var pv2=($('pknew')&&$('pknew').value||'').trim();if(pv2){(data.asetukset.pikat=data.asetukset.pikat||[]).push({id:MF.uid(),n:pv2});save();}sheet.uusi=false;renderSheet();break;
    case 'lpno':lpDel='';render();break;
    case 'lpyes':data.muistio=data.muistio.filter(function(x){return x.id!==D.n;});if(sheet&&sheet.saved)sheet.saved=sheet.saved.filter(function(x){return x!==D.n;});lpDel='';save();render();toast('Muistiinpano poistettu');break;
-   case 'pikaok':var pa2=cl(sheet.a),pi2=(data.asetukset.pikat||[]).filter(function(x){return x.id===sheet.it;})[0],pd=($('pkdate')&&$('pkdate').value)||TODAY;
-     if(pa2&&pi2){var pp=pd.split('-'),pt=pa2.nimi+' '+pi2.n.charAt(0).toLowerCase()+pi2.n.slice(1)+' '+(+pp[2])+'.'+(+pp[1])+'.'+pp[0],pid=putNote(MF.uid(),pt),pn=noteById(pid);if(pn){pn.pika=true;save();}sheet.saved.push(pid);toast('Tallennettu: '+pt);}
-     sheet.it=null;render();break;
+   case 'lpday':var n6=noteById(D.n);if(n6&&n6.pika&&n6.pika.pv){pikaSet(n6.pika.a,n6.pika.it,n6.pika.pv.filter(function(x){return x!==D.d;}));}else if(n6){data.muistio=data.muistio.filter(function(x){return x!==n6;});save();}lpDel='';render();toast('Päivä poistettu');break;
    case 'pikavapaa':var pa3=sheet.a?cl(sheet.a):null;sheet=null;openNew(pa3?pa3.nimi+' ':'');break;
    case 'pikaset':sheet=null;view={v:'valikko',sub:'luettelot'};leEd=null;confirmDel='';render();var lc=$('lc-pikat');if(lc)lc.scrollIntoView();break;
    case 'leopen':leEd={l:D.l,id:D.id};confirmDel='';render();break;
@@ -1590,7 +1613,7 @@ window.addEventListener('click',function(e){if(lpFired){lpFired=false;e.preventD
 /* Ulkopuolinen napautus sulkee pikakatselun tai listan avatun viikon/osion eikä tee muuta (Emil 15.11.2026) */
 window.addEventListener('click',function(e){var t=e.target;
   if(qvNote){if(!t.closest('.qv')){e.preventDefault();e.stopPropagation();qvNote='';render();}return;}
-  if(sheet&&sheet.k==='pika'&&sheet.it){if(!t.closest('.pkd')){e.preventDefault();e.stopPropagation();sheet.it=null;renderSheet();}return;}
+  if(sheet&&sheet.k==='pika'&&sheet.it){if(!t.closest('.pkd')){e.preventDefault();e.stopPropagation();sheet.it=null;render();}return;}
   if(lOpen&&view.v==='asiakkaat'&&!sheet&&!t.closest('#lp')&&!t.closest('.sheet,#sheet,.toast')){e.preventDefault();e.stopPropagation();lOpen=null;lOrd=null;lpDel='';render();}},true);
 /* Ankkuri (1.0, Emil 14.11.2026): napautettu kohta pysyy samalla korkeudella, vaikka sivu piirretään uudelleen */
 var anc=null,ancSkip=false,lastSel='';

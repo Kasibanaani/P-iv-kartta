@@ -1,8 +1,16 @@
 # Mätsik Forest: tila
 
-**Vaihe:** versio 1.7. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 15.11.2026
+**Vaihe:** versio 1.8. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 15.11.2026
 
 Juureen (`paatospuu/`) nojaava, mutta erillinen hoitosuunnitelmien demo- ja kehittämisappi. Kaikki sisältö on kuvitteellista, ja Emil kirjoittaa sen itse. Appi ei sisällä valmista dataa. Hahmotelma ja perustelut ovat projektikansiossa (`hoitojuuri/HAHMOTELMA.md`), ei tässä julkisessa repossa.
+
+## Versio 1.8 (15.11.2026, Emil: kuukausivalitsin, monta päivää)
+
+- Asianappi avaa heti kuukausinäkymän (vk-sarake, ma–su, aina 6 riviä, joten koko ei vaihdu kuukautta vaihtaessa; ‹ › vaihtaa kuukautta). Ei tekstikenttää eikä näppäimistöä. Napautus valitsee päivän, toinen napautus poistaa sen. OK-nappia ei ole: valinta tallentuu heti, ja ulkopuolinen napautus sulkee valitsimen.
+- Yksi muistiinpano per eläin ja asia: "Kettu reseptiuusinta 9.11.2026, 16.11.2026" (`pika:{a,it,pv:[pvm…]}`). Vanhat 1.6–1.7:n `pika: true` -muistiinpanot toimivat tavallisina muistiinpanoina. Uudelleen avattaessa valitut päivät näkyvät korostettuina.
+- Ikkunassa valitun eläimen päivät luettelona kiinteän korkuisessa laatikossa (ei pomppimista). Pitkä painallus luettelon riviin poistaa koko asian (Peru/Poista). Viikkolistassa ja kalenterissa jokainen päivä on oma rivinsä. Pitkä painallus viikkolistan riviin → *Poista päivä* poistaa vain sen päivän.
+- Testit: `selain.js` (42 päivän ruudukko ilman kenttää, mahtuu 320 px:iin, monta päivää ja poisto, valitsin ei liiku, kuukauden vaihto, luettelo, uudelleenavaus, kalenteri, viikkolistan Poista päivä). Kaikki ok 390, 320 ja 1280 px.
+- Ei tarkistettu: oikealla iPhonella (napautusten tarkkuus 38 px ruuduissa 320 px:llä).
 
 ## Versio 1.7 (15.11.2026, Emil: ei pomppimista, uusi valinta suoraan)
 
