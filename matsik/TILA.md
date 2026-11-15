@@ -1,8 +1,13 @@
 # Mätsik Forest: tila
 
-**Vaihe:** versio 1.6. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 15.11.2026
+**Vaihe:** versio 1.7. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 15.11.2026
 
 Juureen (`paatospuu/`) nojaava, mutta erillinen hoitosuunnitelmien demo- ja kehittämisappi. Kaikki sisältö on kuvitteellista, ja Emil kirjoittaa sen itse. Appi ei sisällä valmista dataa. Hahmotelma ja perustelut ovat projektikansiossa (`hoitojuuri/HAHMOTELMA.md`), ei tässä julkisessa repossa.
+
+## Versio 1.7 (15.11.2026, Emil: ei pomppimista, uusi valinta suoraan)
+
+- Pikamuistiinpano: "valitse ensin eläin" Eläin-otsikon perässä (rivi ei katoa, napit pysyvät paikallaan). Asianappien perässä *+ Uusi valinta* (sama ulkoasu kuin + Uusi eläin): avaa samaan kohtaan saman korkuisen tekstikentän ja näppäimistön, Enter/Lisää tallentaa napin asetuksiin, päivää ei kysytä.
+- Periaate (Emil): ilmestyvät ja katoavat tekstirivit eivät saa siirtää nappeja.
 
 ## Versio 1.6 (15.11.2026, Emil: pikamuistiinpano)
 

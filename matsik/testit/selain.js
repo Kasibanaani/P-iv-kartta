@@ -250,6 +250,10 @@ async function run(b,w,h,touch){
   await tap('.lr:has-text("Siili") .nl');want('napautus ulkopuolelle sulkee eikä avaa eläintä',await pg.locator('#lp').count()===0&&(await pg.locator('h1').first().innerText())==='Eläimet');
   want('ei vaakavieritystä (viikot)',!await wide());
   await tap('#bar [data-act=pika]');want('listalta pikamuistiinpano ilman valittua eläintä',await pg.locator('.sheet [data-act=pikaa][aria-pressed=true]').count()===0&&await pg.locator('.sheet [data-act=pikai][disabled]').count()===6);
+  const py0=await pg.locator('.sheet [data-act=pikai]').first().evaluate(e=>e.getBoundingClientRect().top);await tap('.sheet [data-act=pikaa]');
+  want('eläimen valinta ei siirrä asianappeja',Math.abs((await pg.locator('.sheet [data-act=pikai]').first().evaluate(e=>e.getBoundingClientRect().top))-py0)<1&&await pg.locator('.pkh').count()===0);
+  await tap('.sheet [data-act=pikanew]');await pg.fill('#pknew','Kotikäynti');await pg.press('#pknew','Enter');
+  want('uusi valinta suoraan ikkunasta ilman päivää',await pg.locator('.sheet [data-act=pikai]').count()===7&&await pg.locator('.sheet [data-act=pikai]:has-text("Kotikäynti")').count()===1&&await pg.locator('#pkdate').count()===0&&(await pg.evaluate(D+'.asetukset.pikat.length'))===7);
   await tap('.sheet .gear');want('ratas vie pikanappien asetuksiin',await pg.locator('#lc-pikat').count()===1&&await pg.locator('.sheet').count()===0);
   want('ei sivuvirheitä',!errs.length);if(errs.length)console.log(errs);
   await ctx.close();return bad;}
