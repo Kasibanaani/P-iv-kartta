@@ -1,8 +1,16 @@
 # Mätsik Forest: tila
 
-**Vaihe:** versio 1.5. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 15.11.2026
+**Vaihe:** versio 1.6. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 15.11.2026
 
 Juureen (`paatospuu/`) nojaava, mutta erillinen hoitosuunnitelmien demo- ja kehittämisappi. Kaikki sisältö on kuvitteellista, ja Emil kirjoittaa sen itse. Appi ei sisällä valmista dataa. Hahmotelma ja perustelut ovat projektikansiossa (`hoitojuuri/HAHMOTELMA.md`), ei tässä julkisessa repossa.
+
+## Versio 1.6 (15.11.2026, Emil: pikamuistiinpano)
+
+- **Avaus:** pieni muistiinpanonappi alapalkissa Eläimet-valitsimen vieressä (lista, muistio, valikko; kalenterissa ei mahdu, siellä merkintä pidolla) sekä eläimen sivun plus (eläin valmiiksi valittuna; aiemmin plus avasi suoraan tekstin).
+- **Pikamuistiinpano-ikkuna:** eläinnapit (kaikki aktiiviset, + Uusi eläin), asianapit (oletus Reseptiuusinta, Lääkärin vo-aika, Tiimausaika, Hoitoneuvottelu, Verkosto, Soitto), *Vapaa teksti* avaa tavallisen muistiinpanon eläimen nimellä. Asianappi avaa päälle päivävalitsimen; *Tallenna* tekee muistiinpanon "Siili soitto 15.11.2026" (merkitty `pika: true`), ulkopuolinen napautus peruu tallentamatta. Ikkuna jää auki ja listaa tallennetut.
+- **Ratas** otsikossa vie Valikko → Luettelot → *Pikamuistiinpanon napit* (`asetukset.pikat` [{id,n}], lisää, nimeä, järjestä, poista).
+- **Poisto:** pitkä painallus pikamuistiinpanon riviin (ikkunassa tai viikkonäkymän listassa) → *Peru* vasemmalla, *Poista* oikealla. Muuten kuittaus viikon listan OK:lla kuten muutkin. Päivätyt näkyvät kalenterissa (koko päivä) ja viikkonäkymässä; jos sana osuu välin sisältöön (esim. lääkär), merkintä on varaus.
+- Testit: `selain.js` (avaus, eläin valmiina, päivävalitsin ja ulkopuolinen napautus, tallennus, pitkä painallus + Peru/Poista, kalenteri, ratas). Kaikki ok 390, 320 ja 1280 px.
 
 ## Versio 1.5 (15.11.2026, Emil: viikkonäkymä eläinlistaan, "tehdään kuten suosittelet" + muistiinpanot viikon listaan)
 
@@ -178,7 +186,7 @@ Käytettävyyssuunnitelman (`SUUNNITELMA.md`) kaikki neljä askelta yhtenä julk
 ## Seuraava askel
 
 Emil kokeilee 1.2:ta puhelimella: eläimen sivun kuittaukset, tavoitekartta ilman tekstiä, listan tarkistusnäkymä ja pomppiminen. Avoimet kysymykset:
-0. 1.5: riittääkö 14 viikkoa (3 kk)? Pitääkö tulevien viikkojen ennakoidut varattavat näkyä keltaisina (nyt näkyvät)? 1.4: onko OK-kuittaus jaksolle tarpeen vai riittääkö muistion merkintä? Pitääkö 2 kk / 3 kk välin muistutus tulla jo aiemmin kuin 2 viikkoa ennen jakson alkua? 1.2: pitääkö vanhat tekstit näyttää kohtien alla vai piilottaa kokonaan? Ovatko välien oletukset oikeat? Tarvitaanko uusien diagnoosien lisäys muualta kuin Valikko → Luettelot?
+0. 1.6: pitääkö pikamuistiinpanoon voida lisätä kellonaika? 1.5: riittääkö 14 viikkoa (3 kk)? Pitääkö tulevien viikkojen ennakoidut varattavat näkyä keltaisina (nyt näkyvät)? 1.4: onko OK-kuittaus jaksolle tarpeen vai riittääkö muistion merkintä? Pitääkö 2 kk / 3 kk välin muistutus tulla jo aiemmin kuin 2 viikkoa ennen jakson alkua? 1.2: pitääkö vanhat tekstit näyttää kohtien alla vai piilottaa kokonaan? Ovatko välien oletukset oikeat? Tarvitaanko uusien diagnoosien lisäys muualta kuin Valikko → Luettelot?
 1. Asettuuko arkki iPhonella näppäimistön päälle ilman pomppimista? (Kyselyn kysymys 5.)
 2. Onko oletusjärjestys oikea, ja pitääkö portaiden koskea muutakin kuin puuttuvia tietoja?
 3. Riittääkö mittaus muistiosta Lääkeseurannalle ja Mittareille, vai myös muille?

@@ -27,7 +27,7 @@ async function run(b,w,h,touch){
   want('otsikko Eläimet ja tyhjän listan ohje',(await pg.locator('h1').first().innerText())==='Eläimet'&&await pg.locator('.empty').count()===1);
   want('plusnappi alapalkissa, ei yläpalkissa',await pg.locator('#bar [data-act=uusi]').count()===1&&await pg.locator('.hd [data-act=uusi]').count()===0);
   await tap('#bar [data-act=uusi]');await pg.fill('#nn','Kettu');await tap('[data-act=uusiok]');
-  want('eläin avautuu: alapalkissa takaisin, 4 vaihetta ja plus',(await pg.locator('h1').first().innerText()).includes('Kettu')&&await pg.locator('#bar [data-act=home]').count()===1&&await pg.locator('#bar .stb').count()===4&&await pg.locator('#bar [data-act=kaynti]').count()===1);
+  want('eläin avautuu: alapalkissa takaisin, 4 vaihetta ja plus',(await pg.locator('h1').first().innerText()).includes('Kettu')&&await pg.locator('#bar [data-act=home]').count()===1&&await pg.locator('#bar .stb').count()===4&&await pg.locator('#bar [data-act=pika]').count()===1);
   want('Nyt-kortti: tulosyy ensin, syy ja Kuittaa-nappi',(await hj()).includes('Tulosyy puuttuu')&&(await hj()).includes('Ensin, koska')&&await pg.locator('#hjc [data-act=goto][data-o=tulosyy]').count()===1);
   want('portaat: vain vaiheen 1 puutteet',await pg.locator('.stb[data-v="1"] .dot.warn').count()===1&&await pg.locator('.stb[data-v="2"] .dot.ok').count()===1&&!(await HJ()).includes('Diagnoosit'));
   want('1.2: eläimen sivulla ei tekstikenttiä eikä lisäysnappeja, osiot kuitataan OK / Ei',await pg.locator('.main textarea, .main input:not([type=date])').count()===0&&await pg.locator('.adds').count()===0&&await pg.locator('#sec-esitiedot .lci').count()===5&&await pg.locator('#sec-tulosyy [data-act=kuit]').count()===2);
@@ -68,7 +68,19 @@ async function run(b,w,h,touch){
   want('lähikäynti sovittu: jakso hoidettu',await nS()===4&&await pg.locator('#sec-toimet .sli .dot.plan').count()===1);
   await tap('#sec-toimet .sli [data-act=vok]');want('OK kuittaa jakson ilman merkintää',await nS()===3&&await pg.locator('#sec-toimet .sli [data-act=vok]:has-text("Kuitattu")').count()===1);
   await tap('#sec-toimet .sli [data-act=vok]:has-text("Kuitattu")');want('kuittauksen voi perua',await nS()===4);
-  await tap('#bar [data-act=kaynti]');want('plus avaa muistiinpanon eläimen nimellä',(await pg.locator('#nt').inputValue())==='Kettu ');
+  await tap('#bar [data-act=pika]');want('plus avaa pikamuistiinpanon, eläin valittuna',(await pg.locator('.sheet [data-act=pikaa][aria-pressed=true]').innerText())==='Kettu'&&await pg.locator('.sheet [data-act=pikai]').count()===6&&await pg.locator('.sheet .gear').count()===1);
+  await tap('.sheet [data-act=pikai][data-id=resepti]');want('päivävalitsin aukeaa päälle',await pg.locator('.pkd #pkdate').count()===1);
+  await pg.mouse.click(4,4);await pg.waitForTimeout(120);want('ulkopuolinen napautus sulkee vain päivävalitsimen',await pg.locator('#pkdate').count()===0&&await pg.locator('.sheet [data-act=pikai]').count()===6);
+  await tap('.sheet [data-act=pikai][data-id=resepti]');const pd3=new Date();pd3.setDate(pd3.getDate()+3);await pg.fill('#pkdate',iso(pd3));await tap('[data-act=pikaok]');
+  want('pikamuistiinpano tallentui muistiinpanoksi',(await pg.evaluate(D+'.muistio.slice(-1)[0].pika'))===true&&(await pg.evaluate(D+'.muistio.slice(-1)[0].text'))==='Kettu reseptiuusinta '+pd3.getDate()+'.'+(pd3.getMonth()+1)+'.'+pd3.getFullYear()&&await pg.locator('.pks p').count()===1&&await pg.locator('#pkdate').count()===0);
+  await pg.locator('.pks [data-lp]').dispatchEvent('pointerdown');await pg.waitForTimeout(700);
+  want('pitkä painallus näyttää vahvistuksen eri kohdassa',await pg.locator('.pks [data-act=lpyes]').count()===1&&await pg.locator('.pks [data-act=lpno]').count()===1);
+  await tap('.pks [data-act=lpno]');want('Peru jättää muistiinpanon',await pg.locator('.pks [data-lp]').count()===1);
+  await pg.locator('.pks [data-lp]').dispatchEvent('pointerdown');await pg.waitForTimeout(700);const nm0=await pg.evaluate(D+'.muistio.length');await tap('.pks [data-act=lpyes]');
+  want('vahvistus poistaa pikamuistiinpanon',await pg.evaluate(D+'.muistio.length')===nm0-1&&await pg.locator('.pks [data-lp]').count()===0);
+  await tap('.sheet [data-act=pikai][data-id=soitto]');await pg.fill('#pkdate',iso(pd3));await tap('[data-act=pikaok]');
+  want('päivätty pikamuistiinpano näkyy kalenterissa',await pg.evaluate("MF.allEntries(MF.repair(JSON.parse(localStorage.getItem('matsik:v1')).data),MF.iso(new Date())).some(e=>/Kettu soitto/.test(e.rivi))"));
+  await tap('.sheet [data-act=pikavapaa]');want('Vapaa teksti avaa muistiinpanon eläimen nimellä',(await pg.locator('#nt').inputValue())==='Kettu ');
   await pg.locator('#nt').press('End');await pg.locator('#nt').pressSequentially('paino 41');await tap('.sheet [data-act=close]');
   want('muistion mittaus täyttää painon ja näkyy lääkeseurannassa',await pg.locator('.slotb[data-k=k2] .dot.ok').count()===1&&(await pg.locator('#sec-seuranta .rr').innerText()).includes('41')&&await nS()===3);
   await tap('.stb[data-v="3"]');await pg.waitForTimeout(400);
@@ -143,9 +155,9 @@ async function run(b,w,h,touch){
   await tap('#roll');want('osiovalikko aukeaa alhaalta',await pg.locator('.pop [data-nav]').count()===4);
   await tap('.pop [data-nav=muistio]');want('muistio auki, valikko kiinni',(await pg.locator('h1').first().innerText())==='Muistio'&&await pg.locator('.pop').count()===0);
   await pg.locator('#newnote').fill('Kettu soitto tänään klo 9 kuulumiset');await pg.waitForTimeout(1500);
-  want('muistiinpano tallentui tauon jälkeen',await pg.evaluate(D+'.muistio.length')===3);
+  want('muistiinpano tallentui tauon jälkeen',await pg.evaluate(D+'.muistio.length')===4);
   await pg.locator('#newnote').fill('Kettu soitto tänään klo 9 kuulumiset, äiti mukana');await pg.locator('#newnote').blur();await pg.waitForTimeout(150);
-  want('poistuminen tallentaa samaan muistiinpanoon',await pg.evaluate(D+'.muistio.length')===3&&(await pg.evaluate(D+'.muistio[2].text')).includes('äiti'));
+  want('poistuminen tallentaa samaan muistiinpanoon',await pg.evaluate(D+'.muistio.length')===4&&(await pg.evaluate(D+'.muistio[3].text')).includes('äiti'));
   want('kenttä tyhjenee ja muistiinpano listalla',(await pg.locator('#newnote').inputValue())===''&&await pg.locator('.note mark').count()>=1);
   /* kalenteri */
   await tap('#roll');await tap('.pop [data-nav=kalenteri]');await pg.waitForTimeout(150);
@@ -219,7 +231,7 @@ async function run(b,w,h,touch){
   await tap('#roll');await tap('.pop [data-nav=asiakkaat]');
   const [dl]=await Promise.all([pg.waitForEvent('download'),tap('#bar [data-act=vie]')]);
   want('pikavienti alapalkista',await pg.evaluate('MF.FILE')==='Mätsik Forest.json'&&['Mätsik Forest.json','download'].includes(dl.suggestedFilename()));
-  const ftxt=fs.readFileSync(await dl.path(),'utf8'),o=JSON.parse(ftxt);want('vientimuoto',o.app==='matsik'&&o.data.asiakkaat[0].nimi==='Kettu'&&o.data.muistio.length===4);
+  const ftxt=fs.readFileSync(await dl.path(),'utf8'),o=JSON.parse(ftxt);want('vientimuoto',o.app==='matsik'&&o.data.asiakkaat[0].nimi==='Kettu'&&o.data.muistio.length===5);
   await pg.evaluate('localStorage.clear()');await pg.reload();await pg.waitForTimeout(150);await tap('#roll');await tap('.pop [data-nav=valikko]');await tap('[data-act=vsub][data-k=tiedot]');
   await tap('[data-act=tuoteksti]');await pg.fill('#tt',ftxt);await tap('[data-act=ttok]');await tap('[data-act=tuook]');
   want('tuonti palautti eläimet',await pg.locator('.lr').count()===2);
@@ -232,11 +244,13 @@ async function run(b,w,h,touch){
   want('viikon lista rivin alle, muistiinpano mukana',await pg.locator('.lr:has-text("Kettu") + .lp').count()===1&&(await pg.locator('#lp .lph b').innerText()).startsWith('Vk ')&&await pg.locator('#lp .nlink:has-text("neuvottelu")').count()===1);
   await tap('#lp .nlink:has-text("neuvottelu")');want('pikakatselu päällimmäisenä',(await pg.locator('#qv').innerText()).includes('Ota lomake mukaan'));
   await pg.mouse.click(4,200);await pg.waitForTimeout(150);want('ulkopuolinen napautus sulkee vain pikakatselun',await pg.locator('#qv').count()===0&&await pg.locator('#lp').count()===1);
-  await tap('#lp .lci:has(.nlink) [data-act=tila]');want('muistiinpano kuitattu OK, lista pysyy auki',(await pg.evaluate(D+".muistio.find(n=>n.id==='wq').tila"))[Object.keys(await pg.evaluate(D+".muistio.find(n=>n.id==='wq').tila"))[0]]==='toteutui'&&await pg.locator('#lp').count()===1);
+  await tap('#lp .lci:has(.nlink:has-text("neuvottelu")) [data-act=tila]');want('muistiinpano kuitattu OK, lista pysyy auki',(await pg.evaluate(D+".muistio.find(n=>n.id==='wq').tila"))[Object.keys(await pg.evaluate(D+".muistio.find(n=>n.id==='wq').tila"))[0]]==='toteutui'&&await pg.locator('#lp').count()===1);
   if(await pg.locator('#lp [data-act=vok]').count())await tap('#lp [data-act=vok]');
   want('järjestys pysyy, kun viikko on auki',(await pg.locator('.nl b').allInnerTexts()).join()===ord0);
   await tap('.lr:has-text("Siili") .nl');want('napautus ulkopuolelle sulkee eikä avaa eläintä',await pg.locator('#lp').count()===0&&(await pg.locator('h1').first().innerText())==='Eläimet');
   want('ei vaakavieritystä (viikot)',!await wide());
+  await tap('#bar [data-act=pika]');want('listalta pikamuistiinpano ilman valittua eläintä',await pg.locator('.sheet [data-act=pikaa][aria-pressed=true]').count()===0&&await pg.locator('.sheet [data-act=pikai][disabled]').count()===6);
+  await tap('.sheet .gear');want('ratas vie pikanappien asetuksiin',await pg.locator('#lc-pikat').count()===1&&await pg.locator('.sheet').count()===0);
   want('ei sivuvirheitä',!errs.length);if(errs.length)console.log(errs);
   await ctx.close();return bad;}
 (async()=>{let b;try{b=await chromium.launch();}catch(e){b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium'});}
