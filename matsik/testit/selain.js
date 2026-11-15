@@ -286,9 +286,17 @@ async function run(b,w,h,touch){
   await tap('.sheet .gear');want('ratas vie pikanappien asetuksiin',await pg.locator('#lc-pikat').count()===1&&await pg.locator('.sheet').count()===0);
   /* 1.9: oletusväli, pikapäivä tarkistettavana, OK kalenterin viikkonäkymästä nollaa välin */
   await tap('#bar [data-act=vback]');await tap('[data-act=vsub][data-k=valit]');
-  want('1.12: yksi lista: 33 riviä, 8 sarakeotsikkoa, ei näppäimistöä eikä poistoa',await pg.locator('.vt').count()===1&&await pg.locator('#vl .vtr[data-row]').count()===33&&await pg.locator('#vl .vthr .vth').count()===8&&await pg.locator('#vl .vtc').count()===10*6+23*5&&
+  want('1.12: yksi lista: 33 riviä, 8 sarakeotsikkoa, ei näppäimistöä eikä poistoa',await pg.locator('.vt').count()===1&&await pg.locator('#vl .vtr[data-row]').count()===33&&await pg.locator('#vlh .vth').count()===8&&await pg.locator('#vl .vtc').count()===10*6+23*5&&
     await pg.locator('#app input').count()===0&&await pg.locator('.vt [data-act^=del], .vt [data-act=leopen]').count()===0&&!await wide());
   want('tuotu järjestys säilyy (käynnit siirretty aiemmin kärkeen)',(await pg.locator('#vl .vtr[data-row]').evaluateAll(R=>R.map(r=>r.dataset.row.charAt(0)).join('')))==='s'.repeat(10)+'t'.repeat(9)+'o'.repeat(14));
+  want('1.13: ohjeteksti i-napin takana, ei pitkiä ohjekappaleita',await pg.locator('.hd .ib').count()===1&&(await pg.locator('#app p.meta').allInnerTexts()).every(t=>t.length<60));
+  const jj0=JSON.stringify(await pg.evaluate(D+'.asetukset.jarj||[]'));
+  await tap('.hd .ib');want('i avaa ohjeen päälle',(await pg.locator('#infop .infd').innerText()).includes('raahaa')&&(await pg.locator('h1').first().innerText()).startsWith('Tarkistusvälit'));
+  await pg.mouse.click(4,300);await pg.waitForTimeout(100);want('ulkopuolinen napautus sulkee ohjeen eikä tee muuta',await pg.locator('#infop .infd').count()===0&&JSON.stringify(await pg.evaluate(D+'.asetukset.jarj||[]'))===jj0&&(await pg.locator('h1').first().innerText()).startsWith('Tarkistusvälit'));
+  await pg.evaluate(()=>window.scrollTo(0,700));await pg.waitForTimeout(80);
+  want('sarakeotsikot jäädytetty yläreunaan',await pg.evaluate(()=>{const h=document.getElementById('vlh').getBoundingClientRect(),hd=document.querySelector('.hd').getBoundingClientRect();return Math.abs(h.top-hd.bottom)<2&&h.bottom<hd.bottom+40;}));
+  want('otsikot vierivät sivuttain taulukon mukana',await pg.evaluate(async()=>{const t=document.getElementById('vl'),h=document.getElementById('vlh');t.scrollLeft=50;await new Promise(r=>setTimeout(r,60));const ok=h.scrollLeft===t.scrollLeft;t.scrollLeft=0;await new Promise(r=>setTimeout(r,60));return ok;}));
+  await pg.evaluate(()=>window.scrollTo(0,0));
   const vdrag=async(from,to,after)=>{await pg.locator(from).scrollIntoViewIfNeeded();const a=await pg.locator(from+' .vgrip').boundingBox();await pg.mouse.move(a.x+a.width/2,a.y+a.height/2);await pg.mouse.down();
     for(let n=0;n<400;n++){const b=await pg.locator(to).evaluate(e=>{const r=e.getBoundingClientRect(),m=new DOMMatrix(getComputedStyle(e).transform).m42;return {y:r.top-m,height:r.height};}),ty=after?b.y+b.height+4:b.y-4,vh=pg.viewportSize().height;
       if(ty>=95&&ty<=vh-145){for(let k=1;k<=4;k++)await pg.mouse.move(a.x+a.width/2,a.y+(ty-a.y)*k/4);break;}

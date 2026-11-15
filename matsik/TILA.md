@@ -1,8 +1,16 @@
 # Mätsik Forest: tila
 
-**Vaihe:** versio 1.12. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 15.11.2026
+**Vaihe:** versio 1.13. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/matsik/ · **Päivitetty:** 15.11.2026
 
 Juureen (`paatospuu/`) nojaava, mutta erillinen hoitosuunnitelmien demo- ja kehittämisappi. Kaikki sisältö on kuvitteellista, ja Emil kirjoittaa sen itse. Appi ei sisällä valmista dataa. Hahmotelma ja perustelut ovat projektikansiossa (`hoitojuuri/HAHMOTELMA.md`), ei tässä julkisessa repossa.
+
+## Versio 1.13 (15.11.2026, Emil: ohjetekstit pienen i-napin taakse, sarakeotsikot jäädytetyiksi)
+
+- Pieni i-nappi (`ib(teksti)`) siinä kohdassa, missä ohjetta tarvitaan; napautus avaa ohjeen päälle (`#infop`), ulkopuolinen napautus sulkee eikä tee muuta. Uusia ohjeita ei lisätty, vain siirrettiin olemassa olevat.
+- Siirretty i:n taakse: Tarkistusvälit ja järjestys (otsikkorivi), Portaat, Luetteloiden korttien ohjeet (pikanapit, sisällöt, muodot, mittarit), Periaatteet ja mittarit, sisällön Laji, ohjauksen arvio, mittausten "Muistiinpanon rivi … kirjaa itsestään", muistiinpanon "Tallentuu itsestään", kalenterin päivän tyhjä tila, eläimen muistiinpanojen tyhjä tila, osion tyhjä tila, pikamuistiinpanon kuukausivalitsin. Poistettu ponnahdusikkunoiden "Sulje napauttamalla ulkopuolelle" -rivit.
+- Jätetty ennalleen: Valikon etusivun rivien kuvaukset, tyhjät tilat ilman ohjetta ("Ei kirjauksia"), poiston varoitus "Käytössä N eläimellä", tavoitteen ohjaava kysymys.
+- Tarkistusvälien sarakeotsikot (1 vk … 12 kk) ovat jäädytettyinä otsikon alla ja vierivät sivuttain taulukon mukana.
+- Testit: `selain.js` (i avaa ja sulkee, ei pitkiä ohjekappaleita, otsikot jäädytetty ja synkronoitu). Kaikki ok 390, 320 ja 1280 px. Ei tarkistettu oikealla iPhonella.
 
 ## Versio 1.12 (15.11.2026, Emil: yksi lista, ei rinnakkaista järjestyssivua)
 
