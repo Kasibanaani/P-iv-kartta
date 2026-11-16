@@ -17,7 +17,7 @@ async def run(p,w,h,touch):
     try: b=await p.chromium.launch()
     except Exception: b=await p.chromium.launch(executable_path='/opt/pw-browsers/chromium')
     errs=[]; bad=[]
-    pg=await (await b.new_context(viewport={'width':w,'height':h},has_touch=touch,is_mobile=touch)).new_page()
+    pg=await (await b.new_context(viewport={'width':w,'height':h},has_touch=touch,is_mobile=touch)).new_page(); await pg.add_init_script("try{if(!localStorage.getItem('paatospuu:listview'))localStorage.setItem('paatospuu:listview','r')}catch(e){}")
     pg.on('pageerror',lambda e:(errs.append(str(e)),print('  PAGEERR',e)))
     def want(label,cond):
         print('  %-50s %s'%(label,'ok' if cond else 'VIRHE'))
@@ -49,7 +49,7 @@ async def run(p,w,h,touch):
     await r1.click(); await pg.wait_for_timeout(120)
     want('napautus avaa pienen ikkunan', await pg.is_visible('#wkpop') and await pg.is_visible('#wk-ok') and await pg.is_visible('#wk-open'))
     if w<1000:
-        await pg.mouse.click(w/2,90); await pg.wait_for_timeout(120)
+        await pg.mouse.click(w/2,8); await pg.wait_for_timeout(120)
         want('ulkopuolinen napautus vain sulkee', not await pg.is_visible('#wkpop') and await pg.locator('.wrow.done').count()==0)
         await r1.click(); await pg.wait_for_timeout(120)
     await pg.click('#wk-ok'); await pg.wait_for_timeout(200)
@@ -72,7 +72,7 @@ async def run(p,w,h,touch):
     await pg.click('#calview [data-v="w"]'); await pg.wait_for_timeout(200)
     # --- Asiat-taulukko ---
     await tab(pg,'terms'); await pg.wait_for_timeout(200)
-    want('otsikkorivi ja sarakkeet', await pg.locator('#thead .evh').count()==9 and await pg.locator('#implist .drow').nth(0).locator('.evc').count()==9)
+    want('otsikkorivi ja sarakkeet', await pg.locator('#thead .evh').count()==10 and await pg.locator('#implist .drow').nth(0).locator('.evc').count()==10)  # 1.104: Pika + 9 väliä
     c=pg.locator('#implist .drow[data-id="t1"] .evc[data-ev="7"]'); await c.click(); await pg.wait_for_timeout(150)
     ev=lambda: pg.evaluate("JSON.stringify(%s.termit.map(function(t){return [t.id,t.ev||0];}))"%K)
     want('napautus valitsee välin', json.loads(await ev())==[['t1',7],['t2',0]] and await pg.get_attribute('#implist .drow[data-id="t1"] .evc[data-ev="7"]','aria-pressed')=='true')

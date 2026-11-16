@@ -34,7 +34,7 @@ async def run(p,w,h):
     await pg.click('#chlist-pick'); await pg.wait_for_timeout(60); want('listat-ikkuna', await pg.is_visible('#wsheet')); await fits('Listat-ikkuna')
     await pg.fill('#ws-new','Kotikäynti'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(80)
     want('uusi lista valittuna ja tyhjä', 'Kotikäynti' in await pg.inner_text('#chlist-pick') and await pg.locator('#chlist .crow').count()==0)
-    want('Lopeta, ei aikaehdotuksia', await pg.is_visible('#chk-end') and await pg.locator('#chplan-t').count()==0)
+    want('Lopeta, ei aikaehdotuksia', await pg.is_visible('#chk-end') and await pg.locator('#pika-open').count()==0)  # 1.104: Aikaehdotukset Lista-ikkunassa
     await fits('Kierroslistan ylärivi')
     lid=await pg.evaluate(K+".listat[0].id")
     # Rivit kierroslistalle: R1 (ja: Soitto, Kirje), R2 (tai: Turva, Kirje), R3 (Arvio)
@@ -83,7 +83,7 @@ async def run(p,w,h):
     # Vaihto jatkuvaan listaan
     await pg.click('#chlist-pick'); await pg.wait_for_timeout(50); await pg.locator('#ws-list .row[data-l=""]').click(); await pg.wait_for_timeout(60)
     order=await pg.evaluate("Array.prototype.map.call(document.querySelectorAll('#chlist .crow'),function(c){return c.dataset.id;})")
-    want('jatkuva lista ennallaan', order==['j1'] and await pg.is_visible('#chplan-t'))
+    want('jatkuva lista ennallaan', order==['j1'] and await pg.is_visible('#listview'))  # 1.104
     # Vienti sisältää listat ja rivien l:n
     want('tallennus: listat ja rivien lista', await pg.evaluate(K+".listat[0].name")=='Kotikäynti' and await pg.evaluate(K+".tarkistuslista.filter(function(r){return r.l;}).length")==4)
     # Nimeäminen ja poisto

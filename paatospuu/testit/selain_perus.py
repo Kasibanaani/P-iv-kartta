@@ -19,6 +19,10 @@ Leikki
 #Eläimet: Kaikki lemmikit
 >Perustelu: Lemmikki tarvitsee ruokaa joka päivä. // Toinen kappale."""
 MT="#Turvallisuus: Turvallisuus on varmistettu\n#Allianssi: Allianssi on kunnossa\nAjantasainen turvasuunnitelma\nKriisikontaktit sovittu\nAllianssi vanhemman kanssa\nAllianssi lapsen kanssa\n\n=Turvallisuus vaatii kaikki:\nAjantasainen turvasuunnitelma\nKriisikontaktit sovittu\n\n=Allianssi vaatii kaikki:\nAllianssi vanhemman kanssa\nAllianssi lapsen kanssa\n\n=Ajantasainen turvasuunnitelma kääntöpuoli:\nTurvasuunnitelma puuttuu\n\n=Turvallisuus kääntöpuoli:\nTurvallisuutta ei ole varmistettu"
+async def plan(pg):
+    """1.104: Aikaehdotukset-kytkin on Lista-ikkunassa"""
+    await pg.click('#chlist-pick'); await pg.wait_for_timeout(80); await pg.click('#wsheet #chplan-t'); await pg.wait_for_timeout(40)
+    await pg.keyboard.press('Escape'); await pg.wait_for_timeout(80)
 async def run(p,w,h):
     try: b=await p.chromium.launch()
     except Exception: b=await p.chromium.launch(executable_path='/opt/pw-browsers/chromium')
@@ -569,8 +573,8 @@ async def run(p,w,h):
     await pg.evaluate("""(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1')),k=o.kokonaisuudet[0];k.termit=(k.termit||[]).concat([{id:'tp1',name:'Pyykit',yes:[],no:[],dur:45}]);
       k.tarkistuslista=(k.tarkistuslista||[]).concat([{id:'rp',name:'Pyykkirivi',created:'2026-10-01T00:00:00.000Z',it:[{id:'tp1'}]}]);localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()""")
     await pg.reload(); await pg.wait_for_timeout(400); await tab(pg,'notes'); await pg.wait_for_timeout(40); await tab(pg,'list'); await pg.wait_for_timeout(40)
-    want('ei ehdotuksia ennen kytkintä', await pg.locator('#chplan').count()==0 and await pg.get_attribute('#chplan-t','aria-pressed')=='false')
-    await pg.click('#chplan-t'); await pg.wait_for_timeout(50); pr=pg.locator('#chplan .plrow:has-text("Pyykit")')
+    want('ei ehdotuksia ennen kytkintä', await pg.locator('#chplan').count()==0)
+    await plan(pg); pr=pg.locator('#chplan .plrow:has-text("Pyykit")')
     tt=(await pr.locator('.plt').inner_text()) if await pr.count()==1 else ''
     def mins(x): a,b=x.split('.') if '.' in x else (x,'0'); return int(a)*60+int(b)
     want('ehdotus kestolla 45 min', '–' in tt and mins(tt.split('–')[1])-mins(tt.split('–')[0])==45 and 'Pyykkirivi' in await pr.inner_text()); await check('aikaehdotukset')
@@ -583,7 +587,7 @@ async def run(p,w,h):
     await pg.mouse.move(bx['x']+14,bx['y']+14); await pg.mouse.down(); await pg.mouse.move(bx['x']+14,bx['y']+14+24,steps=4); await pg.mouse.move(bx['x']+14,bx['y']+14+48,steps=4); await pg.mouse.up(); await pg.wait_for_timeout(80)
     wn=await pg.evaluate("(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1')),w=o.kokonaisuudet[0].aikavalit||{};return w[String(new Date().getDay())]||null;})()")
     want('loppu raahattu tunnilla', wn=={'s':480,'e':1020}); want('ei uutta merkintää raahauksesta', not await pg.is_visible('#nsheet')); await check('aikaväli kalenterissa')
-    await tab(pg,'notes'); await pg.wait_for_timeout(40); await tab(pg,'list'); await pg.wait_for_timeout(40); await pg.click('#chplan-t'); await pg.wait_for_timeout(40)
+    await tab(pg,'notes'); await pg.wait_for_timeout(40); await tab(pg,'list'); await pg.wait_for_timeout(40); await plan(pg)
     await tab(pg,'cal'); await pg.wait_for_timeout(60); want('viiva pois kytkimen kanssa', await pg.locator('#winbar').count()==0)
     await tab(pg,'notes'); await pg.wait_for_timeout(40); await tab(pg,'notes'); await pg.click('#noteview [data-nv="open"]'); await pg.wait_for_timeout(40)
     # 1.36: suhteellinen sana lukittuu ja muuttuu päivän tullen, napautus näyttää alkuperäisen
@@ -662,7 +666,7 @@ async def run(p,w,h):
     want('rivi tiivis, tähti sisällä', rh[0]<=46 and rh[1]); await check('tiiviit rivit'); await tsx(pg); await pg.wait_for_timeout(40)
     # 1.58: Listan rajausrivi pysyy ylhäällä
     await tab(pg,'notes'); await tab(pg,'list'); await pg.wait_for_timeout(60)
-    want('listan rivi alhaalla (1.73)', await pg.locator('#sbar #chplan-t').count()==1); await check('listan rivi ylhäällä')
+    want('listan rivi alhaalla (1.73)', await pg.locator('#sbar #listview').count()==1); await check('listan rivi ylhäällä')
     await tab(pg,'notes'); await pg.click('#noteview [data-nv="open"]'); await pg.wait_for_timeout(40)
     # 1.59: kalenterin palkki: nuolet samalla rivillä reunoissa, ei päivätekstiä yläpuolella
     await tab(pg,'cal'); await pg.wait_for_timeout(100)

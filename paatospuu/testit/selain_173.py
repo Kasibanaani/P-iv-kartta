@@ -33,7 +33,7 @@ async def phone(p,w,h):
     await pg.click('#noteview [data-nv="open"]'); await pg.wait_for_timeout(40)
     await tab(pg,'list'); await pg.wait_for_timeout(60)
     g=await pg.evaluate(GEO)
-    want('Listat: Lista ⌄ alhaalla', g['vis'] and 'chlist-pick' in g['ids'] and 'chplan-t' in g['ids'] and not g['yli'])
+    want('Listat: Lista ⌄ alhaalla', g['vis'] and 'chlist-pick' in g['ids'] and 'listview' in g['ids'] and not g['yli'])
     want('Listat: tyhjä yläpalkki piiloon', not await pg.is_visible('#nbar'))
     await pg.click('#chlist-pick'); await pg.wait_for_timeout(60)
     want('Lista ⌄ avaa listat', await pg.is_visible('#wsheet')); await pg.click('#wsheet .sx'); await pg.wait_for_timeout(40)
