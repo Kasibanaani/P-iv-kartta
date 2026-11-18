@@ -12,7 +12,7 @@ apu.VIIKOT=True
 U='file://'+os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','index.html'))
 K="JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0]"
 OVER="""(function(){var w=document.documentElement.clientWidth,out=[];document.querySelectorAll('input,textarea,select,button').forEach(function(e){var r=e.getBoundingClientRect();
- if(r.width&&r.height&&e.offsetParent!==null&&!e.closest('.hscroll')&&(r.right>w+0.5||r.left<-0.5))out.push((e.id||e.className||e.tagName)+' '+Math.round(r.left)+'..'+Math.round(r.right));});return JSON.stringify(out);})()"""
+ if(r.width&&r.height&&e.offsetParent!==null&&!e.closest('.hscroll,.lwv')&&(r.right>w+0.5||r.left<-0.5))out.push((e.id||e.className||e.tagName)+' '+Math.round(r.left)+'..'+Math.round(r.right));});return JSON.stringify(out);})()"""
 async def run(p,w,h,touch):
     try: b=await p.chromium.launch()
     except Exception: b=await p.chromium.launch(executable_path='/opt/pw-browsers/chromium')
@@ -48,20 +48,20 @@ async def run(p,w,h,touch):
     want('Pika näkyy valittuna', await pg.get_attribute('#implist .evc.pkc[data-pk="t2"]','aria-pressed')=='true')
     await tap('#implist .evc.pkc[data-pk="t2"]')
     want('uusi napautus poistaa Pika-valinnan', await pg.evaluate(K+".pikat.join()")=='t3,t1')
-    # Listat: Viikot oletuksena
+    # Listat: Viikot (1.105: Ruudut on oletus, Viikot alapalkin valinnalla; kortti per rivi kuten Mätsikissä, viikko avaa ikkunan päälle)
     await tab(pg,'list'); await pg.wait_for_timeout(250)
-    want('Viikot oletuksena', await pg.locator('#lwk').count()==1 and await pg.get_attribute('#listview [data-v="w"]','aria-pressed')=='true')
-    want('14 viikkoa otsikossa', await pg.locator('#lwk .thead .evh').count()==14)
+    want('Viikot valittuna', await pg.locator('#lwk').count()==1 and await pg.get_attribute('#listview [data-v="w"]','aria-pressed')=='true')
+    want('14 viikkoa kortilla', await pg.locator('.lwr[data-id="c1"] .lwc').count()==14)
     want('rivi per listan rivi', await pg.locator('#lwk .lwr').count()==2)
-    want('Kettu: avointa tällä viikolla (punainen, 1)', await pg.evaluate("(function(){var c=document.querySelector('.lwr[data-id=\"c1\"] .lwc[data-w=\"0\"]');return c.classList.contains('red')&&c.textContent==='1';})()"))
+    want('Kettu: avointa tällä viikolla (punainen, 1)', await pg.evaluate("(function(){var c=document.querySelector('.lwr[data-id=\"c1\"] .lwc[data-w=\"0\"]');return c.classList.contains('red')&&c.querySelector('small').textContent==='1';})()"))
     k1=await pg.evaluate("(function(){var c=[].slice.call(document.querySelectorAll('.lwr[data-id=\"c1\"] .lwc'));return c.findIndex(function(x,i){return i>0&&x.classList.contains('yel');});})()")
     want('Lääkkeet uusiutuu tulevalla viikolla (keltainen)', k1>=1)
-    k2=await pg.evaluate("(function(){var c=[].slice.call(document.querySelectorAll('.lwr[data-id=\"c2\"] .lwc'));return c.map(function(x){return x.className.indexOf('yel')>=0||x.className.indexOf('red')>=0?1:0;}).join('');})()")
-    want('Siili: kuittaamaton nyt ja muistiinpanon päivä tulevalla', k2[0]=='1' and '1' in k2[1:])
+    k2=await pg.evaluate("(function(){var c=[].slice.call(document.querySelectorAll('.lwr[data-id=\"c2\"] .lwc'));return c.map(function(x){return x.classList.contains('red')?'r':x.classList.contains('inf')?'i':x.classList.contains('yel')?'y':'-';}).join('');})()")
+    want('Siili: kuittaamaton nyt (punainen), muistiinpanon päivä tulevalla (tieto)', k2[0]=='r' and 'i' in k2[1:])
     want('ei sivun vaakavieritystä', await pg.evaluate(OVER)=='[]')
     c0=await box('.lwr[data-id="c1"] .lwc[data-w="0"]')
     await tap('.lwr[data-id="c1"] .lwc[data-w="0"]')
-    want('viikon napautus avaa asiat rivin alle', await pg.locator('.lwr[data-id="c1"] #lwx').count()==1)
+    want('viikon napautus avaa asiat ikkunaan', await pg.is_visible('#lwpop #lwx'))
     want('ruutu ei liiku avatessa', await box('.lwr[data-id="c1"] .lwc[data-w="0"]')==c0)
     names=await pg.evaluate("[].map.call(document.querySelectorAll('#lwx .lwe .lwt .t'),function(e){return e.textContent;}).join()")
     mon=(now-datetime.timedelta(days=now.weekday())).date()
@@ -72,14 +72,14 @@ async def run(p,w,h,touch):
     want('kuitattu jää paikalleen himmeänä', await pg.locator('#lwx .lwe.done[data-id="t2"]').count()==1 and await box(py)==yb)
     await tap(py)
     want('uusi napautus perii kuittauksen', await pg.evaluate(K+".tarkistuslista[0].it.filter(function(x){return x.id==='t2';})[0].ok")==None)
-    await tap('#lwk .thl')
+    await pg.mouse.click(w//2,12); await pg.wait_for_timeout(150)
     want('ulkopuolinen napautus sulkee viikon', await pg.locator('#lwx').count()==0)
     want('... eikä avaa mitään muuta', await pg.evaluate("!document.querySelector('dialog[open]')"))
-    # alapalkki ei liiku Viikot ↔ Rivit
-    B=['#chlist-pick','#pika-open','#listview','#listview [data-v="r"]']
+    # alapalkki ei liiku Viikot ↔ Ruudut
+    B=['#chlist-pick','#pika-open','#listview','#listview [data-v="g"]']
     b1=[await box(s) for s in B]
-    await tap('#listview [data-v="r"]'); await pg.wait_for_timeout(150)
-    want('Rivit näyttää listan rivit', await pg.locator('#chlist .crow').count()==2 and await pg.locator('#lwk').count()==0)
+    await tap('#listview [data-v="g"]'); await pg.wait_for_timeout(150)
+    want('Ruudut näyttää rivit ruutuina', await pg.locator('#rtiles .rtile').count()==2 and await pg.locator('#lwk').count()==0)
     b2=[await box(s) for s in B]
     want('alapalkki ei liiku näkymää vaihtaessa', b1==b2)
     want('Aikaehdotukset ei ole alapalkissa', await pg.locator('#pbar #chplan-t, .plbar #chplan-t').count()==0)
@@ -91,8 +91,12 @@ async def run(p,w,h,touch):
     await tap('#wsheet #chplan-t')
     want('Aikaehdotukset-kytkin toimii', await pg.get_attribute('#wsheet #chplan-t','aria-checked')=='true')
     await tap('#wsheet #chplan-t')
-    await pg.keyboard.press('Escape'); await pg.wait_for_timeout(150)
-    await tap('#listview [data-v="w"]')
+    await tap('#wsheet #ws-rows')
+    want('vanha rivinäkymä Lista-ikkunasta', await pg.get_attribute('#wsheet #ws-rows','aria-checked')=='true')
+    await apu.sulje(pg,'wsheet')
+    want('rivinäkymä näyttää listan rivit', await pg.locator('#chlist .crow').count()==2 and await pg.locator('#lwk,#rtiles').count()==0)
+    await tap('#listview [data-v="w"]') if await pg.locator('#listview [data-v="w"]').count() else await pg.evaluate("JuuriTesti.setListView('w')")
+    await pg.wait_for_timeout(150)
     want('valinta muistetaan laitteella', await pg.evaluate("localStorage.getItem('paatospuu:listview')")=='w')
     # Pikamuistiinpano
     await tap('#pika-open')
@@ -115,8 +119,8 @@ async def run(p,w,h,touch):
     want('yksi muistiinpano, monta päivää', t=='Kettu Lääkkeet %s, %s|t1|c1'%(dd(days[19]),dd(days[26])))
     await tap('#ds-grid [data-day="%s"]'%days[19])
     want('toinen napautus poistaa päivän', await pg.evaluate(K+".muistiinpanot.filter(function(n){return n.pika;})[0].text")=='Kettu Lääkkeet %s'%dd(days[26]))
-    if touch: await pg.tap('#dsheet .sx')
-    else: await pg.click('#dsheet .sx')
+    if touch: await apu.sulje(pg,'dsheet')
+    else: await apu.sulje(pg,'dsheet')
     await pg.wait_for_timeout(150)
     want('pikapäivät näkyvät ikkunassa', 'Lääkkeet' in (await pg.locator('#pika-dates').text_content()))
     hb=await box('#pika-dates')

@@ -1,6 +1,7 @@
 """Työnkulku kuittaustapana: asetukset, jatkaminen, lähdekuittaus, kumoa, uusiutuminen ja kalenterin ohituksen esto."""
 import asyncio,os,json
 from playwright.async_api import async_playwright
+import apu
 from apu import tab,menu
 U='file://'+os.path.abspath(os.path.join(os.path.dirname(__file__),'..','index.html'))
 K="JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0]"
@@ -23,7 +24,7 @@ async def run(p,w,h):
  await pg.click('#undo-b');assert not await pg.evaluate(K+".tarkistuslista.find(r=>r.id==='r1').it[0].ok||null");await pg.click('.crow[data-id="r1"] .cpill[data-tid="job"]');assert not await pg.locator('#chk-end').is_disabled();await pg.click('#chk-end')
  # Second source is a new independent execution.
  await pg.click('.crow[data-id="r2"] .chd');await pg.click('.crow[data-id="r2"] .cpill[data-tid="job"]');assert await pg.evaluate(K+'.listat.filter(L=>L.run).length')==2;assert await pg.locator('.cpill.ok').count()==0;await pg.click('#flow-back')
- await pg.click('#chlist-pick');assert 'Ensimmäinen' in await pg.locator('#ws-list [data-l="'+lid+'"]').inner_text();await pg.click('#wsheet .sx')
+ await pg.click('#chlist-pick');assert 'Ensimmäinen' in await pg.locator('#ws-list [data-l="'+lid+'"]').inner_text();await apu.sulje(pg,'wsheet')
  # Optional note launch leaves note unchecked and stays independent of the pending source run.
  await tab(pg,'notes');await pg.click('.ncard[data-id="n"] [data-flow="job"]');assert await pg.evaluate(K+'.listat.filter(L=>L.run).length')==3
  await pg.click('.cpill[data-tid="a"]');await pg.click('.cpill[data-tid="b"]');await pg.click('#chk-end');assert not await pg.evaluate(K+".muistiinpanot.find(n=>n.id==='n').done||null");assert not await pg.evaluate(K+".tarkistuslista.find(r=>r.id==='r2').it[0].ok||null")

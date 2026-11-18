@@ -1,8 +1,25 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.104 — Mätsik Forestin lista Juureen: Viikot, pikamuistiinpano, Pika-sarake. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 15.11.2026
+**Vaihe:** versio 1.105 — Ruudut, listakohtaiset tarkistuskohteet, Kerran, Viikot Mätsikin malliin, pienempi alapalkki. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 18.11.2026
 
 Juuren ydin on teksti, asiasanat ja niiden ehdot; Muistio, Kalenteri ja Listat ovat niiden käyttönäkymiä. Päätöspuun opetus ja vanhat listat säilyvät.
+
+## Versio 1.105 (18.11.2026): Ruudut ja listakohtaiset tarkistuskohteet (vaiheet A ja B)
+
+Emil 18.11. klo 16.23 ja "Tee heti a ja b". Suunnitelma: https://claude.ai/artifact/99Lb1XiEPsLSjERa7Wusxu (projektikansio `paatospuu/SUUNNITELMA-ruudut.md`).
+
+- **A1 alapalkki:** puhelimella osionappi ja Valikko 36 px korkeiksi (ennen isommat), fontit pienemmiksi; Muistio mahtuu yhdelle riville. Ei pomppimista: näkymän vaihto ei siirrä nappeja.
+- **A2 pienet ikkunat:** Lista-, Rivi-, Pika-, Päivä- ja Kuukausi-ikkunoissa (`wsheet, ksheet, pksheet, dsheet, csheet`) ei ole ruksia; ulkopuolinen napautus sulkee ja tallentaa kuten Valmis. Isot ikkunat ennallaan.
+- **A3 Viikot = Mätsik:** rivi on kortti (nimi + tärkein avoin + määrä, 14 viikkoruutua viikkonumeroineen, kuluva alleviivattu, vierivät sivuttain). Värit: punainen = avointa nyt, keltainen = tulossa, harmaa reuna = vain muistiinpanoja, vihreä = kuitattu. Viikon napautus avaa ikkunan alareunasta (ei enää rivin alle); ulkopuolinen napautus sulkee.
+- **B3 Ruudut (uusi oletus):** listan rivit ruutuina kaksi rinnakkain, paikka ei muutu koskaan. Sävy = kiire: heti tarkistettavaa kolmella voimakkuudella sen mukaan, kuinka tärkeä rivin tärkein avoin asia on rivin asioista (ylin kolmannes vahvin punainen); tulossa ensi viikolla keltainen; kunnossa vihreä; ei asioita katkoviiva. Sävy ja teksti eivät vaihdu ikkunan ollessa auki. Napautus avaa ikkunan: heti tarkistettavat tärkeysjärjestyksessä (OK, Päivä = pikapäivä kuukausivalitsimesta), sitten Myöhemmin (kuitatut eräpäivineen, tulevat pikapäivät) ja rivin teksti. "Valitse asiat" ikkunan otsikossa: listan kaikki tarkistuskohteet ruksein, ruksi pois = rivi ei tarkista tätä (`r.ei`).
+- **Näkymävalinta:** alapalkissa Ruudut / Viikot (Rd / Vk), muistetaan laitteella. Vanha rivinäkymä on Lista-ikkunan kytkin "Vanha rivinäkymä"; Aikaehdotukset toimii vain siinä.
+- **B1 listakohtaiset tarkistuskohteet:** ajassa uusiutuvalla listalla (jatkuva Lista ja uudet "Lista"-tyyppiset listat) on omat tarkistuskohteensa (Lista-ikkuna → Tarkistuskohteet, + Uusi). Sama asiasana voi olla monessa listassa; väli ja tärkeys tulevat Asiat-taulukosta, joten ne ovat samat kaikissa listoissa. Rivi tarkistaa oletuksena kaikki listan kohteet; rivin ikkunassa ruksi pois. Siirto vanhasta: listan kohteiksi tulevat rivien käsin valitut asiat, ja kukin rivi ruksii pois ne, joita sillä ei ollut (näkymä ei muutu). Kierros- ja työnkulkulistat ennallaan (rivikohtaiset asiat).
+- **Uusi lista:** Listat-ikkunassa "Lista" (ajassa uusiutuva, Ruudut ja Viikot) tai "Kierros" (entinen). Olemassa olevan listan voi muuttaa kytkimellä "Ajan mukaan uusiutuva".
+- **B2 Kerran:** Asiat-taulukossa Pika-sarakkeen jälkeen sarake Kerran: asia on avoin, kunnes se on kerran kuitattu, ei uusiudu. Kerran ja väli sulkevat toisensa.
+- **Tallennus:** uudet valinnaiset kentät `tarkistuslista[].ei`, `listat[].aj`, `listat[].tk`, `jatkuvalista.tk`, `termit[].once`; vanha muoto latautuu, `ver` ei muuttunut. Siirto tehdään kerran listan avautuessa.
+- **Testit:** uusi `selain_1105.py` (390 ja 320 kosketuksella, 1280 hiirellä). Vanhat testit sovitettu: pienet ikkunat suljetaan ulkopuolisella napautuksella (`apu.sulje`), rivinäkymä valitaan testikoukulla `window.JuuriTesti`, 1103 Asiat-taulukossa 11 saraketta, 1104 Viikkojen uusi kortti- ja ikkunarakenne, 184 matalampi alapalkki, 188 ja perus listan yhteiset kohteet (perus tyhjentää listan kohteet ennen rivikohtaisten ryhmien osuutta). Koko sarja läpi (logiikka + 46 selaintestiä); 194–196 ajettu kopioina selainpolulla kuten ennen. `selain_1103.py` kaatui kerran rinnakkaisajossa kuormituksen takia, erikseen ajettuna läpi kolmesti.
+- **Ei tarkistettu:** testit ajettiin tietokoneen selaimessa, ei oikealla iPhonella. Kokeiltavaa: Viikkojen korttien sivuvieritys sormella, ikkunan sulkeminen ohi napauttamalla Safarissa, 36 px alapalkin osuttavuus, Ruutujen värien erottuvuus tummassa teemassa.
+- **Seuraava askel / auki:** Emil kokeilee. Vaiheet C (yksinkertainen Päätöspuu, vanhat puut saavat jäädä pois) ja D (päivän napit Asiat-taulukon sarakkeella ja todennäköisyyspalkit) odottavat lupaa. Auki: päivän napit sarakkeena vai luettelona kalenterin päivässä; tarvitaanko listakohtainen tärkeysjärjestys myöhemmin (nyt yhteinen Asiat-taulukosta).
 
 ## Versio 1.104 (15.11.2026): Mätsik Forestin lista Juureen
 

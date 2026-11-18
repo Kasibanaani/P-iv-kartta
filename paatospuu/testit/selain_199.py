@@ -4,6 +4,7 @@ arkistoitu ei poimiudu, kierroslistalla ei valintaa. 390, 320, 1280 ja 1440 px."
 import asyncio, os, sys, json
 from playwright.async_api import async_playwright
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+import apu
 from apu import tab
 U='file://'+os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','index.html'))
 K="JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0]"
@@ -36,7 +37,7 @@ async def run(p,w,h):
     want('yhteenveto', 'rivin nimi, Koira' in await pg.inner_text('#ks-pxsum'))
     await pg.click('#ks-mode [data-km="0"]'); await pg.wait_for_timeout(60)
     want('kohteet-tila palaa', await pg.locator('#ks-f [data-px]').count()==0 and await pg.is_visible('#ks-g'))
-    await pg.click('#ksheet .sx'); await pg.wait_for_timeout(200)
+    await apu.sulje(pg,'ksheet'); await pg.wait_for_timeout(200)
     px=json.loads(await pg.evaluate("JSON.stringify(%s.tarkistuslista[0].px||null)"%K))
     want('tallentuu riville', px=={'n':1,'t':['k']})
     if await pg.locator(row+'.open').count(): await pg.click(row+' .chd'); await pg.wait_for_timeout(100)
@@ -65,7 +66,7 @@ async def run(p,w,h):
     await pg.click('#chlist-pick'); await pg.wait_for_timeout(120); await pg.click('#ws-list .row[data-l="L"]'); await pg.wait_for_timeout(150)
     await pg.click('#chlist .crow[data-id="r2"] .chd'); await pg.wait_for_timeout(100); await pg.click('#chlist .crow[data-id="r2"] .cedit'); await pg.wait_for_timeout(150)
     want('kierroslistalla ei valintaa', await pg.is_hidden('#ks-mode'))
-    await pg.click('#ksheet .sx'); await pg.wait_for_timeout(100)
+    await apu.sulje(pg,'ksheet'); await pg.wait_for_timeout(100)
     want('ei vaakavieritystä', await pg.evaluate("document.documentElement.scrollWidth<=innerWidth"))
     want('ei sivuvirheitä', not errs)
     await b.close(); return bad

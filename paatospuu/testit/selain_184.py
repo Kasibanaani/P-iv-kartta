@@ -30,7 +30,7 @@ async def run(p,w,h):
     await tab(pg,'use'); await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
     await tab(pg,'notes'); await pg.wait_for_timeout(100)
     r0=await box('roll'); m0=await box('menu')
-    want('kulmat samankokoiset, leveämpi kuin korkea', r0[2:]==m0[2:] and r0[2]>=60 and r0[3]>=70 and r0[2]<=r0[3]+12)
+    want('kulmat yhtä korkeat ja matalat (1.105: ≤ 40 px), leveämpi kuin korkea', r0[3]==m0[3] and r0[3]<=40 and r0[2]>=r0[3])
     want('vasen ja oikea alakulma symmetrisesti', abs(r0[0]-(w-m0[0]-m0[2]))<=1 and r0[1]==m0[1])
     want('ei seuraavan osion nimeä', not await pg.is_visible('#roll-next') and await pg.inner_text('#roll-now')=='Muistio')
     L=lambda: pg.evaluate("Array.prototype.map.call(document.querySelectorAll('#roll-let i'),function(i){return i.textContent+(i.classList.contains('on')?'*':'');}).join(' ')")

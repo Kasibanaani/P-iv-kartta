@@ -4,6 +4,7 @@ Käyttö: python3 testit/selain_162.py"""
 import asyncio, os, sys, json
 from playwright.async_api import async_playwright
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+import apu
 from apu import tab, menu, tsx
 U='file://'+os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','index.html'))
 K="JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0]"
@@ -67,7 +68,7 @@ async def run(p,w,h):
     # Uusi rivi Muokkaa-ikkunasta kuuluu kierroslistaan ja ikkuna puhuu kierroksen kieltä
     await pg.click('#newnote'); await pg.wait_for_timeout(60)
     want('rivin ryhmäsanat kierroksessa', await pg.inner_text('#ks-anyl')=='Rivi valmis, kun' and 'Yksi kuitattu' in await pg.inner_text('#ks-any'))
-    await pg.fill('#ks-name','Lisärivi'); await pg.click('#ksheet .sx'); await pg.wait_for_timeout(80)
+    await pg.fill('#ks-name','Lisärivi'); await apu.sulje(pg,'ksheet'); await pg.wait_for_timeout(80)
     want('uusi rivi tälle listalle', await pg.evaluate(K+".tarkistuslista.filter(function(r){return r.name==='Lisärivi';})[0].l")==lid)
     # Lopeta: muistiinpano ja alusta; Kumoa palauttaa
     n0=await pg.evaluate(K+".muistiinpanot.length")
@@ -88,7 +89,7 @@ async def run(p,w,h):
     want('tallennus: listat ja rivien lista', await pg.evaluate(K+".listat[0].name")=='Kotikäynti' and await pg.evaluate(K+".tarkistuslista.filter(function(r){return r.l;}).length")==4)
     # Nimeäminen ja poisto
     await pg.click('#chlist-pick'); await pg.wait_for_timeout(50); await pg.locator('#ws-list .row[data-l="%s"]'%lid).click(); await pg.wait_for_timeout(50)
-    await pg.click('#chlist-pick'); await pg.wait_for_timeout(50); await pg.fill('#ws-name','Käynti'); await pg.click('#wsheet .sx'); await pg.wait_for_timeout(60)
+    await pg.click('#chlist-pick'); await pg.wait_for_timeout(50); await pg.fill('#ws-name','Käynti'); await apu.sulje(pg,'wsheet'); await pg.wait_for_timeout(60)
     want('nimeäminen', 'Käynti' in await pg.inner_text('#chlist-pick'))
     await pg.click('#chlist-pick'); await pg.wait_for_timeout(50); await pg.click('#ws-del'); await pg.wait_for_timeout(40)
     await pg.locator('#wsheet .delbox button:has-text("Poista")').last.click(); await pg.wait_for_timeout(80)

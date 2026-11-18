@@ -10,9 +10,9 @@ async def menu(pg,sel):
 VIIKOT=False
 async def rivit(pg):
     """1.104: Listat avautuu Viikot-näkymään; vanhemmat testit käyttävät Rivit-näkymää (valinta muistetaan laitteella)."""
-    if VIIKOT: return
-    b=pg.locator('#listview [data-v="r"]')
-    if await b.count() and await b.get_attribute('aria-pressed')!='true': await b.click(); await pg.wait_for_timeout(60)
+    """1.105: Ruudut on oletus, Viikot alapalkissa ja vanha rivinäkymä Lista-ikkunassa (setListView)."""
+    v='w' if VIIKOT else 'r'
+    if await pg.evaluate("window.JuuriTesti&&JuuriTesti.listView()!=='%s'"%v): await pg.evaluate("JuuriTesti.setListView('%s')"%v); await pg.wait_for_timeout(60)
 async def tab(pg,t):
     if not await pg.is_visible('#roll'):
         await pg.click('[data-tab="%s"]'%t)
@@ -28,3 +28,7 @@ async def tab(pg,t):
 async def tsx(pg):
     """Asiasanakortin sulku: 1.72:sta alkaen kortin Valmis sulkee ikkunan suoraan Asiat-osioon, joten ruksi vain, jos ikkuna on auki."""
     if await pg.is_visible('#tsheet .sx'): await pg.click('#tsheet .sx')
+async def sulje(pg,d):
+    """1.105: pienissä ikkunoissa ei ole ruksia; suljetaan napauttamalla ulkopuolelle."""
+    await pg.mouse.click(3,3); await pg.wait_for_timeout(60)
+    if await pg.evaluate("document.getElementById('%s').open"%d): raise Exception('ikkuna %s ei sulkeutunut ulkopuolelta'%d)

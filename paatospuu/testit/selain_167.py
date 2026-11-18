@@ -4,6 +4,7 @@ Jatkuvalla listalla sama. Leveydet 390 ja 320 px. Käyttö: python3 testit/selai
 import asyncio, os, sys, json
 from playwright.async_api import async_playwright
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+import apu
 from apu import tab, menu, tsx
 U='file://'+os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','index.html'))
 K="JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0]"
@@ -39,7 +40,7 @@ async def run(p,w,h):
     await pg.click('#ws-eh'); want('kytkin päällä', await pg.get_attribute('#ws-eh','aria-checked')=='true'); await pg.wait_for_timeout(60)
     await fits('Listat-ikkuna ehdoilla')
     want('listan ikkunassa ei ehtojen muokkausta', await pg.locator('#ws-ehb').count()==0)
-    await pg.click('#wsheet .sx'); await pg.wait_for_timeout(60); await tab(pg,'terms'); await pg.wait_for_timeout(60); await pg.click('#tt-eh'); await pg.wait_for_timeout(80)
+    await apu.sulje(pg,'wsheet'); await pg.wait_for_timeout(60); await tab(pg,'terms'); await pg.wait_for_timeout(60); await pg.click('#tt-eh'); await pg.wait_for_timeout(80)
     want('ehtojen ikkuna', await pg.is_visible('#ehsheet') and 'Ehdot' in await pg.inner_text('#eh-h'))
     # Ehto 1: Kipu ja Kuume -> esiin Lääkäri, pois Odotus
     await pg.click('#eh-add'); await pg.wait_for_timeout(60)
@@ -84,7 +85,7 @@ async def run(p,w,h):
     want('lopetus: poissuljettu ei hoidettavissa', 'Hoidettavat' not in note and 'Odotus' not in note)
     want('alusta: Lääkäri taas piilossa', sorted(await pills('r2'))==['td','te'])
     # Ehdot pois -> kaikki näkyvät
-    await pg.click('#chlist-pick'); await pg.wait_for_timeout(50); await pg.click('#ws-eh'); await pg.wait_for_timeout(50); await pg.click('#wsheet .sx'); await pg.wait_for_timeout(60)
+    await pg.click('#chlist-pick'); await pg.wait_for_timeout(50); await pg.click('#ws-eh'); await pg.wait_for_timeout(50); await apu.sulje(pg,'wsheet'); await pg.wait_for_timeout(60)
     want('ehdot pois: kaikki näkyvät, ehdot säilyvät', sorted(await pills('r2'))==['tc','td','te'] and len(await pg.evaluate("JSON.parse(JSON.stringify("+K+".ehdot))"))==2)
     # Jatkuva lista: sama, tallennus projektin jatkuvalista-kenttään
     await pg.click('#chlist-pick'); await pg.wait_for_timeout(50); await pg.locator('#ws-list .row[data-l=""]').click(); await pg.wait_for_timeout(60)

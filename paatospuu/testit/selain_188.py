@@ -50,7 +50,7 @@ async def run(p,w,h):
     R=await rows()
     want('tänään ja myöhässä riveiksi, ei kahdesti', 'mu:n1' in R and 'mu:n2' in R and 'mu:n3' not in R and 'mu:n4' not in R)
     want('nimenä ensimmäinen rivi ja merkki', (await pg.inner_text('#chlist .crow[data-id="mu:n1"] .cn')).replace('\n',' ').startswith('Soita Liisalle') and await pg.locator('#chlist .crow[data-id="mu:n1"] .cmu').count()==1)
-    want('tallentuu listalle', json.loads(await pg.evaluate("JSON.stringify(%s.jatkuvalista||null)"%K)) =={'mu':1})
+    want('tallentuu listalle', (json.loads(await pg.evaluate("JSON.stringify(%s.jatkuvalista||null)"%K)) or {}).get('mu')==1)  # 1.105: lisäksi tk
     await opn('mu:n1')
     pl=await pg.evaluate("Array.prototype.map.call(document.querySelectorAll('#chlist .crow[data-id=\"mu:n1\"] .cpill'),function(b){return b.dataset.tid;})")
     want('kohde Tänään, ei Muokkaa-nappia', pl==['z:today'] and await pg.locator('#chlist .crow[data-id="mu:n1"] .cedit').count()==0)

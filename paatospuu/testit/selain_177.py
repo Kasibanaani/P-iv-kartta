@@ -4,6 +4,7 @@ piilottaa rivit, joihin ehdot eivät ole vielä tuoneet kohteita. Leveydet 390 j
 import asyncio, os, sys, json
 from playwright.async_api import async_playwright
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+import apu
 from apu import tab, menu, tsx
 U='file://'+os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','index.html'))
 K="JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0]"
@@ -57,7 +58,7 @@ async def run(p,w,h):
     want('kytkin listan ikkunassa', await pg.get_attribute('#ws-vk','aria-checked')=='true')
     await pg.click('#ws-vk'); await pg.wait_for_timeout(60)
     want('kytkin pois', await pg.get_attribute('#ws-vk','aria-checked')=='false' and not json.loads(await pg.evaluate("JSON.stringify("+K+".listat[0])")).get('vk'))
-    await pg.click('#ws-vk'); await pg.wait_for_timeout(60); await pg.click('#wsheet .sx'); await pg.wait_for_timeout(80)
+    await pg.click('#ws-vk'); await pg.wait_for_timeout(60); await apu.sulje(pg,'wsheet'); await pg.wait_for_timeout(80)
     await pg.reload(); await pg.wait_for_timeout(200)
     want('kytkin säilyy tallennuksessa', json.loads(await pg.evaluate("JSON.stringify("+K+".listat[0])")).get('vk')==1)
     await pg.click('#chlist-pick') if await pg.is_visible('#chlist-pick') else None

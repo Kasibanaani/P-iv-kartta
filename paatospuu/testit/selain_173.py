@@ -4,6 +4,7 @@ Listat: Lista ⌄, Kalenteri: kuukausi vasemmalla ja ‹ Tänään › oikealla.
 import asyncio, os, sys, json, datetime
 from playwright.async_api import async_playwright
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+import apu
 from apu import tab, menu, tsx
 U='file://'+os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','index.html'))
 GEO="""(function(){var s=document.getElementById('sbar'),p=document.getElementById('pbar'),m=document.getElementById('main');
@@ -36,7 +37,7 @@ async def phone(p,w,h):
     want('Listat: Lista ⌄ alhaalla', g['vis'] and 'chlist-pick' in g['ids'] and 'listview' in g['ids'] and not g['yli'])
     want('Listat: tyhjä yläpalkki piiloon', not await pg.is_visible('#nbar'))
     await pg.click('#chlist-pick'); await pg.wait_for_timeout(60)
-    want('Lista ⌄ avaa listat', await pg.is_visible('#wsheet')); await pg.click('#wsheet .sx'); await pg.wait_for_timeout(40)
+    want('Lista ⌄ avaa listat', await pg.is_visible('#wsheet')); await apu.sulje(pg,'wsheet'); await pg.wait_for_timeout(40)
     await tab(pg,'cal'); await pg.wait_for_timeout(80)
     g=await pg.evaluate(GEO)
     want('Kalenteri: kuukausi ja nuolet alhaalla', g['vis'] and 'calmonth' in g['ids'] and 'caltoday' in g['ids'] and not g['yli'])

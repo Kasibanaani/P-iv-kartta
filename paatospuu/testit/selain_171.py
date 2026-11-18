@@ -4,6 +4,7 @@ Leveydet 390 ja 320 px kosketuksella. Käyttö: python3 testit/selain_171.py"""
 import asyncio, os, sys
 from playwright.async_api import async_playwright
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+import apu
 from apu import tab, menu, tsx
 U='file://'+os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','index.html'))
 async def run(p,w,h):
@@ -52,7 +53,7 @@ async def run(p,w,h):
     want('ehdot kytkimenä', await pg.get_attribute('#ws-eh','role')=='switch' and await pg.locator('#ws-ehb').count()==0)
     await pg.click('#ws-eh'); await pg.wait_for_timeout(50)
     want('kytkin päälle', await pg.get_attribute('#ws-eh','aria-checked')=='true')
-    await pg.click('#wsheet .sx'); await pg.wait_for_timeout(80)
+    await apu.sulje(pg,'wsheet'); await pg.wait_for_timeout(80)
     # Kalenteri: pallero ei koske numeroon
     await tab(pg,'cal'); await pg.wait_for_timeout(120)
     g=await pg.evaluate("""(function(){var d=[].filter.call(document.querySelectorAll('#week .cday'),function(x){return x.classList.contains('has')&&!x.classList.contains('hassub');})[0];if(!d)return {h:99,gap:-9};

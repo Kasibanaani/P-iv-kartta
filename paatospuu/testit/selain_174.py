@@ -4,6 +4,7 @@ Leveydet 390 ja 320 px, tietokone 1280 px. Käyttö: python3 testit/selain_174.p
 import asyncio, os, sys, json
 from playwright.async_api import async_playwright
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+import apu
 from apu import tab, menu, tsx
 U='file://'+os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','index.html'))
 SEED="""(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1')),k=o.kokonaisuudet[0];k.name='Koti';k.termit=[{id:'ta',name:'Kipu',yes:['kipu'],no:[]}];
@@ -53,8 +54,8 @@ async def phone(p,w,h):
     want('palkki mahtuu', o==0)
     await pg.click('#psheet .sx'); await pg.wait_for_timeout(80)
     await tab(pg,'list'); await pg.wait_for_timeout(60); await pg.click('#chlist-pick'); await pg.wait_for_timeout(100)
-    want('Listat-ikkuna: paluu Listoihin', await pg.inner_text('#wsheet .sx')=='‹ Listat' and await pg.inner_text('#crumb')=='Koti · Listat › Listat')
-    await pg.click('#wsheet .sx'); await pg.wait_for_timeout(60)
+    want('Listat-ikkuna: pieni ikkuna ilman ruksia', await pg.locator('#wsheet .sx').count()==0)
+    await apu.sulje(pg,'wsheet'); await pg.wait_for_timeout(60)
     want('ei sivuvirheitä', not errs)
     await b.close(); return bad
 async def desk(p):
