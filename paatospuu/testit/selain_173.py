@@ -78,7 +78,7 @@ async def desk(p):
         if not cond: bad.append(label)
     print('leveys 1280')
     await pg.goto(U); await pg.wait_for_timeout(200)
-    await pg.click('[data-tab="use"]'); await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
+    await tab(pg,'use'); await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
     for t,sel in (('notes','#noteview'),('cal','#calsticky .calhead'),('list','#nbar #chlist-pick')):
         await pg.click('[data-tab="%s"]'%t); await pg.wait_for_timeout(60)
         want('tietokone %s: rivi ylhäällä'%t, not await pg.is_visible('#sbar') and await pg.is_visible(sel) and (await pg.locator(sel).bounding_box())['y']<200)

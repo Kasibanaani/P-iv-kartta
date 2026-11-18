@@ -83,7 +83,7 @@ async def run(p,w,h,touch):
     want('Kettu: Kastelu nyt tärkein avoin', (await pg.inner_text('.rtile[data-id="c1"] .rtop')).startswith('Kastelu'))
     # Kerran-sarake
     await tab(pg,'terms'); await pg.wait_for_timeout(200)
-    want('Kerran-otsikko Pikan jälkeen', (await pg.locator('#thead .evh').nth(1).text_content())=='Kerran')
+    want('Kerran-otsikko ensimmäisenä (1.108 Pika pois)', (await pg.locator('#thead .evh').nth(0).text_content())=='Kerran')
     await tap('#implist .drow:has-text("Kastelu") .evc[data-ev="once"]')
     want('Kerran tallentuu asiasanalle', await pg.evaluate(K+".termit.filter(function(t){return t.id==='t3';})[0].once")==1)
     await tap('#implist .drow:has-text("Soitto") .evc[data-ev="once"]')

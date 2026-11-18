@@ -33,22 +33,23 @@ async def run(p,w,h):
       localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()""")
     await pg.reload(); await pg.wait_for_timeout(200); await tab(pg,'terms'); await pg.wait_for_timeout(80)
     imp=lambda: pg.evaluate(K+".tarkeat")
-    r=await pg.evaluate("(function(){var a=document.querySelectorAll('#implist .drow'),n=a[0].querySelector('.num').getBoundingClientRect(),q=a[1].getBoundingClientRect(),m=document.querySelector('#implist .drow .row').getBoundingClientRect();return {nx:n.left+n.width/2,ny:n.top+n.height/2,gap:(a[0].getBoundingClientRect().bottom+q.top)/2,mx:m.left+40,my:m.top+m.height/2,b:q.bottom};})()")
-    # Pito numerosarakkeessa: viiva, veto rivien väliin, nosto -> kenttä
-    lab=await hold(r['nx'],r['ny'],moves=[(r['nx'],r['gap']-2),(r['nx'],r['gap'])])
-    want('pito tuo viivan, veto rivien väliin', lab is not None and lab[0]=='2. tärkeä' and not lab[1])
+    # 1.108: numerosarake poistui; pito listan alla olevassa tyhjässä kohdassa tuo viivan, nosto avaa kentän listan loppuun
+    pt="(async function(){var L=document.getElementById('implist'),M=document.getElementById('main');M.scrollTo({top:M.scrollTop+L.getBoundingClientRect().bottom-M.getBoundingClientRect().height/2,behavior:'instant'});await new Promise(function(r){setTimeout(r,250);});var q=L.getBoundingClientRect(),t=document.querySelector('#p-terms > .btnrow:last-of-type')||L,z=t.getBoundingClientRect();return {x:q.left+60,y:Math.min(z.bottom+36,innerHeight-90)};})()"
+    r=await pg.evaluate(pt); await pg.wait_for_timeout(60)
+    lab=await hold(r['x'],r['y'])
+    want('pito listan alla tuo viivan', lab is not None and lab[0]=='Uusi tähän' and not lab[1])
     want('nosto avaa kentän kohtaan, fokus', await pg.is_visible('#tnew-in') and await pg.evaluate("document.activeElement.id")=='tnew-in')
-    pos=await pg.evaluate("(function(){var i=document.getElementById('tnew-in').closest('.tnew'),a=document.querySelectorAll('#implist .drow');return [a[0].getBoundingClientRect().bottom<=i.getBoundingClientRect().top+1,i.getBoundingClientRect().bottom<=a[1].getBoundingClientRect().top+1];})()")
-    want('kenttä rivien 1 ja 2 välissä', all(pos))
+    pos=await pg.evaluate("(function(){var i=document.getElementById('tnew-in').closest('.tnew'),a=document.querySelectorAll('#implist .drow');return a[a.length-1].getBoundingClientRect().bottom<=i.getBoundingClientRect().top+1;})()")
+    want('kenttä listan lopussa', pos)
     await pg.fill('#tnew-in','Huimaus'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(120)
     # Pito ja nosto paikallaan (ei vetoa): kenttä jää auki ja fokukseen
-    r2=await pg.evaluate("(function(){var a=document.querySelector('#implist .num').getBoundingClientRect();return {x:a.left+a.width/2,y:a.top+a.height/2};})()")
+    r2=await pg.evaluate(pt); await pg.wait_for_timeout(60)
     await hold(r2['x'],r2['y']); await pg.wait_for_timeout(200)
     want('nosto paikallaan: kenttä auki, fokus', await pg.is_visible('#tnew-in') and await pg.evaluate("document.activeElement.id")=='tnew-in')
     await pg.keyboard.press('Escape'); await pg.wait_for_timeout(100)
     ids=await imp(); tt=json.loads(await pg.evaluate("JSON.stringify("+K+".termit)")); nid=[t['id'] for t in tt if t['name']=='Huimaus']
-    want('uusi tähdellä toiselle sijalle', len(nid)==1 and ids[:3]==['ta',nid[0],'tb'])
-    want('näkyy Tärkeissä', (await pg.locator('#implist .drow').nth(1).inner_text()).find('Huimaus')>=0)
+    want('uusi viimeiseksi', len(nid)==1 and ids[-1]==nid[0])
+    want('näkyy listan lopussa', (await pg.locator('#implist .drow').last.inner_text()).find('Huimaus')>=0)
     # 1.107: Muut-aluetta ei ole (tähdet pois, kaikki asiat samassa järjestyksessä)
     # Sivuveto peruu
     r=await pg.evaluate("(function(){var e=document.querySelector('#implist button.row[data-id=\"tc\"]');var M=document.getElementById('main');M.scrollTop+=e.getBoundingClientRect().top-M.getBoundingClientRect().height/2;var m=e.getBoundingClientRect();return {x:m.left+40,y:m.top+m.height/2};})()")
@@ -60,7 +61,7 @@ async def run(p,w,h):
     want('napautus avaa kortin', await pg.is_visible('#tsheet')); await tsx(pg); await pg.wait_for_timeout(120)
     # Tyhjä kenttä ei tee mitään
     n0=len(json.loads(await pg.evaluate("JSON.stringify("+K+".termit)")))
-    r=await pg.evaluate("(function(){var a=document.querySelector('#implist .num').getBoundingClientRect();return {x:a.left+a.width/2,y:a.top+a.height/2};})()")
+    r=await pg.evaluate(pt); await pg.wait_for_timeout(60)
     await hold(r['x'],r['y']); await pg.keyboard.press('Escape'); await pg.wait_for_timeout(120)
     want('tyhjä peruu', not await pg.is_visible('#tnew-in') and len(json.loads(await pg.evaluate("JSON.stringify("+K+".termit)")))==n0)
     # Tärkeät-rivin pito siirtää edelleen riviä

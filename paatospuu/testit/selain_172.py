@@ -105,7 +105,7 @@ async def desk(p):
     await pg.goto(U); await pg.wait_for_timeout(200)
     want('tietokoneella sivupalkki, ei rullausta', await pg.is_visible('#nav') and not await pg.is_visible('#pbar') and await pg.is_visible('#title'))
     want('Asiat sivupalkissa', await pg.is_visible('[data-tab="terms"]'))
-    await pg.click('[data-tab="use"]'); await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
+    await tab(pg,'use'); await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
     await pg.click('[data-tab="terms"]'); await pg.wait_for_timeout(60)
     want('Asiat-osiossa teksti- ja poistonapit', await pg.is_visible('#p-terms #tt-open') and await pg.is_visible('#p-terms #tdel-mode') and await pg.is_visible('#p-terms #tt-eh'))
     want('ei sivuvirheitä', not errs)

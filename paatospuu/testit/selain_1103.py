@@ -72,7 +72,7 @@ async def run(p,w,h,touch):
     await pg.click('#calview [data-v="w"]'); await pg.wait_for_timeout(200)
     # --- Asiat-taulukko ---
     await tab(pg,'terms'); await pg.wait_for_timeout(200)
-    want('otsikkorivi ja sarakkeet', await pg.locator('#thead .evh').count()==12 and await pg.locator('#implist .drow').nth(0).locator('.evc').count()==12)  # 1.106: Pika + Kerran + Päivä + 9 väliä
+    want('otsikkorivi ja sarakkeet', await pg.locator('#thead .evh').count()==11 and await pg.locator('#implist .drow').nth(0).locator('.evc').count()==11)  # 1.108: Kerran + Päivä + 9 väliä (Pika pois)
     c=pg.locator('#implist .drow[data-id="t1"] .evc[data-ev="7"]'); await c.click(); await pg.wait_for_timeout(150)
     ev=lambda: pg.evaluate("JSON.stringify(%s.termit.map(function(t){return [t.id,t.ev||0];}))"%K)
     want('napautus valitsee välin', json.loads(await ev())==[['t1',7],['t2',0]] and await pg.get_attribute('#implist .drow[data-id="t1"] .evc[data-ev="7"]','aria-pressed')=='true')

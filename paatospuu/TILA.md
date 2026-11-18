@@ -1,8 +1,20 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.107 — tähdet pois (kaikki asiat yhdessä järjestyksessä), aikasanat pois Asioista, Päätöspuu alapalkin pääosioksi (1.106: päivän napit, yksinkertainen Päätöspuu; 1.105: Ruudut). **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 18.11.2026
+**Vaihe:** versio 1.108 — tiiviimpi Asiat-taulukko ja ison karsinnan jälkeen yksinkertaisempi Juuri (pois: vanha rivinäkymä, Aikaehdotukset, Vanhat puut, Pika-sarake, kierros- ja työnkulkulistat, ryhmät, Poissulkevat, Vaihepankki, Muistiinpanot listaan). **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 18.11.2026
 
 Juuren ydin on teksti, asiasanat ja niiden ehdot; Muistio, Kalenteri ja Listat ovat niiden käyttönäkymiä. Päätöspuun opetus ja vanhat listat säilyvät.
+
+## Versio 1.108 (18.11.2026): tiiviimpi Asiat-taulukko ja karsinta
+
+Emil 18.11. klo 21.58 (kuvakaappaus Asioista): fontti pienemmäksi, järjestysnumerot pois, kahva pienemmäksi, taulukko lähemmäs reunoja, enemmän tilaa vieritettäville sarakkeille; "poistetaan kaikki nuo sun ehdottamat poistot nytten". Pikamuistiinpanon nappi jää.
+
+- **Asiat-taulukko:** ei numeroita, nimi 14,5 px ja enintään kaksi riviä (ei katkaisua kesken), nimisarake kapeampi (38 vw), kahva pienempi, ruudut 20 px ja sarakkeet 36 px, kortti 6 px:n päässä reunoista. Puhelimella näkyy nyt noin 6 saraketta (ennen 4). Pinottua mallia (asia ylhäällä, ruksit alla) ei tehty: se kaksinkertaistaisi rivikorkeuden.
+- **Pika-sarake pois:** pikaikkunan napit ovat listan tarkistuskohteet Asioiden järjestyksessä; valitun rivin pois ruksimat näkyvät himmeinä paikallaan (napit eivät liiku). "+ Uusi" lisää listan tarkistuskohteen. Vanha `pikat`-kenttä säilyy tallennuksessa, mutta sitä ei käytetä.
+- **Pois näkyvistä:** vanha rivinäkymä (Lista-ikkunan kytkin) ja Aikaehdotukset; Vanhat puut (Valikko, tietokoneen sivupalkki); Kierros-lista ja Työnkulku-/Vain kuitattavat -kytkimet; ryhmät (#Nimi luo nyt tavallisen asiasanan, Ryhmät-luettelo ja rivi-ikkunan ryhmänapit pois); Poissulkevat-laji Ehdoista; Vaihepankki-nappi; Muistiinpanot listaan -kytkin. Kytkin näkyy yhä, jos se on jo päällä, jotta sen voi sammuttaa; olemassa olevat kierroslistat, ryhmät ja ehdot toimivat edelleen. Koodi ja tallennusmuoto säilyivät (vanhat projektit latautuvat); testit avaavat poistetut näkymät koukulla `JuuriTesti.old()` (localStorage `juuri:vanhat`).
+- **Uusi asiasana pidolla:** numerosarake poistui, joten pito toimii taulukon alla olevassa tyhjässä tilassa ja uusi asia tulee loppuun. Viivan teksti on "Uusi tähän".
+- **Testit:** sovitettu: apu (`old`), 1103, 1104, 1105, 1106, 172–176, 183, tietokone, perus. Koko sarja läpi (perus kerran kokonaan; 188, 191 ja perus kaatuvat välillä, kun selain hukkaa testin `localStorage`-kirjoituksen juuri ennen uudelleenlatausta; sama esiintyy 1.107:n koodilla, ei appin tallennuksessa).
+- **Ei tarkistettu:** oikea iPhone. Kokeiltavaa: kahden rivin nimet ja kahvan osuttavuus sormella, pikaikkunan himmeät napit.
+- **Seuraava askel / auki:** Emil kokeilee. Myöhemmin: poistettujen osien koodin varsinainen poisto, kun on varmaa, ettei niitä kaivata (vaatii vanhojen kierroslistojen ja ryhmien muunnoksen).
 
 ## Versio 1.107 (18.11.2026): tähdet pois, Päätöspuu pääosioksi
 

@@ -42,7 +42,7 @@ async def run(p,w,h,touch):
     await pg.reload(); await pg.wait_for_timeout(300)
     # Asiat: Päivä-sarake
     await tab(pg,'terms'); await pg.wait_for_timeout(200)
-    want('Päivä-otsikko Kerran-sarakkeen jälkeen', (await pg.locator('#thead .evh').nth(2).text_content())=='Päivä')
+    want('Päivä-otsikko Kerran-sarakkeen jälkeen', (await pg.locator('#thead .evh').nth(1).text_content())=='Päivä')
     want('Päivä-ruudut valittuina', await pg.get_attribute('#implist .evc.pvc[data-pv="t1"]','aria-pressed')=='true' and await pg.get_attribute('#implist .evc.pvc[data-pv="t4"]','aria-pressed')=='false')
     await tap('#implist .evc.pvc[data-pv="t4"]')
     want('Päivä tallentuu ja alkamispäivä', await pg.evaluate(K+".paivanapit.napit.join()")=='t1,t2,t3,t4' and await pg.evaluate(K+".paivanapit.alkaen.t4")==iso(today))

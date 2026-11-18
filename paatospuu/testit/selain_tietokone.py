@@ -27,7 +27,10 @@ async def run(p,w,h):
     # 1.103: kalenterin oletus on Viikko; nämä polut testaavat aikajanaa (Päivä / Aikajana)
     await pg.add_init_script("try{localStorage.setItem('paatospuu:calview','d')}catch(e){}")
     pg.on('pageerror',lambda e:errs.append(str(e)))
-    await pg.goto(U); await pg.wait_for_timeout(300); await pg.evaluate("s=>localStorage.setItem('paatospuu:v1',s)",json.dumps(SEED)); await pg.reload(); await pg.wait_for_timeout(200)
+    await pg.goto(U); await pg.wait_for_timeout(300)
+    for _ in range(3):  # 1.108: sivun poistumistallennus voi ehtiä kirjoittaa tyhjän tilan siemenen päälle; varmistetaan
+        await pg.evaluate("s=>localStorage.setItem('paatospuu:v1',s)",json.dumps(SEED)); await pg.reload(); await pg.wait_for_timeout(200)
+        if await pg.evaluate("(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1'));return o&&o.kokonaisuudet[0].muistiinpanot.length||0;})()")>0: break
     async def check(label):
         r=json.loads(await pg.evaluate(OVER)); good=not r['yli'] and r['doc']<=r['w'] and r['main'][0]<=r['main'][1]
         print('  %-30s %s %s'%(label,'ok' if good else 'YLI',r if not good else ''))
@@ -37,7 +40,7 @@ async def run(p,w,h):
         print('  %-30s %s'%(label,'ok' if cond else 'VIRHE'))
         if not cond: bad.append(label)
     print('leveys',w)
-    for t in ['use','notes','cal','list']:
+    for t in ['puu','notes','cal','list']:
         await pg.click('[data-tab="%s"]'%t); await pg.wait_for_timeout(120); await check('tab '+t)
     await tab(pg,'notes'); await pg.locator('#nlist .ncard').first.click(); await pg.wait_for_timeout(150); await check('muistiinpano ikkuna')
     await pg.click('#nsheet .sx'); await pg.wait_for_timeout(50)

@@ -13,7 +13,11 @@ async def rivit(pg):
     """1.105: Ruudut on oletus, Viikot alapalkissa ja vanha rivinäkymä Lista-ikkunassa (setListView)."""
     v='w' if VIIKOT else 'r'
     if await pg.evaluate("window.JuuriTesti&&JuuriTesti.listView()!=='%s'"%v): await pg.evaluate("JuuriTesti.setListView('%s')"%v); await pg.wait_for_timeout(60)
+async def old(pg):
+    """1.108: poistetut näkymät (Vanhat puut, rivinäkymä, kierroslistat, ryhmät…) avataan vanhoja testejä varten."""
+    if await pg.evaluate("!!window.JuuriTesti&&!document.body.classList.contains('oldui')"): await pg.evaluate("JuuriTesti.old()"); await pg.wait_for_timeout(40)
 async def tab(pg,t):
+    if t in ('use','teach'): await old(pg)
     if not await pg.is_visible('#roll'):
         await pg.click('[data-tab="%s"]'%t)
         if t=='list': await rivit(pg)

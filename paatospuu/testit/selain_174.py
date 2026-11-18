@@ -69,7 +69,7 @@ async def desk(p):
         if not cond: bad.append(label)
     print('leveys 1280')
     await pg.goto(U); await pg.wait_for_timeout(200)
-    await pg.click('[data-tab="use"]'); await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
+    await tab(pg,'use'); await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
     await pg.evaluate(SEED); await pg.reload(); await pg.wait_for_timeout(200)
     await pg.click('[data-tab="notes"]'); await pg.wait_for_timeout(60); await pg.locator('#nlist .ncard').first.click(); await pg.wait_for_timeout(150)
     want('tietokone: otsikkorivi ja ruksi', await pg.is_visible('#ns-h') and await pg.is_visible('#nsheet .hrow .sx') and not await pg.is_visible('#nsheet .dbar'))

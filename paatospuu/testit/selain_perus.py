@@ -157,7 +157,7 @@ async def run(p,w,h):
     await pg.fill('#tt-text',v+'\n\n=Ruoka:\nnappula'); await pg.click('#tt-ok'); await pg.wait_for_timeout(50)
     want('termit tekstistä', json.loads(await pg.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0].termisanat.ruoka)"))=={'yes':['nappula'],'no':[]})
     want('päätöspuun rivit termeinä', await pg.locator('#p-terms [data-id^="a:"].row').count()==7)
-    await pg.click('#implist [data-id="a:ruoka"]'); want('osiot suljettuina', not await pg.is_visible('#tpop') and await pg.is_visible('#ti-yes')); await pg.click('#tsec-muut summary'); want('nousee-valinta', await pg.is_visible('#tpop'))
+    await pg.click('#implist button.row[data-id="a:ruoka"]'); want('osiot suljettuina', not await pg.is_visible('#tpop') and await pg.is_visible('#ti-yes')); await pg.click('#tsec-muut summary'); want('nousee-valinta', await pg.is_visible('#tpop'))
     await pg.click('#ti-yes'); await pg.wait_for_timeout(250); await pg.locator('#ehw-y .ehp[data-w="nappula"]').click(); await pg.fill('#ehw-y-in','nappula'); await pg.keyboard.press('Enter'); await pg.click('#eh-done'); await pg.wait_for_timeout(250); await pg.click('#tok'); await check('automaattinen termi')
     await tab(pg,'notes'); await pg.wait_for_timeout(50)
     want('automaattinen termi kortissa', 'Kissa' in await pg.inner_text('#nlist .nf'))

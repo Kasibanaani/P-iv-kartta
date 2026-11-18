@@ -61,7 +61,7 @@ async def run(p,w,h):
     await menu(pg,'#tt-open'); await pg.wait_for_timeout(250)
     await pg.click('#tsheet .dhelp' if await pg.is_visible('#tsheet .dhelp') else '#ts-help'); await pg.wait_for_timeout(200)
     hb=await pg.inner_text('#hs-body')
-    want('Asiat tekstinä: oma ohje', await pg.inner_text('#hs-h')=='Asiat tekstinä' and all(x in hb for x in ['=Kipu:','!ei kipua','=Kipu*:','Ehdot:','Kun Kipu ja Kuume','#Oireet','"lääk"']))
+    want('Asiat tekstinä: oma ohje', await pg.inner_text('#hs-h')=='Asiat tekstinä' and all(x in hb for x in ['=Kipu:','!ei kipua','Ehdot:','Kun Kipu ja Kuume','#Oireet','"lääk"']))
     want('mahtuu leveyteen (tekstinä)', json.loads(await pg.evaluate(OVER))==[])
     if os.environ.get('KUVA'): await pg.screenshot(path=os.environ['KUVA']+'/e183b_%d.png'%w)
     await closeh(); await pg.click('#tt-ok'); await pg.wait_for_timeout(250)
