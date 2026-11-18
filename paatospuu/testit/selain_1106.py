@@ -74,8 +74,8 @@ async def run(p,w,h,touch):
     want('toinen napautus poistaa valinnan', await pg.evaluate("!%s.paivanapit.paivat['%s']"%(K,iso(today))))
     await pg.mouse.click(w//2,12); await pg.wait_for_timeout(150)
     # Päätöspuu
-    await menu(pg,'#m-puu'); await pg.wait_for_timeout(200)
-    want('Päätöspuu Valikosta, ei puita', await pg.is_visible('#p-puu') and await pg.locator('#st-newtree').count()==1)
+    await tab(pg,'puu'); await pg.wait_for_timeout(200)
+    want('Päätöspuu alapalkin osiona, ei puita', await pg.is_visible('#p-puu') and await pg.locator('#st-newtree').count()==1)
     await pg.fill('#st-newtree','Aamu'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(150)
     want('uusi puu, Rakenna päällä', await pg.evaluate(K+".yksinkertaisetPuut.length")==1 and await pg.get_attribute('#st-build','aria-pressed')=='true')
     for n in ['Herätys','Kahvi','Tee','Lähde']:
@@ -101,7 +101,7 @@ async def run(p,w,h,touch):
     want('polun kohta palaa siihen', (await T())['p']==[F['Herätys']])
     await tap('#st-opts [data-f="%s"]'%F['Kahvi']); await tap('#st-opts [data-f="%s"]'%F['Lähde'])
     want('lopetus päättää puun', await pg.is_visible('#st-end') and await pg.locator('#st-opts .stopt').count()==0)
-    await pg.reload(); await pg.wait_for_timeout(300); await menu(pg,'#m-puu'); await pg.wait_for_timeout(150)
+    await pg.reload(); await pg.wait_for_timeout(300); await tab(pg,'puu'); await pg.wait_for_timeout(150)
     want('polku säilyy latauksessa', await pg.is_visible('#st-end'))
     await tap('#st-note')
     want('muistiinpanoksi', await pg.evaluate(K+".muistiinpanot.some(function(n){return n.text==='Aamu: Herätys → Kahvi → Lähde';})") and (await T())['p']==[])

@@ -38,11 +38,11 @@ async def phone(p,w,h):
     want('rullaus vasemmalla, vienti ja valikko oikealla', r[0]<=20 and r[1]>r[0] and r[2]<=r[3]-4 and r[4])
     # Rullaus
     seq=[]
-    for _ in range(4):
-        seq.append((await pg.inner_text('#roll-now'),await pg.inner_text('#roll-next'))); await pg.click('#roll'); await pg.click('#section-'+['cal','list','terms','notes'][_]); await pg.wait_for_timeout(40)
-    want('napautus kiertää neljä osiota', [s[0] for s in seq]==['Muistio','Kalenteri','Listat','Asiat'] and await pg.inner_text('#roll-now')=='Muistio')
-    want('seuraava näkyy vihjeenä', [s[1] for s in seq]==['Kalenteri','Listat','Asiat','Muistio'])
-    want('pisteet: neljä, yksi korostettu', await pg.locator('#roll-dots i').count()==4 and await pg.locator('#roll-dots i.on').count()==1)
+    for _ in range(5):
+        seq.append((await pg.inner_text('#roll-now'),await pg.inner_text('#roll-next'))); await pg.click('#roll'); await pg.click('#section-'+['cal','list','puu','terms','notes'][_]); await pg.wait_for_timeout(40)
+    want('valinta kiertää viisi osiota (1.107 Päätöspuu)', [s[0] for s in seq]==['Muistio','Kalenteri','Listat','Päätöspuu','Asiat'] and await pg.inner_text('#roll-now')=='Muistio')
+    want('seuraava näkyy vihjeenä', [s[1] for s in seq]==['Kalenteri','Listat','Päätöspuu','Asiat','Muistio'])
+    want('pisteet: viisi, yksi korostettu', await pg.locator('#roll-dots i').count()==5 and await pg.locator('#roll-dots i.on').count()==1)
     await pg.evaluate(SWIPE+"(60)"); await pg.wait_for_timeout(60)
     want('pyyhkäisy oikealle: edellinen', await pg.inner_text('#roll-now')=='Asiat' and await pg.is_visible('#p-terms'))
     await pg.evaluate(SWIPE+"(-60)"); await pg.wait_for_timeout(60)
@@ -53,7 +53,7 @@ async def phone(p,w,h):
     # Valikko: ulkopuolinen napautus vain sulkee
     await pg.click('#menu'); await pg.wait_for_timeout(60)
     ids=await pg.evaluate("Array.prototype.map.call(document.querySelectorAll('#menupop button'),function(b){return b.id;})")
-    want('Valikossa projekti, vienti, ohje, Päätöspuu, Vanhat puut, Käyttötila', ids==['m-proj','m-x','m-help','m-puu','m-tree','m-kt'])
+    want('Valikossa projekti, vienti, ohje, Vanhat puut, Käyttötila (Päätöspuu alapalkissa)', ids==['m-proj','m-x','m-help','m-tree','m-kt'])
     want('Valikko ruudussa', await pg.evaluate("(function(){var r=document.getElementById('menupop').getBoundingClientRect(),p=document.getElementById('pbar').getBoundingClientRect();return r.right<=innerWidth&&r.left>=0&&r.bottom<=p.top+1;})()"))
     bb=await pg.locator('#nlist .ncard').first.bounding_box(); await pg.mouse.click(bb['x']+30,bb['y']+bb['height']/2); await pg.wait_for_timeout(80)
     want('ulkopuolinen napautus sulkee, ei avaa korttia', not await pg.is_visible('#menupop') and not await pg.is_visible('#nsheet'))

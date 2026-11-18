@@ -85,8 +85,8 @@ async def run(p,w,h,touch):
     # sivuvieritys: nimi pysyy, otsikot ja muut osat seuraavat
     x0=(await pg.locator('#implist .drow[data-id="t1"] .row').bounding_box())['x']
     await pg.evaluate("(function(){var l=document.getElementById('implist');l.scrollLeft=150;l.dispatchEvent(new Event('scroll'));})()"); await pg.wait_for_timeout(80)
-    sl=json.loads(await pg.evaluate("JSON.stringify([document.getElementById('implist').scrollLeft,document.querySelector('#thead .trow').scrollLeft,document.getElementById('termlist').scrollLeft])"))
-    want('nimi pysyy, sarakkeet vierivät yhdessä', abs((await pg.locator('#implist .drow[data-id="t1"] .row').bounding_box())['x']-x0)<1 and (sl[0]==0 or (sl[0]==sl[1] and sl[0]==sl[2])))
+    sl=json.loads(await pg.evaluate("JSON.stringify([document.getElementById('implist').scrollLeft,document.querySelector('#thead .trow').scrollLeft])"))
+    want('nimi pysyy, sarakkeet vierivät yhdessä', abs((await pg.locator('#implist .drow[data-id="t1"] .row').bounding_box())['x']-x0)<1 and (sl[0]==0 or sl[0]==sl[1]))  # 1.107: kaikki asiat yhdessä taulukossa
     await pg.evaluate("(function(){var l=document.getElementById('implist');l.scrollLeft=0;l.dispatchEvent(new Event('scroll'));})()"); await pg.wait_for_timeout(50)
     # kahvasta raahaus
     g=await pg.locator('#implist .drow[data-id="t2"] .tgrip').bounding_box(); x=g['x']+g['width']/2; y=g['y']+g['height']/2

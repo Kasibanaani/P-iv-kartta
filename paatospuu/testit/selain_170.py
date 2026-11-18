@@ -26,14 +26,14 @@ async def run(p,w,h):
         await tab(pg,'terms'); await pg.wait_for_timeout(60); await menu(pg,'#tt-open'); await pg.wait_for_timeout(60)
         return await pg.input_value('#tt-text')
     t=await opentext()
-    want('tähdelliset ensin tärkeysjärjestyksessä', t.index('=Kuume*:')<t.index('=Kipu*:')<t.index('=Lääkäri:'))
+    want('1.107: ei tähtiä, järjestys tekstissä', '*' not in t.split('Ehdot:')[0] and t.index('=Kuume:')<t.index('=Kipu:')<t.index('=Lääkäri:'))
     want('ehdot tekstinä', 'Ehdot:\nKun Kipu ja Kuume, niin Lääkäri esiin, Odotus pois.' in t)
     # Muokkaus tekstissä: Kipu ensin, Kuume pois tärkeistä, Lääkäri tärkeäksi, uusi ehto uudella asiasanalla
     t2="=Kipu*:\nkipua\n\n=Lääkäri*:\n\n=Kuume:\n\n=Odotus:\n\nEhdot:\nKun Kipu tai Kuume, niin Lääkäri esiin, Lepo esiin, Odotus pois.\nKun Lääkäri, niin Soitto esiin."
     await pg.fill('#tt-text',t2); await pg.click('#tt-ok'); await pg.wait_for_timeout(80)
     k=json.loads(await pg.evaluate("JSON.stringify("+K+")"))
     ids={x['name']:x['id'] for x in k['termit']}
-    want('tärkeysjärjestys tekstistä', k['tarkeat']==[ids['Kipu'],ids['Lääkäri']])
+    want('järjestys tekstistä (vanha tähti hyväksytään)', k['tarkeat'][:4]==[ids['Kipu'],ids['Lääkäri'],ids['Kuume'],ids['Odotus']])
     want('uudet asiasanat ehdoista', 'Lepo' in ids and 'Soitto' in ids)
     E=k.get('ehdot',[])
     # 1.78: yksi ehto = yksi seuraus, joten Tuo- ja Poissulkee-osat ovat omat ehtonsa (tekstissä yhä yhdellä rivillä)
@@ -48,11 +48,11 @@ async def run(p,w,h):
     await pg.click('#eh-del'); await pg.wait_for_timeout(40); await pg.locator('#ehsheet .delbox button:has-text("Poista")').last.click(); await pg.wait_for_timeout(60)
     await pg.click('#ehsheet .sx'); await pg.wait_for_timeout(60)
     t=await opentext()
-    want('napeista tehty muutos tekstissä', 'Soitto esiin' not in t and 'Kun Kipu tai Kuume, niin Lääkäri esiin, Lepo esiin, Odotus pois.' in t and t.index('=Kipu*:')<t.index('=Lääkäri*:'))
+    want('napeista tehty muutos tekstissä', 'Soitto esiin' not in t and 'Kun Kipu tai Kuume, niin Lääkäri esiin, Lepo esiin, Odotus pois.' in t and t.index('=Kipu:')<t.index('=Lääkäri:'))
     # Pelkät nimet riveittäin (Emilin bugi: ei tallentunut)
     await pg.fill('#tt-text',t+"\n\nUusi asia\nToinen tärkeä*\n=Kolmas"); await pg.click('#tt-ok'); await pg.wait_for_timeout(80)
     k=json.loads(await pg.evaluate("JSON.stringify("+K+")")); ids={x['name']:x['id'] for x in k['termit']}
-    want('pelkät nimet tallentuvat asiasanoiksi', all(n in ids for n in ['Uusi asia','Toinen tärkeä','Kolmas']) and k['tarkeat'][-1]==ids['Toinen tärkeä'])
+    want('pelkät nimet tallentuvat asiasanoiksi', all(n in ids for n in ['Uusi asia','Toinen tärkeä','Kolmas']) and k['tarkeat'].index(ids['Uusi asia'])<k['tarkeat'].index(ids['Toinen tärkeä'])<k['tarkeat'].index(ids['Kolmas']))
     want('ei sivuvirheitä', not errs)
     await b.close(); return bad
 async def main():

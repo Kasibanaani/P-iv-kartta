@@ -33,7 +33,7 @@ async def run(p,w,h):
       localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()""")
     await pg.reload(); await pg.wait_for_timeout(200); await tab(pg,'terms'); await pg.wait_for_timeout(80)
     imp=lambda: pg.evaluate(K+".tarkeat")
-    r=await pg.evaluate("(function(){var a=document.querySelectorAll('#implist .drow'),n=a[0].querySelector('.num').getBoundingClientRect(),q=a[1].getBoundingClientRect(),m=document.querySelector('#termlist .drow .row').getBoundingClientRect();return {nx:n.left+n.width/2,ny:n.top+n.height/2,gap:(a[0].getBoundingClientRect().bottom+q.top)/2,mx:m.left+40,my:m.top+m.height/2,b:q.bottom};})()")
+    r=await pg.evaluate("(function(){var a=document.querySelectorAll('#implist .drow'),n=a[0].querySelector('.num').getBoundingClientRect(),q=a[1].getBoundingClientRect(),m=document.querySelector('#implist .drow .row').getBoundingClientRect();return {nx:n.left+n.width/2,ny:n.top+n.height/2,gap:(a[0].getBoundingClientRect().bottom+q.top)/2,mx:m.left+40,my:m.top+m.height/2,b:q.bottom};})()")
     # Pito numerosarakkeessa: viiva, veto rivien väliin, nosto -> kenttä
     lab=await hold(r['nx'],r['ny'],moves=[(r['nx'],r['gap']-2),(r['nx'],r['gap'])])
     want('pito tuo viivan, veto rivien väliin', lab is not None and lab[0]=='2. tärkeä' and not lab[1])
@@ -49,19 +49,13 @@ async def run(p,w,h):
     ids=await imp(); tt=json.loads(await pg.evaluate("JSON.stringify("+K+".termit)")); nid=[t['id'] for t in tt if t['name']=='Huimaus']
     want('uusi tähdellä toiselle sijalle', len(nid)==1 and ids[:3]==['ta',nid[0],'tb'])
     want('näkyy Tärkeissä', (await pg.locator('#implist .drow').nth(1).inner_text()).find('Huimaus')>=0)
-    # Pito Muut-rivin päällä: viiva Muut, ei avaa korttia
-    r=await pg.evaluate("(function(){var m=document.querySelector('#termlist .drow .row').getBoundingClientRect();return {x:m.left+40,y:m.top+m.height/2};})()")
-    lab=await hold(r['x'],r['y'])
-    want('Muut-rivin pito: viiva Muut, ei korttia', lab is not None and lab[0]=='Muut' and not await pg.is_visible('#tsheet') and await pg.is_visible('#tnew-in'))
-    await pg.fill('#tnew-in','Yskä'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(120)
-    tt=json.loads(await pg.evaluate("JSON.stringify("+K+".termit)")); nid=[t['id'] for t in tt if t['name']=='Yskä']
-    want('Muut: ilman tähteä', len(nid)==1 and nid[0] not in await imp() and await pg.locator('#termlist .row:has-text("Yskä")').count()==1)
+    # 1.107: Muut-aluetta ei ole (tähdet pois, kaikki asiat samassa järjestyksessä)
     # Sivuveto peruu
-    r=await pg.evaluate("(function(){var e=document.querySelector('#termlist button.row[data-id=\"tc\"]');var M=document.getElementById('main');M.scrollTop+=e.getBoundingClientRect().top-M.getBoundingClientRect().height/2;var m=e.getBoundingClientRect();return {x:m.left+40,y:m.top+m.height/2};})()")
+    r=await pg.evaluate("(function(){var e=document.querySelector('#implist button.row[data-id=\"tc\"]');var M=document.getElementById('main');M.scrollTop+=e.getBoundingClientRect().top-M.getBoundingClientRect().height/2;var m=e.getBoundingClientRect();return {x:m.left+40,y:m.top+m.height/2};})()")
     lab=await hold(r['x'],r['y'],moves=[(r['x']+40,r['y']),(r['x']+90,r['y'])])
     want('sivuveto peruu', not await pg.is_visible('#tnew-in') and not await pg.is_visible('#tsheet') and await pg.locator('.tline').count()==0)
     # Lyhyt napautus avaa kortin kuten ennen
-    r=await pg.evaluate("(function(){var m=document.querySelector('#termlist button.row[data-id=\"tc\"]').getBoundingClientRect();return {x:m.left+40,y:m.top+m.height/2};})()")
+    r=await pg.evaluate("(function(){var m=document.querySelector('#implist button.row[data-id=\"tc\"]').getBoundingClientRect();return {x:m.left+40,y:m.top+m.height/2};})()")
     await pg.touchscreen.tap(r['x'],r['y']); await pg.wait_for_timeout(250)
     want('napautus avaa kortin', await pg.is_visible('#tsheet')); await tsx(pg); await pg.wait_for_timeout(120)
     # Tyhjä kenttä ei tee mitään

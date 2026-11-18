@@ -31,13 +31,13 @@ async def run(p,w,h):
     await pg.click('#tt-ai-b'); await pg.wait_for_timeout(150)
     oh=await pg.input_value('#tt-ai')
     lab=await pg.inner_text('#tt-ai-b')
-    want('ohje syntyi nykytekstillä', oh.startswith('# Ohje: Juuri') and '=Kipu*:\nkipua' in oh)
+    want('ohje syntyi nykytekstillä', oh.startswith('# Ohje: Juuri') and '=Kipu:\nkipua' in oh)
     want('kopioitu tai valittu', lab in ('Kopioitu','Valittu, kopioi'))
     # Tekoälyn vastaus koodilohkona takaisin kenttään
     await pg.fill('#tt-text',"```\n=Kipu*:\nkipua\n\nKuume*\nLepo\n\nEhdot:\nKun Kipu ja Kuume, niin Lepo esiin.\n```")
     await pg.click('#tt-ok'); await pg.wait_for_timeout(80)
     k=json.loads(await pg.evaluate("JSON.stringify("+K+")")); ids={x['name']:x['id'] for x in k['termit']}
-    want('vastaus tuotiin', 'Kuume' in ids and 'Lepo' in ids and k['tarkeat']==[ids['Kipu'],ids['Kuume']] and len(k.get('ehdot',[]))==1 and '```' not in ids)
+    want('vastaus tuotiin', 'Kuume' in ids and 'Lepo' in ids and k['tarkeat'][:3]==[ids['Kipu'],ids['Kuume'],ids['Lepo']] and len(k.get('ehdot',[]))==1 and '```' not in ids)
     want('ei sivuvirheitä', not errs)
     await b.close(); return bad
 async def main():

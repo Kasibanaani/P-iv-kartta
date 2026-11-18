@@ -37,7 +37,7 @@ async def run(p,w,h):
         want('projektin muokkaus piilossa', not await pg.is_visible('#pk-del') and not await pg.is_visible('#pk-name'))
         await pg.click('#ps-close') if await pg.is_visible('#ps-close') else await pg.keyboard.press('Escape'); await pg.wait_for_timeout(100)
     want('body.kt', await pg.evaluate("document.body.classList.contains('kt')"))
-    want('Asiat ei osiona', await pg.evaluate("document.querySelectorAll('#roll-dots i').length")==3 and await pg.evaluate("getComputedStyle(document.querySelector('#nav .tab[data-tab=terms]')).display")=='none')
+    want('Asiat ei osiona', await pg.evaluate("document.querySelectorAll('#roll-dots i').length")==4 and await pg.evaluate("getComputedStyle(document.querySelector('#nav .tab[data-tab=terms]')).display")=='none')
     want('ei + -nappia listalla', not await pg.is_visible('#newnote'))
     # avaa rivi -> fokus
     await pg.click('#chlist .crow[data-id="r1"] .chd'); await pg.wait_for_timeout(200)
@@ -61,7 +61,7 @@ async def run(p,w,h):
         await pg.click('#menu'); await pg.wait_for_timeout(40); await pg.click('#m-kt'); await pg.wait_for_timeout(150)
     else:
         await pg.click('#title'); await pg.wait_for_timeout(100); await pg.click('#pk-kt'); await pg.wait_for_timeout(100); await pg.keyboard.press('Escape'); await pg.wait_for_timeout(100)
-    want('rakennustila palauttaa', not await pg.evaluate("document.body.classList.contains('kt')") and await pg.evaluate("document.querySelectorAll('#roll-dots i').length")==4)
+    want('rakennustila palauttaa', not await pg.evaluate("document.body.classList.contains('kt')") and await pg.evaluate("document.querySelectorAll('#roll-dots i').length")==5)
     saved=await pg.evaluate("JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0].asetukset.kt||null")
     want('tallennus: kt pois', saved is None)
     want('ei sivuvirheitä', not errs)

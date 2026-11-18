@@ -1,8 +1,22 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.106 — päivän napit ennusteineen kalenterissa ja yksinkertainen Päätöspuu (1.105: Ruudut, listakohtaiset tarkistuskohteet, Kerran). **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 18.11.2026
+**Vaihe:** versio 1.107 — tähdet pois (kaikki asiat yhdessä järjestyksessä), aikasanat pois Asioista, Päätöspuu alapalkin pääosioksi (1.106: päivän napit, yksinkertainen Päätöspuu; 1.105: Ruudut). **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 18.11.2026
 
 Juuren ydin on teksti, asiasanat ja niiden ehdot; Muistio, Kalenteri ja Listat ovat niiden käyttönäkymiä. Päätöspuun opetus ja vanhat listat säilyvät.
+
+## Versio 1.107 (18.11.2026): tähdet pois, Päätöspuu pääosioksi
+
+Emil 18.11.: "tähtisysteemi joutaa pois", "tänään, myöhässä jne erillisinä asioina" pois, listaan vain listan kohteiden asiat, Asiat-osion ilme selkeämmäksi, Päätöspuut palaavat pääominaisuudeksi; "Kaikki on tärkeitä. Eli tähti pois."
+
+- **Ei tähtiä:** kaikki asiat ovat yhdessä järjestyksessä (`impAll` pitää jokaisen ei-aika-asiasanan `tarkeat`-listassa; uusi loppuun). Kahvasta raahattu järjestys on tärkeys. Tärkeät/Muut-jako, rivin tähti ja Rivi-ikkunan tähtinappi poistettu. Ohjeet ja tekoälyohje päivitetty.
+- **Asiat tekstinä:** ei tähtiä; lohkojen järjestys on asioiden järjestys. Vanha `=Kipu*:` luetaan yhä (tähti ohitetaan). Tekstistä puuttuva asia siirtyy järjestyksen loppuun.
+- **Aikasanat pois:** Asiat-osiossa ei aikasanoja (Tänään, Myöhässä…), ja ajassa uusiutuvien listojen rivi-ikkunassa ei aikasana- eikä Mainittu-valintoja (rivin nimen mainitsevat muistiinpanot näkyvät Viikoissa ja Ruuduissa joka tapauksessa). Kierroslistoissa ennallaan. Vanhat tiedot säilyvät.
+- **Ilme:** Asiat-taulukko on yhtenäinen kortti (sama pohja otsikossa, jäädytetyssä nimisarakkeessa ja riveillä), ei enää valkoista ja taustakuvaa sekaisin. Napit (Vaihepankki, Ehdot) taulukon alle.
+- **Päätöspuu pääosioksi:** alapalkin osiot M K L P A (Muistio, Kalenteri, Listat, Päätöspuu, Asiat), tietokoneella sivupalkissa Asioiden yläpuolella. Valikosta Päätöspuu-kohta pois; *Vanhat puut* jäi Valikkoon.
+- **Bugikorjaus:** pitkän painalluksen jälkeen seuraava napautus Asioissa hukkui (pidon tila ei nollautunut).
+- **Testit:** koko sarja läpi (perus, 194–196 kopioina). Sovitettu tähdettömyyteen ja viiteen osioon: logiikka, apu, perus, 1101, 1103, 1104, 1106, 163, 170, 172, 175, 176, 184, 192. Perus: Mainittu-osuus (1.44–1.51) poistettu, koska valinta on piilotettu jatkuvasta listasta.
+- **Ei tarkistettu:** oikea iPhone. Vanhojen puiden Järjestys-välilehdellä on yhä palikan tähti (Vanhat puut ennallaan).
+- **Seuraava askel / auki:** Emil valitsee seuraavat poistettavat ehdotuslistasta (vastaus keskustelussa).
 
 ## Versio 1.106 (18.11.2026): päivän napit ja yksinkertainen Päätöspuu (vaiheet D ja C)
 
