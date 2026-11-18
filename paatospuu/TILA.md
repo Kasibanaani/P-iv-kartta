@@ -1,8 +1,21 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.105 — Ruudut, listakohtaiset tarkistuskohteet, Kerran, Viikot Mätsikin malliin, pienempi alapalkki. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 18.11.2026
+**Vaihe:** versio 1.106 — päivän napit ennusteineen kalenterissa ja yksinkertainen Päätöspuu (1.105: Ruudut, listakohtaiset tarkistuskohteet, Kerran). **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 18.11.2026
 
 Juuren ydin on teksti, asiasanat ja niiden ehdot; Muistio, Kalenteri ja Listat ovat niiden käyttönäkymiä. Päätöspuun opetus ja vanhat listat säilyvät.
+
+## Versio 1.106 (18.11.2026): päivän napit ja yksinkertainen Päätöspuu (vaiheet D ja C)
+
+Emil 18.11. "Tee loput" (vaiheet D ja C suunnitelmasta https://claude.ai/artifact/99Lb1XiEPsLSjERa7Wusxu). Asiasanakysymys ratkaistu suosituksen mukaan: päivän napit ovat asiasanoja, jotka merkitään Asiat-taulukon sarakkeella.
+
+- **D Päivän napit (Päiväkartan tapaan):** Asiat-taulukossa sarake **Päivä** (Pika ja Kerran jälkeen). Kalenterin viikkonäkymässä joka päivän otsikon oikeassa reunassa nappi (”Päivä” tai valitut nimet), joka avaa pienen ikkunan: asiat taulukon järjestyksessä, napautus valitsee tälle päivälle, toinen poistaa. Napissa palkki ja prosentti: kuinka todennäköisesti valitset asian tälle päivälle tämän päivän muiden valintojen ja viikonpäivän perusteella; nuoli, kun valinnat nostivat tai laskivat arviota ≥ 5 %-yks. Napit eivät liiku. Ulkopuolinen napautus sulkee. Arvio alkaa, kun kirjattuja päiviä on 3.
+- **Ennuste (`pvP` moottorissa):** perustaso + yksittäiset tekijät kuten Päiväkartassa, ja lisäksi jokainen kahden tekijän yhdistelmä (myös viikonpäivä) erikseen: yhdistelmäpäivien osuus kutistetaan yksittäisten arvioon päin ja painaa sitä enemmän, mitä enemmän yhdistelmäpäiviä on. Näin ennuste tunnistaa tapauksen, jossa vasta A ja B yhdessä ennustavat C:tä (testattu). Tarkasteltava päivä ei ole omassa laskennassaan; napin käyttöönottoa edeltävät päivät eivät ole mukana.
+- **C Päätöspuu yksinkertaisena:** Valikko → Päätöspuu (tietokoneella sivupalkissa). Useita puita, jokaisella omat tekijät. **Rakenna:** lisää tekijät, napauta tekijä valituksi, valitse Alku / Lopetus ja mitä se tuo näkyviin; ensimmäinen tekijä on oletuksena alku. **Käyttö:** alkutekijät napeiksi, napautus tuo seuraavat, polku ylhäällä (kohdan napautus palaa siihen), lopetus päättää: Muistiinpanoksi (”Aamu: Herätys → Kahvi → Lähde”) tai Alusta. Polku säilyy. Poistot varmistetaan eri kohdassa olevalla napilla.
+- **Vanhat puut** jäivät Valikkoon nimellä *Vanhat puut* (ennallaan, ei siirretty uuteen malliin; Emil salli poistonkin, mutta poisto olisi rikkonut vanhoja projekteja ja testejä turhaan).
+- **Tallennus:** uudet valinnaiset kentät `paivanapit {napit, alkaen, paivat}` ja `yksinkertaisetPuut [{id, name, f, a, to, e, p}]`; vanha muoto latautuu, `ver` ei muuttunut.
+- **Testit:** uudet `logiikka_1106.js` (ennuste ja yhdistelmä, tallennusmuoto, puun eteneminen ja poisto) ja `selain_1106.py` (390, 320, 1280). Sovitettu: `apu.py` (Vanhat puut, `#m-puu`), 1103 (12 saraketta), 172 (Valikon kohdat). 163 (sivupalkin välilehdet). Koko sarja läpi paitsi `selain_perus.py`, joka kaatui illalla (klo 18 jälkeen) kalenterin aikajanan kohdassa "Kalenterista lisätty" myös 1.105:n koodilla, joten vika on testin kellonaikariippuvuus, ei tämä muutos; sama testi meni läpi 1.106-muutosten kanssa iltapäivällä ennen viimeistä ajoa vain eri kohdassa. `selain_191.py` kaatui kerran kuormassa, erikseen kahdesti läpi.
+- **Ei tarkistettu:** oikea iPhone. Päivän napit ovat vain viikkonäkymässä (päivänäkymässä ei). Kokeiltavaa: päivän otsikon napin osuttavuus sormella, ennusteen järkevyys omalla aineistolla (alkuun vähän päiviä).
+- **Seuraava askel / auki:** Emil kokeilee. Auki: tarvitaanko päivän napit myös päivänäkymään; Päiväkartan Yhteydet-tyyppinen erittely (mitkä yhdistelmät vaikuttavat) Juureen; vanhojen puiden lopullinen poisto.
 
 ## Versio 1.105 (18.11.2026): Ruudut ja listakohtaiset tarkistuskohteet (vaiheet A ja B)
 
