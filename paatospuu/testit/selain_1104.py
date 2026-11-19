@@ -40,7 +40,7 @@ async def run(p,w,h,touch):
     await pg.reload(); await pg.wait_for_timeout(300)
     # Asiat: 1.108 Pika-sarake poistettu
     await tab(pg,'terms'); await pg.wait_for_timeout(200)
-    want('ei Pika-saraketta (1.108)', (await pg.locator('#thead .evh').first.text_content())=='Kerran' and await pg.locator('.evc.pkc').count()==0)
+    want('ei Pika-saraketta (1.108)', (await pg.locator('#implist .drow').first.locator('.evc').nth(1).text_content())=='Kerran' and await pg.locator('.evc.pkc').count()==0)
     want('ei järjestysnumeroita (1.108)', await pg.locator('#implist .num').count()==0)
     want('aikasanat eivät ole Asioissa (1.107)', await pg.locator('#p-terms .drow:has-text("aikasana")').count()==0)
     # Listat: Viikot (1.105: Ruudut on oletus, Viikot alapalkin valinnalla; kortti per rivi kuten Mätsikissä, viikko avaa ikkunan päälle)

@@ -20,7 +20,7 @@ async def run(p,w,h):
     print('leveys',w)
     await pg.clock.install(time='2026-10-26T09:00:00+02:00')
     await pg.goto(U); await pg.wait_for_timeout(300)
-    await tab(pg,'use'); await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
+    await tab(pg,'use'); await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(800)
     await pg.evaluate("""(function(){var o=JSON.parse(localStorage.getItem('paatospuu:v1')),k=o.kokonaisuudet[0],t='2026-10-26T06:00:00.000Z';
       k.muistiinpanot=[{id:'n1',created:t,edited:t,text:'Kauppa: maito ja leipä\\n---\\nHammaslääkäri tänään klo 14\\n---\\nSoita Liisalle tänään',date:''}];
       k.tarkistuslista=[{id:'r1',name:'Liisa',men:true,created:t,edited:t,it:[]}];k.jatkuvalista={mu:1};localStorage.setItem('paatospuu:v1',JSON.stringify(o));})()""")

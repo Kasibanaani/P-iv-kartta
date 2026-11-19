@@ -40,8 +40,8 @@ async def phone(p,w,h):
     seq=[]
     for _ in range(5):
         seq.append((await pg.inner_text('#roll-now'),await pg.inner_text('#roll-next'))); await pg.click('#roll'); await pg.click('#section-'+['cal','list','puu','terms','notes'][_]); await pg.wait_for_timeout(40)
-    want('valinta kiertää viisi osiota (1.107 Päätöspuu)', [s[0] for s in seq]==['Muistio','Kalenteri','Listat','Päätöspuu','Asiat'] and await pg.inner_text('#roll-now')=='Muistio')
-    want('seuraava näkyy vihjeenä', [s[1] for s in seq]==['Kalenteri','Listat','Päätöspuu','Asiat','Muistio'])
+    want('valinta kiertää viisi osiota (1.109 Flow)', [s[0] for s in seq]==['Muistio','Kalenteri','Listat','Flow','Asiat'] and await pg.inner_text('#roll-now')=='Muistio')
+    want('seuraava näkyy vihjeenä', [s[1] for s in seq]==['Kalenteri','Listat','Flow','Asiat','Muistio'])
     want('pisteet: viisi, yksi korostettu', await pg.locator('#roll-dots i').count()==5 and await pg.locator('#roll-dots i.on').count()==1)
     await pg.evaluate(SWIPE+"(60)"); await pg.wait_for_timeout(60)
     want('pyyhkäisy oikealle: edellinen', await pg.inner_text('#roll-now')=='Asiat' and await pg.is_visible('#p-terms'))

@@ -264,7 +264,8 @@ async def run(p,w,h):
         await pg.mouse.up(); await pg.wait_for_timeout(80)
     await pg.evaluate("document.getElementById('main').scrollTop=0"); await pg.wait_for_timeout(30)
     await drag(1,-90,'raahaus'); want('raahaus järjestää', await imp()==['a:kissa','a:koira'] and not await pg.is_visible('#tok'))
-    await drag(0,600); want('pudotus ulos palauttaa', await imp()==['a:kissa','a:koira'])
+    lb=await pg.evaluate("(function(){var a=document.querySelectorAll('#implist .drow'),r=document.querySelectorAll('#implist .drow .row')[0].getBoundingClientRect();return a[a.length-1].getBoundingClientRect().bottom-(r.top+r.height/2);})()")  # 1.109: kortit ovat korkeampia
+    await drag(0,max(600,lb+90)); want('pudotus ulos palauttaa', await imp()==['a:kissa','a:koira'])
     await pg.click('#implist .drow .row >> nth=0'); want('napautus avaa termin', await pg.is_visible('#tok')); await pg.click('#tok'); await check('tärkeysjärjestys')
     await tab(pg,'notes'); await pg.wait_for_timeout(40); await sortTo('prio'); await pg.wait_for_timeout(50)
     want('tärkein ensin', 'Kissa' in await pg.inner_text('#nlist .ncard >> nth=0')); await check('muistiinpanot tärkeys')

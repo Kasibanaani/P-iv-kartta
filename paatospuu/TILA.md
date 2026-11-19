@@ -1,8 +1,20 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.108 — tiiviimpi Asiat-taulukko ja ison karsinnan jälkeen yksinkertaisempi Juuri (pois: vanha rivinäkymä, Aikaehdotukset, Vanhat puut, Pika-sarake, kierros- ja työnkulkulistat, ryhmät, Poissulkevat, Vaihepankki, Muistiinpanot listaan). **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 18.11.2026
+**Vaihe:** versio 1.109 — Flow (asian oma tarkistuspolku ruutupareista, rivikohtainen läpikäynti Ruuduissa) ja Asiat korteiksi (asia otsikkona, nimetyt napit vierivät synkassa). **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 19.11.2026
 
 Juuren ydin on teksti, asiasanat ja niiden ehdot; Muistio, Kalenteri ja Listat ovat niiden käyttönäkymiä. Päätöspuun opetus ja vanhat listat säilyvät.
+
+## Versio 1.109 (19.11.2026): Flow ja Asiat-kortit
+
+Emil 19.11. klo 7.34: "Toteuta näiden suositustesi mukaan" (9 suositusta Flow-suunnitelmaan) + puun läpikäynti on tarkistuslistakohdekohtaista + Asiat-listaan enemmän tilaa: asia otsikkona, valinnat lukevat napeissa. Tarkennukset: nimi on kaikkialla Flow; ruudun laji pienestä rullaavasta napista (ei valikkoa, lyhyt sana); Flow ei ole asialle pakollinen.
+
+- **Flow** (alapalkin rullaus M K L F A, entinen Päätöspuu): projektissa useita Flow'ita, "+ Uusi Flow" luo heti. Rakennettaessa Flow on ruutupareja: vasen ruutu (valinnat) ja oikea "Tuo näkyviin". Vasemman ruudun kulman pieni nappi rullaa lajin Tai → Ja → Pois → Loppu (Pois = valinta piilottaa muut jäsenet, Loppu = päätepiste). Aloitus on aina ensimmäinen pari. Kohteet ovat Flow'n omia vaihtoehtoja (eivät asiasanoja). Toinen napautus peruu valinnan, piiloon jääneet valinnat putoavat pois. "+ Ruutupari" alhaalla. Ikkunat yläreunassa, sulku ulkopuolelta. 1.106-puut muuntuvat itsestään.
+- **Asian Flow:** Asiat-kortin ensimmäinen nappi "Flow" / "Flow: nimi" valitsee asialle Flow'n (tai ei mitään). Ruutu-ikkunassa asialla on Flow-nappi: punainen, kun asia on tarkistettava, vihreä, kun tämän rivin Flow on käyty. Läpikäynti tallentuu rivi+asia-kohtaisesti; asian OK läpikäynnin aloituksen jälkeen nollaa sen. Valmis Flow jättää muistiinpanon "Rivi Asia: polku".
+- **Asiat-kortit:** asia otsikkona, alla vierivä nappirivi (Flow, Kerran, Päivä, 1 pv … 12 kk), nimi napissa, kaikki rivit vierivät yhdessä. Ei otsikkoriviä; ohje i-napissa Ehdot-rivillä.
+- **Tallennus:** uusi valinnainen kenttä `flow` ({m: asia→Flow, run: 'rivi|asia'→{s,d,t}}), puut uudessa muodossa {f, r, p}. Vanha muoto latautuu.
+- **Testit:** uusi `selain_1109.py` (390/320 kosketus, 1280 hiiri); `logiikka_1106.js` uusi puumalli; 1103–1106, 172, 184, perus päivitetty korttiin ja Flow-nimeen. Koko sarja ajettu tietokoneen Chromiumissa; 188, 191 ja 1103 välillä epävakaita (localStorage-kirjoitus katoaa ennen uudelleenlatausta, sama jo 1.107:ssä), menevät läpi uusinnalla.
+- **Ei tarkistettu:** oikea iPhone (Safarin vieritys korteissa ja pienen lajinapin osuttavuus).
+- **Auki:** näytetäänkö Flow'n polku myös kalenterissa; tarvitaanko Flow-napille oma väri, kun asia ei ole tarkistettava mutta Flow on kesken.
 
 ## Versio 1.108 (18.11.2026): tiiviimpi Asiat-taulukko ja karsinta
 

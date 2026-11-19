@@ -72,7 +72,7 @@ async def run(p,w,h,touch):
     await pg.click('#calview [data-v="w"]'); await pg.wait_for_timeout(200)
     # --- Asiat-taulukko ---
     await tab(pg,'terms'); await pg.wait_for_timeout(200)
-    want('otsikkorivi ja sarakkeet', await pg.locator('#thead .evh').count()==11 and await pg.locator('#implist .drow').nth(0).locator('.evc').count()==11)  # 1.108: Kerran + Päivä + 9 väliä (Pika pois)
+    want('kortti: ei otsikkoriviä, nimet napeissa', await pg.locator('#thead').count()==0 and await pg.locator('#implist .drow').nth(0).locator('.evc').count()==12 and (await pg.locator('#implist .drow').nth(0).locator('.evc').nth(1).inner_text())=='Kerran')  # 1.109: Flow + Kerran + Päivä + 9 väliä
     c=pg.locator('#implist .drow[data-id="t1"] .evc[data-ev="7"]'); await c.click(); await pg.wait_for_timeout(150)
     ev=lambda: pg.evaluate("JSON.stringify(%s.termit.map(function(t){return [t.id,t.ev||0];}))"%K)
     want('napautus valitsee välin', json.loads(await ev())==[['t1',7],['t2',0]] and await pg.get_attribute('#implist .drow[data-id="t1"] .evc[data-ev="7"]','aria-pressed')=='true')
@@ -84,10 +84,10 @@ async def run(p,w,h,touch):
     want('mahtuu (taulukko)', json.loads(await pg.evaluate(OVER))==[])
     # sivuvieritys: nimi pysyy, otsikot ja muut osat seuraavat
     x0=(await pg.locator('#implist .drow[data-id="t1"] .row').bounding_box())['x']
-    await pg.evaluate("(function(){var l=document.getElementById('implist');l.scrollLeft=150;l.dispatchEvent(new Event('scroll'));})()"); await pg.wait_for_timeout(80)
-    sl=json.loads(await pg.evaluate("JSON.stringify([document.getElementById('implist').scrollLeft,document.querySelector('#thead .trow').scrollLeft])"))
-    want('nimi pysyy, sarakkeet vierivät yhdessä', abs((await pg.locator('#implist .drow[data-id="t1"] .row').bounding_box())['x']-x0)<1 and (sl[0]==0 or sl[0]==sl[1]))  # 1.107: kaikki asiat yhdessä taulukossa
-    await pg.evaluate("(function(){var l=document.getElementById('implist');l.scrollLeft=0;l.dispatchEvent(new Event('scroll'));})()"); await pg.wait_for_timeout(50)
+    await pg.evaluate("(function(){var l=document.querySelector('#implist .tstrip');l.scrollLeft=150;l.dispatchEvent(new Event('scroll'));})()"); await pg.wait_for_timeout(80)
+    sl=json.loads(await pg.evaluate("JSON.stringify(Array.prototype.map.call(document.querySelectorAll('#implist .tstrip'),function(x){return x.scrollLeft;}))"))
+    want('nimi pysyy, sarakkeet vierivät yhdessä', abs((await pg.locator('#implist .drow[data-id="t1"] .row').bounding_box())['x']-x0)<1 and (sl[0]>0 or w>=1000) and len(set(sl))==1)  # 1.109: kortit, napit vierivät synkassa
+    await pg.evaluate("(function(){var l=document.querySelector('#implist .tstrip');l.scrollLeft=0;l.dispatchEvent(new Event('scroll'));})()"); await pg.wait_for_timeout(50)
     # kahvasta raahaus
     g=await pg.locator('#implist .drow[data-id="t2"] .tgrip').bounding_box(); x=g['x']+g['width']/2; y=g['y']+g['height']/2
     await pg.mouse.move(x,y); await pg.mouse.down()
@@ -95,9 +95,9 @@ async def run(p,w,h,touch):
     await pg.mouse.up(); await pg.wait_for_timeout(150)
     want('kahva siirtää heti (ei pitoa)', json.loads(await pg.evaluate("JSON.stringify(%s.tarkeat)"%K))==['t2','t1'])
     # i-nappi
-    await pg.click('#thead .ib'); await pg.wait_for_timeout(100)
+    await pg.click('#tinfo-ib'); await pg.wait_for_timeout(100)
     want('i avaa ohjeen', await pg.is_visible('#infop') and 'uusiutuu' in (await pg.inner_text('#infop')))
-    await pg.mouse.click(w/2,h-140); await pg.wait_for_timeout(100)
+    ib_=await pg.locator('#infop').bounding_box(); await pg.mouse.click(w/2,ib_['y']+ib_['height']+20 if ib_['y']+ib_['height']+40<h-90 else 70); await pg.wait_for_timeout(100)
     want('ulkopuolinen napautus sulkee ohjeen eikä tee muuta', not await pg.is_visible('#infop') and not await pg.is_visible('#tsheet'))
     want('ei pitkiä ohjekappaleita näkymässä', await pg.locator('#p-terms p.sub:has-text("Napauta tähteä")').count()==0)
     # --- Päivät-valitsin ---

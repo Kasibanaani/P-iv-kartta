@@ -1,6 +1,5 @@
 """Juuri 1.106 (Emil 18.11.2026): päivän napit kalenterissa (Asiat-taulukon Päivä-sarake, päivän otsikon nappi avaa ikkunan, palkki + prosentti + nuoli,
-ulkopuolinen napautus sulkee) ja yksinkertainen Päätöspuu (useita puita omin tekijöin, Rakenna: alku, tuo näkyviin, lopetus; käyttö: polku, paluu,
-lopetus, muistiinpanoksi). Vanhat puut Valikossa. 390 ja 320 px kosketuksella, 1280 hiirellä."""
+ulkopuolinen napautus sulkee). Päätöspuun testit siirtyivät Flow’n mukana tiedostoon selain_1109.py. Vanhat puut Valikossa. 390 ja 320 px kosketuksella, 1280 hiirellä."""
 import asyncio, os, sys, datetime
 from playwright.async_api import async_playwright
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
@@ -42,7 +41,7 @@ async def run(p,w,h,touch):
     await pg.reload(); await pg.wait_for_timeout(300)
     # Asiat: Päivä-sarake
     await tab(pg,'terms'); await pg.wait_for_timeout(200)
-    want('Päivä-otsikko Kerran-sarakkeen jälkeen', (await pg.locator('#thead .evh').nth(1).text_content())=='Päivä')
+    want('Päivä-nappi Kerran-napin jälkeen', (await pg.locator('#implist .drow').first.locator('.evc').nth(2).text_content())=='Päivä')
     want('Päivä-ruudut valittuina', await pg.get_attribute('#implist .evc.pvc[data-pv="t1"]','aria-pressed')=='true' and await pg.get_attribute('#implist .evc.pvc[data-pv="t4"]','aria-pressed')=='false')
     await tap('#implist .evc.pvc[data-pv="t4"]')
     want('Päivä tallentuu ja alkamispäivä', await pg.evaluate(K+".paivanapit.napit.join()")=='t1,t2,t3,t4' and await pg.evaluate(K+".paivanapit.alkaen.t4")==iso(today))
@@ -73,50 +72,7 @@ async def run(p,w,h,touch):
     await tap(tsel+' .pvday'); await tap('#pv-opts [data-t="t1"]')
     want('toinen napautus poistaa valinnan', await pg.evaluate("!%s.paivanapit.paivat['%s']"%(K,iso(today))))
     await pg.mouse.click(w//2,12); await pg.wait_for_timeout(150)
-    # Päätöspuu
-    await tab(pg,'puu'); await pg.wait_for_timeout(200)
-    want('Päätöspuu alapalkin osiona, ei puita', await pg.is_visible('#p-puu') and await pg.locator('#st-newtree').count()==1)
-    await pg.fill('#st-newtree','Aamu'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(150)
-    want('uusi puu, Rakenna päällä', await pg.evaluate(K+".yksinkertaisetPuut.length")==1 and await pg.get_attribute('#st-build','aria-pressed')=='true')
-    for n in ['Herätys','Kahvi','Tee','Lähde']:
-        await pg.fill('#st-new',n); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(80)
-    T=lambda:pg.evaluate(K+".yksinkertaisetPuut[0]")
-    t=await T(); F={x['n']:x['id'] for x in t['f']}
-    want('tekijät lisätty, ensimmäinen alkuna', len(t['f'])==4 and t['a']==[F['Herätys']])
-    await tap('#st-fs [data-f="%s"]'%F['Herätys'])
-    await tap('#st-to [data-f="%s"]'%F['Kahvi']); await tap('#st-to [data-f="%s"]'%F['Tee'])
-    await tap('#st-fs [data-f="%s"]'%F['Kahvi']); await tap('#st-to [data-f="%s"]'%F['Lähde'])
-    await tap('#st-fs [data-f="%s"]'%F['Tee']); await tap('#st-to [data-f="%s"]'%F['Lähde'])
-    await tap('#st-fs [data-f="%s"]'%F['Lähde']); await tap('#st-e')
-    t=await T()
-    want('tuo näkyviin ja lopetus tallessa', t['to']=={F['Herätys']:[F['Kahvi'],F['Tee']],F['Kahvi']:[F['Lähde']],F['Tee']:[F['Lähde']]} and t['e']==[F['Lähde']])
-    want('ei sivun vaakavieritystä Rakenna', await pg.evaluate(OVER)=='[]')
-    await tap('#st-build')
-    want('käytössä alkutekijä', await pg.evaluate("[].map.call(document.querySelectorAll('#st-opts .stopt .t'),function(e){return e.textContent;}).join()")=='Herätys')
-    await tap('#st-opts [data-f="%s"]'%F['Herätys'])
-    want('napautus tuo seuraavat', await pg.evaluate("[].map.call(document.querySelectorAll('#st-opts .stopt .t'),function(e){return e.textContent;}).join()")=='Kahvi,Tee')
-    await tap('#st-opts [data-f="%s"]'%F['Tee'])
-    want('polku ylhäällä', await pg.locator('#st-path .stcrumb').count()==3)
-    await tap('#st-path .stcrumb[data-i="1"]')
-    want('polun kohta palaa siihen', (await T())['p']==[F['Herätys']])
-    await tap('#st-opts [data-f="%s"]'%F['Kahvi']); await tap('#st-opts [data-f="%s"]'%F['Lähde'])
-    want('lopetus päättää puun', await pg.is_visible('#st-end') and await pg.locator('#st-opts .stopt').count()==0)
-    await pg.reload(); await pg.wait_for_timeout(300); await tab(pg,'puu'); await pg.wait_for_timeout(150)
-    want('polku säilyy latauksessa', await pg.is_visible('#st-end'))
-    await tap('#st-note')
-    want('muistiinpanoksi', await pg.evaluate(K+".muistiinpanot.some(function(n){return n.text==='Aamu: Herätys → Kahvi → Lähde';})") and (await T())['p']==[])
-    # toinen puu omin tekijöin
-    await tap('#st-addtree'); await pg.fill('#st-newtree','Ilta'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(150)
-    want('toinen puu omin tekijöin', await pg.evaluate(K+".yksinkertaisetPuut.length")==2 and await pg.locator('#st-fs [data-f]').count()==0)
-    await tap('#st-trees [data-s]')
-    want('puun vaihto', await pg.evaluate(K+".yksinkertaisetPuut[0].name")=='Aamu')
-    # poisto varmistuksella (varmistus eri kohdassa)
-    t=await T(); await tap('#st-trees [data-s="%s"]'%t['id'])
-    if await pg.get_attribute('#st-build','aria-pressed')!='true': await tap('#st-build')
-    await tap('#st-fs [data-f="%s"]'%F['Tee']); d1=await box('#st-del'); await tap('#st-del')
-    d2=await box('#st-delok'); want('poiston varmistus eri kohdassa', d2 and d2[:2]!=d1[:2])
-    await tap('#st-delok')
-    t=await T(); want('tekijä poistui myös tuo-listoista', len(t['f'])==3 and t['to']=={F['Herätys']:[F['Kahvi']],F['Kahvi']:[F['Lähde']]})
+    # 1.109: Päätöspuu korvautui Flow’lla (selain_1109.py)
     # Vanhat puut ennallaan
     await menu(pg,'#m-tree'); await pg.wait_for_timeout(150)
     want('Vanhat puut Valikosta', await pg.is_visible('#p-use'))

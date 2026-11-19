@@ -1,5 +1,5 @@
 """Juuri 1.84: osionappi ja Valikko alakulmissa (Emil 24.10.2026).
-Napissa vain nykyinen osio, yläpuolella alkukirjaimet M K L P A kiinteässä järjestyksessä, nykyinen korostettuna. Koko ei muutu napautuksesta.
+Napissa vain nykyinen osio, yläpuolella alkukirjaimet M K L F A kiinteässä järjestyksessä, nykyinen korostettuna. Koko ei muutu napautuksesta.
 Valikko oikeassa alakulmassa samankokoisena. Kulmien pyöristys seuraa nappien muotoa. Ohjainrivi ja vienti kulmien välissä, mikään ei mene päällekkäin.
 Vaakatasossa sivupalkki ennallaan. Leveydet 390 ja 320 px. Käyttö: python3 testit/selain_184.py"""
 import asyncio, os, sys, json
@@ -34,13 +34,13 @@ async def run(p,w,h):
     want('vasen ja oikea alakulma symmetrisesti', abs(r0[0]-(w-m0[0]-m0[2]))<=1 and r0[1]==m0[1])
     want('ei seuraavan osion nimeä', not await pg.is_visible('#roll-next') and await pg.inner_text('#roll-now')=='Muistio')
     L=lambda: pg.evaluate("Array.prototype.map.call(document.querySelectorAll('#roll-let i'),function(i){return i.textContent+(i.classList.contains('on')?'*':'');}).join(' ')")
-    want('kirjaimet M K L P A, nykyinen korostettu', await L()=='M* K L P A' and await pg.is_visible('#roll-let'))
+    want('kirjaimet M K L F A, nykyinen korostettu', await L()=='M* K L F A' and await pg.is_visible('#roll-let'))
     seen=[]; sizes=set()
     for k in range(5):
         sizes.add(tuple(await box('roll'))); seen.append((await pg.inner_text('#roll-now'),await L()))
         want('ei päällekkäisyyksiä: '+seen[-1][0], json.loads(await pg.evaluate(CLASH))==[])
-        await pg.click('#roll'); await pg.click('#section-'+await pg.evaluate("({Muistio:'cal',Kalenteri:'list',Listat:'puu','Päätöspuu':'terms',Asiat:'notes'})[document.getElementById('roll-now').textContent]")); await pg.wait_for_timeout(250)
-    want('järjestys ei rullaa, korostus siirtyy', [s[1] for s in seen]==['M* K L P A','M K* L P A','M K L* P A','M K L P* A','M K L P A*'] and [s[0] for s in seen]==['Muistio','Kalenteri','Listat','Päätöspuu','Asiat'])
+        await pg.click('#roll'); await pg.click('#section-'+await pg.evaluate("({Muistio:'cal',Kalenteri:'list',Listat:'puu','Flow':'terms',Asiat:'notes'})[document.getElementById('roll-now').textContent]")); await pg.wait_for_timeout(250)
+    want('järjestys ei rullaa, korostus siirtyy', [s[1] for s in seen]==['M* K L F A','M K* L F A','M K L* F A','M K L F* A','M K L F A*'] and [s[0] for s in seen]==['Muistio','Kalenteri','Listat','Flow','Asiat'])
     want('koko ei muutu napautuksesta', len(sizes)==1 and await pg.inner_text('#roll-now')=='Muistio')
     want('vienti kulmien välissä', (await box('qx'))[0]>r0[0]+r0[2] and (await box('qx'))[0]+40<=m0[0])
     await pg.click('#menu'); await pg.wait_for_timeout(100); ok=await pg.is_visible('#menupop'); await pg.mouse.click(5,40); await pg.wait_for_timeout(80)
