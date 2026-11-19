@@ -83,10 +83,13 @@ async def run(p,w,h,touch):
     want('tyhjä pari poistuu', await pg.locator('#st-rules .strule').count()==n0-1)
     # 1.111: kopio sisältöineen, poisto vahvistuksella eri kohdasta, raahaus pitkällä painalluksella, aloituksen ja lopetuksen lajit
     await tap(r2+' .stcopy'); t=await T()
-    want('kopio sisältöineen heti alle', len(t['r'])==5 and (t['r'][2]['ty'],t['r'][2]['c'],t['r'][2]['e'])==('tai',[F['Annos']],[F['Tarkistettu']]) and t['r'][2]['id']!=t['r'][1]['id'])
+    want('nuoli: oikean ruudun sisältö uuden parin vasemmaksi (1.112)', len(t['r'])==5 and (t['r'][2]['ty'],t['r'][2]['c'],t['r'][2]['e'])==('tai',[F['Tarkistettu']],[]) and t['r'][2]['id']!=t['r'][1]['id'])
     await tap('#st-rules .strule:nth-child(3) .stdelp')
     want('täysi pari: ensin vahvistus vasemmassa kulmassa', await pg.locator('#st-rules .strule').count()==5 and await pg.is_visible('#st-rdelok'))
     await tap('#st-rdelok'); want('vahvistus poistaa', len((await T())['r'])==4 and await pg.locator('#st-rdelok').count()==0)
+    await tap(r2+' .sthd'); await pg.fill('#st-head','Tarkistus'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
+    want('otsikko näkyy pienenä ruudussa', (await pg.text_content(r2+' .sthd'))=='Tarkistus' and not await pg.is_visible('#stpop'))
+    want('miniotsikko tallessa', (await T())['r'][1].get('h')=='Tarkistus')
     bb=await pg.locator('#st-rules .strule:nth-child(4) .stbh').first.bounding_box(); x=bb['x']+bb['width']/2-30; y=bb['y']+bb['height']/2
     bb2=await pg.locator('#st-rules .strule:nth-child(2)').bounding_box()
     await pg.mouse.move(x,y); await pg.mouse.down(); await pg.wait_for_timeout(450)
@@ -96,11 +99,19 @@ async def run(p,w,h,touch):
     sq=[]
     for i in range(3): await tap('#st-rules .strule:nth-child(1) .sttyc'); sq.append(await pg.text_content('#st-rules .strule:nth-child(1) .sttyc'))
     want('Aloitus rullaa Ja, Pois, Tai; ei poistoa', sq==['Ja','Pois','Tai'] and await pg.locator('#st-rules .strule:nth-child(1) .stdelp').count()==0)
+    # 1.112: raahaus ylimmäksi tekee parista aloituksen (Pois-pari -> aloitus Pois, entinen aloitus -> Tai)
+    bb=await pg.locator('#st-rules .strule:nth-child(2) .stbh').first.bounding_box(); x=bb['x']+bb['width']/2-30; y=bb['y']+bb['height']/2
+    bb1=await pg.locator('#st-rules .strule:nth-child(1)').bounding_box()
+    await pg.mouse.move(x,y); await pg.mouse.down(); await pg.wait_for_timeout(450)
+    for k in range(1,11): await pg.mouse.move(x,y+(bb1['y']+4-y)*k/10); await pg.wait_for_timeout(15)
+    await pg.mouse.up(); await pg.wait_for_timeout(200); t=await T()
+    want('ylin pari on aina aloitus', [(x['ty'],x.get('lg')) for x in t['r']]==[('a','x'),('tai',None),('tai',None),('end','tai')] and await pg.locator('#st-rules .strule:nth-child(1) .stbox.ty-a').count()==1)
     # käyttö
     await tap('#st-build')
     want('käytössä Aloituksen vaihtoehdot', await txts('#st-opts .stopt .t')=='Annos,Ohita')
     await tap('#st-opts [data-f="%s"]'%F['Annos'])
     want('valinta tuo seuraukset, poissulku piilottaa', await txts('#st-opts .stopt .t')=='Annos,Tarkistettu')
+    want('uudet vaihtoehdot välin päässä miniotsikon alla', await pg.locator('#st-opts .stgap.h').count()==1 and (await pg.text_content('#st-opts .stgap.h'))=='Tarkistus')
     await tap('#st-opts [data-f="%s"]'%F['Tarkistettu'])
     want('lopetus päättää: Valmis ja polku', 'Valmis: Annos → Tarkistettu' in await pg.text_content('#st-end'))
     await tap('#st-opts [data-f="%s"]'%F['Annos'])

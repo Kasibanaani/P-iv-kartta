@@ -49,3 +49,8 @@ w.r[1].lg='tai';A.ok(E.stDone(w,['a']));
 // flow-data
 A.deepEqual(E.flNorm({m:{t1:'s1',t2:5},run:{'r|t1':{s:['a',1],d:'x'},bad:3}}),{m:{t1:'s1'},run:{'r|t1':{s:['a'],d:'x'}}});A.equal(E.flOut({m:{},run:{}}),undefined);
 console.log('logiikka_1106 ok');
+// 1.112: ylin pari on aloitus, miniotsikko, vaihtoehtojen lähde
+{const E2=require('./engine.js');const z=E2.stNorm([{id:'z',name:'Z',f:[{id:'a',n:'A'},{id:'b',n:'B'},{id:'c',n:'C'}],r:[{id:'r0',ty:'a',lg:'tai',c:['a'],e:['b']},{id:'r1',ty:'x',c:['b','c'],e:['c'],h:' Otsikko '},{id:'r2',ty:'end',lg:'ja',c:['c']}]}])[0];
+require('assert').equal(z.r[1].h,'Otsikko');require('assert').deepEqual(E2.stVis(z,['a']).src,{a:'',b:'r0'});
+z.r=[z.r[1],z.r[0],z.r[2]];E2.stTop(z);require('assert').deepEqual(z.r.map(x=>[x.ty,x.lg]),[['a','x'],['tai',undefined],['end','ja']]);
+z.r=[z.r[2],z.r[1],z.r[0]];E2.stTop(z);require('assert').deepEqual(z.r.map(x=>[x.ty,x.lg]),[['a','tai'],['tai',undefined],['x',undefined]]);console.log('logiikka 1.112 ok');}

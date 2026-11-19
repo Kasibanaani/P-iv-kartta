@@ -1,8 +1,17 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.111 — Flow-rakentaminen: aloitusruutu vaihtoehtoineen ja lajeineen, Loppu tai/ja, raahaus pitkällä painalluksella, kopio ja nopea poisto. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 19.11.2026
+**Vaihe:** versio 1.112 — Flow: nuoli kopioi seuraukset uuden parin syiksi, ylin pari on aina aloitus, uusien vaihtoehtojen väli ja miniotsikko; listan ruudut osin läpikuultaviksi. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 19.11.2026
 
 Juuren ydin on teksti, asiasanat ja niiden ehdot; Muistio, Kalenteri ja Listat ovat niiden käyttönäkymiä. Päätöspuun opetus ja vanhat listat säilyvät.
+
+## Versio 1.112 (19.11.2026): Flow-palautteen korjaukset
+
+Emil 19.11. klo 20.16: kopion pitää viedä oikean ruudun sisältö uuden parin vasemmaksi ruuduksi (pieni nuoli); tarkistuslistaan osin läpikuultava ilme kuten Flow’n muokkaustilassa; aloitusruutu on aina ylimmän rivin vasen ruutu (raahaus ylimmäksi tekee aloituksen); uusien vaihtoehtojen eteen pieni väli ja oikeaan ruutuun valinnainen miniotsikko, joka tulee väliin.
+- **Nuoli** (ohut viiva, oikean ruudun kulmassa): uusi pari heti alle, vasemmassa ruudussa oikean ruudun asiat (Tai), oikea tyhjä. Koko parin kopio poistettu. Tyhjällä oikealla ruudulla nuoli on himmeä.
+- **Ylin pari = aloitus:** myös aloituspari raahataan; ylimmäksi tullut saa aloituksen lajiksi oman lajinsa (Tai/Ja/Pois, lopetuksesta Tai), entinen aloitus muuttuu samanlajiseksi tavalliseksi pariksi (moottorissa `stTop`).
+- **Väli ja miniotsikko:** käytössä (myös Ruudun Flow-ikkunassa) kunkin parin tuomat vaihtoehdot alkavat pienen välin päästä; jos parille on annettu miniotsikko, se näkyy välissä 11 px:n tekstinä. Otsikko annetaan oikean ruudun pienestä "+ otsikko" -napista avautuvassa ikkunassa (kenttä 16 px, ettei iPhone zoomaa); tyhjä poistaa. Tallennus: säännön valinnainen `h`.
+- **Listan ruudut** (Ruudut-näkymä) osin läpikuultaviksi (solun väri 58 %, värisävyt sen päällä); kiireellisin punainen pysyy täytenä luettavuuden vuoksi.
+- **Testit:** logiikka (stTop, h, lähde) ja `selain_1109.py` (nuoli, otsikko, väli, raahaus ylimmäksi) 390/320/1280 läpi; koko sarja ajettu, 1103/176/188 menivät uusinnalla läpi, perustesti kaatuu illalla samoin kuin 1.110:ssä. Ei tarkistettu oikealla iPhonella.
 
 ## Versio 1.111 (19.11.2026): Flow-rakentamisen parannukset
 
