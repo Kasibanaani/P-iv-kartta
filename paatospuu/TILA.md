@@ -1,8 +1,17 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.112 — Flow: nuoli kopioi seuraukset uuden parin syiksi, ylin pari on aina aloitus, uusien vaihtoehtojen väli ja miniotsikko; listan ruudut osin läpikuultaviksi. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 19.11.2026
+**Vaihe:** versio 1.113 — Flow-osiot: osionvaihtoruutu, osion aloitus otsikkoineen, seuraava osio näkyy edellisen päätyttyä väliotsikkona. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 19.11.2026
 
 Juuren ydin on teksti, asiasanat ja niiden ehdot; Muistio, Kalenteri ja Listat ovat niiden käyttönäkymiä. Päätöspuun opetus ja vanhat listat säilyvät.
+
+## Versio 1.113 (19.11.2026): Flow-osiot
+
+Emil 19.11. klo 21.04–21.07: osionvaihtumisruutu = lopetus vain siihenastiselle; uusi osio alkaa osion aloitusruudulla, jossa osion otsikko; osioon tulevat näkyviin vain sen omat uudet vaihtoehdot; poissulku vaikuttaa myös myöhemmissä osioissa; otsikko käytössä selkeä mutta vähän tilaa vievä divider. Vastaukset: aiemman osion valinta kelpaa syyksi myöhemmässä (kyllä); päättyneeseen osioon voi palata ja muuttaa (kyllä); osio ei näy ennen aiempien päättymistä, ilmestyy väliotsikkona; aiempi osio ei katoa.
+- **Rakenna:** rulla Tai → Ja → Pois → Loppu tai → Loppu ja → Osio tai → Osio ja. Osionvaihtoruutu on yksittäinen ruutu (vihreä): Osio tai = jokin valittu päättää osion, Osio ja = kaikki. Sen perässä oleva pari on aina osion aloitus ("Osion aloitus", laji Tai/Ja/Pois, "+ osion otsikko"); jos osionvaihto on viimeisenä, tyhjä osion aloitus tulee itsestään, ja rullattaessa pois Osio-lajista tyhjä aloitus poistuu. Raahaus ja poisto korjaavat aloitukset samalla säännöllä (`stTop`). Myös ensimmäiselle aloitukselle voi antaa otsikon.
+- **Käyttö:** osiot näkyvät järjestyksessä; seuraava osio ilmestyy vasta, kun edellinen on päättynyt, ohuena viivana, jonka keskellä otsikko (ilman otsikkoa pelkkä viiva). Aiemmat osiot jäävät näkyviin ja niitä voi muuttaa; jos aiemman osion päättyminen purkautuu, myöhemmät osiot ja niiden valinnat poistuvat. Osion säännöt tuovat vaihtoehtoja vain omaan osioonsa, syiksi kelpaavat myös aiempien osioiden valinnat; poissulku vaikuttaa kaikissa osioissa. Lopetus (Loppu) päättää koko Flow’n.
+- **Tallennus:** säännön laji `os` (lg tai/ja), aloituksen valinnainen `ot`. Vanha muoto latautuu.
+- **Testit:** logiikka (osiot, peruminen, poissulku osioiden yli, aloitusten korjaus) ja `selain_1109.py` (osionvaihto, otsikko, väliotsikon ilmestyminen ja katoaminen) 390/320/1280 läpi; koko sarja ajettu (1103 ja 188 vanhoja epävakaita, läpi uusinnalla; perustesti kaatuu illalla kuten ennenkin). Ei tarkistettu oikealla iPhonella.
+- **Auki:** näytetäänkö osion otsikko myös polussa (Muistiinpanoksi-tekstissä); voiko myöhemmän osion sääntö tuoda vaihtoehtoja aiempaan osioon (nyt ei).
 
 ## Versio 1.112 (19.11.2026): Flow-palautteen korjaukset
 

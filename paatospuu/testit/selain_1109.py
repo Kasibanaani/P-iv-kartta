@@ -61,9 +61,9 @@ async def run(p,w,h,touch):
     # pari 2: Tai Annos -> Tarkistettu; laji rullaa pienestä napista
     await tap('#st-addrule'); r2='#st-rules .strule:nth-child(2)'
     seq=[await pg.text_content(r2+' .sttyc')]
-    for i in range(5):
+    for i in range(7):
         await tap(r2+' .sttyc'); seq.append(await pg.text_content(r2+' .sttyc'))
-    want('laji rullaa: Tai, Ja, Pois, Loppu tai, Loppu ja, Tai', seq==['Tai','Ja','Pois','Loppu tai','Loppu ja','Tai'])
+    want('laji rullaa: Tai, Ja, Pois, Loppu tai, Loppu ja, Osio tai, Osio ja, Tai', seq==['Tai','Ja','Pois','Loppu tai','Loppu ja','Osio tai','Osio ja','Tai'] and await pg.locator('#st-rules .strule').count()==2)
     want('tyhjällä parilla Poista', await pg.locator(r2+' .stdelp').count()==1)
     await tap(r2+' .stplus[data-side="c"]'); await tap('#st-exist [data-f="%s"]'%F['Annos']); await out()
     await tap(r2+' .stplus[data-side="e"]'); await pg.fill('#st-new','Tarkistettu'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100); await out()
@@ -116,6 +116,22 @@ async def run(p,w,h,touch):
     want('lopetus päättää: Valmis ja polku', 'Valmis: Annos → Tarkistettu' in await pg.text_content('#st-end'))
     await tap('#st-opts [data-f="%s"]'%F['Annos'])
     want('peruminen pudottaa näkymättömät valinnat', (await T())['p']==[] and await txts('#st-opts .stopt .t')=='Annos,Ohita')
+    # 1.113: osiot
+    await tap('#st-build'); await tap('#st-addrule'); n=await pg.locator('#st-rules .strule').count(); ro='#st-rules .strule:nth-child(%d)'%n
+    for i in range(5): await tap(ro+' .sttyc')
+    want('osionvaihto tuo perään osion aloituksen', await pg.text_content(ro+' .sttyc')=='Osio tai' and await pg.locator('#st-rules .strule').count()==n+1 and 'Osion aloitus' in await pg.text_content('#st-rules .strule:nth-child(%d) .stbh b'%(n+1)))
+    await tap(ro+' .stplus[data-side="c"]'); await tap('#st-exist [data-f="%s"]'%F['Tarkistettu']); await out()
+    rs='#st-rules .strule:nth-child(%d)'%(n+1)
+    await tap(rs+' .stot'); await pg.fill('#st-head','Kirjaus'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
+    await tap(rs+' .stplus[data-side="c"]'); await pg.fill('#st-new','Kirjaa'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100); await out()
+    t=await T(); want('osion otsikko tallessa', t['r'][n]['ty']=='a' and t['r'][n].get('ot')=='Kirjaus' and t['r'][n-1]['ty']=='os')
+    await tap('#st-build'); await tap('#st-opts [data-f="%s"]'%F['Annos'])
+    want('seuraava osio ei näy ennen edellisen päättymistä', await pg.locator('#st-opts .stsec').count()==0 and 'Kirjaa' not in await txts('#st-opts .stopt .t'))
+    await tap('#st-opts [data-f="%s"]'%F['Tarkistettu'])
+    want('osio ilmestyy väliotsikkona, aiempi jää näkyviin', await pg.locator('#st-opts .stsec').count()==1 and (await pg.text_content('#st-opts .stsec'))=='Kirjaus' and await txts('#st-opts .stopt .t')=='Annos,Tarkistettu,Kirjaa')
+    if w==390: await pg.screenshot(path='/tmp/claude-0/-home-user/a270aa8a-e0dc-5fb4-b124-978351da2561/scratchpad/j113.png')
+    await tap('#st-opts [data-f="%s"]'%F['Annos'])
+    want('aiemman osion peruminen sulkee myöhemmän', await pg.locator('#st-opts .stsec').count()==0 and (await T())['p']==[])
     # asian Flow Asiat-kortilta
     await tab(pg,'terms'); await pg.wait_for_timeout(150)
     await tap('#implist .flc[data-fl="t1"]'); want('Flow-valinta aukeaa', await pg.is_visible('#fl-trees'))

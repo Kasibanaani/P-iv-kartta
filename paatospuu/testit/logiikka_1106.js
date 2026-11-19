@@ -54,3 +54,20 @@ console.log('logiikka_1106 ok');
 require('assert').equal(z.r[1].h,'Otsikko');require('assert').deepEqual(E2.stVis(z,['a']).src,{a:'',b:'r0'});
 z.r=[z.r[1],z.r[0],z.r[2]];E2.stTop(z);require('assert').deepEqual(z.r.map(x=>[x.ty,x.lg]),[['a','x'],['tai',undefined],['end','ja']]);
 z.r=[z.r[2],z.r[1],z.r[0]];E2.stTop(z);require('assert').deepEqual(z.r.map(x=>[x.ty,x.lg]),[['a','tai'],['tai',undefined],['x',undefined]]);console.log('logiikka 1.112 ok');}
+// 1.113: osiot
+{const A2=require('assert'),E3=require('./engine.js');
+const o=E3.stNorm([{id:'o',name:'O',f:'abcdefg'.split('').map(c=>({id:c,n:c.toUpperCase()})),r:[
+ {id:'r0',ty:'a',lg:'x',c:['a','b']},{id:'r1',ty:'tai',c:['a'],e:['c']},{id:'r2',ty:'os',lg:'tai',c:['c','b']},
+ {id:'r3',ty:'a',lg:'tai',c:['d'],ot:' Toinen '},{id:'r4',ty:'tai',c:['a'],e:['e']},{id:'r5',ty:'os',lg:'ja',c:['d','e']}]}])[0];
+A2.equal(o.r.length,7);A2.equal(o.r[6].ty,'a');A2.equal(o.r[3].ot,'Toinen');
+let V=E3.stVis(o,[]);A2.deepEqual(V.vis,['a','b']);A2.deepEqual(V.secs.map(s=>s.i),[0]);
+V=E3.stVis(o,['a']);A2.deepEqual(V.vis,['a','c']);
+V=E3.stVis(o,['a','c']);A2.deepEqual(V.vis,['a','c','d','e']);A2.deepEqual(V.secs.map(s=>s.ot),['','Toinen']);A2.equal(V.sec.e,1);A2.equal(V.src.e,'r4');
+V=E3.stVis(o,['a','c','d','e']);A2.deepEqual(V.secs.map(s=>s.i),[0,1,2]);
+// peruminen aiemmassa osiossa sulkee myöhemmät ja pudottaa niiden valinnat
+A2.deepEqual(E3.stPick(o,['a','c','d','e'],'c'),['a']);
+// poissulku vaikuttaa myöhemmässä osiossa: b (poissuljettu) ei tule näkyviin myöhemminkään
+o.r[4].e=['b','e'];A2.ok(E3.stVis(o,['a','c']).vis.indexOf('b')<0);
+// osionvaihto ylimmäksi -> aloitus; viimeisen osionvaihdon perään aloitus
+const q={r:[{id:'r1',ty:'os',lg:'tai',c:[],e:[]},{id:'r2',ty:'tai',c:[],e:[]},{id:'r3',ty:'os',lg:'tai',c:[],e:[]}]};E3.stTop(q);
+A2.deepEqual(q.r.map(x=>x.ty),['a','tai','os','a']);console.log('logiikka 1.113 ok');}
