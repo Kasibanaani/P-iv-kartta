@@ -1244,18 +1244,18 @@ body:not(.oldui) .old-only{display:none!important}
 #p-terms .thl{font-size:12px}
 #p-terms{padding-bottom:84px}
 /* 1.109 (Emil 19.11.2026): Asiat korteiksi – asia otsikkona, valinnat nimettyinä nappeina alla, valintarivit vierivät yhdessä */
-#p-terms #implist.tcards{display:flex;flex-direction:column;gap:0!important;margin:8px -10px 12px;background:var(--cell);border-radius:12px;box-shadow:inset 0 0 0 .5px var(--sep)}
-#p-terms .drow.tcard{display:block;width:auto;min-width:0;padding:4px 0 8px;border-top:.5px solid var(--sep)}
+#p-terms #implist.tcards{display:block;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;gap:0!important;margin:8px -10px 12px;background:var(--cell);border-radius:12px;box-shadow:inset 0 0 0 .5px var(--sep)}
+#p-terms .drow.tcard{display:block;width:max-content;min-width:100%;box-sizing:border-box;padding:4px 0 8px;border-top:.5px solid var(--sep)}
 #p-terms .drow.tcard:first-child{border-top:0}
-#p-terms .tcard>.tfix{position:static;width:auto;background:none;padding-right:10px}
+#p-terms .tcard>.tfix{position:sticky;left:0;width:var(--tcw,100%);box-sizing:border-box;background:none;padding-right:10px}
 #p-terms .tcard>.tfix>.row{min-height:34px;padding:2px 0}
 #p-terms .tcard>.tfix>.row .t{font-size:14.5px;font-weight:600;-webkit-line-clamp:2}
 #p-terms .tcard .tgrip{min-height:30px}
-#p-terms .tstrip{display:flex;align-items:center;gap:5px;padding:0 10px 0 22px;overflow-x:auto;scroll-padding-left:22px}
+#p-terms .tstrip{display:flex;align-items:center;gap:5px;padding:0 10px 0 22px;overflow:visible}
 #p-terms .tstrip .evc{flex:none;min-height:30px;height:30px;padding:0 9px;border-radius:8px;box-shadow:inset 0 0 0 1px var(--sep);font:inherit;font-size:12.5px;font-weight:550;color:var(--label);white-space:nowrap;background:var(--bg)}
 #p-terms .tstrip .evc::before{display:none}
 #p-terms .tstrip .evc[aria-pressed="true"]{background:var(--accent);color:#fff;box-shadow:none}
-#p-terms .tstrip .evc.flc{max-width:52vw;overflow:hidden;text-overflow:ellipsis}
+#p-terms .tstrip .evc.flc{width:92px;overflow:hidden;text-overflow:ellipsis}#p-terms .tstrip .evc.pvc{min-width:64px}
 #p-terms .tstrip .tsep{flex:none;width:1px;height:20px;background:var(--sep);margin:0 3px}
 #p-terms .tstrip .pvp{font-size:10.5px;margin-left:4px;opacity:.85}
 /* 1.109 Flow: ruutuparit (laji näkyy värinä; eri värit kuin listan ruuduissa) */
@@ -5311,7 +5311,7 @@ function termsList(b,inPanel){var SC=inPanel?main:$('tsheet');termCache=null;
       imp.forEach(function(t,k){var row=el('div','drow');row.dataset.id=t.id;if(!inPanel)row.appendChild(el('span','num',(k+1)+'.'));row.appendChild(t.time?tTime(t):termRow(t,'',inPanel));if(inPanel)tabRow(row,t,true);il.appendChild(row);});
       function impDrop(i,j){var ids=imp.map(function(t){return t.id;});data.imp=moveToIdx(ids,ids[i],j);touch();var y=SC.scrollTop;renderTerms();SC.scrollTop=y;}
       /* 1.109: ei otsikkoriviä; valinnat lukevat napeissa */
-      if(imp.length){b.appendChild(il);dragList(il,impDrop);if(inPanel){il.classList.add('tcards');gripDrag(il,impDrop);}}
+      if(imp.length){b.appendChild(il);dragList(il,impDrop);if(inPanel){il.classList.add('tcards','hscroll');gripDrag(il,impDrop);tcardFit(il);}}
       else b.appendChild(subI('Ei vielä asioita.',inPanel?'Kirjoita uusi asia yläreunan kenttään tai pidä sormea tässä.':'Kirjoita uusi asia yläreunan kenttään.','sub impnone'));
       var rk=impRanks(data.imp,all,data.projects);
       var l=el('div','rows');l.id='termlist';
@@ -5323,7 +5323,7 @@ function termsList(b,inPanel){var SC=inPanel?main:$('tsheet');termCache=null;
     /* 1.109 (Emil 19.11.2026, Mätsikin tapaan): asia otsikkona, sen alla valinnat nappeina, joissa valinnan nimi. Valintarivit vierivät yhdessä. */
     function tabRow(row,t,grip){var fx=el('div','tfix');while(row.firstChild)fx.appendChild(row.firstChild);
       if(grip){var g=el('button','tgrip');g.type='button';g.setAttribute('aria-label','Siirrä: '+t.name);fx.insertBefore(g,fx.firstChild);}
-      row.classList.add('trow','tcard');row.appendChild(fx);var c=tcells(t);c.classList.add('tscroll','hscroll','tstrip');row.appendChild(c);}
+      row.classList.add('trow','tcard');row.appendChild(fx);var c=tcells(t);c.classList.add('tstrip');row.appendChild(c);}
     function tcells(t){var c=el('div','tcells');if(t.time){c.classList.add('none');return c;}var v=termEvOf(t);
       /* 1.109: Flow-valinta (asian Flow); nimi napissa */
       var fid=flData().m[t.id],ft=fid&&stById(fid),fb=button(c,ft?'Flow: '+ft.name:'Flow','evc flc',function(ev){ev.stopPropagation();flPick(t.id,t.name);});fb.dataset.fl=t.id;fb.setAttribute('aria-pressed',ft?'true':'false');fb.addEventListener('pointerdown',function(ev){ev.stopPropagation();});c.appendChild(el('span','tsep'));
@@ -5342,6 +5342,9 @@ function termsList(b,inPanel){var SC=inPanel?main:$('tsheet');termCache=null;
       r.appendChild(fx);var c=el('div','tcells');c.appendChild(el('span','evh','Kerran'));c.appendChild(el('span','evh','Päivä'));EVC.forEach(function(o){c.appendChild(el('span','evh',o[1]));});r.appendChild(c);w.appendChild(r);return w;}
     if(!inPanel){var r2=el('div','btnrow');button(r2,'Valmis','btn',function(){closeSheet($('tsheet'));render();}).dataset.done='1';b.appendChild(r2);}return;}
 /* 1.103: uusiutumisvälit taulukon sarakkeina; muut arvot (esim. 30 pv) näkyvät rivin pienessä tekstissä */
+/* 1.110 (Emil 19.11.2026): yksi yhteinen vierivä taulukko (kuten Mätsik): koko lista vierii sivuttain kerralla, asian nimi on liimattu vasempaan reunaan. Ei rivikohtaista synkkausta, joten napit eivät nyi. */
+function tcardFit(il){il.style.setProperty('--tcw',il.clientWidth+'px');il.scrollLeft=tabX;il.addEventListener('scroll',function(){tabX=il.scrollLeft;},{passive:true});}
+addEventListener('resize',function(){var il=document.querySelector('#implist.tcards');if(il)il.style.setProperty('--tcw',il.clientWidth+'px');});
 var EVC=[[1,'1 pv'],[7,'1 vk'],[14,'2 vk'],[21,'3 vk'],[28,'4 vk'],[60,'2 kk'],[90,'3 kk'],[180,'6 kk'],[365,'12 kk']],tabX=0;
 /* 1.104: pikanapit (data.pk = asiasanojen id:t); järjestys tulee taulukosta (pikaTerms) */
 function pikaOn(id){return (data.pk||[]).indexOf(id)>=0;}

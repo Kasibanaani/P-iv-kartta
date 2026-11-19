@@ -84,10 +84,10 @@ async def run(p,w,h,touch):
     want('mahtuu (taulukko)', json.loads(await pg.evaluate(OVER))==[])
     # sivuvieritys: nimi pysyy, otsikot ja muut osat seuraavat
     x0=(await pg.locator('#implist .drow[data-id="t1"] .row').bounding_box())['x']
-    await pg.evaluate("(function(){var l=document.querySelector('#implist .tstrip');l.scrollLeft=150;l.dispatchEvent(new Event('scroll'));})()"); await pg.wait_for_timeout(80)
-    sl=json.loads(await pg.evaluate("JSON.stringify(Array.prototype.map.call(document.querySelectorAll('#implist .tstrip'),function(x){return x.scrollLeft;}))"))
-    want('nimi pysyy, sarakkeet vierivät yhdessä', abs((await pg.locator('#implist .drow[data-id="t1"] .row').bounding_box())['x']-x0)<1 and (sl[0]>0 or w>=1000) and len(set(sl))==1)  # 1.109: kortit, napit vierivät synkassa
-    await pg.evaluate("(function(){var l=document.querySelector('#implist .tstrip');l.scrollLeft=0;l.dispatchEvent(new Event('scroll'));})()"); await pg.wait_for_timeout(50)
+    await pg.evaluate("(function(){var l=document.getElementById('implist');l.scrollLeft=150;l.dispatchEvent(new Event('scroll'));})()"); await pg.wait_for_timeout(80)
+    sl=json.loads(await pg.evaluate("(function(){var a=document.querySelectorAll('#implist .tstrip .evc[data-ev=\\'once\\']');return JSON.stringify([document.getElementById('implist').scrollLeft].concat(Array.prototype.map.call(a,function(x){return Math.round(x.getBoundingClientRect().left);})));})()"))
+    want('nimi pysyy, sarakkeet vierivät yhdessä', abs((await pg.locator('#implist .drow[data-id="t1"] .row').bounding_box())['x']-x0)<1 and (sl[0]>0 or w>=1000) and len(set(sl[1:]))==1)  # 1.110: yksi yhteinen vierivä taulukko, napit samassa linjassa
+    await pg.evaluate("(function(){var l=document.getElementById('implist');l.scrollLeft=0;l.dispatchEvent(new Event('scroll'));})()"); await pg.wait_for_timeout(50)
     # kahvasta raahaus
     g=await pg.locator('#implist .drow[data-id="t2"] .tgrip').bounding_box(); x=g['x']+g['width']/2; y=g['y']+g['height']/2
     await pg.mouse.move(x,y); await pg.mouse.down()

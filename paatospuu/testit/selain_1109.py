@@ -41,9 +41,10 @@ async def run(p,w,h,touch):
     lab=await txts('#implist .tcard[data-id="t1"] .tstrip .evc')
     want('valinnat lukevat napeissa (Flow, Kerran, Päivä, välit)', lab.startswith('Flow,Kerran,Päivä,1 pv,1 vk') and lab.endswith('12 kk'))
     want('väli näkyy valittuna napissa', await pg.get_attribute('#implist .tcard[data-id="t1"] .evc[data-ev="7"]','aria-pressed')=='true')
-    await pg.evaluate("document.querySelector('#implist .tcard[data-id=\"t1\"] .tstrip').scrollLeft=120"); await pg.wait_for_timeout(120)
-    sl=await pg.evaluate("[].map.call(document.querySelectorAll('#implist .tstrip'),function(e){return e.scrollLeft;})")
-    want('valintarivit vierivät yhdessä', len(set(sl))==1 and (sl[0]>0 or w>1000))
+    await pg.evaluate("document.getElementById('implist').scrollLeft=120"); await pg.wait_for_timeout(120)
+    sl=await pg.evaluate("[document.getElementById('implist').scrollLeft].concat([].map.call(document.querySelectorAll('#implist .tstrip .evc[data-ev=\"7\"]'),function(e){return Math.round(e.getBoundingClientRect().left);}))")
+    nx=await pg.evaluate("[].map.call(document.querySelectorAll('#implist .tcard>.tfix'),function(e){return Math.round(e.getBoundingClientRect().left);})")
+    want('valintarivit vierivät yhdessä (1.110 yksi taulukko), nimet paikallaan', len(set(sl[1:]))==1 and (sl[0]>0 or w>1000) and len(set(nx))==1)
     want('ei sivun vaakavieritystä (Asiat)', await pg.evaluate(OVER)=='[]')
     # Flow-osio
     await tab(pg,'puu'); await pg.wait_for_timeout(200)

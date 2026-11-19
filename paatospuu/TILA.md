@@ -1,8 +1,14 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.109 — Flow (asian oma tarkistuspolku ruutupareista, rivikohtainen läpikäynti Ruuduissa) ja Asiat korteiksi (asia otsikkona, nimetyt napit vierivät synkassa). **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 19.11.2026
+**Vaihe:** versio 1.110 — Asiat-kortit yhtenä sulavasti vierivänä taulukkona; 1.109 Flow ja Asiat-kortit. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 19.11.2026
 
 Juuren ydin on teksti, asiasanat ja niiden ehdot; Muistio, Kalenteri ja Listat ovat niiden käyttönäkymiä. Päätöspuun opetus ja vanhat listat säilyvät.
+
+## Versio 1.110 (19.11.2026): Asiat-kortit vierivät yhtenä taulukkona
+
+Emil 19.11. klo 8.30: korttien nappirivit nykivät sormella vieritettäessä (muut rivit seurasivat perässä); toive sulavasta kuten Mätsikissä, "saa toteuttaa suoraan".
+- Ennen jokainen nappirivi vieri erikseen ja muut synkattiin scroll-tapahtumista (siksi viive). Nyt koko lista on yksi sivuttain vierivä alue, ja asian nimi on liimattu (sticky) vasempaan reunaan: kaikki napit liikkuvat samassa liikkeessä. Flow-napilla vakioleveys (92 px) ja Päivä-napilla vähimmäisleveys, jotta sarakkeet ovat samassa linjassa. Vierityskohta muistetaan näkymää vaihdettaessa.
+- Testit: 1103, 1109, 172 päivitetty (yksi vierivä alue, napit samassa x-kohdassa, nimet paikallaan). Ajettu tietokoneen Chromiumissa; iPhonen Safarin vieritystuntumaa ei ole varmistettu.
 
 ## Versio 1.109 (19.11.2026): Flow ja Asiat-kortit
 
