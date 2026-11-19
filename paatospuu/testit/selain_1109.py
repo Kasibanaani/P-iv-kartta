@@ -51,19 +51,19 @@ async def run(p,w,h,touch):
     want('osion nimi Flow', await pg.evaluate("document.getElementById('roll-now')?document.getElementById('roll-now').textContent:''") in ('Flow','') and await pg.locator('#st-newtree').count()==1)
     await pg.fill('#st-newtree','Lääkekierto'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(150)
     want('uusi Flow: Rakenna päällä, Aloitus-pari valmiina', await pg.get_attribute('#st-build','aria-pressed')=='true' and await pg.locator('#st-rules .strule').count()==1 and await pg.locator('#st-rules .stbox.ty-a').count()==1)
-    await tap('#st-rules .strule:nth-child(1) .stplus[data-side="e"]')
+    await tap('#st-rules .strule:nth-child(1) .stplus[data-side="c"]')
     want('lisäysikkuna aukeaa', await pg.is_visible('#stpop') and await pg.is_visible('#st-new'))
     for n in ['Annos','Ohita']:
         await pg.fill('#st-new',n); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
     await out(); want('ulkopuolinen napautus sulkee', not await pg.is_visible('#stpop'))
     t=await T(); F={x['n']:x['id'] for x in t['f']}
-    want('Aloitus tuo Annos ja Ohita', t['r'][0]['e']==[F['Annos'],F['Ohita']])
+    want('Aloitusruutu sisältää Annos ja Ohita (1.111)', t['r'][0]['c']==[F['Annos'],F['Ohita']] and t['r'][0]['e']==[] and t['r'][0]['lg']=='tai')
     # pari 2: Tai Annos -> Tarkistettu; laji rullaa pienestä napista
     await tap('#st-addrule'); r2='#st-rules .strule:nth-child(2)'
     seq=[await pg.text_content(r2+' .sttyc')]
-    for i in range(4):
+    for i in range(5):
         await tap(r2+' .sttyc'); seq.append(await pg.text_content(r2+' .sttyc'))
-    want('laji rullaa: Tai, Ja, Pois, Loppu, Tai', seq==['Tai','Ja','Pois','Loppu','Tai'])
+    want('laji rullaa: Tai, Ja, Pois, Loppu tai, Loppu ja, Tai', seq==['Tai','Ja','Pois','Loppu tai','Loppu ja','Tai'])
     want('tyhjällä parilla Poista', await pg.locator(r2+' .stdelp').count()==1)
     await tap(r2+' .stplus[data-side="c"]'); await tap('#st-exist [data-f="%s"]'%F['Annos']); await out()
     await tap(r2+' .stplus[data-side="e"]'); await pg.fill('#st-new','Tarkistettu'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100); await out()
@@ -77,10 +77,25 @@ async def run(p,w,h,touch):
     for i in range(2): await tap(r4+' .sttyc')
     await tap(r4+' .stplus[data-side="c"]'); await tap('#st-exist [data-f="%s"]'%F['Annos']); await tap('#st-exist [data-f="%s"]'%F['Ohita']); await out()
     t=await T()
-    want('säännöt tallessa', [(x['ty'],x['c'],x['e']) for x in t['r']]==[('a',[],[F['Annos'],F['Ohita']]),('tai',[F['Annos']],[F['Tarkistettu']]),('end',[F['Tarkistettu'],F['Ohita']],[]),('x',[F['Annos'],F['Ohita']],[])])
+    want('säännöt tallessa', [(x['ty'],x['c'],x['e']) for x in t['r']]==[('a',[F['Annos'],F['Ohita']],[]),('tai',[F['Annos']],[F['Tarkistettu']]),('end',[F['Tarkistettu'],F['Ohita']],[]),('x',[F['Annos'],F['Ohita']],[])])
     want('ei sivun vaakavieritystä (Rakenna)', await pg.evaluate(OVER)=='[]')
     await tap('#st-addrule'); n0=await pg.locator('#st-rules .strule').count(); await tap('#st-rules .strule:last-child .stdelp')
     want('tyhjä pari poistuu', await pg.locator('#st-rules .strule').count()==n0-1)
+    # 1.111: kopio sisältöineen, poisto vahvistuksella eri kohdasta, raahaus pitkällä painalluksella, aloituksen ja lopetuksen lajit
+    await tap(r2+' .stcopy'); t=await T()
+    want('kopio sisältöineen heti alle', len(t['r'])==5 and (t['r'][2]['ty'],t['r'][2]['c'],t['r'][2]['e'])==('tai',[F['Annos']],[F['Tarkistettu']]) and t['r'][2]['id']!=t['r'][1]['id'])
+    await tap('#st-rules .strule:nth-child(3) .stdelp')
+    want('täysi pari: ensin vahvistus vasemmassa kulmassa', await pg.locator('#st-rules .strule').count()==5 and await pg.is_visible('#st-rdelok'))
+    await tap('#st-rdelok'); want('vahvistus poistaa', len((await T())['r'])==4 and await pg.locator('#st-rdelok').count()==0)
+    bb=await pg.locator('#st-rules .strule:nth-child(4) .stbh').first.bounding_box(); x=bb['x']+bb['width']/2-30; y=bb['y']+bb['height']/2
+    bb2=await pg.locator('#st-rules .strule:nth-child(2)').bounding_box()
+    await pg.mouse.move(x,y); await pg.mouse.down(); await pg.wait_for_timeout(450)
+    for k in range(1,11): await pg.mouse.move(x,y+(bb2['y']+5-y)*k/10); await pg.wait_for_timeout(15)
+    await pg.mouse.up(); await pg.wait_for_timeout(200)
+    want('pitkä painallus raahaa parin, Aloitus pysyy ensin', [x['ty'] for x in (await T())['r']]==['a','x','tai','end'])
+    sq=[]
+    for i in range(3): await tap('#st-rules .strule:nth-child(1) .sttyc'); sq.append(await pg.text_content('#st-rules .strule:nth-child(1) .sttyc'))
+    want('Aloitus rullaa Ja, Pois, Tai; ei poistoa', sq==['Ja','Pois','Tai'] and await pg.locator('#st-rules .strule:nth-child(1) .stdelp').count()==0)
     # käyttö
     await tap('#st-build')
     want('käytössä Aloituksen vaihtoehdot', await txts('#st-opts .stopt .t')=='Annos,Ohita')

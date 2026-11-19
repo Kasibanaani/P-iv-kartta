@@ -1270,7 +1270,7 @@ body:not(.oldui) .old-only{display:none!important}
 .stbox.eff .stbh b{color:var(--label2)}
 .sttyc{flex:none;min-height:0;height:22px;padding:0 8px;border:0;border-radius:6px;background:rgb(var(--c));color:#fff;font:inherit;font-size:11px;font-weight:700;letter-spacing:.02em;cursor:pointer}
 .sttyc.ty-tai{--c:52,110,220}.sttyc.ty-ja{--c:132,82,200}.sttyc.ty-x{--c:212,120,30}.sttyc.ty-end{--c:70,70,80}
-.stbh .stdelp{margin-left:auto;font-size:11px;min-height:0}
+.stbh .sttools{margin-left:auto;display:flex;gap:2px}.sticon{flex:none;width:26px;height:22px;min-height:0;padding:0;border:0;border-radius:6px;background:none;color:var(--label2);display:grid;place-items:center;cursor:pointer}.sticon.on{background:rgba(205,50,45,.12);color:rgb(205,50,45)}.sttyc.stdelok{--c:205,50,45}.strule{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}.strule.lift{position:relative;z-index:5;box-shadow:0 6px 18px rgba(0,0,0,.18);border-radius:12px}
 .stsub{display:block;font-size:11px;color:var(--label2)}
 .stchips{display:flex;flex-wrap:wrap;gap:4px}
 .stchip{min-height:26px;padding:3px 8px;border:0;border-radius:7px;background:var(--bg);box-shadow:inset 0 0 0 1px rgba(var(--c),.55);color:var(--label);font:inherit;font-size:12.5px;line-height:1.2;text-align:left;overflow-wrap:anywhere;cursor:pointer}
@@ -2911,36 +2911,42 @@ function pvSet(v,id,on,today){var L=v.on.filter(function(x){return x!==id;});if(
 /* 1.109 (Emil 19.11.2026): ruutupuu. Puu on sääntöpareja: syyruutu (laji) ja seurausruutu. Lajit: a = Aloitus (vain seuraus: näkyy heti),
    tai = jokin syy valittu tuo seuraukset, ja = kaikki syyt valittu tuo seuraukset, x = Poissulkevat (ei seurausta: kun yksi on valittu,
    muut piiloutuvat), end = Lopetus (ei seurausta: valinta päättää puun). Säännöt määräävät vain näkyvyyden; poissulku voittaa.
-   Muoto: {id, name, f:[{id, n}], r:[{id, ty, c:[syyt], e:[seuraukset]}], p:[käytön valinnat]}. 1.106:n muoto (a, to, e) muunnetaan. */
+   Muoto: {id, name, f:[{id, n}], r:[{id, ty, c:[syyt], e:[seuraukset]}], p:[käytön valinnat]}. 1.106:n muoto (a, to, e) muunnetaan.
+   1.111 (Emil 19.11.2026): Aloitusruutu sisältää itse aloitusvaihtoehdot (c näkyy heti) ja sillä on laji lg = tai/ja/x kuten muillakin ruuduilla
+   (seuraukset e, kun jokin/kaikki valittu; x = vain yksi). Lopetuksella lg = tai (jokin päättää) tai ja (kaikki valittuina päättää). Poissulkevilla
+   voi olla seurauksia (jokin valittu tuo ne). 1.109:n aloitus (c tyhjä, e = aloitusvaihtoehdot, ei lg) muunnetaan. */
 var ST_TY=['a','tai','ja','x','end'];
 function stNorm(a){var out=[];(Array.isArray(a)?a:[]).forEach(function(t){if(!t||typeof t.id!=='string'||out.some(function(x){return x.id===t.id;}))return;
   var f=[],ids={};(Array.isArray(t.f)?t.f:[]).forEach(function(x){if(!x||typeof x.id!=='string'||typeof x.n!=='string'||ids[x.id])return;ids[x.id]=1;f.push({id:x.id,n:x.n.slice(0,120)});});
   function ok(L){return strs(L).filter(function(x){return ids[x];}).filter(pvUq);}
   var r=[],rid=0;function nid(){rid++;while(r.some(function(x){return x.id==='r'+rid;}))rid++;return 'r'+rid;}
-  if(Array.isArray(t.r))t.r.forEach(function(x){if(!x||ST_TY.indexOf(x.ty)<0)return;var o={id:typeof x.id==='string'&&!r.some(function(y){return y.id===x.id;})?x.id:nid(),ty:x.ty,c:x.ty==='a'?[]:ok(x.c),e:x.ty==='x'||x.ty==='end'?[]:ok(x.e)};
+  if(Array.isArray(t.r))t.r.forEach(function(x){if(!x||ST_TY.indexOf(x.ty)<0)return;var o={id:typeof x.id==='string'&&!r.some(function(y){return y.id===x.id;})?x.id:nid(),ty:x.ty,c:ok(x.c),e:x.ty==='end'?[]:ok(x.e)};
+    if(o.ty==='a'){if(['tai','ja','x'].indexOf(x.lg)<0){o.c=ok(x.e);o.e=[];o.lg='tai';}else o.lg=x.lg;}
+    if(o.ty==='end')o.lg=x.lg==='ja'?'ja':'tai';
     if(o.ty==='a'&&r.some(function(y){return y.ty==='a';}))return;r.push(o);});
   else{/* 1.106: alkutekijät, "tuo näkyviin" ja lopetukset */
-    r.push({id:nid(),ty:'a',c:[],e:ok(t.a)});
+    r.push({id:nid(),ty:'a',lg:'tai',c:ok(t.a),e:[]});
     if(t.to&&typeof t.to==='object')f.forEach(function(x){var L=ok(t.to[x.id]).filter(function(y){return y!==x.id;});if(L.length)r.push({id:nid(),ty:'tai',c:[x.id],e:L});});
-    var E=ok(t.e);if(E.length)r.push({id:nid(),ty:'end',c:E,e:[]});}
-  if(!r.some(function(x){return x.ty==='a';}))r.unshift({id:nid(),ty:'a',c:[],e:[]});else{var A=r.filter(function(x){return x.ty==='a';})[0];r=[A].concat(r.filter(function(x){return x!==A;}));}
+    var E=ok(t.e);if(E.length)r.push({id:nid(),ty:'end',lg:'tai',c:E,e:[]});}
+  if(!r.some(function(x){return x.ty==='a';}))r.unshift({id:nid(),ty:'a',lg:'tai',c:[],e:[]});else{var A=r.filter(function(x){return x.ty==='a';})[0];r=[A].concat(r.filter(function(x){return x!==A;}));}
   var o2={id:t.id,name:(typeof t.name==='string'&&t.name.trim()?t.name.trim():'Puu').slice(0,80),f:f,r:r,p:[]};o2.p=stVis(o2,ok(t.p)).sel;out.push(o2);});return out;}
 /* Näkyvyys valinnoista. Valinta, joka ei ole enää näkyvissä, putoaa pois (toistetaan, kunnes vakaa). Järjestys: ensiesiintyminen sääntöjen järjestyksessä. */
+function stExcl(x){return x.ty==='x'||(x.ty==='a'&&x.lg==='x');}
 function stVis(t,sel){sel=(sel||[]).slice();var R=t.r||[];
   for(var guard=0;guard<50;guard++){var S={};sel.forEach(function(x){S[x]=1;});var V={},ord=[];
     function add(L){L.forEach(function(x){if(!V[x]){V[x]=1;ord.push(x);}});}
-    R.forEach(function(x){if(x.ty==='a')add(x.e);});
-    var ch=true;while(ch){ch=false;R.forEach(function(x){if(x.ty!=='tai'&&x.ty!=='ja')return;var hit=x.ty==='tai'?x.c.some(function(y){return S[y]&&V[y];}):x.c.length&&x.c.every(function(y){return S[y]&&V[y];});
+    R.forEach(function(x){if(x.ty==='a')add(x.c);});
+    var ch=true;while(ch){ch=false;R.forEach(function(x){if(x.ty==='end'||!x.e.length)return;var lg=x.ty==='a'?x.lg:x.ty,hit=lg!=='ja'?x.c.some(function(y){return S[y]&&V[y];}):x.c.length&&x.c.every(function(y){return S[y]&&V[y];});
       if(hit){var n0=ord.length;add(x.e);if(ord.length>n0)ch=true;}});}
     /* Poissulku voittaa: valitun jäsenen ryhmätoverit piiloon */
-    var H={};R.forEach(function(x){if(x.ty!=='x')return;var s=x.c.filter(function(y){return S[y]&&V[y];});if(s.length)x.c.forEach(function(y){if(s.indexOf(y)<0)H[y]=1;});});
+    var H={};R.forEach(function(x){if(!stExcl(x))return;var s=x.c.filter(function(y){return S[y]&&V[y];});if(s.length)x.c.forEach(function(y){if(s.indexOf(y)<0)H[y]=1;});});
     var vis=ord.filter(function(x){return !H[x];}),nsel=sel.filter(function(x){return vis.indexOf(x)>=0;});
     if(nsel.length===sel.length)break;sel=nsel;}
-  var done=R.some(function(x){return x.ty==='end'&&x.c.some(function(y){return sel.indexOf(y)>=0;});});
+  var done=R.some(function(x){if(x.ty!=='end'||!x.c.length)return false;var f=function(y){return sel.indexOf(y)>=0;};return x.lg==='ja'?x.c.every(f):x.c.some(f);});
   return {vis:vis,sel:sel,done:done};}
 /* Napautus: valitsee tai perii. Poissulkevan jäsenen valinta perii saman ryhmän muut valinnat. */
 function stPick(t,sel,id){sel=(sel||[]).slice();var i=sel.indexOf(id);if(i>=0){sel.splice(i,1);return stVis(t,sel).sel;}
-  (t.r||[]).forEach(function(x){if(x.ty==='x'&&x.c.indexOf(id)>=0)sel=sel.filter(function(y){return y===id||x.c.indexOf(y)<0;});});
+  (t.r||[]).forEach(function(x){if(stExcl(x)&&x.c.indexOf(id)>=0)sel=sel.filter(function(y){return y===id||x.c.indexOf(y)<0;});});
   sel.push(id);return stVis(t,sel).sel;}
 function stDone(t,p){return stVis(t,p).done;}
 function stItem(t,n){n=String(n||'').trim().slice(0,120);if(!n)return null;var k=n.toLowerCase(),x=t.f.filter(function(y){return y.n.toLowerCase()===k;})[0];if(x)return x;
@@ -5114,8 +5120,8 @@ function impList(all){var by={};all.forEach(function(t){by[t.id]=t;});return (da
 function rankFn(AT,today){var rk=impRanks(data.imp,rankTerms(),data.projects);
   return function(n){var R=nInf(AT,n.text,n,today),ids=R.ids.concat(R.inf),r=Infinity,z=timeTermOf(n,today);if(z)ids.push(z);ids.forEach(function(id){if(rk[id]!==undefined&&rk[id]<r)r=rk[id];});return r;};}
 /* Raahaus pitkällä painalluksella: rivi nousee, muut väistävät. Pudotus listan ulkopuolelle tai keskeytys palauttaa paikalleen. */
-function dragList(l,onDrop){var rows=Array.prototype.slice.call(l.children);
-  rows.forEach(function(row,i){var st=null,fired=false;
+function dragList(l,onDrop,fixed){var rows=Array.prototype.slice.call(l.children);
+  rows.forEach(function(row,i){var st=null,fired=false;if(fixed&&fixed(row,i))return;
     function shift(j){rows.forEach(function(r,k){if(k===i)return;var h=st.rects[i].height+8;r.style.transform=(j!==null&&k>i&&k<=j)?'translateY(-'+h+'px)':(j!==null&&k<i&&k>=j)?'translateY('+h+'px)':'';});}
     function end(cancel){if(!st)return;clearTimeout(st.timer);var s0=st;st=null;if(!s0.on)return;row.classList.remove('lift');rows.forEach(function(r){r.style.transform='';});
       if(!cancel&&s0.j!==null&&s0.j!==i)onDrop(i,s0.j);}
@@ -5161,7 +5167,10 @@ function renderPv(){var b=$('pv-body'),d=pvDay,T=pvTerms(),V=pvData(),S=pvSel(d)
    jotka sulkeutuvat ulkopuolisesta napautuksesta. Käytössä näkyvät vaihtoehdot ovat nappeina rinnakkain ja allekkain; valinta tuo säännöt voimaan.
    Asialle voi valita Flow'n Asiat-osiossa; Ruudun ikkunan Flow-nappi kulkee sen rivikohtaisesti (data.fl.run['rivi|asia']). */
 var stCur=null,stBuild=false,stNewOn=false,stDelArm=null,stAssign=null;
-var ST_NAME={a:'Aloitus',tai:'Tai',ja:'Ja',x:'Poissulkevat',end:'Lopetus'},ST_SHORT={tai:'Tai',ja:'Ja',x:'Pois',end:'Loppu'},ST_ROLL=['tai','ja','x','end'];
+var ST_NAME={a:'Aloitus',tai:'Tai',ja:'Ja',x:'Poissulkevat',end:'Lopetus, jokin',endja:'Lopetus, kaikki'},ST_SHORT={tai:'Tai',ja:'Ja',x:'Pois',end:'Loppu tai',endja:'Loppu ja'},ST_ROLL=['tai','ja','x','end','endja'],ST_LG=['tai','ja','x'];
+function stKey(r){return r.ty==='end'?(r.lg==='ja'?'endja':'end'):r.ty;}
+/* 1.111: ohuet viivakuvakkeet ruutuparin työkaluihin (kopioi, poista) */
+var ST_SVG={cp:'<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 3.5v-.5a1.5 1.5 0 0 0-1.5-1.5H4A1.5 1.5 0 0 0 2.5 3v5A1.5 1.5 0 0 0 4 9.5h.5"/></svg>',del:'<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" aria-hidden="true"><path d="M2.5 4.5h11M6 4.5V3h4v1.5M4 4.5l.7 9h6.6l.7-9M6.8 7v4.5M9.2 7v4.5"/></svg>'};
 function stTrees(){if(!Array.isArray(data.st))data.st=[];return data.st;}
 function stTree(){var L=stTrees();var t=L.filter(function(x){return x.id===stCur;})[0]||L[0]||null;stCur=t?t.id:null;return t;}
 function stById(id){return stTrees().filter(function(x){return x.id===id;})[0]||null;}
@@ -5197,24 +5206,39 @@ function renderPuu(){var p=panels.puu;p.textContent='';var L=stTrees(),t=stTree(
     if(t.p.length)button(r,'Alusta','btn',function(){t.p=[];touch();render();}).id='st-reset';p.appendChild(r);}}
 /* Käyttö: näkyvät vaihtoehdot nappeina; valitut painettuina. Lopetuksen valinta päättää (Valmis näkyy polun kanssa). */
 function stUseView(p,t,sel,set){var V=stVis(t,sel),E=stEnds(t);
-  if(!V.vis.length){p.appendChild(subI('Flow ”'+t.name+'” on vielä tyhjä.','Rakenna-tilassa Aloitus-ruudun oikealle puolelle tulevat ensimmäiset vaihtoehdot.'));return;}
+  if(!V.vis.length){p.appendChild(subI('Flow ”'+t.name+'” on vielä tyhjä.','Rakenna-tilassa Aloitus-ruutuun tulevat ensimmäiset vaihtoehdot.'));return;}
   var w=el('div','stopts');w.id='st-opts';
   V.vis.forEach(function(id){var on=V.sel.indexOf(id)>=0,b=button(w,'','stopt'+(E[id]?' end':''),function(){set(stPick(t,V.sel,id));});b.dataset.f=id;b.setAttribute('aria-pressed',on?'true':'false');b.appendChild(el('span','t',stName(t,id)));});
   p.appendChild(w);
   var st=el('p','stend'+(V.done?' on':''));st.id='st-end';st.textContent=V.done?'Valmis: '+stPath(t,V.sel):V.sel.length?stPath(t,V.sel):'';p.appendChild(st);}
 /* Rakenna: ruutuparit allekkain. Syyruudun otsikon napautus vaihtaa lajia; ruudun + lisää asian; asian napautus avaa sen ikkunan. */
 function stBuildView(p,t){var E=stEnds(t),list=el('div','strules');list.id='st-rules';
-  t.r.forEach(function(r,ri){var row=el('div','strule');row.dataset.r=r.id;var solo=r.ty==='x'||r.ty==='end';if(solo)row.classList.add('solo');
-    /* Emil 19.11. klo 7.36: laji vaihtuu ruudun yläkulman pienestä napista, joka rullaa vaihtoehdot läpi (ei valikkoa) */
-    var L=el('div','stbox ty-'+r.ty);L.dataset.ty=r.ty;
-    if(r.ty==='a'){var h0=el('div','stbh');h0.appendChild(el('b','','Aloitus'));L.appendChild(h0);L.appendChild(el('small','stsub','näkyy heti'));}
-    else{var hb=el('div','stbh');var tyb=button(hb,ST_SHORT[r.ty],'sttyc ty-'+r.ty,function(){var i=ST_ROLL.indexOf(r.ty);r.ty=ST_ROLL[(i+1)%ST_ROLL.length];if(r.ty==='x'||r.ty==='end'){r.e0=r.e.length?r.e:r.e0;r.e=[];}else if(!r.e.length&&r.e0){r.e=r.e0;}t.p=stVis(t,t.p).sel;touch();render();});
-      tyb.dataset.ty=r.ty;tyb.setAttribute('aria-label','Ruudun laji: '+ST_NAME[r.ty]+'. Napautus vaihtaa.');
-      if(!r.c.length&&!r.e.length){var dl=button(hb,'Poista','pklink stdelp',function(){t.r=t.r.filter(function(x){return x!==r;});touch();render();});dl.dataset.r=r.id;}
-      L.appendChild(hb);stChips(L,t,r,'c',E);}
+  function nrid(){var i=1;while(t.r.some(function(x){return x.id==='r'+i;}))i++;return 'r'+i;}
+  t.r.forEach(function(r,ri){var row=el('div','strule');row.dataset.r=r.id;var solo=r.ty==='end',k=stKey(r),arm=stDelArm==='r:'+r.id;if(solo)row.classList.add('solo');
+    /* Emil 19.11. klo 7.36: laji vaihtuu ruudun yläkulman pienestä napista, joka rullaa vaihtoehdot läpi (ei valikkoa).
+       1.111: Aloitusruutu sisältää aloitusvaihtoehdot ja rullaa Tai/Ja/Pois; Lopetus rullaa Loppu tai / Loppu ja. */
+    var L=el('div','stbox ty-'+r.ty);L.dataset.ty=r.ty;var hb=el('div','stbh');
+    if(r.ty==='a')hb.appendChild(el('b','','Aloitus'));
+    if(arm){var ok=button(hb,'Poista pari','sttyc stdelok',function(){t.r=t.r.filter(function(x){return x!==r;});stDelArm=null;t.p=stVis(t,t.p).sel;touch();render();});ok.id='st-rdelok';}
+    else if(r.ty==='a'){var lb=button(hb,ST_SHORT[r.lg],'sttyc ty-'+r.lg,function(){r.lg=ST_LG[(ST_LG.indexOf(r.lg)+1)%ST_LG.length];stDelArm=null;t.p=stVis(t,t.p).sel;touch();render();});
+      lb.dataset.ty=r.lg;lb.setAttribute('aria-label','Aloituksen laji: '+ST_NAME[r.lg]+'. Napautus vaihtaa.');}
+    else{var tyb=button(hb,ST_SHORT[k],'sttyc ty-'+r.ty,function(){var nk=ST_ROLL[(ST_ROLL.indexOf(k)+1)%ST_ROLL.length],was=r.ty==='end';
+        if(nk==='end'||nk==='endja'){r.ty='end';r.lg=nk==='endja'?'ja':'tai';if(!was){r.e0=r.e.length?r.e:r.e0;r.e=[];}}
+        else{r.ty=nk;delete r.lg;if(was&&!r.e.length&&r.e0)r.e=r.e0;}
+        stDelArm=null;t.p=stVis(t,t.p).sel;touch();render();});
+      tyb.dataset.ty=k;tyb.setAttribute('aria-label','Ruudun laji: '+ST_NAME[k]+'. Napautus vaihtaa.');}
+    /* 1.111: kopio sisältöineen heti alle; poisto: tyhjä pari heti, muuten vahvistus ruudun vasemmasta kulmasta (eri kohta) */
+    var tools=el('span','sttools');
+    var cb=button(tools,'','sticon stcopy',function(){var c={id:nrid(),ty:r.ty==='a'?'tai':r.ty,c:r.c.slice(),e:r.e.slice()};if(r.ty==='end')c.lg=r.lg;
+      t.r.splice(t.r.indexOf(r)+1,0,c);stDelArm=null;touch();render();toast('Ruutupari kopioitu');});cb.innerHTML=ST_SVG.cp;cb.setAttribute('aria-label','Kopioi ruutupari');cb.dataset.r=r.id;
+    if(r.ty!=='a'){var db=button(tools,'','sticon stdelp'+(arm?' on':''),function(){if(!r.c.length&&!r.e.length){t.r=t.r.filter(function(x){return x!==r;});stDelArm=null;touch();render();return;}
+        stDelArm=arm?null:'r:'+r.id;render();});db.innerHTML=ST_SVG.del;db.setAttribute('aria-label',arm?'Peruuta poisto':'Poista ruutupari');db.setAttribute('aria-pressed',arm?'true':'false');db.dataset.r=r.id;}
+    hb.appendChild(tools);L.appendChild(hb);stChips(L,t,r,'c',E);
     row.appendChild(L);
     if(!solo){var R=el('div','stbox eff');var h2=el('div','stbh');h2.appendChild(el('b','','Tuo näkyviin'));R.appendChild(h2);stChips(R,t,r,'e',E);row.appendChild(R);}
     list.appendChild(row);});
+  /* 1.111 (Emil 19.11.2026): pitkä painallus nostaa ruutuparin raahattavaksi; Aloitus pysyy ensimmäisenä */
+  dragList(list,function(i,j){var m=t.r[i];if(!m||m.ty==='a')return;t.r.splice(i,1);if(t.r[0]&&t.r[0].ty==='a')j=Math.max(1,j);t.r.splice(j,0,m);stDelArm=null;touch();render();},function(row,i){return t.r[i]&&t.r[i].ty==='a';});
   p.appendChild(list);
   var ad=el('div','staddrow');var ab=button(ad,'+ Ruutupari','btn stadd',function(){var i=1;while(t.r.some(function(x){return x.id==='r'+i;}))i++;t.r.push({id:'r'+i,ty:'tai',c:[],e:[]});touch();render();
     setTimeout(function(){var m=main;m.scrollTop=m.scrollHeight;},0);});ab.id='st-addrule';p.appendChild(ad);

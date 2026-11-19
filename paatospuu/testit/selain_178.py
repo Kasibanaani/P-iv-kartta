@@ -8,7 +8,7 @@ from apu import tab, menu, tsx
 U='file://'+os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','index.html'))
 K="JSON.parse(localStorage.getItem('paatospuu:v1')).kokonaisuudet[0]"
 OVER="""(function(){var w=document.documentElement.clientWidth,out=[];document.querySelectorAll('input,textarea,select,button').forEach(function(e){var r=e.getBoundingClientRect();
- if(r.width&&r.height&&e.offsetParent!==null&&!e.closest('.tscroll')&&(r.right>w+0.5||r.left<-0.5))out.push(e.id||e.className||e.tagName);});return JSON.stringify(out);})()"""
+ if(r.width&&r.height&&e.offsetParent!==null&&!e.closest('.tscroll,.tcards')&&(r.right>w+0.5||r.left<-0.5))out.push(e.id||e.className||e.tagName);});return JSON.stringify(out);})()"""
 async def run(p,w,h):
     try: b=await p.chromium.launch()
     except Exception: b=await p.chromium.launch(executable_path='/opt/pw-browsers/chromium')

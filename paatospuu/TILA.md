@@ -1,8 +1,18 @@
 # Juuri (ent. Päätöspuu): tila
 
-**Vaihe:** versio 1.110 — Asiat-kortit yhtenä sulavasti vierivänä taulukkona; 1.109 Flow ja Asiat-kortit. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 19.11.2026
+**Vaihe:** versio 1.111 — Flow-rakentaminen: aloitusruutu vaihtoehtoineen ja lajeineen, Loppu tai/ja, raahaus pitkällä painalluksella, kopio ja nopea poisto. **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/paatospuu/ · **Päivitetty:** 19.11.2026
 
 Juuren ydin on teksti, asiasanat ja niiden ehdot; Muistio, Kalenteri ja Listat ovat niiden käyttönäkymiä. Päätöspuun opetus ja vanhat listat säilyvät.
+
+## Versio 1.111 (19.11.2026): Flow-rakentamisen parannukset
+
+Emil 19.11. klo 19.38: pitkä painallus raahaa ruutuparia; nopeampi poisto; ruudun kopio sisältöineen; lopetukseen ja/tai; aloitusruutu kuten lopetus (sisältää itse aloitusvaihtoehdot) ja samat lajit kuin muilla ruuduilla.
+- **Aloitusruutu** sisältää aloitusvaihtoehdot (näkyvät heti) ja rullaa Tai → Ja → Pois; vieressä Tuo näkyviin (jokin/kaikki valittu tuo seuraukset, Pois = vain yksi aloitusvaihtoehto). 1.109:n aloitukset muuntuvat itsestään (vaihtoehdot siirtyvät aloitusruutuun).
+- **Lopetus** rullaa Loppu tai (jokin päättää) / Loppu ja (kaikki valittuina päättää). Muiden ruutujen rulla: Tai → Ja → Pois → Loppu tai → Loppu ja. Pois-ruudulla on nyt myös Tuo näkyviin.
+- **Raahaus:** pitkä painallus (0,35 s) nostaa parin, muut väistävät, pudotus listan ulkopuolelle palauttaa. Aloitus pysyy ensimmäisenä.
+- **Kopioi ja poista:** ruudun kulmassa ohuet kuvakkeet. Kopio sisältöineen tulee heti alle. Tyhjä pari poistuu heti; täysi pari: roskakori → vasempaan kulmaan punainen Poista pari (eri kohta), roskakori uudelleen peruu.
+- **Tallennus:** säännöllä valinnainen `lg` (aloitus tai/ja/x, lopetus tai/ja). Vanha muoto latautuu.
+- **Testit:** `logiikka_1106.js` (aloituksen lajit, Loppu ja, muunnos), `selain_1109.py` (rulla, kopio, poisto, raahaus, aloituksen rulla) 390/320/1280 läpi; 167/178/179 mahtuu-tarkistus ohittaa korttien vierivän alueen. Perustesti kaatuu illalla uudelleenlatauksen kohdilla myös 1.110-koodilla (vanha epävakaus, ei tästä muutoksesta). Ei tarkistettu oikealla iPhonella (pitkän painalluksen raahaus Safarissa).
 
 ## Versio 1.110 (19.11.2026): Asiat-kortit vierivät yhtenä taulukkona
 
