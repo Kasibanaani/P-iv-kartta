@@ -27,6 +27,7 @@ Henkilökohtaiseen käyttöön tehtyjä selainappeja. Jokainen appi on yksi HTML
 | `flowchart/` | Flowchart (yksinkertainen kosketus-flowchart: tekstipalikat, edelle/jälkeen napautuksella, viivat; tila `flowchart/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/flowchart/ |
 | `shakki/` | Shakki (iPadille: litteät nappulat, botti viidellä tasolla, matti- ja taktiikkatehtävät; tila `shakki/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/shakki/ |
 | `treenikartta/` | Treenikartta (salitreenin kirjaus ja seuranta: omat liikkeet, painoehdotus, tavoitteet ja ennusteet, lihasryhmät, korrelaatiot; tila `treenikartta/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/treenikartta/ |
+| `sarjakartta/` | Sarjakartta (yksinkertainen sarjakirjaus lihasryhmittäin: yksi täppäys pääasiallinen, toinen osittainen; kahden viikon jaksot sarakkeina, graafit, tavoitteet ja kuormitus; tila `sarjakartta/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/sarjakartta/ |
 | `laakso/` | Laakso (uudisasukkaiden sijoituspeli: botit, alkutuotanto, tuotantoketjut, vuodenajat ja yritysten rahoittaminen; tila `laakso/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/laakso/ |
 | `minigo/` | Mini-Go (Go lasten kanssa samalla laitteella: Kaappaus-Go ja oikea Go laskentoineen, laudat 5/7/9, viisi ulkoasua; tila `minigo/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/minigo/ |
 | `katve/` | Katve (ylhäältä kuvattu zombipako, kaksi tattia, kolme tehtävää ja vapaa tutkiminen; tila `katve/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/katve/ |
