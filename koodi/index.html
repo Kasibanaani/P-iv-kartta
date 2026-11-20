@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Koodi">
+<title>Koodi</title>
+<link rel="apple-touch-icon" id="touchicon">
+<style>
+/* ===== Värit: Appipaja 2.0, teema Harmaa (neutraali tausta värikkäille nappuloille) ===== */
+:root{
+  color-scheme:light dark;
+  --bg:#F3F3F3;--cell:#FEFEFE;--label:#282828;--label2:#646464;--sep:#DDDDDD;--accent:#595959;--fill:#E9E9E9;--tint:#EEEEEE;
+  --solidtx:#FFFFFF;--shadow:rgba(40,40,40,.055);--shade:rgba(25,25,25,.38);
+  --c0:#FF3B30;--c1:#FF9500;--c2:#FFCC00;--c3:#34C759;--c4:#007AFF;--c5:#AF52DE;--c6:#00C7BE;--c7:#FF6FB5;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",system-ui,"Segoe UI",Roboto,Arial,sans-serif;
+  --peg:36px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-mode="light"]){
+    --bg:#191919;--cell:#262626;--label:#EFEFEF;--label2:#B4B4B4;--sep:#444444;--accent:#BFBFBF;--fill:#393939;--tint:#202020;
+    --solidtx:#191919;--shadow:rgba(0,0,0,.13);--shade:rgba(0,0,0,.5);
+    --c0:#FF453A;--c1:#FF9F0A;--c2:#FFD60A;--c3:#30D158;--c4:#0A84FF;--c5:#BF5AF2;--c6:#40DDD6;--c7:#FF85C0;
+  }
+}
+:root[data-mode="dark"]{
+  color-scheme:dark;
+  --bg:#191919;--cell:#262626;--label:#EFEFEF;--label2:#B4B4B4;--sep:#444444;--accent:#BFBFBF;--fill:#393939;--tint:#202020;
+  --solidtx:#191919;--shadow:rgba(0,0,0,.13);--shade:rgba(0,0,0,.5);
+  --c0:#FF453A;--c1:#FF9F0A;--c2:#FFD60A;--c3:#30D158;--c4:#0A84FF;--c5:#BF5AF2;--c6:#40DDD6;--c7:#FF85C0;
+}
+:root[data-mode="light"]{color-scheme:light}
+
+/* ===== Pohja ===== */
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--label);font-family:var(--font);font-size:16px;line-height:1.4;-webkit-tap-highlight-color:transparent;overscroll-behavior:none;-webkit-text-size-adjust:100%;-webkit-user-select:none;user-select:none}
+button{font:inherit;color:inherit;touch-action:manipulation;cursor:pointer;-webkit-appearance:none;appearance:none}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#app{height:100vh;height:100dvh;max-width:520px;margin:0 auto;display:grid;grid-template-rows:auto minmax(0,1fr) auto auto;gap:10px;
+  padding:calc(env(safe-area-inset-top) + 8px) calc(env(safe-area-inset-right) + 14px) calc(env(safe-area-inset-bottom) + 12px) calc(env(safe-area-inset-left) + 14px)}
+
+/* ===== Yläpalkki ===== */
+header{display:flex;align-items:center;gap:8px;min-height:44px}
+header h1{margin:0;font-size:21px;font-weight:800;letter-spacing:-.045em}
+#status{flex:1;min-width:0;font-size:13px;color:var(--label2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.ib{width:44px;height:44px;border:0;border-radius:22px;background:transparent;display:grid;place-items:center;padding:0}
+.ib:active{background:var(--fill)}
+.ib svg{width:22px;height:22px;fill:none;stroke:var(--label);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ===== Lauta ===== */
+#board{background:var(--cell);border:1px solid var(--sep);border-radius:18px;box-shadow:0 6px 22px var(--shadow);padding:8px 10px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+#rows{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-between}
+.row{display:grid;grid-template-columns:22px minmax(0,1fr) var(--fbw);align-items:center;gap:8px;flex:1;min-height:0;border-radius:12px;padding:0 6px;transition:background-color .25s}
+.row .no{font-size:11px;font-weight:600;color:var(--label2);text-align:right;font-variant-numeric:tabular-nums;opacity:.75}
+.row.cur{background:var(--tint)}
+.row.cur .no{color:var(--label);opacity:1}
+.row.past{cursor:pointer}
+.pegs{display:flex;justify-content:space-around;align-items:center;height:100%}
+.slot{flex:1;height:100%;min-height:0;border:0;background:transparent;padding:0;display:grid;place-items:center;position:relative}
+.peg{width:var(--peg);height:var(--peg);border-radius:50%;display:grid;place-items:center;position:relative}
+.peg.empty{background:transparent;box-shadow:inset 0 0 0 1.5px var(--sep)}
+.row.fut .peg.empty{box-shadow:none;background:var(--fill);transform:scale(.38)}
+.row.cur .slot.on .peg.empty{box-shadow:inset 0 0 0 2px var(--label)}
+.row.cur .slot.on .peg:not(.empty){box-shadow:0 0 0 2px var(--cell),0 0 0 4px var(--label)}
+.peg svg{width:46%;height:46%;fill:rgba(0,0,0,.5);display:none}
+body.sym .peg svg{display:block}
+.peg.pop{animation:pop .28s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pop{from{transform:scale(.55)}to{transform:scale(1)}}
+
+/* Vastausmerkit: täysi = oikea väri oikealla paikalla, rengas = oikea väri väärällä paikalla */
+.fb{display:grid;grid-template-columns:repeat(var(--fbc),1fr);gap:var(--fbg);width:var(--fbw);justify-items:center;align-content:center}
+.fb i{width:var(--fbd);height:var(--fbd);border-radius:50%;background:var(--fill);display:block}
+.fb i.b{background:var(--label)}
+.fb i.w{background:transparent;box-shadow:inset 0 0 0 2px var(--label)}
+.fb i.in{animation:fbin .3s both}
+@keyframes fbin{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* Salainen rivi */
+#secret{display:grid;grid-template-columns:22px minmax(0,1fr) var(--fbw);align-items:center;gap:8px;padding:0 6px 8px;margin-bottom:6px;border-bottom:1px solid var(--sep);height:calc(var(--peg) + 14px);flex:none}
+#secret .lk{font-size:11px;color:var(--label2);text-align:right}
+#secret .lk svg{width:14px;height:14px;fill:none;stroke:var(--label2);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#secret .peg.hid{background:var(--fill);box-shadow:none}
+#secret .peg.hid::after{content:"?";font-size:calc(var(--peg)*.42);font-weight:700;color:var(--label2)}
+#secret .peg.flip{animation:flip .5s both}
+@keyframes flip{0%{transform:rotateY(90deg)}100%{transform:rotateY(0)}}
+#secret .res{font-size:12px;font-weight:700;color:var(--label);text-align:center;line-height:1.15}
+
+/* ===== Väripaletti ===== */
+#palette{display:grid;grid-template-columns:repeat(var(--pc),1fr);gap:8px}
+.col{height:48px;border:0;border-radius:14px;background:var(--cell);box-shadow:inset 0 0 0 1px var(--sep);display:grid;place-items:center;padding:0;transition:transform .12s}
+.col:active{transform:scale(.92)}
+.col .peg{--peg:30px}
+.col:disabled{opacity:.4}
+
+/* ===== Toiminnot ===== */
+#actions{display:grid;grid-template-columns:1fr 2fr;gap:10px}
+.btn{min-height:50px;border:0;border-radius:14px;font-size:16px;font-weight:600;background:var(--fill);color:var(--label);padding:0 14px}
+.btn:active{filter:brightness(.94)}
+.btn.solid{background:var(--accent);color:var(--solidtx)}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.wide{width:100%}
+.row-shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+/* ===== Ilmoitus ===== */
+#toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 58px);transform:translate(-50%,-10px);background:var(--label);color:var(--bg);font-size:14px;font-weight:600;padding:9px 16px;border-radius:20px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;z-index:5}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* ===== Ikkunat (nousevat alhaalta) ===== */
+dialog{border:0;padding:0;margin:auto auto 0;width:min(520px,100%);max-width:100%;max-height:88dvh;background:var(--cell);color:var(--label);border-radius:24px 24px 0 0;box-shadow:0 20px 70px var(--shade)}
+dialog::backdrop{background:var(--shade)}
+dialog[open]{animation:up .28s cubic-bezier(.2,.9,.3,1)}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.sheet{padding:22px 20px calc(env(safe-area-inset-bottom) + 20px);overflow-y:auto;max-height:88dvh;-webkit-user-select:text;user-select:text}
+.sheet h2{margin:0 0 4px;font-size:22px;letter-spacing:-.035em}
+.sheet h3{margin:20px 0 8px;font-size:11px;font-weight:700;letter-spacing:.075em;text-transform:uppercase;color:var(--label2)}
+.sheet p{margin:6px 0;color:var(--label2);font-size:15px}
+.sheet .top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.seg{display:flex;background:var(--fill);border-radius:12px;padding:3px;gap:3px}
+.seg button{flex:1;min-height:44px;border:0;border-radius:9px;background:transparent;font-size:15px;font-weight:600;color:var(--label2);padding:4px 6px;line-height:1.2}
+.seg button small{display:block;font-size:11.5px;font-weight:500}
+.seg button[aria-pressed="true"]{background:var(--cell);color:var(--label);box-shadow:0 1px 4px var(--shadow)}
+.tog{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;border-bottom:1px solid var(--sep);font-size:16px}
+.tog:last-child{border-bottom:0}
+.tog small{display:block;color:var(--label2);font-size:13px}
+.sw{width:51px;height:31px;flex:none;border:0;border-radius:16px;background:var(--fill);position:relative;padding:0;transition:background-color .2s}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.2);transition:transform .2s}
+.sw[aria-checked="true"]{background:var(--c3)}
+.sw[aria-checked="true"]::after{transform:translateX(20px)}
+.note{background:var(--tint);border-radius:12px;padding:10px 12px;font-size:14px;color:var(--label2);margin-top:10px}
+.note[hidden]{display:none}
+.rules li{margin:5px 0;color:var(--label2);font-size:15px}
+.rules{padding-left:20px;margin:6px 0}
+.mk{display:inline-block;width:11px;height:11px;border-radius:50%;vertical-align:-1px;margin:0 2px}
+.mk.b{background:var(--label)}.mk.w{box-shadow:inset 0 0 0 2px var(--label)}
+textarea{width:100%;min-height:90px;border:1px solid var(--sep);border-radius:10px;background:var(--bg);color:var(--label);font:13px ui-monospace,Menlo,monospace;padding:8px;margin-top:8px}
+.brow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.brow .btn{flex:1;min-height:44px;font-size:15px}
+.brow.stick{position:sticky;bottom:calc(-1*(env(safe-area-inset-bottom) + 20px));margin:14px -20px calc(-1*(env(safe-area-inset-bottom) + 20px));padding:12px 20px calc(env(safe-area-inset-bottom) + 20px);background:var(--cell);border-top:1px solid var(--sep)}
+.brow.stick .btn{min-height:50px;font-size:16px}
+@media (max-height:640px){.col{height:44px}#palette{gap:6px}.btn{min-height:46px}.dist i{height:14px;line-height:14px;font-size:10.5px}.dist div{margin:2px 0}.stats b{font-size:20px}}
+
+/* Loppuikkuna */
+#endsec{display:flex;gap:10px;justify-content:center;margin:16px 0 4px}
+#endsec .peg{--peg:40px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;margin-top:8px}
+.stats b{display:block;font-size:24px;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.stats span{font-size:11.5px;color:var(--label2)}
+.dist{margin-top:6px}
+.dist div{display:grid;grid-template-columns:20px 1fr;gap:8px;align-items:center;margin:3px 0;font-size:12px;color:var(--label2);font-variant-numeric:tabular-nums}
+.dist i{display:block;height:18px;border-radius:5px;background:var(--fill);min-width:22px;font-style:normal;font-size:11.5px;font-weight:700;text-align:right;padding-right:6px;line-height:18px;color:var(--label)}
+.dist i.now{background:var(--accent);color:var(--solidtx)}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>Koodi</h1>
+    <div id="status"></div>
+    <button class="ib" id="b-new" aria-label="Uusi peli"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/></svg></button>
+    <button class="ib" id="b-set" aria-label="Asetukset"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg></button>
+  </header>
+  <main id="board">
+    <div id="secret"></div>
+    <div id="rows"></div>
+  </main>
+  <div id="palette"></div>
+  <div id="actions">
+    <button class="btn" id="b-clear">Tyhjennä</button>
+    <button class="btn solid" id="b-check" disabled>Tarkista</button>
+  </div>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<dialog id="d-end"><div class="sheet">
+  <h2 id="end-title"></h2>
+  <p id="end-sub"></p>
+  <div id="endsec"></div>
+  <h3>Tilastot · <span id="end-mode"></span></h3>
+  <div class="stats" id="end-stats"></div>
+  <div class="dist" id="end-dist"></div>
+  <div class="brow stick"><button class="btn" data-close>Näytä lauta</button><button class="btn solid" id="b-again">Uusi peli</button></div>
+</div></dialog>
+
+<dialog id="d-new"><div class="sheet">
+  <h2>Aloitetaanko alusta?</h2>
+  <p>Tämä peli jää kesken, eikä sitä lasketa tilastoihin.</p>
+  <div class="brow" style="margin-top:16px"><button class="btn" data-close>Peruuta</button><button class="btn solid" id="b-newok">Uusi peli</button></div>
+</div></dialog>
+
+<dialog id="d-set"><div class="sheet">
+  <div class="top"><h2>Asetukset</h2><button class="btn" data-close style="min-height:40px">Valmis</button></div>
+  <h3>Peli</h3>
+  <div class="seg" id="seg-mode"></div>
+  <div class="tog">Värit voivat toistua<button class="sw" id="sw-toisto" role="switch" aria-label="Värit voivat toistua"></button></div>
+  <div class="note" id="set-note" hidden>Muutos tulee voimaan uudessa pelissä. <button class="btn" id="b-setnew" style="min-height:36px;margin-top:8px;width:100%">Aloita uusi peli nyt</button></div>
+  <h3>Näkymä</h3>
+  <div class="seg" id="seg-ulko"></div>
+  <div class="tog"><span>Merkit nappuloissa<small>Jokaisella värillä oma kuvio</small></span><button class="sw" id="sw-sym" role="switch" aria-label="Merkit nappuloissa"></button></div>
+  <h3>Säännöt</h3>
+  <ul class="rules">
+    <li>Kone on piilottanut värikoodin. Arvaa se rivi kerrallaan.</li>
+    <li>Napauta väriä: se menee valittuun paikkaan. Napauta paikkaa valitaksesi sen tai tyhjentääksesi sen.</li>
+    <li><span class="mk b"></span> oikea väri oikealla paikalla. <span class="mk w"></span> oikea väri väärällä paikalla. Merkkien järjestys ei kerro, mitä paikkaa ne koskevat.</li>
+    <li>Napauta aiempaa riviä, niin se kopioituu nykyiselle riville.</li>
+  </ul>
+  <h3>Tilastot</h3>
+  <div class="stats" id="set-stats"></div>
+  <h3>Varmuuskopio</h3>
+  <p>Asetukset, tilastot ja keskeneräinen peli.</p>
+  <div class="brow"><button class="btn" id="b-exp">Tallenna tiedostoksi</button><button class="btn" id="b-imp">Lue tiedosto</button></div>
+  <input type="file" id="f-imp" accept=".json,application/json,text/plain" hidden>
+  <textarea id="t-io" placeholder="Tai liitä varmuuskopio tekstinä tähän" spellcheck="false"></textarea>
+  <div class="brow"><button class="btn" id="b-copy">Kopioi tekstinä</button><button class="btn" id="b-paste">Lue teksti</button></div>
+</div></dialog>
+
+<script id="engine">
+/* Pelin logiikka ilman DOMia. */
+var KOODI=(function(){
+  var VER=1;
+  var MODES={
+    klassinen:{nimi:'Klassinen',n:4,k:6,rows:10},
+    super:{nimi:'Super',n:5,k:8,rows:12}
+  };
+  var COLOR_NAMES=['punainen','oranssi','keltainen','vihreä','sininen','violetti','turkoosi','pinkki'];
+
+  /* Vastaus: b = oikea väri oikealla paikalla, w = oikea väri väärällä paikalla. */
+  function score(secret,guess){
+    var b=0,cs={},cg={},i,c,tot=0;
+    for(i=0;i<secret.length;i++){
+      if(secret[i]===guess[i])b++;
+      cs[secret[i]]=(cs[secret[i]]||0)+1;
+      cg[guess[i]]=(cg[guess[i]]||0)+1;
+    }
+    for(c in cs)if(cg[c])tot+=Math.min(cs[c],cg[c]);
+    return {b:b,w:tot-b};
+  }
+
+  function cfgFor(mode,toisto){
+    var m=MODES[mode]||MODES.klassinen;
+    return {mode:MODES[mode]?mode:'klassinen',n:m.n,k:m.k,rows:m.rows,toisto:toisto!==false};
+  }
+
+  function newSecret(cfg,rand){
+    rand=rand||Math.random;var s=[],i,pool=[];
+    if(cfg.toisto){for(i=0;i<cfg.n;i++)s.push(Math.floor(rand()*cfg.k));return s}
+    for(i=0;i<cfg.k;i++)pool.push(i);
+    for(i=0;i<cfg.n;i++){var j=i+Math.floor(rand()*(pool.length-i));var t=pool[i];pool[i]=pool[j];pool[j]=t;s.push(pool[i])}
+    return s;
+  }
+
+  function emptyRow(n){var r=[];for(var i=0;i<n;i++)r.push(-1);return r}
+
+  function newGame(mode,toisto,rand){
+    var cfg=cfgFor(mode,toisto);
+    return {cfg:cfg,secret:newSecret(cfg,rand),guesses:[],cur:emptyRow(cfg.n),done:null};
+  }
+
+  function validRow(row,cfg){
+    if(!Array.isArray(row)||row.length!==cfg.n)return false;
+    for(var i=0;i<row.length;i++)if(!(row[i]===Math.floor(row[i])&&row[i]>=0&&row[i]<cfg.k))return false;
+    if(!cfg.toisto){var seen={};for(i=0;i<row.length;i++){if(seen[row[i]])return false;seen[row[i]]=1}}
+    return true;
+  }
+  function isWin(sc,cfg){return sc.b===cfg.n}
+
+  /* Arvaus: palauttaa {ok, sc, done} tai {ok:false, why}. Ei muuta peliä, jos arvaus ei kelpaa. */
+  function guess(g,row){
+    if(g.done)return {ok:false,why:'ohi'};
+    var cfg=g.cfg;
+    for(var i=0;i<row.length;i++)if(row[i]<0)return {ok:false,why:'vajaa'};
+    if(!validRow(row,cfg))return {ok:false,why:cfg.toisto?'vajaa':'toisto'};
+    var sc=score(g.secret,row);
+    g.guesses.push(row.slice());
+    g.cur=emptyRow(cfg.n);
+    if(isWin(sc,cfg))g.done='voitto';
+    else if(g.guesses.length>=cfg.rows)g.done='tappio';
+    return {ok:true,sc:sc,done:g.done};
+  }
+
+  function emptyStats(){return {pelit:0,voitot:0,putki:0,paras:0,jakauma:{}}}
+  function record(stats,g){
+    stats.pelit++;
+    if(g.done==='voitto'){
+      stats.voitot++;stats.putki++;if(stats.putki>stats.paras)stats.paras=stats.putki;
+      var k=String(g.guesses.length);stats.jakauma[k]=(stats.jakauma[k]||0)+1;
+    }else stats.putki=0;
+  }
+
+  function defaults(rand){
+    return {app:'koodi',ver:VER,savedAt:null,
+      asetukset:{tila:'klassinen',toisto:true,symbolit:false,ulko:'auto'},
+      peli:newGame('klassinen',true,rand),
+      tilastot:{klassinen:emptyStats(),super:emptyStats()}};
+  }
+
+  function num(v){v=+v;return isFinite(v)&&v>=0?Math.floor(v):0}
+  function repairStats(s){
+    var o=emptyStats();if(!s||typeof s!=='object')return o;
+    o.pelit=num(s.pelit);o.voitot=Math.min(num(s.voitot),o.pelit);o.putki=num(s.putki);o.paras=Math.max(num(s.paras),o.putki);
+    if(s.jakauma&&typeof s.jakauma==='object')for(var k in s.jakauma){if(/^\d+$/.test(k)&&+k>=1&&+k<=12&&num(s.jakauma[k]))o.jakauma[k]=num(s.jakauma[k])}
+    return o;
+  }
+  /* Korjaa tallennetun datan: puuttuvat tai virheelliset osat korvataan oletuksilla. Peli pelataan uudelleen alusta. */
+  function repair(d,rand){
+    var o=defaults(rand);
+    if(!d||typeof d!=='object')return o;
+    var a=d.asetukset||{};
+    if(MODES[a.tila])o.asetukset.tila=a.tila;
+    if(typeof a.toisto==='boolean')o.asetukset.toisto=a.toisto;
+    if(typeof a.symbolit==='boolean')o.asetukset.symbolit=a.symbolit;
+    if(['auto','light','dark'].indexOf(a.ulko)>=0)o.asetukset.ulko=a.ulko;
+    var t=d.tilastot||{};
+    o.tilastot.klassinen=repairStats(t.klassinen);o.tilastot.super=repairStats(t.super);
+    var p=d.peli;
+    if(p&&p.cfg&&MODES[p.cfg.mode]){
+      var cfg=cfgFor(p.cfg.mode,p.cfg.toisto);
+      if(validRow(p.secret,cfg)){
+        var g={cfg:cfg,secret:p.secret.slice(),guesses:[],cur:emptyRow(cfg.n),done:null};
+        var gs=Array.isArray(p.guesses)?p.guesses:[];
+        for(var i=0;i<gs.length&&!g.done;i++){if(!validRow(gs[i],cfg))break;guess(g,gs[i])}
+        if(!g.done&&Array.isArray(p.cur)&&p.cur.length===cfg.n){
+          for(i=0;i<cfg.n;i++){var c=p.cur[i];g.cur[i]=(c===Math.floor(c)&&c>=0&&c<cfg.k)?c:-1}
+        }
+        o.peli=g;
+      }else o.peli=newGame(o.asetukset.tila,o.asetukset.toisto,rand);
+    }else o.peli=newGame(o.asetukset.tila,o.asetukset.toisto,rand);
+    return o;
+  }
+
+  return {VER:VER,MODES:MODES,COLOR_NAMES:COLOR_NAMES,score:score,cfgFor:cfgFor,newSecret:newSecret,newGame:newGame,
+    guess:guess,validRow:validRow,isWin:isWin,emptyStats:emptyStats,record:record,defaults:defaults,repair:repair,emptyRow:emptyRow};
+})();
+</script>
+
+<script id="ui">
+var KUI=(function(){
+  var KEY='koodi.v1';
+  var $=function(id){return document.getElementById(id)};
+  var D,S={cursor:0,anim:null};
+  var SYM=[ // jokaiselle värille oma kuvio (valinnainen apu värien erottamiseen)
+    '<circle cx="12" cy="12" r="8"/>',
+    '<path d="M12 3 22 20H2z"/>',
+    '<rect x="4" y="4" width="16" height="16" rx="1.5"/>',
+    '<path d="M12 2 22 12 12 22 2 12z"/>',
+    '<path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7.1L12 17.3 5.8 21l1.6-7.1L2 9.2l7.1-.6z"/>',
+    '<path d="M9 2h6v7h7v6h-7v7H9v-7H2V9h7z"/>',
+    '<path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm0 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>',
+    '<path d="M3 3h18v7H3zM3 14h18v7H3z"/>'
+  ];
+
+  /* ---------- tallennus ---------- */
+  function load(){
+    var raw=null;try{raw=localStorage.getItem(KEY)}catch(e){}
+    var d=null;try{d=raw?JSON.parse(raw):null}catch(e){}
+    return KOODI.repair(d);
+  }
+  function save(){
+    D.savedAt=new Date().toISOString();
+    try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){}
+  }
+
+  /* ---------- apu ---------- */
+  function pegHTML(c,cls){
+    if(c<0)return '<span class="peg empty'+(cls?' '+cls:'')+'"></span>';
+    return '<span class="peg'+(cls?' '+cls:'')+'" style="background:var(--c'+c+')"><svg viewBox="0 0 24 24">'+SYM[c]+'</svg></span>';
+  }
+  var toastT;
+  function toast(t){var el=$('toast');el.textContent=t;el.classList.add('on');clearTimeout(toastT);toastT=setTimeout(function(){el.classList.remove('on')},1700)}
+  function G(){return D.peli}
+  function curIdx(){return G().guesses.length}
+
+  /* ---------- koko ---------- */
+  function layout(){
+    var g=G(),cfg=g.cfg;
+    var W=innerWidth;
+    var pc=((Math.min(W,520)-28)/cfg.k>=46||innerHeight<700)?cfg.k:Math.ceil(cfg.k/2);
+    document.documentElement.style.setProperty('--pc',pc);
+    var fbc=cfg.n<=4?2:3;
+    document.documentElement.style.setProperty('--fbc',fbc);
+    // laudan korkeus mitataan vasta, kun paletti on asettunut
+    requestAnimationFrame(function(){
+      var b=$('board'),rows=$('rows');
+      var bw=b.clientWidth-20,bh=b.clientHeight-16;
+      var rowH=(bh-14-6-8)/(cfg.rows+1);
+      var fbw=Math.max(30,Math.min(52,rowH*0.95));
+      var byW=(bw-12-22-16-fbw)/cfg.n-8;
+      var peg=Math.max(16,Math.min(44,rowH*0.8,byW));
+      var fbd=Math.max(6,Math.min(11,(fbw-(fbc-1)*3)/fbc,rowH*0.27));
+      var st=document.documentElement.style;
+      st.setProperty('--peg',peg.toFixed(1)+'px');st.setProperty('--fbw',fbw.toFixed(1)+'px');
+      st.setProperty('--fbd',fbd.toFixed(1)+'px');st.setProperty('--fbg','3px');
+    });
+  }
+
+  /* ---------- piirto ---------- */
+  function renderSecret(reveal){
+    var g=G(),h='<span class="lk"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><div class="pegs">';
+    for(var i=0;i<g.cfg.n;i++){
+      h+='<div class="slot" style="cursor:default">'+(g.done?pegHTML(g.secret[i],reveal?'flip':''):'<span class="peg hid"></span>')+'</div>';
+    }
+    h+='</div><div class="res">'+(g.done==='voitto'?'✓':g.done==='tappio'?'✕':'')+'</div>';
+    $('secret').innerHTML=h;
+    if(reveal){var ps=$('secret').querySelectorAll('.peg');for(i=0;i<ps.length;i++)ps[i].style.animationDelay=(i*90)+'ms'}
+  }
+
+  function fbHTML(sc,n,animate){
+    var h='<div class="fb">',k=0,i;
+    for(i=0;i<sc.b;i++,k++)h+='<i class="b'+(animate?' in':'')+'"'+(animate?' style="animation-delay:'+(k*80)+'ms"':'')+'></i>';
+    for(i=0;i<sc.w;i++,k++)h+='<i class="w'+(animate?' in':'')+'"'+(animate?' style="animation-delay:'+(k*80)+'ms"':'')+'></i>';
+    for(;k<n;k++)h+='<i></i>';
+    return h+'</div>';
+  }
+
+  function render(o){
+    o=o||{};
+    var g=G(),cfg=g.cfg,ci=curIdx(),h='';
+    for(var r=0;r<cfg.rows;r++){
+      var cls='row',row,inner='';
+      if(r<g.guesses.length){cls+=' past';row=g.guesses[r]}
+      else if(r===ci&&!g.done){cls+=' cur';row=g.cur}
+      else{cls+=' fut';row=KOODI.emptyRow(cfg.n)}
+      inner+='<span class="no">'+(r+1)+'</span><div class="pegs">';
+      for(var i=0;i<cfg.n;i++){
+        var on=(cls.indexOf('cur')>=0&&i===S.cursor)?' on':'';
+        var pop=(o.pop&&o.pop[0]===r&&o.pop[1]===i)?'pop':'';
+        if(cls.indexOf('cur')>=0)inner+='<button class="slot'+on+'" data-s="'+i+'" aria-label="Paikka '+(i+1)+(row[i]>=0?', '+KOODI.COLOR_NAMES[row[i]]:', tyhjä')+'">'+pegHTML(row[i],pop)+'</button>';
+        else inner+='<div class="slot">'+pegHTML(row[i])+'</div>';
+      }
+      inner+='</div>';
+      if(r<g.guesses.length)inner+=fbHTML(KOODI.score(g.secret,row),cfg.n,o.fbRow===r);
+      else inner+=fbHTML({b:0,w:0},cfg.n,false);
+      h+='<div class="'+cls+'" data-r="'+r+'">'+inner+'</div>';
+    }
+    $('rows').innerHTML=h;
+    renderSecret(!!o.reveal);
+    // paletti
+    var p='';
+    for(var c=0;c<cfg.k;c++)p+='<button class="col" data-c="'+c+'" aria-label="'+KOODI.COLOR_NAMES[c]+'"'+(g.done?' disabled':'')+'>'+pegHTML(c)+'</button>';
+    $('palette').innerHTML=p;
+    // toiminnot
+    var full=g.cur.every(function(x){return x>=0});
+    $('b-check').disabled=!!g.done||!full;
+    $('b-clear').disabled=!!g.done||g.cur.every(function(x){return x<0});
+    if(g.done){$('b-check').disabled=false;$('b-check').textContent='Uusi peli';$('b-clear').textContent='Tulos';$('b-clear').disabled=false}
+    else{$('b-check').textContent='Tarkista';$('b-clear').textContent='Tyhjennä'}
+    // tila
+    var m=KOODI.MODES[cfg.mode];
+    $('status').textContent=g.done?(g.done==='voitto'?'Ratkaistu rivillä '+g.guesses.length:'Koodi jäi arvaamatta'):
+      'Rivi '+(ci+1)+' / '+cfg.rows+' · '+m.nimi+(cfg.toisto?'':' · ei toistoja');
+    document.body.classList.toggle('sym',!!D.asetukset.symbolit);
+  }
+
+  function nextEmpty(from){
+    var c=G().cur,n=c.length;
+    for(var k=1;k<=n;k++){var i=(from+k)%n;if(c[i]<0)return i}
+    return -1;
+  }
+
+  /* ---------- toiminnot ---------- */
+  function pick(c){
+    var g=G();if(g.done)return;
+    if(S.cursor<0){S.cursor=nextEmpty(-1);if(S.cursor<0)S.cursor=g.cfg.n-1}
+    if(!g.cfg.toisto){
+      var at=g.cur.indexOf(c);
+      if(at>=0&&at!==S.cursor){g.cur[at]=-1} // ilman toistoja väri siirtyy uuteen paikkaan
+    }
+    var at2=S.cursor;g.cur[at2]=c;
+    var nx=nextEmpty(at2);S.cursor=nx<0?at2:nx;
+    save();render({pop:[curIdx(),at2]});
+  }
+  function tapSlot(i){
+    var g=G();if(g.done)return;
+    if(i===S.cursor&&g.cur[i]>=0){g.cur[i]=-1}
+    else if(g.cur[i]>=0&&i!==S.cursor){S.cursor=i}
+    else S.cursor=i;
+    save();render();
+  }
+  function clearRow(){var g=G();if(g.done){openEnd(false);return}g.cur=KOODI.emptyRow(g.cfg.n);S.cursor=0;save();render()}
+  function copyRow(r){
+    var g=G();if(g.done||r>=g.guesses.length)return;
+    g.cur=g.guesses[r].slice();S.cursor=g.cfg.n-1;save();render();toast('Rivi '+(r+1)+' kopioitu');
+  }
+  function check(){
+    var g=G();
+    if(g.done){startNew();return}
+    var row=g.cur.slice(),r=curIdx();
+    var res=KOODI.guess(g,row);
+    if(!res.ok){
+      var el=document.querySelector('.row.cur');if(el){el.classList.remove('row-shake');void el.offsetWidth;el.classList.add('row-shake')}
+      toast(res.why==='toisto'?'Sama väri kahdesti: toistot ovat pois päältä':'Täytä kaikki paikat');return;
+    }
+    S.cursor=0;
+    if(res.done){
+      KOODI.record(D.tilastot[g.cfg.mode],g);
+      save();render({fbRow:r,reveal:true});
+      setTimeout(function(){openEnd(true)},reduced()?100:900);
+    }else{save();render({fbRow:r})}
+  }
+  function reduced(){return matchMedia('(prefers-reduced-motion: reduce)').matches}
+  function startNew(){
+    closeAll();
+    D.peli=KOODI.newGame(D.asetukset.tila,D.asetukset.toisto);S.cursor=0;
+    save();layout();render();
+  }
+  function askNew(){
+    var g=G();
+    if(g.done||g.guesses.length===0){startNew();return}
+    openDlg('d-new');
+  }
+
+  /* ---------- ikkunat ---------- */
+  function openDlg(id){var d=$(id);if(!d.open)d.showModal()}
+  function closeAll(){var ds=document.querySelectorAll('dialog');for(var i=0;i<ds.length;i++)if(ds[i].open)ds[i].close()}
+  function statsHTML(s){
+    var pct=s.pelit?Math.round(100*s.voitot/s.pelit):0;
+    return '<div><b>'+s.pelit+'</b><span>pelattu</span></div><div><b>'+pct+'%</b><span>ratkaistu</span></div><div><b>'+s.putki+'</b><span>putki</span></div><div><b>'+s.paras+'</b><span>paras</span></div>';
+  }
+  function openEnd(fresh){
+    var g=G(),cfg=g.cfg,s=D.tilastot[cfg.mode];
+    var win=g.done==='voitto';
+    $('end-title').textContent=win?(g.guesses.length===1?'Ensimmäisellä!':g.guesses.length<=3?'Huikeaa!':'Ratkaistu!'):'Ei tällä kertaa';
+    $('end-sub').textContent=win?'Löysit koodin rivillä '+g.guesses.length+' / '+cfg.rows+'.':'Koodi oli tämä:';
+    var h='';for(var i=0;i<cfg.n;i++)h+=pegHTML(g.secret[i]);$('endsec').innerHTML=h;
+    $('end-mode').textContent=KOODI.MODES[cfg.mode].nimi;
+    $('end-stats').innerHTML=statsHTML(s);
+    var mx=1,k;for(k in s.jakauma)mx=Math.max(mx,s.jakauma[k]);
+    var dh='';for(var r=1;r<=cfg.rows;r++){var v=s.jakauma[r]||0;
+      dh+='<div><span>'+r+'</span><i class="'+(win&&r===g.guesses.length?'now':'')+'" style="width:'+Math.max(8,100*v/mx)+'%">'+v+'</i></div>'}
+    $('end-dist').innerHTML=dh;
+    openDlg('d-end');
+  }
+  function renderSettings(){
+    var a=D.asetukset,h='';
+    for(var m in KOODI.MODES){var M=KOODI.MODES[m];
+      h+='<button data-mode="'+m+'" aria-pressed="'+(a.tila===m)+'">'+M.nimi+'<small>'+M.n+' paikkaa · '+M.k+' väriä</small></button>'}
+    $('seg-mode').innerHTML=h;
+    var u=[['auto','Laitteen mukaan'],['light','Vaalea'],['dark','Tumma']];h='';
+    for(var i=0;i<u.length;i++)h+='<button data-ulko="'+u[i][0]+'" aria-pressed="'+(a.ulko===u[i][0])+'">'+u[i][1]+'</button>';
+    $('seg-ulko').innerHTML=h;
+    $('sw-toisto').setAttribute('aria-checked',String(a.toisto));
+    $('sw-sym').setAttribute('aria-checked',String(a.symbolit));
+    var g=G(),diff=g.cfg.mode!==a.tila||g.cfg.toisto!==a.toisto;
+    $('set-note').hidden=!diff;
+    var s=D.tilastot[a.tila];$('set-stats').innerHTML=statsHTML(s);
+  }
+  function settingChanged(){
+    var g=G(),a=D.asetukset;
+    if((g.cfg.mode!==a.tila||g.cfg.toisto!==a.toisto)&&!g.done&&g.guesses.length===0){
+      D.peli=KOODI.newGame(a.tila,a.toisto);S.cursor=0;layout();
+    }
+    save();render();renderSettings();
+  }
+  function applyMode(){
+    var u=D.asetukset.ulko;
+    if(u==='auto')document.documentElement.removeAttribute('data-mode');
+    else document.documentElement.setAttribute('data-mode',u);
+  }
+
+  /* ---------- varmuuskopio ---------- */
+  function exportText(){return JSON.stringify(D)}
+  function importText(t){
+    var d;try{d=JSON.parse(t)}catch(e){toast('Teksti ei ole varmuuskopio');return false}
+    if(!d||d.app!=='koodi'){toast('Tämä ei ole Koodin varmuuskopio');return false}
+    D=KOODI.repair(d);S.cursor=0;save();applyMode();layout();render();renderSettings();toast('Varmuuskopio luettu');return true;
+  }
+
+  /* ---------- kuvake ---------- */
+  function icon(){
+    try{
+      var c=document.createElement('canvas');c.width=c.height=180;var x=c.getContext('2d');
+      x.fillStyle='#F3F3F3';x.fillRect(0,0,180,180);
+      var cols=['#FF3B30','#FFCC00','#34C759','#007AFF'];
+      for(var i=0;i<4;i++){x.fillStyle=cols[i];x.beginPath();x.arc(i%2?118:62,i<2?62:118,30,0,7);x.fill()}
+      $('touchicon').href=c.toDataURL('image/png');
+    }catch(e){}
+  }
+
+  /* ---------- tapahtumat ---------- */
+  function bind(){
+    $('rows').addEventListener('click',function(e){
+      var s=e.target.closest('.slot[data-s]');if(s){tapSlot(+s.dataset.s);return}
+      var r=e.target.closest('.row.past');if(r)copyRow(+r.dataset.r);
+    });
+    $('palette').addEventListener('click',function(e){var b=e.target.closest('.col');if(b&&!b.disabled)pick(+b.dataset.c)});
+    $('b-check').onclick=check;
+    $('b-clear').onclick=clearRow;
+    $('b-new').onclick=askNew;
+    $('b-newok').onclick=startNew;
+    $('b-again').onclick=startNew;
+    $('b-set').onclick=function(){renderSettings();openDlg('d-set')};
+    $('b-setnew').onclick=startNew;
+    $('seg-mode').onclick=function(e){var b=e.target.closest('button');if(!b)return;D.asetukset.tila=b.dataset.mode;settingChanged()};
+    $('seg-ulko').onclick=function(e){var b=e.target.closest('button');if(!b)return;D.asetukset.ulko=b.dataset.ulko;applyMode();save();renderSettings()};
+    $('sw-toisto').onclick=function(){D.asetukset.toisto=!D.asetukset.toisto;settingChanged()};
+    $('sw-sym').onclick=function(){D.asetukset.symbolit=!D.asetukset.symbolit;save();render();renderSettings()};
+    $('b-exp').onclick=function(){
+      var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([exportText()],{type:'application/json'}));
+      a.download='koodi-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();
+      setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500);
+    };
+    $('b-imp').onclick=function(){$('f-imp').click()};
+    $('f-imp').onchange=function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){importText(String(r.result))};r.readAsText(f);this.value=''};
+    $('b-copy').onclick=function(){
+      var t=exportText();$('t-io').value=t;
+      if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(function(){toast('Kopioitu')},function(){$('t-io').select();toast('Valitse ja kopioi teksti')});
+      else{$('t-io').select();toast('Valitse ja kopioi teksti')}
+    };
+    $('b-paste').onclick=function(){var t=$('t-io').value.trim();if(t&&importText(t))$('t-io').value=''};
+    // ikkunat: sulkunappi ja napautus taustaan
+    var ds=document.querySelectorAll('dialog');
+    for(var i=0;i<ds.length;i++)(function(d){
+      d.addEventListener('click',function(e){
+        if(e.target.closest('[data-close]')){d.close();return}
+        if(e.target===d){var r=d.getBoundingClientRect();
+          if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)d.close()}
+      });
+    })(ds[i]);
+    // näppäimistö: 1–8 värit, askelpalautin, Enter
+    document.addEventListener('keydown',function(e){
+      if(document.querySelector('dialog[open]')||e.metaKey||e.ctrlKey)return;
+      var g=G();
+      if(/^[1-8]$/.test(e.key)&&+e.key<=g.cfg.k){pick(+e.key-1);e.preventDefault()}
+      else if(e.key==='Backspace'&&!g.done){var i=S.cursor;if(g.cur[i]<0){i=(i-1+g.cfg.n)%g.cfg.n}g.cur[i]=-1;S.cursor=i;save();render();e.preventDefault()}
+      else if(e.key==='Enter'&&!g.done){check();e.preventDefault()}
+    });
+    addEventListener('resize',layout);
+  }
+
+  function init(){
+    D=load();
+    S.cursor=Math.max(0,G().cur.indexOf(-1));
+    applyMode();icon();bind();layout();render();
+    save();
+  }
+  init();
+  return {get D(){return D},S:S,startNew:startNew,pick:pick,check:check,tapSlot:tapSlot,layout:layout,importText:importText,exportText:exportText,KEY:KEY};
+})();
+</script>
+</body>
+</html>
