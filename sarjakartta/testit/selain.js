@@ -85,6 +85,12 @@ const assert=require('assert'),path=require('path'),fs=require('fs'),http=requir
       await ulos();
       const R=await id('Jalat');await p.click('[data-act=plus]');await p.click('.gb[data-id="'+R+'"]');await p.click('[data-act=note]');await p.keyboard.type('Rankka');await p.click('[data-act=note]');assert.equal(await p.locator('.gb').count(),4);await ulos();
       assert((await p.textContent('#app')).includes('Rankka'));assert.equal((await S()).sarjat.filter(x=>x.m==='Rankka').length,1)});
+    await ok('kuten edellinen: yksi napautus kopioi edellisen sarjan ryhmät; muistiinpanon kursori menee loppuun',async()=>{
+      const n0=(await S()).sarjat.length;await p.click('[data-act=plus]');const k=p.locator('[data-act=kuten]');assert.equal(await k.count(),1);assert((await k.textContent()).includes('Jalat'));
+      await k.click();assert.equal(await p.locator('[data-act=kuten]').count(),0,'piiloutuu kun sarjassa on ryhmiä');assert.equal(await p.locator('.gb.f').count(),1);await ulos();
+      const s=(await S()).sarjat;assert.equal(s.length,n0+1);const last=s.filter(x=>Object.keys(x.r).length).slice(-2);assert.deepEqual(last[1].r,last[0].r);
+      await p.click('.sr:has-text("Rankka")');await p.click('[data-act=note]');const sel=await p.evaluate(()=>{const e=document.getElementById('ed-m');return [e.selectionStart,e.selectionEnd,e.value.length]});assert.deepEqual(sel,[6,6,6],'koko teksti valittuna');
+      await p.keyboard.type(', hyvä');await ulos();assert.equal((await S()).sarjat.filter(x=>x.m==='Rankka, hyvä').length,1)});
     await ok('sarjan korjaus: rivi avaa ikkunan, aika ja päivä muokattavissa, poisto vahvistuksella eri kohdassa',async()=>{
       const k=await p.locator('.sr').count();await p.click('.sr >> nth=0');
       assert((await p.textContent('.pkd')).includes('Sarja'));await p.click('[data-act=aika]');assert.equal(await p.locator('#ed-pv').count(),1);
@@ -142,7 +148,7 @@ const assert=require('assert'),path=require('path'),fs=require('fs'),http=requir
     await ok('jakson alku vaihtuu asetuksista ja siirtää rajat',async()=>{
       const a0=await p.evaluate(()=>TK.pStart(TK.pIdx(TK.paiva(Date.now()))));
       await p.click('[data-act=valikko]');await p.click('[data-act=vsub][data-id=asetukset]');const cur=await p.locator('.seg button.on').getAttribute('data-id');
-      await p.click('.seg button:not(.on)');const a1=await p.evaluate(()=>TK.pStart(TK.pIdx(TK.paiva(Date.now()))));assert.equal(Math.abs(a1-a0),7,'raja siirtyy viikolla');
+      assert(/vk \d+–\d+/.test(await p.textContent('.seg button.on')));await p.click('.seg button:not(.on)');const a1=await p.evaluate(()=>TK.pStart(TK.pIdx(TK.paiva(Date.now()))));assert.equal(Math.abs(a1-a0),7,'raja siirtyy viikolla');
       await p.click('.seg button:not(.on)');assert.equal(await p.evaluate(()=>TK.pStart(TK.pIdx(TK.paiva(Date.now())))),a0);assert.equal(await p.locator('.seg button.on').getAttribute('data-id'),cur);assert.equal(await p.locator('#app input').count(),0)});
     await ok('alapalkin nappien paikat eivät muutu osiosta toiseen; ulkoasu',async()=>{
       await p.click('[data-act=vback]');const v0=await xy('[data-act=viejson]'),m0=await xy('[data-act=valikko]');
@@ -171,6 +177,11 @@ const assert=require('assert'),path=require('path'),fs=require('fs'),http=requir
       await os('treeni');await p.click('[data-act=plus]');await tark('sarja');await p.click('[data-act=aika]');await tark('aika');await p.click('[data-act=note]');await tark('muistiinpano');await ulos();
       await os('ryhmat');await p.click('[data-act=uusi]');await tark('uusi');await ulos();await p.click('[data-act=valikko]');await p.click('[data-act=vsub][data-id=varmuus]');await tark('varmuus');
       assert((await p.getAttribute('meta[name=viewport]','content')).includes('maximum-scale=1'))});
+    await ok('päivän vaihtuessa näkymä päivittyy itsestään (appi taustalta takaisin)',async()=>{
+      await os('treeni');const h0=await p.textContent('#hd h1');
+      await p.evaluate(()=>{window.__now=Date.now;Date.now=()=>window.__now()+864e5;document.dispatchEvent(new Event('visibilitychange'))});
+      const h1=await p.textContent('#hd h1');assert.notEqual(h1,h0);assert.equal(await p.locator('.sr').count(),0,'uusi päivä alkaa tyhjänä');
+      await p.evaluate(()=>{Date.now=window.__now;document.dispatchEvent(new Event('visibilitychange'))});assert.equal(await p.textContent('#hd h1'),h0)});
     await ok('vanhan tai rikkinäisen tallennuksen korjaus ja pysyvyys uudelleenlatauksessa',async()=>{
       const a=await S();await p.reload();const b=await S();assert.deepEqual(JSON.parse(JSON.stringify(b.ryhmat)),JSON.parse(JSON.stringify(a.ryhmat)));assert.equal(b.sarjat.length,a.sarjat.length);
       await p.evaluate(()=>localStorage.setItem('sarjakartta.v1',JSON.stringify({ryhmat:[{id:'q',nimi:'Rinta',kuorma:-3,tavoite:'x'}],sarjat:[{t:Date.now(),r:{q:7,zzz:1}},{t:'x'}],as:{gs:'ei'}})));await p.reload();
