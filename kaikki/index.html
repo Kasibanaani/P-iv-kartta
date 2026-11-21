@@ -4986,7 +4986,7 @@ function b64d(b){return decodeURIComponent(escape(atob(String(b).replace(/\s/g,'
 function vApi(url,method,body){method=method||'GET';var u=method==='GET'?url+(url.indexOf('?')<0?'?':'&')+'t='+Date.now():url,h={'Authorization':'Bearer '+G.token,'Accept':'application/vnd.github+json'};if(body)h['Content-Type']='application/json';
   var req;try{req=fetch(u,{method:method,headers:h,body:body?JSON.stringify(body):undefined});}catch(e){vLastErr=String(e&&e.message||e);return Promise.resolve({status:0,j:{}});}
   return req.then(function(r){return r.text().then(function(t){var j={};try{j=JSON.parse(t);}catch(e){}return {status:r.status,j:j};});},function(e){vLastErr=String(e&&e.message||e);return {status:0,j:{}};});}
-function vErr(st){if(st===0)return 'Ei yhteyttä GitHubiin. Muutokset odottavat ja lähtevät, kun yhteys palaa.';return ({401:'Avain ei kelpaa tai se on vanhentunut.',403:'Avaimella ei ole oikeutta tähän repoon. Tarvitaan Contents: Read and write.',404:'Repoa ei löydy, tai avaimella ei ole pääsyä siihen.'})[st]||('GitHub vastasi virheellä '+st+'.');}
+function vErr(st){if(st===0)return 'Ei yhteyttä GitHubiin. Muutokset odottavat ja lähtevät, kun yhteys palaa.'+(vLastErr?' Selaimen ilmoitus: '+vLastErr:'');return ({401:'Avain ei kelpaa tai se on vanhentunut.',403:'Avaimella ei ole oikeutta tähän repoon. Tarvitaan Contents: Read and write.',404:'Repoa ei löydy, tai avaimella ei ole pääsyä siihen.'})[st]||('GitHub vastasi virheellä '+st+'.');}
 function vK(){return data.K[0];}
 function vNotes(){var k=vK();return k&&k.id===data.k?data.notes:(k?k.notes:[]);}
 function vTrash(){var k=vK();return k&&k.id===data.k?data.trash:(k?k.trash:[]);}
@@ -5041,8 +5041,8 @@ function vConflict(p,o){return vApi(vUrl('/contents/'+vEnc(p)+'?ref='+encodeURIC
 /* Asetukset: Valikko -> GitHub-vault */
 function vRender(){var s=$('gs-status');if(s)s.textContent=vStatus()+(vMsg?' · '+vMsg:'');var b=$('menu');if(b)b.classList.toggle('vwait',vOn()&&(!!Object.keys(VC.q).length||/Avain|oikeutta|löydy|virhee/.test(vMsg)));}
 function openGh(){$('gs-repo').value=G.repo;$('gs-tok').value=G.token;$('gs-msg').textContent='';vRender();openSheet($('gsheet'));}
-$('gs-save').addEventListener('click',function(){G.repo=$('gs-repo').value.trim();G.token=$('gs-tok').value.trim();var m=$('gs-msg');m.textContent='Tarkistetaan…';
-  vApi(vUrl('')).then(function(r){if(r.status!==200){m.textContent=vErr(r.status);return;}
+$('gs-save').addEventListener('click',function(){G.repo=$('gs-repo').value.trim();/* 0.2: avaimesta pois kaikki muu kuin kirjaimet, numerot, _ ja - (näkymättömät merkit liitettäessä kaatavat pyynnön) */G.token=$('gs-tok').value.replace(/[^A-Za-z0-9_-]/g,'');$('gs-tok').value=G.token;var m=$('gs-msg');m.textContent='Tarkistetaan…';
+  vApi(vUrl('')).then(function(r){if(r.status!==200){m.textContent=vErr(r.status)+' (Repo: '+vRepo()+', avain '+G.token.length+' merkkiä.)';return;}
     if(!r.j.private){m.textContent='Repo on julkinen: kaikki näkisivät muistiinpanosi. Vaihda se yksityiseksi tai valitse toinen.';return;}
     G.branch=r.j.default_branch||'main';vSaveG();m.textContent='Yhteys toimii. '+r.j.full_name+' on yksityinen. Haetaan muistiinpanot…';
     vPull().then(function(ok){m.textContent=ok?'Valmis. Muistiinpanot haettu.':vMsg;vCollect();});});});
