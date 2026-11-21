@@ -32,6 +32,7 @@ Henkilökohtaiseen käyttöön tehtyjä selainappeja. Jokainen appi on yksi HTML
 | `minigo/` | Mini-Go (Go lasten kanssa samalla laitteella: Kaappaus-Go ja oikea Go laskentoineen, laudat 5/7/9, viisi ulkoasua; tila `minigo/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/minigo/ |
 | `katve/` | Katve (ylhäältä kuvattu zombipako, kaksi tattia, kolme tehtävää ja vapaa tutkiminen; tila `katve/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/katve/ |
 | `koodi/` | Koodi (yksin pelattava koodinmurtopeli Mastermindin logiikalla, litteä ilme; klassinen 4/6/10 ja Super 5/8/12; tila `koodi/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/koodi/ |
+| `kaikki/` | Kaikki: Juuren kopio, jonka muistiinpanot ovat Emilin yksityisessä GitHub-vaultissa (yksi .md-tiedosto per muistiinpano; tekoälyt lukevat ja kirjoittavat samaa vaultia; tila `kaikki/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/kaikki/ |
 
 Uusi appi tulee omaan kansioonsa nimellä `index.html`. Osoite on silloin `https://kasibanaani.github.io/P-iv-kartta/<kansio>/`.
 

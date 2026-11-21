@@ -1,0 +1,700 @@
+// Juuren moottorin testit Kaikki-appissa. Ajo: sh kaikki/testit/aja.sh
+var E=require('./engine.js'),ok=0,bad=0;
+function eq(name,got,exp){var g=JSON.stringify(got),e=JSON.stringify(exp);if(g===e){ok++;}else{bad++;console.log('VIRHE',name,'\n  saatiin',g,'\n  odotettu',e);}}
+function P(text){return {id:'p',name:'Testi',text:text,rules:{},mx:[],session:null};}
+function t(Pr,a,b,m){E.toggleRule(Pr,a,b,m||'o');}
+var A=E.ALKU;
+
+// tekstimuoto
+var pt=E.parseText('Koira\n#Eläimet: kaikki eläimet\n>Perustelu: Koska näin. // Toinen kappale\n\n// kommentti\nkoira\n>Pelkkä teksti ilman nimeä');
+eq('lajit',pt.items.map(function(i){return i.k+':'+i.name;}),['b:Koira','g:Eläimet','t:Perustelu','t:Pelkkä teksti ilman nimeä']);
+eq('tuplanimi varoitus',pt.warnings.length,1);
+eq('kappale',E.bodyText(pt.by['perustelu'].body),'Koska näin.\n\nToinen kappale');
+eq('lineOf',pt.items.map(E.lineOf),['Koira','#Eläimet: kaikki eläimet','>Perustelu: Koska näin. // Toinen kappale','>Pelkkä teksti ilman nimeä']);
+
+// opettamaton Alku: kaikki, joita mikään ei avaa
+var p=P('A\nB\nC');t(p,'a','c');
+var S=E.newSession(p,'2026-10-20T10:00:00Z');eq('opettamaton alku',E.sessionView(p,S).opts,['a','b']);
+
+// valinta avaa vain suoraan liitetyt
+p=P('A\nB\nC\nD\nE\n#G: ryhmä\n>T: ilmoitus A:sta');
+t(p,A,'a');t(p,A,'b');t(p,'a','c');t(p,'a','g');t(p,'g','d');t(p,'g','e');t(p,'b','d');t(p,'a','t');t(p,'c','e');
+S=E.newSession(p,'x');var v=E.sessionView(p,S);eq('alku',v.opts,['a','b']);eq('ei ilmoitusta alussa',S.log,[]);
+var d=E.tapDraft(p,S,{p:[],d:[]},'a');eq('draft',d,{p:['a'],d:[]});
+E.commitStep(p,S,d);v=E.sessionView(p,S);eq('A avaa C ja ryhmän G jäsenet',v.opts,['c','d','e']);eq('ilmoitus lokiin',S.log,['t']);
+// C avaa vain E:n, ei kaikkea aiempaa
+E.commitStep(p,S,{p:['c'],d:[]});eq('C avaa vain E',E.sessionView(p,S).opts,['e']);
+eq('A ja C muistissa',E.sessionView(p,S).sel,['a','c']);
+var u=E.undoStep(S);eq('peru askel',u,{p:['c'],d:[]});eq('peru: tarjolla taas',E.sessionView(p,S).opts,['c','d','e']);
+
+// poissulku muistuu ja voittaa; purku vapauttaa
+p=P('A\nB\nC\nD');t(p,A,'a');t(p,A,'b');t(p,'a','c');t(p,'b','c');t(p,'b','d');t(p,'a','x');E.toggleRule(p,'a','d','x');t(p,'c','a');t(p,'c','d');
+S=E.newSession(p,'x');E.commitStep(p,S,{p:['a','b'],d:[]});
+eq('A sulkee D:n',E.sessionView(p,S).opts,['c']);
+E.commitStep(p,S,{p:['c'],d:[]});v=E.sessionView(p,S);eq('D yhä pois, A tarjolla valmiiksi valittuna',[v.opts,v.picked],[['a'],['a']]);
+d=E.tapDraft(p,S,{p:[],d:[]},'a');eq('purku',d,{p:[],d:['a']});v=E.sessionView(p,S,d);eq('purku vapauttaa D:n',v.opts,['a','d']);eq('ei valittuja',v.picked,[]);
+
+// saman askeleen ristiriidat harmaana: poissulku ja toisensa poissulkevat
+p=P('A\nB\nC');t(p,A,'a');t(p,A,'b');t(p,A,'c');E.toggleRule(p,'a','b','x');p.mx=[['a','c']];
+S=E.newSession(p,'x');v=E.sessionView(p,S,{p:['a'],d:[]});eq('harmaat',v.blocked,{b:'a',c:'a'});
+d=E.tapDraft(p,S,{p:['a'],d:[]},'b');eq('harmaata ei voi valita',d,{p:['a'],d:[]});
+E.commitStep(p,S,{p:['c'],d:[]});eq('toisensa poissulkevat eivät muistu',E.sessionView(p,S).excl,{});
+
+// ryhmä sulkee pois toisen ryhmän ja sen jäsenet (sisäkkäiset renkaat)
+p=P('A\nD\nE\nF\n#G\n#H\n#K');t(p,A,'a');t(p,'a','g');t(p,'a','k');t(p,'g','d');t(p,'g','e');t(p,'h','e');t(p,'h','f');E.toggleRule(p,'k','h','x');
+S=E.newSession(p,'x');E.commitStep(p,S,{p:['a'],d:[]});v=E.sessionView(p,S);
+eq('K sulkee H:n ja sen jäsenen E',v.opts,['d']);eq('excl',Object.keys(v.excl).sort(),['e','f','h']);
+// ryhmä avaa toisen ryhmän
+p=P('A\nD\n#G\n#H');t(p,A,'a');t(p,'a','g');t(p,'g','h');t(p,'h','d');S=E.newSession(p,'x');E.commitStep(p,S,{p:['a'],d:[]});eq('ryhmä ryhmän kautta',E.sessionView(p,S).opts,['d']);
+
+// muistiinpano
+p=P('A\nB\n>T: Perustelu.');t(p,A,'a');t(p,'a','b');t(p,'a','t');S=E.newSession(p,'x');E.commitStep(p,S,{p:['a'],d:[]});E.commitStep(p,S,{p:['b'],d:[]});
+eq('muistiinpano',E.sessionNote(p,S,'Oma huomio'),'Testi\nValinnat: A → B\n\nPerustelu.\n\nOma huomio');
+
+p=P('A\nB\nC\n#G\n#H');t(p,A,'a');t(p,'a','g');t(p,'g','h');t(p,'h','b');t(p,'b','c');S=E.newSession(p,'x');E.commitStep(p,S,{p:['a'],d:[]});E.commitStep(p,S,{p:['b'],d:[]});
+eq('muistiinpanoon ryhmät',E.sessionNote(p,S,''),'Testi\nValinnat: A → B\nRyhmät: G, H');
+
+// kierros päivälle: päivän muistiinpanojen termit valmiiksi mukaan
+p=P('A\nB\nC\nD\n#G\n>T: Teksti.');t(p,A,'a');t(p,A,'b');t(p,'b','d');t(p,'g','c');E.toggleRule(p,'g','a','x');
+var dn=[{id:'1',created:'2026-10-01T10:00:00Z',text:'bee, gee, tee',date:'2026-10-24'},{id:'2',created:'2026-10-01T10:00:00Z',text:'cee',date:'2026-10-25'},{id:'3',created:new Date(2026,9,20).toISOString(),text:'dee 14 päivän sisällä',date:''}];
+var dterms=E.autoTerms([p],{b:{yes:['bee'],no:[]},c:{yes:['cee'],no:[]},d:{yes:['dee'],no:[]},g:{yes:['gee'],no:[]},t:{yes:['tee'],no:[]}},[]); // yksikirjaimiset nimet eivät ole termejä
+eq('päivän muistiinpanot',E.notesOnDay(dn,'2026-10-24').map(function(n){return n.id;}),['1','3']);
+var dc=E.dayCarry(p,dn,dterms,'2026-10-24');eq('päivän valinnat',dc,{notes:2,pre:['b','g','d'],texts:['t']});
+dc.date='2026-10-24';S=E.newSession(p,'x',dc);v=E.sessionView(p,S);
+eq('valmiina: G sulkee A:n, G avaa C:n, B avaa D:n, D valittuna',[v.opts,v.picked,S.log,S.date],[['b','c','d'],['b','d'],['t'],'2026-10-24']);
+E.commitStep(p,S,{p:['c'],d:[]});eq('muistiinpano päivällä',E.sessionNote(p,S,''),'Testi\nPäivä: 24.10.2026\nPäivän muistiinpanoista: B, D\nValinnat: B, C, D\nRyhmät: G\n\nTeksti.');
+eq('ilman päivää ennallaan',E.newSession(p,'x').steps,[{p:[A],d:[]}]);
+
+// apukysymys: näkyy vain sen askeleen ajan, ei lokiin eikä termeihin
+p=P('A\nB\n?Apu: Onko kiire?\n?Toinen kysymys');t(p,A,'a');t(p,'a','b');t(p,'a','apu');t(p,'a','toinen kysymys');
+eq('apukysymyksen rivi',E.lineOf(E.parseText(p.text).by['apu']),'?Apu: Onko kiire?');
+S=E.newSession(p,'x');eq('ei alussa',E.sessionView(p,S).qs,[]);E.commitStep(p,S,{p:['a'],d:[]});
+eq('askeleessa',E.sessionView(p,S).qs,['apu','toinen kysymys']);eq('ei lokiin',S.log,[]);
+E.commitStep(p,S,{p:['b'],d:[]});eq('katoaa seuraavassa',E.sessionView(p,S).qs,[]);
+var atq=E.autoTerms([p],{},[]);eq('apukysymys on termi',atq.map(function(t){return t.key;}),['a','b','apu','toinen kysymys']);
+eq('apukysymys nousee oletuksena',atq.filter(function(t){return t.pop;}).map(function(t){return t.key;}),['apu','toinen kysymys']);
+// järjestys ja tavuviiva
+eq('siirto alas',E.moveItem('A\n\nB\nC','a',1),'B\n\nA\nC');eq('siirto ylös reunalla',E.moveItem('A\nB','a',-1),'A\nB');
+eq('tavuviiva',E.shownName('Kova-nälkä - iso'),'Kova-\nnälkä - iso');
+
+// nimen vaihto ja poisto
+p=P('A\nB');t(p,A,'a');t(p,'a','b');p.mx=[['a','b']];E.renameKey(p,'b','bee');eq('rename',[p.rules.a.o,p.mx],[['bee'],[['a','bee']]]);
+E.removeKey(p,'bee');eq('remove',[p.rules.a,p.mx],[undefined,[]]);
+p=P('A');t(p,'a','zz');eq('orvot',E.orphans(p),['zz']);E.dropOrphans(p);eq('orvot pois',E.orphans(p),[]);
+
+// termit
+var term={id:'t1',name:'eläin',yes:['kissa','koira'],no:['lelu']};
+eq('kyllä',E.termOn(term,'Kissa: ruoka loppui'),true);eq('osa sanasta riittää',E.termOn(term,'Kissan ruoka loppui'),true);
+eq('poissulku voittaa',E.termOn(term,'kissa, LELU'),false);eq('osuma sanan keskeltä',E.termOn(term,'pikkukissa'),true);eq('ei osumaa',E.termOn(term,'hevonen'),false);
+var t2={id:'t2',name:'Allianssi',yes:['eläi-','onko lapsi turvassa?','koti-ikävä'],no:[]};
+eq('tavuviiva = osa riittää',E.termOn(t2,'Kotieläimet ulkona'),true);eq('lause, välimerkit katoavat',E.termOn(t2,'Mietin: Onko lapsi, turvassa'),true);
+eq('tavuviiva keskellä on tavallinen merkki',E.termOn(t2,'Koti ikävä'),true);eq('isot kirjaimet',E.termOn(t2,'ALLIANSSI!'),true);
+
+// päätöspuun rivit termeinä, kaikista projekteista, sama nimi kerran
+var pr=[{name:'Eka',text:'Kova nälkä\n#Täyttävät: x\n>Muistutus: katso jääkaappi\n>Tämä on pitkä ilmoitus ilman nimeä, joten siitä ei tule termiä'},{name:'Toka',text:'kova nälkä\nUlkona'}];
+var at=E.autoTerms(pr,{'täyttävät':{yes:['pasta'],no:['lelu']}},[{id:'t9',name:'Ulkona',yes:[],no:[]}]);
+eq('automaattiset termit',at.map(function(t){return t.id+'/'+t.kind+'/'+t.proj;}),['a:kova nälkä/b/Eka','a:täyttävät/g/Eka','a:muistutus/t/Eka']);
+eq('sana liitetty ryhmään',E.noteTerms(at,'Söin pasta ja kova nälkä'),['a:kova nälkä','a:täyttävät']);
+eq('ilmoitus tunnistuu tekstistään',E.noteTerms(at,'Muuta: Katso jääkaappi heti'),['a:muistutus']);
+eq('poissulku automaattiseen',E.noteTerms(at,'pasta ja lelu'),[]);
+eq('termisanat talteen',E.normalizeData({app:'paatospuu',termisanat:{'x':{yes:['a'],no:[]},'y':{yes:[],no:[]}}}).words,{x:{yes:['a'],no:[]}});
+
+// päivämäärät, pohja ti 20.10.2026
+var base=new Date(2026,9,20,21,0);function pd(s){return E.parseDates(s,base).map(function(o){return o.a===o.b?o.a:o.a+'..'+o.b;});}
+eq('perjantaina',pd('Soita perjantaina'),['2026-10-23']);eq('tiistaina = tänään',pd('tiistaina'),['2026-10-20']);
+eq('pvm',pd('24.10.26 ja 5.11.2026'),['2026-10-24','2026-11-05']);eq('ilman vuotta',pd('1.1. ja 25.10.'),['2026-10-25','2027-01-01']);
+eq('kahden viikon sisällä',pd('kahden viikon sisällä'),['2026-10-20..2026-11-03']);eq('3 päivän päästä',pd('3 päivän päästä'),['2026-10-23']);
+eq('ensi viikolla',pd('ensi viikolla'),['2026-10-26..2026-11-01']);eq('kellonaika ei',pd('klo 25. ja 31.2.26'),[]);
+eq('päiväväli',pd('Loma 1.7.27–3.8.27 ja 5.-6. ei'),['2027-07-01..2027-08-03']);eq('väli ilman vuotta',pd('24.10.-26.10.'),['2026-10-24..2026-10-26']);eq('väli vuodenvaihde',pd('28.12.-2.1.27'),['2026-12-28..2027-01-02']);
+eq('huomenna',pd('huomenna'),['2026-10-21']);
+// Emilin lista 21.10.2026; pohja ti 20.10.2026
+function pz(s){return E.parseDates(s,base).map(function(o){return E.dateLabel(o)+' | '+o.a+(o.rec?' toistuu':'');});}
+eq('010726',pz('010726'),['ke 1.7.2026 | 2026-07-01']);
+eq('1.7.26 klo13-16',pz('1.7.26 klo13-16'),['ke 1.7.2026 klo 13.00–16.00 | 2026-07-01']);
+eq('2/27',pz('2/27'),['1.2.2027–28.2.2027 | 2027-02-01']);
+// Kellonaika ilman klo-sanaa päivän perässä (1.32)
+var B2=new Date(2026,9,22,10,0);function ptm(t){return E.parseDates(t,B2).map(function(o){return o.a+(o.time?' '+o.time.s+'-'+o.time.e:'');});}
+eq('päivän perässä aika',[ptm('torstaina 22-23'),ptm('to 22-23'),ptm('24.10. 9.30'),ptm('24.10.26 14'),ptm('1.7.26–3.8.26 9')],[['2026-10-22 22:00-23:00'],['2026-10-22 22:00-23:00'],['2026-10-24 09:30-'],['2026-10-24 14:00-'],['2026-07-01 09:00-']]);
+eq('ei aikaa ilman päivää tai välimerkin jälkeen',[ptm('Ostin 3 kissaa'),ptm('pe, 14'),ptm('24.10.2026. 9'),ptm('torstaina 25-26'),ptm('torstaina 9.75')],[[],[],['2026-10-24'],['2026-10-22'],['2026-10-22']]);
+// Kaksi kellonaikaa samana päivänä, oletuspituus ja kalenterin kohta (1.33)
+eq('kaksi aikaa samalle päivälle',ptm('pe klo 10 ja klo 14'),['2026-10-23 10:00-','2026-10-23 14:00-']);
+eq('lauseen loppu katkaisee perinnän',ptm('pe klo 10. Soita klo 14').length,2);
+var two={id:'t2',created:'2026-10-22T08:00:00.000Z',text:'Palaveri 23.10.2026 klo 10 ja klo 14'};
+eq('kaksi merkintää aikajanalle',E.dayEntries([two],'2026-10-23',45).timed.map(function(x){return [x.s,x.e];}),[[600,645],[840,885]]);
+var pin={id:'p1',created:'2026-10-22T08:00:00.000Z',text:'Muistutus pe klo 10',date:'2026-10-22',time:{s:'14:00',e:''},pin:1};
+eq('kalenterin kohta liitetty',[E.dayEntries([pin],'2026-10-22',30).timed.map(function(x){return x.s;}),E.dayEntries([pin],'2026-10-23',30).timed.map(function(x){return x.s;})],[[840],[600]]);
+eq('pin säilyy',E.normalizeData({app:'paatospuu',ver:2,kokonaisuudet:[{id:'k',name:'A',muistiinpanot:[pin]}]}).K[0].notes[0].pin,1);
+// Kohtakohtainen kuittaus (1.34)
+eq('kohdat',E.occList(two),['2026-10-23 10:00','2026-10-23 14:00']);
+eq('toistuvalla ei rajallisia kohtia',E.occList({id:'r',created:'2026-10-22T08:00:00.000Z',text:'joka tiistai klo 10'}),null);
+var pd2={id:'q',created:'2026-10-22T08:00:00.000Z',text:'Palaveri 23.10.2026 klo 10 ja klo 14',pts:{'2026-10-23 10:00':'x'}};
+eq('yksi kohta kuitattu',[E.ptDone(pd2,'2026-10-23 10:00'),E.ptDone(pd2,'2026-10-23 14:00')],[true,false]);
+// Vienti (1.31)
+eq('tiedostonimet',[E.expName(),E.expName('Mätsik Forest'),E.expName('A/B: "x"?'),E.expName('  ..  ')],['Kaikki.json','Mätsik Forest (Kaikki).json','AB x (Kaikki).json','Projekti (Kaikki).json']);
+eq('pallero vasta vuorokauden vaihduttua',[E.staleK({chg:'2026-10-22'},'2026-10-22'),E.staleK({chg:'2026-10-21'},'2026-10-22'),E.staleK({chg:null},'2026-10-23')],[false,true,false]);
+var nd=E.normalizeData({app:'paatospuu',ver:2,kokonaisuudet:[{id:'k1',name:'A',puut:[],muokattu:'2026-10-22T05:00:00.000Z',viety:'2026-10-21T05:00:00.000Z',viematta:'2026-10-22'}],cfg:{font:'mono',glass:'on'}});
+eq('seuranta ja tyyli säilyvät',[nd.K[0].mod,nd.K[0].ex,nd.K[0].chg,nd.cfg.font,nd.cfg.glass],['2026-10-22T05:00:00.000Z','2026-10-21T05:00:00.000Z','2026-10-22','mono','on']);
+// Välimerkit ajan ympärillä (Emil 22.10.2026)
+eq('pilkku päivän jälkeen',pz('Hammaslääkäri 24.10.2026, klo 14'),['la 24.10.2026 klo 14.00 | 2026-10-24']);
+eq('pilkku viikonpäivän jälkeen',pz('pe, klo 14'),['pe 23.10.2026 klo 14.00 | 2026-10-23']);
+eq('pilkku ajan jälkeen',pz('klo 14.30, sitten'),['ke 21.10.2026 klo 14.30 | 2026-10-21']);
+eq('piste ja erikoismerkit',[pd('kokous 24.10.2026.'),pd('*24.10.2026*'),pd('(24.10.2026)'),pd('24.10.2026…'),pd('24.10.2026—'),pd('«24.10.»')],[['2026-10-24'],['2026-10-24'],['2026-10-24'],['2026-10-24'],['2026-10-24'],['2026-10-24']]);
+eq('väli ja pilkku',pd('24.10. – 26.10., x'),['2026-10-24..2026-10-26']);
+eq('lause katkaisee yhä',pd('Kokous 24.10.2026. Klo 14 soitto').length,2);
+eq('klo13-16 perjantai',pz('klo13-16 perjantai'),['pe 23.10.2026 klo 13.00–16.00 | 2026-10-23']);
+eq('tiistaisin',pz('tiistaisin'),['joka ti | 2026-10-20 toistuu']);
+eq('maanantaisin',pz('maanantaisin'),['joka ma | 2026-10-26 toistuu']);
+var jt=E.parseDates('joka toinen tiistai',base)[0];eq('joka toinen tiistai',[E.dateLabel(jt),E.occursOn(jt,'2026-10-20'),E.occursOn(jt,'2026-10-27'),E.occursOn(jt,'2026-11-03')],['joka 2. ti',true,false,true]);
+var lw=E.parseDates('kuun viimeinen viikko',base)[0];eq('kuun viimeinen viikko',[lw.a,E.occursOn(lw,'2026-10-25'),E.occursOn(lw,'2026-10-26'),E.nextOcc(lw,'2026-10-26')],['2026-10-20',true,false,'2026-11-23']);
+eq('kuun viimeiset 3pv',pz('kuun viimeiset 3pv'),['kuun viimeiset 3 pv | 2026-10-29 toistuu']);
+eq('Vk42 yhteen',pz('Vk42'),['18.10.2027–24.10.2027 | 2027-10-18']);eq('vk 42 erikseen ei',pz('vk 42'),[]);
+eq('peräkkäin tarkentavat',pz('vk43 perjantai klo13-16'),['pe 23.10.2026 klo 13.00–16.00 | 2026-10-23']);
+eq('erillään erikseen',pz('Vk43 ja sitten klo13-16'),['19.10.2026–25.10.2026 | 2026-10-19','ke 21.10.2026 klo 13.00–16.00 | 2026-10-21']); // klo 21 kirjoitettu: mennyt kello huomenna
+eq('pilkku ei katkaise (Emil 22.10.2026)',pz('perjantaina, klo 14'),['pe 23.10.2026 klo 14.00 | 2026-10-23']);
+eq('järjestys vapaa',pz('klo 9.30-11 1.7.26'),['ke 1.7.2026 klo 9.30–11.00 | 2026-07-01']);
+eq('väli välilyönnein',pz('1.7.26 – 3.8.26 tiistaisin'),['joka ti 1.7.2026–3.8.2026 | 2026-07-07 toistuu']);
+var cs=E.parseDates('Palaveri 1.7.26 klo13-16 tärkeä',base)[0];eq('kohta tekstissä',[cs.s,cs.e,cs.src],[9,24,'1.7.26 klo13-16']);
+var rn={id:'r',created:base.toISOString(),text:'tiistaisin'};eq('toistuva järjestyksessä',E.nextDate(rn,'2026-10-21').k,'2026-10-27');
+eq('toistuva päivän muistiinpanoissa',E.notesOnDay([rn],'2026-11-03').length,1);
+
+// järjestys: monen päivän muistiinpano siirtyy seuraavaan
+var notes=[{id:'n1',created:new Date(2026,9,1).toISOString(),edited:'b',text:'5.10.26 ja 30.10.26',date:''},
+ {id:'n2',created:new Date(2026,9,1).toISOString(),edited:'c',text:'ei päivää',date:''},
+ {id:'n3',created:new Date(2026,9,1).toISOString(),edited:'a',text:'mitään',date:'2026-10-22'}];
+eq('seuraavaksi',E.sortNotes(notes,'next','2026-10-20').map(function(n){return n.id;}),['n3','n1','n2']);
+eq('n1 seuraava',E.nextDate(notes[0],'2026-10-20').k,'2026-10-30');
+eq('uusimmat',E.sortNotes(notes,'new','2026-10-20').map(function(n){return n.id;}),['n2','n1','n3']);
+
+// tallennusmuoto
+var o={app:'paatospuu',ver:1,cur:'p1',projektit:[{id:'p1',name:'X',text:'A',rules:{a:{o:['b'],x:[]}},mx:[['a','b'],['c']],session:{start:'s',steps:[['__alku'],['a']],log:[],logAt:[0]}}],muistiinpanot:[{id:'n',created:'c',text:'t',date:'bad'}],termit:[{id:'t',name:' x ',yes:['a',3]}]};
+var n=E.normalizeData(o);eq('normalize',[n.projects[0].mx,n.projects[0].session.steps,n.notes[0].date,n.terms[0]],[[['a','b']],[{p:['__alku'],d:[]},{p:['a'],d:[]}],'',{id:'t',name:'x',yes:['a'],no:[]}]);
+eq('väärä appi',E.normalizeData({app:'muu'}),null);
+eq('aikaleima',E.stamp(new Date(2026,9,20,21,5).toISOString()),'20.10.2026 klo 21.05');
+
+// ehdot: kaikki tarvitaan (taaksepäin opetettu)
+var q={text:'A\nB\nC\nX\n>Viesti: hei',rules:{'__alku':{o:['a','b','c'],x:[]},'a':{o:['c'],x:[]}},mx:[]},qt=E.parseText(q.text);
+E.setNeedMode(q,qt,'x',true);E.toggleNeed(q,'x','a');E.toggleNeed(q,'x','b');E.setNeedMode(q,qt,'viesti',true);E.toggleNeed(q,'viesti','a');E.toggleNeed(q,'viesti','b');
+var Q=E.newSession(q,'x');E.commitStep(q,Q,{p:['a'],d:[]});eq('yksi syy ei riitä',E.sessionView(q,Q).opts,['c']);
+Q=E.newSession(q,'x');E.commitStep(q,Q,{p:['a','b'],d:[]});var qv=E.sessionView(q,Q);eq('kaikki syyt: tulee',qv.opts,['c','x']);eq('ilmoitus ehdolla',qv.texts,['viesti']);
+Q=E.newSession(q,'x');E.commitStep(q,Q,{p:['a'],d:[]});E.commitStep(q,Q,{p:['c'],d:[]});eq('aiempi valinta ei vielä riitä',E.sessionView(q,Q).opts,[]);
+var q2={text:'A\nB\nX',rules:{'__alku':{o:['a'],x:[]},'a':{o:['b'],x:[]}},mx:[]};E.setNeedMode(q2,E.parseText(q2.text),'x',true);E.toggleNeed(q2,'x','a');E.toggleNeed(q2,'x','b');
+Q=E.newSession(q2,'x');E.commitStep(q2,Q,{p:['a'],d:[]});E.commitStep(q2,Q,{p:['b'],d:[]});eq('kierroksen muisti laskee',E.sessionView(q2,Q).opts,['x']);
+q.rules.b={o:[],x:['x']};Q=E.newSession(q,'x');E.commitStep(q,Q,{p:['a','b'],d:[]});eq('poissulku voittaa ehdon',E.sessionView(q,Q).opts,['c']);delete q.rules.b;
+E.setNeedMode(q,qt,'x',false);eq('kaikki -> yksi riittää',[E.needOf(q,'x'),E.ruleState(q,'a','x'),E.ruleState(q,'b','x')],[[],'o','o']);
+E.setNeedMode(q,qt,'x',true);eq('yksi -> kaikki',[E.needOf(q,'x'),E.ruleState(q,'a','x')],[['a','b'],'']);
+E.renameKey(q,'a','aa');eq('nimen vaihto ehdossa',E.needOf(q,'x'),['aa','b']);E.removeKey(q,'b');eq('poisto ehdosta',E.needOf(q,'x'),['aa']);
+eq('ehdot tallessa',E.normalizeData({app:'paatospuu',projektit:[{id:'p',name:'n',text:'',need:{x:['a'],y:[]}}]}).projects[0].need,{x:['a']});
+
+// vaihe 1: termiosumien kohdat, ma–su vain muun osan vieressä, klo 14.
+var th=E.termHits([{id:'e',name:'Eläimet',yes:['koir'],no:[]},{id:'k',name:'Kala',yes:[],no:['lelu']}],'Kaksi koirien, Eläimet! ja kotikoira.');
+eq('termiosumat sanoina',th.map(function(h){return h.id+':'+h.s+'-'+h.e;}),['e:6-13','e:15-22','e:27-36']);
+eq('poissuljettu ei osu',E.termHits([{id:'k',name:'Kala',yes:[],no:['lelu']}],'kala ja lelu'),[]);
+var B=new Date(2026,9,21);
+eq('pe yksin ei tunnistu',E.parseDates('Menen pe kauppaan',B).length,0);
+var pd=E.parseDates('pe klo13-16',B);eq('pe klo13-16',[pd.length,pd[0]&&pd[0].R,pd[0]&&pd[0].time],[1,['2026-10-23','2026-10-23'],{s:'13:00',e:'16:00'}]);
+pd=E.parseDates('vk43 ti',B);eq('vk43 ti',[pd.length,pd[0]&&pd[0].a],[1,'2026-10-20']);
+pd=E.parseDates('ma ti',B);eq('kaksi lyhennettä yksin ei',pd.length,0);
+pd=E.parseDates('Tavataan klo 14.',B);eq('klo 14. lauseen lopussa',pd.length&&pd[0].time,{s:'14:00',e:''});
+pd=E.parseDates('Tavataan klo14.',B);eq('klo14.',pd.length&&pd[0].time,{s:'14:00',e:''});
+
+// vaihe 2: lyhyt nimi, arvojärjestys, kehä, hoidettavat
+eq('lyhyt nimi ei termi',E.noteTerms(E.autoTerms([{name:'x',text:'Ui\nUinti'}],{},[]),'Kävin uimassa uinti'),['a:uinti']);
+var o={text:'A\nB\nC\nD',rules:{},mx:[]},ot=E.parseText(o.text);
+eq('rivijärjestys',E.priorityList(o,ot,['d','b','a']),['a','b','d']);
+E.toggleOrder(o,'c','a');E.toggleOrder(o,'b','c');eq('järjestys voittaa rivin',E.priorityList(o,ot,['a','b','c','d']),['b','c','a','d']);
+eq('kehä hylätään',E.toggleOrder(o,'a','b'),['a','b','c','a']);eq('kehä ei tallennu',E.orderOf(o,'a'),[]);
+o.need={d:['a']};eq('ehto mukana kehässä',E.cycleIf(o,'d','b'),['d','b','c','a','d']);
+eq('ehto nostaa vaaditun',E.priorityList(o,ot,['d','a']),['a','d']);
+var hp={text:'Kunnossa\nA\nB\nC',rules:{},mx:[],need:{b:['c']},order:{a:['b']},end:'hoid'},HS=E.newSession(hp,'x');E.commitStep(hp,HS,{p:['kunnossa'],d:[]});
+eq('hoidettavat',E.hoidettavat(hp,HS),[{id:'a',jotta:[]},{id:'c',jotta:['b']},{id:'b',jotta:[]}]);
+eq('hoidettavat muistiinpanossa',E.sessionNote(hp,HS,'').split('\n').slice(2),['Kunnossa: Kunnossa','Hoidettavat: 1. A, 2. C (jotta B), 3. B']);
+eq('järjestys tallessa',E.normalizeData({app:'paatospuu',projektit:[{id:'p',name:'n',text:'',order:{a:['b']},end:'hoid'}]}).projects[0].order,{a:['b']});
+
+// vaihe 3: muisti
+var mp={text:'A\nB\nC\nD',rules:{'__alku':{o:['a','b'],x:[]},'a':{o:['c'],x:[]},'c':{o:['d'],x:[]}},mx:[]},MS=E.newSession(mp,'x');
+E.commitStep(mp,MS,{p:['a'],d:[]});E.commitStep(mp,MS,{p:['c'],d:[]});eq('vain seuraava',E.sessionView(mp,MS).opts,['d']);
+mp.mem='all';eq('kaikki mukana',E.sessionView(mp,MS).opts,['a','b','c','d']);
+eq('kaikki mukana: valitut valmiina',E.sessionView(mp,MS).picked,['a','c']);
+MS.steps[1].d=[];MS.steps.push({p:['d'],d:['a']});eq('purettu avaaja vie sen avaamat (C:n valinta jää voimaan)',E.sessionView(mp,MS).opts,['a','b','d']);
+eq('muisti tallessa',E.normalizeData({app:'paatospuu',projektit:[{id:'p',name:'n',text:'',mem:'all'}]}).projects[0].mem,'all');
+
+// vaihe 4: termilohkot
+var tx='Koira\n=Koira:\nhauva\n!pehmo\n\nKissa\n=Eläimet: lemmik\nkoir\n\n\n=Koira:\nrakki';
+eq('lohkon rivit eivät ole palikoita',E.parseText(tx).items.map(function(i){return i.id;}),['koira','kissa']);
+eq('rivien lajit',E.lineKinds(tx).map(function(l){return l.k;}),['','xh','xw','xn','','','xh','xw','','','xh','xw']);
+var bt=E.blockTerms([{name:'P',text:tx}]);eq('lohkot yhteen',[bt['koira'].yes,bt['koira'].no,bt['eläimet'].yes],[['hauva','rakki'],['pehmo'],['lemmik','koir']]);
+var at2=E.autoTerms([{name:'P',text:tx}],{},[]);eq('uusi termi lohkosta',at2.map(function(t){return t.id+'/'+t.kind;}),['a:koira/b','a:kissa/b','x:eläimet/x']);
+eq('lohkosana osuu',E.noteTerms(at2,'Hauvan kanssa ulos'),['a:koira']);eq('lohkon poissulku',E.noteTerms(at2,'hauva ja pehmolelu'),[]);
+eq('lohko omaan termiin',E.noteTerms(E.withText([{id:'t',name:'Eläimet',yes:[],no:[]}],[{name:'P',text:tx}]),'koirat'),['t']);
+
+// apukysymykset muistiinpanossa
+var qt=E.autoTerms([{name:'P',text:'?Lemmikki: Onko lemmikki kotona?\nKissa'}],{},[]);
+eq('nouseva kysymys',E.popTerms(qt,'Lemmikki pääsi ulos').map(function(t){return t.ask;}),['Onko lemmikki kotona?']);
+eq('ei osumaa',E.popTerms(qt,'Kissa söi'),[]);
+var nt=E.setAnswer('Muistiinpano','Onko?','Kyllä');eq('vastaus lisätään',nt,'Muistiinpano\n\n▸ Onko?\nKyllä');
+eq('vastaus luetaan',E.getAnswer(nt,'Onko?'),'Kyllä');
+eq('vastaus päivittyy',E.setAnswer(nt,'Onko?','Ei\nehkä'),'Muistiinpano\n\n▸ Onko?\nEi\nehkä');
+var n2=E.setAnswer(nt,'Toinen?','Joo');eq('kaksi osiota',E.getAnswer(n2,'Toinen?')+'|'+E.getAnswer(n2,'Onko?'),'Joo|Kyllä');
+eq('tyhjä poistaa',E.setAnswer(n2,'Onko?',''),'Muistiinpano\n\n▸ Toinen?\nJoo');
+eq('puuttuva vastaus',E.getAnswer('Teksti','Onko?'),null);
+
+// säännöt tekstissä (1.16)
+var rt='Kissa\nKoira\nRuoka\n#Eläimet: kaikki\n\n=Alku avaa:\nKissa\nKoira\n\n=Kissa avaa: Ruoka\n\n=Koira sulkee:\nRuoka\n\n=Ruoka vaatii kaikki:\nKissa\nKoira\n\n=Kissa ennen:\nKoira\n\n=Toisensa poissulkevat:\nKissa\nKoira';
+var RM=E.rulesOf(rt);
+eq('lohkot eivät ole palikoita',E.parseText(rt).items.map(function(i){return i.id;}),['kissa','koira','ruoka','eläimet']);
+eq('avaa ja alku',[RM.rules[E.ALKU].o,RM.rules.kissa.o],[['kissa','koira'],['ruoka']]);
+eq('sulkee',RM.rules.koira.x,['ruoka']);eq('vaatii kaikki',RM.need,{ruoka:['kissa','koira']});eq('ennen',RM.order,{kissa:['koira']});eq('toisensa poissulkevat',RM.mx,[['kissa','koira']]);
+eq('vaatii yhden',E.rulesOf('A\nB\nC\n\n=C vaatii yhden:\nA\nB').rules,{a:{o:['c'],x:[]},b:{o:['c'],x:[]}});
+eq('ryhmä merkillä',E.rulesOf('#G: x\nA\n\n=Alku avaa:\n#G').rules[E.ALKU].o,['g']);
+var RP={text:rt};E.rulesFromText(RP);eq('ilman muutosta teksti ei muutu',E.rulesToText(RP).text,rt);eq('kirjoitus ja luku samat',E.canonR(E.rulesOf(E.writeRules(rt,RP))),E.canonR(RP));
+E.toggleRule(RP,'kissa','koira','o');E.rulesToText(RP);eq('napautus lohkoon paikallaan',RP.text.indexOf('=Kissa avaa: Ruoka')<0&&RP.text.indexOf('=Kissa avaa:\nRuoka\nKoira\n\n=Koira sulkee:')>0,true);
+E.toggleRule(RP,'ruoka','kissa','x');E.rulesToText(RP);eq('uusi lohko loppuun',RP.text.slice(-22),'\n\n=Ruoka sulkee:\nKissa');
+E.toggleRule(RP,'koira','ruoka','x');E.rulesToText(RP);eq('tyhjä lohko poistuu',RP.text.indexOf('Koira sulkee')<0&&RP.text.indexOf('\n\n\n')<0,true);
+eq('kierros tekstin säännöillä',(function(){var P2={text:rt};E.rulesFromText(P2);var S=E.newSession(P2,'x');return E.sessionView(P2,S).opts;})(),['kissa','koira']);
+var rp1={text:'A\nB\n\n=C vaatii yhden:\nA'};E.rulesFromText(rp1);rp1.text='A\nB\nC\n\n=C vaatii yhden:\nA';E.toggleRule(rp1,'b','c','o');E.rulesToText(rp1);eq('vaatii yhden pysyy muodossaan',rp1.text,'A\nB\nC\n\n=C vaatii yhden:\nA\nB');
+var rp2={text:'A\nB\nC'};E.rulesFromText(rp2);E.setNeedMode(rp2,E.parseText(rp2.text),'c',true);E.rulesToText(rp2);eq('kaikki tarvitaan ilman syitä',rp2.text,'A\nB\nC\n\n=C vaatii kaikki:');
+E.toggleNeed(rp2,'c','a');E.rulesToText(rp2);eq('syy lisätään',rp2.text,'A\nB\nC\n\n=C vaatii kaikki:\nA');eq('luetaan takaisin',E.rulesOf(rp2.text).need,{c:['a']});
+eq('nimen vaihto tekstissä',E.renameInText('Kissa\n\n=Kissa avaa: Koira\n\n=Alku avaa:\nKissa\n\n=Kissa:\nmirri','kissa','Mirri'),'Kissa\n\n=Mirri avaa: Koira\n\n=Alku avaa:\nMirri\n\n=Mirri:\nmirri');
+eq('kirjoittaessa vaihto',E.renameLive('Kissa\nKoira\n\n=Alku avaa:\nKissa','Kissat\nKoira\n\n=Alku avaa:\nKissa'),'Kissat\nKoira\n\n=Alku avaa:\nKissat');
+eq('ei vaihtoa jos nimi on jo',E.renameLive('Kissa\nKoira\n\n=Alku avaa:\nKissa','Koira\nKoira\n\n=Alku avaa:\nKissa'),null);
+eq('ei vaihtoa uudella rivillä',E.renameLive('Kissa\n','Kissa\nK'),null);
+var old={app:'paatospuu',ver:1,projektit:[{id:'p1',name:'P',text:'Kissa\nKoira',rules:{__alku:{o:['kissa'],x:[]},kissa:{o:['koira'],x:[]}},mx:[]}]};
+var nd=E.normalizeData(old);eq('vanha tallennus tekstiin',nd.projects[0].text,'Kissa\nKoira\n\n=Alku avaa:\nKissa\n\n=Kissa avaa:\nKoira');eq('rt',nd.projects[0].rt,1);
+var nd2=E.normalizeData({app:'paatospuu',ver:1,projektit:[{id:'p1',name:'P',rt:1,text:'Kissa\nKoira\n\n=Kissa avaa: Koira',rules:{}}]});eq('uusi tallennus tekstistä',nd2.projects[0].rules,{kissa:{o:['koira'],x:[]}});
+eq('termilohko ei sääntö',E.blocksOf(rt).length,0);
+// termit tekstinä
+var D={terms:[{id:'t1',name:'Eläin',yes:['koir'],no:['pehmo']}],words:{kissa:{yes:['mirri'],no:[]},apu:{yes:[],no:[],pop:false}}};
+var tt=E.termsToText(D.terms,D.words,{kissa:'Kissa'});eq('termit tekstiksi',tt,'=Eläin:\nkoir\n!pehmo\n\n=Kissa:\nmirri');
+E.termsFromText('=Eläin:\nkoir\nhauva\n\n=Kissa:\nmirri\n!leijona\n\n=Uusi:\nsana',D,{kissa:'Kissa',koira:'Koira'});
+eq('oma termi päivittyy',D.terms[0].yes,['koir','hauva']);eq('palikan sanat',D.words.kissa,{yes:['mirri'],no:['leijona']});eq('pop säilyy',D.words.apu,{yes:[],no:[],pop:false});
+eq('uusi termi',D.terms.length===2&&D.terms[1].name==='Uusi'&&D.terms[1].yes[0]==='sana',true);
+E.termsFromText('=Uusi:\nsana',D,{kissa:'Kissa'});eq('puuttuva lohko tyhjentää',[D.terms[0].yes,D.words.kissa],[[],undefined]);
+
+// asiasanat lisäävät tekstiä muistiinpanoon (1.30)
+var NP={id:'np',name:'Muistio',text:'Kissa\nKoira\nRuoka\n>Hoito: Anna ruokaa. // Vaihda vesi.\n>Kaikki: Kaikki kotona.\n>Ei: Ei näy.\n\n=Kissa avaa:\n>Hoito\n\n=Kaikki vaatii kaikki:\nKissa\nKoira\n\n=Ruoka sulkee:\n>Hoito\n\n=Koira avaa:\n>Ei',rt:1,notes:'on'};
+E.rulesFromText(NP);
+eq('kissa avaa hoidon',E.noteAdds(NP,['kissa']),['Anna ruokaa.\n\nVaihda vesi.']);
+eq('kaikki tarvitaan',E.noteAdds(NP,['kissa','koira']).length,3);
+eq('sulkee voittaa',E.noteAdds(NP,['kissa','ruoka']),[]);
+var NT=E.autoTerms([NP],{},[]);
+eq('lisäys tekstiin',E.applyAdds('Kissa söi hyvin',[NP],NT),'Kissa söi hyvin\n\n'+E.ADD_H+'\nAnna ruokaa.\n\nVaihda vesi.');
+eq('lisäys päivittyy',E.applyAdds('Kissa söi hyvin\n\n'+E.ADD_H+'\nAnna ruokaa.\n\nVaihda vesi.',[NP],NT),'Kissa söi hyvin\n\n'+E.ADD_H+'\nAnna ruokaa.\n\nVaihda vesi.');
+eq('lisäys poistuu kun sana poistuu',E.applyAdds('Söi hyvin\n\n'+E.ADD_H+'\nAnna ruokaa.\n\nVaihda vesi.',[NP],NT),'Söi hyvin');
+eq('vastaus osion jälkeen säilyy',E.applyAdds('Kissa\n\n'+E.ADD_H+'\nvanha\n\n▸ Kysymys\nKyllä',[NP],NT),'Kissa\n\n'+E.ADD_H+'\nAnna ruokaa.\n\nVaihda vesi.\n\n▸ Kysymys\nKyllä');
+eq('välilyönti säilyy kirjoittaessa',E.applyAdds('Kissa \n\n'+E.ADD_H+'\nAnna ruokaa.',[NP],NT),'Kissa \n\n'+E.ADD_H+'\nAnna ruokaa.\n\nVaihda vesi.');
+eq('ei vaikuta ilman asetusta',E.applyAdds('Kissa',[{id:'q',name:'x',text:NP.text,rt:1}],NT),'Kissa');
+eq('notes säilyy tallennuksessa',E.normalizeData({app:'paatospuu',projektit:[{id:'p',name:'n',text:'A',notes:'on'}]}).projects[0].notes,'on');
+
+// kalenteri (1.17)
+var cn=[{id:'a',created:'2026-10-20T08:00:00Z',text:'Palaveri 22.10.2026 klo 14–15.30\nmuuta',date:''},{id:'b',created:'2026-10-20T08:00:00Z',text:'Soita 22.10.2026 klo 14.30.',date:''},
+  {id:'c',created:'2026-10-20T08:00:00Z',text:'Ajaton',date:'2026-10-22'},{id:'d',created:'2026-10-20T08:00:00Z',text:'Kentästä',date:'2026-10-22',time:{s:'09:00',e:''}}];
+var de=E.dayEntries(cn,'2026-10-22');
+eq('aikajanalla',de.timed.map(function(x){return [x.n.id,x.s,x.e,x.col,x.cols];}),[['d',540,570,0,1],['a',840,930,0,2],['b',870,900,1,2]]);
+eq('ajattomat',de.untimed.map(function(x){return x.n.id;}),['c']);
+E.moveEntry(de.timed[1],900,990,false);eq('siirto tekstiin',cn[0].text,'Palaveri 22.10.2026 klo 15–16.30\nmuuta');
+E.moveEntry(de.timed[2],885,945,true);eq('avoin pysyy, piste säilyy',cn[1].text,'Soita 22.10.2026 klo 14.45.');
+E.moveEntry(de.timed[0],600,660,false);eq('siirto kenttään',cn[3].time,{s:'10:00',e:'11:00'});
+eq('kenttä ei korvaa tekstin aikaa',E.noteDates({text:'klo 8',created:'2026-10-20T08:00:00Z',time:{s:'09:00',e:''}})[0].time.s,'08:00');
+eq('normalisointi säilyttää ajan',E.normalizeData({app:'paatospuu',muistiinpanot:[{id:'x',text:'t',time:{s:'09:15',e:'bad'}}]}).notes[0].time,{s:'09:15',e:''});
+
+// tärkeysjärjestys, aikatermit, roskakori (1.18)
+var TD='2026-10-21',mk=function(t,c){return {id:t,created:c||'2026-10-01T08:00:00Z',edited:c||'2026-10-01T08:00:00Z',text:t,date:''};};
+eq('aikatermit',['Asia 21.10.2026','Asia 22.10.2026','Asia 24.10.2026','Asia 1.11.2026','Asia 5.10.2026','Ei aikaa'].map(function(t){return E.timeTermOf(mk(t),TD);}),['z:today','z:tomorrow','z:week',null,'z:late',null]);
+eq('täysi järjestys',E.fullOrder(['c','x','a'],['a','b','c']),['c','a','b']);
+eq('siirto järjestyksessä',E.moveInOrder(['c','a'],['a','b','c'],'b',-1),['c','b','a']);eq('reunalla ei siirry',E.moveInOrder([],['a','b'],'a',-1),['a','b']);
+var pn=[mk('x','2026-10-02T08:00:00Z'),mk('y','2026-10-03T08:00:00Z'),mk('z','2026-10-04T08:00:00Z'),mk('w','2026-10-05T08:00:00Z')],rk={x:2,y:0,z:Infinity,w:Infinity};
+eq('tärkeysjärjestys, osumattomat loppuun uusin ensin',E.prioSort(pn,function(n){return rk[n.id];},TD).map(function(n){return n.id;}),['y','x','w','z']);
+eq('roskakori 30 pv',E.purgeTrash([{deleted:'2026-09-01T00:00:00Z'},{deleted:'2026-10-01T00:00:00Z'}],new Date('2026-10-21T00:00:00Z').getTime()).length,1);
+var nd3=E.normalizeData({app:'paatospuu',muistiinpanot:[{id:'a',text:'t',done:'2026-10-21T10:00:00Z'}],roskakori:[{id:'b',text:'u',deleted:'2026-10-21T10:00:00Z'},{id:'c',text:'v'}],jarjestys:['z:late',3],tarkeat:['z:late',3,'a:x','z:late']});
+eq('kuittaus, roskakori ja tärkeät tallessa',[nd3.notes[0].done,nd3.trash.map(function(n){return n.id;}),nd3.imp,nd3.order],['2026-10-21T10:00:00Z',['b'],['z:late','a:x'],undefined]);
+
+// merkitykset, kääntöpuolet, tärkeät ja etenevä kierros (1.19)
+eq('kuitattu ei päivässä',E.notesOnDay([{id:'a',text:'Asia 21.10.2026',created:'2026-10-01T08:00:00Z'},{id:'b',text:'Asia 21.10.2026',created:'2026-10-01T08:00:00Z',done:'x'}],'2026-10-21').map(function(n){return n.id;}),['a']);
+eq('kalenteriin kuitattu mutta ei arkistoitu',E.notesOnDay([{id:'a',text:'Asia 21.10.2026',created:'2026-10-01T08:00:00Z',done:'x'},{id:'b',text:'Asia 21.10.2026',created:'2026-10-01T08:00:00Z',done:'x',arch:'y'}],'2026-10-21',true).map(function(n){return n.id;}),['a']);
+eq('arch säilyy tallennuksessa',E.normalizeData({app:'paatospuu',muistiinpanot:[{id:'x',text:'t',done:'2026-10-22T00:00:00Z',arch:'2026-10-22T01:00:00Z'}]}).notes[0].arch,'2026-10-22T01:00:00Z');
+var MT='#Turvallisuus: Turvallisuus on varmistettu\n#Allianssi: Allianssi on kunnossa\nAjantasainen turvasuunnitelma\nKriisikontaktit sovittu\nAllianssi vanhemman kanssa\nAllianssi lapsen kanssa\n\n=Turvallisuus vaatii kaikki:\nAjantasainen turvasuunnitelma\nKriisikontaktit sovittu\n\n=Allianssi vaatii kaikki:\nAllianssi vanhemman kanssa\nAllianssi lapsen kanssa\n\n=Ajantasainen turvasuunnitelma kääntöpuoli:\nTurvasuunnitelma puuttuu\n\n=Turvallisuus kääntöpuoli:\nTurvallisuutta ei ole varmistettu';
+var MP={id:'m',name:'Testi',text:MT,rt:1};E.rulesFromText(MP);
+eq('kääntöpuoli luettu',MP.flip,{'ajantasainen turvasuunnitelma':['Turvasuunnitelma puuttuu'],turvallisuus:['Turvallisuutta ei ole varmistettu']});
+eq('kääntöpuoli ei ole sääntö',[MP.rules,E.parseText(MT).items.length],[{},6]);
+eq('kääntöpuoli: rulesToText ei muuta',E.rulesToText(JSON.parse(JSON.stringify(MP))).text,MT);
+var MP2=JSON.parse(JSON.stringify(MP));MP2.flip={'kriisikontaktit sovittu':['Kriisikontaktit puuttuvat']};MP2.text=E.writeRules(MT,MP2);eq('kääntöpuolen kirjoitus',E.rulesOf(MP2.text).flip,{'kriisikontaktit sovittu':['Kriisikontaktit puuttuvat']});
+eq('nimen vaihto ei koske kääntöpuolen tekstiä',E.renameInText('A\n\n=A kääntöpuoli:\nA puuttuu\nA','a','B'),'A\n\n=B kääntöpuoli:\nA puuttuu\nA');
+var MS=E.newSession(MP,'x');eq('Alku ei avaa merkitystä',E.sessionView(MP,MS).opts.length,4);
+E.commitStep(MP,MS,{p:['kriisikontaktit sovittu','allianssi vanhemman kanssa','allianssi lapsen kanssa'],d:[]});
+eq('täyttynyt merkitys ryhmänä, Puuttuu',E.sessionNote(MP,MS).split('\n').slice(2),['Ryhmät: Allianssi','Puuttuu:','Turvallisuutta ei ole varmistettu','Turvasuunnitelma puuttuu']);
+MP.flow='prio';var PS=E.newSession(MP,'x'),pv=E.sessionView(MP,PS);eq('etenevä: ensin tärkein merkitys',[pv.cur,pv.opts],['turvallisuus',['ajantasainen turvasuunnitelma','kriisikontaktit sovittu']]);
+E.commitStep(MP,PS,{p:['kriisikontaktit sovittu'],d:[]});pv=E.sessionView(MP,PS);eq('etenevä: seuraava merkitys',[pv.cur,pv.opts],['allianssi',['allianssi vanhemman kanssa','allianssi lapsen kanssa']]);
+E.commitStep(MP,PS,{p:['allianssi vanhemman kanssa','allianssi lapsen kanssa'],d:[]});
+eq('etenevä: muistiinpano kuten dokumentissa',E.sessionNote(MP,PS).split('\n').slice(1),['Valinnat: Kriisikontaktit sovittu → Allianssi vanhemman kanssa, Allianssi lapsen kanssa','Ryhmät: Allianssi','Puuttuu:','Turvallisuutta ei ole varmistettu','Turvasuunnitelma puuttuu']);
+var PS2=E.newSession(MP,'x');eq('ohitus: Jatka ilman valintaa',[E.commitStep(MP,PS2,{p:[],d:[]}),E.sessionView(MP,PS2).cur,PS2.steps[1]],[true,'allianssi',{p:[],d:[],m:'turvallisuus'}]);
+eq('ohitus ei tyhjää polkuun',E.sessionNote(MP,PS2).indexOf('Valinnat')<0,true);
+eq('ohitettu kirjaa kääntöpuolet',E.flipMissing(MP,PS2),['Turvallisuutta ei ole varmistettu','Turvasuunnitelma puuttuu']);
+var BP={id:'b',name:'B',text:'A\nB\n\n=Alku avaa:\nA\n\n=A avaa:\nB\n\n=B kääntöpuoli:\nB puuttuu',rt:1};E.rulesFromText(BP);var BS=E.newSession(BP,'x');
+eq('ei kääntöpuolta haarasta, jossa ei käyty',E.flipMissing(BP,BS),[]);E.commitStep(BP,BS,{p:['a'],d:[]});eq('tarjolla ollut, valitsematta',E.flipMissing(BP,BS),['B puuttuu']);
+eq('valittu ei kirjaa kääntöpuolta',(E.commitStep(BP,BS,{p:['b'],d:[]}),E.flipMissing(BP,BS)),[]);
+eq('askeleen merkitys tallessa',E.normalizeData({app:'paatospuu',projektit:[{id:'p',name:'n',text:'A',rt:1,flow:'prio',session:{start:'x',steps:[{p:['__alku'],d:[]},{p:[],d:[],m:'a'},{p:[],d:[]}]}}]}).projects[0].session.steps,[{p:['__alku'],d:[]},{p:[],d:[],m:'a'}]);
+eq('eteneminen tallessa',E.normalizeData({app:'paatospuu',projektit:[{id:'p',name:'n',text:'A',rt:1,flow:'prio'}]}).projects[0].flow,'prio');
+var AT2=E.autoTerms([MP],{},[]);eq('kääntöpuoli on termi',AT2.filter(function(t){return t.kind==='k';}).map(function(t){return t.id;}),['k:turvasuunnitelma puuttuu','k:turvallisuutta ei ole varmistettu']);
+var RK=E.impRanks(['a:turvallisuus','a:allianssi'],AT2,[MP]);
+eq('perintä: ehto, kääntöpuoli ja ehdon kääntöpuoli',[RK['a:turvallisuus'],RK['a:kriisikontaktit sovittu'],RK['k:turvasuunnitelma puuttuu'],RK['k:turvallisuutta ei ole varmistettu'],RK['a:allianssi lapsen kanssa'],RK['a:x']],[0,0,0,0,1,undefined]);
+RK=E.impRanks(['a:turvallisuus','a:kriisikontaktit sovittu'].reverse(),AT2,[MP]);eq('oma merkintä voittaa',[RK['a:kriisikontaktit sovittu'],RK['a:turvallisuus'],RK['a:ajantasainen turvasuunnitelma']],[0,1,1]);
+RK=E.impRanks(['a:allianssi','a:turvallisuus','a:kriisikontaktit sovittu'],AT2,[MP]);eq('oma merkintä voittaa myös alempana',RK['a:kriisikontaktit sovittu'],2);
+var IT='A\n#G: ryhmä\nB\nC\nD\n\n=G avaa:\nC\nD\n\n=Alku avaa:\nA\nB\nG\n\n=Tärkeät:\nG\nB';var IP={id:'i',name:'I',text:IT,rt:1};E.rulesFromText(IP);
+eq('tärkeät tekstistä',IP.imp,['g','b']);eq('tärkeät ensin puun järjestyksessä',E.priorityList(IP,E.parseText(IT),['a','b','c','d','g']),['g','b','a','c','d']);
+IP.imp=['b'];E.rulesToText(IP);eq('tärkeät kirjoitetaan tekstiin',/=Tärkeät:\nB$/.test(IP.text),true);IP.imp=[];E.rulesToText(IP);eq('tyhjä tärkeät-lohko poistuu',IP.text.indexOf('Tärkeät')<0,true);
+eq('nimen vaihto tärkeissä',E.renameInText(IT,'b','Bee').split('\n').slice(-1)[0],'Bee');
+IP.text=IT;E.rulesFromText(IP);IP.flow='prio';var IS=E.newSession(IP,'x'),iv=E.sessionView(IP,IS);eq('tärkeä ryhmä: jäsenet ensin',[iv.cur,iv.opts],['g',['c','d']]);
+E.commitStep(IP,IS,{p:['c'],d:[]});iv=E.sessionView(IP,IS);eq('sitten tähdellä merkitty nappula',[iv.cur,iv.opts],['b',['b']]);
+E.commitStep(IP,IS,{p:[],d:[]});iv=E.sessionView(IP,IS);eq('lopuksi Alun avaamat säännöin',[iv.cur,iv.opts],[null,['a','b','c','d']]);
+// projektit ja puut (vaihe 10)
+var V1={app:'paatospuu',ver:1,cur:'p',projektit:[{id:'p',name:'Puu',text:'A',rt:1}],muistiinpanot:[{id:'n',text:'x'}],termit:[{id:'t',name:'T'}],tarkeat:['t'],cfg:{mode:'dark'}},N1=E.normalizeData(V1);
+eq('versio 1 yhdeksi projektiksi',[N1.K.length,N1.K[0].name,N1.k,N1.projects[0].id,N1.notes.length,N1.terms.length,N1.imp,N1.cfg.mode],[1,'Projekti','k1','p',1,1,['t'],'dark']);
+var V2={app:'paatospuu',ver:2,kcur:'b',kokonaisuudet:[{id:'a',name:'Oma',puut:[{id:'p',name:'Puu',text:'A',rt:1}],muistiinpanot:[{id:'n',text:'x'}]},{id:'b',name:'Mätsik Forest',cur:'q',puut:[{id:'q',name:'Arvio',text:'B',rt:1,flow:'prio'},{id:'r',name:'Toinen',text:'C',rt:1}],muistiinpanot:[],termit:[{id:'u',name:'U'}]},{id:'a',name:'tupla'}]};
+var N2=E.normalizeData(V2);eq('versio 2: projektit ja aktiivinen',[N2.K.map(function(k){return k.name;}),N2.k,N2.cur,N2.projects.map(function(P){return P.id;}),N2.notes.length,N2.terms[0].id,N2.projects[0].flow],[['Oma','Mätsik Forest'],'b','q',['q','r'],0,'u','prio']);
+eq('tuntematon kcur: ensimmäinen',E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'a',name:'A'}],kcur:'x'}).k,'a');
+// toistuvat (vaihe 11)
+eq('yksiköt',[E.addUnit('2026-01-31',1,'m'),E.addUnit('2026-10-21',2,'w'),E.addUnit('2024-02-29',1,'y'),E.addUnit('2026-12-30',3,'d')],['2026-02-28','2026-11-04','2025-02-28','2027-01-02']);
+var RM={id:'m',text:'Kk',mode:'every',n:1,unit:'m',start:'2026-01-31'};var mm=E.repsDue([RM],[],'2026-04-30','t');eq('kuukausi ei valu',[mm[0].date,E.repNext(RM)],['2026-04-30','2026-05-31']);
+var RE={id:'a',text:'Tarkista',mode:'every',n:3,unit:'d',start:'2026-10-10'},m1=E.repsDue([RE],[],'2026-10-21','t');
+eq('tasavälein: vain viimeisin myöhästynyt',[m1.length,m1[0].date,m1[0].rep,m1[0].text],[1,'2026-10-19','a','Tarkista']);
+eq('ei uutta, kun edellinen auki',E.repsDue([RE],m1,'2026-10-25','t').length,0);m1[0].done='x';eq('seuraava kuittauksen jälkeen',E.repsDue([RE],m1,'2026-10-25','t')[0].date,'2026-10-25');
+var RA={id:'b',text:'Y',mode:'after',n:5,unit:'d',start:'2026-10-21'},m2=E.repsDue([RA],[],'2026-10-21','t');eq('kuittauksesta: ensimmäinen aloituspäivänä',m2[0].date,'2026-10-21');
+m2[0].done='x';eq('odottaa kuittauspäivää',E.repsDue([RA],m2,'2026-10-30','t').length,0);E.repSignOff([RA],m2[0],'2026-10-22');
+eq('kuittauksesta laskettuna',[E.repsDue([RA],m2,'2026-10-26','t').length,E.repsDue([RA],m2,'2026-10-27','t')[0].date],[0,'2026-10-27']);
+eq('nimet',[E.repLabel({mode:'every',n:1,unit:'w'}),E.repLabel({mode:'every',n:2,unit:'d'}),E.repLabel({mode:'after',n:5,unit:'d'}),E.repLabel({mode:'after',n:1,unit:'m'})],['Joka viikko','2 päivää välein','5 päivää kuittauksesta','1 kuukausi kuittauksesta']);
+var NR=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'a',name:'A',toistuvat:[{id:'r',text:'X',mode:'after',n:'5',unit:'w',start:'2026-10-21',lastDone:'2026-10-22'},{id:'s',text:'Y'}],muistiinpanot:[{id:'n',text:'X',rep:'r'}]}]});
+eq('toistuvat tallessa',[NR.reps.length,NR.reps[0].n,NR.reps[0].mode,NR.reps[0].lastDone,NR.notes[0].rep],[1,5,'after','2026-10-22','r']);
+// laukaisimet (vaihe 12)
+var TA=[{id:'s',name:'Salitreeni',yes:[],no:[]},{id:'k',name:'Kävely',yes:[],no:[]}],dn=function(t,d){return {id:'x'+d,text:t,done:d+'T10:00:00'};};
+var RT={id:'g',text:'Salille?',mode:'trig',terms:['s'],all:false,n:2,unit:'w',start:'2026-10-01'};
+eq('laukaisin: ei ennen aikaa',E.repsDue([RT],[],'2026-10-14','t',TA).length,0);
+var t1=E.repsDue([RT],[],'2026-10-20','t',TA);eq('laukaisin: 2 viikkoa seurannan alusta',[t1.length,t1[0].date,t1[0].rep],[1,'2026-10-15','g']);
+RT.lastDue=undefined;var hit=[dn('Salitreeni tehty','2026-10-12')];eq('osuva kuittaus siirtää',[E.repsDue([RT],hit,'2026-10-20','t',TA).length,E.trigNext(RT,hit,TA)],[0,'2026-10-26']);
+eq('avoin osuma ei kelpaa',E.repsDue([RT],[{id:'o',text:'Salitreeni'}],'2026-10-20','t',TA).length,1);
+var RJ={id:'j',text:'Molemmat',mode:'trig',terms:['s','k'],all:true,n:1,unit:'w',start:'2026-10-01'},both=[dn('Salitreeni','2026-10-10'),dn('Kävely','2026-10-11')];
+eq('kaikki samassa muistiinpanossa',[E.trigLast(RJ,both,TA),E.trigLast(RJ,[dn('Salitreeni ja kävely','2026-10-11')],TA)],['2026-10-01','2026-10-11']);
+RJ.all=false;eq('jokin näistä',E.trigLast(RJ,both,TA),'2026-10-11');
+var RK={id:'q',text:'Q',mode:'trig',terms:['s'],n:3,unit:'d',start:'2026-10-01',lastDone:'2026-10-18'},own=[{id:'a',text:'Salitreeni',rep:'q',done:'2026-10-19T08:00:00'}];
+eq('oma kuittaus nollaa, ei laske osumaksi',[E.trigLast(RK,own,TA),E.repsDue([RK],[{id:'b',text:'Q',rep:'q'}],'2026-10-30','t',TA).length],['2026-10-18',0]);
+eq('laukaisimen nimi',[E.trigLabel({n:2,unit:'w'}),E.trigLabel({n:1,unit:'m'})],['Jos ei 2 viikkoon','Jos ei 1 kuukauteen']);
+eq('ilman termilistaa ei laukaisua',E.repsDue([RT],[],'2026-10-20','t').length,0);
+var NT=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'a',name:'A',toistuvat:[{id:'g',text:'X',mode:'trig',terms:['s',3],all:true,n:2,unit:'w',start:'2026-10-01'}]}]});
+eq('laukaisin tallessa',[NT.reps[0].mode,NT.reps[0].terms,NT.reps[0].all],['trig',['s'],true]);
+// projektin vienti ja lisäys (1.24)
+var AIP={app:'paatospuu',laji:'projekti',projekti:{name:'Sali',puut:[{name:'Treeni',text:'Jalat\nSelkä\n\n=Alku avaa:\nJalat\n\n=Jalat avaa: Selkä'}],termit:[{name:'Salitreeni',yes:['sali-']}],muistiinpanot:[{text:'Sali ma klo 17'}],toistuvat:[{text:'Venyttely',mode:'every',n:1,unit:'w'}]}};
+var PL=E.projectsFromFile(AIP,'2026-10-21'),PS=PL[0];
+eq('tekoälyn projekti ilman tunnisteita',[PL.length,PS.name,PS.projects.length,PS.cur===PS.projects[0].id,PS.projects[0].rules.jalat.o,PS.terms[0].yes,PS.notes.length,PS.reps[0].start],[1,'Sali',1,true,['selkä'],['sali-'],1,'2026-10-21']);
+var RT2=E.projectsFromFile(JSON.parse(JSON.stringify(E.projectFile({name:'X',cur:PS.cur,projects:PS.projects,notes:PS.notes,terms:PS.terms,words:{},imp:[],reps:PS.reps},'t'))))[0];
+eq('vienti ja lisäys takaisin',[RT2.name,RT2.projects[0].text,RT2.notes[0].text,RT2.reps.length],['X',PS.projects[0].text,'Sali ma klo 17',1]);
+eq('koko varmuuskopiosta kaikki projektit',E.projectsFromFile({app:'paatospuu',kokonaisuudet:[{id:'a',name:'A'},{id:'b',name:'B'}]}).map(function(k){return k.name;}),['A','B']);
+eq('vieras tiedosto',E.projectsFromFile({app:'muu'}),null);
+// vajaa ajanilmaus on seuraava mahdollinen (Emil 21.10.2026), kirjoitettu keskiviikkona klo 10
+var KB=new Date(2026,9,21,10,0),pa=function(t){return E.parseDates(t,KB).map(function(o){return o.a;});};
+eq('mennyt viikonpäivä ensi viikolla',pa('ke klo 8'),['2026-10-28']);eq('tuleva tänään',pa('keskiviikko klo 12'),['2026-10-21']);
+eq('käynnissä oleva väli tänään',pa('ke klo 9-11'),['2026-10-21']);eq('mennyt pelkkä kello huomenna',pa('klo 8'),['2026-10-22']);eq('tuleva pelkkä kello tänään',pa('klo 15'),['2026-10-21']);
+eq('päivämäärä ennallaan',pa('21.10.2026 klo 8'),['2026-10-21']);eq('toistuva ennallaan',pa('tiistaisin klo 8'),['2026-10-27']);eq('keskiviikkoisin',E.parseDates('keskiviikkoisin',KB)[0].rec,true);
+eq('päivämääräkenttä ja pelkkä kello',E.noteDates({text:'Soita klo 8',created:'2026-10-21T10:00:00',date:'2026-10-21'}).map(function(o){return o.a;}),['2026-10-21']);
+// kalenteri 7b
+var mkn=function(t){return {text:t,created:'2026-10-21T08:00:00',date:''};},MN=mkn('Hammas pe klo 14');eq('päivän siirto tekstiin',[E.moveDay(MN,E.noteDates(MN)[0],'2026-10-24'),MN.text],['','Hammas 24.10.2026 klo 14']);
+MN=mkn('Juttu perjantaisin');eq('toistuva ei siirry',[E.moveDay(MN,E.noteDates(MN)[0],'2026-10-24')!=='',MN.text],[true,'Juttu perjantaisin']);
+MN={text:'x',date:'2026-10-21',created:'2026-10-21T08:00:00',time:{s:'10:00',e:''}};eq('kenttäpäivä siirtyy',[E.moveDay(MN,E.noteDates(MN)[0],'2026-10-22'),MN.date],['','2026-10-22']);E.clearTime(MN,E.noteDates(MN)[0]);eq('kenttäaika pois',MN.time,undefined);
+MN=mkn('Hammas pe klo 14 tänne');E.clearTime(MN,E.noteDates(MN)[0]);eq('tekstin kellonaika pois',MN.text,'Hammas pe tänne');MN=mkn('Soita klo 14');E.clearTime(MN,E.noteDates(MN)[0]);eq('pelkkä kellonaika: päivä jää',MN.text,'Soita 21.10.2026');
+eq('alaotsikkotermit',E.calTerms([{name:'Kissa',yes:[],no:[],cal:true},{name:'Koira',yes:[],no:[]}],[{text:'Kissa ja koira 22.10.2026',created:'2026-10-21T08:00:00'}],'2026-10-22'),['Kissa']);
+eq('kalenteritermi tallessa',[E.normalizeData({app:'paatospuu',termit:[{id:'t',name:'T',cal:true}],termisanat:{k:{cal:true}}}).terms[0].cal,E.normalizeData({app:'paatospuu',termisanat:{k:{cal:true}}}).words.k.cal],[true,true]);
+eq('raahaus kohtaan',[E.moveToIdx(['a','b','c'],'c',0),E.moveToIdx(['a','b','c'],'a',2),E.moveToIdx(['a','b','c'],'b',1)],[['c','a','b'],['b','c','a'],['a','b','c']]);
+
+// 1.36 suhteellisten aikojen lukitus
+function rlk(text,at){var N={text:text,created:at};E.lockRel(N,new Date(at));return N;}
+function rdd(N){return E.noteDates(N).map(function(o){return o.a;});}
+var RN=rlk('Hammas huomenna klo 14 ja perjantaina.','2026-10-22T09:00:00');
+eq('lukko syntyy',RN.rel.map(function(l){return l.w+'>'+l.d;}),['huomenna>2026-10-23','perjantaina>2026-10-23']);
+RN.text='Hammas huomenna klo 14 ja perjantaina, soita huomenna.';E.lockRel(RN,new Date('2026-10-23T09:00:00'));
+eq('uusi sana omaan hetkeensä',rdd(RN),['2026-10-23','2026-10-23','2026-10-24']);
+E.relSweep(RN,'2026-10-23');eq('päivä tulee',RN.text,'Hammas tänään klo 14 ja tänään, soita huomenna.');
+E.relSweep(RN,'2026-10-24');eq('eilen',RN.text,'Hammas eilen klo 14 ja eilen, soita tänään.');
+E.relSweep(RN,'2026-10-27');eq('päiväys',RN.text,'Hammas pe 23.10.2026 klo 14 ja pe 23.10.2026, soita la 24.10.2026.');
+eq('päiväys pitää lukon ja ajan',[RN.rel.length,rdd(RN)],[3,['2026-10-23','2026-10-23','2026-10-24']]);
+eq('alkuperäinen tallessa',RN.rel.map(function(l){return l.o;}),['huomenna','perjantaina','huomenna']);
+E.lockRel(RN,new Date('2026-10-28T09:00:00'));eq('muokkaus säilyttää päiväyslukon',RN.rel.length,3);
+var XN=rlk('Kokous 24.10. klo 10 ja lauantaina','2026-10-22T09:00:00');eq('itse kirjoitettu päiväys ei lukkoon',XN.rel.map(function(l){return l.w;}),['lauantaina']);
+E.relSweep(XN,'2026-10-30');eq('itse kirjoitettu ei muutu',XN.text,'Kokous 24.10. klo 10 ja la 24.10.2026');
+var WN=rlk('Sauna lauantaina','2026-10-22T09:00:00');E.relSweep(WN,'2026-10-23');eq('viikonpäivä pysyy viikon sisällä',WN.text,'Sauna huomenna');
+eq('normalisointi säilyttää',E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',muistiinpanot:[{id:'n',text:'a huomenna',created:'2026-10-22T09:00:00',rel:[{w:'huomenna',o:'huomenna',at:'2026-10-22T09:00:00.000Z',d:'2026-10-23'},{w:'x'}]}]}]}).K[0].notes[0].rel.length,1);
+
+// 1.40 tarkistuslista: kohteet, voimassaolo, yksi riittää / kaikki
+var rk={'a':0,'b':1,'z:today':2},T0='2026-10-22',NOW=new Date('2026-10-22T12:00:00');
+var C1={id:'c1',text:'x',it:[{id:'b'}]},C2={id:'c2',text:'y',it:[{id:'a'},{id:'b'}]},C3={id:'c3',text:'z',it:[]};
+eq('lista: tekemätön tärkein ensin',E.chkSort([C3,C1,C2],rk,T0,NOW).map(function(r){return r.id;}),['c2','c1','c3']);
+C2.it[0].ok='2026-10-22T08:00:00';eq('lista: tehty kohde ei nosta',[E.chkRank(C2,rk,T0,NOW),E.chkDone(C2,NOW)],[1,false]);
+C2.it[1].ok='2026-10-22T08:00:00';eq('lista: kaikki tehty → alimmaksi',E.chkSort([C3,C1,C2],rk,T0,NOW).map(function(r){return r.id;}),['c1','c3','c2']);
+var IT={id:'a',ok:'2026-10-16T10:00:00',ev:6};eq('lista: voimassa 6 pv',[E.itemOk(IT,new Date('2026-10-22T09:00:00')),E.itemOk(IT,new Date('2026-10-22T11:00:00')),E.itemUntil(IT)],[true,false,'2026-10-22']);
+var C4={id:'c4',any:1,it:[{id:'a'},{id:'b',ok:'2026-10-22T08:00:00'}]};eq('lista: yksi riittää',[E.chkDone(C4,NOW),E.chkRank(C4,rk,T0,NOW)],[true,Infinity]);
+// 1.41: aika tulee tekstin päivistä (muistiinpano), ei käsin valitusta ehdosta; nostaa kuittauksista riippumatta
+var C5={id:'c5',it:[{id:'b',ok:'2026-10-22T08:00:00'}]},N5={id:'n5',text:'Suodatin 22.10.2026',created:'2026-10-20T08:00:00'};
+var X5t=E.chkTime(N5,T0);eq('lista: aikakohde tekstistä',[X5t.z&&X5t.z.id,X5t.z&&X5t.z.keys],['z:today',['2026-10-22']]);
+eq('lista: aika nostaa kuitatunkin rivin',[E.chkDone(C5,NOW,{z:X5t.z}),E.chkRank(C5,rk,T0,NOW,{z:X5t.z}),E.chkOpenN(C5,NOW,{z:X5t.z})],[false,2,1]);
+eq('lista: huomenna ja myöhässä',[E.chkTime(N5,'2026-10-21').z.id,E.chkTime(N5,'2026-10-24').z.id,E.chkTime(N5,'2026-10-15').z],['z:tomorrow','z:late',null]);
+eq('lista: seuraava laukeaminen tekstin päivästä',new Date(E.chkTime(N5,'2026-10-15').nz).getDate(),21);
+N5.pts={'2026-10-22':'t'};eq('lista: kalenterin kuittaus kuittaa aikakohteen',E.chkTime(N5,T0).z,null);
+var N6={id:'n6',text:'Kokous 20.10.2026 ja 22.10.2026',created:'2026-10-19T08:00:00'};eq('lista: myöhässä ennen tänään',E.chkTime(N6,T0).z.id,'z:late');
+// tekstin asiasanat ovat kohteita; kuittaus tallentuu t-merkillä ja näkyy vain, kun teksti laukaisee
+var C7={id:'c7',it:[{id:'b',ok:'2026-10-22T08:00:00'}]};
+eq('lista: tekstin asiasana nostaa',[E.chkRank(C7,rk,T0,NOW,{tt:['a']}),E.chkView(C7,{tt:['a']},NOW).map(function(v){return v.id+(v.t?'*':'');})],[0,['b','a*']]);
+C7.it.push({id:'a',t:1,ok:'2026-10-22T09:00:00'});eq('lista: tekstin kohteen kuittaus',[E.chkDone(C7,NOW,{tt:['a']}),E.chkView(C7,{},NOW).length],[true,1]);
+// tasatilanne: sama tärkein kohde, varhemmin laukeava ensin; muuten tärkeys voittaa ajan
+var D1={id:'d1',it:[{id:'b',ok:'2026-10-10T08:00:00',ev:5}]},D2={id:'d2',it:[{id:'b',ok:'2026-10-12T08:00:00',ev:5}]},D3={id:'d3',it:[{id:'a',at:'2026-10-21T08:00:00'}]};
+eq('lista: sama asiasana, varhemmin laukesi ensin',E.chkSort([D2,D1,D3],rk,T0,NOW).map(function(r){return r.id;}),['d3','d1','d2']);
+// tehdyt: seuraavan laukeamisen mukaan tärkeydestä riippumatta
+var F1={id:'f1',it:[{id:'a',ok:'2026-10-22T08:00:00',ev:30}]},F2={id:'f2',it:[{id:'b',ok:'2026-10-22T08:00:00',ev:3}]};
+eq('lista: tehdyt seuraavan laukeamisen mukaan',E.chkSort([F1,F2],rk,T0,NOW).map(function(r){return r.id;}),['f2','f1']);
+var X5={id:'a'};E.toggleItem(X5,NOW);var t1=!!X5.ok;E.toggleItem(X5,NOW);eq('lista: kohteen kuittaus kääntyy',[t1,X5.ok],[true,undefined]);
+var RX={id:'a',ok:'2026-10-01T08:00:00',ev:1};E.toggleItem(RX,NOW);eq('lista: rauennut kuitataan uudelleen',RX.ok,NOW.toISOString());
+var ND=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',muistiinpanot:[{id:'m1',text:'Oma',created:'2026-10-20T08:00:00'}],tarkistuslista:[{id:'c',name:'Keittiö',text:'Suodatin to 9',created:'2026-10-20T08:00:00',it:[{id:'a',ok:'2026-10-22T08:00:00Z',ev:6},{id:'a'},{x:1},{id:'b',ev:-3,t:1,at:'x'}],any:true,pts:{'2026-10-22 09:00':'t'}},{name:'ei id'},{id:'old',f:[{id:'a',neg:1},{id:'z:today'}],ok:'2026-10-21T08:00:00Z'},{id:'l',nid:'m1',it:[]},{id:'l2',nid:'puuttuu',it:[]}]}]});
+var NK=ND.K[0],NC=NK.chk[0],NN=NK.notes.filter(function(n){return n.id===NC.nid;})[0];
+eq('lista: normalisointi',[NK.chk.length,NC.it,NC.any,NC.text,NC.pts],[4,[{id:'a',ok:'2026-10-22T08:00:00Z'},{id:'b',at:'x',t:1}],1,undefined,undefined]);
+eq('lista: vanha teksti muuttuu muistiinpanoksi',[NN&&NN.text,NN&&Object.keys(NN.pts),NK.notes.length],['Suodatin to 9',['2026-10-22 09:00'],2]);
+eq('lista: liitos säilyy, puuttuva katoaa',[NK.chk[2].nid,NK.chk[3].nid],['m1',undefined]);
+eq('lista: 1.38:n rivi muuttuu kohteiksi',[NK.chk[1].it,NK.chk[1].ok],[[{id:'a',ok:'2026-10-21T08:00:00Z'},{id:'z:today'}],undefined]);
+var NG=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',ryhmat:[{id:'g1',name:' Kotityöt ',m:['a','a','z:today',3,'b']},{id:'g1',name:'tupla'},{id:'g2',name:''}]}]}).K[0].grp;
+eq('ryhmät: normalisointi (aikasana säilyy, 1.51)',NG,[{id:'g1',name:'Kotityöt',m:['a','z:today','b']}]);
+eq('ryhmät: projektitiedostossa',E.projectFile({id:'k',name:'K',grp:[{id:'g',name:'G',m:[]}]},'t').projekti.ryhmat.length,1);
+var NE=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',termit:[{id:'t1',name:'Suodatin',info:'Pese. ',ev:2},{id:'t2',name:'Kissa'}],termisanat:{koira:{ev:7,info:'x'}},tarkistuslista:[{id:'c',name:'R',it:[{id:'t2',ev:6},{id:'t1',ev:9},{id:'a:koira',ev:3},{id:'a:uusi',ev:4}]}]}]}).K[0];
+eq('1.43: uusiutuminen asiasanalle',[NE.terms[0].ev,NE.terms[0].info,NE.terms[1].ev,NE.words.koira.ev,NE.words.uusi.ev,NE.chk[0].it.some(function(x){return x.ev;})],[2,'Pese.',6,7,4,false]);
+var RV={id:'r',it:[{id:'t',ok:'2026-10-20T08:00:00'}]};eq('1.43: asiasanan uusiutuminen raukeaa',[E.chkOpenN(RV,NOW,{ev:{t:1}}),E.chkOpenN(RV,NOW,{ev:{t:3}}),E.chkOpenN(RV,NOW,{})],[1,0,0]);
+var JT={id:'j',name:'JO',yes:[],no:[]};eq('1.43: lyhyt nimi vain kokonaisena sanana',[E.noteTerms([JT],'Onko jokainen kohta selkeä'),E.noteTerms([JT],'Varaa JO-aika'),E.termHits([JT],'jokainen jo').map(function(h){return h.s;})],[[],['j'],[9]]);
+// 1.44 Mainittu: avoin muistiinpano, jossa rivin nimi ja päivä
+var MR={id:'mr',name:'Tiskikone',men:1,nid:'own',it:[]},MNS=[{id:'own',text:'Tiskikone tänään',created:'2026-10-20T08:00:00'},{id:'n1',text:'TISKIKONEEN huolto 22.10.2026',created:'2026-10-20T08:00:00'},
+  {id:'n2',text:'tiskikone joskus',created:'2026-10-20T08:00:00'},{id:'n3',text:'Tiskikone 22.10.2026',created:'2026-10-20T08:00:00',done:'x'},{id:'n4',text:'Tiskikone 30.10.2026',created:'2026-10-20T08:00:00'}];
+var MM=E.chkMentions(MR,MNS,T0);eq('mainittu: vain avoin, päivällinen, ei oma, kirjainkoko ei vaikuta',[MM.mn.map(function(m){return m.nid+' '+m.z.id;}),new Date(MM.mnz).getDate()],[['n1 z:today'],29]);
+eq('mainittu: nostaa rivin',[E.chkOpenN(MR,NOW,{mn:MM.mn}),E.chkRank(MR,rk,T0,NOW,{mn:MM.mn})],[1,2]);
+eq('mainittu: ilman valintaa nimi ei vaikuta',E.chkMentions({id:'x',name:'Tiskikone',it:[]},MNS,T0).mn.length,0);
+eq('mainittu: normalisointi',E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',tarkistuslista:[{id:'c',name:'R',men:true,it:[]}]}]}).K[0].chk[0].men,1);
+var HG=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',termit:[{id:'t9',name:'#Kotityöt'},{id:'t8',name:'Kissa'}],tarkeat:['t9','t8']}]}).K[0];
+eq('1.44.1: #-asiasana muuttuu ryhmäksi',[HG.terms.map(function(t){return t.name;}),HG.grp.map(function(g){return g.name;}),HG.imp],[['Kissa'],['Kotityöt'],['t8']]);
+var GV={id:'gv',it:[{id:'a',g:1,ok:'2026-10-22T08:00:00'},{id:'c'},{id:'d',g:1}],g:['g1']};
+eq('1.46: ryhmän jäsenet elävinä',E.chkView(GV,{gm:['a','b']},NOW).map(function(v){return v.id+(v.g?'g':'')+(v.ok?'+':'');}),['ag+','c','bg']);
+var GM=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',ryhmat:[{id:'g1',name:'G',m:['a','b']}],tarkistuslista:[{id:'r1',it:[{id:'a'},{id:'b',ok:'x'},{id:'c'}]},{id:'r2',it:[{id:'a'}]}]}]}).K[0];
+eq('1.46: vanha kertalisäys linkiksi',[GM.chk[0].g,GM.chk[0].it.map(function(x){return x.id+(x.g?'g':'');}),GM.chk[1].g],[['g1'],['ag','bg','c'],undefined]);
+// 1.47 pelkkä kellonaika: seuraava mahdollinen kirjoitushetkestä, lukko säilyy
+var BT={text:'Ostokset',created:'2026-10-20T08:00:00'};BT.text='Ostokset klo 16\nklo 9';E.lockRel(BT,new Date('2026-10-23T10:00:00'));
+eq('1.47: pelkkä aika kirjoitushetkestä',E.noteDates(BT).map(function(o){return o.a+' '+o.time.s;}),['2026-10-23 16:00','2026-10-24 09:00']);
+BT.text='Ostokset klo 16\nklo 9\nklo 20';E.lockRel(BT,new Date('2026-10-24T21:00:00'));
+eq('1.47: vanha lukko pysyy, uusi omaan hetkeensä',E.noteDates(BT).map(function(o){return o.a+' '+o.time.s;}),['2026-10-23 16:00','2026-10-24 09:00','2026-10-25 20:00']);
+eq('1.47: tänään klo 13 ja klo 16',E.noteDates({text:'tänään klo 13 ja klo 16',created:'2026-10-23T06:00:00'}).map(function(o){return o.a+' '+o.time.s;}),['2026-10-23 13:00','2026-10-23 16:00']);
+eq('1.47: lukko tallessa',E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',muistiinpanot:[{id:'n',text:'klo 9',bt:[{w:'klo 9',d:'2026-10-24',at:'x'},{w:1}]}]}]}).K[0].notes[0].bt,[{w:'klo 9',d:'2026-10-24',at:'x'}]);
+// 1.48 jakso kirjoitushetkestä
+var RG={text:'Siivous ensi viikolla',created:'2026-10-10T08:00:00'};E.lockRel(RG,new Date('2026-10-23T10:00:00'));
+eq('1.48: jakso kirjoitushetkestä',E.noteDates(RG).map(function(o){return o.a+'/'+o.b;}),['2026-10-26/2026-11-01']);
+RG.text='Siivous ensi viikolla\nPesu kahden viikon sisällä';E.lockRel(RG,new Date('2026-10-28T10:00:00'));
+eq('1.48: vanha jakso pysyy, uusi omaan hetkeensä',E.noteDates(RG).map(function(o){return o.a+'/'+o.b;}).sort(),['2026-10-26/2026-11-01','2026-10-28/2026-11-11']);
+var RR={text:'tiistaisin',created:'2026-10-10T08:00:00'};E.lockRel(RR,new Date('2026-10-23T10:00:00'));eq('1.48: toistuva ei lukitu',RR.rg,undefined);
+eq('1.48: lukko tallessa',E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',muistiinpanot:[{id:'n',text:'ensi viikolla',rg:[{w:'ensi viikolla',a:'2026-10-26',b:'2026-11-01',at:'x'},{w:1}]}]}]}).K[0].notes[0].rg,[{w:'ensi viikolla',a:'2026-10-26',b:'2026-11-01',at:'x'}]);
+// 1.49 aikaehdotukset
+var W8={s:480,e:960};
+eq('1.49: vapaat välit peräkkäin',(function(){var P=E.planSlots([{k:'a',dur:60},{k:'b',dur:60},{k:'c',dur:30}],[[540,600]],W8,0);return [P.a.s,P.b.s,P.c.s];})(),[480,600,660]);
+eq('1.49: pienempi täyttää aiemman välin',(function(){var P=E.planSlots([{k:'a',dur:60},{k:'b',dur:30}],[[510,600]],W8,0);return [P.a.s,P.b.s];})(),[600,480]);
+eq('1.49: ei aikavälin yli, ei ennen nykyhetkeä',(function(){var P=E.planSlots([{k:'a',dur:60},{k:'b',dur:30}],[],{s:480,e:540},500);return [P.a,P.b&&P.b.s];})(),[undefined,500]);
+eq('1.49: aikaväli viikonpäivittäin, oletus 8–16',[E.winOf({1:{s:420,e:900}},1),E.winOf({1:{s:420,e:900}},2)],[{s:420,e:900},{s:480,e:960}]);
+eq('1.49: kesto asiasanalta, muuten oletus',[E.durOf({dur:45},30),E.durOf({},30),E.durOf(null,15)],[45,30,15]);
+var PN=new Date('2026-10-23T07:00:00'),PR=[{id:'r1',name:'Siivous',created:'2026-10-01T00:00:00',it:[{id:'a'},{id:'b'}]},{id:'r2',name:'Auto',created:'2026-10-01T00:00:00',it:[{id:'c'}]}];
+function pday(i){return {iso:'d'+i,win:{s:480,e:540},from:0,busy:[]};}
+var PP=E.chkPlan(PR,{c:0,b:1},PN,null,{n:3,day:pday,dur:function(){return 30;}});
+eq('1.49: tärkeysjärjestys riveistä riippumatta, ylimenevät seuraavalle päivälle',PP.list.map(function(it){return it.v.id+'@'+it.d+' '+it.s;}),['c@d0 480','b@d0 510','a@d1 480']);
+eq('1.49: lauenneita on, ei dry',PP.dry,false);
+var PR2=[{id:'r1',created:'2026-10-01T00:00:00',it:[{id:'a',ok:'2026-10-22T08:00:00'}]},{id:'r2',created:'2026-10-01T00:00:00',it:[{id:'c',ok:'2026-10-22T08:00:00'}]}];
+var PD=E.chkPlan(PR2,{c:0},PN,function(){return {ev:{a:3,c:5}};},{n:3,day:pday,dur:function(){return 30;}});
+eq('1.49: mitään ei lauennut: vain järjestys',[PD.dry,PD.list.map(function(it){return it.r.id;})],[true,['r2','r1']]);
+eq('1.49: kalenteriin viety ei saa uutta ehdotusta',E.chkPlan(PR,{},PN,null,{n:1,day:pday,dur:function(){return 30;},skip:function(r,v){return v.id==='a';}}).list.map(function(it){return it.v.id;}),['b','c']);
+eq('1.50: ehdotus vain asiasanoille, joilla on kesto',E.chkPlan(PR,{c:0,b:1},PN,null,{n:3,day:pday,dur:function(id){return id==='b'?30:0;}}).list.map(function(it){return it.v.id;}),['b']);
+eq('1.49: aikavälit ja kesto tallessa',(function(){var K=E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',aikavalit:{1:{s:420,e:900},8:{s:1,e:2},2:{s:600,e:500}},termit:[{id:'t',name:'T',dur:45}],termisanat:{x:{dur:20}},muistiinpanot:[{id:'n',text:'x',pl:{r:'r1',i:'a'}}]}]}).K[0];return [K.win,K.terms[0].dur,K.words.x.dur,K.notes[0].pl];})(),[{1:{s:420,e:900}},45,20,{r:'r1',i:'a'}]);
+eq('1.49: aikavälit projektitiedostossa',E.projectFile({id:'k',name:'K',win:{1:{s:420,e:900}}},'t').projekti.aikavalit,{1:{s:420,e:900}});
+eq('lista: projektitiedostossa',E.projectFile({id:'k',name:'K',chk:[{id:'c'}]},'t').projekti.tarkistuslista.length,1);
+
+// 1.39 useat ajat samalle päivälle
+function tms(t){return E.noteDates({text:t,created:'2026-10-22T07:00:00'}).filter(function(o){return o.time;}).map(function(o){return o.a.slice(8)+' '+o.time.s+(o.time.e?'-'+o.time.e:'');});}
+eq('ketju väleinä',tms('to 9-10, 11-12, 13-14, 15-16'),['22 09:00-10:00','22 11:00-12:00','22 13:00-14:00','22 15:00-16:00']);
+eq('ketju ja-sanalla',tms('huomenna 9 ja 10 ja 11'),['23 09:00','23 10:00','23 11:00']);
+eq('rivit perivät päivän',tms('Huomenna:\nklo 9 palaveri\nklo 12 lounas\nklo 15 sali.'),['23 09:00','23 12:00','23 15:00']);
+eq('lauseet perivät päivän, uusi päivä vaihtaa',tms('Pe klo 10. La klo 12. Klo 14 sauna'),['23 10:00','24 12:00','24 14:00']);
+eq('pilkun jälkeen pelkkä luku ei ole aika',tms('pe klo 9, 3 kertaa'),['23 09:00']);
+var DN={text:'Tänään klo 9 a. Klo 9 b. Klo 9 c.',created:'2026-10-22T07:00:00'},DE=E.dayEntries([DN],'2026-10-22',30).timed;
+eq('sama aika kolmesti = kolme merkintää omilla kohdillaan',[DE.length,DE.map(function(x){return E.occKey('2026-10-22',x.o);})],[3,['2026-10-22 09:00','2026-10-22 09:00#1','2026-10-22 09:00#2']]);
+
+// 1.39 siirtohistoria
+var MV={text:'huomenna 9 ja 10 ja 11, Klo 14 sauna',created:'2026-10-22T07:00:00'};var mo=E.noteDates(MV).filter(function(o){return o.time;});
+var mx=E.dayEntries([MV],mo[1].a,30).timed.filter(function(x){return x.o.ts===mo[1].ts;})[0];E.moveEntry(mx,11*60,0,true);
+eq('siirto ilman klo-sanaa pysyy tyylissä',MV.text,'huomenna 9 ja 11 ja 11, Klo 14 sauna');
+mo=E.noteDates(MV).filter(function(o){return o.time;});mx=E.dayEntries([MV],mo[3].a,30).timed.filter(function(x){return x.o.ts===mo[3].ts;})[0];E.moveEntry(mx,15*60,0,true);
+eq('Klo säilyy isolla',MV.text,'huomenna 9 ja 11 ja 11, Klo 15 sauna');
+mo=E.noteDates(MV).filter(function(o){return o.time;});mx=E.dayEntries([MV],mo[3].a,30).timed.filter(function(x){return x.o.ts===mo[3].ts;})[0];E.moveEntry(mx,16*60,0,true);
+eq('historia ketjuuntuu',MV.mv.map(function(m){return m.w+'<'+m.h.map(function(x){return x.t;}).join('<');}),['11<10','Klo 16<Klo 14<Klo 15']);
+eq('historian kohta tekstissä',E.mvSpans(MV).map(function(x){return MV.text.slice(x.s,x.e);}),['11','Klo 16']);
+MV.text='huomenna 9 ja 12';E.mvClean(MV);eq('muokkauksessa kadonnut poistuu',MV.mv,undefined);
+var DY={text:'Hammas pe klo 14',created:'2026-10-22T07:00:00'};E.moveDay(DY,E.noteDates(DY)[0],'2026-10-27');eq('päivän siirto historiaan',[DY.text,DY.mv[0].h[0].t],['Hammas 27.10.2026 klo 14','pe klo 14']);
+eq('historia normalisoituu',E.normalizeData({app:'paatospuu',muistiinpanot:[{id:'x',text:'klo 9',mv:[{w:'klo 9',h:[{t:'klo 8',at:'a'},{t:1}]},{w:''}]}]}).notes[0].mv,[{w:'klo 9',h:[{t:'klo 8',at:'a'}]}]);
+// 1.51: aikasanat ja Mainittu valittavina (rivi tai ryhmä)
+var N51={id:'n51',text:'Imuroi 20.10.2026 ja 22.10.2026',created:'2026-10-19T08:00:00'};
+eq('1.51: ilman valintaa kaikki aikasanat, valinta rajaa',[E.chkTime(N51,T0).z.id,E.chkTime(N51,T0,[]).z.id,E.chkTime(N51,T0,['z:today']).z.id,E.chkTime(N51,T0,['z:tomorrow']).z],['z:late','z:late','z:today',null]);
+eq('1.51: Mainittu ryhmästä (on-lippu)',E.chkMentions({id:'x',name:'Tiskikone',nid:'own',it:[]},MNS,T0,true).mn.length,1);
+eq('1.51: erikoisjäsenet säilyvät ryhmässä',E.normalizeData({app:'paatospuu',kokonaisuudet:[{id:'k',name:'K',ryhmat:[{id:'g',name:'G',m:['z:late','m:men','z:week','t1']}]}]}).K[0].grp[0].m,['z:late','m:men','t1']);
+eq('1.51: erikoisjäsenet eivät ole kohteita',E.chkView({id:'r',it:[{id:'z:today'}]},{gm:[]},NOW).length,0);
+// 1.52: aikalinkin muokkaus ja purku
+var W52={text:'Hammas huomenna klo 10 ja kokous',created:'2026-10-23T08:00:00'};E.lockRel(W52,new Date('2026-10-23T08:00:00'));
+eq('1.52: muokkaa aikaa kiinteäksi',[E.setWhen(W52,E.noteDates(W52)[0],'2026-10-26','09:30','11:00'),W52.text,W52.mv[0].h[0].t,E.noteDates(W52)[0].a],['','Hammas 26.10.2026 klo 9.30–11 ja kokous','huomenna klo 10','2026-10-26']);
+W52.nl=[{w:'26.10.2026 klo 9.30–11',at:'x'}];eq('1.52: purettu ei ole ajankohta',E.noteDates(W52).length,0);
+W52.text='Hammas 26.10.2026 klo 9.30–12 ja kokous';eq('1.52: muokattu tunnistetaan taas',[E.noteDates(W52).length,E.nlClean(W52).nl],[1,undefined]);
+eq('1.52: toistuva ei muokkaudu',E.setWhen({text:'tiistaisin'},{s:0,e:10,rec:1,a:'2026-10-27',b:'2026-10-27'},'2026-10-28').length>0,true);
+eq('1.52: purku normalisoituu',E.normalizeData({app:'paatospuu',muistiinpanot:[{id:'x',text:'pe',nl:[{w:'pe',at:'a'},{w:1}]}]}).notes[0].nl,[{w:'pe',at:'a'}]);
+// 1.54: kalenterin näkyvä aika ja päivät
+eq('1.54: calv normalisointi',[E.calvOf({s:480,e:1260,off:[6,0,0,9]}),E.calvOf({s:0,e:1440,off:[]}),E.calvOf({s:600,e:500})],[{s:480,e:1260,off:[0,6]},null,null]);
+var CD=E.clipDay({timed:[{s:120,e:150},{s:450,e:540},{s:600,e:660}],untimed:[{u:1}]},{s:480,e:1260});
+eq('1.54: näkyvän ajan ulkopuolinen koko päivään',[CD.timed.map(function(x){return x.s;}),CD.untimed.length],[[450,600],2]);
+eq('1.54: kalenteri projektitiedostoon',E.projectFile({id:'k',name:'K',calv:{s:480,e:1260,off:[0]}},'t').projekti.kalenteri,{s:480,e:1260,off:[0]});
+
+
+// 1.61: kalenterin kuittaus kulkee siirron mukana (Emil 23.10.2026)
+var kn=[{id:'k1',created:'2026-10-20T08:00:00Z',text:'Juttu 22.10.2026 klo 14',date:'',pts:{'2026-10-22 14:00':'2026-10-21T10:00:00Z'}},
+  {id:'k2',created:'2026-10-20T08:00:00Z',text:'Kenttä',date:'2026-10-22',time:{s:'09:00',e:''},pts:{'2026-10-22 09:00':'x'}}];
+var ke=E.dayEntries(kn,'2026-10-22');
+E.moveEntry(ke.timed.filter(function(x){return x.n.id==='k1';})[0],960,1020,false);eq('1.61: siirto säilyttää kuittauksen',kn[0].pts,{'2026-10-22 16:00':'2026-10-21T10:00:00Z'});
+E.moveEntry(ke.timed.filter(function(x){return x.n.id==='k2';})[0],600,630,false);eq('1.61: kenttäajan siirto säilyttää kuittauksen',kn[1].pts,{'2026-10-22 10:00':'x'});
+var o1=E.noteDates(kn[0])[0];eq('1.61: päivän vaihto säilyttää kuittauksen',[E.moveDay(kn[0],o1,'2026-10-24'),kn[0].pts],['',{'2026-10-24 16:00':'2026-10-21T10:00:00Z'}]);
+var o2=E.noteDates(kn[0])[0];E.clearTime(kn[0],o2);eq('1.61: ajattomaksi säilyttää kuittauksen',kn[0].pts,{'2026-10-24':'2026-10-21T10:00:00Z'});
+/* 1.67 listojen ehdot */
+var cr=[{id:'r1',created:'2026-10-01T00:00:00Z',it:[{id:'a',ok:'2026-10-02T00:00:00Z'},{id:'b'}]},{id:'r2',created:'2026-10-01T00:00:00Z',it:[{id:'c'},{id:'d'}]}],
+  cR=[{k:['a'],on:['c']},{k:['c'],on:['d']},{k:['a','b'],all:1,off:['d']}],cK=function(){return {kier:1};},cn=new Date();
+eq('1.67: tai-ehto tuo esiin, ketjun loppu piilossa',E.chkCond(cR,cr,cK,cn),{hid:{d:1},off:{}});
+cr[1].it[0].ok='2026-10-02T00:00:00Z';eq('1.67: esiin tullut ja kuitattu laukaisee seuraavan',E.chkCond(cR,cr,cK,cn),{hid:{},off:{}});
+cr[0].it[1].ok='x';var cc=E.chkCond(cR,cr,cK,cn);eq('1.67: ja-ehto sulkee pois',cc.off,{d:1});
+var cx2=cK();cx2.hid=cc.hid;cx2.off=cc.off;eq('1.67: poissuljettu ei estä valmistumista',E.chkDone(cr[1],cn,cx2),true);
+eq('1.67: ehtojen normalisointi',E.condsIn({eh:1,ehdot:[{k:['a'],on:['b','b'],off:['b','c']},{}]}),{ehdot:[{id:'e0',k:['a'],on:['b'],off:[]},{id:'e0p',k:['a'],on:[],off:['c']}],eh:1});
+eq('1.67: tyhjä ei tallennu',E.condsIn({ehdot:[]}),null);
+/* 1.70 tekstimuoto */
+eq('1.70: ehTok tunnetut nimet ja-sanalla',E.ehTok('Kipu ja särky tai Kuume',['Kipu ja särky','Kuume']),{items:['Kipu ja särky','Kuume'],all:false});
+eq('1.70: ehTok ja = kaikki',E.ehTok('A ja B',[]),{items:['A','B'],all:true});
+var tx=E.termsToText([{name:'A',yes:['a'],no:[]},{name:'B',yes:[],no:[]}],{},{},{stars:['B','A'],ehdot:[{k:['A','B'],all:1,on:['C'],off:['D']}]});
+eq('1.70: tähdet ja ehdot tekstiin',tx,'=B*:\n\n=A*:\na\n\nEhdot:\nKun A ja B, niin C esiin, D pois.');
+var xx=E.textExtras(tx,['A','B','C','D']);eq('1.70: tekstistä takaisin',[xx.stars,xx.ehdot,xx.body],[['B','A'],[{k:['A','B'],on:['C'],off:['D'],all:1}],'=B:\n\n=A:\na\n']);
+eq('1.70: ei Ehdot-osiota',E.textExtras('=A:',[]).ehdot,null);
+eq('1.70: pelkät nimet asiasanoiksi',[E.textExtras('A\nB*\n\n=C:\nsana\nsana2',[]).body,E.textExtras('A\nB*',[]).stars],['=A:\n\n=B:\n\n\n=C:\nsana\nsana2',['B']]);
+/* 1.78 ehdot laatikkoina: ryhmä ja aikasana syynä, Poissulkevat, ristiriidat */
+var gr=[{id:'r1',created:'2026-10-01T00:00:00Z',g:['G'],it:[{id:'a'}]},{id:'r2',created:'2026-10-01T00:00:00Z',it:[{id:'b'},{id:'x'}]}],gK=function(){return {kier:1};};
+var gE=[{k:['G'],on:['x']}];
+eq('1.78: ryhmä syynä: ei vielä',E.chkCond(gE,gr,gK,cn,{grp:{G:{m:['a','b']}}}),{hid:{x:1},off:{}});
+gr[0].it[0].ok='x';eq('1.78: ryhmä Jokin toteutuu',E.chkCond(gE,gr,gK,cn,{grp:{G:{m:['a','b']}}}),{hid:{},off:{}});
+eq('1.78: ryhmä Kaikki odottaa',E.chkCond(gE,gr,gK,cn,{grp:{G:{m:['a','b'],all:1}}}),{hid:{x:1},off:{}});
+eq('1.78: ryhmä ei toteudu, jos ei listassa',E.chkCond(gE,gr,gK,cn,{}),{hid:{x:1},off:{}});
+eq('1.78: aikasana syynä',E.chkCond([{k:['z:today'],off:['b']}],gr,gK,cn,{tk:{'z:today':1}}).off,{b:1});
+eq('1.78: Poissulkevat',E.chkCond([{k:['a','b','x'],ty:'x',on:[],off:[]}],gr,gK,cn).off,{b:1,x:1});
+eq('1.78: grpHit',E.grpHit({G:{m:['a','b']},H:{m:['a','b'],all:1},J:{m:[]}},{a:1}),{G:1});
+eq('1.78: vanha ehto jaetaan kahdeksi',E.condsIn({ehdot:[{id:'e',k:['a'],all:1,on:['b'],off:['c']}]}).ehdot,[{id:'e',k:['a'],on:['b'],off:[],all:1},{id:'ep',k:['a'],on:[],off:['c'],all:1}]);
+eq('1.78: Poissulkevat tallentuu',E.condsIn({ehdot:[{id:'e',k:['a','b'],ty:'x',on:['c']}]}).ehdot,[{id:'e',k:['a','b'],on:[],off:[],ty:'x'}]);
+eq('1.78: toteamusrivi valmis, kun ryhmä toteutuu',[E.chkDone({id:'q',it:[]},cn,{gs:[{id:'G',ok:false}]}),E.chkDone({id:'q',it:[]},cn,{gs:[{id:'G',ok:true}]}),E.chkDone({id:'q',it:[]},cn,{})],[false,true,true]);
+var nmf=function(id){return id.toUpperCase();};
+var iE=[{id:'1',k:['a'],on:['b'],off:[]},{id:'2',k:['c'],on:[],off:['b']},{id:'3',k:['a','d'],ty:'x',on:[],off:[]}];
+var e4={id:'4',k:['a'],on:[],off:['b']};iE.push(e4);
+eq('1.78: suora ristiriita estetään',E.ehIssues(iE,e4,nmf).block,'Ristiriita: ehto 1 tuo B esiin samoilla syillä.');
+e4.k=['c'];eq('1.78: eri syyt: huomautus',[E.ehIssues(iE,e4,nmf).block,E.ehIssues(iE,e4,nmf).notes.map(function(n){return n.n;})],['',[1]]);
+eq('1.78: kaksoiskappale',E.ehIssues(iE,e4,nmf).dup,1);
+e4.k=['a'];e4.off=[];e4.on=['d'];eq('1.78: poissulkevan jäsen ei tuo toista',/poissulkevia/.test(E.ehIssues(iE,e4,nmf).block),true);
+e4.all=1;e4.k=['a','c'];eq('1.78: ja-syy saa tuoda',E.ehIssues(iE,e4,nmf).block,'');
+e4.k=['a'];delete e4.all;e4.on=['a'];eq('1.78: syy ei voi olla oma seuraus',/oman ehtonsa/.test(E.ehIssues(iE,e4,nmf).block),true);
+eq('1.78: Poissulkevat tekstinä',[E.ehdotText([{k:['A','B'],ty:'x',on:[],off:[]}]),E.textExtras('Ehdot:\nPoissulkevat: A, B.',['A','B']).ehdot],[['Poissulkevat: A, B.'],[{k:['A','B'],on:[],off:[],ty:'x'}]]);
+/* 1.79 teksti syynä ja seurauksena */
+var qr=[{id:'r1',created:'2026-10-01T00:00:00Z',it:[{id:'a'},{id:'b'}]}];
+eq('1.79: teksti syynä rivien tekstistä (alusta)',E.chkCond([{k:['q:lääk'],on:['b']}],qr,gK,cn,{tx:[{n:E.normT('Soita lääkärille')}]}).hid,{});
+eq('1.79: ei osumaa',E.chkCond([{k:['q:lääk'],on:['b']}],qr,gK,cn,{tx:[{n:E.normT('Soita äidille')}]}).hid,{b:1});
+eq('1.79: teksti seurauksena = ilmoitus, ketjuttuu',E.chkCond([{k:['a'],on:['q:Soita ennen klo 10']},{k:['q:soita'],on:['q:Muista numero']},{k:['q:numero'],off:['q:Soita ennen klo 10']}],[{id:'r',created:'x',it:[{id:'a',ok:'x'}]}],gK,cn).say,['Muista numero']);
+/* 1.80 päättely muistiinpanossa */
+var iE2=[{k:['a','b'],all:1,on:['f']},{k:['f'],on:['g']},{k:['q:lääk'],on:['l']},{k:['c'],off:['g']},{k:['a','x'],ty:'x'},{k:['G'],on:['h']},{k:['z:week'],on:['w']}];
+eq('1.80: Kipu + Kuume → Flunssa, ketju',E.inferTerms(iE2,['a','b'],'',{}),['f','g']);
+eq('1.80: yksi ei riitä (Kaikki)',E.inferTerms(iE2,['a'],'',{}),[]);
+eq('1.80: teksti syynä muistiinpanossa',E.inferTerms(iE2,[],'Soitin lääkärille',{}),['l']);
+eq('1.80: Poissulkee poistaa päätellyn',E.inferTerms(iE2,['a','b','c'],'',{}),['f']);
+eq('1.80: tunnistettu ei tule päätellyksi',E.inferTerms(iE2,['a','b','f'],'',{}),['g']);
+eq('1.80: ryhmä ja aikasana syynä',E.inferTerms(iE2,['m'],'',{grp:{G:{m:['m','n']}},tt:'z:today'}),['h','w']);
+
+/* 1.87: uusiutuminen viikonpäivinä ja kuun päivinä, yksin tai aikavälin lisäksi (aikaisin ratkaisee) */
+var rA=function(ok,r){var t=E.renewAt(ok,r);return t===Infinity?'ei':(function(d){return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()+' '+d.getHours()+':'+d.getMinutes();})(new Date(t));};
+eq('1.87: maanantaisin',rA(new Date(2026,9,21,10).toISOString(),{wd:[1]}),'2026-10-26 0:0');
+eq('1.87: sama viikonpäivä = seuraava viikko',rA(new Date(2026,9,21,10).toISOString(),{wd:[3]}),'2026-10-28 0:0');
+eq('1.87: 7 pv tai perjantai, perjantai ensin',rA(new Date(2026,9,21,10).toISOString(),{ev:7,wd:[5]}),'2026-10-23 0:0');
+eq('1.87: 1 pv tai perjantai, aikaväli ensin',rA(new Date(2026,9,21,10).toISOString(),{ev:1,wd:[5]}),'2026-10-22 10:0');
+eq('1.87: kuun 31. = viimeinen päivä',rA(new Date(2026,10,5,10).toISOString(),{md:[31]}),'2026-11-30 0:0');
+eq('1.87: kuun 15. kuittauspäivänä = seuraava kuu',rA(new Date(2026,9,15,9).toISOString(),{md:[15]}),'2026-11-15 0:0');
+eq('1.87: kuun 1. ja 15.',rA(new Date(2026,9,20,9).toISOString(),{md:[1,15]}),'2026-11-1 0:0');
+eq('1.87: vanha muoto päivinä',rA(new Date(2026,9,20,9).toISOString(),3),'2026-10-23 9:0');
+eq('1.87: ei sääntöä',rA(new Date(2026,9,20,9).toISOString(),{wd:[],md:[]}),'ei');
+var IT2={id:'a',ok:new Date(2026,9,21,10).toISOString()};
+eq('1.87: voimassa sunnuntaihin asti',[E.itemOk(IT2,new Date(2026,9,25,23),{wd:[1]}),E.itemOk(IT2,new Date(2026,9,26,1),{wd:[1]})],[true,false]);
+eq('1.87: seuraava laukeaminen listan järjestykseen',E.chkNext({id:'r',created:'2026-10-01T00:00:00',it:[IT2]},new Date(2026,9,22),{ev:{a:{wd:[1]}}}),new Date(2026,9,26).getTime());
+/* 1.89: puun säännöt ehtoina ja takaisin (sama muoto kuin projektin ehdoissa, palikka = 'p:'+avain) */
+var q=P('A\nB\nC\nD\nE');t(q,A,'a');t(q,'a','c');t(q,'b','c');t(q,'a','d','x');q.need={e:['a','b']};q.mx=[['c','d']];
+var TE=E.treeEh(q);
+eq('1.89: avaa ryhmittyy samoista kohteista',TE.filter(function(e){return !e.all&&!e.ty&&e.on.length;}).map(function(e){return e.k.join('+')+'>'+e.on.join(',');}),['p:'+A+'>p:a','p:a+p:b>p:c']);
+eq('1.89: sulkee = poissulkee',TE.filter(function(e){return e.off.length;}).map(function(e){return e.k.join('+')+'>'+e.off.join(',');}),['p:a>p:d']);
+eq('1.89: vaatii kaikki = Kaikki tuo',TE.filter(function(e){return e.all;}).map(function(e){return e.k.join('+')+'>'+e.on.join(',');}),['p:a+p:b>p:e']);
+eq('1.89: toisensa poissulkevat',TE.filter(function(e){return e.ty==='x';}).map(function(e){return e.k.join(',');}),['p:c,p:d']);
+var q2=P(q.text);E.ehTree(q2,TE);eq('1.89: edestakaisin samat säännöt',[q2.rules,q2.need,q2.mx],[q.rules,q.need,q.mx]);
+TE[1].k.push('p:e');E.ehTree(q2,TE);eq('1.89: lisätty syy avaa',E.ruleState(q2,'e','c'),'o');
+q2.need.d=[];E.ehTree(q2,TE);eq('1.89: kesken oleva vaatii kaikki säilyy',q2.need.d,[]);
+var nm=function(id){return id.slice(2);};
+eq('1.89: Kaikki ei voi poissulkea',!!E.treeEhBlock(q,TE,{k:['p:a','p:b'],all:1,on:[],off:['p:c']},nm),true);
+var e2={k:['p:d'],on:['p:e'],off:[]};eq('1.89: Jokin ja Kaikki samaan kohteeseen estetään',!!E.treeEhBlock(q,TE.concat([e2]),e2,nm),true);
+var e3={k:['p:'+A],on:[],off:['p:b']};eq('1.89: Alku ei poissulje',!!E.treeEhBlock(q,TE.concat([e3]),e3,nm),true);
+var e4={k:['p:e'],all:1,on:['p:a'],off:[]};eq('1.89: kehä estetään',!!E.treeEhBlock(q,TE.concat([e4]),e4,nm),true);
+var e5={k:['p:a'],on:['p:b'],off:[]};eq('1.89: kelvollinen ehto kelpaa',E.treeEhBlock(q,TE.concat([e5]),e5,nm),'');
+var e6={k:['p:a'],on:['p:d'],off:[]};eq('1.89: sama syy ei tuo ja poissulje',!!E.treeEhBlock(q,TE.concat([e6]),e6,nm),true);
+
+// 1.91: tekstit erottimella (---)
+eq('1.91: ei erotinta',E.sepParts('a\n\nb — c – d'),null);
+eq('1.91: erotin omalla rivillä ja kesken',E.noteParts('Eka klo 10\n---\nToka---Kolmas').map(function(p){return p.t;}),['Eka klo 10','Toka','Kolmas']);
+eq('1.91: iPhonen pitkä viiva',E.noteParts('a —- b ——c').map(function(p){return p.t;}),['a','b','c']);
+eq('1.91: tyhjä teksti pois',E.noteParts('a\n---\n---\nb').map(function(p){return p.t;}),['a','b']);
+var b91=new Date(2026,9,26,8,0);
+var d1=E.parseDates('Pe 30.10. klo 10 ja klo 14',b91),d2=E.parseDates('Pe 30.10. klo 10\n---\nklo 14',b91);
+eq('1.91: ilman erotinta aika periytyy',d1.map(function(o){return o.a;}),['2026-10-30','2026-10-30']);
+eq('1.91: erotin katkaisee periytymisen',d2.map(function(o){return o.a;}).sort(),['2026-10-26','2026-10-30']);
+var tx='Pe 30.10. klo 10\n---\nklo 14',k14=d2.filter(function(o){return o.time.s==='14:00';})[0];eq('1.91: kohdat koko tekstissä',tx.slice(k14.ts,k14.te),'klo 14');
+eq('1.91: tekstin indeksi',E.partIx(E.noteParts(tx),k14),1);
+var TT=[{id:'s',name:'Sauna',yes:[],no:['kylmä']},{id:'k',name:'Kauppa',yes:[],no:[]}];
+eq('1.91: asiasanat teksteittäin',E.partTerms(TT,'Sauna kylmä\n---\nSauna ja kauppa'),[[],['s','k']]);
+eq('1.91: poissulkeva sana vain omassa tekstissään',E.noteTerms(TT,'Sauna\n---\nkylmä'),['s']);
+eq('1.91: ilman erotinta poissulku koskee koko tekstiä',E.noteTerms(TT,'Sauna\n\nkylmä'),[]);
+var R91={terms:['s','k'],all:true};
+eq('1.91: kaikki samassa tekstissä',[E.trigHit(R91,{text:'Sauna\n---\nkauppa'},TT),E.trigHit(R91,{text:'Sauna, kauppa\n---\nmuuta'},TT)],[false,true]);
+var N91={id:'n',created:b91.toISOString(),text:'Ostokset\npe 30.10.\n---\nHammaslääkäri ma 2.11. klo 9',pts:{'2026-11-02 09:00':'x'}};
+var pn=E.partNote(N91,1);eq('1.91: tekstin oma aika ja kuittaus',[pn.text,E.noteDates(pn).map(function(o){return o.a;}),pn.pts['2026-11-02 09:00']],['Hammaslääkäri ma 2.11. klo 9',['2026-11-02'],'x']);
+var de=E.dayEntries([{id:'m',created:b91.toISOString(),text:'A 30.10.\n---\nB 30.10.\n---\nC 30.10. klo 9',date:''}],'2026-10-30',30);
+eq('1.91: kalenterissa merkintä per teksti',[de.untimed.length,de.timed.length],[2,1]);
+
+// 1.91: viikonpäivät aikasanoina
+eq('1.91: viikonpäivien järjestys',E.WD_TERMS.map(function(t){return t.id;}),['z:1','z:2','z:3','z:4','z:5','z:6','z:0']);
+eq('1.91: päivämäärän viikonpäivä',E.wdKeys({text:'Kokous 30.10.',created:'2026-10-26T06:00:00Z'},'2026-10-26'),['z:5']);
+eq('1.91: toistuva viikonpäivä',E.wdKeys({text:'Sauna perjantaisin ja tiistaisin',created:'2026-10-26T06:00:00Z'},'2026-10-26').sort(),['z:2','z:5']);
+eq('1.91: viikonpäivä päättelyn syynä',E.inferTerms([{id:'e',k:['z:5'],on:['s'],off:[]}],[],'',{tw:['z:5']}),['s']);
+eq('1.91: väärä viikonpäivä ei laukaise',E.inferTerms([{id:'e',k:['z:5'],on:['s'],off:[]}],[],'',{tw:['z:4']}),[]);
+
+// 1.92: tekoälyohje samasta jäsentimestä
+var oh=E.aiOhje({text:'Kipu*\n\nEhdot:\nKun Kipu, niin Lepo esiin.',grp:['Oireet']}),xe=E.textExtras(E.AI_ESIM,['Kipu','Kuume','Lääkäri','Lepo','Lenkki','Apteekki','#Oireet'].concat(E.TIME_TERMS.concat(E.WD_TERMS).map(function(t){return t.name;})));
+eq('1.92: esimerkki jäsentyy kokonaan',[xe.stars,xe.order,(xe.ehdot||[]).length,E.ehdotText(xe.ehdot).join('\n')===E.AI_ESIM.split('Ehdot:\n')[1]],[[],['Kuume','Kipu','Lääkäri','Lepo','Lenkki','Apteekki'],5,true]);
+eq('1.92: ohjeessa aikasanat, tulkinta ja nykyteksti',[E.TIME_TERMS.concat(E.WD_TERMS).every(function(t){return oh.indexOf(t.name)>=0;}),oh.indexOf('Järjestys tärkeimmästä alkaen: Kuume, Kipu, Lääkäri, Lepo, Lenkki, Apteekki.')>0,oh.indexOf('```\nKipu*\n\nEhdot:\nKun Kipu, niin Lepo esiin.\n```')>0,oh.indexOf('#Oireet.')>0],[true,true,true,true]);
+eq('1.92: tyhjä projekti',E.aiOhje({}).indexOf('Aloitetaan tyhjästä')>0,true);
+eq('1.92: koodilohkon aidat ohitetaan',E.textExtras('```\nKipu*\n```',[]).stars,['Kipu']);
+// 1.93: toistuvuuden alku ja loppu
+var b92=new Date(2026,9,26,8,0),L92=function(t){return E.parseDates(t,b92).map(function(o){return E.dateLabel(o);});};
+eq('1.93: alkaen ja vk saakka',L92('Sauna perjantaisin klo 14 alkaen 1.11. vk 50 saakka'),['joka pe 1.11.2026–13.12.2026 klo 14.00']);
+eq('1.93: mikä tahansa järjestys, ja-sana ja kuukausi',L92('alkaen marraskuun 1. ja päättyen joulukuun 5. perjantaisin kello 14'),['joka pe 1.11.2026–5.12.2026 klo 14.00']);
+eq('1.93: pilkku sallitaan, piste katkaisee',L92('perjantaisin, 5.12. asti. Kokous 3.12.'),['joka pe 26.10.2026–5.12.2026','to 3.12.2026']);
+eq('1.93: muu sana välissä katkaisee',L92('maanantaisin kokous 1.11.'),['joka ma','su 1.11.2026']);
+eq('1.93: ilman loppua vuoden loppuun',E.parseDates('Sauna perjantaisin',b92)[0].R,['2026-10-26','2026-12-31']);
+eq('1.93: viikko alkuna',L92('alkaen vk 45 perjantaisin'),['joka pe 2.11.2026 alkaen']);
+eq('1.93: joka toinen alkaa alusta',E.parseDates('joka toinen maanantai 2.11. alkaen',b92)[0].a,'2026-11-02');
+eq('1.93: vk 42 yksinään ei yhä',L92('vk 42'),[]);
+eq('1.93: taivutukset',L92('pe:nä klo 10. Perjantaihin. Perjantain kokous.').length,3);
+var o92=E.parseDates('perjantaisin klo 14 vk 50 saakka',b92)[0];
+eq('1.93: avoin kerta',[E.recKey(o92,'2026-10-28'),E.recKey(o92,'2026-10-31'),E.recKey(o92,'2026-11-06')],['2026-10-30 14:00','2026-10-30 14:00','2026-11-06 14:00']);
+eq('1.93: päättyminen',[E.recEnded(o92,'2026-12-13'),E.recEnded(o92,'2026-12-14')],[false,true]);
+var N92=[{id:'a',created:b92.toISOString(),text:'Sauna perjantaisin vk 50 saakka'}],x1=E.recExpiries(N92,'2026-12-14','2026-12-14T08:00:00.000Z'),x2=E.recExpiries(N92,'2026-12-15','2026-12-15T08:00:00.000Z');
+eq('1.93: ilmoitus kerran',[x1.length,x2.length,/^Järjestelmäilmoitus: toistuvuus päättyi 13\.12\.2026\./.test(x1[0].text),x1[0].date],[1,0,true,'2026-12-14']);
+console.log(ok+' ok, '+bad+' virhettä');process.exit(bad?1:0);
