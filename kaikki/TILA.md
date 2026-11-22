@@ -1,6 +1,6 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.22 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
+**Vaihe:** versio 0.23 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
@@ -62,6 +62,7 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
 - **0.20 (22.11.2026, kohta 15): Yhteinen XY-pädi.** Pikakirjauksen XY-nappi ja Kojelaudan lukukentät avaavat saman valitsimen. Valittavana ovat 0–10, 0–100 ja 0–1000 sekä nolla, yksi tai kaksi desimaalia. Pädissä voi raahata tai valita nuolinäppäimillä. Peru hylkää valinnan ja OK siirtää sen kirjauslomakkeeseen tai pikakirjausjonoon. Pikakirjausnapin tarkkuus tallentuu esiasetukseen ja mittarilomakkeen oma tarkkuus selaimeen. Testattu Chromiumissa hiirellä ja näppäimistöllä neljällä leveydellä. iPhonen kosketuskokeilu, levyn koko pienellä ruudulla ja suhteellisen tilan tarve arvioidaan kokeilussa.
 - **0.21 (22.11.2026, kohta 9): leveä rivinäkymä.** Muistion rivit käyttävät tietokoneella koko Muistiolle varatun leveyden. Leveisiin näkymiin on vaakavierityspalkki ja ensimmäinen sarake pysyy paikallaan sivulle vieritettäessä. Kortit säilyttävät aiemman leveyden. Testattu Chromiumissa viidellä leveydellä 320–1920 px. Kokeilussa tarkistetaan, haluaako Emil rivinäkymään vielä kapeammat sivumarginaalit.
 - **0.22 (22.11.2026, kohta 9): usean muistiinpanon valinta.** Muistion Valitse-painike avaa valintaruudut korteille ja riveille. Alareuna näyttää valittujen määrän sekä Arkistoi- ja Poista-toiminnot. Arkistoinnin voi kumota. Poisto pyytää vahvistuksen, siirtää muistiinpanot laitteen roskakoriin ja säilyttää Vault-tiedostot arkistossa vanhan tallennustavan mukaan. Hakurajaus poistaa valinnasta rivit, jotka jäävät pois näkyvistä. Testattu Chromiumissa neljällä leveydellä. Kokeilussa tarkistetaan, löytyykö Valitse puhelimella helposti.
+- **0.23 (22.11.2026, kohta 9): oma järjestys.** Muistion järjestysvalinnan Oma järjestys näyttää Vault-muistiinpanojen riveille siirtokahvan. Riviä voi siirtää raahaamalla tai kahvan nuolinäppäimillä silloin, kun näkymää ei ole rajattu eikä sillä ole omaa lajittelua. Tallennus lisää `nakymat/kaikki.md`:n Oma järjestys -osaan Vault-polut ja säilyttää muiden osien sisällön. Omat rivit näkyvät samassa järjestyksessä seuraavalla laitteella, kun valitsee Oma järjestys. Testattu neljällä leveydellä, mukaan lukien tallennus, uudelleenlataus ja toisen laitteen tekstin säilyminen. Kokeilussa tarkistetaan raahattavuus iPhonella.
 - **Mikä menee GitHubiin:** ensimmäisen projektin muistiinpanot (myös niiden kuittaukset ja kalenteriajat) sekä Tekoälylle-näkymässä muokatut tiedostot ja huoltopyynnöt sekä Kojelaudasta tallennetut mittarikirjaukset. Asetukset, ulkoasu, asiasanat, Listat, Flow, puut, Toistuvat-välilehden toistuvat, tarkistuslistat ja muut projektit ovat vain laitteella (`kaikki:v1`); varmuuskopio niistä Juuren viennillä.
 
 **Suunta (Emil 22.11.2026):** Kaikki eriytyy Juuresta: Juuren ominaisuuksia karsitaan, painopiste siirtyy tietokoneelle (tiedon käsittely, rivinäkymät, taulukot, kojelauta). Puhelinnäkymä riisutaan: keskeistä kalenteri, uuden muistiinpanon lisäys ja osa kuvaajista; toiminnot voivat säilyä, mutta näkymä kevenee. Pitkä projekti; mahdollinen tie ulos Notionista.
@@ -108,7 +109,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Seuraava askel
 
-Seuraavaksi toteutetaan oma järjestys ja sen tallennus Vaultiin (kohta 9). Flow-kokeilu ja mittarien tekstikirjaus ovat käytettävissä kokeiltaviksi.
+Seuraavaksi rakennetaan kentät ja kaavamoottori (kohta 10). Flow-kokeilu ja mittarien tekstikirjaus ovat käytettävissä kokeiltaviksi.
 
 Emil kokeilee GitHub-yhteyttä tietokoneella (pilvinappi yläpalkissa, vain omalla koneella). Sen jälkeen suunnitellaan tietokoneasettelu (ehdotus: lista ja auki oleva muistiinpano rinnakkain, isompi kirjoitusalue, pikanäppäimet, kansiot tai asiasanat sivupalkkiin).
 
