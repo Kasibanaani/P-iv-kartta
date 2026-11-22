@@ -135,7 +135,7 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 
 ## Avoimet kysymykset
 
-- **17.2 Toistuvat ja Listat vaultiin (Emil päätti pitää ne):** nyt toistosäännöt (`data.reps`, viimeksi tehty) ja listojen rivit kuittauksineen (`data.chk`, `data.lists`) ovat vain laitteella; toistuvan synnyttämä muistiinpano menee vaultiin, mutta molemmat laitteet voivat luoda sen erikseen. Vaihtoehdot: (a) luettavat tiedostot (`toistuvat/<nimi>.md`, `listat/<nimi>.md`, rivit `- [ ]`), tekoäly voi lukea ja muokata, mutta laajempi muunnos ja yhdistämissäännöt; (b) yksi rakenteinen tiedosto (esim. `listat/kaikki-listat.json`), yhdistäminen tunnisteen ja muokkausajan mukaan, nopeampi ja varmempi, mutta ihmiselle huonommin luettava. Tekoälyn suositus: (a) Toistuville (lyhyitä, tekoälyllekin hyödyllisiä), (b) ensin Listoille. Kysy Emililtä ennen toteutusta.
+- **17.2 Toistuvat ja Listat vaultiin:** Emil valitsi 22.11. sekamallin (Toistuvat `toistuvat/<nimi>.md`, Listat `listat/listat.json`); toteutusohje SUUNNITELMA kohta 17.2. Ei vielä rakennettu.
 
 - Tekstikoko koskee nyt vain muistiinpanoja ja kalenterin listaa. Laajennetaanko koko appiin (iso työ: kiinteät px-koot suhteellisiksi)?
 - Testissä vaultin aineistolla Muistioon syntyi vanhoista toistuvista ajankohdista Juuren järjestelmäilmoituksia (”Järjestelmäilmoitus: toistuvuus päättyi”, vain laitteella). Näkyykö niitä Emilillä, ja karsitaanko ne Kaikki-appista?
