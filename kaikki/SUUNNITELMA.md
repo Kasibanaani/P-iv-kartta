@@ -51,6 +51,8 @@ Myöhemmin samaan jatkoon (v2.1): solujen muotoilu (lihavointi, tasaus, lukumuot
 
 **A2. Treeni-osio v1 (kysely tehty 22.11., ks. kohta 16):** rakennetaan A0:n jälkeen. Sitten karsinta kohdan 14 vastausten mukaan.
 
+**A1. SEURAAVAKSI ennen Treeni-osiota: kohta 17** (kuittausrivi, Toistuvat ja Listat vaultiin, seuranta kuitattuna, metatieto erilleen). Syy: Emil kuittasi saman merkinnän kahdesti, koska kuittaus ei synkannut.
+
 **C. Kokeilu (tulos ja avoimet päätökset Emilille ennen pysyvää muotoa):** kohta 7 Flow tekstinä.
 
 **D. Visio, liian epätarkka v1:ksi** (ei rakenneta ennen Emilin tarkennusta; ks. *Pohdittavat* lopussa): pikakirjausten laajempi editori tietokoneelle; toteutumien tunnistus, tilastointi ja korrelaatiot (kohta 15); kojelauta-rakentajan vapaa sijoittelu, raahattavat koot ja tyylit; kuvaajien ulkoasuasetukset; Listojen suhde vaultiin; kuvat ja liitteet; Notion-sisällön siirto.
@@ -291,7 +293,19 @@ Kokeile testiaineistolla ensin Flow'n lukemista sisennetystä Markdownista. Jatk
 
 **Ensimmäinen seurantaosio: Treeni.** Emilin nykyinen erillinen appi on Treenikartta (`treenikartta/`, tila `treenikartta/TILA.md`). Ennen v1:tä **kysely Emilille**: mitkä Treenikartan toiminnot otetaan mukaan (liikkeet ja lihasryhmät, sarjojen kirjaus, kalenteri, lihasryhmien tiheys, ennätykset …) ja siirretäänkö Treenikartan vanha data vaultiin (Treenikartan vienti → `data/treeni.csv`, kertaluonteinen). Sen jälkeen v1 ilman lisäkysymyksiä. Treenikarttaa ei muuteta eikä poisteta tässä yhteydessä; sen tulevaisuus päätetään, kun Treeni-osio on kokeiltu.
 **Emilin vastaukset (kysely 22.11.2026), v1 voidaan nyt rakentaa:** mukaan **sarjojen kirjaus** (liikelista, sarja n/x, toistot ja paino − +, painoehdotus, ”Viimeksi …”), **liikkeet ja lihasryhmät** taulukkoina ja **seuranta ja graafit** (treenipäivät 12 viikolta, viikon sarjat, arvioitu maksimi, tavoitteet palkkeina). Historia ei v1:ssä. **Vanha data siirretään** kertaluonteisesti Treenikartan varmuuskopiosta `data/treeni.csv`:hen (liikkeet ja ryhmät omaan tiedostoonsa, esim. `data/treeni-liikkeet.md` tai `.json`; muoto kirjataan `ohjeet/data.md`:hen). **Treenikartta jää rinnalle**, kunnes Treeni-osio on kokeiltu ja riittää; sitten Emil päättää. Treenikartan logiikkaa (painoehdotus Epley, jaksot, tavoitteet) saa kopioida `treenikartta/index.html`:stä.
+**Data siirretty 22.11.2026:** Emilin Treenikartan varmuuskopio on vaultissa: `data/treeni.csv` (sarja per rivi: pvm, klo, treeni, liike, liike_id, sarja, kg, toistot), `data/treeni-liikkeet.json` (liikkeet, ryhmät, treenikerrat, asetukset) ja alkuperäinen `arkisto/treenikartta/`. Muoto vaultin `ohjeet/data.md`:ssä. Treeni-osio lukee ja kirjoittaa näitä.
 **Muut seurannat** (uni, ravinto): ensin päivän yhteenvetomittareina pikakirjauksella (kohta 15); oma osio vasta, kun Emil kokee tarvitsevansa sitä.
+
+## 17. Kuittaukset synkkaan ja metatieto pois tekstistä (Emil 22.11.2026)
+
+**Emil:** kuittasi saman kalenterimerkinnän koneella ja puhelimella, koska kuittaus ei näkynyt toisella laitteella. Kuittauksen pitää mennä muistiinpanoon jonain appin ymmärtämänä merkintänä, ja sama koskee seurantakirjauksia (näkyvät kalenterissa valmiiksi kuitattuina). Appin tunnistama metatieto ei saa sekoittua tekstiin: se näytetään erillään (pienenä, piilossa avattavana), vaikka tiedostossa se on tekstinä mukana.
+**Selvitetty 22.11. (Claude):** vaultin muistiinpanon kuittaus **tallentuu jo** tiedostoon alkutietojen riville `juuri: {"pts":{"2026-11-22 16:00":…}}` ja lähtee GitHubiin n. sekunnissa (kokeiltu testirepolla). Mutta **Toistuvat, Listat ja tarkistuslistat ovat vain laitteella** (`kaikki:v1`), joten niistä syntyneiden merkintöjen kuittaus ei siirry. Todennäköisin syy Emilin tapaukseen. Toinen mahdollinen syy: toisella laitteella on samasta tiedostosta lähettämätön oma muutos, jolloin haku ei korvaa sitä.
+**v1, ei lisäkysymyksiä:**
+1. **Luettava kuittausrivi alkutietoihin:** appi kirjoittaa kuittaukset riville `kuitattu: 2026-11-22 16:00, 2026-11-29 16:00` (päivä ja kellonaika, pilkulla erotettuna; ajaton päivä ilman kellonaikaa) ja lukee sekä tämän että vanhan `juuri`-JSONin. Ihminen ja tekoäly näkevät kuittauksen; tekoäly voi myös kuitata kirjoittamalla rivin. Vaultin `ohjeet/appi.md` ja `muistiinpanot.md` päivitetään.
+2. **Toistuvat ja Listat vaultiin** (Emil päätti pitää ne, kohta 14): toistuvat tiedostoiksi `toistuvat/<nimi>.md` (alkutiedoissa sääntö: väli, alku, tunnisteet; kuittaukset kuten kohta 1) ja tarkistuslistat `listat/<nimi>.md` (rivit `- [ ]`/`- [x]`). Laitteelle jäävät vain asetukset. Siirtymä: nykyiset viedään ensin varmuuskopioon ja sitten vaultiin.
+3. **Seurantakirjaukset kalenterissa kuitattuina** (pikakirjaus, mittarit, treenit): näkyvät kalenterin päivässä *Kirjattu*-tyylillä, ei kuittausympyrää (kohta 15).
+4. **Metatieto erillään tekstistä:** alkutiedot (kuitattu, tagit, omat kentät, juuri) eivät koskaan näy tekstikentässä; muistiinpanoikkunan sirun ikkunaan (0.9) *Tiedot*-osio, jossa ne näkyvät pieninä riveinä (avain · arvo) ja ovat muokattavissa. Appi kirjoittaa oman metatietonsa **vain alkutietoihin**, ei tekstiin. Tekstissä olevat appin tunnistamat rivit (`hinta: 120`, `Mittarit: …`, `#tunniste`, `{=kaava}`) jäävät tekstiin, koska Emil kirjoitti ne itse, mutta ne näytetään erottuvalla tyylillä (himmeä tasalevyinen siru), ja niiden kohdalla on valinta *Siirrä tietoihin*.
+5. Synkka varmistetaan testillä, jossa kaksi laitetta jakaa saman testirepon (kuittaus laitteella A → näkyy laitteella B haun jälkeen).
 
 ## Pohdittavat (ei toimintaohjetta vielä)
 
