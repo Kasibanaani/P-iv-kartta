@@ -63,6 +63,13 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
    Ehdotus (tekoäly): sarakkeet = muistiinpanon alkutiedot (`tyyppi`, `lahde`, `luotu`, `tagit` ja uudet omat kentät, esim. `tila: kesken`, `arvio: 7`, `edistys: 40`). Näkymä on oma tiedosto vaultissa (esim. `nakymat/<nimi>.md`: mitkä muistiinpanot, mitkä sarakkeet, millä näyttötavalla), jotta tekoäly voi tehdä ja täyttää niitä. Näyttötavat yhteiset tulevan taulukko/kojelauta-idean (D) kanssa: yksi toteutus, monta käyttöä. Vaatii vaultin ohjeisiin päätöksen kenttien nimistä.
 3. **Koko vault varmuuskopioksi (ehdotus, tekoäly).** Nykyinen Vienti (`Kaikki.json`) sisältää apin tiedot ja näkyvien muistiinpanojen tekstit, mutta ei koko vaultia (ei `ohjeet/`, `arkisto/`, `data/`, piilotettuja). Appilla on kaikki vaultin tekstitiedostot jo välimuistissa, joten se voi tehdä yhden ZIP-tiedoston, jossa vaultin kansiot ja `.md`/`.csv`/`.json`-tiedostot sellaisinaan (avautuu millä tahansa koneella). Valikko → Vienti ja tuonti → ”Koko vault (ZIP)”. Sama onnistuu jo nyt GitHubin sivulta: Code → Download ZIP.
 
+4. **Huoltopyynnöt tekoälylle ja tekoälyn tiedostot taka-alalle (Emil 22.11.2026).** Ei säännöllistä laajaa huoltoa (käyttörajat), vaan Emil pyytää napista. *Ehdotus (tekoäly):*
+   - Apissa nappi (Valikko ja muistiinpanon ⋯): ”Pyydä tekoälyä järjestämään” → rivi vaultin tiedostoon `yllapito/pyynnot.md` (`- [ ] pvm · mitä · kohde`), esim. koko inbox, koko vault tai tämä muistiinpano. Emil voi muokata ja poistaa pyyntöjä apissa.
+   - Vaultin ohjeeseen: tekoäly lukee pyynnöt aloittaessa (kuten lokin), kertoo yhdellä rivillä ”pyyntöjä odottaa N”, ja tekee ne vain, kun Emil sanoo tai kun keskustelu on huoltokeskustelu; pieni malli ei tee isoja. Nykyinen ”työn lopuksi yksi erääntynyt tehtävä” -sääntö vaihdetaan pyyntöpohjaiseksi, jos Emil haluaa.
+   - Emilin tekstin jäsentely (pilkkominen muistiinpanoiksi, linkit, kuvaus, tunnisteet): nyt sääntö sallii alkutiedot, linkit ja kansion, ei tekstin muutosta. *Ehdotus:* pyynnöllä saa myös jäsentää, alkuperäinen siirtyy `arkisto/`:on, joten mitään ei katoa.
+   - Tekoälyn omat tiedostot (ohjeet, loki, pyynnöt, `nakyy: ei`) omaan Valikon kohtaan ”Tekoälylle”, ei henkilö-suodattimen taakse.
+   - Vaatii päätöksen vaultin ohjeisiin (`ohjeet/yllapito.md`, `ohjeet/paatokset.md`).
+
 ### Isommat ideat (Emil 22.11.2026: ”onko mahdollista?”, ei toteutuslistalla)
 
 Kaikki alla on tekoälyn arvion mukaan mahdollista ilman ulkoisia kirjastoja. Ehdotettu järjestys: A → B → C → D.
