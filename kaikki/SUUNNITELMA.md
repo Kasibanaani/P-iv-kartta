@@ -2,7 +2,7 @@
 
 Itsenäinen ohje mille tahansa tekoälylle (Claude, ChatGPT/Codex, muu). Aiempaa keskustelua ei tarvitse muistaa. Lue ensin repon `AGENTS.md`, sitten `kaikki/TILA.md` ja tämä. Emilin päätökset on merkitty **Emil**, tekoälyn ehdotukset *ehdotus*. Ehdotus ei ole toteutuslupa; Emilin ”toteuta” on.
 
-Päivitetty 22.11.2026 (versio 0.16). Seuraavaksi on kohdan 9 tunnisteiden v1. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
+Päivitetty 22.11.2026 (versio 0.17). Seuraavaksi on kohdan 15 pikakirjaus. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
 
 ## Yhteiset säännöt (Kaikki)
 
@@ -22,7 +22,7 @@ Päivitetty 22.11.2026 (versio 0.16). Seuraavaksi on kohdan 9 tunnisteiden v1. L
 1. ~~Kohta 8: kirjoitusohje apissa (perusosa).~~ Tehty 0.14.
 2. ~~Kohta 7: Flow tekstinä, kokeiluna.~~ Tehty 0.15. Pysyvä muoto odottaa kokeilupalautetta.
 3. ~~Kohta 6.2: mittarien tekstikirjaus ja pikakomentolinkki.~~ Tehty 0.16.
-4. Kohta 9: `#tunnisteet` (tunnistus tekstistä ja `tagit`-kentästä, sirut lukunäkymässä, Asiasanat-suodattimen Tunnisteet-ryhmä, rivinäkymän kenttä `tunnisteet`, näkymäehto `tunniste = x`).
+4. ~~Kohta 9: `#tunnisteet` (teksti, `tagit`, lukunäkymä, Asiasanat-suodatin ja rivinäkymä).~~ Tehty 0.17.
 5. Kohta 15: pikakirjaus v1 (esiasetukset vaultissa, Seuranta ja Muistutus, tallennus mittareihin ja päivän muistiinpanoon, Kirjattu-rivi kalenterissa, `+ Uusi nappi`, automaattiset tunnisteet). **Emil 22.11.: aikaisin, koska unen, treenien ja ravinnon seuranta voi siirtyä tänne.**
 6. Kohta 15: XY-pädi lukuarvoille.
 7. Kohta 9: rivinäkymä leveäksi tietokoneella.
@@ -157,7 +157,7 @@ Kokeile testiaineistolla ensin Flow'n lukemista sisennetystä Markdownista. Jatk
 
 ## 9. Tunnisteet ja Muistion listan jatko (Emil 22.11.2026)
 
-**Nykytila (tarkistettu koodista ja vaultista 22.11.):** appi ei tunnista `#tunnisteita` tekstissä. Juuren Asiat (asiasanat) tunnistavat sanoja tekstistä ja suodattavat niillä. Vaultin alkutiedoissa on kenttä `tagit: [...]`, mutta appi ei käytä sitä (kaikissa vaultin tiedostoissa se on nyt tyhjä), eikä missään vaultin tiedostossa ole `#tunnisteita`.
+**Nykytila 0.17:** Muistio tunnistaa `#tunnisteet` tekstistä ja `tagit`-kentästä sekä tarjoaa tunnisterajauksen ja rivisarakkeen. Juuren Asiat ovat yhä käytössä siirtymää varten.
 
 **Emil toivoo:**
 1. Käsin tägitys: `#tunniste` tekstissä, ja tekoäly ymmärtää sen.

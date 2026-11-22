@@ -1,6 +1,6 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.16 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
+**Vaihe:** versio 0.17 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
@@ -56,6 +56,7 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
 - **0.14 (22.11.2026, kohta 8): Kirjoitusohje.** Puhelimella Valikko → Kirjoitusohje, tietokoneella yläpalkin Kirjoitusohje-painike. Pienessä ikkunassa voi kopioida kalenterin, Vaultin kenttien, linkkien ja liitetyn tekstin esimerkit. Mahdollinen mittariesimerkki muodostuu kirjauslomakkeeseen kytketystä mittarimäärittelystä. Jos leikepöytä on estetty, esimerkin teksti valitaan kopioitavaksi. Testattu Chromiumissa neljällä leveydellä. Tekstikirjauksen kokeilussa kysytään, onko mittarien kirjoitusohje riittävä ja löytyykö se helposti.
 - **0.15 (22.11.2026, kohta 7): Flow tekstinä.** Flow-osion Kokeile tekstipuuta näyttää sisennetyn Markdown-luettelon päätöspuuna. Valinnat avaavat jatkokysymyksen tai lopputuloksen. Koko puun voi avata samassa ikkunassa. Kokeilulla on valmiiksi esimerkkipuu, eikä se tallenna tekstiä tai valintoja. Testattu Chromiumissa neljällä leveydellä. Pysyvää muotoa varten selvitetään kokeilun jälkeen, riittävätkö sisennykset ja miten yhteiset jatkohaarat ja ehdot kuvataan.
 - **0.16 (22.11.2026, kohta 6.2): Mittarit tekstinä.** Kojelaudan Kirjaa mittarit → Kirjaa tekstinä täyttää kentät tarkistettaviksi. Appi ymmärtää mittarin nimen tai tunnuksen, desimaalipilkun ja -pisteen, valintojen nimet, kyllä/ei-arvot ja valinnaisen päivämäärän. Pikakomentolinkki avaa lomakkeen ja odottaa tallennusta. Yksittäinen uusi `Mittarit:`-rivi tallentuu myös muistiinpanosta ja saa onnistumisen jälkeen kuittausmerkin. Tekoälyn tuoman tai odottamaan jääneen rivin voi kirjata muistiinpanon ⋯-valikosta. Päällekkäiset tai virheelliset arvot näytetään korjattaviksi. Ensiversiossa yksi taulukko kerrallaan. Seuraavaksi käyttäjältä tarvitaan kokeilupalautetta iOS-linkin avautumisesta ja kirjoitusohjeen löydettävyydestä.
+- **0.17 (22.11.2026, kohta 9): Tunnisteet muistiinpanoissa.** Appi yhdistää tekstin `#tunnisteet` ja alkutietojen `tagit`-listan. Lukutilan siru rajaa Muistion saman tunnisteen muistiinpanoihin. Asiasanat-suodattimessa on Tunnisteet-ryhmä. Rivinäkymän tiedostossa voi käyttää saraketta `tunnisteet` ja ehtoa `tunniste = x`. Pelkkä lukeminen ei muuta Vaultia. Asioiden siirto ja automaattiset tunnisteet ovat myöhempiä työvaiheita. Kokeilussa selvitetään, löytääkö sirut ja tunnistesuodattimen helposti. Testattu Chromiumissa neljällä leveydellä.
 - **Mikä menee GitHubiin:** ensimmäisen projektin muistiinpanot (myös niiden kuittaukset ja kalenteriajat) sekä Tekoälylle-näkymässä muokatut tiedostot ja huoltopyynnöt sekä Kojelaudasta tallennetut mittarikirjaukset. Asetukset, ulkoasu, asiasanat, Listat, Flow, puut, Toistuvat-välilehden toistuvat, tarkistuslistat ja muut projektit ovat vain laitteella (`kaikki:v1`); varmuuskopio niistä Juuren viennillä.
 
 **Suunta (Emil 22.11.2026):** Kaikki eriytyy Juuresta: Juuren ominaisuuksia karsitaan, painopiste siirtyy tietokoneelle (tiedon käsittely, rivinäkymät, taulukot, kojelauta). Puhelinnäkymä riisutaan: keskeistä kalenteri, uuden muistiinpanon lisäys ja osa kuvaajista; toiminnot voivat säilyä, mutta näkymä kevenee. Pitkä projekti; mahdollinen tie ulos Notionista.
@@ -102,7 +103,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Seuraava askel
 
-Seuraavaksi toteutetaan kohdan 9 tunnisteiden v1. Flow-kokeilu ja mittarien tekstikirjaus ovat käytettävissä kokeiltaviksi.
+Seuraavaksi toteutetaan kohdan 15 pikakirjaus. Flow-kokeilu ja mittarien tekstikirjaus ovat käytettävissä kokeiltaviksi.
 
 Emil kokeilee GitHub-yhteyttä tietokoneella (pilvinappi yläpalkissa, vain omalla koneella). Sen jälkeen suunnitellaan tietokoneasettelu (ehdotus: lista ja auki oleva muistiinpano rinnakkain, isompi kirjoitusalue, pikanäppäimet, kansiot tai asiasanat sivupalkkiin).
 
