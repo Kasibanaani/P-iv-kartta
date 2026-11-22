@@ -1,6 +1,6 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.49 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
+**Vaihe:** versio 0.50 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
@@ -89,6 +89,7 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
 - **0.47 (23.11.2026, A2): Treenin pikakirjaus, tekstilinkki ja kalenterikooste.** Pikakirjaus → Treenisarja tai Treeni → Kirjaa tekstinä täyttää liikkeen, toistot ja painon tarkistettavaksi. Sama onnistuu `#kirjaa=`-linkistä. Kalenterin viikkolistassa näkyy päivän sarjamäärä Kirjattu-rivillä. Data ja laskenta tarkistettiin testivaultissa neljällä leveydellä. Kokeilussa selviää, riittävätkö tuodut asetukset ja Treenikartan rinnalla käyttäminen. Liikkeiden ja ryhmien muokkausta, erillistä historianäkymää, takautuvaa kirjausta ja varsinaista Kojelauta-koostetta ei tehty tähän versioon.
 - **0.48 (23.11.2026, B): muistiinpanoikkunan tarkenteet sirun takana.** Valitun sanan liittäminen asiasanaan, kalenteriajan kiinnitys ja päällekkäisten merkintöjen tiedot avautuvat Ajankohta ja tiedot -ikkunaan. Tietojen ja tekstin avaaminen pitää muistiinpanon auki. Testattu neljällä näyttöleveydellä.
 - **0.49 (23.11.2026): Vaultin avaaminen säilyttää tiedostot.** Päättyneen kalenteritoiston ilmoitus muodostuu vain laitteella. Appi laskee valmis-tilan näytölle ja jättää suhteellisen päiväilmauksen alkuperäiseen Vault-tekstiin. Vanha tiedostoon tallennettu kuittaus luetaan edelleen. Päivän vaihtuminen, uudelleenlataus ja Vault-synkka tarkistettiin myös Helsingin maanantaiaikaa käyttäen.
+- **0.50 (23.11.2026, kohta 19): paikallinen graafi.** Muistiinpanon ⋯ → Paikallinen graafi näyttää saapuvat ja lähtevät wikilinkit 1–2 askeleen päästä. Rajauksen voi valita Muistion omista näkymistä, ja linkitetyn muistiinpanon voi avata kuviosta tai napista. Näkymä päivittyy synkassa. Piilotetut, arkistoidut, itseensä osoittavat ja ratkaisemattomat linkit eivät näy. Graafi näyttää enintään 72 muistiinpanoa kerralla. Testattu Chromiumissa neljällä leveydellä.
 - **Mikä menee GitHubiin:** ensimmäisen projektin muistiinpanot (myös niiden kuittaukset ja kalenteriajat) sekä Tekoälylle-näkymässä muokatut tiedostot ja huoltopyynnöt sekä Kojelaudasta tallennetut mittarikirjaukset. (0.35:sta alkaen myös Listat, listojen rivit, Asiat ja Toistuvat.) Asetukset, ulkoasu, Flow, puut ja muut projektit ovat vain laitteella (`kaikki:v1`); varmuuskopio niistä Juuren viennillä.
 
 **Suunta (Emil 22.11.2026):** Kaikki eriytyy Juuresta: Juuren ominaisuuksia karsitaan, painopiste siirtyy tietokoneelle (tiedon käsittely, rivinäkymät, taulukot, kojelauta). Puhelinnäkymä riisutaan: keskeistä kalenteri, uuden muistiinpanon lisäys ja osa kuvaajista; toiminnot voivat säilyä, mutta näkymä kevenee. Pitkä projekti; mahdollinen tie ulos Notionista.
@@ -142,7 +143,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Seuraava askel
 
-Seuraavaksi kohdan 19 paikallinen graafi. Toistuvuusmuodon vakiinnuttaminen ja vanhan aineiston siirto arvioidaan erikseen kohdan 18 mukaan. Flow-tekstin pysyvä muoto odottaa kokeilupalautetta.
+Seuraavaksi Muistion takaisinlinkki- ja tunnistesarakkeet. Toistuvuusmuodon vakiinnuttaminen ja vanhan aineiston siirto arvioidaan erikseen kohdan 18 mukaan. Flow-tekstin pysyvä muoto odottaa kokeilupalautetta.
 
 Emil kokeilee GitHub-yhteyttä tietokoneella (pilvinappi yläpalkissa, vain omalla koneella). Sen jälkeen suunnitellaan tietokoneasettelu (ehdotus: lista ja auki oleva muistiinpano rinnakkain, isompi kirjoitusalue, pikanäppäimet, kansiot tai asiasanat sivupalkkiin).
 

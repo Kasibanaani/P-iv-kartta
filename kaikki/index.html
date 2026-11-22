@@ -1705,6 +1705,17 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 .tre-goal .tre-top span{flex:none;color:var(--label2);font-size:13px}
 .tre-goal progress{display:block;width:100%;height:12px;margin-top:5px;accent-color:var(--accent)}
 
+
+#note-graph{width:min(730px,calc(100vw - 24px));max-width:none}
+#note-graph .btnrow{gap:6px;flex-wrap:wrap;margin:8px 0}
+#note-graph-filter{min-width:0;max-width:100%}
+#note-graph-canvas{display:block;width:100%;height:clamp(190px,39vh,360px);border:1px solid var(--sep);border-radius:10px;
+  background:var(--bg);cursor:grab;touch-action:none;user-select:none}
+#note-graph-canvas:active{cursor:grabbing}
+#note-graph-preview{margin:5px 0;color:var(--label2);overflow-wrap:anywhere}
+#note-graph-list{display:flex;flex-wrap:wrap;gap:5px;max-height:96px;overflow:auto}
+#note-graph-list button{max-width:100%;white-space:normal;text-align:start}
+
 </style>
 </head>
 <body>
@@ -1795,6 +1806,23 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 <dialog id="section-settings" aria-labelledby="section-settings-title">
   <h2 id="section-settings-title">Osiot tällä laitteella</h2>
   <div id="section-settings-list"></div>
+</dialog>
+<dialog id="note-graph" aria-labelledby="note-graph-title">
+  <h2 id="note-graph-title">Paikallinen graafi</h2>
+  <div class="btnrow">
+    <button id="note-graph-depth1" type="button" class="mini" aria-pressed="true">1 askel</button>
+    <button id="note-graph-depth2" type="button" class="mini" aria-pressed="false">2 askelta</button>
+    <select id="note-graph-filter" aria-label="Graafin rajaus"></select>
+  </div>
+  <canvas id="note-graph-canvas" aria-hidden="true"></canvas>
+  <div class="btnrow">
+    <button id="note-graph-minus" type="button" class="mini" aria-label="Pienennä graafia">−</button>
+    <button id="note-graph-plus" type="button" class="mini" aria-label="Suurenna graafia">+</button>
+    <button id="note-graph-reset" type="button" class="mini">Keskitä</button>
+    <button id="note-graph-open" type="button" class="mini" disabled>Avaa muistiinpano</button>
+  </div>
+  <p id="note-graph-preview" class="sub" role="status"></p>
+  <div id="note-graph-list" role="group" aria-label="Linkitetyt muistiinpanot"></div>
 </dialog>
 <dialog id="tre-text" aria-labelledby="tre-text-title">
   <h2 id="tre-text-title">Treenisarja tekstinä</h2>
@@ -4737,7 +4765,7 @@ $('nav').addEventListener('click',function(ev){var b=ev.target.closest('[data-ta
 /* 1.55 (I1): isot ikkunat täyttävät tilan yläpalkin ja alapalkin välissä. Otsikon edessä harmaana se, minne ruksi palaa
    (välilehti tai alla oleva ikkuna). Puhelimella 1.74:stä alkaen ikkunalla on oma alapalkki, jonka ‹-nappi sulkee kuten ruksi; osio ei vaihdu. */
 /* 1.105 (Emil 18.11.2026): listojen ikkunat (Listat, rivin ikkuna) ovat pieniä ikkunoita päällä; ulkopuolinen napautus sulkee, ei ruksia */
-var SMALL={csheet:1,dsheet:1,pksheet:1,wsheet:1,ksheet:1,pvsheet:1,gsheet:1,'vwork-sheet':1,'section-settings':1,'dash-entry':1,'quick-entry':1,'tre-text':1,'xy-picker':1,'note-batch-delete':1,'note-batch-tags':1,'sheet-edit':1,'sheet-new':1,'board-edit':1,'tag-migration':1,'writing-guide':1,'flow-text-preview':1};
+var SMALL={csheet:1,dsheet:1,pksheet:1,wsheet:1,ksheet:1,pvsheet:1,gsheet:1,'vwork-sheet':1,'section-settings':1,'dash-entry':1,'quick-entry':1,'tre-text':1,'note-graph':1,'xy-picker':1,'note-batch-delete':1,'note-batch-tags':1,'sheet-edit':1,'sheet-new':1,'board-edit':1,'tag-migration':1,'writing-guide':1,'flow-text-preview':1};
 function barSizes(){var t=$('top'),n=$('pbar').offsetParent?$('pbar'):$('nav'),r=document.documentElement.style;
   if(t)r.setProperty('--toph',Math.max(0,Math.round(t.getBoundingClientRect().bottom))+'px');
   if(typeof land==='function'&&land()){r.setProperty('--toph','0px');r.setProperty('--navh','0px');r.setProperty('--sbh','0px');return;}
@@ -4796,7 +4824,7 @@ function crumbSync(){var k=tabKey(),k0=kOf(),t=(k0?k0.name:'Juuri')+' · '+(MODE
   if(d){var h=d.querySelector('h2'),ht=h?clean(h.textContent):'';if(ht)t+=' › '+ht;}$('crumb').textContent=t;}
 /* Ikkunan sulkeminen ohi napauttamalla tai Esc tallentaa samoin kuin Valmis */
 function sheetDone(d){var ok=d.querySelector('[data-done]');if(ok)ok.click();else closeSheet(d);}
-var SHEETS=['phsheet','wsheet','ehsheet','vsheet','psheet','xsheet','lsheet','ksheet','esheet','nsheet','tsheet','rsheet','hsheet','csheet','fsheet','pksheet','dsheet','pvsheet','gsheet','vwork-sheet','section-settings','dash-entry','quick-entry','tre-text','xy-picker','note-batch-delete','note-batch-tags','sheet-edit','sheet-new','board-edit','tag-migration','writing-guide','flow-text-preview'];
+var SHEETS=['phsheet','wsheet','ehsheet','vsheet','psheet','xsheet','lsheet','ksheet','esheet','nsheet','tsheet','rsheet','hsheet','csheet','fsheet','pksheet','dsheet','pvsheet','gsheet','vwork-sheet','section-settings','dash-entry','quick-entry','tre-text','note-graph','xy-picker','note-batch-delete','note-batch-tags','sheet-edit','sheet-new','board-edit','tag-migration','writing-guide','flow-text-preview'];
 SHEETS.forEach(function(id){var d=$(id);d.addEventListener('close',modalSync);d.addEventListener('click',function(ev){if(ev.target!==d||d.classList.contains('dock'))return;
     if(!d.classList.contains('big')||matchMedia('(max-width:999px)').matches){var q=d.getBoundingClientRect(),x=ev.clientX,y=ev.clientY;
       if(x>=q.left&&x<=q.right&&y>=q.top&&y<=q.bottom)return;sheetDone(d);return;}
@@ -5915,6 +5943,8 @@ function nsMenuItem(m,id,txt,fn,cls){var b=el('button',cls||'',txt);b.type='butt
 function nsMenu(){var m=$('ns-menu'),n=noteCur;m.textContent='';if(n)m.appendChild(el('div','mh nsstamp','Luotu '+stamp(n.created)+(n.edited&&n.edited!==n.created?' · muokattu '+stamp(n.edited):'')));
   if(n&&noteOcc){var on=ptDone(n,noteOcc);nsMenuItem(m,'nsm-ok',on?'Kumoa kuittaus':'OK '+occLabel(noteOcc),function(){$('ns-done').click();});}
   nsMenuItem(m,'nsm-dt','Päivä ja aika',function(){nsDt(true);nsDateOpen();});
+  if(n&&vOn()&&n.vp&&!n.arch&&VAULT.visible(n.vp)&&VAULT.kindOf(n.vp,n.vfm)!=='ohje')
+    nsMenuItem(m,'nsm-graph','Paikallinen graafi',function(){graphOpen(n);});
   if(n){nsMenuItem(m,'nsm-arch',n.arch?'Palauta arkistosta':'Arkistoi',function(){$('ns-arch').click();});
     nsMenuItem(m,'nsm-del','Poista',function(){$('ns-del').click();},'danger');}
   if(n&&n.vp&&vOn()&&VAULT.visible(n.vp)&&/^[a-z0-9-]+$/.test(VAULT.linkSlug(n.vp)))
@@ -7048,6 +7078,7 @@ function vPull(){if(!vOn()||vBusy)return Promise.resolve(false);vBusy=true;vRend
     var i=0;function next(){if(i>=todo.length)return Promise.resolve();var batch=todo.slice(i,i+6);i+=6;
       return Promise.all(batch.map(function(t){return vApi(vUrl('/git/blobs/'+t.sha)).then(function(b){if(b.status===200&&typeof b.j.content==='string'){try{VC.files[t.path]={sha:t.sha,t:b64d(b.j.content)};}catch(e){}}});})).then(next);}
     return next().then(function(){vBusy=false;vMsg='';vAt=vClock();vSaveC();vApply();vRender();if($('nsheet').open&&$('ns-text').readOnly)paintHl();if(tab==='sheets'||tab==='dash'||tab==='treeni')render();
+      if($('note-graph').open)graphBuild();
       if(Object.values(VC.q).some(function(o){return o.direct;}))vFlush();
       return true;});});}
 /* Välimuisti -> muistiinpanot (vain tiedostot, joilla ei ole lähtemättömiä omia muutoksia) */
@@ -7192,6 +7223,183 @@ function vStart(){
 /* 0.5: [[linkki]] -> muistiinpano (tiedostonimen mukaan koko vaultista), lukunäkymässä napautus avaa sen */
 function vNoteOf(slug){slug=String(slug||'').toLowerCase();if(!slug)return null;var L=vNotes(),i;for(i=0;i<L.length;i++)if(L[i].vp&&VAULT.linkSlug(L[i].vp).toLowerCase()===slug)return L[i];
   for(i=0;i<L.length;i++)if(L[i].vp&&L[i].vp.replace(/\.md$/i,'').toLowerCase()===slug)return L[i];return null;}
+/* Wikilinkkien hakemisto palvelee paikallista graafia ja takaisinlinkkejä. */
+var vLinkCache=null;
+function vLinkIndex(){
+  var notes=vNotes(),signature=notes.map(function(n){
+    return [n.id,n.vp,n.text,!!n.arch,!!n.vp&&VAULT.visible(n.vp)&&VAULT.kindOf(n.vp,n.vfm)!=='ohje'];
+  });
+  if(vLinkCache&&vLinkCache.signature.length===signature.length&&signature.every(function(s,i){
+    return s.every(function(value,j){return value===vLinkCache.signature[i][j];})&&vLinkCache.notes[i]===notes[i];
+  }))return vLinkCache;
+  var slugs=new Map(),paths=new Map(),byId=new Map(),incoming=new Map(),outgoing=new Map();
+  notes.forEach(function(note,i){
+    if(!note.vp)return;
+    var slug=VAULT.linkSlug(note.vp).toLowerCase(),path=note.vp.replace(/\.md$/i,'').toLowerCase();
+    if(!slugs.has(slug))slugs.set(slug,note);
+    if(!paths.has(path))paths.set(path,note);
+    if(!signature[i][3]&&signature[i][4]){
+      byId.set(note.id,note);incoming.set(note.id,new Set());outgoing.set(note.id,new Set());
+    }
+  });
+  byId.forEach(function(note){
+    var formulas=noteFormulaSpans(note.text);
+    VAULT.links(note.text).forEach(function(link){
+      if(formulas.some(function(f){return link.s>=f.start&&link.s<f.end;}))return;
+      var key=link.slug.toLowerCase(),target=slugs.get(key)||paths.get(key);
+      if(!target||target.id===note.id||!byId.has(target.id))return;
+      outgoing.get(note.id).add(target.id);incoming.get(target.id).add(note.id);
+    });
+  });
+  vLinkCache={signature:signature,notes:notes.slice(),byId:byId,incoming:incoming,outgoing:outgoing};
+  return vLinkCache;
+}
+var graphState=null,graphCanvas=$('note-graph-canvas'),graphPointer=null;
+function graphNeighbors(index,id){
+  return new Set([...(index.outgoing.get(id)||[]),...(index.incoming.get(id)||[])]);
+}
+function graphOpen(note){
+  var filter=$('note-graph-filter');filter.textContent='';
+  function option(value,name){var o=el('option','',name);o.value=value;filter.appendChild(o);}
+  option('','Kaikki linkit');
+  nvViews().forEach(function(view){option(view.id,view.name);});
+  graphState={root:note.id,selected:note.id,depth:1,zoom:1,x:0,y:0,positions:new Map()};
+  openSheet($('note-graph'));graphBuild();
+}
+function graphBuild(){
+  var state=graphState;if(!state||!$('note-graph').open)return;
+  var index=vLinkIndex(),root=index.byId.get(state.root),view=nvViews().find(function(v){return v.id===$('note-graph-filter').value;});
+  state.index=index;
+  var nodes=new Map(),level=[state.root];
+  if(root){
+    nodes.set(state.root,0);
+    for(var depth=1;depth<=state.depth;depth++){
+      var next=[];
+      level.forEach(function(id){graphNeighbors(index,id).forEach(function(neighbor){
+        if(nodes.has(neighbor)||view&&!nvPass(view,index.byId.get(neighbor)))return;
+        nodes.set(neighbor,depth);next.push(neighbor);
+      });});
+      level=next;
+    }
+  }
+  state.count=nodes.size;state.nodes=new Map(Array.from(nodes).slice(0,72));
+  if(!state.nodes.has(state.selected))state.selected=state.root;
+  $('note-graph-depth1').setAttribute('aria-pressed',String(state.depth===1));
+  $('note-graph-depth2').setAttribute('aria-pressed',String(state.depth===2));
+  var list=$('note-graph-list');list.textContent='';
+  if(state.count>72)list.appendChild(el('p','sub','Näytetään 72 / '+state.count+' muistiinpanoa.'));
+  state.nodes.forEach(function(depth,id){
+    if(!depth)return;
+    var note=index.byId.get(id),b=button(list,noteTitle(note)||'Nimetön','mini',function(){graphSelect(id);});
+    b.dataset.noteId=id;b.setAttribute('aria-pressed',String(id===state.selected));
+    b.addEventListener('dblclick',function(){graphGo(id);});
+  });
+  graphSelect(state.selected);
+}
+function graphSelect(id){
+  var state=graphState;if(!state)return;
+  state.selected=id;
+  var note=state.index.byId.get(id),links=graphNeighbors(state.index,id).size;
+  $('note-graph-preview').textContent=note?(noteTitle(note)||'Nimetön')+' · '+links+(links===1?' yhteys':' yhteyttä'):'Muistiinpano ei ole enää näkyvissä.';
+  $('note-graph-open').disabled=!note||id===state.root;
+  $('note-graph-list').querySelectorAll('button').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.noteId===id));});
+  graphDraw();
+}
+function graphGo(id){
+  if(!graphState||id===graphState.root)return;
+  var note=vLinkIndex().byId.get(id);
+  if(!note){graphBuild();return;}
+  closeSheet($('note-graph'));
+  if($('nsheet').open)$('ns-ok').click();
+  if(!$('nsheet').open)openNote(note);
+}
+function graphDraw(){
+  var state=graphState,canvas=graphCanvas;if(!state||!$('note-graph').open)return;
+  var width=canvas.clientWidth,height=canvas.clientHeight,ratio=Math.min(window.devicePixelRatio||1,2);
+  if(!width||!height)return;
+  if(canvas.width!==Math.round(width*ratio))canvas.width=Math.round(width*ratio);
+  if(canvas.height!==Math.round(height*ratio))canvas.height=Math.round(height*ratio);
+  var ctx=canvas.getContext('2d');if(!ctx)return;
+  ctx.setTransform(ratio,0,0,ratio,0,0);ctx.clearRect(0,0,width,height);
+  ctx.translate(width/2+state.x,height/2+state.y);ctx.scale(state.zoom,state.zoom);
+  var colors=getComputedStyle(canvas),accent=colors.getPropertyValue('--accent').trim(),label=colors.getPropertyValue('--label').trim();
+  var positions=new Map(),index=state.index,radius=Math.min(width,height)/2-27;
+  var first=[],second=[];
+  state.nodes.forEach(function(depth,id){if(!depth)positions.set(id,{x:0,y:0});else (depth===1?first:second).push(id);});
+  function ring(ids,factor){
+    ids.forEach(function(id,i){
+      var angle=(2*Math.PI*i/ids.length)-Math.PI/2;
+      positions.set(id,{x:Math.cos(angle)*radius*factor,y:Math.sin(angle)*radius*factor});
+    });
+  }
+  ring(first,second.length?.58:.82);ring(second,.94);state.positions=positions;
+  ctx.strokeStyle=label;ctx.globalAlpha=.31;ctx.lineWidth=1;
+  positions.forEach(function(p,id){
+    index.outgoing.get(id).forEach(function(other){
+      var target=positions.get(other);if(!target)return;
+      ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(target.x,target.y);ctx.stroke();
+    });
+  });
+  ctx.globalAlpha=1;ctx.font='12px system-ui';ctx.textAlign='center';ctx.textBaseline='top';
+  positions.forEach(function(p,id){
+    var note=index.byId.get(id),kind=VAULT.kindOf(note.vp,note.vfm),selected=id===state.selected;
+    p.r=id===state.root?9:Math.min(9,4+Math.sqrt(graphNeighbors(index,id).size));
+    ctx.fillStyle=id===state.root?accent:kind==='yhdessa'?colors.getPropertyValue('--srcy').trim():kind==='tekoaly'?colors.getPropertyValue('--srcai').trim():label;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,2*Math.PI);ctx.fill();
+    if(selected){ctx.strokeStyle=accent;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(p.x,p.y,p.r+4,0,2*Math.PI);ctx.stroke();}
+    if(selected||id===state.root||positions.size<=9){
+      var title=noteTitle(note)||'Nimetön';ctx.fillStyle=label;
+      ctx.fillText(title.length>25?title.slice(0,24)+'…':title,p.x,p.y+p.r+4,135);
+    }
+  });
+}
+function graphZoom(factor){
+  if(!graphState)return;
+  graphState.zoom=Math.max(.55,Math.min(3,graphState.zoom*factor));graphDraw();
+}
+function graphHit(event){
+  var state=graphState,r=graphCanvas.getBoundingClientRect(),hit=null,distance=Infinity;
+  state.positions.forEach(function(p,id){
+    var d=Math.hypot(event.clientX-r.left-r.width/2-state.x-p.x*state.zoom,
+      event.clientY-r.top-r.height/2-state.y-p.y*state.zoom);
+    if(d<=Math.max(12,p.r*state.zoom+4)&&d<distance){hit=id;distance=d;}
+  });
+  return hit;
+}
+$('note-graph-depth1').addEventListener('click',function(){graphState.depth=1;graphBuild();});
+$('note-graph-depth2').addEventListener('click',function(){graphState.depth=2;graphBuild();});
+$('note-graph-filter').addEventListener('change',graphBuild);
+$('note-graph-open').addEventListener('click',function(){graphGo(graphState.selected);});
+$('note-graph-plus').addEventListener('click',function(){graphZoom(1.2);});
+$('note-graph-minus').addEventListener('click',function(){graphZoom(1/1.2);});
+$('note-graph-reset').addEventListener('click',function(){
+  graphState.zoom=1;graphState.x=graphState.y=0;graphDraw();
+});
+$('note-graph').addEventListener('close',function(){graphState=null;graphPointer=null;});
+window.addEventListener('resize',graphDraw);
+graphCanvas.addEventListener('wheel',function(event){
+  if(!graphState||event.ctrlKey||event.metaKey)return;
+  event.preventDefault();graphZoom(event.deltaY>0?1/1.12:1.12);
+},{passive:false});
+graphCanvas.addEventListener('pointerdown',function(event){
+  if(!graphState||event.button!==0||graphPointer)return;
+  graphPointer={id:event.pointerId,x:event.clientX,y:event.clientY,startX:graphState.x,startY:graphState.y,moved:false};
+  graphCanvas.setPointerCapture(event.pointerId);
+});
+graphCanvas.addEventListener('pointermove',function(event){
+  var drag=graphPointer;if(!graphState||!drag||event.pointerId!==drag.id)return;
+  var dx=event.clientX-drag.x,dy=event.clientY-drag.y;
+  if(!drag.moved&&Math.hypot(dx,dy)<5)return;
+  drag.moved=true;graphState.x=drag.startX+dx;graphState.y=drag.startY+dy;graphDraw();
+});
+graphCanvas.addEventListener('pointerup',function(event){
+  var drag=graphPointer;if(!graphState||!drag||event.pointerId!==drag.id)return;
+  graphPointer=null;if(drag.moved)return;
+  var hit=graphHit(event);if(hit)graphSelect(hit);
+});
+graphCanvas.addEventListener('lostpointercapture',function(){graphPointer=null;});
+graphCanvas.addEventListener('dblclick',function(event){var hit=graphHit(event);if(hit)graphGo(hit);});
+
 function vTitleOf(slug){var N=vNoteOf(slug);return N?noteTitle(N):'';}
 function vLinkTap(ev,x,y){var ta=$('ns-text');if(!ta.readOnly)return false;var c=hlOffsetAt(x,y);if(c<0)return false;
   if(noteFormulaSpans(ta.value).some(function(f){return c>=f.start&&c<f.end;}))return false;

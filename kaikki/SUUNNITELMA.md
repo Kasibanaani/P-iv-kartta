@@ -2,7 +2,7 @@
 
 Itsenäinen ohje mille tahansa tekoälylle (Claude, ChatGPT/Codex, muu). Aiempaa keskustelua ei tarvitse muistaa. Lue ensin repon `AGENTS.md`, sitten `kaikki/TILA.md` ja tämä. Emilin päätökset on merkitty **Emil**, tekoälyn ehdotukset *ehdotus*. Ehdotus ei ole toteutuslupa; Emilin ”toteuta” on.
 
-Päivitetty 23.11.2026 (versio 0.49). Seuraavaksi paikallinen graafi, kohta 19. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
+Päivitetty 23.11.2026 (versio 0.50). Seuraavaksi Muistion takaisinlinkki- ja tunnistesarakkeet. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
 
 ## Yhteiset säännöt (Kaikki)
 
@@ -62,7 +62,7 @@ Myöhemmin samaan jatkoon (v2.1): solujen muotoilu (lihavointi, tasaus, lukumuot
 
 **C. Kokeilu (tulos ja avoimet päätökset Emilille ennen pysyvää muotoa):** kohta 7 Flow tekstinä.
 
-**A3. Uudet v1:t (Emil 22.11. illalla):** kohta 18 (toistuvuus kenttänä, Toistuvat-lista) ja kohta 19 (graafinäkymä, ensin paikallinen). Kohta 20 (kanvaasi) hyllyllä Emilin päätöksellä. **Emil 22.11. illalla: etusijalla kalenterin siistiminen (A1b) ja taulukot: laskentataulukon, tietokantamaisen näkymän ja kojelaudan yhteensovitus; taulukoiden on toimittava sulavasti ja vakaasti, ettei raskaus estä käyttöä.**
+**A3. Uudet v1:t (Emil 22.11. illalla):** kohta 18 (toistuvuus kenttänä, Toistuvat-lista) ja ~~kohta 19 (paikallinen graafi)~~ tehty 0.50. Kohta 20 (kanvaasi) hyllyllä Emilin päätöksellä. **Emil 22.11. illalla: etusijalla kalenterin siistiminen (A1b) ja taulukot: laskentataulukon, tietokantamaisen näkymän ja kojelaudan yhteensovitus; taulukoiden on toimittava sulavasti ja vakaasti, ettei raskaus estä käyttöä.**
 - ~~**A3.0 Taulukot nopeiksi**~~ tehty 0.37 (paikallaan päivitys, välimuisti, yli 200 rivin virtualisointi; mittaukset TILAssa).
 - ~~**A3.1 Välilehti näkymänä muistiinpanoista**~~ tehty 0.38 (muistiinpanon avaus Enterillä; sarakkeiden muokkain apissa vielä puuttuu) (kohta 12, sama muoto kuin `nakymat/`): rivit muistiinpanoista vain luku -soluina, omat kaavasarakkeet viereen, kaavat viittaavat niihin kuten tavallisiin soluihin. Muistiinpanon solusta pääsee avaamaan muistiinpanon.
 - ~~**A3.2 Kojelaudan kortti taulukon solusta tai alueesta**~~ tehty 0.39 (kohta 13 v1-osa: luku, palkki, minigraafi; ei vielä vapaata sijoittelua).
@@ -342,7 +342,7 @@ Kokeile testiaineistolla ensin Flow'n lukemista sisennetystä Markdownista. Jatk
 - 0.35:n `toistuvat/<nimi>.md` -tiedostot muutetaan tähän muotoon (`toistuu`, `seuraava`, kuittaukset), jolloin vanha Toistuvat-rakenne voidaan karsia. Toistuvan synnyttämiä erillisiä muistiinpanoja ei enää tarvita.
 - Testi: kuittaus etuajassa siirtää seuraavan, tasavälein ei siirrä, erääntyneet ensin, kahden laitteen synkka.
 
-## 19. Graafinäkymä (Emil 22.11.2026: ”graphic mode kuten Obsidianissa, onko raskas?”)
+## ~~19. Paikallinen graafinäkymä~~ (tehty 0.50) (Emil 22.11.2026: ”graphic mode kuten Obsidianissa, onko raskas?”)
 
 **Arvio:** ei raskas nykyisellä vaultilla (n. 150 muistiinpanoa; tuhansillekin kevyt omalla yksinkertaisella voimasimulaatiolla ja canvas-piirrolla ilman kirjastoja, n. 200 riviä). Koko vaultin graafi on yleensä lähinnä kaunis; **paikallinen graafi** (avoimen muistiinpanon naapurit 1–2 askeleen päähän) on käytännössä hyödyllisempi.
 **v1 ilman lisäkysymyksiä:** tietokoneella osio tai Muistion näkymä *Graafi*: pisteet = muistiinpanot, viivat = `[[linkit]]` (ja valinnaisesti yhteiset tunnisteet ohuempina), väri kuka kirjoitti -värien mukaan, koko linkkien määrän mukaan; vieritys ja zoomaus, napautus avaa esikatselun, kaksoisnapautus muistiinpanon. Muistiinpanoikkunaan *Paikallinen graafi* -painike. Suodatus samoilla ehdoilla kuin näkymissä. Simulaatio pysähtyy, kun asettelu on valmis (ei kuluta akkua).
