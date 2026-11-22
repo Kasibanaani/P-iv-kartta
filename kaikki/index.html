@@ -1559,7 +1559,9 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 .note-select-actions{position:sticky;bottom:0;z-index:4;display:flex;gap:8px;align-items:center;flex-wrap:wrap;
   background:var(--bar);border:1px solid var(--sep);border-radius:12px;padding:8px;margin:8px 0}
 .note-select-actions [role="status"]{font-size:14px;margin-inline-end:auto}
-#note-batch-delete{width:min(430px,calc(100vw - 28px))}
+#note-batch-delete,#note-batch-tags{width:min(430px,calc(100vw - 28px))}
+#note-batch-tags input{width:100%}
+@media (min-width:1000px){.note-select-actions{position:static}}
 .rvh{position:sticky;top:calc(var(--nbh,0px) - 10px);z-index:3;overflow:hidden;background:var(--bg);border-bottom:1px solid var(--sep)}
 .nlist.rvb{display:block;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;background:var(--cell);border-radius:0 0 12px 12px}.nlist.rvb::-webkit-scrollbar{display:none}
 @media (min-width:1000px){
@@ -1796,6 +1798,19 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
     <button type="button" class="btn" id="xy-cancel" data-done>Peru</button>
     <button type="button" class="btn solid" id="xy-ok">OK</button>
   </div>
+</dialog>
+<dialog id="note-batch-tags" aria-labelledby="note-batch-tag-title">
+  <h2 id="note-batch-tag-title">Lisää tunniste</h2>
+  <form id="note-batch-tag-form">
+    <p id="note-batch-tag-count" class="sub"></p>
+    <input id="note-batch-tag-input" type="text" aria-label="Tunniste" placeholder="#tunniste"
+           maxlength="100" autocapitalize="off" spellcheck="false" required>
+    <p id="note-batch-tag-status" class="msg" role="status"></p>
+    <div class="btnrow">
+      <button type="button" class="btn" id="note-batch-tag-cancel" data-done>Peru</button>
+      <button type="submit" class="btn solid" id="note-batch-tag-save">Lisää</button>
+    </div>
+  </form>
 </dialog>
 <dialog id="note-batch-delete" aria-labelledby="note-batch-title">
   <h2 id="note-batch-title">Siirrä roskakoriin?</h2>
@@ -4631,7 +4646,7 @@ $('nav').addEventListener('click',function(ev){var b=ev.target.closest('[data-ta
 /* 1.55 (I1): isot ikkunat täyttävät tilan yläpalkin ja alapalkin välissä. Otsikon edessä harmaana se, minne ruksi palaa
    (välilehti tai alla oleva ikkuna). Puhelimella 1.74:stä alkaen ikkunalla on oma alapalkki, jonka ‹-nappi sulkee kuten ruksi; osio ei vaihdu. */
 /* 1.105 (Emil 18.11.2026): listojen ikkunat (Listat, rivin ikkuna) ovat pieniä ikkunoita päällä; ulkopuolinen napautus sulkee, ei ruksia */
-var SMALL={csheet:1,dsheet:1,pksheet:1,wsheet:1,ksheet:1,pvsheet:1,gsheet:1,'vwork-sheet':1,'section-settings':1,'dash-entry':1,'quick-entry':1,'xy-picker':1,'note-batch-delete':1,'sheet-edit':1,'sheet-new':1,'board-edit':1,'tag-migration':1,'writing-guide':1,'flow-text-preview':1};
+var SMALL={csheet:1,dsheet:1,pksheet:1,wsheet:1,ksheet:1,pvsheet:1,gsheet:1,'vwork-sheet':1,'section-settings':1,'dash-entry':1,'quick-entry':1,'xy-picker':1,'note-batch-delete':1,'note-batch-tags':1,'sheet-edit':1,'sheet-new':1,'board-edit':1,'tag-migration':1,'writing-guide':1,'flow-text-preview':1};
 function barSizes(){var t=$('top'),n=$('pbar').offsetParent?$('pbar'):$('nav'),r=document.documentElement.style;
   if(t)r.setProperty('--toph',Math.max(0,Math.round(t.getBoundingClientRect().bottom))+'px');
   if(typeof land==='function'&&land()){r.setProperty('--toph','0px');r.setProperty('--navh','0px');r.setProperty('--sbh','0px');return;}
@@ -4690,7 +4705,7 @@ function crumbSync(){var k=tabKey(),k0=kOf(),t=(k0?k0.name:'Juuri')+' · '+(MODE
   if(d){var h=d.querySelector('h2'),ht=h?clean(h.textContent):'';if(ht)t+=' › '+ht;}$('crumb').textContent=t;}
 /* Ikkunan sulkeminen ohi napauttamalla tai Esc tallentaa samoin kuin Valmis */
 function sheetDone(d){var ok=d.querySelector('[data-done]');if(ok)ok.click();else closeSheet(d);}
-var SHEETS=['phsheet','wsheet','ehsheet','vsheet','psheet','xsheet','lsheet','ksheet','esheet','nsheet','tsheet','rsheet','hsheet','csheet','fsheet','pksheet','dsheet','pvsheet','gsheet','vwork-sheet','section-settings','dash-entry','quick-entry','xy-picker','note-batch-delete','sheet-edit','sheet-new','board-edit','tag-migration','writing-guide','flow-text-preview'];
+var SHEETS=['phsheet','wsheet','ehsheet','vsheet','psheet','xsheet','lsheet','ksheet','esheet','nsheet','tsheet','rsheet','hsheet','csheet','fsheet','pksheet','dsheet','pvsheet','gsheet','vwork-sheet','section-settings','dash-entry','quick-entry','xy-picker','note-batch-delete','note-batch-tags','sheet-edit','sheet-new','board-edit','tag-migration','writing-guide','flow-text-preview'];
 SHEETS.forEach(function(id){var d=$(id);d.addEventListener('close',modalSync);d.addEventListener('click',function(ev){if(ev.target!==d||d.classList.contains('dock'))return;
     if(!d.classList.contains('big')||matchMedia('(max-width:999px)').matches){var q=d.getBoundingClientRect(),x=ev.clientX,y=ev.clientY;
       if(x>=q.left&&x<=q.right&&y>=q.top&&y<=q.bottom)return;sheetDone(d);return;}
@@ -5437,6 +5452,8 @@ function noteSelectionCount(){
   noteSelection.forEach(function(id){if(!visible.has(id))noteSelection.delete(id);});
   count.textContent='Valittu '+noteSelection.size;
   $('note-batch-archive').disabled=$('note-batch-open').disabled=!noteSelection.size;
+  var tagButton=$('note-batch-tag-open');
+  if(tagButton)tagButton.disabled=!data.notes.some(function(n){return noteSelection.has(n.id)&&noteBatchTaggable(n);});
 }
 function bindNoteSelection(row,n,target){
   row.removeAttribute('role');row.removeAttribute('tabindex');row.classList.add('note-selectable');
@@ -5471,8 +5488,70 @@ function addNoteSelectionActions(panel){
     $('note-batch-summary').textContent=noteBatchPending.length===1?'Valittu muistiinpano siirretään roskakoriin.':noteBatchPending.length+' valittua muistiinpanoa siirretään roskakoriin.';
     openSheet($('note-batch-delete'));
   }).id='note-batch-open';
-  panel.appendChild(bar);
+  if(noteOrderEnabled())button(bar,'Lisää tunniste','btn',function(){openNoteBatchTags(chosen());}).id='note-batch-tag-open';
+  if(wide())panel.insertBefore(bar,panel.querySelector('.rvh')||$('nlist'));
+  else panel.appendChild(bar);
 }
+var noteBatchTagScope=null;
+function noteBatchTaggable(n){
+  return !n.arch&&!!n.vp&&VAULT.visible(n.vp)&&VAULT.kindOf(n.vp,n.vfm)!=='ohje';
+}
+function openNoteBatchTags(notes){
+  var paths=notes.filter(noteBatchTaggable).map(function(n){return n.vp;});
+  if(!paths.length)return;
+  noteBatchTagScope={repo:vRepo(),branch:G.branch,project:data.k,paths:paths};
+  $('note-batch-tag-count').textContent=paths.length===1?'1 muistiinpano':paths.length+' muistiinpanoa';
+  var input=$('note-batch-tag-input');
+  input.value='';$('note-batch-tag-status').textContent='';
+  openSheet($('note-batch-tags'));input.focus();
+}
+$('note-batch-tag-cancel').addEventListener('click',function(){closeSheet($('note-batch-tags'));});
+$('note-batch-tag-form').addEventListener('submit',async function(event){
+  event.preventDefault();
+  var scope=noteBatchTagScope,dialog=$('note-batch-tags'),msg=$('note-batch-tag-status');
+  var input=$('note-batch-tag-input'),tag=noteTagKey(input.value);
+  if(!tag){msg.textContent='Anna yksi tunniste, esimerkiksi remontti tai työ-vapaa.';return;}
+  if(!scope||!noteOrderEnabled()||data.k!==scope.project||vRepo()!==scope.repo||G.branch!==scope.branch)return;
+  if(vBusy){msg.textContent='Vault synkronoi. Yritä uudelleen hetken kuluttua.';return;}
+  var controls=Array.from(dialog.querySelectorAll('button,input'));
+  controls.forEach(function(c){c.disabled=true;});
+  vBusy=true;vRender();msg.textContent='Tallennetaan…';
+  var added=0,failed=[];
+  try{
+    for(var path of scope.paths){
+      var changed=false;
+      try{
+        var result=await vWriteText(path,function(text){
+          changed=false;
+          if(!text)return {error:'Muistiinpanoa ei löytynyt.'};
+          var note=VAULT.noteOf(path,text.replace(/\r\n/g,'\n'));
+          if(!noteBatchTaggable(note))return {error:'Muistiinpano ei ole enää valittavissa.'};
+          if(noteTags(note).includes(tag))return text;
+          if(!addTagsToNote(note,[tag]).length)return {error:'Tunnistekentän muotoa ei tunnistettu.'};
+          var eol=text.includes('\r\n')?'\r\n':'\n';
+          var header=/^---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/.exec(text);
+          changed=true;
+          return ['---'].concat(note.vfm,['---','']).join(eol)+text.slice(header?header[0].length:0);
+        },'appi: tunniste valittuihin muistiinpanoihin',scope);
+        if(result.error){failed.push(path);continue;}
+        if(result.file)VC.files[path]=result.file;
+        if(changed)added++;
+      }catch(e){failed.push(path);}
+    }
+    vSaveC();vApply();render();
+    if(failed.length){
+      scope.paths=failed;
+      msg.textContent='Tallennettu '+added+'. '+failed.length+' muistiinpanoa jäi odottamaan. Voit yrittää uudelleen.';
+      return;
+    }
+    closeSheet(dialog);
+    toast(added?'Tunniste lisättiin '+added+' muistiinpanoon.':'Tunniste oli jo valituissa muistiinpanoissa.');
+    var again=$('note-batch-tag-open');if(again)again.focus();
+  }finally{
+    controls.forEach(function(c){c.disabled=false;});
+    vBusy=false;vRender();vFlush();
+  }
+});
 $('note-batch-cancel').addEventListener('click',function(){closeSheet($('note-batch-delete'));});
 $('note-batch-delete').addEventListener('close',function(){noteBatchPending=[];});
 $('note-batch-confirm').addEventListener('click',function(){
