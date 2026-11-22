@@ -3,6 +3,8 @@ ohje ja Päätöspuu ovat Valikossa. Tietokoneella (leveä) käytetään sivupal
 NAMES={'notes':'Muistio','cal':'Kalenteri','list':'Listat','terms':'Asiat','puu':'Flow','use':'Vanhat puut','teach':'Vanhat puut'}
 DESK={'#m-puu':'[data-tab="puu"]','#m-proj':'#title','#m-x':'#xbtn','#m-help':'#hint','#m-tree':'[data-tab="use"]'}
 async def menu(pg,sel):
+    if await pg.is_visible('#deskmenu') and sel in ('#m-x','#m-help','#m-proj','#m-gh'):
+        await pg.click('#deskmenu'); await pg.wait_for_timeout(40); await pg.click('#menupop '+sel); await pg.wait_for_timeout(40); return
     if await pg.is_visible('#menu'):
         await pg.click('#menu'); await pg.wait_for_timeout(40); await pg.click('#menupop '+sel); await pg.wait_for_timeout(40)
     else:

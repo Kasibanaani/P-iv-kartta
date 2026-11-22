@@ -10,7 +10,8 @@ APP = (Path(__file__).resolve().parents[1] / 'index.html').as_uri()
 
 async def open_settings(page, wide):
     if wide:
-        await page.locator('#section-settings-btn').click()
+        await page.locator('#deskmenu').click()
+        await page.locator('#m-sections').click()
     else:
         await page.locator('#roll').click()
         await page.locator('#section-settings-item').click()

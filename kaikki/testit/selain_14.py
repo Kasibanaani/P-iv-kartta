@@ -31,7 +31,8 @@ async def test(browser, width):
     await page.goto(APP)
     await page.wait_for_function("window.KaikkiTesti?.vault().files['data/paiva.csv']")
     if width >= 1000:
-        await page.locator('#writing-guide-btn').click()
+        await page.locator('#deskmenu').click()
+        await page.locator('#m-writing-guide').click()
     else:
         await page.locator('#menu').click()
         await page.locator('#m-writing-guide').click()

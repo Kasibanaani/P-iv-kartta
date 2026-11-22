@@ -19,10 +19,9 @@ async def run(p,w,h):
     except Exception: b=await p.chromium.launch(executable_path='/opt/pw-browsers/chromium')
     errs=[]; bad=[]
     pg=await (await b.new_context(viewport={'width':w,'height':h})).new_page()
-    await pg.add_init_script(FAKE+";(function(){var S=%s;if(!window.__repo.kept)for(var k in S)window.__repo.put(k,S[k]);try{if(!sessionStorage.getItem('__nogh'))localStorage.setItem('kaikki:gh',JSON.stringify({repo:'testi/vault',token:'x',branch:'main'}))}catch(e){}})();"%json.dumps(SEED))
+    await pg.add_init_script(FAKE+";(function(){var S=%s;if(!window.__repo.kept)for(var k in S)window.__repo.put(k,S[k]);try{localStorage.setItem('kaikki:gh',JSON.stringify({repo:'testi/vault',token:'x',branch:'main'}))}catch(e){}})();"%json.dumps(SEED))
     pg.on('pageerror',lambda e:(errs.append(str(e)),print('  PAGEERR',e)))
     def want(label,cond,info=''):
-        open(os.environ.get('KAIKKI_TESTILOKI','/tmp/kaikki_selain_08.log'),'a',encoding='utf8').write('%s %d %s %s\n'%('ok' if cond else 'VIRHE',w,label,info if not cond else ''))
         print('  %-48s %s %s'%(label,'ok' if cond else 'VIRHE',info if not cond else ''))
         if not cond: bad.append(label)
     print('leveys',w)
@@ -50,10 +49,11 @@ async def run(p,w,h):
             want('VARMUUSKOPIO.txt: repo ja määrä','testi/vault' in info and 'Tiedostoja: %d'%len(SEED) in info,info)
         except Exception as e: want('ZIP avautuu',False,str(e))
     want('ilmoitus ikkunassa',await pg.evaluate("/Kaikki-vault\\.zip/.test(document.getElementById('vs-msg').textContent)"))
-    # ilman vaultia nappi piilossa
-    await pg.evaluate("sessionStorage.setItem('__nogh','1');localStorage.removeItem('kaikki:gh')"); await pg.reload(); await pg.wait_for_timeout(800)
-    await pg.evaluate("document.getElementById('xbtn').click()"); await pg.wait_for_timeout(200)
-    want('ilman vaultia ZIP-nappi piilossa',not await pg.is_visible('#vs-zip'))
+    # ilman vaultia nappi piilossa (uusi ikkuna ilman yhteystietoja)
+    pg2=await (await b.new_context(viewport={'width':w,'height':h})).new_page()
+    await pg2.goto(U); await pg2.wait_for_timeout(800)
+    await pg2.evaluate("document.getElementById('xbtn').click()"); await pg2.wait_for_timeout(200)
+    want('ilman vaultia ZIP-nappi piilossa',not await pg2.is_visible('#vs-zip'))
     want('ei sivuvirheitä',not errs,errs)
     await b.close(); return bad
 async def main():

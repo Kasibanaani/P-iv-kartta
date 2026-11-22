@@ -19,12 +19,12 @@ async def run(p,w,h):
         if not cond: bad.append(label)
     print('leveys',w)
     await pg.goto(U); await pg.wait_for_timeout(800)
-    vis=await pg.is_visible('#ghbtn')
+    vis=await pg.is_visible('#deskmenu')
     if w<1000:
-        want('puhelimella pilvinappi piilossa',not vis)
+        want('puhelimella tietokoneen Valikko-nappi piilossa',not vis)
     else:
-        want('tietokoneella pilvinappi näkyy',vis)
-        await pg.click('#ghbtn'); await pg.wait_for_timeout(200)
+        want('tietokoneella Valikko-nappi näkyy (0.32: GitHub-vault Valikossa)',vis)
+        await pg.click('#deskmenu'); await pg.click('#m-gh'); await pg.wait_for_timeout(200)
         want('nappi avaa GitHub-vault-ikkunan',await pg.evaluate("document.getElementById('gsheet').open"))
         await pg.fill('#gs-repo','testi/vault'); await pg.fill('#gs-tok','x')
         await pg.click('#gs-save'); await pg.wait_for_timeout(2000)

@@ -54,11 +54,13 @@ async def run(browser, width):
     assert await page.evaluate("!__repo.log.some(entry => entry.startsWith('PUT '))")
 
     if width >= 1000:
-        await page.locator('#ghbtn').click()
+        await page.locator('#deskmenu').click()
+        await page.locator('#m-gh').click()
         await expect(page.locator('#gsheet')).to_be_visible()
         await page.mouse.click(2, 5)
         await expect(page.locator('#gsheet')).to_be_hidden()
-        await page.locator('#vworkbtn').click()
+        await page.locator('#deskmenu').click()
+        await page.locator('#m-vwork').click()
         await page.get_by_role('button', name='Pyydä järjestämään: saapuneet', exact=True).click()
     else:
         await page.locator('#menu').click()
@@ -81,7 +83,8 @@ async def run(browser, width):
     await expect(page.locator('#nsheet')).to_be_hidden()
 
     if width >= 1000:
-        await page.locator('#vworkbtn').click()
+        await page.locator('#deskmenu').click()
+        await page.locator('#m-vwork').click()
     else:
         await page.locator('#menu').click()
         await page.locator('#m-vwork').click()
