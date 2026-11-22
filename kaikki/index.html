@@ -1686,6 +1686,23 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 .tre-table tr th:first-child{position:sticky;inset-inline-start:0;z-index:1}
 .tre-table thead tr th:first-child{z-index:3}
 
+
+.tre-heat,.tre-weeks{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:3px}
+.tre-heat .tre-day{min-height:12px;aspect-ratio:1;max-height:24px;border-radius:4px;background:var(--fill)}
+.tre-heat .tre-future{opacity:.4}
+.tre-day[data-level="1"]{background:color-mix(in srgb,var(--accent) 25%,var(--fill))}
+.tre-day[data-level="2"]{background:color-mix(in srgb,var(--accent) 50%,var(--fill))}
+.tre-day[data-level="3"]{background:color-mix(in srgb,var(--accent) 75%,var(--fill))}
+.tre-day[data-level="4"]{background:var(--accent)}
+.tre-week{display:flex;flex-direction:column;gap:4px;text-align:center;font-size:11px}
+.tre-week-plot{height:60px;display:flex;align-items:end;justify-content:center}
+.tre-week-plot i{display:block;width:72%;background:var(--accent);border-radius:4px 4px 0 0}
+.tre-stats{display:grid;gap:8px}
+.tre-stat{display:grid;grid-template-columns:minmax(0,1fr) minmax(44px,108px) auto;align-items:center;gap:8px}
+.tre-goal,.tre-stat{padding:8px;border:1px solid var(--sep);border-radius:10px;background:var(--cell)}
+.tre-goal .tre-top span{flex:none;color:var(--label2);font-size:13px}
+.tre-goal progress{display:block;width:100%;height:12px;margin-top:5px;accent-color:var(--accent)}
+
 </style>
 </head>
 <body>
@@ -8080,11 +8097,12 @@ function renderTreeni(){
   var panel=panels.treeni;panel.textContent='';
   if(!vOn()){panel.appendChild(el('p','sub','Yhdistä GitHub-vault, jotta voit kirjata treenejä.'));return;}
   var model=treData(),bar=el('div','seg tre-nav');panel.appendChild(bar);
-  [['kirjaa','Kirjaa'],['liikkeet','Liikkeet'],['ryhmat','Lihasryhmät']].forEach(function(item){
+  [['kirjaa','Kirjaa'],['liikkeet','Liikkeet'],['ryhmat','Lihasryhmät'],['seuranta','Seuranta']].forEach(function(item){
     var b=button(bar,item[1],'',function(){treMode=item[0];main.scrollTop=0;renderTreeni();});
     b.id='tre-nav-'+item[0];b.setAttribute('aria-pressed',String(treMode===item[0]));
   });
   if(model.error){panel.appendChild(el('p','sub',model.error));return;}
+  if(treMode==='seuranta'){renderTreeniStats(panel,model);return;}
   if(treMode==='liikkeet'){
     treTable(panel,'Liikkeet',['Liike','Pääkohde','Sivukohde','Toistot','Sarjat / kerta','Sarjat / jakso','Painoaskel'],
       model.moves.map(function(m){
@@ -8181,6 +8199,102 @@ async function treWriteSet(draft){
   }catch(e){treMessage='Tallennusta ei voitu vahvistaa. Sama sarja on valmis uudelleenyritykseen.';}
   finally{treSaving=false;vBusy=false;vRender();vFlush();if(tab==='treeni')renderTreeni();}
 }
+function treProgress(parent,label,value,max,detail){
+  var row=el('div','tre-goal'),head=el('div','tre-top'),bar=el('progress');
+  head.append(el('strong','',label),el('span','',detail));row.appendChild(head);
+  bar.max=max;bar.value=Math.min(max,Math.max(0,value));bar.setAttribute('aria-label',label);row.appendChild(bar);
+  parent.appendChild(row);
+}
+function treHistoryByMove(rows){
+  var history=new Map();
+  rows.forEach(function(row){
+    var kg=dashNum(row.kg),reps=dashNum(row.toistot);
+    if(kg===null||kg<0||!(reps>0)||!row.treeni||!dashDay(row.pvm))return;
+    if(!history.has(row.liike_id))history.set(row.liike_id,new Map());
+    var visits=history.get(row.liike_id),key=row.treeni,old=visits.get(key),value=treOneRep(kg,reps);
+    if(!old||value>old.value)visits.set(key,{day:row.pvm,value:value});
+  });
+  return history;
+}
+function renderTreeniStats(panel,model){
+  var day=todayIso(),start=addDays(weekStart(day),-77),first=isoD(start);
+  var all=model.rows.filter(function(row){return dashDay(row.pvm)&&row.pvm<=day;});
+  var counts=new Map(),weekTotals=Array(12).fill(0),visible=all.filter(function(row){return row.pvm>=first;});
+  visible.forEach(function(row){counts.set(row.pvm,(counts.get(row.pvm)||0)+1);});
+  panel.appendChild(el('h3','','Treenipäivät · 12 viikkoa'));
+  var heat=el('div','tre-heat'),bars=el('div','tre-weeks');
+  heat.setAttribute('role','img');heat.setAttribute('aria-label',counts.size+' treenipäivää 12 viikossa');
+  for(var week=0;week<12;week++){
+    for(var d=0;d<7;d++){
+      var iso=isoD(addDays(start,week*7+d)),n=counts.get(iso)||0,cell=el('span','tre-day');
+      cell.classList.toggle('tre-future',iso>day);cell.dataset.level=String(Math.min(4,n?Math.ceil(n/3):0));
+      cell.title=fiDate(iso)+' · '+n+' sarjaa';cell.style.gridColumn=String(week+1);cell.style.gridRow=String(d+1);
+      weekTotals[week]+=n;heat.appendChild(cell);
+    }
+  }
+  panel.appendChild(heat);panel.appendChild(el('h3','','Viikon sarjat'));
+  var max=Math.max(1,...weekTotals);
+  weekTotals.forEach(function(n,i){
+    var weekDate=addDays(start,i*7),column=el('div','tre-week');
+    var plot=el('span','tre-week-plot');
+    plot.setAttribute('role','img');plot.setAttribute('aria-label','Viikko '+isoWeekNo(weekDate)+', '+n+' sarjaa');
+    var fill=el('i');fill.style.height=(100*n/max)+'%';plot.appendChild(fill);
+    column.append(plot,el('span','',String(isoWeekNo(weekDate))));bars.appendChild(column);
+  });
+  panel.appendChild(bars);
+  panel.appendChild(el('p','sub','Tällä viikolla '+weekTotals[11]+' sarjaa'));
+  var moves=model.moves.filter(function(move){return !move.arkisto;}),groups=model.settings.tavoitteet||{};
+  var history=treHistoryByMove(all),charts=el('div','tre-stats');
+  moves.forEach(function(move){
+    var visits=history.get(move.id);
+    if(!visits)return;
+    var values=Array.from(visits.values()).filter(function(visit){return visit.day>=first;})
+      .sort(function(a,b){return a.day.localeCompare(b.day);}).map(function(visit){return visit.value;});
+    if(!values.length)return;
+    var row=el('div','tre-stat'),line=nvGraph(values);
+    row.append(el('strong','',move.nimi),line,el('span','',dashFmt(values[values.length-1],{yksikko:'kg'})));
+    charts.appendChild(row);
+  });
+  if(charts.children.length){panel.appendChild(el('h3','','Arvioitu maksimi · 12 viikkoa'));panel.appendChild(charts);}
+  var targets=el('div','tre-stats'),side=dashNum(model.settings.sivu);
+  if(side===null)side=0.5;
+  var moveGroups=new Map(moves.map(function(move){return [move.id,{main:treGroupsOf(move.paa),side:treGroupsOf(move.sivu)}];}));
+  function windowStart(length){return isoD(addDays(fromIso(day),1-(Number.isInteger(length)&&length>0?length:7)));}
+  model.groups.forEach(function(name){
+    var goal=groups[name];
+    if(!goal||!(dashNum(goal.n)>0))return;
+    var since=windowStart(dashNum(goal.pv)||dashNum(model.settings.jakso)),total=0;
+    all.forEach(function(row){
+      var m=moveGroups.get(row.liike_id);if(!m||row.pvm<since)return;
+      if(m.main.includes(name))total++;
+      else if(m.side.includes(name))total+=side;
+    });
+    treProgress(targets,name,total,dashNum(goal.n),dashFmt(total,{})+' / '+dashFmt(dashNum(goal.n),{})+' sarjaa');
+  });
+  moves.forEach(function(move){
+    var goal=dashNum(move.sjakso);
+    if(goal>0){
+      var since=windowStart(dashNum(move.sjaksoPv)||dashNum(model.settings.jakso));
+      var total=all.filter(function(row){return row.liike_id===move.id&&row.pvm>=since;}).length;
+      treProgress(targets,move.nimi,total,goal,total+' / '+goal+' sarjaa');
+    }
+    var visits=Array.from((history.get(move.id)||new Map()).values()).sort(function(a,b){return a.day.localeCompare(b.day);});
+    (Array.isArray(move.goals)?move.goals:[]).forEach(function(g){
+      if(!g||!(dashNum(g.kg)>0)||!(dashNum(g.rep)>0))return;
+      var desired=treOneRep(dashNum(g.kg),dashNum(g.rep)),latest=visits.slice(-2);
+      var current=latest.length?Math.max.apply(null,latest.map(function(v){return v.value;})):0;
+      var startDay=g.luotu&&Number.isFinite(new Date(g.luotu).getTime())?isoD(new Date(g.luotu)):null;
+      var before=startDay?visits.filter(function(v){return v.day<=startDay;}).slice(-2):[];
+      var base=before.length?Math.max.apply(null,before.map(function(v){return v.value;})):visits.length?visits[0].value:0;
+      var reached=all.some(function(row){return row.liike_id===move.id&&dashNum(row.kg)>=g.kg&&dashNum(row.toistot)>=g.rep;});
+      var percent=reached?100:current>=desired?99:base>=desired?0:Math.max(0,Math.round(100*(current-base)/(desired-base)));
+      var label=move.nimi+' · '+dashFmt(dashNum(g.kg),{yksikko:'kg'})+' × '+g.rep;
+      treProgress(targets,label,percent,100,reached?'Saavutettu':percent+' %');
+    });
+  });
+  if(targets.children.length){panel.appendChild(el('h3','','Tavoitteet'));panel.appendChild(targets);}
+}
+
 HELP.treeni=['Treeni','<p>Valitse liike, säädä toistot ja paino ja napauta Kirjaa sarja. Painoehdotus käyttää edellistä treenikertaa. Voit aloittaa samalle päivälle uuden kerran painamalla Uusi treeni. Sarjat tallentuvat Vaultiin.</p>'];
 
 /* Kaikki 0.26: Taulukot-osio. */
