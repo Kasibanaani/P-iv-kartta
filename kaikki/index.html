@@ -1429,6 +1429,8 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 #section-settings-list label{display:flex;align-items:center;gap:12px;min-height:44px;cursor:pointer}
 #section-settings-list input{width:20px;height:20px;margin:0;accent-color:var(--accent)}
 @media (max-width:999px){#section-settings-btn{display:none}}
+#dash-entry-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0 12px}
+#dash-entry select{width:100%;min-height:44px;font:inherit;font-size:16px;color:var(--label);background:var(--cell);border:1px solid var(--sep);border-radius:10px}
 #vwork-files{display:grid;gap:6px;margin-top:12px}
 #vwork-files .btn{text-align:left;overflow-wrap:anywhere}
 #nsheet.vwork-file #ns-meta,#nsheet.vwork-file #ns-more{display:none}
@@ -1537,6 +1539,23 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 <dialog id="section-settings" aria-labelledby="section-settings-title">
   <h2 id="section-settings-title">Osiot tällä laitteella</h2>
   <div id="section-settings-list"></div>
+</dialog>
+<dialog id="dash-entry" aria-labelledby="dash-entry-title">
+  <h2 id="dash-entry-title">Kirjaa mittarit</h2>
+  <form id="dash-entry-form" aria-labelledby="dash-entry-title">
+    <label class="fl" for="dash-entry-day">Päivä</label>
+    <input type="date" id="dash-entry-day" name="pvm" required>
+    <div id="dash-entry-table-row" hidden>
+      <label class="fl" for="dash-entry-table">Mittarit</label>
+      <select id="dash-entry-table" name="taulukko"></select>
+    </div>
+    <div id="dash-entry-fields"></div>
+    <p class="msg" id="dash-entry-msg" role="status"></p>
+    <div class="btnrow">
+      <button type="submit" class="btn solid" id="dash-entry-save">Tallenna</button>
+      <button type="button" class="btn" id="dash-entry-reload" hidden>Näytä tuoreet arvot</button>
+    </div>
+  </form>
 </dialog>
 <dialog id="hsheet" aria-labelledby="hs-h">
   <h2 id="hs-h">Ohje</h2>
@@ -3776,7 +3795,7 @@ $('nav').addEventListener('click',function(ev){var b=ev.target.closest('[data-ta
 /* 1.55 (I1): isot ikkunat täyttävät tilan yläpalkin ja alapalkin välissä. Otsikon edessä harmaana se, minne ruksi palaa
    (välilehti tai alla oleva ikkuna). Puhelimella 1.74:stä alkaen ikkunalla on oma alapalkki, jonka ‹-nappi sulkee kuten ruksi; osio ei vaihdu. */
 /* 1.105 (Emil 18.11.2026): listojen ikkunat (Listat, rivin ikkuna) ovat pieniä ikkunoita päällä; ulkopuolinen napautus sulkee, ei ruksia */
-var SMALL={csheet:1,dsheet:1,pksheet:1,wsheet:1,ksheet:1,pvsheet:1,gsheet:1,'vwork-sheet':1,'section-settings':1};
+var SMALL={csheet:1,dsheet:1,pksheet:1,wsheet:1,ksheet:1,pvsheet:1,gsheet:1,'vwork-sheet':1,'section-settings':1,'dash-entry':1};
 function barSizes(){var t=$('top'),n=$('pbar').offsetParent?$('pbar'):$('nav'),r=document.documentElement.style;
   if(t)r.setProperty('--toph',Math.max(0,Math.round(t.getBoundingClientRect().bottom))+'px');
   if(typeof land==='function'&&land()){r.setProperty('--toph','0px');r.setProperty('--navh','0px');r.setProperty('--sbh','0px');return;}
@@ -3835,7 +3854,7 @@ function crumbSync(){var k=tabKey(),k0=kOf(),t=(k0?k0.name:'Juuri')+' · '+(MODE
   if(d){var h=d.querySelector('h2'),ht=h?clean(h.textContent):'';if(ht)t+=' › '+ht;}$('crumb').textContent=t;}
 /* Ikkunan sulkeminen ohi napauttamalla tai Esc tallentaa samoin kuin Valmis */
 function sheetDone(d){var ok=d.querySelector('[data-done]');if(ok)ok.click();else closeSheet(d);}
-var SHEETS=['phsheet','wsheet','ehsheet','vsheet','psheet','xsheet','lsheet','ksheet','esheet','nsheet','tsheet','rsheet','hsheet','csheet','fsheet','pksheet','dsheet','pvsheet','gsheet','vwork-sheet','section-settings'];
+var SHEETS=['phsheet','wsheet','ehsheet','vsheet','psheet','xsheet','lsheet','ksheet','esheet','nsheet','tsheet','rsheet','hsheet','csheet','fsheet','pksheet','dsheet','pvsheet','gsheet','vwork-sheet','section-settings','dash-entry'];
 SHEETS.forEach(function(id){var d=$(id);d.addEventListener('close',modalSync);d.addEventListener('click',function(ev){if(ev.target!==d||d.classList.contains('dock'))return;
     if(!d.classList.contains('big')||matchMedia('(max-width:999px)').matches){var q=d.getBoundingClientRect(),x=ev.clientX,y=ev.clientY;
       if(x>=q.left&&x<=q.right&&y>=q.top&&y<=q.bottom)return;sheetDone(d);return;}
@@ -5833,7 +5852,7 @@ function vZip(){if(!vOn())return;var F=vZipFiles(),n=Object.keys(F).length,now=n
 $('vs-zip').addEventListener('click',vZip);
 /* ---- Kaikki 0.7 (Emil 22.11.2026): Kojelauta. Kuvaajat vaultin data-kansiosta: data/mittarit.json kertoo taulukot ja sarakkeet,
    data/<taulukko>.csv luvut (vaultin ohje ohjeet/data.md). Vain päivämääräavaimiset taulukot. Lajit: asteikko = pisteet ja 7 päivän keskiarvo,
-   valinta = viiva tunnisteen mukaan, luku = viiva, kylla-ei = kertoja viikossa pylväinä. Omat SVG-kuvaajat, ei kirjastoja. Vain luku: mitään ei kirjoiteta. ---- */
+   valinta = viiva tunnisteen mukaan, luku = viiva, kylla-ei = kertoja viikossa pylväinä. Omat SVG-kuvaajat, ei kirjastoja. ---- */
 var DASHR=[['30','30 pv','30'],['90','3 kk','3kk'],['365','Vuosi','v'],['all','Kaikki','∞']];
 function dashRange(){var v=null;try{v=localStorage.getItem('kaikki:dashr');}catch(e){}return DASHR.some(function(r){return r[0]===v;})?v:'90';}
 function dashSpec(){var f=VC&&VC.files&&VC.files['data/mittarit.json'];if(!f)return null;try{var j=JSON.parse(f.t);return j&&Array.isArray(j.taulukot)?j:null;}catch(e){return {err:1};}}
@@ -5844,6 +5863,123 @@ function dashDay(iso){return /^\d{4}-\d{2}-\d{2}$/.test(iso||'')?iso:null;}
 function dashFmt(n,c){if(n==null)return '–';var s=(Math.round(n*10)/10).toString().replace('.',',');if(c.laji==='valinta'){var a=(c.arvot||[]).filter(function(x){return String(x[0])===String(n);})[0];if(a)return a[1];}
   if(c.laji==='kylla-ei')return n?'kyllä':'ei';return s+(c.yksikko?' '+c.yksikko:'');}
 function dashShort(iso){var d=fromIso(iso);return d.getDate()+'.'+(d.getMonth()+1)+'.';}
+/* 0.13: päivän mittarit tallennetaan nykyiseen CSV-muotoon. */
+function dashEntryCols(table,headers){
+  var columns=Array.isArray(table.sarakkeet)?table.sarakkeet:[];
+  return columns.filter(function(c){
+    return c&&/^[a-z][a-z0-9_-]*$/.test(c.id)&&headers.indexOf(c.id)>0&&
+      c.kaytossa!==false&&c.kirjaus!==false&&['asteikko','valinta','luku','kylla-ei'].indexOf(c.laji)>=0;
+  });
+}
+function dashEntryTables(spec){
+  return spec.taulukot.filter(function(table){
+    if(!table||!/^data\/[a-z0-9_-]+\.csv$/.test(table.tiedosto)||!VC.files[table.tiedosto])return false;
+    var headers=dashCsv(VC.files[table.tiedosto].t).h;
+    return headers[0]==='pvm'&&(!table.avain||table.avain==='pvm')&&dashEntryCols(table,headers).length>0;
+  });
+}
+function dashEntryField(fields,col,old){
+  var select=col.laji==='valinta'||col.laji==='kylla-ei',input=el(select?'select':'input'),row=el('div');
+  input.id='dash-metric-'+col.id;input.name=col.id;input.dataset.metric=col.id;
+  var label=el('label','fl',(col.nimi||col.id)+(col.yksikko?' ('+col.yksikko+')':''));
+  label.htmlFor=input.id;row.appendChild(label);row.appendChild(input);fields.appendChild(row);
+  if(select){
+    var options=col.laji==='kylla-ei'?[['1','Kyllä'],['0','Ei']]:(Array.isArray(col.arvot)?col.arvot:[]);
+    [['','—']].concat(options).forEach(function(pair){
+      if(!Array.isArray(pair)||/[,\r\n"]/.test(String(pair[0])))return;
+      var option=el('option','',String(pair[1]));option.value=String(pair[0]);input.appendChild(option);
+    });
+  }else{
+    input.type='number';
+    input.inputMode=col.laji==='asteikko'?'numeric':'decimal';
+    input.step=col.laji==='asteikko'?'1':'any';
+    if(col.min!=null)input.min=col.min;
+    if(col.max!=null)input.max=col.max;
+  }
+  input.value=old;
+  return {field:input,before:old,displayed:input.value};
+}
+function dashPatchDay(csv,day,edits){
+  var eol=csv.indexOf('\r\n')>=0?'\r\n':'\n',lines=csv.split(eol);
+  var headers=lines[0].split(',').map(function(k){return k.trim();});
+  if(headers[0]!=='pvm'||new Set(headers).size!==headers.length)return {error:'Mittaritaulukon otsikot ovat muuttuneet.'};
+  var match=-1,insert=lines.length;
+  for(var i=1;i<lines.length;i++){
+    var key=lines[i].split(',',1)[0].trim();
+    if(key===day){
+      if(match>=0)return {error:'Taulukossa on samalle päivälle kaksi riviä.'};
+      match=i;
+    }else if(dashDay(key)&&key>day&&insert===lines.length)insert=i;
+  }
+  var cells=match>=0?lines[match].split(','):[day],changed=false;
+  for(i=0;i<edits.length;i++){
+    var edit=edits[i],index=headers.indexOf(edit.id);
+    if(index<1)return {error:'Mittarin sarake on muuttunut.'};
+    var current=(cells[index]||'').trim();
+    if(current===edit.after)continue;
+    if(current!==edit.before)return {conflict:true,error:'Sama mittari muuttui GitHubissa. Tarkista tuoreet arvot ennen tallentamista.'};
+    cells[index]=edit.after;changed=true;
+  }
+  if(!changed)return {text:csv};
+  while(cells.length<headers.length)cells.push('');
+  if(match>=0)lines[match]=cells.join(',');
+  else{
+    while(insert>1&&!lines[insert-1].trim())insert--;
+    lines.splice(insert,0,cells.join(','));
+  }
+  return {text:lines.join(eol)};
+}
+async function dashWriteDay(path,day,edits,repo,branch){
+  var url=vUrl('/contents/'+vEnc(path));
+  for(var attempt=0;attempt<3;attempt++){
+    if(vRepo()!==repo||G.branch!==branch)return {error:'GitHub-vault vaihtui tallennuksen aikana.'};
+    var result=await vApi(url+'?ref='+encodeURIComponent(branch));
+    if(result.status!==200)return {error:vErr(result.status)};
+    var current={sha:result.j.sha,t:b64d(result.j.content)};
+    var patch=dashPatchDay(current.t,day,edits);
+    if(patch.error)return {error:patch.error,conflict:patch.conflict,file:current};
+    if(patch.text===current.t)return {file:current};
+    if(vRepo()!==repo||G.branch!==branch)return {error:'GitHub-vault vaihtui tallennuksen aikana.'};
+    var put=await vApi(url,'PUT',{message:'appi: päivän mittarit',content:b64e(patch.text),sha:current.sha,branch:branch});
+    if(put.status===200||put.status===201)return {file:{sha:put.j.content.sha,t:patch.text}};
+    if(put.status!==409&&put.status!==422)return {error:vErr(put.status)};
+  }
+  return {error:'Taulukkoa päivitettiin samanaikaisesti. Yritä uudelleen.'};
+}
+function showDashEntry(tables){
+  if(vBusy){toast('Vault synkronoi. Yritä hetken kuluttua.');return;}
+  var dialog=$('dash-entry'),form=$('dash-entry-form'),day=$('dash-entry-day'),pick=$('dash-entry-table');
+  var fields=$('dash-entry-fields'),msg=$('dash-entry-msg'),save=$('dash-entry-save'),reload=$('dash-entry-reload'),inputs=[];
+  day.value=todayIso();pick.textContent='';$('dash-entry-table-row').hidden=tables.length<2;
+  tables.forEach(function(T,i){var o=el('option','',T.nimi||T.id);o.value=i;pick.appendChild(o);});
+  function showFields(){
+    var T=tables[+pick.value],file=VC.files[T.tiedosto],data=dashCsv(file&&file.t);
+    var old=data.rows.find(function(row){return row.pvm===day.value;})||{};
+    fields.textContent='';msg.textContent='';reload.hidden=true;
+    inputs=dashEntryCols(T,data.h).map(function(col){return dashEntryField(fields,col,old[col.id]||'');});
+  }
+  day.onchange=pick.onchange=reload.onclick=showFields;
+  form.onsubmit=async function(event){
+    event.preventDefault();
+    if(vBusy||!vOn()){msg.textContent='Vaultin yhteys tai synkronointi estää tallennuksen juuri nyt.';return;}
+    var edits=inputs.filter(function(input){return input.field.value!==input.displayed;}).map(function(input){
+      return {id:input.field.name,before:input.before,after:input.field.value};
+    });
+    if(!edits.length){msg.textContent='Kirjauksia ei muutettu.';return;}
+    var path=tables[+pick.value].tiedosto,repo=vRepo(),branch=G.branch,when=day.value;
+    var controls=[day,pick,save].concat(inputs.map(function(input){return input.field;}));
+    controls.forEach(function(control){control.disabled=true;});
+    vBusy=true;vRender();msg.textContent='Tallennetaan…';reload.hidden=true;
+    try{
+      var result=await dashWriteDay(path,when,edits,repo,branch);
+      if(result.file&&vRepo()===repo&&G.branch===branch){VC.files[path]=result.file;vSaveC();}
+      if(result.error){msg.textContent=result.error;reload.hidden=!result.conflict;return;}
+      vAt=vClock();vMsg='';closeSheet(dialog);render();toast('Päivän mittarit tallennettu.');
+    }catch(e){msg.textContent='Mittareita ei voitu tallentaa. Tarkista vaultin yhteys.';}
+    finally{controls.forEach(function(control){control.disabled=false;});vBusy=false;vRender();vFlush();}
+  };
+  showFields();openSheet(dialog);
+}
 function renderDash(){var p=panels.dash;p.textContent='';setInfo('');
   var bar=el('div','seg dashr');bar.id='dashrange';bar.setAttribute('role','group');bar.setAttribute('aria-label','Aikaväli');var cur=dashRange();
   DASHR.forEach(function(r){var b=button(bar,'','',function(){try{localStorage.setItem('kaikki:dashr',r[0]);}catch(e){}render();});b.className='';b.dataset.r=r[0];b.setAttribute('aria-pressed',cur===r[0]?'true':'false');b.setAttribute('aria-label',r[1]);b.appendChild(el('span','lg',r[1]));b.appendChild(el('span','sh',r[2]));});
@@ -5851,6 +5987,8 @@ function renderDash(){var p=panels.dash;p.textContent='';setInfo('');
   if(!vOn()){p.appendChild(subI('Kojelauta näyttää GitHub-vaultin luvut. Yhdistä vault ensin.','Valikko → GitHub-vault (tietokoneella yläpalkin pilvi).'));return;}
   var S=dashSpec();if(!S){p.appendChild(subI('Vaultissa ei ole mittareita.','Kojelauta lukee vaultin tiedoston data/mittarit.json. Pyydä tekoälyä lisäämään mittari vaultin ohjeen ohjeet/data.md mukaan.'));return;}
   if(S.err){p.appendChild(el('p','sub','Tiedostoa data/mittarit.json ei voitu lukea (virheellinen muoto).'));return;}
+  var tables=dashEntryTables(S);
+  if(tables.length)button(top,'Kirjaa mittarit','btn',function(){showDashEntry(tables);}).id='dash-entry-open';
   var today=todayIso(),from=cur==='all'?null:isoD(addDays(fromIso(today),-(+cur-1))),any=false;
   S.taulukot.forEach(function(T){var f=VC.files[T.tiedosto];if(!f)return;var D=dashCsv(f.t),key=T.avain||D.h[0];
     var rows=D.rows.filter(function(r){return dashDay(r[key]);}).sort(function(a,b){return a[key]<b[key]?-1:a[key]>b[key]?1:0;});if(!rows.length&&!D.h.length)return;
