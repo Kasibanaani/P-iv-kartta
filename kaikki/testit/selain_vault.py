@@ -13,7 +13,7 @@ FAKE=open(os.path.join(D,'fakegh.js'),encoding='utf8').read()
 STOP=('---\ntyyppi: tieto\notsikko: STOP-taito\nkuvaus: Kriisinsietotaito.\nluotu: 2026-11-20\nlahde: claude\n---\n# STOP-taito\n\nKoulutus aiheesta '+TD+' klo 13-15.\n')
 PAIVA='---\ntyyppi: paiva\notsikko: Su 22.11.2026\nkuvaus: \nluotu: 2026-11-22\nlahde: emil+claude\n---\n# Su 22.11.2026\n\n## Mikä toimi\n\nAamulenkki.\n'
 SEED={'AGENTS.md':'# Ohje\n','ohjeet/data.md':'---\ntyyppi: ohje\n---\n# Data\n','inbox/_hakemisto.md':'---\ntyyppi: hakemisto\n---\n# Inbox\n',
-      'data/paiva.csv':'pvm,energia\n','tieto/dkt/stop-taito.md':STOP,'paivat/2026/2026-11-22.md':PAIVA}
+      'data/paiva.csv':'pvm,energia\n','tieto/dkt/stop-taito.md':STOP,'paivat/2026/2026-11-22.md':PAIVA,'alueet/tyo/tyo-alue.md':'---\ntyyppi: alue\nnakyy: ei\n---\n# Työ\n'}
 async def run(p,w,h):
     try: b=await p.chromium.launch()
     except Exception: b=await p.chromium.launch(executable_path='/opt/pw-browsers/chromium')
@@ -40,6 +40,16 @@ async def run(p,w,h):
     want('pelkkä haku ei kirjoita',log==[],log)
     t=await pg.evaluate("KaikkiTesti.notes().filter(function(n){return n.vp==='tieto/dkt/stop-taito.md';})[0].text")
     want('otsikko ilman #-merkkiä',t.startswith('STOP-taito\n\nKoulutus'),repr(t[:30]))
+    # siisti teksti: otsikko ilman merkkejä listassa, merkit haaleina kirjoittaessa ja piilossa lukunäkymässä
+    want('listassa otsikko ilman #-merkkejä',await pg.evaluate("document.body.innerText.indexOf('Su 22.11.2026')>=0&&document.body.innerText.indexOf('# Su')<0"))
+    await pg.evaluate("(function(){var n=KaikkiTesti.notes().filter(function(n){return n.vp==='paivat/2026/2026-11-22.md';})[0];var r=Array.prototype.filter.call(document.querySelectorAll('#notes button,.row,[data-id]'),function(e){return e.textContent.indexOf('Su 22.11.2026')>=0;})[0];if(r)r.click();})()"); await settle(300)
+    if await pg.evaluate("document.getElementById('nsheet').open"):
+        r=await pg.evaluate("(function(){var m=document.querySelectorAll('#ns-hl .mdm');return {n:m.length,hid:m.length?getComputedStyle(m[0]).display:'',reading:document.getElementById('nsheet').classList.contains('reading'),h:document.querySelectorAll('#ns-hl .mdh').length};})()")
+        want('lukunäkymä oletuksena, ## piilossa',r['reading'] and r['n']>=1 and r['hid']=='none' and r['h']>=1,r)
+        await pg.evaluate("document.getElementById('ns-text').readOnly=false;document.getElementById('nsheet').classList.remove('reading')")
+        want('kirjoittaessa merkit haaleina',await pg.evaluate("getComputedStyle(document.querySelector('#ns-hl .mdm')).display!=='none'"))
+        await pg.click('#nsheet .sx'); await settle(300)
+    else: want('päivän muistiinpano aukesi',False)
     # kalenteri: tekoälyn kirjoittama päivämäärä näkyy
     await tab(pg,'cal'); await settle(200)
     cal=await pg.evaluate("String(document.body.innerText.indexOf('STOP')>=0)")
@@ -63,6 +73,7 @@ async def run(p,w,h):
     await pg.evaluate("KaikkiTesti.pull()"); await settle(800)
     t=await pg.evaluate("KaikkiTesti.notes().filter(function(n){return n.vp==='tieto/dkt/stop-taito.md';})[0].text")
     want('tekoälyn muutos tuli appiin','klo 12-14' in t,t)
+    await pg.evaluate("__repo.put('alueet/tyo/uusi.md',__repo.get('alueet/tyo/uusi.md'))")
     want('tekoälyn uusi tiedosto tuli appiin',await pg.evaluate("KaikkiTesti.notes().some(function(n){return n.vp==='alueet/tyo/uusi.md';})"))
     # oma muokkaus olemassa olevaan -> PUT oikealla versiolla, alkutiedot säilyvät
     await pg.evaluate("(function(){var n=KaikkiTesti.notes().filter(function(n){return n.vp==='alueet/tyo/uusi.md';})[0];n.text=n.text+'\\nLisäys apista';n.edited=new Date().toISOString();})()")
@@ -74,6 +85,11 @@ async def run(p,w,h):
     await pg.evaluate("(function(){var L=KaikkiTesti.notes(),i=L.findIndex(function(n){return n.vp==='alueet/tyo/uusi.md';});L.splice(i,1);})()")
     await sync()
     want('poisto siirsi arkistoon',await pg.evaluate("!__repo.get('alueet/tyo/uusi.md')&&!!__repo.get('arkisto/alueet/tyo/uusi.md')"))
+    # nakyy: ei piilottaa ilman arkistointia
+    await pg.evaluate("__repo.put('paivat/2026/2026-11-22.md',__repo.get('paivat/2026/2026-11-22.md').replace('lahde: emil+claude','lahde: emil+claude\\nnakyy: ei'))")
+    await pg.evaluate("KaikkiTesti.pull()"); await settle(800); await sync()
+    r=await pg.evaluate("({inApp:KaikkiTesti.notes().some(function(n){return n.vp==='paivat/2026/2026-11-22.md';}),file:!!__repo.get('paivat/2026/2026-11-22.md'),arch:!!__repo.get('arkisto/paivat/2026/2026-11-22.md')})")
+    want('nakyy: ei piilottaa, ei arkistoi',(not r['inApp']) and r['file'] and not r['arch'],r)
     # samanaikainen muutos: molemmat versiot säilyvät
     await pg.evaluate("__repo.put('tieto/dkt/stop-taito.md',__repo.get('tieto/dkt/stop-taito.md')+'Tekoälyn lisäys\\n')")
     await pg.evaluate("(function(){var n=KaikkiTesti.notes().filter(function(n){return n.vp==='tieto/dkt/stop-taito.md';})[0];n.text=n.text+'\\nOma lisäys';})()")
@@ -83,7 +99,7 @@ async def run(p,w,h):
     want('jono tyhjä lopuksi',await pg.evaluate("Object.keys(KaikkiTesti.vault().q).length===0"),await pg.evaluate("JSON.stringify(Object.keys(KaikkiTesti.vault().q))"))
     # uudelleenlataus: jokaisella näkyvällä tiedostolla tasan yksi muistiinpano, ei kaksoiskappaleita
     await pg.reload(); await settle(2000)
-    r=await pg.evaluate("(function(){var vis=Object.keys(__repo.files).filter(VAULT.visible).sort(),n=KaikkiTesti.notes().map(function(x){return x.vp;}).sort();return {vis:vis,n:n};})()")
+    r=await pg.evaluate("(function(){var vis=Object.keys(__repo.files).filter(function(p){return VAULT.shown(p,__repo.get(p));}).sort(),n=KaikkiTesti.notes().map(function(x){return x.vp;}).sort();return {vis:vis,n:n};})()")
     want('uudelleenlataus: tiedostot = muistiinpanot',r['vis']==r['n'],r)
     await settle(1500)
     want('uudelleenlataus ei kirjoita',await pg.evaluate("Object.keys(KaikkiTesti.vault().q).length===0"))

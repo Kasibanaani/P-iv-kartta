@@ -1,6 +1,6 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.1 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
+**Vaihe:** versio 0.2 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
@@ -21,6 +21,10 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
 - Testit `sh kaikki/testit/aja.sh`: Juuren moottorin logiikkatestit (491), Juuren tuoreimmat selaintestit 1.104–1.109 ja `selain_vault.py` (vaultin synkka testirepoa vasten, `fakegh.js`), 390 ja 320 px. Juuren vanhemmat selaintestit jätettiin pois, koska ne eivät mene läpi Juuressakaan (vanhentuneet 1.108:n karsinnan jälkeen).
 
 - 0.1.1–0.1.2 (22.11.2026): avaimesta poistetaan näkymättömät merkit, yhteysvirheeseen tulee selaimen oma ilmoitus, eikä avainkenttä ole enää salasanakenttä (Safari täytti repokenttään kirjautumistiedon). Emil sai yhteyden toimimaan oikealla iPhonella.
+- **0.2 (22.11.2026, Emilin pyyntö): siisti teksti ja tekoälyn muistiinpanot piiloon.**
+  - Alkutiedoissa `nakyy: ei` → muistiinpano ei näy apissa (`VAULT.shown`). Jos tekoäly piilottaa jo näkyvän, se poistuu apista arkistoimatta.
+  - Markdown-merkit (`#`-otsikot, `- `-luettelot, `**lihavointi**`): lukunäkymässä merkit piilossa, otsikot ja lihavoinnit lihavoituna, luettelot pisteinä; kirjoittaessa merkit haaleina ja otsikot korostusvärillä. Teksti piirtyy korostuskerroksesta (`#ns-hl`), tekstikentän teksti on läpinäkyvä, jotta merkit voidaan häivyttää (`VAULT.mdMarks`). Vaultin `#`-otsikko (ensimmäinen rivi) korostettuna.
+  - Muistiinpano aukeaa oletuksena lukunäkymänä (Juuren 1.80-asetus, oletus muutettu). Otsikot listassa ja kalenterissa ilman merkkejä (`noteTitle` → `VAULT.mdPlain`).
 - **Mikä menee GitHubiin:** vain ensimmäisen projektin muistiinpanot (myös niiden kuittaukset ja kalenteriajat). Asetukset, ulkoasu, asiasanat, Listat, Flow, puut, Toistuvat-välilehden toistuvat, tarkistuslistat ja muut projektit ovat vain laitteella (`kaikki:v1`); varmuuskopio niistä Juuren viennillä.
 
 ## Ei tarkistettu
