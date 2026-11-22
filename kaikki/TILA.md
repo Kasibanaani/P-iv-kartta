@@ -58,6 +58,16 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
    - Löydetyt asiasanat, linkit ja päällekkäisyydet samaan pieneen rivin perään yhtenä ”Tiedot”-siruna tai ⋯-valikkoon, ei omina laatikoinaan tekstin alla.
    - Kaikki metatieto samassa kohdassa (tekstin yläpuolella), ei osa keskellä ja osa reunoilla.
 
+### Isommat ideat (Emil 22.11.2026: ”onko mahdollista?”, ei toteutuslistalla)
+
+Kaikki alla on tekoälyn arvion mukaan mahdollista ilman ulkoisia kirjastoja. Ehdotettu järjestys: A → B → C → D.
+- **Osiot laitekohtaisesti päälle/pois** (esim. kojelauta vain koneella). Helppo: asetukset ovat jo laitekohtaisia. *Ehdotus:* oletus leveyden mukaan, asetuksista voi muuttaa.
+- **A. Kojelauta ja graafit (tietokone ensin):** vaultin `data/*.csv` + `data/mittarit.json` → omat SVG-kuvaajat; leveällä näytöllä ruudukko. (Sama kuin Seuraava askel 1.)
+- **B. Flow / päätöspuut tekstinä vaultiin:** *ehdotus* oma kansio (esim. `flow/`), `tyyppi: flow`, runko sisennettynä luettelona (kysymys → vastaukset → seuraava askel), jonka ihminen, Obsidian ja tekoäly lukevat sellaisenaan ja Kaikki piirtää Flow'ksi. Pohjana Juuren nykyinen ”projekti tekstinä” -muoto ja sen tekoälyohje. Vaatii vaultin ohjeisiin päätöksen (`ohjeet/paatokset.md`, `ohjeet/appi.md`).
+- **C. Laskentataulukko vaultiin:** *ehdotus* `.md`-tiedosto (`tyyppi: taulukko`), jossa tavallinen markdown-taulukko; kaavasolut alkavat `=` (esim. `=SUMMA(B2:B8)`, viittaukset A1-muodossa). Tekoäly ja Obsidian lukevat sen, appi laskee, vienti CSV:nä muualle. Oma rajattu kaavakieli (perusmatikka, SUMMA, KESKIARVO, MIN, MAX, JOS, viittaukset); Kytköskartan kaavamoottorista voi lainata. Ei täyttä Excelia.
+- **D. Käyttäjäpuoli ja itse rakennettava kojelauta:** solu napiksi tai kytkimeksi, kortit (luku, kuvaaja, teksti, kuva) vapaasti sijoiteltuina, arvot soluista (`taulukko!B3`), muokkaustila ja lukittu käyttötila. Määrittely myös tiedostona vaultiin. Isoin osa; riski rakentaa Appi-appi uudelleen Kaikin sisään, joten suunnitellaan erikseen.
+- **Listat ja Asiat suhteessa vaultiin:** auki (Emil ei vielä hahmota). *Ehdotus pohdittavaksi:* Asiat ↔ vaultin `tagit`, Listat ↔ `- [ ]`-tehtävärivit tai `projektit/`.
+
 ## Ei tarkistettu
 
 - 0.6: Applen tekstikoko (`-apple-system-body`) kotinäytön kirjanmerkissä ja eri tekstikoilla; sormella kuittausympyrä, ⋯-valikko ja aikajanan pieni ympyrä (lyhyissä merkinnöissä ahdas). Nopeus mitattu vain tietokoneen hidastetulla selaimella.
