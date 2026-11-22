@@ -120,6 +120,26 @@ Kokeile testiaineistolla ensin Flow'n lukemista sisennetystä Markdownista. Jatk
   - **Linkki toiseen muistiinpanoon:** `[[tiedostonimi]]`.
 - Sama ohje myös vaultiin tiedostoksi (esim. `ohjeet/kirjoitusohje.md`, `nakyy: ei`), jotta tekoäly ja pikakomennot voivat käyttää samaa muotoa; appi näyttää apin oman version.
 
+## 9. Tunnisteet ja Muistion listan jatko (Emil 22.11.2026)
+
+**Nykytila (tarkistettu koodista ja vaultista 22.11.):** appi ei tunnista `#tunnisteita` tekstissä. Juuren Asiat (asiasanat) tunnistavat sanoja tekstistä ja suodattavat niillä. Vaultin alkutiedoissa on kenttä `tagit: [...]`, mutta appi ei käytä sitä (kaikissa vaultin tiedostoissa se on nyt tyhjä), eikä missään vaultin tiedostossa ole `#tunnisteita`.
+
+**Emil toivoo:**
+1. Käsin tägitys: `#tunniste` tekstissä, ja tekoäly ymmärtää sen.
+2. Valmiit suodatus- ja järjestysnäkymät Notionin tapaan (tunnisteiden mukaan suodatus ja järjestys), myöhemmin muokattavat apissa.
+3. Sarakkeiden järjestyksen muokkaus (myöhemmin).
+4. Monen valinta kerralla ja poisto (ja arkistointi) valituille.
+5. Käsin raahattava järjestys, kun suodatusta tai järjestystä ei ole: pieni kahva vasemmassa reunassa, varsinkin tietokoneella.
+6. Rivinäkymä leveämmäksi tietokoneella; muuta hienosäätöä myöhemmin.
+
+*Ehdotus (tekoäly, ei hyväksytty):*
+- `#tunniste` (kirjaimet, numerot, väliviiva, ääkköset; ei pelkkä numero, jotta `#3` ei tule tunnisteeksi) ja alkutietojen `tagit: [a, b]` ovat **sama joukko**. Ne näkyvät Asiat-suodattimessa omana ryhmänään (*Tunnisteet*), jotta suodatuspaikkoja on yksi eikä kaksi (appilinja: yksi asia, yksi paikka). Lukunäkymässä `#tunniste` siruna, napautus suodattaa. Rivinäkymän erikoiskenttä `tunnisteet` (sirut).
+- Vaultin sääntö: tekoäly ei poista Emilin `#tunnisteita`; käsitellessään se voi lisätä ne myös `tagit`-kenttään yhdenmukaisesti. Vaatii päätöksen `ohjeet/muistiinpanot.md`:hen (kohta Tagit).
+- Näkymätiedoston `mista` saa ehdon `tunniste = x` (useampi = kaikki); `jarjestys` useampi avain pilkulla. Apin näkymämuokkain (suodatus, järjestys, sarakkeet raahaamalla) myöhemmin erillisenä vaiheena.
+- Valintatila: rivin kahvan vieressä (tai pitkällä painalluksella puhelimella) valintaruudut, alapalkkiin ”Valittu N · Arkistoi · Poista” (poisto vahvistuksen takana, roskakoriin kuten ennen).
+- Oma järjestys: Muistion järjestysvalintaan *Oma järjestys*; kahva (appilinjan `bindVt`-malli Mätsikistä) näkyy vain silloin. Järjestys tallennetaan näkymätiedostoon (`nakymat/kaikki.md`, lista tiedostonimiä), jotta se synkkaa laitteiden välillä ja tekoäly näkee sen. Vaatii päätöksen.
+- Tietokoneella Muistion leveysraja (nyt n. 1100 px) pois rivinäkymästä.
+
 ## Myöhemmin tarkennettavat ideat
 
 Kojelaudan ulkoasuasetukset, taulukon ja kojelaudan yhdistäminen (D) sekä Listojen ja Asioiden suhde vaultiin on kuvattu `TILA.md`:n kohdassa *Isommat ideat*. Hyödynnä kokeilujen tulokset, kun niitä tarkennetaan.
