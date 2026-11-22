@@ -1437,7 +1437,26 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 .quick-grid .btn[aria-pressed="true"]{background:var(--fill);box-shadow:inset 0 0 0 2px var(--accent)}
 #quick-values:not([hidden]){margin-top:12px}
 #quick-values .quick-grid{grid-template-columns:repeat(auto-fit,minmax(58px,1fr))}
-#quick-msg:empty{display:none}
+#quick-msg:empty,#xy-msg:empty{display:none}
+#xy-picker{width:min(432px,calc(100vw - 28px));max-height:calc(100dvh - 24px);overflow:auto}
+.xy-settings{display:flex;gap:8px;flex-wrap:wrap}
+.xy-settings label{flex:1;white-space:nowrap}
+.xy-settings select{width:100%;margin-top:4px}
+#xy-output{display:block;text-align:center;font-size:30px;font-variant-numeric:tabular-nums;margin:4px 0}
+.xy-strip{display:flex;gap:6px;align-items:center;margin:8px 0;color:var(--label2)}
+.xy-strip input{flex:1;min-width:0}
+.xy-surface{position:relative;width:min(100%,185px);aspect-ratio:1;margin:8px auto;border:1px solid var(--sep);border-radius:14px;
+  touch-action:none;user-select:none;-webkit-user-select:none;cursor:crosshair;background-color:var(--cell);
+  background-image:linear-gradient(to right,var(--sep) 1px,transparent 1px),linear-gradient(to bottom,var(--sep) 1px,transparent 1px);
+  background-position:-1px -1px;background-size:10% 10%}
+.xy-bubble{position:absolute;pointer-events:none;color:var(--on-solid);background:var(--solid);font-size:18px;font-weight:700;border-radius:8px;padding:4px 7px;transform:translate(-50%,-50%);z-index:1}
+.xy-dot{position:absolute;width:13px;height:13px;border-radius:50%;background:var(--accent);transform:translate(-50%,-50%);pointer-events:none}
+.xy-controls-label{margin:10px 0 3px;color:var(--label2);font-size:13px}
+.xy-actions{justify-content:space-between}
+.xy-actions.dragging{visibility:hidden}
+.xy-field{display:flex;align-items:stretch;gap:6px}
+.xy-field input{min-width:0;flex:1}
+.xy-field button{flex:none}
 #quick-new:not([hidden]){margin-top:10px}
 #quick-new-form:not([hidden]){margin-top:12px}
 #quick-new-form .fl{display:block;margin-top:8px}
@@ -1593,7 +1612,7 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
     <input type="text" id="quick-new-name" maxlength="80" required>
     <div id="quick-new-track">
       <label class="fl" for="quick-new-kind">Arvolaji</label>
-      <select id="quick-new-kind"><option>Kyllä</option><option>1-5</option><option>Luku</option><option value="valinta">Valinta</option></select>
+      <select id="quick-new-kind"><option>Kyllä</option><option>1-5</option><option>Luku</option><option value="xy 0-100">XY-pädi</option><option value="valinta">Valinta</option></select>
       <div id="quick-new-choices-row" hidden>
         <label class="fl" for="quick-new-choices">Valinnat pilkulla erotettuina</label>
         <input type="text" id="quick-new-choices">
@@ -1608,6 +1627,20 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
   </form>
   <p id="quick-msg" class="msg" role="status"></p>
   <div class="btnrow"><button type="button" class="btn" id="quick-done" data-done>Valmis</button></div>
+</dialog>
+<dialog id="xy-picker" aria-labelledby="xy-title">
+  <h2 id="xy-title">Valitse arvo</h2>
+  <div class="xy-settings">
+    <label>Väli <select id="xy-max"><option value="10">0–10</option><option value="100">0–100</option><option value="1000">0–1000</option></select></label>
+    <label>Tarkkuus <select id="xy-dec"><option value="0">Kokonaisluku</option><option value="1">0,1</option><option value="2">0,01</option></select></label>
+  </div>
+  <output id="xy-output" aria-live="polite"></output>
+  <div id="xy-controls"></div>
+  <p class="msg" id="xy-msg" role="status"></p>
+  <div class="btnrow xy-actions" id="xy-actions">
+    <button type="button" class="btn" id="xy-cancel" data-done>Peru</button>
+    <button type="button" class="btn solid" id="xy-ok">OK</button>
+  </div>
 </dialog>
 <dialog id="dash-entry" aria-labelledby="dash-entry-title">
   <h2 id="dash-entry-title">Kirjaa mittarit</h2>
@@ -3948,7 +3981,7 @@ $('nav').addEventListener('click',function(ev){var b=ev.target.closest('[data-ta
 /* 1.55 (I1): isot ikkunat täyttävät tilan yläpalkin ja alapalkin välissä. Otsikon edessä harmaana se, minne ruksi palaa
    (välilehti tai alla oleva ikkuna). Puhelimella 1.74:stä alkaen ikkunalla on oma alapalkki, jonka ‹-nappi sulkee kuten ruksi; osio ei vaihdu. */
 /* 1.105 (Emil 18.11.2026): listojen ikkunat (Listat, rivin ikkuna) ovat pieniä ikkunoita päällä; ulkopuolinen napautus sulkee, ei ruksia */
-var SMALL={csheet:1,dsheet:1,pksheet:1,wsheet:1,ksheet:1,pvsheet:1,gsheet:1,'vwork-sheet':1,'section-settings':1,'dash-entry':1,'quick-entry':1,'writing-guide':1,'flow-text-preview':1};
+var SMALL={csheet:1,dsheet:1,pksheet:1,wsheet:1,ksheet:1,pvsheet:1,gsheet:1,'vwork-sheet':1,'section-settings':1,'dash-entry':1,'quick-entry':1,'xy-picker':1,'writing-guide':1,'flow-text-preview':1};
 function barSizes(){var t=$('top'),n=$('pbar').offsetParent?$('pbar'):$('nav'),r=document.documentElement.style;
   if(t)r.setProperty('--toph',Math.max(0,Math.round(t.getBoundingClientRect().bottom))+'px');
   if(typeof land==='function'&&land()){r.setProperty('--toph','0px');r.setProperty('--navh','0px');r.setProperty('--sbh','0px');return;}
@@ -4007,7 +4040,7 @@ function crumbSync(){var k=tabKey(),k0=kOf(),t=(k0?k0.name:'Juuri')+' · '+(MODE
   if(d){var h=d.querySelector('h2'),ht=h?clean(h.textContent):'';if(ht)t+=' › '+ht;}$('crumb').textContent=t;}
 /* Ikkunan sulkeminen ohi napauttamalla tai Esc tallentaa samoin kuin Valmis */
 function sheetDone(d){var ok=d.querySelector('[data-done]');if(ok)ok.click();else closeSheet(d);}
-var SHEETS=['phsheet','wsheet','ehsheet','vsheet','psheet','xsheet','lsheet','ksheet','esheet','nsheet','tsheet','rsheet','hsheet','csheet','fsheet','pksheet','dsheet','pvsheet','gsheet','vwork-sheet','section-settings','dash-entry','quick-entry','writing-guide','flow-text-preview'];
+var SHEETS=['phsheet','wsheet','ehsheet','vsheet','psheet','xsheet','lsheet','ksheet','esheet','nsheet','tsheet','rsheet','hsheet','csheet','fsheet','pksheet','dsheet','pvsheet','gsheet','vwork-sheet','section-settings','dash-entry','quick-entry','xy-picker','writing-guide','flow-text-preview'];
 SHEETS.forEach(function(id){var d=$(id);d.addEventListener('close',modalSync);d.addEventListener('click',function(ev){if(ev.target!==d||d.classList.contains('dock'))return;
     if(!d.classList.contains('big')||matchMedia('(max-width:999px)').matches){var q=d.getBoundingClientRect(),x=ev.clientX,y=ev.clientY;
       if(x>=q.left&&x<=q.right&&y>=q.top&&y<=q.bottom)return;sheetDone(d);return;}
@@ -6135,6 +6168,19 @@ function dashEntryField(fields,col,old){
     if(col.max!=null)input.max=col.max;
   }
   input.value=old;
+  if(!select){
+    var pair=el('div','xy-field');row.insertBefore(pair,input);pair.appendChild(input);
+    var pick=button(pair,'XY','btn',function(){
+      openXY(col.nimi||col.id,input.value,xyDashPref(col),function(value,pref){
+        var valid=metricTextValue(value,col);
+        if(valid===null){$('xy-msg').textContent='Arvo ei sovi mittarin rajaukseen.';return false;}
+        input.value=valid;
+        try{localStorage.setItem('kaikki:xy:'+col.id,JSON.stringify(pref));}catch(e){}
+        return true;
+      });
+    });
+    pick.setAttribute('aria-label','Valitse '+(col.nimi||col.id)+' XY-pädillä');
+  }
   return {field:input,before:old,displayed:input.value};
 }
 function dashPatchDay(csv,day,edits){
@@ -6200,7 +6246,7 @@ function quickPresets(){
     if(!name||seen.has(key))return;
     var tags=noteTags({text:parts.slice(mode==='seuranta'?2:1).join(' ')});
     seen.add(key);
-    list.push({mode:mode,key:key,name:name,kind:kind,tags:tags,
+    list.push({mode:mode,key:key,name:name,kind:kind,tags:tags,source:line,
       unit:parts.slice(2).join(' ').replace(/#[^\s]+/g,'').trim(),choices:(parts[1]||'').replace(/^valinta:\s*/i,'').split(',').map(function(v){return v.trim();}).filter(Boolean)});
   });
   return list;
@@ -6322,6 +6368,19 @@ function quickValues(preset){
   var stage=function(v){quickStage(preset,metric,day,v);};
   var kind=preset.kind,match=/^(-?\d+)\s*[-–]\s*(-?\d+)$/.exec(kind);
   if(kind==='kyllä'||kind==='kylla'){stage('kyllä');return;}
+  var xy=xyPresetPref(kind);
+  if(xy){
+    openXY(preset.name,quickDraft.edits.get(quickCellKey(metric,day))?.after,xy,async function(value,pref){
+      if(metric.col.laji!=='teksti'&&metricTextValue(value,metric.col)===null){
+        $('xy-msg').textContent='Arvo ei sovi kentän rajaukseen.';return false;
+      }
+      if(pref.max!==xy.max||pref.dec!==xy.dec){
+        if(!await saveQuickXY(preset,pref))return false;
+      }
+      stage(value);return true;
+    });
+    return;
+  }
   host.textContent='';host.hidden=false;msg.textContent='';
   var grid=el('div','quick-grid');host.appendChild(grid);
   if(match&&+match[1]<=+match[2]&&+match[2]-+match[1]<=20){
@@ -6344,7 +6403,7 @@ function quickValues(preset){
     });
   }else{
     host.hidden=true;
-    msg.textContent=kind.indexOf('xy ')===0?'XY-pädi lisätään seuraavassa vaiheessa.':'Esiasetuksen arvolajia ei tunnistettu.';
+    msg.textContent='Esiasetuksen arvolajia ei tunnistettu.';
     return;
   }
   var first=grid.querySelector('button');if(first)first.focus();
@@ -6484,6 +6543,134 @@ $('quick-remind').addEventListener('click',function(){quickMode('muistutus');});
 $('quick-day').addEventListener('change',quickRender);
 $('quick-done').addEventListener('click',saveQuickEntry);
 $('quick-values').addEventListener('submit',function(ev){ev.preventDefault();});
+/* Kaikki 0.20: sama lukuvalitsin eri kirjauspaikoissa. */
+var xyState=null;
+function xyPresetPref(kind){
+  var m=/^xy\s+0-(10|100|1000)(?:\s+,(0|1|01))?$/.exec(kind);
+  return m?{max:Number(m[1]),dec:m[2]==='01'?2:m[2]==='1'?1:0}:null;
+}
+function xyDashPref(col){
+  try{
+    var pref=JSON.parse(localStorage.getItem('kaikki:xy:'+col.id)||'null');
+    if(pref&&[10,100,1000].indexOf(pref.max)>=0&&[0,1,2].indexOf(pref.dec)>=0)return pref;
+  }catch(e){}
+  return {max:col.max==null?1000:col.max<=10?10:col.max<=100?100:1000,dec:0};
+}
+function xyShow(ready){
+  var state=xyState;
+  var value=state.whole+(state.whole>=state.max?0:state.fraction/Math.pow(10,state.dec));
+  $('xy-output').textContent=value.toFixed(state.dec).replace('.',',');
+  $('xy-actions').classList.toggle('dragging',!ready);
+  $('xy-msg').textContent='';
+}
+function xyRender(){
+  var state=xyState,host=$('xy-controls');
+  host.textContent='';
+  function strip(label,max,initial,onValue){
+    var row=el('label','xy-strip',label),input=el('input');
+    input.type='range';input.min='0';input.max=String(max);input.step='1';input.value=String(initial);
+    input.addEventListener('input',function(){onValue(Number(input.value));xyShow(true);});
+    row.appendChild(input);host.appendChild(row);
+  }
+  function surface(label,read,write){
+    var heading=el('div','xy-controls-label',label),plane=el('div','xy-surface'),dot=el('span','xy-dot'),bubble=el('span','xy-bubble');
+    plane.tabIndex=0;plane.setAttribute('role','group');
+    plane.setAttribute('aria-label',label+'. Valitse nuolinäppäimillä.');
+    dot.setAttribute('aria-hidden','true');bubble.setAttribute('aria-hidden','true');bubble.hidden=true;plane.append(dot,bubble);host.append(heading,plane);
+    function draw(){
+      var n=read()%100;
+      dot.style.left=((n%10+.5)*10)+'%';dot.style.top=((9-Math.floor(n/10)+.5)*10)+'%';
+    }
+    var active=null,before=0;
+    function choose(event){
+      var rect=plane.getBoundingClientRect();
+      var x=Math.max(0,Math.min(9,Math.floor((event.clientX-rect.left)/rect.width*10)));
+      var y=Math.max(0,Math.min(9,Math.floor((event.clientY-rect.top)/rect.height*10)));
+      write((9-y)*10+x);draw();xyShow(false);
+      bubble.textContent=$('xy-output').textContent;bubble.hidden=false;
+      bubble.style.left=Math.max(20,Math.min(80,(x+.5)*10))+'%';
+      bubble.style.top=((y<3?y+3:y-2)*10)+'%';
+    }
+    plane.addEventListener('pointerdown',function(event){
+      if(state.saving||active!==null||event.button>0)return;
+      event.preventDefault();plane.focus({preventScroll:true});active=event.pointerId;before=read();
+      plane.setPointerCapture(active);choose(event);
+    });
+    plane.addEventListener('pointermove',function(event){if(event.pointerId===active)choose(event);});
+    plane.addEventListener('pointerup',function(event){
+      if(event.pointerId!==active)return;choose(event);active=null;bubble.hidden=true;xyShow(true);
+    });
+    function cancel(event){
+      if(event.pointerId!==active)return;
+      write(before);active=null;bubble.hidden=true;draw();xyShow(true);
+    }
+    plane.addEventListener('pointercancel',cancel);
+    plane.addEventListener('lostpointercapture',cancel);
+    plane.addEventListener('keydown',function(event){
+      var movement={ArrowLeft:-1,ArrowRight:1,ArrowUp:10,ArrowDown:-10}[event.key];
+      if(!movement||state.saving)return;
+      event.preventDefault();write(Math.max(0,Math.min(99,read()+movement)));draw();xyShow(true);
+    });
+    draw();
+  }
+  if(state.max===10)strip('Kokonaisosa',10,state.whole,function(n){state.whole=n;});
+  else{
+    if(state.max===1000)strip('Sadat',9,Math.min(9,Math.floor(state.whole/100)),function(n){
+      state.whole=n*100+state.whole%100;
+    });
+    surface('Kymmenet ja ykköset',function(){return state.whole%100;},function(n){state.whole=Math.min(state.max-100,Math.floor(state.whole/100)*100)+n;});
+    button(host,String(state.max),'mini',function(){state.whole=state.max;state.fraction=0;xyRender();xyShow(true);$('xy-ok').focus();});
+  }
+  if(state.dec===1)strip('Desimaali',9,state.fraction,function(n){state.fraction=n;if(state.whole===state.max&&n)state.whole--;});
+  if(state.dec===2)surface('Sadasosat',function(){return state.fraction;},function(n){state.fraction=n;if(state.whole===state.max&&n)state.whole--;});
+}
+function openXY(label,value,pref,accept){
+  var number=Number(value),scale=Math.pow(10,pref.dec);
+  if(!Number.isFinite(number))number=0;
+  var units=Math.max(0,Math.min(pref.max*scale,Math.round(number*scale)));
+  xyState={max:pref.max,dec:pref.dec,whole:Math.floor(units/scale),fraction:units%scale,accept:accept};
+  $('xy-title').textContent=label;$('xy-max').value=String(pref.max);$('xy-dec').value=String(pref.dec);
+  xyRender();xyShow(true);openSheet($('xy-picker'));
+}
+['xy-max','xy-dec'].forEach(function(id){$(id).addEventListener('change',function(){
+  var state=xyState,dec=Number($('xy-dec').value),max=Number($('xy-max').value);
+  var scale=Math.pow(10,dec),oldValue=state.whole+state.fraction/Math.pow(10,state.dec);
+  var units=Math.min(max*scale,Math.round(oldValue*scale));
+  state.max=max;state.dec=dec;state.whole=Math.floor(units/scale);state.fraction=units%scale;
+  xyRender();xyShow(true);
+});});
+$('xy-cancel').addEventListener('click',function(){closeSheet($('xy-picker'));});
+$('xy-picker').addEventListener('close',function(){xyState=null;});
+$('xy-ok').addEventListener('click',async function(){
+  var state=xyState,dialog=$('xy-picker');
+  if(!state||state.saving)return;
+  var value=$('xy-output').textContent.replace(',','.');
+  state.saving=true;var ctl=Array.from(dialog.querySelectorAll('button,select,input'));
+  ctl.forEach(function(c){c.disabled=true;});
+  try{if(await state.accept(value,{max:state.max,dec:state.dec})&&dialog.open)closeSheet(dialog);}
+  finally{state.saving=false;ctl.forEach(function(c){c.disabled=false;});}
+});
+async function saveQuickXY(preset,pref){
+  var draft=quickDraft,msg=$('xy-msg');
+  if(vBusy||draft.saving){msg.textContent='Vault synkronoi. Yritä uudelleen.';return false;}
+  var end=pref.dec===2?' ,01':pref.dec===1?' ,1':'';
+  var parts=preset.source.split('|'),original=preset.source;
+  parts[1]=' xy 0-'+pref.max+end+(parts.length>2?' ':'');
+  var next=parts.join('|');
+  vBusy=true;draft.saving=true;vRender();
+  try{
+    var result=await quickWriteText(QUICK_PRESETS,function(text){
+      var eol=text.indexOf('\r\n')>=0?'\r\n':'\n',lines=text.split(eol);
+      var index=lines.indexOf(original);
+      if(index<0||lines.lastIndexOf(original)!==index)return {error:'Esiasetus muuttui. Avaa pikakirjaus uudelleen.'};
+      lines[index]=next;return lines.join(eol);
+    },'appi: pikakirjausnapin XY-tarkkuus',draft);
+    if(result.error){msg.textContent=result.error;return false;}
+    if(!vOn()||vRepo()!==draft.repo||G.branch!==draft.branch)return false;
+    VC.files[QUICK_PRESETS]=result.file;vSaveC();draft.presets=quickPresets();return true;
+  }catch(e){msg.textContent='Tarkkuuden tallennus epäonnistui. Yritä uudelleen.';return false;}
+  finally{vBusy=false;draft.saving=false;vRender();vFlush();}
+}
 function metricTextKey(text){return String(text||'').trim().toLocaleLowerCase('fi').replace(/\s+/g,' ');}
 function metricTextValue(raw,col){
   if(col.laji==='kylla-ei'){
