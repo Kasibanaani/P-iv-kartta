@@ -1113,7 +1113,7 @@ input.hue::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:
 .lwt{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:4px 0;border:0;background:none;text-align:left;color:var(--label);font-size:15px;cursor:pointer}
 .lwt .t{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lwt small{font-size:12px;color:var(--label2)}
-.lwe .okbtn{flex:none;min-width:78px;height:34px}
+.lwe .okbtn{flex:none;width:86px;height:34px;padding-inline:4px}
 .lwe.done .lwt{opacity:.55}.lwe.done .lwt .t{text-decoration:line-through}
 .lwe .mini.okbtn[aria-pressed="true"]{background:transparent;color:var(--label2);box-shadow:inset 0 0 0 1px var(--sep);opacity:1}
 .lwnone{margin:4px 0}
@@ -1424,6 +1424,7 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 #ns-tags{display:flex;gap:6px;overflow:auto;min-height:34px;margin:0 0 6px}
 #ns-tags[hidden],#nsheet:not(.reading) #ns-tags{display:none}
 #ns-tags .chip{flex:none}
+#ns-tags .chip.auto-note-tag{box-shadow:inset 0 0 0 1px var(--sep);background:transparent}
 #fs-chips .tag-filter-heading{flex-basis:100%;font-size:inherit;margin:8px 0 0}
 .rvc.note-tag-cell{display:flex;gap:4px;overflow:hidden}
 #quick-entry{width:min(440px,calc(100vw - 28px))}
@@ -1437,6 +1438,9 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 #quick-values:not([hidden]){margin-top:12px}
 #quick-values .quick-grid{grid-template-columns:repeat(auto-fit,minmax(58px,1fr))}
 #quick-msg:empty{display:none}
+#quick-new:not([hidden]){margin-top:10px}
+#quick-new-form:not([hidden]){margin-top:12px}
+#quick-new-form .fl{display:block;margin-top:8px}
 #quick-entry-mobile{flex:none}
 .quick-number{display:block;font-variant-numeric:tabular-nums;font-size:22px;margin:0 0 8px}
 .wk-recorded{margin:6px 0 4px;color:var(--label2);font-size:13px;overflow-wrap:anywhere}
@@ -1583,6 +1587,25 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
   </div>
   <div id="quick-picks" class="quick-grid"></div>
   <form id="quick-values" aria-label="Pikakirjauksen arvo" hidden></form>
+  <button type="button" class="mini" id="quick-new">+ Uusi nappi</button>
+  <form id="quick-new-form" aria-label="Uusi pikakirjausnappi" hidden>
+    <label class="fl" for="quick-new-name">Nimi</label>
+    <input type="text" id="quick-new-name" maxlength="80" required>
+    <div id="quick-new-track">
+      <label class="fl" for="quick-new-kind">Arvolaji</label>
+      <select id="quick-new-kind"><option>Kyllä</option><option>1-5</option><option>Luku</option><option value="valinta">Valinta</option></select>
+      <div id="quick-new-choices-row" hidden>
+        <label class="fl" for="quick-new-choices">Valinnat pilkulla erotettuina</label>
+        <input type="text" id="quick-new-choices">
+      </div>
+    </div>
+    <label class="fl" for="quick-new-tags">Tunnisteet</label>
+    <input type="text" id="quick-new-tags" placeholder="#tunniste">
+    <div class="btnrow">
+      <button type="button" class="btn" id="quick-new-cancel">Peru</button>
+      <button type="submit" class="btn solid">Lisää nappi</button>
+    </div>
+  </form>
   <p id="quick-msg" class="msg" role="status"></p>
   <div class="btnrow"><button type="button" class="btn" id="quick-done" data-done>Valmis</button></div>
 </dialog>
@@ -2603,7 +2626,16 @@ function relSweep(N,today){if(!N.rel||!N.rel.length)return false;var M=relMatch(
   N.rel=M.map(function(m){return m.lock;});if(!N.rel.length){delete N.rel;return false;}
   M.sort(function(a,b){return b.sp.s-a.sp.s;}).forEach(function(m){var w=relWord(m.lock,today);if(w!==m.lock.w){txt=txt.slice(0,m.sp.s)+w+txt.slice(m.sp.e);m.lock.w=w;ch=true;}});
   if(ch)N.text=txt;return ch;}
-function noteDates(N){if(N._ds)return N._ds.map(function(o){var c={};Object.keys(o).forEach(function(k){c[k]=o[k];});return c;});var d=parseDates(N.text,new Date(N.created||Date.now()),N.nl);
+function noteDates(N){if(N._ds)return N._ds.map(function(o){var c={};Object.keys(o).forEach(function(k){c[k]=o[k];});return c;});var source=N.text;
+  if(/^paivat\/\d{4}\/\d{4}-\d\d-\d\d\.md$/.test(N.vp||'')){
+    var active=false;
+    source=String(source||'').split('\n').map(function(line,index){
+      if(/^#{1,2}\s/.test(line))active=line.trim()==='## Pikakirjaukset';
+      if((index===0&&line.trim()===N.vp.slice(-13,-3))||(active&&/^- klo \d\d\.\d\d · [a-z][a-z0-9-]*: .+$/.test(line)))return line.replace(/\S/g,' ');
+      return line;
+    }).join('\n');
+  }
+  var d=parseDates(source,new Date(N.created||Date.now()),N.nl);
   if(N.rel&&N.rel.length)relMatch(N,relSpans(N.text,d,true)).forEach(function(m){var o=m.sp.o;o.R=[m.lock.d,m.lock.d];o.a=o.b=m.lock.d;o.locked=m.lock;});
   if(N.rg&&N.rg.length){var gu={};d.forEach(function(o){if(o.bare||o.rec||!o.R||o.a===o.b)return;var w=bareKey(o);for(var k=0;k<N.rg.length;k++)if(!gu[k]&&N.rg[k].w===w){gu[k]=1;o.R=[N.rg[k].a,N.rg[k].b];o.a=N.rg[k].a;o.b=N.rg[k].b;return;}});}
   if(N.bt&&N.bt.length){var bu={};d.forEach(function(o){if(!o.bare)return;var w=bareKey(o);for(var k=0;k<N.bt.length;k++)if(!bu[k]&&N.bt[k].w===w){bu[k]=1;o.R=[N.bt[k].d,N.bt[k].d];o.a=o.b=N.bt[k].d;return;}});}
@@ -4409,14 +4441,37 @@ function paintNoteTags(note,ta){
   host.textContent='';
   host.hidden=!tags.length;
   tags.forEach(function(tag){
-    button(host,'#'+tag,'chip',function(){
+    var inferred=(note.autoTags||[]).indexOf(tag)>=0&&noteTags({text:note.text}).indexOf(tag)<0;
+    var chip=button(host,'#'+tag,inferred?'chip auto-note-tag':'chip',function(){
       var back=backArm();
       $('ns-ok').click();
       if(data.notes.indexOf(note)>=0)back.n=note;
       noteFilter=['tag:'+tag];noteQuery='';noteView='open';
       showTab('notes');main.scrollTop=0;backShow(back);
     });
+    if(inferred)chip.setAttribute('aria-label','#'+tag+', automaattinen tunniste');
   });
+}
+function noteAutoTags(note){
+  var rules=vOn()&&vK()&&vK().id===data.k&&VC.files['pohjat/tunnisteet.md'];
+  if(!rules)return;
+  function words(s){return ' '+(String(s).normalize('NFC').toLocaleLowerCase('fi').match(/[\p{L}\p{M}\p{N}]+/gu)||[]).join(' ')+' ';}
+  var text=words(note.text),old=noteTags(note),found=new Set();
+  rules.t.split(/\r?\n/).forEach(function(line){
+    var rule=/^\s*(?:-\s+)?#([^:\s]+):\s*(.+)$/.exec(line);
+    var tag=rule&&noteTagKey(rule[1]);
+    if(!tag||old.indexOf(tag)>=0)return;
+    if(rule[2].split(',').some(function(word){
+      var key=words(word);
+      return key.trim()&&text.indexOf(key)>=0;
+    }))found.add(tag);
+  });
+  if(!found.size)return;
+  var fm=VAULT.split(VAULT.mdOf(note)).fm,current=VAULT.fmGet(fm,'tagit');
+  if(current&&!/^\[.*\]$/.test(current))return;
+  var raw=current.slice(1,-1).trim(),added=Array.from(found);
+  note.vfm=VAULT.fmSet(fm,'tagit','['+(raw?raw+', ':'')+added.join(', ')+']');
+  note.autoTags=Array.from(new Set((Array.isArray(note.autoTags)?note.autoTags:[]).concat(added)));
 }
 function filterLabel(AT){if(!noteFilter.length)return 'Kaikki';var nm={};AT.forEach(function(t){nm[t.id]=t.name;});return noteFilter.map(function(id){return nm[id]||'?';}).join(noteAnd?' ja ':' tai ');}
 var fsCtx=null;
@@ -4744,7 +4799,7 @@ $('ns-ok').addEventListener('click',function(){var txt=$('ns-text').value;
   var tv=timeVal();if(noteCur&&noteCur.text===txt&&noteCur.date===($('ns-date').value||'')&&sameTime(noteCur.time,tv)&&!!noteCur.pin===pinOn()&&JSON.stringify(noteCur.nl||[])===JSON.stringify(nsNl)){draftClear();closeSheet($('nsheet'));render();return;}
   var previous=noteCur?noteCur.text:'';
   if(!noteCur){noteCur={id:uid('n'),created:t,text:txt};data.notes.unshift(noteCur);}noteCur.date=$('ns-date').value||'';if(tv)noteCur.time=tv;else delete noteCur.time;if(pinOn())noteCur.pin=1;else delete noteCur.pin;if(nsNl.length)noteCur.nl=nsNl.slice();else delete noteCur.nl;noteWrite(noteCur,txt,t);
-  var savedNote=noteCur;draftClear();touch();closeSheet($('nsheet'));render();
+  var savedNote=noteCur;noteAutoTags(savedNote);draftClear();touch();closeSheet($('nsheet'));render();
   writeNewNoteMetric(savedNote,previous);
 });
 
@@ -5691,7 +5746,7 @@ function openVWork(requestOnly){
   });
   if(!requestOnly)Object.keys(VC.files).filter(vWorkFile).sort().forEach(function(path){
     var md=VAULT.split(VC.files[path].t);
-    var title=VAULT.fmGet(md.fm,'otsikko')||VAULT.linkSlug(path);
+    var title=path===QUICK_PRESETS?'Pikakirjauksen esiasetukset':VAULT.fmGet(md.fm,'otsikko')||VAULT.linkSlug(path);
     var b=button(list,title,'btn',function(){
       if(VC.q[path]){b.textContent='Odottaa synkronointia: '+title;return;}
       var current=VC.files[path];if(!current)return;
@@ -6152,19 +6207,76 @@ function quickPresets(){
 }
 function quickMetric(preset){
   var spec=dashSpec(),matches=[];
-  if(!spec||!spec.taulukot)return null;
   var key=metricTextKey(preset.name);
-  dashEntryTables(spec).forEach(function(table){
+  (spec&&spec.taulukot?dashEntryTables(spec):[]).forEach(function(table){
     var path=table.tiedosto,headers=dashCsv(VC.files[path].t).h;
     dashEntryCols(table,headers).forEach(function(col){
       if(metricTextKey(col.nimi)===key||metricTextKey(col.id)===key)matches.push({path:path,col:col});
     });
   });
-  return matches.length===1?matches[0]:null;
+  if(matches.length===1)return matches[0];
+  if(matches.length>1)return null;
+  var id=VAULT.slug(preset.name,60),doc=VC.files['ohjeet/muistiinpanot.md'];
+  var approved=doc&&/^-\s+\*\*Sovitut kentät:\*\*\s*(.+)$/m.exec(doc.t);
+  if(!approved||!Array.from(approved[1].matchAll(/`([^`]+)`/g)).some(function(m){return m[1]===id;}))return null;
+  var known={tila:{laji:'valinta',arvot:[['luonnos','Luonnos'],['valmis','Valmis'],['odottaa-emilia','Odottaa Emilia']]},
+    arvio:{laji:'asteikko',min:1,max:10},edistys:{laji:'luku',min:0,max:100},hinta:{laji:'luku'},prioriteetti:{laji:'asteikko',min:1,max:3}};
+  var col=known[id]||{laji:'teksti'};
+  return {path:'',col:Object.assign({id:id},col),field:true};
+}
+function quickDayPath(day){return 'paivat/'+day.slice(0,4)+'/'+day+'.md';}
+function quickDayRows(text){
+  var lines=String(text||'').split(/\r?\n/),active=false,rows=[];
+  lines.forEach(function(line){
+    if(/^#{1,2}\s/.test(line)){active=line.trim()==='## Pikakirjaukset';return;}
+    if(!active)return;
+    var match=/^- klo \d\d\.\d\d · ([a-z][a-z0-9-]*): (.+)$/.exec(line);
+    if(match)rows.push(match[1]+' '+match[2].replace(/(?:\s+#[^\s]+)+$/,''));
+  });
+  return rows;
+}
+function quickDayPatch(text,day,edits){
+  var eol=text.indexOf('\r\n')>=0?'\r\n':'\n';
+  if(!text)text=['---','tyyppi: paiva','otsikko: '+day,'luotu: '+todayIso(),'lahde: emil','---','# '+day,''].join(eol);
+  var lines=text.split(eol),add=edits.map(function(e){return e.line;}).filter(function(line){return lines.indexOf(line)<0;});
+  if(!add.length)return text;
+  var section=lines.findIndex(function(line){return line.trim()==='## Pikakirjaukset';});
+  if(section<0)return text+(text.endsWith(eol)?eol:eol+eol)+'## Pikakirjaukset'+eol+eol+add.join(eol)+eol;
+  var end=lines.findIndex(function(line,i){return i>section&&/^#{1,2}\s/.test(line);});
+  if(end<0)end=lines.length;
+  while(end>section+1&&!lines[end-1].trim())end--;
+  lines.splice.apply(lines,[end,0].concat(add));
+  return lines.join(eol)+(lines[lines.length-1]?eol:'');
+}
+async function quickWriteText(path,patch,message,draft){
+  var url=vUrl('/contents/'+vEnc(path));
+  for(var attempt=0;attempt<3;attempt++){
+    if(!vOn()||vRepo()!==draft.repo||G.branch!==draft.branch)return {error:'Vault vaihtui tallennuksen aikana.'};
+    var pending=vNotes().find(function(note){return note.vp===path;});
+    if(VC.q[path]||(pending&&VC.files[path]&&VAULT.mdOf(pending)!==VC.files[path].t)){
+      return {error:'Tälle tiedostolle on aiempi paikallinen muutos. Yritä synkronoinnin jälkeen uudelleen.'};
+    }
+    var get=await vApi(url+'?ref='+encodeURIComponent(draft.branch));
+    if(get.status!==200&&get.status!==404)return {error:vErr(get.status)};
+    var text=get.status===200?b64d(get.j.content):'',sha=get.status===200?get.j.sha:undefined;
+    var next=patch(text);
+    if(next===text)return {file:{t:text,sha:sha}};
+    if(typeof next!=='string')return next;
+    if(!vOn()||vRepo()!==draft.repo||G.branch!==draft.branch)return {error:'Vault vaihtui tallennuksen aikana.'};
+    var put=await vApi(url,'PUT',{message:message,content:b64e(next),sha:sha,branch:draft.branch});
+    if(put.status===200||put.status===201)return {file:{t:next,sha:put.j.content.sha}};
+    if(put.status!==409&&put.status!==422)return {error:vErr(put.status)};
+  }
+  return {error:'Tiedostoa muokattiin samaan aikaan. Yritä uudelleen.'};
 }
 function quickCalendarRows(days){
   var rows=new Map(),visible=new Set(days),spec=vOn()&&dashSpec();
-  if(!spec||!spec.taulukot||vK().id!==data.k)return rows;
+  if(!vOn()||vK().id!==data.k)return rows;
+  days.forEach(function(day){
+    var file=VC.files[quickDayPath(day)],values=file&&quickDayRows(file.t);
+    if(values&&values.length)rows.set(day,values);
+  });
+  if(!spec||!spec.taulukot)return rows;
   dashEntryTables(spec).forEach(function(table){
     var csv=dashCsv(VC.files[table.tiedosto].t),cols=dashEntryCols(table,csv.h);
     csv.rows.forEach(function(row){
@@ -6185,13 +6297,20 @@ function quickCalendarRows(days){
   });
   return rows;
 }
-function quickCellKey(metric,day){return metric.path+'|'+day+'|'+metric.col.id;}
+function quickCellKey(metric,day){return (metric.path||quickDayPath(day))+'|'+day+'|'+metric.col.id;}
 function quickStage(preset,metric,day,raw){
-  var msg=$('quick-msg'),value=metricTextValue(metricTextKey(raw),metric.col),key=quickCellKey(metric,day);
-  if(value===null){msg.textContent='Arvo ei sovi mittarin määrittelyyn.';return;}
-  var row=dashCsv(VC.files[metric.path].t).rows.find(function(r){return r.pvm===day;})||{};
-  var old=quickDraft.edits.get(key);
-  quickDraft.edits.set(key,{day:day,path:metric.path,id:metric.col.id,before:old?old.before:row[metric.col.id]||'',after:value});
+  var msg=$('quick-msg'),key=quickCellKey(metric,day);
+  var value=metric.col.laji==='teksti'?String(raw).trim():metricTextValue(metricTextKey(raw),metric.col);
+  if(value===null||!value||/[\r\n]/.test(value)){msg.textContent='Arvo ei sovi kentän määrittelyyn.';return;}
+  var edit={day:day,path:metric.path||quickDayPath(day),id:metric.col.id,after:value};
+  if(metric.field){
+    edit.line='- klo '+vClock()+' · '+metric.col.id+': '+value+preset.tags.map(function(tag){return ' #'+tag;}).join('');
+  }else{
+    var row=dashCsv(VC.files[metric.path].t).rows.find(function(r){return r.pvm===day;})||{};
+    var old=quickDraft.edits.get(key);
+    edit.before=old?old.before:row[metric.col.id]||'';
+  }
+  quickDraft.edits.set(key,edit);
   quickRender();msg.textContent=preset.name+' · '+raw;
   var target=Array.from($('quick-picks').children).find(function(b){return b.dataset.key===preset.key;});
   if(target)target.focus();
@@ -6199,7 +6318,7 @@ function quickStage(preset,metric,day,raw){
 function quickValues(preset){
   var day=$('quick-day').value,host=$('quick-values'),msg=$('quick-msg'),metric=quickMetric(preset);
   if(!dashDay(day)||isoD(fromIso(day))!==day){msg.textContent='Valitse kirjauspäivä.';return;}
-  if(!metric){msg.textContent='Mittaria ei löytynyt yksiselitteisesti. Tarkista nimi Kojelaudasta.';return;}
+  if(!metric){msg.textContent='Tarkista mittarin nimi Kojelaudasta tai kentän nimi Vaultin Omat kentät -luettelosta.';return;}
   var stage=function(v){quickStage(preset,metric,day,v);};
   var kind=preset.kind,match=/^(-?\d+)\s*[-–]\s*(-?\d+)$/.exec(kind);
   if(kind==='kyllä'||kind==='kylla'){stage('kyllä');return;}
@@ -6251,7 +6370,7 @@ function quickReminder(preset){
 }
 function quickRender(){
   var host=$('quick-picks'),tracking=quickDraft.mode==='seuranta';
-  host.textContent='';$('quick-values').hidden=true;$('quick-msg').textContent='';
+  host.textContent='';$('quick-values').hidden=true;$('quick-new-form').hidden=true;$('quick-new').hidden=false;$('quick-msg').textContent='';
   $('quick-day-row').hidden=!tracking;
   $('quick-track').setAttribute('aria-pressed',tracking?'true':'false');
   $('quick-remind').setAttribute('aria-pressed',tracking?'false':'true');
@@ -6278,6 +6397,7 @@ function quickMode(mode){
 async function saveQuickEntry(){
   var draft=quickDraft,dialog=$('quick-entry'),msg=$('quick-msg');
   if(!draft||draft.saving)return;
+  if(!$('quick-new-form').hidden){quickRender();return;}
   if(!draft.edits.size){closeSheet(dialog);return;}
   if(!vOn()||vRepo()!==draft.repo||G.branch!==draft.branch||vBusy){
     msg.textContent='Vault synkronoi tai yhteys on vaihtunut. Yritä uudelleen.';return;
@@ -6294,7 +6414,10 @@ async function saveQuickEntry(){
   try{
     for(var pairs of groups.values()){
       var edit=pairs[0].edit;
-      var result=await dashWriteDay(edit.path,edit.day,pairs.map(function(pair){return pair.edit;}),draft.repo,draft.branch);
+      var changes=pairs.map(function(pair){return pair.edit;});
+      var result=edit.line?
+        await quickWriteText(edit.path,function(text){return quickDayPatch(text,edit.day,changes);},'appi: päivän pikakirjaukset',draft):
+        await dashWriteDay(edit.path,edit.day,changes,draft.repo,draft.branch);
       if(result.file&&vRepo()===draft.repo&&G.branch===draft.branch){VC.files[edit.path]=result.file;vSaveC();}
       if(result.error){
         if(result.conflict)pairs.forEach(function(pair){draft.edits.delete(pair.key);});
@@ -6304,10 +6427,57 @@ async function saveQuickEntry(){
       }
       pairs.forEach(function(pair){draft.edits.delete(pair.key);});
     }
-    vAt=vClock();closeSheet(dialog);render();toast('Pikakirjaukset tallennettu.');
+    vAt=vClock();vApply();closeSheet(dialog);render();toast('Pikakirjaukset tallennettu.');
   }catch(e){msg.textContent='Pikakirjaus odottaa. Tarkista yhteys ja yritä uudelleen.';}
   finally{draft.saving=false;vBusy=false;controls.forEach(function(control){control.disabled=false;});vRender();vFlush();}
 }
+function quickPresetPatch(text,mode,name,line){
+  var heading=mode==='seuranta'?'Seuranta':'Muistutus',eol=text.indexOf('\r\n')>=0?'\r\n':'\n';
+  var lines=text.split(eol),start=lines.findIndex(function(s){return metricTextKey(s)==='## '+mode;});
+  if(start<0)return (text?text.replace(/\s*$/,'')+eol+eol:'')+'## '+heading+eol+line+eol;
+  var end=lines.findIndex(function(s,i){return i>start&&/^#{1,2}\s/.test(s);});
+  if(end<0)end=lines.length;
+  if(lines.slice(start+1,end).some(function(s){return /^-\s+/.test(s)&&metricTextKey(s.replace(/^-\s+/,'').split('|')[0])===metricTextKey(name);})){
+    return {error:'Tämänniminen nappi on jo olemassa.'};
+  }
+  while(end>start+1&&!lines[end-1].trim())end--;
+  lines.splice(end,0,line);
+  return lines.join(eol)+(lines[lines.length-1]?eol:'');
+}
+$('quick-new').addEventListener('click',function(){
+  var form=$('quick-new-form');form.reset();form.hidden=false;$('quick-new').hidden=true;
+  $('quick-new-track').hidden=quickDraft.mode!=='seuranta';$('quick-new-choices-row').hidden=true;
+  $('quick-values').hidden=true;$('quick-msg').textContent='';$('quick-new-name').focus();
+});
+$('quick-new-cancel').addEventListener('click',function(){quickRender();$('quick-new').focus();});
+$('quick-new-kind').addEventListener('change',function(){$('quick-new-choices-row').hidden=this.value!=='valinta';});
+$('quick-new-form').addEventListener('submit',async function(ev){
+  ev.preventDefault();
+  var draft=quickDraft,form=ev.currentTarget,msg=$('quick-msg'),name=$('quick-new-name').value.trim(),tracking=draft.mode==='seuranta';
+  var kind=metricTextKey($('quick-new-kind').value),choices=$('quick-new-choices').value.trim();
+  var rawTags=$('quick-new-tags').value.trim(),tags=rawTags?rawTags.split(/[\s,]+/).map(noteTagKey):[];
+  if(!name||/[|\r\n]/.test(name)||tags.some(function(tag){return !tag;})||(tracking&&kind==='valinta'&&(!choices||/[|\r\n]/.test(choices)))){
+    msg.textContent='Tarkista nimi, valinnat ja tunnisteet.';return;
+  }
+  if(tracking&&!quickMetric({name:name})){
+    msg.textContent='Valitse olemassa olevan mittarin tai sovitun kentän nimi.';return;
+  }
+  if(vBusy||draft.saving){msg.textContent='Vault synkronoi. Yritä uudelleen.';return;}
+  var fields=[name];
+  if(tracking)fields.push(kind==='valinta'?'valinta: '+choices:kind);
+  if(tags.length)fields.push(tags.map(function(tag){return '#'+tag;}).join(' '));
+  var controls=Array.from($('quick-entry').querySelectorAll('button,input,select'));
+  controls.forEach(function(control){control.disabled=true;});
+  vBusy=true;draft.saving=true;msg.textContent='Tallennetaan…';vRender();
+  try{
+    var result=await quickWriteText(QUICK_PRESETS,function(text){return quickPresetPatch(text,draft.mode,name,'- '+fields.join(' | '));},'appi: uusi pikakirjausnappi',draft);
+    if(result.error){msg.textContent=result.error;return;}
+    if(!vOn()||vRepo()!==draft.repo||G.branch!==draft.branch)return;
+    VC.files[QUICK_PRESETS]=result.file;vSaveC();
+    draft.presets=quickPresets();quickRender();$('quick-new').focus();
+  }catch(error){msg.textContent='Nappia ei voitu tallentaa. Tarkista yhteys.';}
+  finally{draft.saving=false;vBusy=false;controls.forEach(function(control){control.disabled=false;});vRender();vFlush();}
+});
 ['quick-entry-desktop','quick-entry-mobile'].forEach(function(id){$(id).addEventListener('click',openQuickEntry);});
 $('quick-track').addEventListener('click',function(){quickMode('seuranta');});
 $('quick-remind').addEventListener('click',function(){quickMode('muistutus');});

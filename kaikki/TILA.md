@@ -1,6 +1,6 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.18 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
+**Vaihe:** versio 0.19 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
@@ -58,6 +58,7 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
 - **0.16 (22.11.2026, kohta 6.2): Mittarit tekstinä.** Kojelaudan Kirjaa mittarit → Kirjaa tekstinä täyttää kentät tarkistettaviksi. Appi ymmärtää mittarin nimen tai tunnuksen, desimaalipilkun ja -pisteen, valintojen nimet, kyllä/ei-arvot ja valinnaisen päivämäärän. Pikakomentolinkki avaa lomakkeen ja odottaa tallennusta. Yksittäinen uusi `Mittarit:`-rivi tallentuu myös muistiinpanosta ja saa onnistumisen jälkeen kuittausmerkin. Tekoälyn tuoman tai odottamaan jääneen rivin voi kirjata muistiinpanon ⋯-valikosta. Päällekkäiset tai virheelliset arvot näytetään korjattaviksi. Ensiversiossa yksi taulukko kerrallaan. Seuraavaksi käyttäjältä tarvitaan kokeilupalautetta iOS-linkin avautumisesta ja kirjoitusohjeen löydettävyydestä.
 - **0.17 (22.11.2026, kohta 9): Tunnisteet muistiinpanoissa.** Appi yhdistää tekstin `#tunnisteet` ja alkutietojen `tagit`-listan. Lukutilan siru rajaa Muistion saman tunnisteen muistiinpanoihin. Asiasanat-suodattimessa on Tunnisteet-ryhmä. Rivinäkymän tiedostossa voi käyttää saraketta `tunnisteet` ja ehtoa `tunniste = x`. Pelkkä lukeminen ei muuta Vaultia. Asioiden siirto ja automaattiset tunnisteet ovat myöhempiä työvaiheita. Kokeilussa selvitetään, löytääkö sirut ja tunnistesuodattimen helposti. Testattu Chromiumissa neljällä leveydellä.
 - **0.18 (22.11.2026, kohta 15): Pikakirjaus mittareihin ja muistutuksiin.** Salamanapista avautuva ikkuna tuo `pohjat/pikakirjaus.md`:n napit Vaultista. Seurannassa valitaan päivä ja arvot, ja ikkuna tallentaa sulkeutuessaan. Muistutus avaa kuukausivalitsimen, jonka päivät tallentuvat saman napin yhteen muistiinpanoon. Viikon päivälistassa CSV-mittarit näkyvät Kirjattu-rivillä. Testattu neljällä leveydellä, mukana rinnakkainen mittarimuutos ja muistutuksen uudelleenavaus. Päivän muistiinpanoihin kirjattavat kentät, omien nappien luonti, automaattiset tunnisteet ja XY-pädi ovat jäljellä. Kokeilussa tarvitaan palautetta pikakirjauksen napin sijainnista ja sulkemalla tallentamisesta.
+- **0.19 (22.11.2026, kohta 15): Omat pikanapit, päivän muistiinpanot ja automaattiset tunnisteet.** Pikakirjauksen + Uusi nappi lisää esiasetuksen Vaultiin. Seuranta käyttää määriteltyä mittaria tai Omat kentät -ohjeessa jo sovittua kenttää. Päivän muistiinpanoon lisätään valitulle päivälle kellonaika, kenttä, arvo ja napin tunnisteet niin, että myös toisella laitteella lisätty teksti säilyy. Kooste näkyy kalenterin Kirjattu-rivillä. Muistiinpanon tallennus lisää `pohjat/tunnisteet.md`:n sanasääntöjen osumat alkutietojen `tagit`-listaan. Lukunäkymä merkitsee automaattiset sirut omalla tyylillä. Jo lisätty tunniste säilyy, vaikka säännön osuma poistuisi. Listojen Viikot-näkymän kuittausnappi säilyttää nyt leveytensä, kun teksti vaihtuu. Kokeilussa selvitetään, toimivatko pikanapin valintatavat ja automaattisten tunnisteiden erottuvuus. Laaja editori ja XY-pädi ovat eri työvaiheita.
 - **Mikä menee GitHubiin:** ensimmäisen projektin muistiinpanot (myös niiden kuittaukset ja kalenteriajat) sekä Tekoälylle-näkymässä muokatut tiedostot ja huoltopyynnöt sekä Kojelaudasta tallennetut mittarikirjaukset. Asetukset, ulkoasu, asiasanat, Listat, Flow, puut, Toistuvat-välilehden toistuvat, tarkistuslistat ja muut projektit ovat vain laitteella (`kaikki:v1`); varmuuskopio niistä Juuren viennillä.
 
 **Suunta (Emil 22.11.2026):** Kaikki eriytyy Juuresta: Juuren ominaisuuksia karsitaan, painopiste siirtyy tietokoneelle (tiedon käsittely, rivinäkymät, taulukot, kojelauta). Puhelinnäkymä riisutaan: keskeistä kalenteri, uuden muistiinpanon lisäys ja osa kuvaajista; toiminnot voivat säilyä, mutta näkymä kevenee. Pitkä projekti; mahdollinen tie ulos Notionista.
@@ -91,7 +92,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Ei tarkistettu
 
-- 0.11: Huoltopyyntö ja tiedoston muokkaus testattiin Chromiumissa testivaultilla. Oikean iPhonen Safaria ja oikeaan vaultiin kirjoittamista ei kokeiltu. Vanha viikkolistan testi `selain_1104.py` odottaa kuittauksen himmennystä, ja sama tarkistus epäonnistuu myös muuttamattomassa versiossa 0.10.
+- 0.11: Huoltopyyntö ja tiedoston muokkaus testattiin Chromiumissa testivaultilla. Oikean iPhonen Safaria ja oikeaan vaultiin kirjoittamista ei kokeiltu. Viikkolistan kuittausnapin vanha leveysero korjattiin versiossa 0.19 ja tarkistettiin testillä `selain_1104.py`.
 
 - 0.6: Applen tekstikoko (`-apple-system-body`) kotinäytön kirjanmerkissä ja eri tekstikoilla; sormella kuittausympyrä, ⋯-valikko ja aikajanan pieni ympyrä (lyhyissä merkinnöissä ahdas). Nopeus mitattu vain tietokoneen hidastetulla selaimella.
 - 0.6: Juuren omien monitekstisten muistiinpanojen (`---`-erotin) tekstikohtainen kuittaus ei enää näy Muistiossa; kalenterista kuittaus toimii päivittäin.
@@ -104,7 +105,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Seuraava askel
 
-Seuraavaksi pikakirjaukseen lisätään päivän muistiinpanot, omien nappien luonti ja automaattiset tunnisteet (kohta 15). Flow-kokeilu ja mittarien tekstikirjaus ovat käytettävissä kokeiltaviksi.
+Seuraavaksi toteutetaan yhteinen XY-pädi (kohta 15). Flow-kokeilu ja mittarien tekstikirjaus ovat käytettävissä kokeiltaviksi.
 
 Emil kokeilee GitHub-yhteyttä tietokoneella (pilvinappi yläpalkissa, vain omalla koneella). Sen jälkeen suunnitellaan tietokoneasettelu (ehdotus: lista ja auki oleva muistiinpano rinnakkain, isompi kirjoitusalue, pikanäppäimet, kansiot tai asiasanat sivupalkkiin).
 
