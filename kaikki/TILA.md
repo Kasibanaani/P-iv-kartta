@@ -121,7 +121,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Seuraava askel
 
-Seuraavaksi siirretään muistiinpanoikkunan jäljellä olevat tarkenteet sirun taakse. Karsinta, Treeni-osio ja Flow-tekstin pysyvä muoto odottavat Emilin vastauksia. Flow-kokeilu ja mittarien tekstikirjaus ovat käytettävissä kokeiltaviksi.
+**22.11. illalla (Claude, 0.30–0.33):** SUUNNITELMA A0 tehty paitsi taulukoiden rivien/sarakkeiden lisäys, poisto ja siirto otsikon valikosta kaavaviittausten päivityksineen (A0.4, taulukko-osa) ja Muistion leveyden tarkistus Emilin näytöllä (A0.8; sarakkeet ovat nyt raahattavia, joten jako on Emilin säädettävissä). Seuraavaksi: A0.4 taulukko-osa, sitten A2 Treeni-osio (Emilin kyselyvastaukset suunnitelman kohdassa 16) ja karsinta kohdan 14 vastausten mukaan; myöhemmin muistiinpanoikkunan jäljellä olevat tarkenteet sirun taakse. Flow-tekstin pysyvä muoto odottaa Emilin kokeilupalautetta. Flow-kokeilu ja mittarien tekstikirjaus ovat käytettävissä kokeiltaviksi.
 
 Emil kokeilee GitHub-yhteyttä tietokoneella (pilvinappi yläpalkissa, vain omalla koneella). Sen jälkeen suunnitellaan tietokoneasettelu (ehdotus: lista ja auki oleva muistiinpano rinnakkain, isompi kirjoitusalue, pikanäppäimet, kansiot tai asiasanat sivupalkkiin).
 
