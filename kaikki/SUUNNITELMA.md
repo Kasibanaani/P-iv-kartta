@@ -2,7 +2,7 @@
 
 Itsenäinen ohje mille tahansa tekoälylle (Claude, ChatGPT/Codex, muu). Aiempaa keskustelua ei tarvitse muistaa. Lue ensin repon `AGENTS.md`, sitten `kaikki/TILA.md` ja tämä. Emilin päätökset on merkitty **Emil**, tekoälyn ehdotukset *ehdotus*. Ehdotus ei ole toteutuslupa; Emilin ”toteuta” on.
 
-Päivitetty 22.11.2026 (versio 0.20). Seuraavaksi levennetään Muistion rivinäkymä tietokoneella (kohta 9). Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
+Päivitetty 22.11.2026 (versio 0.21). Seuraavaksi toteutetaan usean muistiinpanon valinta (kohta 9). Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
 
 ## Yhteiset säännöt (Kaikki)
 
@@ -25,7 +25,7 @@ Päivitetty 22.11.2026 (versio 0.20). Seuraavaksi levennetään Muistion rivinä
 4. ~~Kohta 9: `#tunnisteet` (teksti, `tagit`, lukunäkymä, Asiasanat-suodatin ja rivinäkymä).~~ Tehty 0.17.
 5. ~~Kohta 15: pikakirjaus v1 (Vaultin esiasetukset, seuranta, muistutukset, päivän kirjaukset, omat napit ja automaattiset tunnisteet).~~ Tehty 0.18–0.19.
 6. ~~Kohta 15: yhteinen XY-pädi lukuarvoille.~~ Tehty 0.20. Suhteellinen tila odottaa kokeilupalautetta.
-7. Kohta 9: rivinäkymä leveäksi tietokoneella.
+7. ~~Kohta 9: rivinäkymä leveäksi tietokoneella.~~ Tehty 0.21.
 8. Kohta 9: monen valinta: Arkistoi ja Poista valitut (vahvistus, roskakoriin).
 9. Kohta 9: oma järjestys ja kahva (tallennus `nakymat/kaikki.md`).
 10. Kohta 10: kentät ja kaavamoottori (perusfunktiot, muistiinpanohaku, virheet).

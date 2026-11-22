@@ -1,6 +1,6 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.20 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
+**Vaihe:** versio 0.21 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
@@ -60,6 +60,7 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
 - **0.18 (22.11.2026, kohta 15): Pikakirjaus mittareihin ja muistutuksiin.** Salamanapista avautuva ikkuna tuo `pohjat/pikakirjaus.md`:n napit Vaultista. Seurannassa valitaan päivä ja arvot, ja ikkuna tallentaa sulkeutuessaan. Muistutus avaa kuukausivalitsimen, jonka päivät tallentuvat saman napin yhteen muistiinpanoon. Viikon päivälistassa CSV-mittarit näkyvät Kirjattu-rivillä. Testattu neljällä leveydellä, mukana rinnakkainen mittarimuutos ja muistutuksen uudelleenavaus. Päivän muistiinpanoihin kirjattavat kentät, omien nappien luonti, automaattiset tunnisteet ja XY-pädi ovat jäljellä. Kokeilussa tarvitaan palautetta pikakirjauksen napin sijainnista ja sulkemalla tallentamisesta.
 - **0.19 (22.11.2026, kohta 15): Omat pikanapit, päivän muistiinpanot ja automaattiset tunnisteet.** Pikakirjauksen + Uusi nappi lisää esiasetuksen Vaultiin. Seuranta käyttää määriteltyä mittaria tai Omat kentät -ohjeessa jo sovittua kenttää. Päivän muistiinpanoon lisätään valitulle päivälle kellonaika, kenttä, arvo ja napin tunnisteet niin, että myös toisella laitteella lisätty teksti säilyy. Kooste näkyy kalenterin Kirjattu-rivillä. Muistiinpanon tallennus lisää `pohjat/tunnisteet.md`:n sanasääntöjen osumat alkutietojen `tagit`-listaan. Lukunäkymä merkitsee automaattiset sirut omalla tyylillä. Jo lisätty tunniste säilyy, vaikka säännön osuma poistuisi. Listojen Viikot-näkymän kuittausnappi säilyttää nyt leveytensä, kun teksti vaihtuu. Kokeilussa selvitetään, toimivatko pikanapin valintatavat ja automaattisten tunnisteiden erottuvuus. Laaja editori ja XY-pädi ovat eri työvaiheita.
 - **0.20 (22.11.2026, kohta 15): Yhteinen XY-pädi.** Pikakirjauksen XY-nappi ja Kojelaudan lukukentät avaavat saman valitsimen. Valittavana ovat 0–10, 0–100 ja 0–1000 sekä nolla, yksi tai kaksi desimaalia. Pädissä voi raahata tai valita nuolinäppäimillä. Peru hylkää valinnan ja OK siirtää sen kirjauslomakkeeseen tai pikakirjausjonoon. Pikakirjausnapin tarkkuus tallentuu esiasetukseen ja mittarilomakkeen oma tarkkuus selaimeen. Testattu Chromiumissa hiirellä ja näppäimistöllä neljällä leveydellä. iPhonen kosketuskokeilu, levyn koko pienellä ruudulla ja suhteellisen tilan tarve arvioidaan kokeilussa.
+- **0.21 (22.11.2026, kohta 9): leveä rivinäkymä.** Muistion rivit käyttävät tietokoneella koko Muistiolle varatun leveyden. Leveisiin näkymiin on vaakavierityspalkki ja ensimmäinen sarake pysyy paikallaan sivulle vieritettäessä. Kortit säilyttävät aiemman leveyden. Testattu Chromiumissa viidellä leveydellä 320–1920 px. Kokeilussa tarkistetaan, haluaako Emil rivinäkymään vielä kapeammat sivumarginaalit.
 - **Mikä menee GitHubiin:** ensimmäisen projektin muistiinpanot (myös niiden kuittaukset ja kalenteriajat) sekä Tekoälylle-näkymässä muokatut tiedostot ja huoltopyynnöt sekä Kojelaudasta tallennetut mittarikirjaukset. Asetukset, ulkoasu, asiasanat, Listat, Flow, puut, Toistuvat-välilehden toistuvat, tarkistuslistat ja muut projektit ovat vain laitteella (`kaikki:v1`); varmuuskopio niistä Juuren viennillä.
 
 **Suunta (Emil 22.11.2026):** Kaikki eriytyy Juuresta: Juuren ominaisuuksia karsitaan, painopiste siirtyy tietokoneelle (tiedon käsittely, rivinäkymät, taulukot, kojelauta). Puhelinnäkymä riisutaan: keskeistä kalenteri, uuden muistiinpanon lisäys ja osa kuvaajista; toiminnot voivat säilyä, mutta näkymä kevenee. Pitkä projekti; mahdollinen tie ulos Notionista.
@@ -106,7 +107,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Seuraava askel
 
-Seuraavaksi levennetään Muistion rivinäkymä tietokoneella (kohta 9). Flow-kokeilu ja mittarien tekstikirjaus ovat käytettävissä kokeiltaviksi.
+Seuraavaksi toteutetaan usean muistiinpanon valinta, arkistointi ja roskakoriin siirto (kohta 9). Flow-kokeilu ja mittarien tekstikirjaus ovat käytettävissä kokeiltaviksi.
 
 Emil kokeilee GitHub-yhteyttä tietokoneella (pilvinappi yläpalkissa, vain omalla koneella). Sen jälkeen suunnitellaan tietokoneasettelu (ehdotus: lista ja auki oleva muistiinpano rinnakkain, isompi kirjoitusalue, pikanäppäimet, kansiot tai asiasanat sivupalkkiin).
 

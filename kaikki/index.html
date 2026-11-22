@@ -1494,6 +1494,12 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 .rvbar{margin:0 0 8px}
 .rvh{position:sticky;top:calc(var(--nbh,0px) - 10px);z-index:3;overflow:hidden;background:var(--bg);border-bottom:1px solid var(--sep)}
 .nlist.rvb{display:block;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;background:var(--cell);border-radius:0 0 12px 12px}.nlist.rvb::-webkit-scrollbar{display:none}
+@media (min-width:1000px){
+  main>#p-notes.rows-wide{max-width:none}
+  .rows-wide .nlist.rvb{scrollbar-width:thin}
+  .rows-wide .nlist.rvb::-webkit-scrollbar{display:initial;height:8px}
+  .rows-wide .nlist.rvb::-webkit-scrollbar-thumb{background:var(--sep);border-radius:4px}
+}
 .rvr{display:grid;grid-template-columns:var(--rvcols);min-width:min-content;column-gap:0;align-items:center;cursor:pointer}
 .rvb .rvr{border-top:1px solid var(--sep);background:var(--cell)}.rvb .rvr:first-child{border-top:0}
 .rvb .rvr[hidden]{display:none}
@@ -4333,7 +4339,7 @@ function relText(n,cls,lim){var d=el('div',cls||'nt'),txt=String(n.text||''),at=
   d.appendChild(document.createTextNode(T(at)));return d;}
 function renderNotes(){var p=panels.notes;p.textContent='';var today=todayIso();
   /* Kaikki 0.6 (Emil 22.11.2026): vaultin muistiinpanot ovat pysyviä, joten Muistiossa ei ole Avoimet/Kuitatut-jakoa; kuittaus kuuluu kalenterin päivälle */
-  if(noteView==='done')noteView='open';var NS=data.notes.filter(function(n){return !n.arch;});
+  if(noteView==='done')noteView='open';p.classList.toggle('rows-wide',nvRows());var NS=data.notes.filter(function(n){return !n.arch;});
   var cn=$('count');cn.hidden=true;/* 1.71 (Emil): määrä ei kuulu yläpalkin tasolle */cn.textContent=NS.length+' kpl';cn.setAttribute('aria-label',NS.length+(NS.length===1?' muistiinpano':' muistiinpanoa'));
   var nb=el('div','nbar');nb.id='nbar';p.appendChild(nb);requestAnimationFrame(function(){document.documentElement.style.setProperty('--nbh',nb.offsetHeight+'px');});
   if(noteView!=='chk'){var vs=el('div','seg');vs.id='noteview';[['open','Muistiinpanot','Kaikki'],['rep','Toistuvat','Toistuvat']].forEach(function(m){var b=button(vs,'','',function(){noteView=m[0];main.scrollTop=0;render();});b.appendChild(el('span','lg',m[1]));b.appendChild(el('span','sh',m[2]));b.setAttribute('aria-label',m[1]);b.className='';b.dataset.nv=m[0];b.setAttribute('aria-pressed',noteView===m[0]?'true':'false');
@@ -4366,7 +4372,7 @@ function renderNotes(){var p=panels.notes;p.textContent='';var today=todayIso();
   q.addEventListener('input',function(){noteQuery=q.value;filterNotes();});nb.appendChild(tb);
   var l=(noteSort==='prio'?prioSort(NS,rankFn(AT,today),today):sortNotes(NS,noteSort,today)).filter(function(n){return notePass(nt[n.id]);});
   var list=el('div','nlist');list.id='nlist';
-  if(nvRows()){list.classList.add('rvb');rowsInto(p,list,l,today);}else l.forEach(function(n){var kd=n.vp?VAULT.kindOf(n.vp,n.vfm):'oma',c=el('div','ncard'+(n.rep?' auto':'')+(kd!=='oma'?' src-'+(kd==='yhdessa'?'yhdessa':'tekoaly'):''));c.setAttribute('role','button');c.tabIndex=0;c.dataset.id=n.id;var nx=nextDate(n,today);
+  if(nvRows()){list.classList.add('rvb');list.tabIndex=0;list.setAttribute('role','region');list.setAttribute('aria-label','Muistiinpanojen rivit');rowsInto(p,list,l,today);}else l.forEach(function(n){var kd=n.vp?VAULT.kindOf(n.vp,n.vfm):'oma',c=el('div','ncard'+(n.rep?' auto':'')+(kd!=='oma'?' src-'+(kd==='yhdessa'?'yhdessa':'tekoaly'):''));c.setAttribute('role','button');c.tabIndex=0;c.dataset.id=n.id;var nx=nextDate(n,today);
     /* Kaikki 0.6 (Emil 22.11.2026): kortti on esikatselu (otsikko ja kaksi riviä), ei kuittausympyrää; kuittaus tehdään kalenterissa.
        Kuka kirjoitti näkyy reunan raitana: oma ilman raitaa, yhdessä ja tekoäly omilla väreillään. */
     if(nx){var d=fromIsoW(nx.k);c.appendChild(el('div','nd'+(nx.k===today?' today':''),(nx.k===today?'Tänään ':'')+d+(nx.o.time?' klo '+nx.o.time.s.replace(/^0/,'').replace(':','.')+(nx.o.time.e?'–'+nx.o.time.e.replace(/^0/,'').replace(':','.'):''):'')+((nx.o.rec||(nx.o.b&&nx.o.b!==nx.o.a))?' · '+dateLabel(nx.o).replace(/ klo .*$/,''):'')+(hidDay(nx.k)?' · '+hidTxt(nx.k):'')));}
