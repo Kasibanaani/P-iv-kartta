@@ -23,17 +23,17 @@ Päivitetty 22.11.2026 (versio 0.13). Seuraavaksi on kohdan 8 kirjoitusohjeen pe
 2. Kohta 7: Flow tekstinä, **kokeiluna** (ks. C).
 3. Kohta 6.2: mittarien tekstikirjaus `Mittarit: …` muistiinpanossa ja pikakomentolinkki `?kirjaa=` (ehdotettu muoto).
 4. Kohta 9: `#tunnisteet` (tunnistus tekstistä ja `tagit`-kentästä, sirut lukunäkymässä, Asiasanat-suodattimen Tunnisteet-ryhmä, rivinäkymän kenttä `tunnisteet`, näkymäehto `tunniste = x`).
-5. Kohta 9: rivinäkymä leveäksi tietokoneella.
-6. Kohta 9: monen valinta: Arkistoi ja Poista valitut (vahvistus, roskakoriin).
-7. Kohta 9: oma järjestys ja kahva (tallennus `nakymat/kaikki.md`).
-8. Kohta 10: kentät ja kaavamoottori (perusfunktiot, muistiinpanohaku, virheet).
-9. Kohta 11: kaavat muistiinpanoissa ja rivinäkymän kaavasarakkeet.
-10. Kohta 12: laskentataulukko v1: osio Taulukot, välilehdet tiedostoina, solujen muokkaus, viittaukset välilehtien ja muistiinpanojen välillä. Näkymävälilehti (muistiinpanot riveinä) v2:ssa.
-11. Kohta 13 rajattuna: kortit **ruudukkoon** (ei vapaata sijoittelua vielä), lajit luku, palkki, teksti, kytkin ja liukusäädin, arvot soluista, muokkaus- ja lukittu tila.
-12. Kohta 9: Asiat → Tunnisteet -siirtymä (Emil valitsee apissa, mitkä Asiat otetaan tunnisteiksi).
-13. Kohta 14: karsintakysely Emilille (vain kysely ja kirjaus; karsitaan vasta vastausten jälkeen).
-14. Kohta 15: pikakirjaus v1 (esiasetukset vaultissa, Seuranta ja Muistutus, tallennus mittareihin ja päivän muistiinpanoon, Kirjattu-rivi kalenterissa, `+ Uusi nappi`, automaattiset tunnisteet). Voi tehdä myös heti kohdan 4 (`#tunnisteet`) jälkeen, jos Emil haluaa sen aiemmin.
-15. Kohta 15: XY-pädi lukuarvoille.
+5. Kohta 15: pikakirjaus v1 (esiasetukset vaultissa, Seuranta ja Muistutus, tallennus mittareihin ja päivän muistiinpanoon, Kirjattu-rivi kalenterissa, `+ Uusi nappi`, automaattiset tunnisteet). **Emil 22.11.: aikaisin, koska unen, treenien ja ravinnon seuranta voi siirtyä tänne.**
+6. Kohta 15: XY-pädi lukuarvoille.
+7. Kohta 9: rivinäkymä leveäksi tietokoneella.
+8. Kohta 9: monen valinta: Arkistoi ja Poista valitut (vahvistus, roskakoriin).
+9. Kohta 9: oma järjestys ja kahva (tallennus `nakymat/kaikki.md`).
+10. Kohta 10: kentät ja kaavamoottori (perusfunktiot, muistiinpanohaku, virheet).
+11. Kohta 11: kaavat muistiinpanoissa ja rivinäkymän kaavasarakkeet.
+12. Kohta 12: laskentataulukko v1: osio Taulukot, välilehdet tiedostoina, solujen muokkaus, viittaukset välilehtien ja muistiinpanojen välillä. Näkymävälilehti (muistiinpanot riveinä) v2:ssa.
+13. Kohta 13 rajattuna: kortit **ruudukkoon** (ei vapaata sijoittelua vielä), lajit luku, palkki, teksti, kytkin ja liukusäädin, arvot soluista, muokkaus- ja lukittu tila.
+14. Kohta 9: Asiat → Tunnisteet -siirtymä (Emil valitsee apissa, mitkä Asiat otetaan tunnisteiksi).
+15. Kohta 14: karsintakysely Emilille (vain kysely ja kirjaus; karsitaan vasta vastausten jälkeen).
 
 **B. Pieniä jatkoja, voi tehdä välissä:** rivinäkymän minigraafi-laji, sarakkeen järjestys otsikkoa napauttamalla, muistiinpanoikkunan jäljelle jääneet tekstinalaiset kohdat (Liitä asiasanaan, päällekkäisyys, kiinnitys) sirun ikkunaan.
 
@@ -239,7 +239,12 @@ Kokeile testiaineistolla ensin Flow'n lukemista sisennetystä Markdownista. Jatk
 - **Automaattiset tunnisteet (säännöt):** vaultin `pohjat/tunnisteet.md`, rivit `#koira: koira, koiran, rekku`. Appi lisää osuvat tunnisteet muistiinpanon `tagit`-kenttään (ei Emilin tekstiin) tallennettaessa; näkyvät päätellyn tyylillä. Korvaa Juuren Asioiden sanatunnistuksen (kohta 9).
 - Vanha Juuren pikamuistiinpano (Listat) jää, kunnes karsintakysely (kohta 14) päättää.
 
-**v1:n jälkeen, myös tarkka (työjonoon A:n loppuun):** **XY-pädi** lukuarvoille 0–100 ilman näppäimistöä: pyöristetty neliö; vaakasuunta ykköset (0–9), pystysuunta kymmenet (0–9, alhaalta ylös); arvo näkyy isona sormen vieressä raahatessa; irrotus → pieni `OK / Peru` (Peru vasemmalla, OK oikealla, ei samassa kohdassa kuin sormi). Asetuksella väli (esim. 0–10 tai 0–100).
+**v1:n jälkeen, myös tarkka (työjonossa heti pikakirjauksen perään):** **XY-pädi** lukuarvoille 0–100 ilman näppäimistöä: pyöristetty neliö; vaakasuunta ykköset (0–9), pystysuunta kymmenet (0–9, alhaalta ylös); arvo näkyy isona sormen vieressä raahatessa; irrotus → pieni `OK / Peru` (Peru vasemmalla, OK oikealla, ei samassa kohdassa kuin sormi). Asetuksella väli (esim. 0–10 tai 0–100).
+
+**Uni, treeni ja ravinto (Emil 22.11.2026: niiden seuranta voi siirtyä tänne ainakin osittain):**
+- v1 (ei lisäkysymyksiä): päivän yhteenveto mittareina `data/paiva.csv`:hen pikakirjauksen napeilla, esim. `uni` (tunnit, luku), `unen-laatu` (1-5), `treeni` (kyllä), `treenin-kesto` (min), `ateriat` (luku) tai `ruokailo` (1-5). Uusi mittari vaultin `ohjeet/data.md`:n mukaan Emilin luvalla.
+- Applen Terveys: iOS-pikakomento voi lukea unen tai treenin Terveydestä ja avata linkin `…/kaikki/?kirjaa=uni 7,5` (kohta 6.2), jolloin kirjaus tulee ilman näpyttelyä.
+- Myöhemmin (visio): tarkemmat taulukot, joissa monta riviä päivässä (treenin sarjat, ateriat), ja kojelauta niille; suhde olemassa olevaan Treenikarttaan (`treenikartta/`) ja master-tiedot-ideoihin (Annoskirja, Ruokakartta, Mittarit) päätetään erikseen, ettei sama seuranta ole kahdessa appissa.
 
 **Visio (ei v1:tä ennen tarkennusta):** tietokoneen laajempi pikakirjausten editori; tunnistus milloin jokin toteutuu tai on tietyn arvoinen ja tilastointi siitä; korrelaatiot napeissa (Päiväkartan ja Projektikartan tapaan värinä ja palkkina).
 
