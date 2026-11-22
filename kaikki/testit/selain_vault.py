@@ -33,7 +33,7 @@ async def run(p,w,h):
     await pg.goto(U); await settle(1500)
     st=await pg.evaluate("KaikkiTesti.status()")
     want('haku valmis',st.startswith('ajan tasalla'),st)
-    notes=await pg.evaluate("KaikkiTesti.notes().map(function(n){return n.vp;}).sort()")
+    notes=await pg.evaluate("KaikkiTesti.notes().filter(function(n){return n.vp;}).map(function(n){return n.vp;}).sort()")
     want('vain näkyvät muistiinpanot',notes==['paivat/2026/2026-11-22.md','tieto/dkt/stop-taito.md'],notes)
     await settle(2000)
     log=await pg.evaluate("__repo.log.filter(function(x){return !/^GET/.test(x);})")
@@ -42,7 +42,8 @@ async def run(p,w,h):
     want('otsikko ilman #-merkkiä',t.startswith('STOP-taito\n\nKoulutus'),repr(t[:30]))
     # siisti teksti: otsikko ilman merkkejä listassa, merkit haaleina kirjoittaessa ja piilossa lukunäkymässä
     want('listassa otsikko ilman #-merkkejä',await pg.evaluate("document.body.innerText.indexOf('Su 22.11.2026')>=0&&document.body.innerText.indexOf('# Su')<0"))
-    await pg.evaluate("(function(){var n=KaikkiTesti.notes().filter(function(n){return n.vp==='paivat/2026/2026-11-22.md';})[0];var r=Array.prototype.filter.call(document.querySelectorAll('#notes button,.row,[data-id]'),function(e){return e.textContent.indexOf('Su 22.11.2026')>=0;})[0];if(r)r.click();})()"); await settle(300)
+    day_id=await pg.evaluate("KaikkiTesti.notes().find(n => n.vp==='paivat/2026/2026-11-22.md').id")
+    await pg.locator('#nlist [data-id="'+day_id+'"]').click(); await settle(250)
     if await pg.evaluate("document.getElementById('nsheet').open"):
         r=await pg.evaluate("(function(){var m=document.querySelectorAll('#ns-hl .mdm');return {n:m.length,hid:m.length?getComputedStyle(m[0]).display:'',reading:document.getElementById('nsheet').classList.contains('reading'),h:document.querySelectorAll('#ns-hl .mdh').length};})()")
         want('lukunäkymä oletuksena, ## piilossa',r['reading'] and r['n']>=1 and r['hid']=='none' and r['h']>=1,r)
@@ -99,7 +100,7 @@ async def run(p,w,h):
     want('jono tyhjä lopuksi',await pg.evaluate("Object.keys(KaikkiTesti.vault().q).length===0"),await pg.evaluate("JSON.stringify(Object.keys(KaikkiTesti.vault().q))"))
     # uudelleenlataus: jokaisella näkyvällä tiedostolla tasan yksi muistiinpano, ei kaksoiskappaleita
     await pg.reload(); await settle(2000)
-    r=await pg.evaluate("(function(){var vis=Object.keys(__repo.files).filter(function(p){return VAULT.shown(p,__repo.get(p));}).sort(),n=KaikkiTesti.notes().map(function(x){return x.vp;}).sort();return {vis:vis,n:n};})()")
+    r=await pg.evaluate("(function(){var vis=Object.keys(__repo.files).filter(function(p){return VAULT.shown(p,__repo.get(p));}).sort(),n=KaikkiTesti.notes().filter(function(x){return x.vp;}).map(function(x){return x.vp;}).sort();return {vis:vis,n:n};})()")
     want('uudelleenlataus: tiedostot = muistiinpanot',r['vis']==r['n'],r)
     await settle(1500)
     want('uudelleenlataus ei kirjoita',await pg.evaluate("Object.keys(KaikkiTesti.vault().q).length===0"))
