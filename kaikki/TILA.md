@@ -1,6 +1,6 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.46 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
+**Vaihe:** versio 0.47 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
@@ -86,6 +86,7 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
 - **0.44 (23.11.2026, A0.6): tunniste valituille muistiinpanoille.** Muistion valintarivi on tietokoneella listan yläreunassa. Lisää tunniste lisää yhden tunnisteen valituille näkyville Vault-muistiinpanoille ja säilyttää tekstin sekä aiemmat tunnisteet. Appi hakee tiedoston tuoreimman version ennen kirjoitusta. Jos osa jäi kesken, samoille tiedostoille voi yrittää uudelleen. Testattu Chromiumissa neljällä leveydellä.
 - **0.45 (23.11.2026, A2): Treenin kirjaus.** Valitse liike ja säädä toistot ja paino. Edellinen kerta ja painoehdotus näkyvät ennen kirjausta. Liikkeet ja lihasryhmät luetaan nykyisestä Vaultin liiketiedostosta ja sarjat kirjataan nykyiseen CSV-taulukkoon. Samalle päivälle voi aloittaa uuden treenin. Testivaultissa onnistuneen mutta vastausta vaille jääneen tallennuksen uudelleenyritys ei lisännyt kaksoiskirjausta.
 - **0.46 (23.11.2026, A2): Treenin seuranta.** Treenin Seuranta-välilehdellä näkyvät viimeisten 12 viikon treenipäivät, viikon sarjat, liikkeiden paras arvioitu maksimi per treenikerta sekä liike- ja lihasryhmätavoitteet. Seuranta lukee olemassa olevaa CSV:tä. Testattu Chromiumissa neljällä leveydellä.
+- **0.47 (23.11.2026, A2): Treenin pikakirjaus, tekstilinkki ja kalenterikooste.** Pikakirjaus → Treenisarja tai Treeni → Kirjaa tekstinä täyttää liikkeen, toistot ja painon tarkistettavaksi. Sama onnistuu `#kirjaa=`-linkistä. Kalenterin viikkolistassa näkyy päivän sarjamäärä Kirjattu-rivillä. Data ja laskenta tarkistettiin testivaultissa neljällä leveydellä. Kokeilussa selviää, riittävätkö tuodut asetukset ja Treenikartan rinnalla käyttäminen. Liikkeiden ja ryhmien muokkausta, erillistä historianäkymää, takautuvaa kirjausta ja varsinaista Kojelauta-koostetta ei tehty tähän versioon.
 - **Mikä menee GitHubiin:** ensimmäisen projektin muistiinpanot (myös niiden kuittaukset ja kalenteriajat) sekä Tekoälylle-näkymässä muokatut tiedostot ja huoltopyynnöt sekä Kojelaudasta tallennetut mittarikirjaukset. (0.35:sta alkaen myös Listat, listojen rivit, Asiat ja Toistuvat.) Asetukset, ulkoasu, Flow, puut ja muut projektit ovat vain laitteella (`kaikki:v1`); varmuuskopio niistä Juuren viennillä.
 
 **Suunta (Emil 22.11.2026):** Kaikki eriytyy Juuresta: Juuren ominaisuuksia karsitaan, painopiste siirtyy tietokoneelle (tiedon käsittely, rivinäkymät, taulukot, kojelauta). Puhelinnäkymä riisutaan: keskeistä kalenteri, uuden muistiinpanon lisäys ja osa kuvaajista; toiminnot voivat säilyä, mutta näkymä kevenee. Pitkä projekti; mahdollinen tie ulos Notionista.
@@ -139,7 +140,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Seuraava askel
 
-Seuraavaksi Treenin pikakirjaus ja tekstisyöte, sitten B:n muistiinpanoikkunan tarkenteet sekä kohdassa 19 paikallinen graafi. Toistuvuusmuodon vakiinnuttaminen ja vanhan aineiston siirto arvioidaan erikseen kohdan 18 mukaan. Flow-tekstin pysyvä muoto odottaa kokeilupalautetta.
+Seuraavaksi B:n muistiinpanoikkunan tarkenteet ja kohdassa 19 paikallinen graafi. Toistuvuusmuodon vakiinnuttaminen ja vanhan aineiston siirto arvioidaan erikseen kohdan 18 mukaan. Flow-tekstin pysyvä muoto odottaa kokeilupalautetta.
 
 Emil kokeilee GitHub-yhteyttä tietokoneella (pilvinappi yläpalkissa, vain omalla koneella). Sen jälkeen suunnitellaan tietokoneasettelu (ehdotus: lista ja auki oleva muistiinpano rinnakkain, isompi kirjoitusalue, pikanäppäimet, kansiot tai asiasanat sivupalkkiin).
 
