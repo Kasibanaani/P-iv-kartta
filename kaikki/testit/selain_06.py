@@ -60,7 +60,8 @@ async def run(p,w,h):
     want('⋯ alapalkissa ja näkyvissä',place['bar'] and place['vis'],place)
     await pg.click('#ns-more'); await pg.wait_for_timeout(150)
     items=await pg.evaluate("Array.from(document.querySelectorAll('#ns-menu button')).map(function(b){return b.textContent;})")
-    want('valikossa Päivä ja aika, Arkistoi, Poista',items==['Päivä ja aika','Arkistoi','Poista'],items)
+    want('valikossa säilyvät nykyiset toiminnot ja huoltopyyntö',
+         items==['Päivä ja aika','Arkistoi','Poista','Pyydä tekoälyä järjestämään'],items)
     r=await pg.evaluate("(function(){var m=document.getElementById('ns-menu').getBoundingClientRect();return m.left>=0&&m.right<=innerWidth&&m.top>=0&&m.bottom<=innerHeight;})()")
     want('valikko ruudulla',r)
     await pg.mouse.click(w//2,140); await pg.wait_for_timeout(150)

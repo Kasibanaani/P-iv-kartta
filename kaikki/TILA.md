@@ -1,6 +1,6 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.10 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
+**Vaihe:** versio 0.11 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
@@ -50,11 +50,12 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
 - **0.8 (22.11.2026, suunnitelman kohta 3): koko vault ZIP-tiedostona.** Vienti ja tuonti → Koko vault (ZIP), näkyy kun vault on käytössä. Aina sama nimi `Kaikki-vault.zip` (uusi korvaa vanhan Tiedostoissa). Sisältö: kaikki välimuistin vaultin tekstitiedostot (`.md`, `.csv`, `.json` alle 400 kt, myös `ohjeet/`, `arkisto/`, `data/`, piilotetut) + lähtemättömät omat muutokset uusimpana; `VARMUUSKOPIO.txt` (repo, aika, määrä). Oma ZIP-kirjoittaja (`zipMake`, stored, CRC-32, UTF-8-nimet). Puhelimella jakovalikko, tietokoneen Chromessa/Edgessä tallennusikkuna (vanhan voi korvata), muuten lataus. Testi `selain_08.py` (ZIP avataan Pythonilla).
 - **0.9 (22.11.2026, suunnitelman kohta 1): muistiinpanoikkunassa tila tekstille.** Tekstikenttä aina reunoin ja täyttää ikkunan (puhelimella ruudun korkeudelta, tietokoneella ikkuna 880 px leveä, kenttä 64vh). Ylärivillä yksi siru (`#ns-when`, `nsWhen`): seuraava ajankohta (kuitattuna väkänen, useampi +N), muuten Tiedot (asiasanat) tai + Päivä. Siru avaa pienen ikkunan (`#ns-datepop`): päivä- ja aikarivi sekä Ajankohdat ja asiasanat (siirretty tekstin alta). Luotu ja muokattu ⋯-valikon ylärivillä, vihje ”napauta tekstiä muokataksesi” pois. Esc sulkee ensin pikkuikkunan. Valinnan ”Liitä asiasanaan”, päällekkäisyysilmoitus ja kalenterin kohdan kiinnitys jäivät tekstin alle (näkyvät vain tilanteen mukaan). Testi `selain_09.py`, `selain_06.py` päivitetty.
 - **0.10 (22.11.2026, suunnitelman kohta 2): muistiinpanot riveinä ja sarakkeina.** Kortit / Rivit -nappi (`#nviewbtn`; tietokoneella yläpalkissa, puhelimella alapalkissa Kaikki/Toistuvat-valinnan vieressä), laitekohtainen `kaikki:nmode` (oletus Rivit ≥ 1000 px, muuten Kortit). Oletusnäkymä Kaikki muistiinpanot: otsikko, kansio, kuka kirjoitti, luotu, seuraava ajankohta. Vaultin näkymätiedostot `nakymat/*.md` (`tyyppi: nakyma`; `mista`, `jarjestys`, `sarakkeet: - kenttä | laji | asetus`; lajit teksti, siru, pvm, luku, palkki, kylla-ei) näkyvät Näkymä-valinnassa (`kaikki:nview`); muoto vaultin `ohjeet/appi.md`:ssä. Appilinjan taulukkomalli: otsikkosarake ja otsikkorivi jäädytettyinä, sarakkeet vierivät sivuttain, rivi 42 px, kuka kirjoitti -raita otsikkosarakkeessa. Haku, asiasanat, henkilö-suodatin ja Muistion järjestys toimivat kuten korteissa (näkymän `jarjestys` ohittaa). Muistiinpanot/Toistuvat puhelimella lyhyesti Kaikki/Toistuvat. Vain luku. Testi `selain_10.py`.
-- **Mikä menee GitHubiin:** vain ensimmäisen projektin muistiinpanot (myös niiden kuittaukset ja kalenteriajat). Asetukset, ulkoasu, asiasanat, Listat, Flow, puut, Toistuvat-välilehden toistuvat, tarkistuslistat ja muut projektit ovat vain laitteella (`kaikki:v1`); varmuuskopio niistä Juuren viennillä.
+- **0.11 (22.11.2026, suunnitelman kohta 4): huoltopyynnöt ja Tekoälylle.** Puhelimen Valikosta tai tietokoneen yläpalkin Tekoälylle-painikkeesta voi jättää pyynnön saapuneille tai koko vaultille. Muistiinpanon ⋯-valikosta voi pyytää kyseisen tiedoston järjestämistä. Appi lisää pyynnön tuoreimpaan `yllapito/pyynnot.md`-versioon *Avoimet*-otsikon alle ja yrittää uudelleen rinnakkaisen kirjoituksen jälkeen. Tekoälylle-näkymä avaa ohjeet, piilotetut työmuistiinpanot ja ylläpitotiedostot muistiinpanoikkunassa. Tekstin muokkaus säilyttää alkutiedot. Aiemmat lähdesuodattimet ovat käytettävissä. Myös GitHub-vaultin asetusikkuna sulkeutuu ulkopuolelta tai Escillä. Testi `selain_11.py` kattaa neljä näyttöleveyttä, rinnakkaisen huoltopyynnön ja tiedoston muokkauksen. Ikkunan sulkemisessa käytetään olemassa olevaa Safari-yhteensopivaa taustaklikkausta.
+- **Mikä menee GitHubiin:** ensimmäisen projektin muistiinpanot (myös niiden kuittaukset ja kalenteriajat) sekä Tekoälylle-näkymässä muokatut tiedostot ja huoltopyynnöt. Asetukset, ulkoasu, asiasanat, Listat, Flow, puut, Toistuvat-välilehden toistuvat, tarkistuslistat ja muut projektit ovat vain laitteella (`kaikki:v1`); varmuuskopio niistä Juuren viennillä.
 
 **Suunta (Emil 22.11.2026):** Kaikki eriytyy Juuresta: Juuren ominaisuuksia karsitaan, painopiste siirtyy tietokoneelle (tiedon käsittely, rivinäkymät, taulukot, kojelauta). Puhelinnäkymä riisutaan: keskeistä kalenteri, uuden muistiinpanon lisäys ja osa kuvaajista; toiminnot voivat säilyä, mutta näkymä kevenee. Pitkä projekti; mahdollinen tie ulos Notionista.
 
-**Tarkka toteutussuunnitelma kohdille 1–4 (mille tahansa tekoälylle): `kaikki/SUUNNITELMA.md`.**
+**Tarkka toteutussuunnitelma ja ajantasainen työjärjestys: `kaikki/SUUNNITELMA.md`.**
 
 ## Kerätyt toiveet (ei vielä toteutettu, Emil 22.11.2026: kerätään muutama ja toteutetaan yhdessä)
 
@@ -70,7 +71,7 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
    Ehdotus (tekoäly): sarakkeet = muistiinpanon alkutiedot (`tyyppi`, `lahde`, `luotu`, `tagit` ja uudet omat kentät, esim. `tila: kesken`, `arvio: 7`, `edistys: 40`). Näkymä on oma tiedosto vaultissa (esim. `nakymat/<nimi>.md`: mitkä muistiinpanot, mitkä sarakkeet, millä näyttötavalla), jotta tekoäly voi tehdä ja täyttää niitä. Näyttötavat yhteiset tulevan taulukko/kojelauta-idean (D) kanssa: yksi toteutus, monta käyttöä. Vaatii vaultin ohjeisiin päätöksen kenttien nimistä.
 3. ~~**Koko vault varmuuskopioksi**~~ tehty 0.8. **Koko vault varmuuskopioksi (ehdotus, tekoäly).** Nykyinen Vienti (`Kaikki.json`) sisältää apin tiedot ja näkyvien muistiinpanojen tekstit, mutta ei koko vaultia (ei `ohjeet/`, `arkisto/`, `data/`, piilotettuja). Appilla on kaikki vaultin tekstitiedostot jo välimuistissa, joten se voi tehdä yhden ZIP-tiedoston, jossa vaultin kansiot ja `.md`/`.csv`/`.json`-tiedostot sellaisinaan (avautuu millä tahansa koneella). Valikko → Vienti ja tuonti → ”Koko vault (ZIP)”. Sama onnistuu jo nyt GitHubin sivulta: Code → Download ZIP.
 
-4. **Huoltopyynnöt tekoälylle ja tekoälyn tiedostot taka-alalle (Emil 22.11.2026).** Ei säännöllistä laajaa huoltoa (käyttörajat), vaan Emil pyytää napista. *Ehdotus (tekoäly):*
+4. ~~**Huoltopyynnöt tekoälylle ja tekoälyn tiedostot taka-alalle**~~ tehty 0.11. Alkuperäinen toive (Emil 22.11.2026). Ei säännöllistä laajaa huoltoa (käyttörajat), vaan Emil pyytää napista. *Ehdotus (tekoäly):*
    - Apissa nappi (Valikko ja muistiinpanon ⋯): ”Pyydä tekoälyä järjestämään” → rivi vaultin tiedostoon `yllapito/pyynnot.md` (`- [ ] pvm · mitä · kohde`), esim. koko inbox, koko vault tai tämä muistiinpano. Emil voi muokata ja poistaa pyyntöjä apissa.
    - Vaultin ohjeeseen: tekoäly lukee pyynnöt aloittaessa (kuten lokin), kertoo yhdellä rivillä ”pyyntöjä odottaa N”, ja tekee ne vain, kun Emil sanoo tai kun keskustelu on huoltokeskustelu; pieni malli ei tee isoja. Nykyinen ”työn lopuksi yksi erääntynyt tehtävä” -sääntö vaihdetaan pyyntöpohjaiseksi, jos Emil haluaa.
    - Emilin tekstin jäsentely (pilkkominen muistiinpanoiksi, linkit, kuvaus, tunnisteet): nyt sääntö sallii alkutiedot, linkit ja kansion, ei tekstin muutosta. *Ehdotus:* pyynnöllä saa myös jäsentää, alkuperäinen siirtyy `arkisto/`:on, joten mitään ei katoa.
@@ -90,6 +91,8 @@ Kaikki alla on tekoälyn arvion mukaan mahdollista ilman ulkoisia kirjastoja. Eh
 
 ## Ei tarkistettu
 
+- 0.11: Huoltopyyntö ja tiedoston muokkaus testattiin Chromiumissa testivaultilla. Oikean iPhonen Safaria ja oikeaan vaultiin kirjoittamista ei kokeiltu. Vanha viikkolistan testi `selain_1104.py` odottaa kuittauksen himmennystä, ja sama tarkistus epäonnistuu myös muuttamattomassa versiossa 0.10.
+
 - 0.6: Applen tekstikoko (`-apple-system-body`) kotinäytön kirjanmerkissä ja eri tekstikoilla; sormella kuittausympyrä, ⋯-valikko ja aikajanan pieni ympyrä (lyhyissä merkinnöissä ahdas). Nopeus mitattu vain tietokoneen hidastetulla selaimella.
 - 0.6: Juuren omien monitekstisten muistiinpanojen (`---`-erotin) tekstikohtainen kuittaus ei enää näy Muistiossa; kalenterista kuittaus toimii päivittäin.
 
@@ -100,6 +103,8 @@ Kaikki alla on tekoälyn arvion mukaan mahdollista ilman ulkoisia kirjastoja. Eh
 - Modern Web Guidance -hakua ei voitu ajaa (komento estettiin tässä istunnossa); uutta käyttöliittymää on vain asetusikkuna, Juuren tyyleillä.
 
 ## Seuraava askel
+
+Suunnitelman kohta 5 on osioiden laitekohtainen näkyvyys. Sen jälkeen ovat mittarien kirjaus ja rajatut kokeilut. Uusi pysyvä vaultin tiedostomuoto ja olemassa olevien osioiden karsiminen odottavat Emilin päätöstä.
 
 Emil kokeilee GitHub-yhteyttä tietokoneella (pilvinappi yläpalkissa, vain omalla koneella). Sen jälkeen suunnitellaan tietokoneasettelu (ehdotus: lista ja auki oleva muistiinpano rinnakkain, isompi kirjoitusalue, pikanäppäimet, kansiot tai asiasanat sivupalkkiin).
 
