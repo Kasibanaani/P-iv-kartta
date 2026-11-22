@@ -1,6 +1,6 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.41 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
+**Vaihe:** versio 0.42 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
@@ -81,6 +81,7 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
 - **0.39 (22.11.2026, A3.2): kortti suoraan taulukosta, minigraafi.** Taulukon ⋯ → *Kortiksi kojelautaan* avaa kortti-ikkunan valmiiksi täytettynä valinnasta (yksi solu → Luku, alue → Minigraafi, otsikoksi sarakkeen nimi); tallennus ei vaadi kojelaudan lukituksen avaamista. Uusi korttilaji **Minigraafi** alueesta (`[[paino]]!B1:B30`), viimeisin arvo alla; alueen loppu rajataan olemassa oleviin riveihin. Testi `selain_39.py`.
 - **0.40 (22.11.2026, A3.3): rivit ja sarakkeet.** ⋯-valikossa ja rivinumeron tai sarakeotsikon hiiren oikealla: lisää ylle/alle tai vasemmalle/oikealle (valinnan verran), siirrä, poista (toinen napautus vahvistaa). Kaavojen viittaukset päivittyvät samassa välilehdessä, muissa välilehdissä ja kojelaudan korteissa (moottorin `TAULUKKO.remap`, logiikkatesti `logiikka_viittaus.js`); poistettuun soluun viittaava kaava näyttää virheen. Sarakkeiden leveydet ja kirjainotsikot seuraavat. Testi `selain_40.py`.
 - **0.41 (23.11.2026): taulukkorakenteen ja kaavaviittausten yhteinen tallennus.** Rivin tai sarakkeen muutos, välilehtien kaavat ja kojelaudan korttien osoitteet päivittyvät yhdellä GitHub-commitilla. Jos haara eteni välissä, appi hakee tuoreen version ja ilmoittaa ristiriidasta. Testivaultissa tarkistettiin kirjauksen epäonnistuminen, rinnakkainen commit ja onnistunut tallennus, jonka vastaus katkesi.
+- **0.42 (23.11.2026, A0.8): Muistio käyttää koko työalueen.** Tietokoneella sekä Muistion kortit että rivit käyttävät koko sivupalkin viereisen tilan ja yläpalkki seuraa samaa leveyttä. Otsikkosarake vie pienemmän osuuden vapaasta tilasta. Laitekohtaiset sarakeleveydet säilyvät. Testattu Chromiumissa 320–2560 px. Emilin selaimen zoomausta ei tarkistettu hänen laitteellaan.
 - **Mikä menee GitHubiin:** ensimmäisen projektin muistiinpanot (myös niiden kuittaukset ja kalenteriajat) sekä Tekoälylle-näkymässä muokatut tiedostot ja huoltopyynnöt sekä Kojelaudasta tallennetut mittarikirjaukset. (0.35:sta alkaen myös Listat, listojen rivit, Asiat ja Toistuvat.) Asetukset, ulkoasu, Flow, puut ja muut projektit ovat vain laitteella (`kaikki:v1`); varmuuskopio niistä Juuren viennillä.
 
 **Suunta (Emil 22.11.2026):** Kaikki eriytyy Juuresta: Juuren ominaisuuksia karsitaan, painopiste siirtyy tietokoneelle (tiedon käsittely, rivinäkymät, taulukot, kojelauta). Puhelinnäkymä riisutaan: keskeistä kalenteri, uuden muistiinpanon lisäys ja osa kuvaajista; toiminnot voivat säilyä, mutta näkymä kevenee. Pitkä projekti; mahdollinen tie ulos Notionista.
@@ -134,7 +135,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Seuraava askel
 
-A0: Muistion leveys (A0.8), taulukkosarakkeen siirto vetämällä (A0.4) ja valittujen muistiinpanojen tunnisteen lisäys (A0.6). Sen jälkeen A2 Treeni ja B:n muistiinpanoikkunan tarkenteet sekä kohdassa 19 paikallinen graafi. Toistuvuusmuodon vakiinnuttaminen ja vanhan aineiston siirto arvioidaan erikseen kohdan 18 mukaan. Flow-tekstin pysyvä muoto odottaa kokeilupalautetta.
+A0: taulukkosarakkeen siirto vetämällä (A0.4) ja valittujen muistiinpanojen tunnisteen lisäys (A0.6). Sen jälkeen A2 Treeni ja B:n muistiinpanoikkunan tarkenteet sekä kohdassa 19 paikallinen graafi. Toistuvuusmuodon vakiinnuttaminen ja vanhan aineiston siirto arvioidaan erikseen kohdan 18 mukaan. Flow-tekstin pysyvä muoto odottaa kokeilupalautetta.
 
 Emil kokeilee GitHub-yhteyttä tietokoneella (pilvinappi yläpalkissa, vain omalla koneella). Sen jälkeen suunnitellaan tietokoneasettelu (ehdotus: lista ja auki oleva muistiinpano rinnakkain, isompi kirjoitusalue, pikanäppäimet, kansiot tai asiasanat sivupalkkiin).
 

@@ -2,7 +2,7 @@
 
 Itsenäinen ohje mille tahansa tekoälylle (Claude, ChatGPT/Codex, muu). Aiempaa keskustelua ei tarvitse muistaa. Lue ensin repon `AGENTS.md`, sitten `kaikki/TILA.md` ja tämä. Emilin päätökset on merkitty **Emil**, tekoälyn ehdotukset *ehdotus*. Ehdotus ei ole toteutuslupa; Emilin ”toteuta” on.
 
-Päivitetty 23.11.2026 (versio 0.41). Seuraavaksi viimeistellään A0:n avoimet työt. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
+Päivitetty 23.11.2026 (versio 0.42). Seuraavaksi viimeistellään A0:n avoimet työt. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
 
 ## Yhteiset säännöt (Kaikki)
 
@@ -26,7 +26,7 @@ Päivitetty 23.11.2026 (versio 0.41). Seuraavaksi viimeistellään A0:n avoimet 
 5. ~~**Pystyviivat**~~ tehty 0.31. **Pystyviivat** rivinäkymän sarakkeiden väliin (hienovarainen 1 px `--sep`, ei otsikkosarakkeen jäätymistä rikkoen) ja kompaktimpi rivi koneella (36 px).
 6. ~~**Monivalinta näkyväksi**~~ tehty 0.31 (valittujen toimintorivi on 0.22:n alareunan rivi; Lisää tunniste -toiminto tekemättä). **Monivalinta näkyväksi:** tietokoneella valintaruutusarake rivin vasemmassa reunassa (näkyy osoitettaessa ja aina, kun jotain on valittu), Shift-napsautus valitsee välin, ⌘-napsautus lisää; valittujen toimintorivi (Arkistoi, Poista, Lisää tunniste) yläreunaan. Puhelimella nykyinen Valitse.
 7. ~~Näkymämuokkain~~ tehty 0.33 (myöhemmin: sarakkeiden leveydet näkymätiedostoon, näkymän arkistointi apista). **Omat suodatusnäkymät apissa (näkymämuokkain v1, aiemmin visio D):** Näkymä-valinnan perään `+ Uusi näkymä` ja `Muokkaa`: pieni ikkuna, jossa nimi, ehdot (kansio, tunniste, kenttä = / > / < arvo; useampi = kaikki), järjestys (kenttä nouseva/laskeva, useampi) ja sarakkeet (valintaruudut, järjestys raahaamalla, näyttötapa). Tallentaa `nakymat/<tunnus>.md`:n samassa muodossa kuin tekoäly; tekoälyn ja apin näkymät ovat samoja tiedostoja.
-8. **Muistio koko leveydelle:** Emil (kysely 22.11.): kapealta näyttää **rivitila koneella** (Emilin omalla näytöllä; testikuvissa Rivit täytti 1440 ja 1920 px, joten tarkista Emilin näyttö, esim. erittäin leveä tai selaimen zoom, ja sarakkeiden leveysjako: nyt otsikko vie suurimman osan ja muut sarakkeet ovat kapeita). Poista jäljellä olevat leveysrajat Muistion yläpalkeista ja korttiruudukosta (kortit useampaan sarakkeeseen leveällä näytöllä).
+8. ~~**Muistio koko leveydelle**~~ tehty 0.42. Alkuperäinen palaute: Emil (kysely 22.11.): kapealta näyttää **rivitila koneella** (Emilin omalla näytöllä; testikuvissa Rivit täytti 1440 ja 1920 px, joten tarkista Emilin näyttö, esim. erittäin leveä tai selaimen zoom, ja sarakkeiden leveysjako: nyt otsikko vie suurimman osan ja muut sarakkeet ovat kapeita). Poista jäljellä olevat leveysrajat Muistion yläpalkeista ja korttiruudukosta (kortit useampaan sarakkeeseen leveällä näytöllä).
 9. ~~Yläpalkki~~ tehty 0.32. **Emil hyväksyi (kysely 22.11.):** yläpalkin 8 kuvaketta → näkyviin vain usein käytetyt (päivitys, pikakirjaus, haku), loput yhden Valikko-napin taakse myös tietokoneella (appilinja: yksi paikka, harvinaiset Valikkoon).
 Myöhemmin samaan jatkoon (v2.1): solujen muotoilu (lihavointi, tasaus, lukumuoto €, %, desimaalit, taustaväri; tallennus alkutietoihin), soluviittaus napsauttamalla kaavaa kirjoittaessa, täyttö vetämällä (kaavan kopiointi alas), jäädytettävät rivit ja sarakkeet, suodatin ja lajittelu taulukon otsikosta.
 

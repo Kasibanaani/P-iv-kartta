@@ -35,17 +35,24 @@ async def test(browser, width):
     widths = await page.locator('#p-notes').evaluate('panel => { const css = getComputedStyle(panel.parentElement); return [panel.clientWidth, panel.parentElement.clientWidth - parseFloat(css.paddingLeft) - parseFloat(css.paddingRight)]; }')
     assert abs(widths[0] - widths[1]) <= 1, widths
     position = await listbox.evaluate('''list => {
-      list.scrollLeft = 200;
+      const target = Math.min(200, list.scrollWidth - list.clientWidth);
+      list.scrollLeft = target;
       list.dispatchEvent(new Event('scroll'));
-      return [list.scrollLeft, document.querySelector('.rvh').scrollLeft,
+      return [list.scrollLeft, document.querySelector('.rvh').scrollLeft, target,
               list.querySelector('.rvt').getBoundingClientRect().left - list.getBoundingClientRect().left];
     }''')
-    assert position[:2] == [200, 200] and abs(position[2]) <= 1, position
+    assert position[0] > 0 and position[0] == position[1] == position[2] and abs(position[3]) <= 1, position
     assert await page.evaluate('document.documentElement.scrollWidth <= innerWidth')
     await page.locator('#nviewbtn').click()
     await expect(page.locator('#p-notes .ncard').get_by_text('Ensimmäinen rivi')).to_be_visible()
-    if widths[1] > 1100:
-        assert await page.locator('#p-notes').evaluate('panel => panel.clientWidth') == 1100
+    if width >= 1000:
+        assert abs(await page.locator('#p-notes').evaluate('panel => panel.clientWidth') - widths[1]) <= 1
+        if width >= 1920:
+            assert await page.locator('#nlist').evaluate(
+                'list => getComputedStyle(list).gridTemplateColumns.split(" ").length'
+            ) >= 5
+        header = await page.locator('#top .bar1').evaluate('bar => bar.clientWidth')
+        assert abs(header - widths[1]) <= 2
     assert not errors, errors
     print(f'{width} px: rivien leveys, otsikon vieritys ja korttien leveys toimivat')
     await context.close()
@@ -58,7 +65,7 @@ async def main():
         except Exception:
             browser = await playwright.chromium.launch(executable_path='/opt/pw-browsers/chromium')
         async with browser:
-            for width in (320, 390, 1280, 1440, 1920):
+            for width in (320, 390, 1000, 1280, 1440, 1920, 2560):
                 await test(browser, width)
 
 
