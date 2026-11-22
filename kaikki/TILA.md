@@ -1,6 +1,6 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.4 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
+**Vaihe:** versio 0.6 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
@@ -36,9 +36,21 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
   - Päivitysnappi alapalkissa pikaviennin paikalla (`#vref2`), kun vault on käytössä; pikavienti näkyy vain ilman vaultia. Yläreunan pieni nappi pois puhelimelta (tietokoneella ennallaan). Vienti ja tuonti edelleen Valikossa.
   - Muistiinpanon vieritys ei enää nyi: ilman näppäimistöä tekstikenttä kasvaa koko mittaansa (`noteGrow`), joten ikkuna vierii itse eikä tekstikerros jää jälkeen tekstikentän sisäisestä vierityksestä.
   - Kalenteri puhelimella: viikkonauha alhaalla alapalkin yläpuolella, matalampana (38 px, ilman asiasanarivejä). Ohjaimet: `‹ Kuukausi ›` ylempänä keskellä, `Tänään · Vk/Pv · päivitys` alempana.
+- **0.5 (22.11.2026):** `[[linkit]]` näkyvät otsikkoina ja ovat napautettavia; korttien teksti ilman markdown-merkkejä (testi `selain_linkki.py`).
+- **0.6 (22.11.2026, Emilin palaute): nopeus, tiivis Muistio, kuittaus kalenteriin, ⋯-valikko, värit ja tekstikoko.**
+  - Nopeus: päivämäärien jäsennys (`parseDates`) muistissa tekstin, luontihetken ja lukitusten mukaan (`PDC`, kopio jokaiselle kutsujalle). Kalenteri jäsensi ennen jokaisen tekstin jokaiselle päivälle. Mitattu vaultin 149 muistiinpanolla, tietokoneen selain 4× hidastettuna: Muistio 2,1 → 0,7 s, Kalenteri 4,8 → 0,4–0,5 s, muistiinpanon avaus 0,7 → 0,3 s. Kortin teksti lyhennetään (`CARDLEN` 360 merkkiä), haku ilman sisäkkäistä silmukkaa.
+  - Kortti: otsikko (ensimmäinen rivi lihavoituna) ja kaksi riviä, tyhjät rivit tiivistetty. Ei kuittausympyrää eikä Avoimet/Kuitatut-jakoa: Muistiossa `Muistiinpanot | Toistuvat`, kaikki arkistoimattomat samassa listassa. Arkisto ja Roskakori listan lopussa pieninä nappeina (`noteMore`).
+  - Kuka kirjoitti: kortin vasemmassa reunassa raita (`::before`): oma ei raitaa, yhdessä sininen `--srcy`, tekoäly ja tekoälylle violetti `--srcai`. Sama raita kalenterin riveissä, aikajanan laatikoissa ja koko päivän merkinnöissä (`srcCls`). Selite: värit henkilö-napin valikossa. Tunnistetekstit kortissa vain ruudunlukijalle.
+  - Kalenteri: kuittausympyrä merkinnän vasemmalla (viikkolista `.wck`, aikajana `.evck`, koko päivä `.uline`), `calOk` kääntää päivän kerran (`pts`) ja päivittää paikallaan; kuitattu ei himmene eikä yliviivaudu, ympyrä vihreä väkänen. Muistiinpanossa kuitattu päivä vihreällä alleviivauksella ja vaalealla taustalla (ei yliviivausta), Ajankohdat-kohdassa vihreä väkänen ilman nappia.
+  - Muistiinpanoikkuna: Kuittaa, Arkistoi ja Poista sekä päivä- ja aikarivi `⋯`-napin takana (puhelimella ikkunan alapalkissa i:n vieressä, tietokoneella otsikkorivillä). Valikko on ikkunan sisällä (`#ns-menu`), ulkopuolinen napautus sulkee. Päivärivi näkyy itsestään, kun muistiinpanolla on päivä tai aika; muuten valikosta Päivä ja aika. Kalenterista avatussa valikossa OK / Kumoa kuittaus.
+  - Tekstikoko: Valikko → asetukset → Tekstin koko (`cfg.tz`: Laitteen mukaan / Pieni / Normaali / Iso / Isompi). Laitteen mukaan = iPhonen Asetukset → Näyttö → Tekstin koko, luettu Safarin `-apple-system-body`-tyylistä (17 px = 1), muualla 1; luetaan uudelleen, kun appi tulee esiin. Kerroin `--tz` koskee korttien tekstiä, muistiinpanon tekstiä (kenttä vähintään 16 px) ja kalenterin viikkolistaa; muu appi kiinteillä koilla.
+  - Testi `selain_06.py`. Tallennusmuoto ei muuttunut (uusi asetusavain `tz` vain laitteella).
 - **Mikä menee GitHubiin:** vain ensimmäisen projektin muistiinpanot (myös niiden kuittaukset ja kalenteriajat). Asetukset, ulkoasu, asiasanat, Listat, Flow, puut, Toistuvat-välilehden toistuvat, tarkistuslistat ja muut projektit ovat vain laitteella (`kaikki:v1`); varmuuskopio niistä Juuren viennillä.
 
 ## Ei tarkistettu
+
+- 0.6: Applen tekstikoko (`-apple-system-body`) kotinäytön kirjanmerkissä ja eri tekstikoilla; sormella kuittausympyrä, ⋯-valikko ja aikajanan pieni ympyrä (lyhyissä merkinnöissä ahdas). Nopeus mitattu vain tietokoneen hidastetulla selaimella.
+- 0.6: Juuren omien monitekstisten muistiinpanojen (`---`-erotin) tekstikohtainen kuittaus ei enää näy Muistiossa; kalenterista kuittaus toimii päivittäin.
 
 - Oikealla iPhonella ja oikeaa GitHubia vasten ei kokeiltu (testit tietokoneen Chromiumissa ja testirepolla).
 - Iso vault: välimuisti on localStoragessa (raja n. 5 Mt). Riittää tuhansille tekstimuistiinpanoille; jos raja tulee vastaan, siirto IndexedDB:hen.
@@ -55,6 +67,9 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 4. Karsinta: mitä Juuren osia Kaikki ei tarvitse.
 
 ## Avoimet kysymykset
+
+- Tekstikoko koskee nyt vain muistiinpanoja ja kalenterin listaa. Laajennetaanko koko appiin (iso työ: kiinteät px-koot suhteellisiksi)?
+- Testissä vaultin aineistolla Muistioon syntyi vanhoista toistuvista ajankohdista Juuren järjestelmäilmoituksia (”Järjestelmäilmoitus: toistuvuus päättyi”, vain laitteella). Näkyykö niitä Emilillä, ja karsitaanko ne Kaikki-appista?
 
 - Mitkä Juuren osiot Kaikki pitää (Muistio ja Kalenteri varmasti; Listat, Flow, Asiat?).
 - Suodatin on nyt vain Muistiossa (vaikuttaa silti kalenteriin). Tarvitaanko se myös kalenterin näkymään omana nappinaan?
