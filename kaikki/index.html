@@ -1317,6 +1317,11 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
   #pbar .calhead>#caltoday{order:5;flex:1 1 0}
   #pbar .calhead>#calview{order:6;flex:none}
 }
+/* Kaikki 0.5: linkit [[nimi]]. Kirjoittaessa nimi korostusvärillä ja hakasulkeet haaleina; lukunäkymässä vain otsikko tai teksti, alleviivattuna */
+#ns-hl .lk{color:var(--accent)}
+#nsheet.reading #ns-hl .lka,#nsheet.reading #ns-hl .lks::after{color:var(--accent);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+#nsheet.reading #ns-hl .lks{font-size:0}#nsheet.reading #ns-hl .lks::after{content:attr(data-t);font-size:var(--fs,17px)}
+#nsheet.reading #ns-hl .lks.lkx::after{color:var(--label2);text-decoration-style:dotted}
 /* Kaikki 0.2: muistiinpanon teksti näkyy korostuskerroksesta, jotta markdown-merkit voidaan häivyttää (kirjoittaessa) tai piilottaa (lukunäkymä) */
 #ns-text{color:transparent;-webkit-text-fill-color:transparent;caret-color:var(--label)}#ns-text::placeholder{-webkit-text-fill-color:var(--label2)}
 #ns-hl{color:var(--label)}#ns-hl mark{color:inherit}
@@ -3102,8 +3107,15 @@ function mdMarks(t){var out=[],lines=String(t||'').split('\n'),s=0;lines.forEach
     else if(li)out.push({s:s+li[1].length,e:s+li[1].length+2,v:256|2048});
     while((x=b.exec(L))){var a=s+x.index,n=x[1].length;out.push({s:a,e:a+2,v:256});out.push({s:a+2,e:a+2+n,v:1024});out.push({s:a+2+n,e:a+4+n,v:256});}
     s+=L.length+1;});return out;}
-function mdPlain(l){return String(l||'').replace(/^\s*>\s?/,'').replace(/^\s*#{1,6}\s+/,'').replace(/^\s*[-*+]\s+/,'').replace(/\*\*([^*]+?)\*\*/g,'$1');}
-return {shown:shown,kindOf:kindOf,srcOf:srcOf,KINDS:KINDS,SRCP:SRCP,mdMarks:mdMarks,mdPlain:mdPlain,visible:visible,split:split,fmGet:fmGet,fmSet:fmSet,noteOf:noteOf,mdOf:mdOf,idOf:idOf,slug:slug,newPath:newPath,titleLine:titleLine,extras:extras};
+/* 0.5: vaultin linkit [[nimi]] ja [[nimi|teksti]] (Emil 22.11.2026). {s,e,slug,alias,ss,se,as,ae} */
+function links(t){var out=[],re=/\[\[([^\]|\n]+?)(?:\|([^\]\n]+?))?\]\]/g,m;t=String(t||'');while((m=re.exec(t))){var s0=m.index,sl=m[1],al=m[2];
+    out.push({s:s0,e:s0+m[0].length,slug:sl.trim(),alias:al?al.trim():'',ss:s0+2,se:s0+2+sl.length,as:al?s0+3+sl.length:-1,ae:al?s0+3+sl.length+al.length:-1});}return out;}
+function linkSlug(p){return String(p||'').replace(/^.*\//,'').replace(/\.md$/i,'');}
+/* Kortin teksti ilman merkkejä: ## pois, luettelo pisteeksi, ** pois, linkki otsikoksi (title(slug) tai nimi) */
+function plainText(t,title){return String(t||'').replace(/\[\[([^\]|\n]+?)(?:\|([^\]\n]+?))?\]\]/g,function(x,a,b){return b?b.trim():((title&&title(a.trim()))||a.trim());})
+  .split('\n').map(function(L){return L.replace(/^(\s*)#{1,6}\s+/,'$1').replace(/^(\s*)[-*+]\s+/,'$1• ').replace(/^\s*>\s?/,'').replace(/\*\*([^*]+?)\*\*/g,'$1');}).join('\n');}
+function mdPlain(l){l=String(l||'').replace(/\[\[([^\]|\n]+?)(?:\|([^\]\n]+?))?\]\]/g,function(x,a,b){return (b||a).trim();});return String(l||'').replace(/^\s*>\s?/,'').replace(/^\s*#{1,6}\s+/,'').replace(/^\s*[-*+]\s+/,'').replace(/\*\*([^*]+?)\*\*/g,'$1');}
+return {links:links,linkSlug:linkSlug,plainText:plainText,shown:shown,kindOf:kindOf,srcOf:srcOf,KINDS:KINDS,SRCP:SRCP,mdMarks:mdMarks,mdPlain:mdPlain,visible:visible,split:split,fmGet:fmGet,fmSet:fmSet,noteOf:noteOf,mdOf:mdOf,idOf:idOf,slug:slug,newPath:newPath,titleLine:titleLine,extras:extras};
 })();
 </script>
 <script id="ui">
@@ -3911,7 +3923,7 @@ var termCache=null;
 function termName(id){var l=termCache||allTerms();for(var i=0;i<l.length;i++)if(l[i].id===id)return l[i].name;return '';}
 /* Muistiinpanon teksti kortissa: muuttuneet suhteelliset sanat katkoviivalla, alkuperäinen vihjeenä */
 /* 1.56: kuitattu päivä (pts) yliviivattuna myös korteissa, kuten muistiinpanon tekstissä */
-function relText(n,cls){var d=el('div',cls||'nt'),txt=String(n.text||''),at=0,dn=((n.pts&&Object.keys(n.pts).length)||noteDates(n).some(function(o){return recEnded(o,todayIso());}));if(!(n.rel&&n.rel.length)&&!n.mv&&!dn){d.textContent=txt;return d;}
+function relText(n,cls){var d=el('div',cls||'nt'),txt=String(n.text||''),at=0,dn=((n.pts&&Object.keys(n.pts).length)||noteDates(n).some(function(o){return recEnded(o,todayIso());}));if(!(n.rel&&n.rel.length)&&!n.mv&&!dn){d.textContent=n.vp?VAULT.plainText(txt,vTitleOf):txt;return d;}
   var L=n.rel&&n.rel.length?relMatch(n,relSpans(txt,parseDates(txt,new Date(n.created||Date.now())),true)).filter(function(m){return m.lock.w!==m.lock.o;}).map(function(m){return {s:m.sp.s,e:m.sp.e,t:'Kirjoitettu ”'+m.lock.o+'”'};}):[];
   mvSpans(n).forEach(function(m){L.push({s:m.s,e:m.e,t:mvLines(m.m).join('\n')});});
   if(dn)noteDates(n).forEach(function(o){if(o.s===undefined||!struck(n,o))return;var key=dateKey(o),w=whenSpan(o);L.push({s:w.s,e:Math.min(w.e,txt.length),c:'dn',t:key?'Kuitattu '+occLabel(key):'Päättynyt '+fiDate(o.R[1])});});
@@ -4213,9 +4225,12 @@ function paintHl(){var ta=$('ns-text'),hl=$('ns-hl'),txt=ta.value,N={text:txt,cr
   wlText(txt).forEach(function(h){if(h.e>=txt.length)return;for(var k=h.s;k<h.e;k++)if(f[k])return;for(k=h.s;k<h.e;k++)f[k]|=128;});
   /* Kaikki 0.2: markdown-merkit haaleina kirjoittaessa, lukunäkymässä piilossa (teksti näkyy tästä kerroksesta, ks. #ns-text) */
   VAULT.mdMarks(txt).forEach(function(m){for(var k=m.s;k<m.e&&k<txt.length;k++)f[k]|=m.v;});
+  /* 0.5: linkit. 8192 = linkki, 16384 = näkyvä teksti (alias), 32768 = nimi, jonka tilalle lukunäkymässä otsikko */
+  VAULT.links(txt).forEach(function(L){var k;for(k=L.s;k<L.e;k++)f[k]=(f[k]&(512|1024|4096))|8192|256;/* linkki on yksi kokonaisuus: ei sanalinkkejä tai muita merkintöjä sen sisällä */if(L.alias){for(k=L.as;k<L.ae;k++){f[k]&=~256;f[k]|=16384;}}else for(k=L.ss;k<L.se;k++){f[k]&=~256;f[k]|=32768;}});
   if(noteCur&&noteCur.vh){var e1=txt.indexOf('\n');if(e1<0)e1=txt.length;for(var k1=0;k1<e1;k1++)f[k1]|=512;}/* vaultin #-otsikko = ensimmäinen rivi */
   var st=0;for(i=1;i<=txt.length;i++){if(i===txt.length||f[i]!==f[st]){var part=txt.slice(st,i),v=f[st];
-      if(!v)hl.appendChild(document.createTextNode(part));else hl.appendChild(el(v&1?'mark':'span',((v&2?'th ':'')+(v&4?'ov ':'')+(v&8?'rel ':'')+(v&16?'dn ':'')+(v&32?'nl ':'')+(v&64?'hd ':'')+(v&128?'wl ':'')+(v&256?'mdm ':'')+(v&512?'mdh ':'')+(v&1024?'mdb ':'')+(v&2048?'mdl ':'')+(v&4096?'mdq':'')).trim(),part));st=i;}}
+      if(!v)hl.appendChild(document.createTextNode(part));else hl.appendChild(el(v&1?'mark':'span',((v&2?'th ':'')+(v&4?'ov ':'')+(v&8?'rel ':'')+(v&16?'dn ':'')+(v&32?'nl ':'')+(v&64?'hd ':'')+(v&128?'wl ':'')+(v&256?'mdm ':'')+(v&512?'mdh ':'')+(v&1024?'mdb ':'')+(v&2048?'mdl ':'')+(v&4096?'mdq ':'')+(v&8192?'lk ':'')+(v&16384?'lka ':'')+(v&32768?'lks':'')).trim(),part));
+      if(v&32768){var lse=hl.lastChild;lse.dataset.t=vTitleOf(part.trim())||part;lse.style.setProperty('--fs',getComputedStyle(hl).fontSize);if(!vNoteOf(part.trim()))lse.classList.add('lkx');}st=i;}}
   hl.appendChild(document.createTextNode('\u200b'));hl.scrollTop=ta.scrollTop;}
 /* Asiasanojen lisäykset kirjoittaessa: osio tekstin lopussa päivittyy, kursori pysyy paikallaan */
 function syncAdds(){var ta=$('ns-text'),v=applyAdds(ta.value,data.projects,allTerms());termCache=null;if(v===ta.value)return false;var a=ta.selectionStart,b=ta.selectionEnd;ta.value=v;try{ta.setSelectionRange(Math.min(a,v.length),Math.min(b,v.length));}catch(e){}return true;}
@@ -5129,6 +5144,19 @@ document.addEventListener('visibilitychange',function(){if(!vOn())return;if(docu
 window.addEventListener('online',function(){if(vOn())vFlush();});
 document.querySelectorAll('.vref').forEach(function(b){b.addEventListener('click',function(){vRefresh().then(function(ok){toast(ok?'Ajan tasalla '+vAt:(vMsg||'Päivitys ei onnistunut.'));});});});
 function vStart(){vRender();if(vOn())vPull().then(function(){vCollect();});}
+/* 0.5: [[linkki]] -> muistiinpano (tiedostonimen mukaan koko vaultista), lukunäkymässä napautus avaa sen */
+function vNoteOf(slug){slug=String(slug||'').toLowerCase();if(!slug)return null;var L=vNotes(),i;for(i=0;i<L.length;i++)if(L[i].vp&&VAULT.linkSlug(L[i].vp).toLowerCase()===slug)return L[i];
+  for(i=0;i<L.length;i++)if(L[i].vp&&L[i].vp.replace(/\.md$/i,'').toLowerCase()===slug)return L[i];return null;}
+function vTitleOf(slug){var N=vNoteOf(slug);return N?noteTitle(N):'';}
+function vLinkTap(ev,x,y){var ta=$('ns-text');if(!ta.readOnly)return false;var c=hlOffsetAt(x,y);if(c<0)return false;
+  var L=VAULT.links(ta.value).filter(function(l){return c>=l.s&&c<l.e;})[0];if(!L)return false;var N=vNoteOf(L.slug);
+  ev.preventDefault();ev.stopImmediatePropagation();if(!N){toast('Muistiinpanoa ”'+L.slug+'” ei löydy (ehkä piilotettu tai arkistoitu).');return true;}
+  openNote(N);return true;}
+var vLT=null;
+$('ns-text').addEventListener('touchstart',function(ev){var t=ev.touches[0];vLT=ev.touches.length===1?{x:t.clientX,y:t.clientY,at:Date.now()}:null;},{passive:true,capture:true});
+$('ns-text').addEventListener('touchmove',function(ev){if(!vLT)return;var t=ev.touches[0];if(Math.abs(t.clientX-vLT.x)>8||Math.abs(t.clientY-vLT.y)>8)vLT=null;},{passive:true,capture:true});
+$('ns-text').addEventListener('touchend',function(ev){var T=vLT;vLT=null;if(!T||Date.now()-T.at>600)return;vLinkTap(ev,T.x,T.y);},{passive:false,capture:true});
+$('ns-text').addEventListener('click',function(ev){vLinkTap(ev,ev.clientX,ev.clientY);},true);
 window.KaikkiTesti={vault:function(){return VC;},gh:function(){return G;},pull:function(){return vPull();},collect:function(){clearTimeout(vTimer);vCollect();},flush:function(){return vFlush();},notes:function(){return vNotes();},status:function(){return vStatus();},src:function(k){setSrc(k);},refresh:function(){return vRefresh();}};
 window.JuuriTesti={setListView:function(v){if(v==='r')oldOn();setListView(v);},listView:function(){return listView();},old:function(){oldOn();render();}};
 function oldOn(){OLDUI=true;try{localStorage.setItem('kaikki:vanhat','1');}catch(e){}document.body.classList.add('oldui');}
