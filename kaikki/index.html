@@ -1633,6 +1633,12 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 .nved-col select{min-height:32px;font-size:14px}.nved-opt{width:80px;flex:none!important;min-height:32px!important}
 .nved-mv{flex:none;width:32px;padding:0}
 .nved-foot{display:flex;align-items:center;justify-content:space-between;margin-top:12px}.nved-count{font-size:13px;color:var(--label2)}
+/* Kaikki 0.34: Tiedot-osio */
+.nsinfo{margin-top:10px}.nsinfo .fh{margin:8px 0 4px}
+.nsi-row{display:flex;align-items:center;gap:8px;min-height:30px;font-size:13px;border-top:1px solid var(--sep)}
+.nsi-k{flex:0 0 32%;color:var(--label2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nsi-v{flex:1;min-width:0;overflow-wrap:anywhere}
+.nsi-in{flex:1;min-width:0;min-height:30px!important;padding:2px 8px!important;font-size:16px!important}
+.nsi-mv{flex:none;min-height:28px;font-size:12.5px}
 </style>
 </head>
 <body>
@@ -3948,14 +3954,21 @@ function created0(fm,path){return noon(fmGet(fm,'luotu'))||noon(dateOfPath(path)
 function noteOf(path,md){var S=split(md),body=S.body,pre=/^\s*/.exec(body)[0],rest=body.slice(pre.length),post=/\s*$/.exec(rest)[0],core=rest.slice(0,rest.length-post.length),vh=/^# /.test(core);
   var N={id:idOf(path),vp:path,vfm:S.fm,vpre:pre,vpost:post,vh:vh,text:vh?core.slice(2):core};if(!S.fm)N.vnofm=true;
   N.created=created0(S.fm,path);N.edited=N.created;
-  var j=fmGet(S.fm,'juuri');if(j){try{var o=JSON.parse(j);Object.keys(o).forEach(function(k){if(k==='c')N.created=String(o.c);else if(k==='e')N.edited=String(o.e);else if(!CORE[k])N[k]=o[k];});}catch(e){}}
+  var j=fmGet(S.fm,'juuri');if(j){try{var o=JSON.parse(j);if('done' in o)N._hd=1;Object.keys(o).forEach(function(k){if(k==='c')N.created=String(o.c);else if(k==='e')N.edited=String(o.e);else if(!CORE[k])N[k]=o[k];});}catch(e){}}
+  /* Kaikki 0.34 (Emil 22.11.2026, kohta 17): luettava kuittausrivi `kuitattu: 2026-11-22 16:00, 2026-11-29`. Lukee myös vanhan juuri.pts:n. */
+  var kv=fmGet(S.fm,'kuitattu');if(kv){var P=N.pts&&typeof N.pts==='object'?N.pts:{};kv.split(',').map(function(x){return x.trim().replace(/^(\d{4}-\d{2}-\d{2})\s+(?:klo\s+)?(\d{1,2})[.:](\d{2})/,function(a,d,h,mi){return d+' '+(h.length<2?'0'+h:h)+':'+mi;});}).filter(Boolean).forEach(function(k){if(!P[k]){var m=/^(\d{4}-\d{2}-\d{2})(?: (\d{1,2}:\d{2}))?/.exec(k);P[k]=m?m[1]+'T'+(m[2]?(m[2].length<5?'0'+m[2]:m[2]):'12:00')+':00':k;}});if(Object.keys(P).length)N.pts=P;N._kv=1;}
+  N._pts0=JSON.stringify(N.pts||null);
   if(!N.edited)N.edited=N.created;return N;}
+function kvKeys(kv){return String(kv||'').split(',').map(function(x){return x.trim().replace(/^(\d{4}-\d{2}-\d{2})\s+(?:klo\s+)?(\d{1,2})[.:](\d{2})/,function(a,d,h,mi){return d+' '+(h.length<2?'0'+h:h)+':'+mi;});}).filter(Boolean).sort();}
 function titleLine(t){var l=String(t||'').split('\n').filter(function(x){return x.trim();})[0]||'';return l.replace(/^#+\s*/,'').replace(/\s+/g,' ').trim().slice(0,80);}
 /* Juuren muistiinpano -> tiedosto. Uusi (ei vfm:ää): Inbox-muistiinpano, jonka alkutiedot appi omistaa. */
 function mdOf(N){var fm=N.vfm?N.vfm.slice():null,body=(N.vpre||'')+(N.vh?'# ':'')+(N.text||'')+(N.vpost===undefined?'\n':N.vpost);
   if(!fm&&!N.vnofm)fm=['tyyppi: inbox','otsikko: '+titleLine(N.text),'kuvaus: ','luotu: '+dayIso(new Date(N.created||Date.now())),'lahde: emil'];
   else if(fm&&fmGet(fm,'tyyppi')==='inbox'&&fmGet(fm,'lahde')==='emil'&&fmGet(fm,'otsikko')!==titleLine(N.text))fm=fmSet(fm,'otsikko',titleLine(N.text));
-  var x=extras(N,created0(fm,N.vp));
+  var x=extras(N,created0(fm,N.vp)),pk=N.pts&&typeof N.pts==='object'?Object.keys(N.pts).sort():[],kvNew=N._kv||JSON.stringify(N.pts||null)!==N._pts0;
+  /* valmis-tila (done) johdetaan kuittauksista, joten sitä ei lisätä tiedostoon, ellei se ollut siellä jo (pelkkä lukeminen ei kirjoita) */
+  if(fm&&x&&pk.length&&!N._hd){delete x.done;if(!Object.keys(x).length)x=null;}
+  if(fm&&kvNew){if(pk.length){if(x){delete x.pts;if(!Object.keys(x).length)x=null;}var kc=fmGet(fm,'kuitattu'),kn=kvKeys(kc);if(kn.join(', ')!==pk.join(', '))fm=fmSet(fm,'kuitattu',pk.join(', '));}else fm=fmSet(fm,'kuitattu',null);}
   if(!fm){if(!x)return body;fm=[];}
   fm=fmSet(fm,'juuri',x?JSON.stringify(x):null);
   return '---\n'+fm.join('\n')+'\n---\n'+body;}
@@ -5614,11 +5627,28 @@ function nsWhen(N,ds,TI){var b=$('ns-when'),today=todayIso(),nx=ds.length?nextDa
     b.setAttribute('aria-label','Ajankohta: '+t+(ok?', kuitattu':'')+(ds.length>1?', yhteensä '+ds.length:''));}
   else if(TI&&TI.ids&&TI.ids.length){b.appendChild(el('span','','Tiedot'));b.setAttribute('aria-label','Tiedot: asiasanat');}
   else{b.classList.add('add');b.appendChild(el('span','','+ Päivä'));b.setAttribute('aria-label','Lisää päivä tai aika');}}
-function nsDateOpen(){var pop=$('ns-datepop'),a=$('ns-when');pop.hidden=false;$('ns-datebg').hidden=false;a.setAttribute('aria-expanded','true');nsDt(true);
+function nsDateOpen(){var pop=$('ns-datepop'),a=$('ns-when');nsInfo();pop.hidden=false;$('ns-datebg').hidden=false;a.setAttribute('aria-expanded','true');nsDt(true);
   var r=a.getBoundingClientRect(),w=Math.min(440,innerWidth-24),left=Math.max(12,Math.min(r.left,innerWidth-w-12)),top=r.bottom+6;pop.style.width=w+'px';pop.style.left=left+'px';pop.style.top=top+'px';
   var r2=pop.getBoundingClientRect();if(Math.abs(r2.left-left)>1||Math.abs(r2.top-top)>1){pop.style.left=(2*left-r2.left)+'px';pop.style.top=(2*top-r2.top)+'px';}}
 function nsDateClose(){$('ns-datepop').hidden=true;$('ns-datebg').hidden=true;$('ns-when').setAttribute('aria-expanded','false');}
-(function(){var pop=$('ns-datepop');pop.appendChild($('ns-dtrow'));pop.appendChild($('ns-found'));})();
+(function(){var pop=$('ns-datepop');pop.appendChild($('ns-dtrow'));pop.appendChild($('ns-found'));var mi=el('div','nsinfo');mi.id='ns-info';pop.appendChild(mi);})();
+/* Kaikki 0.34 (Emil 22.11.2026, kohta 17.4): Tiedot-osio. Muistiinpanon alkutiedot (metatieto) pieninä riveinä tekstikentän ulkopuolella:
+   kuittaukset, tunnisteet, omat kentät ym. Omia kenttiä voi muokata; tekstissä olevan sovitun kenttärivin (esim. hinta: 120) voi siirtää tietoihin. */
+var NSI_LOCK={tyyppi:1,lahde:1,luotu:1,juuri:1,otsikko:1,kuitattu:1,nakyy:1};
+var NSI_LAB={kuitattu:'Kuitattu',tagit:'Tunnisteet',tyyppi:'Tyyppi',lahde:'Kuka kirjoitti',luotu:'Luotu',kuvaus:'Kuvaus',muokattu:'Muokattu',otsikko:'Otsikko'};
+function nsInfo(){var box=$('ns-info');if(!box)return;box.textContent='';var n=noteCur;if(!n||!n.vfm)return;
+  var rows=[],allowed=new Set();try{allowed=formulaContext().allowed;}catch(e){}
+  n.vfm.forEach(function(l){var m=/^([A-Za-z0-9_-]+):\s?(.*)$/.exec(l);if(!m||m[1]==='juuri')return;rows.push([m[1],m[2]]);});
+  var pk=n.pts&&typeof n.pts==='object'?Object.keys(n.pts).sort():[];if(pk.length&&!rows.some(function(r){return r[0]==='kuitattu';}))rows.push(['kuitattu',pk.join(', ')]);
+  var body=[];String(n.text||'').split('\n').forEach(function(l,i){var m=/^\s*([a-z][a-z0-9_-]*):\s*(\S.*)$/.exec(l);if(m&&allowed.has(m[1]))body.push({i:i,k:m[1],v:m[2].trim()});});
+  if(!rows.length&&!body.length)return;box.appendChild(el('div','fh','Tiedot'));
+  rows.forEach(function(r){var row=el('div','nsi-row');row.appendChild(el('span','nsi-k',NSI_LAB[r[0]]||r[0]));
+    if(NSI_LOCK[r[0]]){var v=r[0]==='kuitattu'?r[1].split(',').map(function(x){x=x.trim();var d=x.slice(0,10);return fiDate(d)+(x.length>10?' klo '+fmtTime(x.slice(11,16)):'');}).join(', '):r[0]==='lahde'?({emil:'oma'}[r[1]]||r[1]):r[1];row.appendChild(el('span','nsi-v',v));}
+    else{var inp=el('input','nsi-in');inp.type='text';inp.value=r[1];inp.setAttribute('aria-label',NSI_LAB[r[0]]||r[0]);inp.addEventListener('change',function(){if(!noteCur)return;noteCur.vfm=VAULT.fmSet(noteCur.vfm,r[0],inp.value.trim()===''?null:inp.value.trim());touch();nsInfo();});row.appendChild(inp);}
+    box.appendChild(row);});
+  if(body.length){box.appendChild(el('div','fh','Tekstissä'));body.forEach(function(b){var row=el('div','nsi-row');row.appendChild(el('span','nsi-k',b.k));row.appendChild(el('span','nsi-v',b.v));
+    var mv=button(row,'Siirrä tietoihin','mini nsi-mv',function(){var ta=$('ns-text'),L=ta.value.split('\n');if(!noteCur||L[b.i]===undefined)return;L.splice(b.i,1);ta.value=L.join('\n');noteCur.text=ta.value;noteCur.edited=nowIso();ta.dispatchEvent(new Event('input',{bubbles:true}));
+      noteCur.vfm=VAULT.fmSet(noteCur.vfm,b.k,b.v);touch();foundInfo();nsInfo();});mv.setAttribute('aria-label','Siirrä '+b.k+' tietoihin');box.appendChild(row);});}}
 $('ns-when').addEventListener('click',function(e){e.stopPropagation();if(!$('ns-datepop').hidden){nsDateClose();return;}nsDateOpen();});
 $('ns-datebg').addEventListener('click',function(e){e.preventDefault();e.stopPropagation();nsDateClose();});
 /* Esc sulkee ensin auki olevan pikkuikkunan (ajankohdat tai ⋯), ei koko muistiinpanoa */

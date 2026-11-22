@@ -51,7 +51,7 @@ Myöhemmin samaan jatkoon (v2.1): solujen muotoilu (lihavointi, tasaus, lukumuot
 
 **A2. Treeni-osio v1 (kysely tehty 22.11., ks. kohta 16):** rakennetaan A0:n jälkeen. Sitten karsinta kohdan 14 vastausten mukaan.
 
-**A1. SEURAAVAKSI ennen Treeni-osiota: kohta 17** (kuittausrivi, Toistuvat ja Listat vaultiin, seuranta kuitattuna, metatieto erilleen). Syy: Emil kuittasi saman merkinnän kahdesti, koska kuittaus ei synkannut.
+**A1. Kohta 17: 17.1, 17.3, 17.4 ja 17.5 tehty 0.34; 17.2 (Toistuvat ja Listat vaultiin) odottaa Emilin valintaa muodosta (TILA, Avoimet kysymykset).** Alkuperäinen: (kuittausrivi, Toistuvat ja Listat vaultiin, seuranta kuitattuna, metatieto erilleen). Syy: Emil kuittasi saman merkinnän kahdesti, koska kuittaus ei synkannut.
 
 **C. Kokeilu (tulos ja avoimet päätökset Emilille ennen pysyvää muotoa):** kohta 7 Flow tekstinä.
 
