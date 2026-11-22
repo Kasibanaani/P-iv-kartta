@@ -1431,6 +1431,11 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 @media (max-width:999px){#section-settings-btn{display:none}}
 #dash-entry-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0 12px}
 #dash-entry select{width:100%;min-height:44px;font:inherit;font-size:16px;color:var(--label);background:var(--cell);border:1px solid var(--sep);border-radius:10px}
+#writing-guide .guide-example+.guide-example{margin-top:14px;padding-top:14px;border-top:1px solid var(--sep)}
+#writing-guide h3,#writing-guide .sub{margin:0 0 6px}
+#writing-guide textarea{width:100%;min-height:0;max-height:35vh;resize:vertical}
+#writing-guide .btnrow{margin-top:6px}
+@media (max-width:999px){#writing-guide-btn{display:none}}
 #vwork-files{display:grid;gap:6px;margin-top:12px}
 #vwork-files .btn{text-align:left;overflow-wrap:anywhere}
 #nsheet.vwork-file #ns-meta,#nsheet.vwork-file #ns-more{display:none}
@@ -1475,6 +1480,7 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
       <button class="ibtn xbtn ghbtn" type="button" id="ghbtn" aria-label="GitHub-vault" title="GitHub-vault"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5.5 15.5h9a3.5 3.5 0 0 0 .4-7 5 5 0 0 0-9.6 1.3A2.9 2.9 0 0 0 5.5 15.5z"/></svg></button>
       <button class="ibtn xbtn" type="button" id="vworkbtn" aria-label="Tekoälylle" title="Tekoälylle" hidden><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5l1.9 5.6 5.6 1.9-5.6 1.9-1.9 5.6-1.9-5.6L2.5 10l5.6-1.9z"/></svg></button>
       <button class="ibtn xbtn" type="button" id="section-settings-btn" aria-label="Osioiden näkyvyys" title="Osioiden näkyvyys"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/><path d="M7 3v4M13 8v4M8 13v4"/></svg></button>
+      <button class="ibtn xbtn" type="button" id="writing-guide-btn" aria-label="Kirjoitusohje" title="Kirjoitusohje"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3h9a2 2 0 0 1 2 2v12H6a2 2 0 0 1-2-2zM7 7h5M7 10h5"/></svg></button>
       <button class="ibtn" type="button" id="hint" aria-label="Ohje">i</button>
       <button class="ibtn xbtn" type="button" id="xbtn" aria-label="Vienti ja tuonti"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 13V3M6 6.5L10 2.5l4 4M4 11v5.5h12V11"/></svg><span class="xdot" id="xdot" hidden></span></button>
     </div>
@@ -1556,6 +1562,10 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
       <button type="button" class="btn" id="dash-entry-reload" hidden>Näytä tuoreet arvot</button>
     </div>
   </form>
+</dialog>
+<dialog id="writing-guide" aria-labelledby="writing-guide-title">
+  <h2 id="writing-guide-title">Kirjoitusohje</h2>
+  <div id="writing-guide-examples"></div>
 </dialog>
 <dialog id="hsheet" aria-labelledby="hs-h">
   <h2 id="hs-h">Ohje</h2>
@@ -3568,6 +3578,47 @@ function setInfo(html,done,warn){var t=$('info-text');t.textContent='';
   $('info').classList.toggle('empty',!html&&!done);if(tab!=='notes')$('count').hidden=true;
   if(html){if(typeof html==='string')t.textContent=html;else t.appendChild(html);}$('info-done').hidden=!done;}
 function showHelp(key){var H=HELP[key];if(!H)return;$('hs-h').textContent=H[0];$('hs-body').innerHTML=H[1];openSheet($('hsheet'));}
+$('writing-guide-btn').addEventListener('click',showWritingGuide);
+function writingMetricExample(){
+  var spec=dashSpec();
+  if(!spec||spec.err)return '';
+  var table=dashEntryTables(spec)[0];
+  if(!table)return '';
+  return dashEntryCols(table,dashCsv(VC.files[table.tiedosto].t).h).slice(0,4).map(function(metric){
+    var value='12,5';
+    if(metric.laji==='asteikko')value=metric.min==null?'1':String(metric.min);
+    if(metric.laji==='valinta')value=metric.arvot&&metric.arvot[0]?metric.arvot[0][1]:'';
+    if(metric.laji==='kylla-ei')value='Kyllä';
+    return (metric.nimi||metric.id)+': '+value+(metric.yksikko?' '+metric.yksikko:'');
+  }).join('\n');
+}
+function showWritingGuide(){
+  var host=$('writing-guide-examples'),metrics=writingMetricExample();
+  host.textContent='';
+  var examples=[
+    ['Kalenteri','Kirjoita ajankohta muistiinpanon tekstiin. Voit käyttää myös suhteellista päivää tai toistuvaa ajankohtaa.',
+      'to 26.11. klo 16–17\nhuomenna klo 9\njoka maanantai'],
+    ['Muistiinpanon kentät','Kirjoita kentät Vault-tiedoston alkutietoihin, jotta rivinäkymä voi käyttää niitä sarakkeissa.',
+      'tila: kesken\narvio: 7\nedistys: 40\nhinta: 120\nprioriteetti: 2'],
+    ['Liitetty teksti','Merkitse ulkopuolinen teksti ja tekoälylle tehtävä pyyntö näillä riveillä.',
+      'Lähde: Kokouksen muistiinpanot\nTekoälylle: Poimi tekstistä sovitut tehtävät.'],
+    ['Linkki muistiinpanoon','Käytä linkissä kohteen tiedostonimeä ilman .md-päätettä. Pystyviivan jälkeen voi antaa oman linkkitekstin.',
+      '[[remonttisuunnitelma]]\n[[remonttisuunnitelma|Remontin suunnitelma]]']
+  ];
+  if(metrics)examples.unshift(['Mittarit','Valitse Kojelaudasta Kirjaa mittarit ja täytä arvot niiden omiin kenttiin.',metrics]);
+  examples.forEach(function(example,i){
+    var block=el('section','guide-example'),title=el('h3','',example[0]),field=el('textarea','mono');
+    title.id='guide-example-'+i;
+    field.setAttribute('aria-labelledby',title.id);field.readOnly=true;field.value=example[2];
+    field.rows=Math.min(5,example[2].split('\n').length+1);
+    block.appendChild(title);block.appendChild(el('p','sub',example[1]));block.appendChild(field);
+    var row=el('div','btnrow'),msg=el('span','sub');msg.setAttribute('role','status');
+    var b=button(row,'Kopioi','btn',function(){copy(field.value,b,field,msg);});
+    b.setAttribute('aria-label','Kopioi esimerkki: '+example[0]);
+    row.appendChild(msg);block.appendChild(row);host.appendChild(block);
+  });
+  openSheet($('writing-guide'));
+}
 $('hint').addEventListener('click',function(){showHelp(hintKey);});
 document.addEventListener('click',function(ev){var b=ev.target.closest('[data-help]');if(b)showHelp(b.dataset.help);});
 $('hs-close').addEventListener('click',function(){closeSheet($('hsheet'));});
@@ -3733,6 +3784,7 @@ function openMenu(){var m=$('menupop'),k=kOf();m.textContent='';
     menuItem(m,'m-vwork','Tekoälylle',function(){openVWork(false);});
   }
   menuItem(m,'m-help','Ohje: '+(MODE[tabKey()]||''),function(){showHelp(hintKey);});
+  menuItem(m,'m-writing-guide','Kirjoitusohje',showWritingGuide);
   if(OLDUI)menuItem(m,'m-tree',tab==='use'||tab==='teach'?'Vanhat puut (auki)':'Vanhat puut',function(){showTab('use');});
   m.appendChild(el('div','msep'));menuItem(m,'m-kt',kt()?'Rakennustila':'Käyttötila',function(){ktSet(!kt());});
   popOpen('menupop');}
@@ -3795,7 +3847,7 @@ $('nav').addEventListener('click',function(ev){var b=ev.target.closest('[data-ta
 /* 1.55 (I1): isot ikkunat täyttävät tilan yläpalkin ja alapalkin välissä. Otsikon edessä harmaana se, minne ruksi palaa
    (välilehti tai alla oleva ikkuna). Puhelimella 1.74:stä alkaen ikkunalla on oma alapalkki, jonka ‹-nappi sulkee kuten ruksi; osio ei vaihdu. */
 /* 1.105 (Emil 18.11.2026): listojen ikkunat (Listat, rivin ikkuna) ovat pieniä ikkunoita päällä; ulkopuolinen napautus sulkee, ei ruksia */
-var SMALL={csheet:1,dsheet:1,pksheet:1,wsheet:1,ksheet:1,pvsheet:1,gsheet:1,'vwork-sheet':1,'section-settings':1,'dash-entry':1};
+var SMALL={csheet:1,dsheet:1,pksheet:1,wsheet:1,ksheet:1,pvsheet:1,gsheet:1,'vwork-sheet':1,'section-settings':1,'dash-entry':1,'writing-guide':1};
 function barSizes(){var t=$('top'),n=$('pbar').offsetParent?$('pbar'):$('nav'),r=document.documentElement.style;
   if(t)r.setProperty('--toph',Math.max(0,Math.round(t.getBoundingClientRect().bottom))+'px');
   if(typeof land==='function'&&land()){r.setProperty('--toph','0px');r.setProperty('--navh','0px');r.setProperty('--sbh','0px');return;}
@@ -3854,7 +3906,7 @@ function crumbSync(){var k=tabKey(),k0=kOf(),t=(k0?k0.name:'Juuri')+' · '+(MODE
   if(d){var h=d.querySelector('h2'),ht=h?clean(h.textContent):'';if(ht)t+=' › '+ht;}$('crumb').textContent=t;}
 /* Ikkunan sulkeminen ohi napauttamalla tai Esc tallentaa samoin kuin Valmis */
 function sheetDone(d){var ok=d.querySelector('[data-done]');if(ok)ok.click();else closeSheet(d);}
-var SHEETS=['phsheet','wsheet','ehsheet','vsheet','psheet','xsheet','lsheet','ksheet','esheet','nsheet','tsheet','rsheet','hsheet','csheet','fsheet','pksheet','dsheet','pvsheet','gsheet','vwork-sheet','section-settings','dash-entry'];
+var SHEETS=['phsheet','wsheet','ehsheet','vsheet','psheet','xsheet','lsheet','ksheet','esheet','nsheet','tsheet','rsheet','hsheet','csheet','fsheet','pksheet','dsheet','pvsheet','gsheet','vwork-sheet','section-settings','dash-entry','writing-guide'];
 SHEETS.forEach(function(id){var d=$(id);d.addEventListener('close',modalSync);d.addEventListener('click',function(ev){if(ev.target!==d||d.classList.contains('dock'))return;
     if(!d.classList.contains('big')||matchMedia('(max-width:999px)').matches){var q=d.getBoundingClientRect(),x=ev.clientX,y=ev.clientY;
       if(x>=q.left&&x<=q.right&&y>=q.top&&y<=q.bottom)return;sheetDone(d);return;}
@@ -3950,8 +4002,9 @@ $('xs-text').addEventListener('scroll',function(){$('xs-hl').scrollTop=$('xs-tex
 $('xs-ok').addEventListener('click',function(){var P=proj();if(!P)return;P.text=$('xs-text').value;rulesFromText(P);var pt=parseText(P.text),o=orphans(P);touch();
   var m=pt.items.length+' riviä luettu.';if(pt.warnings.length)m+=' '+pt.warnings.join(' ');if(o.length)m+=' Säännöt viittaavat nimiin, joita ei enää ole: '+o.join(', ')+'.';
   closeSheet($('xsheet'));render();if(pt.warnings.length||o.length)setInfo(m,false,true);});
-function copy(txt,b,ta){function sel(){if(ta){ta.focus();ta.select();}b.textContent='Valittu, kopioi';}
-  try{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(function(){b.textContent='Kopioitu';},sel);else sel();}catch(e){sel();}}
+function copy(txt,b,ta,status){function report(message){(status||b).textContent=message;}
+  function sel(){if(ta){ta.focus();ta.select();}report('Valittu, kopioi');}
+  try{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(function(){report('Kopioitu');},sel);else sel();}catch(e){sel();}}
 
 /* ---- käyttö ---- */
 var draft={p:[],d:[]};
