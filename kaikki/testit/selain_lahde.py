@@ -39,12 +39,12 @@ async def run(p,w,bad):
     # tila ei vuoda: leveys ok, ei vaakavieritystä
     want('ei vaakavieritystä',await pg.evaluate("document.documentElement.scrollWidth<=innerWidth"))
     # päivitysnappi
-    want('päivitysnappi näkyy',await pg.is_visible('#vref'))
+    want('päivitysnappi näkyy alapalkissa, pikavienti piilossa',await pg.is_visible('#vref2') and not await pg.is_visible('#qx'))
     await pg.evaluate("__repo.put('inbox/uusi.md',%s)"%json.dumps(md('Tekoaly kirjoitti juuri','claude')))
-    await pg.click('#vref'); await pg.wait_for_timeout(1500)
+    await pg.click('#vref2'); await pg.wait_for_timeout(1500)
     t=await pg.evaluate(titles); want('päivitys tuo uuden muistiinpanon','Tekoaly kirjoitti juuri' in t,t)
     await pg.evaluate("(function(){var n=KaikkiTesti.notes().filter(function(n){return n.vp==='tieto/oma.md';})[0];n.text=n.text+' Lisäys.';})()")
-    await pg.click('#vref'); await pg.wait_for_timeout(1500)
+    await pg.click('#vref2'); await pg.wait_for_timeout(1500)
     want('päivitys vie oman muutoksen','Lisäys.' in (await pg.evaluate("__repo.get('tieto/oma.md')") or ''))
     want('ei arkistoituja',not await pg.evaluate("Object.keys(__repo.files).some(function(p){return /^arkisto\\//.test(p);})"))
     want('ei sivuvirheitä',not errs,errs)

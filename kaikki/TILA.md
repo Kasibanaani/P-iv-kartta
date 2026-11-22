@@ -1,6 +1,6 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.3 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
+**Vaihe:** versio 0.4 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
@@ -31,6 +31,11 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
   - `> `-rivit: lukunäkymässä pieni ✦ (vaultin sääntö: `> ` = tekoälyn lisäys).
   - Päivitysnappi `.vref` yläpalkissa (puhelimella pieni nuoli oikeassa yläkulmassa): vie ja hakee heti (`vRefresh`). Automaattihaku minuutin välein, kun appi on näkyvissä eikä jonossa ole mitään.
   - Testi `selain_lahde.py`. Vaultin ohjeet päivitetty (`ohjeet/appi.md`, `ohjeet/muistiinpanot.md`, `AGENTS.md`).
+- **0.4 (22.11.2026, Emilin palaute puhelimelta):**
+  - Muistion yläpalkki ei enää levene: henkilö-nappi on aina pelkkä kuvake (valittuna korostettu), hakukenttä joustaa. Aiemmin valinnan nimi työnsi hakukentän ruudun yli, ja lista heilui sivuttain. `#main` ei vieri sivuttain, eikä sivu jousta reunoilla (`overscroll-behavior:none`).
+  - Päivitysnappi alapalkissa pikaviennin paikalla (`#vref2`), kun vault on käytössä; pikavienti näkyy vain ilman vaultia. Yläreunan pieni nappi pois puhelimelta (tietokoneella ennallaan). Vienti ja tuonti edelleen Valikossa.
+  - Muistiinpanon vieritys ei enää nyi: ilman näppäimistöä tekstikenttä kasvaa koko mittaansa (`noteGrow`), joten ikkuna vierii itse eikä tekstikerros jää jälkeen tekstikentän sisäisestä vierityksestä.
+  - Kalenteri puhelimella: viikkonauha alhaalla alapalkin yläpuolella, matalampana (38 px, ilman asiasanarivejä). Ohjaimet: `‹ Kuukausi ›` ylempänä keskellä, `Tänään · Vk/Pv · päivitys` alempana.
 - **Mikä menee GitHubiin:** vain ensimmäisen projektin muistiinpanot (myös niiden kuittaukset ja kalenteriajat). Asetukset, ulkoasu, asiasanat, Listat, Flow, puut, Toistuvat-välilehden toistuvat, tarkistuslistat ja muut projektit ovat vain laitteella (`kaikki:v1`); varmuuskopio niistä Juuren viennillä.
 
 ## Ei tarkistettu
@@ -39,7 +44,6 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
 - Iso vault: välimuisti on localStoragessa (raja n. 5 Mt). Riittää tuhansille tekstimuistiinpanoille; jos raja tulee vastaan, siirto IndexedDB:hen.
 - Muut kuin ensimmäinen projekti pysyvät vain laitteella.
 - 0.3: minuutin automaattihaku ja päivitysnappi kokeiltu vain testirepolla; oikealla iPhonella ei kokeiltu, eikä sitä, miten Safari ajastaa haun taustalla.
-- 320 px leveydellä Muistion yläpalkin Asiasanat-nappi lyhenee ("Ka…"), koska henkilö-nappi vie tilaa.
 - Modern Web Guidance -hakua ei voitu ajaa (komento estettiin tässä istunnossa); uutta käyttöliittymää on vain asetusikkuna, Juuren tyyleillä.
 
 ## Seuraava askel
