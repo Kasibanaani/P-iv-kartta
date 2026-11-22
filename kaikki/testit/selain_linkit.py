@@ -1,5 +1,5 @@
 """Kaikki 0.2.1: sana- ja asiasanalinkkien teksti näkyy (0.2:ssa linkkisanat jäivät läpinäkyviksi, koska teksti piirtyy
-korostuskerroksesta), sanalinkin viiva on hienovarainen ja lainausmerkki > on piilossa lukunäkymässä. Tumma ja vaalea teema,
+korostuskerroksesta), sanalinkin viiva on hienovarainen ja lainausmerkin > tilalla on lukunäkymässä pieni ✦ (tekoälyn lisäys). Tumma ja vaalea teema,
 leveydet 390 ja 320 px. Käyttö: python3 testit/selain_linkit.py   Kuvat: väliaikaiskansioon (tulostetaan lopuksi)."""
 import asyncio, os, sys, json, tempfile
 K=os.path.join(tempfile.gettempdir(),'kaikki-linkit')
@@ -13,7 +13,7 @@ SEED={'tieto/a.md':A,'tieto/b.md':B}
 JS=r"""(function(){var hl=document.getElementById('ns-hl'),out=[];hl.querySelectorAll('.wl').forEach(function(e){var c=getComputedStyle(e);
  out.push({t:e.textContent,col:c.color,fill:c.webkitTextFillColor,dec:c.textDecorationColor,vis:e.getClientRects().length>0});});
  var bq=Array.prototype.filter.call(hl.querySelectorAll('.mdm'),function(e){return e.textContent.trim().charAt(0)==='>';});
- return {wl:out,bg:getComputedStyle(hl).backgroundColor,label:getComputedStyle(hl).color,bq:bq.map(function(e){return getComputedStyle(e).display;})};})()"""
+ var q=hl.querySelector('.mdq');return {star:q?getComputedStyle(q,'::before').content:'',wl:out,bg:getComputedStyle(hl).backgroundColor,label:getComputedStyle(hl).color,bq:bq.map(function(e){return getComputedStyle(e).display;})};})()"""
 def alpha(c):
     if c.startswith('rgba'): return float(c.rstrip(')').split(',')[-1])
     if c.startswith('color(') and '/' in c: return float(c.rstrip(')').split('/')[-1])
@@ -38,7 +38,7 @@ async def run(p,w,theme,bad):
         inv=[x for x in r['wl'] if alpha(x['col'])<0.5 or x['col']!=r['label']]
         want(mode+': linkkisanat näkyvät tekstin värisinä',not inv,inv)
         want(mode+': viiva haalea',all(alpha(x['dec'])<0.6 for x in r['wl']),[x['dec'] for x in r['wl']][:2])
-        if mode=='reading': want('lukunäkymä: > piilossa',r['bq'] and all(d=='none' for d in r['bq']),r['bq'])
+        if mode=='reading': want('lukunäkymä: > tilalla pieni ✦',r['bq'] and all(d!='none' for d in r['bq']) and '\u2726' in r['star'],[r['bq'],r['star']])
         else: want('kirjoittaessa: > näkyy haaleana',r['bq'] and all(d!='none' for d in r['bq']),r['bq'])
         os.makedirs(K,exist_ok=True)
         await pg.locator('#nsheet .hlwrap').screenshot(path=os.path.join(K,'%s-%s-%d.png'%(theme,mode,w)))
