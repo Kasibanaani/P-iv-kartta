@@ -32,12 +32,14 @@ Päivitetty 22.11.2026 (versio 0.13). Seuraavaksi on kohdan 8 kirjoitusohjeen pe
 11. Kohta 13 rajattuna: kortit **ruudukkoon** (ei vapaata sijoittelua vielä), lajit luku, palkki, teksti, kytkin ja liukusäädin, arvot soluista, muokkaus- ja lukittu tila.
 12. Kohta 9: Asiat → Tunnisteet -siirtymä (Emil valitsee apissa, mitkä Asiat otetaan tunnisteiksi).
 13. Kohta 14: karsintakysely Emilille (vain kysely ja kirjaus; karsitaan vasta vastausten jälkeen).
+14. Kohta 15: pikakirjaus v1 (esiasetukset vaultissa, Seuranta ja Muistutus, tallennus mittareihin ja päivän muistiinpanoon, Kirjattu-rivi kalenterissa, `+ Uusi nappi`, automaattiset tunnisteet). Voi tehdä myös heti kohdan 4 (`#tunnisteet`) jälkeen, jos Emil haluaa sen aiemmin.
+15. Kohta 15: XY-pädi lukuarvoille.
 
 **B. Pieniä jatkoja, voi tehdä välissä:** rivinäkymän minigraafi-laji, sarakkeen järjestys otsikkoa napauttamalla, muistiinpanoikkunan jäljelle jääneet tekstinalaiset kohdat (Liitä asiasanaan, päällekkäisyys, kiinnitys) sirun ikkunaan.
 
 **C. Kokeilu (tulos ja avoimet päätökset Emilille ennen pysyvää muotoa):** kohta 7 Flow tekstinä.
 
-**D. Visio, liian epätarkka v1:ksi** (ei rakenneta ennen Emilin tarkennusta; ks. *Pohdittavat* lopussa): kojelauta-rakentajan vapaa sijoittelu, raahattavat koot ja tyylit; kuvaajien ulkoasuasetukset; apin oma näkymämuokkain (sarakkeiden raahaus, suodattimet); Listojen suhde vaultiin; tunnistussanat; kuvat ja liitteet; Notion-sisällön siirto.
+**D. Visio, liian epätarkka v1:ksi** (ei rakenneta ennen Emilin tarkennusta; ks. *Pohdittavat* lopussa): pikakirjausten laajempi editori tietokoneelle; toteutumien tunnistus, tilastointi ja korrelaatiot (kohta 15); kojelauta-rakentajan vapaa sijoittelu, raahattavat koot ja tyylit; kuvaajien ulkoasuasetukset; apin oma näkymämuokkain (sarakkeiden raahaus, suodattimet); Listojen suhde vaultiin; kuvat ja liitteet; Notion-sisällön siirto.
 
 ## ~~1. Muistiinpanoikkuna: teksti pääosaan~~ (tehty 0.9, ks. TILA; jäljellä: Liitä asiasanaan, päällekkäisyys ja kiinnitys yhä tekstin alla tilanteen mukaan)
 
@@ -210,12 +212,43 @@ Kokeile testiaineistolla ensin Flow'n lukemista sisennetystä Markdownista. Jatk
 - Kysy Emililtä lista kerrallaan (kysely), mitä Juuren osia hän käyttää: Listat (kierrokset, tarkistuslistat, Viikot), Flow, Vanhat puut, Toistuvat, pikamuistiinpano, päivän napit, Asioiden lisäosat (ehdot, tärkeysjärjestys, uusiutumisväli). Karsi vain hyväksytyt; laitteella oleva tieto viedään ensin talteen (varmuuskopio) ja tarvittaessa vaultiin.
 - Asiat → Tunnisteet kohdan 9 päätöksen mukaan (siirtymä: nykyiset Asiat tarjotaan tunnisteiksi).
 
+## 15. Pikakirjaus: muistutukset ja seuranta muutamalla napautuksella (Emil 22.11.2026)
+
+**Emil:** varsinkin puhelimella helposta napista pikaikkuna, jossa omat valmiit napit. Kaksi käyttöä: **muistutus** (nappi → kalenterivalitsin, yksi tai monta päivää, ulkopuolinen napautus sulkee ja valinnat jäävät voimaan) ja **seuranta** eli jo tapahtuneen kirjaus (nappi = toteutui tänään, tai arvo pienestä valikosta ilman näppäimistöä). Kaikki tallentuu, kun ikkunasta poistutaan; tallentuu sekä tekoaika että päivä, jota kirjaus koskee. Kirjaus menee oikeassa muodossa kojelautaa, taulukoita ja laskentaa varten ja saa halutut tunnisteet. Seurannat näkyvät kalenterissa valmiiksi kuitattuina omalla tyylillään, eivät sekoitu tekemättömiin. Napit ja esiasetukset itse tehtävissä ja muokattavissa; laajempi editori tietokoneelle. Lisäksi: säännöt, millainen teksti lisää minkä tunnisteen automaattisesti.
+
+**Nykytila (tarkistettu koodista 22.11.):** Juuren pikamuistiinpano on Listat-osiossa (`openPika`, `renderPika`, `pikaPick`): napit tulevat laitteen tarkistuslistan riveistä (`data.chk`), napautus avaa kuukausivalitsimen ja tekee muistutusmuistiinpanon. Napit ovat vain laitteella, eivät vaultissa. **Kalenterin Vk-näkymä on jo päiväkohtainen lista** (päivät allekkain, merkinnät napautettavina, kuittausympyrä 0.6), eli Emilin toivoma ”päivälista ilman kellonaikoja” on olemassa; jatkossa siihen lisätään seurantakirjausten tyyli.
+
+**v1, ei lisäkysymyksiä (Emil hyväksyi v1-muodot kokeiltaviksi):**
+- Esiasetukset vaultin tiedostossa `pohjat/pikakirjaus.md` (`pohjat/` on jo piilossa muistiinpanoista; appi näyttää tiedoston Tekoälylle-paikassa muokattavana):
+  ```
+  ## Seuranta
+  - Treeni | kyllä | #treeni
+  - Energia | 1-5
+  - Paino | luku | kg
+  - Mieliala | xy 0-100
+  ## Muistutus
+  - Kissan matolääke | #kissa
+  - Laskut
+  ```
+  Rivi: `nimi | laji | tunnisteet tai yksikkö`. Lajit: `kyllä` (napautus = toteutui), `1-5` (tai muu väli: numeronapit), `luku` (pieni numeronäppäimistö appissa, ei laitteen näppäimistöä), `valinta: a, b, c`, `xy 0-100` (ks. alla). Muistutuksessa ei lajia.
+- **Avaus:** puhelimella alapalkin `+` pitkä painallus tai oma pieni nappi alapalkissa (ei uutta osiota); tietokoneella yläpalkin nappi. Ikkuna: kaksi välilehteä Seuranta | Muistutus (viimeisin muistetaan laitteella), napit ruudukkona Emilin järjestyksessä.
+- **Seuranta tallentuu:** jos nimi on `data/mittarit.json`:n mittari → arvo `data/*.csv`:hen kuten 0.13:n kirjaus; muuten rivi päivän muistiinpanoon `paivat/VVVV/VVVV-KK-PP.md` muodossa `- klo 14.32 · treeni: kylla #treeni` (kenttärivi kohdan 10 mukaan; nimi lisätään vaultin Omat kentät -listaan Emilin luvalla, kun nappi tehdään). Päivä oletuksena tänään, ikkunan yläreunan päiväsirusta voi vaihtaa (esim. eilinen).
+- **Muistutus tallentuu:** yksi muistiinpano per nappi, kaikki valitut päivät tekstissä (`Kissan matolääke ma 24.11., ma 1.12. #kissa`), jolloin kalenteri näyttää jokaisen päivän omana merkintänään ja kuittaus toimii päivittäin (0.6).
+- **Kalenterissa** seurantakirjaukset (päivän muistiinpanon kenttärivit ja mittarit) näkyvät Vk-näkymän päivän alla himmeänä *Kirjattu*-rivinä (esim. `Kirjattu: treeni, energia 3, paino 112,4`), valmiiksi kuitattuina, eivät kuittausympyrällisinä tehtävinä.
+- **Napin teko apissa:** ikkunan lopussa `+ Uusi nappi` → kysyy Seuranta vai Muistutus, nimen, lajin ja tunnisteen napautuksin, lisää rivin `pohjat/pikakirjaus.md`:hen.
+- **Automaattiset tunnisteet (säännöt):** vaultin `pohjat/tunnisteet.md`, rivit `#koira: koira, koiran, rekku`. Appi lisää osuvat tunnisteet muistiinpanon `tagit`-kenttään (ei Emilin tekstiin) tallennettaessa; näkyvät päätellyn tyylillä. Korvaa Juuren Asioiden sanatunnistuksen (kohta 9).
+- Vanha Juuren pikamuistiinpano (Listat) jää, kunnes karsintakysely (kohta 14) päättää.
+
+**v1:n jälkeen, myös tarkka (työjonoon A:n loppuun):** **XY-pädi** lukuarvoille 0–100 ilman näppäimistöä: pyöristetty neliö; vaakasuunta ykköset (0–9), pystysuunta kymmenet (0–9, alhaalta ylös); arvo näkyy isona sormen vieressä raahatessa; irrotus → pieni `OK / Peru` (Peru vasemmalla, OK oikealla, ei samassa kohdassa kuin sormi). Asetuksella väli (esim. 0–10 tai 0–100).
+
+**Visio (ei v1:tä ennen tarkennusta):** tietokoneen laajempi pikakirjausten editori; tunnistus milloin jokin toteutuu tai on tietyn arvoinen ja tilastointi siitä; korrelaatiot napeissa (Päiväkartan ja Projektikartan tapaan värinä ja palkkina).
+
 ## Pohdittavat (ei toimintaohjetta vielä)
 
 - **Flow tekstinä** (kohta 7 kokeilee): tarkka muoto (sisennetty luettelo vs. muu), miten haarat, ehdot (tunnisteet ja kentät) ja tulokset kirjoitetaan; vaatii Emilin päätöksen kokeilun jälkeen.
 - **Kojelauta-rakentajan yksityiskohdat** (kohta 13): korttien tyylit, kosketus, puhelinasettelu.
 - **Kojelaudan kuvaajien ulkoasuasetukset** (nykyinen 0.7-kojelauta).
 - **Listat suhteessa vaultiin:** tehtävärivit `- [ ]` vai `projektit/`-kansio vai tunniste + kenttä `tila`.
-- **Tunnistussanat:** missä vaultin tiedostossa (esim. `tunnisteet.md`) ja tarvitaanko niitä lainkaan, jos tekoäly tägittää inboxin.
+- **Tunnistussanat:** ratkaistu v1:ksi kohdassa 15 (`pohjat/tunnisteet.md`).
 - **Kuvat ja liitteet** vaultissa (Notionista irtautuminen).
 - **Notion-sisällön siirto** vaultiin pala kerrallaan.
