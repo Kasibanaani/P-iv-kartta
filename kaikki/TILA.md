@@ -48,6 +48,16 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
 - **0.6.1 (22.11.2026, Emilin bugiraportti):** tietokoneella ei päässyt GitHub-vaultiin, koska se oli vain Valikossa (Valikko-nappi on vain puhelimen alapalkissa). Nyt tietokoneen yläpalkissa on pilvinappi `#ghbtn` (punainen piste kuten Valikossa, kun jotain odottaa tai yhteydessä on virhe). Yhteys tehdään kerran jokaisessa selaimessa (repo ja avain selaimen muistiin). Testi `selain_0601.py` (1440, 1280, 390 px).
 - **Mikä menee GitHubiin:** vain ensimmäisen projektin muistiinpanot (myös niiden kuittaukset ja kalenteriajat). Asetukset, ulkoasu, asiasanat, Listat, Flow, puut, Toistuvat-välilehden toistuvat, tarkistuslistat ja muut projektit ovat vain laitteella (`kaikki:v1`); varmuuskopio niistä Juuren viennillä.
 
+## Kerätyt toiveet (ei vielä toteutettu, Emil 22.11.2026: kerätään muutama ja toteutetaan yhdessä)
+
+1. **Muistiinpanoikkuna: teksti pääosaan, metatieto yhteen pieneen paikkaan.** Emilin kuva koneelta: tekstikentän rajat näkyvät vain aktiivisena, kenttä on pieni, ja luotu/muokattu-rivi, ”napauta tekstiä muokataksesi”, päivä- ja aikarivi sekä Ajankohdat vievät suurimman osan tilasta hajallaan ympäri ikkunaa. Puhelimella ongelma luultavasti korostuu.
+   Ehdotus (tekoäly, ei vielä hyväksytty):
+   - Tekstikenttä aina näkyvin, selkein reunoin ja täyttää kaiken vapaan korkeuden; tietokoneella ikkuna isompi (n. 860 px leveä, lähes koko korkeus).
+   - Tekstin yläpuolelle yksi pieni rivi: ajankohta siruna (esim. ”su 22.11. klo 16–18”, kuitattuna vihreä väkänen; monta ajankohtaa ”+2”). Napautus avaa pienen ikkunan, jossa ajankohdat, päivän ja kellonajan muokkaus (nykyinen päivärivi) sekä Päivät.
+   - Luotu ja muokattu ⋯-valikon yläriville pienellä tekstillä. Vihje ”napauta tekstiä muokataksesi” pois (appilinja: ei ohjeita näkymässä).
+   - Löydetyt asiasanat, linkit ja päällekkäisyydet samaan pieneen rivin perään yhtenä ”Tiedot”-siruna tai ⋯-valikkoon, ei omina laatikoinaan tekstin alla.
+   - Kaikki metatieto samassa kohdassa (tekstin yläpuolella), ei osa keskellä ja osa reunoilla.
+
 ## Ei tarkistettu
 
 - 0.6: Applen tekstikoko (`-apple-system-body`) kotinäytön kirjanmerkissä ja eri tekstikoilla; sormella kuittausympyrä, ⋯-valikko ja aikajanan pieni ympyrä (lyhyissä merkinnöissä ahdas). Nopeus mitattu vain tietokoneen hidastetulla selaimella.
