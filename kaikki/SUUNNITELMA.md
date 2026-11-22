@@ -65,8 +65,8 @@ Myöhemmin samaan jatkoon (v2.1): solujen muotoilu (lihavointi, tasaus, lukumuot
 **A3. Uudet v1:t (Emil 22.11. illalla):** kohta 18 (toistuvuus kenttänä, Toistuvat-lista) ja kohta 19 (graafinäkymä, ensin paikallinen). Kohta 20 (kanvaasi) hyllyllä Emilin päätöksellä. **Emil 22.11. illalla: etusijalla kalenterin siistiminen (A1b) ja taulukot: laskentataulukon, tietokantamaisen näkymän ja kojelaudan yhteensovitus; taulukoiden on toimittava sulavasti ja vakaasti, ettei raskaus estä käyttöä.**
 - ~~**A3.0 Taulukot nopeiksi**~~ tehty 0.37 (paikallaan päivitys, välimuisti, yli 200 rivin virtualisointi; mittaukset TILAssa).
 - ~~**A3.1 Välilehti näkymänä muistiinpanoista**~~ tehty 0.38 (muistiinpanon avaus Enterillä; sarakkeiden muokkain apissa vielä puuttuu) (kohta 12, sama muoto kuin `nakymat/`): rivit muistiinpanoista vain luku -soluina, omat kaavasarakkeet viereen, kaavat viittaavat niihin kuten tavallisiin soluihin. Muistiinpanon solusta pääsee avaamaan muistiinpanon.
-- **A3.2 Kojelaudan kortti taulukon solusta tai alueesta** (kohta 13 v1-osa: luku, palkki, minigraafi; ei vielä vapaata sijoittelua).
-- **A3.3 A0.4:n taulukko-osa:** rivien ja sarakkeiden lisäys, poisto ja siirto otsikon valikosta, kaavaviittaukset päivittyvät.
+- ~~**A3.2 Kojelaudan kortti taulukon solusta tai alueesta**~~ tehty 0.39 (kohta 13 v1-osa: luku, palkki, minigraafi; ei vielä vapaata sijoittelua).
+- ~~**A3.3 A0.4:n taulukko-osa:**~~ tehty 0.40 rivien ja sarakkeiden lisäys, poisto ja siirto otsikon valikosta, kaavaviittaukset päivittyvät.
 
 **D. Visio, liian epätarkka v1:ksi** (ei rakenneta ennen Emilin tarkennusta; ks. *Pohdittavat* lopussa): pikakirjausten laajempi editori tietokoneelle; toteutumien tunnistus, tilastointi ja korrelaatiot (kohta 15); kojelauta-rakentajan vapaa sijoittelu, raahattavat koot ja tyylit; kuvaajien ulkoasuasetukset; Listojen suhde vaultiin; kuvat ja liitteet; Notion-sisällön siirto.
 
