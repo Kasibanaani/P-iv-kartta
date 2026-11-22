@@ -1,6 +1,6 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.26 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
+**Vaihe:** versio 0.27 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
@@ -66,6 +66,7 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
 - **0.24 (22.11.2026, kohta 10): kentät ja kaavamoottori.** Moottori lukee alkutietojen kentät sekä tekstistä Vaultin Omat kentät -luettelossa sovitut nimet. Siinä on laskutoimitukset, vertailut, ehdot, kahdeksan perusfunktiota, muistiinpanoviittaukset ja näkyvät virhekoodit. Useat saman kentän arvot kuuluvat aggregaatteihin. Laskenta ei kirjoita mitään. Node-testit sisältävät ehdot, kehäviittauksen, desimaalit, ääkköset ja pikakirjausrivit. Käyttöliittymä tehdään kohdassa 11. Sovittujen kenttien samaa lukijaa käytetään jo pikakirjauksessa. Tiedostopolkujen uudelleennimeämisen viitepäivitys kuuluu tulevaan uudelleennimeämistoimintoon.
 - **0.25 (22.11.2026, kohta 11): kaavat muistiinpanoissa ja riveillä.** Muistiinpanon `{=…}` näkyy lukunäkymässä laskettuna tuloksena ja muokatessa alkuperäisenä kaavana. Rivinäkymä näyttää sekä kaavaan sidotut kentät että näkymätiedoston omat kaavasarakkeet. Kaavat käyttävät tuoretta Vault-aineistoa ja näyttävät virheen kyseisessä solussa. Laskenta ei kirjoita tuloksia tiedostoihin. Testattu Chromiumissa neljällä leveydellä ja rinnakkaisen lähdemuutoksen jälkeen. Kokeilussa tarkistetaan syntaksin luettavuus ja virheiden näyttötapa. Taulukkoviittaukset tulevat seuraavassa vaiheessa.
 - **0.26 (22.11.2026, kohta 12): Taulukot.** Taulukot-osiossa voi luoda taulukon ja välilehtiä, muokata soluja, lisätä rivejä ja sarakkeita ja viedä lasketut arvot CSV-tiedostoksi. Vaultin Markdown-taulukoissa otsikot säilyvät erillään, joten ensimmäinen tietorivi on 1. Viittaukset toimivat omiin soluihin ja alueisiin, muiden välilehtien soluihin ja muistiinpanojen kenttiin. Muistiinpanokaava voi myös viitata välilehteen. Samaan soluun kohdistunut rinnakkainen muutos säilyttää oman version ristiriitakopiossa. Ensiversion käyttöliittymä näyttää enintään 500 riviä ja 64 saraketta per välilehti. Testattu Chromiumissa neljällä leveydellä ja Node-moottorissa. Kokeilussa tarkistetaan solumuokkauksen sujuvuus. Näkymävälilehti on v2:n työ.
+- **0.27 (22.11.2026, kohta 13): taulukon kojelautakortit.** Kojelaudasta voi valita taulukon, avata kortit muokkaustilaan ja liittää luku-, palkki-, teksti-, kytkin- tai liukusäädinkortin välilehden soluun. Konfiguraatio tallentuu taulukon `_nakyma.md`-tiedostoon. Kytkin ja liukusäädin muuttavat syöttösolua muokkaustilassa. Lukitus estää vahinkomuutokset ja kaavasolun arvo säilyy ohjaimen käytöltä suojattuna. Rinnakkainen muutos kohdesoluun säilytetään. Testattu neljällä leveydellä. Kokeilussa selvitetään korttien asettelua, lukitun tilan ohjaustarvetta ja mittareiden sijoittelua. Vapaan sijoittelun editori ja solukohtaiset lukot ovat auki.
 - **Mikä menee GitHubiin:** ensimmäisen projektin muistiinpanot (myös niiden kuittaukset ja kalenteriajat) sekä Tekoälylle-näkymässä muokatut tiedostot ja huoltopyynnöt sekä Kojelaudasta tallennetut mittarikirjaukset. Asetukset, ulkoasu, asiasanat, Listat, Flow, puut, Toistuvat-välilehden toistuvat, tarkistuslistat ja muut projektit ovat vain laitteella (`kaikki:v1`); varmuuskopio niistä Juuren viennillä.
 
 **Suunta (Emil 22.11.2026):** Kaikki eriytyy Juuresta: Juuren ominaisuuksia karsitaan, painopiste siirtyy tietokoneelle (tiedon käsittely, rivinäkymät, taulukot, kojelauta). Puhelinnäkymä riisutaan: keskeistä kalenteri, uuden muistiinpanon lisäys ja osa kuvaajista; toiminnot voivat säilyä, mutta näkymä kevenee. Pitkä projekti; mahdollinen tie ulos Notionista.
@@ -112,7 +113,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Seuraava askel
 
-Seuraavaksi rakennetaan taulukkotietoja näyttävät kojelautakortit (kohta 13). Flow-kokeilu ja mittarien tekstikirjaus ovat käytettävissä kokeiltaviksi.
+Seuraavaksi tehdään Asiat → Tunnisteet -siirtymän valinta (kohta 9). Flow-kokeilu ja mittarien tekstikirjaus ovat käytettävissä kokeiltaviksi.
 
 Emil kokeilee GitHub-yhteyttä tietokoneella (pilvinappi yläpalkissa, vain omalla koneella). Sen jälkeen suunnitellaan tietokoneasettelu (ehdotus: lista ja auki oleva muistiinpano rinnakkain, isompi kirjoitusalue, pikanäppäimet, kansiot tai asiasanat sivupalkkiin).
 
