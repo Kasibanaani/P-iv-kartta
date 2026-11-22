@@ -1,6 +1,6 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.6.1 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
+**Vaihe:** versio 0.7 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
@@ -46,6 +46,7 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
   - Tekstikoko: Valikko → asetukset → Tekstin koko (`cfg.tz`: Laitteen mukaan / Pieni / Normaali / Iso / Isompi). Laitteen mukaan = iPhonen Asetukset → Näyttö → Tekstin koko, luettu Safarin `-apple-system-body`-tyylistä (17 px = 1), muualla 1; luetaan uudelleen, kun appi tulee esiin. Kerroin `--tz` koskee korttien tekstiä, muistiinpanon tekstiä (kenttä vähintään 16 px) ja kalenterin viikkolistaa; muu appi kiinteillä koilla.
   - Testi `selain_06.py`. Tallennusmuoto ei muuttunut (uusi asetusavain `tz` vain laitteella).
 - **0.6.1 (22.11.2026, Emilin bugiraportti):** tietokoneella ei päässyt GitHub-vaultiin, koska se oli vain Valikossa (Valikko-nappi on vain puhelimen alapalkissa). Nyt tietokoneen yläpalkissa on pilvinappi `#ghbtn` (punainen piste kuten Valikossa, kun jotain odottaa tai yhteydessä on virhe). Yhteys tehdään kerran jokaisessa selaimessa (repo ja avain selaimen muistiin). Testi `selain_0601.py` (1440, 1280, 390 px).
+- **0.7 (22.11.2026, Emil: suositeltu ensimmäinen vaihe): Kojelauta.** Uusi osio Kalenterin perään (`ROLL0`, sivupalkissa tietokoneella). Lukee vaultin `data/mittarit.json` ja sen nimeämät `data/*.csv` (haku toi ne jo välimuistiin) vaultin ohjeen `ohjeet/data.md` mukaan: asteikko = pisteet ja 7 päivän keskiarvo, valinta = viiva (arvo nimellä), luku = viiva yksikön kanssa, kylla-ei = kertoja viikossa pylväinä. Sarakkeet `kaytossa: false` ja `kuvaaja: false` ohitetaan. Kortissa viimeisin arvo ja päivä; osoitus tai napautus kuvaajaan näyttää päivän arvon. Aikaväli 30 pv / 3 kk / Vuosi / Kaikki (`kaikki:dashr`, puhelimella alapalkissa, tietokoneella tahmea rivi ylhäällä). Tietokoneella kortit ruudukossa (min 360 px), puhelimella allekkain. Omat SVG-kuvaajat (`renderDash`, `dashCard`), ei kirjastoja; vain luku, mitään ei kirjoiteta. Ilman vaultia tai mittareita lyhyt viesti. Testi `selain_07.py` (390, 320, 1440, 1280 px).
 - **Mikä menee GitHubiin:** vain ensimmäisen projektin muistiinpanot (myös niiden kuittaukset ja kalenteriajat). Asetukset, ulkoasu, asiasanat, Listat, Flow, puut, Toistuvat-välilehden toistuvat, tarkistuslistat ja muut projektit ovat vain laitteella (`kaikki:v1`); varmuuskopio niistä Juuren viennillä.
 
 ## Kerätyt toiveet (ei vielä toteutettu, Emil 22.11.2026: kerätään muutama ja toteutetaan yhdessä)
@@ -62,7 +63,7 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
 
 Kaikki alla on tekoälyn arvion mukaan mahdollista ilman ulkoisia kirjastoja. Ehdotettu järjestys: A → B → C → D.
 - **Osiot laitekohtaisesti päälle/pois** (esim. kojelauta vain koneella). Helppo: asetukset ovat jo laitekohtaisia. *Ehdotus:* oletus leveyden mukaan, asetuksista voi muuttaa.
-- **A. Kojelauta ja graafit (tietokone ensin):** vaultin `data/*.csv` + `data/mittarit.json` → omat SVG-kuvaajat; leveällä näytöllä ruudukko. (Sama kuin Seuraava askel 1.)
+- **A. Kojelauta ja graafit (tehty 0.7, perusversio):** vaultin `data/*.csv` + `data/mittarit.json` → omat SVG-kuvaajat; leveällä näytöllä ruudukko. (Sama kuin Seuraava askel 1.)
 - **B. Flow / päätöspuut tekstinä vaultiin:** *ehdotus* oma kansio (esim. `flow/`), `tyyppi: flow`, runko sisennettynä luettelona (kysymys → vastaukset → seuraava askel), jonka ihminen, tekoäly ja Kaikki lukevat sellaisenaan ja Kaikki piirtää Flow'ksi. Pohjana Juuren nykyinen ”projekti tekstinä” -muoto ja sen tekoälyohje. Vaatii vaultin ohjeisiin päätöksen (`ohjeet/paatokset.md`, `ohjeet/appi.md`).
 - **C. Laskentataulukko vaultiin:** *ehdotus* `.md`-tiedosto (`tyyppi: taulukko`), jossa tavallinen markdown-taulukko; kaavasolut alkavat `=` (esim. `=SUMMA(B2:B8)`, viittaukset A1-muodossa). Tekoäly lukee sen, appi laskee, vienti CSV:nä muualle. Oma rajattu kaavakieli (perusmatikka, SUMMA, KESKIARVO, MIN, MAX, JOS, viittaukset); Kytköskartan kaavamoottorista voi lainata. Ei täyttä Excelia.
 - **D. Taulukko ja kojelauta samaksi asiaksi (Emil 22.11.2026):** yksi taulukkotiedosto, jossa kaksi puolta kuten Kytköskartassa ja Appi-appissa: **logiikka** = solut ja kaavat (laskentataulukkona), **näkymä** = vapaasti sijoiteltavat ja raahaamalla koon muuttavat kortit, joista jokainen näyttää solun tai alueen valitulla tavalla (teksti, luku, palkki min–max, liukusäädin, kytkin, nappi, kuvaaja, kuva) omalla tyylillään. Säädin ja kytkin kirjoittavat arvon syöttösoluun, ja kaavat laskevat. Muokkaustila ja lukittu käyttötila (työnhallintatyökaluna ilman vahinkomuokkauksia), solukohtainen lukitus. Emil: Google Sheetsin yksinkertaisuus, Numbersin vapaa sijoittelu, Notionin tapa näyttää arvo muutenkin kuin tekstinä; ei täyttä Exceliä eikä Sheetsiä. Kaavat: peruslaskut, haku, yhdistely, JOS, myöhemmin tilastot (esim. korrelaatio). Tiedostossa myös näkymä luettavana tekstinä, jotta tekoäly voi kirjoittaa tietoja suoraan Emilin taulukkoihin. Ulkoasuasetukset kuvaajiin ja kortteihin (ei tylsintä mahdollista). Suunnitellaan erikseen.
@@ -85,7 +86,7 @@ Emil kokeilee GitHub-yhteyttä tietokoneella (pilvinappi yläpalkissa, vain omal
 
 
 Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kalenteri. Sen jälkeen suunnitelman mukaan (Emil 22.11.2026):
-1. Kojelauta: kuvaajat vaultin `data/`-taulukoista (`data/mittarit.json` kertoo mittarit).
+1. ~~Kojelauta~~ tehty 0.7 (vain katselu). Jatkossa: ulkoasuasetukset kuvaajiin, osiot laitekohtaisesti päälle/pois.
 2. Helppo kirjaus eri asioihin (päivän mittarit palikoina).
 3. Päätöspuut vaultiin tekstinä, jotta Emil voi kuvailla ja tekoäly kirjoittaa puun valmiiksi.
 4. Karsinta: mitä Juuren osia Kaikki ei tarvitse.
