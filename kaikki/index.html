@@ -1424,6 +1424,10 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 #ns-tags{display:flex;gap:6px;overflow:auto;min-height:34px;margin:0 0 6px}
 #ns-tags[hidden],#nsheet:not(.reading) #ns-tags{display:none}
 #ns-tags .chip{flex:none}
+.formula-result-text{display:none}
+#nsheet.reading .formula-source{display:none}
+#nsheet.reading .formula-result-text{display:inline;padding:0 5px;border-radius:5px;background:var(--fill);font-variant-numeric:tabular-nums}
+#nsheet.reading .formula-error .formula-result-text,.rvc.formula-error{color:var(--red)}
 #ns-tags .chip.auto-note-tag{box-shadow:inset 0 0 0 1px var(--sep);background:transparent}
 #fs-chips .tag-filter-heading{flex-basis:100%;font-size:inherit;margin:8px 0 0}
 .rvc.note-tag-cell{display:flex;gap:4px;overflow:hidden}
@@ -1820,6 +1824,7 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
   <div class="nsmeta" id="ns-meta"><button type="button" class="nschip" id="ns-when" aria-haspopup="dialog" aria-expanded="false"></button></div>
   <div id="ns-datebg" hidden></div><div class="nsdpop" id="ns-datepop" hidden role="dialog" aria-label="Ajankohta"></div>
   <div id="ns-tags" role="group" aria-label="Tunnisteet" hidden></div>
+  <span id="ns-formula-results" class="vh" hidden></span>
   <div class="hlwrap" id="ns-wrap"><div class="hl" id="ns-hl" aria-hidden="true"></div><textarea id="ns-text" aria-label="Muistiinpanon teksti"></textarea></div>
   <p class="msg" id="ns-vmsg" hidden role="status"></p>
   <div class="tmenu" id="ns-tm" hidden></div><div id="ns-tmbg" hidden></div>
@@ -4705,8 +4710,18 @@ function nvSet(v){try{localStorage.setItem('kaikki:nmode',v);}catch(e){}}
 var NV_DEF={id:'',name:'Kaikki muistiinpanot',mista:[],cols:[{k:'otsikko'},{k:'kansio'},{k:'kuka'},{k:'luotu'},{k:'ajankohta'}],sort:null};
 var NV_W={tunnisteet:'minmax(140px,1.1fr)',otsikko:'minmax(180px,2.2fr)',kansio:'minmax(110px,1fr)',kuka:'104px',luotu:'92px',ajankohta:'minmax(130px,1fr)',palkki:'130px',kylla:'64px',luku:'90px',pvm:'92px',siru:'minmax(96px,.8fr)',teksti:'minmax(120px,1fr)'};
 var NV_LAB={tunnisteet:'Tunnisteet',otsikko:'Otsikko',kansio:'Kansio',kuka:'Kuka kirjoitti',luotu:'Luotu',ajankohta:'Seuraava ajankohta'};
+function viewColumnParts(text){
+  var parts=[],quote=false,start=0;
+  for(var i=0;i<text.length;i++){
+    if(text[i]==='\\'&&quote){i++;continue;}
+    if(text[i]==='"')quote=!quote;
+    if(text[i]==='|'&&!quote){parts.push(text.slice(start,i).trim());start=i+1;}
+  }
+  parts.push(text.slice(start).trim());
+  return parts;
+}
 function nvParse(path,md){var S=VAULT.split(md);if(!S.fm)return null;var L=S.fm,g=function(k){return VAULT.fmGet(L,k);};if(g('tyyppi')!=='nakyma')return null;
-  var cols=[],inC=false;L.forEach(function(l){if(/^sarakkeet:\s*$/.test(l)){inC=true;return;}if(inC){var m=/^\s+-\s*(.+)$/.exec(l);if(m){var a=m[1].split('|').map(function(x){return x.trim();});if(a[0])cols.push({k:a[0],t:a[1]||'',o:a[2]||''});return;}if(/^\S/.test(l))inC=false;}});
+  var cols=[],inC=false;L.forEach(function(l){if(/^sarakkeet:\s*$/.test(l)){inC=true;return;}if(inC){var m=/^\s+-\s*(.+)$/.exec(l);if(m){var a=viewColumnParts(m[1]);if(a[0])cols.push({k:a[0],t:a[1]||'',o:a[2]||''});return;}if(/^\S/.test(l))inC=false;}});
   if(path===NOTE_ORDER_PATH&&!cols.length&&!g('mista')&&!g('jarjestys'))return null;
   if(!cols.length)cols=NV_DEF.cols.slice();if(!cols.some(function(c){return c.k==='otsikko';}))cols.unshift({k:'otsikko'});else cols.sort(function(a,b){return (b.k==='otsikko')-(a.k==='otsikko');});
   var mista=g('mista').split(';').map(function(x){var m=/^\s*([a-z0-9_-]+)\s*=\s*(.+?)\s*$/i.exec(x);return m?{k:m[1],v:m[2]}:null;}).filter(Boolean);
@@ -4715,12 +4730,27 @@ function nvParse(path,md){var S=VAULT.split(md);if(!S.fm)return null;var L=S.fm,
 function nvViews(){if(!vOn()||!VC||!VC.files)return [];var out=[];Object.keys(VC.files).sort().forEach(function(p){if(!/^nakymat\/[^/]+\.md$/.test(p))return;var V=nvParse(p,VC.files[p].t);if(V)out.push(V);});return out;}
 function nvCur(){var id=null;try{id=localStorage.getItem('kaikki:nview');}catch(e){}var V=nvViews().filter(function(v){return v.id===id;})[0];return V||NV_DEF;}
 function nvPass(V,n){return V.mista.every(function(c){if(c.k==='kaikki')return true;if(c.k==='kansio')return !!n.vp&&n.vp.indexOf(c.v.replace(/\/$/,'')+'/')===0;if(c.k==='tunniste')return noteTags(n).indexOf(noteTagKey(c.v))>=0;return n.vfm&&VAULT.fmGet(n.vfm,c.k)===c.v;});}
-function nvRaw(n,k,today){if(k==='otsikko')return noteTitle(n)||'(tyhjä)';if(k==='kansio')return n.vp&&n.vp.indexOf('/')>0?n.vp.replace(/\/[^/]*$/,''):(n.vp?'':'laite');
+function nvRaw(n,k,today,formulas){
+  if(formulas&&k.charAt(0)==='=')return formulas.get().run(k,n);if(k==='otsikko')return noteTitle(n)||'(tyhjä)';if(k==='kansio')return n.vp&&n.vp.indexOf('/')>0?n.vp.replace(/\/[^/]*$/,''):(n.vp?'':'laite');
   if(k==='kuka')return n.vp?VAULT.kindOf(n.vp,n.vfm):'oma';if(k==='luotu')return n.created?isoD(new Date(n.created)):'';
   if(k==='tunnisteet')return noteTags(n);
-  if(k==='ajankohta'){var nx=nextDate(n,today);return nx?nx:null;}return n.vfm?VAULT.fmGet(n.vfm,k):'';}
+  if(k==='ajankohta'){var nx=nextDate(n,today);return nx?nx:null;}
+  var raw=n.vfm?VAULT.fmGet(n.vfm,k):'';
+  if(!formulas)return raw;
+  if(raw.charAt(0)==='=')return formulas.get().value(n,k);
+  if(!raw&&formulas.allowed.has(k)){
+    var found=formulas.get().values(n,k);
+    if(found.error)return found;
+    return found.value.map(formulaDisplay).join(' · ');
+  }
+  return raw;
+}
 function nvDate(iso){var d=fromIso(iso);return isNaN(d)?iso:d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear();}
 function nvCell(c,v,today){var td=el('div','rvc'+(c.k==='otsikko'?' rvt':'')),t=c.t||'';
+  if(v&&typeof v==='object'&&('error' in v||'value' in v)){
+    if(v.error){td.classList.add('formula-error');td.textContent=v.error;td.title=v.error;return td;}
+    v=typeof v.value==='number'?v.value:formulaDisplay(v.value);
+  }
   if(c.k==='tunnisteet'){
     td.classList.add('note-tag-cell');
     v.forEach(function(tag){td.appendChild(el('span','rvchip','#'+tag));});
@@ -4736,17 +4766,17 @@ function nvCell(c,v,today){var td=el('div','rvc'+(c.k==='otsikko'?' rvt':'')),t=
   if(t==='palkki'){var r=/^\s*(-?[\d.]+)\s*-\s*(-?[\d.]+)\s*$/.exec(c.o||'')||[0,0,100],lo=+r[1],hi=+r[2],x2=dashNum(v);if(x2==null){td.textContent=v;return td;}
     var pc=Math.max(0,Math.min(1,(x2-lo)/((hi-lo)||1))),b=el('span','rvpb'),i=el('i');i.style.width=Math.round(pc*100)+'%';b.appendChild(i);td.appendChild(b);td.appendChild(el('small','',String(x2).replace('.',',')));td.setAttribute('aria-label',v+' / '+hi);return td;}
   td.textContent=v;return td;}
-function nvCmp(a,b){if(a==null||a==='')return 1;if(b==null||b==='')return -1;var x=dashNum(a),y=dashNum(b);if(x!=null&&y!=null)return x-y;return String(a).localeCompare(String(b),'fi');}
+function nvCmp(a,b){if(a&&typeof a==='object'&&('value' in a||'error' in a))a=a.value;if(b&&typeof b==='object'&&('value' in b||'error' in b))b=b.value;if(a==null||a==='')return 1;if(b==null||b==='')return -1;var x=dashNum(a),y=dashNum(b);if(x!=null&&y!=null)return x-y;return String(a).localeCompare(String(b),'fi');}
 function rowsInto(p,list,l,today,bar){var V=nvCur(),views=nvViews();
   if(views.length){var vb=button(bar,'','treepick',function(){var m=$('sortpop');m.textContent='';m.setAttribute('aria-label','Näkymä');
       [NV_DEF].concat(views).forEach(function(x){var b=menuItem(m,'nv-'+(x.id||'kaikki').replace(/[^a-z0-9]+/gi,'-'),x.name,function(){try{localStorage.setItem('kaikki:nview',x.id);}catch(e){}main.scrollTop=0;render();});b.setAttribute('aria-current',x.id===V.id?'true':'false');});anchoredMenu('sortpop',vb);});
     vb.id='nvpick';vb.setAttribute('aria-haspopup','menu');vb.appendChild(el('small','','Näkymä'));vb.appendChild(el('span','',V.name));vb.insertAdjacentHTML('beforeend',CHEV);bar.insertBefore(vb,bar.firstChild);}
-  var L=V.mista.length?l.filter(function(n){return nvPass(V,n);}):l;
-  if(V.sort){var k=V.sort.k,d=V.sort.d;L=L.map(function(n,i){return {n:n,v:nvRaw(n,k,today),i:i};}).sort(function(a,b){var c=nvCmp(a.v,b.v);if(c&&!(a.v==null||a.v==='')&&!(b.v==null||b.v===''))c*=d;return c||a.i-b.i;}).map(function(x){return x.n;});}
+  var L=V.mista.length?l.filter(function(n){return nvPass(V,n);}):l,formulas=formulaContext();
+  if(V.sort){var k=V.sort.k,d=V.sort.d;L=L.map(function(n,i){return {n:n,v:nvRaw(n,k,today,formulas),i:i};}).sort(function(a,b){var c=nvCmp(a.v,b.v);if(c&&!(a.v==null||a.v==='')&&!(b.v==null||b.v===''))c*=d;return c||a.i-b.i;}).map(function(x){return x.n;});}
   var tpl=V.cols.map(function(c){return NV_W[c.k]||NV_W[c.t==='kylla-ei'?'kylla':c.t]||NV_W.teksti;}).join(' ');list.style.setProperty('--rvcols',tpl);
   var hw=el('div','rvh'),hr=el('div','rvr rvhead');hr.style.setProperty('--rvcols',tpl);V.cols.forEach(function(c){hr.appendChild(el('div','rvc'+(c.k==='otsikko'?' rvt':''),NV_LAB[c.k]||(c.k.charAt(0).toUpperCase()+c.k.slice(1))));});hw.appendChild(hr);p.appendChild(hw);
   var canOrder=noteOrderEnabled()&&noteSort==='own'&&!noteSelectionMode&&!noteFilter.length&&!V.mista.length&&!V.sort;
-  L.forEach(function(n){var r=el('div','rvr'+srcCls(n));r.dataset.id=n.id;r.setAttribute('role','button');r.tabIndex=0;V.cols.forEach(function(c){r.appendChild(nvCell(c,nvRaw(n,c.k,today),today));});
+  L.forEach(function(n){var r=el('div','rvr'+srcCls(n));r.dataset.id=n.id;r.setAttribute('role','button');r.tabIndex=0;V.cols.forEach(function(c){r.appendChild(nvCell(c,nvRaw(n,c.k,today,formulas),today));});
     if(noteSelectionMode)bindNoteSelection(r,n,r.querySelector('.rvt')||r);
     else if(canOrder&&noteOrderPath(n.vp)){
       var title=r.querySelector('.rvt'),handle=noteOrderHandle(r,n,list);
@@ -5236,12 +5266,12 @@ function renderTm(h){var b=$('ns-tm');b.textContent='';if(!h){b.hidden=true;retu
       syncAdds();paintHl();foundInfo();}).id='tm-save';b.appendChild(er);}
   b.hidden=false;}
 $('ns-text').addEventListener('click',function(){var ta=this;if(!ta.readOnly)return;if(ta.selectionStart===ta.selectionEnd&&tmAt(ta.selectionStart))return;
-  ta.readOnly=false;$('nsheet').classList.remove('reading');kbKeep(ta);try{ta.focus({preventScroll:true});}catch(e){ta.focus();}});
+  ta.readOnly=false;$('nsheet').classList.remove('reading');ta.removeAttribute('aria-describedby');$('ns-formula-results').hidden=true;kbKeep(ta);try{ta.focus({preventScroll:true});}catch(e){ta.focus();}});
 $('ns-text').addEventListener('click',function(){setTimeout(tmOpen,0);});
 /* 1.64 (Emil 23.10.2026): puhelimella tekstin aika- ja asiasanalinkki toimii kuin nappi. Lyhyt napautus linkkiin ei vie kursoria
    eikä avaa näppäimistöä (touchend estetään), vaan avaa valikon päälle; tausta lukittuu ja ulkopuolen napautus sulkee.
    Vieritys alkaa linkin päältäkin normaalisti. Hiirellä ennallaan. Kohta haetaan väripinnan (ns-hl) osien sijainneista. */
-function hlOffsetAt(x,y){var hl=$('ns-hl'),at=0,hit=-1;Array.prototype.forEach.call(hl.childNodes,function(n){var len=(n.textContent||'').replace(/​/g,'').length;
+function hlOffsetAt(x,y){var hl=$('ns-hl'),at=0,hit=-1;Array.prototype.forEach.call(hl.childNodes,function(n){var len=n.nodeType===1&&n.dataset.sourceLength?Number(n.dataset.sourceLength):(n.textContent||'').replace(/​/g,'').length;
     if(hit<0&&n.nodeType===1){var R=n.getClientRects();for(var i=0;i<R.length;i++){var r=R[i];if(x>=r.left-2&&x<=r.right+2&&y>=r.top-3&&y<=r.bottom+3){hit=at+Math.max(0,Math.min(len-1,Math.floor(len/2)));break;}}}at+=len;});return hit;}
 var tmTouch=null;
 $('ns-text').addEventListener('touchstart',function(ev){var t=ev.touches[0];tmTouch=ev.touches.length===1?{x:t.clientX,y:t.clientY,at:Date.now()}:null;},{passive:true});
@@ -5260,10 +5290,55 @@ $('ns-text').addEventListener('input',function(){$('ns-tm').hidden=true;tmEdit=f
    viikonpäivälle, se jää ennalleen, mutta aikalinkki on harmaa ja tulkinnassa lukee, ettei päivä näy kalenterissa (merkintä näkyy seuraavan päivän Koko päivä -osiossa). */
 function hidDay(iso){var v=data.calv;return !!(v&&v.off&&v.off.length&&iso)&&v.off.indexOf(fromIso(iso).getDay())>=0;}
 function hidNote(o){return !!o&&o.a===o.b&&!o.rec&&hidDay(o.a);}
+function formulaDisplay(value){
+  return typeof value==='boolean'?(value?'kyllä':'ei'):typeof value==='number'?String(value).replace('.',','):String(value??'');
+}
+function formulaContext(override){
+  var doc=vOn()&&VC.files['ohjeet/muistiinpanot.md'],allowed=KAAVA.allowedFields(doc&&doc.t),engine=null;
+  return {allowed:allowed,get:function(){
+    if(engine)return engine;
+    var known=new Set(data.notes.map(function(n){return n.vp;}));
+    var live=data.notes.filter(function(n){return !n.arch;});
+    if(override)live=live.map(function(n){return n.id===override.id?override:n;});
+    var notes=live.slice();
+    if(vOn()&&vK()&&vK().id===data.k)Object.keys(VC.files).forEach(function(path){
+      if(!VAULT.visible(path)||known.has(path)||/^nakymat\/|^taulukot\//.test(path))return;
+      var file=VC.files[path],pending=VC.q[path];
+      if(pending&&pending.del||VAULT.kindOf(path,VAULT.split(file.t).fm)==='ohje')return;
+      var note=VAULT.noteOf(path,file.t);if(!note.arch)notes.push(note);
+    });
+    if(override&&!notes.includes(override))notes.push(override);
+    engine=KAAVA.create(notes,allowed);return engine;
+  }};
+}
+function noteFormulaSpans(text){
+  if(text.indexOf('{=')<0)return [];
+  var spans=[],pattern=/```[\s\S]*?(?:```|$)|`[^`\r\n]*`|\{(=(?:"(?:[^"\\\r\n]|\\["\\])*"|[^}"\r\n])*)\}/g,match;
+  while((match=pattern.exec(text))){
+    if(match[1])spans.push({start:match.index,end:pattern.lastIndex,source:match[1]});
+  }
+  return spans;
+}
+function paintFormulaSpans(text,ta,flags){
+  var results=$('ns-formula-results');
+  results.textContent='';results.hidden=true;ta.removeAttribute('aria-describedby');
+  var spans=ta.readOnly?noteFormulaSpans(text):[],computed=new Map();
+  if(!spans.length)return computed;
+  var source=noteCur?Object.assign({},noteCur,{text:text}):{text:text},context=formulaContext(source).get(),terms=[];
+  spans.forEach(function(span){
+    var result=context.run(span.source,source),label=result.error||formulaDisplay(result.value);
+    span.result=label;span.error=!!result.error;terms.push(label);computed.set(span.start,span);
+    for(var i=span.start;i<span.end;i++)flags[i]=65536+span.start;
+  });
+  results.textContent='Kaavojen tulokset: '+terms.join(', ');results.hidden=false;ta.setAttribute('aria-describedby','ns-formula-results');
+  return computed;
+}
 function hidTxt(iso){return 'ei näy kalenterissa ('+WDS[fromIso(iso).getDay()]+')';}
 function paintHl(){var ta=$('ns-text'),hl=$('ns-hl'),txt=ta.value,N={text:txt,created:noteCur?noteCur.created:nowIso()},f=[],i;hl.textContent='';
   paintNoteTags(noteCur,ta);
-  if(noteCur&&noteCur._vaultEdit)return;
+  if(noteCur&&noteCur._vaultEdit){
+    $('ns-formula-results').hidden=true;ta.removeAttribute('aria-describedby');return;
+  }
   for(i=0;i<=txt.length;i++)f.push(0);
   ovNow=ovHits(liveN());termCache=null;
   parseDates(txt,new Date(N.created),nsNl).forEach(function(o){if(!/\s/.test(txt.charAt(o.e)))return;var ov=ovNow.some(function(h){return h.o.s===o.s&&h.o.e===o.e;});for(var k=o.s;k<o.e;k++)f[k]|=ov?5:1;});
@@ -5282,7 +5357,15 @@ function paintHl(){var ta=$('ns-text'),hl=$('ns-hl'),txt=ta.value,N={text:txt,cr
   /* 0.5: linkit. 8192 = linkki, 16384 = näkyvä teksti (alias), 32768 = nimi, jonka tilalle lukunäkymässä otsikko */
   VAULT.links(txt).forEach(function(L){var k;for(k=L.s;k<L.e;k++)f[k]=(f[k]&(512|1024|4096))|8192|256;/* linkki on yksi kokonaisuus: ei sanalinkkejä tai muita merkintöjä sen sisällä */if(L.alias){for(k=L.as;k<L.ae;k++){f[k]&=~256;f[k]|=16384;}}else for(k=L.ss;k<L.se;k++){f[k]&=~256;f[k]|=32768;}});
   if(noteCur&&noteCur.vh){var e1=txt.indexOf('\n');if(e1<0)e1=txt.length;for(var k1=0;k1<e1;k1++)f[k1]|=512;}/* vaultin #-otsikko = ensimmäinen rivi */
+  var computed=paintFormulaSpans(txt,ta,f);
   var st=0;for(i=1;i<=txt.length;i++){if(i===txt.length||f[i]!==f[st]){var part=txt.slice(st,i),v=f[st];
+      var formula=computed.get(st);
+      if(formula){
+        var piece=el('span',formula.error?'formula-result formula-error':'formula-result');
+        piece.dataset.sourceLength=String(part.length);
+        piece.append(el('span','formula-source',part),el('span','formula-result-text',formula.result));
+        hl.appendChild(piece);st=i;continue;
+      }
       if(!v)hl.appendChild(document.createTextNode(part));else hl.appendChild(el(v&1?'mark':'span',((v&2?'th ':'')+(v&4?'ov ':'')+(v&8?'rel ':'')+(v&16?'dn ':'')+(v&32?'nl ':'')+(v&64?'hd ':'')+(v&128?'wl ':'')+(v&256?'mdm ':'')+(v&512?'mdh ':'')+(v&1024?'mdb ':'')+(v&2048?'mdl ':'')+(v&4096?'mdq ':'')+(v&8192?'lk ':'')+(v&16384?'lka ':'')+(v&32768?'lks':'')).trim(),part));
       if(v&32768){var lse=hl.lastChild;lse.dataset.t=vTitleOf(part.trim())||part;lse.style.setProperty('--fs',getComputedStyle(hl).fontSize);if(!vNoteOf(part.trim()))lse.classList.add('lkx');}st=i;}}
   hl.appendChild(document.createTextNode('\u200b'));hl.scrollTop=ta.scrollTop;}
@@ -6161,7 +6244,7 @@ function vPull(){if(!vOn()||vBusy)return Promise.resolve(false);vBusy=true;vRend
     Object.keys(VC.files).forEach(function(p){if(!seen[p]&&!VC.q[p])delete VC.files[p];});
     var i=0;function next(){if(i>=todo.length)return Promise.resolve();var batch=todo.slice(i,i+6);i+=6;
       return Promise.all(batch.map(function(t){return vApi(vUrl('/git/blobs/'+t.sha)).then(function(b){if(b.status===200&&typeof b.j.content==='string'){try{VC.files[t.path]={sha:t.sha,t:b64d(b.j.content)};}catch(e){}}});})).then(next);}
-    return next().then(function(){vBusy=false;vMsg='';vAt=vClock();vSaveC();vApply();vRender();
+    return next().then(function(){vBusy=false;vMsg='';vAt=vClock();vSaveC();vApply();vRender();if($('nsheet').open&&$('ns-text').readOnly)paintHl();
       if(Object.values(VC.q).some(function(o){return o.direct;}))vFlush();
       return true;});});}
 /* Välimuisti -> muistiinpanot (vain tiedostot, joilla ei ole lähtemättömiä omia muutoksia) */
@@ -6308,6 +6391,7 @@ function vNoteOf(slug){slug=String(slug||'').toLowerCase();if(!slug)return null;
   for(i=0;i<L.length;i++)if(L[i].vp&&L[i].vp.replace(/\.md$/i,'').toLowerCase()===slug)return L[i];return null;}
 function vTitleOf(slug){var N=vNoteOf(slug);return N?noteTitle(N):'';}
 function vLinkTap(ev,x,y){var ta=$('ns-text');if(!ta.readOnly)return false;var c=hlOffsetAt(x,y);if(c<0)return false;
+  if(noteFormulaSpans(ta.value).some(function(f){return c>=f.start&&c<f.end;}))return false;
   var L=VAULT.links(ta.value).filter(function(l){return c>=l.s&&c<l.e;})[0];if(!L)return false;var N=vNoteOf(L.slug);
   ev.preventDefault();ev.stopImmediatePropagation();if(!N){toast('Muistiinpanoa ”'+L.slug+'” ei löydy (ehkä piilotettu tai arkistoitu).');return true;}
   openNote(N);return true;}

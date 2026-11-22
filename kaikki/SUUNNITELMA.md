@@ -2,7 +2,7 @@
 
 Itsenäinen ohje mille tahansa tekoälylle (Claude, ChatGPT/Codex, muu). Aiempaa keskustelua ei tarvitse muistaa. Lue ensin repon `AGENTS.md`, sitten `kaikki/TILA.md` ja tämä. Emilin päätökset on merkitty **Emil**, tekoälyn ehdotukset *ehdotus*. Ehdotus ei ole toteutuslupa; Emilin ”toteuta” on.
 
-Päivitetty 22.11.2026 (versio 0.24). Seuraavaksi kytketään kaavat muistiinpanoihin ja rivinäkymään (kohta 11). Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
+Päivitetty 22.11.2026 (versio 0.25). Seuraavaksi toteutetaan laskentataulukot (kohta 12). Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
 
 ## Yhteiset säännöt (Kaikki)
 
@@ -29,7 +29,7 @@ Päivitetty 22.11.2026 (versio 0.24). Seuraavaksi kytketään kaavat muistiinpan
 8. ~~Kohta 9: monen valinta, arkistointi ja siirto roskakoriin vahvistuksella.~~ Tehty 0.22.
 9. ~~Kohta 9: oma järjestys ja kahva (tallennus `nakymat/kaikki.md`).~~ Tehty 0.23.
 10. ~~Kohta 10: kentät ja kaavamoottori (perusfunktiot, muistiinpanohaku, virheet).~~ Tehty 0.24. Tiedostojen uudelleennimeämiseen liittyvä viitepäivitys lisätään samaan työvaiheeseen varsinaisen uudelleennimeämistoiminnon kanssa.
-11. Kohta 11: kaavat muistiinpanoissa ja rivinäkymän kaavasarakkeet.
+11. ~~Kohta 11: kaavat muistiinpanoissa ja rivinäkymän kaavasarakkeet.~~ Tehty 0.25.
 12. Kohta 12: laskentataulukko v1: osio Taulukot, välilehdet tiedostoina, solujen muokkaus, viittaukset välilehtien ja muistiinpanojen välillä. Näkymävälilehti (muistiinpanot riveinä) v2:ssa.
 13. Kohta 13 rajattuna: kortit **ruudukkoon** (ei vapaata sijoittelua vielä), lajit luku, palkki, teksti, kytkin ja liukusäädin, arvot soluista, muokkaus- ja lukittu tila.
 14. Kohta 9: Asiat → Tunnisteet -siirtymä (Emil valitsee apissa, mitkä Asiat otetaan tunnisteiksi).
