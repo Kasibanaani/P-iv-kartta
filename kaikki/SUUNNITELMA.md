@@ -2,7 +2,7 @@
 
 Itsenäinen ohje mille tahansa tekoälylle (Claude, ChatGPT/Codex, muu). Aiempaa keskustelua ei tarvitse muistaa. Lue ensin repon `AGENTS.md`, sitten `kaikki/TILA.md` ja tämä. Emilin päätökset on merkitty **Emil**, tekoälyn ehdotukset *ehdotus*. Ehdotus ei ole toteutuslupa; Emilin ”toteuta” on.
 
-Päivitetty 22.11.2026 (versio 0.27). Seuraavaksi tehdään Asiat → Tunnisteet -siirtymä (kohta 9). Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
+Päivitetty 22.11.2026 (versio 0.28). Karsintakysymykset odottavat Emiliä. Sillä välin toteutetaan B-kohdan pienet jatkot. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
 
 ## Yhteiset säännöt (Kaikki)
 
@@ -32,7 +32,7 @@ Päivitetty 22.11.2026 (versio 0.27). Seuraavaksi tehdään Asiat → Tunnisteet
 11. ~~Kohta 11: kaavat muistiinpanoissa ja rivinäkymän kaavasarakkeet.~~ Tehty 0.25.
 12. ~~Kohta 12: laskentataulukko v1, tiedostopohjaiset välilehdet, solut ja viittaukset.~~ Tehty 0.26. Näkymävälilehti (muistiinpanot riveinä) v2:ssa.
 13. ~~Kohta 13: ruudukon korttien v1, viisi näyttötapaa, arvot soluista ja lukitus.~~ Tehty 0.27. Vapaa sijoittelu ja solukohtaiset lukot myöhemmin kokeilun jälkeen.
-14. Kohta 9: Asiat → Tunnisteet -siirtymä (Emil valitsee apissa, mitkä Asiat otetaan tunnisteiksi).
+14. ~~Kohta 9: Asiat → Tunnisteet -siirtymä.~~ Tehty 0.28. Emil valitsee Asiat ja appi lisää tunnisteet osuviin muistiinpanoihin.
 15. Kohta 14: karsintakysely Emilille (vain kysely ja kirjaus; karsitaan vasta vastausten jälkeen).
 
 **B. Pieniä jatkoja, voi tehdä välissä:** rivinäkymän minigraafi-laji, sarakkeen järjestys otsikkoa napauttamalla, muistiinpanoikkunan jäljelle jääneet tekstinalaiset kohdat (Liitä asiasanaan, päällekkäisyys, kiinnitys) sirun ikkunaan.

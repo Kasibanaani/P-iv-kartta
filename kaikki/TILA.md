@@ -1,6 +1,6 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.27 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
+**Vaihe:** versio 0.28 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
@@ -67,6 +67,7 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
 - **0.25 (22.11.2026, kohta 11): kaavat muistiinpanoissa ja riveillä.** Muistiinpanon `{=…}` näkyy lukunäkymässä laskettuna tuloksena ja muokatessa alkuperäisenä kaavana. Rivinäkymä näyttää sekä kaavaan sidotut kentät että näkymätiedoston omat kaavasarakkeet. Kaavat käyttävät tuoretta Vault-aineistoa ja näyttävät virheen kyseisessä solussa. Laskenta ei kirjoita tuloksia tiedostoihin. Testattu Chromiumissa neljällä leveydellä ja rinnakkaisen lähdemuutoksen jälkeen. Kokeilussa tarkistetaan syntaksin luettavuus ja virheiden näyttötapa. Taulukkoviittaukset tulevat seuraavassa vaiheessa.
 - **0.26 (22.11.2026, kohta 12): Taulukot.** Taulukot-osiossa voi luoda taulukon ja välilehtiä, muokata soluja, lisätä rivejä ja sarakkeita ja viedä lasketut arvot CSV-tiedostoksi. Vaultin Markdown-taulukoissa otsikot säilyvät erillään, joten ensimmäinen tietorivi on 1. Viittaukset toimivat omiin soluihin ja alueisiin, muiden välilehtien soluihin ja muistiinpanojen kenttiin. Muistiinpanokaava voi myös viitata välilehteen. Samaan soluun kohdistunut rinnakkainen muutos säilyttää oman version ristiriitakopiossa. Ensiversion käyttöliittymä näyttää enintään 500 riviä ja 64 saraketta per välilehti. Testattu Chromiumissa neljällä leveydellä ja Node-moottorissa. Kokeilussa tarkistetaan solumuokkauksen sujuvuus. Näkymävälilehti on v2:n työ.
 - **0.27 (22.11.2026, kohta 13): taulukon kojelautakortit.** Kojelaudasta voi valita taulukon, avata kortit muokkaustilaan ja liittää luku-, palkki-, teksti-, kytkin- tai liukusäädinkortin välilehden soluun. Konfiguraatio tallentuu taulukon `_nakyma.md`-tiedostoon. Kytkin ja liukusäädin muuttavat syöttösolua muokkaustilassa. Lukitus estää vahinkomuutokset ja kaavasolun arvo säilyy ohjaimen käytöltä suojattuna. Rinnakkainen muutos kohdesoluun säilytetään. Testattu neljällä leveydellä. Kokeilussa selvitetään korttien asettelua, lukitun tilan ohjaustarvetta ja mittareiden sijoittelua. Vapaan sijoittelun editori ja solukohtaiset lukot ovat auki.
+- **0.28 (22.11.2026, kohta 9): Asioista tunnisteiksi.** Muistion Asiasanat-ikkunan Tuo Asioita tunnisteiksi näyttää käyttäjän omat Asiat sekä kunkin osumien määrän. Vahvistus päivittää Vaultin tilanteen ja lisää valitut tunnisteet osuvien muistiinpanojen alkutietoihin. Aiemmat tunnisteet, tekstit ja alkuperäiset Asiat säilyvät. Testattu Chromiumissa neljällä leveydellä. Asiat-osion mahdollinen karsinta odottaa Emilin käyttöpalautetta.
 - **Mikä menee GitHubiin:** ensimmäisen projektin muistiinpanot (myös niiden kuittaukset ja kalenteriajat) sekä Tekoälylle-näkymässä muokatut tiedostot ja huoltopyynnöt sekä Kojelaudasta tallennetut mittarikirjaukset. Asetukset, ulkoasu, asiasanat, Listat, Flow, puut, Toistuvat-välilehden toistuvat, tarkistuslistat ja muut projektit ovat vain laitteella (`kaikki:v1`); varmuuskopio niistä Juuren viennillä.
 
 **Suunta (Emil 22.11.2026):** Kaikki eriytyy Juuresta: Juuren ominaisuuksia karsitaan, painopiste siirtyy tietokoneelle (tiedon käsittely, rivinäkymät, taulukot, kojelauta). Puhelinnäkymä riisutaan: keskeistä kalenteri, uuden muistiinpanon lisäys ja osa kuvaajista; toiminnot voivat säilyä, mutta näkymä kevenee. Pitkä projekti; mahdollinen tie ulos Notionista.
@@ -113,7 +114,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Seuraava askel
 
-Seuraavaksi tehdään Asiat → Tunnisteet -siirtymän valinta (kohta 9). Flow-kokeilu ja mittarien tekstikirjaus ovat käytettävissä kokeiltaviksi.
+Seuraavaksi tehdään B-kohdan itsenäiset pienet jatkot. Karsinta, Treeni-osio ja Flow-tekstin pysyvä muoto odottavat Emilin vastauksia. Flow-kokeilu ja mittarien tekstikirjaus ovat käytettävissä kokeiltaviksi.
 
 Emil kokeilee GitHub-yhteyttä tietokoneella (pilvinappi yläpalkissa, vain omalla koneella). Sen jälkeen suunnitellaan tietokoneasettelu (ehdotus: lista ja auki oleva muistiinpano rinnakkain, isompi kirjoitusalue, pikanäppäimet, kansiot tai asiasanat sivupalkkiin).
 
@@ -129,7 +130,9 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 - Tekstikoko koskee nyt vain muistiinpanoja ja kalenterin listaa. Laajennetaanko koko appiin (iso työ: kiinteät px-koot suhteellisiksi)?
 - Testissä vaultin aineistolla Muistioon syntyi vanhoista toistuvista ajankohdista Juuren järjestelmäilmoituksia (”Järjestelmäilmoitus: toistuvuus päättyi”, vain laitteella). Näkyykö niitä Emilillä, ja karsitaanko ne Kaikki-appista?
 
-- Mitkä Juuren osiot Kaikki pitää (Muistio ja Kalenteri varmasti; Listat, Flow, Asiat?).
+- Karsintakysely: käytätkö Kaikissa Listojen kierroksia, tarkistuslistoja tai Viikkoja, Flowta, Vanhoja puita, Toistuvia, vanhaa pikamuistiinpanoa tai päivän nappeja? Tarvitaanko Asioiden ehtoja, tärkeysjärjestystä tai uusiutumisväliä? Säilytettävä tieto viedään talteen ennen hyväksyttyä karsintaa.
+- Treeni-osio: mitkä Treenikartan seurantatoiminnot kuuluvat ensimmäiseen versioon ja siirretäänkö aiemmat kirjaukset vai aloitetaanko uusista?
+- Flow: riittävätkö sisennykset kokeilussa, ja tarvitaanko ensimmäiseen pysyvään muotoon yhteisiä jatkohaaroja tai ehtoja?
 - Suodatin on nyt vain Muistiossa (vaikuttaa silti kalenteriin). Tarvitaanko se myös kalenterin näkymään omana nappinaan?
 - Pitäisikö Kaikki-appissa näkyä vaultin kansiot (esim. suodatus kansion mukaan), vai riittääkö Juuren haku ja asiasanat?
 

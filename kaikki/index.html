@@ -1429,6 +1429,12 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 #nsheet.reading .formula-result-text{display:inline;padding:0 5px;border-radius:5px;background:var(--fill);font-variant-numeric:tabular-nums}
 #nsheet.reading .formula-error .formula-result-text,.rvc.formula-error{color:var(--red)}
 #ns-tags .chip.auto-note-tag{box-shadow:inset 0 0 0 1px var(--sep);background:transparent}
+#tag-migration{width:min(470px,calc(100vw - 28px))}
+#tag-migration-items{max-height:48vh;overflow:auto}
+.tag-migration-item{display:flex;align-items:center;gap:10px;min-height:44px;padding-block:4px;border-block-end:1px solid var(--sep)}
+.tag-migration-item input{flex:none;width:18px;height:18px;margin:0;accent-color:var(--accent)}
+.tag-migration-item small{display:block;color:var(--label2)}
+#tag-migration-msg:empty{display:none}
 #fs-chips .tag-filter-heading{flex-basis:100%;font-size:inherit;margin:8px 0 0}
 .rvc.note-tag-cell{display:flex;gap:4px;overflow:hidden}
 #quick-entry{width:min(440px,calc(100vw - 28px))}
@@ -1828,7 +1834,18 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
   <p class="fcount" id="fs-count"></p>
   <div class="seg" id="fs-mode"><button type="button" data-fm="any">Jokin näistä</button><button type="button" data-fm="all">Kaikki näistä</button></div>
   <div class="chips" id="fs-chips"></div>
-  <div class="btnrow"><button type="button" class="mini" id="fs-clear">Tyhjennä valinta</button><button type="button" class="mini" id="terms" style="margin-left:auto">Muokkaa asiasanoja</button></div>
+  <div class="btnrow"><button type="button" class="mini" id="fs-clear">Tyhjennä valinta</button><button type="button" class="mini" id="terms" style="margin-left:auto">Muokkaa asiasanoja</button><button type="button" class="mini" id="fs-migrate-tags" hidden>Tuo Asioita tunnisteiksi</button></div>
+</dialog>
+<dialog id="tag-migration" aria-labelledby="tag-migration-title">
+  <h2 id="tag-migration-title">Tuo Asioita tunnisteiksi</h2>
+  <form id="tag-migration-form">
+    <div id="tag-migration-items"></div>
+    <p id="tag-migration-msg" class="msg" role="status"></p>
+    <div class="btnrow">
+      <button type="button" class="btn" id="tag-migration-cancel" data-done>Peru</button>
+      <button type="submit" class="btn solid" id="tag-migration-save" disabled>Lisää tunnisteet</button>
+    </div>
+  </form>
 </dialog>
 <dialog id="psheet" aria-labelledby="ps-h">
   <div class="hrow"><h2 id="ps-h">Projekti</h2><button class="ibtn" type="button" data-help="projektit" aria-label="Ohje">i</button></div>
@@ -4486,7 +4503,7 @@ $('nav').addEventListener('click',function(ev){var b=ev.target.closest('[data-ta
 /* 1.55 (I1): isot ikkunat täyttävät tilan yläpalkin ja alapalkin välissä. Otsikon edessä harmaana se, minne ruksi palaa
    (välilehti tai alla oleva ikkuna). Puhelimella 1.74:stä alkaen ikkunalla on oma alapalkki, jonka ‹-nappi sulkee kuten ruksi; osio ei vaihdu. */
 /* 1.105 (Emil 18.11.2026): listojen ikkunat (Listat, rivin ikkuna) ovat pieniä ikkunoita päällä; ulkopuolinen napautus sulkee, ei ruksia */
-var SMALL={csheet:1,dsheet:1,pksheet:1,wsheet:1,ksheet:1,pvsheet:1,gsheet:1,'vwork-sheet':1,'section-settings':1,'dash-entry':1,'quick-entry':1,'xy-picker':1,'note-batch-delete':1,'sheet-edit':1,'sheet-new':1,'board-edit':1,'writing-guide':1,'flow-text-preview':1};
+var SMALL={csheet:1,dsheet:1,pksheet:1,wsheet:1,ksheet:1,pvsheet:1,gsheet:1,'vwork-sheet':1,'section-settings':1,'dash-entry':1,'quick-entry':1,'xy-picker':1,'note-batch-delete':1,'sheet-edit':1,'sheet-new':1,'board-edit':1,'tag-migration':1,'writing-guide':1,'flow-text-preview':1};
 function barSizes(){var t=$('top'),n=$('pbar').offsetParent?$('pbar'):$('nav'),r=document.documentElement.style;
   if(t)r.setProperty('--toph',Math.max(0,Math.round(t.getBoundingClientRect().bottom))+'px');
   if(typeof land==='function'&&land()){r.setProperty('--toph','0px');r.setProperty('--navh','0px');r.setProperty('--sbh','0px');return;}
@@ -4545,7 +4562,7 @@ function crumbSync(){var k=tabKey(),k0=kOf(),t=(k0?k0.name:'Juuri')+' · '+(MODE
   if(d){var h=d.querySelector('h2'),ht=h?clean(h.textContent):'';if(ht)t+=' › '+ht;}$('crumb').textContent=t;}
 /* Ikkunan sulkeminen ohi napauttamalla tai Esc tallentaa samoin kuin Valmis */
 function sheetDone(d){var ok=d.querySelector('[data-done]');if(ok)ok.click();else closeSheet(d);}
-var SHEETS=['phsheet','wsheet','ehsheet','vsheet','psheet','xsheet','lsheet','ksheet','esheet','nsheet','tsheet','rsheet','hsheet','csheet','fsheet','pksheet','dsheet','pvsheet','gsheet','vwork-sheet','section-settings','dash-entry','quick-entry','xy-picker','note-batch-delete','sheet-edit','sheet-new','board-edit','writing-guide','flow-text-preview'];
+var SHEETS=['phsheet','wsheet','ehsheet','vsheet','psheet','xsheet','lsheet','ksheet','esheet','nsheet','tsheet','rsheet','hsheet','csheet','fsheet','pksheet','dsheet','pvsheet','gsheet','vwork-sheet','section-settings','dash-entry','quick-entry','xy-picker','note-batch-delete','sheet-edit','sheet-new','board-edit','tag-migration','writing-guide','flow-text-preview'];
 SHEETS.forEach(function(id){var d=$(id);d.addEventListener('close',modalSync);d.addEventListener('click',function(ev){if(ev.target!==d||d.classList.contains('dock'))return;
     if(!d.classList.contains('big')||matchMedia('(max-width:999px)').matches){var q=d.getBoundingClientRect(),x=ev.clientX,y=ev.clientY;
       if(x>=q.left&&x<=q.right&&y>=q.top&&y<=q.bottom)return;sheetDone(d);return;}
@@ -5202,12 +5219,17 @@ function noteAutoTags(note){
       return key.trim()&&text.indexOf(key)>=0;
     }))found.add(tag);
   });
-  if(!found.size)return;
+  var added=addTagsToNote(note,found);
+  if(added.length)note.autoTags=Array.from(new Set((Array.isArray(note.autoTags)?note.autoTags:[]).concat(added)));
+}
+function addTagsToNote(note,tags){
+  var old=noteTags(note),added=Array.from(new Set(tags)).filter(function(tag){return old.indexOf(tag)<0;});
+  if(!added.length)return [];
   var fm=VAULT.split(VAULT.mdOf(note)).fm,current=VAULT.fmGet(fm,'tagit');
-  if(current&&!/^\[.*\]$/.test(current))return;
-  var raw=current.slice(1,-1).trim(),added=Array.from(found);
+  if(current&&!/^\[.*\]$/.test(current))return [];
+  var raw=current.slice(1,-1).trim();
   note.vfm=VAULT.fmSet(fm,'tagit','['+(raw?raw+', ':'')+added.join(', ')+']');
-  note.autoTags=Array.from(new Set((Array.isArray(note.autoTags)?note.autoTags:[]).concat(added)));
+  return added;
 }
 function filterLabel(AT){if(!noteFilter.length)return 'Kaikki';var nm={};AT.forEach(function(t){nm[t.id]=t.name;});return noteFilter.map(function(id){return nm[id]||'?';}).join(noteAnd?' ja ':' tai ');}
 var fsCtx=null;
@@ -5221,10 +5243,75 @@ function renderFilter(){var C=fsCtx;if(!C)return;var n=C.NS.filter(function(x){r
     var ib=button(c,'i','ibtn',function(){openTerm(t.id,function(){render();renderFilter();});});ib.dataset.tinfo=t.id;ib.setAttribute('aria-label','Asiasana: '+t.name);
     var w=el('span','chipw');c.insertBefore(w,b);w.appendChild(b);w.appendChild(ib);});
   if(!C.T.length)c.appendChild(el('p','sub','Ei vielä asiasanoja, jotka osuisivat muistiinpanoihin.'));
-  $('fs-clear').hidden=!noteFilter.length;}
+  $('fs-clear').hidden=!noteFilter.length;$('fs-migrate-tags').hidden=!noteOrderEnabled()||!data.terms.length;}
 Array.prototype.forEach.call($('fs-mode').children,function(b){b.addEventListener('click',function(){noteAnd=b.dataset.fm==='all';renderFilter();render();});});
 $('fs-clear').addEventListener('click',function(){noteFilter=[];renderFilter();render();});
 /* Sanahaku: osa sanaa riittää, isot kirjaimet ja välimerkit eivät vaikuta. Suodattaa näkyvät kortit uudelleen piirtämättä. */
+function migrationCandidates(){
+  if(!noteOrderEnabled())return [];
+  var candidates=withText(data.terms,data.projects).filter(function(term){return !isSpec(term.id)&&term.name!==SYS_TERM;}).map(function(term){
+    var tag=noteTagKey(term.name.normalize('NFC').replace(/[^\p{L}\p{N}\p{M}]+/gu,'-').replace(/^-+|-+$/g,''));
+    return {term:term,tag:tag,notes:[]};
+  }).filter(function(item){return item.tag;});
+  var byId=new Map(candidates.map(function(item){return [item.term.id,item];})),terms=candidates.map(function(item){return item.term;});
+  vNotes().forEach(function(note){
+    if(note.arch||note.rep==='rx'||(note.vp&&(!VAULT.visible(note.vp)||VAULT.kindOf(note.vp,note.vfm)==='ohje')))return;
+    var tags=new Set(noteTags(note)),fm=VAULT.fmGet(note.vfm,'tagit');
+    if(fm&&!/^\[.*\]$/.test(fm))return;
+    noteTerms(terms,note.text).forEach(function(id){
+      var item=byId.get(id);if(!tags.has(item.tag))item.notes.push(note);
+    });
+  });
+  return candidates;
+}
+function openTagMigration(){
+  var list=$('tag-migration-items'),msg=$('tag-migration-msg'),save=$('tag-migration-save'),candidates=migrationCandidates();
+  list.textContent='';save.disabled=true;msg.textContent='';
+  candidates.forEach(function(item){
+    var label=el('label','tag-migration-item'),input=el('input'),name=el('span','',item.term.name);
+    input.type='checkbox';input.value=item.term.id;input.disabled=!item.notes.length;
+    name.appendChild(el('small','','#'+item.tag+' · '+item.notes.length+' muistiinpanoa'));
+    label.append(input,name);list.appendChild(label);
+  });
+  if(!candidates.length)msg.textContent='Tuotavia Asioita ei löytynyt.';
+  openSheet($('tag-migration'));
+}
+$('fs-migrate-tags').addEventListener('click',openTagMigration);
+$('tag-migration-cancel').addEventListener('click',function(){closeSheet($('tag-migration'));});
+$('tag-migration-items').addEventListener('change',function(){
+  $('tag-migration-save').disabled=!this.querySelector('input:checked');
+});
+$('tag-migration-form').addEventListener('submit',async function(event){
+  event.preventDefault();
+  var dialog=$('tag-migration'),msg=$('tag-migration-msg');
+  var ids=new Set(Array.from($('tag-migration-items').querySelectorAll('input:checked')).map(function(input){return input.value;}));
+  if(!ids.size||!noteOrderEnabled())return;
+  if(vBusy){msg.textContent='Vault synkronoi. Yritä hetken kuluttua.';return;}
+  var scope={repo:vRepo(),branch:G.branch,project:data.k};
+  var controls=Array.from(dialog.querySelectorAll('input:not([disabled]),button:not([disabled])'));
+  controls.forEach(function(control){control.disabled=true;});msg.textContent='Haetaan tuoreet muistiinpanot…';
+  try{
+    var fresh=await vRefresh();
+    if(!fresh||!noteOrderEnabled()||vRepo()!==scope.repo||G.branch!==scope.branch||scope.project!==data.k){
+      msg.textContent='Muistiinpanojen päivitys epäonnistui. Yritä uudelleen.';return;
+    }
+    var changes=new Map();
+    migrationCandidates().filter(function(item){return ids.has(item.term.id);}).forEach(function(item){
+      item.notes.forEach(function(note){
+        if(!changes.has(note))changes.set(note,[]);
+        changes.get(note).push(item.tag);
+      });
+    });
+    var stamped=nowIso(),count=0;
+    changes.forEach(function(tags,note){
+      if(addTagsToNote(note,tags).length){note.edited=stamped;count++;}
+    });
+    if(count){touch();vCollect();}
+    closeSheet(dialog);render();renderFilter();
+    toast(count?'Tunnisteet lisättiin '+count+' muistiinpanoon.':'Muistiinpanoissa oli jo valitut tunnisteet.');
+  }catch(e){msg.textContent='Tunnisteiden tuonti keskeytyi. Tarkista yhteys.';}
+  finally{controls.forEach(function(control){control.disabled=false;});}
+});
 function filterNotes(){var w=normT(noteQuery).trim(),n=0,byId={};if(w)data.notes.forEach(function(x){byId[x.id]=x;});Array.prototype.forEach.call(document.querySelectorAll('#nlist [data-id]'),function(c){
   var N=w?byId[c.dataset.id]:null;
   var ok=!w||(N&&normT(N.text).indexOf(w)>=0);c.hidden=!ok;if(ok)n++;
