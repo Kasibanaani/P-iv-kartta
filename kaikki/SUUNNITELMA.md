@@ -67,11 +67,11 @@ Päivitetty 22.11.2026 (versio 0.7). Lista on toteutusjärjestyksessä. Merkitse
 ## 4. Huoltopyynnöt tekoälylle ja Tekoälylle-paikka (Emil 22.11.2026, yksityiskohdat *ehdotus*)
 
 **Tavoite (Emil):** ei säännöllistä laajaa huoltoa (käyttörajat); Emil pyytää napista; tekoälyn omat tiedostot taka-alalle, mutta Emilin muokattaviksi apissa.
-**Vaatii Emilin päätöksen** vaultin ohjeisiin ennen toteutusta: (a) huolto pyyntöpohjaiseksi, (b) tekoäly saa pyynnöstä jäsentää Emilin tekstiä, alkuperäinen arkistoon.
+**Emil hyväksyi 22.11.2026** ja vaultin ohjeet on jo päivitetty: (a) huolto vain pyynnöstä, (b) Emilin tekstin saa pyynnöstä jäsentää, alkuperäinen ensin `arkisto/`:on; `Lähde:`-rivi = liitetty teksti, `Tekoälylle:`-rivi = toive. Tiedosto `yllapito/pyynnot.md` on luotu (otsikot *Avoimet* ja *Tehdyt*). Apin osuus (napit ja Tekoälylle-paikka) on vielä tekemättä.
 - Vaultin tiedosto `yllapito/pyynnot.md` (`tyyppi: loki`, `nakyy: ei`), rivit `- [ ] VVVV-KK-PP · mitä · kohde` (kohde = `inbox`, `koko vault` tai `[[tiedosto]]`). Tehty: `- [x] … → tulos (kuka, pvm)`.
 - Apissa: Valikko → ”Pyydä tekoälyä järjestämään” (kohde inbox / koko vault) ja muistiinpanon ⋯ → ”Pyydä tekoälyä järjestämään” (kohde tämä muistiinpano). Napautus lisää rivin; vahvistus pienenä ilmoituksena.
 - Valikko → ”Tekoälylle”: lista tiedostoista, joiden laji on tekoälylle (`VAULT.kindOf` = `ohje`: `ohjeet/`, `nakyy: ei`, `tyyppi: ohje`) + `yllapito/loki.md` ja `yllapito/pyynnot.md`; avautuvat tavalliseen muistiinpanoikkunaan muokattaviksi. Henkilö-napin Tekoälylle-valinnat voidaan sen jälkeen poistaa (yksi paikka).
-- Vaultin ohjeet: `AGENTS.md` (aloita näin: lue myös pyynnöt, kerro määrä yhdellä rivillä), `ohjeet/yllapito.md` (tee pyynnöt vain Emilin luvalla tai huoltokeskustelussa; pieni malli ei tee isoja), `ohjeet/paatokset.md`.
+- Vaultin ohjeet päivitetty (`AGENTS.md`, `ohjeet/yllapito.md`, `ohjeet/sanelu.md`, `ohjeet/paatokset.md`). Toteutuksessa lisää `ohjeet/appi.md`:hen, että appi kirjoittaa `yllapito/pyynnot.md`:n *Avoimet*-otsikon alle.
 
 ## Myöhemmin (ideat, ei toteutuslistalla)
 
