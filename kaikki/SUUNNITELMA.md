@@ -14,6 +14,31 @@ Päivitetty 22.11.2026 (versio 0.13). Seuraavaksi on kohdan 8 kirjoitusohjeen pe
 - Vienti suoraan päähaaraan, `git pull --rebase` ennen pushia. Versio: seuraava vapaa (0.8, 0.9 …) commit-viestiin ja `TILA.md`:hen.
 - Kerro Emilille: testattu tietokoneen selaimessa, ei iPhonella.
 
+## Työjono: mitä voi rakentaa ensimmäisenä versiona (Emil 22.11.2026)
+
+**Periaate (Emil):** kaikkia kysymyksiä ei tarvitse ratkaista etukäteen. Kun kohta on tarpeeksi tarkka, tehdään **rajattu ensimmäinen versio (v1)**, jota Emil pääsee kokeilemaan, ja seuraava askel päätetään kokeilun perusteella. v1 saa ottaa käyttöön tässä ehdotetun tiedosto- tai kirjoitusmuodon (Emil hyväksyi v1-muodot kokeiltaviksi 22.11.2026); jos muotoa myöhemmin muutetaan, appi lukee aina myös vanhan muodon. Jokaisen v1:n jälkeen `TILA.md`:hen: mitä jätettiin pois ja mitä Emililtä kysytään kokeilun jälkeen.
+
+**A. Valmis v1:ksi ilman lisäkysymyksiä** (tässä järjestyksessä; merkitse tehty ~~yliviivaten~~):
+1. Kohta 8: kirjoitusohje apissa (perusosa).
+2. Kohta 7: Flow tekstinä, **kokeiluna** (ks. C).
+3. Kohta 6.2: mittarien tekstikirjaus `Mittarit: …` muistiinpanossa ja pikakomentolinkki `?kirjaa=` (ehdotettu muoto).
+4. Kohta 9: `#tunnisteet` (tunnistus tekstistä ja `tagit`-kentästä, sirut lukunäkymässä, Asiasanat-suodattimen Tunnisteet-ryhmä, rivinäkymän kenttä `tunnisteet`, näkymäehto `tunniste = x`).
+5. Kohta 9: rivinäkymä leveäksi tietokoneella.
+6. Kohta 9: monen valinta: Arkistoi ja Poista valitut (vahvistus, roskakoriin).
+7. Kohta 9: oma järjestys ja kahva (tallennus `nakymat/kaikki.md`).
+8. Kohta 10: kentät ja kaavamoottori (perusfunktiot, muistiinpanohaku, virheet).
+9. Kohta 11: kaavat muistiinpanoissa ja rivinäkymän kaavasarakkeet.
+10. Kohta 12: laskentataulukko v1: osio Taulukot, välilehdet tiedostoina, solujen muokkaus, viittaukset välilehtien ja muistiinpanojen välillä. Näkymävälilehti (muistiinpanot riveinä) v2:ssa.
+11. Kohta 13 rajattuna: kortit **ruudukkoon** (ei vapaata sijoittelua vielä), lajit luku, palkki, teksti, kytkin ja liukusäädin, arvot soluista, muokkaus- ja lukittu tila.
+12. Kohta 9: Asiat → Tunnisteet -siirtymä (Emil valitsee apissa, mitkä Asiat otetaan tunnisteiksi).
+13. Kohta 14: karsintakysely Emilille (vain kysely ja kirjaus; karsitaan vasta vastausten jälkeen).
+
+**B. Pieniä jatkoja, voi tehdä välissä:** rivinäkymän minigraafi-laji, sarakkeen järjestys otsikkoa napauttamalla, muistiinpanoikkunan jäljelle jääneet tekstinalaiset kohdat (Liitä asiasanaan, päällekkäisyys, kiinnitys) sirun ikkunaan.
+
+**C. Kokeilu (tulos ja avoimet päätökset Emilille ennen pysyvää muotoa):** kohta 7 Flow tekstinä.
+
+**D. Visio, liian epätarkka v1:ksi** (ei rakenneta ennen Emilin tarkennusta; ks. *Pohdittavat* lopussa): kojelauta-rakentajan vapaa sijoittelu, raahattavat koot ja tyylit; kuvaajien ulkoasuasetukset; apin oma näkymämuokkain (sarakkeiden raahaus, suodattimet); Listojen suhde vaultiin; tunnistussanat; kuvat ja liitteet; Notion-sisällön siirto.
+
 ## ~~1. Muistiinpanoikkuna: teksti pääosaan~~ (tehty 0.9, ks. TILA; jäljellä: Liitä asiasanaan, päällekkäisyys ja kiinnitys yhä tekstin alla tilanteen mukaan)
 
 **Ongelma (Emil, kuva koneelta):** tekstikentän reunat näkyvät vain aktiivisena, kenttä on pieni, ja metatieto (luotu/muokattu, ”napauta tekstiä muokataksesi”, päivä- ja aikarivi, Ajankohdat) vie suurimman osan tilasta hajallaan.
@@ -150,7 +175,7 @@ Kokeile testiaineistolla ensin Flow'n lukemista sisennetystä Markdownista. Jatk
 
 ## 10. Kentät ja kaavamoottori (pohja kohdille 11–14)
 
-**Emil 22.11.2026:** muistiinpanojen tiedot pitää voida laskea yhteen tunnisteiden ja ehtojen mukaan, viitata muistiinpanoihin ja välilehtiin, Google Sheetsin yksinkertaisuudella, ei täyttä Exceliä. Suunta hyväksytty; tarkka syntaksi vahvistetaan Emilillä kohdan 7 kokeilun jälkeen.
+**Emil 22.11.2026:** muistiinpanojen tiedot pitää voida laskea yhteen tunnisteiden ja ehtojen mukaan, viitata muistiinpanoihin ja välilehtiin, Google Sheetsin yksinkertaisuudella, ei täyttä Exceliä. Suunta hyväksytty. v1 tehdään tässä kuvatulla syntaksilla (Työjono, periaate); Emil arvioi sen kokeillessa.
 - **Kentän arvo muistiinpanossa** kahdella tavalla: alkutiedoissa `saldo: 120` tai tekstissä omalla rivillään `saldo: 120`. Tekstirivi luetaan **vain, jos nimi on vaultin `ohjeet/muistiinpanot.md` → Omat kentät -listassa** (tavallinen lause ei sotke laskuja). Luvussa desimaalipilkku tai -piste. Sama nimi useasti samassa muistiinpanossa = kaikki arvot (summa- ja määräfunktiot laskevat ne).
 - **Kaavamoottori** moottoriosioon (`<script id="engine">`, ei DOMia, testattavissa Nodella): lauseke `=…`, luvut, tekstit lainausmerkeissä, `+ - * /`, vertailut, sulut. Funktiot ensin: `SUMMA`, `KESKIARVO`, `MÄÄRÄ`, `MIN`, `MAX`, `JOS`, `PYÖRISTÄ`, `YHDISTÄ` (teksti); myöhemmin tilastot (`KORRELAATIO`, `MEDIAANI`, `KESKIHAJONTA`). Suomenkieliset nimet, puolipiste argumenttien erottimena. Kytköskartan kaavamoottorista (`kytkoskartta/index.html`, `KK`, logiikkapalikka `kaava`) saa lainata jäsennintä.
 - **Muistiinpanohaku kaavassa:** `SUMMA(kenttä; ehto; ehto…)`; ehdot `tunniste = x`, `kansio = polku`, `<kenttä> = arvo`, `<kenttä> > luku`, puuttuva ehto = kaikki muistiinpanot. Yksi muistiinpano: `[[tiedostonimi]].kenttä`.
