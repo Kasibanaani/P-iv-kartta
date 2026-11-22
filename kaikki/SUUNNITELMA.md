@@ -4,6 +4,13 @@ Itsenäinen ohje mille tahansa tekoälylle (Claude, ChatGPT/Codex, muu). Aiempaa
 
 Päivitetty 23.11.2026 (versio 0.51). Seuraavaksi toistuvuuskentän rajattu v1. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
 
+**Yöajon jatko 23.11.2026.** Päähaaran viimeisin appiversio on 0.51. Työympäristö katkesi juuri ennen seuraavien kahden paikallisen version julkaisua. Kohdennetut testit menivät niille läpi Chromiumissa.
+
+- **0.52, kohta 18:** Toistuvuus muistiinpanon `toistuu`- ja `seuraava`-kentissä, kiinteän rytmin ankkuri `juuri.toistoalku`. Tarkista aikainen kuittaus ja rytmin säilyminen, kalenterimerkintä sekä synkka. Säilytä vanhan Toistuvat-listan sisältö.
+- **0.53, A0.3 ja A0.7:** Jaa Muistion näkymän sarakeleveydet näkymätiedoston `| w=210`-muodossa. Säilytä aiemmat paikalliset leveydet sekä näkymätiedoston muut asetukset ja teksti. Tarkista sarakkeiden raahausjärjestys näkymämuokkaimessa, kaksoisnapsautuksella sovitus ja ristiriita, jos näkymä muuttuu GitHubissa kesken muokkauksen.
+
+Aloita etsimällä, saako paikallisen työn työympäristöstä talteen. Jos sitä ei saa, jatka päähaaran versiosta 0.51 ja toteuta 0.52 ja 0.53 yllä olevan rajauksen mukaan. Aja koko testisarja ennen julkaisua. Sen jälkeen seuraava itsenäinen askel on näkymämuokkaimen usean kentän lajittelu (A0.7).
+
 ## Yhteiset säännöt (Kaikki)
 
 - Appi: `kaikki/index.html` (yli 800 kt). **Älä lue kokonaan**: `python3 tyokalut/kartta.py kaikki` (osiot), `-n <funktio>` (rivi), `-f <osio>` (osion funktiot).
