@@ -37,7 +37,7 @@ async def test(browser, width):
         await page.locator('#m-writing-guide').click()
     guide = page.locator('#writing-guide')
     await expect(guide).to_be_visible()
-    await expect(guide.get_by_role('textbox', name='Mittarit')).to_have_value('Vire tänään: 2')
+    await expect(guide.get_by_role('textbox', name='Mittarit')).to_have_value('Mittarit: Vire tänään 2')
     await expect(guide.get_by_role('textbox', name='Muistiinpanon kentät')).to_be_visible()
     await guide.get_by_role('button', name='Kopioi esimerkki: Kalenteri').click()
     assert 'huomenna klo 9' in await page.evaluate('window.copied')

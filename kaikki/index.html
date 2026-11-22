@@ -1559,6 +1559,12 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
       <label class="fl" for="dash-entry-table">Mittarit</label>
       <select id="dash-entry-table" name="taulukko"></select>
     </div>
+    <details id="dash-entry-text-options">
+      <summary>Kirjaa tekstinä</summary>
+      <label class="fl" for="dash-entry-text">Mittarit</label>
+      <textarea class="mono" id="dash-entry-text" rows="2" spellcheck="false"></textarea>
+      <div class="btnrow"><button type="button" class="btn" id="dash-entry-parse">Täytä kentät tekstistä</button></div>
+    </details>
     <div id="dash-entry-fields"></div>
     <p class="msg" id="dash-entry-msg" role="status"></p>
     <div class="btnrow">
@@ -3604,13 +3610,17 @@ function writingMetricExample(){
   if(!spec||spec.err)return '';
   var table=dashEntryTables(spec)[0];
   if(!table)return '';
-  return dashEntryCols(table,dashCsv(VC.files[table.tiedosto].t).h).slice(0,4).map(function(metric){
+  return metricTextExample(dashEntryCols(table,dashCsv(VC.files[table.tiedosto].t).h));
+}
+function metricTextExample(columns){
+  var parts=columns.slice(0,4).map(function(metric){
     var value='12,5';
     if(metric.laji==='asteikko')value=metric.min==null?'1':String(metric.min);
     if(metric.laji==='valinta')value=metric.arvot&&metric.arvot[0]?metric.arvot[0][1]:'';
     if(metric.laji==='kylla-ei')value='Kyllä';
-    return (metric.nimi||metric.id)+': '+value+(metric.yksikko?' '+metric.yksikko:'');
-  }).join('\n');
+    return value?(metric.nimi||metric.id)+' '+value+(metric.yksikko?' '+metric.yksikko:''):'';
+  }).filter(Boolean);
+  return parts.length?'Mittarit: '+parts.join('; '):'';
 }
 function showWritingGuide(){
   var host=$('writing-guide-examples'),metrics=writingMetricExample();
@@ -3625,7 +3635,7 @@ function showWritingGuide(){
     ['Linkki muistiinpanoon','Käytä linkissä kohteen tiedostonimeä ilman .md-päätettä. Pystyviivan jälkeen voi antaa oman linkkitekstin.',
       '[[remonttisuunnitelma]]\n[[remonttisuunnitelma|Remontin suunnitelma]]']
   ];
-  if(metrics)examples.unshift(['Mittarit','Valitse Kojelaudasta Kirjaa mittarit ja täytä arvot niiden omiin kenttiin.',metrics]);
+  if(metrics)examples.unshift(['Mittarit','Valitse Kojelaudasta Kirjaa mittarit → Kirjaa tekstinä. Erota mittarit puolipisteellä. Tarkista kentät ja tallenna.',metrics]);
   examples.forEach(function(example,i){
     var block=el('section','guide-example'),title=el('h3','',example[0]),field=el('textarea','mono');
     title.id='guide-example-'+i;
@@ -4430,6 +4440,8 @@ function nsMenu(){var m=$('ns-menu'),n=noteCur;m.textContent='';if(n)m.appendChi
   if(n&&n.vp&&vOn()&&VAULT.visible(n.vp)&&/^[a-z0-9-]+$/.test(VAULT.linkSlug(n.vp)))
     nsMenuItem(m,'nsm-vreq','Pyydä tekoälyä järjestämään',function(){var msg=$('ns-vmsg');
       msg.textContent=vRequest('[['+VAULT.linkSlug(n.vp)+']]');msg.hidden=false;});
+  if(vOn()&&vK()&&vK().id===data.k&&metricNoteLines($('ns-text').value).length)
+    nsMenuItem(m,'nsm-metrics','Kirjaa mittaririvi',openNoteMetricEntry);
   if(!m.querySelector('button'))return;
   var a=$('ns-more').getBoundingClientRect();m.hidden=false;$('ns-menubg').hidden=false;$('ns-more').setAttribute('aria-expanded','true');var r=m.getBoundingClientRect();
   var left=Math.max(8,Math.min(a.right-r.width,innerWidth-r.width-8)),top=a.top-r.height-8;if(top<8)top=Math.min(innerHeight-r.height-8,a.bottom+8);
@@ -4642,8 +4654,11 @@ $('ns-ok').addEventListener('click',function(){var txt=$('ns-text').value;
   if(noteCur&&noteCur._vaultEdit){if(!vSaveWorkFile(noteCur,txt))return;noteCur=null;closeSheet($('nsheet'));render();return;}
   syncAdds();txt=$('ns-text').value;if(!txt.trim()){if(noteCur)toTrash(noteCur);draftClear();closeSheet($('nsheet'));render();return;}var t=nowIso();
   var tv=timeVal();if(noteCur&&noteCur.text===txt&&noteCur.date===($('ns-date').value||'')&&sameTime(noteCur.time,tv)&&!!noteCur.pin===pinOn()&&JSON.stringify(noteCur.nl||[])===JSON.stringify(nsNl)){draftClear();closeSheet($('nsheet'));render();return;}
+  var previous=noteCur?noteCur.text:'';
   if(!noteCur){noteCur={id:uid('n'),created:t,text:txt};data.notes.unshift(noteCur);}noteCur.date=$('ns-date').value||'';if(tv)noteCur.time=tv;else delete noteCur.time;if(pinOn())noteCur.pin=1;else delete noteCur.pin;if(nsNl.length)noteCur.nl=nsNl.slice();else delete noteCur.nl;noteWrite(noteCur,txt,t);
-  draftClear();touch();closeSheet($('nsheet'));render();});
+  var savedNote=noteCur;draftClear();touch();closeSheet($('nsheet'));render();
+  writeNewNoteMetric(savedNote,previous);
+});
 
 
 /* 1.65 (Emil 23.10.2026, arvion 12C): linkin seuraamisen jälkeen ‹ Takaisin palaa edelliseen näkymään, rajaukseen, vierityskohtaan ja
@@ -5512,7 +5527,7 @@ function vCollect(){if(!vOn())return;var notes=vNotes(),has={},n=0;
     if(VC.q[p]&&!c){delete VC.q[p];return;}if(!c)return;var a='arkisto/'+p;if(VC.files[a]||VC.q[a])a=a.replace(/\.md$/,'-'+Date.now().toString(36)+'.md');
     VC.q[a]={t:c.t,base:null};VC.q[p]={del:1,base:c.sha};n++;});
   vSaveC();if(n)save0();vRender();return vFlush();}
-function vFlush(){if(!vOn()||vBusy)return Promise.resolve();var ps=Object.keys(VC.q).sort(function(a,b){return (VC.q[a].del?1:0)-(VC.q[b].del?1:0);});if(!ps.length)return Promise.resolve();
+function vFlush(){if(!vOn()||vBusy)return Promise.resolve();var ps=Object.keys(VC.q).sort(function(a,b){return (VC.q[a].del?1:0)-(VC.q[b].del?1:0);});if(!ps.length){openPendingMetricLink();return Promise.resolve();}
   var p=ps[0],o=VC.q[p];vBusy=true;vRender();
   var req=o.requests?vWriteRequests(o.requests,2):o.del?vApi(vUrl('/contents/'+vEnc(p)),'DELETE',{message:'appi: arkistoon '+p,sha:o.base,branch:G.branch}):
     vApi(vUrl('/contents/'+vEnc(p)),'PUT',{message:'appi: '+(o.base?'muokkaus ':'uusi ')+p,content:b64e(o.t),sha:o.base||undefined,branch:G.branch});
@@ -5618,14 +5633,18 @@ $('gs-save').addEventListener('click',function(){G.repo=$('gs-repo').value.trim(
   vApi(vUrl('')).then(function(r){if(r.status!==200){m.textContent=vErr(r.status)+' (Repo: '+vRepo()+', avain '+G.token.length+' merkkiä.)';return;}
     if(!r.j.private){m.textContent='Repo on julkinen: kaikki näkisivät muistiinpanosi. Vaihda se yksityiseksi tai valitse toinen.';return;}
     G.branch=r.j.default_branch||'main';vSaveG();m.textContent='Yhteys toimii. '+r.j.full_name+' on yksityinen. Haetaan muistiinpanot…';
-    vPull().then(function(ok){m.textContent=ok?'Valmis. Muistiinpanot haettu.':vMsg;vCollect();});});});
+    vPull().then(function(ok){m.textContent=ok?'Valmis. Muistiinpanot haettu.':vMsg;if(ok)openPendingMetricLink();vCollect();});});});
 $('gs-pull').addEventListener('click',function(){vPull().then(function(){vCollect();});});
 $('gs-off').addEventListener('click',function(){G.token='';vSaveG();vRender();$('gs-tok').value='';$('gs-msg').textContent='Yhteys pois. Muistiinpanot jäävät tälle laitteelle.';});
 var save0=save;save=function(){save0();vQueue();};
 document.addEventListener('visibilitychange',function(){if(!vOn())return;if(document.visibilityState==='visible')vPull().then(function(){vCollect();});else{clearTimeout(vTimer);vCollect();}});
 window.addEventListener('online',function(){if(vOn())vFlush();});
 document.querySelectorAll('.vref').forEach(function(b){b.addEventListener('click',function(){vRefresh().then(function(ok){toast(ok?'Ajan tasalla '+vAt:(vMsg||'Päivitys ei onnistunut.'));});});});
-function vStart(){vRender();if(vOn())vPull().then(function(){vCollect();});}
+function vStart(){
+  vRender();
+  if(vOn())vPull().then(function(ok){if(ok)openPendingMetricLink();vCollect();});
+  else if(metricLinkText)toast('Yhdistä GitHub-vault, jotta voit tarkistaa mittarilinkin.');
+}
 /* 0.5: [[linkki]] -> muistiinpano (tiedostonimen mukaan koko vaultista), lukunäkymässä napautus avaa sen */
 function vNoteOf(slug){slug=String(slug||'').toLowerCase();if(!slug)return null;var L=vNotes(),i;for(i=0;i<L.length;i++)if(L[i].vp&&VAULT.linkSlug(L[i].vp).toLowerCase()===slug)return L[i];
   for(i=0;i<L.length;i++)if(L[i].vp&&L[i].vp.replace(/\.md$/i,'').toLowerCase()===slug)return L[i];return null;}
@@ -6019,39 +6038,197 @@ async function dashWriteDay(path,day,edits,repo,branch){
   }
   return {error:'Taulukkoa päivitettiin samanaikaisesti. Yritä uudelleen.'};
 }
-function showDashEntry(tables){
+function metricTextKey(text){return String(text||'').trim().toLocaleLowerCase('fi').replace(/\s+/g,' ');}
+function metricTextValue(raw,col){
+  if(col.laji==='kylla-ei'){
+    if(['kyllä','kylla','1'].indexOf(raw)>=0)return '1';
+    if(raw==='ei'||raw==='0')return '0';
+    return null;
+  }
+  if(col.laji==='valinta'){
+    var options=Array.isArray(col.arvot)?col.arvot:[];
+    var found=options.find(function(pair){return Array.isArray(pair)&&(raw===metricTextKey(pair[0])||raw===metricTextKey(pair[1]));});
+    return found&&!/[,\r\n"]/.test(String(found[0]))?String(found[0]):null;
+  }
+  var unit=metricTextKey(col.yksikko);
+  if(unit&&raw.endsWith(' '+unit))raw=raw.slice(0,-unit.length-1);
+  if(!/^-?\d+(?:[.,]\d+)?$/.test(raw))return null;
+  var number=Number(raw.replace(',','.'));
+  if(!Number.isFinite(number)||(col.laji==='asteikko'&&!Number.isInteger(number)))return null;
+  if((col.min!=null&&number<Number(col.min))||(col.max!=null&&number>Number(col.max)))return null;
+  return String(number);
+}
+function metricTextParse(text,columns,defaultDay){
+  var input=metricTextKey(text),day=defaultDay||todayIso();
+  input=input.replace(/^mittarit:\s*/,'');
+  var relative=/^(tänään|eilen)(?:\s+|$)/.exec(input);
+  if(relative){
+    if(relative[1]==='eilen')day=isoD(addDays(fromIso(day),-1));
+    input=input.slice(relative[0].length);
+  }else{
+    var iso=/^(\d{4}-\d{2}-\d{2})(?:\s+|$)/.exec(input);
+    var fi=/^(\d{1,2})\.(\d{1,2})\.(\d{4})?(?:\s+|$)/.exec(input);
+    if(iso||fi){
+      day=iso?iso[1]:(fi[3]||day.slice(0,4))+'-'+pad(Number(fi[2]))+'-'+pad(Number(fi[1]));
+      if(isoD(fromIso(day))!==day)return {error:'Päivämäärää ei tunnistettu.'};
+      input=input.slice((iso||fi)[0].length);
+    }
+  }
+  input=input.replace(/^mittarit:\s*/,'');
+  var items=input.split(';').map(function(part){return part.trim();}).filter(Boolean),values=new Map();
+  if(!items.length)return {error:'Kirjoita mittarin nimi ja arvo.'};
+  for(var i=0;i<items.length;i++){
+    var item=items[i],matches=[];
+    columns.forEach(function(column){
+      [column.id,column.nimi].forEach(function(name){
+        var key=metricTextKey(name);
+        if(key&&item.indexOf(key)===0&&/^[ :=]/.test(item.slice(key.length,key.length+1)))
+          matches.push({key:key,column:column});
+      });
+    });
+    matches.sort(function(a,b){return b.key.length-a.key.length;});
+    var match=matches[0];
+    if(!match)return {error:'Mittaria ei tunnistettu: '+item};
+    if(matches.some(function(m){return m.key.length===match.key.length&&m.column.id!==match.column.id;}))
+      return {error:'Mittarin nimi on moniselitteinen: '+match.key};
+    var id=match.column.id,raw=item.slice(match.key.length).replace(/^[ :=]+/,'').trim();
+    var value=metricTextValue(raw,match.column);
+    if(value===null)return {error:'Tarkista arvo mittarille '+(match.column.nimi||id)+'.'};
+    if(values.has(id))return {error:'Mittari on kirjoitettu kahdesti: '+(match.column.nimi||id)};
+    values.set(id,value);
+  }
+  return {day:day,values:values};
+}
+function takeMetricLink(){
+  try{
+    var url=new URL(location.href),fragment=new URLSearchParams(url.hash.slice(1));
+    var text=fragment.get('kirjaa')||url.searchParams.get('kirjaa');
+    if(!text)return '';
+    if(fragment.has('kirjaa')){fragment.delete('kirjaa');url.hash=fragment.toString();}
+    url.searchParams.delete('kirjaa');
+    try{history.replaceState(history.state,'',url.href);}catch(e){}
+    return text;
+  }catch(e){return '';}
+}
+var metricLinkText=takeMetricLink();
+function openPendingMetricLink(){
+  if(!metricLinkText||vBusy)return;
+  var spec=dashSpec(),tables=spec&&!spec.err?dashEntryTables(spec):[];
+  if(!tables.length){toast('Mittarilinkki tarvitsee päiväkohtaisen mittaritaulukon.');return;}
+  var text=metricLinkText;metricLinkText='';
+  showDashEntry(tables,text);
+}
+function metricNoteLines(text){
+  return String(text||'').split('\n').map(function(line,index){return {text:line,index:index};}).filter(function(line){
+    return /^\s*mittarit:\s*\S/i.test(line.text)&&!/\s✓\s*$/.test(line.text);
+  });
+}
+function markMetricLine(text,line){
+  var lines=text.split('\n');
+  lines[line.index]=line.text.trimEnd()+' ✓';
+  return lines.join('\n');
+}
+function metricDayOfNote(note,date){
+  if(date&&dashDay(date))return date;
+  var created=note&&new Date(note.created);
+  return created&&!isNaN(created.getTime())?isoD(created):todayIso();
+}
+function openNoteMetricEntry(){
+  var box=$('ns-text'),source=box.value,line=metricNoteLines(source)[0],spec=dashSpec();
+  var tables=spec&&!spec.err?dashEntryTables(spec):[];
+  if(!line||!tables.length){
+    var msg=$('ns-vmsg');msg.textContent='Mittaririvi tarvitsee päiväkohtaisen mittaritaulukon.';msg.hidden=false;return;
+  }
+  showDashEntry(tables,line.text,{day:metricDayOfNote(noteCur,$('ns-date').value),mark:function(){
+    if(!$('nsheet').open||box.value!==source)return;
+    box.value=markMetricLine(source,line);$('ns-ok').click();
+  }});
+}
+async function writeNewNoteMetric(note,previous){
+  if(!vOn()||!vK()||vK().id!==data.k)return;
+  var source=note.text,lines=metricNoteLines(source),old=metricNoteLines(previous);
+  var added=lines.filter(function(line){return !old.some(function(p){return p.text===line.text;});});
+  if(!added.length)return;
+  if(added.length!==1||vBusy){
+    toast('Mittaririvi odottaa. Avaa muistiinpanon ⋯ → Kirjaa mittaririvi.');return;
+  }
+  var spec=dashSpec(),table=spec&&!spec.err&&dashEntryTables(spec)[0];
+  if(!table){toast('Mittaririvi odottaa päiväkohtaista mittaritaulukkoa.');return;}
+  var path=table.tiedosto,csv=dashCsv(VC.files[path].t),line=added[0];
+  var parsed=metricTextParse(line.text,dashEntryCols(table,csv.h),metricDayOfNote(note,note.date));
+  if(parsed.error){toast(parsed.error);return;}
+  var oldRow=csv.rows.find(function(row){return row.pvm===parsed.day;})||{},edits=[];
+  parsed.values.forEach(function(value,id){edits.push({id:id,before:oldRow[id]||'',after:value});});
+  var repo=vRepo(),branch=G.branch;
+  vBusy=true;vRender();
+  try{
+    var result=await dashWriteDay(path,parsed.day,edits,repo,branch);
+    if(result.file&&vRepo()===repo&&G.branch===branch){VC.files[path]=result.file;vSaveC();}
+    if(result.error){toast(result.error);return;}
+    if(note.text===source&&vNotes().indexOf(note)>=0){
+      var marked=markMetricLine(source,line);
+      if(noteCur===note&&$('nsheet').open&&$('ns-text').value!==source){
+        toast('Mittarit tallennettu. Muistiinpanossa on vielä muokkaamaton kuittaus.');return;
+      }
+      noteWrite(note,marked);touch();
+      if(noteCur===note&&$('nsheet').open){$('ns-text').value=marked;foundInfo();paintHl();}
+    }
+    vAt=vClock();render();toast('Muistiinpanon mittarit tallennettu.');
+  }catch(e){toast('Mittaririvi jäi odottamaan. Yritä muistiinpanon ⋯-valikosta.');}
+  finally{vBusy=false;vRender();vFlush();}
+}
+function showDashEntry(tables,seed,origin){
   if(vBusy){toast('Vault synkronoi. Yritä hetken kuluttua.');return;}
   var dialog=$('dash-entry'),form=$('dash-entry-form'),day=$('dash-entry-day'),pick=$('dash-entry-table');
-  var fields=$('dash-entry-fields'),msg=$('dash-entry-msg'),save=$('dash-entry-save'),reload=$('dash-entry-reload'),inputs=[];
-  day.value=todayIso();pick.textContent='';$('dash-entry-table-row').hidden=tables.length<2;
+  var fields=$('dash-entry-fields'),msg=$('dash-entry-msg'),save=$('dash-entry-save'),reload=$('dash-entry-reload'),inputs=[],parsedKeys=new Set();
+  var textInput=$('dash-entry-text'),textOptions=$('dash-entry-text-options'),parse=$('dash-entry-parse');
+  textOptions.open=!!seed;textInput.value=seed||'';
+  day.value=origin?origin.day:todayIso();pick.textContent='';$('dash-entry-table-row').hidden=tables.length<2;
   tables.forEach(function(T,i){var o=el('option','',T.nimi||T.id);o.value=i;pick.appendChild(o);});
   function showFields(){
     var T=tables[+pick.value],file=VC.files[T.tiedosto],data=dashCsv(file&&file.t);
     var old=data.rows.find(function(row){return row.pvm===day.value;})||{};
-    fields.textContent='';msg.textContent='';reload.hidden=true;
-    inputs=dashEntryCols(T,data.h).map(function(col){return dashEntryField(fields,col,old[col.id]||'');});
+    fields.textContent='';msg.textContent='';reload.hidden=true;parsedKeys.clear();
+    var cols=dashEntryCols(T,data.h);
+    textInput.placeholder=metricTextExample(cols);
+    inputs=cols.map(function(col){return dashEntryField(fields,col,old[col.id]||'');});
   }
+  function fillFromText(){
+    var T=tables[+pick.value],file=VC.files[T.tiedosto],headers=dashCsv(file&&file.t).h;
+    var parsed=metricTextParse(textInput.value,dashEntryCols(T,headers),day.value);
+    if(parsed.error){parsedKeys.clear();msg.textContent=parsed.error;return;}
+    day.value=parsed.day;showFields();
+    inputs.forEach(function(input){
+      if(parsed.values.has(input.field.name)){
+        input.field.value=parsed.values.get(input.field.name);parsedKeys.add(input.field.name);
+      }
+    });
+    msg.textContent='Tarkista päivämäärä ja kentät ennen tallentamista.';
+  }
+  parse.onclick=fillFromText;
   day.onchange=pick.onchange=reload.onclick=showFields;
   form.onsubmit=async function(event){
     event.preventDefault();
     if(vBusy||!vOn()){msg.textContent='Vaultin yhteys tai synkronointi estää tallennuksen juuri nyt.';return;}
-    var edits=inputs.filter(function(input){return input.field.value!==input.displayed;}).map(function(input){
+    var edits=inputs.filter(function(input){return input.field.value!==input.displayed||(origin&&parsedKeys.has(input.field.name));}).map(function(input){
       return {id:input.field.name,before:input.before,after:input.field.value};
     });
     if(!edits.length){msg.textContent='Kirjauksia ei muutettu.';return;}
     var path=tables[+pick.value].tiedosto,repo=vRepo(),branch=G.branch,when=day.value;
-    var controls=[day,pick,save].concat(inputs.map(function(input){return input.field;}));
+    var controls=[day,pick,save,parse,textInput].concat(inputs.map(function(input){return input.field;}));
     controls.forEach(function(control){control.disabled=true;});
     vBusy=true;vRender();msg.textContent='Tallennetaan…';reload.hidden=true;
     try{
       var result=await dashWriteDay(path,when,edits,repo,branch);
       if(result.file&&vRepo()===repo&&G.branch===branch){VC.files[path]=result.file;vSaveC();}
       if(result.error){msg.textContent=result.error;reload.hidden=!result.conflict;return;}
-      vAt=vClock();vMsg='';closeSheet(dialog);render();toast('Päivän mittarit tallennettu.');
+      vAt=vClock();vMsg='';closeSheet(dialog);
+      if(origin&&parsedKeys.size)origin.mark();
+      render();toast('Päivän mittarit tallennettu.');
     }catch(e){msg.textContent='Mittareita ei voitu tallentaa. Tarkista vaultin yhteys.';}
     finally{controls.forEach(function(control){control.disabled=false;});vBusy=false;vRender();vFlush();}
   };
-  showFields();openSheet(dialog);
+  showFields();if(seed)fillFromText();openSheet(dialog);
 }
 function renderDash(){var p=panels.dash;p.textContent='';setInfo('');
   var bar=el('div','seg dashr');bar.id='dashrange';bar.setAttribute('role','group');bar.setAttribute('aria-label','Aikaväli');var cur=dashRange();

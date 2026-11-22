@@ -2,7 +2,7 @@
 
 Itsenäinen ohje mille tahansa tekoälylle (Claude, ChatGPT/Codex, muu). Aiempaa keskustelua ei tarvitse muistaa. Lue ensin repon `AGENTS.md`, sitten `kaikki/TILA.md` ja tämä. Emilin päätökset on merkitty **Emil**, tekoälyn ehdotukset *ehdotus*. Ehdotus ei ole toteutuslupa; Emilin ”toteuta” on.
 
-Päivitetty 22.11.2026 (versio 0.15). Seuraavaksi on kohdan 6.2 mittarien tekstikirjaus ja pikakomentolinkki. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
+Päivitetty 22.11.2026 (versio 0.16). Seuraavaksi on kohdan 9 tunnisteiden v1. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
 
 ## Yhteiset säännöt (Kaikki)
 
@@ -21,7 +21,7 @@ Päivitetty 22.11.2026 (versio 0.15). Seuraavaksi on kohdan 6.2 mittarien teksti
 **A. Valmis v1:ksi ilman lisäkysymyksiä** (tässä järjestyksessä; merkitse tehty ~~yliviivaten~~):
 1. ~~Kohta 8: kirjoitusohje apissa (perusosa).~~ Tehty 0.14.
 2. ~~Kohta 7: Flow tekstinä, kokeiluna.~~ Tehty 0.15. Pysyvä muoto odottaa kokeilupalautetta.
-3. Kohta 6.2: mittarien tekstikirjaus `Mittarit: …` muistiinpanossa ja pikakomentolinkki `?kirjaa=` (ehdotettu muoto).
+3. ~~Kohta 6.2: mittarien tekstikirjaus ja pikakomentolinkki.~~ Tehty 0.16.
 4. Kohta 9: `#tunnisteet` (tunnistus tekstistä ja `tagit`-kentästä, sirut lukunäkymässä, Asiasanat-suodattimen Tunnisteet-ryhmä, rivinäkymän kenttä `tunnisteet`, näkymäehto `tunniste = x`).
 5. Kohta 15: pikakirjaus v1 (esiasetukset vaultissa, Seuranta ja Muistutus, tallennus mittareihin ja päivän muistiinpanoon, Kirjattu-rivi kalenterissa, `+ Uusi nappi`, automaattiset tunnisteet). **Emil 22.11.: aikaisin, koska unen, treenien ja ravinnon seuranta voi siirtyä tänne.**
 6. Kohta 15: XY-pädi lukuarvoille.
@@ -121,7 +121,9 @@ Rakenna kirjauskentät ja säätimet olemassa olevan `data/mittarit.json`-määr
 
 Tallennus lukee CSV-tiedoston tuoreen version ja muuttaa vain lomakkeessa muuttuneita kenttiä. Saman kentän rinnakkaismuutoksessa appi pyytää tarkistamaan ajantasaisen arvon. Ensiversio käyttää olemassa olevia päiväavaimisia CSV-taulukoita ja tarvitsee yhteyden tallentaessa.
 
-### 6.2 Mittarien tekstikirjaus ja pikakomento
+### ~~6.2 Mittarien tekstikirjaus ja pikakomento~~ (tehty 0.16)
+
+**0.16:** Kirjaa tekstinä täyttää nykyisen lomakkeen ja iOS-linkki avaa sen tarkistettavaksi. Käytä pikakomennossa ensisijaisesti `#kirjaa=`-fragmenttia. Myös `?kirjaa=` toimii. Muistiinpanon tallennuksessa yksittäinen uusi `Mittarit:`-rivi kirjataan automaattisesti, jos taulukko ja yhteys ovat valmiina. Tuodut tai odottamaan jääneet rivit voi kirjata muistiinpanon ⋯-valikosta, jolloin katselu ei aiheuta kirjoituksia. Kuitattu rivi päättyy merkkiin ✓. Ensiversiossa yksi taulukko kerrallaan.
 
 **Emilin toive (22.11.2026):** ihmiselle helppo kirjoitusmuoto, jolla mittarit voi kirjoittaa itse puhelimella, aamuraporttina tai iOS:n pikakomennolla, suoraan appiin tai tekoälylle, ja ne menevät oikein kojelautaan. Ohje Emilille apissa, ei vain tekoälylle.
 *Ehdotus (tekoäly, Emil ei vielä hyväksynyt):* **yksi muoto kaikille kolmelle reitille**:
