@@ -28,11 +28,11 @@ async def run(browser, width):
     await open_settings(page, wide)
 
     choices = page.locator('#section-settings-list')
-    assert await choices.locator('input:checked').count() == 7
+    assert await choices.locator('input:checked').count() == 8
     await choices.get_by_role('checkbox', name='Muistio', exact=True).uncheck()
     await expect(page.locator('#p-cal')).to_be_visible()
     await choices.get_by_role('checkbox', name='Kojelauta', exact=True).uncheck()
-    for title in ('Taulukot', 'Listat', 'Flow', 'Asiat'):
+    for title in ('Taulukot', 'Treeni', 'Listat', 'Flow', 'Asiat'):
         await choices.get_by_role('checkbox', name=title, exact=True).uncheck()
     await expect(choices.get_by_role('checkbox', name='Kalenteri', exact=True)).to_be_disabled()
     await page.keyboard.press('Escape')

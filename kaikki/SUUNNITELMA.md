@@ -2,7 +2,7 @@
 
 Itsenäinen ohje mille tahansa tekoälylle (Claude, ChatGPT/Codex, muu). Aiempaa keskustelua ei tarvitse muistaa. Lue ensin repon `AGENTS.md`, sitten `kaikki/TILA.md` ja tämä. Emilin päätökset on merkitty **Emil**, tekoälyn ehdotukset *ehdotus*. Ehdotus ei ole toteutuslupa; Emilin ”toteuta” on.
 
-Päivitetty 23.11.2026 (versio 0.44). Seuraavaksi A2 Treeni-osio. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
+Päivitetty 23.11.2026 (versio 0.45). Seuraavaksi A2:n Treeni-kuvaajat. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
 
 ## Yhteiset säännöt (Kaikki)
 
@@ -49,7 +49,7 @@ Myöhemmin samaan jatkoon (v2.1): solujen muotoilu (lihavointi, tasaus, lukumuot
 
 **B. Pieniä jatkoja, voi tehdä välissä:** ~~rivinäkymän minigraafi ja otsikon napautuksella vaihtuva sarakejärjestys (0.29)~~, muistiinpanoikkunan jäljelle jääneet tekstinalaiset kohdat (Liitä asiasanaan, päällekkäisyys, kiinnitys) sirun ikkunaan.
 
-**A2. Treeni-osio v1 (kysely tehty 22.11., ks. kohta 16):** rakennetaan A0:n jälkeen. Sitten karsinta kohdan 14 vastausten mukaan.
+**A2. Treeni-osio v1 (ks. kohta 16):** kirjaus, painoehdotus sekä liike- ja lihasryhmätaulukot tehty 0.45. Seuranta ja kuvaajat seuraavaksi. Sitten karsinta kohdan 14 vastausten mukaan.
 
 **A1b. ~~Kalenterin merkintöjen siistiminen~~ tehty 0.36.** (Emil 22.11.2026 illalla, kuva puhelimelta):
 - **Aikajana (päivä):** kuittausruutu (`.evck`) ja keston raahauskahva (`.grip`) ovat päällekkäin oikeassa alakulmassa. Ruutu oikeaan yläkulmaan pieneksi (n. 18 px) ja kahva pois kulmasta: koko alareunan levyinen näkymätön kaistale (n. 8 px), jossa keskellä pieni viiva; ei osu ruutuun lyhyessäkään merkinnässä.
