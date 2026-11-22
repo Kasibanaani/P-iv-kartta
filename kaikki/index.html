@@ -3368,7 +3368,276 @@ function flNorm(o){var m={},run={};o=o&&typeof o==='object'?o:{};if(o.m&&typeof 
 function flOut(f){return f&&(Object.keys(f.m||{}).length||Object.keys(f.run||{}).length)?{m:f.m,run:f.run}:undefined;}
 function looseJson(txt){var s=String(txt||''),a=s.indexOf('{'),b=s.lastIndexOf('}');if(a<0||b<=a)return null;s=s.slice(a,b+1);
   try{return JSON.parse(s);}catch(e){}try{return JSON.parse(s.replace(/[“”„]/g,'"'));}catch(e){}return null;}
-if(typeof module!=='undefined')module.exports={pvNorm:pvNorm,pvOut:pvOut,pvWd:pvWd,pvP:pvP,pvLift:pvLift,pvToggle:pvToggle,pvSet:pvSet,stNorm:stNorm,stVis:stVis,stTop:stTop,stPick:stPick,stDone:stDone,stDel:stDel,stItem:stItem,stPath:stPath,flNorm:flNorm,flOut:flOut,monOf:monOf,wkIdx:wkIdx,wkRow:wkRow,wkTone:wkTone,dayTextDays:dayTextDays,dayTextToggle:dayTextToggle,wlKey:wlKey,wlWords:wlWords,wlOpt:wlOpt,wlOk:wlOk,wlIndex:wlIndex,wlHits:wlHits,WL_STOP:WL_STOP,flowFind:flowFind,flowStart:flowStart,flowFinish:flowFinish,phaseEnsure:phaseEnsure,phaseOf:phaseOf,phaseAttach:phaseAttach,workflowReady:workflowReady,prevOcc:prevOcc,recKey:recKey,recEnded:recEnded,recExpiries:recExpiries,dateLabel:dateLabel,aiOhje:aiOhje,AI_ESIM:AI_ESIM,TIME_TERMS:TIME_TERMS,wdKeys:wdKeys,WD_TERMS:WD_TERMS,treeEh:treeEh,sepParts:sepParts,noteParts:noteParts,partIx:partIx,partNote:partNote,txSim:txSim,txBase:txBase,txSync:txSync,txSet:txSet,txOn:txOn,partAt:partAt,partInfo:partInfo,gone:gone,rowPicks:rowPicks,partTerms:partTerms,ehTree:ehTree,treeEhBlock:treeEhBlock,inferTerms:inferTerms,ehIssues:ehIssues,grpHit:grpHit,ehTok:ehTok,textExtras:textExtras,ehdotText:ehdotText,chkCond:chkCond,condsIn:condsIn,chkItems:chkItems,WIN0:WIN0,winOf:winOf,calvOf:calvOf,clipDay:clipDay,durOf:durOf,planSlots:planSlots,chkPlan:chkPlan,VER:VER,ALKU:ALKU,parseLine:parseLine,lineOf:lineOf,bodyText:bodyText,parseText:parseText,lineKinds:lineKinds,blocksOf:blocksOf,rulesOf:rulesOf,writeRules:writeRules,rulesFromText:rulesFromText,rulesToText:rulesToText,canonR:canonR,renameInText:renameInText,renameLive:renameLive,blockTerms:blockTerms,withText:withText,rl:rl,ruleState:ruleState,toggleRule:toggleRule,needOf:needOf,orderOf:orderOf,cycleIf:cycleIf,toggleOrder:toggleOrder,priorityList:priorityList,hoidettavat:hoidettavat,termWords:termWords,needOpen:needOpen,setNeedMode:setNeedMode,toggleNeed:toggleNeed,causesOf:causesOf,
+function noteTagKey(value){
+  var key=String(value||'').trim().replace(/^['"]|['"]$/g,'').replace(/^#/,'').normalize('NFC').toLocaleLowerCase('fi');
+  return /^[\p{L}\p{N}][\p{L}\p{N}\p{M}]*(?:-[\p{L}\p{N}][\p{L}\p{N}\p{M}]*)*$/u.test(key)&&/\p{L}/u.test(key)?key:'';
+}
+function noteTags(note){
+  var tags=new Set();
+  var text=(note.text||'').replace(/```[\s\S]*?(?:```|$)|`[^`\n]*`/g,' ');
+  var pattern=/(^|[^\p{L}\p{N}\p{M}#_/@&=-])#([\p{L}\p{N}][\p{L}\p{N}\p{M}]*(?:-[\p{L}\p{N}][\p{L}\p{N}\p{M}]*)*)(?![\p{L}\p{N}\p{M}_-])/gu,hit;
+  function add(value){var tag=noteTagKey(value);if(tag)tags.add(tag);}
+  while((hit=pattern.exec(text)))add(hit[2]);
+  var fm=VAULT.fmGet(note.vfm,'tagit');
+  if(/^\[.*\]$/.test(fm))fm.slice(1,-1).split(',').forEach(add);
+  return Array.from(tags);
+}
+
+/* Kaikki 0.24: kentät ja kaavat. Jäsennyksen operaattoritasot noudattavat Kytköskartan mallia.
+   Arviointi käyttää vain annettua muistiinpanoaineistoa eikä kirjoita mitään. */
+var KAAVA=(function(){
+  var cmp=new Set(['=','==','!=','<>','≠','<','>','<=','>=','≤','≥']);
+  var groups=new Set(['SUMMA','KESKIARVO','MÄÄRÄ','MIN','MAX']);
+  var number=/^[+-]?\d+(?:[.,]\d+)?$/;
+  function key(value){return String(value||'').normalize('NFC').toLocaleLowerCase('fi');}
+  function fail(code){throw {code:code};}
+  function optNumber(x){
+    var n=typeof x==='number'?x:number.test(x)?Number(String(x).replace(',','.')):NaN;
+    return Number.isFinite(n)?n:null;
+  }
+  function numeric(x){var n=optNumber(x);if(n===null)fail('#ARVO!');return n;}
+  function finite(n){if(!Number.isFinite(n))fail('#ARVO!');return n;}
+  function tokens(source){
+    var text=String(source||'').trim().replace(/^=(?!=)\s*/,''),out=[],match;
+    if(text.length>4096)fail('#KAAVA!');
+    while(text&&(text=text.trimStart())){
+      if(out.length>=512)fail('#KAAVA!');
+      if((match=/^\[\[([^\[\]\r\n]+)\]\]\.([\p{L}_][\p{L}\p{N}_]*(?:-[\p{L}_][\p{L}\p{N}_]*)*)/u.exec(text))){
+        out.push({type:'ref',note:key(match[1].trim()),name:key(match[2])});
+      }else if((match=/^"((?:[^"\\\r\n]|\\["\\])*)"/.exec(text))){
+        out.push({type:'value',value:match[1].replace(/\\(["\\])/g,'$1')});
+      }else if((match=/^\d+(?:[.,]\d+)?/.exec(text))){
+        out.push({type:'value',value:numeric(match[0])});
+      }else if((match=/^[\p{L}_][\p{L}\p{N}_]*(?:-[\p{L}_][\p{L}\p{N}_]*)*/u.exec(text))){
+        out.push({type:'name',name:key(match[0])});
+      }else if((match=/^(>=|<=|!=|<>|==|[=<>≥≤≠+\-−*×/÷();])/.exec(text))){
+        out.push({type:'symbol',value:({'−':'-','×':'*','÷':'/'}[match[0]]||match[0])});
+      }else fail('#KAAVA!');
+      text=text.slice(match[0].length);
+    }
+    return out;
+  }
+  function parse(input){
+    var t=tokens(input),pos=0;
+    function take(symbol){
+      if(t[pos]&&t[pos].type==='symbol'&&t[pos].value===symbol){pos++;return true;}
+      return false;
+    }
+    function requireSymbol(s){if(!take(s))fail('#KAAVA!');}
+    function atom(){
+      if(take('-'))return {type:'neg',value:atom()};
+      if(take('+'))return {type:'pos',value:atom()};
+      if(take('(')){var value=compare();requireSymbol(')');return value;}
+      var item=t[pos++];
+      if(!item||item.type==='symbol')fail('#KAAVA!');
+      if(item.type!=='name'||!take('('))return item;
+      var args=[];
+      if(!take(')')){
+        do{args.push(compare());}while(take(';'));
+        requireSymbol(')');
+      }
+      return {type:'call',name:item.name.toLocaleUpperCase('fi'),args:args};
+    }
+    function level(next,allowed){
+      return function(){
+        var a=next();
+        while(t[pos]&&t[pos].type==='symbol'&&allowed.indexOf(t[pos].value)>=0){
+          var op=t[pos++].value;a={type:'binary',op:op,left:a,right:next()};
+        }
+        return a;
+      };
+    }
+    var term=level(atom,['*','/']),sum=level(term,['+','-']);
+    function compare(){
+      var left=sum();
+      if(t[pos]&&t[pos].type==='symbol'&&cmp.has(t[pos].value)){
+        return {type:'compare',op:t[pos++].value,left:left,right:sum()};
+      }
+      return left;
+    }
+    var result=compare();
+    if(pos!==t.length)fail('#KAAVA!');
+    return result;
+  }
+  function allowedFields(text){
+    var lines=String(text||'').split(/\r?\n/),active=false,fields=new Set();
+    lines.forEach(function(line){
+      if(/^#{1,2}\s/.test(line))active=/^## Omat kentät(?:\s*\(|\s*$)/.test(line);
+      if(active&&/^-\s+\*\*Sovitut kentät:\*\*/.test(line)){
+        var listed=line.replace(/^-\s+\*\*Sovitut kentät:\*\*/,'');
+        Array.from(listed.matchAll(/`([a-z][a-z0-9_-]*)`/g)).forEach(function(m){fields.add(m[1]);});
+      }
+    });
+    return fields;
+  }
+  function fields(note,allowed){
+    var out=new Map();
+    function add(name,value){
+      if(!value||!value.trim())return;
+      name=key(name);
+      if(!out.has(name))out.set(name,[]);
+      out.get(name).push(value.trim());
+    }
+    (note.vfm||[]).forEach(function(line){
+      var m=/^([A-Za-z][A-Za-z0-9_-]*):[ \t]*(.+)$/.exec(line);
+      if(m&&m[1]!=='juuri')add(m[1],m[2]);
+    });
+    var fenced='';
+    String(note.text||'').split(/\r?\n/).forEach(function(line){
+      var fence=/^\s*(`{3,}|~{3,})/.exec(line);
+      if(fence){
+        if(!fenced)fenced=fence[1];else if(fence[1][0]===fenced[0]&&fence[1].length>=fenced.length)fenced='';
+        return;
+      }
+      if(fenced)return;
+      var m=/^[ \t]*(- klo \d\d\.\d\d · )?([a-z][a-z0-9_-]*):[ \t]*(.+)$/i.exec(line);
+      if(m&&allowed.has(key(m[2])))add(m[2],m[1]?m[3].replace(/(?:\s+#[^\s]+)+$/,''):m[3]);
+    });
+    return out;
+  }
+  function compareValues(a,b,op){
+    var x=optNumber(a),y=optNumber(b),numericPair=x!==null&&y!==null;
+    if(numericPair){a=x;b=y;}
+    else if(['>','<','<=','>=','≤','≥'].indexOf(op)>=0)fail('#ARVO!');
+    else if(typeof a==='string'&&typeof b==='string'){a=key(a);b=key(b);}
+    if(op==='='||op==='==')return a===b;
+    if(op==='!='||op==='<>'||op==='≠')return a!==b;
+    if(op==='<')return a<b;
+    if(op==='>')return a>b;
+    if(op==='<='||op==='≤')return a<=b;
+    return a>=b;
+  }
+  function create(notes,allowed){
+    var data=new Map(),byName=new Map(),known=new Set(allowed),memo=new Map(),active=new Map(),scope=notes.slice();
+    function rawFields(n){
+      if(!data.has(n))data.set(n,fields(n,allowed));
+      return data.get(n);
+    }
+    scope.forEach(function(n){
+      rawFields(n).forEach(function(_,k){known.add(k);});
+      if(!n.vp)return;
+      var path=key(n.vp.replace(/\.md$/i,'')),base=path.split('/').pop();
+      [path].concat(base===path?[]:[base]).forEach(function(name){
+        if(!byName.has(name))byName.set(name,[]);
+        byName.get(name).push(n);
+      });
+    });
+    function values(n,name){
+      name=key(name);
+      if(!n)return [];
+      if(!memo.has(n))memo.set(n,new Map());
+      if(!active.has(n))active.set(n,new Set());
+      var seen=active.get(n),cache=memo.get(n);
+      if(seen.has(name))fail('#KEHÄ');
+      if(cache.has(name))return cache.get(name);
+      if(seen.size>128)fail('#KEHÄ');
+      seen.add(name);
+      try{
+        var result=(rawFields(n).get(name)||[]).map(function(raw){
+          if(/^=/.test(raw))return evaluate(parse(raw),n);
+          if(/^"/.test(raw)){var literal=parse(raw);if(literal.type==='value')return literal.value;}
+          var num=optNumber(raw);
+          if(num!==null)return num;
+          return raw;
+        });
+        cache.set(name,result);return result;
+      }finally{seen.delete(name);}
+    }
+    function scalar(n,name){
+      var v=values(n,name);
+      if(!v.length)fail(known.has(name)?'#PUUTTUU':'#NIMI?');
+      if(v.length>1)fail('#ARVO!');
+      return v[0];
+    }
+    function filterText(node){
+      if(node.type==='name')return node.name;
+      if(node.type==='value')return node.value;
+      if(node.type==='neg'||node.type==='pos')return numeric(filterText(node.value))*(node.type==='neg'?-1:1);
+      if(node.type==='binary'&&node.op==='/')return filterText(node.left)+'/'+filterText(node.right);
+      fail('#KAAVA!');
+    }
+    function predicate(condition){
+      if(condition.type!=='compare'||condition.left.type!=='name')fail('#KAAVA!');
+      var field=condition.left.name,op=condition.op,right=filterText(condition.right);
+      if(field==='tunniste'){
+        if(op!=='='&&op!=='==')fail('#KAAVA!');
+        var tag=noteTagKey(right);
+        return function(n){return noteTags(n).indexOf(tag)>=0;};
+      }
+      if(field==='kansio'){
+        if(op!=='='&&op!=='==')fail('#KAAVA!');
+        var path=key(right).replace(/\/$/,'')+'/';
+        return function(n){return key(n.vp).startsWith(path);};
+      }
+      if(!known.has(field))fail('#NIMI?');
+      return function(n){return values(n,field).some(function(v){return compareValues(v,right,op);});};
+    }
+    function aggregate(name,items){
+      if(name==='MÄÄRÄ')return items.length;
+      var nums=items.map(optNumber).filter(function(n){return n!==null;});
+      if(!nums.length&&name!=='SUMMA')fail('#PUUTTUU');
+      if(name==='MIN')return nums.reduce(function(a,b){return Math.min(a,b);},Infinity);
+      if(name==='MAX')return nums.reduce(function(a,b){return Math.max(a,b);},-Infinity);
+      var sum=nums.reduce(function(a,b){return a+b;},0);
+      return finite(name==='KESKIARVO'?sum/nums.length:sum);
+    }
+    function call(ast,note){
+      var name=ast.name,args=ast.args,first=args[0];
+      if(groups.has(name)){
+        if(first&&first.type==='name'&&args.slice(1).every(function(a){return a.type==='compare';})){
+          if(!known.has(first.name))fail('#NIMI?');
+          var items=[],conditions=args.slice(1).map(predicate);
+          scope.forEach(function(n){
+            if(conditions.every(function(test){return test(n);}))values(n,first.name).forEach(function(value){items.push(value);});
+          });
+          return aggregate(name,items);
+        }
+        return aggregate(name,args.map(function(a){return evaluate(a,note);}));
+      }
+      if(name==='JOS'){
+        if(args.length!==3)fail('#KAAVA!');
+        var condition=evaluate(first,note);
+        return evaluate(condition?args[1]:args[2],note);
+      }
+      if(name==='PYÖRISTÄ'){
+        if(args.length<1||args.length>2)fail('#KAAVA!');
+        var n=numeric(evaluate(first,note)),d=args.length===2?numeric(evaluate(args[1],note)):0;
+        if(!Number.isInteger(d)||Math.abs(d)>12)fail('#ARVO!');
+        var scale=Math.pow(10,d);
+        return finite(Math.sign(n)*Math.round((Math.abs(n)+Number.EPSILON)*scale)/scale);
+      }
+      if(name==='YHDISTÄ')return args.map(function(a){return String(evaluate(a,note));}).join('');
+      fail('#NIMI?');
+    }
+    function evaluate(ast,note){
+      if(ast.type==='value')return ast.value;
+      if(ast.type==='name')return scalar(note,ast.name);
+      if(ast.type==='ref'){
+        var files=byName.get(ast.note.replace(/\.md$/i,''))||[];
+        if(files.length!==1)fail(files.length?'#ARVO!':'#PUUTTUU');
+        return scalar(files[0],ast.name);
+      }
+      if(ast.type==='call')return call(ast,note);
+      if(ast.type==='neg'||ast.type==='pos')return numeric(evaluate(ast.value,note))*(ast.type==='neg'?-1:1);
+      var a=evaluate(ast.left,note),b=evaluate(ast.right,note);
+      if(ast.type==='compare')return compareValues(a,b,ast.op);
+      a=numeric(a);b=numeric(b);
+      if(ast.op==='/'&&b===0)fail('#JAKO/0!');
+      return finite(ast.op==='+'?a+b:ast.op==='-'?a-b:ast.op==='*'?a*b:a/b);
+    }
+    function safe(fn){
+      try{return {value:fn()};}catch(e){return {error:e&&e.code||'#KAAVA!'};}
+    }
+    return {
+      run:function(source,note){return safe(function(){return evaluate(parse(source),note);});},
+      value:function(note,field){return safe(function(){return scalar(note,key(field));});},
+      values:function(note,field){return safe(function(){return values(note,key(field));});}
+    };
+  }
+  return {create:create,fields:fields,allowedFields:allowedFields};
+})();
+
+if(typeof module!=='undefined')module.exports={KAAVA:KAAVA,pvNorm:pvNorm,pvOut:pvOut,pvWd:pvWd,pvP:pvP,pvLift:pvLift,pvToggle:pvToggle,pvSet:pvSet,stNorm:stNorm,stVis:stVis,stTop:stTop,stPick:stPick,stDone:stDone,stDel:stDel,stItem:stItem,stPath:stPath,flNorm:flNorm,flOut:flOut,monOf:monOf,wkIdx:wkIdx,wkRow:wkRow,wkTone:wkTone,dayTextDays:dayTextDays,dayTextToggle:dayTextToggle,wlKey:wlKey,wlWords:wlWords,wlOpt:wlOpt,wlOk:wlOk,wlIndex:wlIndex,wlHits:wlHits,WL_STOP:WL_STOP,flowFind:flowFind,flowStart:flowStart,flowFinish:flowFinish,phaseEnsure:phaseEnsure,phaseOf:phaseOf,phaseAttach:phaseAttach,workflowReady:workflowReady,prevOcc:prevOcc,recKey:recKey,recEnded:recEnded,recExpiries:recExpiries,dateLabel:dateLabel,aiOhje:aiOhje,AI_ESIM:AI_ESIM,TIME_TERMS:TIME_TERMS,wdKeys:wdKeys,WD_TERMS:WD_TERMS,treeEh:treeEh,sepParts:sepParts,noteParts:noteParts,partIx:partIx,partNote:partNote,txSim:txSim,txBase:txBase,txSync:txSync,txSet:txSet,txOn:txOn,partAt:partAt,partInfo:partInfo,gone:gone,rowPicks:rowPicks,partTerms:partTerms,ehTree:ehTree,treeEhBlock:treeEhBlock,inferTerms:inferTerms,ehIssues:ehIssues,grpHit:grpHit,ehTok:ehTok,textExtras:textExtras,ehdotText:ehdotText,chkCond:chkCond,condsIn:condsIn,chkItems:chkItems,WIN0:WIN0,winOf:winOf,calvOf:calvOf,clipDay:clipDay,durOf:durOf,planSlots:planSlots,chkPlan:chkPlan,VER:VER,ALKU:ALKU,parseLine:parseLine,lineOf:lineOf,bodyText:bodyText,parseText:parseText,lineKinds:lineKinds,blocksOf:blocksOf,rulesOf:rulesOf,writeRules:writeRules,rulesFromText:rulesFromText,rulesToText:rulesToText,canonR:canonR,renameInText:renameInText,renameLive:renameLive,blockTerms:blockTerms,withText:withText,rl:rl,ruleState:ruleState,toggleRule:toggleRule,needOf:needOf,orderOf:orderOf,cycleIf:cycleIf,toggleOrder:toggleOrder,priorityList:priorityList,hoidettavat:hoidettavat,termWords:termWords,needOpen:needOpen,setNeedMode:setNeedMode,toggleNeed:toggleNeed,causesOf:causesOf,
   sessionView:sessionView,moveItem:moveItem,shownName:shownName,blockedNow:blockedNow,tapDraft:tapDraft,replay:replay,exclOf:exclOf,newSession:newSession,notesOnDay:notesOnDay,dayCarry:dayCarry,commitStep:commitStep,undoStep:undoStep,sessionNote:sessionNote,sessionGroups:sessionGroups,renameKey:renameKey,removeKey:removeKey,
   replaceLine:replaceLine,orphans:orphans,dropOrphans:dropOrphans,hasWord:hasWord,normT:normT,termHits:termHits,popTerms:popTerms,termsToText:termsToText,termsFromText:termsFromText,getAnswer:getAnswer,setAnswer:setAnswer,termOn:termOn,noteTerms:noteTerms,autoTerms:autoTerms,parseDates:parseDates,occursOn:occursOn,nextOcc:nextOcc,dateLabel:dateLabel,tokensOf:tokensOf,noteDates:noteDates,dayEntries:dayEntries,moveEntry:moveEntry,setTimeText:setTimeText,toMin:toMin,fromMin:fromMin,fmtTime:fmtTime,noteTitle:noteTitle,nextDate:nextDate,
   noteAdds:noteAdds,applyAdds:applyAdds,relSpans:relSpans,lockRel:lockRel,relWord:relWord,relSweep:relSweep,mvAdd:mvAdd,mvClean:mvClean,mvSpans:mvSpans,nlSpans:nlSpans,nlClean:nlClean,setWhen:setWhen,whenSpan:whenSpan,timeTok:timeTok,chkRank:chkRank,chkSort:chkSort,chkView:chkView,chkSince:chkSince,chkTime:chkTime,chkMentions:chkMentions,chkDue:chkDue,itemOk:itemOk,renewAt:renewAt,itemUntil:itemUntil,chkDone:chkDone,chkNext:chkNext,chkOpenN:chkOpenN,toggleItem:toggleItem,occKey:occKey,occList:occList,ptDone:ptDone,safeName:safeName,expName:expName,staleK:staleK,splitAdds:splitAdds,ADD_H:ADD_H,sortNotes:sortNotes,TIME_TERMS:TIME_TERMS,SPEC:SPEC,isSpec:isSpec,timeTermOf:timeTermOf,fullOrder:fullOrder,moveDay:moveDay,clearTime:clearTime,calTerms:calTerms,addUnit:addUnit,repNext:repNext,repLabel:repLabel,repsDue:repsDue,trigHit:trigHit,trigLast:trigLast,trigNext:trigNext,trigLabel:trigLabel,repSignOff:repSignOff,moveInOrder:moveInOrder,prioSort:prioSort,impRanks:impRanks,moveToIdx:moveToIdx,meaningsOf:meaningsOf,offeredIds:offeredIds,flipMissing:flipMissing,purgeTrash:purgeTrash,fiDate:fiDate,stamp:stamp,isoD:isoD,normalizeData:normalizeData,projectsFromFile:projectsFromFile,projectFile:projectFile,looseJson:looseJson};
@@ -4676,20 +4945,6 @@ $('note-batch-confirm').addEventListener('click',function(){
   noteBatchApply(notes,true);
 });
 function notePass(ids){if(!noteFilter.length)return true;var f=function(id){return ids.indexOf(id)>=0;};return noteAnd?noteFilter.every(f):noteFilter.some(f);}
-function noteTagKey(value){
-  var key=String(value||'').trim().replace(/^['"]|['"]$/g,'').replace(/^#/,'').normalize('NFC').toLocaleLowerCase('fi');
-  return /^[\p{L}\p{N}][\p{L}\p{N}\p{M}]*(?:-[\p{L}\p{N}][\p{L}\p{N}\p{M}]*)*$/u.test(key)&&/\p{L}/u.test(key)?key:'';
-}
-function noteTags(note){
-  var tags=new Set();
-  var text=(note.text||'').replace(/```[\s\S]*?(?:```|$)|`[^`\n]*`/g,' ');
-  var pattern=/(^|[^\p{L}\p{N}\p{M}#_/@&=-])#([\p{L}\p{N}][\p{L}\p{N}\p{M}]*(?:-[\p{L}\p{N}][\p{L}\p{N}\p{M}]*)*)(?![\p{L}\p{N}\p{M}_-])/gu,hit;
-  function add(value){var tag=noteTagKey(value);if(tag)tags.add(tag);}
-  while((hit=pattern.exec(text)))add(hit[2]);
-  var fm=VAULT.fmGet(note.vfm,'tagit');
-  if(/^\[.*\]$/.test(fm))fm.slice(1,-1).split(',').forEach(add);
-  return Array.from(tags);
-}
 function paintNoteTags(note,ta){
   var host=$('ns-tags'),tags=ta.readOnly&&note&&!note._vaultEdit?noteTags(note):[];
   host.textContent='';
@@ -6495,8 +6750,7 @@ function quickMetric(preset){
   if(matches.length===1)return matches[0];
   if(matches.length>1)return null;
   var id=VAULT.slug(preset.name,60),doc=VC.files['ohjeet/muistiinpanot.md'];
-  var approved=doc&&/^-\s+\*\*Sovitut kentät:\*\*\s*(.+)$/m.exec(doc.t);
-  if(!approved||!Array.from(approved[1].matchAll(/`([^`]+)`/g)).some(function(m){return m[1]===id;}))return null;
+  if(!doc||!KAAVA.allowedFields(doc.t).has(id))return null;
   var known={tila:{laji:'valinta',arvot:[['luonnos','Luonnos'],['valmis','Valmis'],['odottaa-emilia','Odottaa Emilia']]},
     arvio:{laji:'asteikko',min:1,max:10},edistys:{laji:'luku',min:0,max:100},hinta:{laji:'luku'},prioriteetti:{laji:'asteikko',min:1,max:3}};
   var col=known[id]||{laji:'teksti'};
