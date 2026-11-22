@@ -1608,6 +1608,14 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 .sg-tabs{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin:6px 0 0}
 .sg-tab{min-height:30px;padding:0 12px;border:0;border-radius:0 0 8px 8px;background:var(--fill);color:var(--label);font:inherit;font-size:13px;cursor:pointer}
 .sg-tab[aria-pressed="true"]{background:var(--cell);font-weight:700;box-shadow:inset 0 -2px 0 var(--accent)}.sg-tabadd{font-weight:700;padding:0 10px}
+/* Kaikki 0.31: rivinäkymän sarakkeet ja monivalinta */
+.rvb .rvr .rvc+.rvc,.rvhead .rvc+.rvc{border-left:1px solid var(--sep)}
+.rvhead .rvc:not(.rvt){position:relative}
+.rv-rz{position:absolute;top:0;right:-5px;width:10px;height:100%;cursor:col-resize;z-index:4;touch-action:none}
+.rvhead .rvc.rv-drag{opacity:.5}.rvhead .rvc.rv-drop{box-shadow:inset 3px 0 0 var(--accent)}
+.rv-head-sort{cursor:grab}
+.rv-pick{display:none;flex:none;width:16px;height:16px;margin-right:2px;border:1.5px solid var(--label2);border-radius:4px;box-sizing:border-box;cursor:pointer}
+@media (min-width:1000px){.rvb .rvc{min-height:36px}.rvhead .rvc{min-height:30px}.rvb .rvr:hover .rv-pick{display:inline-block}}
 </style>
 </head>
 <body>
@@ -5070,7 +5078,8 @@ function rowsInto(p,list,l,today,bar){var V=nvCur(),views=nvViews();
   var L=V.mista.length?l.filter(function(n){return nvPass(V,n);}):l,formulas=formulaContext();
   var override=nvSortOverrides.get(V.id),activeSort=override||V.sort;
   L=nvSortList(L,activeSort,V,today,formulas);
-  var tpl=V.cols.map(function(c){return NV_W[c.k]||NV_W[c.t==='kylla-ei'?'kylla':c.t]||NV_W.teksti;}).join(' ');list.style.setProperty('--rvcols',tpl);
+  var NL=nvLay(V);V=Object.assign({},V,{cols:NL.cols});
+  var tpl=V.cols.map(function(c){var w=NL.w[nvKey(c)];return w?w+'px':(NV_W[c.k]||NV_W[c.t==='kylla-ei'?'kylla':c.t]||NV_W.teksti);}).join(' ');list.style.setProperty('--rvcols',tpl);
   var hw=el('div','rvh'),hr=el('div','rvr rvhead');
   hr.style.setProperty('--rvcols',tpl);
   V.cols.forEach(function(c,i){
@@ -5085,6 +5094,7 @@ function rowsInto(p,list,l,today,bar){var V=nvCur(),views=nvViews();
     sort.id='rv-head-sort-'+i;sort.appendChild(el('span','',label));
     sort.setAttribute('aria-label',label+(direction===1?', nouseva järjestys':direction===-1?', laskeva järjestys':', järjestä'));
     if(direction){var icon=el('span','rv-direction'+(direction===-1?' down':''));icon.setAttribute('aria-hidden','true');sort.appendChild(icon);}
+    cell.dataset.k=nvKey(c);var rz=el('i','rv-rz');rz.setAttribute('aria-hidden','true');cell.appendChild(rz);nvHeadDrag(sort,cell,rz,V,c,list,hr);
     hr.appendChild(cell);
   });
   hw.appendChild(hr);p.appendChild(hw);
@@ -5098,10 +5108,44 @@ function rowsInto(p,list,l,today,bar){var V=nvCur(),views=nvViews();
       open.addEventListener('click',function(){openNote(n);});
       title.textContent='';title.append(handle,open);
       r.addEventListener('click',function(ev){if(!ev.target.closest('button'))openNote(n);});
-    }else{r.addEventListener('click',function(){openNote(n);});r.addEventListener('keydown',function(ev){if(ev.key==='Enter'&&ev.target===r)openNote(n);});}
+    }else{nvPickBox(r,n);r.addEventListener('click',function(ev){if(nvMultiClick(ev,n,L))return;openNote(n);});r.addEventListener('keydown',function(ev){if(ev.key==='Enter'&&ev.target===r)openNote(n);});}
+    if(noteSelectionMode)r.addEventListener('click',function(ev){if(ev.shiftKey&&nvAnchor){ev.preventDefault();ev.stopImmediatePropagation();nvRange(n,L);}else nvAnchor=n.id;},true);
     list.appendChild(r);});
   list.addEventListener('scroll',function(){hw.scrollLeft=list.scrollLeft;},{passive:true});
   if(V.mista.length&&!L.length)list.appendChild(el('p','sub','Näkymässä ei ole muistiinpanoja.'));}
+/* ---- Kaikki 0.31 (Emil 22.11.2026, A0.3–A0.6): rivinäkymän sarakkeet raahattaviksi ja monivalinta näkyväksi.
+   Leveys otsikon oikeasta reunasta (kaksoisnapsautus palauttaa oletuksen), järjestys raahaamalla otsikkoa (Otsikko pysyy ensimmäisenä).
+   Tallennus laitteelle (kaikki:nvlay:<näkymä>), koska puhelin ja tietokone tarvitsevat eri leveydet. Cmd/Ctrl-napsautus valitsee rivin ja
+   avaa valintatilan, Shift-napsautus valitsee välin, tietokoneella osoitettaessa näkyy valintaruutu. ---- */
+function nvKey(c){return c.k+(c.f?'|'+c.f:'')+(c.t?'|'+c.t:'');}
+function nvLayGet(V){try{return JSON.parse(localStorage.getItem('kaikki:nvlay:'+(V.id||'kaikki'))||'null')||{};}catch(e){return {};}}
+function nvLaySet(V,o){try{localStorage.setItem('kaikki:nvlay:'+(V.id||'kaikki'),JSON.stringify(o));}catch(e){}}
+function nvLay(V){var o=nvLayGet(V),cols=V.cols.slice();if(Array.isArray(o.order)){var rank={};o.order.forEach(function(k,i){rank[k]=i;});
+    cols.sort(function(a,b){if(a.k==='otsikko')return -1;if(b.k==='otsikko')return 1;var x=rank[nvKey(a)],y=rank[nvKey(b)];return (x==null?999:x)-(y==null?999:y);});}
+  return {cols:cols,w:o.w||{}};}
+function nvHeadDrag(sort,cell,rz,V,c,list,hr){var key=nvKey(c);
+  rz.addEventListener('pointerdown',function(e){e.preventDefault();e.stopPropagation();var x0=e.clientX,w0=cell.getBoundingClientRect().width,o=nvLayGet(V);o.w=o.w||{};
+    function mv(ev){var w=Math.max(60,Math.min(700,Math.round(w0+ev.clientX-x0)));o.w[key]=w;var cols=getComputedStyle(hr).gridTemplateColumns.split(' ');var i=Array.prototype.indexOf.call(hr.children,cell);cols[i]=w+'px';var t=cols.join(' ');hr.style.setProperty('--rvcols',t);list.style.setProperty('--rvcols',t);}
+    function up(){window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);nvLaySet(V,o);}
+    window.addEventListener('pointermove',mv);window.addEventListener('pointerup',up);});
+  rz.addEventListener('dblclick',function(e){e.stopPropagation();var o=nvLayGet(V);if(o.w)delete o.w[key];nvLaySet(V,o);render();});
+  if(c.k==='otsikko')return;
+  sort.addEventListener('pointerdown',function(e){if(e.button>0)return;var x0=e.clientX,on=false,cells=Array.prototype.slice.call(hr.children),target=null;
+    function mv(ev){if(!on&&Math.abs(ev.clientX-x0)<8)return;on=true;cell.classList.add('rv-drag');target=null;
+      cells.forEach(function(x){x.classList.remove('rv-drop');var r=x.getBoundingClientRect();if(ev.clientX>=r.left&&ev.clientX<r.right&&x!==cell&&x.dataset.k&&x.querySelector('.rv-head-sort')&&!x.classList.contains('rvt')){target=x;x.classList.add('rv-drop');}});}
+    function up(){window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);cell.classList.remove('rv-drag');cells.forEach(function(x){x.classList.remove('rv-drop');});
+      if(!on)return;sort.dataset.nodrop='1';setTimeout(function(){delete sort.dataset.nodrop;},0);if(!target)return;
+      var keys=cells.map(function(x){return x.dataset.k;}).filter(Boolean),from=keys.indexOf(key),to=keys.indexOf(target.dataset.k);keys.splice(from,1);keys.splice(to,0,key);
+      var o=nvLayGet(V);o.order=keys;nvLaySet(V,o);var x=list.scrollLeft;render();var l2=$('nlist');if(l2)l2.scrollLeft=x;}
+    window.addEventListener('pointermove',mv);window.addEventListener('pointerup',up);});
+  sort.addEventListener('click',function(e){if(sort.dataset.nodrop){e.stopImmediatePropagation();e.preventDefault();}},true);}
+var nvAnchor=null;
+function nvMultiClick(ev,n,L){if(ev.metaKey||ev.ctrlKey){ev.preventDefault();noteSelectionMode=true;noteSelectionProject=data.k;noteSelection.add(n.id);nvAnchor=n.id;var y=main.scrollTop;render();main.scrollTop=y;return true;}
+  if(ev.shiftKey&&nvAnchor){ev.preventDefault();noteSelectionMode=true;noteSelectionProject=data.k;nvRange(n,L);return true;}nvAnchor=n.id;return false;}
+function nvRange(n,L){var ids=L.map(function(x){return x.id;}),a=ids.indexOf(nvAnchor),b=ids.indexOf(n.id);if(a<0||b<0)return;
+  for(var i=Math.min(a,b);i<=Math.max(a,b);i++)noteSelection.add(ids[i]);var y=main.scrollTop;render();main.scrollTop=y;}
+function nvPickBox(r,n){var t=r.querySelector('.rvt');if(!t)return;var b=el('span','rv-pick');b.setAttribute('role','checkbox');b.setAttribute('aria-checked','false');b.setAttribute('aria-label','Valitse '+(noteTitle(n)||'muistiinpano'));b.tabIndex=-1;
+  b.addEventListener('click',function(ev){ev.stopPropagation();noteSelectionMode=true;noteSelectionProject=data.k;noteSelection.add(n.id);nvAnchor=n.id;var y=main.scrollTop;render();main.scrollTop=y;});t.insertBefore(b,t.firstChild);}
 /* Kaikki 0.6: Arkisto ja Roskakori listan lopussa pieninä nappeina (ennen Kuitattujen lopussa); napautus avaa ja sulkee */
 var noteMoreOn='';
 function noteMore(p){var A=data.notes.filter(function(n){return n.arch;}).length,T=data.trash.length,r=el('div','nmore');r.id='nmore';
