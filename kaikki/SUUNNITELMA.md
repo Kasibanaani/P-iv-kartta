@@ -58,7 +58,7 @@ Myöhemmin samaan jatkoon (v2.1): solujen muotoilu (lihavointi, tasaus, lukumuot
 - Yhtenäinen ilme: sama kuittausruutu kaikissa kalenterinäkymissä (aikajana, viikkolista, koko päivän sirut), teeman kuittausmuodon (`--r-chk`) mukaan.
 - Testi: ruutu ja kahva eivät leikkaa (getBoundingClientRect) 15, 30, 45 ja 120 min merkinnöissä; kellonaika ei leikkaa merkinnän alareunaa; viikkolistan ruutu on oikeassa reunassa ja enintään 22 px.
 
-**A1. Kohta 17: 17.1, 17.3, 17.4 ja 17.5 tehty 0.34; 17.2 (Toistuvat ja Listat vaultiin) odottaa Emilin valintaa muodosta (TILA, Avoimet kysymykset).** Alkuperäinen: (kuittausrivi, Toistuvat ja Listat vaultiin, seuranta kuitattuna, metatieto erilleen). Syy: Emil kuittasi saman merkinnän kahdesti, koska kuittaus ei synkannut.
+**A1. ~~Kohta 17~~ tehty: 17.1, 17.3–17.5 0.34:ssä, 17.2 0.35:ssä. Seuraavaksi A1b (kalenterin merkinnät).** Alkuperäinen: (kuittausrivi, Toistuvat ja Listat vaultiin, seuranta kuitattuna, metatieto erilleen). Syy: Emil kuittasi saman merkinnän kahdesti, koska kuittaus ei synkannut.
 
 **C. Kokeilu (tulos ja avoimet päätökset Emilille ennen pysyvää muotoa):** kohta 7 Flow tekstinä.
 

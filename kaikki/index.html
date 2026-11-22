@@ -3933,7 +3933,7 @@ if(typeof module!=='undefined')module.exports={KAAVA:KAAVA,TAULUKKO:TAULUKKO,pvN
    Juuren omat lisätiedot (kuittaukset, kiinnitykset, päivä, aika …) kulkevat alkutietojen rivillä "juuri: {json}".
    Tärkein ehto: mdOf(noteOf(p, md)) === md, jotta pelkkä lukeminen ei koskaan kirjoita GitHubiin. Ohje vaultissa: ohjeet/appi.md. */
 var VAULT=(function(){
-var HIDE=/^(ohjeet|pohjat|yllapito|arkisto|data|liitteet|taulukot)\//;
+var HIDE=/^(ohjeet|pohjat|yllapito|arkisto|data|liitteet|taulukot|toistuvat|listat)\//;
 function visible(p){p=String(p||'');return /\.md$/i.test(p)&&p.indexOf('/')>0&&!HIDE.test(p)&&!/(^|\/)[_.]/.test(p);}
 function split(md){md=String(md==null?'':md);var m=/^---\n([\s\S]*?)\n---(\n|$)/.exec(md);if(!m)return {fm:null,body:md};return {fm:m[1].split('\n'),body:md.slice(m[0].length)};}
 function fmGet(L,k){if(!L)return '';for(var i=0;i<L.length;i++){var m=/^([A-Za-z0-9_-]+):[ \t]?(.*)$/.exec(L[i]);if(m&&m[1]===k)return m[2].trim();}return '';}
@@ -6946,7 +6946,7 @@ $('ns-text').addEventListener('touchstart',function(ev){var t=ev.touches[0];vLT=
 $('ns-text').addEventListener('touchmove',function(ev){if(!vLT)return;var t=ev.touches[0];if(Math.abs(t.clientX-vLT.x)>8||Math.abs(t.clientY-vLT.y)>8)vLT=null;},{passive:true,capture:true});
 $('ns-text').addEventListener('touchend',function(ev){var T=vLT;vLT=null;if(!T||Date.now()-T.at>600)return;vLinkTap(ev,T.x,T.y);},{passive:false,capture:true});
 $('ns-text').addEventListener('click',function(ev){vLinkTap(ev,ev.clientX,ev.clientY);},true);
-window.KaikkiTesti={vault:function(){return VC;},gh:function(){return G;},pull:function(){return vPull();},collect:function(){clearTimeout(vTimer);vCollect();},flush:function(){return vFlush();},notes:function(){return vNotes();},status:function(){return vStatus();},src:function(k){setSrc(k);},refresh:function(){return vRefresh();},render:function(){render();},tz:function(v){if(v==null)delete data.cfg.tz;else data.cfg.tz=v;applyCfg();render();}};
+window.KaikkiTesti={lsSync:function(){return lsSync();},reps:function(){return data.reps;},chk:function(){return data.chk;},lists:function(){return data.lists;},vault:function(){return VC;},gh:function(){return G;},pull:function(){return vPull();},collect:function(){clearTimeout(vTimer);vCollect();},flush:function(){return vFlush();},notes:function(){return vNotes();},status:function(){return vStatus();},src:function(k){setSrc(k);},refresh:function(){return vRefresh();},render:function(){render();},tz:function(v){if(v==null)delete data.cfg.tz;else data.cfg.tz=v;applyCfg();render();}};
 window.JuuriTesti={setListView:function(v){if(v==='r')oldOn();setListView(v);},listView:function(){return listView();},old:function(){oldOn();render();}};
 function oldOn(){OLDUI=true;try{localStorage.setItem('kaikki:vanhat','1');}catch(e){}document.body.classList.add('oldui');}
 function setListView(v){lstV=v==='r'||v==='w'?v:'g';lwSel=false;try{localStorage.setItem('kaikki:listview',lstV);}catch(e){}lwOpen=null;chkOpen={};chkFreeze=null;main.scrollTop=0;render();}
@@ -7209,6 +7209,67 @@ function dragList(l,onDrop,fixed){var rows=Array.prototype.slice.call(l.children
     row.addEventListener('click',function(ev){if(fired){ev.stopPropagation();ev.preventDefault();fired=false;}},true);
     row.addEventListener('contextmenu',function(ev){ev.preventDefault();});});}
 
+/* ---- Kaikki 0.35 (Emil 22.11.2026, kohta 17.2, sekamalli): Listat ja Toistuvat vaultiin, jotta kuittaukset synkkaavat laitteiden välillä.
+   Listat, listojen rivit, Asiat ja ryhmät: `listat/listat.json`. Toistuvat: yksi luettava tiedosto per muistutus `toistuvat/<nimi>.md`
+   (alkutiedoissa toisto, laji, alku, viimeksi tullut ja tehty; teksti rungossa; muut kentät `kaikki: {json}`), poisto = `poistettu: pvm`.
+   Yhdistäminen kolmisuuntaisesti tunnisteen mukaan: pohja = viimeksi synkattu (laitteella kaikki:sync:pohja). Muutos vain toisella puolella
+   voittaa; molemmilla → GitHubin versio voittaa. Rivien muistiinpanoviittaus kulkee tiedostopolkuna (nvp). Vain ensimmäinen projekti.
+   Ennen ensimmäistä synkkaa laitteen tiedot varmuuskopioon (kaikki:sync:varmuus). ---- */
+var LS_PATH='listat/listat.json',LS_DIR='toistuvat/',LS_BASE='kaikki:sync:pohja',LS_ARR=['lists','chk','terms','grp'],lsTimer=0,lsRun=false;
+var LS_UNIT={d:'päivä',w:'viikko',m:'kuukausi',y:'vuosi'},LS_UNITR={'päivä':'d','päivää':'d','pv':'d','viikko':'w','viikkoa':'w','vk':'w','kuukausi':'m','kuukautta':'m','kk':'m','vuosi':'y','vuotta':'y','v':'y'};
+function lsMine(){return vOn()&&vK()&&vK().id===data.k;}
+function lsBase(){try{return JSON.parse(localStorage.getItem(LS_BASE)||'null');}catch(e){return null;}}
+function lsBaseSet(o){try{localStorage.setItem(LS_BASE,JSON.stringify(o));}catch(e){}}
+function lsOut(k,x){if(k!=='chk'||!x||!x.nid)return x;var c=JSON.parse(JSON.stringify(x)),N=null;for(var i=0;i<data.notes.length;i++)if(data.notes[i].id===x.nid){N=data.notes[i];break;}if(N&&N.vp){c.nvp=N.vp;delete c.nid;}return c;}
+function lsIn(k,x){if(k!=='chk'||!x||!x.nvp)return x;var c=JSON.parse(JSON.stringify(x));for(var i=0;i<data.notes.length;i++)if(data.notes[i].vp===x.nvp){c.nid=data.notes[i].id;break;}return c;}
+function lsLocal(){var o={};LS_ARR.forEach(function(k){o[k]=(data[k]||[]).map(function(x){return lsOut(k,x);});});o.words=data.words||{};return o;}
+function lsMap(arr){var m={};(arr||[]).forEach(function(x){if(x&&x.id!=null)m[x.id]=JSON.stringify(x);});return m;}
+function lsMerge3(B,L,R){var b=lsMap(B),l=lsMap(L),r=lsMap(R),ids=[],seen={},out=[],conf=0;
+  (R||[]).concat(L||[]).forEach(function(x){if(x&&x.id!=null&&!seen[x.id]){seen[x.id]=1;ids.push(x.id);}});
+  ids.forEach(function(id){var bb=b[id],ll=l[id],rr=r[id],v;if(ll===rr)v=ll;else if(ll===bb)v=rr;else if(rr===bb)v=ll;else{v=rr!==undefined?rr:ll;conf++;}if(v!==undefined)out.push(JSON.parse(v));});
+  return {arr:out,conf:conf};}
+function lsMergeObj(B,L,R){B=B||{};L=L||{};R=R||{};var o={},conf=0;Object.keys(Object.assign({},R,L)).forEach(function(k){var bb=JSON.stringify(B[k]),ll=JSON.stringify(L[k]),rr=JSON.stringify(R[k]),v;
+    if(ll===rr)v=L[k];else if(ll===bb)v=R[k];else if(rr===bb)v=L[k];else{v=R[k]!==undefined?R[k]:L[k];conf++;}if(v!==undefined)o[k]=v;});return {obj:o,conf:conf};}
+function lsMergeAll(B,L,R){B=B||{};R=R||{};var M={},c=0;LS_ARR.forEach(function(k){var x=lsMerge3(B[k],L[k],R[k]);M[k]=x.arr;c+=x.conf;});var w=lsMergeObj(B.words,L.words,R.words);M.words=w.obj;c+=w.conf;return {M:M,conf:c};}
+/* toistuva <-> luettava tiedosto */
+function repMd(R,old){var t=String(R.text||''),title=(t.split('\n').filter(function(x){return x.trim();})[0]||'Toistuva').replace(/^#+\s*/,'').slice(0,80),rest={};
+  Object.keys(R).forEach(function(k){if(['text','n','unit','mode','start','lastDue','lastDone','created'].indexOf(k)<0)rest[k]=R[k];});
+  var fm=['tyyppi: toistuva','otsikko: '+title,'kuvaus: Toistuva muistutus Kaikki-appista.','luotu: '+String(R.created||nowIso()).slice(0,10),'lahde: emil','nakyy: ei',
+    'toisto: '+(R.n||1)+' '+(LS_UNIT[R.unit]||R.unit||'päivä'),'laji: '+(R.mode==='trig'?'jos-ei-tapahdu':'ajallaan')];
+  if(R.start)fm.push('alku: '+R.start);if(R.lastDue)fm.push('viimeksi: '+R.lastDue);if(R.lastDone)fm.push('tehty: '+R.lastDone);if(R.del)fm.push('poistettu: '+R.del);
+  fm.push('kaikki: '+JSON.stringify(rest));return '---\n'+fm.join('\n')+'\n---\n'+t.replace(/\s+$/,'')+'\n';}
+function repOf(md){var S=VAULT.split(md);if(!S.fm||VAULT.fmGet(S.fm,'tyyppi')!=='toistuva')return null;var g=function(k){return VAULT.fmGet(S.fm,k);},R={};
+  try{R=JSON.parse(g('kaikki')||'{}')||{};}catch(e){R={};}var to=/^(\d+)\s*(\S+)$/.exec(g('toisto')||'');if(to){R.n=+to[1];R.unit=LS_UNITR[to[2].toLowerCase()]||to[2];}
+  R.mode=g('laji')==='jos-ei-tapahdu'?'trig':'rep';if(g('alku'))R.start=g('alku');if(g('viimeksi'))R.lastDue=g('viimeksi');if(g('tehty'))R.lastDone=g('tehty');if(g('poistettu'))R.del=g('poistettu');
+  R.created=g('luotu')||R.created;R.text=S.body.replace(/^\s+/,'').replace(/\s+$/,'').replace(/^#\s+/,'');return R;}
+function lsRemoteReps(){var out={},paths={};Object.keys(VC.files).forEach(function(p){if(p.indexOf(LS_DIR)!==0||!/\.md$/.test(p))return;var R=repOf(VC.files[p].t);if(R){if(!R.id)R.id='tv'+VAULT.idOf(p);out[R.id]=R;paths[R.id]=p;}});return {reps:out,paths:paths};}
+function lsRepKey(R){var c=Object.assign({},R);delete c.created;return JSON.stringify(Object.keys(c).sort().reduce(function(o,k){o[k]=c[k];return o;},{}));}
+function lsSchedule(ms){clearTimeout(lsTimer);lsTimer=setTimeout(lsSync,ms==null?1500:ms);}
+async function lsSync(){if(!lsMine())return;if(vBusy||lsRun){lsSchedule(2000);return;}lsRun=true;var state={repo:vRepo(),branch:G.branch};
+  try{var base=lsBase();if(!base){try{localStorage.setItem('kaikki:sync:varmuus',JSON.stringify({aika:nowIso(),lists:data.lists,chk:data.chk,terms:data.terms,grp:data.grp,words:data.words,reps:data.reps}));}catch(e){}base={};}
+    var local=lsLocal(),res=null,conf=0;vBusy=true;vRender();
+    var w=await vWriteText(LS_PATH,function(text){var R={};try{R=text?JSON.parse(text):{};}catch(e){R={};}var x=lsMergeAll(base,local,R);res=x.M;conf=x.conf;
+      if(!text&&!LS_ARR.some(function(k){return res[k].length;})&&!Object.keys(res.words||{}).length)return text;/* ei tyhjää tiedostoa: pelkkä haku ei kirjoita */
+      var out=JSON.stringify(Object.assign({versio:1,huom:'Kaikki-appin listat, listojen rivit, Asiat ja ryhmät. Appi yhdistää laitteiden muutokset.'},res),null,1)+'\n';return out===text?text:out;},'appi: listat',state);
+    if(w&&w.file&&w.file.sha){VC.files[LS_PATH]=w.file;vSaveC();}
+    if(res){var changed=false;LS_ARR.forEach(function(k){var next=res[k].map(function(x){return lsIn(k,x);});if(JSON.stringify(next.map(function(x){return lsOut(k,x);}))!==JSON.stringify(local[k])){data[k]=next;changed=true;}});
+      if(JSON.stringify(res.words)!==JSON.stringify(local.words)){data.words=res.words;changed=true;}base=Object.assign({},base,res);}
+    /* toistuvat */
+    var RR=lsRemoteReps(),bR=base.reps||{},lR={},mR={},ids={};(data.reps||[]).forEach(function(R){lR[R.id]=R;ids[R.id]=1;});Object.keys(RR.reps).forEach(function(id){ids[id]=1;});
+    Object.keys(ids).forEach(function(id){var b=bR[id],l=lR[id]?lsRepKey(lR[id]):(b&&!RR.reps[id]?undefined:undefined),r=RR.reps[id]?lsRepKey(RR.reps[id]):undefined,ll=lR[id]?lsRepKey(lR[id]):undefined,v;
+      if(ll===r)v=lR[id]||RR.reps[id];else if(ll===b)v=RR.reps[id];else if(r===b)v=lR[id]||(b?{id:id,del:todayIso(),_gone:1}:undefined);else{v=RR.reps[id]||lR[id];conf++;}
+      if(v)mR[id]=v;});
+    var newBR={};for(var id in mR){var R=mR[id];if(R._gone){var old=RR.reps[id];if(old&&!old.del){R=Object.assign({},old,{del:todayIso()});}else{delete mR[id];continue;}mR[id]=R;}
+      var k=lsRepKey(R);newBR[id]=k;var path=RR.paths[id];if(!path||lsRepKey(RR.reps[id])!==k){if(!path){var b0='toistuvat/'+(VAULT.slug(String(R.text||'toistuva').split('\n')[0])||'toistuva');path=b0+'.md';var i2=2;while(VC.files[path]&&!(RR.paths[id]===path))path=b0+'-'+(i2++)+'.md';}
+        var wr=await vWriteText(path,function(cur){return repMd(R,cur);},'appi: toistuva '+String(R.text||'').split('\n')[0].slice(0,40),state);if(wr&&wr.file){VC.files[path]=wr.file;vSaveC();}}}
+    var nextReps=Object.keys(mR).map(function(id){return mR[id];}).filter(function(R){return !R.del;}).map(function(R){var c=Object.assign({},R);delete c._gone;return c;});
+    var order={};(data.reps||[]).forEach(function(R,i){order[R.id]=i;});nextReps.sort(function(a,b){return (order[a.id]==null?1e9:order[a.id])-(order[b.id]==null?1e9:order[b.id]);});
+    if(JSON.stringify(nextReps)!==JSON.stringify(data.reps||[])){data.reps=nextReps;changed=true;}
+    base.reps=newBR;lsBaseSet(base);
+    if(changed){save0();render();}if(conf)toast(conf+' kohtaa muuttui molemmilla laitteilla; GitHubin versio jäi voimaan.');
+  }catch(e){}finally{lsRun=false;vBusy=false;vRender();}}
+(function(){var vPull0=vPull;vPull=function(){return vPull0.apply(this,arguments).then(function(ok){if(ok)lsSchedule(300);return ok;});};
+  var save1=save;save=function(){save1();if(lsMine())lsSchedule(1500);};})();
 /* ---- Kaikki 0.8 (Emil 22.11.2026): koko vault yhdeksi ZIP-tiedostoksi, aina sama nimi (uusi korvaa vanhan).
    Sisältö: välimuistin tiedostot (VC.files) + lähtemättömät omat muutokset (VC.q) uusimpana; poistetut pois. Pakkaamaton ZIP (stored), CRC-32, UTF-8-nimet. ---- */
 var ZIPNAME='Kaikki-vault.zip';
