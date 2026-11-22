@@ -51,7 +51,7 @@ Myöhemmin samaan jatkoon (v2.1): solujen muotoilu (lihavointi, tasaus, lukumuot
 
 **A2. Treeni-osio v1 (kysely tehty 22.11., ks. kohta 16):** rakennetaan A0:n jälkeen. Sitten karsinta kohdan 14 vastausten mukaan.
 
-**A1b. Kalenterin merkintöjen siistiminen (Emil 22.11.2026 illalla, kuva puhelimelta):**
+**A1b. ~~Kalenterin merkintöjen siistiminen~~ tehty 0.36.** (Emil 22.11.2026 illalla, kuva puhelimelta):
 - **Aikajana (päivä):** kuittausruutu (`.evck`) ja keston raahauskahva (`.grip`) ovat päällekkäin oikeassa alakulmassa. Ruutu oikeaan yläkulmaan pieneksi (n. 18 px) ja kahva pois kulmasta: koko alareunan levyinen näkymätön kaistale (n. 8 px), jossa keskellä pieni viiva; ei osu ruutuun lyhyessäkään merkinnässä.
 - **Aikajanan kellonaika:** nyt toisella rivillä ja lyhyissä merkinnöissä puoliksi piilossa alareunassa. Aikajana näyttää ajan jo vasemmalla, joten merkinnässä kellonaika vain **otsikon perässä samalla rivillä** pienellä ja himmeällä (kuten ”Kaupasta 16.15”), ja jos ei mahdu, se jätetään pois. Ei koskaan otsikon alle.
 - **Viikkolista (Vk):** kuittausmerkki on liian iso ja vasemmalla. Sama pieni neliönmuotoinen ruutu kuin aikajanalla, **rivin oikeaan reunaan**. Kuitattuna sama vihreä väkänen.
