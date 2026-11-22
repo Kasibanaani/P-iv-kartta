@@ -1610,6 +1610,11 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 .sg td.sg-act,.sg th.sg-act{box-shadow:inset 0 0 0 2px var(--accent)}
 .sg .sg-rz{position:absolute;top:0;right:-4px;width:9px;height:100%;cursor:col-resize;z-index:3;touch-action:none}
 .sg thead th{position:sticky}.sg .sg-ch{overflow:visible}
+@media (pointer:fine){.sg-wrap:not(.sg-ro) .sg-ch{cursor:grab}}
+.sg-wrap.sg-moving .sg-ch{cursor:grabbing}
+.sg .sg-ch.sg-drop-before::after,.sg .sg-ch.sg-drop-after::after{content:'';position:absolute;inset-block:0;width:3px;background:var(--accent);pointer-events:none}
+.sg .sg-ch.sg-drop-before::after{inset-inline-start:0}
+.sg .sg-ch.sg-drop-after::after{inset-inline-end:0}
 .sg-ed{position:absolute;z-index:5;box-sizing:border-box;margin:0;padding:0 6px!important;border:0!important;border-radius:0!important;box-shadow:inset 0 0 0 2px var(--accent),0 4px 14px var(--app-shadow);background:var(--cell);font-size:16px!important;font-family:inherit;min-height:0!important}
 .sg-tabs{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin:6px 0 0}
 .sg-tab{min-height:30px;padding:0 12px;border:0;border-radius:0 0 8px 8px;background:var(--fill);color:var(--label);font:inherit;font-size:13px;cursor:pointer}
@@ -8154,7 +8159,7 @@ async function sgStructureCommit(state,path,base,build){
   });
   vAt=vClock();vSaveC();
 }
-async function sgStruct(t,axis,op){
+async function sgStruct(t,axis,op,destination){
   if(t.view)return;
   if(vBusy||sgStructuralSave){toast('Vault synkronoi. Yritä hetken päästä uudelleen.');return;}
   var path=t.path,a=sgSel(axis);
@@ -8168,7 +8173,7 @@ async function sgStruct(t,axis,op){
     if(vBusy||SG.path!==path)return;
     t=sheetFiles().find(function(sheet){return sheet.path===path;});
     if(!t||t.view||!VC.files[path])return;
-    await sgSaveStructure(t,axis,op,a);
+    await sgSaveStructure(t,axis,op,a,destination);
   }finally{
     sgStructuralSave=false;
     var formula=$('sg-fx'),active=sgTable();
@@ -8176,12 +8181,22 @@ async function sgStruct(t,axis,op){
     sgStatusPaint();
   }
 }
-async function sgSaveStructure(t,axis,op,a){
+async function sgSaveStructure(t,axis,op,a,destination){
   var path=t.path;
   var row=axis==='row',lo=a[0],hi=a[1],n=hi-lo+1,N=row?t.rows.length:t.head.length,map,move=false,len=N,sel;
   if(op==='ib'||op==='ia'){var k=op==='ib'?lo:hi+1;if(N+n>(row?500:64)){toast(row?'Välilehden 500 rivin raja tulee vastaan.':'Välilehden 64 sarakkeen raja tulee vastaan.');return;}
     map=function(i){return i>=k?i+n:i;};len=N+n;sel=[k,k+n-1];}
   else if(op==='del'){map=function(i){return i<lo?i:i<=hi?-1:i-n;};len=N-n;sel=[Math.min(lo,Math.max(0,len-1)),Math.min(lo,Math.max(0,len-1))];}
+  else if(op==='move'){
+    if(lo!==hi||!Number.isInteger(destination)||destination<0||destination>=N||destination===lo)return;
+    move=true;sel=[destination,destination];
+    map=function(i){
+      if(i===lo)return destination;
+      if(i>lo&&i<=destination)return i-1;
+      if(i<lo&&i>=destination)return i+1;
+      return i;
+    };
+  }
   else if(op==='up'){if(lo<=0)return;move=true;map=function(i){return i===lo-1?hi:(i>=lo&&i<=hi)?i-1:i;};sel=[lo-1,hi-1];}
   else{if(hi>=N-1)return;move=true;map=function(i){return i===hi+1?lo:(i>=lo&&i<=hi)?i+1:i;};sel=[lo+1,hi+1];}
   var state={repo:vRepo(),branch:G.branch},base=VC.files[path].sha;
@@ -8349,13 +8364,78 @@ function sgCommit(v,keepFocus){var t=sgTable();var ed=SG.edit;SG.edit=null;var w
   if(t&&ed!==null)sgSet(t,[{r:SG.r,c:SG.c,v:String(v).trim()}]);if(!keepFocus){var w2=$('sg-wrap');if(w2)try{w2.focus({preventScroll:true});}catch(e){}}sgPaint();}
 function sgCancel(){SG.edit=null;var w=$('sg-wrap'),inp=w&&w.querySelector('.sg-ed');if(inp)inp.remove();if(w)try{w.focus({preventScroll:true});}catch(e){}sgPaint();}
 function sgRangeCells(){var r1=Math.min(SG.r,SG.r2),r2=Math.max(SG.r,SG.r2),c1=Math.min(SG.c,SG.c2),c2=Math.max(SG.c,SG.c2),o=[];for(var r=r1;r<=r2;r++)for(var c=c1;c<=c2;c++)o.push({r:r,c:c});return o;}
+/* Otsikon napautus valitsee sarakkeen; vasta sivuttainen liike aloittaa siirron. */
+function sgColumnDrag(e,t,wrap,header){
+  var from=+header.dataset.c,pointer=e.pointerId,startX=e.clientX,x=startX;
+  var moving=false,destination=from,marker=null,frame=0;
+  var headers=Array.from(wrap.querySelectorAll('.sg-ch'));
+  function clearMarker(){
+    if(marker)marker.classList.remove('sg-drop-before','sg-drop-after');
+    marker=null;
+  }
+  function target(){
+    var box=wrap.getBoundingClientRect(),left=box.left+40,right=box.right-1;
+    var pos=Math.min(right,Math.max(left,x));
+    var next=headers.find(function(cell){
+      var r=cell.getBoundingClientRect();
+      return pos>=r.left&&pos<r.right;
+    });
+    clearMarker();destination=next?+next.dataset.c:from;
+    if(next&&destination!==from){
+      marker=next;
+      marker.classList.add(destination<from?'sg-drop-before':'sg-drop-after');
+    }
+  }
+  function scroll(){
+    if(!wrap.isConnected){finish(false);return;}
+    var box=wrap.getBoundingClientRect(),edge=28,step=0;
+    if(x<box.left+40+edge)step=-Math.min(16,(box.left+40+edge-x)/2);
+    else if(x>box.right-edge)step=Math.min(16,(x-box.right+edge)/2);
+    if(step){
+      var before=wrap.scrollLeft;
+      wrap.scrollLeft+=step;
+      if(wrap.scrollLeft!==before)target();
+    }
+    frame=requestAnimationFrame(scroll);
+  }
+  function move(ev){
+    if(ev.pointerId!==pointer)return;
+    x=ev.clientX;
+    if(!moving){
+      if(Math.abs(x-startX)<7)return;
+      moving=true;wrap.classList.add('sg-moving');
+      frame=requestAnimationFrame(scroll);
+    }
+    target();
+  }
+  function finish(save){
+    cancelAnimationFrame(frame);clearMarker();wrap.classList.remove('sg-moving');
+    header.removeEventListener('pointermove',move);header.removeEventListener('pointerup',end);
+    header.removeEventListener('lostpointercapture',cancel);document.removeEventListener('keydown',key,true);
+    if(header.hasPointerCapture(pointer))header.releasePointerCapture(pointer);
+    if(save&&moving&&destination!==from&&SG.path===t.path){
+      SG.c=SG.c2=from;
+      sgStruct(t,'col','move',destination);
+    }
+  }
+  function end(ev){if(ev.pointerId===pointer)finish(true);}
+  function cancel(ev){if(ev.pointerId===pointer)finish(false);}
+  function key(ev){if(ev.key==='Escape'&&moving){ev.preventDefault();ev.stopPropagation();finish(false);}}
+  header.setPointerCapture(pointer);
+  header.addEventListener('pointermove',move);header.addEventListener('pointerup',end);
+  header.addEventListener('lostpointercapture',cancel);document.addEventListener('keydown',key,true);
+}
 function sgBind(t,wrap,table,fx,addr){
   var lastTap=null;
   wrap.addEventListener('pointerdown',function(e){var rz=e.target.closest('.sg-rz');if(rz){sgResize(e,t,+rz.dataset.c);return;}
     var cell=e.target.closest('td,th.sg-ch,th.sg-rn');if(!cell||e.target.closest('.sg-ed'))return;var r=+cell.dataset.r,c=cell.dataset.c==null?null:+cell.dataset.c;
     if(SG.edit){var inp=wrap.querySelector('.sg-ed');sgCommit(inp?inp.value:SG.edit.val,true);}
     if(cell.classList.contains('sg-rn')){SG.r=SG.r2=r;SG.c=0;SG.c2=t.head.length-1;sgPaint();return;}
-    if(r<0){SG.c=SG.c2=c;SG.r=0;SG.r2=Math.max(0,t.rows.length-1);sgPaint();return;}
+    if(r<0){
+      SG.c=SG.c2=c;SG.r=0;SG.r2=Math.max(0,t.rows.length-1);sgPaint();
+      if(!t.view&&!sgStructuralSave&&e.pointerType==='mouse'&&e.button===0)sgColumnDrag(e,t,wrap,cell);
+      return;
+    }
     var touch=e.pointerType!=='mouse';
     if(touch){if(SG.r===r&&SG.c===c&&SG.r2===r&&SG.c2===c&&lastTap&&Date.now()-lastTap<4000){sgEditOpen(null,true);return;}lastTap=Date.now();SG.r=SG.r2=r;SG.c=SG.c2=c;sgPaint();return;}
     if(e.shiftKey){SG.r2=r;SG.c2=c;}else{SG.r=SG.r2=r;SG.c=SG.c2=c;}sgPaint();SGD=true;try{wrap.focus({preventScroll:true});}catch(er){}e.preventDefault();});
@@ -8394,7 +8474,7 @@ function sgResize(e,t,c){e.preventDefault();e.stopPropagation();if(sgStructuralS
   function mv(ev){ws[c]=Math.max(40,Math.min(800,Math.round(w0+ev.clientX-x0)));if(col)col.style.width=ws[c]+'px';sgTW(ws);}
   function up(){window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);if(ws[c]!==w0){SGW[t.path]=ws;sgSaveWidths(t,ws);}}
   window.addEventListener('pointermove',mv);window.addEventListener('pointerup',up);}
-HELP.taulukot=['Taulukot','<p>Napsauta solua (puhelimella napauta), kirjoita ja paina Enter. Nuolet siirtävät, Tab oikealle, Esc peruu, Delete tyhjentää. Alueen voi valita vetämällä tai Shift+nuolilla, ja ⌘C ja ⌘V kopioivat ja liittävät myös Sheetsistä. ⌘Z kumoaa. Ylärivin kaavarivi näyttää valitun solun. Sarakkeen leveyttä muutetaan otsikon reunasta vetämällä; kaksoisnapsautus sovittaa. Puhelimella toinen napautus samaan soluun aloittaa muokkauksen.</p><p>Valitse solu muokataksesi. Kaava alkaa =-merkillä. Rivin 1 soluun viitataan esimerkiksi B1. Oma alue merkitään B1:B4. Toisen välilehden soluun viitataan [[valilehti]]!B1 ja muistiinpanoon [[muistiinpano]].kenttä.</p>'];
+HELP.taulukot=['Taulukot','<p>Napsauta solua (puhelimella napauta), kirjoita ja paina Enter. Nuolet siirtävät, Tab oikealle, Esc peruu, Delete tyhjentää. Alueen voi valita vetämällä tai Shift+nuolilla, ja ⌘C ja ⌘V kopioivat ja liittävät myös Sheetsistä. ⌘Z kumoaa. Ylärivin kaavarivi näyttää valitun solun. Sarakkeen paikkaa siirretään vetämällä otsikosta hiirellä tai valitsemalla siirto ⋯-valikosta. Leveyttä muutetaan otsikon reunasta vetämällä; kaksoisnapsautus sovittaa. Puhelimella toinen napautus samaan soluun aloittaa muokkauksen.</p><p>Valitse solu muokataksesi. Kaava alkaa =-merkillä. Rivin 1 soluun viitataan esimerkiksi B1. Oma alue merkitään B1:B4. Toisen välilehden soluun viitataan [[valilehti]]!B1 ja muistiinpanoon [[muistiinpano]].kenttä.</p>'];
 function metricTextKey(text){return String(text||'').trim().toLocaleLowerCase('fi').replace(/\s+/g,' ');}
 function metricTextValue(raw,col){
   if(col.laji==='kylla-ei'){
