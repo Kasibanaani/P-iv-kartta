@@ -2,7 +2,7 @@
 
 Itsenäinen ohje mille tahansa tekoälylle (Claude, ChatGPT/Codex, muu). Aiempaa keskustelua ei tarvitse muistaa. Lue ensin repon `AGENTS.md`, sitten `kaikki/TILA.md` ja tämä. Emilin päätökset on merkitty **Emil**, tekoälyn ehdotukset *ehdotus*. Ehdotus ei ole toteutuslupa; Emilin ”toteuta” on.
 
-Päivitetty 22.11.2026 (versio 0.17). Seuraavaksi on kohdan 15 pikakirjaus. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
+Päivitetty 22.11.2026 (versio 0.18). Seuraavaksi täydennetään pikakirjausta (kohta 15). Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
 
 ## Yhteiset säännöt (Kaikki)
 
@@ -23,7 +23,7 @@ Päivitetty 22.11.2026 (versio 0.17). Seuraavaksi on kohdan 15 pikakirjaus. List
 2. ~~Kohta 7: Flow tekstinä, kokeiluna.~~ Tehty 0.15. Pysyvä muoto odottaa kokeilupalautetta.
 3. ~~Kohta 6.2: mittarien tekstikirjaus ja pikakomentolinkki.~~ Tehty 0.16.
 4. ~~Kohta 9: `#tunnisteet` (teksti, `tagit`, lukunäkymä, Asiasanat-suodatin ja rivinäkymä).~~ Tehty 0.17.
-5. Kohta 15: pikakirjaus v1 (esiasetukset vaultissa, Seuranta ja Muistutus, tallennus mittareihin ja päivän muistiinpanoon, Kirjattu-rivi kalenterissa, `+ Uusi nappi`, automaattiset tunnisteet). **Emil 22.11.: aikaisin, koska unen, treenien ja ravinnon seuranta voi siirtyä tänne.**
+5. Kohta 15: pikakirjaus v1 (esiasetukset vaultissa, Seuranta ja Muistutus, tallennus mittareihin ja päivän muistiinpanoon, Kirjattu-rivi kalenterissa, `+ Uusi nappi`, automaattiset tunnisteet). **Emil 22.11.: aikaisin, koska unen, treenien ja ravinnon seuranta voi siirtyä tänne.** Osatoteutus 0.18: Vaultin esiasetuksista toimivat mittarikirjaus ja monen päivän muistutukset. Vk-lista näyttää CSV-kirjaukset. Seuraavaksi päivän muistiinpanot, `+ Uusi nappi` ja automaattiset tunnisteet.
 6. Kohta 15: XY-pädi lukuarvoille.
 7. Kohta 9: rivinäkymä leveäksi tietokoneella.
 8. Kohta 9: monen valinta: Arkistoi ja Poista valitut (vahvistus, roskakoriin).
