@@ -22,6 +22,7 @@ async def run(p,w,h):
     await pg.add_init_script(FAKE+";(function(){var S=%s;if(!window.__repo.kept)for(var k in S)window.__repo.put(k,S[k]);try{if(!sessionStorage.getItem('__nogh'))localStorage.setItem('kaikki:gh',JSON.stringify({repo:'testi/vault',token:'x',branch:'main'}))}catch(e){}})();"%json.dumps(SEED))
     pg.on('pageerror',lambda e:(errs.append(str(e)),print('  PAGEERR',e)))
     def want(label,cond,info=''):
+        open(os.environ.get('KAIKKI_TESTILOKI','/tmp/kaikki_selain_08.log'),'a',encoding='utf8').write('%s %d %s %s\n'%('ok' if cond else 'VIRHE',w,label,info if not cond else ''))
         print('  %-48s %s %s'%(label,'ok' if cond else 'VIRHE',info if not cond else ''))
         if not cond: bad.append(label)
     print('leveys',w)

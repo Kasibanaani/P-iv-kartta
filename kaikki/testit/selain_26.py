@@ -34,46 +34,56 @@ async def test(browser, width):
         await page.locator('#roll').click()
         await page.locator('#section-sheets').click()
     panel = page.locator('#p-sheets')
-    await panel.get_by_role('button', name='Uusi taulukko').click()
+    async def menu(item):
+        await page.locator('#sg-more').click()
+        await page.locator('#' + item).click()
+    await menu('sgm-new')
     creation = page.locator('#sheet-new')
     await creation.get_by_label('Taulukon nimi').fill('Koe')
     await creation.get_by_label('Välilehden nimi').fill('Kulut')
     await creation.get_by_role('button', name='Luo', exact=True).click()
     await expect(creation).to_be_hidden()
     grid = panel.get_by_role('region', name='Kulut', exact=True)
-    await expect(grid.get_by_role('table')).to_be_visible()
-    editor = page.locator('#sheet-edit')
+    await expect(grid.get_by_role('grid')).to_be_visible()
+
+    def cell(address):
+        col = ord(address[0]) - 65
+        row = int(address[1:]) - 1
+        return page.locator(f'#sg-wrap td[data-r="{row}"][data-c="{col}"]')
 
     async def edit(address, value):
-        await grid.get_by_role('button', name=f'Solu {address}', exact=True).click()
-        await editor.get_by_label('Arvo tai kaava').fill(value)
-        await editor.get_by_role('button', name='Tallenna', exact=True).click()
-        await expect(editor).to_be_hidden()
+        await cell(address).click()
+        await page.keyboard.type(value)
+        await page.keyboard.press('Enter')
+
+    async def saved(text):
+        await page.wait_for_function('([p, t]) => (__repo.get(p) || "").includes(t)', arg=[SHEET, text], timeout=8000)
 
     await edit('A1', '4')
     await edit('B1', '=A1+[[lahde]]!A1+[[budjetti]].hinta')
-    await expect(grid.get_by_role('button', name='Solu B1, 11', exact=True)).to_be_visible()
-    await panel.get_by_role('button', name='+ Rivi', exact=True).click()
+    await expect(grid.get_by_role('gridcell', name='Solu B1, 11', exact=True)).to_be_visible()
+    await saved('[[lahde]]!A1')
+    await menu('sgm-row')
+    await expect(cell('A2')).to_be_visible()
     await edit('A2', '2')
     await edit('C1', '=SUMMA(A1:A2)')
-    await expect(grid.get_by_role('button', name='Solu C1, 6', exact=True)).to_be_visible()
-    await panel.get_by_role('button', name='+ Välilehti', exact=True).click()
+    await expect(grid.get_by_role('gridcell', name='Solu C1, 6', exact=True)).to_be_visible()
+    await saved('SUMMA(A1:A2)')
+    await menu('sgm-tab')
     await creation.get_by_label('Välilehden nimi').fill('Lisä')
     await creation.get_by_role('button', name='Luo', exact=True).click()
     tabs = panel.get_by_role('group', name='Välilehdet')
     await expect(tabs.get_by_role('button', name='Lisä', exact=True)).to_have_attribute('aria-pressed', 'true')
     await tabs.get_by_role('button', name='Kulut', exact=True).click()
     async with page.expect_download() as download_info:
-        await panel.get_by_role('button', name='Vie CSV', exact=True).click()
+        await menu('sgm-csv')
     download = await download_info.value
     assert download.suggested_filename == 'kulut.csv'
     assert '"4","11","6"' in (await download.path()).read_text()
 
-    await grid.get_by_role('button', name='Solu A1, 4', exact=True).click()
-    await editor.get_by_label('Arvo tai kaava').fill('8')
+    await edit('A1', '8')
     await page.evaluate('path => __repo.put(path, __repo.get(path).replace("| 4 |", "| 9 |"))', SHEET)
-    await editor.get_by_role('button', name='Tallenna', exact=True).click()
-    await expect(tabs.get_by_role('button', name='Kulut · ristiriitakopio', exact=True)).to_have_attribute('aria-pressed', 'true')
+    await expect(tabs.get_by_role('button', name='Kulut · ristiriitakopio', exact=True)).to_have_attribute('aria-pressed', 'true', timeout=10000)
     assert '| 9 |' in await page.evaluate('path => __repo.get(path)', SHEET)
     assert await page.evaluate("Object.entries(__repo.files).some(([path,file]) => path.includes('-ristiriita-') && file.t.includes('| 8 |'))")
     assert await page.evaluate('document.documentElement.scrollWidth <= innerWidth')
