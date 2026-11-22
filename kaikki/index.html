@@ -1436,6 +1436,10 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 #writing-guide textarea{width:100%;min-height:0;max-height:35vh;resize:vertical}
 #writing-guide .btnrow{margin-top:6px}
 @media (max-width:999px){#writing-guide-btn{display:none}}
+#flow-text-preview textarea{min-height:9em}
+#flow-text-choices{display:flex;flex-wrap:wrap;gap:6px}
+#flow-text-preview ol{padding-left:1.35em}
+#flow-text-step:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 #vwork-files{display:grid;gap:6px;margin-top:12px}
 #vwork-files .btn{text-align:left;overflow-wrap:anywhere}
 #nsheet.vwork-file #ns-meta,#nsheet.vwork-file #ns-more{display:none}
@@ -1566,6 +1570,22 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 <dialog id="writing-guide" aria-labelledby="writing-guide-title">
   <h2 id="writing-guide-title">Kirjoitusohje</h2>
   <div id="writing-guide-examples"></div>
+</dialog>
+<dialog id="flow-text-preview" aria-labelledby="flow-text-title">
+  <h2 id="flow-text-title">Flow tekstinä · kokeilu</h2>
+  <label class="fl" for="flow-text-source">Sisennetty Markdown-luettelo</label>
+  <textarea class="mono" id="flow-text-source" rows="8" spellcheck="false"></textarea>
+  <div class="btnrow"><button type="button" class="btn solid" id="flow-text-read">Näytä Flow</button></div>
+  <p id="flow-text-feedback" class="msg" role="status"></p>
+  <section id="flow-text-run" hidden aria-labelledby="flow-text-step">
+    <h3 id="flow-text-step" tabindex="-1"></h3>
+    <div id="flow-text-choices"></div>
+    <div class="btnrow">
+      <button type="button" class="btn" id="flow-text-back" hidden>Edellinen</button>
+      <button type="button" class="btn" id="flow-text-restart" hidden>Alusta</button>
+    </div>
+    <details><summary>Näytä koko puu</summary><div id="flow-text-tree"></div></details>
+  </section>
 </dialog>
 <dialog id="hsheet" aria-labelledby="hs-h">
   <h2 id="hs-h">Ohje</h2>
@@ -3847,7 +3867,7 @@ $('nav').addEventListener('click',function(ev){var b=ev.target.closest('[data-ta
 /* 1.55 (I1): isot ikkunat täyttävät tilan yläpalkin ja alapalkin välissä. Otsikon edessä harmaana se, minne ruksi palaa
    (välilehti tai alla oleva ikkuna). Puhelimella 1.74:stä alkaen ikkunalla on oma alapalkki, jonka ‹-nappi sulkee kuten ruksi; osio ei vaihdu. */
 /* 1.105 (Emil 18.11.2026): listojen ikkunat (Listat, rivin ikkuna) ovat pieniä ikkunoita päällä; ulkopuolinen napautus sulkee, ei ruksia */
-var SMALL={csheet:1,dsheet:1,pksheet:1,wsheet:1,ksheet:1,pvsheet:1,gsheet:1,'vwork-sheet':1,'section-settings':1,'dash-entry':1,'writing-guide':1};
+var SMALL={csheet:1,dsheet:1,pksheet:1,wsheet:1,ksheet:1,pvsheet:1,gsheet:1,'vwork-sheet':1,'section-settings':1,'dash-entry':1,'writing-guide':1,'flow-text-preview':1};
 function barSizes(){var t=$('top'),n=$('pbar').offsetParent?$('pbar'):$('nav'),r=document.documentElement.style;
   if(t)r.setProperty('--toph',Math.max(0,Math.round(t.getBoundingClientRect().bottom))+'px');
   if(typeof land==='function'&&land()){r.setProperty('--toph','0px');r.setProperty('--navh','0px');r.setProperty('--sbh','0px');return;}
@@ -3906,7 +3926,7 @@ function crumbSync(){var k=tabKey(),k0=kOf(),t=(k0?k0.name:'Juuri')+' · '+(MODE
   if(d){var h=d.querySelector('h2'),ht=h?clean(h.textContent):'';if(ht)t+=' › '+ht;}$('crumb').textContent=t;}
 /* Ikkunan sulkeminen ohi napauttamalla tai Esc tallentaa samoin kuin Valmis */
 function sheetDone(d){var ok=d.querySelector('[data-done]');if(ok)ok.click();else closeSheet(d);}
-var SHEETS=['phsheet','wsheet','ehsheet','vsheet','psheet','xsheet','lsheet','ksheet','esheet','nsheet','tsheet','rsheet','hsheet','csheet','fsheet','pksheet','dsheet','pvsheet','gsheet','vwork-sheet','section-settings','dash-entry','writing-guide'];
+var SHEETS=['phsheet','wsheet','ehsheet','vsheet','psheet','xsheet','lsheet','ksheet','esheet','nsheet','tsheet','rsheet','hsheet','csheet','fsheet','pksheet','dsheet','pvsheet','gsheet','vwork-sheet','section-settings','dash-entry','writing-guide','flow-text-preview'];
 SHEETS.forEach(function(id){var d=$(id);d.addEventListener('close',modalSync);d.addEventListener('click',function(ev){if(ev.target!==d||d.classList.contains('dock'))return;
     if(!d.classList.contains('big')||matchMedia('(max-width:999px)').matches){var q=d.getBoundingClientRect(),x=ev.clientX,y=ev.clientY;
       if(x>=q.left&&x<=q.right&&y>=q.top&&y<=q.bottom)return;sheetDone(d);return;}
@@ -6135,6 +6155,75 @@ function stPopDraw(){var o=$('stpop');if(!o||!stPopOn)return;var d0=o.firstChild
   stPopOn.build(d);o.appendChild(d);o.hidden=false;o._key=stPopOn.key;d.scrollTop=sc;}
 function stPopClose(){var o=$('stpop'),f=stPopOn&&stPopOn.close;stPopOn=null;if(o){o.hidden=true;o.textContent='';o._key=null;}if(f)f();render();}
 function stFocus(id){setTimeout(function(){var x=$(id);if(x)try{x.focus({preventScroll:true});}catch(e){}},0);}
+var FLOW_TEXT_EXAMPLE=[
+  '- Onko minulla puoli tuntia?',
+  '  - On',
+  '    - Mitä teen ensin?',
+  '      - Käyn kävelyllä.',
+  '      - Luen yhden luvun.',
+  '  - Ei',
+  '    - Päätän seuraavan pienen askeleen.'
+].join('\n');
+function readFlowText(text){
+  var lines=String(text).split(/\r?\n/),root=null,parents=[],size=0;
+  function failure(row,message){return {error:'Rivi '+(row+1)+'. '+message};}
+  for(var i=0;i<lines.length;i++){
+    var line=lines[i];
+    if(!line.trim()||(!root&&/^#\s/.test(line)))continue;
+    var match=/^( *)(?:-|\*|\+)[ \t]+(\S.*)$/.exec(line);
+    if(!match)return failure(i,'Kirjoita jokainen kohta luetteloviivan jälkeen.');
+    var depth=match[1].length/2;
+    if(depth%1||depth>parents.length||depth>16)return failure(i,'Sisennä kaksi välilyöntiä kutakin tasoa kohti.');
+    if(++size>150)return failure(i,'Kokeiluun mahtuu enintään 150 kohtaa.');
+    var node={text:match[2].trim(),children:[]};
+    if(depth===0){
+      if(root)return failure(i,'Puulla voi olla yksi aloituskohta.');
+      root=node;
+    }else{
+      var next=parents[depth-1].children;
+      if(depth%2===0&&next.length)return failure(i,'Vastauksella voi olla yksi seuraava kysymys tai lopputulos.');
+      next.push(node);
+    }
+    parents.length=depth;parents.push(node);
+  }
+  return root&&root.children.length?{root:root}:{error:'Kirjoita aloituskysymys ja vähintään yksi sisennetty vaihtoehto.'};
+}
+function renderFlowTextTree(nodes){
+  var list=el('ol');
+  nodes.forEach(function(node){
+    var row=el('li','',node.text);
+    if(node.children.length)row.appendChild(renderFlowTextTree(node.children));
+    list.appendChild(row);
+  });
+  return list;
+}
+function openFlowText(){
+  var d=$('flow-text-preview'),source=$('flow-text-source'),feedback=$('flow-text-feedback'),run=$('flow-text-run');
+  var step=$('flow-text-step'),choices=$('flow-text-choices'),back=$('flow-text-back'),restart=$('flow-text-restart');
+  var path=[];
+  source.value=FLOW_TEXT_EXAMPLE;feedback.textContent='';run.hidden=true;
+  function show(){
+    var node=path[path.length-1];
+    step.textContent=node.text;choices.textContent='';
+    node.children.forEach(function(child){
+      button(choices,child.text,'btn',function(){path.push(child.children[0]||child);show();});
+    });
+    back.hidden=restart.hidden=path.length<2;
+    step.focus();
+  }
+  $('flow-text-read').onclick=function(){
+    var parsed=readFlowText(source.value);
+    feedback.textContent=parsed.error||'';
+    run.hidden=!!parsed.error;
+    if(parsed.error)return;
+    var tree=$('flow-text-tree');tree.textContent='';tree.appendChild(renderFlowTextTree([parsed.root]));
+    path=[parsed.root];show();
+  };
+  back.onclick=function(){path.pop();show();};
+  restart.onclick=function(){path.length=1;show();};
+  source.oninput=function(){run.hidden=true;feedback.textContent='';};
+  openSheet(d);
+}
 function renderPuu(){var p=panels.puu;p.textContent='';var L=stTrees(),t=stTree();setInfo('');
   var bar=el('div','stbar');var tw=el('div','pkchips stpicks');tw.id='st-trees';
   L.forEach(function(x){var b=button(tw,x.name,'mini',function(){stCur=x.id;stDelArm=null;render();});b.dataset.s=x.id;b.setAttribute('aria-pressed',t&&x.id===t.id?'true':'false');});
@@ -6145,6 +6234,9 @@ function renderPuu(){var p=panels.puu;p.textContent='';var L=stTrees(),t=stTree(
   bar.appendChild(tw);
   if(t){var rb=button(bar,'Rakenna','mini stbuild',function(){stBuild=!stBuild;stDelArm=null;render();});rb.id='st-build';rb.setAttribute('aria-pressed',stBuild?'true':'false');}
   p.appendChild(bar);
+  var preview=el('div','btnrow');
+  button(preview,'Kokeile tekstipuuta','btn',openFlowText).id='flow-text-open';
+  p.appendChild(preview);
   if(!t){p.appendChild(subI('Ei vielä Flow’ta.','Anna nimi. Rakenna-tilassa lisätään ruutupareja: syyt vasemmalle, niiden tuomat vaihtoehdot oikealle.'));return;}
   if(stBuild)stBuildView(p,t);
   else{var w2=el('div','stuse');stUseView(w2,t,t.p,function(s){t.p=s;touch();render();});p.appendChild(w2);
