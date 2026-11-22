@@ -132,7 +132,10 @@ Kokeile testiaineistolla ensin Flow'n lukemista sisennetystä Markdownista. Jatk
 5. Käsin raahattava järjestys, kun suodatusta tai järjestystä ei ole: pieni kahva vasemmassa reunassa, varsinkin tietokoneella.
 6. Rivinäkymä leveämmäksi tietokoneella; muuta hienosäätöä myöhemmin.
 
-*Ehdotus (tekoäly, ei hyväksytty):*
+**Emil hyväksyi ehdotukset 22.11.2026** (vaultin sääntö `#tunnisteista` tehty: `ohjeet/muistiinpanot.md`, kohta Tagit). Oma järjestys tallennetaan näkymätiedostoon.
+**Avoin kysymys:** tarvitaanko Asioita (asiasanoja) enää tunnisteiden rinnalla? *Tekoälyn suositus:* yksi käsite, **Tunniste**. Asioiden hyödyllinen osa (automaattinen tunnistus sanoista) säilyy tunnisteen valinnaisena ominaisuutena: tunnisteelle voi antaa tunnistussanat (esim. `#koira` ← koira, koiran, rekku) vaultin tiedostossa, jotta appi ja tekoäly käyttävät samaa listaa. Käsin kirjoitettu ja tunnistettu näkyvät eri tyylillä (kuten nyt *päätelty*). Juuren Asioiden lisäosat (ehdot ja päättely, tärkeysjärjestys, uusiutumisväli, listojen poiminta, Flow-linkit) karsitaan, ellei Emil käytä niitä. Asiat-osio → Tunnisteet-osio. Odottaa Emilin päätöstä.
+
+*Hyväksytty toteutus:*
 - `#tunniste` (kirjaimet, numerot, väliviiva, ääkköset; ei pelkkä numero, jotta `#3` ei tule tunnisteeksi) ja alkutietojen `tagit: [a, b]` ovat **sama joukko**. Ne näkyvät Asiat-suodattimessa omana ryhmänään (*Tunnisteet*), jotta suodatuspaikkoja on yksi eikä kaksi (appilinja: yksi asia, yksi paikka). Lukunäkymässä `#tunniste` siruna, napautus suodattaa. Rivinäkymän erikoiskenttä `tunnisteet` (sirut).
 - Vaultin sääntö: tekoäly ei poista Emilin `#tunnisteita`; käsitellessään se voi lisätä ne myös `tagit`-kenttään yhdenmukaisesti. Vaatii päätöksen `ohjeet/muistiinpanot.md`:hen (kohta Tagit).
 - Näkymätiedoston `mista` saa ehdon `tunniste = x` (useampi = kaikki); `jarjestys` useampi avain pilkulla. Apin näkymämuokkain (suodatus, järjestys, sarakkeet raahaamalla) myöhemmin erillisenä vaiheena.
