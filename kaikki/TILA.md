@@ -1,6 +1,6 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.6 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
+**Vaihe:** versio 0.6.1 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
@@ -45,6 +45,7 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
   - Muistiinpanoikkuna: Kuittaa, Arkistoi ja Poista sekä päivä- ja aikarivi `⋯`-napin takana (puhelimella ikkunan alapalkissa i:n vieressä, tietokoneella otsikkorivillä). Valikko on ikkunan sisällä (`#ns-menu`), ulkopuolinen napautus sulkee. Päivärivi näkyy itsestään, kun muistiinpanolla on päivä tai aika; muuten valikosta Päivä ja aika. Kalenterista avatussa valikossa OK / Kumoa kuittaus.
   - Tekstikoko: Valikko → asetukset → Tekstin koko (`cfg.tz`: Laitteen mukaan / Pieni / Normaali / Iso / Isompi). Laitteen mukaan = iPhonen Asetukset → Näyttö → Tekstin koko, luettu Safarin `-apple-system-body`-tyylistä (17 px = 1), muualla 1; luetaan uudelleen, kun appi tulee esiin. Kerroin `--tz` koskee korttien tekstiä, muistiinpanon tekstiä (kenttä vähintään 16 px) ja kalenterin viikkolistaa; muu appi kiinteillä koilla.
   - Testi `selain_06.py`. Tallennusmuoto ei muuttunut (uusi asetusavain `tz` vain laitteella).
+- **0.6.1 (22.11.2026, Emilin bugiraportti):** tietokoneella ei päässyt GitHub-vaultiin, koska se oli vain Valikossa (Valikko-nappi on vain puhelimen alapalkissa). Nyt tietokoneen yläpalkissa on pilvinappi `#ghbtn` (punainen piste kuten Valikossa, kun jotain odottaa tai yhteydessä on virhe). Yhteys tehdään kerran jokaisessa selaimessa (repo ja avain selaimen muistiin). Testi `selain_0601.py` (1440, 1280, 390 px).
 - **Mikä menee GitHubiin:** vain ensimmäisen projektin muistiinpanot (myös niiden kuittaukset ja kalenteriajat). Asetukset, ulkoasu, asiasanat, Listat, Flow, puut, Toistuvat-välilehden toistuvat, tarkistuslistat ja muut projektit ovat vain laitteella (`kaikki:v1`); varmuuskopio niistä Juuren viennillä.
 
 ## Ei tarkistettu
@@ -59,6 +60,9 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
 - Modern Web Guidance -hakua ei voitu ajaa (komento estettiin tässä istunnossa); uutta käyttöliittymää on vain asetusikkuna, Juuren tyyleillä.
 
 ## Seuraava askel
+
+Emil kokeilee GitHub-yhteyttä tietokoneella (pilvinappi yläpalkissa, vain omalla koneella). Sen jälkeen suunnitellaan tietokoneasettelu (ehdotus: lista ja auki oleva muistiinpano rinnakkain, isompi kirjoitusalue, pikanäppäimet, kansiot tai asiasanat sivupalkkiin).
+
 
 Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kalenteri. Sen jälkeen suunnitelman mukaan (Emil 22.11.2026):
 1. Kojelauta: kuvaajat vaultin `data/`-taulukoista (`data/mittarit.json` kertoo mittarit).
