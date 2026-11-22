@@ -36,7 +36,7 @@ async def run(p,w,h,touch):
       k.termit=[{id:'t1',name:'Lääkkeet',yes:['lääk'],no:[],ev:14},{id:'t2',name:'Pyykit',yes:['pyyk'],no:[],ev:7},{id:'t3',name:'Kastelu',yes:['kastel'],no:[]},{id:'t4',name:'Soitto',yes:[],no:[],ev:28}];k.tarkeat=['t1','t2','t3','t4'];
       k.tarkistuslista=[{id:'c1',name:'Kettu',created:'%s',it:[{id:'t1',ok:'%s'},{id:'t2'}]},{id:'c2',name:'Siili',created:'%s',it:[{id:'t3'},{id:'t4',ok:'%s'}]},
         {id:'c3',name:'Mäyrä',created:'%s',it:[{id:'t1',ok:'%s'},{id:'t2',ok:'%s'}]},{id:'c4',name:'Ilves',created:'%s',it:[]}];
-      localStorage.setItem('kaikki:v1',JSON.stringify(o));})()"""%(d(20),d(2),d(20),d(1),d(20),d(1),d(1),d(20)))
+      localStorage.setItem('kaikki:v1',JSON.stringify(o));})()"""%(d(20),d(2),d(20),d(1),d(20),d(1),d(0),d(20)))
     await pg.reload(); await pg.wait_for_timeout(300)
     try: await pg.evaluate("localStorage.removeItem('kaikki:listview');lstV=null")
     except Exception: pass

@@ -62,7 +62,7 @@ async def test(browser, width):
     await page.get_by_role('menuitem', name='Öljyttävät', exact=True).click()
     await expect(notes.get_by_text('Puun hoito', exact=True)).to_be_visible()
     await expect(notes.get_by_text('Taimen hoito', exact=True)).to_have_count(0)
-    await expect(notes.locator('.note-tag-cell span')).to_have_text(['#öljy', '#remontti', '#suunnittelu'])
+    await expect(notes.locator('.note-tag-cell .rv-tag')).to_have_text(['#öljy', '#remontti', '#suunnittelu'])
     assert not await page.evaluate("__repo.log.some(line => line.startsWith('PUT '))")
     assert not errors, errors
     print(f'{width} px: tunnisteet ja molemmat suodatustavat toimivat')

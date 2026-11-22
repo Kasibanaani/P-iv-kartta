@@ -1436,7 +1436,11 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 .tag-migration-item small{display:block;color:var(--label2)}
 #tag-migration-msg:empty{display:none}
 #fs-chips .tag-filter-heading{flex-basis:100%;font-size:inherit;margin:8px 0 0}
-.rvc.note-tag-cell{display:flex;gap:4px;overflow:hidden}
+.rvc.note-tag-cell{position:relative;display:flex;gap:4px;overflow:hidden}
+.rvc .rv-tag,.rvc .rv-extra,.rvc .rv-backlink{flex:none;max-width:none;min-height:27px;margin:0;border:0;white-space:nowrap;font:inherit;font-size:13px;color:var(--label);cursor:pointer}
+.rvc .rv-extra,.rvc .rv-backlink{min-width:3ch;font-variant-numeric:tabular-nums}
+.rvc [data-rv-measure][hidden]{display:inline-flex!important;position:absolute;visibility:hidden;pointer-events:none}
+.rvc .rv-extra[hidden]{visibility:hidden}
 #quick-entry{width:min(440px,calc(100vw - 28px))}
 #quick-entry-mobile[hidden],#quick-entry-desktop[hidden]{display:none}
 .quick-day-row{display:flex;align-items:center;gap:10px;margin:10px 0}
@@ -1634,7 +1638,7 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 @media (min-width:1000px){#top .bar1>:is(#ghbtn,#vworkbtn,#section-settings-btn,#writing-guide-btn,#hint,#xbtn){display:none!important}#top .bar1>.deskmenu{display:inline-flex;align-items:center;justify-content:center}
   #deskmenu.vwait{position:relative}#deskmenu.vwait::after{content:"";position:absolute;top:-1px;right:-1px;width:7px;height:7px;border-radius:50%;background:#9B2335}}
 /* Kaikki 0.33: näkymämuokkain */
-.nved{width:min(560px,94vw);max-height:86vh;overflow:auto;padding:14px 16px 16px}
+.nved{box-sizing:border-box;width:min(560px,calc(100vw - 20px));max-width:calc(100vw - 20px);max-height:86vh;overflow:auto;padding:14px 16px 16px}
 .nved h3{margin:14px 0 6px;font-size:13px;color:var(--label2);font-weight:600}
 .nved input[type=text]{min-height:38px;font-size:16px}
 .nved-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 6px}.nved-row select{flex:1 1 30%;min-width:0;min-height:38px;font-size:15px}.nved-row input{flex:1 1 140px;min-width:0}
@@ -5122,7 +5126,7 @@ function relText(n,cls,lim){var d=el('div',cls||'nt'),txt=String(n.text||''),at=
   L.sort(function(a,b){return a.s-b.s;}).forEach(function(m){if(m.s<at)return;
     d.appendChild(document.createTextNode(T(at,m.s)));var sp=el('span',m.c||'rel',txt.slice(m.s,m.e));sp.title=m.t;d.appendChild(sp);at=m.e;});
   d.appendChild(document.createTextNode(T(at)));return d;}
-function renderNotes(){var p=panels.notes;p.textContent='';var today=todayIso();
+function renderNotes(){if(nvTagObserver){nvTagObserver.disconnect();nvTagObserver=null;}var p=panels.notes;p.textContent='';var today=todayIso();
   /* Kaikki 0.6 (Emil 22.11.2026): vaultin muistiinpanot ovat pysyviä, joten Muistiossa ei ole Avoimet/Kuitatut-jakoa; kuittaus kuuluu kalenterin päivälle */
   if(noteView==='done')noteView='open';p.classList.toggle('rows-wide',nvRows());p.classList.toggle('notes-wide',noteView==='open');var NS=data.notes.filter(function(n){return !n.arch;});
   var cn=$('count');cn.hidden=true;/* 1.71 (Emil): määrä ei kuulu yläpalkin tasolle */cn.textContent=NS.length+' kpl';cn.setAttribute('aria-label',NS.length+(NS.length===1?' muistiinpano':' muistiinpanoa'));
@@ -5190,8 +5194,8 @@ function nvMode(){var v=null;try{v=localStorage.getItem('kaikki:nmode');}catch(e
 function nvRows(){return noteView==='open'&&nvMode()==='rows';}
 function nvSet(v){try{localStorage.setItem('kaikki:nmode',v);}catch(e){}}
 var NV_DEF={id:'',name:'Kaikki muistiinpanot',mista:[],cols:[{k:'otsikko'},{k:'kansio'},{k:'kuka'},{k:'luotu'},{k:'ajankohta'}],sort:null};
-var NV_W={tunnisteet:'minmax(140px,1.1fr)',otsikko:'minmax(180px,1.6fr)',kansio:'minmax(110px,1fr)',kuka:'minmax(104px,.8fr)',luotu:'minmax(92px,.8fr)',ajankohta:'minmax(130px,1fr)',minigraafi:'130px',palkki:'130px',kylla:'64px',luku:'90px',pvm:'92px',siru:'minmax(96px,.8fr)',teksti:'minmax(120px,1fr)'};
-var NV_LAB={tunnisteet:'Tunnisteet',otsikko:'Otsikko',kansio:'Kansio',kuka:'Kuka kirjoitti',luotu:'Luotu',ajankohta:'Seuraava ajankohta'};
+var NV_W={takaisinlinkit:'minmax(104px,.8fr)',tunnisteet:'minmax(140px,1.1fr)',otsikko:'minmax(180px,1.6fr)',kansio:'minmax(110px,1fr)',kuka:'minmax(104px,.8fr)',luotu:'minmax(92px,.8fr)',ajankohta:'minmax(130px,1fr)',minigraafi:'130px',palkki:'130px',kylla:'64px',luku:'90px',pvm:'92px',siru:'minmax(96px,.8fr)',teksti:'minmax(120px,1fr)'};
+var NV_LAB={takaisinlinkit:'Takaisinlinkit',tunnisteet:'Tunnisteet',otsikko:'Otsikko',kansio:'Kansio',kuka:'Kuka kirjoitti',luotu:'Luotu',ajankohta:'Seuraava ajankohta'};
 function viewColumnParts(text){
   var parts=[],quote=false,start=0;
   for(var i=0;i<text.length;i++){
@@ -5222,6 +5226,10 @@ function nvRaw(n,k,today,formulas){
   if(formulas&&k.charAt(0)==='=')return formulas.get().run(k,n);if(k==='otsikko')return noteTitle(n)||'(tyhjä)';if(k==='kansio')return n.vp&&n.vp.indexOf('/')>0?n.vp.replace(/\/[^/]*$/,''):(n.vp?'':'laite');
   if(k==='kuka')return n.vp?VAULT.kindOf(n.vp,n.vfm):'oma';if(k==='luotu')return n.created?isoD(new Date(n.created)):'';
   if(k==='tunnisteet')return noteTags(n);
+  if(k==='takaisinlinkit'){
+    var incoming=formulas&&formulas.linkIndex&&formulas.linkIndex.incoming.get(n.id);
+    return incoming?incoming.size:0;
+  }
   if(k==='ajankohta'){var nx=nextDate(n,today);return nx?nx:null;}
   var raw=n.vfm?VAULT.fmGet(n.vfm,k):'';
   if(!formulas)return raw;
@@ -5234,15 +5242,19 @@ function nvRaw(n,k,today,formulas){
   return raw;
 }
 function nvDate(iso){var d=fromIso(iso);return isNaN(d)?iso:d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear();}
-function nvCell(c,v,today){var td=el('div','rvc'+(c.k==='otsikko'?' rvt':'')),t=c.t||'';
+function nvCell(c,v,today,note){var td=el('div','rvc'+(c.k==='otsikko'?' rvt':'')),t=c.t||'';
   if(v&&typeof v==='object'&&('error' in v||'value' in v)){
     if(v.error){td.classList.add('formula-error');td.textContent=v.error;td.title=v.error;return td;}
     v=typeof v.value==='number'?v.value:formulaDisplay(v.value);
   }
-  if(c.k==='tunnisteet'){
-    td.classList.add('note-tag-cell');
-    v.forEach(function(tag){td.appendChild(el('span','rvchip','#'+tag));});
-    return td;
+  if(c.k==='tunnisteet'){nvTagCell(td,v);return td;}
+  if(c.k==='takaisinlinkit'){
+    if(!v||noteSelectionMode){td.textContent=v||'–';return td;}
+    var links=button(td,String(v),'rvchip rv-backlink',function(event){
+      event.stopPropagation();nvOpenBacklinks(note,this);
+    });
+    links.setAttribute('aria-label','Takaisinlinkit: '+(noteTitle(note)||'Nimetön')+', '+v);
+    links.setAttribute('aria-haspopup','menu');return td;
   }
   if(c.k==='kuka'){var lab={oma:'oma',yhdessa:'yhdessä',tekoaly:'tekoäly',ohje:'tekoälylle'}[v]||v;if(v!=='oma')td.appendChild(el('span','srcdot'+(v==='yhdessa'?'':' ai')));td.appendChild(el('span','',lab));return td;}
   if(c.k==='ajankohta'){if(v){var o=v.o,s=(v.k===today?'Tänään ':'')+fromIsoW(v.k)+(o.time?' klo '+o.time.s.replace(/^0/,'').replace(':','.'):'');td.appendChild(el('span',v.k===today?'rvtoday':'',s));}return td;}
@@ -5258,6 +5270,66 @@ function nvCell(c,v,today){var td=el('div','rvc'+(c.k==='otsikko'?' rvt':'')),t=
   if(t==='palkki'){var r=/^\s*(-?[\d.]+)\s*-\s*(-?[\d.]+)\s*$/.exec(c.o||'')||[0,0,100],lo=+r[1],hi=+r[2],x2=dashNum(v);if(x2==null){td.textContent=v;return td;}
     var pc=Math.max(0,Math.min(1,(x2-lo)/((hi-lo)||1))),b=el('span','rvpb'),i=el('i');i.style.width=Math.round(pc*100)+'%';b.appendChild(i);td.appendChild(b);td.appendChild(el('small','',String(x2).replace('.',',')));td.setAttribute('aria-label',v+' / '+hi);return td;}
   td.textContent=v;return td;}
+function nvTagFilter(tag){
+  noteFilter=['tag:'+tag];noteQuery='';main.scrollTop=0;render();
+  var filter=$('filterpick');if(filter)filter.focus({preventScroll:true});
+}
+function nvOpenBacklinks(note,anchor){
+  var index=vLinkIndex(),ids=index.incoming.get(note.id),menu=$('sortpop');
+  if(!ids||!ids.size)return;
+  menu.textContent='';menu.setAttribute('aria-label','Takaisinlinkit');
+  menu.appendChild(el('div','mh','Takaisinlinkit'));
+  Array.from(ids,function(id){return index.byId.get(id);}).sort(function(a,b){
+    return (noteTitle(a)||'').localeCompare(noteTitle(b)||'','fi');
+  }).forEach(function(source,i){
+    menuItem(menu,'rv-backlink-'+i,noteTitle(source)||'Nimetön',function(){openNote(source);});
+  });
+  anchoredMenu('sortpop',anchor);
+}
+function nvTagCell(td,tags){
+  td.classList.add('note-tag-cell');
+  if(noteSelectionMode){
+    tags.forEach(function(tag){td.appendChild(el('span','rvchip','#'+tag));});
+    return;
+  }
+  tags.forEach(function(tag){
+    var chip=button(td,'#'+tag,'rvchip rv-tag',function(event){event.stopPropagation();nvTagFilter(tag);});
+    chip.dataset.rvMeasure='';
+  });
+  if(tags.length){
+    var more=button(td,'+'+tags.length,'rvchip rv-extra',function(event){
+      event.stopPropagation();
+      var anchor=this,menu=$('sortpop');menu.textContent='';menu.setAttribute('aria-label','Tunnisteet');
+      menu.appendChild(el('div','mh','Tunnisteet'));
+      tags.forEach(function(tag,i){menuItem(menu,'rv-tag-'+i,'#'+tag,function(){nvTagFilter(tag);});});
+      anchoredMenu('sortpop',anchor);
+    });
+    more.dataset.rvMeasure='';more.setAttribute('aria-label','Näytä kaikki '+tags.length+' tunnistetta');
+    more.setAttribute('aria-haspopup','menu');
+  }
+}
+var nvTagObserver=null;
+function nvFitTags(list){
+  var results=[];
+  list.querySelectorAll('.note-tag-cell').forEach(function(cell){
+    var more=cell.querySelector('.rv-extra');if(!more||!cell.clientWidth)return;
+    var css=getComputedStyle(cell),gap=parseFloat(css.columnGap)||0;
+    var available=cell.clientWidth-parseFloat(css.paddingLeft)-parseFloat(css.paddingRight);
+    var chips=Array.from(cell.querySelectorAll('.rv-tag')),widths=chips.map(function(chip){return chip.getBoundingClientRect().width;});
+    var remaining=available-more.getBoundingClientRect().width,shown=0;
+    if(widths.reduce(function(sum,w){return sum+w;},gap*(chips.length-1))<=available)shown=chips.length;
+    else while(shown<chips.length&&widths[shown]+gap<=remaining){
+      remaining-=widths[shown]+gap;shown++;
+    }
+    results.push({chips:chips,shown:shown,more:more});
+  });
+  results.forEach(function(result){
+    var missing=result.chips.length-result.shown;
+    result.chips.forEach(function(chip,i){chip.hidden=i>=result.shown;});
+    result.more.hidden=!missing;
+    if(missing)result.more.textContent='+'+missing;
+  });
+}
 function nvGraphValues(value,option){
   var ref=/^(data\/[a-z0-9_-]+\.csv):([a-z0-9_-]+)$/i.exec(String(option||value||''));
   if(ref){
@@ -5310,6 +5382,7 @@ function rowsInto(p,list,l,today,bar){var V=nvCur(),views=nvViews();
     vb.id='nvpick';vb.setAttribute('aria-haspopup','menu');vb.appendChild(el('small','','Näkymä'));vb.appendChild(el('span','',V.name));vb.insertAdjacentHTML('beforeend',CHEV);bar.insertBefore(vb,bar.firstChild);}
   var L=V.mista.length?l.filter(function(n){return nvPass(V,n);}):l,formulas=formulaContext();
   var override=nvSortOverrides.get(V.id),activeSort=override||V.sort;
+  if(vOn()&&(V.cols.some(function(c){return c.k==='takaisinlinkit';})||activeSort&&activeSort.k==='takaisinlinkit'))formulas.linkIndex=vLinkIndex();
   L=nvSortList(L,activeSort,V,today,formulas);
   var NL=nvLay(V);V=Object.assign({},V,{cols:NL.cols});
   var tpl=V.cols.map(function(c){var w=NL.w[nvKey(c)];return w?w+'px':(NV_W[c.k]||NV_W[c.t==='kylla-ei'?'kylla':c.t]||NV_W.teksti);}).join(' ');list.style.setProperty('--rvcols',tpl);
@@ -5332,7 +5405,8 @@ function rowsInto(p,list,l,today,bar){var V=nvCur(),views=nvViews();
   });
   hw.appendChild(hr);p.appendChild(hw);
   var canOrder=noteOrderEnabled()&&noteSort==='own'&&!noteSelectionMode&&!noteFilter.length&&!V.mista.length&&!activeSort;
-  L.forEach(function(n){var r=el('div','rvr'+srcCls(n));r.dataset.id=n.id;r.setAttribute('role','button');r.tabIndex=0;V.cols.forEach(function(c){r.appendChild(nvCell(c,nvRaw(n,c.k,today,formulas),today));});
+  var actionCells=V.cols.some(function(c){return c.k==='tunnisteet'||c.k==='takaisinlinkit';});
+  L.forEach(function(n){var r=el('div','rvr'+srcCls(n));r.dataset.id=n.id;r.setAttribute('role','button');r.tabIndex=0;V.cols.forEach(function(c){r.appendChild(nvCell(c,nvRaw(n,c.k,today,formulas),today,n));});
     if(noteSelectionMode)bindNoteSelection(r,n,r.querySelector('.rvt')||r);
     else if(canOrder&&noteOrderPath(n.vp)){
       var title=r.querySelector('.rvt'),handle=noteOrderHandle(r,n,list);
@@ -5341,10 +5415,24 @@ function rowsInto(p,list,l,today,bar){var V=nvCur(),views=nvViews();
       open.addEventListener('click',function(){openNote(n);});
       title.textContent='';title.append(handle,open);
       r.addEventListener('click',function(ev){if(!ev.target.closest('button'))openNote(n);});
-    }else{nvPickBox(r,n);r.addEventListener('click',function(ev){if(nvMultiClick(ev,n,L))return;openNote(n);});r.addEventListener('keydown',function(ev){if(ev.key==='Enter'&&ev.target===r)openNote(n);});}
+    }else{
+      if(actionCells){
+        var titleCell=r.querySelector('.rvt'),title=titleCell.textContent;
+        r.removeAttribute('role');r.removeAttribute('tabindex');titleCell.textContent='';
+        button(titleCell,title,'note-order-open',function(event){event.stopPropagation();if(!nvMultiClick(event,n,L))openNote(n);});
+      }
+      nvPickBox(r,n);r.addEventListener('click',function(ev){if(nvMultiClick(ev,n,L))return;openNote(n);});
+      r.addEventListener('keydown',function(ev){if(ev.key==='Enter'&&ev.target===r)openNote(n);});
+    }
     if(noteSelectionMode)r.addEventListener('click',function(ev){if(ev.shiftKey&&nvAnchor){ev.preventDefault();ev.stopImmediatePropagation();nvRange(n,L);}else nvAnchor=n.id;},true);
     list.appendChild(r);});
   list.addEventListener('scroll',function(){hw.scrollLeft=list.scrollLeft;},{passive:true});
+  if(V.cols.some(function(c){return c.k==='tunnisteet';})){
+    if(window.ResizeObserver){
+      nvTagObserver=new ResizeObserver(function(){nvFitTags(list);});nvTagObserver.observe(list);
+    }
+    requestAnimationFrame(function(){nvFitTags(list);});
+  }
   if(V.mista.length&&!L.length)list.appendChild(el('p','sub','Näkymässä ei ole muistiinpanoja.'));}
 /* ---- Kaikki 0.31 (Emil 22.11.2026, A0.3–A0.6): rivinäkymän sarakkeet raahattaviksi ja monivalinta näkyväksi.
    Leveys otsikon oikeasta reunasta (kaksoisnapsautus palauttaa oletuksen), järjestys raahaamalla otsikkoa (Otsikko pysyy ensimmäisenä).
@@ -5359,7 +5447,7 @@ function nvLay(V){var o=nvLayGet(V),cols=V.cols.slice();if(Array.isArray(o.order
 function nvHeadDrag(sort,cell,rz,V,c,list,hr){var key=nvKey(c);
   rz.addEventListener('pointerdown',function(e){e.preventDefault();e.stopPropagation();var x0=e.clientX,w0=cell.getBoundingClientRect().width,o=nvLayGet(V);o.w=o.w||{};
     function mv(ev){var w=Math.max(60,Math.min(700,Math.round(w0+ev.clientX-x0)));o.w[key]=w;var cols=getComputedStyle(hr).gridTemplateColumns.split(' ');var i=Array.prototype.indexOf.call(hr.children,cell);cols[i]=w+'px';var t=cols.join(' ');hr.style.setProperty('--rvcols',t);list.style.setProperty('--rvcols',t);}
-    function up(){window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);nvLaySet(V,o);}
+    function up(){window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);nvLaySet(V,o);nvFitTags(list);}
     window.addEventListener('pointermove',mv);window.addEventListener('pointerup',up);});
   rz.addEventListener('dblclick',function(e){e.stopPropagation();var o=nvLayGet(V);if(o.w)delete o.w[key];nvLaySet(V,o);render();});
   if(c.k==='otsikko')return;
@@ -5383,7 +5471,7 @@ function nvPickBox(r,n){var t=r.querySelector('.rvt');if(!t)return;var b=el('spa
    ehdot (kansio, tunniste, tyyppi, kuka kirjoitti, omat kentät; = ≠ > < sisältää; kaikkien pitää päteä), järjestys ja sarakkeet (päälle/pois,
    järjestys nuolilla, näyttötapa ja asetus). Muutokset tallentuvat, kun ikkuna suljetaan (ulkopuolinen napautus tai ‹); Peru muutokset hylkää.
    Kirjoittaa saman `nakymat/<tunnus>.md`-muodon kuin tekoäly (vaultin ohjeet/appi.md), joten näkymät ovat samoja tiedostoja. ---- */
-var NV_STD=['tyyppi','otsikko','kuvaus','luotu','lahde','nakyy','juuri','tagit','muokattu','mista','jarjestys','sarakkeet','leveydet','taulukko'];
+var NV_STD=['tyyppi','otsikko','kuvaus','luotu','lahde','nakyy','juuri','tagit','takaisinlinkit','muokattu','mista','jarjestys','sarakkeet','leveydet','taulukko'];
 var NV_OPS=[['=','on'],['!=','ei ole'],['~','sisältää'],['>','suurempi kuin'],['<','pienempi kuin']];
 var NV_LAJIT=[['','teksti'],['siru','siru'],['pvm','päivä'],['luku','luku'],['palkki','palkki'],['kylla-ei','kyllä/ei']];
 function nvFieldOf(n,k){try{var ctx=formulaContext(),f=KAAVA.fields(n,ctx.allowed),v=f.get(k);return v&&v.length?v[0]:'';}catch(e){return '';}}
@@ -5415,15 +5503,15 @@ function nvRenderEd(){var d=$('nvedit'),D=nvDraft;d.textContent='';var fields=nv
   if(!D.mista.length)cl.appendChild(el('p','sub','Kaikki muistiinpanot.'));d.appendChild(cl);
   var ab=button(d,'+ Lisää ehto','mini',function(){D.mista.push({k:'tunniste',op:'=',v:''});nvRenderEd();var r=d.querySelectorAll('.nved-row input');if(r.length)try{r[r.length-1].focus();}catch(e){}});ab.id='nved-addcond';
   d.appendChild(el('h3','','Järjestys'));var sr=el('div','nved-row');var ss=el('select');ss.id='nved-sort';ss.setAttribute('aria-label','Järjestä kentän mukaan');
-  [['','Muistion oma järjestys'],['otsikko','otsikko'],['luotu','luotu'],['ajankohta','seuraava ajankohta'],['kansio','kansio']].concat(fields.map(function(f){return [f,f];})).forEach(function(k){var o=el('option','',k[1]);o.value=k[0];ss.appendChild(o);});
+  [['','Muistion oma järjestys'],['otsikko','otsikko'],['luotu','luotu'],['ajankohta','seuraava ajankohta'],['kansio','kansio'],['takaisinlinkit','takaisinlinkit']].concat(fields.map(function(f){return [f,f];})).forEach(function(k){var o=el('option','',k[1]);o.value=k[0];ss.appendChild(o);});
   ss.value=D.sort?D.sort.k:'';var sd=el('select');sd.setAttribute('aria-label','Suunta');[['1','nouseva'],['-1','laskeva']].forEach(function(k){var o=el('option','',k[1]);o.value=k[0];sd.appendChild(o);});sd.value=D.sort?String(D.sort.d):'1';
   function so(){D.sort=ss.value?{k:ss.value,d:+sd.value}:null;}ss.addEventListener('change',so);sd.addEventListener('change',so);sr.appendChild(ss);sr.appendChild(sd);d.appendChild(sr);
-  d.appendChild(el('h3','','Sarakkeet'));var cand=['otsikko','kansio','kuka','luotu','ajankohta','tunnisteet'].concat(fields);D.cols.forEach(function(c){if(cand.indexOf(c.k)<0)cand.push(c.k);});
+  d.appendChild(el('h3','','Sarakkeet'));var cand=['otsikko','kansio','kuka','luotu','ajankohta','tunnisteet','takaisinlinkit'].concat(fields);D.cols.forEach(function(c){if(cand.indexOf(c.k)<0)cand.push(c.k);});
   var on=D.cols.map(function(c){return c.k;}),order=on.concat(cand.filter(function(k){return on.indexOf(k)<0;})),cols=el('div','nved-cols');
   order.forEach(function(k,i){var c=D.cols.filter(function(x){return x.k===k;})[0],r=el('div','nved-col'+(c?'':' off'));r.dataset.k=k;
     var cb=el('input');cb.type='checkbox';cb.checked=!!c;cb.disabled=k==='otsikko';cb.setAttribute('aria-label','Näytä sarake '+(NV_LAB[k]||k));cb.addEventListener('change',function(){if(cb.checked){var ix=Math.min(D.cols.length,order.slice(0,i).filter(function(x){return D.cols.some(function(y){return y.k===x;});}).length);D.cols.splice(ix,0,{k:k,t:'',o:''});}else D.cols=D.cols.filter(function(x){return x.k!==k;});nvRenderEd();});
     r.appendChild(cb);r.appendChild(el('span','nved-cn',NV_LAB[k]||k));
-    if(c&&['otsikko','kansio','kuka','luotu','ajankohta','tunnisteet'].indexOf(k)<0){var ls=el('select');ls.setAttribute('aria-label','Näyttötapa: '+k);NV_LAJIT.forEach(function(l){var o=el('option','',l[1]);o.value=l[0];ls.appendChild(o);});ls.value=c.t||'';ls.addEventListener('change',function(){c.t=ls.value;nvRenderEd();});r.appendChild(ls);
+    if(c&&['otsikko','kansio','kuka','luotu','ajankohta','tunnisteet','takaisinlinkit'].indexOf(k)<0){var ls=el('select');ls.setAttribute('aria-label','Näyttötapa: '+k);NV_LAJIT.forEach(function(l){var o=el('option','',l[1]);o.value=l[0];ls.appendChild(o);});ls.value=c.t||'';ls.addEventListener('change',function(){c.t=ls.value;nvRenderEd();});r.appendChild(ls);
       if(c.t==='luku'||c.t==='palkki'){var oi=el('input');oi.type='text';oi.className='nved-opt';oi.placeholder=c.t==='palkki'?'0-100':'yksikkö';oi.value=c.o;oi.setAttribute('aria-label',c.t==='palkki'?'Väli':'Yksikkö');oi.addEventListener('input',function(){c.o=oi.value;});r.appendChild(oi);}}
     if(c&&k!=='otsikko'){var ci=D.cols.indexOf(c);var up=button(r,'↑','mini nved-mv',function(){if(ci>1){D.cols.splice(ci,1);D.cols.splice(ci-1,0,c);nvRenderEd();}});up.setAttribute('aria-label','Siirrä ylös');up.disabled=ci<=1;
       var dn=button(r,'↓','mini nved-mv',function(){if(ci<D.cols.length-1){D.cols.splice(ci,1);D.cols.splice(ci+1,0,c);nvRenderEd();}});dn.setAttribute('aria-label','Siirrä alas');dn.disabled=ci>=D.cols.length-1;}
@@ -8657,6 +8745,8 @@ function sgViewCell(v){if(v==null)return '';if(typeof v==='object'&&!Array.isArr
   var t=typeof v==='number'?String(v):typeof v==='boolean'?(v?'kyllä':'ei'):String(v);return t.charAt(0)==='='?' '+t:t;}
 function sgFillViews(sheets,notes,allowed){var vs=sheets.filter(function(s){return s.view;});if(!vs.length)return;
   var base=KAAVA.create(notes,allowed,function(){throw {code:'#PUUTTUU'};}),fx={allowed:allowed,get:function(){return base;}},today=todayIso();
+  if(vs.some(function(sheet){return sheet.view.cols.some(function(col){return col.k==='takaisinlinkit';})||
+    sheet.view.sort&&sheet.view.sort.k==='takaisinlinkit';}))fx.linkIndex=vLinkIndex();
   vs.forEach(function(s){var V=s.view,L=notes.filter(function(n){return !n.arch&&nvPass(V,n);});L=nvSortList(L,V.sort,V,today,fx);s.notes=L;
     s.rows=L.map(function(n){return V.cols.map(function(c){var v;try{v=nvRaw(n,c.k,today,fx);}catch(e){v={error:'#ARVO!'};}return sgViewCell(v);});});});}
 function sheetSet(path){
