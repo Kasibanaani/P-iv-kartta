@@ -59,6 +59,10 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
    - Löydetyt asiasanat, linkit ja päällekkäisyydet samaan pieneen rivin perään yhtenä ”Tiedot”-siruna tai ⋯-valikkoon, ei omina laatikoinaan tekstin alla.
    - Kaikki metatieto samassa kohdassa (tekstin yläpuolella), ei osa keskellä ja osa reunoilla.
 
+2. **Muistiinpanot riveinä ja sarakkeina (tietokone ensin), Emil 22.11.2026.** Notionin tietokannan hyvä puoli ilman sen kömpelyyksiä: muistiinpanot allekkain riveinä, otsikko vasemmalla (jäädytetty), muutama sarake. Sarakkeet täyttyvät muistiinpanon omasta tiedosta, kun se on oikeassa muodossa; sarakkeella oma näyttötapa (teksti, siru, päivä, palkki min–max, minigraafi, väkänen). Määritellyt näkymät.
+   Ehdotus (tekoäly): sarakkeet = muistiinpanon alkutiedot (`tyyppi`, `lahde`, `luotu`, `tagit` ja uudet omat kentät, esim. `tila: kesken`, `arvio: 7`, `edistys: 40`). Näkymä on oma tiedosto vaultissa (esim. `nakymat/<nimi>.md`: mitkä muistiinpanot, mitkä sarakkeet, millä näyttötavalla), jotta tekoäly voi tehdä ja täyttää niitä. Näyttötavat yhteiset tulevan taulukko/kojelauta-idean (D) kanssa: yksi toteutus, monta käyttöä. Vaatii vaultin ohjeisiin päätöksen kenttien nimistä.
+3. **Koko vault varmuuskopioksi (ehdotus, tekoäly).** Nykyinen Vienti (`Kaikki.json`) sisältää apin tiedot ja näkyvien muistiinpanojen tekstit, mutta ei koko vaultia (ei `ohjeet/`, `arkisto/`, `data/`, piilotettuja). Appilla on kaikki vaultin tekstitiedostot jo välimuistissa, joten se voi tehdä yhden ZIP-tiedoston, jossa vaultin kansiot ja `.md`/`.csv`/`.json`-tiedostot sellaisinaan (avautuu millä tahansa koneella). Valikko → Vienti ja tuonti → ”Koko vault (ZIP)”. Sama onnistuu jo nyt GitHubin sivulta: Code → Download ZIP.
+
 ### Isommat ideat (Emil 22.11.2026: ”onko mahdollista?”, ei toteutuslistalla)
 
 Kaikki alla on tekoälyn arvion mukaan mahdollista ilman ulkoisia kirjastoja. Ehdotettu järjestys: A → B → C → D.
