@@ -62,6 +62,8 @@ Myöhemmin samaan jatkoon (v2.1): solujen muotoilu (lihavointi, tasaus, lukumuot
 
 **C. Kokeilu (tulos ja avoimet päätökset Emilille ennen pysyvää muotoa):** kohta 7 Flow tekstinä.
 
+**A3. Uudet v1:t (Emil 22.11. illalla):** kohta 18 (toistuvuus kenttänä, Toistuvat-lista) ja kohta 19 (graafinäkymä, ensin paikallinen). Kohta 20 (kanvaasi) on visio, joka odottaa Emilin päätöksiä.
+
 **D. Visio, liian epätarkka v1:ksi** (ei rakenneta ennen Emilin tarkennusta; ks. *Pohdittavat* lopussa): pikakirjausten laajempi editori tietokoneelle; toteutumien tunnistus, tilastointi ja korrelaatiot (kohta 15); kojelauta-rakentajan vapaa sijoittelu, raahattavat koot ja tyylit; kuvaajien ulkoasuasetukset; Listojen suhde vaultiin; kuvat ja liitteet; Notion-sisällön siirto.
 
 ## ~~1. Muistiinpanoikkuna: teksti pääosaan~~ (tehty 0.9, ks. TILA; jäljellä: Liitä asiasanaan, päällekkäisyys ja kiinnitys yhä tekstin alla tilanteen mukaan)
@@ -314,6 +316,31 @@ Kokeile testiaineistolla ensin Flow'n lukemista sisennetystä Markdownista. Jatk
 3. **Seurantakirjaukset kalenterissa kuitattuina** (pikakirjaus, mittarit, treenit): näkyvät kalenterin päivässä *Kirjattu*-tyylillä, ei kuittausympyrää (kohta 15).
 4. **Metatieto erillään tekstistä:** alkutiedot (kuitattu, tagit, omat kentät, juuri) eivät koskaan näy tekstikentässä; muistiinpanoikkunan sirun ikkunaan (0.9) *Tiedot*-osio, jossa ne näkyvät pieninä riveinä (avain · arvo) ja ovat muokattavissa. Appi kirjoittaa oman metatietonsa **vain alkutietoihin**, ei tekstiin. Tekstissä olevat appin tunnistamat rivit (`hinta: 120`, `Mittarit: …`, `#tunniste`, `{=kaava}`) jäävät tekstiin, koska Emil kirjoitti ne itse, mutta ne näytetään erottuvalla tyylillä (himmeä tasalevyinen siru), ja niiden kohdalla on valinta *Siirrä tietoihin*.
 5. Synkka varmistetaan testillä, jossa kaksi laitetta jakaa saman testirepon (kuittaus laitteella A → näkyy laitteella B haun jälkeen).
+
+## 18. Toistuvuus mille tahansa muistiinpanolle: toistuvat tehtävät listana (Emil 22.11.2026)
+
+**Emil:** toistuvat tehtävät listan kaltaisena listana, jossa OK laukeaa uudelleen kuitattavaksi kohteelle määritetyllä tavalla. Mikä tahansa tiedosto, joka kertoo milloin se laukeaa, voisi olla tällainen kohde. Sykli nollautuu, jos asia tehdään muuna aikana. Pikamuistiinpanosta voi ohjelmoida ensimmäisen laukeamispäivän, josta kuitattaessa sykli alkaa.
+**Ehdotus (tekoäly), v1 ilman lisäkysymyksiä (yksi käsite, ei erillistä Toistuvat-rakennetta):**
+- Muistiinpanon kenttä `toistuu: 2 viikkoa` (luku + päivä/viikko/kuukausi/vuosi) ja valinnainen `seuraava: VVVV-KK-PP` (ensimmäinen tai seuraava laukeamispäivä). Oletuksena **kuittauksesta**: kuittaus (milloin tahansa, myös etuajassa) asettaa `seuraava` = kuittauspäivä + väli, eli sykli nollautuu; `toistuu: 2 viikkoa tasavälein` pitää kalenterirytmin.
+- Kuittaus käyttää kohdan 17 `kuitattu:`-riviä; viimeisin kuittaus ratkaisee.
+- **Toistuvat-lista** (Listat-osioon tai Muistion näkymäksi): kaikki muistiinpanot, joilla on `toistuu`; ensin erääntyneet (punainen), sitten tänään, sitten tulevat (himmeä, päivä näkyvissä). OK-ruutu kuittaa. Sama kohde näkyy kalenterissa `seuraava`-päivänä.
+- Pikakirjauksen Muistutus-välilehdelle valinta *Toistuu* (väli napautuksin), jolloin valittu päivä on `seuraava`.
+- 0.35:n `toistuvat/<nimi>.md` -tiedostot muutetaan tähän muotoon (`toistuu`, `seuraava`, kuittaukset), jolloin vanha Toistuvat-rakenne voidaan karsia. Toistuvan synnyttämiä erillisiä muistiinpanoja ei enää tarvita.
+- Testi: kuittaus etuajassa siirtää seuraavan, tasavälein ei siirrä, erääntyneet ensin, kahden laitteen synkka.
+
+## 19. Graafinäkymä (Emil 22.11.2026: ”graphic mode kuten Obsidianissa, onko raskas?”)
+
+**Arvio:** ei raskas nykyisellä vaultilla (n. 150 muistiinpanoa; tuhansillekin kevyt omalla yksinkertaisella voimasimulaatiolla ja canvas-piirrolla ilman kirjastoja, n. 200 riviä). Koko vaultin graafi on yleensä lähinnä kaunis; **paikallinen graafi** (avoimen muistiinpanon naapurit 1–2 askeleen päähän) on käytännössä hyödyllisempi.
+**v1 ilman lisäkysymyksiä:** tietokoneella osio tai Muistion näkymä *Graafi*: pisteet = muistiinpanot, viivat = `[[linkit]]` (ja valinnaisesti yhteiset tunnisteet ohuempina), väri kuka kirjoitti -värien mukaan, koko linkkien määrän mukaan; vieritys ja zoomaus, napautus avaa esikatselun, kaksoisnapautus muistiinpanon. Muistiinpanoikkunaan *Paikallinen graafi* -painike. Suodatus samoilla ehdoilla kuin näkymissä. Simulaatio pysähtyy, kun asettelu on valmis (ei kuluta akkua).
+
+## 20. Kanvaasi: muistiinpanot kartalle ja yhteydet viivoilla (Emil 22.11.2026)
+
+**Emil:** pohjalle valitaan muistiinpanoja yksi kerrallaan pieniksi esikatseluikkunoiksi (napautus avaa isommin), viiva vedetään toisesta toiseen, ja viivasta syntyy linkki tiedostoihin. Viivalla laji, esim. ”tästä seuraa tämä” nuolena, joka kirjoitetaan kumpaankin tiedostoon. Työnkulkuja, joita tekoälykin voi seurata.
+**Ehdotus (tekoäly), visio, vaatii Emilin päätökset ennen v1:tä:**
+- Kanvaasi tiedostona avoimessa **JSON Canvas** -muodossa (`kanvaasit/<nimi>.canvas`, sama kuin Obsidianissa: solmut = tiedostot paikkoineen, reunat = viivat lajeineen), jolloin se aukeaa myös muualla.
+- Viivan lajit lyhyestä listasta: *seuraa* (nuoli), *edellyttää*, *liittyy*, *ristiriidassa*. Yhteys kirjoitetaan molempien muistiinpanojen **alkutietoihin** (metatieto, ei tekstiin, kohdan 17 periaate), esim. lähteeseen `seuraava: [[b]]` ja kohteeseen `edellinen: [[a]]`; näkyy Tiedot-osiossa ja graafissa. Tekoäly lukee yhteydet alkutiedoista ja kanvaasista.
+- Toteutuksessa kannattaa käyttää Kytköskartan ja Appi-appin kanvaasikoodin malleja (solmut, nuolet, zoomaus).
+- Liittyy Flow'hun (kohta 7): kanvaasi voisi olla Flow'n graafinen muokkain, jolloin työnkulku on yksi käsite kahdella näkymällä. **Kysymykset Emilille:** kirjoitetaanko yhteydet alkutietoihin vai tekstin loppuun näkyväksi osioksi; mitkä viivalajit; yhdistetäänkö Flow'hun.
 
 ## Pohdittavat (ei toimintaohjetta vielä)
 
