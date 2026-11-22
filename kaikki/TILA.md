@@ -1,6 +1,6 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.11 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
+**Vaihe:** versio 0.12 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 22.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
@@ -51,6 +51,7 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
 - **0.9 (22.11.2026, suunnitelman kohta 1): muistiinpanoikkunassa tila tekstille.** Tekstikenttä aina reunoin ja täyttää ikkunan (puhelimella ruudun korkeudelta, tietokoneella ikkuna 880 px leveä, kenttä 64vh). Ylärivillä yksi siru (`#ns-when`, `nsWhen`): seuraava ajankohta (kuitattuna väkänen, useampi +N), muuten Tiedot (asiasanat) tai + Päivä. Siru avaa pienen ikkunan (`#ns-datepop`): päivä- ja aikarivi sekä Ajankohdat ja asiasanat (siirretty tekstin alta). Luotu ja muokattu ⋯-valikon ylärivillä, vihje ”napauta tekstiä muokataksesi” pois. Esc sulkee ensin pikkuikkunan. Valinnan ”Liitä asiasanaan”, päällekkäisyysilmoitus ja kalenterin kohdan kiinnitys jäivät tekstin alle (näkyvät vain tilanteen mukaan). Testi `selain_09.py`, `selain_06.py` päivitetty.
 - **0.10 (22.11.2026, suunnitelman kohta 2): muistiinpanot riveinä ja sarakkeina.** Kortit / Rivit -nappi (`#nviewbtn`; tietokoneella yläpalkissa, puhelimella alapalkissa Kaikki/Toistuvat-valinnan vieressä), laitekohtainen `kaikki:nmode` (oletus Rivit ≥ 1000 px, muuten Kortit). Oletusnäkymä Kaikki muistiinpanot: otsikko, kansio, kuka kirjoitti, luotu, seuraava ajankohta. Vaultin näkymätiedostot `nakymat/*.md` (`tyyppi: nakyma`; `mista`, `jarjestys`, `sarakkeet: - kenttä | laji | asetus`; lajit teksti, siru, pvm, luku, palkki, kylla-ei) näkyvät Näkymä-valinnassa (`kaikki:nview`); muoto vaultin `ohjeet/appi.md`:ssä. Appilinjan taulukkomalli: otsikkosarake ja otsikkorivi jäädytettyinä, sarakkeet vierivät sivuttain, rivi 42 px, kuka kirjoitti -raita otsikkosarakkeessa. Haku, asiasanat, henkilö-suodatin ja Muistion järjestys toimivat kuten korteissa (näkymän `jarjestys` ohittaa). Muistiinpanot/Toistuvat puhelimella lyhyesti Kaikki/Toistuvat. Vain luku. Testi `selain_10.py`.
 - **0.11 (22.11.2026, suunnitelman kohta 4): huoltopyynnöt ja Tekoälylle.** Puhelimen Valikosta tai tietokoneen yläpalkin Tekoälylle-painikkeesta voi jättää pyynnön saapuneille tai koko vaultille. Muistiinpanon ⋯-valikosta voi pyytää kyseisen tiedoston järjestämistä. Appi lisää pyynnön tuoreimpaan `yllapito/pyynnot.md`-versioon *Avoimet*-otsikon alle ja yrittää uudelleen rinnakkaisen kirjoituksen jälkeen. Tekoälylle-näkymä avaa ohjeet, piilotetut työmuistiinpanot ja ylläpitotiedostot muistiinpanoikkunassa. Tekstin muokkaus säilyttää alkutiedot. Aiemmat lähdesuodattimet ovat käytettävissä. Myös GitHub-vaultin asetusikkuna sulkeutuu ulkopuolelta tai Escillä. Testi `selain_11.py` kattaa neljä näyttöleveyttä, rinnakkaisen huoltopyynnön ja tiedoston muokkauksen. Ikkunan sulkemisessa käytetään olemassa olevaa Safari-yhteensopivaa taustaklikkausta.
+- **0.12 (22.11.2026, suunnitelman kohta 5): osiot laitekohtaisesti.** Puhelimella valitse vasemman alakulman osiovalikosta Osiot tällä laitteella. Tietokoneella asetus avautuu yläpalkin säätöpainikkeesta. Valinnat tallentuvat selaimeen avaimella `kaikki:piilotetut-osiot` ja koskevat tämän laitteen kaikkia projekteja. Kaikki osiot näkyvät oletuksena. Jos avoin osio piilotetaan, appi näyttää ensimmäisen näkyvän osion. Vähintään yksi käyttötilassa käytettävissä oleva osio pysyy aina näkyvissä. Valinnat vaikuttavat navigaatioon, ja sisäiset linkit toimivat edelleen. Testi `selain_12.py` kattaa neljä näyttöleveyttä, asetuksen palautuksen latauksen jälkeen ja viimeisen osion suojauksen. Testi ajettiin tietokoneen Chromiumissa.
 - **Mikä menee GitHubiin:** ensimmäisen projektin muistiinpanot (myös niiden kuittaukset ja kalenteriajat) sekä Tekoälylle-näkymässä muokatut tiedostot ja huoltopyynnöt. Asetukset, ulkoasu, asiasanat, Listat, Flow, puut, Toistuvat-välilehden toistuvat, tarkistuslistat ja muut projektit ovat vain laitteella (`kaikki:v1`); varmuuskopio niistä Juuren viennillä.
 
 **Suunta (Emil 22.11.2026):** Kaikki eriytyy Juuresta: Juuren ominaisuuksia karsitaan, painopiste siirtyy tietokoneelle (tiedon käsittely, rivinäkymät, taulukot, kojelauta). Puhelinnäkymä riisutaan: keskeistä kalenteri, uuden muistiinpanon lisäys ja osa kuvaajista; toiminnot voivat säilyä, mutta näkymä kevenee. Pitkä projekti; mahdollinen tie ulos Notionista.
@@ -104,13 +105,13 @@ Kaikki alla on tekoälyn arvion mukaan mahdollista ilman ulkoisia kirjastoja. Eh
 
 ## Seuraava askel
 
-Suunnitelman kohta 5 on osioiden laitekohtainen näkyvyys. Sen jälkeen ovat mittarien kirjaus ja rajatut kokeilut. Uusi pysyvä vaultin tiedostomuoto ja olemassa olevien osioiden karsiminen odottavat Emilin päätöstä.
+Suunnitelman kohta 6 on mittarien kirjaus. Sen jälkeen ovat rajatut kokeilut. Uusi pysyvä vaultin tiedostomuoto ja olemassa olevien osioiden karsiminen odottavat Emilin päätöstä.
 
 Emil kokeilee GitHub-yhteyttä tietokoneella (pilvinappi yläpalkissa, vain omalla koneella). Sen jälkeen suunnitellaan tietokoneasettelu (ehdotus: lista ja auki oleva muistiinpano rinnakkain, isompi kirjoitusalue, pikanäppäimet, kansiot tai asiasanat sivupalkkiin).
 
 
 Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kalenteri. Sen jälkeen suunnitelman mukaan (Emil 22.11.2026):
-1. ~~Kojelauta~~ tehty 0.7 (vain katselu). Jatkossa: ulkoasuasetukset kuvaajiin, osiot laitekohtaisesti päälle/pois.
+1. ~~Kojelauta~~ tehty 0.7 (vain katselu). Osioiden laitekohtainen näkyvyys tehty 0.12. Kuvaajien ulkoasuasetukset ovat jatkoidea.
 2. Helppo kirjaus eri asioihin (päivän mittarit palikoina).
 3. Päätöspuut vaultiin tekstinä, jotta Emil voi kuvailla ja tekoäly kirjoittaa puun valmiiksi.
 4. Karsinta: mitä Juuren osia Kaikki ei tarvitse.
