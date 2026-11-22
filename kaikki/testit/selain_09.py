@@ -15,7 +15,7 @@ async def run(p,w,h):
     except Exception: b=await p.chromium.launch(executable_path='/opt/pw-browsers/chromium')
     errs=[]; bad=[]
     pg=await (await b.new_context(viewport={'width':w,'height':h})).new_page()
-    await pg.add_init_script(FAKE+";(function(){var S=%s;if(!window.__repo.kept)for(var k in S)window.__repo.put(k,S[k]);try{localStorage.setItem('kaikki:gh',JSON.stringify({repo:'testi/vault',token:'x',branch:'main'}))}catch(e){}})();"%json.dumps(SEED))
+    await pg.add_init_script(FAKE+";(function(){var S=%s;if(!window.__repo.kept)for(var k in S)window.__repo.put(k,S[k]);try{localStorage.setItem('kaikki:nmode','cards');localStorage.setItem('kaikki:gh',JSON.stringify({repo:'testi/vault',token:'x',branch:'main'}))}catch(e){}})();"%json.dumps(SEED))
     pg.on('pageerror',lambda e:(errs.append(str(e)),print('  PAGEERR',e)))
     def want(label,cond,info=''):
         print('  %-52s %s %s'%(label,'ok' if cond else 'VIRHE',info if not cond else ''))

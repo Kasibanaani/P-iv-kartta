@@ -31,7 +31,9 @@ async def run(p,w,h):
     await pg.evaluate(GRAB)
     await pg.evaluate("document.getElementById('xbtn').click()"); await pg.wait_for_timeout(200)
     want('ZIP-nappi näkyy Vienti ja tuonti -ikkunassa',await pg.is_visible('#vs-zip'))
-    await pg.click('#vs-zip'); await pg.wait_for_timeout(800)
+    await pg.click('#vs-zip')
+    try: await pg.wait_for_function('window.__zip',timeout=8000)
+    except Exception: pass
     z=await pg.evaluate("window.__zip")
     want('tiedosto annettu tallennettavaksi',z is not None)
     if z:
