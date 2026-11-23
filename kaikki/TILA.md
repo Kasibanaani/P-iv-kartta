@@ -220,6 +220,8 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 
 ## Suunnitelmat
 
+23.11.2026. [Kojelaudan suunnitelmaan](SUUNNITELMA.md#3-kojelauta-jota-voi-k%c3%a4ytt%c3%a4%c3%a4-yhdell%c3%a4-k%c3%a4dell%c3%a4-ja-rakentaa-tietokoneella-d-kohdat-6-ja-13) lisättiin ehdotus vapaasti nimetyn tekstirivin poiminnasta ja aikasarjasta saman osion päivämäärän perusteella.
+
 23.11.2026. [Automaattisten sanalinkkien kytkin](SUUNNITELMA.md#7-tunnisteet-painoarvo-ja-muistiinpanojen-verkosto) lisättiin työjonoon. Kytkimen ollessa pois päältä tekstiosumat näkyvät tavallisena tekstinä ja tehdyt wikilinkit avautuvat edelleen.
 
 23.11.2026. [Timanttien visio](SUUNNITELMA.md#visio-ajatusten-risteämissä-syntyvät-timantit) kuvaa ajatusten risteämistä ja uudelleenlukemista. [Työjonon kohdassa 10](SUUNNITELMA.md#10-timantin-nostaminen-löytäminen-ja-uudelleenlukeminen) on neljä ehdotettua käyttökoetta. Ensimmäiseksi kokeillaan omaa nostoa nykyisellä muistiinpanolla, linkeillä ja näkymällä.
