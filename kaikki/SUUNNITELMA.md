@@ -2,7 +2,7 @@
 
 Itsenäinen ohje mille tahansa tekoälylle (Claude, ChatGPT/Codex, muu). Aiempaa keskustelua ei tarvitse muistaa. Lue ensin repon `AGENTS.md`, sitten `kaikki/TILA.md` ja tämä. Emilin päätökset on merkitty **Emil**, tekoälyn ehdotukset *ehdotus*. Ehdotus ei ole toteutuslupa; Emilin ”toteuta” on.
 
-Päivitetty 23.11.2026 (päähaara 0.54). Kohdan 18 ensimmäinen kokeilu on omassa haarassaan. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
+Päivitetty 23.11.2026 (päähaara 0.56: korjaussuunnitelman kohdat 1–2 tehty, seuraavana kohta 3). Kohdan 18 ensimmäinen kokeilu on omassa haarassaan. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
 
 **Rakentajan nykyinen jatko-ohje:** [Tulevien ominaisuuksien toteutusjono](#tulevien-ominaisuuksien-toteutusjono) täsmentää A0–D-jonon avoimet ominaisuudet ja kertoo mistä aloittaa.
 
@@ -19,7 +19,7 @@ Pohjana on päähaaran versio 0.54, commit `6bea243`. Tämä on Emilin pyytämä
 
 **Tarkistuksen aineisto.** Muistion rivinäkymää vieritettiin Chromiumissa 900 CSS-pikseliä sadan synteettisen muistiinpanon listassa. Tarkistettiin palkkien sijainti, osuman vastaanottava elementti ja kohdistin sarakerajan molemmin puolin. Testivaultilla läpäisivät selaintestit 08, 25, 30, 31, 36, 41, 47, 50, 51 ja 54. Ne kattavat muun muassa ZIP-viennin, kaavat, taulukkomuokkauksen, kalenterin, treenipikakirjauksen ja graafin. Alla erotetaan mitatut virheet, koodista löytyvät riskit ja vielä kokeiltavat käyttötapaukset. Fyysisen iPhonen Safari, verkkohäiriöt ja suuren aineiston vasteajat tarvitsevat omat mittauksensa.
 
-### 1. Estä näkymäasetusten ylikirjoittuminen ennen editorin laajentamista
+### ~~1. Estä näkymäasetusten ylikirjoittuminen ennen editorin laajentamista~~ (tehty 0.55, testi `selain_55.py`)
 
 Koodihavainto: `nvText(D,old)` rakentaa alkutiedot uudelleen tuntemistaan kentistä ja säilyttää vanhasta tiedostosta rungon. Käsin lisätty alkutietorivi tai sarakkeen ylimääräinen määre voi siksi kadota jo näkymän nimen vaihtuessa. `nvSaveDraft` vapauttaa yhteisen luonnoksen ennen verkkokirjoitusta. Varatun synkan ajastettu uusinta sijoittaa vanhan luonnoksen takaisin samaan muuttujaan, vaikka käyttäjä olisi jo avannut toisen näkymän. Virheilmoitus ei itsessään palauta luonnosta.
 
@@ -27,7 +27,7 @@ Koodihavainto: `nvText(D,old)` rakentaa alkutiedot uudelleen tuntemistaan kentis
 - Päivitä vain käyttäjän muuttamat kentät tuoreimpaan tiedostoon. Vertaa alkuperäistä, luonnosta ja palvelimen arvoa. Yhdistä eri kenttien muutokset. Saman kentän ristiriidassa säilytä molemmat versiot ja tarjoa ratkaisu. Pidä keskeneräinen tallennus näkymän, repon ja haaran yhteydessä. Säilytä epäonnistunut luonnos uudelleenyritystä varten.
 - Hyväksy vasta, kun A:n hidas tallennus, B:n samanaikainen muokkaus, yhteyskatko, uusinta ja peruminen on ajettu testivaultilla. A:n valmistuminen ei saa valita A:ta kesken B:n muokkauksen. Vain käyttäjän vahvistama sisältö saa päätyä oikeaan tiedostoon. Käytä nykyistä sulkemalla tallentamisen käytäntöä ja näytä odottava tai epäonnistunut tallennus ymmärrettävästi.
 
-### 2. Sulje Muistion yläpalkin rako
+### ~~2. Sulje Muistion yläpalkin rako~~ (tehty 0.56, testi `selain_56.py`)
 
 **Toistettu.** Leveydellä 1440 px työkalupalkin alareuna oli kohdassa 143 ja sarakeotsikon yläreuna kohdassa 147. Kaksi pikseliä otsikon yläpuolella osuma tuli vierivään otsikkosoluun. Leveyksillä 390 ja 320 vastaavat reunat olivat molemmat kohdassa 80. Muistion `.nbar` ja `.rvh` ovat erilliset sticky-elementit. Ensimmäisen yläsiirtymä muuttuu leveällä näytöllä. Toisen laskukaava vähentää aina 10 px. Vaakavieritys synkronoidaan erikseen listasta otsikkoon.
 

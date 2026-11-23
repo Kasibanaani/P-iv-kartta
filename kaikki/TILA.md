@@ -1,10 +1,14 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.54 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
+**Vaihe:** versio 0.56 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.56 (23.11.2026, korjaussuunnitelman kohta 2):** Muistion yläpalkin ja sarakeotsikon väliin ei jää enää rakoa. Ennen tietokoneella palkki pysähtyi kohtaan −14 px, mutta otsikko laski siirtymänsä −10 px:stä. Väliin jäi 4 px, ja sitä kautta napautus osui vierivään riviin. Nyt molemmat käyttävät samaa mittaa (`--nbt`), ja palkin korkeutta seurataan jatkuvasti (`nbWatch`, ResizeObserver). Testi `selain_56.py` mittaa ennen ja jälkeen. Vanhalla koodilla palkin alareuna oli 143 ja otsikon yläreuna 147, eli rako oli 4 px. Uudella rako on 0 px leveyksillä 320, 390, 1280 ja 1440, vaalealla ja tummalla teemalla, isolla tekstillä ja vinottain vieritettäessä. Otsikon ja solun reunat ovat samassa kohdassa.
+
+**0.55 (23.11.2026, korjaussuunnitelman kohta 1):** Näkymän muokkaus ei enää kirjoita tiedostoa uudelleen. Tallennus vertaa avattua tiedostoa, omaa luonnosta ja GitHubin tuoreinta versiota (`nvMerge`). Tuoreimpaan tiedostoon menevät vain muutetut kentät: nimi, ehdot, järjestys ja sarakkeet. Muut alkutiedot, kommentit, sarakkeiden ylimääräiset määreet ja runko säilyvät rivi riviltä. Eri kenttien muutokset yhdistetään. Jos sama kenttä on muutettu kahdessa paikassa, GitHubin versio jää voimaan. Näkymä-napissa näkyy silloin punainen piste, ja Näkymä-valikossa voi valita joko *Käytä omaa versiota* tai *Pidä toisaalla tehty*. Jokainen tallennus on oma merkintänsä (`NV_PEND`), joten myöhemmin valmistuva A ei enää tartu B:n luonnokseen eikä vaihda näkymää kesken B:n muokkauksen. Epäonnistunut tallennus säilyy laitteella (`kaikki:nvpend`) myös uudelleenlatauksen yli. Valikossa on *Yritä uudelleen* ja *Hylkää omat muutokset*. Odottava tallennus jatkuu itsestään synkan jälkeen. Testi `selain_55.py` kattaa nimen vaihdon (koko tiedosto verrataan), GitHubiin kesken muokkauksen tulleen rivin, eri kenttien yhdistämisen, ristiriidan, hitaan A:n ja B:n muokkauksen, yhteyskatkon, uudelleenlatauksen, uudelleenyrityksen, hylkäyksen ja peruutuksen leveyksillä 1440 ja 390. Vanha koodi kaatuu samassa testissä. Vaultin `ohjeet/appi.md` päivitetty.
 
 **0.54 (23.11.2026, A1b):** Koko päivän merkinnän otsikko ja kuittaus ovat saman kortin sisällä. Aikajana, viikkolista ja koko päivän kortit käyttävät samankokoista kuittausruutua. Puhelimella viikkonuolet ovat päivärivin reunoilla ja kuukauden nimi on linkkinä sen yllä. Nuoli ja pyyhkäisy valitsevat kohdeviikon maanantain tai viikon ensimmäisen näkyvän päivän. Testivaultin selaintesti `selain_54.py` tarkistaa viikkovalinnan myös kuukauden vaihtuessa sekä kuittauksen ja muistiinpanon avauksen. Chromiumissa testattiin leveydet 320, 390, 1280 ja 1440 px. Fyysisen iPhonen tarkistus jää kokeiluun.
 
@@ -126,6 +130,9 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Ei tarkistettu
 
+- 0.55: Ristiriidan valinta tehdään koko kentälle: sarakkeista ei voi valita osaa omista ja osaa toisaalla tehdyistä. Jos näkymätiedosto on poistettu tai se ei ole enää näkymä, *Käytä omaa versiota* kirjoittaa sen kokonaan uudelleen. Oikealla GitHubilla ja iPhonella tätä ei kokeiltu, vain testirepolla Chromiumissa. Leveydet ja järjestys ovat edelleen laitteella (`kaikki:nvlay`), eikä niitä yhdistetä tiedostoon (A0.3).
+- 0.56: Vertailukuvaa ei tallennettu, mittaus on testissä lukuina. Iso teksti simuloitiin suurentamalla palkin nappeja. Applen tekstikokoasetusta ja Safarin liimautuvaa palkkia oikealla iPhonella ei kokeiltu.
+
 - 0.41: rivien ja sarakkeiden muutosta ei voi kumota ⌘Z:lla (solumuokkausten kumoushistoria tyhjenee sille välilehdelle). Siirrossa alueviittaukset pysyvät ennallaan (kuten Sheetsissä), yksittäiset solut seuraavat. Muistiinpanojen `{=…[[taulukko]]!B1}`-kaavoja ei päivitetä. GitHub-tallennus testattiin testivaultilla. Jos yhteys katkeaa eikä tallennuksen tilaa voi vahvistaa, päivitä Vault ennen toiminnon toistamista.
 - 0.38: näkymävälilehden sarakkeiden muokkaus apissa puuttuu (tehdään tekoälyllä tai tekstinä, tai luodaan uusi välilehti muokatusta Muistion näkymästä). Puhelimella toinen napautus avaa muistiinpanon (ei kokeiltu oikealla iPhonella).
 - 0.37: iPhonen Safarilla vieritys isossa taulukossa (nopeassa pyyhkäisyssä reunaan voi hetkeksi jäädä tyhjää ennen kuin rivit vaihtuvat). Sarakkeen kaksoisnapsautussovitus isossa taulukossa katsoo vain näkyvät rivit. Mittaukset vain tietokoneen hidastetulla Chromiumilla.
@@ -145,6 +152,9 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 - Modern Web Guidance -hakua ei voitu ajaa (komento estettiin tässä istunnossa); uutta käyttöliittymää on vain asetusikkuna, Juuren tyyleillä.
 
 ## Seuraava askel
+
+**Korjaussuunnitelma (SUUNNITELMA.md, 23.11.):** kohdat 1 ja 2 tehty (0.55, 0.56). Seuraavaksi kohta 3: lajittelun, leveyden säädön ja sarakkeen siirron erottaminen (säätöalue rajaviivan päälle, peruutuksen käsittely, sarakevalikko puhelimelle). Sen jälkeen A0:n ketju: leveys ja järjestys näkymätiedostoon (A0.3) → moniavaiminen lajittelu (A0.7).
+
 
 Kohdan 18 toistuvuuskokeilu 0.52 on [omassa haarassaan](https://github.com/Kasibanaani/P-iv-kartta/tree/kaikki-toistuvuuskokeilu/kaikki). Se kattaa Muistion listan, kalenterin, kuittauksen ja uuden pikamuistutuksen. Kokeile erillisellä testivaultilla sekä kuittauksesta laskettavaa että kalenterissa tasavälistä toistoa. Toistuvuuden vakiinnuttaminen, kuukausirytmin reunatapaukset ja vanhan aineiston siirto ovat edelleen avoimia. Flow-tekstin pysyvä muoto odottaa kokeilupalautetta.
 
