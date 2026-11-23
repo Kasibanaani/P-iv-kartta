@@ -216,6 +216,8 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 
 ## Suunnitelmat
 
+23.11.2026. [Automaattisten sanalinkkien kytkin](SUUNNITELMA.md#7-tunnisteet-painoarvo-ja-muistiinpanojen-verkosto) lisättiin työjonoon. Kytkimen ollessa pois päältä tekstiosumat näkyvät tavallisena tekstinä ja tehdyt wikilinkit avautuvat edelleen.
+
 23.11.2026. [Timanttien visio](SUUNNITELMA.md#visio-ajatusten-risteämissä-syntyvät-timantit) kuvaa ajatusten risteämistä ja uudelleenlukemista. [Työjonon kohdassa 10](SUUNNITELMA.md#10-timantin-nostaminen-löytäminen-ja-uudelleenlukeminen) on neljä ehdotettua käyttökoetta. Ensimmäiseksi kokeillaan omaa nostoa nykyisellä muistiinpanolla, linkeillä ja näkymällä.
 
 23.11.2026. [Ulkoasusuunnitelman](SUUNNITELMA.md#emilin-ulkoasupalaute-23112026) Lehto ja Hiillos on oletusilme versiosta 0.61. Seuraavaksi Emil vertaa aksentteja ja otsikkofontteja omalla iPhonellaan ja valitsee oletukset. Sen jälkeen päätetään, käytetäänkö otsikkofonttia myös muistiinpanon ensimmäisessä rivissä.
