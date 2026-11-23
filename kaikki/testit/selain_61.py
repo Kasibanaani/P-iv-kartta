@@ -7,12 +7,17 @@ Tarkistaa leveyksillä 1440, 1280, 390 ja 320, vaalealla ja tummalla laitteella:
 - kuittaus ja virhe eivät vaihdu aksentin mukana
 - Tila Tumma näyttää vain Hiilloksen valinnat; valinta säilyy uudelleenlatauksessa; ei sivuttaisvieritystä eikä sivuvirheitä
 Käyttö: python3 testit/selain_61.py"""
-import asyncio, os, sys, json
+import asyncio, os, sys, json, threading, functools, http.server
 from playwright.async_api import async_playwright
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 from apu import menu
 D=os.path.dirname(os.path.abspath(__file__))
-U='file://'+os.path.abspath(os.path.join(D,'..','index.html'))
+# http-palvelin eikä file://: Chromium antaa file://-sivulle uudelleenladattaessa välillä vanhan selaimen muistin, jolloin tallennettu valinta näytti katoavan
+class Q(http.server.SimpleHTTPRequestHandler):
+    def log_message(self,*a): pass
+SRV=http.server.ThreadingHTTPServer(('127.0.0.1',0),functools.partial(Q,directory=os.path.abspath(os.path.join(D,'..'))))
+threading.Thread(target=SRV.serve_forever,daemon=True).start()
+U='http://127.0.0.1:%d/index.html'%SRV.server_address[1]
 FAKE=open(os.path.join(D,'fakegh.js'),encoding='utf8').read()
 def md(i): return '---\ntyyppi: projekti\notsikko: Muistiinpano %d\nkuvaus: \nluotu: 2026-11-%02d\nlahde: emil\n---\n# Muistiinpano %d\n\nTeksti %d, hinta 120.\n'%(i,1+i,i,i)
 SEED={'projektit/m%02d.md'%i:md(i) for i in range(8)}
@@ -102,7 +107,8 @@ async def run(p,w,h,scheme):
     await pg.click('#set-ilme [data-v="oma"]'); await pg.wait_for_timeout(150)
     v1=await pg.evaluate(VARS)
     want('Oma värisäätö antaa samat värit kuin aiemmin',v1==vo,[(k,vo[k],v1[k]) for k in vo if vo[k]!=v1[k]])
-    want('Oma värisäätö säilyy uudelleenlatauksessa',(await pg.reload(),await pg.wait_for_timeout(1500),(await pg.evaluate(VARS))['ilme'])[2]=='')
+    await pg.reload(); await pg.wait_for_timeout(1500); vr=await pg.evaluate(VARS)
+    want('Oma värisäätö säilyy uudelleenlatauksessa',vr['ilme']=='',vr['ilme'])
     want('ei sivuvirheitä',not errs,errs)
     await b.close(); return bad
 async def main():
