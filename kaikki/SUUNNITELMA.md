@@ -6,6 +6,8 @@ Päivitetty 23.11.2026 (päähaara 0.60: korjaussuunnitelman kohdat 1–3 ja koh
 
 **Rakentajan nykyinen jatko-ohje:** [Tulevien ominaisuuksien toteutusjono](#tulevien-ominaisuuksien-toteutusjono) täsmentää A0–D-jonon avoimet ominaisuudet ja kertoo mistä aloittaa.
 
+**Ajatusten uudelleenlukeminen:** [Timanttien visio](#visio-ajatusten-risteämissä-syntyvät-timantit) ja [työjonon käyttökokeet](#10-timantin-nostaminen-löytäminen-ja-uudelleenlukeminen).
+
 **Historiallinen yöajon tilanne 23.11.2026, ennen versiota 0.54.** Päähaaran viimeisin appiversio oli 0.51. Työympäristö katkesi juuri ennen seuraavien kahden paikallisen version julkaisua. Kohdennetut testit menivät niille läpi Chromiumissa.
 
 - **0.52, kohta 18:** Toistuvuus muistiinpanon `toistuu`- ja `seuraava`-kentissä, kiinteän rytmin ankkuri `juuri.toistoalku`. Tarkista aikainen kuittaus ja rytmin säilyminen, kalenterimerkintä sekä synkka. Säilytä vanhan Toistuvat-listan sisältö.
@@ -610,6 +612,16 @@ Hyväksymisehdot:
 - **Prosessikaavio:** näytetäänkö verkottuneet muistiinpanot paikallisessa graafissa (kohta 19) `vaatii:`-nuolina, Flow'ssa vai molemmissa?
 - **Listat:** `vaatii:` voisi ohjata Listoja niin, että tehtävä näkyy vasta, kun edeltäjä on kuitattu (kohdat 7 ja 18).
 
+## Visio: Ajatusten risteämissä syntyvät timantit
+
+**Käyttäjän tavoite 23.11.2026.** Ajatusten risteämässä voi syntyä yksinkertainen ajatus, joka toimii avaimena moniin eri sovelluksiin. Siihen tiivistyy jotakin ennen kirjoitetusta, ja siitä voi lähteä moneen uuteen suuntaan. Hyvän kirjan tavoin ajatus voi antaa viidennellä lukukerralla jotain, mihin ensimmäisellä lukukerralla ei vielä ollut tarttumapintaa. Käyttäjä haluaa sekä nostaa itse tällaisia ajatuksia että kohdata niitä tilanteessa, jossa niillä on jotain annettavaa. Tavoite läpäisee Muistion, haun, näkymät, omat kirjaukset ja lukemisen ilmeen.
+
+*Suunnitteluehdotus.* Käyttäjä voi ensin jättää ajatuksen keskeneräiseksi. Tekoäly voi myöhemmin tuoda rinnalle lähteen tai toisen ajatuksen ja sanoa yhdellä lauseella, mitä niiden kohtaaminen avaa. Lukija voi seurata perustelua, palata kohtaan ja kirjoittaa oman sovelluksensa tai eriävän tulkintansa. Seuraava holvia lukeva tekoäly löytää sekä lähtökohdan että käyttäjän jatkon. Lukija voi myös vain lukea ja poistua. Noston arvo käy parhaiten ilmi siitä, mitä ajatus auttaa myöhemmin näkemään, kysymään tai tekemään.
+
+*Ilme ja käyttö.* Ydinajatukselle annetaan ensimmäinen katse, luettava palstan leveys ja tilaa ympärille. Lähteet avautuvat pyynnöstä. Myöhemmästä sovelluksesta pääsee takaisin siihen lauseeseen, joka sen synnytti. Puhelimella lukeminen onnistuu yhdellä kädellä, tietokoneella lähdettä voi verrata ajatukseen. Hyödynnä Hiilloksen otsikkohierarkiaa ja Lehdon väljyyttä aiemman ulkoasupalautteen mukaan. Sama rauha koskee nopeaa kirjausta: löydön esiin tuleminen ei siirrä kursoria eikä keskeytä meneillään olevaa tekemistä.
+
+*Pidemmällä aikavälillä.* Tilannekohtainen nosto voisi perustua avoimeen kysymykseen, työskentelyn aiheeseen tai käyttäjän omaan paluutoiveeseen. Tekoäly voisi myös koota käsillä olevaan työhön sopivan näkymän samoista lähdemuistiinpanoista. Ajatuksen pitkäaikainen merkitys, sopivuus tämänhetkiseen tehtävään ja näytön vahvuus pidetään erotettavissa. Automaattisten nostojen tiheys, valintaperuste ja pysyvä tietomuoto ratkaistaan ensimmäisten käyttökokemusten perusteella.
+
 ## Ulkoasuvaihtoehdot: Lehto, Luoto ja Hiillos
 
 Emilin pyytämät vertailuluonnokset, 23.11.2026. Sama koetehtävä kaikissa: etsi Muistion Retken valmistelu -näkymästä Reittisuunnitelma, avaa sen Varustelista-linkki ja muuta Retkibudjetin yhtä hintaa. Näillä kolmella tilanteella näkee, ohjaako ulkoasu lukemaan, siirtymään ja muokkaamaan oikeassa kohdassa. Kyse on suunnitteluvaihtoehdoista. Emil valitsee linjan tai yhdistelmän ennen julkaisua.
@@ -719,6 +731,17 @@ Ehdotettu järjestys:
 3. Aikajanalta 22.1 heti, kun nimi on päätetty. Sen jälkeen 22.2–22.4 omana ketjunaan tietokannan rinnalla.
 
 Ennen ensimmäistä vaihetta tarvitaan Emilin vastaukset kohtien *Tarkennettavat* kysymyksiin, jotka on koottu `TILA.md`:n avoimiin kysymyksiin.
+
+### 10. Timantin nostaminen, löytäminen ja uudelleenlukeminen
+
+*Suunnitteluehdotus kokeiltavaksi.* Aloita yhdestä kokonaisesta lukukierroksesta. Hyödynnä kohdan 7 linkkejä ja kohdan 1 yhteisiä näkymiä. Ensimmäisen kokeen voi tehdä nykyisessä Muistiossa ennen laajaa tietokantanäkymää tai aikajanaa. Alla oleva esimerkki on keksittyä testiaineistoa.
+
+1. **Nosta yksi ajatus ja löydä se toisella laitteella.** Tee testiholviin kaksi eri aiheista lähdettä, esimerkiksi retken varasuunnitelma ja kokouksen varahenkilö. Kokeile niistä syntyvää lausetta ”Varasuunnitelma on käyttökelpoinen vasta, kun joku tietää, milloin siihen siirrytään.” Käytä ensin nykyistä muistiinpanoa, lähdelinkkejä, tunnistetta ja tallennettua näkymää. Kokeile sekä kokonaisen muistiinpanon nostoa että yhtä virkettä pitkästä tekstistä. Jälkimmäisessä säilytä virke ja paluureitti alkuperäiseen tekstiin. Lähtötilassa mukana on myös tekoälyn perustelema ehdokas ja käyttäjän oma nosto. Lukija erottaa kummasta on kyse. **Valmis kokeiltavaksi**, kun käyttäjä löytää itse nostamansa, vielä vailla takaisinlinkkejä olevan ajatuksen tyhjällä paikallisella välimuistilla ja voi perua noston alkuperäisen tekstin säilyessä.
+2. **Lue, seuraa lähdettä ja palaa.** Näytä ensin ydinlause ja sen alla lyhyt vastaus kysymykseen ”Miksi nämä kuuluvat yhteen?” Avaa lähde käyttäjän valinnasta. Säilytä palatessa ajatus, vierityskohta ja kohdistus. Tee rinnakkainen vaalea ja tumma esikatselu samalla pitkällä aineistolla. **Hyväksymiskoe:** 320 ja 390 pikselin leveydellä sekä tietokoneella lukija käy kahdessa lähteessä ja jatkaa samasta kohdasta myös suurennetulla tekstillä. Tyhjä kokoelma ja kadonnut tai arkistoitu lähde saavat ymmärrettävän esityksen.
+3. **Jätä viidenneltä lukukerralta uusi sovellus.** Lukija voi liittää ajatukseen omin sanoin esimerkin, rajauksen, vastaväitteen tai käyttökokemuksen. Kokeile ensin tavallista linkitettyä muistiinpanoa ja näkyvää kirjoittajatietoa. **Hyväksymiskoe:** tekoäly ehdottaa väitettä, käyttäjä tarkentaa sitä ja uudessa istunnossa toinen lukija löytää molemmat sekä näkee, kenen sanoja kumpikin on. Kokeile keskeytystä, verkkokatkoa ja rinnakkaista muutosta. Käyttäjälle näkyy, odottaako oma jatko vielä siirtoa holviin. Pelkkä lukukerta saa päättyä ilman toimenpidettä.
+4. **Anna tutun ajatuksen nousta uudessa yhteydessä.** Ensimmäinen rajattu koe on käyttäjän avaama ”Mikä auttaisi tässä?” käsillä olevan aiheen yhteydessä. Vertaa aiemmin nostettua, perustellusti aiheeseen sopivaa ajatusta ja tuoretta vähälinkkistä ehdokasta. Näytä lyhyt peruste sekä reitti lähteeseen. Salli ohitus. Kokeile myös tilanne, jossa sopivaa ehdotusta ei ole. **Hyväksymiskoe:** käyttäjä ymmärtää, miksi ajatus tuli juuri tähän, voi jatkaa työtään samasta kohdasta ja löytää ehdotuksen myöhemmin tietoisesti. Vertaa tätä omaan Timantit-näkymään ennen automaattisten pintojen laajentamista.
+
+**Mitä kokeesta kirjataan.** Löytyikö ajatus ilman alkuperäisen keskustelun tai tiedostonimen muistamista? Mikä uusi sovellus, kysymys tai vastaesimerkki toisella lukukerralla syntyi? Missä kohdassa käyttö sotki ajatuksen kulun? Jos jatkoksi syntyy kokeilu, palaa sen tulokseen alkuperäisestä ajatuksesta. Näitä voi arvioida yhdellä kuvatulla käyttökerralla ilman pysyvää lukuseurantaa. Käyttökokeen jälkeen päätetään, mitä kannattaa nopeuttaa omalla napilla, tarvitaanko yleistä painoarvoa ja milloin appi saa ehdottaa paluuta oma-aloitteisesti.
 
 ### Päätökset kokeilun jälkeen
 

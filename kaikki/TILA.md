@@ -207,6 +207,8 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 
 ## Suunnitelmat
 
+23.11.2026. [Timanttien visio](SUUNNITELMA.md#visio-ajatusten-risteämissä-syntyvät-timantit) kuvaa ajatusten risteämistä ja uudelleenlukemista. [Työjonon kohdassa 10](SUUNNITELMA.md#10-timantin-nostaminen-löytäminen-ja-uudelleenlukeminen) on neljä ehdotettua käyttökoetta. Ensimmäiseksi kokeillaan omaa nostoa nykyisellä muistiinpanolla, linkeillä ja näkymällä.
+
 23.11.2026. [Ulkoasusuunnitelmaan](SUUNNITELMA.md#emilin-ulkoasupalaute-23112026) on kirjattu Emilin suosima Hiilloksen otsikkotyyli, toive tumman teeman aksenttivaihtoehdoista sekä Lehdon vaalea asettelu uudella typografialla ja ilman vihreää väritystä. Seuraava askel on verrata fontti- ja värivaihtoehtoja samoissa näkymissä. Tässä vaiheessa päivitettiin suunnitelma. Selainkokeilu tehdään esikatseluvaiheessa.
 
 ## Emilin kommentit
