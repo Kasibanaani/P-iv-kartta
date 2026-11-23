@@ -1340,7 +1340,7 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 #nsheet.reading #ns-hl .mvr{background:color-mix(in srgb,var(--accent) 10%,transparent);border-radius:4px;-webkit-box-decoration-break:clone;box-decoration-break:clone;cursor:pointer}
 #nsheet.reading #ns-hl .mvr .mvm{display:none}#nsheet.reading #ns-hl .mvr .mvv{font-weight:700}
 #ns-tm .mvh{display:block;margin-bottom:4px}#ns-tm .mvinfo{margin:2px 0 8px;overflow-wrap:anywhere}
-#mv-sheet .mvlist{display:grid;gap:6px;margin-top:10px}#mv-sheet .mvrow{display:grid;grid-template-columns:1fr;gap:2px;text-align:left;height:auto;min-height:44px;padding:8px 12px;overflow-wrap:anywhere}
+#mv-sheet .mvlist{display:grid;gap:6px;margin-top:10px}#mv-sheet .mvrow{display:grid;grid-template-columns:1fr;gap:2px;text-align:left;justify-items:start;justify-content:stretch;height:auto;min-height:44px;padding:8px 12px;overflow-wrap:anywhere}
 #mv-sheet .mvwhen,#mv-sheet .mvsrc{color:var(--label2);font-size:14px;font-variant-numeric:tabular-nums}#mv-sheet .mvsum{margin:8px 0 0}
 #ns-hl .wl{text-decoration:underline dotted;text-decoration-color:color-mix(in srgb,var(--label2) 40%,transparent);text-decoration-thickness:1px;text-underline-offset:3px}
 /* Kaikki 0.1: GitHub-vault */
@@ -1455,6 +1455,11 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 #quick-values:not([hidden]){margin-top:12px}
 #quick-values .quick-grid{grid-template-columns:repeat(auto-fit,minmax(58px,1fr))}
 #quick-msg:empty,#xy-msg:empty,#sheet-edit-msg:empty,#sheet-new-msg:empty,#board-edit-msg:empty{display:none}
+/* 0.66 muuttujaruudut */
+.mvb-card .mvb-sub{display:block;margin-top:2px}.mvb-card .mvb-acts{margin-top:8px}.mvb-grid{margin-bottom:15px}
+.mvb-src{display:grid;gap:6px;margin-top:8px}.mvb-src .mvrow{grid-template-columns:1fr}.mvb-src .mvrow{display:grid;gap:2px;text-align:left;justify-items:start;justify-content:stretch;height:auto;min-height:44px;padding:8px 12px;overflow-wrap:anywhere}
+.mvb-src .mvwhen,.mvb-src .mvsrc{color:var(--label2);font-size:14px;font-variant-numeric:tabular-nums}
+.mvb-form{display:grid;gap:4px}.mvb-form label{margin-top:6px;font-size:14px;color:var(--label2)}.mvb-form select,.mvb-form input{width:100%;min-height:44px;font-size:16px}
 .board-tools{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:8px 0}
 .board-tools select{max-width:100%}
 .board-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,205px),1fr));gap:10px;margin:0 0 15px}
@@ -4209,7 +4214,31 @@ var MUUTTUJA=(function(){
   /* Luettelo muistiinpanoista [{text, created, …}] → [{nimi, key, obs:[{n: muistiinpano, o: havainto}]}] nimen mukaan */
   function luettelo(notes){var by={};(notes||[]).forEach(function(n){parse(n.text,n.created).forEach(function(o){var g=by[o.key]||(by[o.key]={nimi:o.nimi,key:o.key,obs:[]});g.obs.push({n:n,o:o});});});
     return Object.keys(by).map(function(k){return by[k];}).sort(function(a,b){return a.nimi.localeCompare(b.nimi,'fi');});}
-  return {marks:marks,mask:mask,parse:parse,luettelo:luettelo,num:num,key:key};
+  /* 0.66: kojelaudan muuttujaruutu. R = {muuttuja, laske: viimeisin|summa|keskiarvo|min|max|maara, aika: ''|päiviä, tunniste, kansio}.
+     Piste = havainnon yksi päivä (päivätön havainto = yksi piste ilman päivää, mukana vain aikavälillä Kaikki). Tyhjä merkintä ei synny
+     (jäsennys ohittaa), kirjattu nolla lasketaan. Määrä laskee myös tekstiarvot. Viimeisin = myöhäisin päivä (päivätön viimeisenä).
+     Sarja: päivän arvo = summa (summa), määrä (maara) tai keskiarvo (muut); puuttuva päivä = null (aukko kuvaajassa). */
+  var LASKE=['viimeisin','summa','keskiarvo','min','max','maara'];
+  function ruutu(notes,R,today){var k0=key(R.muuttuja),tag=String(R.tunniste||'').trim().replace(/^#/,''),dir=String(R.kansio||'').trim().replace(/^\/+|\/+$/g,'');
+    var laske=LASKE.indexOf(R.laske)>=0?R.laske:'viimeisin',N=Math.max(0,Math.floor(+R.aika||0)),from=N?isoD(addDays(fromIso(today),-(N-1))):'';
+    if(tag&&typeof noteTagKey==='function')tag=noteTagKey(tag)||tag.toLocaleLowerCase('fi');
+    var pts=[],src=[];
+    (notes||[]).forEach(function(n){if(dir&&String(n.vp||'').indexOf(dir+'/')!==0)return;if(tag&&noteTags(n).indexOf(tag)<0)return;
+      parse(n.text,n.created).forEach(function(o){if(o.key!==k0)return;var used=false;(o.paivat.length?o.paivat:['']).forEach(function(d){
+        if(N&&(!d||d<from||d>today))return;pts.push({d:d,v:o.luku,a:o.arvo,n:n,o:o});used=true;});if(used)src.push({n:n,o:o});});});
+    var nums=pts.filter(function(p){return p.v!==null;}).map(function(p){return p.v;}),last=null,val=null;
+    pts.forEach(function(p){if(!last||p.d>=last.d)last=p;});
+    function sum(a){return a.reduce(function(x,y){return x+y;},0);}
+    if(laske==='viimeisin')val=last?(last.v!==null?last.v:last.a):null;
+    else if(laske==='maara')val=pts.length;
+    else if(nums.length)val=laske==='summa'?sum(nums):laske==='keskiarvo'?sum(nums)/nums.length:laske==='min'?Math.min.apply(null,nums):Math.max.apply(null,nums);
+    var days=pts.filter(function(p){return p.d;}).map(function(p){return p.d;}).sort(),sarja=[];
+    if(days.length){var a=from||days[0],b=today>days[days.length-1]||N?today:days[days.length-1];
+      if(isoD(addDays(fromIso(b),-365))>a)a=isoD(addDays(fromIso(b),-365));
+      for(var d=a;d<=b;d=isoD(addDays(fromIso(d),1))){var P=pts.filter(function(p){return p.d===d;}),V=P.filter(function(p){return p.v!==null;}).map(function(p){return p.v;});
+        sarja.push({d:d,v:laske==='maara'?(P.length||null):V.length?(laske==='summa'?sum(V):sum(V)/V.length):null});}}
+    return {arvo:val,laske:laske,pisteet:pts.length,luvut:nums.length,viimeisin:last,lahteet:src,sarja:sarja};}
+  return {marks:marks,mask:mask,parse:parse,luettelo:luettelo,num:num,key:key,ruutu:ruutu,LASKE:LASKE};
 })();
 if(typeof module!=='undefined')module.exports={MUUTTUJA:MUUTTUJA,KAAVA:KAAVA,TAULUKKO:TAULUKKO,pvNorm:pvNorm,pvOut:pvOut,pvWd:pvWd,pvP:pvP,pvLift:pvLift,pvToggle:pvToggle,pvSet:pvSet,stNorm:stNorm,stVis:stVis,stTop:stTop,stPick:stPick,stDone:stDone,stDel:stDel,stItem:stItem,stPath:stPath,flNorm:flNorm,flOut:flOut,monOf:monOf,wkIdx:wkIdx,wkRow:wkRow,wkTone:wkTone,dayTextDays:dayTextDays,dayTextToggle:dayTextToggle,wlKey:wlKey,wlWords:wlWords,wlOpt:wlOpt,wlOk:wlOk,wlIndex:wlIndex,wlHits:wlHits,WL_STOP:WL_STOP,flowFind:flowFind,flowStart:flowStart,flowFinish:flowFinish,phaseEnsure:phaseEnsure,phaseOf:phaseOf,phaseAttach:phaseAttach,workflowReady:workflowReady,prevOcc:prevOcc,recKey:recKey,recEnded:recEnded,recExpiries:recExpiries,dateLabel:dateLabel,aiOhje:aiOhje,AI_ESIM:AI_ESIM,TIME_TERMS:TIME_TERMS,wdKeys:wdKeys,WD_TERMS:WD_TERMS,treeEh:treeEh,sepParts:sepParts,noteParts:noteParts,partIx:partIx,partNote:partNote,txSim:txSim,txBase:txBase,txSync:txSync,txSet:txSet,txOn:txOn,partAt:partAt,partInfo:partInfo,gone:gone,rowPicks:rowPicks,partTerms:partTerms,ehTree:ehTree,treeEhBlock:treeEhBlock,inferTerms:inferTerms,ehIssues:ehIssues,grpHit:grpHit,ehTok:ehTok,textExtras:textExtras,ehdotText:ehdotText,chkCond:chkCond,condsIn:condsIn,chkItems:chkItems,WIN0:WIN0,winOf:winOf,calvOf:calvOf,clipDay:clipDay,durOf:durOf,planSlots:planSlots,chkPlan:chkPlan,VER:VER,ALKU:ALKU,parseLine:parseLine,lineOf:lineOf,bodyText:bodyText,parseText:parseText,lineKinds:lineKinds,blocksOf:blocksOf,rulesOf:rulesOf,writeRules:writeRules,rulesFromText:rulesFromText,rulesToText:rulesToText,canonR:canonR,renameInText:renameInText,renameLive:renameLive,blockTerms:blockTerms,withText:withText,rl:rl,ruleState:ruleState,toggleRule:toggleRule,needOf:needOf,orderOf:orderOf,cycleIf:cycleIf,toggleOrder:toggleOrder,priorityList:priorityList,hoidettavat:hoidettavat,termWords:termWords,needOpen:needOpen,setNeedMode:setNeedMode,toggleNeed:toggleNeed,causesOf:causesOf,
   sessionView:sessionView,moveItem:moveItem,shownName:shownName,blockedNow:blockedNow,tapDraft:tapDraft,replay:replay,exclOf:exclOf,newSession:newSession,notesOnDay:notesOnDay,dayCarry:dayCarry,commitStep:commitStep,undoStep:undoStep,sessionNote:sessionNote,sessionGroups:sessionGroups,renameKey:renameKey,removeKey:removeKey,
@@ -10492,8 +10521,93 @@ function renderBoard(panel){
   }
   panel.appendChild(section);
 }
+/* Kaikki 0.66 (Emil 23.11.2026, SUUNNITELMA jonon kohta 3): kojelaudan muuttujaruudut. Lähde on tekstimuuttuja (!!nimi: arvo!!), lasku
+   viimeisin/summa/keskiarvo/pienin/suurin/määrä, rajaus aikavälillä, tunnisteella ja kansiolla, esitys luku tai päiväkuvaaja, yksikkö
+   (h min = lähde tunteina, näytetään 8 h 30 min). Lähteet-nappi näyttää muistiinpanot, joista tulos syntyy. Ruudut tallentuvat Vaultin
+   tiedostoon data/kojelauta.md (taulukko, rivien järjestys = ruutujen järjestys). Käyttötila on lukittu; Muokkaa ruutuja avaa muokkauksen. */
+var MVB_PATH='data/kojelauta.md',MVB_HEAD=['id','otsikko','muuttuja','laske','aika','tunniste','kansio','yksikko','nayta'],mvbUnlocked=false,mvbSrcOpen={};
+var MVB_LASKE={viimeisin:'Viimeisin',summa:'Summa',keskiarvo:'Keskiarvo',min:'Pienin',max:'Suurin',maara:'Määrä'},MVB_AIKA=[['','Kaikki'],['7','7 pv'],['30','30 pv'],['90','90 pv'],['365','Vuosi']];
+function mvbSplit(line){var t=String(line||'').trim();if(t.length<2||t.charAt(0)!=='|'||t.charAt(t.length-1)!=='|')return null;t=t.slice(1,-1);var out=[],cur='';
+  for(var i=0;i<t.length;i++){var c=t.charAt(i);if(c==='\\'&&i+1<t.length){cur+=t.charAt(++i);continue;}if(c==='|'){out.push(cur.trim());cur='';continue;}cur+=c;}out.push(cur.trim());return out;}
+function mvbParse(text){var eol=String(text).indexOf('\r\n')>=0?'\r\n':'\n',lines=String(text).split(eol);
+  for(var i=0;i<lines.length-1;i++){var h=mvbSplit(lines[i]),dv=mvbSplit(lines[i+1]);if(!h||h.join('|').toLowerCase()!==MVB_HEAD.join('|')||!dv||!dv.every(function(x){return /^:?-{3,}:?$/.test(x);}))continue;
+    var rows=[],e=i+2;while(e<lines.length){var r=mvbSplit(lines[e]);if(!r)break;while(r.length<MVB_HEAD.length)r.push('');rows.push(r.slice(0,MVB_HEAD.length));e++;}
+    return {lines:lines,eol:eol,start:i,end:e,rows:rows};}
+  return null;}
+function mvbCards(){var f=vOn()&&VC.files[MVB_PATH],L=f&&mvbParse(f.t);return L?L.rows.filter(function(r){return r[0]&&r[2];}):[];}
+function mvbTable(rows){return [TAULUKKO.joinRow(MVB_HEAD),TAULUKKO.joinRow(MVB_HEAD.map(function(){return '---';}))].concat(rows.map(TAULUKKO.joinRow));}
+function mvbPatch(text,existing,row,del){
+  if(!text){if(del||existing)return {error:'Ruutua ei löydy. Päivitä Vault.'};
+    return ['---','tyyppi: kojelauta','otsikko: Kojelaudan muuttujaruudut','kuvaus: Kaikki-apin kojelaudan ruudut tekstimuuttujista (ohjeet/appi.md).','nakyy: ei','lahde: emil','---','# Kojelaudan muuttujaruudut',''].concat(mvbTable([row])).concat(['']).join('\n');}
+  var L=mvbParse(text);if(!L)return {error:'Kojelaudan tiedosto on eri muodossa.'};
+  var rows=L.rows.slice(),ix=rows.findIndex(function(r){return r[0]===(existing?existing[0]:row[0]);});
+  if(existing){if(ix<0||rows[ix].join('\0')!==existing.join('\0'))return {error:'Ruutua muutettiin muualla. Avaa se uudelleen.'};if(del)rows.splice(ix,1);else rows[ix]=row;}
+  else{if(ix>=0)return {error:'Ruudun tunnus on jo käytössä.'};if(rows.length>=200)return {error:'Ruutuja on jo enimmäismäärä.'};rows.push(row);}
+  return L.lines.slice(0,L.start).concat(mvbTable(rows)).concat(L.lines.slice(L.end)).join(L.eol);}
+function mvbFmt(v,unit){if(v===null||v===undefined||v==='')return '–';if(typeof v!=='number')return String(v);unit=String(unit||'').trim();
+  if(unit==='h min'){var neg=v<0,m=Math.round(Math.abs(v)*60),h=Math.floor(m/60);m-=h*60;return (neg?'−':'')+(h?h+' h':'')+(h&&m?' ':'')+(m||!h?m+' min':'');}
+  return formulaDisplay(Math.round(v*100)/100).replace(/^-/,'−')+(unit?' '+unit:'');}
+function mvbSub(R,res){var a=MVB_AIKA.filter(function(x){return x[0]===String(R[4]||'');})[0];return [MVB_LASKE[res.laske].toLowerCase(),a?a[1].toLowerCase():'kaikki',res.pisteet+(res.pisteet===1?' havainto':' havaintoa')].concat(R[5]?['#'+R[5].replace(/^#/,'')]:[]).concat(R[6]?[R[6].replace(/^\/+|\/+$/g,'')+'/']:[]).join(' · ');}
+function mvbPlot(res,unit,name){var S=res.sarja;if(!S.length)return null;var vals=S.filter(function(p){return p.v!==null;}).map(function(p){return p.v;});if(!vals.length)return null;
+  var W=320,H=96,L=30,Rr=8,Tp=8,B=18,iw=W-L-Rr,ih=H-Tp-B,lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals),pad=(hi-lo)*0.15||1;lo=Math.min(lo-pad,lo>=0&&lo-pad<0?0:lo-pad);hi+=pad;
+  function X(i){return L+(S.length>1?i/(S.length-1)*iw:iw/2);}function Y(v){return Tp+(1-(v-lo)/(hi-lo))*ih;}
+  var s='<svg class="dsvg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+h_(name)+': '+vals.length+' päivää, joilla arvo">';
+  [lo,hi].forEach(function(v){var y=Y(v).toFixed(1);s+='<line class="dg" x1="'+L+'" x2="'+(W-Rr)+'" y1="'+y+'" y2="'+y+'"/><text class="dt" x="'+(L-4)+'" y="'+(+y+3.5)+'" text-anchor="end">'+h_(formulaDisplay(Math.round(v*10)/10))+'</text>';});
+  s+='<text class="dt" x="'+L+'" y="'+(H-4)+'">'+dashShort(S[0].d)+'</text><text class="dt" x="'+(W-Rr)+'" y="'+(H-4)+'" text-anchor="end">'+dashShort(S[S.length-1].d)+'</text>';
+  var seg='';S.forEach(function(p,i){if(p.v===null){seg+=' ';return;}var prev=i&&S[i-1].v!==null;seg+=(prev?'L':'M')+X(i).toFixed(1)+' '+Y(p.v).toFixed(1);});
+  s+='<path class="dln" d="'+seg.trim()+'"/>';S.forEach(function(p,i){if(p.v!==null)s+='<circle class="dpt" cx="'+X(i).toFixed(1)+'" cy="'+Y(p.v).toFixed(1)+'" r="2.6"><title>'+h_(dashShort(p.d)+' '+mvbFmt(p.v,unit))+'</title></circle>';});
+  var w=el('div','dplot');w.innerHTML=s+'</svg>';return w;}
+function mvbCard(R,notes,today){var card=el('section','dcard mvb-card'),res=MUUTTUJA.ruutu(notes,{muuttuja:R[2],laske:R[3],aika:R[4],tunniste:R[5],kansio:R[6]},today);card.dataset.id=R[0];
+  var h=el('div','dch'),nm=el('b','',R[1]||R[2]);h.appendChild(nm);h.appendChild(el('span','dval',mvbFmt(res.arvo,R[7])));card.appendChild(h);
+  var sub=el('small','dwhen mvb-sub',mvbSub(R,res));card.appendChild(sub);
+  if(R[8]==='kuvaaja'){var pl=mvbPlot(res,R[7],R[1]||R[2]);card.appendChild(pl||el('p','dnone','Ei päivättyjä lukuja tällä välillä.'));}
+  var row=el('div','btnrow mvb-acts'),open=!!mvbSrcOpen[R[0]];
+  if(res.lahteet.length){var sb=button(row,'Lähteet ('+res.lahteet.length+')','mini',function(){mvbSrcOpen[R[0]]=!open;render();});sb.setAttribute('aria-expanded',open?'true':'false');sb.classList.add('mvb-srcbtn');}
+  if(mvbUnlocked){var eb=button(row,'Muokkaa','mini',function(){openMvbCard(R);});eb.setAttribute('aria-label','Muokkaa ruutua '+(R[1]||R[2]));}
+  if(row.childNodes.length)card.appendChild(row);
+  if(open&&res.lahteet.length){var list=el('div','mvb-src');res.lahteet.slice().sort(function(a,b){var x=a.o.paivat[a.o.paivat.length-1]||'',y=b.o.paivat[b.o.paivat.length-1]||'';return x===y?0:!x?1:!y?-1:x<y?1:-1;}).forEach(function(x){
+      var b=button(list,'','btn mvrow',function(){var N=data.notes.indexOf(x.n)>=0?x.n:(x.n.vp?vNoteOf(x.n.vp.replace(/\.md$/i,'')):null);if(!N){toast('Muistiinpanoa ei voi avata (piilotettu tai arkistoitu).');return;}openNote(N);});
+      b.appendChild(el('b','',x.o.arvo));b.appendChild(el('span','mvwhen',mvDays(x.o)));b.appendChild(el('span','mvsrc',mvTitle(x.n)));});card.appendChild(list);}
+  return card;}
+function renderMvBoard(panel){if(!vOn())return;var cards=mvbCards(),notes=mvNotes(),L=MUUTTUJA.luettelo(notes);if(!cards.length&&!L.length&&!VC.files[MVB_PATH])return;
+  var sec=el('section','mvb');sec.setAttribute('aria-label','Muuttujaruudut');var tools=el('div','board-tools');
+  var mode=button(tools,mvbUnlocked?'Lukitse ruudut':'Muokkaa ruutuja','btn',function(){mvbUnlocked=!mvbUnlocked;render();var m=$('mvb-lock');if(m)m.focus();});mode.id='mvb-lock';mode.setAttribute('aria-pressed',mvbUnlocked?'true':'false');
+  if(mvbUnlocked)button(tools,'+ Ruutu','btn',function(){openMvbCard(null);}).id='mvb-add';
+  sec.appendChild(tools);
+  if(cards.length){var g=el('div','dgrid mvb-grid'),today=todayIso();cards.forEach(function(R){g.appendChild(mvbCard(R,notes,today));});sec.appendChild(g);}
+  panel.appendChild(sec);}
+function openMvbCard(R){var d=$('mvb-edit');
+  if(!d){d=el('dialog','nved');d.id='mvb-edit';d.setAttribute('aria-labelledby','mvb-edit-title');SMALL[d.id]=1;document.body.appendChild(d);}
+  d.textContent='';var busy=false,h=el('h2','',R?'Muokkaa ruutua':'Uusi ruutu');h.id='mvb-edit-title';d.appendChild(h);
+  d.onclick=function(e){if(e.target===d&&!busy)closeSheet(d);};
+  var form=el('form','mvb-form'),names=MUUTTUJA.luettelo(mvNotes()).map(function(g){return g.nimi;});
+  function field(id,label,ctl){var l=el('label','',label);l.htmlFor=id;ctl.id=id;form.append(l,ctl);return ctl;}
+  function sel(opts,val){var s=el('select');opts.forEach(function(o){var op=el('option','',o[1]);op.value=o[0];s.appendChild(op);});s.value=val;return s;}
+  function inp(val,ph){var i=el('input');i.type='text';i.value=val||'';if(ph)i.placeholder=ph;i.autocomplete='off';return i;}
+  var vOpts=names.map(function(n){return [n,n];});if(R&&R[2]&&names.every(function(n){return MUUTTUJA.key(n)!==MUUTTUJA.key(R[2]);}))vOpts.unshift([R[2],R[2]+' (ei merkintöjä)']);
+  if(!vOpts.length){d.appendChild(el('p','sub','Ei muuttujia vielä. Kirjoita muistiinpanoon esimerkiksi !!Uni: 8!!'));var c0=el('div','nved-foot');button(c0,'Sulje','btn',function(){closeSheet(d);});d.appendChild(c0);openSheet(d);return;}
+  var cur=R&&R[2]?(vOpts.filter(function(o){return MUUTTUJA.key(o[0])===MUUTTUJA.key(R[2]);})[0]||vOpts[0])[0]:vOpts[0][0];
+  var fVar=field('mvb-var','Muuttuja',sel(vOpts,cur)),fTit=field('mvb-title','Otsikko',inp(R?R[1]:'',fVar.value)),
+    fLas=field('mvb-laske','Lasku',sel(Object.keys(MVB_LASKE).map(function(k){return [k,MVB_LASKE[k]];}),R&&MVB_LASKE[R[3]]?R[3]:'viimeisin')),
+    fAik=field('mvb-aika','Aikaväli',sel(MVB_AIKA,R&&MVB_AIKA.some(function(a){return a[0]===R[4];})?R[4]:'')),
+    fTag=field('mvb-tag','Tunniste (valinnainen)',inp(R?R[5]:'','esim. arki')),fDir=field('mvb-dir','Kansio (valinnainen)',inp(R?R[6]:'','esim. paivat')),
+    fUni=field('mvb-unit','Yksikkö (valinnainen)',inp(R?R[7]:'','esim. h, kg, h min')),fNay=field('mvb-show','Näytä',sel([['luku','Luku'],['kuvaaja','Luku ja päiväkuvaaja']],R&&R[8]==='kuvaaja'?'kuvaaja':'luku'));
+  var dl=el('datalist');dl.id='mvb-units';['h','min','h min','kg','km','€','%','kpl'].forEach(function(u){var o=el('option');o.value=u;dl.appendChild(o);});form.appendChild(dl);fUni.setAttribute('list','mvb-units');
+  fVar.addEventListener('change',function(){fTit.placeholder=fVar.value;});
+  var msg=el('p','msg');msg.id='mvb-msg';msg.setAttribute('aria-live','polite');form.appendChild(msg);
+  var foot=el('div','nved-foot');button(foot,'Peru','btn',function(){closeSheet(d);});
+  async function save(del){if(busy)return;if(vBusy){msg.textContent='Vault synkronoi. Yritä hetken päästä.';return;}
+    var row=[R?R[0]:uid('r'),fTit.value.trim(),fVar.value,fLas.value,fAik.value,fTag.value.trim().replace(/^#/,''),fDir.value.trim().replace(/^\/+|\/+$/g,''),fUni.value.trim(),fNay.value];
+    busy=true;vBusy=true;vRender();sheetDialogControls(d,true);msg.textContent='Tallennetaan…';
+    try{var r=await sheetSaveFile(MVB_PATH,function(text){return mvbPatch(text,R,row,del);},del?'appi: kojelaudan ruutu pois':'appi: kojelaudan muuttujaruutu',{repo:vRepo(),branch:G.branch});
+      if(r&&r.error){msg.textContent=r.error;return;}closeSheet(d);if(del)delete mvbSrcOpen[row[0]];render();toast(del?'Ruutu poistettu.':'Ruutu tallennettu.');}
+    catch(e){msg.textContent='Ruutua ei voitu tallentaa. Tarkista Vaultin yhteys.';}
+    finally{busy=false;vBusy=false;sheetDialogControls(d,false);vRender();vFlush();}}
+  if(R){var del=button(foot,'Poista ruutu','btn danger',function(){save(true);});del.id='mvb-del';}
+  var ok=el('button','btn primary','Tallenna');ok.type='submit';ok.id='mvb-save';foot.appendChild(ok);form.appendChild(foot);
+  form.addEventListener('submit',function(e){e.preventDefault();save(false);});d.appendChild(form);openSheet(d);try{fVar.focus({preventScroll:true});}catch(e){}}
 function renderDash(){var p=panels.dash;p.textContent='';setInfo('');
-  renderBoard(p);
+  renderMvBoard(p);renderBoard(p);
   var bar=el('div','seg dashr');bar.id='dashrange';bar.setAttribute('role','group');bar.setAttribute('aria-label','Aikaväli');var cur=dashRange();
   DASHR.forEach(function(r){var b=button(bar,'','',function(){try{localStorage.setItem('kaikki:dashr',r[0]);}catch(e){}render();});b.className='';b.dataset.r=r[0];b.setAttribute('aria-pressed',cur===r[0]?'true':'false');b.setAttribute('aria-label',r[1]);b.appendChild(el('span','lg',r[1]));b.appendChild(el('span','sh',r[2]));});
   var top=el('div','dashtop');top.appendChild(bar);p.appendChild(top);
