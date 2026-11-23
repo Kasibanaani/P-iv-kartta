@@ -1,10 +1,12 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.60 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
+**Vaihe:** versio 0.61 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.61 (23.11.2026, ulkoasusuunnitelma, Emilin pyyntö: ”koodaa ulkoasumuutokset, älä muuta tällä hetkellä”).** Uusi valinta *Projekti → Ulkoasu → Ilme*: **Oma värisäätö** (oletus, ulkoasu ennallaan) tai **Lehto ja Hiillos**. Lehto on vaalea: lämmin vaalea pinta #F7F3EC, neutraali tumma teksti, ei vihreää väritystä. Aksentiksi valitaan murrettu sininen tai luumu, ja pienet yksityiskohdat ovat meripihkaa. Hiillos on tumma: grafiitti #222429 ja kaura #F3EBDD. Aksentiksi valitaan koralli, laventeli tai viileä sininen. Tila (laitteen mukaan, vaalea, tumma) valitsee, kumpi ilme on käytössä. Kummallekin valitaan oma otsikkofontti: New York, Iowan, Charter, Didot, Avenir Next tai Järjestelmä. Fonttinapit näyttävät oman fonttinsa, joten näytteet ovat rinnakkain. Oletuksena Lehdossa on Avenir Next ja Hiilloksessa New York, ja kaikki fontit ovat laitteen omia. Otsikkofontti koskee isoja otsikoita, kuten ikkunan otsikkoa, kuukautta ja osioiden otsikoita. Leipäteksti, taulukko ja muistiinpanon kirjoituskenttä pysyvät järjestelmäfontissa. Ilmeessä valinta näkyy hienovaraisena täyttönä ja reunana umpivärin sijaan, ja tänään-päivällä on oma reunamerkkinsä. Virheilmoituksella on reunaviiva, joten se ei erotu vain värillä. Luvut ovat tasalevyisiä rivinäkymässä, taulukoissa ja kojelaudalla. Tietokoneella muistiinpanon rivinpituus on rajattu noin 46 rem:iin. Kuittauksen, virheen ja varoituksen värit eivät muutu aksentin mukana. Värikoneen säätimet piilotetaan ilmeen ajaksi, ja niiden arvot säilyvät. *Oma värisäätö* palauttaa täsmälleen entiset värit. Uudet asetukset (`ilme`, `lacc`, `dacc`, `lhf`, `dhf`) ovat projektin asetuksissa ja kulkevat viennissä. Testi `selain_61.py` kattaa oletuksen pysymisen, jokaisen aksentin kontrastin (vähintään 4,5:1 teksti, haalea teksti, aksentti ja umpinappi), fonttivalinnan, Tumma-tilan, uudelleenlatauksen ja paluun omaan leveyksillä 1440, 1280, 390 ja 320 px vaalealla ja tummalla. Modern Web Guidance: color (värin lisäksi muoto, kontrasti).
 
 **0.60 (23.11.2026, korjaussuunnitelman kohta 4, sarakejärjestys).** Sarakeotsikon siirto koskee tätä laitetta. Näkymäeditori avaa yhteisen järjestyksen, vaikka laite käyttäisi omaansa. Sarakevalikon *Käytä näkymän sarakejärjestystä* poistaa valitun näkymän paikallisen järjestyksen ja säilyttää sarakeleveydet. Oletusnäkymässä sama valinta palauttaa oletusjärjestyksen. Editorissa kohdistus seuraa siirrettyä saraketta myös näppäimistöllä. Kosketusnäytössä pitkä painallus avaa sarakevalikon ja valikko odottaa valintaa sormen noston jälkeen.
 
@@ -140,6 +142,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Ei tarkistettu
 
+- 0.61: Fontit näkyvät vain siinä laitteessa, jossa ne ovat. iPhonessa ovat New York, Iowan, Charter, Didot ja Avenir Next. Testikoneen Chromium käytti varafontteja (Georgia-tyyppinen antiikva, järjestelmän groteski), joten oikeaa ulkoasua ei nähty iPhonella. Alkuperäisiä luonnoskuvia ei ollut repossa. Siksi värit ovat suunnitelman heksa-arvoista ja fontit lähimpiä laitteen omia vastineita. Otsikkofonttia ei vielä käytetty muistiinpanon ensimmäiseen riviin. Kirjoitus- ja korostuskerroksen pitää pysyä täsmälleen kohdallaan, joten suunnitelma vaatii erillisen testin ennen sitä. Taulukon aktiivisolun 2 px:n kehys, kaavaviitteen väri ja kojelaudan arvon korostus ovat ennallaan, ja valittu ilme vaihtaa vain niiden värit.
 - 0.55: Ristiriidan valinta tehdään koko kentälle: sarakkeista ei voi valita osaa omista ja osaa toisaalla tehdyistä. Jos näkymätiedosto on poistettu tai se ei ole enää näkymä, *Käytä omaa versiota* kirjoittaa sen kokonaan uudelleen. Oikealla GitHubilla ja iPhonella tätä ei kokeiltu, vain testirepolla Chromiumissa. Leveydet ja järjestys ovat edelleen laitteella (`kaikki:nvlay`), eikä niitä yhdistetä tiedostoon (A0.3).
 - 0.58: Kokeile oikealla iPhonella: napauta muokatessa aikalinkkiä ja asiasanaa. Kursorin pitää siirtyä, näppäimistön pysyä auki ja valikon kellua. Kirjoittamisen tuntumaa oikealla laitteella ei mitattu. Jäljelle jäävä työ näppäilyä kohti on lähinnä oman tekstin päivämäärien jäsennys (`parseDates`), ja se kasvaa tekstin pituuden mukana. Hyvin pitkissä muistiinpanoissa seuraava askel olisi jäsentää vain muuttunut kappale. Tekstin alla olevat tiedot laahaavat kirjoittaessa 0,3 s jäljessä.
 - Testisarjan `selain_45.py` (Treeni) kaatui kerran, kun koneella ajettiin samaan aikaan raskasta profilointia. Yksin ajettuna se meni läpi kahdesti. Testin odotusaika on 5 s.
@@ -186,6 +189,8 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 
 ## Avoimet kysymykset
 
+**Ulkoasu (0.61):** Mikä aksentti ja otsikkofontti valitaan Lehdon ja Hiilloksen oletukseksi? Tuleeko *Lehto ja Hiillos* koko appin oletukseksi vai jääkö se valinnaksi? Saako muistiinpanon ensimmäinen rivi otsikkofontin, kun kursorin kohdistus on testattu?
+
 **Tietokanta ja aikajana (Emil 23.11.2026, SUUNNITELMA kohdat 21–22). Vastaukset tarvitaan ennen ensimmäistä vaihetta:**
 1. Kalenterin nykyisen *Aikajana*-napin uusi nimi? Ehdotus: tietokoneella **Kellonajat**, puhelimella **Päivä** kuten nyt. Nimi *Aikajana* jää uudelle palkkinäkymälle.
 2. Kirjoitetaanko tietokantanäkymässä syötetty arvo muistiinpanon alkutietoihin vai tekstin loppuun riviksi `kenttä: arvo`? Ehdotus: alkutietoihin. Jos kenttä on jo tekstirivinä, päivitetään se rivi.
@@ -209,6 +214,6 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 
 23.11.2026. [Timanttien visio](SUUNNITELMA.md#visio-ajatusten-risteämissä-syntyvät-timantit) kuvaa ajatusten risteämistä ja uudelleenlukemista. [Työjonon kohdassa 10](SUUNNITELMA.md#10-timantin-nostaminen-löytäminen-ja-uudelleenlukeminen) on neljä ehdotettua käyttökoetta. Ensimmäiseksi kokeillaan omaa nostoa nykyisellä muistiinpanolla, linkeillä ja näkymällä.
 
-23.11.2026. [Ulkoasusuunnitelmaan](SUUNNITELMA.md#emilin-ulkoasupalaute-23112026) on kirjattu Emilin suosima Hiilloksen otsikkotyyli, toive tumman teeman aksenttivaihtoehdoista sekä Lehdon vaalea asettelu uudella typografialla ja ilman vihreää väritystä. Seuraava askel on verrata fontti- ja värivaihtoehtoja samoissa näkymissä. Tässä vaiheessa päivitettiin suunnitelma. Selainkokeilu tehdään esikatseluvaiheessa.
+23.11.2026. [Ulkoasusuunnitelman](SUUNNITELMA.md#emilin-ulkoasupalaute-23112026) Lehto ja Hiillos on rakennettu valittavaksi ilmeeksi versiossa 0.61, ja oletus on ennallaan. Seuraavaksi Emil vertaa aksentteja ja otsikkofontteja omalla iPhonellaan ja valitsee oletukset. Sen jälkeen päätetään, tuleeko ilmeestä uusi oletus ja käytetäänkö otsikkofonttia myös muistiinpanon ensimmäisessä rivissä.
 
 ## Emilin kommentit

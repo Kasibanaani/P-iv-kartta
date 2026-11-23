@@ -2,7 +2,7 @@
 
 Itsenäinen ohje mille tahansa tekoälylle (Claude, ChatGPT/Codex, muu). Aiempaa keskustelua ei tarvitse muistaa. Lue ensin repon `AGENTS.md`, sitten `kaikki/TILA.md` ja tämä. Emilin päätökset on merkitty **Emil**, tekoälyn ehdotukset *ehdotus*. Ehdotus ei ole toteutuslupa; Emilin ”toteuta” on.
 
-Päivitetty 23.11.2026 (päähaara 0.60: korjaussuunnitelman kohdat 1–3 ja kohdan 4 sarakejärjestys tehty, seuraavana sarakeleveydet; uudet kohdat 21–22 Emilin sanelusta). Kohdan 18 ensimmäinen kokeilu on omassa haarassaan. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
+Päivitetty 23.11.2026 (päähaara 0.61: Lehto ja Hiillos valittavana ilmeenä; 0.60: korjaussuunnitelman kohdat 1–3 ja kohdan 4 sarakejärjestys tehty, seuraavana sarakeleveydet; uudet kohdat 21–22 Emilin sanelusta). Kohdan 18 ensimmäinen kokeilu on omassa haarassaan. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
 
 **Rakentajan nykyinen jatko-ohje:** [Tulevien ominaisuuksien toteutusjono](#tulevien-ominaisuuksien-toteutusjono) täsmentää A0–D-jonon avoimet ominaisuudet ja kertoo mistä aloittaa.
 
@@ -627,6 +627,8 @@ Hyväksymisehdot:
 Emilin pyytämät vertailuluonnokset, 23.11.2026. Sama koetehtävä kaikissa: etsi Muistion Retken valmistelu -näkymästä Reittisuunnitelma, avaa sen Varustelista-linkki ja muuta Retkibudjetin yhtä hintaa. Näillä kolmella tilanteella näkee, ohjaako ulkoasu lukemaan, siirtymään ja muokkaamaan oikeassa kohdassa. Kyse on suunnitteluvaihtoehdoista. Emil valitsee linjan tai yhdistelmän ennen julkaisua.
 
 ### Emilin ulkoasupalaute 23.11.2026
+
+**Toteutus 0.61 (23.11.2026):** Lehto ja Hiillos ovat valittavana kohdassa *Projekti → Ulkoasu → Ilme*, ja oletus on ennallaan (Emil: ”älä muuta tällä hetkellä”). Aksentit ovat: Lehto murrettu sininen #3B5B82 tai luumu #7B3F66, Hiillos koralli #F19979, laventeli #B9A6F2 tai viileä sininen #86B8EA. Otsikkofontiksi voi valita New Yorkin, Iowanin, Charterin, Didotin, Avenir Nextin tai järjestelmäfontin. Valinta näkyy täyttönä ja reunana, tänään-päivä omana reunanaan ja virhe reunaviivana. Luvut ovat tasalevyisiä. Tietokoneella muistiinpanon rivinpituus on rajattu. Ei vielä tehty: otsikkofontti muistiinpanon ensimmäiseen riviin (vaatii kohdistustestin), oletuksen vaihto ja muiden osioiden erilliset hienosäädöt (*Yhteinen asettelu* alla). Valinta tehdään Emilin iPhone-kokeilun perusteella.
 
 - **Tumma tila: Hiillos.** Erityisesti luonnoksen otsikkofontin luonne ja muotoilu miellyttävät Emiliä. Käytä Hiilloksen otsikoiden mittasuhteita, kirjainmuotoa ja typografista hierarkiaa vertailukohtana. Valitse toteutuksen tarkka fontti rinnakkaisista näytteistä. Otsikoissa saa olla luonnetta, ja leipätekstin ja taulukon fontti valitaan luettavuuden mukaan.
 - **Hiilloksen aksenttivärit.** Emil haluaa tarkastella samaa tummaa teemaa useilla valittavilla aksenttiväreillä. Pidä pinnat ja typografia samoina, jotta värejä voi verrata suoraan. *Ehdotus kokeiluun:* kuvan koralli, laventeli ja viileä sininen. Näytä kullakin värillä linkki, valittu rivi, aktiivinen solu ja kohdistus samoissa kohdissa. Varmista, että virhe ja kuittaus tunnistuvat värivalinnasta riippumatta.
