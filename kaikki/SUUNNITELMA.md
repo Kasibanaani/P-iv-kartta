@@ -2,7 +2,7 @@
 
 Itsenäinen ohje mille tahansa tekoälylle (Claude, ChatGPT/Codex, muu). Aiempaa keskustelua ei tarvitse muistaa. Lue ensin repon `AGENTS.md`, sitten `kaikki/TILA.md` ja tämä. Emilin päätökset on merkitty **Emil**, tekoälyn ehdotukset *ehdotus*. Ehdotus ei ole toteutuslupa; Emilin ”toteuta” on.
 
-Päivitetty 23.11.2026 (päähaara 0.58: korjaussuunnitelman kohdat 1–3 tehty, seuraavana kohta 4; uudet kohdat 21–22 Emilin sanelusta). Kohdan 18 ensimmäinen kokeilu on omassa haarassaan. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
+Päivitetty 23.11.2026 (päähaara 0.60: korjaussuunnitelman kohdat 1–3 ja kohdan 4 sarakejärjestys tehty, seuraavana sarakeleveydet; uudet kohdat 21–22 Emilin sanelusta). Kohdan 18 ensimmäinen kokeilu on omassa haarassaan. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
 
 **Rakentajan nykyinen jatko-ohje:** [Tulevien ominaisuuksien toteutusjono](#tulevien-ominaisuuksien-toteutusjono) täsmentää A0–D-jonon avoimet ominaisuudet ja kertoo mistä aloittaa.
 
@@ -44,11 +44,11 @@ Koodihavainto: `nvText(D,old)` rakentaa alkutiedot uudelleen tuntemistaan kentis
 
 ### 4. Selvitä nimet ja asetusten tallennuspaikat käyttäjälle
 
-Nykyinen rivinäkymä tallentaa raahatut leveydet ja järjestyksen laitteelle (`nvLayGet/Set`). Näkymäeditori tallentaa järjestyksen näkymän Markdown-tiedostoon. Paikallinen järjestys voi peittää editorissa tehdyn muutoksen. Otsikon kaksoisnapsautus leveyssäätimessä palauttaa Muistion oletusleveyden. Taulukot-osiossa vastaava ele sovittaa sisällön. Leveyden jakaminen laitteiden kesken on jo suunnitelman A0.3:ssa.
+- ~~Toista sarakejärjestyksen ero kahdessa selainprofiilissa, erota yhteinen ja paikallinen järjestys sekä tarjoa paluu yhteiseen.~~ Tehty 0.60. Näkymäeditori muokkaa tiedoston järjestystä. Otsikosta siirretyt sarakkeet saavat etusijan kyseisellä laitteella, kunnes käyttäjä valitsee *Käytä näkymän sarakejärjestystä*. Toistotulos on TILA-tiedostossa ja testi on `selain_60.py`.
+- Sarakeleveydet tallentuvat vielä laitteelle. Seuraava työ on A0.3:n jaettu leveys ja valinnainen laitekohtainen leveys. Otsikon leveyssäätimen kaksoisnapsautus palauttaa Muistion oletusleveyden. Taulukot-osiossa vastaava ele sovittaa sisällön.
 
-- Toista ensin kahdessa selainprofiilissa. Siirrä sarake päälaitteella, avaa editori, siirrä sama sarake eri paikkaan ja avaa näkymä uudestaan molemmilla laitteilla. Kirjaa kunkin vaiheen todellinen järjestys. Päätä A0.3:n yhteydessä yhteisen oletuksen ja mahdollisen laitekohtaisen poikkeuksen etusija. Tee palautus yhteiseen järjestykseen löydettäväksi.
 - Erota näkymän nimi, käyttäjälle näkyvä sarakeotsikko ja aineiston kenttänimi. Tarjoa otsikon valikosta ymmärrettävä nimeämistoiminto. Näyttönimen vaihdon pitää säilyttää lajittelu, kaavat, suodatus ja lähdemuistiinpanot. Jos pysyvä näyttönimi vaatii uutta tiedostomuotoa, sovi se Emilin kanssa ensin. Tarjoa sovitus sisältöön ja palautus oletukseen selkeästi nimettyinä eri toimintoina.
-- Tarkista samannimiset näkymät, pitkä nimi, tyhjä nimi, keskeytetty kirjoitus ja näkymän avaaminen uudelleen. Editorin kohdistus ja vieritys pitää säilyttää, kun `nvRenderEd` päivittää sarakelistan.
+- Tarkista samannimiset näkymät, pitkä nimi, tyhjä nimi, keskeytetty kirjoitus ja näkymän avaaminen uudelleen. ~~Säilytä kohdistus ja pidä käsiteltävä sarake näkyvissä, kun editorin sarakelista päivittyy.~~ Tehty 0.60.
 
 ### 5. Mittaa hidastuminen käyttäjän tekemästä toimesta näkyvään tulokseen
 

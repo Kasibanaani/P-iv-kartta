@@ -1,10 +1,14 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.59 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
+**Vaihe:** versio 0.60 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.60 (23.11.2026, korjaussuunnitelman kohta 4, sarakejärjestys).** Sarakeotsikon siirto koskee tätä laitetta. Näkymäeditori avaa yhteisen järjestyksen, vaikka laite käyttäisi omaansa. Sarakevalikon *Käytä näkymän sarakejärjestystä* poistaa valitun näkymän paikallisen järjestyksen ja säilyttää sarakeleveydet. Oletusnäkymässä sama valinta palauttaa oletusjärjestyksen. Editorissa kohdistus seuraa siirrettyä saraketta myös näppäimistöllä. Kosketusnäytössä pitkä painallus avaa sarakevalikon ja valikko odottaa valintaa sormen noston jälkeen.
+
+Versiossa 0.59 yhteinen järjestys oli testissä Otsikko, Kansio, Kuka, Luotu. Laitteella A Kansio siirrettiin Kuka-sarakkeen jälkeen. Editori avautui tässä paikallisessa järjestyksessä. Kun Kansio siirrettiin editorissa viimeiseksi, uudelleenavauksessa A näytti sen edelleen kolmantena ja puhdas B viimeisenä. Testi `selain_60.py` tarkistaa yhteisen järjestyksen, pelkän nimenmuutoksen, keskeytyksen, siirron ja paluun yhteiseen kahdessa Chromium-profiilissa. Leveydet 320, 390, 1280 ja 1440 px. Fyysisen iPhonen Safari jäi kokeiltavaksi.
 
 **0.59 (23.11.2026, Emilin pyyntö):** Muistion rivinäkymässä valintaruutu ei enää ilmesty, kun hiiren vie rivin kohdalle. Ruudut tulevat näkyviin vain yläreunan Valitse-napista, joten teksti ei pompi. Cmd- tai Ctrl-napsautus ja Shift-napsautus avaavat valintatilan edelleen, koska ne ovat käyttäjän oma valinta. Testi `selain_31.py` tarkistaa nyt, ettei ruutua näy osoitettaessa.
 
@@ -162,7 +166,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Seuraava askel
 
-**Korjaussuunnitelma (SUUNNITELMA.md, 23.11.):** kohdat 1–3 tehty (0.55–0.57), Emilin bugit 0.58:ssa. Seuraavaksi kohta 4: nimet ja asetusten tallennuspaikat. Ensin pitää toistaa kahdella laitteella, mitä tapahtuu, kun paikallinen järjestys ja editorin järjestys eroavat. Etusija päätetään A0.3:n kanssa: leveys ja järjestys näkymätiedostoon. Sen jälkeen tulevat moniavaiminen lajittelu (A0.7) ja kohta 5, hitauden mittaus.
+**Korjaussuunnitelman kohta 4 ja A0.3.** Seuraavaksi jaetut sarakeleveydet ja sisällön mukaan sovitus. Kokeile kahta laiteprofiilia, vanhaa paikallisleveyttä ja samanaikaista näkymätiedoston muokkausta. Sarakeotsikon pysyvä näyttönimi tarvitsee vielä päätöksen tallennusmuodosta. Tämän jälkeen jonossa ovat moniavaiminen lajittelu (A0.7) ja vasteaikojen mittaus (kohta 5).
 
 
 Kohdan 18 toistuvuuskokeilu 0.52 on [omassa haarassaan](https://github.com/Kasibanaani/P-iv-kartta/tree/kaikki-toistuvuuskokeilu/kaikki). Se kattaa Muistion listan, kalenterin, kuittauksen ja uuden pikamuistutuksen. Kokeile erillisellä testivaultilla sekä kuittauksesta laskettavaa että kalenterissa tasavälistä toistoa. Toistuvuuden vakiinnuttaminen, kuukausirytmin reunatapaukset ja vanhan aineiston siirto ovat edelleen avoimia. Flow-tekstin pysyvä muoto odottaa kokeilupalautetta.
