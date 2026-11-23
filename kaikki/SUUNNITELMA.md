@@ -11,6 +11,76 @@ Päivitetty 23.11.2026 (päähaara 0.54). Kohdan 18 ensimmäinen kokeilu on omas
 
 Aloita etsimällä, saako paikallisen työn työympäristöstä talteen. Jos sitä ei saa, jatka päähaaran versiosta 0.51 ja toteuta 0.52 ja 0.53 yllä olevan rajauksen mukaan. Aja koko testisarja ennen julkaisua. Sen jälkeen seuraava itsenäinen askel on näkymämuokkaimen usean kentän lajittelu (A0.7).
 
+## Käytettävyyden ja vakauden korjaussuunnitelma 23.11.2026
+
+Pohjana on päähaaran versio 0.54, commit `6bea243`. Tämä on Emilin pyytämä arvio ja ehdotus toteutusjärjestykseksi. Ennen koodausta tarkista uusimmat commitit ja A0.3/A0.7 sekä muiden rakentajien tilanne. Vanha yöajon versiomerkintä ei yksin kerro, mitä päähaarassa on. Käytä alla olevia tehtäviä alkuperäisten kohtien hyväksymistesteinä, jotta samaa ominaisuutta ei rakenneta kahdesti.
+
+**Tarkistuksen aineisto.** Muistion rivinäkymää vieritettiin Chromiumissa 900 CSS-pikseliä sadan synteettisen muistiinpanon listassa. Tarkistettiin palkkien sijainti, osuman vastaanottava elementti ja kohdistin sarakerajan molemmin puolin. Testivaultilla läpäisivät selaintestit 08, 25, 30, 31, 36, 41, 47, 50, 51 ja 54. Ne kattavat muun muassa ZIP-viennin, kaavat, taulukkomuokkauksen, kalenterin, treenipikakirjauksen ja graafin. Alla erotetaan mitatut virheet, koodista löytyvät riskit ja vielä kokeiltavat käyttötapaukset. Fyysisen iPhonen Safari, verkkohäiriöt ja suuren aineiston vasteajat tarvitsevat omat mittauksensa.
+
+### 1. Estä näkymäasetusten ylikirjoittuminen ennen editorin laajentamista
+
+Koodihavainto: `nvText(D,old)` rakentaa alkutiedot uudelleen tuntemistaan kentistä ja säilyttää vanhasta tiedostosta rungon. Käsin lisätty alkutietorivi tai sarakkeen ylimääräinen määre voi siksi kadota jo näkymän nimen vaihtuessa. `nvSaveDraft` vapauttaa yhteisen luonnoksen ennen verkkokirjoitusta. Varatun synkan ajastettu uusinta sijoittaa vanhan luonnoksen takaisin samaan muuttujaan, vaikka käyttäjä olisi jo avannut toisen näkymän. Virheilmoitus ei itsessään palauta luonnosta.
+
+- Tee ensin kaksi testinäkymää A ja B, A:han oma alkutieto, ylimääräinen sarakemääre, kommentti ja Markdown-runko. Muuta vain A:n nimeä. Vertaa tiedostoa riveittäin. Vain nimen kuuluu muuttua. Varmista sama myös silloin, kun palvelimelle ilmestyy uusi rivi A:n ollessa auki.
+- Päivitä vain käyttäjän muuttamat kentät tuoreimpaan tiedostoon. Vertaa alkuperäistä, luonnosta ja palvelimen arvoa. Yhdistä eri kenttien muutokset. Saman kentän ristiriidassa säilytä molemmat versiot ja tarjoa ratkaisu. Pidä keskeneräinen tallennus näkymän, repon ja haaran yhteydessä. Säilytä epäonnistunut luonnos uudelleenyritystä varten.
+- Hyväksy vasta, kun A:n hidas tallennus, B:n samanaikainen muokkaus, yhteyskatko, uusinta ja peruminen on ajettu testivaultilla. A:n valmistuminen ei saa valita A:ta kesken B:n muokkauksen. Vain käyttäjän vahvistama sisältö saa päätyä oikeaan tiedostoon. Käytä nykyistä sulkemalla tallentamisen käytäntöä ja näytä odottava tai epäonnistunut tallennus ymmärrettävästi.
+
+### 2. Sulje Muistion yläpalkin rako
+
+**Toistettu.** Leveydellä 1440 px työkalupalkin alareuna oli kohdassa 143 ja sarakeotsikon yläreuna kohdassa 147. Kaksi pikseliä otsikon yläpuolella osuma tuli vierivään otsikkosoluun. Leveyksillä 390 ja 320 vastaavat reunat olivat molemmat kohdassa 80. Muistion `.nbar` ja `.rvh` ovat erilliset sticky-elementit. Ensimmäisen yläsiirtymä muuttuu leveällä näytöllä. Toisen laskukaava vähentää aina 10 px. Vaakavieritys synkronoidaan erikseen listasta otsikkoon.
+
+- Johda molempien yläsiirtymä yhdestä näkymän todellista sisäreunaa kuvaavasta mitasta. Seuraa palkin korkeutta myös fontin, asennon ja painikerivin muuttuessa. Säilytä otsikoiden vaakasijainti, taustan peittävyys ja ensimmäisen sarakkeen kiinnitys. Pelkkä z-indexin kasvattaminen ei sulje mitattua rakoa.
+- Testaa vierityksen alussa, keskellä ja lopussa sekä vinottain vierittäen. Palkkien välissä saa olla niiden oma rajaviiva. Välin osumatesti ei saa palauttaa listariviä. Otsikon ja vastaavan solun reunojen ero enintään 1 CSS-pikseli. Toista 320/390/1280/1440 px, suurella tekstillä sekä vaalealla ja tummalla teemalla.
+
+### 3. Erota lajittelu, leveyden säätö ja siirto
+
+**Toistettu.** Kansio-sarakkeen oikealla rajalla kohdistin oli 1440 ja 390 px:n näkymissä `col-resize` kohdissa −4 ja −1 px, mutta oletuskohdistin kohdissa +1 ja +4 px. `.rv-rz` ulottuu solun ulkopuolelle ja `.rvc` leikkaa ylivuodon. Otsikko-sarakkeen painike näyttää tartuntakäden, vaikka `nvHeadDrag` jättää sen paikalleen. Siirto ja leveyden säätö kuuntelevat ikkunan liikettä ja vapautusta. Kummastakin puuttuu peruutuksen käsittely.
+
+- Aseta leveyden säätöalue rajaviivan ympärille kerrokseen, jossa viereinen solu ei peitä sitä. Näytä raja korostettuna jo osoitettaessa. Hiirellä ehdotettu tavoite on vähintään 6 px molemmille puolille. Testaa oikea osuma `elementFromPoint`-kutsulla myös vaakavierityksen jälkeen. Rajalta veto säätää vain leveyttä. Lajittelun kohdistin näkyy kiinteässä otsikossa ja tartuntakäsi vain siirrettävässä kohdassa.
+- Käytä yhtä aktiivista osoitinta ja päätä eleestä vain kerran. Vapautus vahvistaa, keskeytys tai osoittimen kaappauksen menetys poistaa korostukset ja palauttaa lähtötilan. Tarkista reunan ulkopuolella vapauttaminen, väärä hiirinappi, toinen sormi ja nopea uusi veto. Vedosta ei saa seurata lajittelua.
+- Puhelimella anna otsikkoriviltä vierittää taulukkoa sivulle. Tarjoa täsmälliseen säätöön myös sarakevalikko, jossa on vasemmalle/oikealle siirto, leveyden säätö ja oletusleveys. Hyödynnä `nvRenderEd`-editorin nykyisiä siirtopainikkeita ja jaa niiden järjestyslogiikka raahauksen kanssa. Samat toimet pitää voida tehdä näppäimistöllä, ja kohdistuksen pitää palata siirrettyyn otsikkoon. Pidä lajittelu yhden napautuksen toimintona.
+
+### 4. Selvitä nimet ja asetusten tallennuspaikat käyttäjälle
+
+Nykyinen rivinäkymä tallentaa raahatut leveydet ja järjestyksen laitteelle (`nvLayGet/Set`). Näkymäeditori tallentaa järjestyksen näkymän Markdown-tiedostoon. Paikallinen järjestys voi peittää editorissa tehdyn muutoksen. Otsikon kaksoisnapsautus leveyssäätimessä palauttaa Muistion oletusleveyden. Taulukot-osiossa vastaava ele sovittaa sisällön. Leveyden jakaminen laitteiden kesken on jo suunnitelman A0.3:ssa.
+
+- Toista ensin kahdessa selainprofiilissa. Siirrä sarake päälaitteella, avaa editori, siirrä sama sarake eri paikkaan ja avaa näkymä uudestaan molemmilla laitteilla. Kirjaa kunkin vaiheen todellinen järjestys. Päätä A0.3:n yhteydessä yhteisen oletuksen ja mahdollisen laitekohtaisen poikkeuksen etusija. Tee palautus yhteiseen järjestykseen löydettäväksi.
+- Erota näkymän nimi, käyttäjälle näkyvä sarakeotsikko ja aineiston kenttänimi. Tarjoa otsikon valikosta ymmärrettävä nimeämistoiminto. Näyttönimen vaihdon pitää säilyttää lajittelu, kaavat, suodatus ja lähdemuistiinpanot. Jos pysyvä näyttönimi vaatii uutta tiedostomuotoa, sovi se Emilin kanssa ensin. Tarjoa sovitus sisältöön ja palautus oletukseen selkeästi nimettyinä eri toimintoina.
+- Tarkista samannimiset näkymät, pitkä nimi, tyhjä nimi, keskeytetty kirjoitus ja näkymän avaaminen uudelleen. Editorin kohdistus ja vieritys pitää säilyttää, kun `nvRenderEd` päivittää sarakelistan.
+
+### 5. Mittaa hidastuminen käyttäjän tekemästä toimesta näkyvään tulokseen
+
+**Koodista tunnistetut mittauskohteet.** Rivinäkymä rakentaa jokaiselle tulokselle kaikki solut. `nvHeadDrag` lukee lasketut sarakeleveydet ja kirjoittaa tyylit jokaisella liiketapahtumalla. `nvFitTags` mittaa kaikkien tunnistesolujen sirut, myös edellisessä sovituksessa piilotettuja. `render0` ajaa yhteisiä päivityksiä ennen osion piirtoa. `wlNow` käyttää osana välimuistin avainta tekstien yhteispituutta. Samanpituisen sanan vaihto on siksi kokeiltava. Hitauden suuruutta ei ole vielä mitattu.
+
+1. Generoi testivaultit, joissa on 100 ja 1 000 eripituista muistiinpanoa, kuusi saraketta, pitkiä tunnisteita sekä ristiinlinkkejä. Tallenna samalla laitteella ennen ja jälkeen viisi ajoa. Mittaa näkymän avaus, hakumerkin syöttö, lajittelun valmistuminen sekä ruutujen välit kahden sekunnin raahauksessa. Erota verkon odotus käyttöliittymän työstä. Kirjaa mediaani ja hitain ajo sekä laitteen ja selaimen tiedot.
+2. Lue lähtöleveydet kerran vedon alussa, päivitä viimeisin osoittimen paikka korkeintaan kerran piirrettävää ruutua kohti ja tallenna vasta vahvistuksessa. Mittaa uudelleen ennen laajempaa uudelleenrakennusta. Tavoitteena ei yhtään yli 50 ms:n pääsäietyötä tavallisen sarakevedon aikana vertailulaitteella.
+3. Testaa tunnistesarake leveä → kapea → leveä → kapea. Näkyvien sirujen ja +N-luvun on joka kierroksella täsmättävä. Jos piilotetun sirun leveys on nolla, mittaa luonnollinen leveys erillään piilotustilasta ja käytä samaa mittaa koko sovituksessa. Tee sanalinkille testi, jossa vaihdetaan sana samanpituiseksi ja avataan siihen liittyvät muistiinpanot. Korjaa mahdollinen vanhentunut indeksi sisältömuutoksesta päivittyvällä avaimella.
+4. Jos suurella aineistolla listan luonti jää pullonkaulaksi, vähennä ensin turhia koko listan uudelleenpiirtoja. Kokeile vasta mittausten perusteella näkyvien rivien vaiheittaista piirtoa. Säilytä hakutulos, monivalinta, näppäimistökohdistus, ensimmäinen näkyvä muistiinpano ja suhteellinen vierityskohta.
+
+### 6. Muistiinpanon linkitys kirjoituksen aikana
+
+**Nykyinen raja on varmennettu.** `vLinkTap` avaa lukunäkymässä tunnistetun wikilinkin. Puuttuva kohde tuottaa ilmoituksen. Aiempi keskustelu antaa seuraavan työnkulun ehdotukseksi. Toteutuspäätös on avoin.
+
+- Käyttäjä kirjoittaa esimerkiksi `Palaan ((retken valmisteluun)) myöhemmin.` ja viimeistelee lähtömuistiinpanon. Napautus avaa olemassa olevan yksiselitteisen kohteen tai tarjoaa uuden luomista. Useita osumia erotellaan otsikolla ja kansiolla. Tarkista ennen luontia myös suodattimen piilottama kohde, jotta kaksoiskappaletta ei synny.
+- Avaa uusi kohde esitäytetyllä ensimmäisellä rivillä. Anna vaihtaa otsikko. Lähteen lauseessa säilyy alkuperäinen taivutus. Käytä nykyistä wikilinkkiä ja aliastekstiä, kun todellinen tiedostopolku on tiedossa. Sovi Emilin kanssa oikotie, luontihetki ja odottavan linkin esitys. Tavallisten sulkujen, kaavojen ja aiemmin kirjoitetun tekstin on säilyttävä.
+- Testaa myös paluu samaan lähtökohtaan, peruttu luonti, kaksi napautusta, yhteyskatko ja uudelleenavaus toisella laitteella. Lähtötekstin luonnos ei saa kadota kohteeseen siirryttäessä. Takaisinlinkkien ja graafin tulee löytää valmis yhteys kerran.
+
+### 7. Muiden osioiden käytettävyyskierros
+
+Seuraavat ovat tehtäväkohtaisia tarkistuksia. Korjaa toistuva puute ja lisää juuri sen paljastava testi. Säilytä jo toimivat reitit.
+
+| Osio | Kokeiltava tehtävä ja hyväksymisehto |
+|---|---|
+| Kalenteri | Luo vartin merkintä, vieritä sen kohdalta, kuittaa, muuta kestoa ja siirrä päivää. Vain valittu toiminto toteutuu. Toista kahden päällekkäisen merkinnän, piilotetun maanantain ja kuunvaihteen kanssa. Käytä 36/54-testejä lähtötasona. |
+| Taulukot | Valitse solu, avaa näppäimistö, nimeä sarake, peru ja liitä useita rivejä. Tarkista otsikon, solun ja kaavarivin kohdistus molemmissa vierityssuunnissa. Virheen tai verkkokatkon jälkeen syöte on palautettavissa. Kaavaviittaukset seuraavat hyväksyttyä rakennemuutosta. Lähtötestit 25/30/41. |
+| Kojelauta, Treeni ja pikakirjaus | Avaa kirjaus tyhjästä tilanteesta, kirjoita desimaaliluku, korjaa se ja napauta tallennusta nopeasti kahdesti. Näytä kohde, yksikkö ja päivä ennen vahvistusta sekä valmis tai jonossa oleva kirjaus jälkikäteen. Samasta vahvistuksesta syntyy yksi tietorivi. Aiempi arvo säilyy peruttaessa. |
+| Listat, Asiat ja Flow | Tee ja kuittaa rivi, järjestä rivejä ja siirrä kaavion kohdetta. Kokeile myös aloitusta ilman sisältöä. Tarkista näkyvä seuraava toiminto, vierityksen ja raahauksen erottuminen, peruutus sekä paluu samaan listaan. Tee kokeet olemassa olevilla rakenteilla ja kirjaa puuttuva kosketus- tai näppäimistöreitti. |
+| Graafi ja takaisinlinkit | Avaa pitkän listan keskeltä takaisinlinkit ja niistä muistiinpano. Sulje päällimmäinen ikkuna ja tarkista vieritys sekä kohdistus. Graafin raahaus ei saa avata solmua. Tarkista pitkien samankaltaisten otsikoiden erottuminen myös tekstilistassa. |
+| Asetukset, synkka ja vienti | Kokeile ilman yhteyttä, jonon kanssa ja synkan aikana. Tarkista, että päivityksen tila erottuu myös ilman väriä ja virheestä pääsee takaisin omaan työhön. Vie ZIP odottavan luonnoksen kanssa. Tarkista sisältö ja ettei vienti lähetä luonnosta verkkoon. |
+| Yhteinen ulkoasu | Käy kunkin pääosion tyhjä tila, täysi tila ja muokkaustila läpi. Vertaa samojen toimintojen nimeä, sijaintia ja kuvaketta. Testaa vaalea ja tumma teema, suuri teksti, pitkä otsikko ja näyttönäppäimistö. Pienet ikkunat suljetaan ulkopuolelta, Esc palauttaa kohdistuksen avaajaan ja keskeneräisen syötteen kohtalo on ennakoitava. |
+
+**Luovutus rakentajalle.** Aloita tietojen säilymisen testistä ja palkin neljän pikselin toistosta. Tee kukin korjaus omana testattavana kokonaisuutenaan. Kirjaa `TILA.md`:hen havainto, toisto, tehty muutos, ennen/jälkeen-tulos ja seuraava avoin kohta. Liitä ulkoasukorjaukseen samalla aineistolla otettu vertailukuva. Aja kohdennetut testit ja lopuksi `sh kaikki/testit/aja.sh`. Merkitse oikean iPhonen Safari- ja kosketuskokeilu erikseen. Uusi Vault-muoto, tietojen siirto ja vanhan osion poistaminen vaativat oman päätöksen.
+
 ## Yhteiset säännöt (Kaikki)
 
 - Appi: `kaikki/index.html` (yli 800 kt). **Älä lue kokonaan**: `python3 tyokalut/kartta.py kaikki` (osiot), `-n <funktio>` (rivi), `-f <osio>` (osion funktiot).
