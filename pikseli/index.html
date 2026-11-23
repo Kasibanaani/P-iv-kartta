@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Pikseli">
+<title>Pikseli</title>
+<link rel="apple-touch-icon" id="touchicon">
+<style>
+/* ===== Värit: Appipaja 2.0, teema Harmaa (neutraali ympäristö ei vääristä värien näkemistä) ===== */
+:root{
+  color-scheme:light dark;
+  --bg:#F3F3F3;--cell:#FEFEFE;--label:#282828;--label2:#646464;--sep:#DDDDDD;--accent:#595959;--fill:#E9E9E9;--tint:#EEEEEE;
+  --solidtx:#FFFFFF;--shadow:rgba(40,40,40,.055);--shade:rgba(25,25,25,.38);--wine:#9B2335;
+  --chk1:#FFFFFF;--chk2:#E2E2E2;--stage:#E4E4E4;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",system-ui,"Segoe UI",Roboto,Arial,sans-serif;
+  --joy:clamp(100px,30vw,128px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-mode="light"]){
+    --bg:#191919;--cell:#262626;--label:#EFEFEF;--label2:#B4B4B4;--sep:#444444;--accent:#BFBFBF;--fill:#393939;--tint:#202020;
+    --solidtx:#191919;--shadow:rgba(0,0,0,.13);--shade:rgba(0,0,0,.5);--wine:#E0707F;
+    --chk1:#3A3A3A;--chk2:#2E2E2E;--stage:#111111;
+  }
+}
+:root[data-mode="dark"]{
+  color-scheme:dark;
+  --bg:#191919;--cell:#262626;--label:#EFEFEF;--label2:#B4B4B4;--sep:#444444;--accent:#BFBFBF;--fill:#393939;--tint:#202020;
+  --solidtx:#191919;--shadow:rgba(0,0,0,.13);--shade:rgba(0,0,0,.5);--wine:#E0707F;
+  --chk1:#3A3A3A;--chk2:#2E2E2E;--stage:#111111;
+}
+:root[data-mode="light"]{color-scheme:light}
+
+/* ===== Pohja ===== */
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--label);font-family:var(--font);font-size:16px;line-height:1.4;-webkit-tap-highlight-color:transparent;overscroll-behavior:none;-webkit-text-size-adjust:100%;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+button{font:inherit;color:inherit;touch-action:manipulation;cursor:pointer;-webkit-appearance:none;appearance:none}
+button:focus-visible,label:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+svg.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#app{height:100vh;height:100dvh;max-width:560px;margin:0 auto;display:grid;grid-template-rows:auto minmax(0,1fr) auto auto;
+  padding:calc(env(safe-area-inset-top) + 4px) calc(env(safe-area-inset-right) + 12px) calc(env(safe-area-inset-bottom) + 10px) calc(env(safe-area-inset-left) + 12px)}
+
+/* ===== Inforivi ===== */
+header{display:flex;align-items:baseline;gap:8px;min-height:34px;padding:6px 2px}
+header h1{margin:0;font-size:17px;font-weight:700;line-height:1.2;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#info{flex:none;font-size:13px;color:var(--label2);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* ===== Piirtoalue ===== */
+#stage{position:relative;border-radius:16px;overflow:hidden;background:var(--stage);touch-action:none;-webkit-user-select:none;user-select:none}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#mini{position:absolute;top:8px;right:8px;border-radius:6px;box-shadow:0 0 0 1px var(--sep),0 2px 8px var(--shadow);pointer-events:none;display:none;background:var(--stage)}
+#mini.on{display:block}
+
+/* ===== Paletti ===== */
+#pal{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:6px;padding:10px 4px 8px}
+.sw{position:relative;height:42px;border:0;border-radius:11px;padding:0;box-shadow:inset 0 0 0 1px rgba(127,127,127,.35);display:block;margin:0}
+.sw[aria-pressed="true"]{box-shadow:inset 0 0 0 1px rgba(127,127,127,.35),0 0 0 2px var(--bg),0 0 0 4px var(--label)}
+.sw.free{background:conic-gradient(#f44,#fc3,#4c6,#3bf,#86f,#f4c,#f44);cursor:pointer;overflow:hidden}
+.sw.free::after{content:"";position:absolute;inset:6px;border-radius:7px;background:var(--fc,var(--bg))}
+.sw.free.has::after{inset:0 0 0 0;border-radius:11px;clip-path:polygon(0 0,100% 0,100% 55%,55% 100%,0 100%)}
+.sw.free input{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;padding:0;margin:0;pointer-events:none}
+
+/* ===== Ohjainpaneeli (pelikone) ===== */
+#panel{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;padding:4px 2px 0}
+.joy{position:relative;width:var(--joy);height:var(--joy);border-radius:50%;background:var(--fill);touch-action:none;box-shadow:inset 0 2px 6px var(--shadow)}
+.joy::before{content:"";position:absolute;inset:16%;border-radius:50%;border:1.5px dashed var(--sep)}
+.joy i{position:absolute;left:28%;top:28%;width:44%;height:44%;border-radius:50%;background:var(--cell);box-shadow:0 3px 10px var(--shade),inset 0 0 0 1px var(--sep);will-change:transform}
+.joy.on i{background:var(--label)}
+#keys{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.key{height:54px;border:0;border-radius:15px;background:var(--fill);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:600;line-height:1.1;padding:0 2px;min-width:0}
+.key span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.key:active{filter:brightness(.92)}
+.key[aria-pressed="true"]{background:var(--label);color:var(--bg)}
+.key:disabled{opacity:.38;cursor:default}
+@media (max-width:350px){.key span{display:none}.key{height:50px}}
+.zoom{position:relative;width:54px;height:var(--joy);border-radius:27px;background:var(--fill);touch-action:none;box-shadow:inset 0 2px 6px var(--shadow)}
+.zoom b{position:absolute;left:0;right:0;text-align:center;font-size:15px;font-weight:700;color:var(--label2);line-height:1;pointer-events:none}
+.zoom b.p{top:10px}.zoom b.m{bottom:10px}
+.zoom i{position:absolute;left:5px;right:5px;height:40px;border-radius:20px;background:var(--cell);box-shadow:0 3px 10px var(--shade),inset 0 0 0 1px var(--sep);top:0;will-change:transform}
+.zoom.on i{background:var(--label)}
+
+/* ===== Ilmoitus ===== */
+#toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 50px);transform:translate(-50%,-10px);background:var(--label);color:var(--bg);font-size:14px;font-weight:600;padding:9px 16px;border-radius:20px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;z-index:5}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* ===== Ikkunat (nousevat alhaalta) ===== */
+dialog{border:0;padding:0;margin:auto auto 0;width:min(560px,100%);max-width:100%;max-height:88dvh;background:var(--cell);color:var(--label);border-radius:24px 24px 0 0;box-shadow:0 20px 70px var(--shade)}
+dialog::backdrop{background:var(--shade)}
+dialog[open]{animation:up .26s cubic-bezier(.2,.9,.3,1)}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.sheet:focus{outline:none}
+.sheet{padding:20px 20px calc(env(safe-area-inset-bottom) + 20px);overflow-y:auto;max-height:88dvh}
+.sheet h2{margin:0 0 6px;font-size:17px;font-weight:700}
+.sheet h3{margin:18px 0 8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--label2)}
+.sheet p{margin:6px 0;color:var(--label2);font-size:15px}
+.mrow{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:52px;border:0;border-bottom:1px solid var(--sep);background:none;padding:0 4px;font-size:16px;font-weight:600;text-align:left}
+.mrow:last-child{border-bottom:0}
+.mrow small{font-weight:500;color:var(--label2);font-size:13px;margin-left:auto;margin-right:8px}
+.mrow svg{width:16px;height:16px;fill:none;stroke:var(--label2);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.seg{display:flex;background:var(--fill);border-radius:12px;padding:3px;gap:3px}
+.seg button{flex:1;min-width:0;min-height:44px;border:0;border-radius:9px;background:transparent;font-size:15px;font-weight:600;color:var(--label2);padding:4px 4px;line-height:1.2}
+.seg button{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seg button small{display:block;font-size:11.5px;font-weight:500;font-variant-numeric:tabular-nums}
+.seg button[aria-pressed="true"]{background:var(--label);color:var(--bg)}
+.tog{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:50px;border-bottom:1px solid var(--sep);font-size:16px}
+.tgl{width:51px;height:31px;flex:none;border:0;border-radius:16px;background:var(--fill);position:relative;padding:0;transition:background-color .2s}
+.tgl::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.2);transition:transform .2s}
+.tgl[aria-checked="true"]{background:#2F7A4F}
+.tgl[aria-checked="true"]::after{transform:translateX(20px)}
+.btn{min-height:46px;border:0;border-radius:13px;font-size:16px;font-weight:600;background:var(--fill);color:var(--label);padding:0 14px}
+.btn:active{filter:brightness(.94)}
+.btn.solid{background:var(--accent);color:var(--solidtx)}
+.btn:disabled{opacity:.4}
+.brow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.brow .btn{flex:1}
+.brow.stick{position:sticky;bottom:calc(-1*(env(safe-area-inset-bottom) + 20px));margin:16px -20px calc(-1*(env(safe-area-inset-bottom) + 20px));padding:12px 20px calc(env(safe-area-inset-bottom) + 20px);background:var(--cell);border-top:1px solid var(--sep);flex-wrap:nowrap}
+.brow.stick .back{flex:none}
+.lnk{border:0;background:none;padding:10px 2px;min-height:44px;font-size:15px;color:var(--label2);text-decoration:underline;text-underline-offset:3px}
+textarea,input[type=text]{width:100%;border:1px solid var(--sep);border-radius:10px;background:var(--bg);color:var(--label);font-family:var(--font);font-size:16px;padding:10px;-webkit-user-select:text;user-select:text}
+textarea{min-height:84px;font:13px ui-monospace,Menlo,monospace;margin-top:8px}
+.chk{background-color:var(--chk1);background-image:conic-gradient(var(--chk2) 25%,transparent 0 50%,var(--chk2) 0 75%,transparent 0);background-size:12px 12px}
+
+/* Kuvat */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:10px}
+.thumb{border:0;background:none;padding:0;display:flex;flex-direction:column;gap:4px;align-items:stretch;min-width:0;font-size:12px;color:var(--label2);text-align:center}
+.thumb .tb{aspect-ratio:1;border-radius:10px;display:grid;place-items:center;overflow:hidden;box-shadow:inset 0 0 0 1px var(--sep)}
+.thumb img{max-width:84%;max-height:84%;image-rendering:pixelated;image-rendering:crisp-edges}
+.thumb[aria-current="true"] .tb{box-shadow:0 0 0 2px var(--cell),0 0 0 4px var(--label)}
+.thumb[aria-current="true"]{color:var(--label);font-weight:600}
+.thumb span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.delrow{display:flex;align-items:center;gap:10px;min-height:48px}
+.delrow .q{flex:1;font-size:14px;color:var(--label2);text-align:center}
+.btn.del{background:var(--wine);color:#fff}
+
+/* Paletti-ikkuna */
+.basesw{position:relative;width:64px;height:40px;border-radius:11px;box-shadow:inset 0 0 0 1px rgba(127,127,127,.35);flex:none;overflow:hidden;cursor:pointer}
+.basesw input{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;padding:0;margin:0}
+.palrow{display:block;width:100%;border:0;background:none;padding:10px 8px;border-radius:12px;text-align:left;margin-top:4px}
+.palrow .pn{display:block;font-size:15px;font-weight:600;margin-bottom:6px}
+.palrow .strip{display:grid;grid-template-columns:repeat(8,1fr);gap:3px}
+.palrow .strip i{height:28px;border-radius:6px;box-shadow:inset 0 0 0 1px rgba(127,127,127,.3)}
+.palrow[aria-pressed="true"]{background:var(--tint);box-shadow:inset 0 0 0 2px var(--label)}
+
+/* Jako */
+.prev{display:grid;place-items:center;border-radius:14px;padding:14px;min-height:150px;box-shadow:inset 0 0 0 1px var(--sep)}
+.prev img{width:128px;height:128px;object-fit:contain;image-rendering:pixelated;image-rendering:crisp-edges}
+#share-size{font-size:13px;color:var(--label2);text-align:center;margin-top:6px;font-variant-numeric:tabular-nums}
+
+@media (max-width:350px){.seg button{font-size:14px;padding:4px 2px}}
+@media (max-height:600px){.prev{min-height:0;padding:10px}.prev img{width:96px;height:96px}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header><h1 id="title">Pikseli</h1><span id="info"></span></header>
+  <main id="stage"><canvas id="cv" aria-label="Piirtoalue"></canvas><canvas id="mini" aria-hidden="true"></canvas></main>
+  <div id="pal" role="toolbar" aria-label="Värit"></div>
+  <div id="panel">
+    <div id="joy" class="joy" role="img" aria-label="Tatti: liikuta näkymää"><i></i></div>
+    <div id="keys">
+      <button class="key" id="b-undo" aria-label="Kumoa"><svg class="ic" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg><span>Kumoa</span></button>
+      <button class="key" id="b-redo" aria-label="Tee uudelleen"><svg class="ic" viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg><span>Uudelleen</span></button>
+      <button class="key" id="b-fill" aria-label="Ämpäri" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24"><path d="m5 11 7-7 8 8-7 7a2 2 0 0 1-2.8 0L5 13.8a2 2 0 0 1 0-2.8z"/><path d="M5 12h14"/><path d="M20 16s2 2.4 2 3.6a2 2 0 0 1-4 0c0-1.2 2-3.6 2-3.6z"/></svg><span>Ämpäri</span></button>
+      <button class="key" id="b-menu" aria-label="Valikko"><svg class="ic" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Valikko</span></button>
+    </div>
+    <div id="zoom" class="zoom" role="slider" aria-label="Zoomaus" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0"><b class="p">+</b><b class="m">−</b><i></i></div>
+  </div>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<dialog id="d-menu"><div class="sheet" tabindex="-1" autofocus>
+  <h2>Valikko</h2>
+  <button class="mrow" data-open="d-works">Kuvat<small id="m-works"></small><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>
+  <button class="mrow" data-open="d-pal">Paletti<small id="m-pal"></small><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>
+  <button class="mrow" data-open="d-share">Jaa kuva<small>PNG</small><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>
+  <button class="mrow" data-open="d-set">Asetukset<svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>
+</div></dialog>
+
+<dialog id="d-works"><div class="sheet" tabindex="-1" autofocus>
+  <h2>Kuvat</h2>
+  <input type="text" id="t-name" placeholder="Nimi" maxlength="40" aria-label="Kuvan nimi" autocomplete="off" spellcheck="false">
+  <h3>Kaikki kuvat</h3>
+  <div class="grid" id="grid"></div>
+  <h3>Uusi kuva</h3>
+  <div class="seg" id="seg-new"></div>
+  <div class="delrow" id="delrow"></div>
+  <div class="brow stick"><button class="btn back" data-back>‹ Valikko</button></div>
+</div></dialog>
+
+<dialog id="d-pal"><div class="sheet" tabindex="-1" autofocus>
+  <h2>Paletti</h2>
+  <div class="tog">Pohjaväri<label class="basesw" id="base-lbl"><input type="color" id="f-base" aria-label="Pohjaväri"></label></div>
+  <div id="pals"></div>
+  <div class="brow stick"><button class="btn back" data-back>‹ Valikko</button></div>
+</div></dialog>
+
+<dialog id="d-share"><div class="sheet" tabindex="-1" autofocus>
+  <h2>Jaa kuva</h2>
+  <div class="prev chk"><img id="share-img" alt="Esikatselu"></div>
+  <div id="share-size"></div>
+  <h3>Koko</h3>
+  <div class="seg" id="seg-koko"></div>
+  <h3>Tausta</h3>
+  <div class="seg" id="seg-tausta"></div>
+  <button class="lnk" id="b-dl">Tallenna tiedostoksi</button>
+  <div class="brow stick"><button class="btn back" data-back>‹ Valikko</button><button class="btn solid" id="b-share">Jaa kuva</button></div>
+</div></dialog>
+
+<dialog id="d-set"><div class="sheet" tabindex="-1" autofocus>
+  <h2>Asetukset</h2>
+  <h3>Ulkoasu</h3>
+  <div class="seg" id="seg-ulko"></div>
+  <div class="tog">Ruudukko piirtäessä<button class="tgl" id="tg-grid" role="switch" aria-label="Ruudukko piirtäessä"></button></div>
+  <h3>Varmuuskopio</h3>
+  <p>Kaikki kuvat ja asetukset.</p>
+  <div class="brow"><button class="btn" id="b-exp">Tallenna tiedostoksi</button><button class="btn" id="b-imp">Lue tiedosto</button></div>
+  <input type="file" id="f-imp" accept=".json,application/json,text/plain" hidden>
+  <textarea id="t-io" placeholder="Tai liitä varmuuskopio tekstinä tähän" spellcheck="false"></textarea>
+  <div class="brow"><button class="btn" id="b-copy">Kopioi tekstinä</button><button class="btn" id="b-paste">Lue teksti</button></div>
+  <p style="font-size:12px;margin-top:14px">Pikseli, versio <span id="ver"></span></p>
+  <div class="brow stick"><button class="btn back" data-back>‹ Valikko</button></div>
+</div></dialog>
+
+<script id="engine">
+/* Pikselin moottori: kuvat, piirto, täyttö, paletit (OKLCH) ja vienti. Ei DOMia. */
+var PIX=(function(){
+  var VER=1;
+  var SIZES=[16,24,32,48,64];
+  var KOOT={alkup:0,pieni:512,keski:1024,iso:2048};
+  var TAUSTAT={lapi:null,valk:'#ffffff',musta:'#000000'};
+  var LAJIT=['portaat','vasta','vieri','kolmikko'];
+
+  function normHex(h){
+    if(typeof h!=='string')return null;h=h.trim().toLowerCase();
+    if(/^#[0-9a-f]{3}$/.test(h))h='#'+h[1]+h[1]+h[2]+h[2]+h[3]+h[3];
+    return /^#[0-9a-f]{6}$/.test(h)?h:null;
+  }
+  function newId(){return 'k'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+  function now(){return new Date().toISOString()}
+  function newWork(w,h,nimi){
+    var px=new Array(w*h);for(var i=0;i<px.length;i++)px[i]=0;
+    return {id:newId(),nimi:nimi||'Kuva',w:w,h:h,cols:[],px:px,luotu:now(),muokattu:now()};
+  }
+
+  /* ---------- pikselit ---------- */
+  // px[i] = 0 läpinäkyvä, k ≥ 1 = cols[k-1]
+  function colorAt(wk,i){var v=wk.px[i];return v?wk.cols[v-1]:null}
+  function idxFor(wk,hex){
+    if(!hex)return 0;var k=wk.cols.indexOf(hex);
+    if(k<0){wk.cols.push(hex);k=wk.cols.length-1}
+    return k+1;
+  }
+  function setPx(wk,i,hex,ch){
+    var to=idxFor(wk,hex),from=wk.px[i];if(from===to)return false;
+    wk.px[i]=to;if(ch)ch.push([i,from,to]);return true;
+  }
+  function undo(wk,ch){for(var j=ch.length-1;j>=0;j--)wk.px[ch[j][0]]=ch[j][1]}
+  function redo(wk,ch){for(var j=0;j<ch.length;j++)wk.px[ch[j][0]]=ch[j][2]}
+  function inside(wk,x,y){return x>=0&&y>=0&&x<wk.w&&y<wk.h}
+  // Vedon tila: jos aloituspikseli on jo valittua väriä, koko veto pyyhkii.
+  function strokeMode(wk,i,hex){return colorAt(wk,i)===hex?'pois':'paalle'}
+  // Suora viiva ruutuina (Bresenham), päätepisteet mukaan.
+  function line(x0,y0,x1,y1){
+    var out=[],dx=Math.abs(x1-x0),dy=-Math.abs(y1-y0),sx=x0<x1?1:-1,sy=y0<y1?1:-1,e=dx+dy,n=0;
+    for(;;){out.push([x0,y0]);if(x0===x1&&y0===y1)break;if(++n>100000)break;
+      var e2=2*e;if(e2>=dy){e+=dy;x0+=sx}if(e2<=dx){e+=dx;y0+=sy}}
+    return out;
+  }
+  // Ämpäri: yhtenäinen samanvärinen alue (vierekkäiset, ei vinottain).
+  function fillCells(wk,x,y){
+    if(!inside(wk,x,y))return [];
+    var w=wk.w,start=y*w+x,v=wk.px[start],seen=new Uint8Array(wk.px.length),st=[start],out=[];seen[start]=1;
+    while(st.length){var i=st.pop();out.push(i);var cx=i%w,cy=(i-cx)/w;
+      var nb=[[cx-1,cy],[cx+1,cy],[cx,cy-1],[cx,cy+1]];
+      for(var k=0;k<4;k++){var nx=nb[k][0],ny=nb[k][1];if(!inside(wk,nx,ny))continue;var j=ny*w+nx;
+        if(!seen[j]&&wk.px[j]===v){seen[j]=1;st.push(j)}}}
+    return out;
+  }
+  function fill(wk,x,y,hex,ch){
+    if(!inside(wk,x,y))return 0;
+    var i0=y*wk.w+x,target=colorAt(wk,i0)===hex?null:hex,cells=fillCells(wk,x,y),n=0;
+    for(var k=0;k<cells.length;k++)if(setPx(wk,cells[k],target,ch))n++;
+    return n;
+  }
+
+  /* ---------- värit: sRGB ↔ OKLCH ---------- */
+  function hexToRgb(h){return [parseInt(h.slice(1,3),16)/255,parseInt(h.slice(3,5),16)/255,parseInt(h.slice(5,7),16)/255]}
+  function toLin(c){return c<=0.04045?c/12.92:Math.pow((c+0.055)/1.055,2.4)}
+  function fromLin(c){return c<=0.0031308?12.92*c:1.055*Math.pow(c,1/2.4)-0.055}
+  function hexToOklch(hex){
+    var c=hexToRgb(hex),r=toLin(c[0]),g=toLin(c[1]),b=toLin(c[2]);
+    var l=Math.cbrt(0.4122214708*r+0.5363325363*g+0.0514459929*b),m=Math.cbrt(0.2119034982*r+0.6806995451*g+0.1073969566*b),s=Math.cbrt(0.0883024619*r+0.2817188376*g+0.6299787005*b);
+    var L=0.2104542553*l+0.7936177850*m-0.0040720468*s,A=1.9779984951*l-2.4285922050*m+0.4505937099*s,B=0.0259040371*l+0.7827717662*m-0.8086757660*s;
+    var C=Math.sqrt(A*A+B*B),H=Math.atan2(B,A)*180/Math.PI;if(H<0)H+=360;
+    return [L,C,H];
+  }
+  function oklchToRgb(L,C,H){
+    var a=C*Math.cos(H*Math.PI/180),b=C*Math.sin(H*Math.PI/180);
+    var l=L+0.3963377774*a+0.2158037573*b,m=L-0.1055613458*a-0.0638541728*b,s=L-0.0894841775*a-1.2914855480*b;
+    l=l*l*l;m=m*m*m;s=s*s*s;
+    return [fromLin(4.0767416621*l-3.3077115913*m+0.2309699292*s),fromLin(-1.2684380046*l+2.6097574011*m-0.3413193965*s),fromLin(-0.0041960863*l-0.7034186147*m+1.7076147010*s)];
+  }
+  function inGamut(c){return c[0]>=-0.0005&&c[0]<=1.0005&&c[1]>=-0.0005&&c[1]<=1.0005&&c[2]>=-0.0005&&c[2]<=1.0005}
+  function rgbToHex(c){
+    var h='#';for(var i=0;i<3;i++){var v=Math.round(Math.max(0,Math.min(1,c[i]))*255);h+=(v<16?'0':'')+v.toString(16)}return h;
+  }
+  // Värikylläisyyttä vähennetään, kunnes väri mahtuu näytön väriavaruuteen (sävy ja vaaleus säilyvät).
+  function oklchToHex(L,C,H){
+    L=Math.max(0,Math.min(1,L));var c=oklchToRgb(L,C,H);
+    if(!inGamut(c)){var lo=0,hi=C;for(var k=0;k<24;k++){var mid=(lo+hi)/2;if(inGamut(oklchToRgb(L,mid,H)))lo=mid;else hi=mid}c=oklchToRgb(L,lo,H)}
+    return rgbToHex(c);
+  }
+  function hueToward(h,target,amt){var d=((target-h+540)%360)-180;return (h+Math.sign(d)*Math.min(Math.abs(d),amt)+360)%360}
+  // Sävyporras tummasta vaaleaan: varjot kiertyvät kohti sinivioletti, valot kohti keltaista.
+  function ramp(L0,C0,H0,n,lo,hi){
+    var out=[];
+    for(var i=0;i<n;i++){
+      var L=n===1?(lo+hi)/2:lo+(hi-lo)*i/(n-1),t=L-L0;
+      var H=hueToward(H0,t>0?95:285,Math.min(1,Math.abs(t)/0.45)*28);
+      var C=C0*Math.max(0.3,1-0.7*Math.pow(Math.min(1,Math.abs(t)/0.65),2));
+      out.push({L:L,hex:oklchToHex(L,C,H)});
+    }
+    return out;
+  }
+  function withBase(r,L0,hex){
+    var bi=0;for(var i=1;i<r.length;i++)if(Math.abs(r[i].L-L0)<Math.abs(r[bi].L-L0))bi=i;
+    r[bi]={L:L0,hex:hex};return r;
+  }
+  function hexes(r){return r.map(function(o){return o.hex})}
+  function palettes(base){
+    base=normHex(base)||'#3d7ee0';
+    var p=hexToOklch(base),L=p[0],C=p[1],H=C<0.02?250:p[2];
+    var main8=withBase(ramp(L,C,H,8,0.17,0.97),L,base);
+    var main5=withBase(ramp(L,C,H,5,0.22,0.93),L,base);
+    var main4=withBase(ramp(L,C,H,4,0.24,0.92),L,base);
+    var Cs=Math.max(C,0.06);
+    return [
+      {id:'portaat',nimi:'Sävyportaat',varit:hexes(main8)},
+      {id:'vasta',nimi:'Vastaväri',varit:hexes(main5).concat(hexes(ramp(L,Cs,(H+180)%360,3,0.32,0.86)))},
+      {id:'vieri',nimi:'Vierekkäiset',varit:hexes(main4).concat(hexes(ramp(L,Cs,(H+325)%360,2,0.4,0.8)),hexes(ramp(L,Cs,(H+35)%360,2,0.4,0.8)))},
+      {id:'kolmikko',nimi:'Kolmikko',varit:hexes(main4).concat(hexes(ramp(L,Cs,(H+120)%360,2,0.4,0.82)),hexes(ramp(L,Cs,(H+240)%360,2,0.4,0.82)))}
+    ];
+  }
+
+  /* ---------- vienti ---------- */
+  // Vain kokonaislukusuurennos: jokainen pikseli on täsmälleen yhtä monta kuvapistettä leveä ja korkea.
+  function exportScale(w,h,koko){
+    var T=KOOT[koko];if(T===undefined)T=KOOT.keski;if(!T)return 1;
+    return Math.max(1,Math.round(T/Math.max(w,h)));
+  }
+  function rgbaAt(wk,i,bg){
+    var c=colorAt(wk,i)||bg;if(!c)return [0,0,0,0];
+    return [parseInt(c.slice(1,3),16),parseInt(c.slice(3,5),16),parseInt(c.slice(5,7),16),255];
+  }
+
+  /* ---------- tallennus ---------- */
+  function str(v,d,max){return typeof v==='string'&&v.trim()?v.trim().slice(0,max||60):d}
+  function repairWork(o){
+    if(!o||typeof o!=='object')return null;
+    var w=+o.w,h=+o.h;
+    if(!(w>=1&&h>=1&&w<=256&&h<=256&&w%1===0&&h%1===0))return null;
+    var cols=Array.isArray(o.cols)?o.cols.map(function(c){return normHex(c)||'#000000'}):[];
+    var px=new Array(w*h);for(var i=0;i<px.length;i++){var v=Array.isArray(o.px)?o.px[i]|0:0;px[i]=v>=1&&v<=cols.length?v:0}
+    return {id:str(o.id,newId(),40),nimi:str(o.nimi,'Kuva',40),w:w,h:h,cols:cols,px:px,luotu:str(o.luotu,now()),muokattu:str(o.muokattu,now())};
+  }
+  function repair(d){
+    var out={app:'pikseli',ver:VER,savedAt:null,
+      asetukset:{ulko:'auto',ruudukko:true,pohja:'#3d7ee0',laji:'portaat',vari:null,vapaa:null,vienti:{koko:'keski',tausta:'lapi'}},
+      valittu:null,teokset:[]};
+    if(d&&typeof d==='object'&&d.app==='pikseli'){
+      var a=d.asetukset||{},o=out.asetukset;
+      if(['auto','light','dark'].indexOf(a.ulko)>=0)o.ulko=a.ulko;
+      if(typeof a.ruudukko==='boolean')o.ruudukko=a.ruudukko;
+      o.pohja=normHex(a.pohja)||o.pohja;
+      if(LAJIT.indexOf(a.laji)>=0)o.laji=a.laji;
+      o.vari=normHex(a.vari);o.vapaa=normHex(a.vapaa);
+      var v=a.vienti||{};
+      if(v.koko in KOOT)o.vienti.koko=v.koko;
+      if(v.tausta in TAUSTAT)o.vienti.tausta=v.tausta;
+      var ids={};
+      (Array.isArray(d.teokset)?d.teokset:[]).forEach(function(t){var r=repairWork(t);if(!r)return;if(ids[r.id])r.id=newId();ids[r.id]=1;out.teokset.push(r)});
+      out.savedAt=str(d.savedAt,null);
+      out.valittu=typeof d.valittu==='string'?d.valittu:null;
+    }
+    if(!out.teokset.length)out.teokset.push(newWork(32,32,'Kuva 1'));
+    if(!out.teokset.some(function(t){return t.id===out.valittu}))out.valittu=out.teokset[0].id;
+    if(!out.asetukset.vari)out.asetukset.vari=out.asetukset.pohja;
+    return out;
+  }
+  function nextName(D){
+    var n=1,names={};D.teokset.forEach(function(t){names[t.nimi]=1});
+    while(names['Kuva '+n])n++;return 'Kuva '+n;
+  }
+
+  return {VER:VER,SIZES:SIZES,KOOT:KOOT,TAUSTAT:TAUSTAT,LAJIT:LAJIT,normHex:normHex,newWork:newWork,colorAt:colorAt,setPx:setPx,undo:undo,redo:redo,
+    inside:inside,strokeMode:strokeMode,line:line,fillCells:fillCells,fill:fill,hexToOklch:hexToOklch,oklchToHex:oklchToHex,palettes:palettes,
+    exportScale:exportScale,rgbaAt:rgbaAt,repair:repair,repairWork:repairWork,nextName:nextName};
+})();
+</script>
+<script id="ui">
+var PUI=(function(){
+  var KEY='pikseli.v1';
+  var $=function(id){return document.getElementById(id)};
+  var D,W;                    // tiedot ja auki oleva kuva
+  var S={tool:'kyna',cell:0,zt:0,cx:0,cy:0,fit:1,max:1,dpr:1,hist:[],fut:[],blob:null,blobUrl:null,delAsk:false};
+  var cv=$('cv'),g=cv.getContext('2d'),off=document.createElement('canvas'),offx=off.getContext('2d');
+  var mini=$('mini'),mg=mini.getContext('2d');
+  var chk=null,chkKey='';
+
+  /* ---------- tallennus ---------- */
+  function load(){var raw=null;try{raw=localStorage.getItem(KEY)}catch(e){}var d=null;try{d=raw?JSON.parse(raw):null}catch(e){}return PIX.repair(d)}
+  function save(){D.savedAt=new Date().toISOString();try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){toast('Tallennus ei onnistunut')}}
+  function touch(){W.muokattu=new Date().toISOString()}
+
+  /* ---------- apu ---------- */
+  var toastT;
+  function toast(t){var el=$('toast');el.textContent=t;el.classList.add('on');clearTimeout(toastT);toastT=setTimeout(function(){el.classList.remove('on')},1700)}
+  function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+  function curPal(){var ps=PIX.palettes(D.asetukset.pohja);for(var i=0;i<ps.length;i++)if(ps[i].id===D.asetukset.laji)return ps[i];return ps[0]}
+  function color(){return D.asetukset.vari}
+  function slug(s){return (s||'kuva').toLowerCase().replace(/[äå]/g,'a').replace(/ö/g,'o').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'kuva'}
+
+  /* ---------- kuva ---------- */
+  function openWork(id){
+    W=D.teokset.filter(function(t){return t.id===id})[0]||D.teokset[0];D.valittu=W.id;
+    S.hist=[];S.fut=[];S.cell=0;S.zt=0;S.cx=W.w/2;S.cy=W.h/2;
+    rebuildOff();resize();renderHead();renderKeys();
+  }
+  function rebuildOff(){
+    off.width=W.w;off.height=W.h;offx=off.getContext('2d');
+    var im=offx.createImageData(W.w,W.h);
+    for(var i=0;i<W.px.length;i++){var c=PIX.rgbaAt(W,i,null);im.data[i*4]=c[0];im.data[i*4+1]=c[1];im.data[i*4+2]=c[2];im.data[i*4+3]=c[3]}
+    offx.putImageData(im,0,0);
+  }
+  function offPx(i){var x=i%W.w,y=(i-x)/W.w,c=PIX.colorAt(W,i);if(c){offx.fillStyle=c;offx.fillRect(x,y,1,1)}else offx.clearRect(x,y,1,1)}
+  function renderHead(){$('title').textContent=W.nimi;$('info').textContent=W.w+' × '+W.h}
+  function renderKeys(){
+    $('b-undo').disabled=!S.hist.length;$('b-redo').disabled=!S.fut.length;
+    $('b-fill').setAttribute('aria-pressed',String(S.tool==='ampari'));
+  }
+
+  /* ---------- näkymä: koko, zoomaus, kamera ---------- */
+  function resize(){
+    S.dpr=window.devicePixelRatio||1;var r=$('stage').getBoundingClientRect();
+    cv.width=Math.max(1,Math.round(r.width*S.dpr));cv.height=Math.max(1,Math.round(r.height*S.dpr));
+    S.fit=Math.max(1,Math.floor(Math.min(cv.width*0.92/W.w,cv.height*0.92/W.h)));
+    S.max=Math.max(S.fit,Math.round(72*S.dpr));
+    setZoom(S.zt,true);
+  }
+  // Zoomaus: 0 = koko kuva näkyy, 1 = yksi pikseli on noin 72 pistettä. Ruudun pikselikoko on aina kokonaisluku → terävät reunat.
+  function setZoom(t,keep){
+    S.zt=Math.max(0,Math.min(1,t));
+    S.cell=S.max>S.fit?Math.round(S.fit*Math.pow(S.max/S.fit,S.zt)):S.fit;
+    clampCam();draw();zoomThumb();
+  }
+  function clampCam(){
+    // Mahtuva kuva pysyy keskellä. Isomman kuvan reunan yli pääsee vähän (enintään neljännes ruudusta), jotta reunapikseleihin ylettyy.
+    var s=S.cell,m=0.25*Math.min(cv.width,cv.height),ox=Math.max(0,W.w*s-cv.width),oy=Math.max(0,W.h*s-cv.height);
+    var hx=(ox/2+Math.min(m,ox))/s,hy=(oy/2+Math.min(m,oy))/s;
+    S.cx=Math.max(W.w/2-hx,Math.min(W.w/2+hx,S.cx));S.cy=Math.max(W.h/2-hy,Math.min(W.h/2+hy,S.cy));
+  }
+  function origin(){return [Math.round(cv.width/2-S.cx*S.cell),Math.round(cv.height/2-S.cy*S.cell)]}
+  function toArt(clientX,clientY){
+    var r=cv.getBoundingClientRect(),o=origin();
+    return {x:Math.floor(((clientX-r.left)*S.dpr-o[0])/S.cell),y:Math.floor(((clientY-r.top)*S.dpr-o[1])/S.cell)};
+  }
+
+  /* ---------- piirto ruudulle ---------- */
+  var drawQ=false;
+  function queueDraw(){if(drawQ)return;drawQ=true;requestAnimationFrame(function(){drawQ=false;draw()})}
+  function checker(){
+    var k=css('--chk1')+css('--chk2')+S.dpr;if(chk&&k===chkKey)return chk;
+    var t=Math.round(6*S.dpr),c=document.createElement('canvas');c.width=c.height=t*2;var x=c.getContext('2d');
+    x.fillStyle=css('--chk1');x.fillRect(0,0,t*2,t*2);x.fillStyle=css('--chk2');x.fillRect(0,0,t,t);x.fillRect(t,t,t,t);
+    chkKey=k;chk=g.createPattern(c,'repeat');return chk;
+  }
+  function draw(){
+    if(!W)return;
+    var s=S.cell,o=origin(),iw=W.w*s,ih=W.h*s;
+    g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,cv.width,cv.height);
+    g.save();g.translate(o[0],o[1]);g.fillStyle=checker();g.fillRect(0,0,iw,ih);g.restore();
+    g.imageSmoothingEnabled=false;g.drawImage(off,o[0],o[1],iw,ih);
+    if(D.asetukset.ruudukko&&s>=7*S.dpr){
+      g.beginPath();g.lineWidth=1;g.strokeStyle='rgba(128,128,128,'+(s>=16*S.dpr?.32:.2)+')';
+      var x0=Math.max(1,Math.ceil(-o[0]/s)),x1=Math.min(W.w-1,Math.floor((cv.width-o[0])/s));
+      var y0=Math.max(1,Math.ceil(-o[1]/s)),y1=Math.min(W.h-1,Math.floor((cv.height-o[1])/s));
+      for(var x=x0;x<=x1;x++){g.moveTo(o[0]+x*s+0.5,Math.max(0,o[1]));g.lineTo(o[0]+x*s+0.5,Math.min(cv.height,o[1]+ih))}
+      for(var y=y0;y<=y1;y++){g.moveTo(Math.max(0,o[0]),o[1]+y*s+0.5);g.lineTo(Math.min(cv.width,o[0]+iw),o[1]+y*s+0.5)}
+      g.stroke();
+    }
+    g.lineWidth=Math.max(1,Math.round(S.dpr));g.strokeStyle='rgba(128,128,128,.55)';g.strokeRect(o[0]-g.lineWidth/2,o[1]-g.lineWidth/2,iw+g.lineWidth,ih+g.lineWidth);
+    drawMini(o,iw,ih);
+  }
+  // Sijaintikartta näkyy, kun kuva ei mahdu kokonaan ruudulle.
+  function drawMini(o,iw,ih){
+    var hidden=o[0]>=0&&o[1]>=0&&o[0]+iw<=cv.width&&o[1]+ih<=cv.height;
+    mini.classList.toggle('on',!hidden);if(hidden)return;
+    var M=64,sc=Math.max(1,Math.floor(M/Math.max(W.w,W.h))),mw=W.w*sc,mh=W.h*sc;
+    if(mini.width!==Math.round(mw*S.dpr)||mini.height!==Math.round(mh*S.dpr)){mini.width=Math.round(mw*S.dpr);mini.height=Math.round(mh*S.dpr);mini.style.width=mw+'px';mini.style.height=mh+'px'}
+    var k=mini.width/W.w;mg.setTransform(1,0,0,1,0,0);mg.clearRect(0,0,mini.width,mini.height);
+    mg.fillStyle=checker();mg.fillRect(0,0,mini.width,mini.height);mg.imageSmoothingEnabled=false;mg.drawImage(off,0,0,mini.width,mini.height);
+    var vx=-o[0]/S.cell*k,vy=-o[1]/S.cell*k,vw=cv.width/S.cell*k,vh=cv.height/S.cell*k;
+    mg.lineWidth=Math.max(1.5,S.dpr*1.5);mg.strokeStyle=css('--label');mg.strokeRect(vx,vy,vw,vh);
+  }
+
+  /* ---------- piirtäminen sormella ---------- */
+  var ST=null; // veto: {id, mode, ch, lx, ly, X, Y}
+  function strokeAt(X,Y){
+    var p=toArt(X,Y);ST.X=X;ST.Y=Y;
+    var pts=ST.lx===null?[[p.x,p.y]]:PIX.line(ST.lx,ST.ly,p.x,p.y),hit=false;
+    for(var k=0;k<pts.length;k++){var x=pts[k][0],y=pts[k][1];if(!PIX.inside(W,x,y))continue;var i=y*W.w+x;
+      if(!ST.mode)ST.mode=PIX.strokeMode(W,i,color());
+      if(PIX.setPx(W,i,ST.mode==='pois'?null:color(),ST.ch)){offPx(i);hit=true}}
+    ST.lx=p.x;ST.ly=p.y;if(hit)queueDraw();
+  }
+  function strokeEnd(){
+    if(!ST)return;var ch=ST.ch;ST=null;
+    if(ch.length){S.hist.push(ch);if(S.hist.length>200)S.hist.shift();S.fut=[];touch();save();renderKeys()}
+  }
+  function doFill(X,Y){
+    var p=toArt(X,Y),ch=[];PIX.fill(W,p.x,p.y,color(),ch);
+    if(ch.length){for(var k=0;k<ch.length;k++)offPx(ch[k][0]);S.hist.push(ch);S.fut=[];touch();save();renderKeys();draw()}
+  }
+  function undo(){var ch=S.hist.pop();if(!ch)return;PIX.undo(W,ch);S.fut.push(ch);rebuildOff();draw();touch();save();renderKeys()}
+  function redo(){var ch=S.fut.pop();if(!ch)return;PIX.redo(W,ch);S.hist.push(ch);rebuildOff();draw();touch();save();renderKeys()}
+
+  /* ---------- tatti: portaaton, nopeus kasvaa etäisyyden mukaan ---------- */
+  var J={id:null,vx:0,vy:0,t:0},DZ=0.12,VMAX=950;
+  function joyMove(e){
+    var el=$('joy'),r=el.getBoundingClientRect(),R=r.width*0.36;
+    var dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),len=Math.hypot(dx,dy),k=len>R?R/len:1;
+    J.vx=dx*k/R;J.vy=dy*k/R;
+    el.querySelector('i').style.transform='translate('+(dx*k).toFixed(1)+'px,'+(dy*k).toFixed(1)+'px)';
+  }
+  function joyLoop(ts){
+    if(J.id===null)return;
+    var dt=J.t?Math.min(0.05,(ts-J.t)/1000):0;J.t=ts;
+    var mag=Math.hypot(J.vx,J.vy);
+    if(mag>DZ&&dt>0){
+      var sp=VMAX*Math.pow((Math.min(1,mag)-DZ)/(1-DZ),2); // CSS-pikseliä sekunnissa, sama tuntuma kaikilla zoomauksilla
+      S.cx+=J.vx/mag*sp*dt*S.dpr/S.cell;S.cy+=J.vy/mag*sp*dt*S.dpr/S.cell;clampCam();
+      if(ST&&ST.X!==null)strokeAt(ST.X,ST.Y); // sormi pysyy paikallaan, kuva liikkuu sen alla → viiva jatkuu
+      draw();
+    }
+    requestAnimationFrame(joyLoop);
+  }
+  function joyEnd(e){if(e.pointerId!==J.id)return;J.id=null;J.vx=J.vy=0;J.t=0;var el=$('joy');el.classList.remove('on');el.querySelector('i').style.transform=''}
+
+  /* ---------- zoomaussäädin (pystyssä, ylös = lähemmäs) ---------- */
+  var Z={id:null};
+  function zoomThumb(){
+    var z=$('zoom'),th=z.querySelector('i'),H=z.clientHeight-th.offsetHeight-10;
+    th.style.transform='translateY('+(5+(1-S.zt)*H).toFixed(1)+'px)';z.setAttribute('aria-valuenow',String(Math.round(S.zt*100)));
+  }
+  function zoomFromY(y){
+    var z=$('zoom'),r=z.getBoundingClientRect(),th=z.querySelector('i').offsetHeight,H=r.height-th-10;
+    setZoom(1-(y-r.top-5-th/2)/H);
+  }
+
+  /* ---------- paletti ---------- */
+  function renderPal(){
+    var p=curPal(),h='';
+    p.varit.forEach(function(c,i){h+='<button class="sw" data-c="'+c+'" style="background:'+c+'" aria-label="Väri '+(i+1)+'"></button>'});
+    var v=D.asetukset.vapaa;
+    h+='<label class="sw free'+(v?' has':'')+'" id="free-lbl" aria-label="Kaikki värit"'+(v?' style="--fc:'+v+'"':'')+'><input type="color" id="f-free" value="'+(v||color())+'" tabindex="-1"></label>';
+    $('pal').innerHTML=h;
+    $('f-free').addEventListener('input',freeInput);$('f-free').addEventListener('change',freeInput);
+    palSel();
+  }
+  function palSel(){
+    var bs=$('pal').querySelectorAll('.sw[data-c]'),c=color(),hit=false;
+    for(var i=0;i<bs.length;i++){var on=bs[i].dataset.c===c&&!hit;if(on)hit=true;bs[i].setAttribute('aria-pressed',String(on))}
+    var f=$('free-lbl');f.setAttribute('aria-pressed',String(!hit&&D.asetukset.vapaa===c));
+  }
+  function freeInput(){
+    var v=PIX.normHex(this.value);if(!v)return;
+    D.asetukset.vapaa=v;D.asetukset.vari=v;var f=$('free-lbl');f.classList.add('has');f.style.setProperty('--fc',v);palSel();save();
+  }
+  function pickColor(c){D.asetukset.vari=c;palSel();save()}
+  // Pohjavärin tai paletin vaihto: valittu väri pysyy samalla paikalla rivissä.
+  function changePal(fn){
+    var old=curPal().varit,ix=old.indexOf(color());fn();
+    var nw=curPal().varit;if(ix>=0)D.asetukset.vari=nw[ix];
+    save();renderPal();renderPalDlg();
+  }
+
+  /* ---------- ikkunat ---------- */
+  function openDlg(id){closeAll();var d=$(id);if(!d.open)d.showModal()}
+  function closeAll(){var ds=document.querySelectorAll('dialog');for(var i=0;i<ds.length;i++)if(ds[i].open)ds[i].close()}
+  function renderMenu(){$('m-works').textContent=D.teokset.length+' kpl';$('m-pal').textContent=curPal().nimi}
+  function thumbUrl(wk,target,bg){
+    var sc=Math.max(1,Math.floor(target/Math.max(wk.w,wk.h))),c=exportCanvas(wk,sc,bg);return c.toDataURL('image/png');
+  }
+  function renderWorks(){
+    $('t-name').value=W.nimi;
+    var list=D.teokset.slice().sort(function(a,b){return a.luotu<b.luotu?1:a.luotu>b.luotu?-1:0}),h='';
+    list.forEach(function(t){h+='<button class="thumb" data-id="'+t.id+'" aria-current="'+(t.id===W.id)+'"><span class="tb chk"><img alt="" src="'+thumbUrl(t,80,null)+'"></span><span>'+esc(t.nimi)+'</span></button>'});
+    $('grid').innerHTML=h;
+    h='';PIX.SIZES.forEach(function(n){h+='<button data-n="'+n+'">'+n+'<small>'+n+' × '+n+'</small></button>'});$('seg-new').innerHTML=h;
+    renderDel();
+  }
+  function renderDel(){
+    $('delrow').innerHTML=S.delAsk
+      ?'<button class="btn" id="b-delno">Peru</button><span class="q">Poistetaanko ”'+esc(W.nimi)+'”?</span><button class="btn del" id="b-delok">Poista</button>'
+      :'<button class="lnk" id="b-del">Poista tämä kuva</button>';
+  }
+  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function newWorkOf(n){
+    var t=PIX.newWork(n,n,PIX.nextName(D));D.teokset.push(t);save();openWork(t.id);save();closeAll();toast('Uusi kuva '+n+' × '+n);
+  }
+  function delWork(){
+    var i=D.teokset.indexOf(W);D.teokset.splice(i,1);
+    if(!D.teokset.length)D.teokset.push(PIX.newWork(32,32,'Kuva 1'));
+    S.delAsk=false;openWork(D.teokset[Math.min(i,D.teokset.length-1)].id);save();renderWorks();toast('Kuva poistettu');
+  }
+  function renderPalDlg(){
+    $('base-lbl').style.background=D.asetukset.pohja;$('f-base').value=D.asetukset.pohja;
+    var h='';PIX.palettes(D.asetukset.pohja).forEach(function(p){
+      h+='<button class="palrow" data-laji="'+p.id+'" aria-pressed="'+(p.id===D.asetukset.laji)+'"><span class="pn">'+p.nimi+'</span><span class="strip">';
+      p.varit.forEach(function(c){h+='<i style="background:'+c+'"></i>'});h+='</span></button>';
+    });
+    $('pals').innerHTML=h;
+  }
+
+  /* ---------- vienti PNG:nä ---------- */
+  function exportCanvas(wk,sc,bg){
+    var c=document.createElement('canvas');c.width=wk.w*sc;c.height=wk.h*sc;var x=c.getContext('2d');
+    if(bg){x.fillStyle=bg;x.fillRect(0,0,c.width,c.height)}
+    for(var i=0;i<wk.px.length;i++){var col=PIX.colorAt(wk,i);if(!col)continue;var px=i%wk.w,py=(i-px)/wk.w;x.fillStyle=col;x.fillRect(px*sc,py*sc,sc,sc)}
+    return c;
+  }
+  function shareName(){var v=D.asetukset.vienti,sc=PIX.exportScale(W.w,W.h,v.koko);return slug(W.nimi)+'-'+(W.w*sc)+'x'+(W.h*sc)+'.png'}
+  function renderShare(){
+    var v=D.asetukset.vienti,h='',labels={alkup:'Alkup.',pieni:'Pieni',keski:'Keski',iso:'Iso'};
+    ['alkup','pieni','keski','iso'].forEach(function(k){var sc=PIX.exportScale(W.w,W.h,k);
+      h+='<button data-koko="'+k+'" aria-pressed="'+(v.koko===k)+'">'+labels[k]+'<small>'+(W.w*sc)+' px</small></button>'});
+    $('seg-koko').innerHTML=h;h='';
+    [['lapi','Läpinäkyvä'],['valk','Valkoinen'],['musta','Musta']].forEach(function(a){h+='<button data-tausta="'+a[0]+'" aria-pressed="'+(v.tausta===a[0])+'">'+a[1]+'</button>'});
+    $('seg-tausta').innerHTML=h;
+    var sc=PIX.exportScale(W.w,W.h,v.koko);
+    $('share-size').textContent=(W.w*sc)+' × '+(W.h*sc)+' px · yksi pikseli = '+sc+' × '+sc;
+    prepareBlob();
+  }
+  // Kuva tehdään valmiiksi heti, jotta Jaa-napin painallus avaa jakovalikon suoraan (iOS vaatii jaon napautuksen sisällä).
+  function prepareBlob(){
+    var v=D.asetukset.vienti,sc=PIX.exportScale(W.w,W.h,v.koko),c=exportCanvas(W,sc,PIX.TAUSTAT[v.tausta]),gen=(S.gen=(S.gen||0)+1);
+    S.blob=null;$('b-share').disabled=true;
+    c.toBlob(function(b){
+      if(gen!==S.gen||!b)return;S.blob=b;$('b-share').disabled=false;
+      if(S.blobUrl)URL.revokeObjectURL(S.blobUrl);S.blobUrl=URL.createObjectURL(b);$('share-img').src=S.blobUrl;
+    },'image/png');
+  }
+  function download(blob,name){
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();
+    setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1000);
+  }
+  function share(){
+    if(!S.blob)return;var name=shareName(),file;
+    try{file=new File([S.blob],name,{type:'image/png'})}catch(e){file=null}
+    if(file&&navigator.canShare&&navigator.canShare({files:[file]})){
+      navigator.share({files:[file],title:W.nimi}).catch(function(e){if(e&&e.name!=='AbortError')download(S.blob,name)});
+    }else download(S.blob,name);
+  }
+
+  /* ---------- asetukset ja varmuuskopio ---------- */
+  function applyMode(){var u=D.asetukset.ulko;if(u==='auto')document.documentElement.removeAttribute('data-mode');else document.documentElement.setAttribute('data-mode',u);chk=null;draw()}
+  function renderSet(){
+    var u=[['auto','Laitteen mukaan'],['light','Vaalea'],['dark','Tumma']],h='';
+    u.forEach(function(a){h+='<button data-ulko="'+a[0]+'" aria-pressed="'+(D.asetukset.ulko===a[0])+'">'+a[1]+'</button>'});
+    $('seg-ulko').innerHTML=h;$('tg-grid').setAttribute('aria-checked',String(D.asetukset.ruudukko));$('ver').textContent=PIX.VER;
+  }
+  function exportText(){return JSON.stringify(D)}
+  function importText(t){
+    var d;try{d=JSON.parse(t)}catch(e){toast('Teksti ei ole varmuuskopio');return false}
+    if(!d||d.app!=='pikseli'){toast('Tämä ei ole Pikselin varmuuskopio');return false}
+    D=PIX.repair(d);save();applyMode();renderPal();openWork(D.valittu);renderSet();toast('Varmuuskopio luettu');return true;
+  }
+
+  /* ---------- kuvake ---------- */
+  function icon(){
+    try{
+      var c=document.createElement('canvas');c.width=c.height=180;var x=c.getContext('2d');
+      x.fillStyle='#F3F3F3';x.fillRect(0,0,180,180);
+      var m=['..xx.xx..','.xxxxxxx.','xxxxxxxxx','xxxxxxxxx','.xxxxxxx.','..xxxxx..','...xxx...','....x....'],cols=['#d6334a','#b51f3a'];
+      for(var y=0;y<m.length;y++)for(var i=0;i<9;i++)if(m[y][i]==='x'){x.fillStyle=cols[(i+y)%3===0?1:0];x.fillRect(18+i*16,26+y*16,16,16)}
+      $('touchicon').href=c.toDataURL('image/png');
+    }catch(e){}
+  }
+
+  /* ---------- tapahtumat ---------- */
+  function bind(){
+    // Piirtoalue: yksi sormi piirtää. Muut samanaikaiset sormet ohitetaan. Safarin eleet estetty (touch-action:none).
+    cv.addEventListener('pointerdown',function(e){
+      if(e.button>0||ST)return;e.preventDefault();
+      if(S.tool==='ampari'){doFill(e.clientX,e.clientY);return}
+      try{cv.setPointerCapture(e.pointerId)}catch(_){}
+      ST={id:e.pointerId,mode:null,ch:[],lx:null,ly:null,X:null,Y:null};strokeAt(e.clientX,e.clientY);
+    });
+    cv.addEventListener('pointermove',function(e){
+      if(!ST||e.pointerId!==ST.id)return;
+      var es=e.getCoalescedEvents?e.getCoalescedEvents():[];if(!es.length)es=[e];
+      for(var k=0;k<es.length;k++)strokeAt(es[k].clientX,es[k].clientY);
+    });
+    ['pointerup','pointercancel','lostpointercapture'].forEach(function(t){cv.addEventListener(t,function(e){if(ST&&e.pointerId===ST.id)strokeEnd()})});
+    var joy=$('joy');
+    joy.addEventListener('pointerdown',function(e){if(J.id!==null)return;e.preventDefault();J.id=e.pointerId;try{joy.setPointerCapture(e.pointerId)}catch(_){}joy.classList.add('on');joyMove(e);J.t=0;requestAnimationFrame(joyLoop)});
+    joy.addEventListener('pointermove',function(e){if(e.pointerId===J.id)joyMove(e)});
+    ['pointerup','pointercancel','lostpointercapture'].forEach(function(t){joy.addEventListener(t,joyEnd)});
+    var z=$('zoom');
+    z.addEventListener('pointerdown',function(e){if(Z.id!==null)return;e.preventDefault();Z.id=e.pointerId;try{z.setPointerCapture(e.pointerId)}catch(_){}z.classList.add('on');zoomFromY(e.clientY)});
+    z.addEventListener('pointermove',function(e){if(e.pointerId===Z.id)zoomFromY(e.clientY)});
+    ['pointerup','pointercancel','lostpointercapture'].forEach(function(t){z.addEventListener(t,function(e){if(e.pointerId===Z.id){Z.id=null;z.classList.remove('on')}})});
+    z.addEventListener('keydown',function(e){var d={ArrowUp:.05,ArrowRight:.05,ArrowDown:-.05,ArrowLeft:-.05}[e.key];if(d){setZoom(S.zt+d);e.preventDefault()}});
+    ['contextmenu','gesturestart','gesturechange','dblclick'].forEach(function(t){document.addEventListener(t,function(e){if(!e.target.closest('textarea,input'))e.preventDefault()},{passive:false})});
+    document.addEventListener('touchmove',function(e){if(!e.target.closest('dialog'))e.preventDefault()},{passive:false});
+
+    $('pal').addEventListener('click',function(e){
+      var b=e.target.closest('.sw[data-c]');if(b){pickColor(b.dataset.c);return}
+      var f=e.target.closest('#free-lbl');
+      if(f&&D.asetukset.vapaa&&color()!==D.asetukset.vapaa){e.preventDefault();pickColor(D.asetukset.vapaa)} // ensimmäinen napautus valitsee, valitun napautus avaa värivalitsimen
+    });
+    $('b-undo').onclick=undo;$('b-redo').onclick=redo;
+    $('b-fill').onclick=function(){S.tool=S.tool==='ampari'?'kyna':'ampari';renderKeys()};
+    $('b-menu').onclick=function(){renderMenu();openDlg('d-menu')};
+    $('d-menu').addEventListener('click',function(e){var b=e.target.closest('[data-open]');if(!b)return;var id=b.dataset.open;
+      if(id==='d-works'){S.delAsk=false;renderWorks()}else if(id==='d-pal')renderPalDlg();else if(id==='d-share')renderShare();else if(id==='d-set')renderSet();
+      openDlg(id)});
+    // Kuvat
+    $('grid').addEventListener('click',function(e){var b=e.target.closest('.thumb');if(!b)return;if(b.dataset.id!==W.id){openWork(b.dataset.id);save()}closeAll()});
+    $('seg-new').addEventListener('click',function(e){var b=e.target.closest('button[data-n]');if(b)newWorkOf(+b.dataset.n)});
+    // Nimi päivittyy paikallaan: galleriaa ei piirretä uudelleen, jottei kesken oleva napautus katoa.
+    $('t-name').addEventListener('input',function(){var v=this.value.trim();if(!v)return;W.nimi=v.slice(0,40);renderHead();
+      var t=$('grid').querySelector('.thumb[aria-current="true"] span:last-child');if(t)t.textContent=W.nimi;save()});
+    $('t-name').addEventListener('change',function(){if(!this.value.trim())this.value=W.nimi});
+    $('delrow').addEventListener('click',function(e){
+      if(e.target.closest('#b-del')){S.delAsk=true;renderDel()}
+      else if(e.target.closest('#b-delno')){S.delAsk=false;renderDel()}
+      else if(e.target.closest('#b-delok'))delWork();
+    });
+    // Paletti
+    $('f-base').addEventListener('input',function(){var v=PIX.normHex(this.value);if(v)changePal(function(){D.asetukset.pohja=v})});
+    $('pals').addEventListener('click',function(e){var b=e.target.closest('.palrow');if(b)changePal(function(){D.asetukset.laji=b.dataset.laji})});
+    // Jako
+    $('seg-koko').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;D.asetukset.vienti.koko=b.dataset.koko;save();renderShare()});
+    $('seg-tausta').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;D.asetukset.vienti.tausta=b.dataset.tausta;save();renderShare()});
+    $('b-share').onclick=share;
+    $('b-dl').onclick=function(){if(S.blob)download(S.blob,shareName())};
+    // Asetukset
+    $('seg-ulko').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;D.asetukset.ulko=b.dataset.ulko;applyMode();save();renderSet()});
+    $('tg-grid').onclick=function(){D.asetukset.ruudukko=!D.asetukset.ruudukko;save();renderSet();draw()};
+    $('b-exp').onclick=function(){download(new Blob([exportText()],{type:'application/json'}),'pikseli-'+new Date().toISOString().slice(0,10)+'.json')};
+    $('b-imp').onclick=function(){$('f-imp').click()};
+    $('f-imp').onchange=function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){importText(String(r.result))};r.readAsText(f);this.value=''};
+    $('b-copy').onclick=function(){
+      var t=exportText();$('t-io').value=t;
+      if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(function(){toast('Kopioitu')},function(){$('t-io').select();toast('Valitse ja kopioi teksti')});
+      else{$('t-io').select();toast('Valitse ja kopioi teksti')}
+    };
+    $('b-paste').onclick=function(){var t=$('t-io').value.trim();if(t&&importText(t))$('t-io').value=''};
+    // Ikkunat: ‹ Valikko ja napautus taustaan
+    var ds=document.querySelectorAll('dialog');
+    for(var i=0;i<ds.length;i++)(function(d){
+      d.addEventListener('click',function(e){
+        if(e.target.closest('[data-back]')){renderMenu();openDlg('d-menu');return}
+        if(e.target===d){var r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)d.close()}
+      });
+    })(ds[i]);
+    // Näppäimistö (tietokone): ⌘Z / Ctrl+Z kumoa, ⇧⌘Z tee uudelleen
+    document.addEventListener('keydown',function(e){
+      if(document.querySelector('dialog[open]'))return;
+      if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='z'){e.shiftKey?redo():undo();e.preventDefault()}
+      else if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='y'){redo();e.preventDefault()}
+    });
+    addEventListener('resize',function(){resize()});
+    if(window.matchMedia)matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){chk=null;draw()});
+  }
+
+  function init(){
+    D=load();applyMode();icon();bind();renderPal();openWork(D.valittu);save();
+  }
+  init();
+  return {get D(){return D},get W(){return W},S:S,J:J,undo:undo,redo:redo,setZoom:setZoom,resize:resize,openWork:openWork,
+    exportCanvas:exportCanvas,shareName:shareName,importText:importText,exportText:exportText,toArt:toArt,origin:origin,KEY:KEY};
+})();
+</script>
+</body>
+</html>
