@@ -1,6 +1,7 @@
 """Kaikki 0.61 (SUUNNITELMA: Ulkoasuvaihtoehdot, Emilin palaute 23.11.2026): valittava ilme Lehto (vaalea) ja Hiillos (tumma).
 Tarkistaa leveyksillä 1440, 1280, 390 ja 320, vaalealla ja tummalla laitteella:
-- oletus ei muutu: ilman valintaa ei data-ilme- eikä data-hfont-merkintää, ja värit ovat samat ennen ja jälkeen edestakaisen valinnan
+- ilme on oletus (Emil 23.11.2026); Oma värisäätö poistaa data-ilme- ja data-hfont-merkinnän ja näyttää värikoneen, ja paluu antaa täsmälleen samat värit
+- Muistion rivinäkymä: tyhjä solu näyttää ajatusviivan, otsikkorivi lämpimällä pinnalla
 - Lehto ja Hiillos: kiinteät pinnat (#F7F3EC / #222429), jokainen aksentti vaihtaa --accent-värin, otsikkofontti tulee isoon otsikkoon
 - kontrasti vähintään 4,5:1: teksti, haalea teksti, aksentti pintoja ja valintapintaa vasten sekä umpinapin teksti, jokaisella aksentilla
 - kuittaus ja virhe eivät vaihdu aksentin mukana
@@ -28,20 +29,27 @@ async def run(p,w,h,scheme):
     errs=[]; bad=[]
     ctx=await b.new_context(viewport={'width':w,'height':h},color_scheme=scheme)
     pg=await ctx.new_page()
-    await pg.add_init_script(FAKE+";(function(){var S=%s;if(!window.__repo.kept)for(var k in S)window.__repo.put(k,S[k]);try{localStorage.setItem('kaikki:gh',JSON.stringify({repo:'testi/vault',token:'x',branch:'main'}));}catch(e){}})();"%json.dumps(SEED))
+    await pg.add_init_script(FAKE+";(function(){var S=%s;if(!window.__repo.kept)for(var k in S)window.__repo.put(k,S[k]);try{localStorage.setItem('kaikki:gh',JSON.stringify({repo:'testi/vault',token:'x',branch:'main'}));localStorage.setItem('kaikki:nmode','rows');}catch(e){}})();"%json.dumps(SEED))
     pg.on('pageerror',lambda e:(errs.append(str(e)),print('  PAGEERR',e)))
     def want(label,cond,info=''):
         print('  %-62s %s %s'%(label,'ok' if cond else 'VIRHE',info if not cond else ''))
         if not cond: bad.append('%d %s: %s'%(w,scheme,label))
     print('leveys',w,scheme)
     await pg.goto(U); await pg.wait_for_timeout(1500)
-    v0=await pg.evaluate(VARS)
-    want('oletus: ei ilmettä eikä otsikkofonttia',v0['ilme']=='' and v0['hfont']=='',v0)
-    await menu(pg,'#m-proj'); await pg.wait_for_timeout(250)
-    want('asetuksissa Ilme-valinta, oletuksena Oma värisäätö',await pg.get_attribute('#set-ilme [data-v=""]','aria-pressed')=='true')
-    want('värikoneen säätimet näkyvät ilman ilmettä',await pg.locator('#k-h').count()==1)
-    await pg.click('#set-ilme [data-v="lh"]'); await pg.wait_for_timeout(150)
     dark=scheme=='dark'
+    v0=await pg.evaluate(VARS)
+    want('oletus: %s ja otsikkofontti'%('hiillos' if dark else 'lehto'),v0['ilme']==('hiillos' if dark else 'lehto') and v0['hfont']==('ny' if dark else 'avenir'),v0)
+    dash=await pg.evaluate("(function(){var c=Array.from(document.querySelectorAll('#nlist .rvr:not(.rvhead) .rvc')).filter(function(x){return !x.childNodes.length;})[0];return c?getComputedStyle(c,'::before').content:'ei tyhjää';})()")
+    want('tyhjä solu: ajatusviiva','–' in dash,dash)
+    hb=await pg.evaluate("(function(){var h=document.querySelector('.rvhead');return h?getComputedStyle(h).backgroundColor:'';})()")
+    want('otsikkorivi lämpimällä pinnalla',hb==('rgb(51, 54, 61)' if dark else 'rgb(238, 232, 222)'),hb)
+    await menu(pg,'#m-proj'); await pg.wait_for_timeout(250)
+    want('asetuksissa Ilme-valinta, oletuksena Lehto ja Hiillos',await pg.get_attribute('#set-ilme [data-v="lh"]','aria-pressed')=='true')
+    await pg.click('#set-ilme [data-v="oma"]'); await pg.wait_for_timeout(150)
+    vo=await pg.evaluate(VARS)
+    want('Oma värisäätö: ei ilmettä eikä otsikkofonttia',vo['ilme']=='' and vo['hfont']=='',vo)
+    want('Oma värisäätö: värikoneen säätimet näkyvät',await pg.locator('#k-h').count()==1)
+    await pg.click('#set-ilme [data-v="lh"]'); await pg.wait_for_timeout(150)
     v=await pg.evaluate(VARS)
     want('ilme päällä: %s'%('hiillos' if dark else 'lehto'),v['ilme']==('hiillos' if dark else 'lehto'),v['ilme'])
     want('kiinteä pinta',v['--bg']==('#222429' if dark else '#F7F3EC'),v['--bg'])
@@ -89,11 +97,12 @@ async def run(p,w,h,scheme):
     c=await pg.evaluate(VARS)
     want('uudelleenlatauksen jälkeen ilme ja fontti säilyvät',c['ilme']==('hiillos' if dark else 'lehto') and c['hfont']=='ny',(c['ilme'],c['hfont']))
     want('ei sivuttaisvieritystä Muistiossa',await pg.evaluate("document.documentElement.scrollWidth<=innerWidth"))
-    # takaisin omaan: värit samat kuin alussa
+    # omaan ja takaisin: värikoneen värit pysyvät samoina
     await menu(pg,'#m-proj'); await pg.wait_for_timeout(250)
-    await pg.click('#set-ilme [data-v=""]'); await pg.wait_for_timeout(150)
+    await pg.click('#set-ilme [data-v="oma"]'); await pg.wait_for_timeout(150)
     v1=await pg.evaluate(VARS)
-    want('Oma värisäätö palauttaa täsmälleen alkuperäiset värit',v1==v0,[(k,v0[k],v1[k]) for k in v0 if v0[k]!=v1[k]])
+    want('Oma värisäätö antaa samat värit kuin aiemmin',v1==vo,[(k,vo[k],v1[k]) for k in vo if vo[k]!=v1[k]])
+    want('Oma värisäätö säilyy uudelleenlatauksessa',(await pg.reload(),await pg.wait_for_timeout(1500),(await pg.evaluate(VARS))['ilme'])[2]=='')
     want('ei sivuvirheitä',not errs,errs)
     await b.close(); return bad
 async def main():
