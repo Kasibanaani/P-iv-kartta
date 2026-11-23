@@ -172,4 +172,8 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 - Suodatin on nyt vain Muistiossa (vaikuttaa silti kalenteriin). Tarvitaanko se myös kalenterin näkymään omana nappinaan?
 - Pitäisikö Kaikki-appissa näkyä vaultin kansiot (esim. suodatus kansion mukaan), vai riittääkö Juuren haku ja asiasanat?
 
+## Suunnitelmat
+
+23.11.2026. [Ulkoasusuunnitelmaan](SUUNNITELMA.md#emilin-ulkoasupalaute-23112026) on kirjattu Emilin suosima Hiilloksen otsikkotyyli, toive tumman teeman aksenttivaihtoehdoista sekä Lehdon vaalea asettelu uudella typografialla ja ilman vihreää väritystä. Seuraava askel on verrata fontti- ja värivaihtoehtoja samoissa näkymissä. Tässä vaiheessa päivitettiin suunnitelma. Selainkokeilu tehdään esikatseluvaiheessa.
+
 ## Emilin kommentit
