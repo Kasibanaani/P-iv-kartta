@@ -41,7 +41,7 @@ async def run(p,w,h):
     await pg.locator('#nvedit .nved-row input').first.fill('100')
     cnt=await pg.evaluate("document.getElementById('nved-count').textContent")
     want('määrä päivittyy (2 yli 100)',cnt.startswith('2 '),cnt)
-    await pg.select_option('#nved-sort','hinta'); await pg.locator('#nvedit .nved-row').last.locator('select').nth(1).select_option('-1')
+    await pg.select_option('#nved-sort','hinta'); await pg.locator('#nvedit').get_by_label('Suunta',exact=True).select_option('-1')
     col=pg.locator('#nvedit .nved-col[data-k="hinta"]')
     await col.locator('input[type=checkbox]').check(); await pg.wait_for_timeout(100)
     await pg.locator('#nvedit .nved-col[data-k="hinta"] select').select_option('luku'); await pg.wait_for_timeout(100)
