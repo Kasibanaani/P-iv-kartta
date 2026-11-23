@@ -1,10 +1,12 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.64 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
+**Vaihe:** versio 0.65 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.65 (23.11.2026, toteutusjonon kohta 3: tekstimuuttujat, Emilin päätökset 23.11.).** Kirjoita muistiinpanoon `!!Uni: 8!!` tai päivän kanssa `!!20.11.: Uni: 6,5!!` (myös `!!1.4., 2.4. ja 3.4.: Työn kuormittavuus: 9!!` ja `!!2026-04-01: …!!`). Lukutilassa `!!` katoaa, merkintä saa kevyen pohjan ja arvo lihavoituu. Muokatessa `!!` on haalea ja nimi ja arvo katkoviivalla alleviivattuja. Lukutilassa merkinnän napautus avaa pienen ikkunan: nimi, arvo (luku vai teksti), päivä ja mistä se tuli (*merkinnästä* tai *osion tekstistä*) tai *Päivätön* ja syy (osiossa ei päivää / useita päiviä). Muokatessa ikkuna ei aukea. Ikkunan napista tai **Valikko → Muuttujat** aukeaa luettelo: muuttujat aakkosjärjestyksessä, merkintöjen määrä ja viimeisin arvo; muuttujan sisällä keskiarvo, pienin, suurin ja merkinnät uusin ensin, rivistä aukeaa muistiinpano. Merkinnän sisällä olevat päivät eivät tee kalenteriin ajankohtaa. Luettelo kootaan merkinnöistä (ei omaa tiedostoa vielä). Testit `logiikka_muuttuja.js` ja `selain_65.py`.
 
 **0.64 (23.11.2026, A0.7).** Muistio → Näkymä → Muokkaa näkymää → Lajittelu. Lisää lajitteluperusteet tärkeysjärjestyksessä ja valitse kunkin suunta. Esimerkiksi tila ensin ja saman tilan sisällä uusin päivä ensin. Puuttuvat arvot tulevat viimeiseksi kummassakin suunnassa ja tasatulokset säilyttävät lähtöjärjestyksen. Otsikosta käynnistetyn tilapäisen lajittelun voi poistaa sarakevalikon toiminnolla *Palauta näkymän lajittelu*. Jaettu järjestys tallennetaan näkymätiedostoon, esimerkiksi `jarjestys: tila nouseva, luotu laskeva`. Vanhat yhden kentän näkymät toimivat. Testi `selain_64.py`.
 
@@ -150,6 +152,8 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Ei tarkistettu
 
+- 0.65: Chromiumissa 320, 390 (myös kosketus), 1280 ja 1440 px, vaalea ja tumma. Oikealla iPhonella ei kokeiltu napautusta, Safarin `color-mix`-pohjaa eikä pitkiä merkintöjä rivin vaihtuessa. Tekoälyn kirjaamia merkintöjä oikeassa vaultissa ei ole vielä. Sarakkeet, kojelaudan ruudut ja Pikamuistiinpanon napit eivät vielä käytä muuttujia, joten alkutietokenttä `uni: 8` ja merkintä `!!uni: 8!!` ovat toistaiseksi eri asioita (ei kaksoislaskentaa, koska mikään ei vielä summaa niitä yhteen). Muistion korteissa ja rivinäkymän esikatselussa merkintä näkyy vielä merkkeineen (`!!Uni: 8!!`); muotoilu koskee vain avattua muistiinpanoa.
+
 - 0.64: Fyysisen iPhonen Safari ja kosketus. Selaintesti käyttää erillistä testivaultia.
 
 - 0.63: Selaintesti käyttää testivaultia Chromiumissa (320, 390, 1280 ja 1440 px). Fyysisen iPhonen kosketus, numeronäppäimistö ja Safarin päivämäärävalitsin jäävät kokeiltaviksi. Solun tallennus tarvitsee yhteyden; epäonnistunut syöte jää ikkunaan uudelleenyritystä varten.
@@ -181,6 +185,8 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Seuraava askel
 
+**Muuttujien jatko (0.65:n jälkeen):** kojelaudan ruutu, jonka lähde on muuttuja (viimeisin, summa, keskiarvo, min, max, määrä; rajaus ajalla, tunnisteella ja kansiolla; päiväkohtainen kuvaaja, jossa puuttuva päivä on aukko). Sen jälkeen Muistion sarake ja Pikamuistiinpanon napit samaan muuttujaan.
+
 **Solumuokkauksen kokeilun jälkeen.** Kojelaudan jatko on kentän mukaan laskettava kortti, jonka lähdettä voi rajata ja jonka esitystavan ja paikan voi valita. Muistion lajittelu usealla kentällä on valmis (A0.7). Seuraava näkymätyön vaihe on yhteisen editorin tuominen Taulukoiden näkymävälilehdelle. Korjaussuunnitelman kohdassa 4 sarakeotsikon oma näyttönimi odottaa vielä päätöstä pysyvästä tallennusmuodosta.
 
 
@@ -200,6 +206,12 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 4. Karsinta: mitä Juuren osia Kaikki ei tarvitse.
 
 ## Avoimet kysymykset
+
+**Tekstimuuttujat (0.65):**
+1. Riittääkö merkinnöistä koottu luettelo (Valikko → Muuttujat; tekoäly hakee saman `grep`illä) siihen, että tekoälyt alkavat kirjata `!!`-muodossa? Vaultin ohje odottaa ”Kaikin tukea ja muuttujaluetteloa”. Kuvaus, laji ja yksikkö tarvitsisivat oman tiedoston (ehdotus `data/muuttujat.md`).
+2. Tekoälyn ratkaisu: merkinnän omassa päivässä vuodeton `1.4.`, joka osuisi tulevaisuuteen, tulkitaan viime vuodeksi (havainto ei koske tulevaa). Kalenteri tulkitsee saman ensi vuodeksi. Käykö?
+3. Tekoälyn ratkaisu: muoto `2026-04-01` kelpaa myös, vaikka Kaikin muu tunnistus ei sitä lue. Siksi päivämuistiinpanon otsikkorivi `2026-11-23` antaa päivän sen ensimmäisen osion merkinnöille.
+4. Yhdistyvätkö `Uni` ja `uni`? Nyt kyllä (kirjainkoko ja ylimääräiset välilyönnit eivät erota). Samankaltaisten nimien ehdotus (`Uni` / `Uni (h)`) on vielä tekemättä.
 
 **Ulkoasu (0.61):** Mikä aksentti ja otsikkofontti valitaan Lehdon ja Hiilloksen oletukseksi? Saako muistiinpanon ensimmäinen rivi otsikkofontin, kun kursorin kohdistus on testattu?
 
