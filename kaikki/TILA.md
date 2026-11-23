@@ -154,6 +154,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Ei tarkistettu
 
+- 0.65–0.66 koko sarja: 76 testiä läpi. `selain_23.py`, `selain_28.py` ja `selain_51.py` kaatuivat kuormitetussa ajossa, mutta menivät yksinään läpi. `selain_23` meni läpi myös vanhalla 0.64:llä, eli se on satunnainen. Lisäksi `selain_63`/`64` kaatuivat kerran Playwright-version takia; oikealla versiolla (1.63.0) ne menivät läpi.
 - 0.66: Chromiumissa 320, 390, 1280 ja 1440 px (kuvana myös tumma). Oikealla iPhonella ja oikealla Vaultilla ei kokeiltu. Ruutuja ei voi vielä raahata eikä suurentaa, eikä niitä voi siirtää muualle kuin tiedoston järjestyksessä. Tarkistuslistaruutu, taulukkosolu lähteenä, kuvaajan tyyli ja väri sekä yhteinen kuittaus kalenterin kanssa puuttuvat. Ruudut näkyvät vain, kun Vault on yhdistetty ja jossain on muuttuja tai ruutu.
 
 - 0.65: Chromiumissa 320, 390 (myös kosketus), 1280 ja 1440 px, vaalea ja tumma. Oikealla iPhonella ei kokeiltu napautusta, Safarin `color-mix`-pohjaa eikä pitkiä merkintöjä rivin vaihtuessa. Tekoälyn kirjaamia merkintöjä oikeassa vaultissa ei ole vielä. Sarakkeet, kojelaudan ruudut ja Pikamuistiinpanon napit eivät vielä käytä muuttujia, joten alkutietokenttä `uni: 8` ja merkintä `!!uni: 8!!` ovat toistaiseksi eri asioita (ei kaksoislaskentaa, koska mikään ei vielä summaa niitä yhteen). Muistion korteissa ja rivinäkymän esikatselussa merkintä näkyy vielä merkkeineen (`!!Uni: 8!!`); muotoilu koskee vain avattua muistiinpanoa.
