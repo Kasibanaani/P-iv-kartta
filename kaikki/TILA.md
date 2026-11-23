@@ -1,10 +1,12 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.58 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
+**Vaihe:** versio 0.59 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.59 (23.11.2026, Emilin pyyntö):** Muistion rivinäkymässä valintaruutu ei enää ilmesty, kun hiiren vie rivin kohdalle. Ruudut tulevat näkyviin vain yläreunan Valitse-napista, joten teksti ei pompi. Cmd- tai Ctrl-napsautus ja Shift-napsautus avaavat valintatilan edelleen, koska ne ovat käyttäjän oma valinta. Testi `selain_31.py` tarkistaa nyt, ettei ruutua näy osoitettaessa.
 
 **0.58 (23.11.2026, Emilin bugiraportti):** *Muistiinpanoikkuna pomppi, kun kursori napsautettiin linkin kohdalle.* Aika-, asiasana- tai sanalinkin valikko ei enää ilmesty tekstin alle asetteluun. Se kelluu napsautuskohdan vieressä, eikä mikään siirry. Muokatessa valikossa ei ole taustaa, joten seuraava napsautus osuu tekstiin, ja valikko sulkeutuu napsautuksesta muualle tai kirjoittamisesta. Puhelimella muokatessa linkin napautus siirtää nyt kursorin. Ennen se sulki näppäimistön ja avasi valikon taustan kanssa, jolloin ikkuna hyppäsi. Lukutilassa linkki toimii napin tavoin kuten ennenkin. *Kirjoittamisen viive:* profiloinnissa pitkässä muistiinpanossa 300 muistiinpanon vaultilla 4× hidastettuna näppäilyn käsittely vei mediaanina 240 ms ja pahimmillaan 870 ms. Joka merkillä jäsennettiin kaikkien muistiinpanojen päivämäärät päällekkäisten menojen takia (`ovHits`), laskettiin tekstin alla olevat tiedot (`foundInfo`) ja tekstikenttä romahti ja kasvoi (`height:auto`). Nyt näppäily piirtää vain tekstin ja korostukset. Päällekkäiset menot ja Ajankohdat- ja Asiasanat-tiedot päivittyvät 0,3 s:n tauon jälkeen, ja tallennus tekee odottavat laskut ensin. Saman piirron päivät jäsennetään kerran, eikä linkkien tyylilaskentaa pakoteta. Tulos samassa mittauksessa: mediaani noin 65 ms. Testi `selain_58.py`: pomppu, kelluvuus, kursori, sulkeutuminen, kosketus, tauon jälkeinen päivitys, heti tallennus ja nopeusraja.
 
