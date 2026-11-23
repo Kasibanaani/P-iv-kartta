@@ -2,7 +2,7 @@
 
 Itsenäinen ohje mille tahansa tekoälylle (Claude, ChatGPT/Codex, muu). Aiempaa keskustelua ei tarvitse muistaa. Lue ensin repon `AGENTS.md`, sitten `kaikki/TILA.md` ja tämä. Emilin päätökset on merkitty **Emil**, tekoälyn ehdotukset *ehdotus*. Ehdotus ei ole toteutuslupa; Emilin ”toteuta” on.
 
-Päivitetty 23.11.2026 (päähaara 0.62: jaetut sarakeleveydet ja sovitus sisältöön; 0.61: Lehto ja Hiillos oletusilmeenä; 0.60: korjaussuunnitelman kohdat 1–3 ja kohdan 4 sarakejärjestys tehty; uudet kohdat 21–22 Emilin sanelusta). Kohdan 18 ensimmäinen kokeilu on omassa haarassaan. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
+Päivitetty 23.11.2026 (0.63: Muistion kenttien solumuokkaus ja näyttötavat, kojelaudan kenttäkortit työjonossa; 0.62: jaetut sarakeleveydet ja sovitus sisältöön; 0.61: Lehto ja Hiillos oletusilmeenä; 0.60: korjaussuunnitelman kohdat 1–3 ja kohdan 4 sarakejärjestys tehty; uudet kohdat 21–22 Emilin sanelusta). Kohdan 18 ensimmäinen kokeilu on omassa haarassaan. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
 
 **Rakentajan nykyinen jatko-ohje:** [Tulevien ominaisuuksien toteutusjono](#tulevien-ominaisuuksien-toteutusjono) täsmentää A0–D-jonon avoimet ominaisuudet ja kertoo mistä aloittaa.
 
@@ -463,9 +463,11 @@ Ehtokaava näyttää solussa jotain, jos esimerkiksi otsikko sisältää tietyn 
 - Lajittelu, suodatus, sarakkeiden siirto ja leveys (0.57).
 - Taulukot-osion muokkaus- ja täyttöreitit (kohta 12, toteutusjonon kohta 2).
 
-**Rivinäkymä on nyt vain luettava**: solua ei voi muokata.
+**Emil 23.11.2026, tarkennus ensimmäiseen julkaisuun.** Muistiinpanon kentän kirjaaminen solusta ja sarakkeen näyttötavan valinta ovat ensisijaiset. Esimerkiksi Uni-sarakkeeseen syötetty 8 tallentuu alkuperäisen muistiinpanon alkutietoihin muodossa `uni: 8`. Sama kenttä on käytettävissä kaikissa näkymissä. Yksikkö ja näyttötapa ovat näkymän asetuksia. Kojelaudan tuleva kortti voi valita kentän `uni`, rajata aineiston ja näyttää esimerkiksi keskiarvon. Uusi tietokantalaskenta jää jatkoon.
 
-**Linja (tekoälyn ehdotus, Emil hyväksyy):**
+**0.63, kohtien 21.1 ja 21.2 ensimmäinen rajaus.** Näkymäeditorissa voi lisätä kentän ja valita sarakkeelle näyttötavan. Klikkaus, napautus tai Enter kohdistetussa solussa avaa kentän pieneen ikkunaan. Tallennus päivittää yhden arvon tuoreimpaan Vault-tiedostoon. Vanha yksiselitteinen, sovittu tekstikenttä päivittyy paikallaan. Saman kentän ristiriidassa oma syöte säilyy ikkunassa ja käyttäjä valitsee peruuttamisen tai uudemman arvon korvaamisen. Uusi sarake lisätään näkymäeditorista. Suora kirjoitus ilman ikkunaa, näppäimellä eteneminen seuraavaan soluun, erillinen näyttönimi ja otsikkorivin plusnappi ovat mahdollisia jatkoja.
+
+**Kentän ja näyttötavan sopimus**
 - **Arvon paikka:** arvo kirjoitetaan muistiinpanon alkutietoihin riville `kenttä: arvo`, mikä on Vaultin nykyinen kenttäsopimus. Jos kenttä on jo tekstirivinä `kenttä: arvo` (*Omat kentät*), päivitetään tämä rivi eikä tehdä toista. Emilin oma teksti ei muutu. Hyvä puoli: tekoäly, haku ja kaikki näkymät lukevat saman tiedon. Huono puoli: alkutiedot pitenevät ja näkyvät, jos tiedoston avaa muualla kuin apissa.
 - **Määrittely ja arvo erillään:** sarakkeen määrittely on näkymätiedostossa: laji, valintalista ja värit, min–max, yksikkö ja kaava. Arvo on muistiinpanossa. Kenttänimi on yhteinen kaikille näkymille, joten esimerkiksi `tila` on sama tieto kaikkialla. Jos kahdella näkymällä on samalle kentälle eri valintalista, kumpikin näyttää omansa ja tuntematon arvo näkyy harmaana siruna.
 - **Laskettuja tuloksia ei kirjoiteta tiedostoihin** (kohta 10). Vain syötetty arvo tallentuu.
@@ -532,8 +534,7 @@ Tavoite: muokkaus näkyy samassa ruudunpäivityksessä, verkkotallennus tapahtuu
 - kenttähakemisto pidetään välimuistissa.
 
 **Tarkennettavat ennen toteutusta (Emil päättää):**
-- **Kenttänimen muoto:** saako nimessä olla ääkkösiä ja välilyöntejä? Ehdotus: kenttänimi pienillä ASCII-kirjaimilla ja alaviivoilla (`hinta_arvio`), ja näyttönimi ”Hinta-arvio” vapaasti näkymätiedostoon.
-- **Arvon paikka:** alkutiedot vai tekstin loppuun? Ehdotus: alkutiedot.
+- **0.63:** Kenttäavaimessa käytetään pieniä ASCII-kirjaimia, numeroita, viivoja ja alaviivoja. Uusi arvo menee alkutietoihin. Vapaasti nimettävä näyttöotsikko on jatkotyö.
 - **Päivä-sarake kalenterissa:** näkyykö sen arvo kalenterissa? Ehdotus: sarakkeen asetus *Näytä kalenterissa*, oletuksena pois, jottei kalenteri täyty.
 - **Myöhempää:** täyttösarjat, viittaus toisen näkymän tulokseen ja ryhmittely välisummineen.
 
@@ -686,6 +687,10 @@ Tee valitusta suunnasta ensin rajattu vertailu nykyiseen Muistion rivinäkymää
 
 **Kortin käyttäytyminen.** Luku, palkki ja kuvaaja lukevat solua tai aluetta; liukusäädin ja kytkin saavat muuttaa vain nimettyä kirjoitettavaa syöttösolua. Solulukko koskee myös näppäimistöä ja liittämistä taulukkoon. Käyttötilan ulkoasulukko suojaa asettelua. Tekstikortille sallitaan ensin otsikko ja sisältö; kuvakortti odottaa liitekokeilua. Napin kokeiluksi riittää yhden sovitun syöttöarvon asettaminen, kohde ja vaikutus näkyvät editorissa. Testaa suojattu solu, kaavasolu, kadonnut välilehti, kaksi ristiriitaista muutosta ja epäonnistunut tallennus. Älä korvaa `boardCards`-lukijan edellyttämää täsmällistä otsikkoriviä ilman yhteensopivaa vanhan tiedoston lukua.
 
+**Emilin toive 23.11.2026: muistiinpanokentät inforuutujen lähteenä.** Kortin lähteeksi voi valita vakaan kenttäavaimen kuten `uni`, laskennan tuloksen tai aiemman taulukon solun/alueen. Rajaus voi käyttää tunnistetta, kansiota ja aikaa. Valitse tulokseksi esimerkiksi viimeisin arvo, summa, keskiarvo, minimi, maksimi tai havaintojen kappalemäärä. Esimerkkikokeessa `uni: 8` ja `uni: 6,5` antavat keskiarvoksi 7,25 h ja havaintomääräksi 2. Tyhjä kenttä ohitetaan, kirjattu nolla lasketaan mukaan ja kortista voi tarkistaa, mitkä muistiinpanot muodostavat tuloksen. Kenttä ja tunniste ovat eri valintoja.
+
+**Inforuutujen ulkoasu ja sijoittelu.** Tarjoa ison luvun, palkin, viiva- tai pylväskaavion ja tekstin kaltaisia esityksiä. Käyttäjä valitsee ruudulle otsikon, yksikön, värin ja koon sekä siirtää sen haluamaansa paikkaan. Aloita yhteisestä järjestyksestä ja kahdesta koosta, kokeile sitten vapaampaa ruudukkoa ja koon säätöä. Puhelimelle tarvitaan selkeä lukujärjestys ja siirtotapa ilman raahausta. Kortin tyyli ja asettelu tallentuvat lähdetiedoista erillään.
+
 **Kuvaajan tyyli.** Lisää ensin muokkaustilan esikatseluun viiva/pylväs, yksikkö, aikaväli ja väri. Tunnistettava arvo näkyy myös tekstinä. Sarjan puuttuva päivä muodostaa aukon, kirjattu nolla näkyy nollana. Tarkista tyhjä sarja, yksi havainto, negatiiviset luvut sekä 320 px:n näyttö. **Päätös:** kokeilun perusteella lukitaan asettelun ja tyylin tallennusmuoto sekä se, tarvitaanko puhelimelle oma järjestys. Päiväkirjauksia tai lähdesoluja ei muuteta tyylin tallennuksessa.
 
 ### 4. Pikakirjausten editori, toteumat ja suhteellinen lukupädi (D, kohdat 6, 8 ja 15)
@@ -728,12 +733,13 @@ Tee valitusta suunnasta ensin rajattu vertailu nykyiseen Muistion rivinäkymää
 
 ### 9. Tietokantanäkymä ja oikea aikajana (kohdat 21 ja 22, Emil 23.11.2026)
 
-Ehdotettu järjestys:
-1. Korjaussuunnitelman kohta 4 (näyttönimi ja kenttänimi erikseen), koska 21.2 tarvitsee sitä.
-2. 21.1 → 21.2 → 21.5 ja 21.6 → 21.3 → 21.4 → 21.7 ja 21.8. Nopeus (21.9) mitataan jokaisen vaiheen yhteydessä.
-3. Aikajanalta 22.1 heti, kun nimi on päätetty. Sen jälkeen 22.2–22.4 omana ketjunaan tietokannan rinnalla.
+Emilin tarkentama järjestys:
+1. Ensimmäinen julkaisu: Muistion kentän muokkaus ja näyttötavat (21.1–21.2, rajaus yllä).
+2. Myöhemmin korjaussuunnitelman kohta 4 (näyttönimi ja kenttänimi erikseen), koska 21.2 tarvitsee sitä.
+3. Jäljellä olevat 21.1–21.2:n työnkulut, 21.5–21.6 ja 21.3–21.4, sitten 21.7–21.8. Kojelaudan kenttäkortit suunnitellaan tämän jonon kohdan 3 mukaan. Nopeus (21.9) mitataan jokaisen vaiheen yhteydessä.
+4. Aikajanalta 22.1 heti, kun nimi on päätetty. Sen jälkeen 22.2–22.4 omana ketjunaan tietokannan rinnalla.
 
-Ennen ensimmäistä vaihetta tarvitaan Emilin vastaukset kohtien *Tarkennettavat* kysymyksiin, jotka on koottu `TILA.md`:n avoimiin kysymyksiin.
+Laajennuksissa asiaan liittyvät avoimet päätökset tarkistetaan `TILA.md`:stä.
 
 ### 10. Timantin nostaminen, löytäminen ja uudelleenlukeminen
 

@@ -1,10 +1,12 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.62 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
+**Vaihe:** versio 0.63 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.63 (23.11.2026, Emil, 21.1–21.2 rajattu v1).** Muistio → Näkymä → Muokkaa näkymää → Kentän nimi → Lisää kenttä. Valitse näyttötapa, esimerkiksi luku ja yksikkö tai palkki. Rivitilassa avaa solu napsauttamalla tai Enterillä. Arvo tallennetaan valitun muistiinpanon alkutietoihin, esimerkiksi `uni: 8`. Muistiinpanossa kenttä näkyy Tiedoissa. Sovittu yksiselitteinen vanha tekstikenttä päivittyy paikallaan. Tallennus säilyttää muut tuoreimman tiedoston muutokset ja pyytää valinnan, jos sama kenttä muuttui toisaalla. Kojelaudan kenttäkortit, laskut ja sijoittelu ovat [suunnitelmassa](SUUNNITELMA.md#3-kojelauta-jota-voi-k%c3%a4ytt%c3%a4%c3%a4-yhdell%c3%a4-k%c3%a4dell%c3%a4-ja-rakentaa-tietokoneella-d-kohdat-6-ja-13).
 
 **0.62 (23.11.2026, A0.3).** Muistio → Näkymä → Muokkaa näkymää → Yhteiset sarakeleveydet. Valitse sarake ja anna leveys pikseleinä tai kopioi tämän laitteen leveys. Tyhjä kenttä palauttaa näkymän automaattisen leveyden. Raahaus ja *Sovita sisältöön* säätävät vain tämän laitteen saraketta. Otsikkorajan kaksoisnapsautus sovittaa myös. Sarakevalikosta voi palata yhteiseen leveyteen.
 
@@ -146,6 +148,8 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Ei tarkistettu
 
+- 0.63: Selaintesti käyttää testivaultia Chromiumissa (320, 390, 1280 ja 1440 px). Fyysisen iPhonen kosketus, numeronäppäimistö ja Safarin päivämäärävalitsin jäävät kokeiltaviksi. Solun tallennus tarvitsee yhteyden; epäonnistunut syöte jää ikkunaan uudelleenyritystä varten.
+
 - 0.61: Fontit näkyvät vain siinä laitteessa, jossa ne ovat. iPhonessa ovat New York, Iowan, Charter, Didot ja Avenir Next. Testikoneen Chromium käytti varafontteja (Georgia-tyyppinen antiikva, järjestelmän groteski), joten oikeaa ulkoasua ei nähty iPhonella. Alkuperäisiä luonnoskuvia ei ollut repossa. Siksi värit ovat suunnitelman heksa-arvoista ja fontit lähimpiä laitteen omia vastineita. Otsikkofonttia ei vielä käytetty muistiinpanon ensimmäiseen riviin. Kirjoitus- ja korostuskerroksen pitää pysyä täsmälleen kohdallaan, joten suunnitelma vaatii erillisen testin ennen sitä. Taulukon aktiivisolun 2 px:n kehys, kaavaviitteen väri ja kojelaudan arvon korostus ovat ennallaan, ja valittu ilme vaihtaa vain niiden värit.
 - 0.55: Ristiriidan valinta tehdään koko kentälle: sarakkeista ei voi valita osaa omista ja osaa toisaalla tehdyistä. Jos näkymätiedosto on poistettu tai se ei ole enää näkymä, *Käytä omaa versiota* kirjoittaa sen kokonaan uudelleen. Oikealla GitHubilla ja iPhonella tätä ei kokeiltu, vain testirepolla Chromiumissa. Leveydet ja järjestys ovat edelleen laitteella (`kaikki:nvlay`), eikä niitä yhdistetä tiedostoon (A0.3).
 - 0.58: Kokeile oikealla iPhonella: napauta muokatessa aikalinkkiä ja asiasanaa. Kursorin pitää siirtyä, näppäimistön pysyä auki ja valikon kellua. Kirjoittamisen tuntumaa oikealla laitteella ei mitattu. Jäljelle jäävä työ näppäilyä kohti on lähinnä oman tekstin päivämäärien jäsennys (`parseDates`), ja se kasvaa tekstin pituuden mukana. Hyvin pitkissä muistiinpanoissa seuraava askel olisi jäsentää vain muuttunut kappale. Tekstin alla olevat tiedot laahaavat kirjoittaessa 0,3 s jäljessä.
@@ -173,7 +177,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Seuraava askel
 
-**Seuraava toteutuskelpoinen työ on moniavaiminen lajittelu (A0.7).** Kokeile kahden lajittelukentän yhdistelmää, tasatuloksia ja puuttuvia arvoja. Korjaussuunnitelman kohdassa 4 sarakeotsikon oma näyttönimi odottaa vielä päätöstä pysyvästä tallennusmuodosta.
+**Solumuokkauksen kokeilun jälkeen.** Kojelaudan jatko on kentän mukaan laskettava kortti, jonka lähdettä voi rajata ja jonka esitystavan ja paikan voi valita. Muistion toinen toteutuskelpoinen jatko on moniavaiminen lajittelu (A0.7). Kokeile kahden lajittelukentän yhdistelmää, tasatuloksia ja puuttuvia arvoja. Korjaussuunnitelman kohdassa 4 sarakeotsikon oma näyttönimi odottaa vielä päätöstä pysyvästä tallennusmuodosta.
 
 
 Kohdan 18 toistuvuuskokeilu 0.52 on [omassa haarassaan](https://github.com/Kasibanaani/P-iv-kartta/tree/kaikki-toistuvuuskokeilu/kaikki). Se kattaa Muistion listan, kalenterin, kuittauksen ja uuden pikamuistutuksen. Kokeile erillisellä testivaultilla sekä kuittauksesta laskettavaa että kalenterissa tasavälistä toistoa. Toistuvuuden vakiinnuttaminen, kuukausirytmin reunatapaukset ja vanhan aineiston siirto ovat edelleen avoimia. Flow-tekstin pysyvä muoto odottaa kokeilupalautetta.
@@ -195,14 +199,14 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 
 **Ulkoasu (0.61):** Mikä aksentti ja otsikkofontti valitaan Lehdon ja Hiilloksen oletukseksi? Saako muistiinpanon ensimmäinen rivi otsikkofontin, kun kursorin kohdistus on testattu?
 
-**Tietokanta ja aikajana (Emil 23.11.2026, SUUNNITELMA kohdat 21–22). Vastaukset tarvitaan ennen ensimmäistä vaihetta:**
+**Tietokannan jatko ja aikajana (Emil 23.11.2026, SUUNNITELMA kohdat 21–22):**
 1. Kalenterin nykyisen *Aikajana*-napin uusi nimi? Ehdotus: tietokoneella **Kellonajat**, puhelimella **Päivä** kuten nyt. Nimi *Aikajana* jää uudelle palkkinäkymälle.
-2. Kirjoitetaanko tietokantanäkymässä syötetty arvo muistiinpanon alkutietoihin vai tekstin loppuun riviksi `kenttä: arvo`? Ehdotus: alkutietoihin. Jos kenttä on jo tekstirivinä, päivitetään se rivi.
-3. Kenttänimet: ASCII ja alaviiva (`hinta_arvio`) sekä vapaa näyttönimi näkymään, vai ääkköset ja välilyönnit suoraan kenttänimeen? Ehdotus: ensimmäinen.
+2. 0.63: Solusta muokattu arvo tallennetaan alkutietoihin. Tunnistettu vanha tekstirivi päivitetään paikallaan.
+3. 0.63: Vakaa ASCII-kenttäavain, esim. `hinta_arvio`. Vapaasti nimettävä näyttöotsikko on jatkotyö.
 4. Näkyykö päiväsarakkeen arvo kalenterissa? Ehdotus: sarakkeen asetus *Näytä kalenterissa*, oletuksena pois.
 5. Aikajanan vaiheen nimi muistiinpanossa: `## Vaihe` -otsikko, rivin alun `[Vaihe]` vai molemmat? Ehdotus: `##` ensisijaisena.
 6. Riippuvuus kenttänä `vaatii: [[toinen]]`, jolloin se on samalla tavallinen linkki ja kentän nimi kertoo suunnan. Käykö?
-7. Kumpi aloitetaan ensin: solun muokkaus tietokannassa (21.1) vai aikajanan perusnäkymä (22.2)?
+7. Emil valitsi solun muokkauksen ensimmäiseksi. Uuden aikajanan perusnäkymä on jatkotyö.
 
 
 - 17.2 tehty 0.35. Kokeile: Listan rivin kuittaus puhelimella → näkyy koneella haun jälkeen.
