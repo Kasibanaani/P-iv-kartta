@@ -220,7 +220,7 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 
 ## Suunnitelmat
 
-23.11.2026. [Kojelaudan suunnitelmaan](SUUNNITELMA.md#3-kojelauta-jota-voi-k%c3%a4ytt%c3%a4%c3%a4-yhdell%c3%a4-k%c3%a4dell%c3%a4-ja-rakentaa-tietokoneella-d-kohdat-6-ja-13) lisättiin ehdotus vapaasti nimetyn tekstirivin poiminnasta ja aikasarjasta saman osion päivämäärän perusteella.
+23.11.2026. [Kojelaudan suunnitelmaan](SUUNNITELMA.md#3-kojelauta-jota-voi-k%c3%a4ytt%c3%a4%c3%a4-yhdell%c3%a4-k%c3%a4dell%c3%a4-ja-rakentaa-tietokoneella-d-kohdat-6-ja-13) kirjattiin nimenomaisesti merkitty tekstimuuttuja, yhteinen muuttujavalikko sarakkeille ja inforuuduille sekä aikasarja saman osion päivämäärästä.
 
 23.11.2026. [Automaattisten sanalinkkien kytkin](SUUNNITELMA.md#7-tunnisteet-painoarvo-ja-muistiinpanojen-verkosto) lisättiin työjonoon. Kytkimen ollessa pois päältä tekstiosumat näkyvät tavallisena tekstinä ja tehdyt wikilinkit avautuvat edelleen.
 
