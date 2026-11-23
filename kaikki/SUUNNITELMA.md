@@ -2,7 +2,7 @@
 
 Itsenäinen ohje mille tahansa tekoälylle (Claude, ChatGPT/Codex, muu). Aiempaa keskustelua ei tarvitse muistaa. Lue ensin repon `AGENTS.md`, sitten `kaikki/TILA.md` ja tämä. Emilin päätökset on merkitty **Emil**, tekoälyn ehdotukset *ehdotus*. Ehdotus ei ole toteutuslupa; Emilin ”toteuta” on.
 
-Päivitetty 23.11.2026 (päähaara 0.56: korjaussuunnitelman kohdat 1–2 tehty, seuraavana kohta 3). Kohdan 18 ensimmäinen kokeilu on omassa haarassaan. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
+Päivitetty 23.11.2026 (päähaara 0.57: korjaussuunnitelman kohdat 1–3 tehty, seuraavana kohta 4). Kohdan 18 ensimmäinen kokeilu on omassa haarassaan. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
 
 **Rakentajan nykyinen jatko-ohje:** [Tulevien ominaisuuksien toteutusjono](#tulevien-ominaisuuksien-toteutusjono) täsmentää A0–D-jonon avoimet ominaisuudet ja kertoo mistä aloittaa.
 
@@ -34,7 +34,7 @@ Koodihavainto: `nvText(D,old)` rakentaa alkutiedot uudelleen tuntemistaan kentis
 - Johda molempien yläsiirtymä yhdestä näkymän todellista sisäreunaa kuvaavasta mitasta. Seuraa palkin korkeutta myös fontin, asennon ja painikerivin muuttuessa. Säilytä otsikoiden vaakasijainti, taustan peittävyys ja ensimmäisen sarakkeen kiinnitys. Pelkkä z-indexin kasvattaminen ei sulje mitattua rakoa.
 - Testaa vierityksen alussa, keskellä ja lopussa sekä vinottain vierittäen. Palkkien välissä saa olla niiden oma rajaviiva. Välin osumatesti ei saa palauttaa listariviä. Otsikon ja vastaavan solun reunojen ero enintään 1 CSS-pikseli. Toista 320/390/1280/1440 px, suurella tekstillä sekä vaalealla ja tummalla teemalla.
 
-### 3. Erota lajittelu, leveyden säätö ja siirto
+### ~~3. Erota lajittelu, leveyden säätö ja siirto~~ (tehty 0.57, testi `selain_57.py`)
 
 **Toistettu.** Kansio-sarakkeen oikealla rajalla kohdistin oli 1440 ja 390 px:n näkymissä `col-resize` kohdissa −4 ja −1 px, mutta oletuskohdistin kohdissa +1 ja +4 px. `.rv-rz` ulottuu solun ulkopuolelle ja `.rvc` leikkaa ylivuodon. Otsikko-sarakkeen painike näyttää tartuntakäden, vaikka `nvHeadDrag` jättää sen paikalleen. Siirto ja leveyden säätö kuuntelevat ikkunan liikettä ja vapautusta. Kummastakin puuttuu peruutuksen käsittely.
 

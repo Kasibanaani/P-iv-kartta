@@ -1,10 +1,12 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.56 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
+**Vaihe:** versio 0.57 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.57 (23.11.2026, korjaussuunnitelman kohta 3):** Muistion rivinäkymän sarakeotsikossa lajittelu, leveyden säätö ja siirto eivät enää sekoitu. Leveyden säätö toimii rajaviivan molemmin puolin 6 px:n alueelta, myös vaakavierityksen jälkeen. Raja korostuu osoitettaessa. Ennen säätö osui vain rajan vasemmalta puolelta, koska solu leikkasi säätöalueen. Kiinteän Otsikko-sarakkeen alle vierinyt raja ei enää ota osumaa. Kerrallaan voi olla vain yksi veto. Vapautus vahvistaa muutoksen, ja Esc, keskeytys tai osoittimen menetys palauttaa lähtötilan. Oikea hiirinappi ei aloita vetoa. Leveys tallentuu vasta vapautettaessa, ja se piirretään korkeintaan kerran näytön päivitystä kohti. Otsikossa näkyy osoitin, siirrettävissä sarakkeissa tartuntakäsi. **Uusi sarakevalikko** avautuu hiiren oikealla napilla, pitkällä painalluksella, ContextMenu-näppäimellä tai Shift+F10:llä. Siinä ovat toiminnot *Siirrä vasemmalle/oikealle*, *Leveämmäksi/Kapeammaksi* ja *Oletusleveys*. Kohdistus palaa siirrettyyn otsikkoon. Puhelimella sivuttain pyyhkäisy otsikkorivillä vierittää taulukkoa, ja napautus lajittelee edelleen. Raahaus, sarakevalikko ja näkymämuokkaimen ↑↓ käyttävät samaa siirtologiikkaa (`nvMove`). Testi `selain_57.py`: 1440 ja 1280 hiirellä, 390 ja 320 kosketuksella. Vanha koodi kaatuu samassa testissä.
 
 **0.56 (23.11.2026, korjaussuunnitelman kohta 2):** Muistion yläpalkin ja sarakeotsikon väliin ei jää enää rakoa. Ennen tietokoneella palkki pysähtyi kohtaan −14 px, mutta otsikko laski siirtymänsä −10 px:stä. Väliin jäi 4 px, ja sitä kautta napautus osui vierivään riviin. Nyt molemmat käyttävät samaa mittaa (`--nbt`), ja palkin korkeutta seurataan jatkuvasti (`nbWatch`, ResizeObserver). Testi `selain_56.py` mittaa ennen ja jälkeen. Vanhalla koodilla palkin alareuna oli 143 ja otsikon yläreuna 147, eli rako oli 4 px. Uudella rako on 0 px leveyksillä 320, 390, 1280 ja 1440, vaalealla ja tummalla teemalla, isolla tekstillä ja vinottain vieritettäessä. Otsikon ja solun reunat ovat samassa kohdassa.
 
@@ -131,6 +133,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 ## Ei tarkistettu
 
 - 0.55: Ristiriidan valinta tehdään koko kentälle: sarakkeista ei voi valita osaa omista ja osaa toisaalla tehdyistä. Jos näkymätiedosto on poistettu tai se ei ole enää näkymä, *Käytä omaa versiota* kirjoittaa sen kokonaan uudelleen. Oikealla GitHubilla ja iPhonella tätä ei kokeiltu, vain testirepolla Chromiumissa. Leveydet ja järjestys ovat edelleen laitteella (`kaikki:nvlay`), eikä niitä yhdistetä tiedostoon (A0.3).
+- 0.57: Kosketus testattiin keinotekoisilla osoitintapahtumilla Chromiumissa. Oikealla iPhonella ei kokeiltu pyyhkäisyä, pitkää painallusta eikä Safarin tekstinvalinnan ja kontekstivalikon estoa. Valikon leveysaskel on 40 px, eikä sovitusta sisältöön ole (kohta 4). Rivit jäävät edelleen laitteelle (`kaikki:nvlay`). Ennen 0.57:ää tuplanapautus rajalla palautti oletusleveyden, ja niin tekee yhä.
 - 0.56: Vertailukuvaa ei tallennettu, mittaus on testissä lukuina. Iso teksti simuloitiin suurentamalla palkin nappeja. Applen tekstikokoasetusta ja Safarin liimautuvaa palkkia oikealla iPhonella ei kokeiltu.
 
 - 0.41: rivien ja sarakkeiden muutosta ei voi kumota ⌘Z:lla (solumuokkausten kumoushistoria tyhjenee sille välilehdelle). Siirrossa alueviittaukset pysyvät ennallaan (kuten Sheetsissä), yksittäiset solut seuraavat. Muistiinpanojen `{=…[[taulukko]]!B1}`-kaavoja ei päivitetä. GitHub-tallennus testattiin testivaultilla. Jos yhteys katkeaa eikä tallennuksen tilaa voi vahvistaa, päivitä Vault ennen toiminnon toistamista.
@@ -153,7 +156,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Seuraava askel
 
-**Korjaussuunnitelma (SUUNNITELMA.md, 23.11.):** kohdat 1 ja 2 tehty (0.55, 0.56). Seuraavaksi kohta 3: lajittelun, leveyden säädön ja sarakkeen siirron erottaminen (säätöalue rajaviivan päälle, peruutuksen käsittely, sarakevalikko puhelimelle). Sen jälkeen A0:n ketju: leveys ja järjestys näkymätiedostoon (A0.3) → moniavaiminen lajittelu (A0.7).
+**Korjaussuunnitelma (SUUNNITELMA.md, 23.11.):** kohdat 1–3 tehty (0.55–0.57). Seuraavaksi kohta 4: nimet ja asetusten tallennuspaikat. Ensin pitää toistaa kahdella laitteella, mitä tapahtuu, kun paikallinen järjestys ja editorin järjestys eroavat. Etusija päätetään A0.3:n kanssa: leveys ja järjestys näkymätiedostoon. Sen jälkeen tulevat moniavaiminen lajittelu (A0.7) ja kohta 5, hitauden mittaus.
 
 
 Kohdan 18 toistuvuuskokeilu 0.52 on [omassa haarassaan](https://github.com/Kasibanaani/P-iv-kartta/tree/kaikki-toistuvuuskokeilu/kaikki). Se kattaa Muistion listan, kalenterin, kuittauksen ja uuden pikamuistutuksen. Kokeile erillisellä testivaultilla sekä kuittauksesta laskettavaa että kalenterissa tasavälistä toistoa. Toistuvuuden vakiinnuttaminen, kuukausirytmin reunatapaukset ja vanhan aineiston siirto ovat edelleen avoimia. Flow-tekstin pysyvä muoto odottaa kokeilupalautetta.
