@@ -444,6 +444,13 @@ Kokeile testiaineistolla ensin Flow'n lukemista sisennetystä Markdownista. Jatk
 
 Emilin pyytämät vertailuluonnokset, 23.11.2026. Sama koetehtävä kaikissa: etsi Muistion Retken valmistelu -näkymästä Reittisuunnitelma, avaa sen Varustelista-linkki ja muuta Retkibudjetin yhtä hintaa. Näillä kolmella tilanteella näkee, ohjaako ulkoasu lukemaan, siirtymään ja muokkaamaan oikeassa kohdassa. Kyse on suunnitteluvaihtoehdoista. Emil valitsee linjan tai yhdistelmän ennen julkaisua.
 
+### Emilin ulkoasupalaute 23.11.2026
+
+- **Tumma tila: Hiillos.** Erityisesti luonnoksen otsikkofontin luonne ja muotoilu miellyttävät Emiliä. Käytä Hiilloksen otsikoiden mittasuhteita, kirjainmuotoa ja typografista hierarkiaa vertailukohtana. Valitse toteutuksen tarkka fontti rinnakkaisista näytteistä. Otsikoissa saa olla luonnetta, ja leipätekstin ja taulukon fontti valitaan luettavuuden mukaan.
+- **Hiilloksen aksenttivärit.** Emil haluaa tarkastella samaa tummaa teemaa useilla valittavilla aksenttiväreillä. Pidä pinnat ja typografia samoina, jotta värejä voi verrata suoraan. *Ehdotus kokeiluun:* kuvan koralli, laventeli ja viileä sininen. Näytä kullakin värillä linkki, valittu rivi, aktiivinen solu ja kohdistus samoissa kohdissa. Varmista, että virhe ja kuittaus tunnistuvat värivalinnasta riippumatta.
+- **Vaalea tila: Lehdon asettelu eri fonteilla ja väreillä.** Emil pitää luonnoksen vaaleasta, väljästä asettelusta. Kuvan otsikkofontti ja vihreä väritys on rajattu pois jatkovaihtoehdoista. Säilytä lukutilan väljyys ja selkeä ryhmittely, kokeile uusia otsikkofontteja ja tee vaalea paletti ilman vihreää. *Ehdotus kokeiluun:* lämmin vaalea pinta, neutraali tumma teksti ja vaihtoehtoina murrettu sininen tai luumu.
+- Tarkan fontin, aksenttivalikoiman ja oletusvärin valinta tehdään esikatselun perusteella. Edellä oleva palaute ohjaa jatkoluonnoksia. Alla oleva taulukko kuvaa alkuperäiset vertailukuvat.
+
 | Suunta | Pinta, teksti, valinta | Muistio ja puhelin | Taulukko ja muu käyttö |
 |---|---|---|---|
 | **Lehto** | Luonnonvalkoinen #F6F4EA, metsämuste #19392F, salvianvärinen valintapinta #DCE9D9. Meripihka pieniin yksityiskohtiin. | Avoimen muistiinpanon otsikko laitteen antiikvalla, muu käyttöliittymä selkeällä päätteettömällä fontilla. Rivin nimen ja sisällön välillä tilaa, tunnisteet sivuosassa. | Otsikkorivi erottuu lämpimällä pintasävyllä. Aktiivisolua kiertää metsänvihreä kehys. Paras lähtökohta, jos kirjoittaminen ja pitkän tekstin lukeminen ovat etusijalla. |
