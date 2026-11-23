@@ -1,10 +1,12 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.53 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
+**Vaihe:** versio 0.54 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.54 (23.11.2026, A1b):** Koko päivän merkinnän otsikko ja kuittaus ovat saman kortin sisällä. Aikajana, viikkolista ja koko päivän kortit käyttävät samankokoista kuittausruutua. Puhelimella viikkonuolet ovat päivärivin reunoilla ja kuukauden nimi on linkkinä sen yllä. Nuoli ja pyyhkäisy valitsevat kohdeviikon maanantain tai viikon ensimmäisen näkyvän päivän. Testivaultin selaintesti `selain_54.py` tarkistaa viikkovalinnan myös kuukauden vaihtuessa sekä kuittauksen ja muistiinpanon avauksen. Chromiumissa testattiin leveydet 320, 390, 1280 ja 1440 px. Fyysisen iPhonen tarkistus jää kokeiluun.
 
 ## Valmiina (0.1, 22.11.2026)
 
