@@ -1,6 +1,6 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.51 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
+**Vaihe:** versio 0.53 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
@@ -146,7 +146,9 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 Kohdan 18 toistuvuuskokeilu 0.52 on [omassa haarassaan](https://github.com/Kasibanaani/P-iv-kartta/tree/kaikki-toistuvuuskokeilu/kaikki). Se kattaa Muistion listan, kalenterin, kuittauksen ja uuden pikamuistutuksen. Kokeile erillisellä testivaultilla sekä kuittauksesta laskettavaa että kalenterissa tasavälistä toistoa. Toistuvuuden vakiinnuttaminen, kuukausirytmin reunatapaukset ja vanhan aineiston siirto ovat edelleen avoimia. Flow-tekstin pysyvä muoto odottaa kokeilupalautetta.
 
-Päähaaran testit tarkistavat nyt graafin muistiinpanovalikossa ja käyttävät Listojen viikkorajassa vakioitua sunnuntaita. Sovelluksen päähaaran koodi säilyy versiossa 0.51.
+**0.53:** Vaultin ZIP-vienti kokoaa välimuistin, lähetysjonon ja Muistiossa olevat lähettämättömät luonnokset muuttamatta paikallisia muistiinpanoja tai käynnistämättä synkronointia. Jos synkronointi on kesken, vienti pyytää yrittämään uudelleen. Testi `selain_08.py` kattaa neljä Chromium-leveyttä, ZIP-tiedoston tarkistussumman ja lähettämättömät muutokset. iPhonen jakovalikkoa ei testattu laitteella.
+
+Ennen Juuren toimintojen karsintaa ota käyttöpaikassa talteen sekä Koko appi -vienti (`Kaikki.json`) että Vaultin ZIP. JSON säilyttää myös laitteella olevat puut ja pikamuistiinpanot. ZIP täydentää sitä Vaultin tekstitiedostoilla. Varmuuskopion ottaminen käyttäjän laitteelta ja poistovaihe odottavat.
 
 Emil kokeilee GitHub-yhteyttä tietokoneella (pilvinappi yläpalkissa, vain omalla koneella). Sen jälkeen suunnitellaan tietokoneasettelu (ehdotus: lista ja auki oleva muistiinpano rinnakkain, isompi kirjoitusalue, pikanäppäimet, kansiot tai asiasanat sivupalkkiin).
 

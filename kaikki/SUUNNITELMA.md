@@ -2,7 +2,7 @@
 
 Itsenäinen ohje mille tahansa tekoälylle (Claude, ChatGPT/Codex, muu). Aiempaa keskustelua ei tarvitse muistaa. Lue ensin repon `AGENTS.md`, sitten `kaikki/TILA.md` ja tämä. Emilin päätökset on merkitty **Emil**, tekoälyn ehdotukset *ehdotus*. Ehdotus ei ole toteutuslupa; Emilin ”toteuta” on.
 
-Päivitetty 23.11.2026 (päähaara 0.51). Kohdan 18 ensimmäinen kokeilu on omassa haarassaan. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
+Päivitetty 23.11.2026 (päähaara 0.53). Kohdan 18 ensimmäinen kokeilu on omassa haarassaan. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
 
 **Yöajon jatko 23.11.2026.** Päähaaran viimeisin appiversio on 0.51. Työympäristö katkesi juuri ennen seuraavien kahden paikallisen version julkaisua. Kohdennetut testit menivät niille läpi Chromiumissa.
 
@@ -142,6 +142,7 @@ Emil haluaa nähdä, kuinka moni muistiinpano linkittää kuhunkin riviin, ja av
 - Valikko → Vienti ja tuonti → ”Koko vault (ZIP)”. Sisältö: kaikki `VC.files` (vaultin `.md`, `.csv`, `.json` alle 400 kt) polkuineen + lähtemättömät omat muutokset (`VC.q`) uusimpana versiona. Nimi aina `Kaikki-vault.zip`. Puhelimella jakovalikko kuten muussa viennissä (`shareFile`) → Tallenna Tiedostoihin.
 - Oma ZIP-kirjoittaja ilman kirjastoja: tallennustapa *stored* (ei pakkausta), CRC-32, UTF-8-nimet (lippu 0x0800), paikalliset otsakkeet + keskushakemisto. N. 60 riviä.
 - Ilmoita, jos haku on kesken tai vault ei ole käytössä. Kerro ikkunassa, ettei mukana ole kuvia tai yli 400 kt:n tiedostoja.
+**0.53:** ZIP-vienti varmuuskopioi myös paikallisen, vielä jonottamattoman muistiinpanon ja sen sisällön. Vienti ei itsessään synkronoi Vaultia. Käynnissä olevan synkronoinnin jälkeen vientiä voi yrittää uudelleen.
 **Testi:** ZIP avautuu Pythonin `zipfile`-moduulilla, tiedostot ja sisällöt täsmäävät testirepoon, ääkköset nimissä ja sisällössä oikein.
 
 ## ~~4. Huoltopyynnöt tekoälylle ja Tekoälylle-paikka~~ (tehty 0.11)
@@ -268,7 +269,7 @@ Kokeile testiaineistolla ensin Flow'n lukemista sisennetystä Markdownista. Jatk
 - **Pidetään:** Listat (tarkistuslistat, kierrokset, Viikot), Flow, Toistuvat.
 - **Karsitaan:** vanha Juuren pikamuistiinpano (uusi pikakirjaus korvaa sen); Vanhat puut (oli jo piilossa vanhoissa näkymissä); Asiat-osio tunnisteiden tieltä (siirtymä tehty 0.28).
 - **Asioiden lisäosat tunnisteiden ominaisuuksiksi:** tärkeysjärjestys (ohjaa Muistion Tärkeys-järjestystä) ja uusiutumisväli. **Karsitaan:** ehdot ja päättely.
-- Toteutus: ennen poistoa varmuuskopio ja laitteella olevan tiedon vienti; poisto omana versionaan, testit päivitetään (vanhat Juuren testit, jotka koskevat karsittua, poistetaan samassa yhteydessä ja kirjataan).
+- Toteutus: ennen poistoa ota käyttöpaikassa sekä Koko appi -vienti (`Kaikki.json`) että Vaultin ZIP. JSON sisältää laitteella olevat puut ja pikamuistiinpanot, ja ZIP sisältää myös Vaultin muut tekstitiedostot. Tarkista tiedostojen aukeaminen ennen poistoa. Poisto omana versionaan, ja siihen liittyvät vanhat Juuren testit päivitetään samalla.
 
 ## 15. Pikakirjaus: muistutukset ja seuranta muutamalla napautuksella (Emil 22.11.2026)
 

@@ -26,8 +26,15 @@ async def run(p,w,h):
         if not cond: bad.append(label)
     print('leveys',w)
     await pg.goto(U); await pg.wait_for_timeout(1500)
-    # oma muutos, jota ei ole vielä lähetetty
-    await pg.evaluate("(function(){var n=KaikkiTesti.notes().filter(function(n){return n.vp==='inbox/muokattava.md';})[0];n.text=n.text.replace('Alkuperäinen teksti.','Muokattu apissa.');})()")
+    # Paikallista sisältöä, jota tavallinen tallennus ei ole vielä jonottanut.
+    await pg.evaluate(r"""() => {
+      const notes = KaikkiTesti.notes();
+      const note = notes.find(n => n.vp === 'inbox/muokattava.md');
+      note.text = note.text.replace('Alkuperäinen teksti.', 'Muokattu apissa.');
+      const date = '2026-11-20T10:00:00.000Z';
+      notes.push({id:'luonnos-testi', created:date, edited:date, text:'Uusi luonnos\nSisältö testiin.'});
+      window.__beforeZip = __repo.log.length;
+    }""")
     await pg.evaluate(GRAB)
     await pg.evaluate("document.getElementById('xbtn').click()"); await pg.wait_for_timeout(200)
     want('ZIP-nappi näkyy Vienti ja tuonti -ikkunassa',await pg.is_visible('#vs-zip'))
@@ -45,9 +52,15 @@ async def run(p,w,h):
             want('kaikki vaultin tiedostot mukana',set(SEED)<=names,sorted(set(SEED)-names))
             want('ääkköset nimessä ja sisällössä',zf.read('tieto/äänet-ja-värit.md').decode('utf8').find('öljyä')>=0)
             want('oma muutos uusimpana',zf.read('inbox/muokattava.md').decode('utf8').find('Muokattu apissa.')>=0)
+            drafts=[path for path in names if path.startswith('inbox/') and path.endswith('-uusi-luonnos.md')]
+            want('uusi luonnos mukana',len(drafts)==1 and 'Sisältö testiin.' in zf.read(drafts[0]).decode('utf8'),drafts)
             info=zf.read('VARMUUSKOPIO.txt').decode('utf8')
-            want('VARMUUSKOPIO.txt: repo ja määrä','testi/vault' in info and 'Tiedostoja: %d'%len(SEED) in info,info)
+            want('VARMUUSKOPIO.txt: repo ja määrä','testi/vault' in info and 'Tiedostoja: %d'%(len(SEED)+1) in info,info)
         except Exception as e: want('ZIP avautuu',False,str(e))
+    sent=await pg.evaluate('() => __repo.log.slice(__beforeZip).filter(line => /^(PUT|DELETE|PATCH|POST) /.test(line))')
+    want('ZIP ei lähetä muutoksia Vaultiin',not sent,sent)
+    want('ZIP ei vaihda luonnoksen paikallista tilaa',
+         await pg.evaluate("!KaikkiTesti.notes().find(n => n.id === 'luonnos-testi').vp"))
     want('ilmoitus ikkunassa',await pg.evaluate("/Kaikki-vault\\.zip/.test(document.getElementById('vs-msg').textContent)"))
     # ilman vaultia nappi piilossa (uusi ikkuna ilman yhteystietoja)
     pg2=await (await b.new_context(viewport={'width':w,'height':h})).new_page()
@@ -59,6 +72,6 @@ async def run(p,w,h):
 async def main():
     async with async_playwright() as p:
         bad=[]
-        for w,h in ((390,844),(1280,800)): bad+=await run(p,w,h)
+        for w,h in ((1440,900),(1280,800),(390,844),(320,700)): bad+=await run(p,w,h)
     print('KAIKKI OK' if not bad else 'VIRHEITÄ: '+', '.join(bad)); sys.exit(1 if bad else 0)
 asyncio.run(main())

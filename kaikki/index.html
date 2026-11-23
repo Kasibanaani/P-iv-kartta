@@ -7826,8 +7826,29 @@ async function lsSync(){if(!lsMine())return;if(vBusy||lsRun){lsSchedule(2000);re
 /* ---- Kaikki 0.8 (Emil 22.11.2026): koko vault yhdeksi ZIP-tiedostoksi, aina sama nimi (uusi korvaa vanhan).
    Sisältö: välimuistin tiedostot (VC.files) + lähtemättömät omat muutokset (VC.q) uusimpana; poistetut pois. Pakkaamaton ZIP (stored), CRC-32, UTF-8-nimet. ---- */
 var ZIPNAME='Kaikki-vault.zip';
-function vZipFiles(){vCollect();var F={};Object.keys(VC.files).forEach(function(p){F[p]=VC.files[p].t;});
-  Object.keys(VC.q).forEach(function(p){var q=VC.q[p];if(q.del)delete F[p];else if(typeof q.t==='string')F[p]=q.t;});return F;}
+function vZipFiles(){
+  var files=Object.create(null),notes=vNotes();
+  Object.keys(VC.files).forEach(function(path){files[path]=VC.files[path].t;});
+  Object.keys(VC.q).forEach(function(path){
+    var pending=VC.q[path];
+    if(pending.del)delete files[path];
+    else if(typeof pending.t==='string')files[path]=pending.t;
+  });
+  /* Varmuuskopio lukee luonnokset muuttamatta muistion polkuja tai Vaultin jonoa. */
+  var used=new Set(notes.map(function(note){return note.vp;}));
+  notes.forEach(function(note){
+    if(note.rep==='rx')return;
+    var path=note.vp,pending=VC.q[path];
+    if(pending&&(pending.direct||pending.del))return;
+    if(path){files[path]=VAULT.mdOf(note);return;}
+    path=VAULT.newPath(note,function(candidate){
+      return used.has(candidate)||candidate in VC.files||candidate in VC.q;
+    });
+    used.add(path);
+    files[path]=VAULT.mdOf(Object.assign({},note,{vp:path}));
+  });
+  return files;
+}
 var CRCT=null;function crc32(b){if(!CRCT){CRCT=new Uint32Array(256);for(var n=0;n<256;n++){var c=n;for(var k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;CRCT[n]=c>>>0;}}
   var x=0xFFFFFFFF;for(var i=0;i<b.length;i++)x=CRCT[(x^b[i])&255]^(x>>>8);return (x^0xFFFFFFFF)>>>0;}
 function zipMake(F,now){var enc=new TextEncoder(),parts=[],cen=[],off=0,d=now||new Date(),
@@ -7842,7 +7863,9 @@ function zipMake(F,now){var enc=new TextEncoder(),parts=[],cen=[],off=0,d=now||n
     cen.push(new Uint8Array(e.buffer),nm);off+=30+nm.length+data.length;});
   var cs=cen.reduce(function(t,a){return t+a.length;},0),n=Object.keys(F).length,z=hdr(22);z.setUint32(0,0x06054b50,true);z.setUint16(8,n,true);z.setUint16(10,n,true);z.setUint32(12,cs,true);z.setUint32(16,off,true);
   return new Blob(parts.concat(cen,[new Uint8Array(z.buffer)]),{type:'application/zip'});}
-function vZip(){if(!vOn())return;var F=vZipFiles(),n=Object.keys(F).length,now=new Date();
+function vZip(){if(!vOn())return;
+  if(vBusy){vsMsg('Vault synkronoi. Vie varmuuskopio, kun synkronointi on valmis.');return;}
+  var F=vZipFiles(),n=Object.keys(F).length,now=new Date();
   F['VARMUUSKOPIO.txt']='Kaikki-appin varmuuskopio GitHub-vaultista\nRepo: '+G.repo+'\nTehty: '+fiDate(isoD(now))+' klo '+now.getHours()+'.'+pad(now.getMinutes())+'\nTiedostoja: '+n+'\nTila: '+vStatus()+'\n';
   var blob=zipMake(F,now),done=function(t){vsMsg(t);};vsMsg('Kootaan '+n+' tiedostoa…');
   function link(){try{var u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=ZIPNAME;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},8000);done(ZIPNAME+' ladattu ('+n+' tiedostoa).');}catch(e){done('Tallennus ei onnistunut tässä selaimessa.');}}
