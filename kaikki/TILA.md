@@ -220,7 +220,7 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 
 ## Suunnitelmat
 
-23.11.2026. [Kojelaudan suunnitelma](SUUNNITELMA.md#emilin-toive-23112026-rakennettava-kojelauta-ja-inforuudut) tarkentui. Ruutuihin valitaan lähde, rajaukset, laskenta, yksikkö, näyttötapa ja ulkoasu. Mukana ovat muokkaustilassa sijoiteltavat ja suurennettavat ruudut sekä kalenterin kanssa jaetut suodatetut tarkistuslistat.
+23.11.2026. [Kojelaudan suunnitelma](SUUNNITELMA.md#3-kojelauta-jota-voi-k%C3%A4ytt%C3%A4%C3%A4-yhdell%C3%A4-k%C3%A4dell%C3%A4-ja-rakentaa-tietokoneella-d-kohdat-6-ja-13) tarkentui. Ruutuihin valitaan lähde, rajaukset, laskenta, yksikkö, näyttötapa ja ulkoasu. Mukana ovat muokkaustilassa sijoiteltavat ja suurennettavat ruudut sekä kalenterin kanssa jaetut suodatetut tarkistuslistat.
 
 23.11.2026. [Kojelaudan suunnitelmaan](SUUNNITELMA.md#3-kojelauta-jota-voi-k%c3%a4ytt%c3%a4%c3%a4-yhdell%c3%a4-k%c3%a4dell%c3%a4-ja-rakentaa-tietokoneella-d-kohdat-6-ja-13) kirjattiin `!!nimi: arvo!!`, Kaikin ja tekoälyn yhteinen muuttujaluettelo, havainnon omat päivät tai osion yksi päivä, tunnistuksen kevyt muotoilu ja muuttujanapit Pikamuistiinpanoon.
 
