@@ -2,10 +2,15 @@
 (laitteelle, säilyy uudelleenlatauksessa), otsikon napautus järjestää edelleen, Cmd/Ctrl-napsautus avaa valintatilan, Shift-napsautus
 valitsee välin, osoitettaessa näkyvä valintaruutu. Leveydet 1440 ja 1280 (tietokone) sekä 390 (rivit puhelimella, ei virheitä).
 Käyttö: python3 testit/selain_31.py"""
-import asyncio, os, sys, json
+import asyncio, os, sys, json, threading, functools, http.server
 from playwright.async_api import async_playwright
 D=os.path.dirname(os.path.abspath(__file__))
-U='file://'+os.path.abspath(os.path.join(D,'..','index.html'))
+# http-palvelin eikä file:// (0.61): Chromium antaa file://-sivulle uudelleenladattaessa välillä vanhan selaimen muistin
+class Q(http.server.SimpleHTTPRequestHandler):
+    def log_message(self,*a): pass
+SRV=http.server.ThreadingHTTPServer(('127.0.0.1',0),functools.partial(Q,directory=os.path.abspath(os.path.join(D,'..'))))
+threading.Thread(target=SRV.serve_forever,daemon=True).start()
+U='http://127.0.0.1:%d/index.html'%SRV.server_address[1]
 FAKE=open(os.path.join(D,'fakegh.js'),encoding='utf8').read()
 def md(i): return '---\ntyyppi: projekti\notsikko: Rivi %d\nkuvaus: \nluotu: 2026-11-%02d\nlahde: emil\n---\n# Rivi %d\n\nTeksti.\n'%(i,10+i,i)
 SEED={'projektit/a/r%d.md'%i:md(i) for i in range(1,6)}
