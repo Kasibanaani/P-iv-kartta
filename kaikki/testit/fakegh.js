@@ -1,7 +1,9 @@
 /* Testien GitHub: muistissa oleva repo, sama rajapinta kuin appi käyttää (repo, trees, blobs, contents and atomic Git commits). */
 (function(){
-var R=window.__repo={files:{},log:[]};try{var o=JSON.parse(sessionStorage.getItem('__repo')||'null');if(o){R.files=o;R.kept=true;}}catch(e){}
-function keep(){try{sessionStorage.setItem('__repo',JSON.stringify(R.files));}catch(e){}}
+/* Tila säilyy sivun uudelleenlatauksen yli. window.name päivittyy heti; sessionStorage-kirjoituksia Chromium viivästää, kun niitä on paljon,
+   jolloin uudelleenlataus saattoi palauttaa repon alkutilaan (selain_55, 0.61). sessionStorage jää varalle. */
+var R=window.__repo={files:{},log:[]};try{var wn=String(window.name||''),o=JSON.parse(wn.indexOf('__repo:')===0?wn.slice(7):sessionStorage.getItem('__repo')||'null');if(o){R.files=o;R.kept=true;}}catch(e){}
+function keep(){var j=JSON.stringify(R.files);try{window.name='__repo:'+j;}catch(e){}try{sessionStorage.setItem('__repo',j);}catch(e){}}
 function sha(t){var h=0;for(var i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0;return 's'+(h>>>0).toString(16)+t.length;}
 function b64e(s){return btoa(unescape(encodeURIComponent(s)));}function b64d(b){return decodeURIComponent(escape(atob(b)));}
 R.put=function(p,t){R.files[p]={t:t,sha:sha(t)};keep();};R.get=function(p){return R.files[p]&&R.files[p].t;};
