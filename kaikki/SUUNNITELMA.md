@@ -2,7 +2,7 @@
 
 Itsenäinen ohje mille tahansa tekoälylle (Claude, ChatGPT/Codex, muu). Aiempaa keskustelua ei tarvitse muistaa. Lue ensin repon `AGENTS.md`, sitten `kaikki/TILA.md` ja tämä. Emilin päätökset on merkitty **Emil**, tekoälyn ehdotukset *ehdotus*. Ehdotus ei ole toteutuslupa; Emilin ”toteuta” on.
 
-Päivitetty 23.11.2026 (versio 0.51). Seuraavaksi toistuvuuskentän rajattu v1. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
+Päivitetty 23.11.2026. Kohdan 18 rajattu toistuvuuskokeilu 0.52 on haarassa `kaikki-toistuvuuskokeilu`. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
 
 **Yöajon jatko 23.11.2026.** Päähaaran viimeisin appiversio on 0.51. Työympäristö katkesi juuri ennen seuraavien kahden paikallisen version julkaisua. Kohdennetut testit menivät niille läpi Chromiumissa.
 
@@ -339,6 +339,8 @@ Kokeile testiaineistolla ensin Flow'n lukemista sisennetystä Markdownista. Jatk
 5. Synkka varmistetaan testillä, jossa kaksi laitetta jakaa saman testirepon (kuittaus laitteella A → näkyy laitteella B haun jälkeen).
 
 ## 18. Toistuvuus mille tahansa muistiinpanolle: toistuvat tehtävät listana (Emil 22.11.2026)
+
+**Rajattu kokeilu 0.52 (testivault):** muistiinpanojen toistuvuuden luku, lista, kalenterimerkintä, kuittaus ja uuden toistuvan muistutuksen pikakirjaus ovat haarassa `kaikki-toistuvuuskokeilu`. Kuittaus kirjataan kerran päivässä, eikä menneistä eräpäivistä synny erillisiä muistiinpanoja. Jos `seuraava` puuttuu, kokeilu lukee ensimmäisen päiväyksen `luotu`-kentästä. Nauhassa ja kalenterissa näkyy yksi seuraava kerta. Muodon ja kuukausirytmin vakiinnuttaminen, mahdollinen kumoaminen sekä vanhan aineiston siirto arvioidaan kokeilun jälkeen erillisinä päätöksinä.
 
 **Emil:** toistuvat tehtävät listan kaltaisena listana, jossa OK laukeaa uudelleen kuitattavaksi kohteelle määritetyllä tavalla. Mikä tahansa tiedosto, joka kertoo milloin se laukeaa, voisi olla tällainen kohde. Sykli nollautuu, jos asia tehdään muuna aikana. Pikamuistiinpanosta voi ohjelmoida ensimmäisen laukeamispäivän, josta kuitattaessa sykli alkaa.
 **Ehdotus (tekoäly), v1 ilman lisäkysymyksiä (yksi käsite, ei erillistä Toistuvat-rakennetta):**

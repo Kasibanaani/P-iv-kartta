@@ -9,13 +9,16 @@ import apu
 from apu import tab, menu
 U='file://'+os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','index.html'))
 K="JSON.parse(localStorage.getItem('kaikki:v1')).kokonaisuudet[0]"
+# Sunnuntaina kuusi päivää kuittauksen jälkeen osuu seuraavalle viikolle.
+TEST_TIME=datetime.datetime.fromisoformat('2026-11-22T18:00:00+02:00')
 OVER="""(function(){var w=document.documentElement.clientWidth,out=[];document.querySelectorAll('input,textarea,select,button').forEach(function(e){var r=e.getBoundingClientRect();
  if(r.width&&r.height&&e.offsetParent!==null&&!e.closest('.hscroll,.lwv')&&(r.right>w+0.5||r.left<-0.5))out.push((e.id||e.className||e.tagName)+' '+Math.round(r.left)+'..'+Math.round(r.right));});return JSON.stringify(out);})()"""
 async def run(p,w,h,touch):
     try: b=await p.chromium.launch()
     except Exception: b=await p.chromium.launch(executable_path='/opt/pw-browsers/chromium')
     errs=[]; bad=[]
-    pg=await (await b.new_context(viewport={'width':w,'height':h},has_touch=touch,is_mobile=touch)).new_page()
+    pg=await (await b.new_context(viewport={'width':w,'height':h},has_touch=touch,is_mobile=touch,timezone_id='Europe/Helsinki')).new_page()
+    await pg.clock.set_fixed_time(TEST_TIME)
     pg.on('pageerror',lambda e:(errs.append(str(e)),print('  PAGEERR',e)))
     def want(label,cond):
         print('  %-56s %s'%(label,'ok' if cond else 'VIRHE'))
@@ -31,7 +34,7 @@ async def run(p,w,h,touch):
     print('leveys',w)
     await pg.goto(U); await pg.wait_for_timeout(300)
     await tab(pg,'use'); await pg.fill('#firstproj','Koe'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
-    now=datetime.datetime.now(); d=lambda n:(now-datetime.timedelta(days=n)).isoformat()
+    d=lambda n:(TEST_TIME-datetime.timedelta(days=n)).isoformat()
     await pg.evaluate("""(function(){var o=JSON.parse(localStorage.getItem('kaikki:v1')),k=o.kokonaisuudet[0];
       k.termit=[{id:'t1',name:'Lääkkeet',yes:['lääk'],no:[],ev:14},{id:'t2',name:'Pyykit',yes:['pyyk'],no:[],ev:7},{id:'t3',name:'Kastelu',yes:['kastel'],no:[]},{id:'t4',name:'Soitto',yes:[],no:[],ev:28}];k.tarkeat=['t1','t2','t3','t4'];
       k.tarkistuslista=[{id:'c1',name:'Kettu',created:'%s',it:[{id:'t1',ok:'%s'},{id:'t2'}]},{id:'c2',name:'Siili',created:'%s',it:[{id:'t3'},{id:'t4',ok:'%s'}]},
@@ -97,7 +100,7 @@ async def run(p,w,h,touch):
     # Viikot
     await tap('#listview [data-v="w"]'); await pg.wait_for_timeout(200)
     want('Viikot: rivi korttina, 14 viikkoruutua', await pg.locator('#lwk .lwr').count()==4 and await pg.locator('.lwr[data-id="c1"] .lwc').count()==14)
-    wk=datetime.date.today().isocalendar()[1]
+    wk=TEST_TIME.date().isocalendar()[1]
     want('ruudussa viikkonumero, kuluva alleviivattu', (await pg.inner_text('.lwr[data-id="c2"] .lwc[data-w="0"] b'))==str(wk) and await pg.locator('.lwr[data-id="c2"] .lwc[data-w="0"].cur').count()==1)
     want('kuluvalla viikolla avointa: punainen ja määrä', await pg.evaluate("(function(){var c=document.querySelector('.lwr[data-id=\"c2\"] .lwc[data-w=\"0\"]');return c.classList.contains('red')&&c.querySelector('small').textContent==='1';})()"))
     want('kortin nimirivillä tärkein avoin', (await pg.inner_text('.lwr[data-id="c2"] .lwn span'))=='Kastelu')

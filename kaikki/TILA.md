@@ -1,6 +1,6 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.51 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
+**Vaihe:** toistuvuuden kokeilu 0.52 omassa haarassaan. Käyttölinkissä päähaaran versio 0.51 · **Päivitetty:** 23.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
@@ -144,7 +144,11 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Seuraava askel
 
-Seuraavaksi toistuvuuskentän rajattu v1. Toistuvuusmuodon vakiinnuttaminen ja vanhan aineiston siirto arvioidaan erikseen kohdan 18 mukaan. Flow-tekstin pysyvä muoto odottaa kokeilupalautetta.
+Toistuvuuskentän rajattu 0.52 on kokeiltavissa tässä haarassa testivaultilla. Muistion Toistuvat-näkymä lajittelee erääntyneet, tänään erääntyvät ja tulevat. Kalenteri näyttää seuraavan kerran koko päivän merkintänä. Pikakirjauksen Muistutus-välilehdellä voi tehdä uuden toistuvan muistiinpanon. Kuittaus päivittää yhden muistiinpanon päivät ja säilyttää muun tekstin. Rinnakkainen muutos toistuvuuteen pysäyttää kuittauksen tarkistettavaksi. Vanha Toistuvat toimii rinnalla.
+
+Testi `selain_52.py` tarkistaa neljällä näyttöleveydellä listan, molemmat kuittaustavat, kalenterin, pikamuistutuksen ja rinnakkaisen kirjoituksen. Toinen selainkonteksti lukee kuittauksen GitHubista siirretyn testiaineiston kautta. Käytössä on apin oma Safari-yhteensopiva valintaikkuna. Oikeaa Vaultia ja iPhonen Safaria ei käytetty kokeilussa.
+
+Seuraavaksi kokeillaan molempia laskutapoja ja sovitaan, miten kuukausirytmi toimii lyhyen kuukauden jälkeen sekä tarvitaanko samana päivänä toinen kuittaus tai kumoaminen. Kuukausi- ja vuosiväli päättyy kokeilussa kohdekuukauden viimeiseen päivään, jos lähtöpäivää ei ole. Seuraava tasavälinen kierros lasketaan viimeksi tallennetusta eräpäivästä. Toistuvuusmuodon vakiinnuttaminen ja vanhan aineiston siirto arvioidaan erikseen kohdan 18 mukaan. Flow-tekstin pysyvä muoto odottaa kokeilupalautetta.
 
 Emil kokeilee GitHub-yhteyttä tietokoneella (pilvinappi yläpalkissa, vain omalla koneella). Sen jälkeen suunnitellaan tietokoneasettelu (ehdotus: lista ja auki oleva muistiinpano rinnakkain, isompi kirjoitusalue, pikanäppäimet, kansiot tai asiasanat sivupalkkiin).
 
