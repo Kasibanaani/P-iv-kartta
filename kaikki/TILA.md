@@ -1,10 +1,12 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.63 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
+**Vaihe:** versio 0.64 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 23.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.64 (23.11.2026, A0.7).** Muistio → Näkymä → Muokkaa näkymää → Lajittelu. Lisää lajitteluperusteet tärkeysjärjestyksessä ja valitse kunkin suunta. Esimerkiksi tila ensin ja saman tilan sisällä uusin päivä ensin. Puuttuvat arvot tulevat viimeiseksi kummassakin suunnassa ja tasatulokset säilyttävät lähtöjärjestyksen. Otsikosta käynnistetyn tilapäisen lajittelun voi poistaa sarakevalikon toiminnolla *Palauta näkymän lajittelu*. Jaettu järjestys tallennetaan näkymätiedostoon, esimerkiksi `jarjestys: tila nouseva, luotu laskeva`. Vanhat yhden kentän näkymät toimivat. Testi `selain_64.py`.
 
 **0.63 (23.11.2026, Emil, 21.1–21.2 rajattu v1).** Muistio → Näkymä → Muokkaa näkymää → Kentän nimi → Lisää kenttä. Valitse näyttötapa, esimerkiksi luku ja yksikkö tai palkki. Rivitilassa avaa solu napsauttamalla tai Enterillä. Arvo tallennetaan valitun muistiinpanon alkutietoihin, esimerkiksi `uni: 8`. Muistiinpanossa kenttä näkyy Tiedoissa. Sovittu yksiselitteinen vanha tekstikenttä päivittyy paikallaan. Tallennus säilyttää muut tuoreimman tiedoston muutokset ja pyytää valinnan, jos sama kenttä muuttui toisaalla. Kojelaudan kenttäkortit, laskut ja sijoittelu ovat [suunnitelmassa](SUUNNITELMA.md#3-kojelauta-jota-voi-k%c3%a4ytt%c3%a4%c3%a4-yhdell%c3%a4-k%c3%a4dell%c3%a4-ja-rakentaa-tietokoneella-d-kohdat-6-ja-13).
 
@@ -148,6 +150,8 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Ei tarkistettu
 
+- 0.64: Fyysisen iPhonen Safari ja kosketus. Selaintesti käyttää erillistä testivaultia.
+
 - 0.63: Selaintesti käyttää testivaultia Chromiumissa (320, 390, 1280 ja 1440 px). Fyysisen iPhonen kosketus, numeronäppäimistö ja Safarin päivämäärävalitsin jäävät kokeiltaviksi. Solun tallennus tarvitsee yhteyden; epäonnistunut syöte jää ikkunaan uudelleenyritystä varten.
 
 - 0.61: Fontit näkyvät vain siinä laitteessa, jossa ne ovat. iPhonessa ovat New York, Iowan, Charter, Didot ja Avenir Next. Testikoneen Chromium käytti varafontteja (Georgia-tyyppinen antiikva, järjestelmän groteski), joten oikeaa ulkoasua ei nähty iPhonella. Alkuperäisiä luonnoskuvia ei ollut repossa. Siksi värit ovat suunnitelman heksa-arvoista ja fontit lähimpiä laitteen omia vastineita. Otsikkofonttia ei vielä käytetty muistiinpanon ensimmäiseen riviin. Kirjoitus- ja korostuskerroksen pitää pysyä täsmälleen kohdallaan, joten suunnitelma vaatii erillisen testin ennen sitä. Taulukon aktiivisolun 2 px:n kehys, kaavaviitteen väri ja kojelaudan arvon korostus ovat ennallaan, ja valittu ilme vaihtaa vain niiden värit.
@@ -177,7 +181,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Seuraava askel
 
-**Solumuokkauksen kokeilun jälkeen.** Kojelaudan jatko on kentän mukaan laskettava kortti, jonka lähdettä voi rajata ja jonka esitystavan ja paikan voi valita. Muistion toinen toteutuskelpoinen jatko on moniavaiminen lajittelu (A0.7). Kokeile kahden lajittelukentän yhdistelmää, tasatuloksia ja puuttuvia arvoja. Korjaussuunnitelman kohdassa 4 sarakeotsikon oma näyttönimi odottaa vielä päätöstä pysyvästä tallennusmuodosta.
+**Solumuokkauksen kokeilun jälkeen.** Kojelaudan jatko on kentän mukaan laskettava kortti, jonka lähdettä voi rajata ja jonka esitystavan ja paikan voi valita. Muistion lajittelu usealla kentällä on valmis (A0.7). Seuraava näkymätyön vaihe on yhteisen editorin tuominen Taulukoiden näkymävälilehdelle. Korjaussuunnitelman kohdassa 4 sarakeotsikon oma näyttönimi odottaa vielä päätöstä pysyvästä tallennusmuodosta.
 
 
 Kohdan 18 toistuvuuskokeilu 0.52 on [omassa haarassaan](https://github.com/Kasibanaani/P-iv-kartta/tree/kaikki-toistuvuuskokeilu/kaikki). Se kattaa Muistion listan, kalenterin, kuittauksen ja uuden pikamuistutuksen. Kokeile erillisellä testivaultilla sekä kuittauksesta laskettavaa että kalenterissa tasavälistä toistoa. Toistuvuuden vakiinnuttaminen, kuukausirytmin reunatapaukset ja vanhan aineiston siirto ovat edelleen avoimia. Flow-tekstin pysyvä muoto odottaa kokeilupalautetta.
