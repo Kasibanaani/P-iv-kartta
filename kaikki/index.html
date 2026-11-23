@@ -516,7 +516,9 @@ main{padding-bottom:28px}
 #vs-when{margin:0 0 12px;font-size:12.5px;color:var(--label2)}
 #vs-rows .row .xdot{position:static;flex:none;box-shadow:none}
 .count{flex:none;min-width:24px;height:24px;padding:0 7px;border-radius:12px;background:var(--cell);box-shadow:inset 0 0 0 1px var(--sep);color:var(--label2);font-size:13px;font-weight:700;line-height:24px;text-align:center;font-variant-numeric:tabular-nums}
-.nbar{position:sticky;top:-10px;z-index:4;margin:-10px -16px 10px;padding:6px 16px 6px;background:var(--bg)}
+/* 0.56: Muistion palkin ja sarakeotsikon yläsiirtymä samasta mitasta (--nbt = -main-alueen yläreunus, --nbh = palkin korkeus) */
+:root{--nbt:-10px}
+.nbar{position:sticky;top:var(--nbt);z-index:4;margin:-10px -16px 10px;padding:6px 16px 6px;background:var(--bg)}
 .nbar .seg{margin:0}.nbar .treebar{margin:6px 0 0}
 #notesort{flex:none}#notesort svg{width:16px;height:16px}
 @media (max-width:359px){#filterpick small{display:none}.nbar .treebar{gap:6px}.nbar .treebar .treepick{padding:0 9px}.treebar input[type="search"]{min-width:64px;padding:0 9px}}.nbar .seg+.seg{margin-top:4px}
@@ -676,7 +678,7 @@ label.fl{margin:12px 0 4px}
 /* 1.58 (Emil 23.10.2026): Listan Asiasanat- ja Aikaehdotukset-rivi pysyy ylhäällä Muistioiden valinnan alla, ja avatun rivin otsikko jää sen alle vieritettäessä */
 .nbar .plbar{margin:6px 0 0}
 .nbar .plbar .mini,.nbar .plbar .chip{min-height:36px;height:36px}
-.crow.open .chd{position:sticky;top:calc(var(--nbh,0px) - 10px);z-index:3;background:var(--cell);border-radius:14px 14px 0 0}
+.crow.open .chd{position:sticky;top:calc(var(--nbh,0px) + var(--nbt));z-index:3;background:var(--cell);border-radius:14px 14px 0 0}
 .calsticky{padding-top:4px;padding-bottom:4px}
 .calsticky .calhead .mini{min-height:32px;height:32px}
 .calsticky .calgrid{margin-top:4px}
@@ -740,7 +742,8 @@ dialog h2[data-crumb]::before{content:attr(data-crumb);color:var(--label2);font-
   #p-use,#p-set{max-width:760px}
   #actbar{grid-area:act}#notebar{grid-area:note}
   .actbar{padding:10px max(40px,calc((100% - 1100px) / 2))}
-  .tbar,.nbar,.calsticky{top:-14px;margin-top:-14px;margin-left:-24px;margin-right:-24px;padding-left:24px;padding-right:24px}
+  :root{--nbt:-14px}
+  .tbar,.nbar,.calsticky{top:var(--nbt);margin-top:var(--nbt);margin-left:-24px;margin-right:-24px;padding-left:24px;padding-right:24px}
   .app.docked .tbar:has(> #opentext:only-child){display:none}
   .nlist{grid-template-columns:repeat(auto-fill,minmax(320px,1fr));align-items:start;gap:14px}
   .ncard,.row,.chip,.cday,.btn,.ev{transition:filter .12s}
@@ -1556,7 +1559,7 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 #note-batch-delete,#note-batch-tags{width:min(430px,calc(100vw - 28px))}
 #note-batch-tags input{width:100%}
 @media (min-width:1000px){.note-select-actions{position:static}}
-.rvh{position:sticky;top:calc(var(--nbh,0px) - 10px);z-index:3;overflow:hidden;background:var(--bg);border-bottom:1px solid var(--sep)}
+.rvh{position:sticky;top:calc(var(--nbh,0px) + var(--nbt));z-index:3;overflow:hidden;background:var(--bg);border-bottom:1px solid var(--sep)}
 .nlist.rvb{display:block;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;background:var(--cell);border-radius:0 0 12px 12px}.nlist.rvb::-webkit-scrollbar{display:none}
 @media (min-width:1000px){
   main>#p-notes.notes-wide,.app:has(#p-notes.notes-wide:not([hidden])) .top .bar1,
@@ -5128,7 +5131,7 @@ function renderNotes(){if(nvTagObserver){nvTagObserver.disconnect();nvTagObserve
   /* Kaikki 0.6 (Emil 22.11.2026): vaultin muistiinpanot ovat pysyviä, joten Muistiossa ei ole Avoimet/Kuitatut-jakoa; kuittaus kuuluu kalenterin päivälle */
   if(noteView==='done')noteView='open';p.classList.toggle('rows-wide',nvRows());p.classList.toggle('notes-wide',noteView==='open');var NS=data.notes.filter(function(n){return !n.arch;});
   var cn=$('count');cn.hidden=true;/* 1.71 (Emil): määrä ei kuulu yläpalkin tasolle */cn.textContent=NS.length+' kpl';cn.setAttribute('aria-label',NS.length+(NS.length===1?' muistiinpano':' muistiinpanoa'));
-  var nb=el('div','nbar');nb.id='nbar';p.appendChild(nb);requestAnimationFrame(function(){document.documentElement.style.setProperty('--nbh',nb.offsetHeight+'px');});
+  var nb=el('div','nbar');nb.id='nbar';p.appendChild(nb);nbWatch(nb);
   if(noteView!=='chk'){var vs=el('div','seg');vs.id='noteview';[['open','Muistiinpanot','Kaikki'],['rep','Toistuvat','Toistuvat']].forEach(function(m){var b=button(vs,'','',function(){noteView=m[0];main.scrollTop=0;render();});b.appendChild(el('span','lg',m[1]));b.appendChild(el('span','sh',m[2]));b.setAttribute('aria-label',m[1]);b.className='';b.dataset.nv=m[0];b.setAttribute('aria-pressed',noteView===m[0]?'true':'false');
     /* Listan pallero (1.40) on 1.66:sta alkaen alapalkin Listat-napissa (syncChrome) */});nb.appendChild(vs);}
   if(noteView!=='open'||(noteSelectionMode&&noteSelectionProject!==data.k))noteSelectionReset();
@@ -5432,6 +5435,10 @@ function rowsInto(p,list,l,today,bar){var V=nvCur(),views=nvViews();
     requestAnimationFrame(function(){nvFitTags(list);});
   }
   if(V.mista.length&&!L.length)list.appendChild(el('p','sub','Näkymässä ei ole muistiinpanoja.'));}
+/* Kaikki 0.56: Muistion palkin korkeus seurataan jatkuvasti, jotta sarakeotsikko liimautuu heti sen alle ilman rakoa. */
+var nbObs=null;
+function nbWatch(nb){function set(){if(nb.isConnected)document.documentElement.style.setProperty('--nbh',nb.getBoundingClientRect().height+'px');}
+  if(nbObs)nbObs.disconnect();if(typeof ResizeObserver==='function'){nbObs=new ResizeObserver(set);nbObs.observe(nb);}requestAnimationFrame(set);}
 /* ---- Kaikki 0.31 (Emil 22.11.2026, A0.3–A0.6): rivinäkymän sarakkeet raahattaviksi ja monivalinta näkyväksi.
    Leveys otsikon oikeasta reunasta (kaksoisnapsautus palauttaa oletuksen), järjestys raahaamalla otsikkoa (Otsikko pysyy ensimmäisenä).
    Tallennus laitteelle (kaikki:nvlay:<näkymä>), koska puhelin ja tietokone tarvitsevat eri leveydet. Cmd/Ctrl-napsautus valitsee rivin ja
