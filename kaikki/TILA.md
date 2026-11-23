@@ -180,6 +180,16 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 
 ## Avoimet kysymykset
 
+**Tietokanta ja aikajana (Emil 23.11.2026, SUUNNITELMA kohdat 21–22). Vastaukset tarvitaan ennen ensimmäistä vaihetta:**
+1. Kalenterin nykyisen *Aikajana*-napin uusi nimi? Ehdotus: tietokoneella **Kellonajat**, puhelimella **Päivä** kuten nyt. Nimi *Aikajana* jää uudelle palkkinäkymälle.
+2. Kirjoitetaanko tietokantanäkymässä syötetty arvo muistiinpanon alkutietoihin vai tekstin loppuun riviksi `kenttä: arvo`? Ehdotus: alkutietoihin. Jos kenttä on jo tekstirivinä, päivitetään se rivi.
+3. Kenttänimet: ASCII ja alaviiva (`hinta_arvio`) sekä vapaa näyttönimi näkymään, vai ääkköset ja välilyönnit suoraan kenttänimeen? Ehdotus: ensimmäinen.
+4. Näkyykö päiväsarakkeen arvo kalenterissa? Ehdotus: sarakkeen asetus *Näytä kalenterissa*, oletuksena pois.
+5. Aikajanan vaiheen nimi muistiinpanossa: `## Vaihe` -otsikko, rivin alun `[Vaihe]` vai molemmat? Ehdotus: `##` ensisijaisena.
+6. Riippuvuus kenttänä `vaatii: [[toinen]]`, jolloin se on samalla tavallinen linkki ja kentän nimi kertoo suunnan. Käykö?
+7. Kumpi aloitetaan ensin: solun muokkaus tietokannassa (21.1) vai aikajanan perusnäkymä (22.2)?
+
+
 - 17.2 tehty 0.35. Kokeile: Listan rivin kuittaus puhelimella → näkyy koneella haun jälkeen.
 
 - Tekstikoko koskee nyt vain muistiinpanoja ja kalenterin listaa. Laajennetaanko koko appiin (iso työ: kiinteät px-koot suhteellisiksi)?

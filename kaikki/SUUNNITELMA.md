@@ -2,7 +2,7 @@
 
 Itsenäinen ohje mille tahansa tekoälylle (Claude, ChatGPT/Codex, muu). Aiempaa keskustelua ei tarvitse muistaa. Lue ensin repon `AGENTS.md`, sitten `kaikki/TILA.md` ja tämä. Emilin päätökset on merkitty **Emil**, tekoälyn ehdotukset *ehdotus*. Ehdotus ei ole toteutuslupa; Emilin ”toteuta” on.
 
-Päivitetty 23.11.2026 (päähaara 0.57: korjaussuunnitelman kohdat 1–3 tehty, seuraavana kohta 4). Kohdan 18 ensimmäinen kokeilu on omassa haarassaan. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
+Päivitetty 23.11.2026 (päähaara 0.58: korjaussuunnitelman kohdat 1–3 tehty, seuraavana kohta 4; uudet kohdat 21–22 Emilin sanelusta). Kohdan 18 ensimmäinen kokeilu on omassa haarassaan. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
 
 **Rakentajan nykyinen jatko-ohje:** [Tulevien ominaisuuksien toteutusjono](#tulevien-ominaisuuksien-toteutusjono) täsmentää A0–D-jonon avoimet ominaisuudet ja kertoo mistä aloittaa.
 
@@ -440,6 +440,176 @@ Kokeile testiaineistolla ensin Flow'n lukemista sisennetystä Markdownista. Jatk
 - Toteutuksessa kannattaa käyttää Kytköskartan ja Appi-appin kanvaasikoodin malleja (solmut, nuolet, zoomaus).
 - Liittyy Flow'hun (kohta 7): kanvaasi voisi olla Flow'n graafinen muokkain, jolloin työnkulku on yksi käsite kahdella näkymällä. **Kysymykset Emilille:** kirjoitetaanko yhteydet alkutietoihin vai tekstin loppuun näkyväksi osioksi; mitkä viivalajit; yhdistetäänkö Flow'hun.
 
+## 21. Tietokantanäkymä: sarakkeet kirjoittavat muistiinpanoon, täyttökahva ja laskenta (Emil 23.11.2026)
+
+**Emil 23.11.2026 (sanelu):** Muistion rivinäkymästä tehdään oikea tietokanta. Jokainen rivi on muistiinpano (sivu), koko Vault on päätietokanta ja näkymät ovat sen rajauksia. Näkymään voi tehdä uuden sarakkeen. Soluun kirjoitettu tieto menee muistiinpanoon muodossa `sarakkeen nimi: tieto`, joten se näkyy myös muissa näkymissä ja tekoäly voi lukea sen seurantaan. Arvon voi maalata allekkaisille riveille täyttökahvalla kuten Sheetsissä. Laskenta toimii sekä rivin sisällä että sarakkeessa:
+- **Rivin sisällä (vaakasuunta):** sarake laskee saman muistiinpanon kenttiä.
+- **Sarakkeessa (pystysuunta):** lasketaan monesta muistiinpanosta, myös usean sarakkeen välillä.
+
+Sarakelajit:
+- **Päivä:** napautus avaa pienen kuukausivalitsimen, josta voi valita yhden tai useamman päivän. Ulkopuolinen napautus sulkee valitsimen.
+- **Luku**, **kaava**, **valinta**, **monivalinta** ja **tila** (status).
+- **Palkki:** minimi ja maksimi määritetään sarakkeen asetuksista.
+
+Ehtokaava näyttää solussa jotain, jos esimerkiksi otsikko sisältää tietyn sanan tai muistiinpanossa on tietty tunniste. Relaatiosarakkeesta voi avata linkitetyt muistiinpanot. Niitä ei näytetä esikatselussa, koska niitä voi olla paljon. Linkitetyn sivun voi avata, vaikka se ei kuuluisi näkymään. Tärkeintä on sujuvuus, viiveettömyys, vakaus ja nätti ulkoasu, Sheetsin tasoinen tuntuma. Ulkoasutoiveet (*Ulkoasuvaihtoehdot*) pysyvät voimassa.
+
+**Jo olemassa, älä tee uudelleen:**
+- Näkymätiedostot `nakymat/*.md` ja näkymämuokkain (0.33). Turvallinen osapäivitys (0.55).
+- Sarakelajit teksti, siru, pvm, luku, palkki (asetuksena min–max) ja kyllä/ei.
+- Rivikohtainen kaavasarake `- =hinta*1,24 | luku | €` ja kaavamoottori (kohdat 10–11).
+- Takaisinlinkit-sarake avattavalla listalla (0.51). Tämä on jo relaatiosarakkeen tulevien linkkien puoli.
+- Lajittelu, suodatus, sarakkeiden siirto ja leveys (0.57).
+- Taulukot-osion muokkaus- ja täyttöreitit (kohta 12, toteutusjonon kohta 2).
+
+**Rivinäkymä on nyt vain luettava**: solua ei voi muokata.
+
+**Linja (tekoälyn ehdotus, Emil hyväksyy):**
+- **Arvon paikka:** arvo kirjoitetaan muistiinpanon alkutietoihin riville `kenttä: arvo`, mikä on Vaultin nykyinen kenttäsopimus. Jos kenttä on jo tekstirivinä `kenttä: arvo` (*Omat kentät*), päivitetään tämä rivi eikä tehdä toista. Emilin oma teksti ei muutu. Hyvä puoli: tekoäly, haku ja kaikki näkymät lukevat saman tiedon. Huono puoli: alkutiedot pitenevät ja näkyvät, jos tiedoston avaa muualla kuin apissa.
+- **Määrittely ja arvo erillään:** sarakkeen määrittely on näkymätiedostossa: laji, valintalista ja värit, min–max, yksikkö ja kaava. Arvo on muistiinpanossa. Kenttänimi on yhteinen kaikille näkymille, joten esimerkiksi `tila` on sama tieto kaikkialla. Jos kahdella näkymällä on samalle kentälle eri valintalista, kumpikin näyttää omansa ja tuntematon arvo näkyy harmaana siruna.
+- **Laskettuja tuloksia ei kirjoiteta tiedostoihin** (kohta 10). Vain syötetty arvo tallentuu.
+- **Tallennus:** muutos näkyy samassa ruudunpäivityksessä ja tallentuu taustalla Vault-jonon kautta. Usean rivin muutos, kuten täyttö tai liittäminen, tehdään yhtenä Git-puumuutoksena ja kumotaan kerralla, kuten 0.41:n rakennemuutokset.
+
+**Valmiit työtehtävät** järjestyksessä. Jokainen on oma versionsa ja saa oman testinsä. Toteutuslupana on Emilin ”toteuta”.
+
+**21.1 Solun muokkaus kirjoittaa muistiinpanoon.**
+- **Tietokoneella:** valittu solu siirtyy muokkaustilaan Enterillä tai kirjoittamalla. Enter tallentaa, Esc peruu ja Tab siirtää seuraavaan soluun.
+- **Puhelimella:** solun napautus avaa pienen ikkunan, jonka kentän laji ratkaisee: teksti, luku numeronäppäimistöllä tai päivä valitsimella.
+- **Otsikko ja lukitut solut:** otsikkosolu avaa muistiinpanon kuten nyt. Kaava, kansio, kuka, luotu ja takaisinlinkit näkyvät lukittuina.
+
+Hyväksymisehdot:
+- Arvo päätyy alkutietoihin, ja tekstirivi päivittyy paikallaan.
+- Muu osa tiedostosta ei muutu tavuakaan.
+- Toisen laitteen samanaikainen muutos käsitellään 0.55:n kenttäkohtaisella yhdistämisellä.
+- Tyhjentäminen poistaa rivin, ja desimaalipilkku säilyy.
+
+**21.2 Uusi sarake näkymästä.** Otsikkorivin lopussa on ＋. Siitä valitaan nimi ja laji, ja sarake lisätään näkymätiedostoon. Valittavana ovat myös jo löytyneet kentät (`nvFieldNames`). Kun Emil luo kentän apissa, se on hänen lupansa uudelle kentälle (kenttäsopimus). Liittyy korjaussuunnitelman kohtaan 4 (näyttönimi ja kenttänimi erikseen).
+
+**21.3 Yhteenvetorivi (pystysuunta).** Taulukon alareunassa on kiinteä rivi. Sarakevalikon kohdassa *Laske* valitaan jokin seuraavista: ei mitään, summa, keskiarvo, mediaani, min, max, määrä, täytetyt, tyhjät, % täytetty tai kyllä-osuus.
+- Lasketaan näkyvät eli suodatetut rivit.
+- Valinta tallennetaan näkymätiedostoon sarakkeen määreeksi `| laske=summa`.
+- Kaavasarake voi viitata koko sarakkeeseen, esimerkiksi osuus `=hinta/SUMMA(hinta)`.
+
+Hyväksymisehdot: suodatin muuttaa tulosta, luvuissa tyhjät ja tekstit ohitetaan, ja desimaalit ovat oikein.
+
+**21.4 Täyttökahva.** Valitun solun oikeassa alakulmassa on hiirellä vedettävä kahva. Alas vetäessä näkyy esikatselu: korostetut solut ja niiden määrä. Vapautus kirjoittaa saman arvon kaikkiin. Kosketuksella valitaan alue ja sitten *Täytä alas*.
+- Ensimmäinen versio ei arvaa sarjoja, kuten 1, 2, 3 tai peräkkäisiä päiviä.
+- Koko täytön voi kumota kerralla.
+
+Hyväksymisehdot:
+- 50 riviä yhdellä vedolla tuottaa yhden commitin.
+- Kumous palauttaa jokaisen tiedoston tavulleen.
+- Jos yhteys katkeaa, näkyy, mitkä rivit jäivät jonoon.
+
+**21.5 Päivä-sarake valitsimella.** Napautus avaa pienen kuukausinäkymän, jossa nykyistä Päivät-valitsinta (`dsheet`) voi käyttää pohjana. Valittavana on yksi tai useampi päivä. Ulkopuolinen napautus sulkee valitsimen ja tallentaa.
+- Tallennusmuoto on `kenttä: 2026-11-30` tai useammalle päivälle `kenttä: 2026-11-30, 2026-12-02`.
+- Solussa näkyy ”ma 30.11.” ja tarvittaessa ”+1”.
+
+**21.6 Valinta, monivalinta ja tila.**
+- **Asetukset:** sarakkeessa on valintalista Emilin järjestyksessä, ja jokaisella valinnalla on väri.
+- **Solu:** napautus avaa listan. Monivalinnassa on ruksit, ja kirjoittamalla voi lisätä uuden valinnan.
+- **Tila:** valinta, jonka vaihtoehdot jakautuvat kolmeen ryhmään: ei aloitettu, kesken ja valmis. Myöhemmin Listat, kalenteri ja tekoäly voivat tulkita sitä.
+- **Tallennusmuoto:** `tila: kesken`, monivalinnassa `aiheet: [a, b]` samaan tapaan kuin `tagit`.
+
+**21.7 Ehdot ja muistiinpanon tiedot kaavassa.**
+- Rivin muuttujat: `otsikko`, `tunnisteet`, `kansio`, `luotu` ja `ajankohta`.
+- Funktiot: `SISÄLTÄÄ(teksti; "x")`, `ONTUNNISTE("x")`, `TYHJÄ(kenttä)`, `TÄNÄÄN()` ja `PÄIVIÄ(pvm1; pvm2)`.
+- Esimerkki: `=JOS(SISÄLTÄÄ(otsikko; "lasku"); hinta*1,24; hinta)`.
+
+**21.8 Linkit- ja relaatiosarake.**
+- **Linkit:** takaisinlinkkien rinnalle tulee `linkit`, eli muistiinpanot, joihin rivi itse linkittää. Solussa näkyy määrä, ja napautus avaa listan. Listasta pääsee sivulle, vaikka se ei kuuluisi näkymään.
+- **Relaatiokenttä:** `kenttä: [[a]], [[b]]` näkyy samalla tavalla. Sitä muokataan valitsimella, jossa haetaan otsikolla.
+- Relaatio on myös kohdan 22 riippuvuuksien pohja.
+
+**21.9 Nopeus ensin ja aina.** Ennen laajennuksia mitataan 1 000 rivillä korjaussuunnitelman kohdan 5 tapaan:
+- avaus, vieritys ja solun muokkaus
+- täyttö 50 riviin ja yhteenvedon päivitys.
+
+Tavoite: muokkaus näkyy samassa ruudunpäivityksessä, verkkotallennus tapahtuu taustalla, eikä vierittäessä näy tyhjää. Keinot:
+- vain näkyvät rivit piirretään
+- kaava lasketaan uudelleen vain muuttuneelle riville ja siitä riippuville yhteenvedoille
+- kenttähakemisto pidetään välimuistissa.
+
+**Tarkennettavat ennen toteutusta (Emil päättää):**
+- **Kenttänimen muoto:** saako nimessä olla ääkkösiä ja välilyöntejä? Ehdotus: kenttänimi pienillä ASCII-kirjaimilla ja alaviivoilla (`hinta_arvio`), ja näyttönimi ”Hinta-arvio” vapaasti näkymätiedostoon.
+- **Arvon paikka:** alkutiedot vai tekstin loppuun? Ehdotus: alkutiedot.
+- **Päivä-sarake kalenterissa:** näkyykö sen arvo kalenterissa? Ehdotus: sarakkeen asetus *Näytä kalenterissa*, oletuksena pois, jottei kalenteri täyty.
+- **Myöhempää:** täyttösarjat, viittaus toisen näkymän tulokseen ja ryhmittely välisummineen.
+
+**Kuinka lähelle taulukkolaskentaa (tekoälyn arvio).** Pitkälle, kun malli on ”yksi kaava koskee sarakkeen kaikkia rivejä”, kuten Notionissa ja Airtablessa. Se on vahvuus: kaava kirjoitetaan kerran, ja se pätee myös uusiin muistiinpanoihin itsestään.
+- **Saavutettavissa:** rivikaavat, sarakkeen yhteenvedot, ehdot, suodatus ja lajittelu, ryhmittely välisummineen, kertymä järjestyksen mukaan (`KERTYMÄ(hinta)`), osuudet, päivälaskut ja täyttö.
+- **Taulukot-osio ennallaan:** vapaa solulaskenta jää sinne, ja molemmat käyttävät samaa kaavamoottoria. Näkymävälilehti yhdistää ne jo nyt.
+- **Ei kannata tavoitella:** yksittäisen rivin poikkeavaa kaavaa tietokannassa (se tehdään kentän arvona) eikä matriisikaavoja.
+- **Rehellinen raja:** jokainen rivi on tiedosto GitHubissa. Näyttö voi olla välitön, mutta moneen tiedostoon tallentaminen vie verkossa sekunteja. Jono hoitaa sen taustalla, ja tila näkyy.
+- **Hyöty tekoälylle:** seuranta-arvot ovat luettavassa muodossa alkutiedoissa.
+
+## 22. Oikea aikajana: vaiheet palkkeina, nimetyt osiot ja riippuvuudet (Emil 23.11.2026)
+
+**Emil 23.11.2026 (sanelu):** Kalenterin nykyinen *Aikajana* on oikeasti viikko kellonaikoineen (tietokoneella) tai yksi päivä (puhelimella). Siksi se nimetään uudelleen, ja nimi *Aikajana* varataan oikealle aikajanalle.
+- **Palkit:** aikavälin omaavat asiat, kuten projekti tai sen vaihe, näkyvät allekkain vaakapalkkeina.
+- **Aikaikkuna:** pituuden voi vaihtaa helposti: viikko, kuukausi, 3, 6 tai 12 kuukautta (enintään 12).
+- **Riippuvuudet:** vaiheiden välille voi merkitä riippuvuuksia (B alkaa vasta, kun A on tehty), enimmäiskeston ja aikaisimman aloituksen. Riippuvuus voisi näkyä esimerkiksi viivana A:n lopusta B:n alkuun.
+- **Monta aikaväliä yhdessä muistiinpanossa:** jokaisella aikavälillä on nimi, ja mieluiten tekstiin voi kirjoittaa myös sen, mitä pitää tapahtua ensin. Nimen pitäisi olla helppo merkitä, esimerkiksi etumerkillä tai kehystämällä ensimmäinen sana erikoismerkeillä. Tallennettuna nimi näkyisi osion otsikkona ja palkin nimenä.
+- **Kysymys:** voiko linkki muistiinpanosta toiseen kertoa riippuvuuden suunnan ja toimia silti tavallisena linkkinä? Näin prosessikaavion voisi kirjoittaa toisiinsa linkitettyinä muistiinpanoina.
+
+**Jo olemassa:**
+- Päivämäärien jäsennys tunnistaa välit, kuten ”1.12.–15.12.”.
+- Muistiinpanon voi jakaa osiin `---`-merkinnällä (Juuren monitekstinen muistiinpano).
+- `##`-otsikot korostuvat (0.2).
+- Wikilinkit, takaisinlinkit, paikallinen graafi (0.50) ja Flow.
+
+**Kirjoitustapa (tekoälyn ehdotus, Emil hyväksyy):**
+- **Nimetty vaihe on `##`-otsikko**, jonka alla on aikaväli. Markdown-otsikko on jo Vaultin muoto: tekoäly ja muut ohjelmat ymmärtävät sen, appi näyttää sen otsikkona, ja se on yhtä nopea kirjoittaa kuin erikoismerkki.
+  ```
+  # Keittiöremontti
+  ## Suunnittelu
+  1.12.–20.12.
+  ## Purku
+  aikaisintaan 7.1. · kesto 2 viikkoa
+  vaatii: Suunnittelu
+  ## Asennus
+  vaatii: Purku, [[sahkotyot]]
+  ```
+  Emilin idean mukainen vaihtoehto on rivin alkuun kehystetty nimi, `[Suunnittelu] 1.12.–20.12.`, joka ei vaadi omaa riviä. Molempia voi tukea, mutta ensisijaiseksi ehdotan `##`:tä, koska se toimii myös ilman appia.
+- **Riippuvuus on kenttä `vaatii:`**, samaa muotoa kuin kohdan 21 sarakkeet. Arvo voi olla saman muistiinpanon vaiheen nimi, toinen muistiinpano `[[nimi]]` tai toisen muistiinpanon vaihe `[[nimi#Vaihe]]`.
+  - Arvo on tavallinen wikilinkki, joten se toimii samalla tavallisena linkkinä takaisinlinkeissä ja graafissa. Kentän nimi kertoo suunnan: tämä tarvitsee tuon ensin.
+  - Uutta linkkimerkintää ei tarvita, joten Obsidian-yhteensopivuus säilyy.
+  - Käänteistä suuntaa (”mahdollistaa”) ei kirjoiteta, vaan se päätellään.
+- **Kesto ja rajat:** `kesto: 2 viikkoa` on enimmäiskesto ja `aikaisintaan 7.1.` aikaisin aloitus. Jos vaiheella on vain riippuvuus ja kesto, aikajana sijoittaa sen edeltäjän perään ja näyttää sen katkoviivalla.
+
+**Valmiit työtehtävät:**
+
+**22.1 Nimen vaihto.** Nykyinen Aikajana-nappi saa uuden nimen (ks. *Avoimet kysymykset* `TILA.md`:ssä). Pieni muutos, joka ei muuta tallennusmuotoa.
+
+**22.2 Aikajanan perusnäkymä (vain luettava).**
+- **Rivit:** kalenterin Aikajana-näkymässä rivit ovat muistiinpanoja ja niiden nimettyjä vaiheita, joilla on aikaväli (alku ≠ loppu).
+- **Palkki:** nimi näkyy palkissa tai sen vieressä, jos se ei mahdu palkkiin.
+- **Ohjaimet:** aikaikkuna valitaan segmentistä Viikko / Kk / 3 kk / 6 kk / 12 kk. Lisäksi on nuolet ja Tänään-nappi, ja pyyhkäisy siirtää aikaikkunaa.
+- **Tänään ja avaaminen:** tämän päivän kohdalla on pystyviiva, ja palkin napautus avaa muistiinpanon.
+- **Rajaus:** sama tunniste- tai näkymärajaus kuin Muistiossa.
+
+Hyväksymisehdot:
+- Vuodenvaihde ja karkausvuosi toimivat.
+- 12 kuukauden ikkuna ja 400 palkkia toimivat sujuvasti.
+- 320 px:n puhelimella nimisarake kapenee tai nimi siirtyy palkkiin.
+- Vaalea ja tumma teema.
+
+**22.3 Nimetyt vaiheet muistiinpanossa.** `##`-otsikko, jonka alla on aikaväli, muodostaa oman palkin. Muistiinpanon otsikko näkyy ryhmän otsikkona ja vaiheet sen alla. Lukunäkymässä vaiheen nimi korostuu ja aikaväli näkyy siruna. Testataan kolmella vaiheella, joista yhdellä ei ole päivää (sille ei tule palkkia, vaan se näkyy merkinnällä ”ei aikaa”), sekä otsikon muuttamisella.
+
+**22.4 Riippuvuudet näkyviin.**
+- **Viiva:** `vaatii:` piirtää porrasviivan ja nuolen edeltäjän lopusta seuraajan alkuun.
+- **Ristiriita:** jos seuraaja alkaa ennen kuin edeltäjä loppuu, viiva ja palkin reuna näkyvät punaisina ja näytetään huomautus.
+- **Kehä:** A vaatii B:tä ja B vaatii A:ta. Siitä annetaan huomautus, eikä viivaa piirretä loputtomasti.
+- **Puuttuva kohde:** näkyy haaleana.
+
+**22.5 Laskettu paikka.** Vaihe, jolla on `kesto` ja `vaatii` mutta ei päivää, sijoitetaan katkoviivalla edeltäjän perään, aikaisintaan-raja huomioiden. Päiviä ei kirjoiteta tiedostoon ennen Emilin hyväksyntää (*Kiinnitä päivät*).
+
+**Tarkennettavat:**
+- **Raahaus:** palkin siirtäminen ja venyttäminen kirjoittaisi päivät tekstiin. Se muuttaa Emilin tekstiä, joten tarvitaan päätös ja kumous.
+- **Riippuvuuden piirto:** vetäminen palkista toiseen kirjoittaisi `vaatii:`-rivin.
+- **Laskenta:** kriittinen polku, enimmäiskeston ylityksen varoitus ja automaattinen uudelleenaikataulutus.
+- **Prosessikaavio:** näytetäänkö verkottuneet muistiinpanot paikallisessa graafissa (kohta 19) `vaatii:`-nuolina, Flow'ssa vai molemmissa?
+- **Listat:** `vaatii:` voisi ohjata Listoja niin, että tehtävä näkyy vasta, kun edeltäjä on kuitattu (kohdat 7 ja 18).
+
 ## Ulkoasuvaihtoehdot: Lehto, Luoto ja Hiillos
 
 Emilin pyytämät vertailuluonnokset, 23.11.2026. Sama koetehtävä kaikissa: etsi Muistion Retken valmistelu -näkymästä Reittisuunnitelma, avaa sen Varustelista-linkki ja muuta Retkibudjetin yhtä hintaa. Näillä kolmella tilanteella näkee, ohjaako ulkoasu lukemaan, siirtymään ja muokkaamaan oikeassa kohdassa. Kyse on suunnitteluvaihtoehdoista. Emil valitsee linjan tai yhdistelmän ennen julkaisua.
@@ -540,6 +710,15 @@ Tee valitusta suunnasta ensin rajattu vertailu nykyiseen Muistion rivinäkymää
 **Notion → palautettava koetuonti.** Lähtöaineistona keinotekoinen vientipaketti, jossa kaksi samannimistä sivua, alisivu, taulukon kenttä, sisäinen linkki ja liite. Tee ensin vain raportti: lähteen tunniste, ehdotettu Vault-polku, kenttä- ja tunnistevastaavuus, ratkaisemattomat viitteet ja aineisto, jolle ei ole vastinetta. Rakenna tunniste–polku-kartta ennen linkkien muuntamista. Tarkista otsikot, kappaleet, luettelot, linkkien näkyvät nimet ja tiedostojen lukumäärä. Sama paketti kahdesti tuottaa saman tuloksen; käyttäjän sillä välillä tekemä muutos vaatii vertailun. **Päätös:** Emil valitsee ensimmäisen oikean kokoelman, kohdekansion ja säilytystarkkuuden raportin perusteella. Tuonti on erillinen pyydettävä työ. Vaultin huolto tapahtuu edelleen pyynnöstä.
 
 **Karsinta → korvaavuuden osoitus.** Tee testivarmuuskopiosta luettelo vanhoista puista, pikamuistiinpanoista ja käytössä olevista Asiat-lisäosista. Näytä kullekin säilytyspaikka ja toimiva jatkoreitti. Kokeile erityisesti listojen kierroksia, tunnisteiden tärkeyttä ja toistuvuutta. Testaa Koko appi -JSONin palautus toisessa selainprofiilissa sekä Vault-ZIPin tiedostot. Laitteen osion piilottaminen on palautettava välivaihe. Oikean aineiston siirto ja Juuresta periytyvän osion poisto toteutetaan vasta Emilin hyväksymässä laajuudessa.
+
+### 9. Tietokantanäkymä ja oikea aikajana (kohdat 21 ja 22, Emil 23.11.2026)
+
+Ehdotettu järjestys:
+1. Korjaussuunnitelman kohta 4 (näyttönimi ja kenttänimi erikseen), koska 21.2 tarvitsee sitä.
+2. 21.1 → 21.2 → 21.5 ja 21.6 → 21.3 → 21.4 → 21.7 ja 21.8. Nopeus (21.9) mitataan jokaisen vaiheen yhteydessä.
+3. Aikajanalta 22.1 heti, kun nimi on päätetty. Sen jälkeen 22.2–22.4 omana ketjunaan tietokannan rinnalla.
+
+Ennen ensimmäistä vaihetta tarvitaan Emilin vastaukset kohtien *Tarkennettavat* kysymyksiin, jotka on koottu `TILA.md`:n avoimiin kysymyksiin.
 
 ### Päätökset kokeilun jälkeen
 

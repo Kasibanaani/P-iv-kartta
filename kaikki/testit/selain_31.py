@@ -50,8 +50,8 @@ async def run(p,w,h):
     await pg.locator('.rvhead .rvc').nth(0).locator('.rv-head-sort').click(); await pg.wait_for_timeout(200)
     want('otsikon napautus järjestää yhä',await pg.evaluate("!!document.querySelector('.rvhead .rv-direction')"))
     # monivalinta
-    await pg.locator('#nlist .rvr').first.hover()
-    want('osoitettaessa valintaruutu näkyy',await pg.evaluate("getComputedStyle(document.querySelector('#nlist .rvr .rv-pick')).display")!='none')
+    await pg.locator('#nlist .rvr').first.hover(); await pg.wait_for_timeout(100)
+    want('osoitettaessa ei valintaruutua (Emil 23.11.: vain Valitse-napista)',await pg.evaluate("!Array.from(document.querySelectorAll('#nlist .rvr .rv-pick,#nlist .rvr input[type=checkbox]')).some(function(x){return getComputedStyle(x).display!=='none';})"))
     await pg.locator('#nlist .rvr').nth(1).click(modifiers=['ControlOrMeta']); await pg.wait_for_timeout(200)
     want('Cmd/Ctrl-napsautus avaa valintatilan',await pg.evaluate("document.getElementById('note-select-count')&&document.getElementById('note-select-count').textContent")=='Valittu 1')
     want('muistiinpano ei auennut',not await pg.evaluate("document.getElementById('nsheet').open"))
