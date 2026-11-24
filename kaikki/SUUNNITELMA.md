@@ -31,7 +31,7 @@ Jäsennys ohittaa toteutusjonon järjestyksen. Alkuperäiset kohdat (numerot sul
      - Vanhat alkutietokentät (0.63, esim. `uni: 8`) pysyvät luettavina ja muokattavina.
      - *Tekoälyn oletus tarkennukseen:* solu näyttää muistiinpanon viimeisimmän arvon. Muokkaus päivittää viimeisimmän merkinnän. Jos merkintää ei ole, uusi merkintä lisätään tekstin loppuun.
    - Järjestys:
-     1. Suora kirjoitus soluun (21.1).
+     1. Suora kirjoitus soluun (21.1, tehty 0.79).
      2. ＋ sarake (21.2), muuttujasarakkeena.
      3. Yhteenvetorivi (21.3).
      4. Päiväsarake (21.5). *Näytä kalenterissa* on oletuksena pois.
@@ -597,7 +597,7 @@ Ehtokaava näyttää solussa jotain, jos esimerkiksi otsikko sisältää tietyn 
 
 **Valmiit työtehtävät** järjestyksessä. Jokainen on oma versionsa ja saa oman testinsä. Toteutuslupana on Emilin ”toteuta”.
 
-**21.1 Solun muokkaus kirjoittaa muistiinpanoon.**
+**21.1 Solun muokkaus kirjoittaa muistiinpanoon (tehty 0.79).**
 - **Tietokoneella:** valittu solu siirtyy muokkaustilaan Enterillä tai kirjoittamalla. Enter tallentaa, Esc peruu ja Tab siirtää seuraavaan soluun.
 - **Puhelimella:** solun napautus avaa pienen ikkunan, jonka kentän laji ratkaisee: teksti, luku numeronäppäimistöllä tai päivä valitsimella.
 - **Otsikko ja lukitut solut:** otsikkosolu avaa muistiinpanon kuten nyt. Kaava, kansio, kuka, luotu ja takaisinlinkit näkyvät lukittuina.
@@ -927,7 +927,7 @@ Tee valitusta suunnasta ensin rajattu vertailu nykyiseen Muistion rivinäkymää
 ### Mistä seuraava rakentaja aloittaa
 
 1. Lue ensin uusin TILA, tarkista päähaara ja mahdollinen kokeiluhaara. Tee edeltävän vakausarvion tallennus- ja vierityskorjaukset A0:n yhteydessä. Suunnitelman alun yöajon ohje on historiallinen palautusohje: päähaarassa 0.53 on ZIP-korjaus, 0.54 kalenterikorjaus ja toistuvuuden 0.52-kokeilu omassa haarassaan. Tarkista saraketyön sisältö koodista ennen mahdollista palautusta.
-2. A0:n ominaisuusketju näkymän turvallisesta osapäivityksestä taulukoiden yhteiseen näkymäeditoriin on valmis 0.67:ssä. Kaavaviittauksen poiminta (0.68), täyttö alas (0.72), laitekohtainen lukumuotoilu (0.74), jäädytys (0.75) sekä suodatus ja lajittelu näytön järjestyksenä (0.76) ovat kokeiltavissa. Jaetut lukumuodot ja aikamuodot ovat kokeiltavissa (0.77). Oma järjestys ja jaettu lukitus ovat kokeiltavissa (0.78). Seuraava askel on Muistion solun suora kirjoitus osana tietokantanäkymää (jäsennys 24.11., A3.1). Turvallinen nimen vaihto kuuluu jäsennyksen kohtaan A4. Etene sitten A2/A3:n kokeilupalautteen mukaan. Alla oleva numerointi ryhmittelee ominaisuuksia eikä siirrä D-visioita A0:n edelle.
+2. A0:n ominaisuusketju näkymän turvallisesta osapäivityksestä taulukoiden yhteiseen näkymäeditoriin on valmis 0.67:ssä. Kaavaviittauksen poiminta (0.68), täyttö alas (0.72), laitekohtainen lukumuotoilu (0.74), jäädytys (0.75) sekä suodatus ja lajittelu näytön järjestyksenä (0.76) ovat kokeiltavissa. Jaetut lukumuodot ja aikamuodot ovat kokeiltavissa (0.77). Oma järjestys ja jaettu lukitus ovat kokeiltavissa (0.78). Muistion solun suora kirjoitus on kokeiltavissa (0.79). Seuraava askel on muuttujasarakkeen lisääminen Muistion otsikkoriviltä (jäsennys 24.11., A3.2). Turvallinen nimen vaihto kuuluu jäsennyksen kohtaan A4. Etene sitten A2/A3:n kokeilupalautteen mukaan. Alla oleva numerointi ryhmittelee ominaisuuksia eikä siirrä D-visioita A0:n edelle.
 3. Jokaiseen toteutuscommittiin kuuluu yksi käyttäjälle kokeiltava työnkulku. Vertaa vanhaa ja uutta testitiedostoa, kokeile keskeytys ja uudelleenavaus, tarkista sekä puhelimen että tietokoneen reitti. Tiedostoon kuvaillun ominaisuuden pitää toimia myös silloin, kun tiedoston on tehnyt tekoäly ja appi avataan tyhjällä paikallisella välimuistilla. Kirjaa TILA-tiedostoon testattu raja ja seuraava tehtävä.
 
 ### 1. Muistion näkymistä ja taulukon näkymävälilehdestä sama työväline (A0.3, A0.7, A3.1, kohdat 2 ja 12)

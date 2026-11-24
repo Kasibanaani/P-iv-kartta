@@ -57,12 +57,12 @@ def run(browser, url, width):
     expect(cell(page, 'Toinen')).to_have_text('–')
     many = page.locator('.rvb .rvr').filter(has_text='Monta merkintää').locator('.rvc').nth(4)
     expect(many).to_have_text('6')
-    expect(many.locator('button')).to_have_count(0)
+    expect(many.locator('button')).to_have_count(1)
     document = page.evaluate('path => __repo.get(path)', VIEW)
     assert f'  - {KEY} | luku\n' in document
     file_is(page, NOTE, ENTRY)
     cell(page, 'Toinen').click()
-    value = page.get_by_role('dialog', name=NAME).get_by_label('Arvo')
+    value = page.locator('#nvcell-input')
     value.fill('0')
     value.press('Enter')
     second = SECOND + f'\n!!{NAME}: 0!!\n'
@@ -75,7 +75,7 @@ def run(browser, url, width):
 
     # Yksittäisen havainnon muutos säilyttää muun tekstin ja rinnakkaisen GitHub-muutoksen.
     cell(page, 'Ensimmäinen').click()
-    value = page.get_by_role('dialog', name=NAME).get_by_label('Arvo')
+    value = page.locator('#nvcell-input')
     expect(value).to_have_value('8')
     refreshed = ENTRY.replace('kirjattu.', 'kirjattu. Myöhempi lisäys.')
     page.evaluate('([path, text]) => __repo.put(path, text)', [NOTE, refreshed])

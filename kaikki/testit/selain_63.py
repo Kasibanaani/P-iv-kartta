@@ -48,7 +48,7 @@ def open_cell(page, key='uni', title='Ensimmäinen seuranta', touch=False):
         cell.tap()
     else:
         cell.press('Enter')
-    return page.get_by_role('dialog', name=key.capitalize()).get_by_label('Arvo')
+    return page.locator('#nvcell-input')
 
 
 def file_is(page, path, text):
@@ -148,13 +148,13 @@ def run(browser, width):
 
     cell = open_cell(page, 'ulkoilu')
     cell.select_option('ei')
-    page.locator('#nvcell-edit').get_by_role('button', name='Tallenna', exact=True).click()
+    page.locator('#nvcell-form').get_by_role('button', name='Tallenna', exact=True).click()
     text = with_field(text, 'ulkoilu: ei')
     file_is(page, NOTE, text)
     expect(field(page, 'ulkoilu')).to_have_attribute('aria-label', 'Ulkoilu · Ensimmäinen seuranta · ei')
     cell = open_cell(page, 'mittaus')
     cell.fill('2026-11-22')
-    page.locator('#nvcell-edit').get_by_role('button', name='Tallenna', exact=True).click()
+    page.locator('#nvcell-form').get_by_role('button', name='Tallenna', exact=True).click()
     text = with_field(text, 'mittaus: 2026-11-22')
     file_is(page, NOTE, text)
     expect(field(page, 'mittaus')).to_have_text('22.11.2026')
