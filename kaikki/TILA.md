@@ -271,6 +271,8 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 
 ## Suunnitelmat
 
+24.11.2026. Emil haluaa ennen avoimia kysymyksiä nähdä suunnitellut uudistukset esiteltyinä kuin käyttäjälle. Kaikki rakentamattomat suunnitelman kohdat (43 korttia) koottiin Emilin claude.ai-tilille artefaktiksi *Kaikin tulevat ominaisuudet*. Jokaisessa kortissa on reaktio ja kommentti. Kun Emil on kommentoinut, tekoäly lukee kommentit artefaktin tietokannasta (kokoelma `kommentit`) ja kirjaa päätökset suunnitelman kohtiin.
+
 24.11.2026. [Kaaviot (kohta 23)](SUUNNITELMA.md#23-kaaviot-ruudut-ja-nuolet-ehdolliset-napit-ja-upotukset-emil-24112026): ensimmäinen kokeilu on kaaviotiedosto `kaaviot/<nimi>.md` ja kanvas tietokoneella. Kanvaksessa on tekstiruutuja ja nuolia, ja puhelimella kaavion voi vain katsoa. Kanvaskoodi ei käynnisty ennen avausta, ja käynnistysaika mitataan. Seuraavat kokeilut ovat ehdolliset napit, joiden tuotos kirjoitetaan heti ja perutaan samalla käyttökerralla, sekä vain luettava upotus `![[muistiinpano#Otsikko]]`. Muokattava upotus, kaavaruudut, muistiinpanokortit, Flow'n kohtalo ja käyttötiedostojen erottelu ovat visiossa. Avoinna on paikka toteutusjonossa.
 
 23.11.2026. [Kojelaudan suunnitelma](SUUNNITELMA.md#3-kojelauta-jota-voi-k%C3%A4ytt%C3%A4%C3%A4-yhdell%C3%A4-k%C3%A4dell%C3%A4-ja-rakentaa-tietokoneella-d-kohdat-6-ja-13) tarkentui. Ruutuihin valitaan lähde, rajaukset, laskenta, yksikkö, näyttötapa ja ulkoasu. Mukana ovat muokkaustilassa sijoiteltavat ja suurennettavat ruudut sekä kalenterin kanssa jaetut suodatetut tarkistuslistat.
