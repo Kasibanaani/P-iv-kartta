@@ -30,7 +30,7 @@ Päivitetty 24.11.2026 (0.86: kojelaudan muokkaus ja asettelu, lukittu esikatsel
 
 ### 0.1 Uusi havaintolohkon kirjoitusasu
 
-**Emilin päätös 24.11.2026. Ensimmäisiä toteutettavia töitä, ennen havaintomalliin kirjoittavien säätimien laajennusta.** Päivämäärä ensin apin muutenkin tunnistamassa muodossa, sitten pilkku, kohteen nimi, kaksoispiste ja muuttujat arvoineen. Käsin kirjoittaessa ei tarvita @-merkkiä eikä pystyviivoja. Säilytä ulommat `((…))`-sulkeet.
+**0.87 tehty (24.11.2026).** Päivämäärä ensin apin muutenkin tunnistamassa muodossa, sitten pilkku, kohteen nimi, kaksoispiste ja muuttujat arvoineen. Käsin kirjoittaessa ei tarvita @-merkkiä eikä pystyviivoja. Säilytä ulommat `((…))`-sulkeet.
 
 ```text
 ((ti 24.11. klo 12.30, Kanan fileesuikaleet: annos = 150 g, proteiini = 34,5 g, rasva = 3 g, valmistustapa = paistettu))
@@ -42,6 +42,8 @@ Päivitetty 24.11.2026 (0.86: kojelaudan muokkaus ja asettelu, lukittu esikatsel
 - **Kirjoittajat yhteen.** Kun lukutuki on valmis, ota uusi muoto käyttöön uusissa kirjauksissa samasta kirjoitusfunktiosta: Pikamuistiinpano ja sen napit, Muistion puuttuva soluarvo ja täyttö alas, kojelaudan *Kirjaa arvo* sekä myöhemmin havaintoja kirjoittavat säätimet. Muokkaus ja tyhjennys kohdistuvat oikeaan lähdelohkoon ja kenttään myös vanhassa muodossa. Säilytä saman lohkon muut kentät ja muu muistiinpanoteksti. Huomioi synkronointi, offline-jono ja tallennuksen uudelleenyritys. Päivitä apin kirjoitusohje, apin esimerkit ja Vaultin ohjeet vasta toimivan lukutuen käyttöönoton yhteydessä.
 - **Nykyiset muistiinpanot.** Toimivuus ei saa edellyttää massamuunnosta. Toteutusehdotus mahdolliselle siistimiselle: erillinen palautettava muunnos varmuuskopiosta ja esikatselun kautta. Vertaa jäsenneltyä sisältöä ennen ja jälkeen. Säilytä kohteet, muuttujat, yksiköt, arvotyypit, havaintojen määrät ja järjestys, aikojen tarkkuus, tunnisteet, apin omat tunnukset ja viittaukset. Säilytä myös vanhan `!!…!!`-havainnon osiosta periytyvä aika tai päivättömyys. Ohita epäselvät tai sillä välin muuttuneet lohkot muunnoksessa. Eri identtiset kirjaukset pysyvät erillisinä.
 - **Hyväksy julkaisu**, kun samasta testiaineistosta saadaan molemmilla kirjoitusasuilla samat koonnit, rajaukset ja lähdeosumat kaikilla käytössä olevilla lukureiteillä. Testaa sekamuotoinen muistiinpano, piste ja kaksoispiste kellonajassa, päivätön ja kohteeton havainto, desimaalipilkku, lainattu pilkku ja yhtäsuuruusmerkki, usea rivi, vanhan lohkon yhden kentän muokkaus ja tyhjennys, erilliset samansisältöiset kirjaukset sekä yhden tallennuksen uudelleenyritys. Avaa tallennetut näkymät tyhjällä paikallisella välimuistilla ja tarkista uusi kirjaus puhelimella ja tietokoneella.
+
+**Käyttöönotto 0.87.** Uudet merkinnät käyttävät pilkkuja ja yhtäsuuruusmerkkejä kaikissa nykyisissä kirjoitusreiteissä. Kolme merkintätapaa voi esiintyä samassa muistiinpanossa. Vanha lohko säilyttää oman muotonsa, kun appi muokkaa sen kenttää. Havaintotaulukot ja kojelauta käyttävät samoja havaintoja ja koonteja kuin aiemmin. Vaultin ohjeet päivitettiin, ja muuttujien testimuistiinpanon neljä merkintää muunnettiin tuloksia muuttamatta. Yleisten säätimien laajennus on seuraavana kohdassa 0.
 
 ## Jäsennys 24.11.2026: seuraavaksi, tarkennettavat ja lykätyt
 

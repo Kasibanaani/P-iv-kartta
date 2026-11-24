@@ -58,3 +58,33 @@ model = observationMatrix(notes, {...config,subjects:['Broileri']}, resolve);
 assert.equal(model.rows[0][1].cells.get(0).length, 2);
 assert.equal(M.ruutu(notes,{...spec,kohde:'Broileri',laske:'maara'},today,null,resolve).arvo,2);
 console.log('Havaintolohkot, samat aikaleimat, suodatus, pivotointi ja nimitunnisteet toimivat.');
+
+const base = new Date(2026, 10, 24, 12);
+const sample = '((ti 24.11. klo 12.30, Kanan fileesuikaleet: annos = 150 g, proteiini = 34,5 g, rasva = 3 g, valmistustapa = paistettu))';
+const recipe = M.parse(sample, base);
+assert.deepEqual(recipe.map(o=>[o.nimi,o.luku,o.paivat[0],o.kello]), [
+  ['annos (g)',150,today,'12:30'], ['proteiini (g)',34.5,today,'12:30'], ['rasva (g)',3,today,'12:30'],
+  ['valmistustapa',null,today,'12:30']
+]);
+assert.equal(M.parse('((24.11., klo 11:30, Kohde: arvo = 0))',base)[0].kello,'11:30');
+assert.deepEqual(M.parse('((eilen, Uni (h) = 8))',base)[0].paivat,['2026-11-23']);
+assert.deepEqual(M.parse('((24.11.2026, testi1 = 3))',base)[0].paivat,[today]);
+assert.deepEqual(M.parse('((2026-11-24, testi1 = 3))',base)[0].paivat,[today]);
+assert.deepEqual(M.parse('((päivätön = false))',base)[0].paivat,[]);
+assert.equal(M.parse('((päivätön = false))',base)[0].totuus,false);
+assert.equal(M.parse('((Kohde: arvo = "A, B = C",\n arvo 2 = 0, #arki, ^koe-1))',base)[0].arvo,'A, B = C');
+assert.equal(M.parse('((Kohde: annos (g) = 150 kg))',base)[0].luku,null);
+assert.equal(M.parse('((Selite: a=b))',base)[0].arvo,'a=b');
+assert.equal(M.parse('((joka tiistai, Kohde: arvo = 8))',base).length,0);
+assert.equal(M.parse('((25.11. klo 10–12, Kohde: arvo = 8))',base).length,0);
+assert.equal(M.parse('((30.2.2026, Kohde: arvo = 8))',base).length,0);
+assert.equal(M.parse('`((eilen, testi = 66))`',base).length,0);
+assert(!M.mask(sample,null,base).includes('12.30'));
+const mixed = [{text: '((Fileesuikale @2026-11-24 | Annos (g): 150 | #ravinto))\n' +
+  '((24.11.2026, Fileesuikale: annos = 150 g, #ravinto))\n!!23.11.2026: Annos (g): 50!!',created:base}];
+assert.equal(M.ruutu(mixed,{...spec,laske:'summa'},today).arvo,300);
+assert.equal(M.ruutu(mixed,{...spec,laske:'maara'},today).arvo,2);
+assert.equal(M.ruutu(mixed,{...spec,laske:'viimeisin'},today).arvo,'2 arvoa');
+const first = recipe[0], stripped = sample.slice(0,first.removeFrom)+sample.slice(first.removeTo);
+assert.equal(M.parse(stripped,base).length,3);
+assert.equal(M.format('Uni (h)','8,5','',today,'arki','qh2'),'((24.11.2026, Uni (h) = 8,5, #arki, ^qh2))');

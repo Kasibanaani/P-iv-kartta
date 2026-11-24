@@ -91,7 +91,7 @@ def run(browser, width):
     press(page, cell, phone)
     page.locator('#nvcell-input').fill('8')
     page.locator('#nvcell-input').press('Enter')
-    file_is(page, NOTE, ENTRY + '\n((Uni (h): 8))\n')
+    file_is(page, NOTE, ENTRY + '\n((Uni (h) = 8))\n')
     expect(vfield(page, key)).to_have_text('8 h')
 
     # Sama muuttuja eri kirjainkoossa on jo näkymässä.

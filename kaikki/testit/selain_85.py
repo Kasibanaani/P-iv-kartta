@@ -14,7 +14,7 @@ DAY = '2026-11-24'
 DAY_PATH = f'paivat/2026/{DAY}.md'
 MARK = '((Fileesuikale @2026-11-24 | Annos (g): 150 | Kylmä: false | #ravinto))'
 DATA = {
-    SOURCE: '# Ruokakirjaukset\n\n' + MARK + '\n' + MARK + '\n'
+    SOURCE: '# Ruokakirjaukset\n\n' + MARK + '\n' + '((ti 24.11.2026, Fileesuikale: annos = 150 g, Kylmä = false, #ravinto))\n'
             '((Lohi @2026-11-24 | Annos (g): 100))\n',
     'data/kojelauta.md': '| id | otsikko | muuttuja | laske | aika | tunniste | kansio | yksikko | nayta |\n'
                         '| --- | --- | --- | --- | --- | --- | --- | --- | --- |\n',
@@ -89,7 +89,7 @@ def run(browser, url, width):
     quick.get_by_role('button', name='Lisää kirjaus', exact=True).click()
     quick.get_by_role('button', name='Valmis', exact=True).click()
     page.wait_for_function(
-        r'p => (__repo.get(p)?.match(/Annos \(g\): 50 \| #ravinto \| \^qh/g) || []).length === 2',
+        r'p => (__repo.get(p)?.match(/Annos \(g\) = 50, #ravinto, \^qh/g) || []).length === 2',
         arg=DAY_PATH)
     expect(card.locator('.dval')).to_have_text('400')
     assert not errors, errors

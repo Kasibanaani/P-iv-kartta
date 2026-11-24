@@ -1,10 +1,12 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.86 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 24.11.2026
+**Vaihe:** versio 0.87 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 24.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.87 (24.11.2026, suunnitelman kohta 0.1).** Lyhyt havainto on `((uni (h) = 8))`. Päivä ja kellonaika voivat olla apin tutussa muodossa, esimerkiksi `((ti 24.11. klo 12.30, Kanan fileesuikaleet: annos = 150 g, proteiini = 34,5 g, #ravinto))`. Päivä ja kohde ovat valinnaisia. Desimaalipilkku kuuluu lukuun. Lainausmerkit säilyttävät erottimia sisältävän tekstin. Numeroarvon jäljessä oleva yksikkö toimii koonneissa yhdessä saman yksikön sisältävän muuttujan kanssa. Aiemmat `((…))`- ja `!!…!!`-kirjaukset luetaan samassa aineistossa. Pikamuistiinpano, kojelaudan *Kirjaa arvo* ja Muistion uudet tekstimuuttujasolut käyttävät yhteistä uutta kirjoitusasua. Taulukko ja kojelauta säilyttävät erilliset samanaikaiset kirjaukset ja niiden lähteet. Varsinainen puhelin-Safari jäi kokeiltavaksi.
 
 **0.86 (24.11.2026, työjonon ensimmäinen kohta).** Kojelaudassa on yksi pieni vierityksessä näkyvä muokkauspainike, ruutukohtaiset hammasrattaat ja yhteinen lisäys. Asetukset on ryhmitelty sisällön, rajausten, esityksen ja asettelun mukaan. Ruutujen järjestys ja koko tallentuvat Vaultiin. Havaintoruutu ja taulukkokortti poistetaan editorista, CSV-mittariruutu piilotetaan ja voidaan palauttaa lisäysvalikosta. Lukitun muistiinpanon esikatselu on tietokoneella leveämpi ja sulkeutuu ulkopuolelta tai Escillä. Muistion rivin runko lukitsee kosketusvierityksen pystysuuntaan, sarakeotsikoista voi panoroida sivuttain. Viikkoaikajanalla merkintä seuraa raahatessa osoitinta ja muuttunut päivä, aika ja kuittaus tallentuvat. Fyysinen iPhone ja Macin Safarin järjestelmäele jäivät kokeiltaviksi. Modern Web Guidance: dialogin ulkopuolinen sulkeminen ja raahaus näppäimistövaihtoehdolla.
 

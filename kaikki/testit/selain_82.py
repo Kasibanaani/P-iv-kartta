@@ -117,7 +117,7 @@ def run(browser, width):
     today = datetime.date.today().isoformat()
     press(page, day(page, today), phone)
     close_outside(page)
-    text = text + '\n((Lähtö: ' + today + '))\n'
+    text = text + '\n((Lähtö = ' + today + '))\n'
     file_is(page, NOTE, text)
     expect(cell(page, KEY)).to_have_text(short(today))
 

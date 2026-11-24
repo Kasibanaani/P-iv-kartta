@@ -12,6 +12,9 @@ NEW = 'Uusi seuranta'
 KEY = f'muuttuja({json.dumps(NAME, ensure_ascii=False)})'
 ENTRY = f'---\ntyyppi: paiva\nluotu: 2026-11-23\nuni: 99\n---\n# Ensimmäinen\n\nAamulla !!22.11.: {NAME}: 8!! kirjattu.\n'
 SECOND = '# Toinen\n\nTekstiä.\n'
+COMPOUND_PATH = 'paivat/ateria.md'
+COMPOUND = '# Ateria\n\n((24.11.2026, Fileesuikale: annos = 150 g, rasva = 3 g, #ravinto, ^ateria-1))\n'
+COMPOUND_COL = 'annos (g)'
 MULTI = f'# Monta merkintää\n\n!!22.11.: {NAME}: 6!!\n!!21.11.: {NAME}: 10!!\n'
 DOC = ('---\ntyyppi: nakyma\notsikko: Päivät\nnakyy: ei\n'
        'mista: kansio = paivat\nsarakkeet:\n  - otsikko | w=180\n  - kansio | w=170\n'
@@ -38,7 +41,7 @@ def cell(page, title, name=NAME):
 
 
 def run(browser, url, width):
-    notes = {NOTE: ENTRY, OTHER: SECOND, 'paivat/monta.md': MULTI}
+    notes = {NOTE: ENTRY, OTHER: SECOND, 'paivat/monta.md': MULTI, COMPOUND_PATH: COMPOUND}
     notes.update({f'paivat/n{i}.md': f'# Rivi {i:02}\n\nOmenahaku' for i in range(45)})
     page = launch(browser, url, width, notes, DOC)
     errors = []
@@ -47,8 +50,8 @@ def run(browser, url, width):
     edit(page)
     editor = page.locator('#nvedit')
     picker = editor.get_by_label('Tekstimuuttuja', exact=True)
-    expect(editor.locator('#nved-variable-names option')).to_have_attribute('value', NAME)
-    for name in (NAME.lower(), NEW):
+    assert NAME in editor.locator('#nved-variable-names option').evaluate_all('opts => opts.map(o => o.value)')
+    for name in (NAME.lower(), NEW, COMPOUND_COL):
         picker.fill(name)
         editor.get_by_role('button', name='Lisää muuttuja').click()
     editor.get_by_label(f'Näyttötapa: {NAME}').select_option('luku')
@@ -65,13 +68,24 @@ def run(browser, url, width):
     value = page.locator('#nvcell-input')
     value.fill('0')
     value.press('Enter')
-    second = SECOND + f'\n(({json.dumps(NAME, ensure_ascii=False)}: 0))\n'
+    second = SECOND + f'\n(({json.dumps(NAME, ensure_ascii=False)} = 0))\n'
     file_is(page, OTHER, second)
     expect(cell(page, 'Toinen')).to_have_text('0')
     cell(page, 'Toinen').click()
     value.fill('')
     value.press('Enter')
     file_is(page, OTHER, SECOND + '\n\n')
+
+    expect(cell(page, 'Ateria', COMPOUND_COL)).to_have_text('150')
+    cell(page, 'Ateria', COMPOUND_COL).click()
+    expect(value).to_have_value('150')
+    value.fill('125,5')
+    value.press('Enter')
+    file_is(page, COMPOUND_PATH, COMPOUND.replace('150 g', '125,5 g'))
+    cell(page, 'Ateria', COMPOUND_COL).click()
+    value.fill('')
+    value.press('Enter')
+    file_is(page, COMPOUND_PATH, COMPOUND.replace(' annos = 150 g,', ''))
 
     # Yksittäisen havainnon muutos säilyttää muun tekstin ja rinnakkaisen GitHub-muutoksen.
     cell(page, 'Ensimmäinen').click()
