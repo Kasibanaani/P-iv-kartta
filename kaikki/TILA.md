@@ -1,10 +1,12 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.72 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 24.11.2026
+**Vaihe:** versio 0.73 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 24.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.73 (24.11.2026).** Kojelaudan **Lähteet** sulkeutuu, kun napautat ruudun ulkopuolta, esimerkiksi yläpalkkia. Pitkä lista vierii ruudun sisällä, ja uuden lähdelistan avaaminen sulkee edellisen. Lähderivi avaa muistiinpanon kuten ennen. Esc sulkee listan tietokoneella ja palauttaa kohdistuksen Lähteet-painikkeeseen. Testi `selain_73.py` kattaa ulkopuolisen napautuksen, pitkän listan, ruudun vaihdon, näppäimistön ja lähdemuistiinpanon avauksen 320, 390, 1280 ja 1440 px leveyksillä Chromiumissa. Fyysisen iPhonen Safari jäi kokeiltavaksi. Modern Web Guidance: näkyvyys ja säätimen saavutettava tila.
 
 **0.72 (24.11.2026).** **Taulukot → Täytä alas.** Vedä valitun solun oikean alakulman kahvaa tai avaa taulukon ⋯-valikosta **Täytä alas…** ja anna viimeinen rivi. Esikatselu näyttää alueen ja arvon tai kaavan. Suhteelliset solu- ja alueviitteet siirtyvät myös toiselle välilehdelle viittaavissa kaavoissa. Luvut ja tekstit kopioituvat sellaisinaan. Kaavalle, jonka viittaustapaa appi ei tue, näytetään ilmoitus ennen tallennusta. Vahvistettu täyttö tallentuu yhdessä muutoksessa ja kumoutuu yhdellä Cmd/Ctrl+Z:lla. Lähdesolun tai kohdealueen rinnakkaismuutos pysäyttää täytön.
 
