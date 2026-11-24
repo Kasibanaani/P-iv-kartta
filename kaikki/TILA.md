@@ -1,10 +1,12 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.73 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 24.11.2026
+**Vaihe:** versio 0.74 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 24.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.74 (24.11.2026, toteutusjonon kohta 2).** Taulukot → ⋯ → **Lukumuoto**. Valitse yleinen, luku, euro tai prosentti ja 0–6 desimaalia. Valittu solu tai alue tulee esitäytettynä. Puhelimella alueen voi myös kirjoittaa, esimerkiksi `A1:B3`. Muotoilu näkyy ruudukossa. Kaavarivi, laskenta, kopiointi ja vienti käyttävät samaa dataa kuin ennen. Koko alueen muotoilu kumoutuu yhdellä Cmd/Ctrl+Z:lla tai taulukon ⋯-valikon **Kumoa lukumuoto** -toiminnolla. Kokeilu tallentaa muodon selaimeen välilehden ja soluosoitteen mukaan. Muoto näkyy samalla osoitteella myös rakenneoperaation jälkeen. Testi `selain_74.py` kattaa kosketuksen, näppäimistön, perumisen, kumoamisen, uudelleenlatauksen ja kirjoittamattomuuden testivaultiin Chromiumissa 320, 390, 1280 ja 1440 px:llä. Fyysisen iPhonen Safari jäi kokeiltavaksi. Modern Web Guidance: lomakekenttien nimet ja kohdistus.
 
 **0.73 (24.11.2026).** Kojelaudan **Lähteet** sulkeutuu, kun napautat ruudun ulkopuolta, esimerkiksi yläpalkkia. Pitkä lista vierii ruudun sisällä, ja uuden lähdelistan avaaminen sulkee edellisen. Lähderivi avaa muistiinpanon kuten ennen. Esc sulkee listan tietokoneella ja palauttaa kohdistuksen Lähteet-painikkeeseen. Testi `selain_73.py` kattaa ulkopuolisen napautuksen, pitkän listan, ruudun vaihdon, näppäimistön ja lähdemuistiinpanon avauksen 320, 390, 1280 ja 1440 px leveyksillä Chromiumissa. Fyysisen iPhonen Safari jäi kokeiltavaksi. Modern Web Guidance: näkyvyys ja säätimen saavutettava tila.
 
@@ -221,7 +223,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 **Kojelaudan jatko (0.71:n jälkeen):** kokeile tarkistuslistaa ja kenttäruutua. Kuvaajien esitystavat ja ruutujen sijoittelu muokkaustilassa ovat auki.
 
-**Solumuokkauksen kokeilun jälkeen.** Kojelaudassa kenttäruudun lähteen voi rajata ja esitystavan valita (0.71). Vapaa sijoittelu on auki. Muistion lajittelu usealla kentällä on valmis (A0.7). Taulukoiden näkymävälilehti käyttää nyt samaa editoria (0.67). Soluviittauksen poiminta on valmis (0.68). Täyttö alas on valmis (0.72). Taulukon seuraava vaihe on lukumuotojen rajattu kokeilu (toteutusjonon kohta 2). Korjaussuunnitelman kohdassa 4 sarakeotsikon oma näyttönimi odottaa vielä päätöstä pysyvästä tallennusmuodosta.
+**Taulukoiden jatko.** Soluviittauksen poiminta (0.68), täyttö alas (0.72) ja laitekohtainen lukumuotoilu (0.74) ovat kokeiltavissa. Yhteinen lukumuoto edellyttää päätöstä tallennuspaikasta ja siitä, seuraako muoto soluosoitetta vai siirrettävää sisältöä. Toteutusjonon seuraava itsenäinen taulukkoaskel on valittava jäädytysalue. Sarakeotsikon oma näyttönimi odottaa päätöstä pysyvästä tallennusmuodosta.
 
 
 Kohdan 18 toistuvuuskokeilu 0.52 on [omassa haarassaan](https://github.com/Kasibanaani/P-iv-kartta/tree/kaikki-toistuvuuskokeilu/kaikki). Se kattaa Muistion listan, kalenterin, kuittauksen ja uuden pikamuistutuksen. Kokeile erillisellä testivaultilla sekä kuittauksesta laskettavaa että kalenterissa tasavälistä toistoa. Toistuvuuden vakiinnuttaminen, kuukausirytmin reunatapaukset ja vanhan aineiston siirto ovat edelleen avoimia. Flow-tekstin pysyvä muoto odottaa kokeilupalautetta.
