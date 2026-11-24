@@ -132,7 +132,7 @@ def desktop(browser, width):
 
     # Tekstimuuttuja: merkintä lisätään muistiinpanon loppuun.
     drag(page, 'Päivä 00', KEY, 'Päivä 02')
-    page.wait_for_function("() => __repo.get('paivat/p02.md').endsWith('!!Uni (h): 8!!\\n')")
+    page.wait_for_function("() => __repo.get('paivat/p02.md').endsWith('((Uni (h): 8))\\n')")
     assert repo(page, 'paivat/p01.md').startswith(NOTES['paivat/p01.md'])
     expect(cell(page, 'Päivä 02', KEY)).to_have_text('8 h')
     assert not errors, errors

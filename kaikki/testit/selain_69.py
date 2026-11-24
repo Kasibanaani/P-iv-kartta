@@ -65,7 +65,7 @@ def run(browser, url, width):
     value = page.locator('#nvcell-input')
     value.fill('0')
     value.press('Enter')
-    second = SECOND + f'\n!!{NAME}: 0!!\n'
+    second = SECOND + f'\n(({json.dumps(NAME, ensure_ascii=False)}: 0))\n'
     file_is(page, OTHER, second)
     expect(cell(page, 'Toinen')).to_have_text('0')
     cell(page, 'Toinen').click()
