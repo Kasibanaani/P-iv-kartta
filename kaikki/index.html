@@ -1631,6 +1631,23 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 
 .nved-add-field{margin-top:8px}
 .nved-add-field label{display:block;margin-bottom:4px}
+/* 0.80: ＋ sarake otsikkorivin lopussa ja sen ikkuna */
+.rvhead .rv-add{justify-content:center;padding:0}
+.rv-add-btn{width:100%;height:100%;min-height:30px;padding:0;border:0;background:none;color:var(--accent);font:inherit;font-size:18px;line-height:1;cursor:pointer}
+.rv-add-btn:hover{background:var(--fill)}
+.rv-add-btn:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+#nvcol-add{width:min(420px,calc(100vw - 20px))}
+#nvcol-form{display:grid;gap:12px}
+#nvcol-form label{display:block;margin-bottom:4px;font-size:14px;font-weight:600}
+#nvcol-form :is(input,select){box-sizing:border-box;width:100%;min-height:42px;font-size:16px}
+#nvcol-info{margin:0 0 10px}#nvcol-source-hint{margin:6px 0 0}
+.nvcol-picks{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.nvcol-picks[hidden]{display:none}
+:is(.nvcol-picks,#nvcol-similar) .rvchip{min-height:32px;border:0;font:inherit;font-size:14px;cursor:pointer}
+#nvcol-similar{margin:8px 0 0}#nvcol-similar:empty{display:none}
+#nvcol-similar .rvchip{margin:4px 6px 0 0}
+#nvcol-error{margin:0;color:var(--red)}#nvcol-error:empty{display:none}
+#nvcol-form .nved-foot{justify-content:flex-end;gap:8px;margin-top:0}
 .rvt{position:sticky;left:0;z-index:1;background:inherit;font-weight:650;font-size:calc(15px*var(--tz))}
 .rvb .rvr.src-yhdessa .rvt{box-shadow:inset 4px 0 0 var(--srcy)}.rvb .rvr.src-tekoaly .rvt{box-shadow:inset 4px 0 0 var(--srcai)}
 .rvhead{cursor:default;background:var(--bg)}.rvhead .rvc{min-height:30px;font-size:12px;font-weight:600;color:var(--label2)}.rvhead .rvt{font-size:12px;font-weight:600;background:var(--bg)}
@@ -5502,6 +5519,8 @@ function relText(n,cls,lim){var d=el('div',cls||'nt'),txt=String(n.text||''),at=
   d.appendChild(document.createTextNode(T(at)));return d;}
 function renderNotes(){if(nbObs){nbObs.disconnect();nbObs=null;}if(nvTagObserver){nvTagObserver.disconnect();nvTagObserver=null;}var p=panels.notes,previous=$('nlist');
   var editorFocus=nvInline&&p.contains(nvInline.form)&&nvInline.form.contains(document.activeElement)?document.activeElement:null;
+  var headFocus=previous&&previous.contains(document.activeElement)&&document.activeElement.closest('.rvhead .rvc');
+  if(headFocus&&!nvFocusHead)nvFocusHead={key:headFocus.classList.contains('rv-add')?'+':headFocus.dataset.k,until:Date.now()+1000};
   var scroll=previous&&previous.classList.contains('rv-scroll')&&[previous.dataset.view,previous.scrollLeft,previous.scrollTop];
   p.textContent='';var today=todayIso();
   /* Kaikki 0.6 (Emil 22.11.2026): vaultin muistiinpanot ovat pysyviä, joten Muistiossa ei ole Avoimet/Kuitatut-jakoa; kuittaus kuuluu kalenterin päivälle */
@@ -5568,6 +5587,7 @@ function renderNotes(){if(nbObs){nbObs.disconnect();nbObs=null;}if(nvTagObserver
   filterNotes();if(!locked)noteMore(footer);noteFab(p);
   if(scroll&&list.dataset.view===scroll[0]){list.scrollLeft=scroll[1];list.scrollTop=scroll[2];}
   if(editorFocus?.isConnected)editorFocus.focus({preventScroll:true});
+  else nvFocusHeadNow();
 }
 /* ---- Kaikki 0.10 (Emil 22.11.2026, suunnitelman kohta 2): muistiinpanot riveinä ja sarakkeina.
    Kortit / Rivit laitekohtaisesti (kaikki:nmode; oletus Rivit tietokoneella, Kortit puhelimella). Oletusnäkymä Kaikki muistiinpanot:
@@ -5659,7 +5679,17 @@ function nvSortText(sort){
   }).join(', ');
 }
 function nvViews(){if(!vOn()||!VC||!VC.files)return [];var out=[];Object.keys(VC.files).sort().forEach(function(p){if(!/^nakymat\/[^/]+\.md$/.test(p))return;var V=nvParse(p,VC.files[p].t);if(V)out.push(V);});return out;}
-function nvCur(){var id=null;try{id=localStorage.getItem('kaikki:nview');}catch(e){}var V=nvViews().filter(function(v){return v.id===id;})[0];return V||NV_DEF;}
+function nvCur(){var id=null;try{id=localStorage.getItem('kaikki:nview');}catch(e){}var V=nvViews().filter(function(v){return v.id===id;})[0];return V?nvPendView(V):NV_DEF;}
+/* 0.80: odottava tai tallentuva oma muutos näkyy heti (esim. ＋ sarake). Ristiriita ja virhe näyttävät Vaultin version, ja valinta tehdään Näkymä-valikossa. */
+function nvPendView(V){
+  var e=vOn()&&NV_PEND[nvPendKey(V.id)];
+  if(!e||e.D.kind==='taulukko'||(e.st!=='odottaa'&&e.st!=='tallentuu'))return V;
+  var D=e.D,cols=D.cols.map(function(c){return Object.assign({},c);});
+  if(!cols.some(function(c){return c.k==='otsikko';}))cols.unshift({k:'otsikko'});
+  return Object.assign({},V,{name:String(D.name||'').trim()||V.name,cols:cols,
+    mista:D.mista.filter(function(c){return c.k&&(c.k==='kaikki'||c.v!=='');}).map(function(c){return Object.assign({},c);}),
+    sort:D.sort.filter(function(rule){return rule.k;}).map(function(rule){return Object.assign({},rule);})});
+}
 function nvPass(V,n){return V.mista.every(function(c){var op=c.op||'=',neg=op==='!=';if(c.k==='kaikki')return true;
   if(c.k==='kansio'){var hit=!!n.vp&&n.vp.indexOf(c.v.replace(/\/$/,'')+'/')===0;return neg?!hit:hit;}
   if(c.k==='tunniste'){var t=noteTags(n).indexOf(noteTagKey(c.v))>=0;return neg?!t:t;}
@@ -5932,7 +5962,8 @@ function rowsInto(list,l,today,dates,V,locked,baseSort){
   }
   L=nvSortList(L,activeSort,V,today,formulas);
   var NL=nvLay(V); // Laitejärjestys kuuluu vain rivien piirtoon. Editori käyttää näkymän omia sarakkeita.
-  var tpl=NL.cols.map(function(c){var w=NL.w[nvKey(c)]||c.w;return w?w+'px':(NV_W[c.k]||NV_W[c.t==='kylla-ei'?'kylla':c.t]||NV_W.teksti);}).join(' ');list.style.setProperty('--rvcols',tpl);
+  var addColumn=nvCanAddColumn(V,locked);
+  var tpl=NL.cols.map(function(c){var w=NL.w[nvKey(c)]||c.w;return w?w+'px':(NV_W[c.k]||NV_W[c.t==='kylla-ei'?'kylla':c.t]||NV_W.teksti);}).join(' ')+(addColumn?' 44px':'');list.style.setProperty('--rvcols',tpl);
   var hw=el('div','rvh'),hr=el('div','rvhead');
   NL.cols.forEach(function(c,i){
     var cell=el('div','rvc'+(c.k==='otsikko'?' rvt':''));
@@ -5952,6 +5983,11 @@ function rowsInto(list,l,today,dates,V,locked,baseSort){
     cell.dataset.k=nvKey(c);var rz=el('i','rv-rz');rz.setAttribute('aria-hidden','true');cell.appendChild(rz);nvHeadDrag(sort,cell,rz,V,c,list,hr);
     hr.appendChild(cell);
   });
+  if(addColumn){
+    var addCell=el('div','rvc rv-add'),add=button(addCell,'＋','rv-add-btn',function(){nvAddColumn(V,add);});
+    add.id='rv-add-col';add.setAttribute('aria-label','Lisää sarake');add.setAttribute('aria-haspopup','dialog');add.title='Lisää sarake';
+    hr.appendChild(addCell);
+  }
   paintSort();hw.appendChild(hr);var body=el('div','rvb');list.append(hw,body);
   var actionCells=!locked&&NL.cols.some(function(c){return c.k==='tunnisteet'||c.k==='takaisinlinkit';});
   L.forEach(function(n){var r=el('div','rvr'+srcCls(n)),canEdit=!locked&&!noteSelectionMode&&nvCanEditNote(n),editable=false;
@@ -6456,6 +6492,19 @@ function nvText(D,old){var fm=['tyyppi: nakyma','otsikko: '+D.name,'kuvaus: '+(D
   fm.push('sarakkeet:');D.cols.forEach(function(c){fm.push('  - '+nvColLine(c));});
   var body=old?VAULT.split(old).body:'# '+D.name+'\n';return '---\n'+fm.join('\n')+'\n---\n'+body;}
 var nvDraft=null;
+/* Näkymän luonnos editorille ja otsikkorivin ＋-sarakkeelle (0.80): sama perusta, odottava tallennus ja aloitustila. */
+function nvColCopy(c){return {k:c.k,t:c.t||'',o:c.o||'',w:c.w||0};}
+function nvDraftOf(V,kind,path,old){
+  var sheet=kind==='taulukko',fm=old?VAULT.split(old).fm:null,pe=path?NV_PEND[nvPendKey(path)]:null;
+  var D={path:path||null,old:old,cancel:false,kind:kind,repo:vRepo(),branch:G.branch,
+    name:V?V.name:'Uusi näkymä',lahde:fm?VAULT.fmGet(fm,'lahde'):'emil',luotu:fm?VAULT.fmGet(fm,'luotu'):'',kuvaus:fm?VAULT.fmGet(fm,'kuvaus'):'',
+    mista:(V?V.mista:[]).filter(function(c){return !sheet||c.k!=='kaikki';}).map(function(c){return {k:c.k,op:c.op||'=',v:c.v};}),
+    sort:(V?V.sort:[]).map(function(rule){return {k:rule.k,d:rule.d};}),
+    cols:(V?V.cols:NV_DEF.cols).map(nvColCopy)};
+  if(pe){var P0=JSON.parse(JSON.stringify(pe.D));['name','mista','sort','cols'].forEach(function(k){D[k]=P0[k];});D.old=P0.old;D.prevSer=nvSer(P0);}
+  D.start=JSON.stringify([D.name,D.mista,D.sort,D.cols]);
+  return D;
+}
 function nvEdit(V,kind){
   var sheet=kind==='taulukko',path=V&&V.id,old=path&&VC.files[path]?VC.files[path].t:null;
   if(sheet){
@@ -6474,14 +6523,7 @@ function nvEdit(V,kind){
       nvSaveDraft();
     });
   }
-  var fm=old?VAULT.split(old).fm:null,pe=path?NV_PEND[nvPendKey(path)]:null;
-  nvDraft={path:path||null,old:old,cancel:false,kind:kind,repo:vRepo(),branch:G.branch,
-    name:V?V.name:'Uusi näkymä',lahde:fm?VAULT.fmGet(fm,'lahde'):'emil',luotu:fm?VAULT.fmGet(fm,'luotu'):'',kuvaus:fm?VAULT.fmGet(fm,'kuvaus'):'',
-    mista:(V?V.mista:[]).filter(function(c){return !sheet||c.k!=='kaikki';}).map(function(c){return {k:c.k,op:c.op||'=',v:c.v};}),
-    sort:(V?V.sort:[]).map(function(rule){return {k:rule.k,d:rule.d};}),
-    cols:(V?V.cols:NV_DEF.cols).map(function(c){return {k:c.k,t:c.t||'',o:c.o||'',w:c.w||0};})};
-  if(pe){var P0=JSON.parse(JSON.stringify(pe.D));['name','mista','sort','cols'].forEach(function(k){nvDraft[k]=P0[k];});nvDraft.old=P0.old;nvDraft.prevSer=nvSer(P0);}
-  nvDraft.start=JSON.stringify([nvDraft.name,nvDraft.mista,nvDraft.sort,nvDraft.cols]);
+  nvDraft=nvDraftOf(V,kind,path,old);
   nvRenderEd();openSheet(d);
   if(!V){var nm=$('nved-name');nm.focus();nm.select();}
 }
@@ -6633,6 +6675,145 @@ function nvWidthEditor(dialog,draft){
   dialog.appendChild(section);show();
 }
 function nvCount(){var c=$('nved-count');if(!c||!nvDraft)return;var V={mista:nvDraft.mista.filter(function(x){return x.k==='kaikki'||x.v!=='';})},n=(data.notes||[]).filter(function(x){return !x.arch&&nvPass(V,x);}).length;c.textContent=n+(n===1?' muistiinpano':' muistiinpanoa');}
+/* ---- Kaikki 0.80 (jäsennys A3.2, suunnitelman kohta 21.2): uusi sarake Muistion otsikkoriviltä.
+   Rivinäkymän otsikkorivin lopussa on ＋. Pieni ikkuna: tallennustapa (oletus tekstimuuttuja, Emil 24.11.: sarake on muuttuja; vaihtoehtona
+   alkutietokenttä), nimi olemassa olevista tai uusi, samankaltaisen nimen ehdotus ja laji. Sarake lisätään näkymätiedoston loppuun samalla
+   osapäivityksellä ja ristiriitavalinnalla kuin näkymäeditorissa (nvSaveDraft), ja odottava muutos näkyy heti (nvPendView). Oletusnäkymä
+   Kaikki muistiinpanot on kiinteä, joten siellä sarake tallentuu uuteen näkymään, joka avautuu tallennuksen jälkeen. Muistiinpanoihin ei
+   kirjoiteta mitään ennen kuin soluun annetaan arvo. ---- */
+var nvFocusHead=null;
+function nvCanAddColumn(V,locked){return !locked&&!noteSelectionMode&&noteOrderEnabled()&&!(V.id&&viewLocked(V.id));}
+function nvFieldKey(name){return String(name||'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'_');}
+function mvStem(key){return String(key||'').replace(/\([^)]*\)/g,' ').replace(/[^0-9a-zåäöü]+/gi,' ').trim();}
+function mvNear(a,b){
+  if(Math.abs(a.length-b.length)>1)return false;
+  var i=0,j=0,miss=0;
+  while(i<a.length&&j<b.length){
+    if(a[i]===b[j]){i++;j++;continue;}
+    if(++miss>1)return false;
+    if(a.length>b.length)i++;else if(b.length>a.length)j++;else{i++;j++;}
+  }
+  return miss+(a.length-i)+(b.length-j)<=1;
+}
+/* Samankaltainen nimi: sama nimi ilman sulkeita ja välimerkkejä (Uni / Uni (h)), sanan alku (Uni / Uni yöllä) tai yksi kirjain eri (Mieliala / Mielilaa ei, Mieliala / Mielialaa kyllä). */
+function mvSimilar(name,names){
+  var key=MUUTTUJA.key(name),stem=mvStem(key);
+  if(!stem||names.some(function(g){return g.key===key;}))return [];
+  return names.filter(function(g){
+    var other=mvStem(g.key);if(!other)return false;
+    if(other===stem)return true;
+    if(Math.min(stem.length,other.length)>=3&&(other.startsWith(stem+' ')||stem.startsWith(other+' ')))return true;
+    return Math.min(stem.length,other.length)>=4&&mvNear(stem,other);
+  }).slice(0,3);
+}
+function nvAddColumn(V,anchor){
+  if(!nvCanAddColumn(V,false))return;
+  if(nvDraft){toast('Sulje näkymäeditori ensin.');return;}
+  var d=$('nvcol-add');
+  if(!d){
+    d=el('dialog','nved');d.id='nvcol-add';d.setAttribute('aria-labelledby','nvcol-title');SMALL[d.id]=1;document.body.appendChild(d);
+    d.addEventListener('click',function(e){if(e.target===d)closeSheet(d);});
+  }
+  var fresh=!V.id,variables=mvRegistry();
+  var fields=nvFieldNames().filter(nvUserKey).map(function(k){return {nimi:k,key:k};});
+  var heading=el('h2','','Uusi sarake'),info=el('p','sub',fresh?
+    'Kaikki muistiinpanot on kiinteä oletusnäkymä. Sarake tallentuu uuteen näkymään, joka avautuu tallennuksen jälkeen.':'Näkymä: '+V.name);
+  heading.id='nvcol-title';info.id='nvcol-info';
+  var form=el('form');form.id='nvcol-form';form.noValidate=true;form.setAttribute('aria-labelledby',heading.id);
+  function labelled(id,text,control){var box=el('div'),label=el('label','',text);control.id=id;label.htmlFor=id;box.append(label,control);form.appendChild(box);return box;}
+  var viewName=el('input');viewName.type='text';viewName.value='Uusi näkymä';viewName.autocomplete='off';viewName.maxLength=80;
+  if(fresh)labelled('nvcol-view','Uuden näkymän nimi',viewName);
+  var source=el('select');[['muuttuja','Tekstiin muuttujana'],['kentta','Alkutietoihin kenttänä']].forEach(function(o){
+    var option=el('option','',o[1]);option.value=o[0];source.appendChild(option);});
+  var sourceHint=el('p','sub');sourceHint.id='nvcol-source-hint';source.setAttribute('aria-describedby',sourceHint.id);
+  labelled('nvcol-source','Arvo tallentuu',source).appendChild(sourceHint);
+  var name=el('input');name.type='text';name.autocomplete='off';name.maxLength=70;name.setAttribute('aria-describedby','nvcol-similar nvcol-error');
+  var nameBox=labelled('nvcol-name','Nimi',name);
+  var picks=el('div','nvcol-picks');picks.id='nvcol-picks';picks.setAttribute('role','group');picks.setAttribute('aria-label','Olemassa olevat nimet');nameBox.appendChild(picks);
+  var similar=el('p','sub');similar.id='nvcol-similar';similar.setAttribute('aria-live','polite');nameBox.appendChild(similar);
+  var type=el('select'),typeTouched=false;NV_LAJIT.forEach(function(l){var option=el('option','',l[1]);option.value=l[0];type.appendChild(option);});
+  labelled('nvcol-type','Laji',type);
+  var option=el('input');option.type='text';option.autocomplete='off';option.maxLength=40;
+  var optionBox=labelled('nvcol-option','Yksikkö',option);
+  var msg=el('p');msg.id='nvcol-error';msg.setAttribute('aria-live','polite');form.appendChild(msg);
+  var actions=el('div','nved-foot');button(actions,'Peru','btn',function(){closeSheet(d);});
+  var submit=el('button','btn primary','Lisää sarake');submit.type='submit';actions.appendChild(submit);form.appendChild(actions);
+  function names(){return source.value==='muuttuja'?variables:fields;}
+  function pick(entry){
+    name.value=entry.nimi;name.removeAttribute('aria-invalid');msg.textContent='';
+    if(!typeTouched&&source.value==='muuttuja'){var last=entry.obs&&mvLast(entry);type.value=last&&last.x.o.luku!==null?'luku':'';}
+    paint();name.focus();
+  }
+  function chips(host,list){list.forEach(function(entry){
+    var chip=button(host,entry.nimi,'rvchip',function(){pick(entry);});chip.dataset.name=entry.nimi;
+  });}
+  function paint(){
+    var query=MUUTTUJA.key(name.value),all=names(),exact=all.find(function(g){return g.key===(source.value==='muuttuja'?query:nvFieldKey(name.value));});
+    var near=exact?[]:mvSimilar(name.value,all);
+    sourceHint.textContent=source.value==='muuttuja'?'Solun arvo kirjoitetaan muistiinpanon tekstiin, esimerkiksi !!Uni: 8!!.':'Solun arvo kirjoitetaan muistiinpanon alkutietoihin, esimerkiksi uni: 8.';
+    picks.textContent='';
+    chips(picks,exact?[]:all.filter(function(g){return (!query||g.key.includes(query))&&!near.includes(g);}).slice(0,8));
+    picks.hidden=!picks.children.length;
+    similar.textContent='';
+    if(near.length){
+      similar.appendChild(document.createTextNode('Samankaltainen nimi on jo käytössä. Valitse se tai jatka uudella nimellä: '));
+      chips(similar,near);
+    }
+    optionBox.hidden=!['luku','palkki'].includes(type.value);
+    optionBox.querySelector('label').textContent=type.value==='palkki'?'Väli, esimerkiksi 0-10':'Yksikkö';
+  }
+  function fail(text,control){msg.textContent=text;control=control||name;control.setAttribute('aria-invalid','true');control.focus();}
+  source.addEventListener('change',function(){msg.textContent='';paint();});
+  name.addEventListener('input',function(){name.removeAttribute('aria-invalid');msg.textContent='';
+    var hit=source.value==='muuttuja'&&variables.find(function(g){return g.key===MUUTTUJA.key(name.value);});
+    if(hit&&!typeTouched){var last=mvLast(hit);type.value=last&&last.x.o.luku!==null?'luku':'';}
+    paint();});
+  type.addEventListener('change',function(){typeTouched=true;paint();});
+  option.addEventListener('input',function(){option.removeAttribute('aria-invalid');msg.textContent='';});
+  form.addEventListener('submit',function(event){
+    event.preventDefault();
+    var key='',variable=source.value==='muuttuja';
+    if(variable){
+      var nm=nvValidVariable(name.value);
+      if(!nm){fail('Anna muuttujan nimi ilman kaksoispistettä tai huutomerkkejä alussa.');return;}
+      var id=MUUTTUJA.key(nm),match=variables.find(function(g){return g.key===id;});
+      if(V.cols.some(function(c){return MUUTTUJA.key(nvVariableName(c.k))===id;})){fail('Muuttuja on jo tässä näkymässä.');return;}
+      key=nvVariableColumn(match?match.nimi:nm);
+    }else{
+      key=nvFieldKey(name.value);
+      if(!nvUserKey(key)){fail('Aloita kirjaimella. Käytä kentän nimessä kirjaimia, numeroita, viivaa tai alaviivaa.');return;}
+      if(V.cols.some(function(c){return c.k===key;})){fail('Kenttä on jo tässä näkymässä.');return;}
+    }
+    var t=type.value,o=['luku','palkki'].includes(t)?option.value.trim():'';
+    if(o.includes('|')){fail('Jätä pystyviiva pois.',option);return;}
+    if(t==='palkki'&&o&&!/^\s*-?\d+(?:[.,]\d+)?\s*-\s*-?\d+(?:[.,]\d+)?\s*$/.test(o)){fail('Anna väli muodossa 0-10.',option);return;}
+    if(t==='palkki')o=o.replace(/,/g,'.').replace(/\s+/g,'');
+    var title=fresh?viewName.value.trim()||'Uusi näkymä':V.name;
+    closeSheet(d);
+    nvAddColumnSave(V,{k:key,t:t,o:o,w:0},title);
+  });
+  d.replaceChildren(heading,info,form);paint();openSheet(d);
+  (fresh?viewName:name).focus();
+}
+function nvAddColumnSave(V,col,title){
+  if(!vOn()||nvDraft)return;
+  var path=V.id||null,old=path&&VC.files[path]?VC.files[path].t:null;
+  if(path&&viewLocked(path)){toast(VIEW_LOCKED);return;}
+  var D=nvDraftOf(path?V:null,undefined,path,old);
+  if(!path){D.name=title;D.start='';}
+  D.cols.push(col);
+  nvDraft=D;nvSaveDraft();
+  nvFocusHead={key:nvKey(col),until:Date.now()+15000};
+  render();
+}
+/* Otsikkorivin kohdistus säilyy, kun rivit piirretään uudelleen (esim. taustatallennuksen jälkeen). */
+function nvFocusHeadNow(){
+  var want=nvFocusHead;if(!want)return;
+  if(Date.now()>want.until){nvFocusHead=null;return;}
+  var cell=Array.from(document.querySelectorAll('#nlist .rvhead .rvc')).find(function(item){return want.key==='+'?item.classList.contains('rv-add'):item.dataset.k===want.key;});
+  var target=cell&&cell.querySelector('button');if(!target)return;
+  nvFocusHead=null;target.focus({preventScroll:true});cell.scrollIntoView({block:'nearest',inline:'nearest'});
+}
 /* ---- Kaikki 0.55 (korjaussuunnitelma 1, 23.11.2026): näkymätiedoston turvallinen osapäivitys.
    Tallennus vertaa kolmea: avattu tiedosto (perusta, D.old), oma luonnos ja palvelimen tuorein tiedosto. Vain omat muutetut kentät
    (otsikko, mista, jarjestys, sarakkeet) kirjoitetaan tuoreimpaan tiedostoon; muut alkutiedot, kommentit, sarakkeiden lisämääreet ja
