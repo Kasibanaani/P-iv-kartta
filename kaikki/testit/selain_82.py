@@ -159,6 +159,20 @@ def run(browser, width):
     file_is(page, OTHER, SECOND)
     assert not errors, errors
     page.context.close()
+
+    # Muuten kuin valitsimella kirjoitettu arvo säilyy, kun päivän napauttaa päälle ja pois.
+    for raw in ('ensi viikolla', '2026-12-02,2026-11-30'):
+        loose = START.replace('mittaus: 2026-11-30\n', f'mittaus: {raw}\n')
+        other = launch(browser, width, note=loose)
+        press(other, cell(other), phone)
+        expect(other.locator('#dsheet')).to_have_attribute('open', '')
+        target = other.locator('#ds-grid .mday').nth(10)
+        press(other, target, phone)
+        press(other, target, phone)
+        close_outside(other)
+        other.wait_for_timeout(400)
+        file_is(other, NOTE, loose)
+        other.context.close()
     print(f'{width} px: OK')
 
 

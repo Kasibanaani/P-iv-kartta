@@ -2,7 +2,7 @@
 
 Itsenäinen ohje mille tahansa tekoälylle (Claude, ChatGPT/Codex, muu). Aiempaa keskustelua ei tarvitse muistaa. Lue ensin repon `AGENTS.md`, sitten `kaikki/TILA.md` ja tämä. Emilin päätökset on merkitty **Emil**, tekoälyn ehdotukset *ehdotus*. Ehdotus ei ole toteutuslupa; Emilin ”toteuta” on.
 
-Päivitetty 24.11.2026 (0.76: suodatus ja lajittelu taulukoissa; 0.75: rivien ja sarakkeiden jäädytys; 0.74: taulukon lukumuotoilu; 0.73: Lähteet sulkeutuu ulkopuolisella napautuksella; 0.72: täyttö alas ja Pikamuistiinpanon muuttujanapit; 0.71: Tämän päivän asiat ja Muistiinpanon kenttä kojelaudalle; 0.70: automaattisten sanalinkkien kytkin projektiasetuksissa; 0.69: Muistion tekstimuuttujasarakkeet, yhteinen vieritys ja nopeusmittaus; 0.68: kaavaviitteen poiminta Taulukoissa; 0.67: yhteinen editori Taulukoiden näkymävälilehdille; 0.66: kojelaudan muuttujaruudut; 0.65: tekstimuuttujien tunnistus, näyttö, infoikkuna ja luettelo; 0.64: Muistion lajittelu usealla kentällä; 0.63: Muistion kenttien solumuokkaus ja näyttötavat, kojelaudan kenttäkortit työjonossa; 0.62: jaetut sarakeleveydet ja sovitus sisältöön; 0.61: Lehto ja Hiillos oletusilmeenä; 0.60: korjaussuunnitelman kohdat 1–3 ja kohdan 4 sarakejärjestys tehty; uudet kohdat 21–22 Emilin sanelusta). Kohdan 18 ensimmäinen kokeilu on omassa haarassaan. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
+Päivitetty 24.11.2026 (0.80–0.82: ＋ sarake otsikkoriviltä, yhteenvetorivi ja päiväsarake kuukausivalitsimella ja kalenteriin, jäsennys A3.2–A3.4; 0.76: suodatus ja lajittelu taulukoissa; 0.75: rivien ja sarakkeiden jäädytys; 0.74: taulukon lukumuotoilu; 0.73: Lähteet sulkeutuu ulkopuolisella napautuksella; 0.72: täyttö alas ja Pikamuistiinpanon muuttujanapit; 0.71: Tämän päivän asiat ja Muistiinpanon kenttä kojelaudalle; 0.70: automaattisten sanalinkkien kytkin projektiasetuksissa; 0.69: Muistion tekstimuuttujasarakkeet, yhteinen vieritys ja nopeusmittaus; 0.68: kaavaviitteen poiminta Taulukoissa; 0.67: yhteinen editori Taulukoiden näkymävälilehdille; 0.66: kojelaudan muuttujaruudut; 0.65: tekstimuuttujien tunnistus, näyttö, infoikkuna ja luettelo; 0.64: Muistion lajittelu usealla kentällä; 0.63: Muistion kenttien solumuokkaus ja näyttötavat, kojelaudan kenttäkortit työjonossa; 0.62: jaetut sarakeleveydet ja sovitus sisältöön; 0.61: Lehto ja Hiillos oletusilmeenä; 0.60: korjaussuunnitelman kohdat 1–3 ja kohdan 4 sarakejärjestys tehty; uudet kohdat 21–22 Emilin sanelusta). Kohdan 18 ensimmäinen kokeilu on omassa haarassaan. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
 
 **Rakentajan nykyinen jatko-ohje:** aloita [Jäsennyksestä 24.11.2026](#jäsennys-24112026-seuraavaksi-tarkennettavat-ja-lykätyt): se kertoo, mikä on seuraavana, mikä tarkennetaan ensin ja mikä on lykätty. [Tulevien ominaisuuksien toteutusjono](#tulevien-ominaisuuksien-toteutusjono) ja numeroidut kohdat kuvaavat sisällön tarkemmin.
 
@@ -32,9 +32,9 @@ Jäsennys ohittaa toteutusjonon järjestyksen. Alkuperäiset kohdat (numerot sul
      - *Tekoälyn oletus tarkennukseen:* solu näyttää muistiinpanon viimeisimmän arvon. Muokkaus päivittää viimeisimmän merkinnän. Jos merkintää ei ole, uusi merkintä lisätään tekstin loppuun.
    - Järjestys:
      1. Suora kirjoitus soluun (21.1, tehty 0.79).
-     2. ＋ sarake (21.2), muuttujasarakkeena.
-     3. Yhteenvetorivi (21.3).
-     4. Päiväsarake (21.5). *Näytä kalenterissa* on oletuksena pois.
+     2. ＋ sarake (21.2), muuttujasarakkeena (tehty 0.80).
+     3. Yhteenvetorivi (21.3, tehty 0.81).
+     4. Päiväsarake (21.5, tehty 0.82). *Näytä kalenterissa* on oletuksena pois.
      5. Valinta, monivalinta ja tila (21.6). **Sirut mukailevat huurteisen lasin estetiikkaa** (Emil): läpikuultava, sumennettu pinta ja hento reuna. Safarissa `-webkit-backdrop-filter`, ja kontrasti vähintään 4,5:1.
      6. Täyttö alas Muistiossa (21.4).
      7. Ehtokaavat (21.7).
@@ -608,14 +608,16 @@ Hyväksymisehdot:
 - Toisen laitteen samanaikainen muutos käsitellään 0.55:n kenttäkohtaisella yhdistämisellä.
 - Tyhjentäminen poistaa rivin, ja desimaalipilkku säilyy.
 
-**21.2 Uusi sarake näkymästä.** Otsikkorivin lopussa on ＋. Siitä valitaan nimi ja laji, ja sarake lisätään näkymätiedostoon. Valittavana ovat myös jo löytyneet kentät (`nvFieldNames`). Kun Emil luo kentän apissa, se on hänen lupansa uudelle kentälle (kenttäsopimus). Liittyy korjaussuunnitelman kohtaan 4 (näyttönimi ja kenttänimi erikseen). Tekstimuuttujien valinta ja uuden luonnin työnkulku ovat kojelaudan kanssa yhteiset. Katso toteutusjonon kohta 3.
+**21.2 Uusi sarake näkymästä (tehty 0.80).** Otsikkorivin lopussa on ＋. Siitä valitaan nimi ja laji, ja sarake lisätään näkymätiedostoon. *Toteutus 0.80:* oletuksena tekstimuuttuja, vaihtoehtona alkutietokenttä; olemassa olevat nimet siruina ja samankaltaisen nimen ehdotus; oletusnäkymästä tehdään uusi näkymä. Valittavana ovat myös jo löytyneet kentät (`nvFieldNames`). Kun Emil luo kentän apissa, se on hänen lupansa uudelle kentälle (kenttäsopimus). Liittyy korjaussuunnitelman kohtaan 4 (näyttönimi ja kenttänimi erikseen). Tekstimuuttujien valinta ja uuden luonnin työnkulku ovat kojelaudan kanssa yhteiset. Katso toteutusjonon kohta 3.
 
-**21.3 Yhteenvetorivi (pystysuunta).** Taulukon alareunassa on kiinteä rivi. Sarakevalikon kohdassa *Laske* valitaan jokin seuraavista: ei mitään, summa, keskiarvo, mediaani, min, max, määrä, täytetyt, tyhjät, % täytetty tai kyllä-osuus.
+**21.3 Yhteenvetorivi (pystysuunta, tehty 0.81).** Taulukon alareunassa on kiinteä rivi. Sarakevalikon kohdassa *Laske* valitaan jokin seuraavista: ei mitään, summa, keskiarvo, mediaani, min, max, määrä, täytetyt, tyhjät, % täytetty tai kyllä-osuus.
 - Lasketaan näkyvät eli suodatetut rivit.
 - Valinta tallennetaan näkymätiedostoon sarakkeen määreeksi `| laske=summa`.
 - Kaavasarake voi viitata koko sarakkeeseen, esimerkiksi osuus `=hinta/SUMMA(hinta)`.
 
 Hyväksymisehdot: suodatin muuttaa tulosta, luvuissa tyhjät ja tekstit ohitetaan, ja desimaalit ovat oikein.
+
+*Toteutus 0.81:* lasku valitaan sarakevalikon kohdasta *Yhteenveto* tai yhteenvetorivin solusta. Määreen arvot ovat `summa`, `keskiarvo`, `mediaani`, `min`, `max`, `maara`, `taytetyt`, `tyhjat`, `osuus-taytetty` ja `osuus-kylla`. Rivi näkyy vain, kun jollakin sarakkeella on lasku, ja laskee näkyvät rivit (myös haun rajaamat). Näkymän kaavasarakkeen ryhmäfunktiot (`SUMMA(kenttä)` ym.) laskevat näkymän rivit, muistiinpanon tekstin kaavat koko Vaultin (tekoälyn ratkaisu, Emil vahvistaa).
 
 **21.4 Täyttökahva.** Valitun solun oikeassa alakulmassa on hiirellä vedettävä kahva. Alas vetäessä näkyy esikatselu: korostetut solut ja niiden määrä. Vapautus kirjoittaa saman arvon kaikkiin. Kosketuksella valitaan alue ja sitten *Täytä alas*.
 - Ensimmäinen versio ei arvaa sarjoja, kuten 1, 2, 3 tai peräkkäisiä päiviä.
@@ -626,9 +628,11 @@ Hyväksymisehdot:
 - Kumous palauttaa jokaisen tiedoston tavulleen.
 - Jos yhteys katkeaa, näkyy, mitkä rivit jäivät jonoon.
 
-**21.5 Päivä-sarake valitsimella.** Napautus avaa pienen kuukausinäkymän, jossa nykyistä Päivät-valitsinta (`dsheet`) voi käyttää pohjana. Valittavana on yksi tai useampi päivä. Ulkopuolinen napautus sulkee valitsimen ja tallentaa.
+**21.5 Päivä-sarake valitsimella (tehty 0.82).** Napautus avaa pienen kuukausinäkymän, jossa nykyistä Päivät-valitsinta (`dsheet`) voi käyttää pohjana. Valittavana on yksi tai useampi päivä. Ulkopuolinen napautus sulkee valitsimen ja tallentaa.
 - Tallennusmuoto on `kenttä: 2026-11-30` tai useammalle päivälle `kenttä: 2026-11-30, 2026-12-02`.
 - Solussa näkyy ”ma 30.11.” ja tarvittaessa ”+1”.
+
+*Toteutus 0.82:* valitsin on muistiinpanon Päivät-napin kuukausivalitsin (`dsheet`), ja sen yläreunassa lukee sarake ja muistiinpano. Ilman muutosta sulkeminen ei kirjoita. Tietokoneella kirjoittaminen ja F2 avaavat tekstikentän (päivät pilkulla). *Näytä kalenterissa* on sarakkeen määre `| kalenteri=kylla` (sarakevalikko, näkymäeditori, ＋-ikkuna). Päivät näkyvät kalenterin Viikko-listassa, Päivä-näkymässä ja aikajanan Koko päivä -alueella vain luettavina merkintöinä, jotka avaavat muistiinpanon.
 
 **21.6 Valinta, monivalinta ja tila.**
 - **Asetukset:** sarakkeessa on valintalista Emilin järjestyksessä, ja jokaisella valinnalla on väri.
@@ -927,7 +931,7 @@ Tee valitusta suunnasta ensin rajattu vertailu nykyiseen Muistion rivinäkymää
 ### Mistä seuraava rakentaja aloittaa
 
 1. Lue ensin uusin TILA, tarkista päähaara ja mahdollinen kokeiluhaara. Tee edeltävän vakausarvion tallennus- ja vierityskorjaukset A0:n yhteydessä. Suunnitelman alun yöajon ohje on historiallinen palautusohje: päähaarassa 0.53 on ZIP-korjaus, 0.54 kalenterikorjaus ja toistuvuuden 0.52-kokeilu omassa haarassaan. Tarkista saraketyön sisältö koodista ennen mahdollista palautusta.
-2. A0:n ominaisuusketju näkymän turvallisesta osapäivityksestä taulukoiden yhteiseen näkymäeditoriin on valmis 0.67:ssä. Kaavaviittauksen poiminta (0.68), täyttö alas (0.72), laitekohtainen lukumuotoilu (0.74), jäädytys (0.75) sekä suodatus ja lajittelu näytön järjestyksenä (0.76) ovat kokeiltavissa. Jaetut lukumuodot ja aikamuodot ovat kokeiltavissa (0.77). Oma järjestys ja jaettu lukitus ovat kokeiltavissa (0.78). Muistion solun suora kirjoitus on kokeiltavissa (0.79). Seuraava askel on muuttujasarakkeen lisääminen Muistion otsikkoriviltä (jäsennys 24.11., A3.2). Turvallinen nimen vaihto kuuluu jäsennyksen kohtaan A4. Etene sitten A2/A3:n kokeilupalautteen mukaan. Alla oleva numerointi ryhmittelee ominaisuuksia eikä siirrä D-visioita A0:n edelle.
+2. A0:n ominaisuusketju näkymän turvallisesta osapäivityksestä taulukoiden yhteiseen näkymäeditoriin on valmis 0.67:ssä. Kaavaviittauksen poiminta (0.68), täyttö alas (0.72), laitekohtainen lukumuotoilu (0.74), jäädytys (0.75) sekä suodatus ja lajittelu näytön järjestyksenä (0.76) ovat kokeiltavissa. Jaetut lukumuodot ja aikamuodot ovat kokeiltavissa (0.77). Oma järjestys ja jaettu lukitus ovat kokeiltavissa (0.78). Muistion solun suora kirjoitus (0.79), ＋ sarake (0.80), yhteenvetorivi (0.81) ja päiväsarake (0.82) ovat kokeiltavissa. Seuraava askel on valinta, monivalinta ja tila (jäsennys 24.11., A3.5, kohta 21.6). Turvallinen nimen vaihto kuuluu jäsennyksen kohtaan A4. Etene sitten A2/A3:n kokeilupalautteen mukaan. Alla oleva numerointi ryhmittelee ominaisuuksia eikä siirrä D-visioita A0:n edelle.
 3. Jokaiseen toteutuscommittiin kuuluu yksi käyttäjälle kokeiltava työnkulku. Vertaa vanhaa ja uutta testitiedostoa, kokeile keskeytys ja uudelleenavaus, tarkista sekä puhelimen että tietokoneen reitti. Tiedostoon kuvaillun ominaisuuden pitää toimia myös silloin, kun tiedoston on tehnyt tekoäly ja appi avataan tyhjällä paikallisella välimuistilla. Kirjaa TILA-tiedostoon testattu raja ja seuraava tehtävä.
 
 ### 1. Muistion näkymistä ja taulukon näkymävälilehdestä sama työväline (A0.3, A0.7, A3.1, kohdat 2 ja 12)

@@ -25,7 +25,7 @@ async def run(p,w,h):
     def want(label,cond,info=''):
         print('  %-56s %s %s'%(label,'ok' if cond else 'VIRHE',info if not cond else ''))
         if not cond: bad.append(label)
-    async def heads(): return await pg.evaluate("Array.from(document.querySelectorAll('.rvhead .rvc')).map(function(c){return c.textContent.trim();})")
+    async def heads(): return await pg.evaluate("Array.from(document.querySelectorAll('.rvhead .rvc[data-k]')).map(function(c){return c.textContent.trim();})")
     print('leveys',w)
     await pg.goto(U); await pg.wait_for_timeout(1500)
     want('rivit näkyvät',await pg.evaluate("document.querySelectorAll('#nlist .rvr').length")==5)

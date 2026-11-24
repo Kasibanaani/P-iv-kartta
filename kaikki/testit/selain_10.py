@@ -35,7 +35,7 @@ async def run(p,w,h):
         await pg.click('#nviewbtn'); await pg.wait_for_timeout(200)
         want('vaihto riveiksi',await pg.evaluate("document.querySelectorAll('#nlist .rvr').length>=4"))
     want('valinta muistetaan',await pg.evaluate("localStorage.getItem('kaikki:nmode')")==('rows' if w<1000 else None) or w>=1000)
-    hd=await pg.evaluate("Array.from(document.querySelectorAll('.rvhead .rvc')).map(function(c){return c.textContent;})")
+    hd=await pg.evaluate("Array.from(document.querySelectorAll('.rvhead .rvc[data-k]')).map(function(c){return c.textContent;})")
     want('oletusnäkymän sarakkeet',hd==['Otsikko','Kansio','Kuka kirjoitti','Luotu','Seuraava ajankohta'],hd)
     r=await pg.evaluate("(function(){var r=Array.from(document.querySelectorAll('#nlist .rvr')).filter(function(x){return x.textContent.indexOf('Keittiö')>=0;})[0];return r?Array.from(r.children).map(function(c){return c.textContent;}):null;})()")
     want('rivin solut täyttyvät',r and r[1]=='projektit/remontti' and r[2]=='oma' and 'Tänään' in r[4],r)
@@ -49,7 +49,7 @@ async def run(p,w,h):
     # näkymätiedosto
     want('näkymävalinta näkyy, kun näkymiä on',await pg.is_visible('#nvpick'))
     await pg.click('#nvpick'); await pg.wait_for_timeout(80); await pg.click('#nv-nakymat-remontti-md'); await pg.wait_for_timeout(200)
-    hd=await pg.evaluate("Array.from(document.querySelectorAll('.rvhead .rvc')).map(function(c){return c.textContent;})")
+    hd=await pg.evaluate("Array.from(document.querySelectorAll('.rvhead .rvc[data-k]')).map(function(c){return c.textContent;})")
     want('näkymän sarakkeet',hd==['Otsikko','Tila','Edistys','Hinta','Valmis'],hd)
     names=await pg.evaluate("Array.from(document.querySelectorAll('#nlist .rvr .rvt')).map(function(c){return c.textContent;})")
     want('rajaus kansiolla ja järjestys edistys laskeva',names==['Kylpyhuone','Keittiö','Eteinen'],names)

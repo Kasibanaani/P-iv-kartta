@@ -1,10 +1,16 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.79 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 24.11.2026
+**Vaihe:** versio 0.82 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 24.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.82 (24.11.2026, jäsennys A3.4, suunnitelman 21.5).** Muistio → Rivit → **päivä-lajin sarake**. Solun napautus, napsautus tai Enter avaa kuukausivalitsimen (sama kuin muistiinpanon Päivät-napissa), ja yläreunassa lukee sarake ja muistiinpano. Valitse yksi tai useampi päivä. Ulkopuolinen napautus sulkee ja tallentaa; jos et muuttanut mitään, mitään ei kirjoiteta. Muoto on `mittaus: 2026-11-30, 2026-12-02` (järjestetty, ei toistoja), tekstimuuttujassa `!!Lähtö: 2026-11-30!!`. Viimeisen päivän poisto tyhjentää kentän. Solussa näkyy `ma 30.11.` ja tarvittaessa `+1`; vuosi näkyy, jos se ei ole kuluva. Tietokoneella kirjoittaminen tai F2 avaa tekstikentän kuten ennen, ja pilkulla voi antaa useamman päivän. Rinnakkaismuutoksessa solueditori aukeaa virheen kanssa, ja **Korvaa arvo** tallentaa oman valinnan. Sarakevalikossa (oikea napsautus, pitkä painallus, Shift+F10) ja näkymäeditorissa on **Näytä kalenterissa**, oletuksena pois (Emil 24.11.). Päällä näkymän muistiinpanojen päivät näkyvät kalenterissa (Viikko-lista, Päivä ja tietokoneen aikajanan Koko päivä) katkoviivaisena merkintänä *Sarake · Muistiinpano*. Merkintä avaa muistiinpanon; sitä ei kuitata eikä siirretä. Asetus on näkymätiedostossa `| kalenteri=kylla`. Jos kentässä on muuta kuin ISO-päiviä (esim. tekoälyn `30.11.2026`), valitsin aukeaa tyhjänä, ja vasta oikea valinta korvaa arvon; päivän napautus päälle ja pois ei muuta mitään. Testi `selain_82.py`; `selain_63.py` päivitetty valitsimelle. Modern Web Guidance: haku ei tuonut päivävalitsimelle uutta; käytössä apin oma kuukausivalitsin (natiivi dialogi, päivänapit `aria-pressed`).
+
+**0.81 (24.11.2026, jäsennys A3.3, suunnitelman 21.3).** Muistio → Rivit → sarakevalikko → **Yhteenveto**: ei laskua, summa, keskiarvo, mediaani, pienin, suurin, määrä, täytetyt, tyhjät, % täytetty tai (kyllä/ei-sarakkeessa) kyllä-osuus. Taulukon alareunaan tulee kiinteä rivi, joka pysyy näkyvissä vieritettäessä. Sen solusta voi vaihtaa laskun. Laskuun tulevat näkyvät rivit: näkymän ehdot, asiasanasuodatin ja haku. Luvuissa tyhjät ja tekstit ohitetaan, keskiarvo pyöristetään kahteen desimaaliin, eikä liukulukuvirhe näy (0,1 + 0,2 = 0,3). Yksikkö tulee sarakkeesta. Valinta tallentuu näkymätiedostoon kaikille laitteille, esimerkiksi `- arvio | luku | € | laske=summa`, ja yhdistyy toisen laitteen leveysmuutoksen kanssa. Lukittu näkymä näyttää tulokset ilman muutosnappeja. Takaisinlinkit-sarakkeessa ei tarjota täytetyt- ja tyhjät-laskuja, koska 0 näkyy siinä viivana. Oletusnäkymässä (Kaikki muistiinpanot) yhteenvetoa ei voi valita, koska sillä ei ole tiedostoa. **Tekoälyn ratkaisu:** näkymän kaavasarakkeessa `SUMMA(hinta)` (myös KESKIARVO, MÄÄRÄ, MIN, MAX) laskee nyt näkymän rivit, joten osuus `=hinta/SUMMA(hinta)` toimii. Sama koskee Taulukoiden näkymävälilehteä. Muistiinpanon tekstin `{=SUMMA(…)}` ja kenttäkaavat laskevat edelleen koko Vaultista. Testi `selain_81.py`; `selain_57.py` laskee nyt vain sarakkeet (＋ ei ole sarake). Modern Web Guidance: responsive-table (kiinnitetty rivi, nimetty alue).
+
+**0.80 (24.11.2026, jäsennys A3.2, suunnitelman 21.2).** Muistio → Rivit → otsikkorivin lopussa **＋** (Lisää sarake). Pieni ikkuna: *Arvo tallentuu* (oletus **Tekstiin muuttujana**, Emil: sarake on muuttuja; vaihtoehtona *Alkutietoihin kenttänä*), *Nimi*, *Laji* ja tarvittaessa yksikkö tai väli. Olemassa olevat nimet näkyvät napautettavina. Jos kirjoitettu nimi muistuttaa olemassa olevaa (esim. `uni` ja `Uni (h)`), ikkuna ehdottaa sitä, mutta uuden nimen voi silti valita. Olemassa olevan lukumuuttujan laji ehdotetaan luvuksi. Sarake lisätään näkymätiedoston sarakkeiden loppuun samalla turvallisella osapäivityksellä kuin näkymäeditorissa, ja se näkyy heti tallennuksen ajan. Muistiinpanoihin ei kirjoiteta mitään ennen kuin soluun annetaan arvo. Oletusnäkymästä (Kaikki muistiinpanot) ＋ tekee uuden näkymän, jolle annat nimen, ja se avautuu tallennuksen jälkeen. Lukitussa näkymässä ＋ ei näy. Testi `selain_80.py`.
 
 **0.79 (24.11.2026, jäsennys A3.1).** Muistio → **Rivit**. Tietokoneella avaa solu napsauttamalla, Enterillä tai aloittamalla kirjoittaminen kohdistetussa solussa. Enter tallentaa, Esc peruu ja Tab tai Shift+Tab kohdistaa tallennuksen jälkeen seuraavan tai edellisen näkyvän muokattavan solun. Puhelimella napautus avaa pienen syöttöikkunan kuten ennen. Otsikko avaa muistiinpanon. Kaavasolut ja lukittu näkymä ovat luettavia. Jos samasta muuttujasta on useita havaintoja, solu päivittää uusimman päivätyn havainnon. Samana päivänä tai kun päivämääriä ei ole, muokataan tekstissä viimeisenä olevaa havaintoa. Tyhjentäminen poistaa kyseisen merkinnän, jolloin aiempi havainto voi tulla näkyviin. Puuttuva merkintä lisätään muistiinpanon loppuun. Vanhat alkutieto- ja sovitut tekstikentät päivittyvät nykyiseen paikkaansa. Rinnakkaismuutos säilyttää muun tiedoston ja pyytää vahvistuksen samalle arvolle tai havainnolle. Testit `selain_63.py`, `selain_69.py` ja `selain_79.py`. Fyysisen iPhonen Safari jäi kokeiltavaksi.
 
@@ -191,6 +197,8 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Ei tarkistettu
 
+- 0.80–0.82: koko testisarja ajettiin Chromiumissa testivaultilla (95 testitiedostoa läpi; `selain_10.py` kaatui, koska se luki ＋-solun sarakkeeksi, ja meni korjattuna läpi erikseen, samoin katselmuksen jälkeen muuttuneet `selain_31/33/57/63/80/81/82`). Leveydet 320, 390, 1280 ja 1440 px. Fyysistä iPhonea ja oikeaa Vaultia ei kokeiltu: ＋-ikkunan nimisirujen napautus, kuukausivalitsimen ulkopuolinen napautus ja kiinteän yhteenvetorivin käytös Safarin liukuvan osoiterivin kanssa jäävät kokeiltaviksi. Puhelimella kelluva ＋ (uusi muistiinpano) peittää yhteenvetorivin oikean reunan, kunnes taulukkoa vierittää sivulle. Yhteenvetoa ei voi valita oletusnäkymässä. Kalenterin päiväsarakemerkintä ei näy kuukausi-ikkunan lukumäärässä. Näkymäeditorissa sarakkeen poisto ja takaisin lisäys nollaa sen leveyden, laskun ja kalenteriasetuksen (sama kuin leveydellä ennen).
+
 - 0.68: kaikki 81 testitiedostoa läpi. Selaintesti Chromiumissa 320, 390, 1280 ja 1440 px testivaultilla. Fyysistä iPhonea ja tallennusta oikeaan Vaultiin ei kokeiltu.
 
 - 0.67: Kaikki 80 testitiedostoa läpi, mukaan lukien `selain_67.py` Chromiumissa leveyksillä 320, 390, 1280 ja 1440 px testivaultilla. `selain_23.py` ja `selain_63.py` menivät läpi erillisillä uusinta-ajoilla. Fyysistä iPhonea ja oikealla Vaultilla tallentamista ei testattu.
@@ -233,7 +241,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 **Kojelaudan jatko (0.71:n jälkeen):** kokeile tarkistuslistaa ja kenttäruutua. Kuvaajien esitystavat ja ruutujen sijoittelu muokkaustilassa ovat auki.
 
-**Muistion tietokantanäkymä.** Suora solumuokkaus on kokeiltavissa (0.79). Seuraava työ on muuttujasarakkeen lisääminen otsikkorivin ＋-painikkeesta (jäsennys 24.11., A3.2).
+**Muistion tietokantanäkymä.** Suora solumuokkaus (0.79), ＋ sarake (0.80), yhteenvetorivi (0.81) ja päiväsarake valitsimella (0.82) ovat kokeiltavissa. Seuraava työ on valinta, monivalinta ja tila huurteisen lasin siruina (jäsennys 24.11., A3.5, suunnitelman 21.6).
 
 
 Kohdan 18 toistuvuuskokeilu 0.52 on [omassa haarassaan](https://github.com/Kasibanaani/P-iv-kartta/tree/kaikki-toistuvuuskokeilu/kaikki). Se kattaa Muistion listan, kalenterin, kuittauksen ja uuden pikamuistutuksen. Kokeile erillisellä testivaultilla sekä kuittauksesta laskettavaa että kalenterissa tasavälistä toistoa. Toistuvuuden vakiinnuttaminen, kuukausirytmin reunatapaukset ja vanhan aineiston siirto ovat edelleen avoimia. Flow-tekstin pysyvä muoto odottaa kokeilupalautetta.
@@ -252,6 +260,13 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 4. Karsinta: mitä Juuren osia Kaikki ei tarvitse.
 
 ## Avoimet kysymykset
+
+**Tietokantanäkymä (0.80–0.82), tekoälyn ratkaisut, jotka Emil vahvistaa:**
+1. Näkymän kaavasarakkeen `SUMMA(kenttä)` laskee nyt näkymän rivit (ennen koko Vaultin), jotta osuus `=hinta/SUMMA(hinta)` toimii. Muistiinpanon tekstin kaavat laskevat edelleen koko Vaultista. Käykö?
+2. Oletusnäkymän ＋ tekee uuden näkymän (Kaikki muistiinpanot on kiinteä). Vai pitäisikö ＋:n puuttua oletusnäkymästä?
+3. Yhteenvetorivi näkyy vasta, kun jollekin sarakkeelle on valittu lasku (valinta sarakevalikosta). Riittääkö, vai halutaanko tietokoneelle Notionin tapaan osoitettaessa näkyvä tyhjä rivi?
+4. Päiväsarakkeen kalenterimerkintä on vain luettava (ei kuittausta, ei siirtoa). Riittääkö?
+5. Kuukausivalitsimen Esc sulkee ja tallentaa kuten ulkopuolinen napautus (sama kuin muistiinpanon Päivät-valitsimessa). Peruminen = valitse päivät uudelleen.
 
 **Tekstimuuttujat (0.65):**
 1. Riittääkö merkinnöistä koottu luettelo (Valikko → Muuttujat; tekoäly hakee saman `grep`illä) siihen, että tekoälyt alkavat kirjata `!!`-muodossa? Vaultin ohje odottaa ”Kaikin tukea ja muuttujaluetteloa”. Kuvaus, laji ja yksikkö tarvitsisivat oman tiedoston (ehdotus `data/muuttujat.md`).

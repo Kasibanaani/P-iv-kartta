@@ -55,7 +55,7 @@ async def run(p,w,h):
     await pg.wait_for_timeout(300)
     tl=await titles()
     want('näkymä valittu, rivit rajattu ja järjestetty',tl==['Keittiö','Eteinen'],tl)
-    hd=await pg.evaluate("Array.from(document.querySelectorAll('.rvhead .rvc')).map(function(c){return c.textContent.trim();})")
+    hd=await pg.evaluate("Array.from(document.querySelectorAll('.rvhead .rvc[data-k]')).map(function(c){return c.textContent.trim();})")
     want('hinta-sarake mukana',any(x.lower().startswith('hinta') for x in hd),hd)
     # muokkaa + peru
     n0=await pg.evaluate("__repo.log.filter(function(x){return /^PUT/.test(x);}).length")
