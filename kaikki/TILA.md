@@ -1,10 +1,12 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.77 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 24.11.2026
+**Vaihe:** versio 0.78 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 24.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.78 (24.11.2026, jäsennys A2).** Muistion näkymän otsikkorivillä ja Taulukot-välilehden yläpalkissa on lukko. Lukitus tallentuu näkymän tai välilehden oman tiedoston `lukittu: kyllä` -alkutietoon. Lukitussa Muistion näkymässä rivi tai kortti avaa esikatselun. Lukitussa taulukossa voi tarkastella soluja ja kopioida niistä, ja näkymävälilehdeltä voi avata muistiinpanon esikatseluun. Lukituksen avaus palauttaa muokkaustoiminnot. Muistion rivin siirtokahva tallentaa oman järjestyksen valitun näkymän `## Oma järjestys` -osaan. Nimetyn näkymän oma järjestys näkyy, kun lajittelua ei ole. **Palauta oma järjestys** löytyy Muistion Näkymä-valikosta sekä taulukon lajittelun ja suodatuksen vierestä. Palautus ei kirjoita tiedostoon. Testi `selain_78.py` kattaa uuden ja vanhan tiedoston, rinnakkaismuutoksen ja avaamisen toisella selainprofiililla. Fyysinen iPhone jäi kokeiltavaksi.
 
 **0.77 (24.11.2026, jäsennys A1).** Taulukot → ⋯ → **Lukumuoto**. Tunnit ja minuutit käyttää tunteja (`8,5` → `8 h 30 min`), `mm:ss` sekunteja (`85` → `01:25`) ja kesto päivinä päivälukua. Päivämäärän voi näyttää viikonpäivällä (`ma 30.11.`) tai vuodella (`30.11.2026`), kun arvo on kirjoitettu muodossa `2026-11-30`. Muoto synkronoi välilehden `lukumuodot`-alkutiedossa. Se seuraa soluosoitetta myös, kun rivejä tai sarakkeita siirretään. Vanhoja selainmuotoja tuodaan välilehteä avattaessa osoitteisiin, joilla ei vielä ole jaettua asetusta. Jaettu yleinen muoto säilyy, vaikka toinen laite yrittäisi tuoda osoitteeseen vanhan muodon. Alueen tallennus ja kumoaminen säilyttävät muualla tehdyt muotoilut ja pysähtyvät saman solun ristiriitaan. Kaavarivi, laskenta, kopiointi ja vienti käyttävät alkuperäisiä arvoja. Testit `selain_74.py` ja `selain_77.py` Chromiumissa 320, 390, 1280 ja 1440 px. Fyysinen iPhone jäi kokeiltavaksi. Natiivi dialogi, nimetty kenttä ja näkyvä esikatselu.
 
@@ -229,7 +231,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 **Kojelaudan jatko (0.71:n jälkeen):** kokeile tarkistuslistaa ja kenttäruutua. Kuvaajien esitystavat ja ruutujen sijoittelu muokkaustilassa ovat auki.
 
-**Taulukoiden jatko.** Jaettu lukumuoto ja aikamuodot ovat kokeiltavissa (0.77). Seuraava työ on näkymän pysyvä oma järjestys ja laitteiden välillä synkronoitava lukitus (jäsennys 24.11., A2). Turvallinen nimen vaihto kuuluu kohtaan A4.
+**Muistion tietokantanäkymä.** Oma järjestys ja jaettu lukitus ovat kokeiltavissa (0.78). Seuraava työ on suora kirjoitus Muistion soluun (jäsennys 24.11., A3.1).
 
 
 Kohdan 18 toistuvuuskokeilu 0.52 on [omassa haarassaan](https://github.com/Kasibanaani/P-iv-kartta/tree/kaikki-toistuvuuskokeilu/kaikki). Se kattaa Muistion listan, kalenterin, kuittauksen ja uuden pikamuistutuksen. Kokeile erillisellä testivaultilla sekä kuittauksesta laskettavaa että kalenterissa tasavälistä toistoa. Toistuvuuden vakiinnuttaminen, kuukausirytmin reunatapaukset ja vanhan aineiston siirto ovat edelleen avoimia. Flow-tekstin pysyvä muoto odottaa kokeilupalautetta.

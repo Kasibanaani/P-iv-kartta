@@ -40,7 +40,7 @@ def run(browser, url, width):
     value = dialog.get_by_label('Etsittävä arvo')
     apply = dialog.get_by_role('button', name='Käytä', exact=True)
     fx = page.get_by_role('textbox', name='Kaava tai arvo')
-    reset = page.get_by_role('button', name='Palauta näkymä')
+    reset = page.get_by_role('button', name='Palauta oma järjestys')
     headings = wrap.locator('tbody th.sg-rn')
 
     def cell(row, col):
