@@ -11643,6 +11643,8 @@ function saadinSummary(it){
   var where=it.minne==='teksti'?'[['+it.linkki+']]':it.minne==='oma'?'oma muistiinpano':'päivän muistiinpano';
   return what.join(' + ')+' → '+where+' · '+SAADIN.AJAT[it.aika].replace(/ \(.*\)$/,'').toLowerCase()+(it.tapa==='paivita'?' · päivittää':'');
 }
+/* Taustasynkka kestää yleensä hetken: painallus odottaa sen loppuun eikä katoa. */
+async function saadinIdle(){for(var i=0;i<67&&vBusy;i++)await new Promise(function(r){setTimeout(r,150);});return !vBusy;}
 function saadinMoment(it,o){
   if(it.aika==='kysy')return {day:o.day,clock:o.clock||''};
   if(it.aika==='kalenteri')return {day:calDay||todayIso(),clock:''};
@@ -11662,7 +11664,7 @@ async function saadinRun(it,o){
   var m=saadinMoment(it,o),T=saadinTarget(it,m.day),status=o.status;
   function say(t){if(status)status.textContent=t;else toast(t);}
   if(T.error){say(T.error);return false;}
-  if(vBusy){say('Vault synkronoi. Yritä hetken päästä.');return false;}
+  if(!await saadinIdle()){say('Vault synkronoi. Yritä hetken päästä.');return false;}
   var id=typeof crypto.randomUUID==='function'?'qh'+crypto.randomUUID():uid('qh');
   var line=SAADIN.record(it,{day:m.day,clock:m.clock,value:o.value,dayNote:!!T.dayNote,id:id});
   if(!line){say('Tarkista arvo: '+it.nimi+'.');return false;}
@@ -11714,7 +11716,7 @@ function saadinUndoHide(){clearTimeout(saadinUndoT);saadinUndoState=null;var box
 document.addEventListener('close',function(){setTimeout(saadinUndoPlace,0);},true);
 async function saadinUndo(){
   var st=saadinUndoState;if(!st)return;saadinUndoHide();
-  if(vBusy){toast('Vault synkronoi. Poista kirjaus tarvittaessa muistiinpanosta.');return;}
+  if(!await saadinIdle()){toast('Vault synkronoi. Poista kirjaus tarvittaessa muistiinpanosta.');return;}
   vBusy=true;vRender();
   try{
     var r=await vWriteText(st.path,function(text){
