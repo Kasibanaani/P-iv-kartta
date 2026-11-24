@@ -271,6 +271,8 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 
 ## Suunnitelmat
 
+24.11.2026. [Kaaviot (kohta 23)](SUUNNITELMA.md#23-kaaviot-ruudut-ja-nuolet-ehdolliset-napit-ja-upotukset-emil-24112026): ensimmäinen kokeilu on kaaviotiedosto `kaaviot/<nimi>.md` ja kanvas tietokoneella. Kanvaksessa on tekstiruutuja ja nuolia, ja puhelimella kaavion voi vain katsoa. Kanvaskoodi ei käynnisty ennen avausta, ja käynnistysaika mitataan. Seuraavat kokeilut ovat ehdolliset napit, joiden tuotos kirjoitetaan heti ja perutaan samalla käyttökerralla, sekä vain luettava upotus `![[muistiinpano#Otsikko]]`. Muokattava upotus, kaavaruudut, muistiinpanokortit, Flow'n kohtalo ja käyttötiedostojen erottelu ovat visiossa. Avoinna on paikka toteutusjonossa.
+
 23.11.2026. [Kojelaudan suunnitelma](SUUNNITELMA.md#3-kojelauta-jota-voi-k%C3%A4ytt%C3%A4%C3%A4-yhdell%C3%A4-k%C3%A4dell%C3%A4-ja-rakentaa-tietokoneella-d-kohdat-6-ja-13) tarkentui. Ruutuihin valitaan lähde, rajaukset, laskenta, yksikkö, näyttötapa ja ulkoasu. Mukana ovat muokkaustilassa sijoiteltavat ja suurennettavat ruudut sekä kalenterin kanssa jaetut suodatetut tarkistuslistat.
 
 23.11.2026. [Kojelaudan suunnitelmaan](SUUNNITELMA.md#3-kojelauta-jota-voi-k%c3%a4ytt%c3%a4%c3%a4-yhdell%c3%a4-k%c3%a4dell%c3%a4-ja-rakentaa-tietokoneella-d-kohdat-6-ja-13) kirjattiin `!!nimi: arvo!!`, Kaikin ja tekoälyn yhteinen muuttujaluettelo, havainnon omat päivät tai osion yksi päivä, tunnistuksen kevyt muotoilu ja muuttujanapit Pikamuistiinpanoon.

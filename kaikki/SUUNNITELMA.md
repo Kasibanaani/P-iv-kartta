@@ -435,7 +435,7 @@ Kokeile testiaineistolla ensin Flow'n lukemista sisennetystä Markdownista. Jatk
 **Arvio:** ei raskas nykyisellä vaultilla (n. 150 muistiinpanoa; tuhansillekin kevyt omalla yksinkertaisella voimasimulaatiolla ja canvas-piirrolla ilman kirjastoja, n. 200 riviä). Koko vaultin graafi on yleensä lähinnä kaunis; **paikallinen graafi** (avoimen muistiinpanon naapurit 1–2 askeleen päähän) on käytännössä hyödyllisempi.
 **v1 ilman lisäkysymyksiä:** tietokoneella osio tai Muistion näkymä *Graafi*: pisteet = muistiinpanot, viivat = `[[linkit]]` (ja valinnaisesti yhteiset tunnisteet ohuempina), väri kuka kirjoitti -värien mukaan, koko linkkien määrän mukaan; vieritys ja zoomaus, napautus avaa esikatselun, kaksoisnapautus muistiinpanon. Muistiinpanoikkunaan *Paikallinen graafi* -painike. Suodatus samoilla ehdoilla kuin näkymissä. Simulaatio pysähtyy, kun asettelu on valmis (ei kuluta akkua).
 
-## 20. Kanvaasi: muistiinpanot kartalle ja yhteydet viivoilla (Emil 22.11.2026) — **HYLLYLLÄ (Emil 22.11.: toistaiseksi ei)**
+## 20. Kanvaasi: muistiinpanot kartalle ja yhteydet viivoilla (Emil 22.11.2026) — **HYLLYLLÄ (Emil 22.11.: toistaiseksi ei); osittain herätetty 24.11.: kanvas ja ruudut kohdassa 23, muistiinpanokortit sen visiossa**
 
 **Emil:** pohjalle valitaan muistiinpanoja yksi kerrallaan pieniksi esikatseluikkunoiksi (napautus avaa isommin), viiva vedetään toisesta toiseen, ja viivasta syntyy linkki tiedostoihin. Viivalla laji, esim. ”tästä seuraa tämä” nuolena, joka kirjoitetaan kumpaankin tiedostoon. Työnkulkuja, joita tekoälykin voi seurata.
 **Ehdotus (tekoäly), visio, vaatii Emilin päätökset ennen v1:tä:**
@@ -615,6 +615,149 @@ Hyväksymisehdot:
 - **Prosessikaavio:** näytetäänkö verkottuneet muistiinpanot paikallisessa graafissa (kohta 19) `vaatii:`-nuolina, Flow'ssa vai molemmissa?
 - **Listat:** `vaatii:` voisi ohjata Listoja niin, että tehtävä näkyy vasta, kun edeltäjä on kuitattu (kohdat 7 ja 18).
 
+## 23. Kaaviot: ruudut ja nuolet, ehdolliset napit ja upotukset (Emil 24.11.2026)
+
+**Emilin idea.** Tietokoneella on Freeformin kaltainen vapaa kanvas. Sille tehdään ruutuja, joissa on tekstiä, ja ruudusta vedetään nuoli toiseen. Nuolen suunta merkitsee. Ruudusta voi tehdä napin. Nappi tulee käytössä näkyviin, kun siihen tulevien nuolten ehto täyttyy: ruudussa C valitaan, vaatiiko se sekä A:n että B:n vai jommankumman. Nuolen voi vetää myös ruutuun, joka ei näy, vaan kirjoittaa tekstiä muistiinpanoon tai asettaa muuttujan. Rakennelma tallentuu muistiinpanoksi, jonka voi valita esimerkiksi pikakirjauksen lähteeksi. Sama väline sopii päätöspuuhun, prosessikaavioon ilman nappeja, käsitekarttaan ja inforuutuihin. Lisäksi Emil haluaa synkronoidut upotukset: tekstiosio näkyy toisessa muistiinpanossa, ja muokkaus kummasta tahansa paikasta muuttaa samaa tekstiä. Emil voi myöhemmin jakaa vaultin usean appin kesken, jotta yksittäinen appi ei paisu.
+
+**Emilin vastaukset 24.11.2026:**
+- Ensimmäistä käyttötilannetta ei valita. Vaihtoehtoja on paljon erilaisista kirjauksista lähtien.
+- Tuotos kirjoitetaan heti. Jos valinta perutaan saman käytön aikana, kirjoitettu teksti poistetaan.
+- Kaavio on tiedosto vaultissa, mutta se ei kuulu päivittäiseen Muistioon. Yleisempi toive: käyttötiedostot, jotka on tehty tiettyyn käyttöön, erotetaan Muistion tavallisista muistiinpanoista. Kaiken pitää silti löytyä jostakin.
+- Editori voi olla Kaikin tietokoneosio, jos se ei hidasta appia tai sen muita osioita.
+- Flow: Emil ei vielä tiedä. Flow'n idea voi myöhemmin sisältyä johonkin muuhun.
+- Kanvaasi kiinnostaa. Siitä voi aloittaa yhden version, jolla tehdään inforuutuja. Käsitekartat tulevat myöhemmin.
+
+**Rajaus (tekoälyn ehdotus).** Kaavio on ehdollisten nappien, tekstien ja tekstipohjien kaavio, ei ohjelmointikieli. Siinä ei ole silmukoita, ajastuksia, ajassa eteneviä tiloja tai omia funktioita. Ero Appi-appiin: *Appi-appi tekee appeja, kaavio tekee muistiinpanoja, jotka toimivat.* Jos tarve kasvaa yli rajan, siitä tehdään Emilin hyväksymä erillinen suunnitelma.
+
+**Linjakkuus.** Kaavio käyttää olemassa olevia rakenteita eikä tee uusia rinnakkaisia käsitteitä:
+- Nuoli vastaa kohdan 22 `vaatii:`-ajatusta.
+- Tuotos kirjoittaa pikakirjauksen tavalla päivän muistiinpanon `## Pikakirjaukset` -osaan.
+- Muuttujat ovat tavallisia `!!nimi: arvo!!` -merkintöjä.
+- Upotus on wikilinkki, joten takaisinlinkit ja haku toimivat sellaisinaan.
+- Kanvaksen kosketus- ja asettelumallit tulevat Flowchartista (`FC.arrange`, `FC.routes`, pudotus ennen ja jälkeen) ja Kytköskartasta.
+
+### 23.1 Ensimmäinen kokeilu: kaaviotiedosto ja kanvas tietokoneella
+
+**Tavoite.** Emil tekee tietokoneella kaavion, jossa on tekstiruutuja ja nuolia, ja katsoo sitä puhelimella. Kokeilussa ei ole nappeja eikä logiikkaa. Inforuudut, prosessikaaviot ja yksinkertaiset käsitekartat toimivat jo tällä. Muoto suunnitellaan heti niin, että vaihe 23.2 lisää siihen vain kenttiä.
+
+**Miksi kanvas ensin (muuttaa 24.11. keskustelun ehdotusta, jossa ajaja oli ensin):** Emil haluaa inforuutuja ja käsitekarttoja joka tapauksessa. Kanvas ei siis jää turhaksi, vaikka ehdolliset napit eivät tuntuisi hyviltä.
+
+**Tiedosto (tekoälyn ratkaisu, Emil voi muuttaa ennen toteutusta).** Polku on `kaaviot/<nimi>.md`:
+
+```
+---
+tyyppi: kaavio
+otsikko: Illan kirjaus
+kuvaus: Mitä illalla kirjataan.
+luotu: 2026-11-24
+lahde: emil
+---
+# Illan kirjaus
+
+## Ruudut
+- a | Miten päivä meni?
+- b | Nukuin huonosti | tulee: a
+- c | Kirjaa yöheräily | tulee: a (kyllä), b
+  Toinen rivi samaan ruutuun sisennettynä.
+
+## Asettelu
+- a: 120, 80, 180
+- b: 360, 40, 160
+```
+
+- **Ruudut-osa.** `- tunnus | teksti | ominaisuudet`.
+  - Tunnus on lyhyt ja pysyvä. Appi tekee sen ja säilyttää sen, vaikka teksti muuttuu. Tekoäly saa keksiä omansa.
+  - Teksti on yhdellä rivillä. Jatkorivit sisennetään kahdella välilyönnillä.
+  - `tulee: a, b` tarkoittaa, että nuolet tulevat a:sta ja b:stä tähän ruutuun. Sulkeissa on nuolen valinnainen teksti, esimerkiksi `(kyllä)`.
+  - Ominaisuus `väri: <teeman väri>` valitaan muutamasta Appipajan sävystä.
+  - Rivien järjestys on lukujärjestys. Sitä käyttävät puhelimen listanäkymä ja ruudunlukija.
+- **Asettelu-osa** on muotoa `x, y, leveys`. Kun rivi puuttuu, appi sijoittaa ruudun automaattisesti Flowchartin `FC.arrange`-tavalla. Silloin tekoälyn kirjoittama kaavio aukeaa ilman koordinaatteja.
+- **Muu teksti säilyy.** Tiedostossa voi olla johdanto tai muistiinpanoja otsikoiden ulkopuolella. Appi ei muuta niitä. Rivin, jota appi ei tunne, appi säilyttää sellaisenaan.
+- **Wikilinkit toimivat ruudun tekstissä.** `[[muistiinpano]]` avaa muistiinpanon. Tämä on halpa silta kohdan 20 muistiinpanokortteihin.
+- **Piilotus.** `kaaviot/` lisätään piilokansioihin, jolloin kaaviot eivät näy Muistion oletuslistassa. Ne löytyvät Kaaviot-osiosta, Muistion suodattimen *Kaikki*-valinnalla ja wikilinkin kautta. Vaultin `ohjeet/appi.md` päivitetään toteutuksen yhteydessä.
+- **Muuttujahaku ohittaa `kaaviot/`-kansion.** Ilman tätä vaiheen 23.2 tuotospohjien `!!`-merkinnät näkyisivät oikeina havaintoina kojelaudalla.
+
+**Käyttö tietokoneella (Kaaviot-osio):**
+- Lista kaavioista ja + Uusi kaavio.
+- Kaksoisnapsautus tyhjään tekee uuden ruudun ja avaa kirjoituksen. Tyhjäksi jäänyt ruutu poistuu.
+- Ruudun vetäminen siirtää sitä, ja ruutu asettuu magneetilla ruudukkoon.
+- Nuoli syntyy, kun ruudun reunan kahvasta vedetään toiseen ruutuun. Nuolen valinta ja Delete poistavat nuolen. Kaksoisnapsautus nuoleen antaa sille tekstin.
+- Kanvasta liikutetaan vetämällä ja zoomataan rullalla tai nipistämällä.
+- Ctrl+Z kumoaa ja Ctrl+Shift+Z tekee uudelleen.
+- Tallennus tapahtuu muutaman sekunnin viiveellä yhtenä commitina. Ristiriidan käsittely on sama kuin muistiinpanoissa: molemmat versiot säilyvät.
+
+**Puhelin.** Kaavio aukeaa vain luettavana. Sitä voi zoomata kahdella sormella ja liikuttaa. Ruudun wikilinkki avaa muistiinpanon. Valikossa on lisäksi *Näytä listana*, joka näyttää ruudut lukujärjestyksessä ja nuolet sisennyksinä. Muokkausta puhelimella ei tehdä tässä vaiheessa.
+
+**Keveys (Emilin ehto).** Kaikin `index.html` on noin 1,27 Mt. Kanvaskoodi ei käynnisty, ennen kuin Kaaviot-osio tai kaavio avataan. Mittaa käynnistyksen ja Muistion avauksen ajat ennen muutosta ja sen jälkeen samalla testivaultilla. Jos ero näkyy, editori tehdään erilliseksi apiksi (`kaaviot/` P-iv-kartan juureen), joka käyttää samaa tiedostomuotoa. Silloin Kaikkiin jää vain katselu.
+
+**Hyväksy:**
+- Tekoälyn käsin kirjoittama kaavio ilman Asettelu-osaa aukeaa järjestettynä.
+- Kun yksi ruutu ja nuoli lisätään, tiedostoerossa näkyy vain kaksi uutta riviä ja Asettelu-rivit.
+- Johdanto ja tuntematon rivi säilyvät.
+- Tekstin muuttaminen ei muuta tunnusta.
+- Kahden laitteen ristiriidassa molemmat versiot säilyvät.
+- Kaavio ei näy Muistion oletuslistassa, mutta *Kaikki*-suodattimella näkyy.
+- Muuttujaluettelo ei poimi `kaaviot/`-kansiosta mitään.
+- Käynnistysmittaus on kirjattu.
+- Leveydet: tietokone 1280 ja 1440 px, puhelimen katselu 390 ja 320 px.
+
+### 23.2 Seuraava kokeilu: ehdolliset napit ja tuotos (23.1:n kokeilun jälkeen)
+
+- **Ruudun laji** on `laji: nappi`, `laji: tuotos` tai oletuksena teksti.
+- **Näkyvyys käytössä.** Ruutu, johon ei tule nuolia, näkyy aina. Muuten ruudun ehto ratkaisee:
+  - `ehto: kaikki` on oletus. Kaikkien lähteiden pitää olla valittuina tai näkyvissä, jos lähde on tekstiruutu.
+  - `ehto: jokin` riittää yhdellä lähteellä.
+  - Ominaisuus `yksi` lähtöruudussa tekee päätöspuun kysymyksen: siitä lähtevistä napeista voi valita vain yhden, ja muut piiloutuvat (Juuren Flow'n Pois).
+- **Tuotos** ei näy käytössä. Kun sen ehto täyttyy, se kirjoittaa tekstinsä heti.
+  - Kohteen määrää kaavion alkutieto `kohde:`. Oletus on valitun päivän muistiinpanon `## Pikakirjaukset` kuten nykyisessä pikakirjauksessa. Kohde voi olla myös `[[muistiinpano]]`.
+  - Pohjassa saa käyttää `{klo}`, `{pvm}` ja `!!nimi: arvo!!`.
+  - Jos ehto lakkaa saman käyttökerran aikana, appi poistaa täsmälleen kirjoittamansa rivin. Jos riviä on sillä välin muokattu, appi ei poista sitä vaan kertoo asiasta (Emilin teksti on Emilin).
+  - Käyttökerta alkaa kaavion avaamisesta käyttöön ja päättyy sen sulkemiseen. Sulkemisen jälkeen kirjoitetut rivit ovat tavallista tekstiä.
+- **Kehä.** Editori estää kehän (a → b → a) ja näyttää syyn.
+- **Käyttöpaikka.** Pikakirjauksessa on Kaaviot-välilehti, jossa valitaan kaavio, ja se näyttää kaavion napit puhelimelle sopivana listana, ei kanvaksena. Kanvasnäkymässä on Käytä-tila tietokoneelle.
+- **Hyväksy:**
+  - Kun A ja B valitaan, C tulee näkyviin. A:n peruminen piilottaa C:n ja poistaa C:n tuotoksen rivin.
+  - `jokin`-ehto toimii.
+  - `yksi`-kysymys toimii päätöspuuna kolmella tasolla.
+  - Käsin muokattua riviä ei poisteta.
+  - Sulkemisen jälkeen rivit säilyvät.
+  - Tekoälyn kirjoittama kaavio toimii.
+  - Leveydet: puhelin 390 ja 320 px, tietokone 1280 ja 1440 px.
+
+### 23.3 Seuraava kokeilu: upotus, ensin vain luettava
+
+- **Merkintä** on `![[muistiinpano#Otsikko]]` tai koko muistiinpanolle `![[muistiinpano]]`. Se on Obsidian-yhteensopiva, joten tekoälyt tuntevat sen.
+- **Osio** on otsikon alla oleva teksti seuraavaan saman tai ylemmän tason otsikkoon asti.
+- **Näkyminen.** Upotus näkyy lukunäkymässä kehyksessä, jossa on lähteen nimi. Napautus avaa lähteen kyseisen osion kohdalta.
+- **Kehä ja syvyys.** Kehä katkaistaan, ja upotuksia voi olla sisäkkäin enintään kolme.
+- **Linkkinä.** Upotus lasketaan linkiksi takaisinlinkeissä ja haussa.
+- **Laskenta tapahtuu vain lähteessä.** Upotetun tekstin `!!`-muuttujat ja ajankohdat kuuluvat lähteelle. Niitä ei lasketa kahdesti kojelaudassa eikä näytetä kahdesti kalenterissa.
+- **Puuttuva kohde.** Jos lähde tai otsikko puuttuu, kehyksessä lukee *Upotettavaa osiota ei löydy* ja merkintä säilyy.
+- **Hyväksy:**
+  - Upotus päivittyy, kun lähdettä muokataan toisella laitteella.
+  - Kehä ei jumita appia.
+  - Kojelaudan summa ei kasva upotuksesta.
+  - Kalenterissa ei näy tuplaa.
+  - Otsikon nimen muutos näyttää puuttuvan kohteen ilmoituksen.
+
+### Visio: mietitään tarkemmin ennen toteutusta (ei toteutuslupaa)
+
+- **Muokattava upotus.** Muokkaus upotuksessa kirjoittaa lähdetiedostoon. Avoinna ovat ristiriidat, otsikon muutoksen kestävä viittaus (lohkotunnus `^id` vai viittausten päivitys nimen muuttuessa, kuten 0.41-rakennemuutoksissa) ja se, miten Emil näkee muokkaavansa toista tiedostoa.
+- **Upotus kaaviossa.** Ruutu voi näyttää muistiinpanon osion, ja valinta tuo upotuksen esiin. Näin tehdään esimerkiksi päätöspuu, joka näyttää oikean ohjeen.
+- **Syöte-, muuttuja- ja kaavaruudut.** Syötteet ovat pikakirjauksen syötelajit (luku, 1–5, valinta, XY). Ruutu voi näyttää kaavan tuloksen, ja ehto voi olla kaava, esimerkiksi `uni < 6`. Näin kaavio saa laskentataulukon ominaisuudet. Kaavamoottori on sama kuin kohdissa 10–12.
+- **Muistiinpanokortit kanvaasilla** (kohta 20). Ruutu on muistiinpano, ja nuoli kirjoittaa linkin alkutietoihin. Käsitekartat syntyvät näin.
+- **Käyttötiedostojen erottelu yleisesti** (Emil 24.11.). Pohjat, data, näkymät, kojelaudat ja kaaviot näkyvät omissa osioissaan, eivät päivittäisessä Muistiossa. Kaikki löytyy silti yhdestä paikasta. Tämä vaatii vaultin rakennepäätöksen (`ohjeet/rakenne.md`, `ohjeet/paatokset.md`).
+- **Flow'n kohtalo.** Juuren Flow (Tai, Ja, Pois, Loppu) voisi muuntua kaavioksi, koska lajit vastaavat toisiaan. Päätetään Juuren karsinnan (kohta 14) yhteydessä, kun Emil tietää, käyttääkö hän Flow'ta.
+- **Nykyinen pikakirjaus kaaviona.** `pohjat/pikakirjaus.md` on käytännössä kaavio ilman nuolia. Myöhemmin sen voi yhdistää kaavioihin niin, että vanha muoto toimii edelleen.
+- **Tilannekohtaiset kaaviot.** Eri tilanteisiin tehdään eri kaavio pikakirjauksen lähteeksi. Tämä seuraa 23.2:sta ilman lisätyötä, mutta valintatapa (manuaalinen vai ajan tai paikan mukaan) on auki.
+- **Monta appia samalla vaultilla.** Saman osoitteen apit jakavat selaimen muistin, joten GitHub-avain voisi olla yhteinen. Ennen tätä tarkistetaan, millä avaimella Kaikki avaimen tallentaa. Jos vaultin lukija ja kaavamoottori tarvitaan useassa apissa, kopioiden erilleen ajautumisen estäminen (yhteinen tiedosto) on tekniikkalinjan muutos ja vaatii Emilin päätöksen.
+
+**Avoimet kysymykset Emilille:**
+1. Muistetaanko 23.2:ssa päivän valinnat sulkemisen jälkeen? Tekoälyn ehdotus on ei: käyttökerta päättyy sulkemiseen.
+2. Kelpaako tiedostomuoto (`tulee:`-nuolet ja Asettelu erikseen)?
+3. Näkyykö kaavio Muistion haussa, vai vain suodattimella ja Kaaviot-osiossa?
+4. Mihin kohtaan toteutusjonoa 23.1 tulee? Se ei ohita kesken olevaa työtä ilman Emilin sanaa.
+
 ## Visio: Ajatusten risteämissä syntyvät timantit
 
 **Käyttäjän tavoite 23.11.2026.** Ajatusten risteämässä voi syntyä yksinkertainen ajatus, joka toimii avaimena moniin eri sovelluksiin. Siihen tiivistyy jotakin ennen kirjoitetusta, ja siitä voi lähteä moneen uuteen suuntaan. Hyvän kirjan tavoin ajatus voi antaa viidennellä lukukerralla jotain, mihin ensimmäisellä lukukerralla ei vielä ollut tarttumapintaa. Käyttäjä haluaa sekä nostaa itse tällaisia ajatuksia että kohdata niitä tilanteessa, jossa niillä on jotain annettavaa. Tavoite läpäisee Muistion, haun, näkymät, omat kirjaukset ja lukemisen ilmeen.
@@ -784,7 +927,7 @@ Vie Emilille kerrallaan sen työvaiheen tulos, jota päätös koskee: kaksi konk
 
 ## Pohdittavat (alkuperäiset avoimet kysymykset; tarkennukset yllä)
 
-- **Flow tekstinä** (kohta 7 kokeilee): tarkka muoto (sisennetty luettelo vs. muu), miten haarat, ehdot (tunnisteet ja kentät) ja tulokset kirjoitetaan; vaatii Emilin päätöksen kokeilun jälkeen.
+- **Flow tekstinä** (kohta 7 kokeilee): tarkka muoto (sisennetty luettelo vs. muu), miten haarat, ehdot (tunnisteet ja kentät) ja tulokset kirjoitetaan; vaatii Emilin päätöksen kokeilun jälkeen. Ks. myös kohta 23: Flow voi myöhemmin muuntua kaavioksi.
 - **Kojelauta-rakentajan yksityiskohdat** (kohta 13): korttien tyylit, kosketus, puhelinasettelu.
 - **Kojelaudan kuvaajien ulkoasuasetukset** (nykyinen 0.7-kojelauta).
 - **Listat suhteessa vaultiin:** tehtävärivit `- [ ]` vai `projektit/`-kansio vai tunniste + kenttä `tila`.
