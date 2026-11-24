@@ -10,85 +10,123 @@ Päivitetty 24.11.2026 (0.76: suodatus ja lajittelu taulukoissa; 0.75: rivien ja
 
 ## Jäsennys 24.11.2026: seuraavaksi, tarkennettavat ja lykätyt
 
-**Lähde.** Emil kommentoi tekoälyn tekemää käyttäjälle kirjoitettua konseptiesittelyä (43 korttia, Emilin claude.ai-tilillä artefaktina *Kaikin tulevat ominaisuudet*). Hän reagoi 36 korttiin. Tämä jäsennys ohittaa toteutusjonon järjestyksen. Alkuperäiset kohdat (numerot suluissa) kuvaavat edelleen sisällön tarkemmin. **Toteutuslupa on edelleen Emilin ”toteuta”.** Järjestys alla on tekoälyn ehdotus, jonka Emil voi muuttaa. Versiot 0.74–0.76 tehtiin ennen kommentteja. Niistä jatkuvat kohdat on merkitty.
+**Lähde.** Jäsennys perustuu kahteen asiaan:
+- Emilin kommentteihin tekoälyn käyttäjälle kirjoittamasta konseptiesittelystä (43 korttia, Emilin claude.ai-tilillä artefaktina *Kaikin tulevat ominaisuudet*, 36 kommentoitu).
+- Emilin saneltuihin vastauksiin 20 avoimeen kysymykseen samana päivänä.
 
-### A. Seuraavaksi: selkeät, valmiit rakennettaviksi
+Jäsennys ohittaa toteutusjonon järjestyksen. Alkuperäiset kohdat (numerot suluissa) kuvaavat sisällön tarkemmin. **Toteutuslupa on edelleen Emilin ”toteuta”.** Järjestys on tekoälyn ehdotus. Versiot 0.74–0.76 tehtiin ennen kommentteja, ja niiden jatko on merkitty.
 
-Emil haluaa nämä, eikä niissä ole auki käyttäjän kysymystä. Kortin kysymykseen, johon Emil ei vastannut, käytetään kortin oletusta, joka on kirjattu tähän.
+### A. Seuraavaksi: päätetty, valmis rakennettavaksi
 
-1. **Taulukon lukumuodon jatko (0.74:n jälkeen).** Emil: ”rahat, prosentit, ajan ilmaisut monipuolisesti”. Lisätään aikamuodot: `h min` (8,5 → 8 h 30 min), `mm:ss`, kesto päivinä ja päivämäärän esitystavat (`ma 30.11.`, `30.11.2026`). Muodon pysyvä tallennus vaultiin (nyt selaimessa) sovitaan samalla. Taustavärit ovat kohdassa B.
-2. **Näkymän oma järjestys ja lukitus (0.76:n jälkeen, Emil).**
-   - *Oma järjestys säilyy aina:* kun lajittelua ei ole valittu, näkymä näyttää käyttäjän asettaman pysyvän järjestyksen (Muistiossa `nakymat/*.md`:n Oma järjestys, taulukossa rivien järjestys). Lajittelu ei koskaan tuhoa sitä. *Palauta oma järjestys* tuo sen takaisin. Emil ehdotti varmistuskysymystä lajiteltaessa. *Tekoälyn ehdotus:* koska lajittelu ei poista omaa järjestystä, kysymystä ei tarvita. Jos Emil haluaa sen silti, kysymys tulee vain, kun omaa järjestystä on muutettu ja lajittelu aloitetaan.
-   - *Lukitut näkymät:* pieni, siististi sijoitettu lukkonappi näkymän otsikkorivillä. Lukittuna näkymästä voi vain avata rivejä tarkasteltavaksi: ei poistoa, lisäystä, järjestelyä tai solujen muokkausta. Avaus palauttaa kaikki toiminnot. Lukitus tallentuu näkymätiedostoon (`lukittu: kyllä`), joten se on sama kaikilla laitteilla. Koskee Muistion näkymiä ja taulukon välilehtiä.
-3. **Muistion rivinäkymä tietokannaksi (kohta 21), tässä järjestyksessä:**
-   1. Suora kirjoitus soluun (21.1): Enter, Tab ja Esc tietokoneella, puhelimella ikkuna kuten nyt.
-   2. ＋ sarake otsikkoriviltä (21.2). Erillinen näyttönimi on kohdassa B.
-   3. Yhteenvetorivi (21.3).
-   4. Päiväsarake valitsimella (21.5). *Näytä kalenterissa* on sarakekohtainen ja oletuksena pois (Emil: suosituksen mukaan).
-   5. Valinta, monivalinta ja tila värisiruina (21.6). **Emil: sirujen ilme mukailee huurteisen lasin estetiikkaa.** Tarkoittaa läpikuultavaa, sumennettua pintaa ja hentoa reunaa. Safarissa `-webkit-backdrop-filter` mukaan, ja kontrasti vähintään 4,5:1 myös siruissa.
-   6. Täyttö alas Muistiossa (21.4, sama toteutus kuin Taulukoiden 0.72).
-   7. Ehtokaavat (21.7).
-   8. Linkit- ja relaatiosarake (21.8).
-4. **Muistiinpanot:**
-   - Linkki kirjoittaessa `((…))` (korjaussuunnitelman kohta 6). Oletukset: uusi muistiinpano syntyy vasta napautuksesta, merkki on kaksoissulkeet.
-   - Muuttujaluettelo: **kuvaus ja yksikkö kumpikin (Emil)** sekä samankaltaisen nimen ehdotus. Tallennuspaikka ehdotuksen mukaan `data/muuttujat.md`, ja vaultin ohje päivitetään samalla.
-   - Tunnisteiden yhdistäminen ja nimeäminen (toteutusjono 7). Emil haluaa tämän, mutta kortin kysymys jäi epäselväksi. Kysymys tarkoitti: kun yhdistät #lenkki ja #juoksu, muuttuuko myös tekstiisi kirjoitettu #lenkki? *Oletus:* muuttuu. Esikatselu näyttää jokaisen muuttuvan kohdan ennen hyväksyntää, ja Emilin oma toiminto apissa on lupa muuttaa hänen tekstiään. Muuten vanha tunniste palaisi takaisin.
-   - Graafin yhteinen tunniste katkoviivana valinnaisena kerroksena (toteutusjono 7).
-   - Rinnakkaisnäkymä tietokoneella. **Emil: valinta, ei oletus eikä ainoa vaihtoehto.**
-5. **Kojelauta:**
-   - **Useita kojelautoja (Emil)** ja vapaa asettelu: vetäminen, koon muutos, lukitus, esitystavat, yksiköt ja värit (toteutusjono 3).
-   - Tekstiruutu. Kojelaudan nappi odottaa Toiminnot-suunnitelmaa (kohta B1).
-   - Korrelaatio. **Emil: näytetään ensimmäisestä parista alkaen, ja pieni merkintä kertoo, jos pareja on liian vähän luotettavaan päätelmään.** Merkinnän raja ja sanamuoto ovat tekoälyn ehdotus (esim. alle 10 paria: ”vähän havaintoja”), ja ne kirjataan Emilille kokeiluohjeeseen.
-6. **Pikanappien hallinta yhdessä paikassa** (toteutusjono 4, rajattu editori).
-7. **Kalenteri:**
-   - **Nimet (Emil, 22.1):** nykyinen Aikajana-nappi on puhelimessa pystyasennossa **Päivä** ja vaaka-asennossa **Viikko**, tietokoneella **Viikko**. Nimi *Aikajana* jää palkkinäkymälle.
-   - Aikajanan perusnäkymä palkkeina, vain luettava (22.2). Siinä näkyvät muistiinpanojen aikavälit. Nimetyt vaiheet ja riippuvuudet on lykätty (C).
-   - Toistuvuuden vakiinnutus kokeiluhaarasta (kohta 18, toteutusjono 6). **Emil: rytmi valitaan muistiinpanokohtaisesti** (kuittauksesta laskettava tai kiinteä), ja valinta tallentuu tekstiin. Toteutumaton kuittaus on kohdassa B2.
-8. **Kaaviot, ensimmäinen kokeilu: kanvas ja kaaviotiedosto (23.1).** Emil: kaavioiden pitää löytyä Muistiosta, jos kaiken kuuluu löytyä sieltä. Siksi ne näkyvät Muistion *Kaikki*-suodattimella. Laajempi kysymys siitä, mitä Muistiossa ylipäätään näytetään, on kohdassa B6.
+1. **Taulukon lukumuodon jatko (0.74:n jälkeen).** Emil: ”rahat, prosentit, ajan ilmaisut monipuolisesti”. Lisätään aikamuodot: `h min` (8,5 → 8 h 30 min), `mm:ss`, kesto päivinä ja päivämäärän muodot (`ma 30.11.`, `30.11.2026`). **Muoto synkataan** (Emil). Se tallennetaan välilehden tiedostoon vaultissa eikä selaimeen, ja vanha selainasetus luetaan kerran. **Taustavärejä ei tehdä** (Emil).
+2. **Näkymän oma järjestys ja lukitus (0.76:n jälkeen).**
+   - Kun lajittelua ei ole, näkymä näyttää Emilin pysyvän oman järjestyksen. Muistiossa se on `nakymat/*.md`:n Oma järjestys, taulukossa rivien järjestys. Lajittelu ei koskaan tuhoa sitä, ja *Palauta oma järjestys* tuo sen takaisin. **Varmistuskysymystä ei tule** (Emil).
+   - *Lukitut näkymät:* pieni, siististi sijoitettu lukkonappi näkymän otsikkorivillä. Lukittuna rivejä voi vain avata tarkasteltavaksi: ei poistoa, lisäystä, järjestelyä tai muokkausta. Avaus palauttaa kaikki toiminnot.
+   - **Lukitus synkkaa laitteiden välillä** (Emil). Laiteasetukset eivät synkkaa, mutta tämä onnistuu, koska näkymä ja välilehti ovat vaultin tiedostoja. Lukitus tallennetaan niihin riville `lukittu: kyllä`.
+3. **Muistion rivinäkymä tietokannaksi (kohta 21).**
+   - **Emilin päätös: sarake on muuttuja.**
+     - Uusi sarake on oletuksena tekstimuuttuja, ja sarakkeen otsikko on muuttujan nimi. Soluun syötetty arvo kirjoittuu muistiinpanoon merkintänä `!!Uni (h): 8!!`. Näin samaa tietoa voi käyttää näkymissä, kojelaudassa ja tekoälyn kirjauksissa.
+     - Sarakkeen laji (luku, päivä, valinta…) valitaan kuten ennenkin.
+     - **Otsikkoa ei voi aluksi vaihtaa erilleen muuttujan nimestä.** Näyttönimi lisätään vasta, jos Emil tarvitsee sitä.
+     - Vanhat alkutietokentät (0.63, esim. `uni: 8`) pysyvät luettavina ja muokattavina.
+     - *Tekoälyn oletus tarkennukseen:* solu näyttää muistiinpanon viimeisimmän arvon. Muokkaus päivittää viimeisimmän merkinnän. Jos merkintää ei ole, uusi merkintä lisätään tekstin loppuun.
+   - Järjestys:
+     1. Suora kirjoitus soluun (21.1).
+     2. ＋ sarake (21.2), muuttujasarakkeena.
+     3. Yhteenvetorivi (21.3).
+     4. Päiväsarake (21.5). *Näytä kalenterissa* on oletuksena pois.
+     5. Valinta, monivalinta ja tila (21.6). **Sirut mukailevat huurteisen lasin estetiikkaa** (Emil): läpikuultava, sumennettu pinta ja hento reuna. Safarissa `-webkit-backdrop-filter`, ja kontrasti vähintään 4,5:1.
+     6. Täyttö alas Muistiossa (21.4).
+     7. Ehtokaavat (21.7).
+     8. Linkit- ja relaatiosarake (21.8).
+4. **Muistiinpanot.**
+   - **Linkki kirjoittaessa `((…))` (Emil muutti ehdotusta).**
+     - Linkin niminen muistiinpano syntyy heti valmiiksi: siinä on pelkkä nimi, ja se on muuten tyhjä. Emil kirjoittaa usein monta linkkiä kerralla eikä ehdi avata niitä.
+     - *Tekoälyn tarkennus:* muistiinpano luodaan, kun muokkaus päättyy (muistiinpano suljetaan tai tallennetaan), ei jokaisella näppäimen painalluksella. Näin kesken kirjoitetusta linkistä, kuten `((ret`, ei synny ylimääräistä tiedostoa.
+     - Uudet tyhjät muistiinpanot löytyvät myöhemmin Muistiosta. Niillä on alkutieto `syntyi: [[lähde]]`, ja niille on valmis näkymä *Linkeistä syntyneet*.
+     - Jos linkki myöhemmin poistetaan, tyhjää muistiinpanoa ei poisteta. Se näkyy edelleen samassa näkymässä.
+   - Muuttujaluettelo: kuvaus ja yksikkö kumpikin (Emil) sekä samankaltaisen nimen ehdotus. Ehdotettu tallennuspaikka on `data/muuttujat.md`, ja vaultin ohje päivitetään.
+   - Tunnisteiden yhdistäminen (toteutusjono 7). **Myös tekstiin kirjoitettu tunniste muuttuu**, ja esikatselu näyttää jokaisen kohdan ennen hyväksyntää (Emil).
+   - **Turvallinen nimen vaihto** (toteutusjono 2). Emil: korjataan linkit, kaavat ja ruudut kerralla, kun lista on ensin näytetty.
+   - Graafin yhteinen tunniste katkoviivana valinnaisena kerroksena.
+   - Rinnakkaisnäkymä tietokoneella **valintana, ei oletuksena** (Emil).
+   - **Muistio ei näytä oletuksena käyttötiedostoja** (Emil): pikanappien pohjat, `data/`, näkymät, kojelaudan asetukset, kaaviot ja tekoälyn ohjeet. Ne löytyvät omista osioistaan ja *Kaikki*-suodattimella. Uudet piilokansiot kirjataan vaultin `ohjeet/appi.md`:hen.
+5. **Kojelaudat: pikanäkymät eri tarkoituksiin.**
+   - **Useita kojelautoja** (Emil) ja vapaa asettelu (toteutusjono 3).
+   - Emilin tavoite: kojelauta on pikanäkymä, jossa on sekä inforuutuja että säätimiä (kohta A6), ja jolla pääsee tekemään asioita *ilman muistiinpanoviidakkoon sukeltamista*. Säädin voi vaikuttaa saman kojelaudan tietoon tai mihin tahansa muualle.
+   - *Tekoälyn näkemys:* kojelauta pysyy puhelimeen sopivana, pystyyn vierivänä ruudukkona. Kaavioiden kanvas (A8) on vapaa pohja tietokoneelle. Samat palikat (inforuutu, säädin) toimivat molemmissa, joten käsitteitä ei tule kahta.
+   - Tekstiruutu.
+   - Korrelaatio: näkyy ensimmäisestä parista alkaen, ja **alle 10 parista tulee pieni merkintä** (Emil).
+6. **Säätimet ja toiminnot: oma editori napeille ja muille säätimille (Emil 24.11.).** Tämä korvaa pikanappien hallinnan (toteutusjono 4) ja Toiminnot-kohdan. Säädin tehdään kerran editorissa, ja sitä voi käyttää missä vain.
+   - **Säätimen lajit:**
+     - **kertanappi**
+     - **pohjaan jäävä nappi**: päälle kytkettäessä se kirjoittaa, pois kytkettäessä se poistaa täsmälleen kirjoittamansa. Tila luetaan tekstistä: onko rivi tänään olemassa. Näin tila synkkaa, ja käsin poistettu rivi vapauttaa napin.
+     - **liukusäädin**
+     - **XY-pädi**, jonka X- ja Y-suunnalle määritellään kummallekin oma toimintonsa
+     - myöhemmin muita.
+   - **Toiminto valitaan säädinkohtaisesti:**
+     - *Mitä kirjoitetaan:* teksti, muuttuja (nimi ja arvo), aikaleima tai näiden yhdistelmä.
+     - *Lisää vai päivitä:* **lisää uusi rivi** joka painalluksella (iteratiivinen, esim. kahvi + aikaleima), tai **päivitä** olemassa oleva arvo tai aikaleima.
+     - *Minne:*
+       - Muistion rivin nappi kirjoittaa **sen rivin muistiinpanoon** (Emil).
+       - Kojelaudan nappi ja pikanappi kirjoittavat oletuksena **päivän muistiinpanoon** (Emil).
+       - Lisäksi kohteeksi voi valita olemassa olevan tekstin hakuvalikosta (hakukenttä, koska tekstejä on paljon), tai säädin tekee **oman muistiinpanon** vain itselleen.
+       - Valittu teksti voi myöhemmin kadota. Silloin säädin kertoo siitä eikä kirjoita minnekään.
+     - *Aika:*
+       - **Nyt**: päivä ja kellonaika, oletus.
+       - **Vain päivä.**
+       - **Kysy päivä joka kerta**, kellonaika valinnainen.
+       - **Kalenterissa valittu päivä.**
+       - Muut tavat lisätään, kun Emil keksii tarpeen.
+   - **Kumoa** (Emil): pieni ja huomattava (esim. punainen) näytön reunassa. Se ei peitä mitään eikä keskeytä tekemistä, ja sen voi jättää huomiotta. Näkyy noin 6 sekuntia. *Tekoälyn tarkennus:* vilkkumisen sijaan yksi pehmeä sykäys ilmestyessä. Jatkuva vilkkuminen häiritsee ja on saavutettavuusriski. Sykäys ohitetaan, kun liike on vähennetty.
+   - **Suhteellinen XY** (toteutusjono 4) mittarikohtaisena valintana (Emil): keskellä on edellinen arvo, ja liu'utetaan vain muutos.
+   - **Toteutusjärjestys:**
+     1. Editori, kertanappi ja toiminnon asetukset.
+     2. Käyttö kojelaudalla ja pikakirjauksessa.
+     3. Muistion nappisarake.
+     4. Pohjaan jäävä nappi.
+     5. XY-säädin.
+     6. Kaavion tuotosruutu (23.2).
+   - Nykyiset pikanapit (`pohjat/pikakirjaus.md`) ja muuttujanapit (0.72) avautuvat editorissa säätiminä, ja vanha muoto pysyy luettavana.
+   - Tallennusmuodon v1 valitsee rakentaja niin, että se on luettava ja tekoälyn kirjoitettavissa. Ehdotus: `pohjat/saatimet.md`. Muoto kirjataan vaultin ohjeeseen.
+7. **Kalenteri, toistuvuus ja kuittaus.**
+   - **Nimet** (Emil, 22.1): nykyinen Aikajana-nappi on puhelimessa pystyssä **Päivä**, vaakana **Viikko** ja tietokoneella **Viikko**. *Aikajana* jää palkkinäkymälle.
+   - Aikajanan perusnäkymä palkkeina, vain luettava (22.2).
+   - **Kolmitilainen kuittaus (Emil: ”just noin me se tehdään”):** yksi ruutu, ei toista. Napautus kuittaa toteutuneeksi (vihreä väkänen), toinen napautus toteutumattomaksi (ruksi, vaimea punainen) ja kolmas tyhjentää. Kalenterissa tilat erottuvat värillä ja muodolla. Toteutumaton kerta tallentuu samaan `kuitattu:`-riviin merkinnällä, esimerkiksi `2026-11-29 ei`. Vanha muoto luetaan toteutuneena. Kalenteri, kojelaudan tarkistuslista ja toistuvuus käyttävät samaa tietoa, ja tieto tilastoi toteutumista. Vaultin `ohjeet/appi.md` päivitetään.
+   - **Toistuvuuden vakiinnutus** (kohta 18): rytmi valitaan muistiinpanokohtaisesti. **Oletus lasketaan kuittauksesta**, ja kiinteä rytmi on valittavissa. **Toteutumaton kuittaus siirtää seuraavan kerran**, ja tilastoon jää ”ei toteutunut” (Emil).
+8. **Kaaviot: kanvas ja kaaviotiedosto (23.1).** Kaaviot ovat piilossa Muistion oletuslistasta, ja *Kaikki*-suodatin näyttää ne. **Kaavion valintoja ei muisteta sulkemisen jälkeen** (Emil, 23.2). **Kirjaus tekstiksi on valinnainen** (Emil). Ehdotuksena on kaaviokohtainen valinta *Kirjaa valitut*. Ehdolliset napit (23.2) tulevat säätimien jälkeen, koska tuotosruutu on toiminto.
 
 ### B. Tarkennetaan yhdessä ennen rakentamista
 
-Emil haluaa nämä, mutta muoto tai käytös sovitaan ensin. Tekoäly tuo kustakin konkreettisen ehdotuksen esimerkkeineen, ei pelkkää kysymystä.
-
-1. **Toiminnot: yksi tapa rakentaa nappien teot (Emil 24.11., uusi).** Emil kysyi Notionin painikkeiden kaltaisia nappeja. Esimerkiksi ”jokainen painallus lisää asian”: uusi arvo aikaleimalla tai muutos johonkin toiseen kohtaan, valmis teksti tai uusi. Sama voisi koskea liukusäätimiä ja muita säätimiä sekä pikanappeja muistiinpanolistan riveillä (tietokanta). Rivin nappi lisäisi riville määritetyn tekstin, kuten muuttujan, aikaleiman tai molemmat, ja toimisi samalla kuittauksena.
-   - *Tekoälyn näkemys:* tämä kannattaa suunnitella **yhdeksi käsitteeksi**, *toiminnoksi*. Toiminto on määritelmä siitä, mitä kirjoitetaan (teksti, muuttuja, aikaleima tai arvon muutos), minne (päivän muistiinpano, tämä rivi, valittu muistiinpano tai solu) ja miten (lisää uusi joka kerta tai korvaa). Samaa määritelmää käyttävät kojelaudan nappi ja säätimet, Muistion rivin nappisarake, pikakirjauksen napit ja kaavion tuotosruutu (23.2). Jos jokainen tekee omansa, syntyy neljä erilaista nappia ja neljä opeteltavaa tapaa.
-   - Ennen rakentamista: toiminnon tallennusmuoto vaultissa, esimerkit (kahvi +1 aikaleimalla, tila → valmis, uni-arvo päivän muistiinpanoon) ja peruminen.
-2. **Kuittaus: toteutui tai ei toteutunut (Emil 24.11., uusi).** Emil haluaa valita, kuitataanko asia toteutuneena vai toteutumattomana. Kalenterissa ne näkyvät eri väreillä, ja tieto tilastoi toteutumista. Emil ehdotti toista kuittausruutua.
-   - *Tekoälyn vastaehdotus:* yksi ruutu, jolla on kolme tilaa. Napautus: toteutui (väkänen, vihreä). Toinen napautus: ei toteutunut (ruksi, vaimea punainen). Kolmas: tyhjä. Perustelu: kaksi ruutua jokaisessa kalenterimerkinnässä ahtaisi juuri siistityt lyhyet merkinnät (A1b, 0.54) ja lisäisi väärän osuman riskiä puhelimella. Tila erottuu myös muodosta, ei vain väristä.
-   - Kuittaus pysyy apin yhteisenä: kalenteri, kojelaudan tarkistuslista, toistuvuus ja tuleva rivin nappi käyttävät samaa `kuitattu:`-tietoa. Toteutumaton kerta vaatii muotoon merkinnän, esim. `kuitattu: 2026-11-22 16:00, 2026-11-29 ei`. Tämä on tallennusmuodon muutos, joten se vaatii Emilin hyväksynnän ja vaultin `ohjeet/appi.md`:n päivityksen.
-3. **Upotus (23.3).** Emil: haluaa, mutta säädetään ensin yhdessä.
-4. **Kaavioiden ehdolliset napit (23.2).** Emil haluaa. Rakennetaan Toimintojen (B1) jälkeen, koska tuotosruutu on toiminto.
-   - **Emil: kirjaus tekstiksi on valinnainen.** Kaavio ilman tuotosruutuja ei kirjoita mitään.
-   - *Ehdotus:* kaaviokohtainen valinta *Kirjaa valitut* kirjoittaa valitut napit yhdelle riville ilman erillisiä tuotosruutuja.
-5. **Kaavioiden jatko** (23:n visio: laskenta, upotukset kaaviossa, muistiinpanokortit). Emil: kaikki hyvää, mutta mietitään myöhemmin tarkemmin.
-6. **Mitä Muistiossa näytetään** (käyttötiedostot erilleen, 23:n visio). Emil kysyi kaavioiden yhteydessä, tarvitseeko kaiken ylipäätään näkyä Muistiossa. Käyttötiedostojen kortti jäi kommentoimatta.
-7. **Sarakkeen näyttönimi** (korjaussuunnitelman kohta 4). Emil haluaa ＋-sarakkeen, mutta ei tiedä vielä, miten nimen pitäisi näkyä.
-8. **Turvallinen nimen vaihto** (toteutusjono 2). Emil ymmärtää idean, mutta ei vielä valinnan seurauksia käytännössä. Tuodaan esimerkki: muistiinpano *Remontti* nimetään *Keittiöremontiksi*, ja näytetään, mitkä linkit, kaavat ja ruudut muuttuvat ja mitä tapahtuisi ilman toimintoa (linkit katkeavat).
-9. **Suhteellinen XY-pädi** (toteutusjono 4). Emil: en ymmärrä vielä. Selitetään uudelleen kokeiltavalla esimerkillä ennen rakentamista.
-10. **Taulukon taustavärit.** Emil ei tiedä, tarvitaanko niitä.
+1. **Tekstit riveinä ja tekstin tunniste (Emil 24.11., uusi).** Emil ehdottaa, että näkymä voi listata muistiinpanojen lisäksi **tekstit**, eli muistiinpanon `---`-osiot. Joskus olennaista ei ole se, missä muistiinpanossa teksti on, vaan tekstiä käytetään rakenteisesti muualla. Emil kirjoittaa usein monta asiaa samaan muistiinpanoon.
+   - *Tekoälyn näkemys:* hyvä ja linjakas idea. Kaikki käsittelee osioita jo yksikköinä: kalenterin ajankohdat ja kuittaukset, muuttujan osiopäivä ja kojelaudan tarkistuslista (0.71). Tekstillä ei ole omia alkutietoja, mutta **sarake on muuttuja** (A3), ja muuttuja elää tekstin sisällä. Siksi tekstirivit sopivat tietokantaan luontevasti. Näkymään tulisi valinta *Rivit: muistiinpanot / tekstit*.
+   - *Tallennus:* tekoäly suosittelee, että teksti **ei** muutu omaksi tiedostokseen vaultissa. Tiedostojen määrä moninkertaistuisi, jokainen kirjoitus olisi monen tiedoston muutos, ja Emilin tapa kirjoittaa samaan muistiinpanoon rikkoutuisi. Appi voi näyttää tekstit yksikköinä ilman, että tallennus muuttuu.
+   - *Avoinna:* **tekstin pysyvä tunniste.** Teksti tarvitsee nimen, joka säilyy, kun tekstiä tai sen paikkaa muutetaan. Sama tunniste tarvitaan kolmeen asiaan: säätimen kohteeksi valittuun tekstiin (A6), upotukseen (B2) ja tekstiriveihin. Se suunnitellaan siksi kerralla. Vaihtoehdot ovat tekstin ensimmäinen rivi tai otsikko (luettava, mutta hauras) ja pieni piilotunniste (kestävä, mutta näkyy tiedostossa).
+2. **Upotus (23.3).** Emil: haluaa, mutta säädetään yhdessä. Riippuu tekstin tunnisteesta (B1).
+3. **Kaavioiden jatko** (23:n visio: laskenta, upotukset kaaviossa, muistiinpanokortit). Emil: mietitään myöhemmin tarkemmin.
 
 ### C. Lykätty kauemmas
 
-Ei rakenneta eikä suunnitella pidemmälle ennen kuin Emil ottaa asian esiin.
+Ei rakenneta eikä suunnitella pidemmälle ennen kuin Emil ottaa asian esiin:
+- Flow tekstinä (kohta 7)
+- Listat luettavaksi tekstiksi
+- Aikajanan nimetyt vaiheet (22.3)
+- Riippuvuudet ja laskettu paikka (22.4–22.5)
+- Toteumat, ”kuinka monena päivänä”
+- Treenisarjat kojelaudalle ja Treeni-osion tulevaisuus (kytkeytyy Juuren karsintaan)
+- Timanttien lukutila ja ”Mikä auttaisi tässä?” (kommentoimatta, visio ennallaan)
+- Taulukon taustavärit (Emil: ei toistaiseksi)
 
-- Flow tekstinä (kohta 7, toteutusjono 6). Emil: lykätään pohdinta.
-- Listat luettavaksi tekstiksi (toteutusjono 6). Emil: saa nähdä, pohditaan myöhemmin.
-- Aikajanan nimetyt vaiheet (22.3). Emil: lykätään.
-- Riippuvuudet ja laskettu paikka (22.4–22.5). Emil: pohditaan myöhemmin.
-- Toteumat, ”kuinka monena päivänä” (toteutusjono 4). Emil: mietitään myöhemmin. Korrelaatio ei ole lykätty (A5).
-- Treenisarjat kojelaudalle ja Treeni-osion tulevaisuus (toteutusjono 5). Emil pohtii, mitä erillisellä treenipuolella tehdään, jos muu saadaan toimimaan. Kytkeytyy Juuren karsintaan.
-- Timantit: lukutila ja ”Mikä auttaisi tässä?” (toteutusjono 10). Kommentoimatta, ja visio jää ennalleen.
+### D. Ei erillistä ominaisuutta
 
-### D. Ei erillistä ominaisuutta: hoituu muuttujilla, kentillä ja tunnisteilla
-
-Emil kysyi tätä kolmen kortin kohdalla, ja tekoäly on samaa mieltä.
-- **Painoarvo** on tavallinen lukukenttä tai muuttuja (esim. `paino: 5`), ja Muistion lajittelu (0.64) järjestää sen mukaan. Omaa toimintoa ei rakenneta. Tarvittaessa näkymäesimerkki kirjoitusohjeeseen.
-- **Uni ja ateriat** kirjataan muuttujina niin monta kertaa kuin halutaan. Emil nimeää ja määrittelee ne itse. Kojelauta osaa jo summan, keskiarvon ja määrän päivältä. Erillistä uni- tai ravintokirjausta ei suunnitella.
-- **Ajatuksen nosto** toimii aluksi tunnisteella tai kentällä (esim. `#timantti` tai `paino`) ja tallennetulla näkymällä. Ainoa uusi osa olisi yksittäisen virkkeen nosto pitkästä tekstistä. Se on käytännössä upotus (B3), joten se odottaa upotusta.
+- **Painoarvo** on tavallinen lukukenttä tai muuttuja, ja Muistion lajittelu (0.64) järjestää sen mukaan.
+- **Uni ja ateriat** ovat Emilin omia muuttujia niin monta kertaa päivässä kuin hän haluaa, ja kojelauta laskee niistä. Emil nimeää ja määrittelee muuttujat itse.
+- **Ajatuksen nosto** tehdään tunnisteella tai kentällä ja tallennetulla näkymällä. Yksittäisen virkkeen nosto pitkästä tekstistä odottaa tekstin tunnistetta ja upotusta (B1–B2).
 
 ### E. Kommentoimatta, ennallaan
 
-Liitteet, Notion-tuonti ja Juuren karsinta (toteutusjono 8) pysyvät päätöstä odottavina kokeiluina. Aksentin ja otsikkofontin valinta tehdään Emilin iPhonella (ulkoasusuunnitelma). Käyttötiedostot ja timanttien lukutila mainitaan yllä.
+- Liitteet, Notion-tuonti ja Juuren karsinta (toteutusjono 8) ovat päätöstä odottavia kokeiluja.
+- Aksentti ja otsikkofontti valitaan Emilin iPhonella.
 
 **Historiallinen yöajon tilanne 23.11.2026, ennen versiota 0.54.** Päähaaran viimeisin appiversio oli 0.51. Työympäristö katkesi juuri ennen seuraavien kahden paikallisen version julkaisua. Kohdennetut testit menivät niille läpi Chromiumissa.
 
@@ -835,10 +873,10 @@ lahde: emil
 - **Monta appia samalla vaultilla.** Saman osoitteen apit jakavat selaimen muistin, joten GitHub-avain voisi olla yhteinen. Ennen tätä tarkistetaan, millä avaimella Kaikki avaimen tallentaa. Jos vaultin lukija ja kaavamoottori tarvitaan useassa apissa, kopioiden erilleen ajautumisen estäminen (yhteinen tiedosto) on tekniikkalinjan muutos ja vaatii Emilin päätöksen.
 
 **Avoimet kysymykset Emilille:**
-1. Muistetaanko 23.2:ssa päivän valinnat sulkemisen jälkeen? Tekoälyn ehdotus on ei: käyttökerta päättyy sulkemiseen. (Ei vastattu 24.11. Oletus pätee, ellei Emil muuta.)
+1. Muistetaanko 23.2:ssa päivän valinnat sulkemisen jälkeen? Tekoälyn ehdotus on ei: käyttökerta päättyy sulkemiseen. **Emil 24.11.: ei muisteta.**
 2. Kelpaako tiedostomuoto (`tulee:`-nuolet ja Asettelu erikseen)?
 3. ~~Näkyykö kaavio Muistion haussa?~~ Emil 24.11.: kaavioiden pitää löytyä Muistiosta, jos kaiken kuuluu löytyä. Laajempi kysymys on Jäsennyksen kohdassa B6.
-4. ~~Paikka jonossa~~: Jäsennys 24.11., kohta A8. 23.2 tulee Toimintojen (B1) jälkeen.
+4. ~~Paikka jonossa~~: Jäsennys 24.11., kohta A8. 23.2 tulee säätimien ja toimintojen (A6) jälkeen.
 
 ## Visio: Ajatusten risteämissä syntyvät timantit
 

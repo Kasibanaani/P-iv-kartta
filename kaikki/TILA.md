@@ -277,6 +277,16 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 
 ## Suunnitelmat
 
+24.11.2026. Emil vastasi 20 avoimeen kysymykseen, ja [Jäsennys](SUUNNITELMA.md#jäsennys-24112026-seuraavaksi-tarkennettavat-ja-lykätyt) päivitettiin. Päätökset:
+- Sarake on muuttuja, eikä otsikkoa voi aluksi vaihtaa.
+- `((linkki))` luo tyhjän muistiinpanon heti.
+- Napeille ja muille säätimille tulee oma editori, ja toiminto valitaan säädinkohtaisesti: kohde, aika, lisää vai päivitä, kumoa reunassa (A6).
+- Kuittaus on kolmitilainen.
+- Lukitus ja lukumuoto synkkaavat vaultin kautta.
+- Käyttötiedostot piilotetaan Muistiosta.
+
+Uusi tarkennettava asia on tekstit riveinä ja tekstin pysyvä tunniste (B1).
+
 24.11.2026. [Jäsennys](SUUNNITELMA.md#jäsennys-24112026-seuraavaksi-tarkennettavat-ja-lykätyt) on tehty Emilin konseptikommenttien pohjalta. Se jakaa työn viiteen ryhmään: A seuraavaksi (8 kohtaa), B tarkennetaan yhdessä, C lykätty, D ei erillistä ominaisuutta (painoarvo, uni ja ateriat, nosto) ja E ennallaan. Uudet Emilin ideat: toiminnot eli Notionin kaltaiset napit kaikkialla (B1), toteutunut tai toteutumaton kuittaus (B2, tekoälyn vastaehdotus on kolmitilainen ruutu), lukitut näkymät ja pysyvä oma järjestys (A2), huurteisen lasin sirut (A3) ja useat kojelaudat (A5).
 
 24.11.2026. Emil haluaa ennen avoimia kysymyksiä nähdä suunnitellut uudistukset esiteltyinä kuin käyttäjälle. Kaikki rakentamattomat suunnitelman kohdat (43 korttia) koottiin Emilin claude.ai-tilille artefaktiksi *Kaikin tulevat ominaisuudet*. Jokaisessa kortissa on reaktio ja kommentti. Kun Emil on kommentoinut, tekoäly lukee kommentit artefaktin tietokannasta (kokoelma `kommentit`) ja kirjaa päätökset suunnitelman kohtiin.
