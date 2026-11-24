@@ -1622,6 +1622,15 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 .sg-fx{flex:1;min-width:0;height:32px;padding:0 10px!important;border-radius:8px!important;font-size:16px!important;font-family:ui-monospace,Menlo,Consolas,monospace}
 .sg-status{flex:none;font-size:12px;color:var(--label2);white-space:nowrap}
 .sg-more{flex:none;padding:0 8px}.sg-more svg{width:18px;height:18px;fill:currentColor}
+.sg-formula-tools{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin:0 0 8px}
+.sg-formula-tools[hidden]{display:none}
+.sg-formula-tools .btn{min-height:32px;padding:0 9px;font-size:13px}
+.sg-formula-tools .btn[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--accent)}
+.sg-formula-tools .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sg-formula-info{flex-basis:100%;font-size:13px;color:var(--label2);overflow-wrap:anywhere}
+.sg-formula-info:empty{display:none}
+.sg td.sg-origin{box-shadow:inset 0 0 0 2px var(--accent)}
+.sg td.sg-reference{background:color-mix(in srgb,var(--accent) 18%,var(--cell));outline:1px dashed var(--accent);outline-offset:-4px}
 @media (max-width:520px){.sg-status{display:none}.sg-addr{min-width:40px;padding:0 5px}}
 .sg-wrap{position:relative;overflow:auto;max-height:max(240px,calc(100dvh - var(--toph,0px) - var(--navh,0px) - 110px));border:1px solid var(--sep);border-radius:8px;background:var(--cell);overscroll-behavior:contain;outline:none;-webkit-user-select:none;user-select:none}
 .sg-wrap:focus-visible{box-shadow:0 0 0 2px var(--accent)}
@@ -9796,7 +9805,7 @@ function sgPending(path){var P=SGP[path];return P?Object.keys(P.edits).length:0;
 var sgStructuralSave=false;
 function sgSet(t,cells,noUndo){if(sgStructuralSave)return false;if(t&&t.view){var e=$('sg-status');if(e)e.textContent='Näkymän rivit tulevat muistiinpanoista: avaa muistiinpano Enterillä.';return false;}var P=SGP[t.path]||(SGP[t.path]={edits:{},base:{},timer:0,saving:false}),rec=[];var o=sgOrig(t.path);
   cells.forEach(function(x){if(x.c<0||x.c>=64||x.r>=500)return;var k=x.r+','+x.c,cur=sgRawOf(t,x.r,x.c),v=String(x.v==null?'':x.v).replace(/\r?\n/g,' ').replace(/\|/g,'¦');if(cur===v)return;
-    if(!(k in P.base))P.base[k]=sgRawOf(o,x.r,x.c);P.edits[k]=v;rec.push({r:x.r,c:x.c,b:cur,a:v});});
+    if(!(k in P.base))P.base[k]=x.base??sgRawOf(o,x.r,x.c);P.edits[k]=v;rec.push({r:x.r,c:x.c,b:cur,a:v});});
   if(!rec.length)return false;SGV++;if(!noUndo){SGU.push({path:t.path,cells:rec});if(SGU.length>200)SGU.shift();SGR=[];}
   clearTimeout(P.timer);P.timer=setTimeout(function(){sgFlush(t.path);},900);sgRefresh();return true;}
 function sgStatusText(path){if(sgStructuralSave)return 'Tallennetaan rakennetta…';var n=sgPending(path),P=SGP[path];return P&&P.err?P.err:n?(P&&P.saving?'Tallennetaan…':'Tallentamatta '+n):'Tallennettu';}
@@ -9999,8 +10008,116 @@ async function sgSaveWidths(t,ws){if(vBusy){setTimeout(function(){sgSaveWidths(t
   try{await sheetSaveFile(t.path,function(text){var S=VAULT.split(text);if(!S.fm)return text;var L=VAULT.fmSet(S.fm,'leveydet',ws.join(', '));if(L.join('\n')===S.fm.join('\n'))L=S.fm.concat(['leveydet: '+ws.join(', ')]);
       if(!L.some(function(l){return /^leveydet:/.test(l);}))L=L.concat(['leveydet: '+ws.join(', ')]);return '---\n'+L.join('\n')+'\n---\n'+S.body;},'appi: taulukon sarakeleveydet',state);delete SGW[t.path];}
   catch(e){}finally{vBusy=false;vRender();vFlush();}}
+/* 0.68: kaavan luonnos pysyy lähtösolussa myös silloin, kun ruudukko näyttää toista välilehteä. */
+var sgFormula=null,sgFormulaInput=null;
+function sgAddress(r,c){return TAULUKKO.column(c)+(r+1);}
+function sgFormulaControls(){
+  var tools=$('sg-formula-tools'),fx=$('sg-fx'),d=sgFormula;
+  if(!tools)return;
+  var t=sgTable(),input=sgFormulaInput&&sgFormulaInput.isConnected?sgFormulaInput:fx;
+  var canPick=t&&!t.view&&!sgStructuralSave&&SG.r>=0&&!!t.rows[SG.r]&&(d?d.value:input.value).trimStart().startsWith('=');
+  var picking=d&&d.picking;
+  tools.hidden=!d&&!canPick;
+  $('sg-pick').hidden=!!picking||!canPick;
+  $('sg-pick-range').hidden=!picking;
+  $('sg-pick-range').setAttribute('aria-pressed',picking&&d.range?'true':'false');
+  $('sg-pick-use').hidden=!picking;
+  $('sg-pick-use').disabled=!picking||!d.preview;
+  $('sg-pick-back').hidden=!picking;
+  $('sg-formula-save').hidden=!d||!!picking;
+  $('sg-formula-cancel').hidden=!d;
+  var info=$('sg-formula-info'),message='';
+  if(d){
+    message='Kaava: '+d.name+' · '+sgAddress(d.r,d.c);
+    if(picking)message+=d.preview?' · Viite: '+t.name+' · '+d.preview.label:
+      d.range?' · Valitse alueen alku- ja loppusolu.':' · Valitse solu tai alue.';
+    else if(d.mark)message+=' · Viite: '+d.mark.name+' · '+d.mark.label;
+  }
+  if(info.textContent!==message)info.textContent=message;
+  $('sg-more').disabled=!!d;
+  var tabAdd=document.querySelector('.sg-tabadd');if(tabAdd)tabAdd.disabled=!!d;
+  document.querySelectorAll('.sg-tab:not(.sg-tabadd),.sg-book').forEach(function(b){b.disabled=!!d&&!picking;});
+}
+function sgFormulaTools(panel){
+  var tools=el('div','sg-formula-tools');tools.id='sg-formula-tools';tools.hidden=true;
+  function action(id,label,fn){
+    var b=button(tools,label,'btn',fn);b.id=id;return b;
+  }
+  var pick=action('sg-pick','Valitse solu',sgPickStart);
+  pick.addEventListener('pointerdown',function(e){e.preventDefault();});
+  action('sg-pick-range','Valitse alue',function(){
+    sgFormula.range=!sgFormula.range;sgFormulaControls();
+    if(sgFormula.preview)$('sg-wrap').focus({preventScroll:true});
+  });
+  action('sg-pick-use','Käytä viitettä',function(){sgPickReturn(true);});
+  action('sg-pick-back','Kaavariville',function(){sgPickReturn(false);});
+  action('sg-formula-save','Tallenna kaava',function(){sgFormulaFinish(true);});
+  action('sg-formula-cancel','Peru',function(){sgFormulaFinish(false);});
+  var info=el('span','sg-formula-info');info.id='sg-formula-info';info.setAttribute('role','status');
+  tools.appendChild(info);panel.appendChild(tools);
+  tools.addEventListener('keydown',function(e){
+    if(sgFormula&&e.key==='Escape'){e.preventDefault();e.stopPropagation();sgFormulaFinish(false);}
+  });
+}
+function sgPickStart(){
+  var t=sgTable(),input=sgFormulaInput&&sgFormulaInput.isConnected?sgFormulaInput:$('sg-fx');
+  if(!t||t.view||!t.rows[SG.r]||sgStructuralSave||!input.value.trimStart().startsWith('='))return;
+  if(!sgFormula)sgFormula={path:t.path,name:t.name,repo:vRepo(),branch:G.branch,r:SG.r,c:SG.c,base:sgRawOf(t,SG.r,SG.c)};
+  var d=sgFormula;
+  d.value=input.value;d.start=input.selectionStart;d.end=input.selectionEnd;
+  d.picking=true;d.range=false;d.preview=null;d.mark=null;
+  SG.edit=null;var wrap=$('sg-wrap'),inline=wrap.querySelector('.sg-ed');if(inline)inline.remove();
+  var fx=$('sg-fx');fx.value=d.value;fx.readOnly=true;fx.dataset.formulaDraft='true';sgFormulaInput=fx;
+  sgPaint(true);wrap.focus({preventScroll:true});
+}
+function sgPickCell(t,r,c,extend){
+  var d=sgFormula;
+  if(!t.rows[r]||c<0||c>=t.head.length)return;
+  if(!extend||!d.preview){SG.r=r;SG.c=c;}
+  SG.r2=r;SG.c2=c;
+  sgPickPreview(t);
+  sgPaint();
+}
+function sgPickPreview(t){
+  var r=Math.min(SG.r,SG.r2),r2=Math.max(SG.r,SG.r2),c=Math.min(SG.c,SG.c2),c2=Math.max(SG.c,SG.c2);
+  sgFormula.preview={path:t.path,name:t.name,r:r,c:c,r2:r2,c2:c2,
+    label:sgAddress(r,c)+(r===r2&&c===c2?'':':'+sgAddress(r2,c2))};
+}
+function sgFormulaOrigin(d){
+  var same=vOn()&&d.repo===vRepo()&&d.branch===G.branch;
+  return same&&sheetFiles().find(function(t){return t.path===d.path&&!t.view&&t.rows[d.r]&&d.c<t.head.length;});
+}
+function sgFormulaGoBack(d){
+  if(!sgFormulaOrigin(d))return false;
+  sheetSet(d.path);Object.assign(SG,{path:d.path,r:d.r,r2:d.r,c:d.c,c2:d.c,edit:null});
+  return true;
+}
+function sgPickReturn(use){
+  var d=sgFormula,p=d.preview,t=sgTable();
+  if(use&&(!p||!t||p.path!==t.path||!t.rows[p.r2]||p.c2>=t.head.length))return;
+  if(!sgFormulaGoBack(d)){toast('Lähtösolua ei enää löydy. Voit kopioida kaavan kaavariviltä.');return;}
+  if(use){
+    var prefix=t.path===d.path?'':'[['+t.path.replace(/\.md$/,'')+']]!';
+    var ref=prefix+p.label;
+    d.value=d.value.slice(0,d.start)+ref+d.value.slice(d.end);
+    d.start+=ref.length;d.end=d.start;d.mark=p;
+  }
+  d.picking=false;d.preview=null;
+  render();sgPaint();
+  var fx=$('sg-fx');fx.focus({preventScroll:true});fx.setSelectionRange(d.start,d.end);
+}
+function sgFormulaFinish(save){
+  var d=sgFormula,t=sgFormulaOrigin(d);
+  if(save&&(!t||sgStructuralSave)){toast('Kaavaa ei voitu tallentaa tähän soluun.');return;}
+  sgFormula=null;sgFormulaGoBack(d);render();
+  if(save)sgSet(t,[{r:d.r,c:d.c,v:d.value.trim(),base:d.base}]);
+  sgPaint();var wrap=$('sg-wrap');if(wrap)wrap.focus({preventScroll:true});
+}
 function renderSheets(){
-  var p=panels.sheets,files=sheetFiles(),had=p.contains(document.activeElement),ow=$('sg-wrap'),osc=ow?[ow.scrollTop,ow.scrollLeft]:null;p.textContent='';
+  var p=panels.sheets,files=sheetFiles(),focus=document.activeElement,had=p.contains(focus),ow=$('sg-wrap'),osc=ow?[ow.scrollTop,ow.scrollLeft]:null;
+  var caret=sgFormula&&focus===$('sg-fx')?[focus.selectionStart,focus.selectionEnd]:null,oldPath=SGX.path;
+  if(sgFormula&&(!vOn()||sgFormula.repo!==vRepo()||sgFormula.branch!==G.branch))sgFormula=null;
+  p.textContent='';
   if(!vOn()){p.appendChild(el('p','sub','Yhdistä GitHub-vault, jotta voit käyttää taulukoita.'));return;}
   var active=files.find(function(s){return s.path===sheetPath;})||files[0];
   var top=el('div','sg-top');p.appendChild(top);
@@ -10008,10 +10125,10 @@ function renderSheets(){
     if(!active&&!nvPendHere().some(function(e){return e.D.kind==='taulukko';})){showSheetCreate(null);return;}
     var m=$('sortpop');m.textContent='';m.setAttribute('aria-label','Taulukko');var seen={};
     files.forEach(function(s){if(seen[s.book])return;seen[s.book]=1;var b=menuItem(m,'sgb-'+s.book,s.bookName,function(){sheetSet(s.path);render();});b.setAttribute('aria-current',active&&s.book===active.book?'true':'false');});
-    menuItem(m,'sgb-new','Uusi taulukko…',function(){showSheetCreate(null);});if(!active)nvPendMenu(m,true);anchoredMenu('sortpop',bk);});
+    if(!sgFormula)menuItem(m,'sgb-new','Uusi taulukko…',function(){showSheetCreate(null);});if(!active)nvPendMenu(m,true);anchoredMenu('sortpop',bk);});
   bk.setAttribute('aria-haspopup','menu');bk.setAttribute('aria-label','Taulukko: '+(active?active.bookName:'ei taulukoita'));bk.appendChild(el('span','',active?active.bookName:'Uusi taulukko'));bk.insertAdjacentHTML('beforeend',CHEV);
-  if(!active)return;
-  if(SG.path!==active.path){SG={path:active.path,r:0,c:0,r2:0,c2:0,edit:null};}if(active.view){formulaContext().tables();if(SG.edit)SG.edit=null;}
+  if(!active){sgFormula=null;return;}
+  if(SG.path!==active.path){SG={path:active.path,r:0,c:0,r2:0,c2:0,edit:null};if(sgFormula)sgFormula.preview=null;}if(active.view){formulaContext().tables();if(SG.edit)SG.edit=null;}
   var R=active.rows.length,C=active.head.length;SG.r=Math.min(SG.r,Math.max(0,R-1));SG.c=Math.min(SG.c,C-1);SG.r2=Math.min(SG.r2,Math.max(0,R-1));SG.c2=Math.min(SG.c2,C-1);
   var addr=el('span','sg-addr');addr.id='sg-addr';top.appendChild(addr);
   var fx=el('input','sg-fx');fx.id='sg-fx';fx.type='text';fx.autocomplete='off';fx.setAttribute('autocapitalize','off');fx.spellcheck=false;fx.setAttribute('aria-label','Kaava tai arvo');top.appendChild(fx);
@@ -10022,6 +10139,7 @@ function renderSheets(){
     menuItem(m,'sgm-tab','+ Välilehti',function(){showSheetCreate(active);});menuItem(m,'sgm-card','Kortiksi kojelautaan',function(){sgToCard(active);});if(!active.view){sgStructMenu(m,active,'row');sgStructMenu(m,active,'col');}menuItem(m,'sgm-csv','Vie CSV',function(){sheetExport(active,formulaContext().tables());});
     menuItem(m,'sgm-new','Uusi taulukko…',function(){showSheetCreate(null);});nvPendMenu(m,true);anchoredMenu('sortpop',mb);});
   mb.id='sg-more';mb.setAttribute('aria-haspopup','menu');mb.setAttribute('aria-label','Taulukon toiminnot');mb.innerHTML='<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="4.5" cy="10" r="1.6"/><circle cx="10" cy="10" r="1.6"/><circle cx="15.5" cy="10" r="1.6"/></svg>';
+  sgFormulaTools(p);
   var model=formulaContext().tables(),ws=sgWidths(active);
   var wrap=el('div','sg-wrap'+(active.view?' sg-ro':''));wrap.id='sg-wrap';if(active.view){fx.readOnly=true;fx.title='Rivit tulevat muistiinpanoista';}wrap.tabIndex=0;wrap.setAttribute('role','region');wrap.setAttribute('aria-label',active.name);
   var table=el('table','sg');table.setAttribute('role','grid');var cg=el('colgroup');cg.appendChild(el('col','sg-rnc'));ws.forEach(function(w){var c=el('col');c.style.width=w+'px';cg.appendChild(c);});table.appendChild(cg);table.style.width=ws.reduce(function(a,w){return a+w;},40)+'px';
@@ -10040,9 +10158,13 @@ function renderSheets(){
   var nt=button(tabs,'+','sg-tab sg-tabadd',function(){showSheetCreate(active);});nt.setAttribute('aria-label','Uusi välilehti');p.appendChild(tabs);
   if(v){var r1=tb.rows[1];SGX.hh=thead.offsetHeight||SGX.hh;if(r1&&r1.offsetHeight&&r1.offsetHeight!==SGX.rh){SGX.rh=r1.offsetHeight;sgFill(tb,active,model,SGX.a,SGX.b);}
     wrap.addEventListener('scroll',sgScroll,{passive:true});if(!osc&&SG.r>0)wrap.scrollTop=SG.r*SGX.rh-60;}
-  if(osc&&SG.path===active.path){wrap.scrollTop=osc[0];wrap.scrollLeft=osc[1];}
+  if(osc&&(!sgFormula||oldPath===active.path)){wrap.scrollTop=osc[0];wrap.scrollLeft=osc[1];}
   sgBind(active,wrap,table,fx,addr);sgPaint(true);
-  if(SG.edit)sgEditOpen(SG.edit.val,true);else if(had||document.activeElement===document.body)try{wrap.focus({preventScroll:true});}catch(e){}}
+  if(sgFormula){
+    fx.readOnly=sgFormula.picking;fx.value=sgFormula.value;fx.dataset.formulaDraft='true';
+    if(caret){fx.focus({preventScroll:true});fx.setSelectionRange(caret[0],caret[1]);}
+    else if(had)wrap.focus({preventScroll:true});
+  }else if(SG.edit)sgEditOpen(SG.edit.val,true);else if(had||document.activeElement===document.body)try{wrap.focus({preventScroll:true});}catch(e){}}
 /* 0.37: iso taulukko (yli SGVIRT riviä) virtualisoidaan: DOMissa vain näkyvät rivit ja puskuri, ylä- ja alapuolella tyhjät välirivit
    oikean korkuisina. Vieritys vaihtaa ikkunan. Pienet taulukot piirretään kokonaan. */
 var SGVIRT=200,SGBUF=40,SGX={path:null,total:0,v:false,a:0,b:0,rh:28,hh:30,raf:0};
@@ -10073,21 +10195,40 @@ function sgPaint(still){var w=$('sg-wrap');if(!w)return;var t=sheetFiles().find(
   var r1=Math.min(SG.r,SG.r2),r2=Math.max(SG.r,SG.r2),c1=Math.min(SG.c,SG.c2),c2=Math.max(SG.c,SG.c2);
   Array.prototype.forEach.call(w.querySelectorAll('.sg-sel,.sg-act,.sg-hl'),function(e){e.classList.remove('sg-sel','sg-act','sg-hl');});
   for(var r=Math.max(r1,SGX.a);r<=Math.min(r2,SGX.b-1);r++)for(var c=c1;c<=c2;c++){var e=sgCell(r,c);if(e)e.classList.add('sg-sel');}
-  if(!still&&SGX.v&&SG.r>=0&&(SG.r<SGX.a||SG.r>=SGX.b)){var top=Math.max(0,SG.r-Math.floor(w.clientHeight/SGX.rh/2));w.scrollTop=top*SGX.rh;sgWinTo(w,t,top);return sgPaint();}
-  var a=sgCell(SG.r,SG.c);if(a)a.classList.add('sg-act');if(a&&!still){var wr=w.getBoundingClientRect(),ar=a.getBoundingClientRect(),hh=w.querySelector('thead').offsetHeight,rw=w.querySelector('.sg-rn')?w.querySelector('.sg-rn').offsetWidth:40;
+  var d=sgFormula,picking=d&&d.picking,vr=picking?SG.r2:SG.r,vc=picking?SG.c2:SG.c;
+  if(!still&&SGX.v&&vr>=0&&(vr<SGX.a||vr>=SGX.b)){var top=Math.max(0,vr-Math.floor(w.clientHeight/SGX.rh/2));w.scrollTop=top*SGX.rh;sgWinTo(w,t,top);return sgPaint();}
+  var a=sgCell(SG.r,SG.c);if(a&&(!picking||d.preview))a.classList.add('sg-act');
+  var visible=sgCell(vr,vc);if(visible&&!still){var wr=w.getBoundingClientRect(),ar=visible.getBoundingClientRect(),hh=w.querySelector('thead').offsetHeight,rw=w.querySelector('.sg-rn')?w.querySelector('.sg-rn').offsetWidth:40;
     if(ar.top<wr.top+hh)w.scrollTop-=wr.top+hh-ar.top;else if(ar.bottom>wr.bottom)w.scrollTop+=ar.bottom-wr.bottom;if(ar.left<wr.left+rw)w.scrollLeft-=wr.left+rw-ar.left;else if(ar.right>wr.right)w.scrollLeft+=ar.right-wr.right;}
   for(var c3=c1;c3<=c2;c3++){var h=sgCell(-1,c3);if(h)h.classList.add('sg-hl');}for(var r3=Math.max(r1,SGX.a);r3<=Math.min(r2,SGX.b-1);r3++){var tr=sgTr(r3),n=tr&&tr.cells[0];if(n)n.classList.add('sg-hl');}
   var ad=$('sg-addr');if(ad)ad.textContent=TAULUKKO.column(SG.c)+(SG.r+1)+(r1!==r2||c1!==c2?':'+TAULUKKO.column(c2===SG.c?c1:c2)+((r2===SG.r?r1:r2)+1):'');
-  var fx=$('sg-fx');if(fx&&document.activeElement!==fx&&!SG.edit)fx.value=sgRawOf(t,SG.r,SG.c);}
+  w.querySelectorAll('.sg-origin,.sg-reference').forEach(function(cell){
+    cell.classList.remove('sg-origin','sg-reference');cell.removeAttribute('aria-selected');
+  });
+  if(d){
+    var origin=d.path===t.path&&sgCell(d.r,d.c);
+    if(origin)origin.classList.add('sg-origin');
+    var mark=picking?d.preview:d.mark;
+    if(mark&&mark.path===t.path){
+      for(var i=Math.max(mark.r,SGX.a);i<=Math.min(mark.r2,SGX.b-1);i++)for(var j=mark.c;j<=mark.c2;j++){
+        var cell=sgCell(i,j);if(cell){cell.classList.add('sg-reference');cell.setAttribute('aria-selected','true');}
+      }
+    }
+  }
+  var fx=$('sg-fx');if(fx&&document.activeElement!==fx&&!SG.edit&&!d)fx.value=sgRawOf(t,SG.r,SG.c);
+  sgFormulaControls();}
 function sgTable(){return sheetFiles().find(function(s){return s.path===SG.path;});}
 function sgMove(dr,dc,ext){var t=sgTable();if(!t)return;var R=t.rows.length,C=t.head.length,r=Math.max(0,Math.min(R-1,(ext?SG.r2:SG.r)+dr)),c=Math.max(0,Math.min(C-1,(ext?SG.c2:SG.c)+dc));
+  if(sgFormula&&sgFormula.picking){sgPickCell(t,r,c,ext);return;}
   if(ext){SG.r2=r;SG.c2=c;}else{SG.r=SG.r2=r;SG.c=SG.c2=c;}sgPaint();}
 function sgEditOpen(val,keep){if(sgStructuralSave)return;var t=sgTable(),cell=sgCell(SG.r,SG.c),w=$('sg-wrap');if(!t||!cell||!w)return;if(t.view){SG.edit=null;if(val!=null){sgSet(t,[]);return;}var n=SG.r>=0&&t.notes[SG.r];if(n)openNote(n);return;}var old=w.querySelector('.sg-ed');if(old)old.remove();
   var raw=sgRawOf(t,SG.r,SG.c),inp=el('input','sg-ed');inp.type='text';inp.autocomplete='off';inp.spellcheck=false;inp.setAttribute('autocapitalize','off');inp.setAttribute('aria-label','Muokkaa solua '+TAULUKKO.column(SG.c)+(SG.r+1));
   inp.value=val==null?raw:val;SG.edit={val:inp.value};var wr=w.getBoundingClientRect(),cr=cell.getBoundingClientRect();
   inp.style.left=(cr.left-wr.left+w.scrollLeft)+'px';inp.style.top=(cr.top-wr.top+w.scrollTop)+'px';inp.style.width=Math.max(cr.width,140)+'px';inp.style.height=cr.height+'px';w.appendChild(inp);
-  var fx=$('sg-fx');if(fx)fx.value=inp.value;inp.addEventListener('input',function(){SG.edit.val=inp.value;if(fx)fx.value=inp.value;});
-  inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();sgCommit(inp.value);sgMove(1,0);}else if(e.key==='Tab'){e.preventDefault();sgCommit(inp.value);sgMove(0,e.shiftKey?-1:1);}
+  var fx=$('sg-fx');if(fx)fx.value=inp.value;
+  inp.addEventListener('focus',function(){sgFormulaInput=inp;sgFormulaControls();});
+  inp.addEventListener('input',function(){SG.edit.val=inp.value;if(fx)fx.value=inp.value;sgFormulaControls();});
+  inp.addEventListener('keydown',function(e){if(e.isComposing)return;if(e.key==='Enter'){e.preventDefault();if(e.altKey&&!$('sg-pick').hidden){sgPickStart();return;}sgCommit(inp.value);sgMove(1,0);}else if(e.key==='Tab'){e.preventDefault();sgCommit(inp.value);sgMove(0,e.shiftKey?-1:1);}
     else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();sgCancel();}else if((e.key==='ArrowUp'||e.key==='ArrowDown')&&val!=null&&!keep){e.preventDefault();sgCommit(inp.value);sgMove(e.key==='ArrowUp'?-1:1,0);}});
   inp.addEventListener('blur',function(){setTimeout(function(){if(SG.edit&&document.activeElement!==inp&&document.activeElement!==$('sg-fx')&&inp.isConnected)sgCommit(inp.value,true);},0);});
   try{inp.focus({preventScroll:true});var n=inp.value.length;inp.setSelectionRange(n,n);}catch(e){}}
@@ -10157,8 +10298,17 @@ function sgColumnDrag(e,t,wrap,header){
   header.addEventListener('lostpointercapture',cancel);document.addEventListener('keydown',key,true);
 }
 function sgBind(t,wrap,table,fx,addr){
-  var lastTap=null;
-  wrap.addEventListener('pointerdown',function(e){var rz=e.target.closest('.sg-rz');if(rz){sgResize(e,t,+rz.dataset.c);return;}
+  var lastTap=null,pickTouch=false;
+  wrap.addEventListener('pointerdown',function(e){
+    if(sgFormula){
+      var target=e.target.closest('td');pickTouch=e.pointerType!=='mouse';
+      if(sgFormula.picking&&target&&!pickTouch&&e.button===0){
+        sgPickCell(t,+target.dataset.r,+target.dataset.c,e.shiftKey||sgFormula.range);SGD=true;
+        wrap.focus({preventScroll:true});e.preventDefault();
+      }
+      return;
+    }
+    var rz=e.target.closest('.sg-rz');if(rz){sgResize(e,t,+rz.dataset.c);return;}
     var cell=e.target.closest('td,th.sg-ch,th.sg-rn');if(!cell||e.target.closest('.sg-ed'))return;var r=+cell.dataset.r,c=cell.dataset.c==null?null:+cell.dataset.c;
     if(SG.edit){var inp=wrap.querySelector('.sg-ed');sgCommit(inp?inp.value:SG.edit.val,true);}
     if(cell.classList.contains('sg-rn')){SG.r=SG.r2=r;SG.c=0;SG.c2=t.head.length-1;sgPaint();return;}
@@ -10170,14 +10320,36 @@ function sgBind(t,wrap,table,fx,addr){
     var touch=e.pointerType!=='mouse';
     if(touch){if(SG.r===r&&SG.c===c&&SG.r2===r&&SG.c2===c&&lastTap&&Date.now()-lastTap<4000){sgEditOpen(null,true);return;}lastTap=Date.now();SG.r=SG.r2=r;SG.c=SG.c2=c;sgPaint();return;}
     if(e.shiftKey){SG.r2=r;SG.c2=c;}else{SG.r=SG.r2=r;SG.c=SG.c2=c;}sgPaint();SGD=true;try{wrap.focus({preventScroll:true});}catch(er){}e.preventDefault();});
-  wrap.addEventListener('pointermove',function(e){if(!SGD||e.pointerType!=='mouse')return;var cell=document.elementFromPoint(e.clientX,e.clientY);cell=cell&&cell.closest&&cell.closest('#sg-wrap td');if(!cell)return;
-    var r=+cell.dataset.r,c=+cell.dataset.c;if(r!==SG.r2||c!==SG.c2){SG.r2=r;SG.c2=c;sgPaint();}});
-  wrap.addEventListener('contextmenu',function(e){var h=e.target.closest('th.sg-ch,th.sg-rn');if(!h||t.view)return;e.preventDefault();var row=h.classList.contains('sg-rn'),i=row?+h.dataset.r:+h.dataset.c,a=sgSel(row?'row':'col');
+  wrap.addEventListener('click',function(e){
+    var cell=e.target.closest('td');
+    if(sgFormula&&sgFormula.picking&&pickTouch&&cell)sgPickCell(t,+cell.dataset.r,+cell.dataset.c,sgFormula.range);
+    pickTouch=false;
+  });
+  wrap.addEventListener('pointermove',function(e){if(!SGD||e.pointerType!=='mouse')return;
+    if(sgFormula&&!(e.buttons&1)){SGD=false;return;}
+    var cell=document.elementFromPoint(e.clientX,e.clientY);cell=cell&&cell.closest&&cell.closest('#sg-wrap td');if(!cell)return;
+    var r=+cell.dataset.r,c=+cell.dataset.c;if(r!==SG.r2||c!==SG.c2){
+      if(sgFormula){if(sgFormula.picking)sgPickCell(t,r,c,true);return;}
+      SG.r2=r;SG.c2=c;sgPaint();
+    }});
+  wrap.addEventListener('contextmenu',function(e){if(sgFormula){e.preventDefault();return;}var h=e.target.closest('th.sg-ch,th.sg-rn');if(!h||t.view)return;e.preventDefault();var row=h.classList.contains('sg-rn'),i=row?+h.dataset.r:+h.dataset.c,a=sgSel(row?'row':'col');
     if(i<a[0]||i>a[1]){if(row){SG.r=SG.r2=i;SG.c=0;SG.c2=t.head.length-1;}else{SG.c=SG.c2=i;SG.r=0;SG.r2=Math.max(0,t.rows.length-1);}sgPaint(true);}
     var m=$('sortpop');m.textContent='';m.setAttribute('aria-label',row?'Rivin toiminnot':'Sarakkeen toiminnot');sgStructMenu(m,t,row?'row':'col');if(m.firstChild&&m.firstChild.className==='msep')m.firstChild.remove();anchoredMenu('sortpop',h);});
-  wrap.addEventListener('dblclick',function(e){var rz=e.target.closest('.sg-rz');if(rz){sgFit(t,+rz.dataset.c);return;}var hd=e.target.closest('th.sg-ch');if(hd){SG.r=SG.r2=-1;SG.c=SG.c2=+hd.dataset.c;sgEditOpen(null,true);return;}var cell=e.target.closest('td');if(!cell)return;SG.r=SG.r2=+cell.dataset.r;SG.c=SG.c2=+cell.dataset.c;sgEditOpen(null,true);});
+  wrap.addEventListener('dblclick',function(e){if(sgFormula)return;var rz=e.target.closest('.sg-rz');if(rz){sgFit(t,+rz.dataset.c);return;}var hd=e.target.closest('th.sg-ch');if(hd){SG.r=SG.r2=-1;SG.c=SG.c2=+hd.dataset.c;sgEditOpen(null,true);return;}var cell=e.target.closest('td');if(!cell)return;SG.r=SG.r2=+cell.dataset.r;SG.c=SG.c2=+cell.dataset.c;sgEditOpen(null,true);});
   wrap.addEventListener('keydown',function(e){if(e.target!==wrap)return;var k=e.key,meta=e.metaKey||e.ctrlKey;
     var mv={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]}[k];
+    if(sgFormula){
+      if(k==='Escape'){e.preventDefault();e.stopPropagation();sgFormulaFinish(false);}
+      else if(k==='Enter'){e.preventDefault();if(!sgFormula.picking)sgFormulaFinish(true);else{
+        if(!sgFormula.preview&&t.rows[SG.r])sgPickCell(t,SG.r,SG.c,false);sgPickReturn(true);
+      }}
+      else if(mv&&sgFormula.picking){
+        e.preventDefault();
+        if(e.shiftKey&&!sgFormula.preview)sgPickCell(t,SG.r,SG.c,false);
+        sgMove(mv[0],mv[1],e.shiftKey);
+      }
+      return;
+    }
     if(mv){e.preventDefault();sgMove(mv[0],mv[1],e.shiftKey);return;}
     if(meta&&(k==='z'||k==='Z')){e.preventDefault();sgUndo(e.shiftKey);return;}if(meta&&(k==='y'||k==='Y')){e.preventDefault();sgUndo(true);return;}
     if(meta&&(k==='a'||k==='A')){e.preventDefault();SG.r=0;SG.c=0;SG.r2=Math.max(0,t.rows.length-1);SG.c2=t.head.length-1;sgPaint();return;}
@@ -10185,16 +10357,41 @@ function sgBind(t,wrap,table,fx,addr){
     if(k==='Tab'){e.preventDefault();sgMove(0,e.shiftKey?-1:1);return;}
     if(k==='Delete'||k==='Backspace'){e.preventDefault();sgSet(t,sgRangeCells().map(function(x){return {r:x.r,c:x.c,v:''};}));return;}
     if(k.length===1&&!meta&&!e.altKey){e.preventDefault();sgEditOpen(k);}});
-  wrap.addEventListener('copy',function(e){if(SG.edit)return;e.preventDefault();var r1=Math.min(SG.r,SG.r2),r2=Math.max(SG.r,SG.r2),c1=Math.min(SG.c,SG.c2),c2=Math.max(SG.c,SG.c2),L=[];
+  wrap.addEventListener('copy',function(e){if(SG.edit||sgFormula)return;e.preventDefault();var r1=Math.min(SG.r,SG.r2),r2=Math.max(SG.r,SG.r2),c1=Math.min(SG.c,SG.c2),c2=Math.max(SG.c,SG.c2),L=[];
     for(var r=r1;r<=r2;r++){var a=[];for(var c=c1;c<=c2;c++)a.push(sgRawOf(t,r,c));L.push(a.join('\t'));}e.clipboardData.setData('text/plain',L.join('\n'));});
-  wrap.addEventListener('cut',function(e){if(SG.edit)return;e.preventDefault();
+  wrap.addEventListener('cut',function(e){if(SG.edit||sgFormula)return;e.preventDefault();
     var r1=Math.min(SG.r,SG.r2),r2=Math.max(SG.r,SG.r2),c1=Math.min(SG.c,SG.c2),c2=Math.max(SG.c,SG.c2),L=[];for(var r=r1;r<=r2;r++){var a=[];for(var c=c1;c<=c2;c++)a.push(sgRawOf(t,r,c));L.push(a.join('\t'));}
     e.clipboardData.setData('text/plain',L.join('\n'));sgSet(t,sgRangeCells().map(function(x){return {r:x.r,c:x.c,v:''};}));});
-  wrap.addEventListener('paste',function(e){if(SG.edit)return;var txt=(e.clipboardData||window.clipboardData).getData('text/plain');if(!txt)return;e.preventDefault();sgPasteText(t,txt);});
-  fx.addEventListener('focus',function(){fx.readOnly=sgStructuralSave||!!t.view;fx.value=SG.edit?SG.edit.val:sgRawOf(t,SG.r,SG.c);});
-  fx.addEventListener('keydown',function(e){if(sgStructuralSave)return;if(e.key==='Enter'){e.preventDefault();SG.edit={val:fx.value};sgCommit(fx.value);sgMove(1,0);}else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();fx.value=sgRawOf(t,SG.r,SG.c);sgCancel();}});
-  fx.addEventListener('input',function(){var inp=wrap.querySelector('.sg-ed');if(inp){inp.value=fx.value;SG.edit.val=fx.value;}});
-  fx.addEventListener('blur',function(){if(!SG.edit&&fx.value!==sgRawOf(t,SG.r,SG.c)){SG.edit={val:fx.value};sgCommit(fx.value,true);}});}
+  wrap.addEventListener('paste',function(e){if(SG.edit||sgFormula)return;var txt=(e.clipboardData||window.clipboardData).getData('text/plain');if(!txt)return;e.preventDefault();sgPasteText(t,txt);});
+  fx.addEventListener('focus',function(e){
+    sgFormulaInput=fx;fx.readOnly=sgFormula?sgFormula.picking:sgStructuralSave||!!t.view;
+    if(!sgFormula&&e.relatedTarget!==$('sg-pick'))fx.value=SG.edit?SG.edit.val:sgRawOf(t,SG.r,SG.c);
+    sgFormulaControls();
+  });
+  fx.addEventListener('keydown',function(e){
+    if(e.isComposing||sgStructuralSave)return;
+    if(!$('sg-pick').hidden){
+      if(e.key==='Enter'&&e.altKey){e.preventDefault();sgPickStart();return;}
+      if(e.key==='Tab'&&!e.shiftKey){e.preventDefault();$('sg-pick').focus();return;}
+    }
+    if(sgFormula){
+      if(e.key==='Enter'){e.preventDefault();if(sgFormula.picking)sgPickReturn(true);else sgFormulaFinish(true);}
+      else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();sgFormulaFinish(false);}
+      return;
+    }
+    if(e.key==='Enter'){e.preventDefault();SG.edit={val:fx.value};sgCommit(fx.value);sgMove(1,0);}
+    else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();fx.value=sgRawOf(t,SG.r,SG.c);sgCancel();}
+  });
+  fx.addEventListener('input',function(){
+    if(sgFormula&&!sgFormula.picking){sgFormula.value=fx.value;sgFormula.mark=null;sgPaint(true);return;}
+    var inp=wrap.querySelector('.sg-ed');if(inp){inp.value=fx.value;SG.edit.val=fx.value;}sgFormulaControls();
+  });
+  fx.addEventListener('blur',function(e){
+    // Kaavaluonnoksen sulkeminen poistaa tämän kentän ja voi laukaista blur-tapahtuman.
+    if(fx.dataset.formulaDraft||e.relatedTarget===$('sg-pick'))return;
+    if(!SG.edit&&fx.value!==sgRawOf(t,SG.r,SG.c)){SG.edit={val:fx.value};sgCommit(fx.value,true);}
+  });
+}
 function sgPasteText(t,txt){var lines=String(txt).replace(/\r/g,'').replace(/\n$/,'').split('\n'),cells=[];lines.forEach(function(l,i){l.split('\t').forEach(function(v,j){cells.push({r:SG.r+i,c:SG.c+j,v:v});});});
   if(sgSet(t,cells)){SG.r2=Math.min(SG.r+lines.length-1,499);SG.c2=SG.c+Math.max.apply(null,lines.map(function(l){return l.split('\t').length;}))-1;sgPaint();}}
 function sgTW(ws){var tb=document.querySelector('#sg-wrap table.sg');if(tb)tb.style.width=ws.reduce(function(a,w){return a+w;},40)+'px';}
@@ -10205,7 +10402,7 @@ function sgResize(e,t,c){e.preventDefault();e.stopPropagation();if(sgStructuralS
   function mv(ev){ws[c]=Math.max(40,Math.min(800,Math.round(w0+ev.clientX-x0)));if(col)col.style.width=ws[c]+'px';sgTW(ws);}
   function up(){window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);if(ws[c]!==w0){SGW[t.path]=ws;sgSaveWidths(t,ws);}}
   window.addEventListener('pointermove',mv);window.addEventListener('pointerup',up);}
-HELP.taulukot=['Taulukot','<p>Napsauta solua (puhelimella napauta), kirjoita ja paina Enter. Nuolet siirtävät, Tab oikealle, Esc peruu, Delete tyhjentää. Alueen voi valita vetämällä tai Shift+nuolilla, ja ⌘C ja ⌘V kopioivat ja liittävät myös Sheetsistä. ⌘Z kumoaa. Ylärivin kaavarivi näyttää valitun solun. Sarakkeen paikkaa siirretään vetämällä otsikosta hiirellä tai valitsemalla siirto ⋯-valikosta. Leveyttä muutetaan otsikon reunasta vetämällä; kaksoisnapsautus sovittaa. Puhelimella toinen napautus samaan soluun aloittaa muokkauksen.</p><p>Valitse solu muokataksesi. Kaava alkaa =-merkillä. Rivin 1 soluun viitataan esimerkiksi B1. Oma alue merkitään B1:B4. Toisen välilehden soluun viitataan [[valilehti]]!B1 ja muistiinpanoon [[muistiinpano]].kenttä.</p>'];
+HELP.taulukot=['Taulukot','<p>Napsauta solua (puhelimella napauta), kirjoita ja paina Enter. Nuolet siirtävät, Tab oikealle, Esc peruu, Delete tyhjentää. Alueen voi valita vetämällä tai Shift+nuolilla, ja ⌘C ja ⌘V kopioivat ja liittävät myös Sheetsistä. ⌘Z kumoaa. Ylärivin kaavarivi näyttää valitun solun. Sarakkeen paikkaa siirretään vetämällä otsikosta hiirellä tai valitsemalla siirto ⋯-valikosta. Leveyttä muutetaan otsikon reunasta vetämällä; kaksoisnapsautus sovittaa. Puhelimella toinen napautus samaan soluun aloittaa muokkauksen.</p><p>Kaava alkaa =-merkillä. Paina kaavaa kirjoittaessa Valitse solu (Alt+Enter) ja valitse viite samalta tai toiselta välilehdeltä. Puhelimella Valitse alue antaa napauttaa alku- ja loppusolua. Käytä viitettä lisää osoitteen kaavarivin kursorin kohdalle. Tallenna kaava tai paina Enter. Esc peruu muokkauksen. Voit myös kirjoittaa viittauksen, esimerkiksi B1:B4 tai [[valilehti]]!B1. Muistiinpanoon viitataan [[muistiinpano]].kenttä.</p>'];
 function metricTextKey(text){return String(text||'').trim().toLocaleLowerCase('fi').replace(/\s+/g,' ');}
 function metricTextValue(raw,col){
   if(col.laji==='kylla-ei'){
