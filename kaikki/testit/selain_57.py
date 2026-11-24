@@ -34,7 +34,7 @@ async def run(p,w,h,touch):
     async def sorted_(): return await pg.evaluate("!!document.querySelector('.rvhead .rv-direction')")
     print('leveys',w,'kosketus' if touch else '')
     await pg.goto(U); await pg.wait_for_timeout(1600)
-    want('sarakkeet näkyvissä',await pg.evaluate("document.querySelectorAll('.rvhead .rvc').length")==6)
+    want('sarakkeet näkyvissä',await pg.evaluate("document.querySelectorAll('.rvhead .rvc[data-k]').length")==6)
     if not touch:
         # osuma-alue rajaviivan molemmin puolin
         bx=await cellbox(1); edge=bx['x']+bx['width']; y=bx['y']+bx['height']/2
