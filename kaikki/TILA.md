@@ -1,10 +1,12 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.70 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 24.11.2026
+**Vaihe:** versio 0.71 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 24.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.71 (24.11.2026).** Kojelauta → **Muokkaa ruutuja → + Ruutu**. Valitse **Tämän päivän asiat** tai **Muistiinpanon kenttä**. Päiväruudussa kullakin kalenterikerralla on oma kuittaus ja reitti lähdemuistiinpanoon. Ruudun voi rajata kansiolla tai tunnisteella. Sama kuittaus näkyy kalenterissa ja muistiinpanon Ajankohdissa. Usean samanaikaisen merkinnän ensimmäinen avain säilyy; seuraavilla on oma `#1`, `#2` jne. Kenttäruutu käyttää Muistion kenttää, esimerkiksi `uni`, ja nykyisiä laskuja, aikaväliä, tunnistetta, kansiota, yksikköä, päiväkuvaajaa ja Lähteet-listaa. Aika tulee muistiinpanon asetetusta päivästä, päivämuistiinpanon polusta tai luontipäivästä. Aiemmat tekstimuuttujaruudut luetaan edelleen. Kaikki 16 Node-logiikkatestiä ja JavaScriptin syntaksitarkistus läpäisty. `selain_71.py` kirjoitettu puhelin- ja työpöytäleveyksille. Chromiumin käynnistys estyi paikallisessa testiympäristössä.
 
 **0.70 (24.11.2026).** Valikko → Projekti → **Automaattiset sanalinkit**. Kytkin on näkyvissä myös käyttötilassa. Pois päältä tekstiosuma näkyy tavallisena tekstinä sekä luku- että muokkaustilassa. Käsin lisätyt wikilinkit avautuvat lukunäkymässä. Valinta käyttää projektin aiempaa sanalinkkiasetusta, säilyy selaimessa ja kulkee projektin viennissä. Muistiinpanojen teksti säilyy. Testi `selain_70.py` kattaa napautuksen ja näppäimistön, latauksen uudelleen ja molemmat wikilinkkimuodot. Testattu tietokoneen Chromiumilla neljällä näyttöleveydellä. Fyysisen iPhonen Safari jää kokeiltavaksi. Modern Web Guidance: kytkimen saavutettava nimi ja tila.
 
@@ -211,9 +213,9 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Seuraava askel
 
-**Muuttujien jatko (0.66:n jälkeen):** Emil kokeilee `!!`-merkintöjä ja muuttujaruutua omalla puhelimellaan. Sen jälkeen Muistion sarake ja Pikamuistiinpanon napit samaan muuttujaan, ruutujen sijoittelu muokkaustilassa sekä tarkistuslistaruutu *Tämän päivän asiat*.
+**Kojelaudan jatko (0.71:n jälkeen):** kokeile tarkistuslistaa ja kenttäruutua. Pikamuistiinpanon napit yhteisestä muuttujaluettelosta, kuvaajien esitystavat ja ruutujen sijoittelu muokkaustilassa ovat auki.
 
-**Solumuokkauksen kokeilun jälkeen.** Kojelaudan jatko on kentän mukaan laskettava kortti, jonka lähdettä voi rajata ja jonka esitystavan ja paikan voi valita. Muistion lajittelu usealla kentällä on valmis (A0.7). Taulukoiden näkymävälilehti käyttää nyt samaa editoria (0.67). Soluviittauksen poiminta on valmis (0.68). Seuraava A0-vaihe on taulukon täyttö alas yhtenä kumottavana muokkauksena (toteutusjonon kohta 2). Korjaussuunnitelman kohdassa 4 sarakeotsikon oma näyttönimi odottaa vielä päätöstä pysyvästä tallennusmuodosta.
+**Solumuokkauksen kokeilun jälkeen.** Kojelaudassa kenttäruudun lähteen voi rajata ja esitystavan valita (0.71). Vapaa sijoittelu on auki. Muistion lajittelu usealla kentällä on valmis (A0.7). Taulukoiden näkymävälilehti käyttää nyt samaa editoria (0.67). Soluviittauksen poiminta on valmis (0.68). Seuraava A0-vaihe on taulukon täyttö alas yhtenä kumottavana muokkauksena (toteutusjonon kohta 2). Korjaussuunnitelman kohdassa 4 sarakeotsikon oma näyttönimi odottaa vielä päätöstä pysyvästä tallennusmuodosta.
 
 
 Kohdan 18 toistuvuuskokeilu 0.52 on [omassa haarassaan](https://github.com/Kasibanaani/P-iv-kartta/tree/kaikki-toistuvuuskokeilu/kaikki). Se kattaa Muistion listan, kalenterin, kuittauksen ja uuden pikamuistutuksen. Kokeile erillisellä testivaultilla sekä kuittauksesta laskettavaa että kalenterissa tasavälistä toistoa. Toistuvuuden vakiinnuttaminen, kuukausirytmin reunatapaukset ja vanhan aineiston siirto ovat edelleen avoimia. Flow-tekstin pysyvä muoto odottaa kokeilupalautetta.
