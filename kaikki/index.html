@@ -1533,6 +1533,18 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 .nvcal-chip:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .ucell .nvcal-list{margin:2px 0}.ucell .nvcal-chip{width:100%;min-height:26px;padding:2px 6px;font-size:12px}
 .rv-more{flex:none;padding:0 6px;font-size:12px}
+/* 0.84: täyttökahva ja esikatselu */
+.rvc.rv-editable{position:relative}
+.rv-fill{position:absolute;right:1px;bottom:1px;z-index:2;width:9px;height:9px;box-sizing:border-box;border:1.5px solid var(--cell);border-radius:2px;background:var(--accent);cursor:ns-resize;opacity:0;touch-action:none}
+.rvc.rv-editable:hover .rv-fill,.rvc.rv-editable:focus-within .rv-fill,.rv-fill-source .rv-fill{opacity:1}
+@media (hover:none){.rv-fill{display:none}}
+.rvb .rvc.rv-fill-source{box-shadow:inset 0 0 0 2px var(--accent)}
+.rvb .rvc.rv-fill-target{background:var(--fill);background:color-mix(in srgb,var(--accent) 14%,var(--cell));box-shadow:inset 2px 0 0 var(--accent),inset -2px 0 0 var(--accent)}
+.rv-fill-badge{position:fixed;z-index:60;pointer-events:none;padding:2px 9px;border-radius:9px;background:var(--label);color:var(--bg);font-size:12px;font-weight:700}
+.rv-fill-badge:empty{display:none}
+#nvfill{width:min(400px,calc(100vw - 20px))}.nvfill-field label{display:block;margin-bottom:4px;font-weight:600}
+.nvfill-field select{width:100%;min-height:42px;font-size:16px}#nvfill .nved-foot,#nvfill-fail .nved-foot{justify-content:flex-end;gap:8px}
+.nvfill-list{max-height:40vh;overflow:auto;margin:6px 0 10px;padding-left:20px}
 /* 0.83: valinta-, monivalinta- ja tilasirut huurteisena lasina (Emil 24.11.). Rivien siruissa ei sumennusta vierityksen
    sujuvuuden vuoksi (takana on tasainen solu); ikkunoissa -webkit-backdrop-filter. Teksti on aina --label, joten kontrasti säilyy. */
 .rv-opt{--oc:#8a8f98;display:inline-flex;align-items:center;gap:5px;flex:none;max-width:100%;min-width:0;padding:1px 9px 1px 7px;border:1px solid var(--sep);
@@ -6333,6 +6345,11 @@ function nvBindCell(cell,note,column,allowed,viewPath,index){
     event.preventDefault();event.stopPropagation();
     nvOpenCell(note,column,allowed,edit,viewPath,true,printable?event.key:null); // F2 = tekstikenttä (myös päiväsarakkeessa)
   });
+  if(wide()){
+    var fill=el('span','rv-fill');fill.setAttribute('aria-hidden','true');fill.title='Vedä alas: sama arvo alempiin riveihin';cell.appendChild(fill);
+    fill.addEventListener('pointerdown',function(event){nvFillDrag(event,fill,cell,note,column,allowed,viewPath,index);});
+    fill.addEventListener('click',function(event){event.preventDefault();event.stopPropagation();});
+  }
   if(nvInline&&nvInline.id===note.id&&nvInline.key===column.k&&nvInline.column===edit.dataset.column&&
      nvInline.view===viewPath&&nvInline.repo===vRepo()&&nvInline.branch===G.branch)nvInline.attach(edit);
 }
@@ -7272,6 +7289,200 @@ function nvCalendarChips(host,items){
   });
   host.appendChild(box);return box;
 }
+/* ---- Kaikki 0.84 (jäsennys A3.6, suunnitelman kohta 21.4): täyttö alas Muistiossa.
+   Tietokoneella muokattavan solun oikeassa alakulmassa on kahva. Alas vetäessä alemmat näkyvät rivit korostuvat ja määrä näkyy;
+   vapautus kirjoittaa saman arvon kaikkiin (ei sarjoja), Esc peruu. Puhelimella: Valitse rivit → Täytä alas … → sarake; lähde on
+   ylin valittu rivi. Kaikki muistiinpanot muuttuvat yhdessä Git-commitissa (vCommitFiles), ja Kumoa palauttaa ne yhdellä commitilla
+   tavulleen, ellei tiedostoa ole sillä välin muutettu. Epäonnistunut täyttö ei muuta mitään, ja ikkuna listaa tallentumatta jääneet. ---- */
+async function vCommitFiles(state,paths,build,message){
+  async function request(endpoint,status,method,body){
+    if(!vOn()||vRepo()!==state.repo||G.branch!==state.branch)throw new Error('Vault vaihtui tallennuksen aikana.');
+    var result=await vApi(vUrl(endpoint),method,body);
+    if(result.status!==status)throw new Error(result.status===0?'Ei yhteyttä GitHubiin.':'GitHub ei hyväksynyt muutosta ('+result.status+').');
+    return result.j;
+  }
+  var branch=vEnc(state.branch);
+  for(var attempt=0;attempt<3;attempt++){
+    var head=await request('/git/ref/heads/'+branch,200),parent=head.object.sha,commit=await request('/git/commits/'+parent,200);
+    var snapshot=await request('/git/trees/'+commit.tree.sha+'?recursive=1',200);
+    if(snapshot.truncated)throw new Error('Vaultin tiedostolistaa ei saatu kokonaan.');
+    var entries=new Map(snapshot.tree.filter(function(e){return e.type==='blob';}).map(function(e){return [e.path,e];}));
+    var texts=new Map();
+    for(var i=0;i<paths.length;i+=6){
+      await Promise.all(paths.slice(i,i+6).map(async function(path){
+        var entry=entries.get(path),cached=VC.files[path];
+        if(!entry){texts.set(path,null);return;}
+        texts.set(path,cached&&cached.sha===entry.sha?cached.t:b64d((await request('/git/blobs/'+entry.sha,200)).content));
+      }));
+    }
+    var changes=build(texts);
+    if(!changes.size)return {changes:changes,before:texts};
+    var tree=await request('/git/trees',201,'POST',{base_tree:commit.tree.sha,tree:Array.from(changes,function(pair){
+      return {path:pair[0],mode:(entries.get(pair[0])||{}).mode||'100644',type:'blob',content:pair[1]};
+    })});
+    var next=await request('/git/commits',201,'POST',{message:message,tree:tree.sha,parents:[parent]});
+    var moved=await vApi(vUrl('/git/refs/heads/'+branch),'PATCH',{sha:next.sha,force:false});
+    if(moved.status!==200){
+      var now=await vApi(vUrl('/git/ref/heads/'+branch));
+      if(now.status===200&&now.j.object&&now.j.object.sha===next.sha)moved={status:200};
+      else if(now.status===200)continue; // toinen muutos ehti väliin: yritetään tuoreesta versiosta
+      else throw new Error('Tallennuksen tilaa ei voitu varmistaa. Päivitä Vault ennen uutta muutosta.');
+    }
+    var after=await request('/git/trees/'+tree.sha+'?recursive=1',200);
+    after.tree.forEach(function(e){if(changes.has(e.path))VC.files[e.path]={t:changes.get(e.path),sha:e.sha};});
+    vAt=vClock();vSaveC();
+    return {changes:changes,before:texts};
+  }
+  throw new Error('Vaultia muutettiin samaan aikaan. Yritä uudelleen.');
+}
+function nvFillColumns(V){
+  return V.cols.filter(function(c){return (nvVariableName(c.k)||nvUserKey(c.k))&&c.t!=='minigraafi';});
+}
+function nvFillTargets(column,notes){
+  return notes.filter(function(n){return nvCanEditNote(n)&&nvEditable(column,n)&&VC.files[n.vp];});
+}
+function nvFillValue(column,note,allowed){
+  var file=VC.files[note.vp],field=file&&nvNoteField(file.t,column.k,allowed,note.created);
+  return field?field.value:null;
+}
+var nvFillBusy=false;
+async function nvFillRun(column,source,targets,viewPath){
+  if(nvFillBusy||vBusy){toast('Vault synkronoi. Yritä hetken päästä uudelleen.');return;}
+  if(viewLocked(viewPath)){toast(VIEW_LOCKED);return;}
+  var allowed=formulaContext().allowed,value=nvFillValue(column,source,allowed),label=nvFieldLabel(column.k),variable=nvVariableName(column.k);
+  if(value===null){toast('Lähdesolun arvoa ei voitu lukea.');return;}
+  var notes=nvFillTargets(column,targets).filter(function(n){return n.id!==source.id;}),skipped=targets.length-notes.length;
+  var waiting=notes.filter(function(n){var pending=vNotes().find(function(x){return x.vp===n.vp;});return VC.q[n.vp]||pending&&VAULT.mdOf(pending)!==VC.files[n.vp].t;});
+  if(waiting.length){toast('Odota, että aiemmat muutokset tallentuvat ('+waiting.length+' muistiinpanoa), ja yritä uudelleen.');return;}
+  if(!notes.length){toast('Valituissa riveissä ei ole täytettävää.');return;}
+  var state={repo:vRepo(),branch:G.branch},byPath=new Map(notes.map(function(n){return [n.vp,n];}));
+  nvFillBusy=vBusy=true;vRender();toast('Täytetään '+notes.length+' riviä …');
+  try{
+    var result=await vCommitFiles(state,Array.from(byPath.keys()),function(texts){
+      var out=new Map();
+      byPath.forEach(function(n,path){
+        var text=texts.get(path);
+        if(text==null)throw new Error('Muistiinpano “'+(noteTitle(n)||path)+'” puuttuu Vaultista.');
+        var field=nvNoteField(text,column.k,allowed,variable?VAULT.noteOf(path,text).created:n.created);
+        if(!field)throw new Error('Kenttä esiintyy useasti muistiinpanossa “'+(noteTitle(n)||path)+'”.');
+        if(field.value===value)return;
+        var next=field.write(value);
+        if(typeof next!=='string')throw new Error(next.error||'Arvoa ei voitu kirjoittaa.');
+        if(next!==text)out.set(path,next);
+      });
+      return out;
+    },'appi: täyttö alas '+label+' ('+notes.length+')');
+    vApply();render();
+    var changed=result.changes.size;
+    var message=changed?'Täytetty '+changed+' riviä: '+label+' = '+(value||'tyhjä')+(skipped?' · '+skipped+' ohitettiin':''):'Rivit olivat jo samat.';
+    if(changed)nvFillUndoArm(state,result,message);else toast(message);
+  }catch(error){
+    nvFillFail(error.message,notes,function(){nvFillRun(column,source,targets,viewPath);});
+  }finally{nvFillBusy=vBusy=false;vRender();vFlush();}
+}
+var nvFillUndo=null;
+function nvFillUndoArm(state,result,message){
+  var before=result.before,after=result.changes;
+  var undo=async function(){
+    nvFillUndo=null;
+    if(nvFillBusy||vBusy){toast('Vault synkronoi. Kumoa ei onnistunut, yritä uudelleen hetken päästä.');return;}
+    nvFillBusy=vBusy=true;vRender();var kept=[];
+    try{
+      var res=await vCommitFiles(state,Array.from(after.keys()),function(texts){
+        var out=new Map();
+        after.forEach(function(text,path){if(texts.get(path)===text)out.set(path,before.get(path));else kept.push(path);});
+        return out;
+      },'appi: kumoa täyttö ('+after.size+')');
+      vApply();render();
+      toast('Täyttö kumottu ('+res.changes.size+')'+(kept.length?' · '+kept.length+' muistiinpanoa oli muuttunut, ne jäivät ennalleen':'')+'.');
+    }catch(error){toast('Kumoaminen ei onnistunut: '+error.message);}
+    finally{nvFillBusy=vBusy=false;vRender();vFlush();}
+  };
+  nvFillUndo=undo;undoShow(undo,message);undoAt=Date.now();clearTimeout(undoT);
+  undoT=setTimeout(function(){if(nvFillUndo===undo)nvFillUndo=null;undoHide();},8000);
+}
+document.addEventListener('keydown',function(event){
+  if(!nvFillUndo||!(event.metaKey||event.ctrlKey)||event.shiftKey||event.key.toLowerCase()!=='z')return;
+  if(event.target.closest&&event.target.closest('input,textarea,select,[contenteditable="true"]'))return;
+  event.preventDefault();var run=nvFillUndo;undoHide();run();
+});
+function nvFillFail(message,notes,retry){
+  var d=$('nvfill-fail');
+  if(!d){d=el('dialog','nved');d.id='nvfill-fail';d.setAttribute('aria-labelledby','nvfill-fail-title');SMALL[d.id]=1;document.body.appendChild(d);}
+  var h=el('h2','','Täyttö ei tallentunut');h.id='nvfill-fail-title';
+  var list=el('ul','nvfill-list');list.id='nvfill-fail-list';
+  notes.slice(0,12).forEach(function(n){list.appendChild(el('li','',noteTitle(n)||n.vp));});
+  if(notes.length>12)list.appendChild(el('li','','ja '+(notes.length-12)+' muuta'));
+  var foot=el('div','nved-foot');button(foot,'Sulje','btn',function(){closeSheet(d);});
+  button(foot,'Yritä uudelleen','btn primary',function(){closeSheet(d);retry();}).id='nvfill-retry';
+  d.replaceChildren(h,el('p','',message+' Mitään ei muutettu. Nämä '+notes.length+' muistiinpanoa jäivät täyttämättä:'),list,foot);
+  openSheet(d);$('nvfill-retry').focus();
+}
+function nvFillDrag(event,handle,cell,note,column,allowed,viewPath,index){
+  if(event.button!==0||event.isPrimary===false||nvGest||nvFillBusy)return;
+  if(nvInline&&nvInline.changed()){toast('Tallenna tai peru keskeneräinen solumuutos ensin.');return;}
+  event.preventDefault();event.stopPropagation();
+  var list=$('nlist'),rows=Array.from(list.querySelectorAll('.rvb .rvr:not([hidden])')),from=rows.indexOf(cell.parentElement);
+  if(from<0)return;
+  var id=event.pointerId,y=event.clientY,targets=[],badge=el('div','rv-fill-badge'),raf=0,scroll=0,done=false;
+  nvGest={id:id};try{handle.setPointerCapture(id);}catch(e){}
+  badge.setAttribute('role','status');document.body.appendChild(badge);cell.classList.add('rv-fill-source');
+  function paint(){
+    raf=0;var to=from;
+    for(var i=from+1;i<rows.length;i++){if(rows[i].getBoundingClientRect().top<=y)to=i;else break;}
+    targets=rows.slice(from+1,to+1);
+    rows.forEach(function(r,i){var c=r.children[index];if(c)c.classList.toggle('rv-fill-target',i>from&&i<=to);});
+    badge.textContent=targets.length?'↓ '+targets.length+(targets.length===1?' rivi':' riviä'):'';
+    badge.style.left=(lastX+14)+'px';badge.style.top=(y+10)+'px';
+    var box=list.getBoundingClientRect();scroll=y>box.bottom-28?14:y<box.top+60&&list.scrollTop>0?-14:0;
+    if(scroll)raf=requestAnimationFrame(function(){list.scrollTop+=scroll;paint();});
+  }
+  var lastX=event.clientX;
+  function finish(ok){
+    if(done)return;done=true;
+    if(raf)cancelAnimationFrame(raf);
+    window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',cancel);
+    handle.removeEventListener('lostpointercapture',cancel);document.removeEventListener('keydown',esc,true);
+    try{if(handle.hasPointerCapture(id))handle.releasePointerCapture(id);}catch(e){}
+    nvGest=null;badge.remove();cell.classList.remove('rv-fill-source');
+    rows.forEach(function(r){var c=r.children[index];if(c)c.classList.remove('rv-fill-target');});
+    if(!ok||!targets.length)return;
+    var byId=new Map(data.notes.map(function(n){return [n.id,n];}));
+    nvFillRun(column,note,targets.map(function(r){return byId.get(r.dataset.id);}).filter(Boolean),viewPath);
+  }
+  function move(e){if(e.pointerId!==id)return;y=e.clientY;lastX=e.clientX;if(!raf)raf=requestAnimationFrame(paint);}
+  function up(e){if(e.pointerId===id)finish(true);}
+  function cancel(e){if(!e||e.pointerId===undefined||e.pointerId===id)finish(false);}
+  function esc(e){if(e.key==='Escape'){e.preventDefault();e.stopPropagation();finish(false);}}
+  window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);window.addEventListener('pointercancel',cancel);
+  handle.addEventListener('lostpointercapture',cancel);document.addEventListener('keydown',esc,true);
+  paint();
+}
+/* Valintatila (myös puhelin): valitut rivit näkyvässä järjestyksessä, ylin on lähde. */
+function nvFillDialog(){
+  var V=nvCur(),viewPath=noteViewPath(V),cols=nvFillColumns(V),byId=new Map(data.notes.map(function(n){return [n.id,n];}));
+  var rows=Array.from(document.querySelectorAll('#nlist .rvb .rvr:not([hidden])')).filter(function(r){return noteSelection.has(r.dataset.id);});
+  var notes=rows.map(function(r){return byId.get(r.dataset.id);}).filter(Boolean);
+  if(notes.length<2){toast('Valitse vähintään kaksi riviä: ylin on lähde.');return;}
+  var d=$('nvfill');
+  if(!d){d=el('dialog','nved');d.id='nvfill';d.setAttribute('aria-labelledby','nvfill-title');SMALL[d.id]=1;document.body.appendChild(d);
+    d.addEventListener('click',function(e){if(e.target===d)closeSheet(d);});}
+  var h=el('h2','','Täytä alas');h.id='nvfill-title';
+  var label=el('label','','Sarake'),select=el('select');select.id='nvfill-column';label.htmlFor=select.id;
+  cols.forEach(function(c,i){var o=el('option','',nvFieldLabel(c.k));o.value=String(i);select.appendChild(o);});
+  var summary=el('p','sub');summary.id='nvfill-summary';summary.setAttribute('aria-live','polite');
+  var allowed=formulaContext().allowed;
+  function paint(){
+    var c=cols[+select.value],value=nvFillValue(c,notes[0],allowed),ok=nvFillTargets(c,notes.slice(1)).length;
+    summary.textContent='Lähde: '+(noteTitle(notes[0])||'Nimetön')+' ('+(value===null?'ei luettavissa':value===''?'tyhjä':value)+'). '+
+      (value===''?'Tyhjentää ':'Kopioi arvon ')+ok+(ok===1?' muistiinpanoon':' muistiinpanoon')+(notes.length-1-ok?', '+(notes.length-1-ok)+' ohitetaan.':'.');
+  }
+  select.addEventListener('change',paint);
+  var foot=el('div','nved-foot');button(foot,'Peru','btn',function(){closeSheet(d);});
+  var go=button(foot,'Täytä','btn primary',function(){closeSheet(d);var c=cols[+select.value];noteSelectionReset();render();nvFillRun(c,notes[0],notes.slice(1),viewPath);});go.id='nvfill-go';
+  var box=el('div','nvfill-field');box.append(label,select);
+  d.replaceChildren(h,box,summary,foot);paint();openSheet(d);select.focus();
+}
 /* ---- Kaikki 0.55 (korjaussuunnitelma 1, 23.11.2026): näkymätiedoston turvallinen osapäivitys.
    Tallennus vertaa kolmea: avattu tiedosto (perusta, D.old), oma luonnos ja palvelimen tuorein tiedosto. Vain omat muutetut kentät
    (otsikko, mista, jarjestys, sarakkeet) kirjoitetaan tuoreimpaan tiedostoon; muut alkutiedot, kommentit, sarakkeiden lisämääreet ja
@@ -7688,6 +7899,7 @@ function addNoteSelectionActions(panel){
     openSheet($('note-batch-delete'));
   }).id='note-batch-open';
   if(noteOrderEnabled())button(bar,'Lisää tunniste','btn',function(){openNoteBatchTags(chosen());}).id='note-batch-tag-open';
+  if(nvRows()&&noteOrderEnabled()&&nvFillColumns(nvCur()).length)button(bar,'Täytä alas …','btn',function(){nvFillDialog();}).id='note-batch-fill';
   if(wide()&&nvRows())$('nlist').insertBefore(bar,document.querySelector('.rvh'));
   else if(wide())panel.insertBefore(bar,$('nlist'));
   else panel.appendChild(bar);
@@ -7910,7 +8122,7 @@ var undoS=null,undoT=0;
 function undoArm(objs){return objs.filter(Boolean).map(function(o){return {o:o,c:JSON.parse(JSON.stringify(o))};});}
 function undoShow(snap,msg){undoS=snap;$('undo-b').hidden=false;$('undo-t').textContent=msg;$('undo').hidden=false;clearTimeout(undoT);undoT=setTimeout(undoHide,5000);}
 function undoHide(){clearTimeout(undoT);undoS=null;$('undo').hidden=true;}
-$('undo-b').addEventListener('click',function(ev){ev.stopPropagation();var S=undoS;undoHide();if(!S)return;S.forEach(function(x){var o=x.o,c=x.c;
+$('undo-b').addEventListener('click',function(ev){ev.stopPropagation();var S=undoS;undoHide();if(!S)return;if(typeof S==='function'){S();return;}S.forEach(function(x){var o=x.o,c=x.c;
   if(Array.isArray(o)){o.length=0;c.forEach(function(v){o.push(v);});}else{Object.keys(o).forEach(function(k){delete o[k];});Object.keys(c).forEach(function(k){o[k]=c[k];});}});touch();render();});
 document.addEventListener('pointerdown',function(ev){if(undoS&&!ev.target.closest('#undo'))setTimeout(function(){if(undoS&&Date.now()-undoAt>400)undoHide();},0);},true);var undoAt=0;
 /* 1.98: kuittaus kuuluu tekstille. txToggle(n,i) kuittaa tai palauttaa tekstin i (Muistion ympyrä, muistiinpanon ikkuna). */
