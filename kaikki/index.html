@@ -2131,6 +2131,7 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
   <div class="kmode">
   <div class="rows" id="pk-list"></div>
   <div class="lrow tglrow" id="pk-ktrow"><label class="fl" for="pk-kt">Käyttötila</label><button type="button" class="tgl" id="pk-kt" role="switch" aria-checked="false" aria-label="Käyttötila: rakentelu piiloon"></button></div>
+  <div class="lrow tglrow"><label class="fl" for="pk-wl">Automaattiset sanalinkit</label><button type="button" class="tgl" id="pk-wl" role="switch" aria-checked="true"></button></div>
   <details id="pk-more"><summary>Uusi projekti</summary>
     <div class="addrow" style="margin-top:10px"><input type="text" id="pk-new" placeholder="Nimi" aria-label="Uuden projektin nimi" autocomplete="off" enterkeyhint="done"><button type="button" class="btn solid" id="pk-add">Luo</button></div>
   </details>
@@ -2785,7 +2786,8 @@ function wlKey(w,k){w=String(w||'').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,'')
 function wlWords(text){var out=[],t=String(text||''),re=/[\p{L}\p{N}]+/gu,m;while((m=re.exec(t)))out.push({s:m.index,e:m.index+m[0].length,w:m[0]});return out;}
 function wlSet(str,k){var o={};String(str||'').split(/[\s,;]+/).forEach(function(w){var q=wlKey(w,k);if(q)o[q]=1;});return o;}
 /* Asetukset cfg: wl ('off' = pois), wlk ('4'/'5'), wlno ja wlyes (sanoja välilyönnein tai riveittäin) */
-function wlOpt(cfg){cfg=cfg||{};var k=cfg.wlk==='4'?4:5,stop={};WL_STOP.forEach(function(w){var q=wlKey(w,k);if(q)stop[q]=1;});return {on:cfg.wl!=='off',k:k,stop:stop,no:wlSet(cfg.wlno,k),yes:wlSet(cfg.wlyes,k)};}
+function wlEnabled(cfg){return !cfg||cfg.wl!=='off';}
+function wlOpt(cfg){cfg=cfg||{};var k=cfg.wlk==='4'?4:5,stop={};WL_STOP.forEach(function(w){var q=wlKey(w,k);if(q)stop[q]=1;});return {on:wlEnabled(cfg),k:k,stop:stop,no:wlSet(cfg.wlno,k),yes:wlSet(cfg.wlyes,k)};}
 function wlOk(w,O){var key=wlKey(w,O.k);if(!key)return '';if(O.yes[key])return key;if(O.no[key]||O.stop[key])return '';return key;}
 /* Indeksi: avain -> muistiinpanojen id:t (kukin kerran), n = arkistoimattomien määrä */
 function wlIndex(notes,O){var df={},n=0;(notes||[]).forEach(function(N){if(!N||N.arch||!N.text)return;n++;var seen={};
@@ -5075,7 +5077,8 @@ function newProject(name){name=clean(name);if(!name)return false;var P={id:uid('
 var psMode='k';
 function openProj(m){psMode=m;renderProjSheet();openSheet($('psheet'));}
 $('title').addEventListener('click',function(){openProj('k');});
-function renderProjSheet(){var l=$('ps-list'),P=proj(),k0=kOf();l.textContent='';$('pk-kt').setAttribute('aria-checked',kt()?'true':'false');renderCalv();if(psMode==='k')renderPkSet();$('pk-name').value=k0?k0.name:'';$('pk-del').disabled=data.K.length<2;$('pk-mmsg').textContent='';$('ps-msg').textContent='';$('pk-msg').textContent='';$('psheet').dataset.m=psMode;$('ps-h').textContent=psMode==='k'?'Projekti':'Puut: '+((kOf()||{}).name||'');
+function renderProjSheet(){var l=$('ps-list'),P=proj(),k0=kOf();l.textContent='';$('pk-kt').setAttribute('aria-checked',kt()?'true':'false');
+  $('pk-wl').setAttribute('aria-checked',String(wlEnabled(data.cfg)));renderCalv();if(psMode==='k')renderPkSet();$('pk-name').value=k0?k0.name:'';$('pk-del').disabled=data.K.length<2;$('pk-mmsg').textContent='';$('ps-msg').textContent='';$('pk-msg').textContent='';$('psheet').dataset.m=psMode;$('ps-h').textContent=psMode==='k'?'Projekti':'Puut: '+((kOf()||{}).name||'');
   var kl=$('pk-list');kl.textContent='';data.K.forEach(function(k){var b=el('button','row'+(k.id===data.k?' sel':''));b.type='button';b.dataset.k=k.id;var t=el('span','t',k.name);
     var pj=k.id===data.k?data.projects:k.projects,nn=k.id===data.k?data.notes:k.notes;t.appendChild(el('small','',pj.length+(pj.length===1?' puu':' puuta')+' · '+nn.length+(nn.length===1?' muistiinpano':' muistiinpanoa')));b.appendChild(t);
     b.addEventListener('click',function(){if(k.id!==data.k){stashK();loadK(k);resetDraft();ed=null;termCache=null;noteFilter=[];save();applyCfg();renderHead();render();}closeSheet($('psheet'));});kl.appendChild(b);});
@@ -5091,6 +5094,14 @@ Array.prototype.forEach.call(document.querySelectorAll('#ps-flow button'),functi
 Array.prototype.forEach.call(document.querySelectorAll('#ps-mem button'),function(b){b.addEventListener('click',function(){var P=proj();if(!P)return;if(b.dataset.mem==='all')P.mem='all';else delete P.mem;resetDraft();touch();renderProjSheet();render();});});
 Array.prototype.forEach.call(document.querySelectorAll('#ps-end button'),function(b){b.addEventListener('click',function(){var P=proj();if(!P)return;if(b.dataset.end==='hoid')P.end='hoid';else delete P.end;touch();renderProjSheet();});});
 $('pk-kt').addEventListener('click',function(){ktSet(!kt());renderProjSheet();});
+$('pk-wl').addEventListener('click',function(){
+  var enabled=!wlEnabled(data.cfg);
+  data.cfg.wl=enabled?'on':'off';
+  wlC=null;save();
+  this.setAttribute('aria-checked',String(enabled));
+  renderPkSet();
+  if($('nsheet').open){$('ns-tm').hidden=true;paintHl();}
+});
 $('ps-add').addEventListener('click',function(){if(newProject($('ps-new').value)){$('ps-new').value='';renderProjSheet();}});
 $('ps-new').addEventListener('keydown',function(ev){if(ev.key==='Enter'&&newProject($('ps-new').value)){$('ps-new').value='';renderProjSheet();}});
 $('ps-name').addEventListener('change',function(){var P=proj(),n=clean($('ps-name').value);if(P&&n){P.name=n.slice(0,80);touch();renderHead();renderProjSheet();}});
@@ -5322,7 +5333,7 @@ function tunOn(){return (data.cfg||{}).tun!=='off';}
 var wlC=null;
 function wlNow(){var c=data.cfg||{},len=0,ar=0;data.notes.forEach(function(n){len+=(n.text||'').length;if(n.arch)ar++;});var sig=data.notes.length+':'+len+':'+ar+':'+[c.wl,c.wlk,c.wlno,c.wlyes].join('|');
   if(!wlC||wlC.sig!==sig||wlC.notes!==data.notes){var O=wlOpt(c);wlC={sig:sig,notes:data.notes,O:O,I:wlIndex(data.notes,O)};}return wlC;}
-function wlText(txt){var W=wlNow();return wlHits(txt,W.I,W.O,noteCur?noteCur.id:null);}
+function wlText(txt){if(!wlEnabled(data.cfg))return [];var W=wlNow();return wlHits(txt,W.I,W.O,noteCur?noteCur.id:null);}
 function grpAll(){var G={},AT=null;(data.grp||[]).forEach(function(g){G[g.id]={m:g.m.filter(function(id){return !isSpec(id);}),all:g.all?1:0};});return G;}
 function nInf(AT,text,N,today){if(!tunOn())return {ids:[],inf:[]};var SP=sepParts(text);
   /* 1.91: päättely teksti kerrallaan, tulokset yhteen */
@@ -11674,8 +11685,8 @@ function setUi(p,again,inSheet){var H=inSheet?'h3':'h2';
   /* 1.80 (Emil 24.10.2026): tunnistus projektikohtaisesti ja lukunäkymä kokeiluna */
   p.appendChild(el(H,'','Muistio'));
   cfgSeg('tun','Asiasanojen tunnistus tekstistä',[['on','Päällä'],['off','Pois']],'on');
-  cfgSeg('wl','Sanalinkit muistiinpanojen välillä',[['on','Päällä'],['off','Pois']],'on');
-  if((data.cfg.wl||'on')!=='off'){cfgSeg('wlk','Sanan alusta verrataan',[['5','5 kirjainta'],['4','4 kirjainta']],'5');
+  if(!inSheet)cfgSeg('wl','Automaattiset sanalinkit',[['on','Päällä'],['off','Pois']],'on');
+  if(wlEnabled(data.cfg)){cfgSeg('wlk','Sanan alusta verrataan',[['5','5 kirjainta'],['4','4 kirjainta']],'5');
     [['wlno','Ei linkitetä (sanat välilyönnein)'],['wlyes','Linkitetään aina (ohittaa eston)']].forEach(function(x){p.appendChild(el('label','fl',x[1]));var ta=el('textarea');ta.id='set-'+x[0];ta.rows=2;ta.value=data.cfg[x[0]]||'';
       ta.addEventListener('change',function(){var v=clean(ta.value.replace(/[\s,;]+/g,' '));if(v)data.cfg[x[0]]=v;else delete data.cfg[x[0]];save();touch();});p.appendChild(ta);});}
   cfgSeg('read','Muistiinpano aukeaa',[['edit','Muokattavana'],['read','Lukunäkymänä']],'read');

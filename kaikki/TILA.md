@@ -1,10 +1,12 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.69 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 24.11.2026
+**Vaihe:** versio 0.70 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 24.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.70 (24.11.2026).** Valikko → Projekti → **Automaattiset sanalinkit**. Kytkin on näkyvissä myös käyttötilassa. Pois päältä tekstiosuma näkyy tavallisena tekstinä sekä luku- että muokkaustilassa. Käsin lisätyt wikilinkit avautuvat lukunäkymässä. Valinta käyttää projektin aiempaa sanalinkkiasetusta, säilyy selaimessa ja kulkee projektin viennissä. Muistiinpanojen teksti säilyy. Testi `selain_70.py` kattaa napautuksen ja näppäimistön, latauksen uudelleen ja molemmat wikilinkkimuodot. Testattu tietokoneen Chromiumilla neljällä näyttöleveydellä. Fyysisen iPhonen Safari jää kokeiltavaksi. Modern Web Guidance: kytkimen saavutettava nimi ja tila.
 
 **0.69 (24.11.2026).** Muistio → Näkymä → Muokkaa näkymää → **Tekstimuuttuja**. Valitse yhteisestä luettelosta nimi tai kirjoita uusi. Sama muuttuja käy Muistion sarakkeeseen ja kojelaudan ruutuun. Näkymässä oleva sarake pitää muuttujan luettelossa, vaikka kirjauksia ei olisi. Soluun syötetty arvo tallentuu muistiinpanon tekstiin muodossa `!!Uni: 8!!`. Yksittäistä merkintää voi muokata solussa. Jos muistiinpanossa on useita havaintoja, solu näyttää päiväyksen perusteella uusimman ja havainnot muokataan lähdemuistiinpanossa. Nimet erottuvat muistiinpanon alkutietokentistä. Sarakkeen määrite on esimerkiksi `muuttuja("Uni") | luku | h` näkymätiedostossa. Testi `selain_69.py` kattaa tallennuksen, lähdetekstin säilymisen, tyhjentämisen, toiselta laitteelta tehdyn muutoksen ja varatun muuttujan uudella laitteella.
 
@@ -264,8 +266,6 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 23.11.2026. [Kojelaudan suunnitelma](SUUNNITELMA.md#3-kojelauta-jota-voi-k%C3%A4ytt%C3%A4%C3%A4-yhdell%C3%A4-k%C3%A4dell%C3%A4-ja-rakentaa-tietokoneella-d-kohdat-6-ja-13) tarkentui. Ruutuihin valitaan lähde, rajaukset, laskenta, yksikkö, näyttötapa ja ulkoasu. Mukana ovat muokkaustilassa sijoiteltavat ja suurennettavat ruudut sekä kalenterin kanssa jaetut suodatetut tarkistuslistat.
 
 23.11.2026. [Kojelaudan suunnitelmaan](SUUNNITELMA.md#3-kojelauta-jota-voi-k%c3%a4ytt%c3%a4%c3%a4-yhdell%c3%a4-k%c3%a4dell%c3%a4-ja-rakentaa-tietokoneella-d-kohdat-6-ja-13) kirjattiin `!!nimi: arvo!!`, Kaikin ja tekoälyn yhteinen muuttujaluettelo, havainnon omat päivät tai osion yksi päivä, tunnistuksen kevyt muotoilu ja muuttujanapit Pikamuistiinpanoon.
-
-23.11.2026. [Automaattisten sanalinkkien kytkin](SUUNNITELMA.md#7-tunnisteet-painoarvo-ja-muistiinpanojen-verkosto) lisättiin työjonoon. Kytkimen ollessa pois päältä tekstiosumat näkyvät tavallisena tekstinä ja tehdyt wikilinkit avautuvat edelleen.
 
 23.11.2026. [Timanttien visio](SUUNNITELMA.md#visio-ajatusten-risteämissä-syntyvät-timantit) kuvaa ajatusten risteämistä ja uudelleenlukemista. [Työjonon kohdassa 10](SUUNNITELMA.md#10-timantin-nostaminen-löytäminen-ja-uudelleenlukeminen) on neljä ehdotettua käyttökoetta. Ensimmäiseksi kokeillaan omaa nostoa nykyisellä muistiinpanolla, linkeillä ja näkymällä.
 
