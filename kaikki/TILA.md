@@ -1,10 +1,12 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.85 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 24.11.2026
+**Vaihe:** versio 0.86 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 24.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.86 (24.11.2026, työjonon ensimmäinen kohta).** Kojelaudassa on yksi pieni vierityksessä näkyvä muokkauspainike, ruutukohtaiset hammasrattaat ja yhteinen lisäys. Asetukset on ryhmitelty sisällön, rajausten, esityksen ja asettelun mukaan. Ruutujen järjestys ja koko tallentuvat Vaultiin. Havaintoruutu ja taulukkokortti poistetaan editorista, CSV-mittariruutu piilotetaan ja voidaan palauttaa lisäysvalikosta. Lukitun muistiinpanon esikatselu on tietokoneella leveämpi ja sulkeutuu ulkopuolelta tai Escillä. Muistion rivin runko lukitsee kosketusvierityksen pystysuuntaan, sarakeotsikoista voi panoroida sivuttain. Viikkoaikajanalla merkintä seuraa raahatessa osoitinta ja muuttunut päivä, aika ja kuittaus tallentuvat. Fyysinen iPhone ja Macin Safarin järjestelmäele jäivät kokeiltaviksi. Modern Web Guidance: dialogin ulkopuolinen sulkeminen ja raahaus näppäimistövaihtoehdolla.
 
 **0.85 (24.11.2026, työjonon ensimmäinen kohta).** `((…))` lukee yhden tai usean muuttujan ja valinnaisen kohteen, ajan ja lohkotunnisteen. Vanha `!!…!!` on yhteensopivasti luettavissa. Muistion solut ja Pikamuistiinpano kirjoittavat uuden muodon. Pikakirjauksen oma tunnus säilyttää kaksi identtistä kirjausta ja estää saman tallennusyrityksen toiston. Havaintotaulukot kokoavat samojen rivien ja sarakkeiden osumat, näyttävät lähteet ja tallentavat näkymän. Kohteet ja muuttujat voi varata pysyvällä tunnisteella ja nimetä uudelleen. Kojelaudan tekstimuuttujaruutuun voi valita kohteen, havaintotunnisteen, vapaan aikavälin, koonnin ja *Kirjaa arvo* -napin. Seuraavaksi yleisen säädineditorin kytkimet, liukusäädin ja XY samaan malliin. Katso suunnitelman kohta 0. Havaintotaulukot, määrityksen uudelleennimeäminen ja kaksi samaa kojelaudan kirjausta testattu Chromiumissa 320, 390, 1280 ja 1440 px. Fyysinen iPhone jäi kokeiltavaksi. Modern Web Guidance: nimetty ohjain ja näkyvä tilapalaute.
 

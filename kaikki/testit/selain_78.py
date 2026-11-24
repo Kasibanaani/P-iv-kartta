@@ -86,7 +86,10 @@ def run(browser, url, width):
     preview = page.get_by_role('dialog', name='Muistiinpanon esikatselu')
     expect(preview.get_by_text('Lisätietoa.', exact=False)).to_be_visible()
     expect(preview.locator('textarea,input')).to_have_count(0)
-    press(preview.get_by_role('button', name='Sulje'))
+    assert preview.get_by_role('button', name='Sulje').count() == 0
+    box = preview.bounding_box()
+    page.mouse.click(max(1, box['x'] - 5), box['y'] + min(20,box['height']/2))
+    expect(preview).to_be_hidden()
     press(page.locator('#nviewbtn'))
     expect(page.get_by_role('button', name='Näkymän lukitus')).to_have_attribute('aria-pressed', 'true')
     press(page.locator('.ncard').first)
@@ -168,7 +171,10 @@ def run(browser, url, width):
     expect(sheet_lock).to_have_attribute('aria-pressed', 'true')
     grid.press('Enter')
     expect(preview).to_be_visible()
-    press(preview.get_by_role('button', name='Sulje'))
+    assert preview.get_by_role('button', name='Sulje').count() == 0
+    box = preview.bounding_box()
+    page.mouse.click(max(1, box['x'] - 5), box['y'] + min(20,box['height']/2))
+    expect(preview).to_be_hidden()
     assert document(page, DERIVED).replace('lukittu: kyllä\n', '') == DERIVED_TEXT
     assert all(document(page, path) == text for path, text in NOTES.items())
     assert not errors, errors

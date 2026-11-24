@@ -32,7 +32,7 @@ async def test(browser, width):
     else:
         await page.locator('#roll').click()
         await page.locator('#section-dash').click()
-    dashboard = page.get_by_role('region', name='Taulukon kortit', exact=True)
+    dashboard = page.locator('#p-dash')
     def card(title):
         return dashboard.get_by_role('article').filter(has=page.get_by_role('heading', name=title, exact=True))
     await expect(card('Laskettu').get_by_text('24', exact=True)).to_be_visible()
@@ -43,7 +43,7 @@ async def test(browser, width):
     await expect(toggle).to_be_disabled()
     await expect(slider).to_be_disabled()
     assert await page.evaluate("!__repo.log.some(line => line.startsWith('PUT '))")
-    await dashboard.get_by_role('button', name='Muokkaa kortteja', exact=True).click()
+    await dashboard.get_by_role('button', name='Muokkaa ruutuja', exact=True).click()
     await toggle.check()
     await page.wait_for_function("__repo.get('taulukot/koe/pohja.md').includes('| 23 | 1 |')")
     await slider.focus()
@@ -51,7 +51,8 @@ async def test(browser, width):
     await expect(card('Laskettu').get_by_text('25', exact=True)).to_be_visible()
     await expect(card('Täyttö').locator('meter')).to_have_attribute('value', '24')
 
-    await dashboard.get_by_role('button', name='+ Kortti', exact=True).click()
+    await dashboard.get_by_role('button', name='Lisää ruutu', exact=True).click()
+    await page.locator('#mvb-kind').select_option('taulukko')
     editor = page.locator('#board-edit')
     await editor.get_by_label('Otsikko').fill('Toinen luku')
     await editor.get_by_label('Solu', exact=True).fill('A1')
@@ -61,7 +62,7 @@ async def test(browser, width):
     await editor.get_by_label('Otsikko').fill('Uusi nimi')
     await editor.get_by_role('button', name='Tallenna', exact=True).click()
     await expect(card('Uusi nimi').get_by_text('24', exact=True)).to_be_visible()
-    await dashboard.get_by_role('button', name='Lukitse kortit', exact=True).click()
+    await dashboard.get_by_role('button', name='Valmis', exact=True).click()
     await expect(slider).to_be_disabled()
     assert await page.evaluate("__repo.get('taulukot/koe/_nakyma.md').includes('| Uusi nimi | luku | [[pohja]]!A1 |')")
     assert await page.evaluate('document.documentElement.scrollWidth <= innerWidth')

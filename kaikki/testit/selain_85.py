@@ -63,7 +63,7 @@ def run(browser, url, width):
 
     select_tab(page, width, 'dash', 'Kojelauta')
     page.get_by_role('button', name='Muokkaa ruutuja').click()
-    page.get_by_role('button', name='+ Ruutu', exact=True).click()
+    page.get_by_role('button', name='Lisää ruutu', exact=True).click()
     board = page.locator('#mvb-edit')
     board.get_by_label('Muuttuja', exact=True).select_option('Annos (g)')
     board.get_by_label('Kohde', exact=True).select_option('Broileri')
