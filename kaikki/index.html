@@ -404,6 +404,20 @@ dialog{border:0;padding:8px 16px calc(22px + env(safe-area-inset-bottom,0px));ma
 dialog::backdrop{background:rgba(0,0,0,.4)}
 /* Kumoa kuittauksen jälkeen (1.61): pieni rivi alapalkin yllä, häviää itsestään */
 #undo{position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(var(--sbh,var(--navh,64px)) + 10px);z-index:20;display:flex;align-items:center;gap:10px;padding:6px 6px 6px 14px;border-radius:12px;background:var(--label);color:var(--bg);font-size:14px;box-shadow:0 4px 18px rgba(0,0,0,.18)}
+#saadin-undo{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:40;margin:0;padding:0;background:none;border:0}
+#saadin-undo button{display:block;border:0;border-radius:10px 0 0 10px;min-height:44px;min-width:44px;padding:0 10px 0 12px;margin-right:env(safe-area-inset-right,0px);background:#B3261E;color:#fff;font:inherit;font-size:14px;font-weight:700;box-shadow:0 2px 10px rgba(0,0,0,.25);cursor:pointer}
+#saadin-undo button:focus-visible{outline:3px solid var(--label);outline-offset:2px}
+#saadin-undo.pulse button{animation:saadin-pulse .9s ease-out 1}
+@keyframes saadin-pulse{0%{transform:translateX(6px);box-shadow:0 0 0 0 rgba(179,38,30,.55)}60%{transform:none;box-shadow:0 0 0 10px rgba(179,38,30,0)}100%{box-shadow:0 2px 10px rgba(0,0,0,.25)}}
+@media (prefers-reduced-motion: reduce){#saadin-undo.pulse button{animation:none}}
+.saadin-row{display:flex;gap:8px;align-items:center;margin:6px 0}
+.saadin-row .mvrow{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;height:auto;padding-top:8px;padding-bottom:8px}
+.saadin-row .mvsrc{display:block;white-space:normal;font-weight:400}
+.saadin-old{flex:1;min-width:0}
+.mvb-form .saadin-check{color:var(--label);margin-top:4px;display:flex;align-items:center;justify-content:flex-start;gap:8px;min-height:40px;font-weight:600;cursor:pointer}
+.mvb-form .saadin-check input{flex:0 0 auto;width:22px;height:22px;min-height:0;margin:0;padding:0;accent-color:var(--accent,currentColor)}
+.saadin-found .mvrow{display:block;width:100%;text-align:left;margin:4px 0}
+.saadin-preview{overflow-wrap:anywhere}
 #undo button{border:0;border-radius:8px;min-height:30px;padding:0 10px;background:transparent;color:inherit;font:inherit;font-weight:700;text-decoration:underline;cursor:pointer}
 @media (min-width:1000px){#undo{bottom:20px}}
 /* 1.65 Takaisin linkin jälkeen */
@@ -3270,10 +3284,12 @@ function noteDates(N){if(N._ds)return N._ds.map(function(o){var c={};Object.keys
     var active=false;
     source=String(source||'').split('\n').map(function(line,index){
       if(/^#{1,2}\s/.test(line))active=line.trim()==='## Pikakirjaukset';
-      if((index===0&&line.trim()===N.vp.slice(-13,-3))||(active&&/^- klo \d\d\.\d\d · [a-z][a-z0-9-]*: .+$/.test(line)))return line.replace(/\S/g,' ');
+      if((index===0&&line.trim()===N.vp.slice(-13,-3))||(active&&/^- klo \d\d\.\d\d · .+$/.test(line)))return line.replace(/\S/g,' ');
       return line;
     }).join('\n');
   }
+  /* 0.88: säätimen aikaleimarivi "- 2026-11-24 klo 12.30 · teksti" on kirjaus, ei kalenterin ajankohta. */
+  if(/^- \d{4}-\d\d-\d\d(?: klo \d\d\.\d\d)? · /m.test(source||''))source=String(source).replace(/^- \d{4}-\d\d-\d\d(?: klo \d\d\.\d\d)? · /gm,function(x){return x.replace(/\S/g,' ');});
   /* 0.65: tekstimuuttujan !!…!! päivät ovat havainnon päiviä, eivät kalenterin ajankohtia */
   var d=parseDates(MUUTTUJA.mask(source,null,N.created),new Date(N.created||Date.now()),N.nl);
   if(N.rel&&N.rel.length)relMatch(N,relSpans(N.text,d,true)).forEach(function(m){var o=m.sp.o;o.R=[m.lock.d,m.lock.d];o.a=o.b=m.lock.d;o.locked=m.lock;});
@@ -4851,6 +4867,160 @@ function mdPlain(l){l=String(l||'').replace(/\[\[([^\]|\n]+?)(?:\|([^\]\n]+?))?\
 return {links:links,linkSlug:linkSlug,plainText:plainText,shown:shown,kindOf:kindOf,srcOf:srcOf,KINDS:KINDS,SRCP:SRCP,mdMarks:mdMarks,mdPlain:mdPlain,visible:visible,split:split,fmGet:fmGet,fmSet:fmSet,noteOf:noteOf,mdOf:mdOf,idOf:idOf,slug:slug,newPath:newPath,titleLine:titleLine,extras:extras};
 })();
 if(typeof module!=='undefined')module.exports.VAULT=VAULT;
+/* ---- Kaikki 0.88 (jäsennys A6.1, Emil 24.11.2026): säätimet ----
+   Tiedosto pohjat/saatimet.md: jokainen säädin on "## Nimi" -otsikko ja sen alla rivejä "- avain: arvo". Tuntemattomat rivit säilyvät.
+   Avaimet: tunnus (a-z, 0-9, -; puuttuva = nimestä), laji (kertanappi), teksti, muuttuja, arvo (puuttuva = kysytään joka kerta),
+   kohde, havaintotunniste, aikaleima (kylla/ei), tapa (lisaa/paivita), minne (paiva, oma tai [[tiedostonimi]]),
+   aika (nyt, paiva, kysy, kalenteri) ja pikakirjaus (kylla/ei, 0.89).
+   Kirjaus on yksi listarivi. Muuttuja kirjoitetaan havaintolohkona (MUUTTUJA.format), jonka aika on lohkossa. Pelkkä teksti saa
+   aikaleiman alkuun: päivän muistiinpanossa "klo 12.30 · ", muualla "2026-11-24 klo 12.30 · " (kalenteri ohittaa nämä, noteDates).
+   Päivitä-tapa tunnistaa oman rivinsä säätimen tunnuksesta: lohkossa ", ^tunnus))", tekstirivin lopussa " ^tunnus". */
+var SAADIN=(function(){
+  var KEYS=['tunnus','laji','teksti','muuttuja','arvo','kohde','havaintotunniste','aikaleima','tapa','minne','aika','pikakirjaus'];
+  var LAJIT={kertanappi:'Kertanappi'},TAVAT={lisaa:'Lisää uusi rivi',paivita:'Päivitä edellinen'},
+    MINNE={paiva:'Päivän muistiinpano',teksti:'Valittu muistiinpano',oma:'Oma muistiinpano'},
+    AJAT={nyt:'Nyt (päivä ja kellonaika)',paiva:'Vain päivä',kysy:'Kysy päivä joka kerta',kalenteri:'Kalenterissa valittu päivä'};
+  var PIKA='## Pikakirjaukset';
+  function slugOf(s){return String(s||'').toLowerCase().replace(/[äå]/g,'a').replace(/ö/g,'o').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40).replace(/-+$/,'');}
+  function okId(t){return /^[a-z0-9][a-z0-9-]{0,59}$/.test(String(t||''));}
+  function okName(n){n=String(n||'');return !!n.trim()&&n.length<=80&&!/[\r\n]/.test(n);}
+  function yes(v,def){v=String(v||'').trim().toLowerCase();return v?v==='kylla'||v==='kyllä'||v==='on'||v==='true':def;}
+  function linkOf(v){var m=/^\[\[([^\[\]|#\r\n]+)\]\]$/.exec(String(v||'').trim());return m?m[1].trim():'';}
+  /* {eol, lines, items:[{nimi, s, e, raw, rows, muut, …asetukset, virhe}]} */
+  function parse(text){
+    text=String(text||'');var eol=text.indexOf('\r\n')>=0?'\r\n':'\n',lines=text.split(eol),items=[],cur=null,i=0;
+    if(lines[0]==='---'){for(i=1;i<lines.length&&lines[i]!=='---';i++);i++;}
+    function close(at){if(cur){cur.e=at;while(cur.e>cur.s+1&&!lines[cur.e-1].trim())cur.e--;cur.raw=lines.slice(cur.s,cur.e).join('\n');cur=null;}}
+    for(;i<lines.length;i++){
+      var h=/^##\s+(.+?)\s*$/.exec(lines[i]);
+      if(h){close(i);cur={nimi:h[1],s:i,e:lines.length,rows:{},muut:[]};items.push(cur);continue;}
+      if(/^#\s/.test(lines[i])){close(i);continue;}
+      if(!cur)continue;
+      var r=/^-\s+([a-z]+)\s*:(.*)$/.exec(lines[i]);
+      if(r&&KEYS.indexOf(r[1])>=0&&!(r[1] in cur.rows))cur.rows[r[1]]=r[2].trim();
+      else if(lines[i].trim())cur.muut.push(lines[i]);
+    }
+    close(lines.length);
+    var seen={};
+    items.forEach(function(it){
+      var R=it.rows;
+      it.tunnus=R.tunnus||slugOf(it.nimi);
+      it.laji=String(R.laji||'kertanappi').toLowerCase();
+      it.teksti=R.teksti||'';it.muuttuja=R.muuttuja||'';it.arvo=R.arvo||'';it.kohde=R.kohde||'';
+      it.tag=String(R.havaintotunniste||'').replace(/^#/,'').trim();
+      it.aikaleima=yes(R.aikaleima,false);
+      it.tapa=R.tapa==='paivita'||R.tapa==='päivitä'?'paivita':'lisaa';
+      var minne=String(R.minne||'paiva').trim();
+      it.linkki=linkOf(minne);it.minne=it.linkki?'teksti':minne==='oma'?'oma':'paiva';
+      it.aika=AJAT[R.aika]?R.aika:'nyt';
+      it.pikakirjaus=yes(R.pikakirjaus,true);
+      it.virhe=!okId(it.tunnus)?'Tunnus puuttuu tai on virheellinen.':seen[it.tunnus]?'Sama tunnus on kahdella säätimellä.':
+        !LAJIT[it.laji]?'Lajia '+it.laji+' ei vielä ole.':minne&&!it.linkki&&minne!=='oma'&&minne!=='paiva'?'Kohde '+minne+' ei ole tuttu.':'';
+      if(okId(it.tunnus))seen[it.tunnus]=(seen[it.tunnus]||0)+1;
+    });
+    items.forEach(function(it){if(!it.virhe&&seen[it.tunnus]>1)it.virhe='Sama tunnus on kahdella säätimellä.';});
+    return {eol:eol,lines:lines,items:items};
+  }
+  /* Säätimen rivit tiedostoon. Tuntemattomat rivit (muut) säilyvät lopussa. */
+  function lines(it){
+    var out=['## '+it.nimi.trim(),'- tunnus: '+it.tunnus,'- laji: '+(it.laji||'kertanappi')];
+    if(it.teksti)out.push('- teksti: '+it.teksti);
+    if(it.muuttuja){out.push('- muuttuja: '+it.muuttuja);if(it.arvo)out.push('- arvo: '+it.arvo);
+      if(it.kohde)out.push('- kohde: '+it.kohde);if(it.tag)out.push('- havaintotunniste: '+it.tag);}
+    else if(it.aikaleima)out.push('- aikaleima: kylla');
+    out.push('- tapa: '+(it.tapa||'lisaa'),'- minne: '+(it.minne==='teksti'?'[['+it.linkki+']]':it.minne==='oma'?'oma':'paiva'),'- aika: '+(it.aika||'nyt'));
+    if(it.pikakirjaus===false)out.push('- pikakirjaus: ei');
+    return out.concat(it.muut||[]);
+  }
+  function check(it){
+    if(!okName(it.nimi))return 'Anna säätimelle nimi (enintään 80 merkkiä).';
+    if(!okId(it.tunnus))return 'Tunnus saa sisältää pieniä kirjaimia a–z, numeroita ja väliviivoja.';
+    if(!it.teksti&&!it.muuttuja&&!it.aikaleima)return 'Valitse, mitä säädin kirjoittaa.';
+    if(/[\r\n]/.test(it.teksti+it.muuttuja+it.arvo+it.kohde))return 'Rivinvaihto ei käy säätimen kenttiin.';
+    if(it.muuttuja&&!MUUTTUJA.validName(it.muuttuja))return 'Muuttujan nimessä ei voi olla kaksoispistettä.';
+    if(it.kohde&&!MUUTTUJA.validName(it.kohde))return 'Kohteen nimessä ei voi olla kaksoispistettä.';
+    if(it.tag&&!/^[\p{L}\p{N}-]+$/u.test(it.tag))return 'Havaintotunniste on yksi sana ilman #-merkkiä.';
+    if(it.muuttuja&&it.arvo&&!MUUTTUJA.format(it.muuttuja,it.arvo,it.kohde,'',it.tag,''))return 'Tarkista arvo.';
+    if(it.minne==='teksti'&&!it.linkki)return 'Valitse muistiinpano, johon säädin kirjoittaa.';
+    return '';
+  }
+  /* Uusi, muutettu (old = tiedostosta luettu) tai poistettu (next null) säädin. Palauttaa tekstin tai {error}. */
+  function patch(text,old,next){
+    text=String(text||'');
+    if(next){var bad=check(next);if(bad)return {error:bad};}
+    if(!text.trim()){
+      if(old)return {error:'Säädintä ei enää löydy. Avaa säätimet uudelleen.'};
+      return ['---','tyyppi: pohja','otsikko: Säätimet','kuvaus: Kaikki-apin napit ja muut säätimet. Muoto: ohjeet/appi.md.','nakyy: ei','lahde: emil','---','# Säätimet','']
+        .concat(lines(next),['']).join('\n');
+    }
+    var doc=parse(text),L=doc.lines.slice(),eol=doc.eol;
+    var at=old?doc.items.findIndex(function(it){return it.tunnus===old.tunnus;}):-1;
+    if(old&&(at<0||doc.items[at].raw!==old.raw))return {error:'Säädintä muutettiin muualla. Avaa se uudelleen.'};
+    if(next&&doc.items.some(function(it,i){return i!==at&&it.tunnus===next.tunnus;}))return {error:'Tunnus '+next.tunnus+' on jo toisella säätimellä.'};
+    if(old){
+      var cut=doc.items[at];
+      if(next)L.splice.apply(L,[cut.s,cut.e-cut.s].concat(lines(next)));
+      else{var end=cut.e;while(end<L.length&&!L[end].trim())end++;L.splice(cut.s,end-cut.s);}
+    }else{
+      while(L.length&&!L[L.length-1].trim())L.pop();
+      L.push('');L=L.concat(lines(next));L.push('');
+    }
+    var out=L.join(eol);
+    return out.endsWith(eol)?out:out+eol;
+  }
+  /* Kirjausrivi. c = {day: 'VVVV-KK-PP', clock: 'HH:MM' tai '', value, dayNote, id}. Palauttaa '' jos arvo ei kelpaa. */
+  function record(it,c){
+    var block='';
+    if(it.muuttuja){
+      block=MUUTTUJA.format(it.muuttuja,String(c.value==null?'':c.value).trim(),it.kohde,c.day+(c.clock?' '+c.clock:''),it.tag,
+        it.tapa==='paivita'?it.tunnus:c.id||'');
+      if(!block)return '';
+    }
+    var text=String(it.teksti||'').trim(),prefix='';
+    if(!block&&it.aikaleima){
+      if(!text)text=it.nimi.trim();
+      var klo=c.clock?'klo '+c.clock.replace(':','.'):'';
+      prefix=c.dayNote?(klo?klo+' · ':''):c.day+(klo?' '+klo:'')+' · ';
+    }
+    var line='- '+prefix+text+(block?(text?' ':'')+block:'');
+    if(!block&&it.tapa==='paivita')line+=' ^'+it.tunnus;
+    return line;
+  }
+  function ownRe(id){return new RegExp('(?:, \\^'+id+'\\)\\)| \\^'+id+'\\s*$)');}
+  function own(L,id){for(var i=L.length-1;i>=0;i--)if(ownRe(id).test(L[i]))return i;return -1;}
+  /* Kirjoittaa rivin tekstiin. o = {dayNote, template (tyhjälle tiedostolle)}. Palauttaa {text, before (korvattu rivi tai null)}. */
+  function write(text,it,line,o){
+    text=String(text||'');o=o||{};
+    if(!text&&o.template)text=o.template;
+    var eol=text.indexOf('\r\n')>=0?'\r\n':'\n',L=text.split(eol);
+    if(it.tapa==='paivita'){
+      var i=own(L,it.tunnus);
+      if(i>=0){var before=L[i];if(before===line)return {text:text,before:before};L[i]=line;return {text:L.join(eol),before:before};}
+    }
+    if(o.dayNote){
+      var s=L.findIndex(function(x){return x.trim()===PIKA;});
+      if(s<0){var t=text.replace(/\s*$/,'');return {text:(t?t+eol+eol:'')+PIKA+eol+eol+line+eol,before:null};}
+      var e=L.findIndex(function(x,k){return k>s&&/^#{1,2}\s/.test(x);});if(e<0)e=L.length;
+      while(e>s+1&&!L[e-1].trim())e--;
+      if(e===s+1){L.splice(e,0,'',line);}else L.splice(e,0,line);
+      var out=L.join(eol);return {text:L[L.length-1]?out+eol:out,before:null};
+    }
+    while(L.length&&!L[L.length-1].trim())L.pop();
+    if(L.length&&!/^\s*- /.test(L[L.length-1]))L.push('');
+    L.push(line);
+    return {text:L.join(eol)+eol,before:null};
+  }
+  /* Kumoa: palauttaa tekstin tai null, jos kirjoitettua riviä ei enää ole. */
+  function undo(text,before,after){
+    text=String(text||'');var eol=text.indexOf('\r\n')>=0?'\r\n':'\n',L=text.split(eol),i=L.lastIndexOf(after);
+    if(i<0)return null;
+    if(before===null||before===undefined)L.splice(i,1);else L[i]=before;
+    return L.join(eol);
+  }
+  return {parse:parse,lines:lines,check:check,patch:patch,record:record,write:write,undo:undo,own:own,slug:slugOf,okId:okId,
+    LAJIT:LAJIT,TAVAT:TAVAT,MINNE:MINNE,AJAT:AJAT};
+})();
+if(typeof module!=='undefined')module.exports.SAADIN=SAADIN;
 </script>
 <script id="ui">
 /* 1.108 (Emil 18.11.2026): poistetut näkymät (vanha rivinäkymä, Aikaehdotukset, Vanhat puut, kierroslistat, ryhmät, Poissulkevat, Vaihepankki, Muistiinpanot listaan) eivät näy. Tiedot säilyvät ja toimivat; vanhat testit avaavat näkymät koukulla JuuriTesti.old(). */
@@ -5403,6 +5573,7 @@ function openMenu(){var m=$('menupop'),k=kOf();m.textContent='';
   menuItem(m,'m-writing-guide','Kirjoitusohje',showWritingGuide);
   menuItem(m,'m-mv','Muuttujat',function(){openMuuttujat(null);});
   menuItem(m,'m-observations','Havaintotaulukot',function(){openObservationView();});
+  menuItem(m,'m-saatimet','Säätimet',openSaadinList);
   if(OLDUI)menuItem(m,'m-tree',tab==='use'||tab==='teach'?'Vanhat puut (auki)':'Vanhat puut',function(){showTab('use');});
   m.appendChild(el('div','msep'));menuItem(m,'m-kt',kt()?'Rakennustila':'Käyttötila',function(){ktSet(!kt());});
   if(wide()&&$('deskmenu')&&$('deskmenu').offsetParent){anchoredMenu('menupop',$('deskmenu'));return;}
@@ -11415,6 +11586,296 @@ async function saveQuickXY(preset,pref){
     VC.files[QUICK_PRESETS]=result.file;vSaveC();draft.presets=quickPresets();return true;
   }catch(e){msg.textContent='Tarkkuuden tallennus epäonnistui. Yritä uudelleen.';return false;}
   finally{vBusy=false;draft.saving=false;vRender();vFlush();}
+}
+/* ---- Kaikki 0.88 (jäsennys A6.1, Emil 24.11.2026): säätimet. Säädin tehdään kerran editorissa (Valikko → Säätimet) ja sitä
+   painetaan missä vain. Kertanappi kirjoittaa heti yhden rivin ja näyttää reunassa Kumoa-napin noin 6 sekuntia. Tiedostomuoto: SAADIN. */
+var SAADIN_PATH='pohjat/saatimet.md',saadinUndoT=0,saadinUndoState=null;
+function saadinDoc(){var f=vOn()&&VC.files[SAADIN_PATH];return SAADIN.parse(f?f.t:'');}
+function saadinItems(){return saadinDoc().items;}
+function saadinById(id){return saadinItems().find(function(it){return it.tunnus===id;})||null;}
+function saadinNewId(nimi){var used=saadinItems().map(function(x){return x.tunnus;}),base=SAADIN.slug(nimi)||'saadin',id=base,n=2;
+  while(used.includes(id))id=base+'-'+(n++);return id;}
+function saadinDayTemplate(day){return ['---','tyyppi: paiva','otsikko: '+day,'luotu: '+todayIso(),'lahde: emil','---','# '+day,''].join('\n');}
+function saadinOwnPath(it){return 'inbox/saadin-'+it.tunnus+'.md';}
+/* Minne säädin kirjoittaa: {path, dayNote, template, label} tai {error}. Kadonnutta muistiinpanoa ei luoda uudelleen. */
+function saadinTarget(it,day){
+  if(it.minne==='paiva')return {path:quickDayPath(day),dayNote:true,template:saadinDayTemplate(day),label:'päivän muistiinpano '+mvDay(day)};
+  if(it.minne==='oma'){
+    var own=vNoteOf('saadin-'+it.tunnus),path=own&&own.vp||saadinOwnPath(it);
+    return {path:path,label:'oma muistiinpano '+it.nimi,template:['---','tyyppi: muistiinpano','otsikko: '+it.nimi,
+      'kuvaus: Säätimen '+it.nimi+' kirjaukset.','luotu: '+todayIso(),'lahde: emil','---','# '+it.nimi,''].join('\n')};
+  }
+  var n=vNoteOf(it.linkki);
+  if(!n||!n.vp||n.arch)return {error:'Muistiinpanoa [['+it.linkki+']] ei löydy. '+it.nimi+' ei kirjoittanut mitään.'};
+  return {path:n.vp,label:mvTitle(n)};
+}
+function saadinSummary(it){
+  if(it.virhe)return it.virhe;
+  var what=[];
+  if(it.teksti)what.push('”'+it.teksti+'”');
+  if(it.muuttuja)what.push(it.muuttuja+(it.arvo?' = '+it.arvo:' (arvo kysytään)'));
+  if(!it.muuttuja&&it.aikaleima)what.push('aikaleima');
+  var where=it.minne==='teksti'?'[['+it.linkki+']]':it.minne==='oma'?'oma muistiinpano':'päivän muistiinpano';
+  return what.join(' + ')+' → '+where+' · '+SAADIN.AJAT[it.aika].replace(/ \(.*\)$/,'').toLowerCase()+(it.tapa==='paivita'?' · päivittää':'');
+}
+function saadinMoment(it,o){
+  if(it.aika==='kysy')return {day:o.day,clock:o.clock||''};
+  if(it.aika==='kalenteri')return {day:calDay||todayIso(),clock:''};
+  var d=new Date();
+  return {day:isoD(d),clock:it.aika==='nyt'?pad(d.getHours())+':'+pad(d.getMinutes()):''};
+}
+/* Painallus. Kysyy arvon tai päivän tarvittaessa, muuten kirjoittaa heti. */
+function saadinPress(it,status){
+  function say(t){if(status)status.textContent=t;else toast(t);}
+  if(!vOn()){say('Yhdistä Vault ensin.');return;}
+  if(it.virhe){say(it.nimi+': '+it.virhe);return;}
+  var need={value:!!it.muuttuja&&!it.arvo,day:it.aika==='kysy'};
+  if(need.value||need.day){saadinAsk(it,need);return;}
+  return saadinRun(it,{value:it.arvo,status:status});
+}
+async function saadinRun(it,o){
+  var m=saadinMoment(it,o),T=saadinTarget(it,m.day),status=o.status;
+  function say(t){if(status)status.textContent=t;else toast(t);}
+  if(T.error){say(T.error);return false;}
+  if(vBusy){say('Vault synkronoi. Yritä hetken päästä.');return false;}
+  var id=typeof crypto.randomUUID==='function'?'qh'+crypto.randomUUID():uid('qh');
+  var line=SAADIN.record(it,{day:m.day,clock:m.clock,value:o.value,dayNote:!!T.dayNote,id:id});
+  if(!line){say('Tarkista arvo: '+it.nimi+'.');return false;}
+  var ctx={repo:vRepo(),branch:G.branch},before=null;
+  vBusy=true;vRender();
+  try{
+    var r=await vWriteText(T.path,function(text){
+      var w=SAADIN.write(text,it,line,{dayNote:T.dayNote,template:T.template});before=w.before;return w.text;
+    },'appi: säädin '+it.nimi,ctx);
+    if(r.error){say(r.error);return false;}
+    if(r.file&&vRepo()===ctx.repo&&G.branch===ctx.branch){VC.files[T.path]=r.file;vSaveC();}
+    vAt=vClock();vApply();render();
+    if(status)status.textContent=it.nimi+' kirjattu: '+T.label+'.';
+    saadinUndoShow({it:it,path:T.path,before:before,after:line,ctx:ctx,label:T.label});
+    return true;
+  }catch(e){say('Kirjaus ei onnistunut. Tarkista yhteys ja yritä uudelleen.');return false;}
+  finally{vBusy=false;vRender();vFlush();}
+}
+/* Kumoa näytön reunassa: ei peitä sisältöä eikä vie kohdistusta. Avoimen ikkunan päällä nappi siirtyy ikkunan sisään. */
+function saadinTopDialog(){
+  var open=Array.from(document.querySelectorAll('dialog[open]'));
+  open.sort(function(a,b){return (b._ord||0)-(a._ord||0);});return open[0]||null;
+}
+function saadinUndoPlace(){
+  var box=$('saadin-undo');if(!box||box.hidden)return;
+  var host=saadinTopDialog()||document.body;if(box.parentNode!==host)host.appendChild(box);
+}
+function saadinUndoShow(st){
+  var box=$('saadin-undo');
+  if(!box){
+    box=el('div');box.id='saadin-undo';box.setAttribute('role','status');
+    var said=el('span','vh');said.id='saadin-undo-said';
+    var b=el('button','','Kumoa');b.type='button';b.id='saadin-undo-b';b.addEventListener('click',saadinUndo);
+    box.append(said,b);document.body.appendChild(box);
+  }
+  saadinUndoState=st;box.hidden=false;saadinUndoPlace();
+  $('saadin-undo-said').textContent=st.it.nimi+' kirjattu.';
+  $('saadin-undo-b').setAttribute('aria-label','Kumoa: '+st.it.nimi);
+  box.classList.remove('pulse');void box.offsetWidth;box.classList.add('pulse');
+  clearTimeout(saadinUndoT);saadinUndoT=setTimeout(saadinUndoExpire,6000);
+}
+/* Kohdistettu nappi ei katoa käsistä: piilotus odottaa, kunnes kohdistus lähtee napista. */
+function saadinUndoExpire(){
+  var b=$('saadin-undo-b');
+  if(b&&document.activeElement===b){b.addEventListener('blur',function(){saadinUndoT=setTimeout(saadinUndoExpire,1500);},{once:true});return;}
+  saadinUndoHide();
+}
+function saadinUndoHide(){clearTimeout(saadinUndoT);saadinUndoState=null;var box=$('saadin-undo');if(box)box.hidden=true;}
+document.addEventListener('close',function(){setTimeout(saadinUndoPlace,0);},true);
+async function saadinUndo(){
+  var st=saadinUndoState;if(!st)return;saadinUndoHide();
+  if(vBusy){toast('Vault synkronoi. Poista kirjaus tarvittaessa muistiinpanosta.');return;}
+  vBusy=true;vRender();
+  try{
+    var r=await vWriteText(st.path,function(text){
+      var u=SAADIN.undo(text,st.before,st.after);
+      return u===null?{error:'Kirjausta oli jo muutettu, joten sitä ei kumottu.'}:u;
+    },'appi: kumoa säädin '+st.it.nimi,st.ctx);
+    if(r.error){toast(r.error);return;}
+    if(vRepo()===st.ctx.repo&&G.branch===st.ctx.branch){VC.files[st.path]=r.file;vSaveC();}
+    vAt=vClock();vApply();render();toast(st.it.nimi+': kirjaus kumottu.');
+  }catch(e){toast('Kumoaminen ei onnistunut. Tarkista yhteys.');}
+  finally{vBusy=false;vRender();vFlush();}
+}
+/* Arvo ja päivä, kun säädin kysyy ne. */
+function saadinAsk(it,need){
+  var d=$('saadin-ask');
+  if(!d){d=el('dialog','nved dash-config');d.id='saadin-ask';d.setAttribute('aria-labelledby','saadin-ask-title');SMALL[d.id]=1;
+    document.body.appendChild(d);d.addEventListener('close',modalSync);}
+  var busy=false;dashEditorDismiss(d,function(){return busy;});d.replaceChildren();
+  var h=el('h2','',it.nimi);h.id='saadin-ask-title';d.appendChild(h);
+  var form=el('form','mvb-form'),value=null,day=null,clock=null;
+  function field(label,input,id){var w=el('div','dash-field'),l=el('label','',label);input.id=id;l.htmlFor=id;w.append(l,input);form.appendChild(w);return input;}
+  if(need.value){value=field('Arvo · '+it.muuttuja,el('input'),'saadin-ask-value');value.type='text';value.autocomplete='off';value.required=true;}
+  if(need.day){
+    day=field('Päivä',el('input'),'saadin-ask-day');day.type='date';day.value=todayIso();day.required=true;
+    clock=field('Kellonaika (valinnainen)',el('input'),'saadin-ask-clock');clock.type='time';
+  }
+  var where=el('p','sub');form.appendChild(where);
+  function show(){var T=saadinTarget(it,day&&dashDay(day.value)?day.value:todayIso());where.textContent=T.error||'Kirjoittaa: '+T.label;}
+  if(day)day.addEventListener('change',show);show();
+  var msg=el('p','msg');msg.setAttribute('aria-live','polite');form.appendChild(msg);
+  var foot=el('div','dash-editor-footer');button(foot,'Peru','btn',function(){closeSheet(d);});
+  var ok=el('button','btn primary','Kirjaa');ok.type='submit';foot.appendChild(ok);form.appendChild(foot);
+  form.addEventListener('submit',async function(e){
+    e.preventDefault();if(busy)return;
+    if(day&&(!dashDay(day.value)||isoD(fromIso(day.value))!==day.value)){msg.textContent='Valitse päivä.';return;}
+    busy=true;sheetDialogControls(d,true);msg.textContent='Kirjataan…';
+    var done=await saadinRun(it,{value:value?value.value:it.arvo,day:day&&day.value,clock:clock&&clock.value,status:msg});
+    busy=false;sheetDialogControls(d,false);
+    if(done){closeSheet(d);saadinUndoPlace();}
+  });
+  d.appendChild(form);openSheet(d);(value||day).focus();
+}
+/* Editori. it = tiedostosta luettu säädin tai null. o = {preset: esitäyttö, legacy: vanhan pikakirjausnapin rivi, after(säädin)} */
+function openSaadinEdit(it,o){
+  o=o||{};var d=$('saadin-edit');
+  if(!d){d=el('dialog','nved dash-config');d.id='saadin-edit';d.setAttribute('aria-labelledby','saadin-edit-title');SMALL[d.id]=1;
+    document.body.appendChild(d);d.addEventListener('close',modalSync);}
+  var busy=false;dashEditorDismiss(d,function(){return busy;});d.replaceChildren();
+  var h=el('h2','',it?'Muokkaa säädintä':'Uusi säädin');h.id='saadin-edit-title';d.appendChild(h);
+  var S0=Object.assign({nimi:'',tunnus:'',laji:'kertanappi',teksti:'',muuttuja:'',arvo:'',kohde:'',tag:'',aikaleima:false,tapa:'lisaa',
+    minne:'paiva',linkki:'',aika:'nyt',pikakirjaus:true,muut:[]},it||o.preset||{});
+  var form=el('form','mvb-form saadin-form');
+  function group(name){var f=el('fieldset');f.appendChild(el('legend','',name));form.appendChild(f);return f;}
+  function field(where,label,ctl,id){var w=el('div','dash-field'),l=el('label','',label);ctl.id=id;l.htmlFor=id;w.append(l,ctl);where.appendChild(w);return ctl;}
+  function inp(v,ph){var i=el('input');i.type='text';i.value=v||'';i.autocomplete='off';if(ph)i.placeholder=ph;return i;}
+  function sel(map,v,soon){var s=el('select');Object.keys(map).forEach(function(k){var op=el('option','',map[k]);op.value=k;s.appendChild(op);});
+    (soon||[]).forEach(function(t){var op=el('option','',t+' (tulossa)');op.disabled=true;s.appendChild(op);});s.value=v;return s;}
+  function check(where,label,on,id){var w=el('label','saadin-check'),c=el('input');c.type='checkbox';c.checked=!!on;c.id=id;w.append(c,document.createTextNode(' '+label));where.appendChild(w);return c;}
+  var g1=group('Säädin'),g2=group('Mitä kirjoitetaan'),g3=group('Minne ja milloin');
+  var fName=field(g1,'Nimi',inp(S0.nimi,'esim. Kahvi'),'saadin-name');fName.maxLength=80;fName.required=true;
+  field(g1,'Laji',sel(SAADIN.LAJIT,'kertanappi',['Pohjaan jäävä nappi','Liukusäädin','XY-pädi']),'saadin-kind');
+  if(it)g1.appendChild(el('p','sub','Tunnus: '+it.tunnus+' (kojelauta ja muut käyttöpaikat viittaavat tähän)'));
+  var cText=check(g2,'Teksti',!!S0.teksti,'saadin-has-text'),fText=field(g2,'Teksti',inp(S0.teksti,'esim. Kahvi juotu'),'saadin-text');
+  var cVar=check(g2,'Muuttuja',!!S0.muuttuja,'saadin-has-var');
+  var fVar=field(g2,'Muuttuja',inp(S0.muuttuja,'esim. Kahvi (kpl)'),'saadin-var'),vl=el('datalist');vl.id='saadin-vars';
+  mvRegistry().forEach(function(g){var op=el('option');op.value=g.nimi;vl.appendChild(op);});g2.appendChild(vl);fVar.setAttribute('list',vl.id);
+  var fVal=field(g2,'Arvo (tyhjä = kysytään joka kerta)',inp(S0.arvo,''),'saadin-value');
+  var fSub=field(g2,'Kohde (valinnainen)',inp(S0.kohde,''),'saadin-subject'),sl=el('datalist');sl.id='saadin-subjects';
+  mvSubjects().forEach(function(n){var op=el('option');op.value=n;sl.appendChild(op);});g2.appendChild(sl);fSub.setAttribute('list',sl.id);
+  var fTag=field(g2,'Havaintotunniste (valinnainen)',inp(S0.tag,'esim. ravinto'),'saadin-tag');
+  var cStamp=check(g2,'Aikaleima',S0.aikaleima||!!S0.muuttuja,'saadin-has-stamp'),stampNote=el('p','sub'),stampWas=!!S0.aikaleima;g2.appendChild(stampNote);
+  cStamp.addEventListener('change',function(){if(!cVar.checked)stampWas=cStamp.checked;});
+  var fMode=field(g3,'Lisää vai päivitä',sel(SAADIN.TAVAT,S0.tapa),'saadin-mode');
+  var fWhere=field(g3,'Minne',sel(SAADIN.MINNE,S0.minne),'saadin-where');
+  var pick=el('div','saadin-pick'),fFind=el('input'),found=el('div','saadin-found'),chosen=el('p','sub'),linkki=S0.linkki;
+  fFind.type='search';fFind.id='saadin-find';fFind.placeholder='Hae otsikolla';fFind.autocomplete='off';
+  var fl=el('label','','Hae muistiinpano');fl.htmlFor=fFind.id;found.setAttribute('aria-label','Hakutulokset');
+  pick.append(fl,fFind,found,chosen);g3.appendChild(pick);
+  var fWhen=field(g3,'Aika',sel(SAADIN.AJAT,S0.aika),'saadin-when');
+  var preview=el('p','sub saadin-preview');preview.setAttribute('aria-live','polite');form.appendChild(preview);
+  function chosenText(){var n=linkki&&vNoteOf(linkki);chosen.textContent=!linkki?'Ei valittua muistiinpanoa.':n?'Valittu: '+mvTitle(n)+' ([['+linkki+']])':'[['+linkki+']] ei löydy.';}
+  function search(){
+    found.replaceChildren();var q=fFind.value.trim().toLocaleLowerCase('fi');if(!q)return;
+    vNotes().filter(function(n){return n.vp&&!n.arch&&(mvTitle(n).toLocaleLowerCase('fi').includes(q)||n.vp.toLowerCase().includes(q));})
+      .slice(0,8).forEach(function(n){
+        var b=button(found,'','btn mvrow',function(){linkki=VAULT.linkSlug(n.vp);fFind.value='';found.replaceChildren();chosenText();draw();fFind.focus();});
+        b.append(el('b','',mvTitle(n)),el('span','mvsrc',n.vp));
+      });
+    if(!found.childElementCount)found.appendChild(el('p','sub','Ei osumia.'));
+  }
+  fFind.addEventListener('input',search);
+  function draft(){
+    return {nimi:fName.value.trim(),tunnus:it?it.tunnus:'',laji:'kertanappi',teksti:cText.checked?fText.value.trim():'',
+      muuttuja:cVar.checked?fVar.value.trim():'',arvo:cVar.checked?fVal.value.trim():'',kohde:cVar.checked?fSub.value.trim():'',
+      tag:cVar.checked?fTag.value.trim().replace(/^#/,''):'',aikaleima:!cVar.checked&&cStamp.checked,tapa:fMode.value,minne:fWhere.value,
+      linkki:fWhere.value==='teksti'?linkki:'',aika:fWhen.value,pikakirjaus:S0.pikakirjaus,muut:S0.muut||[]};
+  }
+  function draw(){
+    fText.closest('.dash-field').hidden=!cText.checked;
+    [fVar,fVal,fSub,fTag].forEach(function(f){f.closest('.dash-field').hidden=!cVar.checked;});
+    cStamp.disabled=cVar.checked;cStamp.checked=cVar.checked||stampWas;
+    stampNote.textContent=cVar.checked?'Muuttujan kirjauksessa aika on aina havaintolohkossa.':'';
+    pick.hidden=fWhere.value!=='teksti';if(!pick.hidden)chosenText();
+    var D=draft(),now=new Date(),day=isoD(now),T=D.minne==='paiva';
+    if(!D.nimi)D.nimi='Säädin';if(!D.tunnus)D.tunnus=saadinNewId(D.nimi);
+    var line=SAADIN.record(D,{day:day,clock:D.aika==='nyt'?pad(now.getHours())+':'+pad(now.getMinutes()):'',value:D.arvo||'ARVO',dayNote:T,id:''});
+    var where=D.minne==='teksti'?(linkki?'[['+linkki+']]':'valittu muistiinpano'):D.minne==='oma'?'oma muistiinpano (inbox)':'päivän muistiinpano, osio Pikakirjaukset';
+    preview.textContent=line&&(D.teksti||D.muuttuja||D.aikaleima)?'Esimerkki: '+line.replace(/\bARVO\b/,'‹arvo›')+' → '+where:'Valitse, mitä säädin kirjoittaa.';
+  }
+  [cText,cVar,cStamp,fMode,fWhere,fWhen].forEach(function(c){c.addEventListener('change',draw);});
+  [fName,fText,fVar,fVal,fSub,fTag].forEach(function(c){c.addEventListener('input',draw);});
+  draw();
+  var msg=el('p','msg');msg.id='saadin-msg';msg.setAttribute('aria-live','polite');form.appendChild(msg);
+  var foot=el('div','dash-editor-footer');
+  async function save(del){
+    if(busy)return;if(vBusy||!vOn()){msg.textContent=vOn()?'Vault synkronoi. Yritä hetken päästä.':'Yhdistä Vault ensin.';return;}
+    var next=null;
+    if(!del){
+      next=draft();
+      if(!it)next.tunnus=saadinNewId(next.nimi);
+      var bad=SAADIN.check(next);if(bad){msg.textContent=bad;return;}
+    }
+    busy=true;vBusy=true;vRender();sheetDialogControls(d,true);msg.textContent='Tallennetaan…';
+    var ctx={repo:vRepo(),branch:G.branch};
+    try{
+      var r=await vWriteText(SAADIN_PATH,function(text){return SAADIN.patch(text,it,next);},del?'appi: säädin pois':'appi: säädin '+next.nimi,ctx);
+      if(r.error){msg.textContent=r.error;return;}
+      VC.files[SAADIN_PATH]=r.file;vSaveC();
+      if(o.legacy&&!del){
+        var q=await vWriteText(QUICK_PRESETS,function(text){
+          var eol=text.indexOf('\r\n')>=0?'\r\n':'\n',L=text.split(eol),i=L.indexOf(o.legacy);
+          if(i<0)return text;L.splice(i,1);return L.join(eol);
+        },'appi: pikakirjausnappi säätimeksi',ctx);
+        if(q.error)toast('Säädin tallennettiin, mutta vanha nappi jäi pikakirjaukseen: '+q.error);
+        else{VC.files[QUICK_PRESETS]=q.file;vSaveC();}
+      }
+      closeSheet(d);render();toast(del?'Säädin poistettu. Kirjaukset säilyvät muistiinpanoissa.':'Säädin tallennettu.');
+      if(o.after)o.after(del?null:saadinById(next.tunnus));
+    }catch(e){msg.textContent='Säädintä ei voitu tallentaa. Tarkista Vaultin yhteys.';}
+    finally{busy=false;vBusy=false;sheetDialogControls(d,false);vRender();vFlush();}
+  }
+  if(it)button(foot,'Poista säädin','btn danger',function(){save(true);}).id='saadin-del';
+  button(foot,'Peru','btn',function(){closeSheet(d);});
+  var ok=el('button','btn primary','Tallenna');ok.type='submit';ok.id='saadin-save';foot.appendChild(ok);form.appendChild(foot);
+  form.addEventListener('submit',function(e){e.preventDefault();save(false);});
+  d.appendChild(form);openSheet(d);try{fName.focus({preventScroll:true});}catch(e){}
+}
+/* Valikko → Säätimet: luettelo, painallus, editori ja vanhat pikakirjausnapit. */
+function openSaadinList(){
+  var d=$('saadin-list');
+  if(!d){d=el('dialog','nved dash-config');d.id='saadin-list';d.setAttribute('aria-labelledby','saadin-list-title');SMALL[d.id]=1;
+    document.body.appendChild(d);d.addEventListener('close',modalSync);}
+  dashEditorDismiss(d,function(){return false;});
+  function draw(){
+    d.replaceChildren();var h=el('h2','','Säätimet');h.id='saadin-list-title';d.appendChild(h);
+    if(!vOn()){d.appendChild(el('p','sub','Säätimet tallentuvat Vaultiin. Yhdistä Vault ensin.'));button(d,'Sulje','btn',function(){closeSheet(d);});return;}
+    d.appendChild(el('p','sub','Säädin tehdään kerran ja sitä käytetään missä vain. Kertanappi kirjoittaa heti, ja Kumoa näkyy hetken näytön reunassa.'));
+    var msg=el('p','msg');msg.id='saadin-list-msg';msg.setAttribute('aria-live','polite');
+    var list=el('div','saadin-list'),items=saadinItems();
+    items.forEach(function(it){
+      var row=el('div','saadin-row');
+      var open=button(row,'','btn mvrow',function(){openSaadinEdit(it,{after:draw});});
+      open.append(el('b','',it.nimi),el('span','mvsrc',saadinSummary(it)));open.setAttribute('aria-label','Muokkaa: '+it.nimi);
+      var press=button(row,'Kirjaa','btn',function(){saadinPress(it,msg);});press.setAttribute('aria-label','Kirjaa: '+it.nimi);press.disabled=!!it.virhe;
+      list.appendChild(row);
+    });
+    if(!items.length)list.appendChild(el('p','sub','Ei vielä säätimiä.'));
+    d.append(list,msg);
+    button(d,'+ Uusi säädin','btn',function(){openSaadinEdit(null,{after:draw});}).id='saadin-new';
+    var old=quickPresets();
+    if(old.length){
+      var box=el('details','saadin-legacy');box.appendChild(el('summary','','Pikakirjauksen vanhat napit ('+old.length+')'));
+      box.appendChild(el('p','sub','Muuttujanapin voi muuttaa säätimeksi: arvo ja päivä kysytään kuten ennen. Seuranta- ja muistutusnapit toimivat pikakirjauksessa entiseen tapaan.'));
+      old.forEach(function(p){
+        var row=el('div','saadin-row');
+        row.appendChild(el('span','saadin-old',(p.mode==='muuttujat'?'Muuttuja: ':p.mode==='seuranta'?'Seuranta: ':'Muistutus: ')+p.name+(p.kind?' · '+p.kind:'')));
+        if(p.mode==='muuttujat')button(row,'Tee säätimeksi','btn',function(){
+          openSaadinEdit(null,{legacy:p.source,after:draw,preset:{nimi:p.name,muuttuja:p.name,aika:'kysy'}});
+        }).setAttribute('aria-label','Tee säätimeksi: '+p.name);
+        box.appendChild(row);
+      });
+      d.appendChild(box);
+    }
+    button(d,'Sulje','btn',function(){closeSheet(d);});
+  }
+  draw();if(!d.open)openSheet(d);
 }
 /* Kaikki 0.45: Treeni käyttää Vaultin nykyisiä liikkeitä ja kirjaa yhden CSV-rivin per sarja. */
 var TRE_CSV='data/treeni.csv',TRE_SPEC='data/treeni-liikkeet.json';
