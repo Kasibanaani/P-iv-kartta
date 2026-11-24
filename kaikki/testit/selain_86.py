@@ -61,7 +61,7 @@ def dashboard(browser, url, width):
     expect(mode).to_have_attribute('aria-pressed', 'false')
     expect(page.locator('.dash-tile-tools')).to_have_count(0)
     page.locator('#main').evaluate('(el) => el.scrollTop = 550')
-    assert mode.bounding_box()['y'] < 140
+    assert 0 <= mode.bounding_box()['y'] < 140
     mode.click()
     expect(mode).to_have_attribute('aria-pressed', 'true')
     expect(page.locator('.dash-tile[data-editing]')).to_have_count(24)
@@ -94,6 +94,10 @@ def dashboard(browser, url, width):
     page.wait_for_function("() => __repo.get('taulukot/koe/pohja.md').includes('23 | 0 | valmis')")
 
     csv = dash.locator('[data-c="koe"]')
+    csv.get_by_role('button', name='Muokkaa mittariruutua CSV-ruutu').click()
+    page.keyboard.press('Escape')
+    expect(page.locator('#csv-tile-edit')).to_be_hidden()
+    page.wait_for_function("!document.documentElement.classList.contains('modal')")
     csv.get_by_role('button', name='Muokkaa mittariruutua CSV-ruutu').click()
     page.get_by_role('button', name='Poista kojelaudalta').click()
     expect(csv).to_have_count(0)

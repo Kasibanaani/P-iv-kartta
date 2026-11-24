@@ -13477,6 +13477,14 @@ function dashIcon(host,icon,label,action){
   var control=button(host,icon,'dash-icon',action);
   control.setAttribute('aria-label',label);control.title=label;return control;
 }
+function dashEditorDismiss(dialog,isBusy){
+  dialog.onclick=function(event){
+    if(event.target!==dialog||isBusy())return;
+    var r=dialog.getBoundingClientRect();
+    if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)closeSheet(dialog);
+  };
+  dialog.oncancel=function(event){if(isBusy())event.preventDefault();};
+}
 function renderDashAt(focus){
   var top=main.scrollTop;render();
   if(tab!=='dash')return;
@@ -13833,9 +13841,9 @@ function mvbFieldNames(){
   return Array.from(found).filter(nvUserKey).sort(function(a,b){return a.localeCompare(b,'fi');});
 }
 function openMvbCard(R){var d=$('mvb-edit');
-  if(!d){d=el('dialog','nved dash-config');d.id='mvb-edit';d.setAttribute('aria-labelledby','mvb-edit-title');SMALL[d.id]=1;document.body.appendChild(d);}
+  if(!d){d=el('dialog','nved dash-config');d.id='mvb-edit';d.setAttribute('aria-labelledby','mvb-edit-title');SMALL[d.id]=1;document.body.appendChild(d);d.addEventListener('close',modalSync);}
   d.textContent='';var busy=false,h=el('h2','',R?'Muokkaa ruutua':'Uusi ruutu');h.id='mvb-edit-title';d.appendChild(h);
-  d.onclick=function(e){if(e.target===d&&!busy)closeSheet(d);};
+  dashEditorDismiss(d,function(){return busy;});
   var form=el('form','mvb-form'),names=mvRegistry().map(function(g){return g.nimi;});
   function group(name){var f=el('fieldset');f.appendChild(el('legend','',name));form.appendChild(f);return f;}
   var base=group('Sisältö'),filters=group('Rajaukset'),display=group('Esitys');
@@ -13927,13 +13935,16 @@ function dashCsvTiles(hidden){
 function openDashCsvTile(tile){
   var d=$('csv-tile-edit');
   if(!d){d=el('dialog','nved dash-config');d.id='csv-tile-edit';SMALL[d.id]=1;
-    d.setAttribute('aria-labelledby','csv-tile-title');document.body.appendChild(d);}
+    d.setAttribute('aria-labelledby','csv-tile-title');document.body.appendChild(d);d.addEventListener('close',modalSync);}
+  var busy=false;dashEditorDismiss(d,function(){return busy;});
   d.replaceChildren();
   var title=el('h2','',tile?(tile.column.nimi||tile.column.id):'Palauta mittariruutu');
   title.id='csv-tile-title';d.appendChild(title);
   async function save(item,hidden){
-    sheetDialogControls(d,true);
-    if(await dashSaveLayout({[item.key]:{hidden:hidden}})){closeSheet(d);return;}
+    if(busy)return;
+    busy=true;sheetDialogControls(d,true);
+    var saved=await dashSaveLayout({[item.key]:{hidden:hidden}});
+    busy=false;if(saved){closeSheet(d);return;}
     sheetDialogControls(d,false);
   }
   if(tile){
