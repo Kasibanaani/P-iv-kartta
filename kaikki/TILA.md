@@ -257,10 +257,10 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 **Ulkoasu (0.61):** Mikä aksentti ja otsikkofontti valitaan Lehdon ja Hiilloksen oletukseksi? Saako muistiinpanon ensimmäinen rivi otsikkofontin, kun kursorin kohdistus on testattu?
 
 **Tietokannan jatko ja aikajana (Emil 23.11.2026, SUUNNITELMA kohdat 21–22):**
-1. Kalenterin nykyisen *Aikajana*-napin uusi nimi? Ehdotus: tietokoneella **Kellonajat**, puhelimella **Päivä** kuten nyt. Nimi *Aikajana* jää uudelle palkkinäkymälle.
+1. ~~Aikajana-napin uusi nimi~~ Emil 24.11.: puhelimessa pystyssä **Päivä**, vaakana **Viikko**, tietokoneella **Viikko**. *Aikajana* jää palkkinäkymälle.
 2. 0.63: Solusta muokattu arvo tallennetaan alkutietoihin. Tunnistettu vanha tekstirivi päivitetään paikallaan.
 3. 0.63: Vakaa ASCII-kenttäavain, esim. `hinta_arvio`. Vapaasti nimettävä näyttöotsikko on jatkotyö.
-4. Näkyykö päiväsarakkeen arvo kalenterissa? Ehdotus: sarakkeen asetus *Näytä kalenterissa*, oletuksena pois.
+4. ~~Näkyykö päiväsarakkeen arvo kalenterissa?~~ Emil 24.11.: ehdotuksen mukaan, eli sarakkeen asetus *Näytä kalenterissa*, oletuksena pois.
 5. Aikajanan vaiheen nimi muistiinpanossa: `## Vaihe` -otsikko, rivin alun `[Vaihe]` vai molemmat? Ehdotus: `##` ensisijaisena.
 6. Riippuvuus kenttänä `vaatii: [[toinen]]`, jolloin se on samalla tavallinen linkki ja kentän nimi kertoo suunnan. Käykö?
 7. Emil valitsi solun muokkauksen ensimmäiseksi. Uuden aikajanan perusnäkymä on jatkotyö.
@@ -276,6 +276,8 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 - Pitäisikö Kaikki-appissa näkyä vaultin kansiot (esim. suodatus kansion mukaan), vai riittääkö Juuren haku ja asiasanat?
 
 ## Suunnitelmat
+
+24.11.2026. [Jäsennys](SUUNNITELMA.md#jäsennys-24112026-seuraavaksi-tarkennettavat-ja-lykätyt) on tehty Emilin konseptikommenttien pohjalta. Se jakaa työn viiteen ryhmään: A seuraavaksi (8 kohtaa), B tarkennetaan yhdessä, C lykätty, D ei erillistä ominaisuutta (painoarvo, uni ja ateriat, nosto) ja E ennallaan. Uudet Emilin ideat: toiminnot eli Notionin kaltaiset napit kaikkialla (B1), toteutunut tai toteutumaton kuittaus (B2, tekoälyn vastaehdotus on kolmitilainen ruutu), lukitut näkymät ja pysyvä oma järjestys (A2), huurteisen lasin sirut (A3) ja useat kojelaudat (A5).
 
 24.11.2026. Emil haluaa ennen avoimia kysymyksiä nähdä suunnitellut uudistukset esiteltyinä kuin käyttäjälle. Kaikki rakentamattomat suunnitelman kohdat (43 korttia) koottiin Emilin claude.ai-tilille artefaktiksi *Kaikin tulevat ominaisuudet*. Jokaisessa kortissa on reaktio ja kommentti. Kun Emil on kommentoinut, tekoäly lukee kommentit artefaktin tietokannasta (kokoelma `kommentit`) ja kirjaa päätökset suunnitelman kohtiin.
 
