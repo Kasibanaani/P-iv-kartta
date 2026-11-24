@@ -1,10 +1,12 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.74 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 24.11.2026
+**Vaihe:** versio 0.75 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 24.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.75 (24.11.2026, toteutusjonon kohta 2).** Taulukot → ⋯ → **Jäädytä rivit ja sarakkeet**. Valitse ensimmäiset 0–5 riviä ja vasemman reunan 0–3 saraketta. Jäädytetyt solut ovat muokattavia laskentataulukossa, ja valinnat sekä kaavaviitteet käyttävät niiden alkuperäisiä osoitteita. Reunaviiva erottaa jäädytetyn alueen. Asetus tallentuu välilehtikohtaisesti selaimeen ja on käytettävissä myös näkymävälilehdillä. Pienessä tilassa jäädytetään se osa valinnasta, jonka rinnalle jää vieritystilaa. Asetus palautuu valittuun määrään tilan kasvaessa. Testi `selain_75.py` kattaa peruuttamisen, ristiin vierittämisen 340 rivin taulukossa, koon vaihtumisen, jäädytetyn solun muokkauksen, välilehden vaihdon ja asetuksen poistamisen 320, 390, 1280 ja 1440 px leveyksillä Chromiumissa. Fyysisen iPhonen Safari jäi kokeiltavaksi. Modern Web Guidance: semanttinen taulukko, kiinnitetyt otsikot ja peittävät pinnat.
 
 **0.74 (24.11.2026, toteutusjonon kohta 2).** Taulukot → ⋯ → **Lukumuoto**. Valitse yleinen, luku, euro tai prosentti ja 0–6 desimaalia. Valittu solu tai alue tulee esitäytettynä. Puhelimella alueen voi myös kirjoittaa, esimerkiksi `A1:B3`. Muotoilu näkyy ruudukossa. Kaavarivi, laskenta, kopiointi ja vienti käyttävät samaa dataa kuin ennen. Koko alueen muotoilu kumoutuu yhdellä Cmd/Ctrl+Z:lla tai taulukon ⋯-valikon **Kumoa lukumuoto** -toiminnolla. Kokeilu tallentaa muodon selaimeen välilehden ja soluosoitteen mukaan. Muoto näkyy samalla osoitteella myös rakenneoperaation jälkeen. Testi `selain_74.py` kattaa kosketuksen, näppäimistön, perumisen, kumoamisen, uudelleenlatauksen ja kirjoittamattomuuden testivaultiin Chromiumissa 320, 390, 1280 ja 1440 px:llä. Fyysisen iPhonen Safari jäi kokeiltavaksi. Modern Web Guidance: lomakekenttien nimet ja kohdistus.
 
@@ -223,7 +225,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 **Kojelaudan jatko (0.71:n jälkeen):** kokeile tarkistuslistaa ja kenttäruutua. Kuvaajien esitystavat ja ruutujen sijoittelu muokkaustilassa ovat auki.
 
-**Taulukoiden jatko.** Soluviittauksen poiminta (0.68), täyttö alas (0.72) ja laitekohtainen lukumuotoilu (0.74) ovat kokeiltavissa. Yhteinen lukumuoto edellyttää päätöstä tallennuspaikasta ja siitä, seuraako muoto soluosoitetta vai siirrettävää sisältöä. Toteutusjonon seuraava itsenäinen taulukkoaskel on valittava jäädytysalue. Sarakeotsikon oma näyttönimi odottaa päätöstä pysyvästä tallennusmuodosta.
+**Taulukoiden jatko.** Soluviittauksen poiminta (0.68), täyttö alas (0.72), laitekohtainen lukumuotoilu (0.74) sekä rivien ja sarakkeiden jäädytys (0.75) ovat kokeiltavissa. Seuraava itsenäinen taulukkoaskel on sarakevalikon suodatus ja lajittelu näytön järjestyksenä. Yhteinen lukumuoto edellyttää päätöstä tallennuspaikasta ja siitä, seuraako muoto soluosoitetta vai siirrettävää sisältöä. Sarakeotsikon oma näyttönimi odottaa päätöstä pysyvästä tallennusmuodosta.
 
 
 Kohdan 18 toistuvuuskokeilu 0.52 on [omassa haarassaan](https://github.com/Kasibanaani/P-iv-kartta/tree/kaikki-toistuvuuskokeilu/kaikki). Se kattaa Muistion listan, kalenterin, kuittauksen ja uuden pikamuistutuksen. Kokeile erillisellä testivaultilla sekä kuittauksesta laskettavaa että kalenterissa tasavälistä toistoa. Toistuvuuden vakiinnuttaminen, kuukausirytmin reunatapaukset ja vanhan aineiston siirto ovat edelleen avoimia. Flow-tekstin pysyvä muoto odottaa kokeilupalautetta.
