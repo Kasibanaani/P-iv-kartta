@@ -10145,39 +10145,143 @@ function sheetExport(table,model){
    otsikon reunasta (kaksoisnapsautus sovittaa) ja tallennetaan alkutietoihin `leveydet:`. Kompakti ruudukko käyttää koko leveyden. ---- */
 var SGD=false;window.addEventListener('pointerup',function(){SGD=false;});
 var SGP={},SGU=[],SGR=[],SG={path:'',r:0,c:0,r2:0,c2:0,edit:null},SGW={};
-var SG_FORMATS={yleinen:'Yleinen',luku:'Luku',euro:'Euro (€)',prosentti:'Prosentti (%)'},SG_FORMATTERS={};
-function sgFormatKey(path){return 'kaikki:sg-format:'+JSON.stringify([vRepo().toLowerCase(),G.branch,path]);}
-function sgFormats(key){
+/* Lukumuodot kuuluvat välilehden alkutietoihin. Avain on muoto, arvo on lista soluista tai alueista. */
+var SG_FORMATS={yleinen:'Yleinen',luku:'Luku',euro:'Euro (€)',prosentti:'Prosentti (%)',
+  'h-min':'Tunnit ja minuutit (h min)', 'mm:ss':'Minuutit ja sekunnit (mm:ss)', paivat:'Kesto päivinä',
+  'pvm-lyhyt':'Päivämäärä ja viikonpäivä (ma 30.11.)',pvm:'Päivämäärä (30.11.2026)'};
+var SG_FORMAT_DECIMALS=['luku','euro','prosentti','paivat'],SG_FORMATTERS={},sgFormatCache=new WeakMap();
+var sgFormatSaving=false,sgMigrationTried=new Set();
+function sgFormatKey(path){return 'kaikki:sg-format:'+sgDisplayKey(path);}
+function sgLegacyFormats(key){
+  var formats={};
   try{
-    var formats=JSON.parse(localStorage.getItem(key));
-    return formats&&typeof formats==='object'&&!Array.isArray(formats)?formats:{};
-  }catch(e){return {};}
+    var old=JSON.parse(localStorage.getItem(key));
+    if(old&&typeof old==='object'&&!Array.isArray(old))Object.entries(old).forEach(function(pair){
+      var m=/^(\d+),(\d+)$/.exec(pair[0]),f=pair[1];
+      if(m&&+m[1]<500&&+m[2]<64&&Array.isArray(f)&&['luku','euro','prosentti'].includes(f[0])&&
+         Number.isInteger(f[1])&&f[1]>=0&&f[1]<=6)formats[pair[0]]=f[0]+':'+f[1];
+    });
+  }catch(e){}
+  return formats;
 }
-function sgFormatWrite(key,cells,field){
-  var formats=sgFormats(key);
-  cells.forEach(function(cell){
-    if(cell[field])formats[cell.k]=cell[field];
-    else delete formats[cell.k];
+function sgFormatRange(text){
+  var match=/^([a-z]{1,2}[1-9]\d*)(?:\s*:\s*([a-z]{1,2}[1-9]\d*))?$/i.exec(text.trim());
+  if(!match)return null;
+  var a=TAULUKKO.address(match[1]),b=match[2]?TAULUKKO.address(match[2]):a;
+  return {r1:Math.min(a.row,b.row),r2:Math.max(a.row,b.row),c1:Math.min(a.col,b.col),c2:Math.max(a.col,b.col)};
+}
+function sgFormatRead(t){
+  var cached=sgFormatCache.get(t.lines);if(cached)return cached;
+  var fm=VAULT.split(t.lines.join('\n')).fm,rows=(fm||[]).filter(function(line){return /^lukumuodot[ \t]*:/.test(line);});
+  var state={shared:!!rows.length,formats:{}};
+  if(rows.length)try{
+    var groups=JSON.parse(rows[0].slice(rows[0].indexOf(':')+1));
+    if(rows.length!==1||!groups||typeof groups!=='object'||Array.isArray(groups))throw new Error();
+    Object.entries(groups).forEach(function(pair){
+      var f=pair[0],m=/^(.*):([0-6])$/.exec(f),ranges=pair[1];
+      if(!(m&&SG_FORMAT_DECIMALS.includes(m[1])||['yleinen','h-min','mm:ss','pvm-lyhyt','pvm'].includes(f))||!Array.isArray(ranges))throw new Error();
+      ranges.forEach(function(address){
+        var sel=typeof address==='string'&&sgFormatRange(address);
+        if(!sel||sel.r2>=500||sel.c2>=64)throw new Error();
+        for(var r=sel.r1;r<=sel.r2;r++)for(var c=sel.c1;c<=sel.c2;c++){
+          var k=r+','+c;if(state.formats[k])throw new Error();state.formats[k]=f;
+        }
+      });
+    });
+  }catch(e){state.formats={};state.error='Välilehden lukumuodot ovat virheelliset. Tarkista lukumuodot-rivi Vaultissa.';}
+  sgFormatCache.set(t.lines,state);return state;
+}
+function sgFormats(t){
+  var saved=sgFormatRead(t);
+  if(saved.error)return saved.formats;
+  var legacy=sgLegacyFormats(sgFormatKey(t.path));
+  return Object.keys(legacy).length?Object.assign(legacy,saved.formats):saved.formats;
+}
+function sgFormatText(t,formats){
+  var groups={},bottom=0;
+  var rows=new Map();
+  Object.entries(formats).forEach(function(pair){
+    var pos=pair[0].split(',').map(Number),r=pos[0],c=pos[1];
+    if(!rows.has(r))rows.set(r,[]);
+    rows.get(r)[c]=pair[1];bottom=Math.max(bottom,r);
   });
-  try{
-    if(Object.keys(formats).length)localStorage.setItem(key,JSON.stringify(formats));
-    else localStorage.removeItem(key);
-    return true;
-  }catch(e){return false;}
+  for(var r=0;r<=bottom;r++){
+    var row=rows.get(r)||[];
+    for(var c=0;c<row.length;c++){
+      var f=row[c];if(!f)continue;
+      var start=c;
+      while(row[c+1]===f)c++;
+      (groups[f]||(groups[f]=[])).push(sgAddress(r,start)+(c===start?'':':'+sgAddress(r,c)));
+    }
+  }
+  var lines=t.lines.slice(),end=VAULT.split(lines.join('\n')).fm.length+1;
+  var idx=lines.slice(1,end).findIndex(function(line){return /^lukumuodot[ \t]*:/.test(line);});
+  lines.splice(idx<0?end:idx+1,idx<0?0:1,'lukumuodot: '+JSON.stringify(groups));
+  var text=lines.join(t.eol);
+  return new TextEncoder().encode(text).length<400000?text:{error:'Lukumuodot eivät mahdu Vaultin välilehtitiedostoon. Valitse pienempi alue.'};
 }
 function sgFormatted(value,format){
-  var kind=format&&format[0],places=format&&format[1];
-  if(typeof value!=='number'||!Number.isFinite(value)||!Number.isInteger(places)||places<0||places>6||
-     !['luku','euro','prosentti'].includes(kind))return formulaDisplay(value);
-  var key=kind+places,formatter=SG_FORMATTERS[key];
-  if(!formatter)formatter=SG_FORMATTERS[key]=new Intl.NumberFormat('fi-FI',{
+  if(format==='pvm'||format==='pvm-lyhyt'){
+    if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return formulaDisplay(value);
+    var date=new Date(value+'T00:00:00Z');
+    if(!Number.isFinite(date.getTime())||date.toISOString().slice(0,10)!==value)return formulaDisplay(value);
+    var day=date.getUTCDate()+'.'+(date.getUTCMonth()+1)+'.';
+    return format==='pvm'?day+value.slice(0,4):['su','ma','ti','ke','to','pe','la'][date.getUTCDay()]+' '+day;
+  }
+  if(typeof value!=='number'||!Number.isFinite(value)||!format||format==='yleinen')return formulaDisplay(value);
+  if(format==='h-min'||format==='mm:ss'){
+    var whole=Math.round(Math.abs(value)*(format==='h-min'?60:1));
+    if(!Number.isSafeInteger(whole))return formulaDisplay(value);
+    var sign=value<0&&whole?'−':'',major=Math.floor(whole/60),minor=whole%60;
+    return format==='h-min'?sign+major+' h '+minor+' min':sign+pad(major)+':'+pad(minor);
+  }
+  var parts=format.split(':'),kind=parts[0],places=+parts[1],formatter=SG_FORMATTERS[format];
+  if(!formatter)formatter=SG_FORMATTERS[format]=new Intl.NumberFormat('fi-FI',{
     style:kind==='euro'?'currency':kind==='prosentti'?'percent':'decimal',currency:'EUR',
     minimumFractionDigits:places,maximumFractionDigits:places
   });
-  return formatter.format(value);
+  return formatter.format(value)+(kind==='paivat'?' pv':'');
 }
 function sgCellText(result,formats,row,col){
   return result.error||sgFormatted(result.value,formats&&formats[row+','+col]);
+}
+async function sgSaveFormats(path,cells,field,legacy){
+  if(vBusy||sgStructuralSave||sgFormatSaving)return 'Vault synkronoi. Yritä hetken päästä uudelleen.';
+  var key=sgFormatKey(path),state={repo:vRepo(),branch:G.branch};
+  vBusy=sgFormatSaving=true;vRender();sgStatusPaint();
+  try{
+    var result=await sheetSaveFile(path,function(text){
+      var t=TAULUKKO.parse(path,text);
+      if(!t)return {error:'Muokattavaa välilehteä ei löytynyt.'};
+      var saved=sgFormatRead(t);if(saved.error)return {error:saved.error};
+      // Jaettu muoto voittaa samassa osoitteessa, myös kun se on palautettu yleiseksi.
+      var formats=Object.assign({},legacy,saved.formats);
+      if(!cells&&saved.shared&&Object.keys(formats).length===Object.keys(saved.formats).length)return text;
+      for(var cell of cells||[]){
+        var k=cell.k,pos=k.split(',').map(Number),target=cell[field],current=formats[k]||null;
+        if(current==='yleinen')current=null;
+        if(pos[0]>=t.rows.length||pos[1]>=t.head.length)return {error:'Taulukon alue muuttui. Avaa Lukumuoto uudelleen.'};
+        if(current!==cell[field==='a'?'b':'a']&&current!==target){
+          return {error:'Lukumuotoa muutettiin toisaalla. Avaa Lukumuoto uudelleen.'};
+        }
+        formats[k]=target||'yleinen';
+      }
+      return sgFormatText(t,formats);
+    },cells?'appi: taulukon lukumuodot':'appi: siirrä laitteen lukumuodot',state);
+    if(result.error)return result.error;
+    try{localStorage.removeItem(key);}catch(e){}
+    return '';
+  }catch(e){return 'Lukumuotoa ei voitu tallentaa. Tarkista yhteys.';}
+  finally{vBusy=sgFormatSaving=false;vRender();vFlush();if(tab==='sheets')sgRefresh();}
+}
+function sgMigrateFormat(t,retry){
+  var key=sgFormatKey(t.path);
+  if(vBusy||sgStructuralSave||sgFormatSaving||(!retry&&sgMigrationTried.has(key)))return;
+  var legacy=sgLegacyFormats(key);if(!Object.keys(legacy).length)return;
+  sgMigrationTried.add(key);
+  sgSaveFormats(t.path,null,'a',legacy).then(function(error){
+    if(error)toast('Vanhoja lukumuotoja ei siirretty. '+error);
+  });
 }
 function sgOverlay(t){var P=SGP[t.path];if(!P||!Object.keys(P.edits).length)return t;var head=t.head.slice(),rows=t.rows.map(function(r){return r.slice();}),div=t.divider.slice();
   Object.keys(P.edits).forEach(function(k){var a=k.split(','),r=+a[0],c=+a[1];while(c>=head.length&&head.length<64){head.push(TAULUKKO.column(head.length));div.push('---');rows.forEach(function(x){x.push('');});}
@@ -10197,7 +10301,7 @@ function sgSet(t,cells,noUndo){if(sgStructuralSave)return false;if(t&&t.view){va
     if(!(k in P.base))P.base[k]=x.base??sgRawOf(o,x.r,x.c);P.edits[k]=v;rec.push({r:x.r,c:x.c,b:cur,a:v});});
   if(!rec.length)return false;SGV++;if(!noUndo)sgRecord(t.path,rec);
   clearTimeout(P.timer);P.timer=setTimeout(function(){sgFlush(t.path);},900);sgRefresh();return true;}
-function sgStatusText(path){if(sgStructuralSave)return 'Tallennetaan rakennetta…';var n=sgPending(path),P=SGP[path];return P&&P.err?P.err:n?(P&&P.saving?'Tallennetaan…':'Tallentamatta '+n):'Tallennettu';}
+function sgStatusText(path){if(sgStructuralSave)return 'Tallennetaan rakennetta…';if(sgFormatSaving)return 'Tallennetaan lukumuotoa…';var n=sgPending(path),P=SGP[path];return P&&P.err?P.err:n?(P&&P.saving?'Tallennetaan…':'Tallentamatta '+n):'Tallennettu';}
 async function sgFlush(path){var P=SGP[path];if(!P||!Object.keys(P.edits).length||!vOn())return;
   if(vBusy||P.saving){clearTimeout(P.timer);P.timer=setTimeout(function(){sgFlush(path);},1500);return;}
   var edits=Object.assign({},P.edits),base=Object.assign({},P.base),state={repo:vRepo(),branch:G.branch},conf=[];P.saving=true;P.err='';vBusy=true;vRender();sgStatusPaint();
@@ -10389,15 +10493,17 @@ function sgToCard(t){var r1=Math.max(0,Math.min(SG.r,SG.r2)),r2=Math.max(SG.r,SG
   var h=t.head[c1];if(h&&h!==TAULUKKO.column(c1))$('board-card-title').value=h;}
 function sgViewStatus(t){return 'Näkymä · '+t.rows.length+(t.rows.length===1?' muistiinpano':' muistiinpanoa');}
 function sgStatusPaint(){var e=$('sg-status'),t=SG.path&&sgTable();if(e&&SG.path)e.textContent=t&&t.view?sgViewStatus(t):sgStatusText(SG.path);}
-function sgUndo(redo){if(sgStructuralSave)return;var A=redo?SGR:SGU,B=redo?SGU:SGR,x=A[A.length-1];if(!x)return;
+async function sgUndo(redo){if(sgStructuralSave||sgFormatSaving)return;var A=redo?SGR:SGU,B=redo?SGU:SGR,x=A[A.length-1];if(!x)return;
   var t=sheetFiles().find(function(s){return s.path===x.path;});
   if(!t||(x.formatKey&&x.formatKey!==sgFormatKey(t.path))){A.pop();return;}
   if(x.formatKey){
-    if(!sgFormatWrite(x.formatKey,x.cells,redo?'a':'b')){toast('Lukumuotoa ei voitu tallentaa tällä laitteella.');return;}
-    sgRefresh();
-    var wrap=$('sg-wrap');if(wrap)wrap.focus({preventScroll:true});
+    var error=await sgSaveFormats(t.path,x.cells,redo?'a':'b',{});
+    if(error){toast(error);return;}
+    var wrap=$('sg-wrap');if(wrap&&SG.path===t.path)wrap.focus({preventScroll:true});
   }else sgSet(t,x.cells.map(function(c){return {r:c.r,c:c.c,v:redo?c.a:c.b};}),true);
-  A.pop();B.push(x);}
+  A.splice(A.indexOf(x),1);
+  if(redo||B===SGR)B.push(x);
+}
 function sgWidths(t){if(SGW[t.path])return SGW[t.path];var fm=VAULT.split(t.lines.join('\n')).fm,w=(VAULT.fmGet(fm,'leveydet')||'').split(',').map(function(x){return parseInt(x,10);});
   return t.head.map(function(_,j){return (t.view&&t.view.cols[j].w)||(w[j]>=40&&w[j]<=800?w[j]:(j===0?160:110));});}
 async function sgSaveWidths(t,ws){if(vBusy){setTimeout(function(){sgSaveWidths(t,ws);},1500);return;}var state={repo:vRepo(),branch:G.branch};vBusy=true;vRender();
@@ -10546,7 +10652,11 @@ function renderSheets(){
     else{
       sgDisplayMenu(m,SG.c);
       if(SG.r>=0&&sgCanUseSourceRange())menuItem(m,'sgm-format','Lukumuoto…',sgFormatOpen);
-      var formatKey=sgFormatKey(active.path),undo=SGU[SGU.length-1],redo=SGR[SGR.length-1];
+      var formatKey=sgFormatKey(active.path);
+      if(sgMigrationTried.has(formatKey)&&Object.keys(sgLegacyFormats(formatKey)).length){
+        menuItem(m,'sgm-format-import','Synkronoi vanhat lukumuodot',function(){sgMigrateFormat(active,true);});
+      }
+      var undo=SGU[SGU.length-1],redo=SGR[SGR.length-1];
       if(undo&&undo.formatKey===formatKey)menuItem(m,'sgm-format-undo','Kumoa lukumuoto',function(){sgUndo(false);});
       if(redo&&redo.formatKey===formatKey)menuItem(m,'sgm-format-redo','Tee lukumuoto uudelleen',function(){sgUndo(true);});
       if(!SGX.order&&active.rows.length>1&&SG.c===SG.c2&&Math.min(SG.r,SG.r2)>=0&&Math.min(SG.r,SG.r2)<active.rows.length-1){
@@ -10614,7 +10724,9 @@ function renderSheets(){
     fx.readOnly=sgFormula.picking;fx.value=sgFormula.value;fx.dataset.formulaDraft='true';
     if(caret){fx.focus({preventScroll:true});fx.setSelectionRange(caret[0],caret[1]);}
     else if(had)wrap.focus({preventScroll:true});
-  }else if(SG.edit)sgEditOpen(SG.edit.val,true);else if(had||document.activeElement===document.body)try{wrap.focus({preventScroll:true});}catch(e){}}
+  }else if(SG.edit)sgEditOpen(SG.edit.val,true);else if(had||document.activeElement===document.body)try{wrap.focus({preventScroll:true});}catch(e){}
+  if(!active.view&&!sgFormula)sgMigrateFormat(active);
+}
 /* 0.37: iso taulukko (yli SGVIRT riviä) virtualisoidaan: DOMissa vain näkyvät rivit ja puskuri, ylä- ja alapuolella tyhjät välirivit
    oikean korkuisina. Vieritys vaihtaa ikkunan. Pienet taulukot piirretään kokonaan. */
 var SGVIRT=200,SGBUF=40,SGX={path:null,total:0,v:false,a:0,b:0,rh:28,hh:30,raf:0};
@@ -10839,7 +10951,7 @@ function sgRowEl(model,t,i,formats){var tr=el('tr'),rn=el('th','sg-rn',String(i+
   if(SGX.fc)sgFreezeColumns(tr,SGX.fc);return tr;}
 function sgSpacer(C,h){var tr=el('tr','sg-sp'),th=el('th');th.colSpan=C+1;th.style.height=h+'px';tr.appendChild(th);tr.setAttribute('aria-hidden','true');return tr;}
 function sgFill(tb,t,model,a,b){
-  var f=document.createDocumentFragment(),formats=!t.view&&sgFormats(sgFormatKey(t.path)),prefix=SGX.prefix;
+  var f=document.createDocumentFragment(),formats=!t.view&&sgFormats(t),prefix=SGX.prefix;
   if(SGX.v){
     a=Math.max(prefix,a);
     while(tb.rows.length>prefix)tb.lastElementChild.remove();
@@ -10881,7 +10993,7 @@ function sgScroll(){
 /* 0.37: muokkauksen jälkeen päivitetään vain solujen arvot (sama rakenne), muuten koko taulukko */
 function sgRefresh(){var w=$('sg-wrap'),t=sgTable();if(!w||!t||tab!=='sheets'){render();return;}
   var trs=w.querySelectorAll('tbody tr:not(.sg-sp)'),hs=w.querySelectorAll('thead th.sg-ch');if(SGX.path!==t.path||SGX.total!==t.rows.length||trs.length!==SGX.prefix+SGX.b-SGX.a||hs.length!==t.head.length){render();return;}
-  var model=formulaContext().tables(),formats=!t.view&&sgFormats(sgFormatKey(t.path));
+  var model=formulaContext().tables(),formats=!t.view&&sgFormats(t);
   if(SGX.order){
     var order=sgDisplayOrder(t,model,sgDisplaySettings.get(SGX.displayKey));
     if(order.length!==SGX.count||order.some(function(row,index){return row!==SGX.order[index];})){
@@ -10943,7 +11055,7 @@ function sgPaint(still){var w=$('sg-wrap');if(!w)return;var t=sheetFiles().find(
   sgFillPaint(w,t);
   sgFormulaControls();}
 function sgTable(){return sheetFiles().find(function(s){return s.path===SG.path;});}
-/* 0.74: lukumuoto kuuluu tämän laitteen ruudukkoon ja seuraa soluosoitetta. */
+/* Lukumuoto vaikuttaa ruudukon esitykseen soluosoitteen mukaan. */
 function sgFormatOpen(){
   var t=sgTable();
   if(!t||t.view||!t.rows.length||sgStructuralSave||sgFormula||SG.r<0||!sgCanUseSourceRange())return;
@@ -10967,42 +11079,50 @@ function sgFormatOpen(){
   addField('Desimaalit','sg-format-places',places);
   Object.keys(SG_FORMATS).forEach(function(value){var op=el('option','',SG_FORMATS[value]);op.value=value;kind.appendChild(op);});
   for(var i=0;i<=6;i++){var op=el('option','',String(i));op.value=i;places.appendChild(op);}
-  var saved=sgFormats(key)[Math.min(SG.r,SG.r2)+','+Math.min(SG.c,SG.c2)];
-  kind.value=saved?saved[0]:'yleinen';places.value=saved?saved[1]:2;
+  var before=sgFormats(t),saved=before[Math.min(SG.r,SG.r2)+','+Math.min(SG.c,SG.c2)];
+  var savedParts=saved&&saved!=='mm:ss'?saved.split(':'):null;
+  kind.value=savedParts?savedParts[0]:saved||'yleinen';places.value=savedParts?.[1]??2;
   sample.setAttribute('aria-live','polite');msg.setAttribute('role','status');
   button(actions,'Peru','btn',function(){closeSheet(d);});
   var apply=el('button','btn solid','Käytä');apply.type='submit';actions.appendChild(apply);
-  form.append(sample,el('p','sub','Tallentuu tälle laitteelle soluosoitteen mukaan.'),msg,actions);d.append(title,form);
-  function format(){return kind.value==='yleinen'?null:[kind.value,+places.value];}
+  var hint=el('p','sub');form.append(sample,hint,msg,actions);d.append(title,form);
+  var examples={'h-min':8.5,'mm:ss':85,paivat:2.5,'pvm-lyhyt':'2026-11-30',pvm:'2026-11-30'};
+  var units={'h-min':'Syötä tunnit lukuna.','mm:ss':'Syötä sekunnit lukuna.',paivat:'Syötä päivät lukuna.','pvm-lyhyt':'Syötä päivä muodossa VVVV-KK-PP.',pvm:'Syötä päivä muodossa VVVV-KK-PP.'};
+  function format(){return kind.value==='yleinen'?null:kind.value+(SG_FORMAT_DECIMALS.includes(kind.value)?':'+places.value:'');}
   function paint(){
-    places.disabled=kind.value==='yleinen';
-    sample.textContent='Esimerkki · '+sgFormatted(0.256,format());
+    places.disabled=!SG_FORMAT_DECIMALS.includes(kind.value);
+    sample.textContent='Esimerkki · '+sgFormatted(examples[kind.value]??0.256,format());
+    hint.textContent=(units[kind.value]?units[kind.value]+' ':'')+'Tallentuu Vaultiin ja näkyy muilla laitteilla.';
   }
   kind.addEventListener('change',function(){places.value=kind.value==='prosentti'?0:2;paint();});
   places.addEventListener('change',paint);
   range.addEventListener('input',function(){msg.textContent='';});
-  d.onclick=function(e){if(e.target===d)closeSheet(d);};
-  d.oncancel=function(e){e.preventDefault();closeSheet(d);};
+  var saving=false;
+  d.onclick=function(e){if(e.target===d&&!saving)closeSheet(d);};
+  d.oncancel=function(e){e.preventDefault();if(!saving)closeSheet(d);};
   d.addEventListener('close',function(){var wrap=$('sg-wrap');if(wrap)wrap.focus({preventScroll:true});},{once:true});
-  form.addEventListener('submit',function(e){
+  form.addEventListener('submit',async function(e){
     e.preventDefault();
+    if(saving)return;
     var current=sgTable();
     if(!current||current.path!==t.path||current.view||sgFormatKey(t.path)!==key||sgStructuralSave){
       msg.textContent='Taulukko vaihtui. Avaa lukumuoto uudelleen.';return;
     }
-    var match=/^([a-z]{1,2}[1-9]\d*)(?:\s*:\s*([a-z]{1,2}[1-9]\d*))?$/i.exec(range.value.trim());
-    var a=match&&TAULUKKO.address(match[1]),b=a&&(match[2]?TAULUKKO.address(match[2]):a);
-    if(!a||!b||Math.max(a.row,b.row)>=current.rows.length||Math.max(a.col,b.col)>=current.head.length){
+    var sel=sgFormatRange(range.value);
+    if(!sel||sel.r2>=current.rows.length||sel.c2>=current.head.length){
       msg.textContent='Anna taulukossa oleva solu tai alue, esimerkiksi A1:B3.';return;
     }
-    var before=sgFormats(key),after=format(),cells=[];
-    var r1=Math.min(a.row,b.row),r2=Math.max(a.row,b.row),c1=Math.min(a.col,b.col),c2=Math.max(a.col,b.col);
+    var after=format(),cells=[],r1=sel.r1,r2=sel.r2,c1=sel.c1,c2=sel.c2;
     for(var r=r1;r<=r2;r++)for(var c=c1;c<=c2;c++){
       var k=r+','+c,previous=before[k]||null;
-      if(previous?.[0]!==after?.[0]||previous?.[1]!==after?.[1])cells.push({k:k,b:previous,a:after});
+      if(previous==='yleinen')previous=null;
+      if(previous!==after)cells.push({k:k,b:previous,a:after});
     }
     if(cells.length){
-      if(!sgFormatWrite(key,cells,'a')){msg.textContent='Lukumuotoa ei voitu tallentaa tällä laitteella.';return;}
+      saving=true;sheetDialogControls(d,true);msg.textContent='Tallennetaan Vaultiin…';
+      var error=await sgSaveFormats(t.path,cells,'a',sgLegacyFormats(key));
+      saving=false;sheetDialogControls(d,false);paint();
+      if(error){msg.textContent=error;apply.focus({preventScroll:true});return;}
       sgRecord(t.path,cells,key);
     }
     if(sgPosition(r1)>=0&&sgPosition(r2)>=0){SG.r=r1;SG.r2=r2;SG.c=c1;SG.c2=c2;}

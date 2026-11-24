@@ -1,10 +1,12 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.76 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 24.11.2026
+**Vaihe:** versio 0.77 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 24.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.77 (24.11.2026, jäsennys A1).** Taulukot → ⋯ → **Lukumuoto**. Tunnit ja minuutit käyttää tunteja (`8,5` → `8 h 30 min`), `mm:ss` sekunteja (`85` → `01:25`) ja kesto päivinä päivälukua. Päivämäärän voi näyttää viikonpäivällä (`ma 30.11.`) tai vuodella (`30.11.2026`), kun arvo on kirjoitettu muodossa `2026-11-30`. Muoto synkronoi välilehden `lukumuodot`-alkutiedossa. Se seuraa soluosoitetta myös, kun rivejä tai sarakkeita siirretään. Vanhoja selainmuotoja tuodaan välilehteä avattaessa osoitteisiin, joilla ei vielä ole jaettua asetusta. Jaettu yleinen muoto säilyy, vaikka toinen laite yrittäisi tuoda osoitteeseen vanhan muodon. Alueen tallennus ja kumoaminen säilyttävät muualla tehdyt muotoilut ja pysähtyvät saman solun ristiriitaan. Kaavarivi, laskenta, kopiointi ja vienti käyttävät alkuperäisiä arvoja. Testit `selain_74.py` ja `selain_77.py` Chromiumissa 320, 390, 1280 ja 1440 px. Fyysinen iPhone jäi kokeiltavaksi. Natiivi dialogi, nimetty kenttä ja näkyvä esikatselu.
 
 **0.76 (24.11.2026, toteutusjonon kohta 2).** Valitse laskentataulukossa sarake ja avaa **⋯ → Sarake … · Suodata ja lajittele**. Tietokoneella sarakeotsikon oikea napsautus avaa saman toiminnon. Valitse yhdelle sarakkeelle nouseva tai laskeva järjestys. Suodatus voi sisältää tekstiä, vaatia täsmäarvon tai valita tyhjät tai täytetyt solut. Eri sarakkeiden ehdot yhdistyvät. Laskettu arvo ohjaa järjestystä ja suodatusta. Tyhjät ja kaavavirheet tulevat lajittelussa loppuun. Rivinumerot, kaavarivi ja viitteet käyttävät alkuperäisiä osoitteita. Kopiointi, leikkaus ja liittäminen käyttävät näkyvien rivien järjestystä. Liitos hylätään, jos koko alue ei mahdu näkyviin soluihin. Jäädytys lukitsee näkymän ensimmäiset näkyvät rivit. **Palauta näkymä** poistaa lajittelun ja kaikki suodattimet. Täytä alas ja taulukon rakennekomennot ovat käytettävissä palautetussa näkymässä. Asetukset elävät välilehdittäin sivun aukiolon ajan. Testi `selain_76.py` kattaa lähdetiedoston tavut, usean ehdon, tyhjän näkymän, kaavarivin, liittämisen, kopioinnin ja jäädytyksen pitkällä taulukolla Chromiumissa leveyksillä 320, 390, 1280 ja 1440 px. Fyysisen iPhonen Safari jäi kokeiltavaksi. Modern Web Guidance: otsikon lajittelutila ja laskettujen lukujen vertailu.
 
@@ -227,7 +229,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 **Kojelaudan jatko (0.71:n jälkeen):** kokeile tarkistuslistaa ja kenttäruutua. Kuvaajien esitystavat ja ruutujen sijoittelu muokkaustilassa ovat auki.
 
-**Taulukoiden jatko.** Suodatus ja lajittelu näytön järjestyksenä ovat kokeiltavissa (0.76). Seuraava suunnitelman taulukkokohta on nimen ja viitteiden eheys. Yhteinen lukumuoto edellyttää päätöstä tallennuspaikasta ja siitä, seuraako muoto soluosoitetta vai siirrettävää sisältöä. Sarakeotsikon oma näyttönimi odottaa päätöstä pysyvästä tallennusmuodosta.
+**Taulukoiden jatko.** Jaettu lukumuoto ja aikamuodot ovat kokeiltavissa (0.77). Seuraava työ on näkymän pysyvä oma järjestys ja laitteiden välillä synkronoitava lukitus (jäsennys 24.11., A2). Turvallinen nimen vaihto kuuluu kohtaan A4.
 
 
 Kohdan 18 toistuvuuskokeilu 0.52 on [omassa haarassaan](https://github.com/Kasibanaani/P-iv-kartta/tree/kaikki-toistuvuuskokeilu/kaikki). Se kattaa Muistion listan, kalenterin, kuittauksen ja uuden pikamuistutuksen. Kokeile erillisellä testivaultilla sekä kuittauksesta laskettavaa että kalenterissa tasavälistä toistoa. Toistuvuuden vakiinnuttaminen, kuukausirytmin reunatapaukset ja vanhan aineiston siirto ovat edelleen avoimia. Flow-tekstin pysyvä muoto odottaa kokeilupalautetta.

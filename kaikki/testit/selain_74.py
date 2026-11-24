@@ -15,6 +15,10 @@ ORIGINAL = HEAD.format(name='Oma') + (
 )
 
 
+def without_formats(text):
+    return re.sub(r'^lukumuodot: .*\n', '', text, flags=re.MULTILINE)
+
+
 def run(browser, url, width):
     phone = width < 500
     page = browser.new_page(viewport={'width': width, 'height': 830},
@@ -113,7 +117,7 @@ def run(browser, url, width):
     select(apply)
     expect(cell(2, 2)).to_have_text(re.compile(r'^[\u2212-]3,125$'))
     expect(cell(3, 2)).to_have_text('2,126')
-    assert page.evaluate('path => __repo.get(path)', EDIT) == ORIGINAL
+    assert without_formats(page.evaluate('path => __repo.get(path)', EDIT)) == ORIGINAL
 
     select(page.get_by_role('button', name='Data', exact=True))
     expect(cell(1, 1)).to_have_text('1')
@@ -122,7 +126,7 @@ def run(browser, url, width):
     kind.select_option('euro')
     select(apply)
     expect(cell(300, 1)).to_have_text(re.compile(r'^300,00\s*€$'))
-    assert page.evaluate('path => __repo.get(path)', DATA) == SEED[DATA]
+    assert without_formats(page.evaluate('path => __repo.get(path)', DATA)) == SEED[DATA]
 
     select(page.get_by_role('button', name='Oma', exact=True))
     page.reload()
@@ -136,7 +140,7 @@ def run(browser, url, width):
     select(apply)
     expect(cell(1, 1)).to_have_text('0,25')
     expect(cell(3, 2)).to_have_text('2,1256')
-    assert page.evaluate('path => __repo.get(path)', EDIT) == ORIGINAL
+    assert without_formats(page.evaluate('path => __repo.get(path)', EDIT)) == ORIGINAL
     assert not errors, errors
     page.context.close()
     print(f'{width} px: OK')
