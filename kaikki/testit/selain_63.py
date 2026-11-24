@@ -1,4 +1,5 @@
 """Muistion sarakkeen arvo tallentuu alkuperäiseen muistiinpanoon."""
+import datetime
 import json
 import shutil
 
@@ -49,6 +50,26 @@ def open_cell(page, key='uni', title='Ensimmäinen seuranta', touch=False):
     else:
         cell.press('Enter')
     return page.locator('#nvcell-input')
+
+
+MONTHS = ['tammikuu', 'helmikuu', 'maaliskuu', 'huhtikuu', 'toukokuu', 'kesäkuu', 'heinäkuu', 'elokuu',
+          'syyskuu', 'lokakuu', 'marraskuu', 'joulukuu']
+
+
+def pick_day(page, iso):
+    """Valitsee päivän avoimesta kuukausivalitsimesta ja sulkee sen napauttamalla ulkopuolelle."""
+    target = datetime.date.fromisoformat(iso)
+    expect(page.locator('#dsheet')).to_have_attribute('open', '')
+    for _ in range(36):
+        name, year = page.locator('#ds-h').text_content().split()
+        shown = int(year) * 12 + MONTHS.index(name)
+        want = target.year * 12 + target.month - 1
+        if shown == want:
+            break
+        page.locator('#ds-next' if shown < want else '#ds-prev').click()
+    page.locator(f'#ds-grid [data-day="{iso}"]').click()
+    page.mouse.click(3, 3)
+    expect(page.locator('#dsheet')).not_to_have_attribute('open', '')
 
 
 def file_is(page, path, text):
@@ -152,12 +173,12 @@ def run(browser, width):
     text = with_field(text, 'ulkoilu: ei')
     file_is(page, NOTE, text)
     expect(field(page, 'ulkoilu')).to_have_attribute('aria-label', 'Ulkoilu · Ensimmäinen seuranta · ei')
-    cell = open_cell(page, 'mittaus')
-    cell.fill('2026-11-22')
-    page.locator('#nvcell-form').get_by_role('button', name='Tallenna', exact=True).click()
+    # 0.82: päiväsarake avautuu kuukausivalitsimeen; ulkopuolinen napautus tallentaa.
+    field(page, 'mittaus').press('Enter')
+    pick_day(page, '2026-11-22')
     text = with_field(text, 'mittaus: 2026-11-22')
     file_is(page, NOTE, text)
-    expect(field(page, 'mittaus')).to_have_text('22.11.2026')
+    expect(field(page, 'mittaus')).to_have_text('su 22.11.' + ('' if datetime.date.today().year == 2026 else '2026'))
 
     cell = open_cell(page, title='Toinen seuranta')
     cell.fill('0')
