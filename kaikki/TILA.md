@@ -309,6 +309,8 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 
 ## Suunnitelmat
 
+24.11.2026. Emil nosti [uuden havaintolohkon kirjoitusasun](SUUNNITELMA.md#01-uusi-havaintolohkon-kirjoitusasu) työjonon kärkipäähän ennen havaintoja kirjoittavien säätimien laajennusta. Suunnitelma kattaa nykyiset muistiinpanot, apin lukijat ja kirjoittajat sekä yhteensopivuuden testauksen. Toteutus ja sen testaus ovat edessä.
+
 24.11.2026. Emil vastasi 20 avoimeen kysymykseen, ja [Jäsennys](SUUNNITELMA.md#jäsennys-24112026-seuraavaksi-tarkennettavat-ja-lykätyt) päivitettiin. Päätökset:
 - Sarake on muuttuja, eikä otsikkoa voi aluksi vaihtaa.
 - `((linkki))` luo tyhjän muistiinpanon heti.
