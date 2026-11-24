@@ -85,7 +85,8 @@ async def run(browser, width):
         "key => __repo.get('kalenteri/keikka.md').includes('kuitattu: '+key)", arg=today+'#1')
     await checklist.get_by_role('button', name='Toinen', exact=True).click()
     await expect(page.locator('#ns-done')).to_have_attribute('aria-pressed', 'true')
-    await page.locator('#ns-ok').click()
+    await page.keyboard.press('Escape')
+    await expect(page.locator('#nsheet')).to_be_hidden()
 
     await tab(page, 'cal')
     day = page.locator(f'#wklist .wkday[data-day="{today}"]')
@@ -108,7 +109,8 @@ async def run(browser, width):
     await expect(field.locator('.mvb-src .mvrow')).to_have_count(2)
     await field.get_by_role('button', name='Ensimmäinen mittaus', exact=False).click()
     await expect(page.locator('#ns-text')).to_have_value(re.compile('Ensimmäinen mittaus'))
-    await page.locator('#ns-ok').click()
+    await page.keyboard.press('Escape')
+    await expect(page.locator('#nsheet')).to_be_hidden()
     saved = await page.evaluate("path => __repo.get(path)", BOARD)
     assert 'Oma huomautus säilyy.' in saved
     await page.reload()
