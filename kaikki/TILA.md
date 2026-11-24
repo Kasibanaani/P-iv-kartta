@@ -1,10 +1,21 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.68 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 24.11.2026
+**Vaihe:** versio 0.69 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 24.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.69 (24.11.2026).** Muistio → Näkymä → Muokkaa näkymää → **Tekstimuuttuja**. Valitse yhteisestä luettelosta nimi tai kirjoita uusi. Sama muuttuja käy Muistion sarakkeeseen ja kojelaudan ruutuun. Näkymässä oleva sarake pitää muuttujan luettelossa, vaikka kirjauksia ei olisi. Soluun syötetty arvo tallentuu muistiinpanon tekstiin muodossa `!!Uni: 8!!`. Yksittäistä merkintää voi muokata solussa. Jos muistiinpanossa on useita havaintoja, solu näyttää päiväyksen perusteella uusimman ja havainnot muokataan lähdemuistiinpanossa. Nimet erottuvat muistiinpanon alkutietokentistä. Sarakkeen määrite on esimerkiksi `muuttuja("Uni") | luku | h` näkymätiedostossa. Testi `selain_69.py` kattaa tallennuksen, lähdetekstin säilymisen, tyhjentämisen, toiselta laitteelta tehdyn muutoksen ja varatun muuttujan uudella laitteella.
+
+**Rivinäkymän vieritys ja nopeus (0.69).** Otsikot ja solut vierivät samassa alueessa. Ensimmäinen sarake ja otsikkorivi kiinnittyvät selaimen omalla sticky-asettelulla. Ennen sarakeotsikko oli sivusuunnassa heti siirron jälkeen 140 px jäljessä, seuraavassa ruudussa kohdallaan. Nyt ero samassa kokeessa on 0 px heti. `selain_56.py`, `selain_57.py` ja `selain_69.py` kattavat vino- ja sivuvierityksen, sarakevalikon, kosketuseleiden emuloinnin ja kohdistuksen 320, 390, 1280 ja 1440 px leveyksillä. Tietokoneen Chromium 153, 1280 px, viisi ajoa kummallakin versiolla ja testiaineistolla. Aika toiminnosta piirtoon, mediaani (hitain) millisekunteina.
+
+| Muistiinpanoja | Avaus | Hakumerkki | Lajittelu |
+|---|---:|---:|---:|
+| 100 | 79 (90) → 80 (86) | 33 (35) → 33 (34) | 69 (83) → 33 (34) |
+| 1 000 | 832 (1 021) → 667 (908) | 151 (159) → 56 (67) | 810 (933) → 258 (264) |
+
+Lajittelu käyttää olemassa olevia rivejä. Haku muistaa muistiinpanon normalisoidun tekstin ja päivittää vain muuttuneen näkyvyyden. Näytön lähellä olevat tunnistesirut sovitetaan leveyteen tarpeen mukaan. Kahden sekunnin sarakeleveyden vedossa suurimman ruutuvälin mediaani oli 1 000 rivillä molemmissa versioissa 250 ms. Sarakevedon tasaisuus suurella aineistolla jää jatkotyöksi. Fyysisen iPhonen Safaria ei käytetty. Modern Web Guidance: sticky-otsikot ja olemassa olevien rivien uudelleenjärjestys.
 
 **0.68 (24.11.2026, toteutusjonon kohta 2).** Taulukot → aloita kaava `=`-merkillä → **Valitse solu**. Valitse solu tai vedä alue samalta tai toiselta välilehdeltä. Puhelimella valitse **Valitse alue** ja napauta alku- ja loppusolua. **Käytä viitettä** lisää osoitteen kursorin kohdalle ja palauttaa kaavariville. **Tallenna kaava** tai Enter tallentaa alkuperäiseen soluun. Esc tai **Peru** palauttaa alkuperäisen sisällön. Solun ja alueen osoite sekä kaavan lähtösolu näkyvät valinnan aikana. Toisen välilehden viite käyttää tiedostopolkua, esimerkiksi `[[taulukot/budjetti/menot]]!B2:B5`. Testi `selain_68.py` kattaa solun ja alueen, hiiren, näppäimistön, kosketuksen, välilehden vaihdon, pitkän taulukon, keskeytyksen ja lähtösolun rinnakkaismuutoksen. Modern Web Guidance: näppäimistökäyttö ja kohdistus poiminnan jälkeen.
 

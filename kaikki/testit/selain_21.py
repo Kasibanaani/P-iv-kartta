@@ -37,11 +37,13 @@ async def test(browser, width):
     position = await listbox.evaluate('''list => {
       const target = Math.min(200, list.scrollWidth - list.clientWidth);
       list.scrollLeft = target;
-      list.dispatchEvent(new Event('scroll'));
-      return [list.scrollLeft, document.querySelector('.rvh').scrollLeft, target,
+      const head = list.querySelector('.rvhead .rvc:nth-child(3)');
+      const cell = list.querySelector('.rvb .rvc:nth-child(3)');
+      return [list.scrollLeft, target,
+              head.getBoundingClientRect().left - cell.getBoundingClientRect().left,
               list.querySelector('.rvt').getBoundingClientRect().left - list.getBoundingClientRect().left];
     }''')
-    assert position[0] > 0 and position[0] == position[1] == position[2] and abs(position[3]) <= 1, position
+    assert position[0] > 0 and position[0] == position[1] and max(abs(position[2]), abs(position[3])) <= 1, position
     assert await page.evaluate('document.documentElement.scrollWidth <= innerWidth')
     await page.locator('#nviewbtn').click()
     await expect(page.locator('#p-notes .ncard').get_by_text('Ensimmäinen rivi')).to_be_visible()

@@ -34,10 +34,10 @@ async def run(p,w,h,theme,big):
         await pg.evaluate("document.querySelectorAll('#nbar button,#nbar input').forEach(function(x){x.style.fontSize='22px';x.style.minHeight='52px';})"); await pg.wait_for_timeout(300)
     rows=await pg.evaluate("document.querySelectorAll('#nlist .rvr:not(.rvhead)').length")
     want('rivinäkymässä rivejä',rows>=50,rows)
-    sc="(function(){var m=document.getElementById('main');return m.scrollHeight>m.clientHeight?m:document.scrollingElement;})()"
+    sc="(function(){return document.getElementById('nlist');})()"
     maxy=await pg.evaluate(sc+".scrollHeight-"+sc+".clientHeight")
     for name,y,x in (('alussa',300,0),('keskellä',maxy//2,0),('lopussa',maxy,0),('vinottain',maxy//3,160)):
-        await pg.evaluate("(function(){var m=%s;m.scrollTop=%d;var l=document.getElementById('nlist');if(l)l.scrollLeft=%d;})()"%(sc,y,x)); await pg.wait_for_timeout(250)
+        await pg.evaluate("(function(){var m=%s;m.scrollTop=%d;var l=document.getElementById('nlist');if(l)l.scrollLeft=%d;})()"%(sc,y,x)); await pg.evaluate('new Promise(requestAnimationFrame)')
         r=await pg.evaluate(MEASURE)
         want('vieritys %s: palkki ja otsikko vierekkäin (≤1 px)'%name,r and abs(r['gap'])<=1,r)
         want('vieritys %s: osuma välistä ei ole listarivi'%name,r and not r['rowHit'],r)

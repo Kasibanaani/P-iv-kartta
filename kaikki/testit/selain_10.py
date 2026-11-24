@@ -40,8 +40,8 @@ async def run(p,w,h):
     r=await pg.evaluate("(function(){var r=Array.from(document.querySelectorAll('#nlist .rvr')).filter(function(x){return x.textContent.indexOf('Keittiö')>=0;})[0];return r?Array.from(r.children).map(function(c){return c.textContent;}):null;})()")
     want('rivin solut täyttyvät',r and r[1]=='projektit/remontti' and r[2]=='oma' and 'Tänään' in r[4],r)
     # sivuvieritys: otsikkosarake pysyy, otsikkorivi seuraa
-    sc=await pg.evaluate("(function(){var l=document.getElementById('nlist');l.scrollLeft=200;l.dispatchEvent(new Event('scroll'));var t=l.querySelector('.rvr .rvt').getBoundingClientRect().left-l.getBoundingClientRect().left;return {can:l.scrollWidth>l.clientWidth,t:Math.round(t),h:document.querySelector('.rvh').scrollLeft,l:l.scrollLeft};})()")
-    if sc['can']: want('otsikkosarake jäädytetty, otsikkorivi seuraa',abs(sc['t'])<=1 and sc['h']==sc['l'],sc)
+    sc=await pg.evaluate("(function(){var l=document.getElementById('nlist');l.scrollLeft=200;var t=l.querySelector('.rvr .rvt').getBoundingClientRect().left-l.getBoundingClientRect().left;return {can:l.scrollWidth>l.clientWidth,t:Math.round(t),dx:Math.abs(l.querySelector('.rvhead .rvc:nth-child(3)').getBoundingClientRect().left-l.querySelector('.rvr .rvc:nth-child(3)').getBoundingClientRect().left)};})()")
+    if sc['can']: want('otsikkosarake jäädytetty, otsikkorivi seuraa',abs(sc['t'])<=1 and sc['dx']<=1,sc)
     await pg.evaluate("document.getElementById('nlist').scrollLeft=0")
     await pg.fill('#nsearch','kylpy'); await pg.wait_for_timeout(100)
     want('haku suodattaa rivejä',await pg.evaluate("Array.from(document.querySelectorAll('#nlist .rvr')).filter(function(r){return !r.hidden;}).length")==1)

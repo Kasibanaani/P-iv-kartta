@@ -31,7 +31,7 @@ async def test(browser, width):
     if width < 1000:
         await page.locator('#nviewbtn').click()
     notes = page.locator('#nlist')
-    titles = notes.locator('.rvt')
+    titles = notes.locator('.rvr .rvt')
     await expect(titles).to_have_text(['Alku', 'Beta', 'Gamma'])
     row = notes.locator('.rvr').filter(has=page.get_by_text('Beta', exact=True))
     await expect(row.get_by_role('img', name='Minigraafi, 2 arvoa. Pienin 1,5, suurin 2,5, viimeisin 2,5.')).to_have_count(1)

@@ -81,6 +81,8 @@ async def run(p,w,h,touch):
         # napsautus lajittelee
         await pg.locator('.rvhead .rvc').nth(3).locator('.rv-head-sort').click(); await pg.wait_for_timeout(200)
         want('otsikon napsautus lajittelee',await sorted_())
+        # Näppäimistökohdistus tai napsautus voi vierittää otsikkoriviä kuten muitakin ruudukon soluja.
+        await pg.locator('#nlist').evaluate('list => {list.scrollLeft = 0;}')
         # siirto raahaamalla ja Esc peruu
         order0=await pg.evaluate(HEADS); s0=await pg.locator('.rvhead .rvc').nth(1).locator('.rv-head-sort').bounding_box(); t0=await cellbox(3)
         await pg.mouse.move(s0['x']+10,s0['y']+8); await pg.mouse.down(); await pg.mouse.move(t0['x']+20,t0['y']+8,steps=8)
@@ -112,11 +114,17 @@ async def run(p,w,h,touch):
         sw=await pg.evaluate("(function(){var l=document.getElementById('nlist');return l.scrollWidth-l.clientWidth;})()")
         bx=await cellbox(2); y=bx['y']+bx['height']/2; x=bx['x']+bx['width']/2
         # vaakapyyhkäisy otsikkorivillä
-        await pg.evaluate("""(function(x,y){var t=document.querySelectorAll('.rvhead .rv-head-sort')[2];function f(type,xx){var e=new PointerEvent(type,{pointerId:7,pointerType:'touch',isPrimary:true,clientX:xx,clientY:y,bubbles:true,button:0});(type==='pointerdown'?t:window).dispatchEvent(e);}
-          f('pointerdown',x);for(var i=1;i<=6;i++)f('pointermove',x-i*20);f('pointerup',x-120);})(%f,%f)"""%(x,y)); await pg.wait_for_timeout(150)
+        session=await ctx.new_cdp_session(pg)
+        start=(await pg.locator('#nlist').bounding_box())['x']+w-48
+        await session.send('Input.dispatchTouchEvent',{'type':'touchStart','touchPoints':[{'x':start,'y':y}]})
+        for offset in range(15,151,15):
+            await session.send('Input.dispatchTouchEvent',{'type':'touchMove','touchPoints':[{'x':start-offset,'y':y}]})
+        await session.send('Input.dispatchTouchEvent',{'type':'touchEnd','touchPoints':[]})
+        await pg.wait_for_timeout(250)
         sl1=await pg.evaluate("document.getElementById('nlist').scrollLeft")
-        hl=await pg.evaluate("document.querySelector('.rvh').scrollLeft")
-        want('pyyhkäisy otsikkorivillä vierittää taulukkoa',sw<10 or (sl1>sl0+60 and abs(hl-sl1)<=1),(sl0,sl1,hl,sw))
+        dx=await pg.evaluate("""Math.abs(document.querySelector('.rvhead .rvc:nth-child(3)').getBoundingClientRect().left
+            -document.querySelector('.rvb .rvc:nth-child(3)').getBoundingClientRect().left)""")
+        want('pyyhkäisy otsikkorivillä vierittää taulukkoa',sw<10 or (sl1>sl0+60 and dx<=1),(sl0,sl1,dx,sw))
         want('pyyhkäisy ei lajittele',not await sorted_())
         await pg.wait_for_timeout(450)
         # pitkä painallus
