@@ -1,10 +1,20 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.87 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 24.11.2026
+**Vaihe:** versio 0.89 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 24.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.89 (24.11.2026, jäsennys A6.2: säätimet käyttöön).** Kojelaudalle voi lisätä ruudun, jonka tyyppi on *Säädin*. Valitse olemassa oleva säädin tai tee uusi suoraan ruudun editorista (*+ Uusi säädin…*). Ruudussa on iso nappi, jonka alla näkyy, mitä nappi kirjoittaa ja minne. Pikakirjauksessa on uusi välilehti **Napit**. Siinä näkyvät säätimet, joilla on päällä *Näytä pikakirjauksessa*. Napit kirjaavat heti, eivätkä ne odota Valmis-painiketta. Kumoa näkyy samaan tapaan reunassa. *+ Uusi nappi* avaa säädineditorin. Kojelaudan ruutu tallentuu `data/kojelauta.md`:hen (`lahde = saadin`, säätimen tunnus `muuttuja`-sarakkeessa). Vanha appi ohittaa tällaisen ruudun. Seuranta, Muistutus ja Muuttujat toimivat ennallaan.
+
+**0.88 (24.11.2026, jäsennys A6.1: säädineditori, kertanappi ja toiminnon asetukset).** Avaa Valikko → **Säätimet**. Säädin tehdään kerran, ja se tallentuu Vaultin tiedostoon `pohjat/saatimet.md` (otsikko `## Nimi` ja rivit `- avain: arvo`). Editorissa valitaan:
+- **mitä kirjoitetaan:** teksti, muuttuja (kiinteä arvo, tai tyhjä, jolloin arvo kysytään joka kerta; lisäksi valinnainen kohde ja havaintotunniste), aikaleima tai näiden yhdistelmä
+- **lisää vai päivitä**
+- **minne:** päivän muistiinpano, hakukentällä valittu muistiinpano tai säätimen oma muistiinpano `inbox/saadin-<tunnus>.md`
+- **aika:** nyt, vain päivä, kysy joka kerta (kellonaika valinnainen) tai kalenterissa valittu päivä
+
+Esikatselu näyttää täsmälleen kirjoitettavan rivin. Muuttuja kirjoitetaan 0.87:n havaintolohkona, joten se näkyy kojelaudalla ja Muistiossa kuten muutkin havainnot. *Päivitä* korvaa saman säätimen edellisen rivin, ja rivin tunnistaa säätimen tunnuksesta (`^kahvi`). Jos valittu muistiinpano on kadonnut, säädin kertoo sen eikä kirjoita minnekään. Painalluksen jälkeen näytön oikeaan reunaan tulee pieni punainen **Kumoa** noin kuudeksi sekunniksi. Se sykähtää kerran, ja sykäys jää pois, kun liike on vähennetty. Kumoa ei peitä sisältöä eikä vie kohdistusta. Kumous palauttaa täsmälleen kirjoitetun rivin, ja jos riviä on sillä välin muutettu, se jätetään koskematta. Säätimet-ikkunassa vanhan muuttujanapin (`pohjat/pikakirjaus.md`, `## Muuttujat`) voi muuttaa säätimeksi. Aikaleimarivit `- 2026-11-24 klo 12.30 · …` ja päivän Pikakirjaukset-osion `- klo 12.30 · …` -rivit eivät tee kalenteriin merkintöjä. Testit `logiikka_saadin.js`, `selain_88.py` ja `selain_89.py` ajettiin Chromiumissa 320, 390, 1280 ja 1440 px leveyksillä. Modern Web Guidance (ilmoitukset): Kumoa ei katoa, kun nappi on kohdistettuna. Popoveria ei käytetty, koska se ei ole vielä laajasti saatavilla.
 
 **0.87 (24.11.2026, suunnitelman kohta 0.1).** Lyhyt havainto on `((uni (h) = 8))`. Päivä ja kellonaika voivat olla apin tutussa muodossa, esimerkiksi `((ti 24.11. klo 12.30, Kanan fileesuikaleet: annos = 150 g, proteiini = 34,5 g, #ravinto))`. Päivä ja kohde ovat valinnaisia. Desimaalipilkku kuuluu lukuun. Lainausmerkit säilyttävät erottimia sisältävän tekstin. Numeroarvon jäljessä oleva yksikkö toimii koonneissa yhdessä saman yksikön sisältävän muuttujan kanssa. Aiemmat `((…))`- ja `!!…!!`-kirjaukset luetaan samassa aineistossa. Pikamuistiinpano, kojelaudan *Kirjaa arvo* ja Muistion uudet tekstimuuttujasolut käyttävät yhteistä uutta kirjoitusasua. Taulukko ja kojelauta säilyttävät erilliset samanaikaiset kirjaukset ja niiden lähteet. Varsinainen puhelin-Safari jäi kokeiltavaksi.
 
@@ -207,6 +217,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Ei tarkistettu
 
+- 0.88–0.89: kaikki testattiin Chromiumissa testivaultilla. Oikealla iPhonella ja oikeaa Vaultia vasten ei kokeiltu. Tarkistamatta jäivät reunan Kumoan paikka Safarin työkalupalkkien kanssa, kosketus ja pikakirjausikkunan päällä näkyvä Kumoa. Kalenterissa valittu päivä -asetuksen arvo on se päivä, joka kalenterissa viimeksi oli auki. Jos kalenteria ei ole avattu, käytetään tätä päivää. Pohjaan jäävää nappia, liukusäädintä ja XY:tä ei ole rakennettu: ne näkyvät editorissa *tulossa*-tilassa. Vanhoja Seuranta- ja Muistutus-nappeja ei voi muuttaa säätimiksi.
 - 0.84: kahvaa ei ole kosketusnäytöillä (valintatila korvaa sen); vetoa ei voi tehdä näppäimistöllä, vaan näppäimistöllä käytetään valintatilaa. Epäonnistuneen täytön lista on vain avoimessa ikkunassa, ei uudelleenlatauksen yli (mitään ei silloin muutettu). Oikeaa GitHubia vasten yhden commitin reitti on sama kuin 0.41:n taulukkomuutoksissa, mutta tätä täyttöä ei ole kokeiltu oikealla Vaultilla eikä iPhonella. Koko sarja Chromiumissa: 97 testitiedostoa läpi, `selain_13.py` (kojelaudan kirjaus) kaatui kuormitetussa ajossa mutta meni yksin läpi.
 - 0.83: valinnan nimen vaihto *Valinnat*-ikkunassa ei muuta muistiinpanoihin jo tallennettuja arvoja; ne näkyvät sen jälkeen harmaina (turvallinen nimen vaihto on jäsennyksen A4). Sirujen ulkoasua ei nähty oikealla iPhonella. Koko sarja ajettiin Chromiumissa: 96 testitiedostoa läpi, `selain_74.py` kaatui kuormitetussa ajossa mutta meni yksin kahdesti läpi.
 - 0.80–0.82: koko testisarja ajettiin Chromiumissa testivaultilla (95 testitiedostoa läpi; `selain_10.py` kaatui, koska se luki ＋-solun sarakkeeksi, ja meni korjattuna läpi erikseen, samoin katselmuksen jälkeen muuttuneet `selain_31/33/57/63/80/81/82`). Leveydet 320, 390, 1280 ja 1440 px. Fyysistä iPhonea ja oikeaa Vaultia ei kokeiltu: ＋-ikkunan nimisirujen napautus, kuukausivalitsimen ulkopuolinen napautus ja kiinteän yhteenvetorivin käytös Safarin liukuvan osoiterivin kanssa jäävät kokeiltaviksi. Puhelimella kelluva ＋ (uusi muistiinpano) peittää yhteenvetorivin oikean reunan, kunnes taulukkoa vierittää sivulle. Yhteenvetoa ei voi valita oletusnäkymässä. Kalenterin päiväsarakemerkintä ei näy kuukausi-ikkunan lukumäärässä. Näkymäeditorissa sarakkeen poisto ja takaisin lisäys nollaa sen leveyden, laskun ja kalenteriasetuksen (sama kuin leveydellä ennen).
@@ -251,6 +262,8 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Seuraava askel
 
+**Säätimet (A6).** Emil kokeilee kertanappia kojelaudalla ja pikakirjauksessa. Seuraavat vaiheet ovat Muistion nappisarake (A6.3), pohjaan jäävä nappi (A6.4) ja XY (A6.5).
+
 **Kojelaudan jatko (0.71:n jälkeen):** kokeile tarkistuslistaa ja kenttäruutua. Kuvaajien esitystavat ja ruutujen sijoittelu muokkaustilassa ovat auki.
 
 **Muistion tietokantanäkymä.** Suora solumuokkaus (0.79), ＋ sarake (0.80), yhteenvetorivi (0.81) ja päiväsarake valitsimella (0.82) ovat kokeiltavissa. Valinta, monivalinta ja tila (0.83) sekä täyttö alas (0.84) ovat kokeiltavissa. Seuraava työ on ehtokaavat ja muistiinpanon tiedot kaavassa (jäsennys 24.11., A3.7, suunnitelman 21.7).
@@ -272,6 +285,13 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 4. Karsinta: mitä Juuren osia Kaikki ei tarvitse.
 
 ## Avoimet kysymykset
+
+**Säätimet (0.88–0.89), tekoälyn ratkaisut, jotka Emil vahvistaa:**
+1. Säätimen oma muistiinpano syntyy `inbox/`-kansioon nimellä `saadin-<tunnus>.md`. Appi löytää sen nimen perusteella, vaikka tiedosto siirrettäisiin muualle. Käykö paikka, vai tehdäänkö oma kansio?
+2. ”Valittu teksti” tarkoittaa nyt valittua muistiinpanoa, ja rivi kirjoitetaan sen loppuun. Tietyn `---`-tekstin valinta odottaa tekstin pysyvää tunnistetta (B1).
+3. Pelkkä teksti ja aikaleima kirjoitetaan muualle kuin päivän muistiinpanoon muodossa `2026-11-24 klo 12.30 · teksti`. ISO-päivän vuoksi rivi ei näy kalenterissa. Käykö, vai halutaanko tuttu `ti 24.11.` ja erillinen tapa estää kalenterimerkintä?
+4. Napit ovat pikakirjauksessa omalla välilehdellään, koska ne kirjaavat heti. Muut välilehdet tallentavat vasta Valmis-painikkeesta. Poistetaanko Muuttujat-välilehti, kun vanhat muuttujanapit on muutettu säätimiksi?
+5. Muuttujan kirjauksessa aika on aina lohkossa. Aikaleima-valinta koskee vain tekstiä, ja se on muuttujan kanssa lukittu päälle.
 
 **Tietokantanäkymä (0.80–0.82), tekoälyn ratkaisut, jotka Emil vahvistaa:**
 1. Näkymän kaavasarakkeen `SUMMA(kenttä)` laskee nyt näkymän rivit (ennen koko Vaultin), jotta osuus `=hinta/SUMMA(hinta)` toimii. Muistiinpanon tekstin kaavat laskevat edelleen koko Vaultista. Käykö?
