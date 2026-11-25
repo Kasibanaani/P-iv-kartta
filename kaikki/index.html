@@ -5193,6 +5193,11 @@ function tabMine(){return !tabPassive&&!tabOther(tabRead());}
 function tabNet(){return !tabLeaving&&tabMine();}
 (function(){var take='';try{take=sessionStorage.getItem('kaikki:tabtake')||'';sessionStorage.removeItem('kaikki:tabtake');}catch(e){}
   if(take)TAB_ID=take;/* sama tunnus kuin pyynnössä: myöhässä tuleva luovutus osoittaa tähän välilehteen */
+  /* 0.94: saman välilehden uudelleenlataus säilyttää tunnuksen, joten oma vanha merkintä ei tee siitä lukutilaista.
+     Vain reload (ei kopioitu välilehti, joka saa saman sessionStoragen). */
+  else try{var nav=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0],old=sessionStorage.getItem('kaikki:tabid');
+    if(nav&&nav.type==='reload'&&old)TAB_ID=old;}catch(e){}
+  try{sessionStorage.setItem('kaikki:tabid',TAB_ID);}catch(e){}
   var o=tabRead();if(!take&&tabOther(o)&&Date.now()-o.at<TAB_FRESH)tabPassive=true;else tabWrite();})();
 function tabGoPassive(){tabPassive=true;clearTimeout(vTimer);try{var d=$('tabsheet');$('tab-msg').textContent='';$('tab-take').disabled=false;if(!d.open)openSheet(d);}catch(e){}}
 function tabHandoff(to){if(tabPassive||tabLeaving)return;tabLeaving=true;
@@ -10352,8 +10357,8 @@ function listView(){if(lstV===null){try{lstV=localStorage.getItem('kaikki:listvi
 var GKEY='kaikki:gh',VKEY='kaikki:vault';
 var G={repo:'Kasibanaani/vault123',token:'',branch:'main'};
 try{var g0=JSON.parse(localStorage.getItem(GKEY)||'null');if(g0){G.repo=g0.repo||G.repo;G.token=g0.token||'';G.branch=g0.branch||'main';}}catch(e){}
-var VC={files:{},known:{},q:{}};
-try{var v0=JSON.parse(localStorage.getItem(VKEY)||'null');if(v0&&v0.files){VC.files=v0.files;VC.known=v0.known||{};VC.q=v0.q||{};}}catch(e){}
+var VC={files:{},known:{},q:{},ops:[]};
+try{var v0=JSON.parse(localStorage.getItem(VKEY)||'null');if(v0&&v0.files){VC.files=v0.files;VC.known=v0.known||{};VC.q=v0.q||{};VC.ops=Array.isArray(v0.ops)?v0.ops:[];}}catch(e){}
 var vBusy=false,vMsg='',vAt='',vTimer=0,vApplying=false,vLastErr='';
 /* 0.3: lähdesuodatin (kaikki:lahde = SRCP-avain). Muutos vie ensin omat muutokset jonoon, sitten näkymä lasketaan välimuistista uudelleen. */
 var srcPre='std';try{srcPre=localStorage.getItem('kaikki:lahde')||'std';}catch(e){}
@@ -10363,7 +10368,7 @@ var SRCS={std:'Kaikki',oma:'Omat',emil:'Omat + yhdessä',ai:'Tekoäly',ohje:'Tek
 function srcMenu(anchor){var m=$('sortpop');m.textContent='';m.setAttribute('aria-label','Kenen kirjoittamat');['std','oma','emil','ai','ohje','all'].forEach(function(k){var b=menuItem(m,'src-'+k,SRCN[k],function(){setSrc(k);var f=$('srcpick');if(f)f.focus();});b.setAttribute('aria-current',srcPre===k?'true':'false');if(k==='ai'||k==='emil')b.insertBefore(el('span','srcdot'+(k==='ai'?' ai':'')),b.firstChild);/* 0.6: raidan värin selite */});anchoredMenu('sortpop',anchor);}
 /* 0.3: päivitys. Nappi yläpalkissa vie omat muutokset ja hakee GitHubista; auki ollessa haku minuutin välein (vain kun mitään ei odota lähtöä). */
 function vRefresh(){if(!vOn())return Promise.resolve(false);clearTimeout(vTimer);return Promise.resolve(vCollect()).then(function(){return vPull();}).then(function(ok){if(!ok)return false;return Promise.resolve(vCollect()).then(function(){return !Object.keys(VC.q).length&&!vMsg;});});}
-setInterval(function(){if(vOn()&&!vBusy&&document.visibilityState==='visible'&&!Object.keys(VC.q).length)vPull();},60000);
+setInterval(function(){if(!vOn()||vBusy||document.visibilityState!=='visible')return;if(!vPending())vPull();else vFlush();/* 0.94: odottavat kirjaukset yritetään uudelleen */},60000);
 function vSaveC(){storeSet(VKEY,JSON.stringify(VC),'holvin välimuisti ja lähetysjono');}
 function vSaveG(){try{localStorage.setItem(GKEY,JSON.stringify(G));}catch(e){}}
 function vOn(){return !!(G.repo&&G.token);}
@@ -10379,8 +10384,8 @@ function vErr(st){if(st===0)return 'Ei yhteyttä GitHubiin. Muutokset odottavat 
 function vK(){return data.K[0];}
 function vNotes(){var k=vK();return k&&k.id===data.k?data.notes:(k?k.notes:[]);}
 function vTrash(){var k=vK();return k&&k.id===data.k?data.trash:(k?k.trash:[]);}
-function vStatus(){if(!vOn())return 'ei käytössä';if(vBusy)return 'synkronoidaan…';var n=Object.keys(VC.q).length;
-  if(n)return n+' odottaa';if(vMsg||vReadError||lsError)return 'tarkista synkronointi';return vAt?'ajan tasalla '+vAt:'odottaa ensimmäistä hakua';}
+function vStatus(){if(!vOn())return 'ei käytössä';if(vBusy)return 'synkronoidaan…';var n=vPending();
+  if(n)return n+' odottaa (tallessa laitteella, ei vielä GitHubissa)';if(vMsg||vReadError||lsError)return 'tarkista synkronointi';return vAt?'ajan tasalla '+vAt:'odottaa ensimmäistä hakua';}
 var vReadError='',lsError='',vDeferredNote=false;
 $('nsheet').addEventListener('close',function(){if(vDeferredNote){vDeferredNote=false;vRefresh();}});
 function vClock(){var d=new Date();return pad(d.getHours())+'.'+pad(d.getMinutes());}
@@ -10436,7 +10441,7 @@ async function vPull(){
   }catch(error){
     vReadError=error.message||'Holvin haku epäonnistui.';return false;
   }finally{vBusy=false;vRender();}
-  if(Object.keys(VC.q).length)await vFlush();
+  if(vPending())await vFlush();
   return true;
 }
 /* Välimuisti -> muistiinpanot (vain tiedostot, joilla ei ole lähtemättömiä omia muutoksia) */
@@ -10464,7 +10469,9 @@ function vCollect(){if(!vOn()||!tabMine())return;var notes=vNotes(),has={},n=0;
     VC.q[p]={arch:Date.now().toString(36),t:t,base:c?c.sha:q&&q.base||null};n++;});
   vSaveC();if(n)save0();vRender();return vFlush();}
 function vGone(q){return !!(q&&(q.del||q.arch));}
-function vFlush(){if(!vOn()||vBusy||!tabNet())return Promise.resolve();var ps=Object.keys(VC.q).sort(function(a,b){return (vGone(VC.q[a])?1:0)-(vGone(VC.q[b])?1:0);});if(!ps.length){openPendingMetricLink();nvRunAll();return Promise.resolve();}
+function vPending(){return Object.keys(VC.q).length+vOpsHere().length;}
+function vOpsHere(){var r=vRepo();return (VC.ops||[]).filter(function(o){return o.repo===r&&o.branch===G.branch;});}
+function vFlush(){if(!vOn()||vBusy||!tabNet())return Promise.resolve();var ps=Object.keys(VC.q).sort(function(a,b){return (vGone(VC.q[a])?1:0)-(vGone(VC.q[b])?1:0);});if(!ps.length){var op=vOpsHere()[0];if(op)return vOpFlush(op);openPendingMetricLink();nvRunAll();return Promise.resolve();}
   var p=ps[0],o=VC.q[p];vBusy=true;vRender();
   if(o.arch)return vArchive(p,o);
   var req=o.requests?vWriteRequests(o.requests,2):o.del?vApi(vUrl('/contents/'+vEnc(p)),'DELETE',{message:'appi: arkistoon '+p,sha:o.base,branch:G.branch}):
@@ -10478,6 +10485,81 @@ function vFlush(){if(!vOn()||vBusy||!tabNet())return Promise.resolve();var ps=Ob
     }
     vBusy=false;vMsg=r.error||vErr(r.status);vRender();
   }).catch(function(error){vBusy=false;vMsg=error.message||'Tallennus jäi jonoon.';vRender();});}
+/* ---- Kaikki 0.94 (kriittinen arvio, työvaihe 1: yhteinen tulosmalli suorille kirjauksille). Säätimen painallus ja ＋ Kirjaa ovat
+   operaatioita VC.ops: {id, kind: 'saadin'|'teksti', path, repo, branch, probe (kirjoitettava rivi tai teksti), mark (havaintolohkon
+   tunnus, jos on), baseCount, sent, label, msg, …}. Operaatio tallennetaan laitteelle ennen lähetystä. Tulos: ok (GitHub vahvisti),
+   wait (yhteys tai synkka: odottaa ja lähtee vFlushin lopuksi, verkon palatessa tai minuutin välein) tai gone (kohdetta ei enää ole:
+   teksti tallennetaan uuteen muistiinpanoon inboxiin, ettei mitään katoa). Uusinta tarkistaa ensin, ehtikö edellinen yritys perille:
+   havaintolohkon tunnus löytyy, tai rivin esiintymiä on enemmän kuin lähtöversiossa. Kaksi tarkoituksellista painallusta = kaksi
+   operaatiota = kaksi riviä; saman operaation uusinta = yksi. ---- */
+function vNl(t){return String(t||'').replace(/\r\n/g,'\n');}
+function vOpCount(text,s){if(!s)return 0;var n=0,i=0;while((i=text.indexOf(s,i))>=0){n++;i+=s.length;}return n;}
+function vOpApplied(op,text){var t=vNl(text);if(op.mark)return t.indexOf(op.mark)>=0;if(op.baseCount==null)return false;return vOpCount(t,op.probe)>op.baseCount;}
+function vOpPatch(op,text){
+  if(op.kind==='saadin'){var w=SAADIN.write(text,{tapa:op.tapa,tunnus:op.tunnus},op.line,{dayNote:op.dayNote,template:op.template});return {text:w.text,before:w.before};}
+  if(op.kind==='teksti'){text=String(text||'');var eol=text.indexOf('\r\n')>=0?'\r\n':'\n',base=text.replace(/\s+$/,'');
+    return {text:(base?base+eol+eol:'')+op.text.split('\n').join(eol)+eol,before:null};}
+  return {error:'Tuntematon kirjaus.'};
+}
+function vOpWait(st){return st===0||st===401||st===403||st===429||st>=500;}
+async function vOpRun(op){
+  var url=vUrl('/contents/'+vEnc(op.path));
+  for(var attempt=0;attempt<3;attempt++){
+    if(!vOn()||vRepo()!==op.repo||G.branch!==op.branch)return {status:'wait',error:'Kirjaus kuuluu toiseen Vaultiin.'};
+    var pending=vNotes().find(function(note){return note.vp===op.path;});
+    if(VC.q[op.path]||(pending&&VC.files[op.path]&&VAULT.mdOf(pending)!==VC.files[op.path].t))return {status:'wait',error:'Muistiinpanon aiempi muutos lähtee ensin.'};
+    var get=await vApi(url+'?ref='+encodeURIComponent(op.branch));
+    if(get.status!==200&&get.status!==404)return {status:vOpWait(get.status)?'wait':'gone',error:vErr(get.status)};
+    var text=get.status===200?b64d(get.j.content):'',sha=get.status===200?get.j.sha:undefined;
+    if(get.status===200&&vOpApplied(op,text))return {status:'ok',file:{t:text,sha:sha},already:true};
+    if(get.status===404&&!op.template)return {status:'gone',error:'Muistiinpanoa ei enää löydy.'};
+    var P=vOpPatch(op,text);if(P.error)return {status:'gone',error:P.error};
+    if(P.text===text)return {status:'ok',file:{t:text,sha:sha},already:true};
+    op.baseCount=vOpCount(vNl(text),op.probe);op.sent=nowIso();vSaveC();/* toinen välilehti tai uudelleenavaus tunnistaa lähteneen */
+    var put=await vApi(url,'PUT',{message:op.msg,content:b64e(P.text),sha:sha,branch:op.branch});
+    if(put.status===200||put.status===201)return {status:'ok',file:{t:P.text,sha:put.j.content.sha},before:P.before,prev:text};
+    if(put.status===409||put.status===422)continue;
+    return {status:vOpWait(put.status)?'wait':'gone',error:vErr(put.status)};
+  }
+  return {status:'wait',error:'Tiedostoa muokattiin samaan aikaan. Kirjaus yritetään uudelleen.'};
+}
+/* Kohde katosi: kirjaus talteen omaksi muistiinpanokseen (jonoon kuten ristiriitakopio). */
+function vOpRescue(op){
+  var d=new Date(),day=isoD(d),stamp=day+'-'+pad(d.getHours())+pad(d.getMinutes()),cp='inbox/'+stamp+'-kirjaus.md';
+  while(VC.files[cp]||VC.q[cp])cp=cp.replace(/\.md$/,'-'+Date.now().toString(36)+'.md');
+  var body=op.kind==='teksti'?op.text:op.line;
+  VC.q[cp]={t:['---','tyyppi: inbox','otsikko: Kirjaus, jota ei voitu tallentaa','kuvaus: Kohde '+op.path+' puuttui, kun kirjaus lähti.','luotu: '+day,'lahde: emil','---',
+    '# Kirjaus, jota ei voitu tallentaa','','Kohde: '+op.path,'',body,''].join('\n'),base:null,direct:true};
+  return cp;
+}
+function vOpDone(op,r){
+  if(r.status==='wait'){vSaveC();return;}
+  VC.ops=VC.ops.filter(function(x){return x.id!==op.id;});
+  if(r.status==='ok'&&r.file){VC.files[op.path]=r.file;vAt=vClock();}
+  if(r.status==='gone'){r.copy=vOpRescue(op);}
+  vSaveC();vApply();nsSyncFromFile(op.path);render();
+}
+/* Uusi kirjaus: talteen laitteelle, sitten lähetys heti (tai jonoon). */
+async function vDirect(op){
+  op.id=op.id||(typeof crypto.randomUUID==='function'?'op'+crypto.randomUUID():uid('op'));op.repo=vRepo();op.branch=G.branch;op.at=nowIso();
+  VC.ops.push(op);vSaveC();vRender();
+  if(!await saadinIdle()||!tabNet()){vFlush();return {status:'wait',error:'Vault synkronoi.'};}
+  if(!VC.ops.some(function(x){return x.id===op.id;}))return {status:'ok',already:true};
+  vBusy=true;vRender();var r;
+  try{r=await vOpRun(op);}catch(e){r={status:'wait',error:'Kirjaus jäi odottamaan.'};}
+  finally{vBusy=false;}
+  vOpDone(op,r);vRender();if(r.status!=='wait')vFlush();
+  return r;
+}
+function vOpFlush(op){
+  vBusy=true;vRender();
+  return vOpRun(op).catch(function(){return {status:'wait',error:'Kirjaus jäi odottamaan.'};}).then(function(r){
+    vBusy=false;vOpDone(op,r);
+    if(r.status==='wait'){vMsg=r.error||'Kirjaus odottaa.';vRender();return;}
+    vMsg='';if(r.status==='gone')toast('Kohdetta ei enää ollut. Kirjaus tallentui inboxiin: '+r.copy);
+    vRender();return vFlush();
+  });
+}
 /* 0.92: arkistointi yhtenä Git-commitina: arkisto/-kopio (oma teksti ja tarvittaessa GitHubissa sillä välin muuttunut versio) ja
    lähteen poisto. Kopion nimiehdokkaat ovat kiinteät (operaation tunnus), joten vastauksen katoamisen jälkeinen uusinta löytää jo tehdyn
    eikä tee toista kopiota. Lähteen puuttuminen GitHubista ei ole virhe: silloin talletetaan vain kopio. */
@@ -11199,6 +11281,8 @@ function vZipFiles(){
     else if(pending.arch){delete files[path];var an=vArchiveNames(path,pending.arch).filter(function(n){return !(n in files);})[0];if(an)files[an]=pending.t;}
     else if(typeof pending.t==='string')files[path]=pending.t;
   });
+  /* 0.94: odottavat suorat kirjaukset mukaan */
+  vOpsHere().forEach(function(op){var cur=files[op.path];if(cur==null&&!op.template)return;if(cur!=null&&vOpApplied(op,cur))return;var P=vOpPatch(op,cur||'');if(!P.error)files[op.path]=P.text;});
   /* Varmuuskopio lukee luonnokset muuttamatta muistion polkuja tai Vaultin jonoa. */
   var used=new Set(notes.map(function(note){return note.vp;}));
   notes.forEach(function(note){
@@ -11990,24 +12074,22 @@ async function saadinRun(it,o){
   var m=saadinMoment(it,o),T=saadinTargetFor(it,m.day,o.target),status=o.status;
   function say(t){if(status)status.textContent=t;else toast(t);}
   if(T.error){say(T.error);return false;}
-  if(!await saadinIdle()){say('Vault synkronoi. Yritä hetken päästä.');return false;}
   var id=typeof crypto.randomUUID==='function'?'qh'+crypto.randomUUID():uid('qh');
   var line=SAADIN.record(it,{day:m.day,clock:m.clock,value:o.value,dayNote:!!T.dayNote,id:id});
   if(!line){say('Tarkista arvo: '+it.nimi+'.');return false;}
-  var ctx={repo:vRepo(),branch:G.branch},before=null;
-  vBusy=true;vRender();
-  try{
-    var r=await vWriteText(T.path,function(text){
-      var w=SAADIN.write(text,it,line,{dayNote:T.dayNote,template:T.template});before=w.before;return w.text;
-    },'appi: säädin '+it.nimi,ctx);
-    if(r.error){say(r.error);return false;}
-    if(r.file&&vRepo()===ctx.repo&&G.branch===ctx.branch){VC.files[T.path]=r.file;vSaveC();}
-    vAt=vClock();vApply();nsSyncFromFile(T.path);render();
-    if(status)status.textContent=it.nimi+' kirjattu: '+T.label+'.';
-    saadinUndoShow({it:it,path:T.path,before:before,after:line,ctx:ctx,label:T.label});
+  var ctx={repo:vRepo(),branch:G.branch};
+  /* 0.94: yhteinen tulosmalli (vDirect). Lohkon tunnus tunnistaa saman kirjauksen uusinnassa. */
+  var r=await vDirect({kind:'saadin',path:T.path,line:line,probe:line,mark:line.indexOf(id)>=0?id:'',tapa:it.tapa,tunnus:it.tunnus,
+    dayNote:!!T.dayNote,template:T.template,msg:'appi: säädin '+it.nimi,label:T.label,nimi:it.nimi});
+  if(r.status==='ok'){
+    say(it.nimi+' kirjattu: '+T.label+'.');
+    if(!r.already)saadinUndoShow({it:it,path:T.path,before:r.before,after:line,ctx:ctx,label:T.label});
     return true;
-  }catch(e){say('Kirjaus ei onnistunut. Tarkista yhteys ja yritä uudelleen.');return false;}
-  finally{vBusy=false;vRender();vFlush();}
+  }
+  var t=r.status==='wait'?it.nimi+' odottaa laitteella ja lähtee GitHubiin, kun yhteys toimii.'+(r.error?' ('+r.error+')':''):
+    it.nimi+': '+(r.error||'kohdetta ei löytynyt')+' Kirjaus tallentui inboxiin: '+r.copy;
+  say(t);if(status&&status.closest&&status.closest('#saadin-ask'))toast(t);/* kysymysikkuna sulkeutuu */
+  return true;
 }
 /* Kumoa näytön reunassa: ei peitä sisältöä eikä vie kohdistusta. Avoimen ikkunan päällä nappi siirtyy ikkunan sisään. */
 function saadinTopDialog(){
@@ -12144,23 +12226,21 @@ async function nlSave(){
   if(!text.trim()){msg.textContent='Kirjoita ensin jotain tai valitse nappi.';return;}
   var bad=nlTarget().check();if(bad){msg.textContent=bad;return;}
   NL.busy=true;$('nl-save').disabled=true;msg.textContent='Kirjataan…';
-  var path=NL.path,label=mvTitle(NL.note),prev=null,next=null,ctx={repo:vRepo(),branch:G.branch};
+  var path=NL.path,label=mvTitle(NL.note),ctx={repo:vRepo(),branch:G.branch};
   try{
-    if(!await saadinIdle()){msg.textContent='Vault synkronoi. Yritä hetken päästä.';return;}
-    vBusy=true;vRender();
-    var r=await vWriteText(path,function(t){
-      t=String(t||'');var eol=t.indexOf('\r\n')>=0?'\r\n':'\n',base=t.replace(/\s+$/,'');
-      prev=t;next=(base?base+eol+eol:'')+text.split('\n').join(eol)+eol;return next;
-    },'appi: kirjaus '+path,ctx);
-    if(r.error){msg.textContent=r.error;return;}
-    if(r.file&&vRepo()===ctx.repo&&G.branch===ctx.branch){VC.files[path]=r.file;vSaveC();}
-    vAt=vClock();vApply();nsSyncFromFile(path);render();
-    $('nl-text').value='';nlDraftSave();msg.textContent='Kirjattu: '+label+'.';
-    var was=prev,now=next;
-    saadinUndoShow({it:{nimi:'Teksti'},path:path,ctx:ctx,label:label,revert:function(t){return t===now?was:null;},
-      after2:function(){if($('note-log').open&&NL.path===path&&!$('nl-text').value)$('nl-text').value=text;}});
-  }catch(e){msg.textContent='Kirjaus ei onnistunut. Teksti on tallessa tässä ikkunassa.';}
-  finally{vBusy=false;vRender();vFlush();NL.busy=false;$('nl-save').disabled=false;}
+    /* 0.94: yhteinen tulosmalli. Teksti on laitteella jonossa ennen lähetystä, joten kenttä voidaan tyhjentää heti. */
+    var p=vDirect({kind:'teksti',path:path,text:vNl(text),probe:vNl(text),msg:'appi: kirjaus '+path,label:label});
+    $('nl-text').value='';nlDraftSave();
+    var r=await p;
+    if(r.status==='ok'){
+      msg.textContent='Kirjattu: '+label+'.';
+      if(!r.already){var was=r.prev,now=r.file.t;
+        saadinUndoShow({it:{nimi:'Teksti'},path:path,ctx:ctx,label:label,revert:function(t){return t===now?was:null;},
+          after2:function(){if($('note-log').open&&NL.path===path&&!$('nl-text').value)$('nl-text').value=text;}});}
+    }else if(r.status==='wait')msg.textContent='Tallessa laitteella. Lähtee GitHubiin, kun yhteys toimii.'+(r.error?' ('+r.error+')':'');
+    else msg.textContent=(r.error||'Muistiinpanoa ei löytynyt.')+' Teksti tallentui inboxiin: '+r.copy;
+  }catch(e){msg.textContent='Kirjaus ei onnistunut. Teksti on tallessa tässä ikkunassa.';if(!$('nl-text').value)$('nl-text').value=text;}
+  finally{NL.busy=false;$('nl-save').disabled=false;}
 }
 /* Näppäimistö: ikkuna mahtuu näkyvään alueeseen (sama periaate kuin pikakirjauksessa 0.90). */
 function nlFit(){var d=$('note-log'),v=window.visualViewport;if(!d.open||!v)return;
