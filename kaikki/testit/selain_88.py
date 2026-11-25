@@ -64,7 +64,8 @@ def run(browser, url, width):
     ed.get_by_role('textbox', name='Nimi').fill('Kahvi')
     ed.get_by_role('checkbox', name='Muuttuja').check()
     ed.get_by_role('combobox', name='Muuttuja', exact=True).fill('Kahvi (kpl)')
-    ed.get_by_role('textbox', name='Arvo (tyhjä = kysytään joka kerta)').fill('1')
+    # 0.96: muuttujarivin kentät Muuttuja, Arvo (tyhjä = kysytään) ja Yksikkö.
+    ed.get_by_role('textbox', name='Arvo', exact=True).fill('1')
     ed.get_by_role('textbox', name='Havaintotunniste (valinnainen)').fill('ravinto')
     expect(ed.locator('.saadin-preview')).to_contain_text('Kahvi (kpl) = 1, #ravinto))')
     expect(ed.locator('.saadin-preview')).to_contain_text('päivän muistiinpano')

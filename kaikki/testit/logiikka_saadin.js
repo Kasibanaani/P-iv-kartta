@@ -103,4 +103,35 @@ assert.ok(S.patch(file, null, {nimi: 'Tyhjä', tunnus: 'tyhja', tapa: 'lisaa', m
 const removed = S.parse(S.patch(file, heratys, null));
 assert.deepEqual(removed.items.map(it => it.tunnus), ['kahvi', 'paino', 'Iso Kirjain', 'tuleva']);
 assert.equal(S.patch(file, heratys, null).includes('## Paino'), true);
+
+/* 0.96: monta muuttujaa samaan havaintoon, yksikkö ja kysyttävät arvot */
+const multi = S.parse([
+  '# S', '', '## Penkki', '- tunnus: penkki', '- ryhma: Treeni', '- muuttuja: paino', '- yksikko: kg', '- muuttuja: toistot',
+  '- kohde: Penkki', '- tapa: lisaa', '- Oma rivi', '',
+  '## Vanha järjestys', '- arvo: 2', '- muuttuja: Kahvi (kpl)', '- arvo: 3', '',
+].join('\n')).items;
+const [penkki, vanha] = multi;
+assert.deepEqual(penkki.vars, [{nimi: 'paino', arvo: '', yksikko: 'kg'}, {nimi: 'toistot', arvo: '', yksikko: ''}]);
+assert.equal(penkki.muuttuja, 'paino');
+assert.equal(penkki.virhe, '');
+assert.deepEqual(penkki.muut, ['- Oma rivi']);
+assert.deepEqual(vanha.vars, [{nimi: 'Kahvi (kpl)', arvo: '2', yksikko: ''}], 'arvo ennen muuttujaa koskee ensimmäistä');
+assert.deepEqual(vanha.muut, ['- arvo: 3'], 'toinen arvo samalle muuttujalle säilyy tuntemattomana rivinä');
+assert.deepEqual(S.asked(penkki).map(a => a.nimi), ['paino', 'toistot']);
+const set = S.record(penkki, {day: '2026-11-25', clock: '18:05', values: ['80', '8'], dayNote: false, id: 'qh2'});
+assert.equal(set, '- ((25.11.2026 klo 18.05, Penkki: paino = 80 kg, toistot = 8, ^qh2))');
+const seenSet = M.parse(set, new Date(2026, 10, 25));
+assert.deepEqual(seenSet.map(o => [o.nimi, o.luku, o.kohde, o.kello]), [['paino (kg)', 80, 'Penkki', '18:05'], ['toistot', 8, 'Penkki', '18:05']]);
+assert.equal(S.record(penkki, {day: '2026-11-25', clock: '', values: ['80', ''], dayNote: true, id: 'x'}), '', 'kysytty arvo puuttuu');
+assert.equal(S.record({...penkki, vars: [penkki.vars[0], {nimi: 'toistot', arvo: '5', yksikko: ''}]}, {day: '2026-11-25', clock: '', values: ['82,5'], dayNote: true, id: 'x'}),
+  '- ((25.11.2026, Penkki: paino = 82,5 kg, toistot = 5, ^x))', 'kiinteä arvo täydentää');
+assert.equal(S.withUnit('80 kg', 'kg'), '80 kg');
+assert.equal(S.withUnit('80kg', 'kg'), '80kg');
+assert.equal(S.withUnit('80', ''), '80');
+assert.deepEqual(S.lines(penkki), ['## Penkki', '- tunnus: penkki', '- laji: kertanappi', '- ryhma: Treeni', '- muuttuja: paino', '- yksikko: kg',
+  '- muuttuja: toistot', '- kohde: Penkki', '- tapa: lisaa', '- minne: paiva', '- aika: nyt', '- Oma rivi']);
+assert.ok(S.check({...penkki, vars: [{nimi: 'paino', arvo: ''}, {nimi: 'Paino', arvo: ''}]}), 'sama muuttuja kahdesti');
+assert.ok(S.check({...penkki, vars: [{nimi: 'paino', arvo: '', yksikko: 'kg, g'}]}), 'yksikkö ilman pilkkua');
+const roundtrip = S.parse(S.patch('', null, {...penkki, tunnus: 'penkki'})).items[0];
+assert.deepEqual(roundtrip.vars, penkki.vars);
 console.log('säätimet ok');
