@@ -23,9 +23,11 @@ def visible_viewport(page, height, top):
 
 
 def run(browser, width):
-    mobile = width < 500
+    mobile = width < 1000
+    landscape = 500 <= width < 1000
+    height = 390 if landscape else 844
     page = browser.new_page(
-        viewport={'width': width, 'height': 844},
+        viewport={'width': width, 'height': height},
         is_mobile=mobile,
         has_touch=mobile,
     )
@@ -40,7 +42,7 @@ def run(browser, width):
     whole = boundaries(page, '#quick-entry')
     heading = boundaries(page, '.quick-head')
     done = boundaries(page, '#quick-done')
-    assert whole[0] < 100 and whole[1] < 844
+    assert whole[0] < 100 and whole[1] < height
 
     quick.get_by_role('button', name='Muistutus', exact=True).click()
     expect(quick.locator('#quick-help')).to_contain_text('Esiasetuksia ei löytynyt')
@@ -61,11 +63,13 @@ def run(browser, width):
     if mobile:
         quick.get_by_role('button', name='Seuranta', exact=True).click()
         quick.get_by_role('button', name='+ Uusi nappi', exact=True).click()
-        visible_viewport(page, 290, 55)
-        page.wait_for_function("() => document.querySelector('#quick-entry').getBoundingClientRect().bottom < 345")
+        available, offset = (195, 25) if landscape else (290, 55)
+        visible_viewport(page, available, offset)
+        bottom = available + offset
+        page.wait_for_function("y => document.querySelector('#quick-entry').getBoundingClientRect().bottom < y", arg=bottom)
         keyboard_layout = boundaries(page, '#quick-entry')
-        assert keyboard_layout[0] >= 55
-        assert submit.bounding_box()['y'] + submit.bounding_box()['height'] < 345
+        assert keyboard_layout[0] >= offset
+        assert submit.bounding_box()['y'] + submit.bounding_box()['height'] < bottom
         expect(cancel).to_be_visible()
 
         # Laajenna lomaketta ja kohdista alimpaan kenttään pienessä näkymässä.
@@ -87,7 +91,8 @@ def run(browser, width):
         assert submit.bounding_box()['y'] == action_y
         assert boundaries(page, '#quick-entry') == keyboard_layout
 
-        visible_viewport(page, 844, 0)
+        # Safari voi ilmoittaa vanhan yläsiirtymän vielä näppäimistön sulkeuduttua.
+        visible_viewport(page, height, offset)
         page.wait_for_function("y => document.querySelector('#quick-entry').getBoundingClientRect().top === y", arg=whole[0])
         assert boundaries(page, '#quick-entry') == whole
         cancel.click()
@@ -102,7 +107,7 @@ if __name__ == '__main__':
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch()
         try:
-            for width in (320, 390, 1280, 1440):
+            for width in (320, 390, 700, 1280, 1440):
                 run(browser, width)
         finally:
             browser.close()
