@@ -1463,7 +1463,38 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 .rvc .rv-extra[hidden]{visibility:hidden}
 .rv-fit-measure .rvc .rv-tag[hidden]{position:static}
 .rv-fit-measure .rvc .rv-extra{display:none!important}
-#quick-entry{width:min(440px,calc(100vw - 28px))}
+#quick-entry{
+  --quick-viewport:100vh;
+  --quick-top-gap:max(clamp(10px,5vh,44px),env(safe-area-inset-top,0px));
+  --quick-bottom-gap:max(10px,env(safe-area-inset-bottom,0px));
+  position:fixed;inset:calc(var(--quick-viewport-top,0px) + var(--quick-top-gap)) 0 auto;
+  margin:0 auto;padding:0;width:min(440px,calc(100% - 24px));
+  height:min(34rem,calc(var(--quick-viewport) - var(--quick-top-gap) - var(--quick-bottom-gap)));
+  max-height:none;overflow:hidden
+}
+@supports (height:100dvh){#quick-entry{--quick-viewport:100dvh}}
+html #quick-entry:not(.dock){border-radius:var(--r-sheet,20px)}
+#quick-entry[open]{display:flex;flex-direction:column}
+#quick-entry::backdrop{overflow:hidden;overscroll-behavior:contain}
+.quick-head,.quick-foot{flex:none;padding:12px 14px}
+.quick-head h2{font-size:1.25rem}
+.quick-head .seg{margin:0}
+.quick-head .seg button{min-width:0;min-height:44px;padding:4px 2px;font-size:.8125rem;overflow-wrap:anywhere}
+#quick-body{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scroll-padding-block:8px;padding:6px 14px 12px}
+.quick-foot{border-top:1px solid var(--sep)}
+.quick-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
+#quick-entry .quick-actions .btn{min-height:44px;padding:4px 12px;border:0;font-size:.9375rem}
+#quick-entry .quick-actions .btn:not(.solid){color:var(--label);box-shadow:none}
+#quick-new{margin-inline-end:auto}
+#quick-new-actions,#quick-variable-actions,#quick-value-actions{display:none}
+#quick-entry:has(#quick-new-form:not([hidden])) #quick-new-actions,
+#quick-entry:has(#quick-variable-form:not([hidden])) #quick-variable-actions,
+#quick-entry:has(#quick-values[data-variable]:not([hidden])) #quick-value-actions{display:flex}
+#quick-entry:has(#quick-new-form:not([hidden]),#quick-variable-form:not([hidden]),#quick-values[data-variable]:not([hidden]))
+  :is(#quick-main-actions,#quick-picks,#quick-help){display:none}
+#quick-entry:has(#quick-new-form:not([hidden]),#quick-variable-form:not([hidden])) #quick-day-row{display:none}
+#quick-msg{margin:0 0 8px;font-size:.875rem;overflow-wrap:anywhere}
+#quick-help:empty{display:none}
 #quick-entry-mobile[hidden],#quick-entry-desktop[hidden]{display:none}
 .quick-day-row{display:flex;align-items:center;gap:10px;margin:10px 0}
 .quick-day-row[hidden]{display:none}
@@ -1471,7 +1502,7 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 .quick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 .quick-grid .btn{min-height:44px;overflow-wrap:anywhere}
 .quick-grid .btn[aria-pressed="true"]{background:var(--fill);box-shadow:inset 0 0 0 2px var(--accent)}
-#quick-values:not([hidden]){margin-top:12px}
+#quick-values:not([hidden]):not([data-variable]){margin-top:12px}
 #quick-values .quick-grid{grid-template-columns:repeat(auto-fit,minmax(58px,1fr))}
 #quick-msg:empty,#xy-msg:empty,#sheet-edit-msg:empty,#sheet-new-msg:empty,#board-edit-msg:empty{display:none}
 /* 0.66 muuttujaruudut */
@@ -1561,8 +1592,6 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 .xy-field{display:flex;align-items:stretch;gap:6px}
 .xy-field input{min-width:0;flex:1}
 .xy-field button{flex:none}
-#quick-new:not([hidden]){margin-top:10px}
-#quick-new-form:not([hidden]){margin-top:12px}
 #quick-new-form .fl{display:block;margin-top:8px}
 #quick-entry-mobile{flex:none}
 .quick-number{display:block;font-variant-numeric:tabular-nums;font-size:22px;margin:0 0 8px}
@@ -2112,48 +2141,61 @@ html,body,#main,.rv-scroll,.sg-wrap{overscroll-behavior-x:none}
   </form>
 </dialog>
 <dialog id="quick-entry" aria-labelledby="quick-entry-title">
-  <h2 id="quick-entry-title">Pikakirjaus</h2>
-  <div class="seg quick-modes" role="group" aria-label="Pikakirjauksen tapa">
-    <button type="button" id="quick-track" autofocus aria-pressed="true">Seuranta</button>
-    <button type="button" id="quick-remind" aria-pressed="false">Muistutus</button>
-    <button type="button" id="quick-variables" aria-pressed="false">Muuttujat</button>
-    <button type="button" id="quick-controls" aria-pressed="false">Napit</button>
-  </div>
-  <div class="quick-day-row" id="quick-day-row">
-    <label for="quick-day">Päivä</label>
-    <input type="date" id="quick-day">
-  </div>
-  <div id="quick-picks" class="quick-grid"></div>
-  <form id="quick-values" aria-label="Pikakirjauksen arvo" hidden></form>
-  <button type="button" class="mini" id="quick-new">+ Uusi nappi</button>
-  <form id="quick-new-form" aria-label="Uusi pikakirjausnappi" hidden>
-    <label class="fl" for="quick-new-name">Nimi</label>
-    <input type="text" id="quick-new-name" maxlength="80" required>
-    <div id="quick-new-track">
-      <label class="fl" for="quick-new-kind">Arvolaji</label>
-      <select id="quick-new-kind"><option>Kyllä</option><option>1-5</option><option>Luku</option><option value="xy 0-100">XY-pädi</option><option value="valinta">Valinta</option></select>
-      <div id="quick-new-choices-row" hidden>
-        <label class="fl" for="quick-new-choices">Valinnat pilkulla erotettuina</label>
-        <input type="text" id="quick-new-choices">
+  <header class="quick-head">
+    <h2 id="quick-entry-title">Pikakirjaus</h2>
+    <div class="seg" role="group" aria-label="Pikakirjauksen tapa">
+      <button type="button" id="quick-track" autofocus aria-pressed="true">Seuranta</button>
+      <button type="button" id="quick-remind" aria-pressed="false">Muistutus</button>
+      <button type="button" id="quick-variables" aria-pressed="false">Muuttujat</button>
+      <button type="button" id="quick-controls" aria-pressed="false">Napit</button>
+    </div>
+  </header>
+  <div id="quick-body">
+    <div class="quick-day-row" id="quick-day-row">
+      <label for="quick-day">Päivä</label>
+      <input type="date" id="quick-day">
+    </div>
+    <div id="quick-picks" class="quick-grid"></div>
+    <p id="quick-help" class="sub"></p>
+    <form id="quick-values" aria-label="Pikakirjauksen arvo" hidden></form>
+    <form id="quick-new-form" aria-label="Uusi pikakirjausnappi" hidden>
+      <label class="fl" for="quick-new-name">Nimi</label>
+      <input type="text" id="quick-new-name" maxlength="80" required>
+      <div id="quick-new-track">
+        <label class="fl" for="quick-new-kind">Arvolaji</label>
+        <select id="quick-new-kind"><option>Kyllä</option><option>1-5</option><option>Luku</option><option value="xy 0-100">XY-pädi</option><option value="valinta">Valinta</option></select>
+        <div id="quick-new-choices-row" hidden>
+          <label class="fl" for="quick-new-choices">Valinnat pilkulla erotettuina</label>
+          <input type="text" id="quick-new-choices">
+        </div>
       </div>
+      <label class="fl" for="quick-new-tags">Tunnisteet</label>
+      <input type="text" id="quick-new-tags" placeholder="#tunniste">
+    </form>
+    <form id="quick-variable-form" aria-label="Uusi muuttujanappi" hidden>
+      <label class="fl" for="quick-variable-name">Muuttuja</label>
+      <select id="quick-variable-name" required></select>
+    </form>
+  </div>
+  <footer class="quick-foot">
+    <p id="quick-msg" class="msg" role="status"></p>
+    <div class="quick-actions" id="quick-main-actions">
+      <button type="button" class="btn" id="quick-new">+ Uusi nappi</button>
+      <button type="button" class="btn solid" id="quick-done" data-done>Valmis</button>
     </div>
-    <label class="fl" for="quick-new-tags">Tunnisteet</label>
-    <input type="text" id="quick-new-tags" placeholder="#tunniste">
-    <div class="btnrow">
+    <div class="quick-actions" id="quick-new-actions">
       <button type="button" class="btn" id="quick-new-cancel">Peru</button>
-      <button type="submit" class="btn solid">Lisää nappi</button>
+      <button type="submit" class="btn solid" form="quick-new-form">Lisää nappi</button>
     </div>
-  </form>
-  <form id="quick-variable-form" aria-label="Uusi muuttujanappi" hidden>
-    <label class="fl" for="quick-variable-name">Muuttuja</label>
-    <select id="quick-variable-name" required></select>
-    <div class="btnrow">
+    <div class="quick-actions" id="quick-variable-actions">
       <button type="button" class="btn" id="quick-variable-cancel">Peru</button>
-      <button type="submit" class="btn solid">Lisää nappi</button>
+      <button type="submit" class="btn solid" form="quick-variable-form">Lisää nappi</button>
     </div>
-  </form>
-  <p id="quick-msg" class="msg" role="status"></p>
-  <div class="btnrow"><button type="button" class="btn" id="quick-done" data-done>Valmis</button></div>
+    <div class="quick-actions" id="quick-value-actions">
+      <button type="button" class="btn" id="quick-value-cancel">Peru arvo</button>
+      <button type="submit" class="btn solid" form="quick-values">Lisää kirjaus</button>
+    </div>
+  </footer>
 </dialog>
 <dialog id="xy-picker" aria-labelledby="xy-title">
   <h2 id="xy-title">Valitse arvo</h2>
@@ -5724,6 +5766,7 @@ function kbKeep(ta){var d=ta.closest('dialog')||ta.closest('#main'),st=d?d.scrol
     if(d.scrollTop!==st&&y0<vh-48)d.scrollTop=st;else{var y=ta.getBoundingClientRect().top;if(y<top+4)d.scrollTop-=top+4-y;}};
   kbHold=Date.now();ta.addEventListener('focus',function f(){ta.removeEventListener('focus',f);[0,50,150,300,500,800].forEach(function(ms){setTimeout(fix,ms);});setTimeout(function(){kbHold=0;},900);});}
 document.addEventListener('touchstart',function(ev){var t=ev.target;if(!t||!t.matches||t===document.activeElement)return;
+  if(t.closest('#quick-entry'))return;
   if(t.matches('textarea,input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]):not([type=color]),[contenteditable]'))kbKeep(t);},{passive:true,capture:true});
 function openSheet(d){d._ord=++sheetN;if(!SMALL[d.id]){d.classList.add('big');barSizes();var h=d.querySelector('h2');if(h)h.setAttribute('data-crumb',crumbOf(d));dbarSync(d);}
   if(d.showModal)d.showModal();else d.setAttribute('open','');modalSync();
@@ -11063,6 +11106,31 @@ async function dashWriteDay(path,day,edits,repo,branch){
 }
 /* Kaikki 0.18: Vaultin pikakirjaus. Valinnat kerätään ennen tallennusta. */
 var QUICK_PRESETS='pohjat/pikakirjaus.md',quickDraft=null;
+var quickDialog=$('quick-entry'),quickBody=$('quick-body'),quickViewport=window.visualViewport,quickViewportFrame=0;
+function quickFitViewport(){
+  if(quickViewport){
+    quickDialog.style.setProperty('--quick-viewport',Math.floor(quickViewport.height)+'px');
+    quickDialog.style.setProperty('--quick-viewport-top',Math.round(quickViewport.offsetTop)+'px');
+  }
+}
+function quickFitFocusedField(){
+  if(!quickDialog.open||quickViewportFrame)return;
+  quickViewportFrame=requestAnimationFrame(function(){
+    quickViewportFrame=0;
+    if(!quickDialog.open)return;
+    quickFitViewport();
+    var field=document.activeElement;
+    if(!quickBody.contains(field)||!field.matches('input,select,textarea'))return;
+    var box=field.getBoundingClientRect(),area=quickBody.getBoundingClientRect();
+    if(box.top<area.top+8)quickBody.scrollTop+=box.top-area.top-8;
+    else if(box.bottom>area.bottom-8)quickBody.scrollTop+=box.bottom-area.bottom+8;
+  });
+}
+if(quickViewport){
+  quickViewport.addEventListener('resize',quickFitFocusedField);
+  quickViewport.addEventListener('scroll',quickFitFocusedField);
+}
+quickBody.addEventListener('focusin',quickFitFocusedField);
 function quickPresets(){
   var file=VC.files[QUICK_PRESETS],list=[],mode='',seen=new Set();
   if(!file)return list;
@@ -11280,7 +11348,7 @@ function quickVariableValue(preset){
   var draft=quickDraft,day=$('quick-day').value,host=$('quick-values'),msg=$('quick-msg');
   if(!dashDay(day)||isoD(fromIso(day))!==day){msg.textContent='Valitse kirjauspäivä.';return;}
   host.textContent='';host.hidden=false;msg.textContent='';
-  var label=el('label','fl','Arvo · '+preset.name),input=el('input'),actions=el('div','btnrow');
+  var label=el('label','fl','Arvo · '+preset.name),input=el('input');
   input.id='quick-variable-value';input.type='text';input.required=true;label.htmlFor=input.id;
   var subjectLabel=el('label','fl','Kohde (valinnainen)'),subject=el('input'),subjects=el('datalist');
   subject.id='quick-observation-subject';subjectLabel.htmlFor=subject.id;subjects.id='quick-observation-subjects';
@@ -11291,9 +11359,8 @@ function quickVariableValue(preset){
     var b=Array.from($('quick-picks').children).find(function(b){return b.dataset.key===preset.key;});
     if(b)b.focus();
   }
-  button(actions,'Peru arvo','btn',restore);
-  var apply=el('button','btn solid','Lisää kirjaus');apply.type='submit';actions.appendChild(apply);
-  host.append(label,input,subjectLabel,subject,subjects,el('p','sub','Päivämuistiinpano · '+mvDay(day)),actions);
+  $('quick-value-cancel').onclick=restore;
+  host.append(label,input,subjectLabel,subject,subjects,el('p','sub','Päivämuistiinpano · '+mvDay(day)));
   host.dataset.variable=preset.key;
   host.onsubmit=function(event){
     event.preventDefault();
@@ -11304,14 +11371,15 @@ function quickVariableValue(preset){
     draft.edits.set(id,{day:day,path:quickDayPath(day),after:value,line:'- '+mark,id:id,preset:preset.key});
     restore();msg.textContent=preset.name+' · '+value;
   };
-  input.focus();
+  quickBody.scrollTop=0;input.focus({preventScroll:true});
 }
 function quickRender(){
   var note=$('quick-controls-note');if(note)note.remove();
+  $('quick-help').textContent='';$('quick-value-cancel').onclick=null;
   if(quickDraft.mode==='napit'){quickControls();return;}
   var host=$('quick-picks'),tracking=quickDraft.mode==='seuranta',variables=quickDraft.mode==='muuttujat';
   $('quick-values').onsubmit=null;delete $('quick-values').dataset.variable;$('quick-variable-form').hidden=true;
-  host.textContent='';$('quick-values').hidden=true;$('quick-new-form').hidden=true;$('quick-new').hidden=false;$('quick-msg').textContent='';
+  host.textContent='';$('quick-values').hidden=true;$('quick-new-form').hidden=true;$('quick-msg').textContent='';
   $('quick-day-row').hidden=!tracking&&!variables;
   $('quick-track').setAttribute('aria-pressed',String(tracking));
   $('quick-remind').setAttribute('aria-pressed',String(!tracking&&!variables));
@@ -11333,7 +11401,7 @@ function quickRender(){
     await saveQuickEntry();
     if(!$('quick-entry').open)openTreText('');
   }).id='quick-treeni';
-  if(!host.childElementCount)$('quick-msg').textContent=variables?'Lisää nappi valitsemalla olemassa oleva tekstimuuttuja.':'Esiasetuksia ei löytynyt tiedostosta pohjat/pikakirjaus.md.';
+  if(!host.childElementCount)$('quick-help').textContent=variables?'Lisää nappi valitsemalla olemassa oleva tekstimuuttuja.':'Esiasetuksia ei löytynyt tiedostosta pohjat/pikakirjaus.md.';
 }
 function openQuickEntry(requested,preset){
   if(!vOn())return;
@@ -11342,12 +11410,12 @@ function openQuickEntry(requested,preset){
   if(mode!=='muistutus'&&((mode!=='muuttujat'&&mode!=='napit')||!vK()||vK().id!==data.k))mode='seuranta';
   quickDraft={presets:quickPresets(),mode:mode,edits:new Map(),repo:vRepo(),branch:G.branch};
   if(preset)quickDraft.presets=quickDraft.presets.concat(preset);
-  $('quick-day').value=todayIso();quickRender();openSheet($('quick-entry'));
+  $('quick-day').value=todayIso();quickRender();quickFitViewport();openSheet(quickDialog);quickBody.scrollTop=0;
   if(preset)quickVariableValue(preset);
 }
 function quickMode(mode){
   quickDraft.mode=mode;try{localStorage.setItem('kaikki:quick-mode',mode);}catch(e){}
-  quickRender();
+  quickRender();quickBody.scrollTop=0;
 }
 async function saveQuickEntry(){
   var draft=quickDraft,dialog=$('quick-entry'),msg=$('quick-msg');
@@ -11408,7 +11476,7 @@ function quickPresetPatch(text,mode,name,line){
 function quickControls(){
   var host=$('quick-picks'),msg=$('quick-msg');
   $('quick-values').onsubmit=null;delete $('quick-values').dataset.variable;$('quick-variable-form').hidden=true;
-  host.textContent='';$('quick-values').hidden=true;$('quick-new-form').hidden=true;$('quick-new').hidden=false;msg.textContent='';
+  host.textContent='';$('quick-values').hidden=true;$('quick-new-form').hidden=true;msg.textContent='';
   $('quick-day-row').hidden=true;
   ['quick-track','quick-remind','quick-variables'].forEach(function(id){$(id).setAttribute('aria-pressed','false');});
   $('quick-variables').hidden=$('quick-controls').hidden=!vK()||vK().id!==data.k;
@@ -11417,7 +11485,7 @@ function quickControls(){
     var b=button(host,it.nimi,'btn',function(){saadinPress(it,msg);});
     b.disabled=!!it.virhe;b.title=saadinSummary(it);b.setAttribute('aria-label','Kirjaa: '+it.nimi);
   });
-  if(!host.childElementCount)msg.textContent='Ei vielä nappeja. Tee säädin napista + Uusi nappi.';
+  if(!host.childElementCount)$('quick-help').textContent='Ei vielä nappeja. Tee säädin napista + Uusi nappi.';
   else{var note=el('p','sub quick-controls-note','Napit kirjaavat heti. Kumoa näkyy hetken näytön reunassa.');note.id='quick-controls-note';host.after(note);}
 }
 $('quick-new').addEventListener('click',function(){
@@ -11429,14 +11497,14 @@ $('quick-new').addEventListener('click',function(){
     if(!available.length){$('quick-msg').textContent='Valittavia tekstimuuttujia ei ole. Luo muuttuja Muistiossa.';return;}
     select.replaceChildren();
     available.forEach(function(group){var option=el('option','',group.nimi);option.value=group.nimi;select.appendChild(option);});
-    $('quick-values').hidden=true;delete $('quick-values').dataset.variable;$('quick-new').hidden=true;$('quick-msg').textContent='';
-    $('quick-variable-form').hidden=false;select.focus();return;
+    $('quick-values').hidden=true;delete $('quick-values').dataset.variable;$('quick-msg').textContent='';
+    $('quick-variable-form').hidden=false;quickBody.scrollTop=0;select.focus({preventScroll:true});return;
   }
-  var form=$('quick-new-form');form.reset();form.hidden=false;$('quick-new').hidden=true;
+  var form=$('quick-new-form');form.reset();form.hidden=false;
   $('quick-new-track').hidden=quickDraft.mode!=='seuranta';$('quick-new-choices-row').hidden=true;
-  $('quick-values').hidden=true;$('quick-msg').textContent='';$('quick-new-name').focus();
+  $('quick-values').hidden=true;$('quick-msg').textContent='';quickBody.scrollTop=0;$('quick-new-name').focus({preventScroll:true});
 });
-function quickCancelNew(){quickRender();$('quick-new').focus();}
+function quickCancelNew(){quickRender();quickBody.scrollTop=0;$('quick-new').focus();}
 $('quick-new-cancel').addEventListener('click',quickCancelNew);
 $('quick-variable-cancel').addEventListener('click',quickCancelNew);
 $('quick-new-kind').addEventListener('change',function(){$('quick-new-choices-row').hidden=this.value!=='valinta';});
@@ -11464,7 +11532,7 @@ $('quick-variable-form').addEventListener('submit',function(event){
 async function quickSavePreset(draft,name,line){
   var msg=$('quick-msg');
   if(vBusy||draft.saving){msg.textContent='Vault synkronoi. Yritä uudelleen.';return;}
-  var controls=Array.from($('quick-entry').querySelectorAll('button,input,select'));
+  var controls=Array.from(quickDialog.querySelectorAll('button,input,select')),saved=false;
   controls.forEach(function(control){control.disabled=true;});
   vBusy=true;draft.saving=true;msg.textContent='Tallennetaan…';vRender();
   try{
@@ -11472,9 +11540,12 @@ async function quickSavePreset(draft,name,line){
     if(result.error){msg.textContent=result.error;return;}
     if(!vOn()||vRepo()!==draft.repo||G.branch!==draft.branch)return;
     VC.files[QUICK_PRESETS]=result.file;vSaveC();
-    draft.presets=quickPresets();quickRender();$('quick-new').focus();
+    draft.presets=quickPresets();quickRender();quickBody.scrollTop=0;saved=true;
   }catch(error){msg.textContent='Nappia ei voitu tallentaa. Tarkista yhteys.';}
-  finally{draft.saving=false;vBusy=false;controls.forEach(function(control){control.disabled=false;});vRender();vFlush();}
+  finally{
+    draft.saving=false;vBusy=false;controls.forEach(function(control){control.disabled=false;});vRender();vFlush();
+    if(saved&&quickDialog.open)$('quick-new').focus();
+  }
 }
 ['quick-entry-desktop','quick-entry-mobile'].forEach(function(id){$(id).addEventListener('click',openQuickEntry);});
 $('quick-track').addEventListener('click',function(){quickMode('seuranta');});
