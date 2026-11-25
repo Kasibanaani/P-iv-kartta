@@ -1,10 +1,12 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.90 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 25.11.2026
+**Vaihe:** versio 0.91 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 25.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.91 (25.11.2026).** Holvin keskeneräinen haku, peräkkäiset kirjoitukset, avoimen muistiinpanon rinnakkaismuutos, yhteysasetuksen tarkistus ja listatiedoston luku korjattu. Muuttujaluettelo huomioi kellonajan. Muistion luontitiedot, kojelaudan tyhjän tilan ilmoitus, CSV-aikarajaus ja ZIP-viennin kuvaus täsmennetty. Uusi regressiokoe `testit/selain_91.py`. [Kriittinen arvio, vielä avoimet löydökset, työjärjestys ja käyttäjäkysymykset](SUUNNITELMA.md#kriittinen-arvio-25112026). Chromiumissa käytettiin synteettistä holvia. Fyysisen iPhonen Safari, kotinäytön paikallinen tallennus ja oikean holvin offline-kierros odottavat käyttökokeilua.
 
 **0.90 (25.11.2026).** Pikakirjaus avautuu lähelle näytön yläreunaa ja sovittaa korkeutensa näppäimistön yläpuolelle jäävään tilaan. Otsikko, välilehdet ja toimintorivi pysyvät paikoillaan, kun sisältö vierii tai ohjeteksti vaihtuu. Uuden napin lomakkeella näkyvät samalla rivillä **Peru** ja **Lisää nappi**. Puhelimen vaakasuunnassa otsikko ja välilehdet ovat samalla rivillä, jotta kentille jää tilaa. Ikkuna palaa tavalliseen yläreunaansa, kun näppäimistö sulkeutuu. Modern Web Guidance: selaimen oma modaalinen ikkuna ja sisäinen vieritys.
 
@@ -264,6 +266,8 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 - Modern Web Guidance -hakua ei voitu ajaa (komento estettiin tässä istunnossa); uutta käyttöliittymää on vain asetusikkuna, Juuren tyyleillä.
 
 ## Seuraava askel
+
+**Arvion ehdotus 25.11.** Kokeile ensin arkistointi ja luonnoksen säilyminen verkon tai paikallisen tilan loppuessa. Seuraava aiemmin päätetty ominaisuus on A6.3. Katso suunnitelman arvio ennen uuden kirjoitusreitin lisäämistä.
 
 **Pikakirjaus.** Kokeile uuden napin lomakkeen ja muuttujakentän käyttöä iPhonella näppäimistön ollessa auki.
 
