@@ -1,10 +1,15 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.97 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 25.11.2026
+**Vaihe:** versio 0.98 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 25.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.98 (25.11.2026): kojelaudan raahaus ja Muistion nappisarake (työjonon kärki 5 ja A6.3).**
+- **Kojelauta.** Siirtokahvasta ruutu seuraa osoitinta ja kohderuudun reunassa näkyy pudotussuunta. Kokokahvasta näkyvät vedon hetkellinen koko ja ruudukon sallima koko. Ruudukko asettuu uudelleen vapautuksessa. Reunavieritys jatkuu osoittimen ollessa paikallaan. Esc, kosketuksen keskeytys ja osoitinkaappauksen menetys peruuttavat vedon. Ruutuasetuksissa *Asettelu* tarjoaa samat koko- ja järjestysmuutokset valitsimina.
+- **Muistio.** Rivinäkymän ＋ → *Nappisarake* käyttää olemassa olevaa säädintä. Napautus kirjoittaa sen rivin muistiinpanoon. Kysyvässä napissa näkyy kohde ennen vahvistusta. Näkymäeditorista voi lisätä ja vaihtaa sarakkeen säätimen. Tallennusmuoto on `nappi(säätimen-tunnus)` olemassa olevassa `sarakkeet`-luettelossa. Kirjaus kulkee säätimien kirjoitusjonon kautta ja tukee kumoamista. Lukitus estää kirjoituksen.
+- **Tarkistus:** `selain_98.py` kattaa hiiren, emuloidun kosketuksen, siirron ja koonmuutoksen, peruutuksen, reunavierityksen ja asettelun paluun latauksen jälkeen sekä nappisarakkeen lisäämisen, kohdistuksen, kumoamisen ja lukituksen. Chromiumissa läpäisi 115 testitiedostoa. Testit 28, 60 ja 62 läpäisivät uusinta-ajossa. Testissä 62 havaittiin sama tiedosto-URL:n uudelleenlatausongelma myös versiossa 0.97. Oikean iPhonen tuntuma ja henkilökohtaisella holvilla kirjaaminen ovat vielä kokeilematta.
 
 **0.97 (25.11.2026): suomalainen aika ja viikkotarkkuus kirjausreitillä (työjonon kärki 4).**
 - **Viikkohavainto.** Tiedostomuoto on `((vk 48/2026, paino = 80 kg))`, ja se määriteltiin ja testattiin ennen kuin mikään alkoi kirjoittaa sitä. Viikko on suomalainen ISO-viikko, joka alkaa maanantaina, ja viikkovuosi määräytyy torstain mukaan: 1.1.2027 → vk 53/2026. Lukija hyväksyy myös `viikko 48/2026`, `vk 48/26` ja `2026-W48`. Vuodeton `vk 48` tarkoittaa kuluvaa vuotta, tai edellistä, jos viikko olisi vielä tulossa. Viikkohavainto pysyy viikkona: kooste ottaa sen mukaan yhtenä havaintona, jos viikko osuu aikaväliin, eikä sitä jaeta päiville eikä se näy päiväkuvaajassa. Havaintotaulukossa se on viikkoakselilla oma viikkonsa ja päiväakselilla oma rivinsä (*vk 48/2026*). Muistiossa, lähteissä ja muuttujaluettelossa näkyy *vk 48/2026*. *Viimeisin* vertaa viikkoa sen maanantaina.
@@ -298,7 +303,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 **Suunnitelma 25.11.2026.** Emil hyväksyi [laskennallisen ja käytettävän muistiinpanon](SUUNNITELMA.md#111-laskennallinen-ja-käytettävä-muistiinpano) lisäämisen suunnitelmaan. Tilakytkin kuuluu muistiinpanoikkunan käytettävyystyöhön, ensimmäinen havaintokaava yhteisen havaintohaun jatkoksi ja tekstin säätimet A6:n jatkoksi. Ensimmäisen käyttökokeen nimi on *Päivän tilanne*. Toteutus ja iPhone-koe ovat edessä.
 
-**0.97:n jälkeen.** Kokeile kysyvää nappia: kirjoita päiväksi 5.1.26, vk 48 ja eilen klo 7, ja katso kentän alta, mitä appi ymmärsi. Tee nappi, jonka aika on *Kuluva viikko*. Seuraavaksi työjonon kärjen kohta 5 (kojelaudan raahaus kalenterin tapaan), sitten A6.3.
+**0.98:n jälkeen.** Kokeile iPhonella kojelaudan siirto- ja kokokahvaa sekä Muistion nappisaraketta pitkällä nimellä. Seuraava rakennettava säädin on pohjaan jäävä nappi (A6.4), sen jälkeen XY (A6.5).
 
 **0.96:n jälkeen.** Kokeile puhelimella kokonainen treenikerta: avaa kalenterista salitreeni, ＋ Kirjaa → Muokkaa → + Uusi nappi, tee *Penkki* (kohde Penkki, muuttujat paino kg ja toistot), Valmis, kirjoita huomio ja kirjaa kaksi sarjaa. Tarkista, että näppäimistö jättää molemmat kentät ja Kirjaa-napin näkyviin, ja avaa sama muistiinpano tietokoneella. Seuraavaksi: työjonon kärjen kohta 4 (suomalainen aika ja viikkotarkkuus) tai kohta 5 (kojelaudan raahaus kalenterin tapaan), sitten A6.3 (Muistion nappisarake samalla napilla).
 
@@ -306,7 +311,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 **Pikakirjaus.** Kokeile uuden napin lomakkeen ja muuttujakentän käyttöä iPhonella näppäimistön ollessa auki.
 
-**Säätimet (A6).** Emil kokeilee kertanappia kojelaudalla ja pikakirjauksessa. Seuraavat vaiheet ovat Muistion nappisarake (A6.3), pohjaan jäävä nappi (A6.4) ja XY (A6.5).
+**Säätimet (A6).** Kertanappi toimii kojelaudalla, pikakirjauksessa ja Muistion rivillä. Seuraavat vaiheet ovat pohjaan jäävä nappi (A6.4) ja XY (A6.5).
 
 **Kojelaudan jatko (0.71:n jälkeen):** kokeile tarkistuslistaa ja kenttäruutua. Kuvaajien esitystavat ja ruutujen sijoittelu muokkaustilassa ovat auki.
 
