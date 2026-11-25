@@ -33,7 +33,7 @@ var of=window.fetch;window.fetch=function(u,o){u=String(u);if(u.indexOf('https:/
   if(m==='POST'&&path==='/git/trees'){
     var snapshot=Object.assign({},trees[b.base_tree]),treeKey='tree-'+(++serial);
     if(!trees[b.base_tree])return resp(422);
-    b.tree.forEach(function(e){snapshot[e.path]={t:e.content,sha:sha(e.content)};});
+    b.tree.forEach(function(e){if(e.sha===null&&e.content===undefined)delete snapshot[e.path];else snapshot[e.path]={t:e.content,sha:sha(e.content)};});
     trees[treeKey]=snapshot;
     return resp(201,{sha:treeKey,tree:treeOf(snapshot)});
   }

@@ -303,6 +303,7 @@ h3{font-size:15px;font-weight:600;color:var(--label2);margin:20px 0 8px}
 .sub{font-size:15px;color:var(--label2);margin:0 0 12px;max-width:36em}
 .foot{font-size:13px;color:var(--label2);margin:18px 0 0;max-width:38em}
 .msg{font-size:15px;color:var(--label2);margin:10px 0}
+#ns-store{color:var(--label);border-left:3px solid var(--red);padding:2px 0 2px 10px}#ns-store .mini{margin-top:6px}
 .msg:empty{display:none}
 .msg.warn{color:var(--red)}
 .rows{display:grid;gap:8px}
@@ -2110,6 +2111,12 @@ html,body,#main,.rv-scroll,.sg-wrap{overscroll-behavior-x:none}
   <div class="btnrow"><button type="button" class="btn solid" id="gs-save">Ota käyttöön</button><button type="button" class="btn" id="gs-pull">Hae nyt</button><button type="button" class="btn" id="gs-off">Poista käytöstä</button></div>
   <p class="msg" id="gs-msg" aria-live="polite"></p>
 </dialog>
+<dialog id="storesheet" aria-labelledby="st-h">
+  <h2 id="st-h">Laitteen muisti</h2>
+  <div id="st-text"></div>
+  <div class="btnrow"><button type="button" class="btn solid" id="st-retry">Yritä uudelleen</button></div>
+  <p class="msg" id="st-msg" aria-live="polite"></p>
+</dialog>
 <dialog id="vwork-sheet" aria-labelledby="vwork-title">
   <h2 id="vwork-title">Tekoälylle</h2>
   <div class="btnrow" id="vwork-actions"></div>
@@ -2462,6 +2469,7 @@ html,body,#main,.rv-scroll,.sg-wrap{overscroll-behavior-x:none}
   <span id="ns-formula-results" class="vh" hidden></span>
   <div class="hlwrap" id="ns-wrap"><div class="hl" id="ns-hl" aria-hidden="true"></div><textarea id="ns-text" aria-label="Muistiinpanon teksti"></textarea></div>
   <p class="msg" id="ns-vmsg" hidden role="status"></p>
+  <div class="msg nsstore" id="ns-store" hidden role="alert"><span id="ns-store-t"></span> <button type="button" class="mini" id="ns-store-copy">Kopioi teksti</button></div>
   <div class="tmenu" id="ns-tm" hidden></div><div id="ns-tmbg" hidden></div>
   <div class="dtrow" id="ns-dtrow"><input type="date" id="ns-date" aria-label="Päivämäärä (valinnainen)"><button type="button" class="mini" id="ns-days" aria-haspopup="dialog" aria-label="Päivät"><span class="lg">Päivät</span><svg class="ic" viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="4" width="15" height="13.5" rx="2"/><path d="M2.5 8h15M6.5 2.5v3M13.5 2.5v3M6 11.5h2M9 11.5h2M12 11.5h2M6 14.5h2M9 14.5h2"/></svg></button><span id="ns-timerow" class="dtt"><input type="time" id="ns-ts" aria-label="Alkaa (valinnainen, jos tekstissä ei ole aikaa)"><span aria-hidden="true">–</span><input type="time" id="ns-te" aria-label="Päättyy"></span></div>
   <div class="btnrow" id="ns-pinrow" hidden style="margin:8px 0 0"><button type="button" class="mini" id="ns-pin" aria-pressed="false"></button></div>
@@ -5123,6 +5131,15 @@ try{var raw=JSON.parse(localStorage.getItem(KEY)||'null'),nd=normalizeData(raw);
     if(data.meta.dirty>0&&!data.K.some(function(k){return k.chg;}))data.K.forEach(function(k){k.chg=todayIso();});}}catch(e){}
 if(!data.K.length){var k0=newK('Projekti');data.K.push(k0);loadK(k0);}
 var storeOk=true;
+/* Kaikki 0.92 (kriittinen arvio 25.11.2026, löydös 1b): tärkeät kirjoitukset selaimen muistiin kulkevat yhden reitin kautta.
+   Epäonnistuminen kirjataan avaimittain, onnistuminen nollaa sen ja muistaa ajan (viimeisin onnistunut säilytys). Yläpalkin
+   Laitteen muisti täynnä -nappi avaa selitteen (storeExplain). Muistiinpanon luonnoksen virhe näkyy ikkunassa (#ns-store). */
+var STORE={fail:{},ok:{}},STORE_WHAT={};
+function storeSet(key,value,what){if(what)STORE_WHAT[key]=what;var was=storeOk;
+  try{if(value===null)localStorage.removeItem(key);else localStorage.setItem(key,value);delete STORE.fail[key];STORE.ok[key]=nowIso();}
+  catch(e){STORE.fail[key]={at:nowIso(),err:String(e&&e.name||e)};}
+  storeOk=!Object.keys(STORE.fail).length;if(was!==storeOk)try{renderStatus();}catch(e){}return !STORE.fail[key];}
+function storeClock(iso){var d=new Date(iso);return (d.toDateString()===new Date().toDateString()?'':d.getDate()+'.'+(d.getMonth()+1)+'. ')+'klo '+d.getHours()+'.'+pad(d.getMinutes());}
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(function(){});}catch(e){}
 function snapshot(){stashK();return {app:'paatospuu',ver:VER,savedAt:nowIso(),kcur:data.k,kokonaisuudet:data.K.map(function(k){return {id:k.id,name:k.name,cur:k.cur,puut:k.projects,muistiinpanot:k.notes,termit:k.terms,termisanat:k.words,roskakori:k.trash,tarkeat:k.imp,toistuvat:k.reps,tarkistuslista:k.chk&&k.chk.length?k.chk:undefined,ryhmat:k.grp&&k.grp.length?k.grp:undefined,listat:k.lists&&k.lists.length?k.lists:undefined,jatkuvalista:k.jl||undefined,ehdot:k.ehdot&&k.ehdot.length?k.ehdot:undefined,pikat:k.pk&&k.pk.length?k.pk:undefined,paivanapit:pvOut(k.pv),yksinkertaisetPuut:k.st&&k.st.length?k.st:undefined,flow:flOut(k.fl),asetukset:k.cfg||undefined,aikavalit:k.win&&Object.keys(k.win).length?k.win:undefined,kalenteri:calvOut(k.calv),muokattu:k.mod||undefined,viety:k.ex||undefined,viematta:k.chg||undefined};}),cfg:data.cfg};}
 /* 1.98: tekstien kuittausten kohdistus ja johdettu N.done ennen tallennusta ja piirtoa (muisti: vain muuttuneet muistiinpanot) */
@@ -5130,7 +5147,8 @@ var txMemo=typeof WeakMap!=='undefined'?new WeakMap():null;
 function txAll(){var t=todayIso();(data.notes||[]).forEach(function(N){var k=t+'|'+N.text+'|'+N.date+'|'+JSON.stringify(N.pts||0)+'|'+JSON.stringify(N.tx||0)+'|'+(N.done||'')+'|'+JSON.stringify(N.rel||0)+JSON.stringify(N.bt||0)+JSON.stringify(N.rg||0);
   if(txMemo&&txMemo.get(N)===k)return;if(txSync(N,t)&&N.rep)repSignOff(data.reps,N,t);
   if(txMemo)txMemo.set(N,t+'|'+N.text+'|'+N.date+'|'+JSON.stringify(N.pts||0)+'|'+JSON.stringify(N.tx||0)+'|'+(N.done||'')+'|'+JSON.stringify(N.rel||0)+JSON.stringify(N.bt||0)+JSON.stringify(N.rg||0));});}
-function save(){try{phaseEnsure(data);txAll();var o=snapshot();o.meta=data.meta;localStorage.setItem(KEY,JSON.stringify(o));storeOk=true;}catch(e){storeOk=false;}}
+function save(){var j;try{phaseEnsure(data);txAll();var o=snapshot();o.meta=data.meta;j=JSON.stringify(o);}catch(e){STORE.fail[KEY]={at:nowIso(),err:String(e&&e.message||e)};storeOk=false;return;}
+  storeSet(KEY,j,'muistiinpanot ja asetukset');}
 /* Muutosseuranta viennin pallerolle ja tuonnin varoitukselle (Emil 22.10.2026): mod = viimeisin muutos, chg = ensimmäisen viemättömän
    muutoksen päivä (paikallinen), ex = projektin viimeisin vienti. Koko appin vienti nollaa kaikkien chg:n, projektin vienti oman. */
 function touch(){var P=proj(),k=kOf();if(P)rulesToText(P);if(k){k.mod=nowIso();if(!k.chg)k.chg=todayIso();}data.meta.dirty=(data.meta.dirty||0)+1;save();renderStatus();}
@@ -5364,7 +5382,7 @@ function statusText(){return data.K.some(function(k){return k.chg;})?'Muutoksia 
 /* Vanha tallennus piti päivän (VVVV-KK-PP), uusi aikaleiman */
 function whenTxt(t){return !t?'ei vielä kertaakaan':/^\d{4}-\d\d-\d\d$/.test(t)?fiDate(t):stamp(t);}
 function renderStatus(){var b=$('status'),t=todayIso();
-  b.hidden=storeOk;b.textContent=storeOk?'':'Tallennus ei onnistu';$('xdot').hidden=!data.K.some(function(k){return staleK(k,t);});$('qx-dot').hidden=$('xdot').hidden;}
+  b.hidden=storeOk;b.textContent=storeOk?'':'Laitteen muisti täynnä';$('xdot').hidden=!data.K.some(function(k){return staleK(k,t);});$('qx-dot').hidden=$('xdot').hidden;}
 document.addEventListener('visibilitychange',function(){if(!document.hidden){if(relDay!==todayIso())render();renderStatus();if($('vsheet').open)renderVs();}});
 setInterval(function(){if(relDay!==todayIso()&&!$('nsheet').open)render();},60000);
 /* Vienti (Emil 22.10.2026): tasan kaksi vaihtoehtoa, molemmat JSON-tiedostona. */
@@ -5390,7 +5408,20 @@ function exportAll(){$('vs-out').textContent='';shareFile(JSON.stringify(fullExp
 function exportProj(){$('vs-out').textContent='';stashK();var k=kOf(),now=nowIso();
   shareFile(JSON.stringify(projectFile(k,now),null,1),expName(k.name),vsMsg,vsText,function(){k.ex=now;k.chg=null;save();renderStatus();renderVs();});}
 $('xbtn').addEventListener('click',function(){vsMsg('');$('vs-ziprow').hidden=!vOn();$('vs-out').textContent='';$('dataout').textContent='';setMsg('');$('impbox').hidden=true;renderVs();openSheet($('vsheet'));});
-$('status').addEventListener('click',function(){openProj('k');setTimeout(function(){var h=$('sec-data');if(h)try{h.scrollIntoView({block:'start'});}catch(e){}},60);});
+$('status').addEventListener('click',storeExplain);
+function storeExplain(){var d=$('storesheet'),box=$('st-text');box.textContent='';
+  function line(t,c){var p=el('p',c||'',t);box.appendChild(p);return p;}
+  var keys=Object.keys(STORE.fail);
+  if(keys.length){line('Selain ei ottanut vastaan tätä tietoa:');var ul=el('ul');keys.forEach(function(k){ul.appendChild(el('li','',(STORE_WHAT[k]||k)+' ('+storeClock(STORE.fail[k].at)+')'));});box.appendChild(ul);
+    line('Tieto on vielä avoimessa apissa. Jos suljet apin ennen kuin tallennus onnistuu, laitteelle jää viimeisin onnistunut versio.');}
+  else line('Kaikki tallentui tähän laitteeseen.');
+  var ok=Object.keys(STORE.ok).filter(function(k){return STORE_WHAT[k];});
+  if(ok.length)line('Viimeksi tallessa laitteella: '+ok.map(function(k){return STORE_WHAT[k]+' '+storeClock(STORE.ok[k]);}).join(', ')+'.');
+  if(vOn())line('GitHub: '+vStatus()+'. Muutokset lähtevät GitHubiin silloinkin, kun laitteen muisti on täynnä, jos appi on auki ja yhteys toimii.');
+  line('Vapauta tilaa esimerkiksi viemällä varmuuskopio ja poistamalla laitteelta vanhoja puita tai roskakorin sisältö. Yritä sitten uudelleen.','sub');
+  $('st-msg').textContent='';if(!d.open)openSheet(d);}
+function storeRetry(){save0();vSaveC();nvPendSave();if($('nsheet').open)draftSave();storeExplain();$('st-msg').textContent=storeOk?'Tallennus onnistui.':'Ei vieläkään tilaa.';}
+$('st-retry').addEventListener('click',storeRetry);
 /* Yläpalkki = projekti, puu valitaan Käytön ja Opetuksen yläosasta (Emil 21.10.2026) */
 function renderHead(){var k=kOf();$('tname').textContent=k?k.name:'Juuri';}
 /* Kuvakkeet ohuina viivoina, ei emojimerkkejä (Emil 23.10.2026) */
@@ -5737,7 +5768,7 @@ $('nav').addEventListener('click',function(ev){var b=ev.target.closest('[data-ta
 /* 1.55 (I1): isot ikkunat täyttävät tilan yläpalkin ja alapalkin välissä. Otsikon edessä harmaana se, minne ruksi palaa
    (välilehti tai alla oleva ikkuna). Puhelimella 1.74:stä alkaen ikkunalla on oma alapalkki, jonka ‹-nappi sulkee kuten ruksi; osio ei vaihdu. */
 /* 1.105 (Emil 18.11.2026): listojen ikkunat (Listat, rivin ikkuna) ovat pieniä ikkunoita päällä; ulkopuolinen napautus sulkee, ei ruksia */
-var SMALL={csheet:1,dsheet:1,pksheet:1,wsheet:1,ksheet:1,pvsheet:1,gsheet:1,'vwork-sheet':1,'section-settings':1,'dash-entry':1,'quick-entry':1,'tre-text':1,'note-graph':1,'xy-picker':1,'note-batch-delete':1,'note-batch-tags':1,'sheet-edit':1,'sheet-new':1,'board-edit':1,'tag-migration':1,'writing-guide':1,'flow-text-preview':1};
+var SMALL={storesheet:1,csheet:1,dsheet:1,pksheet:1,wsheet:1,ksheet:1,pvsheet:1,gsheet:1,'vwork-sheet':1,'section-settings':1,'dash-entry':1,'quick-entry':1,'tre-text':1,'note-graph':1,'xy-picker':1,'note-batch-delete':1,'note-batch-tags':1,'sheet-edit':1,'sheet-new':1,'board-edit':1,'tag-migration':1,'writing-guide':1,'flow-text-preview':1};
 function barSizes(){var t=$('top'),n=$('pbar').offsetParent?$('pbar'):$('nav'),r=document.documentElement.style;
   if(t)r.setProperty('--toph',Math.max(0,Math.round(t.getBoundingClientRect().bottom))+'px');
   if(typeof land==='function'&&land()){r.setProperty('--toph','0px');r.setProperty('--navh','0px');r.setProperty('--sbh','0px');return;}
@@ -7852,10 +7883,12 @@ async function vCommitFiles(state,paths,build,message){
         texts.set(path,cached&&cached.sha===entry.sha?cached.t:b64d((await request('/git/blobs/'+entry.sha,200)).content));
       }));
     }
-    var changes=build(texts);
+    var changes=build(texts,entries);
     if(!changes.size)return {changes:changes,before:texts};
+    /* 0.92: arvo null poistaa tiedoston samassa commitissa (arkistointi = kopio ja poisto yhdellä kertaa) */
     var tree=await request('/git/trees',201,'POST',{base_tree:commit.tree.sha,tree:Array.from(changes,function(pair){
-      return {path:pair[0],mode:(entries.get(pair[0])||{}).mode||'100644',type:'blob',content:pair[1]};
+      var mode=(entries.get(pair[0])||{}).mode||'100644';
+      return pair[1]===null?{path:pair[0],mode:mode,type:'blob',sha:null}:{path:pair[0],mode:mode,type:'blob',content:pair[1]};
     })});
     var next=await request('/git/commits',201,'POST',{message:message,tree:tree.sha,parents:[parent]});
     var moved=await vApi(vUrl('/git/refs/heads/'+branch),'PATCH',{sha:next.sha,force:false});
@@ -7866,7 +7899,8 @@ async function vCommitFiles(state,paths,build,message){
       else throw new Error('Tallennuksen tilaa ei voitu varmistaa. Päivitä Vault ennen uutta muutosta.');
     }
     var after=await request('/git/trees/'+tree.sha+'?recursive=1',200);
-    after.tree.forEach(function(e){if(changes.has(e.path))VC.files[e.path]={t:changes.get(e.path),sha:e.sha};});
+    after.tree.forEach(function(e){if(changes.has(e.path)&&changes.get(e.path)!==null)VC.files[e.path]={t:changes.get(e.path),sha:e.sha};});
+    changes.forEach(function(t,path){if(t===null)delete VC.files[path];});
     vAt=vClock();vSaveC();
     return {changes:changes,before:texts};
   }
@@ -8117,7 +8151,7 @@ function nvMerge(D,cur){var path=D.path||D.newPath;
 var NV_PEND={};
 function nvPendKey(path,repo,branch){return (repo||vRepo())+'|'+(branch||G.branch)+'|'+path;}
 function nvPendSave(){var a=Object.keys(NV_PEND).map(function(k){var e=NV_PEND[k];return {k:k,D:e.D,st:e.st==='tallentuu'?'odottaa':e.st,err:e.err||'',conflict:e.conflict||null};});
-  try{if(a.length)localStorage.setItem('kaikki:nvpend',JSON.stringify(a));else localStorage.removeItem('kaikki:nvpend');}catch(e){}}
+  storeSet('kaikki:nvpend',a.length?JSON.stringify(a):null,'odottavat näkymämuutokset');}
 function nvPendLoad(){try{
   var pending=JSON.parse(localStorage.getItem('kaikki:nvpend')||'[]')||[];
   pending.forEach(function(e){
@@ -8700,7 +8734,7 @@ $('ns-archno').addEventListener('click',function(){$('ns-archbox').hidden=true;$
 $('ns-archok').addEventListener('click',function(){$('ns-archbox').hidden=true;$('ns-delrow').hidden=false;if(!noteCur)return;var n=noteCur;$('ns-ok').click();if(data.notes.indexOf(n)<0)return;var U=undoArm([n]);n.arch=nowIso();touch();render();undoAt=Date.now();undoShow(U,'Arkistoitu');});
 var noteOpenView='';
 function openNote(n,pre,occ,viewPath){noteCur=n;noteOpenView=viewPath||'';var file=n&&n._vaultEdit;
-  $('nsheet').classList.toggle('vwork-file',!!file);$('ns-vmsg').hidden=true;$('ns-vmsg').textContent='';
+  $('nsheet').classList.toggle('vwork-file',!!file);$('ns-vmsg').hidden=true;$('ns-vmsg').textContent='';$('ns-store').hidden=!STORE.fail[DKEY];
   nsNl=n&&n.nl?n.nl.map(function(x){return {w:x.w,at:x.at};}):[];$('ns-tm').hidden=true;$('ns-delbox').hidden=true;$('ns-archbox').hidden=true;$('ns-delrow').hidden=!n||!!file;noteArm=0;noteOcc=n&&occ?occ:null;stateRow(file?null:n);$('ns-ov').hidden=true;linkSel='';$('ns-linkbox').hidden=true;$('ns-linkrow').hidden=true;$('ns-pop').hidden=true;$('ns-text').value=n?n.text:'';$('ns-date').value=n?(n.date||''):'';$('ns-ts').value=n&&n.time?n.time.s:'';$('ns-te').value=n&&n.time?n.time.e:'';$('ns-stamp').textContent=n?(noteCreationLabel(n)?'Luotu '+noteCreationLabel(n):'Luontiaika puuttuu')+(n.edited!==n.created?' · muokattu '+stamp(n.edited):''):'Uusi';
   /* kalenterista: valmiiksi päivä ja ajankohta (Emil 21.10.2026) */
   $('ns-h').textContent=file?file.title:!n&&pre?'Uusi kalenterimerkintä':'Muistiinpano';if(!n&&pre){$('ns-date').value=pre.date||'';$('ns-ts').value=pre.s||'';$('ns-te').value=pre.e||'';}
@@ -8993,7 +9027,7 @@ function formulaContext(override){
     if(vOn()&&vK()&&vK().id===data.k)Object.keys(VC.files).forEach(function(path){
       if(!VAULT.visible(path)||known.has(path)||/^nakymat\/|^taulukot\//.test(path))return;
       var file=VC.files[path],pending=VC.q[path];
-      if(pending&&pending.del||VAULT.kindOf(path,VAULT.split(file.t).fm)==='ohje')return;
+      if(vGone(pending)||VAULT.kindOf(path,VAULT.split(file.t).fm)==='ohje')return;
       var note=VAULT.noteOf(path,file.t);if(!note.arch)notes.push(note);
     });
     if(override&&!notes.includes(override))notes.push(override);
@@ -9045,7 +9079,7 @@ function mvDays(o){return o.paivat.length?o.paivat.map(mvDay).join(', ')+(o.kell
 function mvNotes(){var notes=data.notes.filter(function(n){return !n.arch;}),known=new Set(data.notes.map(function(n){return n.vp;}));
   if(vOn()&&vK()&&vK().id===data.k)Object.keys(VC.files).forEach(function(path){
     if(!VAULT.visible(path)||known.has(path)||/^nakymat\/|^taulukot\//.test(path))return;var file=VC.files[path],pending=VC.q[path];
-    if(pending&&pending.del||VAULT.kindOf(path,VAULT.split(file.t).fm)==='ohje')return;var n=VAULT.noteOf(path,file.t);if(!n.arch)notes.push(n);});
+    if(vGone(pending)||VAULT.kindOf(path,VAULT.split(file.t).fm)==='ohje')return;var n=VAULT.noteOf(path,file.t);if(!n.arch)notes.push(n);});
   if(noteCur&&$('nsheet').open&&!noteCur._vaultEdit)notes=notes.map(function(n){return n===noteCur?Object.assign({},n,{text:$('ns-text').value}):n;});
   return notes;}
 function mvRegistry(notes){
@@ -9379,8 +9413,15 @@ $('ns-text').addEventListener('input',function(){syncAdds();});
 var DKEY='kaikki:luonnos',draftT=0;
 function draftSave(){clearTimeout(draftT);if(!$('nsheet').open||(noteCur&&noteCur._vaultEdit))return;var k=kOf(),txt=$('ns-text').value;
   if(noteCur?noteCur.text===txt&&(noteCur.date||'')===($('ns-date').value||''):!txt.trim()){draftClear();return;}
-  try{localStorage.setItem(DKEY,JSON.stringify({k:k?k.id:null,id:noteCur?noteCur.id:null,text:txt,date:$('ns-date').value||'',view:noteOpenView||undefined,at:nowIso()}));}catch(e){}}
-function draftClear(){clearTimeout(draftT);try{localStorage.removeItem(DKEY);}catch(e){}}
+  var ok=storeSet(DKEY,JSON.stringify({k:k?k.id:null,id:noteCur?noteCur.id:null,text:txt,date:$('ns-date').value||'',view:noteOpenView||undefined,at:nowIso()}),'muistiinpanon luonnos');
+  nsStoreMsg(!ok);}
+function draftClear(){clearTimeout(draftT);if(storeSet(DKEY,null,'muistiinpanon luonnos'))nsStoreMsg(false);}
+/* 0.92: luonnoksen tallennusvirhe näkyy heti ikkunassa, ja teksti on kopioitavissa ennen sulkemista. */
+function nsStoreMsg(on){var b=$('ns-store');if(!on){b.hidden=true;return;}
+  var last=STORE.ok[DKEY]?' Viimeisin laitteelle tallentunut luonnos: '+storeClock(STORE.ok[DKEY])+'.':'';
+  $('ns-store-t').textContent='Luonnosta ei voitu tallentaa tähän laitteeseen, koska selaimen muisti on täynnä. Teksti on vielä tässä ikkunassa.'+last+(vOn()?' Kun suljet muistiinpanon, se lähtee GitHubiin, jos yhteys toimii.':' Kopioi teksti talteen ennen sulkemista.');
+  if(b.hidden)$('ns-store-copy').textContent='Kopioi teksti';b.hidden=false;}
+$('ns-store-copy').addEventListener('click',function(){copy($('ns-text').value,$('ns-store-copy'),$('ns-text'));});
 function draftRestore(){var d=null;try{d=JSON.parse(localStorage.getItem(DKEY)||'null');}catch(e){}if(!d||typeof d.text!=='string'||viewLocked(d.view))return false;
   var k=kOf();if(!k||d.k!==k.id)return false;var n=d.id?data.notes.filter(function(x){return x.id===d.id;})[0]:null;if(d.id&&!n){draftClear();return false;}
   openNote(n||null,null,null,d.view);$('ns-text').value=d.text;$('ns-date').value=d.date||'';syncAdds();paintHl();foundInfo();setInfo('Keskeneräinen muistiinpano palautettu. Ruksi tallentaa sen.');return true;}
@@ -10246,7 +10287,7 @@ function srcMenu(anchor){var m=$('sortpop');m.textContent='';m.setAttribute('ari
 /* 0.3: päivitys. Nappi yläpalkissa vie omat muutokset ja hakee GitHubista; auki ollessa haku minuutin välein (vain kun mitään ei odota lähtöä). */
 function vRefresh(){if(!vOn())return Promise.resolve(false);clearTimeout(vTimer);return Promise.resolve(vCollect()).then(function(){return vPull();}).then(function(ok){if(!ok)return false;return Promise.resolve(vCollect()).then(function(){return !Object.keys(VC.q).length&&!vMsg;});});}
 setInterval(function(){if(vOn()&&!vBusy&&document.visibilityState==='visible'&&!Object.keys(VC.q).length)vPull();},60000);
-function vSaveC(){try{localStorage.setItem(VKEY,JSON.stringify(VC));}catch(e){vMsg='Laitteen muisti on täynnä: muutokset eivät säily välimuistissa.';}}
+function vSaveC(){storeSet(VKEY,JSON.stringify(VC),'holvin välimuisti ja lähetysjono');}
 function vSaveG(){try{localStorage.setItem(GKEY,JSON.stringify(G));}catch(e){}}
 function vOn(){return !!(G.repo&&G.token);}
 function vRepo(repo=G.repo){return String(repo||'').trim().replace(/\s+/g,'').replace(/^https?:\/\/(www\.)?github\.com\//,'').replace(/\.git$/,'').replace(/\/+$/,'');}
@@ -10335,14 +10376,20 @@ function vTaken(p){return !!(VC.files[p]||VC.q[p]||vNotes().some(function(N){ret
 function vCollect(){if(!vOn())return;var notes=vNotes(),has={},n=0;
   notes.forEach(function(N){if(N.rep==='rx')return;/* Juuren järjestelmäilmoitukset jäävät laitteelle */if(!N.vp){N.vp=VAULT.newPath(N,vTaken);var S=VAULT.noteOf(N.vp,VAULT.mdOf(N));N.vfm=S.vfm;N.vpre=S.vpre;N.vpost=S.vpost;N.vh=S.vh;}
     has[N.vp]=1;if(VC.q[N.vp]&&VC.q[N.vp].direct)return;var md=VAULT.mdOf(N),c=VC.files[N.vp];
-    if(VC.q[N.vp]&&!VC.q[N.vp].del){if(VC.q[N.vp].t!==md){VC.q[N.vp]=Object.assign({},VC.q[N.vp],{t:md});n++;}}else if(!c||c.t!==md){VC.q[N.vp]={t:md,base:c?c.sha:null};n++;}VC.known[N.vp]=1;});
+    if(vGone(VC.q[N.vp])){/* 0.92: palautettu roskakorista ennen arkistoinnin lähtöä: arkistointi perutaan */
+      if(c&&c.t===md)delete VC.q[N.vp];else VC.q[N.vp]={t:md,base:c?c.sha:VC.q[N.vp].base||null};n++;}
+    else if(VC.q[N.vp]){if(VC.q[N.vp].t!==md){VC.q[N.vp]=Object.assign({},VC.q[N.vp],{t:md});n++;}}else if(!c||c.t!==md){VC.q[N.vp]={t:md,base:c?c.sha:null};n++;}VC.known[N.vp]=1;});
   Object.keys(VC.known).forEach(function(p){if(has[p])return;var c=VC.files[p];delete VC.known[p];
-    if(VC.q[p]&&VC.q[p].direct)return;
-    if(VC.q[p]&&!c){delete VC.q[p];return;}if(!c)return;var a='arkisto/'+p;if(VC.files[a]||VC.q[a])a=a.replace(/\.md$/,'-'+Date.now().toString(36)+'.md');
-    VC.q[a]={t:typeof VC.q[p]?.t==='string'?VC.q[p].t:c.t,base:null};VC.q[p]={del:1,base:c.sha};n++;});
+    var q=VC.q[p];if(q&&(q.direct||vGone(q)))return;
+    /* 0.92 (kriittinen arvio, löydös 1a): poisto on yksi arkistointioperaatio. Myös vielä vahvistamaton uusi muistiinpano arkistoidaan,
+       ja kesken lähetyksen poistettu saa lähetyksen SHA:n pohjakseen (vFlush), joten se ei palaa näkyviin. */
+    var t=q&&typeof q.t==='string'?q.t:c?c.t:null;if(t===null)return;
+    VC.q[p]={arch:Date.now().toString(36),t:t,base:c?c.sha:q&&q.base||null};n++;});
   vSaveC();if(n)save0();vRender();return vFlush();}
-function vFlush(){if(!vOn()||vBusy)return Promise.resolve();var ps=Object.keys(VC.q).sort(function(a,b){return (VC.q[a].del?1:0)-(VC.q[b].del?1:0);});if(!ps.length){openPendingMetricLink();nvRunAll();return Promise.resolve();}
+function vGone(q){return !!(q&&(q.del||q.arch));}
+function vFlush(){if(!vOn()||vBusy)return Promise.resolve();var ps=Object.keys(VC.q).sort(function(a,b){return (vGone(VC.q[a])?1:0)-(vGone(VC.q[b])?1:0);});if(!ps.length){openPendingMetricLink();nvRunAll();return Promise.resolve();}
   var p=ps[0],o=VC.q[p];vBusy=true;vRender();
+  if(o.arch)return vArchive(p,o);
   var req=o.requests?vWriteRequests(o.requests,2):o.del?vApi(vUrl('/contents/'+vEnc(p)),'DELETE',{message:'appi: arkistoon '+p,sha:o.base,branch:G.branch}):
     vApi(vUrl('/contents/'+vEnc(p)),'PUT',{message:'appi: '+(o.base?'muokkaus ':'uusi ')+p,content:b64e(o.t),sha:o.base||undefined,branch:G.branch});
   return req.then(async function(r){
@@ -10354,8 +10401,30 @@ function vFlush(){if(!vOn()||vBusy)return Promise.resolve();var ps=Object.keys(V
     }
     vBusy=false;vMsg=r.error||vErr(r.status);vRender();
   }).catch(function(error){vBusy=false;vMsg=error.message||'Tallennus jäi jonoon.';vRender();});}
+/* 0.92: arkistointi yhtenä Git-commitina: arkisto/-kopio (oma teksti ja tarvittaessa GitHubissa sillä välin muuttunut versio) ja
+   lähteen poisto. Kopion nimiehdokkaat ovat kiinteät (operaation tunnus), joten vastauksen katoamisen jälkeinen uusinta löytää jo tehdyn
+   eikä tee toista kopiota. Lähteen puuttuminen GitHubista ei ole virhe: silloin talletetaan vain kopio. */
+function vArchiveNames(p,id){var a='arkisto/'+p,b=a.replace(/\.md$/,'')+'-'+id;return [a,b+'.md',b+'-2.md',b+'-3.md'];}
+async function vArchive(p,o){
+  var state={repo:vRepo(),branch:G.branch},names=vArchiveNames(p,o.arch);
+  try{
+    await vCommitFiles(state,[p].concat(names),function(texts,entries){
+      var out=new Map(),remote=texts.get(p),keep=[];
+      [o.t,remote].forEach(function(t){if(typeof t==='string'&&keep.indexOf(t)<0)keep.push(t);});
+      keep.forEach(function(t){
+        if(names.some(function(n){return texts.get(n)===t||out.get(n)===t;}))return;
+        var free=names.filter(function(n){return !entries.has(n)&&!out.has(n);})[0];
+        if(!free)throw new Error('Arkistokopiolle ei löytynyt vapaata nimeä: '+p);
+        out.set(free,t);});
+      if(typeof remote==='string')out.set(p,null);
+      return out;
+    },'appi: arkistoon '+p);
+  }catch(error){vBusy=false;vMsg=error.message||'Arkistointi jäi jonoon.';vSaveC();vRender();return;}
+  delete VC.files[p];if(VC.q[p]===o)delete VC.q[p];else if(VC.q[p])VC.q[p].base=null;
+  vBusy=false;vMsg='';vAt=vClock();vSaveC();vRender();return vFlush();
+}
 function vConflict(p,sent,status){return vApi(vUrl('/contents/'+vEnc(p)+'?ref='+encodeURIComponent(G.branch))).then(function(r){
-    var o=VC.q[p];if(!o)return;
+    var o=VC.q[p];if(!o)return;if(o.arch)return;/* 0.92: poistettu lähetyksen aikana: arkistointi hoitaa myös GitHubin version */
     if(r.status===404){
       if(o.del){delete VC.q[p];delete VC.files[p];}
       else if(o.base){
@@ -10685,7 +10754,7 @@ $('ns-text').addEventListener('touchstart',function(ev){var t=ev.touches[0];vLT=
 $('ns-text').addEventListener('touchmove',function(ev){if(!vLT)return;var t=ev.touches[0];if(Math.abs(t.clientX-vLT.x)>8||Math.abs(t.clientY-vLT.y)>8)vLT=null;},{passive:true,capture:true});
 $('ns-text').addEventListener('touchend',function(ev){var T=vLT;vLT=null;if(!T||Date.now()-T.at>600)return;vLinkTap(ev,T.x,T.y);},{passive:false,capture:true});
 $('ns-text').addEventListener('click',function(ev){vLinkTap(ev,ev.clientX,ev.clientY);},true);
-window.KaikkiTesti={lsSync:function(){return lsSync();},reps:function(){return data.reps;},chk:function(){return data.chk;},lists:function(){return data.lists;},vault:function(){return VC;},gh:function(){return G;},pull:function(){return vPull();},collect:function(){clearTimeout(vTimer);vCollect();},flush:function(){return vFlush();},notes:function(){return vNotes();},status:function(){return vStatus();},src:function(k){setSrc(k);},refresh:function(){return vRefresh();},render:function(){render();},tz:function(v){if(v==null)delete data.cfg.tz;else data.cfg.tz=v;applyCfg();render();}};
+window.KaikkiTesti={trash:function(p){var n=vNotes().find(function(x){return x.vp===p;});if(n)toTrash(n);clearTimeout(vTimer);return vCollect();},restore:function(p){var n=data.trash.find(function(x){return x.vp===p;});if(n)restore(n);clearTimeout(vTimer);return vCollect();},store:function(){return STORE;},lsSync:function(){return lsSync();},reps:function(){return data.reps;},chk:function(){return data.chk;},lists:function(){return data.lists;},vault:function(){return VC;},gh:function(){return G;},pull:function(){return vPull();},collect:function(){clearTimeout(vTimer);vCollect();},flush:function(){return vFlush();},notes:function(){return vNotes();},status:function(){return vStatus();},src:function(k){setSrc(k);},refresh:function(){return vRefresh();},render:function(){render();},tz:function(v){if(v==null)delete data.cfg.tz;else data.cfg.tz=v;applyCfg();render();}};
 window.JuuriTesti={setListView:function(v){if(v==='r')oldOn();setListView(v);},listView:function(){return listView();},old:function(){oldOn();render();}};
 function oldOn(){OLDUI=true;try{localStorage.setItem('kaikki:vanhat','1');}catch(e){}document.body.classList.add('oldui');}
 function setListView(v){lstV=v==='r'||v==='w'?v:'g';lwSel=false;try{localStorage.setItem('kaikki:listview',lstV);}catch(e){}lwOpen=null;chkOpen={};chkFreeze=null;main.scrollTop=0;render();}
@@ -11050,6 +11119,7 @@ function vZipFiles(){
   Object.keys(VC.q).forEach(function(path){
     var pending=VC.q[path];
     if(pending.del)delete files[path];
+    else if(pending.arch){delete files[path];var an=vArchiveNames(path,pending.arch).filter(function(n){return !(n in files);})[0];if(an)files[an]=pending.t;}
     else if(typeof pending.t==='string')files[path]=pending.t;
   });
   /* Varmuuskopio lukee luonnokset muuttamatta muistion polkuja tai Vaultin jonoa. */
@@ -11057,7 +11127,7 @@ function vZipFiles(){
   notes.forEach(function(note){
     if(note.rep==='rx')return;
     var path=note.vp,pending=VC.q[path];
-    if(pending&&(pending.direct||pending.del))return;
+    if(pending&&(pending.direct||vGone(pending)))return;
     if(path){files[path]=VAULT.mdOf(note);return;}
     path=VAULT.newPath(note,function(candidate){
       return used.has(candidate)||candidate in VC.files||candidate in VC.q;
@@ -12388,11 +12458,11 @@ try{sheetPath=localStorage.getItem('kaikki:taulukko')||'';}catch(e){}
 var SFC={sig:null,v:null},SGV=0;
 function sheetFiles(){
   if(!vOn())return [];
-  var ks=Object.keys(VC.files).filter(TAULUKKO.pathOk).sort(),sig=SGV+'|'+ks.map(function(p){var q=VC.q[p];return p+':'+VC.files[p].sha+(q?':q'+(q.del?'d':String(q.t||'').length):'');}).join(',');
+  var ks=Object.keys(VC.files).filter(TAULUKKO.pathOk).sort(),sig=SGV+'|'+ks.map(function(p){var q=VC.q[p];return p+':'+VC.files[p].sha+(q?':q'+(vGone(q)?'d':String(q.t||'').length):'');}).join(',');
   if(SFC.sig===sig)return SFC.v;var v=sheetFiles0(ks);SFC={sig:sig,v:v};return v;}
 function sheetFiles0(keys){
   return keys.map(function(path){
-    var queued=VC.q[path],file=VC.files[path];if(queued&&queued.del)return null;var text=queued&&queued.t||file.t,vt=sgViewOf(path,text);if(vt)return vt;
+    var queued=VC.q[path],file=VC.files[path];if(vGone(queued))return null;var text=queued&&queued.t||file.t,vt=sgViewOf(path,text);if(vt)return vt;
     var t=TAULUKKO.parse(path,text);return t?sgOverlay(t):null;
   }).filter(Boolean);
 }

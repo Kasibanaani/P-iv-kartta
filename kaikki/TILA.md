@@ -1,10 +1,12 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.91 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 25.11.2026
+**Vaihe:** versio 0.92 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 25.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.92 (25.11.2026), kriittisen arvion työvaihe 1, kaksi ensimmäistä löydöstä.** Poisto on nyt yksi arkistointioperaatio: kopio `arkisto/`-kansioon ja lähteen poisto samassa Git-commitissa (`vArchive`, `vCommitFiles` osaa poistaa). Vastauksen katoamisen jälkeinen uusinta ei tee toista kopiota. Myös vielä tallentumaton uusi muistiinpano arkistoidaan, eikä kesken ensimmäisen lähetyksen poistettu palaa näkyviin. Jos GitHubin versio muuttui ennen poiston lähtöä, arkistoon tallentuvat molemmat. Roskakorista palautus ennen lähtöä peruu arkistoinnin (aiemmin poisto jäi jonoon). Selaimen muistin loppuminen käsitellään yhdellä tavalla (`storeSet`): tallennus, luonnos, holvin jono ja odottavat näkymät. Yläpalkissa näkyy silloin **Laitteen muisti täynnä**, ja napautus kertoo, mikä jäi tallentumatta, milloin kukin tieto viimeksi tallentui ja GitHubin tilan. **Yritä uudelleen** tallentaa kaiken uudestaan. Avoimessa muistiinpanossa näkyy heti ilmoitus ja **Kopioi teksti**. Vanhassa muodossa jonossa olevat poistot toimivat ennallaan. Testi `testit/selain_92.py` (320, 390, 1280, 1440 px, Chromium): arkistointi, kadonnut vastaus, poisto ennen tallennusta ja kesken lähetyksen, palautus, täysi muisti. **Ei tarkistettu:** oikea iPhone ja Safarin oma muistiraja, oikea GitHub (Git-puun poistorivi `sha: null` testattiin vain testien GitHub-jäljitelmällä).
 
 **0.91 (25.11.2026).** Holvin keskeneräinen haku, peräkkäiset kirjoitukset, avoimen muistiinpanon rinnakkaismuutos, yhteysasetuksen tarkistus ja listatiedoston luku korjattu. Muuttujaluettelo huomioi kellonajan. Muistion luontitiedot, kojelaudan tyhjän tilan ilmoitus, CSV-aikarajaus ja ZIP-viennin kuvaus täsmennetty. Uusi regressiokoe `testit/selain_91.py`. [Kriittinen arvio, vielä avoimet löydökset, työjärjestys ja käyttäjäkysymykset](SUUNNITELMA.md#kriittinen-arvio-25112026). Chromiumissa käytettiin synteettistä holvia. Fyysisen iPhonen Safari, kotinäytön paikallinen tallennus ja oikean holvin offline-kierros odottavat käyttökokeilua.
 
@@ -267,7 +269,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Seuraava askel
 
-**Arvion ehdotus 25.11.** Kokeile ensin arkistointi ja luonnoksen säilyminen verkon tai paikallisen tilan loppuessa. Seuraava aiemmin päätetty ominaisuus on A6.3. Katso suunnitelman arvio ennen uuden kirjoitusreitin lisäämistä.
+**0.92:n jälkeen.** Kokeile oikealla holvilla yhden muistiinpanon poisto ja tarkista GitHubista, että `arkisto/`-kopio ja poisto ovat samassa commitissa. Työvaiheen 1 seuraava osa on kolmas löydös (kahden välilehden jono ja tallennus yhdellä paikallisella transaktiolla) ja kirjoituspolkujen yhteinen tulosmalli (`vPull`, `vFlush`, `vWriteText`, suorat lomakkeet). Sen jälkeen työjonon kärjen pikakirjaus avoimeen muistiinpanoon ja A6.3.
 
 **Pikakirjaus.** Kokeile uuden napin lomakkeen ja muuttujakentän käyttöä iPhonella näppäimistön ollessa auki.
 
