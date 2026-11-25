@@ -1182,3 +1182,83 @@ Vie Emilille kerrallaan sen työvaiheen tulos, jota päätös koskee: kaksi konk
 - **Tunnistussanat:** ratkaistu v1:ksi kohdassa 15 (`pohjat/tunnisteet.md`).
 - **Kuvat ja liitteet** vaultissa (Notionista irtautuminen).
 - **Notion-sisällön siirto** vaultiin pala kerrallaan.
+
+
+## Kyselyt ja lomakkeet – tarkka kehityssuunnitelma (Emil 25.11.2026)
+
+**Tila: käyttäjän pyytämä suunnitelmalisäys, EI vielä toteutettu eikä toteutuslupa.** Emil haluaa rakentaa Kaikki-appiin kyselyjä, joiden vastaukset annetaan esimerkiksi valmiilla vaihtoehdoilla, liukusäätimillä ja kyllä/ei-napeilla. Kyselyn kuittaaminen / Valmis-toiminto luo lähtökohtaisesti yhden muistiinpanon, jossa ovat kaikki kyseisen täyttökerran tulokset. Keskustelussa ehdotetut lisäominaisuudet erotetaan tässä käyttäjän nimenomaisesta vaatimuksesta. Tavoite on mahdollisimman nopea ja esteettinen käyttö ilman uutta rinnakkaista havaintojärjestelmää.
+
+### K1. Perusmalli ja käsitteet
+
+- **Kyselypohja** = uudelleen käytettävä kysymysten ja vastauskenttien määrittely. **Täyttökerta** = yhden avaamisen vastaukset ja oma pysyvä tunniste. **Muistiinpano** = vastauksista tuotettu lähdeaineisto. **Havaintolohko** = nykyisen `((…))`-kielen mukainen kohde, aika ja muuttujat arvoineen.
+- Kysely ei muodosta erillistä tietokantaa. Sen tulokset ovat samoja havaintoja kuin käsin kirjoitetut havainnot ja säätimien kirjaukset; Muistio, havaintotaulukot, kojelaudan koonnit, graafit, linkit ja lähdeavaus käyttävät samaa tulkintaa.
+- Kysymysteksti, vastaustapa, muuttujan pysyvä identiteetti, näkyvä muuttujan nimi, mahdollinen kohde, arvo ja yksikkö ovat erillisiä. Kysymyksen sanamuodon muuttaminen ei saa katkaista aikasarjaa; muuttujan semantiikan muuttuessa tarvitaan uusi identiteetti tai tietoinen muunnos.
+- Yksi kysely voi tuottaa useita `((…))`-lohkoja ja kohteita **yhteen** muistiinpanoon. Yhden täyttökerran havainnot yhdistyvät yhteisellä täyttökertatunnisteella, vaikka kohteet eroavat. Sama päivämäärä tai samat vastaukset eivät yhdistä eri täyttökertoja.
+- Säilytä vapaa teksti ja manuaaliset havainnot rinnalla. Kysely ei edellytä etukäteen luotua kohdetta tai muuttujamääritystä; ehdota jo olemassa olevia nimiä ja aliaksia, mutta älä yhdistä eri merkityksiä automaattisesti.
+
+### K2. Kyselypohjan rakentaminen
+
+**Ensimmäisen version kenttätyypit:**
+1. Kyllä/ei-kytkin: todellinen `true` / `false`; `false` ei ole puuttuva arvo.
+2. Yksi valinta: selkeät painikkeet tai valikko, kiinteät käyttäjän nimeämät vaihtoehdot; talleta pysyvä vaihtoehtotunnus ja näytettävä nimi.
+3. Luku: numerokenttä, desimaalipilkku, minimi/maksimi/askel ja valinnainen yksikkö.
+4. Liukusäädin: samat numeeriset rajat ja askel, näkyvä arvo ja ääripäiden selitteet; näppäimistöllä käytettävä vaihtoehto.
+5. Vapaa teksti: lyhyt tai monirivinen; kyselypohjassa määritetään, tallennetaanko tekstimuuttujaksi vai muistiinpanon tekstiosaan.
+6. Päivämäärä / ajankohta: lomakkeen yhteinen oletusaika tai kysymyksen oma ajankohta, jos tarkoitus on kirjata eri ajan havaintoja.
+
+**Seuraava vaihe:** monivalinta (usea valinta), aikaväli/kesto, ehdollisesti näkyvä kysymys, toistuva kysymysryhmä (esim. treenin sarjat), valinnainen otsikko/ohjeteksti. XY-säädin vasta, kun yleisen säädinmallin yhteensopivuus on varmistettu. Ei erillistä kyselykohtaista parseria.
+
+**Editorin käyttö:** Uusi kysely → nimi → Lisää kysymys → kysymysteksti → vastaustapa → muuttuja ja tarvittaessa kohde → mahdolliset vaihtoehdot/rajat/yksikkö. Muokkaus tapahtuu suoraan kysymyskortissa, ei monen peräkkäisen asetussivun kautta. Kysymykset voi järjestää uudelleen; kopioi, poista ja esikatsele. Harvinaiset asetukset (pakollisuus, oletusarvo, näkyvyysehto, aikakäytäntö, tallennuskohde) ovat saman kortin avattavassa lisäosassa. Näytä esikatselussa myös **täsmällinen kirjoitettava havaintosisältö** ja lopullinen muistiinpano. Nimeä muuttujat selkeästi ja varoita päällekkäisistä tai ristiriitaisista kentistä; älä pakota erillistä muuttujien perustamisvaihetta.
+
+### K3. Täyttökokemus, ulkoasu ja mobiili
+
+- Avaa kysely yhdellä napautuksella kyselyluettelosta, pikakirjauksesta tai myöhemmin kojelaudan ruudusta / muistiinpanon linkistä. Näytä kysymykset yhtenä selkeästi vierivänä näkymänä, välitön vastauspalaute ja yksi näkyvä **Valmis**-toiminto. Pitkässä kyselyssä kiinteä, näppäimistön yläpuolelle sovittuva vahvistusrivi; sisällön/ohjetekstin muutos ei heiluta koko ikkunaa.
+- Liukusäätimen numero näkyy koko ajan; kyllä/ei ja vaihtoehdot ovat suuria mutta visuaalisesti hillittyjä kosketuskohteita. Käytä nykyisiä Kaikki-apin värejä, teemoja ja lasimaisia pintoja; **älä korvaa nykyistä ulkoasua demojen ulkoasulla**. Ota keskustelun interaktiivisista demoista malliksi typografian hierarkia, väljyys, rajatut kortit, kevyet erottimet, intuitiiviset painikkeet ja selkeä säädinten arvoesitys. Lisää värivaihtoehtoja ja käyttötilanteeseen sopivia korostusvärejä käyttäjän toiveen mukaisesti, mutta säilytä kontrasti ja vaalea/tumma tila.
+- Vältä tarpeettomia vahvistusikkunoita. Varmista myös 320/390 px, iPhone Safari ja näppäimistön avautuminen, suurempi teksti, ruudunlukija, kosketus, hiiri ja näppäimistö. Älä vaadi hoveria. Kunnioita vähennettyä liikettä. Kyselyeditorin, pikakirjauksen ja kojelaudan säätimien yhteiset komponentit ja vuorovaikutustavat; älä kopioi kolmea eri käyttöliittymälogiikkaa.
+- Keskeneräinen täyttö säilyy paikallisena luonnoksena; sulkeminen ei hävitä sitä vahingossa. Valmis-painike estää kaksoislähetyksen; käyttäjälle näytetään erikseen paikallisesti tallennettu, GitHubiin jonossa ja GitHubiin vahvistettu.
+
+### K4. Tulosten muodostaminen ja tallennus
+
+**Emilin ensisijainen toimintatapa:** Valmis luo **yhden uuden muistiinpanon per täyttökerta**, jossa ovat kaikki annetut vastaukset ja mahdollinen vapaa teksti. Nimi esim. `Päivän hyvinvointi 25.11.2026`; tiedostopolku ja nimi ovat yksilöllisiä myös saman päivän usealle täytölle. Otsikko, kuvaus, luontiaika, lähde ja kyselypohjan tunniste tallennetaan soveltuvina metatietoina, yhteensopivasti Vaultin ohjeiden kanssa. Älä lisää automaattisesti `lahde: emil` -merkintää sellaiselle sisällölle, jota Emil ei itse tuottanut; käyttäjän vastaukset ja mahdollinen automaattinen seliteteksti erotetaan toisistaan.
+
+Esimerkkituloste (vain esimerkki, ei pakollinen tarkka formaatti):
+
+```text
+# Päivän hyvinvointi 25.11.2026
+((25.11.2026, Päivän hyvinvointi: mieliala = 7, energia = 6, liikunta = true))
+## Huomiot
+Hyvä päivä.
+```
+
+- Päivämäärän oletus täyttöhetki; käyttäjä voi tarvittaessa valita toisen päivän. Ajan tarkkuus säilyy, eikä kyselyn avaamisaika korvaa käyttäjän valitsemaa havaintoaikaa. Kyselypohjan muuttujat voivat tuottaa yhden tai useamman lohkon, mutta kyselytulosta ei koskaan pilkota eri muistiinpanoiksi vahingossa.
+- **Ehdotus myöhemmäksi, ei Emilin vahvistama vaatimus:** tallennustavan valinta: (a) uusi muistiinpano (oletus), (b) lisää aikaleimattu kokonaisuus valittuun muistiinpanoon. Kolmas vaihtoehto, vanhan arvon päivittäminen, jätetään myöhemmäksi ja vaatii täsmällisen lohko- ja kenttätunnisteen, versiontarkistuksen ja historian säilyttämisen.
+- Täyttökertatunniste ja kyselypohjan tunniste pitää voida säilyttää niin, että lähde voidaan avata ja sama tallennusyritys tunnistaa. Toteuta idempotentti uudelleenyritys: verkkokatko, GitHubin epäselvä vastaus, sovelluksen sulkeminen tai kahden laitteen samanaikainen muutos ei saa luoda toista muistiinpanoa tai hukata vastauksia. Käytä nykyistä offline-jonoa ja ristiriidanratkaisua. Yksi täyttökerta = yksi looginen tallennusoperaatio; osittaisen muistiinpanon näkyminen valmiina on virhe.
+- Puuttuva vastaus, `false`, `0` ja tyhjä tekstivastaus erotetaan. Pakollisuus ja mahdollinen oletusarvo ovat kysymyskohtaisia; älä tallenna oletusarvoa käyttäjän antamana vastauksena, ellei se ole näkyvästi hyväksytty. Käyttäjän mahdollisesti arkaluonteiset vastaukset pysyvät hänen yksityisessä Vaultissaan, eivät julkisessa appirepossa, lokissa tai esimerkkitesteissä.
+
+### K5. Kyselypohjien säilytys ja yhteensopivuus
+
+- Suunnittele kyselypohjille versioitu, yksityiseen Vaultiin tallennettava formaatti, esimerkiksi `pohjat/kyselyt.json` **vain ehdotettu polku, tarkista ensin `ohjeet/appi.md` ja nykyiset pohjat**. Pohjassa: vakaa kysely-ID, nimi, järjestetyt kysymys-ID:t, tyyppi, kysymysteksti, kohde-/muuttujaviite, vaihtoehdot, rajat, yksikkö, oletusarvo, pakollisuus, näkyvyysehto, tuloskohde ja skeemaversio.
+- Älä kirjoita vanhoja vastauksia uusiksi, kun pohjaa muutetaan. Säilytä tarvittaessa täyttökerran pohjaversio ja vaihtoehtojen merkitys. Vanhojen kyselytulosten tulkinta ei saa riippua siitä, että nykyinen kyselypohja on olemassa.
+- Nykyinen `((…))`-kieli on tulosten ainoa havaintokieli. Säilytä 0.85/0.87- ja `!!…!!`-lukuyhteensopivuus. Säädinpohjia `pohjat/saatimet.md` ei muuteta rikkovasti. Erota kyselypohjan määrittelyt varsinaisista käyttäjän vastauksista.
+- Kyselytulokset ovat lähdemuistiinpanoja: näytä alkuperäinen kysymysteksti tai kyselyn konteksti tarvittaessa ymmärrettävästi, mutta älä kirjoita jokaista vastausta kahdesti havaintona ja itsenäisenä kilpailevana totuutena. Linkitys lähdemuistiinpanoon ja kyselypohjaan.
+
+### K6. Yhteys säätimiin, pikapainikkeisiin, näkymiin ja ajastukseen
+
+- **Yhteinen moottori:** yksittäinen pikapainike/säädin on yhden tai muutaman kentän nopea kirjaus; kysely on usean kentän koottu kirjaus. Yhdistä kenttien arvojen tarkistus, yksiköt, muuttujaviitteet, ajankohdan käsittely, esikatselu ja `((…))`-kirjoittaja. Nykyinen kertanappi voi edelleen tallentaa yhdellä napautuksella ilman kyselyikkunaa.
+- Kyselyn käynnistys pikakirjauksen Napit-välilehdeltä ja kojelaudan ruudusta, myöhemmin muistiinpanon sisältä tai kalenterin tapahtumasta. **Ei automaattista toistuvaa tallennusta ilman käyttäjän täyttöä ja kuittausta.**
+- Kyselyn tuloksia voi rajata kyselypohjan, täyttökerran, kohteen, muuttujan, ajan ja lähteen mukaan. Havaintotaulukon ja kojelaudan nykyinen yhteinen koonti toimii; älä tee erillistä kyselyraportointia. Kyselypohjan muutos ei saa muuttaa aiempien tulosten lukuarvoja.
+- **Myöhempi ehdotus:** ehdolliset kysymykset (esim. `liikunta = true` → liikuntamuoto/kesto) sekä muistiinpanoon upotettu `Täytä kysely`-toiminto, joka luo uuden linkitetyn tulosmuistiinpanon. Ehdollisesti piilotetun kysymyksen aiempi vastaus ei saa jäädä huomaamatta mukaan tallennukseen; määrittele säilytys/tyhjennys ja testaa se.
+
+### K7. Toteutusjärjestys, hyväksymiskokeet ja rajaukset
+
+1. **K7.1 Yhteinen kenttä- ja tallennussopimus:** kartoita 0.88–0.89 säätimet, havaintokirjoittaja, Vaultin ohjeet ja nykyinen synkronointijono; määritä täyttökertatunniste, kohde-/muuttujaviitteet, tulostiedoston polku ja versiointi. Lisää yksikkötestit, ei vielä uutta UI:ta.
+2. **K7.2 Ensimmäinen kyselypohja ja täyttö:** editorissa nimi, kysymykset, järjestys ja viisi ydintyyppiä (kyllä/ei, yksi valinta, numero, slider, teksti); kyselyn avaaminen ja yhden uuden muistiinpanon luonti. Päivämäärä yhteisenä kenttänä. Esikatsele ennen tallennusta. Tässä vaiheessa jo hyödyllinen MVP.
+3. **K7.3 Luotettava tallennus:** pysyvä täyttökerta-ID, offline-luonnos, GitHub-jonon tila, turvallinen uudelleenyritys, saman päivän useat täytöt, ristiriitatilanteet, muistiinpanon avaus ja korjaus.
+4. **K7.4 Integrointi:** kysely pikakirjauksen ja kojelaudan valinnoissa, saman kyselyn toistuvat täytöt, havaintotaulukon ja graafien oikeat tulokset, kohde-/muuttuja-aliakset sekä yksiköt.
+5. **K7.5 Jatko:** ehdollisuus, monivalinta, toistuvat ryhmät, muistiinpanoon upotettu käynnistys, vaihtoehtoinen lisää olemassa olevaan -tallennustapa. Päivittäiset/viikoittaiset muistutukset vasta erillisellä käyttäjän päätöksellä. Tekoälyn muodostamat tilapäiset kyselyt ovat myöhempi idea, eivät ensimmäisen version vaatimus.
+
+**Hyväksymiskokeet:** täytä sama kysely kahdesti samana päivänä (kaksi eri muistiinpanoa, molemmat tuloksissa); testaa 0 ja false sekä tyhjä vastaus; desimaalipilkku ja yksikkö; yksi kysely useaan kohteeseen; pohjan kysymystekstin muutos vanhoja tuloksia rikkomatta; kyselyn sulkeminen kesken; verkkokatko ja vastausviestin katoaminen; kahden laitteen samanaikainen tallennus; vanhojen havaintojen säilyminen; luonti → lähdeavaus → koonti/kuvaaja. Kokeile 320, 390, 1280 ja 1440 px, oikea iPhone Safari erikseen. Testeissä käytä synteettisiä, ei-arkaluonteisia vastauksia.
+
+**Ennen rakentamista tarkennettavat päätökset:** ensimmäisen version oletustallennuskansio ja otsikointitapa; saako yhden kyselyn vastaus olla tarkoituksella täysin päivätön; miten vaihtoehtojen pysyvät arvot esitetään käyttäjälle; halutaanko kyselyitä myös muille käyttäjille (jos kyllä, erillinen tietosuoja- ja jakelusuunnittelu). Nämä eivät estä teknistä pohjatyötä, mutta niitä ei saa ratkaista arvaamalla pysyviksi käyttäjäpäätöksiksi.
+
+**Rajaus:** Ei toteuteta tässä suunnitelmapäivityksessä sovelluskoodia, uutta tiedostomuotoa, kyselyeditoria tai tulosten tallennusta. Kyselyt ovat uusi suunniteltu ominaisuus, eivät jo julkaistu toiminto.
