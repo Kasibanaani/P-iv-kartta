@@ -3,10 +3,13 @@
 /* Tila säilyy sivun uudelleenlatauksen yli. window.name päivittyy heti; sessionStorage-kirjoituksia Chromium viivästää, kun niitä on paljon,
    jolloin uudelleenlataus saattoi palauttaa repon alkutilaan (selain_55, 0.61). sessionStorage jää varalle. */
 var R=window.__repo={files:{},log:[]};try{var wn=String(window.name||''),o=JSON.parse(wn.indexOf('__repo:')===0?wn.slice(7):sessionStorage.getItem('__repo')||'null');if(o){R.files=o;R.kept=true;}}catch(e){}
-function keep(){var j=JSON.stringify(R.files);try{window.name='__repo:'+j;}catch(e){}try{sessionStorage.setItem('__repo',j);}catch(e){}}
+/* 0.93: jaettu repo saman selaimen välilehdille (localStorage __repoShared), kun testi tarvitsee kaksi välilehteä samaan GitHubiin. */
+var SHARED=false;try{SHARED=!!localStorage.getItem('__repoShared');if(SHARED){var so=JSON.parse(localStorage.getItem('__repo')||'null');if(so){R.files=so;R.kept=true;}}}catch(e){}
+function shared(){if(SHARED)try{var so=JSON.parse(localStorage.getItem('__repo')||'null');if(so)R.files=so;}catch(e){}}
+function keep(){var j=JSON.stringify(R.files);if(SHARED){try{localStorage.setItem('__repo',j);}catch(e){}return;}try{window.name='__repo:'+j;}catch(e){}try{sessionStorage.setItem('__repo',j);}catch(e){}}
 function sha(t){var h=0;for(var i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0;return 's'+(h>>>0).toString(16)+t.length;}
 function b64e(s){return btoa(unescape(encodeURIComponent(s)));}function b64d(b){return decodeURIComponent(escape(atob(b)));}
-R.put=function(p,t){R.files[p]={t:t,sha:sha(t)};keep();};R.get=function(p){return R.files[p]&&R.files[p].t;};
+R.put=function(p,t){R.files[p]={t:t,sha:sha(t)};keep();};R.get=function(p){shared();return R.files[p]&&R.files[p].t;};
 function resp(st,j){return Promise.resolve(new Response(JSON.stringify(j||{}),{status:st,headers:{'Content-Type':'application/json'}}));}
 var trees={},commits={},serial=0;
 function treeOf(files){return Object.keys(files).map(function(p){return {path:p,type:'blob',mode:'100644',sha:files[p].sha,size:files[p].t.length};});}
@@ -16,7 +19,7 @@ function branchHead(){
   return id;
 }
 var of=window.fetch;window.fetch=function(u,o){u=String(u);if(u.indexOf('https://api.github.com/repos/')!==0)return of.apply(this,arguments);
-  o=o||{};var m=(o.method||'GET'),path=u.replace(/^https:\/\/api\.github\.com\/repos\/[^/]+\/[^/?]+/,'').replace(/[?&]t=\d+/,'').replace(/\?$/,''),b=o.body?JSON.parse(o.body):null;
+  shared();o=o||{};var m=(o.method||'GET'),path=u.replace(/^https:\/\/api\.github\.com\/repos\/[^/]+\/[^/?]+/,'').replace(/[?&]t=\d+/,'').replace(/\?$/,''),b=o.body?JSON.parse(o.body):null;
   R.log.push(m+' '+decodeURIComponent(path.split('?')[0]));
   if(path===''||path==='?')return resp(200,{private:true,default_branch:'main',full_name:'testi/vault'});
   if(m==='GET'&&/^\/git\/ref\/heads\//.test(path))return resp(200,{object:{sha:branchHead()}});

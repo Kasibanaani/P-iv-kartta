@@ -1,10 +1,15 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.92 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 25.11.2026
+**Vaihe:** versio 0.93 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 25.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.93 (25.11.2026): kirjaus avoimeen muistiinpanoon ja kahden välilehden suojaus.**
+- **＋ Kirjaa (työjonon kärki 1).** Muistiinpanon lukunäkymässä on ylärivillä ＋ Kirjaa. Se avaa ikkunan, jossa näkyvät kohdemuistiinpanon otsikko, tekstikenttä ja omat napit ryhmittäin. Ryhmä avautuu yhdellä napautuksella kentän alle, ja teksti säilyy ryhmää vaihdettaessa. Napit kirjoittavat avoimeen muistiinpanoon eivätkä omaan kohteeseensa. Kysyvä nappi, esimerkiksi Penkki, kysyy arvon. **Kirjaa teksti** lisää tekstin muistiinpanon loppuun omaksi kappaleekseen. Kumoa toimii kuten kertanapissa. Ikkuna jää auki seuraavaa kirjausta varten. Keskeneräinen teksti säilyy laitteella muistiinpanoittain. Lukittu näkymä estää kirjauksen. Avoin muistiinpano päivittyy kirjauksen jälkeen (`nsSyncFromFile`). Tämä korjasi samalla piilevän vian: kun säädin kirjoitti auki olevaan muistiinpanoon, seuraava synkka saattoi palauttaa vanhan tekstin. Säätimellä on uusi valinnainen kenttä `ryhma` (editorissa Ryhmä). Ilman ryhmää olevat napit ovat ryhmässä Napit. Ehdotus kokeiltavaksi: muistiinpanon alkutieto `pikaryhma: Treeni` avaa ryhmän valmiiksi. Napit… avaa säädinluettelon. Testi `selain_93b.py`.
+- **Kahden välilehden suojaus (kriittisen arvion löydös 3).** Samassa selaimessa vain yksi välilehti kerrallaan tallentaa. Toinen näyttää ikkunan *Auki toisessa välilehdessä*, jossa on nappi **Käytä tässä välilehdessä**. Napautus pyytää vanhaa välilehteä tallentamaan luonnoksen, muistiinpanot ja jonon. Vanha luovuttaa käytön ja jää lukutilaan, ja uusi latautuu tuoreilla tiedoilla. Kesken lähetyksen luovutettu muutos ei monistu: uusinta tunnistetaan olemassa olevalla ristiriitalogiikalla. Puhelimen kotinäytön appi ja Safari eivät jaa selaimen muistia, joten ne eivät estä toisiaan. Testi `selain_93.py` ajetaan paikallisella http-palvelimella, koska Chromium ei jaa selaimen muistia luotettavasti `file://`-sivujen kesken.
+- **Ei tarkistettu:** oikea iPhone ja näppäimistön kanssa ikkunan sovitus (sama tapa kuin pikakirjauksessa 0.90), Safarin välilehtien käytös ja oikea GitHub. Monimuuttujanappi (esim. Sarja: paino ja toistot) ja yhteinen nappieditori ovat työjonon kohta 3, eikä niitä ole rakennettu.
 
 **0.92 (25.11.2026), kriittisen arvion työvaihe 1, kaksi ensimmäistä löydöstä.** Poisto on nyt yksi arkistointioperaatio: kopio `arkisto/`-kansioon ja lähteen poisto samassa Git-commitissa (`vArchive`, `vCommitFiles` osaa poistaa). Vastauksen katoamisen jälkeinen uusinta ei tee toista kopiota. Myös vielä tallentumaton uusi muistiinpano arkistoidaan, eikä kesken ensimmäisen lähetyksen poistettu palaa näkyviin. Jos GitHubin versio muuttui ennen poiston lähtöä, arkistoon tallentuvat molemmat. Roskakorista palautus ennen lähtöä peruu arkistoinnin (aiemmin poisto jäi jonoon). Selaimen muistin loppuminen käsitellään yhdellä tavalla (`storeSet`): tallennus, luonnos, holvin jono ja odottavat näkymät. Yläpalkissa näkyy silloin **Laitteen muisti täynnä**, ja napautus kertoo, mikä jäi tallentumatta, milloin kukin tieto viimeksi tallentui ja GitHubin tilan. **Yritä uudelleen** tallentaa kaiken uudestaan. Avoimessa muistiinpanossa näkyy heti ilmoitus ja **Kopioi teksti**. Vanhassa muodossa jonossa olevat poistot toimivat ennallaan. Testi `testit/selain_92.py` (320, 390, 1280, 1440 px, Chromium): arkistointi, kadonnut vastaus, poisto ennen tallennusta ja kesken lähetyksen, palautus, täysi muisti. **Ei tarkistettu:** oikea iPhone ja Safarin oma muistiraja, oikea GitHub (Git-puun poistorivi `sha: null` testattiin vain testien GitHub-jäljitelmällä).
 
@@ -269,7 +274,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Seuraava askel
 
-**0.92:n jälkeen.** Kokeile oikealla holvilla yhden muistiinpanon poisto ja tarkista GitHubista, että `arkisto/`-kopio ja poisto ovat samassa commitissa. Työvaiheen 1 seuraava osa on kolmas löydös (kahden välilehden jono ja tallennus yhdellä paikallisella transaktiolla) ja kirjoituspolkujen yhteinen tulosmalli (`vPull`, `vFlush`, `vWriteText`, suorat lomakkeet). Sen jälkeen työjonon kärjen pikakirjaus avoimeen muistiinpanoon ja A6.3.
+**0.93:n jälkeen.** Kokeile puhelimella: avaa treenimuistiinpano, ＋ Kirjaa, kirjoita huomio, valitse Treeni → Penkki ja kirjaa 80. Tarkista, että näppäimistö jättää kentän ja napit näkyviin. Kokeile tietokoneella, että toinen välilehti jää lukutilaan. Seuraavaksi: työjonon kärjen kohta 2 (kokonainen treenikerta kalenterista) ja kohta 3 (yksi nappieditori, monimuuttujanappi). Kriittisen arvion työvaiheesta 1 puuttuu vielä kirjoituspolkujen yhteinen tulosmalli (`vPull`, `vFlush`, `vWriteText`, suorat lomakkeet) ja tilakuvake sanoina. Sen jälkeen A6.3.
 
 **Pikakirjaus.** Kokeile uuden napin lomakkeen ja muuttujakentän käyttöä iPhonella näppäimistön ollessa auki.
 
@@ -296,6 +301,12 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 4. Karsinta: mitä Juuren osia Kaikki ei tarvitse.
 
 ## Avoimet kysymykset
+
+**＋ Kirjaa ja välilehdet (0.93), tekoälyn ratkaisut, jotka Emil vahvistaa:**
+1. Vapaa teksti kirjoitetaan muistiinpanon loppuun omaksi kappaleekseen ilman aikaleimaa. Napit kirjoittavat oman rivinsä kuten ennen (päivän muistiinpanossa osioon Pikakirjaukset). Halutaanko tekstille aikaleima, vai lisätäänkö se valintana?
+2. Ikkuna jää auki kirjauksen jälkeen, jotta treenissä voi kirjata useita sarjoja peräkkäin. Sulje sulkee sen. Käykö?
+3. Näkyvätkö kaikki *Näytä pikakirjauksessa* -napit myös ＋ Kirjaa -ikkunassa (nyt kyllä), vai tarvitaanko oma valinta?
+4. Toinen välilehti tietokoneella on nyt lukutilassa. Jos haluat pitää kahta välilehteä auki rinnakkain (esim. Muistio ja kalenteri), se vaatisi jonon yhdistämisen. Se on iso työ, eikä sitä ole tehty.
 
 **Säätimet (0.88–0.89), tekoälyn ratkaisut, jotka Emil vahvistaa:**
 1. Säätimen oma muistiinpano syntyy `inbox/`-kansioon nimellä `saadin-<tunnus>.md`. Appi löytää sen nimen perusteella, vaikka tiedosto siirrettäisiin muualle. Käykö paikka, vai tehdäänkö oma kansio?
