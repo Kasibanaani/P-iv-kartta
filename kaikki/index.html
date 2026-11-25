@@ -460,6 +460,7 @@ dialog::backdrop{background:rgba(0,0,0,.4)}
 .saadin-ask-box{display:flex;align-items:center;gap:8px}
 .saadin-ask-box input{flex:1;min-width:0}
 .saadin-unit{font-weight:600;color:var(--label)}
+.saadin-when{margin:2px 0 0;font-weight:600;color:var(--label)}
 .saadin-editing .btn.saadin-ed{border-style:dashed}
 .saadin-edit-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .saadin-edit-bar p{margin:0;flex:1;min-width:12em}
@@ -4602,13 +4603,43 @@ var MUUTTUJA=(function(){
     if(value[0]!=='"')return value;
     try{var parsed=JSON.parse(value);return typeof parsed==='string'?parsed:'';}catch(e){return '';}
   }
+  /* 0.97 (työjonon kärki 4): viikkotarkkuus. Tiedostomuoto "vk 48/2026" (ISO-viikko, viikko alkaa maanantaina; viikkovuosi
+     torstain mukaan, joten 1.1.2027 kuuluu viikkoon 53/2026). Sisäinen avain "2026-W48". Luetaan myös "viikko 48/2026", "vk 48/26",
+     "vk 48" (vuodeton: kuluva tai, jos se olisi tulevaisuudessa, edellinen vuosi) ja "2026-W48". Kaksinumeroinen vuosi = 2000-luku. */
+  function weekOf(iso){
+    var d=fromIso(iso),th=addDays(d,3-((d.getDay()+6)%7)),y=th.getFullYear(),j4=new Date(y,0,4),m1=addDays(j4,-((j4.getDay()+6)%7));
+    return y+'-W'+String(1+Math.floor(Math.round((th-m1)/864e5)/7)).padStart(2,'0');
+  }
+  function weekDays(w){
+    var m=/^(\d{4})-W(\d{2})$/.exec(String(w||''));if(!m)return null;
+    var y=+m[1],n=+m[2],j4=new Date(y,0,4),mon=addDays(addDays(j4,-((j4.getDay()+6)%7)),(n-1)*7);
+    if(n<1||weekOf(isoD(mon))!==w)return null;
+    return {mon:isoD(mon),sun:isoD(addDays(mon,6))};
+  }
+  function weekLabel(w){var m=/^(\d{4})-W(\d{2})$/.exec(String(w||''));return m?'vk '+(+m[2])+'/'+m[1]:'';}
+  function parseWeek(text,base){
+    var raw=String(text||'').trim(),iso=/^(\d{4})-W(\d{2})$/i.exec(raw),m;
+    if(iso){var w0=iso[1]+'-W'+iso[2];return weekDays(w0)?w0:null;}
+    if(!(m=/^(?:vk|viikko|vko)\.?\s*(\d{1,2})(?:\s*\/\s*(\d{4}|\d{2}))?$/i.exec(raw)))return null;
+    var n=String(+m[1]).padStart(2,'0'),y;
+    if(m[2])y=m[2].length===2?2000+(+m[2]):+m[2];
+    else{base=base instanceof Date&&!isNaN(base)?base:new Date();var now=weekOf(isoD(base));y=+now.slice(0,4);if(y+'-W'+n>now)y--;}
+    var w=y+'-W'+n;return weekDays(w)?w:null;
+  }
+  /* Havainnon hetki vertailuun: viimeinen päivä ja kello, viikkohavainnolla viikon maanantai. */
+  function obsWhen(o){var W=!(o.paivat||[]).length&&o.viikko&&weekDays(o.viikko);return moment(W?W.mon:(o.paivat||[])[o.paivat.length-1]||'',W?'':o.kello);}
+  /* Kirjoitettu hetki: päivä ja valinnainen kellonaika ({day, clock}) tai viikko ({week}). null = ei tulkittavissa. */
+  function parseWhen(text,base){var w=parseWeek(text,base);if(w)return {day:'',clock:'',week:w};var d=observationDate(String(text||''),base);return d&&{day:d.day,clock:d.clock,week:''};}
   function observationDate(text,base){
     var raw=text.trim(),iso=/^(\d{4})-(\d\d)-(\d\d)(?:[ T](\d\d:\d\d))?$/.exec(raw);
     if(iso){
       if(!okIso(+iso[1],+iso[2],+iso[3])||iso[4]&&!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(iso[4]))return null;
       return {day:raw.slice(0,10),clock:iso[4]||''};
     }
-    var dates=parseDates(raw,base),hit=dates[0];
+    /* 0.97: vuodeton päivä (24.11. tai ti 24.11.) on viimeisin sellainen päivä enintään kirjaushetkellä: havainto ei koske tulevaa
+       (sama sääntö kuin vanhoissa !!-merkinnöissä). Siksi tulkinta tehdään vajaan vuoden takaa. Suhteelliset sanat käyttävät kirjaushetkeä. */
+    var yearless=/^\D*\d{1,2}\.\d{1,2}\.(?!\d)/.test(raw)&&!/\d{1,2}\.\d{1,2}\.\d{2,4}/.test(raw);
+    var dates=parseDates(raw,yearless?addDays(base,-364):base),hit=dates[0];
     if(dates.length!==1||hit.s!==0||hit.e!==raw.length||hit.rec||hit.a!==hit.b||hit.time?.e)return null;
     return {day:hit.a,clock:hit.time?.s||''};
   }
@@ -4618,6 +4649,7 @@ var MUUTTUJA=(function(){
     var commas=outside(content.slice(0,equals),','),first=0,date=null,ds=-1,de=-1;
     for(var i=commas.length-1;i>=0;i--){
       date=observationDate(content.slice(0,commas[i]),base);
+      if(!date){var wk=parseWeek(content.slice(0,commas[i]),base);if(wk)date={day:'',clock:'',week:wk};}
       if(date){first=commas[i]+1;ds=start+content.search(/\S/);de=start+commas[i];break;}
     }
     var before=content.slice(first,equals),colon=outside(before,':')[0],subject='';
@@ -4628,7 +4660,7 @@ var MUUTTUJA=(function(){
       if(!validName(subject))return null;
       first+=colon+1;
     }else if(!date&&commas.length&&content.trim()[0]!=='"')return null;
-    return {body:start+first,subject:subject,dates:date?[date.day]:[],clock:date?.clock||'',ds:ds,de:de};
+    return {body:start+first,subject:subject,dates:date&&date.day?[date.day]:[],week:date&&date.week||'',clock:date?.clock||'',ds:ds,de:de};
   }
   function pipeHead(text,parts){
     var head=text.slice(parts[0].s,parts[0].e).trim(),subject='',stamp='',dates=[],ds=-1,de=-1;
@@ -4702,7 +4734,7 @@ var MUUTTUJA=(function(){
     if(!head)return null;
     var data=blockFields(text,parts,mode,body);if(!data)return null;
     return {s:start,e:end,syntax:mode,fields:data.fields,kohde:head.subject,kohdeKey:key(head.subject),paivat:uniq(head.dates),
-      kello:head.clock,tagit:uniq(data.tags),ds:head.ds,de:head.de,id:data.id,idS:data.idS,idE:data.idE};
+      kello:head.clock,viikko:head.week||'',tagit:uniq(data.tags),ds:head.ds,de:head.de,id:data.id,idS:data.idS,idE:data.idE};
   }
   function marks(text,base){text=String(text||'');
     base=base instanceof Date?base:new Date(base||Date.now());if(isNaN(base.getTime()))base=new Date();
@@ -4752,7 +4784,7 @@ var MUUTTUJA=(function(){
     var out=[];
     M.forEach(function(m){
       if(m.fields){m.fields.forEach(function(field){
-        out.push(Object.assign({s:m.s,e:m.e,block:m,kohde:m.kohde,kohdeKey:m.kohdeKey,kello:m.kello,tagit:m.tagit,
+        out.push(Object.assign({s:m.s,e:m.e,block:m,kohde:m.kohde,kohdeKey:m.kohdeKey,kello:m.kello,viikko:m.viikko||'',tagit:m.tagit,
           paivat:m.paivat,lahde:m.paivat.length?'merkintä':'',syy:'',ds:m.ds,de:m.de},field));
       });return;}
       var cs=m.s+2,inner=text.slice(cs,m.e-2),c1=inner.indexOf(':'),head=inner.slice(0,c1),rest=inner.slice(c1+1),days=null,ds=-1,de=-1;
@@ -4844,7 +4876,10 @@ var MUUTTUJA=(function(){
         var v=resolve&&!fromField?resolve('variables',o.nimi).key:o.key,
           s=resolve?resolve('subjects',o.kohde).key:o.kohdeKey;
         if(v!==k0||subject&&s!==subject||ownTag&&!(o.tagit||[]).includes(ownTag))return;
-        var used=false;(o.paivat.length?o.paivat:['']).forEach(function(d){
+        var used=false,W=!o.paivat.length&&o.viikko&&weekDays(o.viikko);
+        /* Viikkohavainto: yksi piste, mukana jos viikko osuu aikaväliin; ei päiväsarjassa. */
+        if(W){if(!(start&&W.sun<start||stop&&W.mon>stop)){pts.push({d:'',w:o.viikko,v:o.luku,a:o.arvo,when:moment(W.mon,''),n:n,o:o});used=true;}}
+        else (o.paivat.length?o.paivat:['']).forEach(function(d){
         if((start||stop)&&(!d||start&&d<start||stop&&d>stop))return;pts.push({d:d,v:o.luku,a:o.arvo,when:moment(d,o.kello),n:n,o:o});used=true;});if(used)src.push({n:n,o:o});});});
     var nums=pts.filter(function(p){return p.v!==null;}).map(function(p){return p.v;}),last=null,val=null;
     pts.forEach(function(p){if(!last||p.when>=last.when)last=p;});
@@ -4868,6 +4903,7 @@ var MUUTTUJA=(function(){
     return {arvo:val,laske:laske,pisteet:pts.length,luvut:nums.length,viimeisin:last,lahteet:src,sarja:sarja};}
   function maskModern(text,base){return text&&text.includes('((')?mask(text,marks(text,base).filter(function(m){return m.fields;})):text;}
   return {marks:marks,mask:mask,maskModern:maskModern,parse:parse,observe:observe,luettelo:luettelo,num:num,key:key,ruutu:ruutu,LASKE:LASKE,
+    weekOf:weekOf,weekDays:weekDays,weekLabel:weekLabel,parseWeek:parseWeek,parseWhen:parseWhen,obsWhen:obsWhen,
     format:format,formatMany:formatMany,fieldText:fieldText,unitParts:unitParts,unitKey:unitKey,sameTarget:sameTarget,moment:moment,summary:summary,validName:validName};
 })();
 function observationMatrix(notes,view,resolve){
@@ -4877,9 +4913,12 @@ function observationMatrix(notes,view,resolve){
   var subjects=new Set(view.subjects.map(function(n){return subject(n).key;})),rows=new Map(),cols=new Map();
   var pivot=view.colAxis!=='valitut',variable=field(view.variable).key,tag=noteTagKey(view.tag),noteTag=noteTagKey(view.noteTag);
   function axis(kind,o,d,record){
-    if(kind==='kirjaus')return [record,[o.kohde||'Kirjaus',d,o.kello].filter(Boolean).join(' · ')];
+    var W=!d&&!o.paivat.length&&o.viikko&&MUUTTUJA.weekDays(o.viikko);
+    if(kind==='kirjaus')return [record,[o.kohde||'Kirjaus',W?MUUTTUJA.weekLabel(o.viikko):d,o.kello].filter(Boolean).join(' · ')];
     if(kind==='kohde')return [subject(o.kohde).key,subject(o.kohde).name||'Kohteeton'];
     if(kind==='muuttuja')return [field(o.nimi).key,field(o.nimi).name];
+    /* 0.97: viikkohavainto on viikkoakselilla oma viikkonsa, päiväakselilla oma rivinsä (ei jaeta päiville). */
+    if(W)return kind==='viikko'?[W.mon,'Viikko alkaen '+fiDate(W.mon)]:['W'+o.viikko,MUUTTUJA.weekLabel(o.viikko)];
     if(!d)return ['','Päivätön'];
     var day=kind==='viikko'?monOf(d):d;
     return [day,kind==='viikko'?'Viikko alkaen '+fiDate(day):fiDate(day)];
@@ -4893,15 +4932,17 @@ function observationMatrix(notes,view,resolve){
     MUUTTUJA.observe(note).forEach(function(o){
       if(subjects.size&&!subjects.has(subject(o.kohde).key)||tag&&!(o.tagit||[]).includes(tag)||pivot&&variable&&field(o.nimi).key!==variable)return;
       var points=o.paivat.length?o.paivat:[''];
+      var WK=!o.paivat.length&&o.viikko&&MUUTTUJA.weekDays(o.viikko);
       points.forEach(function(d){
-        if((view.start||view.end)&&(!d||view.start&&d<view.start||view.end&&d>view.end))return;
+        if(WK){if(view.start&&WK.sun<view.start||view.end&&WK.mon>view.end)return;}
+        else if((view.start||view.end)&&(!d||view.start&&d<view.start||view.end&&d>view.end))return;
         var record=index+':'+o.s,ax=axis(view.rowAxis,o,d,record);
         var row=addRow(ax[0],ax[1]),matches=[];
         if(pivot){var c=axis(view.colAxis,o,d,record);cols.set(c[0],{title:c[1],mode:view.mode});matches=[c[0]];}
         else view.columns.forEach(function(c,j){if(field(c.name).key===field(o.nimi).key)matches.push(j);});
         matches.forEach(function(k){
           if(!row.cells.has(k))row.cells.set(k,[]);
-          row.cells.get(k).push({a:o.arvo,v:o.luku,when:MUUTTUJA.moment(d,o.kello),n:note,o:o,d:d});
+          row.cells.get(k).push({a:o.arvo,v:o.luku,when:WK?MUUTTUJA.moment(WK.mon,''):MUUTTUJA.moment(d,o.kello),n:note,o:o,d:d});
         });
       });
     });
@@ -5016,7 +5057,7 @@ var SAADIN=(function(){
   var VARK={muuttuja:1,arvo:1,yksikko:1};
   var LAJIT={kertanappi:'Kertanappi'},TAVAT={lisaa:'Lisää uusi rivi',paivita:'Päivitä edellinen'},
     MINNE={paiva:'Päivän muistiinpano',teksti:'Valittu muistiinpano',oma:'Oma muistiinpano'},
-    AJAT={nyt:'Nyt (päivä ja kellonaika)',paiva:'Vain päivä',kysy:'Kysy päivä joka kerta',kalenteri:'Kalenterissa valittu päivä'};
+    AJAT={nyt:'Nyt (päivä ja kellonaika)',paiva:'Vain päivä',viikko:'Kuluva viikko (vk)',kysy:'Kysy päivä tai viikko joka kerta',kalenteri:'Kalenterissa valittu päivä'};
   var PIKA='## Pikakirjaukset';
   function slugOf(s){return String(s||'').toLowerCase().replace(/[äå]/g,'a').replace(/ö/g,'o').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40).replace(/-+$/,'');}
   function okId(t){return /^[a-z0-9][a-z0-9-]{0,59}$/.test(String(t||''));}
@@ -5141,7 +5182,7 @@ var SAADIN=(function(){
     var out=L.join(eol);
     return out.endsWith(eol)?out:out+eol;
   }
-  /* Kirjausrivi. c = {day: 'VVVV-KK-PP', clock: 'HH:MM' tai '', value (ensimmäinen muuttuja) tai values (kaikki järjestyksessä;
+  /* Kirjausrivi. c = {day: 'VVVV-KK-PP', clock: 'HH:MM' tai '', week: 'VVVV-Wnn' (0.97: viikkotarkkuus, ohittaa päivän), value (ensimmäinen muuttuja) tai values (kaikki järjestyksessä;
      puuttuva = säätimen kiinteä arvo), dayNote, id}. Palauttaa '' jos arvo ei kelpaa. */
   function record(it,c){
     var block='',V=varsOf(it);
@@ -5150,14 +5191,14 @@ var SAADIN=(function(){
         var raw=c.values&&c.values[i]!=null&&String(c.values[i]).trim()!==''?c.values[i]:i===0&&!c.values&&c.value!=null?c.value:v.arvo;
         return {name:String(v.nimi).trim(),value:withUnit(raw,v.yksikko)};
       });
-      block=MUUTTUJA.formatMany(pairs,it.kohde,c.day+(c.clock?' '+c.clock:''),it.tag,it.tapa==='paivita'?it.tunnus:c.id||'');
+      block=MUUTTUJA.formatMany(pairs,it.kohde,c.week?MUUTTUJA.weekLabel(c.week):c.day+(c.clock?' '+c.clock:''),it.tag,it.tapa==='paivita'?it.tunnus:c.id||'');
       if(!block)return '';
     }
     var text=String(it.teksti||'').trim(),prefix='';
     if(!block&&it.aikaleima){
       if(!text)text=it.nimi.trim();
       var klo=c.clock?'klo '+c.clock.replace(':','.'):'';
-      prefix=c.dayNote?(klo?klo+' · ':''):c.day+(klo?' '+klo:'')+' · ';
+      prefix=c.week?MUUTTUJA.weekLabel(c.week)+' · ':c.dayNote?(klo?klo+' · ':''):c.day+(klo?' '+klo:'')+' · ';
     }
     var line='- '+prefix+text+(block?(text?' ':'')+block:'');
     if(!block&&it.tapa==='paivita')line+=' ^'+it.tunnus;
@@ -6383,16 +6424,16 @@ function nvLatestObservation(observations,name){
   var key=mvDefinition('variables',name).key,best=null,day='';
   observations.forEach(function(o){
     if(mvDefinition('variables',o.nimi).key!==key)return;
-    var date=MUUTTUJA.moment(o.paivat[o.paivat.length-1]||'',o.kello);
+    var date=MUUTTUJA.obsWhen(o);
     if(!best||date>=day){best=o;day=date;}
   });
   return best;
 }
 function nvObservationTie(observations,hit){
   if(!hit)return 0;
-  var at=MUUTTUJA.moment(hit.paivat[hit.paivat.length-1]||'',hit.kello);
+  var at=MUUTTUJA.obsWhen(hit);
   var name=mvDefinition('variables',hit.nimi).key;
-  var tied=observations.filter(function(o){return mvDefinition('variables',o.nimi).key===name&&MUUTTUJA.moment(o.paivat[o.paivat.length-1]||'',o.kello)===at;});
+  var tied=observations.filter(function(o){return mvDefinition('variables',o.nimi).key===name&&MUUTTUJA.obsWhen(o)===at;});
   return tied.some(function(o){return o.block;})?tied.length:1;
 }
 function nvVariableValue(note,name){
@@ -9102,7 +9143,7 @@ function renderTm(h){var b=$('ns-tm');b.textContent='';if(!h){b.hidden=true;retu
       var kind=field.totuus!=null?'totuusarvo':field.luku===null?'teksti':'luku';
       b.appendChild(el('p','mvinfo',(o.block?field.nimi:'Arvo')+': '+field.arvo+' ('+kind+')'));
     });
-    b.appendChild(el('p','mvinfo',o.paivat.length?(o.paivat.length>1?'Päivät: ':'Päivä: ')+mvDays(o)+(o.lahde==='merkintä'?' · merkinnästä':' · osion tekstistä'):o.block?'Päivätön':'Päivätön: '+(o.syy==='monta'?'osiossa on useita päiviä.':'osiossa ei ole päivää.')));
+    b.appendChild(el('p','mvinfo',o.paivat.length?(o.paivat.length>1?'Päivät: ':'Päivä: ')+mvDays(o)+(o.lahde==='merkintä'?' · merkinnästä':' · osion tekstistä'):o.viikko?'Viikko: '+mvDays(o)+' · merkinnästä':o.block?'Päivätön':'Päivätön: '+(o.syy==='monta'?'osiossa on useita päiviä.':'osiossa ei ole päivää.')));
     button(r,n+(n===1?' merkintä':' merkintää')+' muuttujalla','mini',function(){b.hidden=true;openMuuttujat(k);}).id='tm-mv';b.appendChild(r);b.hidden=false;return;}
   if(h.terms){b.appendChild(el('b','','”'+h.w+'” → muistiinpanot asiasanalla'));
     h.terms.forEach(function(id){button(r,termName(id)||'?','mini tmterm',function(){var B=backArm(),tx=$('ns-text').value;$('ns-ok').click();B.n=noteCur&&noteCur.text===tx?noteCur:data.notes.filter(function(x){return x.text===tx;})[0]||null;noteFilter=[id];noteView='open';showTab('notes');activeScroller().scrollTop=0;render();backShow(B);}).dataset.tid=id;});termCache=null;b.appendChild(r);b.hidden=false;return;}
@@ -9220,7 +9261,7 @@ function mvEl(txt,o){var w=el('span','mvr'),cuts=[[o.s,o.s+2,'mvm']],at=o.s;
   cuts.push([o.e-2,o.e,'mvm']);w.dataset.sourceLength=String(o.e-o.s);
   cuts.forEach(function(c){if(c[0]>at)w.appendChild(el('span','mvc',txt.slice(at,c[0])));w.appendChild(el('span',c[2],txt.slice(c[0],c[1])));at=c[1];});return w;}
 function mvDay(iso){var d=fromIso(iso);return WDS[d.getDay()]+' '+d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear();}
-function mvDays(o){return o.paivat.length?o.paivat.map(mvDay).join(', ')+(o.kello?' klo '+o.kello:''):'päivätön';}
+function mvDays(o){return o.paivat.length?o.paivat.map(mvDay).join(', ')+(o.kello?' klo '+o.kello:''):o.viikko&&MUUTTUJA.weekDays(o.viikko)?MUUTTUJA.weekLabel(o.viikko):'päivätön';}
 /* Kaikki tämän projektin muistiinpanot (myös suodattimen piilottamat Vaultin tiedostot, kuten kaavoissa); ei arkistoituja eikä tekoälyn ohjeita */
 function mvNotes(){var notes=data.notes.filter(function(n){return !n.arch;}),known=new Set(data.notes.map(function(n){return n.vp;}));
   if(vOn()&&vK()&&vK().id===data.k)Object.keys(VC.files).forEach(function(path){
@@ -9260,7 +9301,7 @@ function mvSubjects(notes){
   }
   return Array.from(by.values()).sort(function(a,b){return a.localeCompare(b,'fi');});
 }
-function mvObservationMoment(o){return MUUTTUJA.moment(o.paivat[o.paivat.length-1]||'',o.kello);}
+function mvObservationMoment(o){return MUUTTUJA.obsWhen(o);}
 function mvLast(G){
   var best=null;
   G.obs.forEach(function(x){
@@ -12124,7 +12165,8 @@ function saadinSummary(it){
 /* Taustasynkka kestää yleensä hetken: painallus odottaa sen loppuun eikä katoa. */
 async function saadinIdle(){for(var i=0;i<67&&vBusy;i++)await new Promise(function(r){setTimeout(r,150);});return !vBusy;}
 function saadinMoment(it,o){
-  if(it.aika==='kysy')return {day:o.day,clock:o.clock||''};
+  if(it.aika==='kysy')return {day:o.day||todayIso(),clock:o.week?'':o.clock||'',week:o.week||''};
+  if(it.aika==='viikko'){var t=todayIso();return {day:t,clock:'',week:MUUTTUJA.weekOf(t)};}
   if(it.aika==='kalenteri')return {day:calDay||todayIso(),clock:''};
   var d=new Date();
   return {day:isoD(d),clock:it.aika==='nyt'?pad(d.getHours())+':'+pad(d.getMinutes()):''};
@@ -12150,7 +12192,7 @@ async function saadinRun(it,o){
   function say(t){if(status)status.textContent=t;else toast(t);}
   if(T.error){say(T.error);return false;}
   var id=typeof crypto.randomUUID==='function'?'qh'+crypto.randomUUID():uid('qh');
-  var line=SAADIN.record(it,{day:m.day,clock:m.clock,value:o.value,values:o.values,dayNote:!!T.dayNote,id:id});
+  var line=SAADIN.record(it,{day:m.day,clock:m.clock,week:m.week||'',value:o.value,values:o.values,dayNote:!!T.dayNote,id:id});
   if(!line){say('Tarkista arvo: '+it.nimi+'.');return false;}
   var ctx={repo:vRepo(),branch:G.branch};
   /* 0.94: yhteinen tulosmalli (vDirect). Lohkon tunnus tunnistaa saman kirjauksen uusinnassa. */
@@ -12234,23 +12276,43 @@ function saadinAsk(it,need,target){
     /* Näppäimistön Enter siirtää seuraavaan arvoon, viimeisessä kirjaa (Modern Web Guidance: forms, enterkeyhint). */
     asks.forEach(function(x,k){var nx=asks[k+1];x.inp.enterKeyHint=nx||need.day?'next':'done';
       if(nx)x.inp.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.isComposing){e.preventDefault();nx.inp.focus();nx.inp.select();}});});}
+  /* 0.97 (työjonon kärki 4): päivä kirjoitetaan suomalaisittain (5.1.2026, 05.01.2026, 5.1.26, ke 25.11. klo 18.05, eilen) tai
+     viikkona (vk 48, vk 48/2026). Tulkinta näkyy kentän alla nelinumeroisella vuodella ennen kirjausta. */
+  var when=null,heard=null;
   if(need.day){
-    day=field('Päivä',el('input'),'saadin-ask-day');day.type='date';day.value=todayIso();day.required=true;
+    day=field('Päivä tai viikko',el('input'),'saadin-ask-day');day.type='text';day.value=fiDate(todayIso());day.required=true;
+    day.placeholder='pp.kk.vvvv tai vk 48';day.autocomplete='off';day.spellcheck=false;day.setAttribute('autocapitalize','none');day.enterKeyHint='next';
+    heard=el('p','sub saadin-when');heard.id='saadin-ask-when';heard.setAttribute('aria-live','polite');day.setAttribute('aria-describedby',heard.id);day.closest('.dash-field').appendChild(heard);
     clock=field('Kellonaika (valinnainen)',el('input'),'saadin-ask-clock');clock.type='time';
   }
+  function read(){
+    if(!day)return null;var w=MUUTTUJA.parseWhen(day.value,new Date());
+    if(!w&&dashDay(day.value.trim())&&isoD(fromIso(day.value.trim()))===day.value.trim())w={day:day.value.trim(),clock:'',week:''};
+    return w;
+  }
   var where=el('p','sub');form.appendChild(where);
-  function show(){var T=saadinTargetFor(it,day&&dashDay(day.value)?day.value:todayIso(),target);where.textContent=T.error||'Kirjoittaa: '+T.label;}
-  if(day)day.addEventListener('change',show);show();
+  function show(){
+    when=read();
+    if(heard){
+      if(!when)heard.textContent=day.value.trim()?'Ei tunnistettu. Kirjoita esim. 5.1.2026, 5.1.26 tai vk 48.':'Kirjoita päivä tai viikko.';
+      else if(when.week){var W=MUUTTUJA.weekDays(when.week);heard.textContent=MUUTTUJA.weekLabel(when.week)+' ('+fromIso(W.mon).getDate()+'.'+(fromIso(W.mon).getMonth()+1)+'.–'+fiDate(W.sun)+')';}
+      else heard.textContent=fromIsoW(when.day)+(when.clock?' klo '+when.clock.replace(':','.'):'');
+      heard.classList.toggle('bad',!when);day.setAttribute('aria-invalid',when?'false':'true');
+      clock.closest('.dash-field').hidden=!!(when&&(when.week||when.clock));
+    }
+    var T=saadinTargetFor(it,when&&when.day?when.day:todayIso(),target);where.textContent=T.error||'Kirjoittaa: '+T.label;
+  }
+  if(day)day.addEventListener('input',show);show();
   var msg=el('p','msg');msg.setAttribute('aria-live','polite');form.appendChild(msg);
   var foot=el('div','dash-editor-footer');button(foot,'Peru','btn',function(){closeSheet(d);});
   var ok=el('button','btn primary','Kirjaa');ok.type='submit';foot.appendChild(ok);form.appendChild(foot);
   form.addEventListener('submit',async function(e){
     e.preventDefault();if(busy)return;
-    if(day&&(!dashDay(day.value)||isoD(fromIso(day.value))!==day.value)){msg.textContent='Valitse päivä.';return;}
+    if(day){show();if(!when){msg.textContent='Kirjoita päivä tai viikko, esim. 25.11.2026 tai vk 48.';day.focus();return;}}
     busy=true;sheetDialogControls(d,true);msg.textContent='Kirjataan…';
     var values=SAADIN.vars(it).map(function(v){return v.arvo;});asks.forEach(function(x){values[x.a.i]=x.inp.value.trim();});
     if(asks.length)SAADIN_LAST[it.tunnus]=values.map(function(v,i){return asks.some(function(x){return x.a.i===i;})?v:null;});
-    var done=await saadinRun(it,{values:values,day:day&&day.value,clock:clock&&clock.value,status:msg,target:target});
+    var done=await saadinRun(it,{values:values,day:when&&when.day,clock:when&&(when.clock||(!when.week&&clock.value)||''),week:when&&when.week,status:msg,target:target});
     if(done&&target&&target.done)target.done(it);
     busy=false;sheetDialogControls(d,false);
     if(done){closeSheet(d);saadinUndoPlace();}
@@ -12445,7 +12507,7 @@ function openSaadinEdit(it,o){
     pick.hidden=fWhere.value!=='teksti';if(!pick.hidden)chosenText();
     var D=draft(),now=new Date(),day=isoD(now),T=D.minne==='paiva';
     if(!D.nimi)D.nimi='Säädin';if(!D.tunnus)D.tunnus=saadinNewId(D.nimi);
-    var line=SAADIN.record(D,{day:day,clock:D.aika==='nyt'?pad(now.getHours())+':'+pad(now.getMinutes()):'',dayNote:T,id:'',
+    var line=SAADIN.record(D,{day:day,clock:D.aika==='nyt'?pad(now.getHours())+':'+pad(now.getMinutes()):'',dayNote:T,id:'',week:D.aika==='viikko'?MUUTTUJA.weekOf(day):'',
       values:SAADIN.vars(D).map(function(v){return v.arvo||'‹'+v.nimi+'›';})});
     var where=D.minne==='teksti'?(linkki?'[['+linkki+']]':'valittu muistiinpano'):D.minne==='oma'?'oma muistiinpano (inbox)':'päivän muistiinpano, osio Pikakirjaukset';
     preview.replaceChildren();
@@ -14936,7 +14998,7 @@ function mvbSourceControl(card,actions,R,sources,title){
   function show(){
     list.hidden=false;toggle.setAttribute('aria-expanded','true');
     sources.slice().sort(function(a,b){
-      var x=a.o.paivat[a.o.paivat.length-1]||'',y=b.o.paivat[b.o.paivat.length-1]||'';
+      var x=MUUTTUJA.obsWhen(a.o),y=MUUTTUJA.obsWhen(b.o);
       return x===y?0:!x?1:!y?-1:x<y?1:-1;
     }).forEach(function(x){
       var b=button(list,'','btn mvrow',function(){

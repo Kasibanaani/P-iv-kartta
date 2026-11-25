@@ -1,10 +1,19 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.96 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 25.11.2026
+**Vaihe:** versio 0.97 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 25.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.97 (25.11.2026): suomalainen aika ja viikkotarkkuus kirjausreitillä (työjonon kärki 4).**
+- **Viikkohavainto.** Tiedostomuoto on `((vk 48/2026, paino = 80 kg))`, ja se määriteltiin ja testattiin ennen kuin mikään alkoi kirjoittaa sitä. Viikko on suomalainen ISO-viikko, joka alkaa maanantaina, ja viikkovuosi määräytyy torstain mukaan: 1.1.2027 → vk 53/2026. Lukija hyväksyy myös `viikko 48/2026`, `vk 48/26` ja `2026-W48`. Vuodeton `vk 48` tarkoittaa kuluvaa vuotta, tai edellistä, jos viikko olisi vielä tulossa. Viikkohavainto pysyy viikkona: kooste ottaa sen mukaan yhtenä havaintona, jos viikko osuu aikaväliin, eikä sitä jaeta päiville eikä se näy päiväkuvaajassa. Havaintotaulukossa se on viikkoakselilla oma viikkonsa ja päiväakselilla oma rivinsä (*vk 48/2026*). Muistiossa, lähteissä ja muuttujaluettelossa näkyy *vk 48/2026*. *Viimeisin* vertaa viikkoa sen maanantaina.
+- **Napin aika.** Uusi valinta *Kuluva viikko (vk)*. Muuttuja kirjoitetaan muotoon `((vk 48/2026, …))` ja teksti muotoon `vk 48/2026 · Teksti`.
+- **Kysyvä nappi** (*Kysy päivä tai viikko joka kerta*). Päiväkenttä on nyt tekstikenttä, jossa on valmiina tämä päivä (25.11.2026). Se hyväksyy muodot 5.1.2026, 05.01.2026, 5.1.26, ke 25.11. klo 18.05, eilen ja vk 48 tai vk 53/2026. Tulkinta näkyy kentän alla heti nelinumeroisella vuodella, esim. *ma 5.1.2026 klo 07.30* tai *vk 53/2026 (28.12.–3.1.2027)*. Tunnistamaton kirjoitus ei tallennu. Kellonaikakenttä piiloutuu, kun kirjoitettu teksti sisältää kellonajan tai viikon. Ennen kenttä oli selaimen päivävalitsin.
+- **Korjaus lukijaan:** lohkon vuodeton päivä (`((ti 24.11. klo 12.30, …))`) tulkittiin, jos päivä oli jo mennyt, ensi vuodeksi. Silloin viikonpäivä ei täsmännyt ja päivä hylättiin. Nyt se on viimeisin sellainen päivä enintään kirjaushetkellä, eli havainto ei koske tulevaa. Sama sääntö oli jo vanhoissa `!!`-merkinnöissä. Tämä muuttaa niiden lohkojen tulkintaa, joissa on vuodeton päivä luontipäivän jälkeen.
+- **Testit:** `logiikka_viikko.js` (viikkovuosi, viikko 53, tulkinnat, kooste, havaintotaulukko, kirjoitus) ja `selain_97.py` (390 ja 320 px: oletuspäivä, 5.1.26, tunnistamaton, vk 53/2026, päivä ja kello samassa kentässä, Kuluva viikko editorissa ja kirjauksessa). `selain_88.py` täyttää päiväkenttään ISO-päivän, ja sekin käy yhä.
+- **Ei tehty:** kojelaudan *Kirjaa arvo*, pikakirjauksen Muuttujat ja päivän mittarit käyttävät edelleen omaa päivävalitsintaan. Napin oma valinta *viikko kysytään* puuttuu (kysyvä nappi hyväksyy kuitenkin viikon). Kaksinumeroiset historialliset vuodet (esim. 5.1.26 = 1926) eivät onnistu: ne tulkitaan aina 2000-luvuksi. Neljänumeroinen vuosi toimii.
+- **Ei tarkistettu:** oikea iPhone (tekstikentän näppäimistö, piste ja kauttaviiva) ja oikea GitHub. Koko sarja: TULOS2.
 
 **0.96 (25.11.2026): yksi nappieditori ja kokonainen treenikerta (työjonon kärki 3 ja 2).**
 - **Monta muuttujaa yhdessä napissa.** Säädineditorin kohdassa *Muuttujat (havainto)* on muuttujarivit. Jokaisella on nimi, arvo (tyhjä = kysytään painettaessa) ja valinnainen yksikkö, ja ＋ Lisää muuttuja tekee uuden rivin (enintään 8). Kohde ja havaintotunniste ovat yhteisiä. Esimerkki: nappi *Penkki* (kohde Penkki, paino kg, toistot) kysyy kaksi arvoa yhdessä ikkunassa ja kirjoittaa ne samaan havaintoon: `- ((25.11.2026 klo 18.05, Penkki: paino = 80 kg, toistot = 8, ^qh…))`. Yksikkö lisätään arvon perään, ellei se jo ole siinä. Kojelauta ja Muistio lukevat sen muuttujina *paino (kg)* ja *toistot*. Kysymysikkunassa yksikkö näkyy kentän perässä, numeronäppäimistö aukeaa ja Enter siirtää seuraavaan kenttään. Toinen sarja alkaa saman käyttökerran edellisillä arvoilla valittuina, joten kirjoitus korvaa ne (muisti on vain avoimessa apissa).
@@ -289,6 +298,8 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 **Suunnitelma 25.11.2026.** Emil hyväksyi [laskennallisen ja käytettävän muistiinpanon](SUUNNITELMA.md#111-laskennallinen-ja-käytettävä-muistiinpano) lisäämisen suunnitelmaan. Tilakytkin kuuluu muistiinpanoikkunan käytettävyystyöhön, ensimmäinen havaintokaava yhteisen havaintohaun jatkoksi ja tekstin säätimet A6:n jatkoksi. Ensimmäisen käyttökokeen nimi on *Päivän tilanne*. Toteutus ja iPhone-koe ovat edessä.
 
+**0.97:n jälkeen.** Kokeile kysyvää nappia: kirjoita päiväksi 5.1.26, vk 48 ja eilen klo 7, ja katso kentän alta, mitä appi ymmärsi. Tee nappi, jonka aika on *Kuluva viikko*. Seuraavaksi työjonon kärjen kohta 5 (kojelaudan raahaus kalenterin tapaan), sitten A6.3.
+
 **0.96:n jälkeen.** Kokeile puhelimella kokonainen treenikerta: avaa kalenterista salitreeni, ＋ Kirjaa → Muokkaa → + Uusi nappi, tee *Penkki* (kohde Penkki, muuttujat paino kg ja toistot), Valmis, kirjoita huomio ja kirjaa kaksi sarjaa. Tarkista, että näppäimistö jättää molemmat kentät ja Kirjaa-napin näkyviin, ja avaa sama muistiinpano tietokoneella. Seuraavaksi: työjonon kärjen kohta 4 (suomalainen aika ja viikkotarkkuus) tai kohta 5 (kojelaudan raahaus kalenterin tapaan), sitten A6.3 (Muistion nappisarake samalla napilla).
 
 **0.95:n jälkeen.** Kokeile lentokonetilassa: kirjaa pikakirjauksesta Vire ja kojelaudan *Kirjaa arvo* -napista arvo, paina Valmis, sulje appi, avaa verkon kanssa ja tarkista, että arvot ovat taulukossa ja päivämuistiinpanossa kerran. Kokeile samalla 0.94:n nappi ja teksti. Työvaiheesta 1 on jäljellä Muistion solumuokkaus ja täyttö alas. Ne kirjoittavat käyttäjän silmien edessä ja niillä on oma ristiriitavalinta, joten ehdotan, että ne jätetään ennalleen ja siirrytään työjonon kärjen kohtaan 2 (kokonainen treenikerta) ja 3 (yksi nappieditori). Jos Emil haluaa myös solut jonoon, se on seuraava työ. **0.93:n jälkeen.** Kokeile puhelimella: avaa treenimuistiinpano, ＋ Kirjaa, kirjoita huomio, valitse Treeni → Penkki ja kirjaa 80. Tarkista, että näppäimistö jättää kentän ja napit näkyviin. Kokeile tietokoneella, että toinen välilehti jää lukutilaan. Seuraavaksi: työjonon kärjen kohta 2 (kokonainen treenikerta kalenterista) ja kohta 3 (yksi nappieditori, monimuuttujanappi). Kriittisen arvion työvaiheesta 1 on tehty napit ja ＋ Kirjaa (0.94). Jäljellä ovat muut suorat lomakkeet. Sen jälkeen A6.3.
@@ -318,6 +329,11 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 4. Karsinta: mitä Juuren osia Kaikki ei tarvitse.
 
 ## Avoimet kysymykset
+
+**Suomalainen aika (0.97), tekoälyn ratkaisut, jotka Emil vahvistaa:**
+1. Viikkohavainnon *viimeisin*-vertailu käyttää viikon maanantaita. Jos samalla viikolla on päiväkirjaus, se on viikkokirjausta uudempi. Käykö?
+2. Kaksinumeroinen vuosi on aina 2000-luku (5.1.26 = 2026). Historialliset päivät kirjoitetaan neljällä numerolla. Riittääkö?
+3. Kysyvän napin päiväkenttä on tekstikenttä eikä iPhonen päivävalitsin, jotta 5.1.26 ja vk 48 käyvät. Jos valitsin oli mieluisampi, kenttään voi lisätä kalenterinapin.
 
 **Nappieditori ja treenikerta (0.96), tekoälyn ratkaisut, jotka Emil vahvistaa:**
 1. Kaikki napin muuttujat menevät yhteen havaintolohkoon yhteisellä kohteella (esim. Penkki). Riittääkö yksi nappi per liike, vai pitäisikö kohteen voida kysyä painettaessa (yksi *Sarja*-nappi kaikille liikkeille)?
