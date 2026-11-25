@@ -10486,17 +10486,23 @@ function vFlush(){if(!vOn()||vBusy||!tabNet())return Promise.resolve();var ps=Ob
     vBusy=false;vMsg=r.error||vErr(r.status);vRender();
   }).catch(function(error){vBusy=false;vMsg=error.message||'Tallennus jäi jonoon.';vRender();});}
 /* ---- Kaikki 0.94 (kriittinen arvio, työvaihe 1: yhteinen tulosmalli suorille kirjauksille). Säätimen painallus ja ＋ Kirjaa ovat
-   operaatioita VC.ops: {id, kind: 'saadin'|'teksti', path, repo, branch, probe (kirjoitettava rivi tai teksti), mark (havaintolohkon
+   operaatioita VC.ops: {id, kind: 'saadin'|'teksti'|'paiva'|'csv', path, repo, branch, probe (kirjoitettava rivi tai teksti), mark (havaintolohkon
    tunnus, jos on), baseCount, sent, label, msg, …}. Operaatio tallennetaan laitteelle ennen lähetystä. Tulos: ok (GitHub vahvisti),
    wait (yhteys tai synkka: odottaa ja lähtee vFlushin lopuksi, verkon palatessa tai minuutin välein) tai gone (kohdetta ei enää ole:
    teksti tallennetaan uuteen muistiinpanoon inboxiin, ettei mitään katoa). Uusinta tarkistaa ensin, ehtikö edellinen yritys perille:
    havaintolohkon tunnus löytyy, tai rivin esiintymiä on enemmän kuin lähtöversiossa. Kaksi tarkoituksellista painallusta = kaksi
-   operaatiota = kaksi riviä; saman operaation uusinta = yksi. ---- */
+   operaatiota = kaksi riviä; saman operaation uusinta = yksi.
+   0.95: 'paiva' = pikakirjauksen rivit päivämuistiinpanon osioon Pikakirjaukset (quickDayPatch: sama rivi tai havaintotunnus ei
+   toistu), 'csv' = mittaritaulukon päivärivi (dashPatchDay: arvo, joka on jo perillä, ohitetaan). Ristiriita (sama solu muuttui
+   GitHubissa) = 'conflict': avoin lomake (op.ask) näyttää sen ja arvot jäävät käyttäjälle, taustalla kirjaus talteen inboxiin. ---- */
 function vNl(t){return String(t||'').replace(/\r\n/g,'\n');}
 function vOpCount(text,s){if(!s)return 0;var n=0,i=0;while((i=text.indexOf(s,i))>=0){n++;i+=s.length;}return n;}
 function vOpApplied(op,text){var t=vNl(text);if(op.mark)return t.indexOf(op.mark)>=0;if(op.baseCount==null)return false;return vOpCount(t,op.probe)>op.baseCount;}
 function vOpPatch(op,text){
   if(op.kind==='saadin'){var w=SAADIN.write(text,{tapa:op.tapa,tunnus:op.tunnus},op.line,{dayNote:op.dayNote,template:op.template});return {text:w.text,before:w.before};}
+  if(op.kind==='paiva')return {text:quickDayPatch(String(text||''),op.day,op.edits),before:null};
+  if(op.kind==='csv'){if(!text)return {error:'Mittaritaulukkoa '+op.path+' ei löytynyt.'};var D=dashPatchDay(text,op.day,op.edits);
+    return D.error?{error:D.error,conflict:!!D.conflict}:{text:D.text,before:null};}
   if(op.kind==='teksti'){text=String(text||'');var eol=text.indexOf('\r\n')>=0?'\r\n':'\n',base=text.replace(/\s+$/,'');
     return {text:(base?base+eol+eol:'')+op.text.split('\n').join(eol)+eol,before:null};}
   return {error:'Tuntematon kirjaus.'};
@@ -10512,8 +10518,8 @@ async function vOpRun(op){
     if(get.status!==200&&get.status!==404)return {status:vOpWait(get.status)?'wait':'gone',error:vErr(get.status)};
     var text=get.status===200?b64d(get.j.content):'',sha=get.status===200?get.j.sha:undefined;
     if(get.status===200&&vOpApplied(op,text))return {status:'ok',file:{t:text,sha:sha},already:true};
-    if(get.status===404&&!op.template)return {status:'gone',error:'Muistiinpanoa ei enää löydy.'};
-    var P=vOpPatch(op,text);if(P.error)return {status:'gone',error:P.error};
+    if(get.status===404&&!op.template)return {status:'gone',error:op.kind==='csv'?'Mittaritaulukkoa ei löytynyt.':'Muistiinpanoa ei enää löydy.'};
+    var P=vOpPatch(op,text);if(P.error)return P.conflict?{status:'conflict',error:P.error,file:{t:text,sha:sha}}:{status:'gone',error:P.error};
     if(P.text===text)return {status:'ok',file:{t:text,sha:sha},already:true};
     op.baseCount=vOpCount(vNl(text),op.probe);op.sent=nowIso();vSaveC();/* toinen välilehti tai uudelleenavaus tunnistaa lähteneen */
     var put=await vApi(url,'PUT',{message:op.msg,content:b64e(P.text),sha:sha,branch:op.branch});
@@ -10527,13 +10533,15 @@ async function vOpRun(op){
 function vOpRescue(op){
   var d=new Date(),day=isoD(d),stamp=day+'-'+pad(d.getHours())+pad(d.getMinutes()),cp='inbox/'+stamp+'-kirjaus.md';
   while(VC.files[cp]||VC.q[cp])cp=cp.replace(/\.md$/,'-'+Date.now().toString(36)+'.md');
-  var body=op.kind==='teksti'?op.text:op.line;
+  var body=op.kind==='teksti'?op.text:op.line;/* paiva ja csv: line = luettava kooste */
   VC.q[cp]={t:['---','tyyppi: inbox','otsikko: Kirjaus, jota ei voitu tallentaa','kuvaus: Kohde '+op.path+' puuttui, kun kirjaus lähti.','luotu: '+day,'lahde: emil','---',
     '# Kirjaus, jota ei voitu tallentaa','','Kohde: '+op.path,'',body,''].join('\n'),base:null,direct:true};
   return cp;
 }
-function vOpDone(op,r){
+function vOpDone(op,r,live){
   if(r.status==='wait'){vSaveC();return;}
+  if(r.status==='conflict'){if(r.file)VC.files[op.path]=r.file;/* GitHubin tuoreet arvot näkyviin */
+    if(!(live&&op.ask))r.status='gone';}/* taustalla: ei kysyttävää, talteen inboxiin */
   VC.ops=VC.ops.filter(function(x){return x.id!==op.id;});
   if(r.status==='ok'&&r.file){VC.files[op.path]=r.file;vAt=vClock();}
   if(r.status==='gone'){r.copy=vOpRescue(op);}
@@ -10548,7 +10556,7 @@ async function vDirect(op){
   vBusy=true;vRender();var r;
   try{r=await vOpRun(op);}catch(e){r={status:'wait',error:'Kirjaus jäi odottamaan.'};}
   finally{vBusy=false;}
-  vOpDone(op,r);vRender();if(r.status!=='wait')vFlush();
+  vOpDone(op,r,true);vRender();if(r.status!=='wait')vFlush();
   return r;
 }
 function vOpFlush(op){
@@ -10556,7 +10564,7 @@ function vOpFlush(op){
   return vOpRun(op).catch(function(){return {status:'wait',error:'Kirjaus jäi odottamaan.'};}).then(function(r){
     vBusy=false;vOpDone(op,r);
     if(r.status==='wait'){vMsg=r.error||'Kirjaus odottaa.';vRender();return;}
-    vMsg='';if(r.status==='gone')toast('Kohdetta ei enää ollut. Kirjaus tallentui inboxiin: '+r.copy);
+    vMsg='';if(r.status==='gone')toast((r.error||'Kohdetta ei enää ollut.')+' Kirjaus tallentui inboxiin: '+r.copy);
     vRender();return vFlush();
   });
 }
@@ -11416,23 +11424,7 @@ function dashPatchDay(csv,day,edits){
   }
   return {text:lines.join(eol)};
 }
-async function dashWriteDay(path,day,edits,repo,branch){
-  var url=vUrl('/contents/'+vEnc(path));
-  for(var attempt=0;attempt<3;attempt++){
-    if(vRepo()!==repo||G.branch!==branch)return {error:'GitHub-vault vaihtui tallennuksen aikana.'};
-    var result=await vApi(url+'?ref='+encodeURIComponent(branch));
-    if(result.status!==200)return {error:vErr(result.status)};
-    var current={sha:result.j.sha,t:b64d(result.j.content)};
-    var patch=dashPatchDay(current.t,day,edits);
-    if(patch.error)return {error:patch.error,conflict:patch.conflict,file:current};
-    if(patch.text===current.t)return {file:current};
-    if(vRepo()!==repo||G.branch!==branch)return {error:'GitHub-vault vaihtui tallennuksen aikana.'};
-    var put=await vApi(url,'PUT',{message:'appi: päivän mittarit',content:b64e(patch.text),sha:current.sha,branch:branch});
-    if(put.status===200||put.status===201)return {file:{sha:put.j.content.sha,t:patch.text}};
-    if(put.status!==409&&put.status!==422)return {error:vErr(put.status)};
-  }
-  return {error:'Taulukkoa päivitettiin samanaikaisesti. Yritä uudelleen.'};
-}
+/* 0.95: dashWriteDay korvattu operaatiolla dashOp (vDirect, laji csv). */
 /* Kaikki 0.18: Vaultin pikakirjaus. Valinnat kerätään ennen tallennusta. */
 var QUICK_PRESETS='pohjat/pikakirjaus.md',quickDraft=null;
 var quickDialog=$('quick-entry'),quickBody=$('quick-body'),quickViewport=window.visualViewport,quickViewportFrame=0;
@@ -11749,13 +11741,24 @@ function quickMode(mode){
   quickDraft.mode=mode;try{localStorage.setItem('kaikki:quick-mode',mode);}catch(e){}
   quickRender();quickBody.scrollTop=0;
 }
+/* 0.95: mittarin päiväarvot jonomalliin (vDirect, laji csv). Rivi = luettava kooste, joka päätyy inboxiin, jos kohde puuttuu. */
+function dashOp(path,day,edits,msg){
+  return {kind:'csv',path:path,day:day,edits:edits.map(function(e){return {id:e.id,before:e.before||'',after:e.after};}),ask:true,msg:msg||'appi: päivän mittarit',
+    label:path,line:'Mittarit '+day+' ('+path+'): '+edits.map(function(e){return e.id+' = '+e.after;}).join(', ')};
+}
+function dashOpSaid(r,done){
+  if(r.status==='ok')return done;
+  if(r.status==='conflict')return r.error;
+  if(r.status==='wait')return 'Tallessa laitteella. Lähtee GitHubiin, kun yhteys toimii.'+(r.error?' ('+r.error+')':'');
+  return (r.error||'Kohdetta ei löytynyt.')+' Kirjaus tallentui inboxiin: '+r.copy;
+}
 async function saveQuickEntry(){
   var draft=quickDraft,dialog=$('quick-entry'),msg=$('quick-msg');
   if(!draft||draft.saving)return;
   if(!$('quick-new-form').hidden||!$('quick-variable-form').hidden||$('quick-values').dataset.variable){quickRender();return;}
   if(!draft.edits.size){closeSheet(dialog);return;}
-  if(!vOn()||vRepo()!==draft.repo||G.branch!==draft.branch||vBusy){
-    msg.textContent='Vault synkronoi tai yhteys on vaihtunut. Yritä uudelleen.';return;
+  if(!vOn()||vRepo()!==draft.repo||G.branch!==draft.branch){
+    msg.textContent='Vault-yhteys on vaihtunut. Avaa pikakirjaus uudelleen.';return;
   }
   var groups=new Map();
   draft.edits.forEach(function(edit,key){
@@ -11765,26 +11768,26 @@ async function saveQuickEntry(){
   });
   var controls=Array.from(dialog.querySelectorAll('button,input'));
   controls.forEach(function(control){control.disabled=true;});
-  draft.saving=true;vBusy=true;vRender();msg.textContent='Tallennetaan…';
+  draft.saving=true;msg.textContent='Tallennetaan…';
+  /* 0.95: yhteinen tulosmalli. Jokainen ryhmä (tiedosto + päivä) on oma operaationsa, joka on laitteella ennen lähetystä. */
+  var waits=0,copies=[],conflict='';
   try{
     for(var pairs of groups.values()){
-      var edit=pairs[0].edit;
-      var changes=pairs.map(function(pair){return pair.edit;});
-      var result=edit.line?
-        await vWriteText(edit.path,function(text){return quickDayPatch(text,edit.day,changes);},'appi: päivän pikakirjaukset',draft):
-        await dashWriteDay(edit.path,edit.day,changes,draft.repo,draft.branch);
-      if(result.file&&vRepo()===draft.repo&&G.branch===draft.branch){VC.files[edit.path]=result.file;vSaveC();}
-      if(result.error){
-        if(result.conflict)pairs.forEach(function(pair){draft.edits.delete(pair.key);});
-        quickRender();
-        msg.textContent=result.error+(result.conflict?' Valitse kyseisen päivän arvot uudelleen.':'');
-        return;
-      }
+      var edit=pairs[0].edit,changes=pairs.map(function(pair){return pair.edit;});
+      var op=edit.line?{kind:'paiva',path:edit.path,day:edit.day,template:true,msg:'appi: päivän pikakirjaukset',label:mvDay(edit.day),
+          edits:changes.map(function(c){return c.id?{line:c.line,id:c.id}:{line:c.line};}),line:changes.map(function(c){return c.line;}).join('\n')}:
+        dashOp(edit.path,edit.day,changes);
+      var r=await vDirect(op);
       pairs.forEach(function(pair){draft.edits.delete(pair.key);});
+      if(r.status==='conflict')conflict=r.error;
+      else if(r.status==='wait')waits++;
+      else if(r.status==='gone')copies.push(r.copy);
     }
-    vAt=vClock();vApply();closeSheet(dialog);render();toast('Pikakirjaukset tallennettu.');
-  }catch(e){msg.textContent='Pikakirjaus odottaa. Tarkista yhteys ja yritä uudelleen.';}
-  finally{draft.saving=false;vBusy=false;controls.forEach(function(control){control.disabled=false;});vRender();vFlush();}
+  }finally{draft.saving=false;controls.forEach(function(control){control.disabled=false;});vRender();}
+  if(conflict){quickRender();msg.textContent=conflict+' Valitse kyseisen päivän arvot uudelleen.';return;}
+  closeSheet(dialog);render();
+  toast(copies.length?'Kohdetta ei löytynyt. Kirjaus tallentui inboxiin: '+copies.join(', '):
+    waits?'Pikakirjaukset ovat tallessa laitteella. Ne lähtevät GitHubiin, kun yhteys toimii.':'Pikakirjaukset tallennettu.');
 }
 function quickPresetPatch(text,mode,name,line){
   var heading=mode==='seuranta'?'Seuranta':mode==='muuttujat'?'Muuttujat':'Muistutus',eol=text.indexOf('\r\n')>=0?'\r\n':'\n';
@@ -14316,7 +14319,7 @@ async function writeNewNoteMetric(note,previous){
   var source=note.text,lines=metricNoteLines(source),old=metricNoteLines(previous);
   var added=lines.filter(function(line){return !old.some(function(p){return p.text===line.text;});});
   if(!added.length)return;
-  if(added.length!==1||vBusy){
+  if(added.length!==1){
     toast('Mittaririvi odottaa. Avaa muistiinpanon ⋯ → Kirjaa mittaririvi.');return;
   }
   var spec=dashSpec(),table=spec&&!spec.err&&dashEntryTables(spec)[0];
@@ -14326,12 +14329,10 @@ async function writeNewNoteMetric(note,previous){
   if(parsed.error){toast(parsed.error);return;}
   var oldRow=csv.rows.find(function(row){return row.pvm===parsed.day;})||{},edits=[];
   parsed.values.forEach(function(value,id){edits.push({id:id,before:oldRow[id]||'',after:value});});
-  var repo=vRepo(),branch=G.branch;
-  vBusy=true;vRender();
   try{
-    var result=await dashWriteDay(path,parsed.day,edits,repo,branch);
-    if(result.file&&vRepo()===repo&&G.branch===branch){VC.files[path]=result.file;vSaveC();}
-    if(result.error){toast(result.error);return;}
+    /* 0.95: yhteinen tulosmalli. Odottava kirjaus on laitteella, joten rivi merkitään kirjatuksi heti. */
+    var result=await vDirect(dashOp(path,parsed.day,edits));
+    if(result.status==='conflict'||result.status==='gone'){toast(dashOpSaid(result,''));return;}
     if(note.text===source&&vNotes().indexOf(note)>=0){
       var marked=markMetricLine(source,line);
       if(noteCur===note&&$('nsheet').open&&$('ns-text').value!==source){
@@ -14340,9 +14341,8 @@ async function writeNewNoteMetric(note,previous){
       noteWrite(note,marked);touch();
       if(noteCur===note&&$('nsheet').open){$('ns-text').value=marked;foundInfo();paintHl();}
     }
-    vAt=vClock();render();toast('Muistiinpanon mittarit tallennettu.');
+    render();toast(dashOpSaid(result,'Muistiinpanon mittarit tallennettu.'));
   }catch(e){toast('Mittaririvi jäi odottamaan. Yritä muistiinpanon ⋯-valikosta.');}
-  finally{vBusy=false;vRender();vFlush();}
 }
 function showDashEntry(tables,seed,origin){
   if(vBusy){toast('Vault synkronoi. Yritä hetken kuluttua.');return;}
@@ -14376,24 +14376,24 @@ function showDashEntry(tables,seed,origin){
   day.onchange=pick.onchange=reload.onclick=showFields;
   form.onsubmit=async function(event){
     event.preventDefault();
-    if(vBusy||!vOn()){msg.textContent='Vaultin yhteys tai synkronointi estää tallennuksen juuri nyt.';return;}
+    if(!vOn()){msg.textContent='Vaultin yhteys puuttuu.';return;}
     var edits=inputs.filter(function(input){return input.field.value!==input.displayed||(origin&&parsedKeys.has(input.field.name));}).map(function(input){
       return {id:input.field.name,before:input.before,after:input.field.value};
     });
     if(!edits.length){msg.textContent='Kirjauksia ei muutettu.';return;}
-    var path=tables[+pick.value].tiedosto,repo=vRepo(),branch=G.branch,when=day.value;
+    var path=tables[+pick.value].tiedosto,when=day.value;
     var controls=[day,pick,save,parse,textInput].concat(inputs.map(function(input){return input.field;}));
     controls.forEach(function(control){control.disabled=true;});
-    vBusy=true;vRender();msg.textContent='Tallennetaan…';reload.hidden=true;
+    msg.textContent='Tallennetaan…';reload.hidden=true;
     try{
-      var result=await dashWriteDay(path,when,edits,repo,branch);
-      if(result.file&&vRepo()===repo&&G.branch===branch){VC.files[path]=result.file;vSaveC();}
-      if(result.error){msg.textContent=result.error;reload.hidden=!result.conflict;return;}
-      vAt=vClock();vMsg='';closeSheet(dialog);
-      if(origin&&parsedKeys.size)origin.mark();
-      render();toast('Päivän mittarit tallennettu.');
+      /* 0.95: yhteinen tulosmalli (dashOp). Ristiriidassa arvot jäävät lomakkeelle, muuten kirjaus on laitteella ennen lähetystä. */
+      var result=await vDirect(dashOp(path,when,edits));
+      if(result.status==='conflict'){msg.textContent=result.error;reload.hidden=false;return;}
+      closeSheet(dialog);
+      if(origin&&parsedKeys.size&&result.status!=='gone')origin.mark();/* odottava = tallessa laitteella */
+      render();toast(dashOpSaid(result,'Päivän mittarit tallennettu.'));
     }catch(e){msg.textContent='Mittareita ei voitu tallentaa. Tarkista vaultin yhteys.';}
-    finally{controls.forEach(function(control){control.disabled=false;});vBusy=false;vRender();vFlush();}
+    finally{controls.forEach(function(control){control.disabled=false;});vRender();}
   };
   showFields();if(seed)fillFromText();openSheet(dialog);
 }
