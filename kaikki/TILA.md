@@ -278,6 +278,8 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Seuraava askel
 
+**Suunnitelma 25.11.2026.** Emil hyväksyi [laskennallisen ja käytettävän muistiinpanon](SUUNNITELMA.md#111-laskennallinen-ja-käytettävä-muistiinpano) lisäämisen suunnitelmaan. Tilakytkin kuuluu muistiinpanoikkunan käytettävyystyöhön, ensimmäinen havaintokaava yhteisen havaintohaun jatkoksi ja tekstin säätimet A6:n jatkoksi. Ensimmäisen käyttökokeen nimi on *Päivän tilanne*. Toteutus ja iPhone-koe ovat edessä.
+
 **0.95:n jälkeen.** Kokeile lentokonetilassa: kirjaa pikakirjauksesta Vire ja kojelaudan *Kirjaa arvo* -napista arvo, paina Valmis, sulje appi, avaa verkon kanssa ja tarkista, että arvot ovat taulukossa ja päivämuistiinpanossa kerran. Kokeile samalla 0.94:n nappi ja teksti. Työvaiheesta 1 on jäljellä Muistion solumuokkaus ja täyttö alas. Ne kirjoittavat käyttäjän silmien edessä ja niillä on oma ristiriitavalinta, joten ehdotan, että ne jätetään ennalleen ja siirrytään työjonon kärjen kohtaan 2 (kokonainen treenikerta) ja 3 (yksi nappieditori). Jos Emil haluaa myös solut jonoon, se on seuraava työ. **0.93:n jälkeen.** Kokeile puhelimella: avaa treenimuistiinpano, ＋ Kirjaa, kirjoita huomio, valitse Treeni → Penkki ja kirjaa 80. Tarkista, että näppäimistö jättää kentän ja napit näkyviin. Kokeile tietokoneella, että toinen välilehti jää lukutilaan. Seuraavaksi: työjonon kärjen kohta 2 (kokonainen treenikerta kalenterista) ja kohta 3 (yksi nappieditori, monimuuttujanappi). Kriittisen arvion työvaiheesta 1 on tehty napit ja ＋ Kirjaa (0.94). Jäljellä ovat muut suorat lomakkeet. Sen jälkeen A6.3.
 
 **Pikakirjaus.** Kokeile uuden napin lomakkeen ja muuttujakentän käyttöä iPhonella näppäimistön ollessa auki.

@@ -24,6 +24,8 @@ Päivitetty 25.11.2026. Kriittinen arvio ja vakauskorjaukset ovat alla. Aiempi t
 
 **Hyväksyntä puhelimella.** Kirjaa kalenterista avatun treenin kaksi sarjaa peräkkäin. Tarkista käytännössä, että näppäimistö jättää arvokentän ja vahvistuksen näkyviin, ensimmäinen sarja näkyy heti, toinen tarkoituksellinen kirjaus säilyy ja verkkokatkon uudelleenyritys ei monista sarjaa. Avaa lopuksi sama kerta tietokoneella. Arvioi kojelaudan koonmuutoksen tuntuma oikealla iPhonella suhteessa saman laitteen kalenteriin.
 
+**Liittyvä jatkotyö.** [Laskennallinen ja käytettävä muistiinpano](#111-laskennallinen-ja-käytettävä-muistiinpano) kytkee tilakytkimen muistiinpanoikkunan käytettävyystyöhön, havaintokaavan yhteiseen havaintohakuun ja tekstin säätimet A6:een. Toteutus seuraa näiden töiden etenemistä.
+
 ## Kriittinen arvio 25.11.2026
 
 **Lähtökohta.** Arvio päähaaran versiosta 0.90 (`c0714bf`) ja yllä olevasta työjonosta. Emil pyysi luotettavaa, miellyttävää käyttöliittymää GitHub-holviin. Ihminen ja tekoäly voivat kumpikin sekä tuottaa että käyttää tietoa. Alla korjatut kohdat ovat toteutumaa. Työjärjestys ja käyttöliittymäratkaisut ovat ehdotuksia. A6.3 on edelleen seuraava jo määritelty säädinominaisuus. Ehdotan luotettavuuden ensimmäistä työvaihetta ennen sen toteutusta.
@@ -207,6 +209,7 @@ Jäsennys ohittaa toteutusjonon järjestyksen. Alkuperäiset kohdat (numerot sul
      4. Pohjaan jäävä nappi.
      5. XY-säädin.
      6. Kaavion tuotosruutu (23.2).
+   - Saman säätimen käyttö tekstin keskellä on [kohdassa 11.1](#111-laskennallinen-ja-käytettävä-muistiinpano).
    - Nykyiset pikanapit (`pohjat/pikakirjaus.md`) ja muuttujanapit (0.72) avautuvat editorissa säätiminä, ja vanha muoto pysyy luettavana.
    - Tallennusmuodon v1 valitsee rakentaja niin, että se on luettava ja tekoälyn kirjoitettavissa. Ehdotus: `pohjat/saatimet.md`. Muoto kirjataan vaultin ohjeeseen.
 7. **Kalenteri, toistuvuus ja kuittaus.**
@@ -561,6 +564,33 @@ Kokeile testiaineistolla ensin Flow'n lukemista sisennetystä Markdownista. Jatk
 - Muistiinpanon tekstissä `{=KESKIARVO(uni; tunniste = uni)}` → lukunäkymässä tulos (korostettu siru), kirjoittaessa kaava näkyvissä. Kentän arvo voi olla kaava: `jaljella: =[[remontti-budjetti]].budjetti - SUMMA(hinta; tunniste = remontti)` (kokoava muistiinpano).
 - Rivinäkymän näkymätiedostoon kaavasarake: `- =SUMMA(hinta; tunniste = remontti) | luku | €` tai rivikohtainen `- =hinta*1.24 | luku | €` (viittaa rivin omiin kenttiin). Näyttötavat kuten muissakin sarakkeissa.
 - Vaultin `ohjeet/appi.md`: kaavojen muoto tekoälyille.
+
+### 11.1 Laskennallinen ja käytettävä muistiinpano
+
+**Emilin tavoite 25.11.2026.** Tavalliseen muistiinpanoon voi yhdistää tekstiä, Vaultin havainnoista päivittyviä laskelmia ja käyttäjän määrittelemiä säätimiä. Vault-tiedosto pysyy luettavana ja muokattavana tekstinä. Lukutilassa voi tarkistaa tuloksen ja sen lähteet sekä käyttää säädintä. Muokkaustilassa voi muuttaa tekstiä, kaavoja ja säätimien määrityksiä. Tilaa vaihdetaan yhdellä painalluksella kaikissa saman muistiinpanon avausreiteissä, ja valinta muistetaan muistiinpanokohtaisesti. Tavoitteena on Excelin kaltainen suora kaavan muokkaus sekä luonteva käyttö iPhonella.
+
+**Ensimmäinen käyttökokeilu – Päivän tilanne.** Muistiinpanossa on kolme kuormituksen osatekijää asteikolla 0–10. Työkuormitus on 4, arjen kuormitus 3 ja väsymyksen arvo puuttuu. Yhteenveto näyttää *2/3 kirjattu*. Käyttäjä kirjaa väsymykseksi 6 samassa näkymässä ja näkee heti **13/30**. Tuloksesta voi avata kolme lähtöarvoa, niiden ajankohdat ja lähdemuistiinpanot. Luvut ovat esimerkkiaineistoa.
+
+#### Laskenta ja tieto
+
+- **Ehdotus:** käytä nykyistä `{=…}`-syntaksia ja rajattua kaavakieltä. `((…))` on havainto ja `[[…]]` muistiinpanolinkki. Laajenna nykyistä kaavamoottoria havaintoviittauksella, joka käyttää kriittisen arvion työvaiheen 3 yhteistä havaintohakua. Sama kohde, muuttuja, rajaus ja laskutapa tuottavat saman arvon ja lähteet muistiinpanossa, kojelaudalla ja havaintotaulukossa. Nykyisten kenttäkaavojen ja aiempien havaintomuotojen lukutuki säilyy. Kaavat toimivat rajatun lausekekielen tulkissa.
+- **Viittaus kertoo, mitä ja milloin.** Käytä kohteen ja muuttujan yhteisiä määrityksiä ja aliaksia. Valitse lähde, jakso ja laskutapa, esimerkiksi *muistiinpanon päivä → viimeisin*. *Tänään* tarkoittaa käyttöhetken päivää, *muistiinpanon päivä* yhtä päiväkirjan päivää ja *viimeisin ilman aikarajausta* viimeistä havaintoa yli päivien. Päivättömät havainnot käsitellään yhteisen havaintohaun sääntöjen mukaan. Ehdotus kirjoitusasuksi on `{=HAVAINTO("Minä"; "työkuormitus"; MUISTIINPANON_PÄIVÄ; VIIMEISIN)}`. Funktion nimi ja argumentit tarkennetaan ennen toteutusta. Kaava- ja säädinvalitsin lisää luettavan merkinnän suoraan tekstiin. Merkintää voi myös muokata käsin.
+- **Tulos kertoo, mihin tieto riittää.** Puuttuva havainto ja kirjattu nolla ovat eri asioita. Kokonaiskuormituksen ensimmäinen laskelma näyttää kattavuuden, kun osatekijä puuttuu. Jos viimeisimmällä ajalla on useampi osuma, näytä moniselitteisyys ja lähteet. Yhdistä eri yksiköt vain määritellyllä muunnoksella. Tuloksen tarkastelu näyttää rajauksen, yksikön, havaintomäärän ja lähteet sekä sen, jos aineisto on vajaa tai arvo on vasta paikallisessa esikatselussa. Uuden havaintohaun säännöt sovitetaan kojelaudan ja taulukon kanssa yhteen muuttamatta vanhojen kenttäkaavojen tulkintaa.
+- **Laskelma nimetään, kun sitä käytetään uudelleen.** Tekstiin upotettu kaava sopii yhden muistiinpanon laskelmaan. Kun samaa johtopäätöstä tarvitaan toisessa kaavassa tai kojelaudalla, sillä on yksi nimetty määrittely. Säilytä lähdeviitteet ja sovella nykyistä kehävirheen tunnistusta myös viittausten ketjuihin. Kaavan tulos johdetaan lähteistä, ja viimeisin havainto riittää monessa nykyarvon käyttötapauksessa. Historiallinen elävä tulos lasketaan nykyisellä kaavalla, ja laskentatapa näkyy tuloksen tiedoissa. Myöhemmin käyttäjä voi erikseen tallentaa tuloksen, ajankohdan ja käytetyn kaavan vertailua varten.
+
+#### Lukutilan säätimet
+
+- **Ehdotus:** sijoita tekstiin viittaus olemassa olevaan A6-säätimeen. Sama määritys ja editori palvelevat pikakirjausta, kojelautaa ja muistiinpanoa. Merkintätapa ratkaistaan nykyisten linkkien ja havaintojen rinnalle. Säätimen voi lisätä muokkaustilassa suoraan tekstin haluttuun kohtaan.
+- **Ensimmäinen liukusäädin kirjaa uuden havainnon.** Arvon muuttaminen päivittää esikatselun heti. Painike, esimerkiksi *Kirjaa 6*, vahvistaa yhden aikaleimatun havainnon. Näytä kohdemuistiinpano ennen vahvistusta ja noudata sen kirjoituslukkoa. Käytä odottavien kirjausten yhteistä tallennusreittiä. Erota esikatselu, paikallisesti jonotettu kirjaus ja GitHubin vahvistama kirjaus. Uusintalähetys kuuluu samaan operaatioon ja kaksi tarkoituksellista kirjausta ovat kaksi havaintoa.
+- **Jatko:** *Kokeile arvoa* käyttää nollattavaa paikallista lähtöarvoa. *Korjaa kirjaus* avataan yksilöidystä lähdehavainnosta. Kytkin, numerokenttä ja valinnat käyttävät samaa säädinmallia tarpeen mukaan. Kyselylle voi sijoittaa *Täytä kysely* -toiminnon (K7.5). Graafit voivat käyttää kojelaudan esitystapaa.
+
+#### Työjärjestys ja hyväksymiskokeet
+
+1. **Yhden painalluksen tilakytkin** seuraavan luontevan muistiinpanoikkunan käytettävyystyön yhteydessä. Ehdotus on muistaa tila laitekohtaisesti. Tarkista Muistiosta, kalenterista ja linkistä avattaessa, että sama valinta palautuu ja tilanvaihto säilyttää luonnoksen. Linkeillä ja säätimillä on omat napautustoimintonsa.
+2. **Yksi havaintokaava** yhteisen havaintohaun päälle. Toteuta ensin *Päivän tilanne*. Kokeile samaa aineistoa muistiinpanossa ja kojelaudalla sekä vanhoja havaintoja, kirjattua nollaa, puuttuvaa arvoa, tasatilannetta, eri yksiköitä ja päivän vaihtumista.
+3. **Kertanappi tekstin keskelle, sitten liukusäädin.** Rakenna A6:n yhteisen editorin ja kirjausreitin päälle. Kokeile oikealla iPhonella vieritystä, säätämistä, yhtä vahvistusta, offline-kirjausta, uudelleenavausta ja ristiriitaa kahden laitteen välillä. Testaa myös vaihtoehtoinen lukusyöttö ja säädin näppäimistöllä.
+4. **Nimetty laskelma** muistiinpanoon ja kojelaudalle. Muuta määrittelyä yhdessä paikassa, tarkista molemmat tulokset sekä ketju, kehä ja puuttuva lähde.
+5. **Kaavan suora muokkaus ja lisäelementit** käyttökokeen pohjalta. Ensin tuloksen napautus avaa oikean kaavan muokattavaksi. Tavoitteena on tuloksen näyttäminen myös tekstiä muokattaessa siten, että kaava tulee näkyviin kursorin kohdalla. Kokeile oikealla iPhonella tekstin valinta, kopiointi, kumoaminen, vieritys, näppäimistö ja tallennus ennen tämän muokkaustavan käyttöönottoa. Käytä Kaikin nykyisiä teemoja ja yhteisiä säätimiä.
 
 ## 12. Laskentataulukko ja välilehdet
 
