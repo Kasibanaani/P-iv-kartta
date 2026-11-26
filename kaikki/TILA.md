@@ -1,10 +1,16 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.105 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
+**Vaihe:** versio 0.106 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.106 (26.11.2026, suunnitelman AJ3): aikajanan nimetyt vaiheet.**
+- Kirjoita muistiinpanoon `## Vaiheen nimi` ja sen alle aikaväli. Aikajana näyttää projektin otsikon ja palkit otsikkojen mukaisessa järjestyksessä. Projektin päivättömillä vaiheilla on merkintä *Ei aikaa*. Vain päivättömistä otsikoista koostuva muistiinpano jää Muistioon.
+- Palkin valinta avaa muistiinpanon kyseisen vaiheen kohdalle. Lukunäkymässä otsikko korostuu ja päivämäärä näkyy siruna. Palkin siirto muuttaa kyseisen ajoituksen tekstissä, ja *Kumoa* palauttaa sen. Koodiesimerkit ja `aikaisintaan` eivät ajoita vaihetta.
+- **Testit:** `selain_106.py` Chromiumissa 320, 390, 1280 ja 1440 px. Tavallinen aikaväli ja vanha `---`-osio, kolme vaihetta, joista yksi päivätön, oikean kohdan avaaminen, otsikon muuttaminen, siirto ja kumous.
+- **Ei tarkistettu:** oikea iPhone ja Emilin oma vault. Seuraava työvaihe on AJ4, riippuvuudet.
 
 **0.105 (26.11.2026, Emil): päävalikon ja aikajanan korjaukset, kellottomat palkit.**
 - Tietokoneen osionappi toimii myös kuvitustaustalla. Valikko ja klikkauksia vastaanottava tausta ovat samassa kerroksessa.
