@@ -48,7 +48,7 @@ async def check(browser, width):
     ''' % json.dumps({CSV: BEFORE, SPEC: json.dumps(MOVES)}))
     await page.goto(APP)
     if width >= 1000:
-        await page.get_by_role('tab', name='Treeni', exact=True).click()
+        await page.locator('#navbtn').click(); await page.get_by_role('tab', name='Treeni', exact=True).click()
     else:
         await page.locator('#roll').click()
         await page.locator('#section-treeni').click()

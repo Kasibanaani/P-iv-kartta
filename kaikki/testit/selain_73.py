@@ -39,7 +39,7 @@ def run(browser, url, width):
         page.click('#roll')
         page.click('#section-dash')
     else:
-        page.get_by_role('tab', name='Kojelauta', exact=True).click()
+        page.locator('#navbtn').click(); page.get_by_role('tab', name='Kojelauta', exact=True).click()
 
     first = page.locator('.mvb-card[data-id=first]')
     second = page.locator('.mvb-card[data-id=second]')

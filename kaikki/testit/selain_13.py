@@ -52,7 +52,7 @@ async def run(browser, width):
     await page.goto(APP)
     await page.wait_for_function("window.KaikkiTesti?.vault().files['data/paiva.csv']")
     if width >= 1000:
-        await page.get_by_role('tab', name='Kojelauta', exact=True).click()
+        await page.locator('#navbtn').click(); await page.get_by_role('tab', name='Kojelauta', exact=True).click()
     else:
         await page.locator('#roll').click()
         await page.locator('#section-dash').click()

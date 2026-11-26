@@ -40,7 +40,7 @@ async def check(browser, width):
         await page.locator('#roll').click()
         await page.locator('#section-notes').click()
     else:
-        await page.get_by_role('tab', name='Muistio', exact=True).click()
+        await page.locator('#navbtn').click(); await page.get_by_role('tab', name='Muistio', exact=True).click()
     await page.locator('#nlist').get_by_text('Keskus', exact=True).click()
     note_dialog = page.locator('#nsheet')
     await note_dialog.locator('#ns-more').click()

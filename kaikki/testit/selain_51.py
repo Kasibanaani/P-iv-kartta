@@ -36,7 +36,7 @@ async def check(browser, width):
     ''' % (json.dumps(SEED), json.dumps(VIEW), json.dumps(VIEW)))
     await page.goto(APP)
     if width >= 1000:
-        await page.get_by_role('tab', name='Muistio', exact=True).click()
+        await page.locator('#navbtn').click(); await page.get_by_role('tab', name='Muistio', exact=True).click()
     else:
         await page.locator('#roll').click()
         await page.locator('#section-notes').click()

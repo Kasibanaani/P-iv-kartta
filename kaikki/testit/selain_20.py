@@ -71,7 +71,7 @@ async def test(browser, width):
     assert await page.evaluate("__repo.get('data/paiva.csv')") == HEADER + DAY + ',147.25\n'
 
     if width >= 1000:
-        await page.get_by_role('tab', name='Kojelauta', exact=True).click()
+        await page.locator('#navbtn').click(); await page.get_by_role('tab', name='Kojelauta', exact=True).click()
     else:
         await page.locator('#roll').click()
         await page.locator('#section-dash').click()

@@ -137,7 +137,7 @@ def check(browser, width):
     # 4. Kojelaudan päivän mittarit: verkkokatko sulkee lomakkeen ja kirjaus lähtee myöhemmin.
     idle(page)
     if width >= 1000:
-        page.get_by_role('tab', name='Kojelauta', exact=True).click()
+        page.locator('#navbtn').click(); page.get_by_role('tab', name='Kojelauta', exact=True).click()
     else:
         page.locator('#roll').click()
         page.locator('#section-dash').click()

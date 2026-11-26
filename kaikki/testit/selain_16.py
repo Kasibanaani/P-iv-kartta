@@ -53,7 +53,7 @@ async def test(browser, width):
     assert await page.evaluate("__repo.get('data/paiva.csv')") == HEADER + DAY + ',4,2,1,72.5\n'
 
     if width >= 1000:
-        await page.get_by_role('tab', name='Kojelauta', exact=True).click()
+        await page.locator('#navbtn').click(); await page.get_by_role('tab', name='Kojelauta', exact=True).click()
     else:
         await page.locator('#roll').click()
         await page.locator('#section-dash').click()
@@ -70,7 +70,7 @@ async def test(browser, width):
 
     await page.keyboard.press('Escape')
     if width >= 1000:
-        await page.get_by_role('tab', name='Muistio', exact=True).click()
+        await page.locator('#navbtn').click(); await page.get_by_role('tab', name='Muistio', exact=True).click()
     else:
         await page.locator('#roll').click()
         await page.locator('#section-notes').click()

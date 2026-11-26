@@ -39,8 +39,10 @@ async def run(browser, width):
     await expect(page.locator('#section-settings')).to_be_hidden()
 
     if wide:
+        await page.locator('#navbtn').click()  # 0.103: osiot osionapista
         await expect(page.get_by_role('tab', name='Muistio', exact=True)).to_have_count(0)
         await expect(page.get_by_role('tab', name='Kalenteri', exact=True)).to_be_visible()
+        await page.keyboard.press('Escape')
     else:
         await page.locator('#roll').click()
         await expect(page.locator('#section-notes')).to_have_count(0)
@@ -56,6 +58,7 @@ async def run(browser, width):
     await page.mouse.click(3, 4)
     await expect(page.locator('#section-settings')).to_be_hidden()
     if wide:
+        await page.locator('#navbtn').click()
         await expect(page.get_by_role('tab', name='Muistio', exact=True)).to_be_visible()
     else:
         await page.locator('#roll').click()

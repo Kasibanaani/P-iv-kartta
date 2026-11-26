@@ -85,7 +85,7 @@ async def test(browser, width):
     await page.keyboard.press('Escape')
 
     if width >= 1000:
-        await page.get_by_role('tab', name='Kalenteri', exact=True).click()
+        await page.locator('#navbtn').click(); await page.get_by_role('tab', name='Kalenteri', exact=True).click()
     else:
         await page.locator('#roll').click()
         await page.locator('#section-cal').click()

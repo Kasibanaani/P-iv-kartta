@@ -104,6 +104,7 @@ def latest(browser):
     """)
     page.goto(APP)
     ready(page)
+    if page.locator('#navbtn').is_visible(): page.locator('#navbtn').click()  # 0.103
     page.get_by_role('tab',name='Kojelauta',exact=True).click()
     expect(page.locator('#p-dash')).to_contain_text('Koetulos')
     expect(page.locator('#p-dash')).not_to_contain_text('Vaultissa ei ole mittareita')

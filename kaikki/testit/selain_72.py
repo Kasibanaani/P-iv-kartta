@@ -47,7 +47,7 @@ def select_tab(page, width, key, name):
         page.click('#roll')
         page.click(f'#section-{key}')
     else:
-        page.get_by_role('tab', name=name, exact=True).click()
+        page.locator('#navbtn').click(); page.get_by_role('tab', name=name, exact=True).click()
 
 
 def current(page, path):

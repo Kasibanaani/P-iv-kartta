@@ -59,7 +59,7 @@ async def test(browser, width):
     assert re.search(r'## Pikakirjaukset\n\n- klo \d\d\.\d\d · arvio: 4 #kokeilu\n', result)
 
     if width >= 1000:
-        await page.get_by_role('tab', name='Kalenteri', exact=True).click()
+        await page.locator('#navbtn').click(); await page.get_by_role('tab', name='Kalenteri', exact=True).click()
     else:
         await page.locator('#roll').click()
         await page.locator('#section-cal').click()
@@ -67,7 +67,7 @@ async def test(browser, width):
     await expect(day.locator('.wk-recorded')).to_have_text('Kirjattu: arvio 4')
     await expect(day.locator('.wrow')).to_have_count(0)
     if width >= 1000:
-        await page.get_by_role('tab', name='Muistio', exact=True).click()
+        await page.locator('#navbtn').click(); await page.get_by_role('tab', name='Muistio', exact=True).click()
     else:
         await page.locator('#roll').click()
         await page.locator('#section-notes').click()

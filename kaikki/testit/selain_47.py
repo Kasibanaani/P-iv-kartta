@@ -36,7 +36,7 @@ async def check(browser, width):
         await page.locator('#roll').click()
         await page.locator('#section-cal').click()
     else:
-        await page.get_by_role('tab', name='Kalenteri', exact=True).click()
+        await page.locator('#navbtn').click(); await page.get_by_role('tab', name='Kalenteri', exact=True).click()
     await expect(page.get_by_text('Kirjattu: Treeni 1 sarja', exact=True)).to_be_visible()
     await page.locator('#quick-entry-mobile' if phone else '#quick-entry-desktop').click()
     await page.get_by_role('button', name='Treenisarja', exact=True).click()

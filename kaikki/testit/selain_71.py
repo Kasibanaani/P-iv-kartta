@@ -46,7 +46,7 @@ async def dashboard(page):
         await page.locator('#roll').click()
         await page.locator('#section-dash').click()
     else:
-        await page.get_by_role('tab', name='Kojelauta', exact=True).click()
+        await page.locator('#navbtn').click(); await page.get_by_role('tab', name='Kojelauta', exact=True).click()
 
 
 async def run(browser, width):

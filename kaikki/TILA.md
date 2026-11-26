@@ -1,16 +1,28 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.103 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
+**Vaihe:** versio 0.104 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.104 (26.11.2026, Emil, suunnitelman 22 AJ1 + AJ2): vaakasuuntainen aikajana.**
+- **Missä:** Kalenteri → näkymävalitsimen kolmas kohta *Aikajana* (puhelimella *Aj*). Tietokoneen entinen *Aikajana*-nappi (viikko tunteineen) on nyt *Tunnit*.
+- **Mitä näkyy:** jokainen muistiinpano tai sen osio, jonka tekstissä on aikaväli (esim. `1.12.–20.12.`), on oma palkkinsa. Palkit ovat alkamisjärjestyksessä. Kytkin *Myös yksittäiset päivät* näyttää lisäksi yhden päivän merkinnät, ja Päivä- ja Viikko-mittakaavassa kellonajalliset osuvat oikeaan kellonaikaan. Tänään-viiva on punainen, ja viikonloput erottuvat sävynä. Nimi pysyy näkyvissä palkin vasemmassa reunassa vieritettäessä. Kapeassa palkissa nimi on palkin perässä. Kuka kirjoitti -täplä toimii kuten muualla.
+- **Mittakaava:** Päivä · Viikko · Kuukausi · 3 kk · 6 kk · Vuosi yläreunan valitsimesta. Tietokoneella myös Ctrl/⌘ + rulla osoittimen kohdan ympäriltä. Valinta muistetaan laitteella.
+- **Liikkuminen:** liukuva vaakavieritys sormella, kosketuslevyllä tai vaihto + rullalla. Alue jatkuu, kun reuna lähestyy. Lisäksi ‹ › ja *Tänään*. Otsikko näyttää näkyvän ajan (puhelimella lyhyesti, esim. *Marras–joulu*).
+- **Raahaus kuten kalenterissa:** hiirellä palkki lähtee liikkeestä, sormella pitkästä painalluksesta. Pelkkä pyyhkäisy vierittää eikä muuta mitään. Palkin päissä ovat kahvat: vasen muuttaa alkua, oikea loppua. Vedon aikana lähtöasento näkyy katkoviivana ja vihje kertoo tulevat päivät. Reunalla aikajana vierii itsestään. Esc tai keskeytetty kosketus peruu. Vapautus kirjoittaa päivät tekstiin muodossa `23.11.2026–4.12.2026` (kellonaika säilyy), ja alareunan *Kumoa* palauttaa. Napautus ilman vetoa avaa muistiinpanon. Näppäimistöllä Alt+←/→ siirtää päivän, Alt+Vaihto+←/→ muuttaa loppua.
+- **Korjaus päivien lukijaan:** aikaväli, jonka perässä on vuosi ja lauseen piste (`2.12.2026–12.12.2026.`), ei tunnistunut lainkaan. Nyt tunnistuu kuten yksittäinen päivä (`27.11.2026.`). Tämä näkyy myös kalenterissa.
+- **Ei tehty (tulee seuraavaksi, AJ3–AJ4):** nimetyt vaiheet `##`-otsikoista ja riippuvuudet (Emilin päätös 26.11.: lukko seuraajan alussa ja korostus valitulle palkille, kuittaus avaa lukon). Lisäksi puuttuvat nipistyszoomaus puhelimella, toistuvat merkinnät aikajanalla, rajaus tunnisteella tai näkymällä ja uuden palkin luonti aikajanalta.
+- **Testit:** uusi `selain_104.py` (1280 px hiirellä, 390 px kosketuksella, 320 px asettelu): palkit ja kytkin, Esc-peruutus, siirto ja vihje, kummankin kahvan venytys, Kumoa, Alt+nuoli, napsautus avaa, mittakaavan nappi ja Ctrl+rulla, vieritys ja alueen jatkuminen, pitkä painallus ja veto sormella. TESTIT104
+- **Ei tarkistettu:** oikea iPhone (pitkän painalluksen tuntuma, vaakavierityksen ja raahauksen erottuminen, Safarin lasitausta), automaattinen reunavieritys testissä ja Emilin oikea vault.
 
 **0.103 (26.11.2026, Emil): tietokoneen sivupalkki pois.**
 - Tietokoneella (vähintään 1000 px leveä ikkuna) ei ole enää pysyvää sivupalkkia. Yläreunan vasemmassa laidassa on osionappi, jossa näkyvät nykyisen osion kuvake ja nimi (esim. *Kalenteri*). Napsautus avaa osiot lasisena paneelina sivun päälle. Osion valinta, Esc tai napsautus paneelin ulkopuolelle sulkee sen, ja kohdistus palaa napille.
 - Kalenteri, Muistio ja muut osiot ovat koko sivun levyisiä (ennen enintään 1100 px). Asetukset ja vanhat puut pysyvät kapeina.
 - Puhelin ennallaan.
 - **Testit:** uusi `selain_103.py` (1280, 1440 ja 390 px). 15 vanhaa testiä napsautti sivupalkin osioita suoraan, ja ne avaavat nyt ensin osionapin (`apu.py`, `selain_07`, `30`, `34`, `37`–`41`, `43`, `67`, `82`, `102` ja `1109`). SARJA103
+- **Toteutus:** suljettu paneeli on kokonaan poissa näkyvistä (ei vain ruudun ulkopuolella), ja avautuessa se liukuu sisään. Liike jää pois, jos laitteessa on vähennetty liikettä.
 - **Ei tehty:** Emilin idea pysyvästä pienestä kuukausivalitsimesta kalenterin vasempaan alareunaan on kirjattu suunnitelmaan (työjonon kärki 7). Sitä ei rakennettu.
 
 **0.102 (26.11.2026, Emilin ulkoasutoive): kuittausruutu palkin sisään ja kuka kirjoitti -raita täpläksi.**
@@ -355,6 +367,8 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 ## Seuraava askel
 
 **Nopeus (Emil 26.11.2026: palataan myöhemmin).** Jokainen tallennus kirjoittaa koko vaultin. Tietokoneella muunto tallennusmuotoon vie noin 18 ms ja takaisinluku noin 6 ms, iPhonella todennäköisesti 2–4 kertaa enemmän. Ehdotus odottaa iPhonen havaintoja: jokainen tiedosto omaksi IndexedDB-tietueekseen, jolloin muutos kirjoittaa vain muuttuneen tiedoston.
+
+**0.104:n jälkeen.** Kokeile iPhonella: Kalenteri → *Aj*. Kirjoita jonkin muistiinpanon tekstiin aikaväli (esim. `1.12.–20.12.`), vaihda mittakaavaa ja vieritä sormella. Pidä sormea palkilla hetki ja vedä, venytä päistä ja kokeile *Kumoa*. Kerro, tuntuuko veto yhtä hyvältä kuin kalenterissa. Seuraava rakennettava on AJ3–AJ4: nimetyt vaiheet ja riippuvuudet (lukko ja korostus). Tietokoneella kokeile osionappia yläreunan vasemmasta laidasta.
 
 **0.101:n jälkeen.** Kokeile iPhonella: Muistio → rivinäkymä → ＋ → *Arvo tallentuu: Kaava* → *Päiviä luonnista* → Lisää sarake. Kirjoita sitten oma kaava, esim. `=JOS(ONTUNNISTE("dkt"); "DKT"; "")`, ja tarkista, että tulos näkyy (älylainausmerkkien pitäisi käydä). Seuraavat luontevat kaavatyöt: tekstimuuttujat kaavaan, `JA`/`TAI`/`EI` ja kaavasarakkeen näyttönimi. Muuten jäsennyksen A-kohdista seuraava on linkit- ja relaatiosarake (A3.8, kohta 21.8).
 

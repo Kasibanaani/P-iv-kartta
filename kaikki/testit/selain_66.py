@@ -37,7 +37,7 @@ async def run(p,w,h):
     await pg.goto(U)
     await pg.wait_for_function("window.KaikkiTesti?.vault().files['data/kojelauta.md']")
     await pg.wait_for_timeout(800)
-    if w>=1000: await pg.get_by_role('tab',name='Kojelauta',exact=True).click()
+    if w>=1000: await pg.locator('#navbtn').click(); await pg.get_by_role('tab',name='Kojelauta',exact=True).click()
     else:
         await pg.locator('#roll').click(); await pg.locator('#section-dash').click()
     await pg.wait_for_timeout(500)
