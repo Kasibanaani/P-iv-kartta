@@ -22,6 +22,9 @@ Päivitetty 26.11.2026. Versio 0.102 (Emilin ulkoasutoive) siirsi viikkolistan k
 4. *(Tehty 0.97 napin reitillä: viikkomuoto `vk 48/2026` lukijassa, koosteessa ja havaintotaulukossa, napin aika Kuluva viikko, kysyvän napin suomalainen päivä- tai viikkokenttä tulkintoineen, vuodettoman päivän korjaus; testit `logiikka_viikko.js`, `selain_97.py`. Ei tehty: kojelaudan Kirjaa arvo, pikakirjauksen Muuttujat ja päivän mittarit käyttävät omaa päivävalitsintaan; historialliset kaksinumeroiset vuodet.)* **Suomalainen aika koko kirjausreitillä.** Napille voi määrittää ainakin päivä- ja kellonaikatarkkuuden, pelkän päivän tai viikon. Näyttöesimerkit ovat *25.11.2026 klo 18.05*, *25.11.2026* ja *vk 48/2026*. Käytä samaa tulkintaa editorissa, tekstisyötössä, esikatselussa ja lähdetiedoston lukijassa. Hyväksy esimerkiksi *5.1.2026*, *05.01.2026* ja *5.1.26* samaksi päiväksi. Näytä tulkittu vuosi nelinumeroisena. Säilytä aiemmin tuettujen päivämäärien lukutuki. Viikko alkaa maanantaina ja viikkovuosi määräytyy suomalaisen ISO-viikon mukaan: *1.1.2027* kuuluu viikkoon *53/2026*. Viikkotarkkuudella kirjattu arvo säilyy viikon havaintona myös koosteessa. Määritä ja testaa viikkoesityksen tiedostomuoto ennen kuin editori alkaa kirjoittaa sitä. Avoin rajatapaus on kaksinumeroisten historiallisten vuosien vuosisata.
 5. **~~Kalenterin tuntu myös kojelautaan.~~** Tehty 0.98. Ruutu seuraa osoitinta, pudotussuunta ja ruudukkoon sopiva koko näkyvät vedon aikana ja vapautus tallentaa asettelun. Reunavieritys, peruutus ja Asettelu-valikon vaihtoehdot ovat mukana. Tuntuma oikealla iPhonella odottaa kokeilua. Emil kokee kalenteritapahtuman siirron ja keston muuttamisen vakaaksi, kojelaudan koonmuutoksen kankeaksi. Toista sama ele rinnakkain kalenterissa ja kojelaudalla kosketuksella ja hiirellä. Vertaa tartuntakohtaa, liikkeen alkamista, esikatselua ja pudotusta. Käytä kalenterista toimivaa eleenkäsittelyä siellä, missä se soveltuu: kohde seuraa sormea tai osoitinta, tuleva sijainti ja koko näkyvät liikkeen aikana, vapautus tallentaa yhden muutoksen. Kojelaudan ruudukko saa määrätä sallitut lopputulokset. Testaa lyhyt ja pitkä veto, suunnanvaihto, vieritys reunan lähellä, keskeytys sekä paluu synkronoinnin jälkeen. Peruessa lähtöasento palautuu. Sovella samaa mallia myöhemmin muihin sijainnin, järjestyksen ja koon säätöihin. Säilytä myös napautettava tai näppäimistöllä käytettävä tapa tehdä vastaava muutos.
 
+6. **Aikajana pian valmiiksi (Emil 26.11.2026).** Vaakasuuntainen aikajana kalenteriin, mittakaava yläpalkista, liukuva vieritys, kalenterin tasoinen raahaus vaakasuunnassa ja riippuvuudet ilman risteäviä viivoja. Tarkennettu suunnitelma ja ehdotus: [kohta 22](#22-oikea-aikajana-vaiheet-palkkeina-nimetyt-osiot-ja-riippuvuudet-emil-23112026), Emil 26.11.2026. Ehdotettu ensimmäinen versio on AJ1 + AJ2.
+7. **Tietokoneen sivupalkki pois (Emil 26.11.2026, tehty 0.103).** Osiot avautuvat yläreunan napista sivun päälle, ja kalenteri ja Muistio ovat koko sivun levyisiä. *Emilin idea jatkoksi:* kalenterinäkymän vasempaan alareunaan pysyvä pieni kuukausivalitsin, josta valitaan päivä, josta kalenteri alkaa. Ehdotus: kelluva, pienennettävä lasipaneeli, joka ei vie leveyttä kalenterilta. Ei vielä rakennettu.
+
 **Hyväksyntä puhelimella.** Kirjaa kalenterista avatun treenin kaksi sarjaa peräkkäin. Tarkista käytännössä, että näppäimistö jättää arvokentän ja vahvistuksen näkyviin, ensimmäinen sarja näkyy heti, toinen tarkoituksellinen kirjaus säilyy ja verkkokatkon uudelleenyritys ei monista sarjaa. Avaa lopuksi sama kerta tietokoneella. Arvioi kojelaudan koonmuutoksen tuntuma oikealla iPhonella suhteessa saman laitteen kalenteriin.
 
 **Liittyvä jatkotyö.** [Laskennallinen ja käytettävä muistiinpano](#111-laskennallinen-ja-käytettävä-muistiinpano) kytkee tilakytkimen muistiinpanoikkunan käytettävyystyöhön, havaintokaavan yhteiseen havaintohakuun ja tekstin säätimet A6:een. Toteutus seuraa näiden töiden etenemistä.
@@ -856,6 +859,31 @@ Tavoite: muokkaus näkyy samassa ruudunpäivityksessä, verkkotallennus tapahtuu
   - Uutta linkkimerkintää ei tarvita, joten Obsidian-yhteensopivuus säilyy.
   - Käänteistä suuntaa (”mahdollistaa”) ei kirjoiteta, vaan se päätellään.
 - **Kesto ja rajat:** `kesto: 2 viikkoa` on enimmäiskesto ja `aikaisintaan 7.1.` aikaisin aloitus. Jos vaiheella on vain riippuvuus ja kesto, aikajana sijoittaa sen edeltäjän perään ja näyttää sen katkoviivalla.
+
+**Emil 26.11.2026 (sanelu): aikajana pian valmiiksi.** Tämä nostaa kohdan 22 jäsennyksen C-listalta (lykätty) työjonoon ja korvaa alla olevan 22.2:n "vain luettava" -rajauksen.
+- **Vaakasuuntainen aikajana**, jolle asetetaan pidempiä jaksoja: päiviä, viikkoja tai kuukausia. Tarkkuus voi olla myös 1 päivä.
+- **Mittakaava yläpalkista:** katsotaanko päivän sisällä, viikkoa, kuukautta vai montaa kuukautta.
+- **Liukuva vieritys** vasemmalle ja oikealle (ajassa taakse ja eteen).
+- **Raahaus yhtä sulavasti kuin kalenterissa**, mutta vaakasuunnassa: palkin siirto ja keston muutos kahvasta, sama tuntuma kuin kalenterin tapahtuman venytyksessä alaspäin.
+- **Sama estetiikka** kuin kalenterissa: lasisuus ja osittainen läpinäkyvyys.
+- **Riippuvuudet:** toisen pitää olla valmis ennen toista, mutta vaiheet saavat mennä ajallisesti osittain päällekkäin. Palkki merkitsee vaiheen varhaisinta ja myöhäisintä mahdollista toteutusaikaa. Seuraavan vaiheen voi aloittaa, kun edellinen on tehty. **Ei viivoja lopusta alkuun**, koska ne mutkittelevat ja risteävät rumasti. Emil toivoo muuta ratkaisua.
+
+*Tekoälyn ehdotus toteutukseksi (Emil vahvistaa ennen rakentamista):*
+- **Paikka:** kalenterin kolmas näkymä *Aj* (Vk · Pv · Aj). Tietokoneella koko sivun levyinen (vrt. 0.103, sivupalkki pois).
+- **Mittakaavat:** Päivä (tunnit, tarkkuus 15 min) · Viikko · Kuukausi · 3 kk · 6 kk · Vuosi. Raahaus tarttuu päivään kaikissa paitsi Päivässä. Ctrl/⌘ + rulla ja kahden sormen nipistys vaihtavat mittakaavaa vieritys- tai nipistyskohdan ympäriltä.
+- **Mitä näkyy:** jokainen muistiinpano tai sen osio, jossa on aikaväli (esim. `1.12.–20.12.`). Kytkimellä myös yksittäiset päivät lyhyinä palkkeina. Rajaus kuten Muistiossa (tunniste tai näkymä).
+- **Raahaus:** sama elekoodi kuin kalenterissa. Palkki seuraa sormea, tuleva alku ja loppu näkyvät vedon aikana, ja vapautus kirjoittaa päivät tekstiin samalla tavalla kuin kalenterin siirto nyt (yksi muutos, Kumoa). Kahvat ovat palkin molemmissa päissä. Reunan lähellä aikajana vierii itsestään. Peruutus (Esc, keskeytetty kosketus) palauttaa lähtöasennon.
+- **Riippuvuus ilman pysyviä viivoja:**
+  1. Seuraajan palkin alussa on pieni lukkomerkki. Kun edeltäjä kuitataan tehdyksi, lukko aukeaa: merkki muuttuu avatuksi ja palkki kirkastuu. Tämä toteuttaa Emilin säännön "aloita, kun edellinen on tehty" ilman, että päivien tarvitsee olla peräkkäin.
+  2. Palkin napautus (tietokoneella myös hiiren vienti päälle) korostaa sen edeltäjät ja seuraajat ja himmentää muut. Vain silloin piirtyy hento kaari valitusta palkista sen omiin naapureihin. Viivoja ei ole näkyvissä muulloin, joten ne eivät risteä näkymässä.
+  3. Päällekkäisyys on sallittu. Huomautus (punainen reuna) tulee vain, jos seuraaja ei voi ehtiä: sen myöhäisin loppu on ennen edeltäjän varhaisinta loppua.
+  4. Riippuvuuden lisääminen: palkin valikosta *Vaatii…*, jossa haetaan toinen palkki nimellä. Teksti on vaiheessa kentällä `vaatii: [[nimi]]` (alla oleva kirjoitustapa), joten tekoäly voi kirjoittaa sen suoraan.
+- **Toteutusjärjestys:** AJ1 näkymä, mittakaavat, vieritys, Tänään-viiva ja avaaminen. AJ2 raahaus (siirto, venytys, kumoa). AJ3 nimetyt vaiheet `##`-otsikoista. AJ4 riippuvuudet (lukko, korostus, *Vaatii…*). Ehdotus: AJ1 ja AJ2 ensimmäisenä versiona yhdessä, koska raahaus on Emilille olennainen.
+- **Emilin päätökset 26.11.2026:**
+  - **Lukko ja korostus** riippuvuuden näyttönä (ei pysyviä viivoja).
+  - **Kuittaus avaa:** palkki on varhaisin–myöhäisin aika ja päällekkäisyys on sallittu. Seuraajan saa aloittaa, kun edellinen on kuitattu tehdyksi. Päivät eivät siirry itsestään.
+  - **Ensimmäinen versio = AJ1 + AJ2** (näkymä ja raahaus). Riippuvuudet (AJ4) tulevat seuraavana versiona.
+  - Avoinna yhä: näkyvätkö yksittäiset päivät oletuksena. Rakentajan oletus: vain aikavälit, ja kytkin yksittäisille päiville.
 
 **Valmiit työtehtävät:**
 
