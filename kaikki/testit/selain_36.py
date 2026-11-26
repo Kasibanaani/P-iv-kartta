@@ -1,6 +1,6 @@
 """Kaikki 0.36 (Emil 22.11.2026, A1b): kalenterin merkinnät siistiksi.
 Aikajanalla kuittausruutu ja keston kahva eivät leikkaa 15, 30, 45 ja 120 min merkinnöissä, kellonaika on otsikon kanssa samalla rivillä
-eikä mene merkinnän alareunan yli; viikkolistassa kuittausruutu on rivin oikealla puolella ja enintään 22 px; kuittaus toimii yhä.
+eikä mene merkinnän alareunan yli; viikkolistassa kuittausruutu on palkin sisällä oikeassa reunassa (0.102); kuittaus toimii yhä.
 Leveydet 390 ja 320 (päivänäkymä) sekä 390 (viikkolista). Käyttö: python3 testit/selain_36.py"""
 import asyncio, os, sys, json, datetime
 from playwright.async_api import async_playwright
@@ -33,8 +33,9 @@ async def run(p,w,h,view):
             if e['sp'] and e['spw']>0:
                 want('aika samalla rivillä eikä yli alareunan: '+e['t'][:14],abs(e['sp']['y']-e['b']['y'])<6 and e['sp']['y']+e['sp']['height']<=e['ev']['y']+e['ev']['height']+1,(e['sp'],e['b'],e['ev']))
     else:
-        r=await pg.evaluate("""(function(){var l=Array.from(document.querySelectorAll('.wline'))[0];if(!l)return null;var c=l.querySelector('.wck').getBoundingClientRect(),w=l.querySelector('.wrow').getBoundingClientRect();return {cl:c.left,wr:w.right,cw:c.width};})()""")
-        want('viikkolistan ruutu oikealla ja pieni',r and r['cl']>=r['wr']-1 and r['cw']<=22,r)
+        # 0.102 (Emil 26.11.2026): ruutu on palkin sisällä oikeassa reunassa; näkyvä ruutu 16 px, osuma-alue enintään 44 px
+        r=await pg.evaluate("""(function(){var l=Array.from(document.querySelectorAll('.wline'))[0];if(!l)return null;var c=l.querySelector('.wck').getBoundingClientRect(),w=l.querySelector('.wrow').getBoundingClientRect();return {cl:c.left,cr:c.right,ct:c.top,cb:c.bottom,wl:w.left,wr:w.right,wt:w.top,wb:w.bottom,cw:c.width,vis:parseFloat(getComputedStyle(l.querySelector('.wck'),'::before').width)};})()""")
+        want('viikkolistan ruutu palkin sisällä oikealla',r and r['cr']<=r['wr']+0.5 and r['cr']>=r['wr']-12 and r['ct']>=r['wt']-0.5 and r['cb']<=r['wb']+0.5 and r['cw']<=44 and r['vis']<=16,r)
         await pg.evaluate("document.querySelector('.wline .wck').click()"); await pg.wait_for_timeout(200)
         want('kuittaus toimii',await pg.evaluate("document.querySelector('.wline .wck').getAttribute('aria-pressed')")=='true')
     want('ei sivuttaisvieritystä',await pg.evaluate("document.documentElement.scrollWidth<=innerWidth"))

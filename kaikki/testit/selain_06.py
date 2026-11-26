@@ -1,7 +1,7 @@
 """Kaikki 0.6 (Emil 22.11.2026): nopeus, tiivis kortti, kuittaus kalenterissa, ⋯-valikko, kuka kirjoitti -raita ja tekstikoko.
 Tarkistaa leveyksillä 390 ja 320 px:
 - Muistiossa ei Avoimet/Kuitatut-jakoa eikä kuittausympyrää; kortti on enintään 3 riviä ja sen teksti lyhennetty
-- kuka kirjoitti: tekoälyn ja yhdessä kirjoitetun kortissa raita, omassa ei
+- kuka kirjoitti: tekoälyn ja yhdessä kirjoitetun kortissa täplä (0.102, ent. raita), omassa ei
 - muistiinpanon alarivin napit ⋯-valikossa (alapalkissa), ulkopuolinen napautus sulkee valikon mutta ei ikkunaa, Poista kysyy varmistuksen
 - päivä- ja aikarivi piilossa, kunnes valikosta Päivä ja aika
 - kalenterin viikkolistassa kuittausympyrä: kuittaus ei poista eikä yliviivaa riviä, ja muistiinpanossa päivä näkyy kuitattuna (ei yliviivausta)
@@ -51,7 +51,8 @@ async def run(p,w,h):
     src=await pg.evaluate("""(function(){var o={};Array.from(document.querySelectorAll('#nlist .ncard')).forEach(function(c){if(c.textContent.indexOf('Tekoälyn muistiinpano')>=0)o.ai=c.className;if(c.textContent.indexOf('Yhdessä kirjoitettu')>=0)o.y=c.className;});return o;})()""")
     want('tekoälyn kortissa raita',' src-tekoaly' in (src.get('ai') or ''),src)
     want('yhdessä kirjoitetussa raita',' src-yhdessa' in (src.get('y') or ''),src)
-    want('raita näkyy (::before)',await pg.evaluate("getComputedStyle(document.querySelector('#nlist .ncard.src-tekoaly'),'::before').width==='4px'"))
+    # 0.102 (Emil 26.11.2026): raita korvattiin täplällä vasemmassa yläkulmassa
+    want('täplä näkyy (::after)',await pg.evaluate("(function(){var a=getComputedStyle(document.querySelector('#nlist .ncard.src-tekoaly'),'::after');return a.width==='7px'&&a.borderRadius==='50%';})()"))
     # muistiinpanoikkuna ja ⋯-valikko
     await pg.evaluate("Array.from(document.querySelectorAll('#nlist .ncard')).filter(function(c){return c.textContent.indexOf('Oma muistiinpano')>=0;})[0].click()"); await pg.wait_for_timeout(300)
     want('alarivin napit piilossa',await pg.evaluate("getComputedStyle(document.getElementById('ns-delrow')).display==='none'"))

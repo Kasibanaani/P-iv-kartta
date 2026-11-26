@@ -1,10 +1,16 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.101 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
+**Vaihe:** versio 0.102 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.102 (26.11.2026, Emilin ulkoasutoive): kuittausruutu palkin sisään ja kuka kirjoitti -raita täpläksi.**
+- **Viikkolista:** kuittausruutu on nyt palkin sisällä oikeassa reunassa, ja palkki jatkuu reunaan asti. Näkyvä ruutu on ennallaan 16 px, osuma-alue 36 px (kojelaudan tarkistuslistassa 44 px). Teksti alkaa vähän oikeammalta, jotta täplä mahtuu.
+- **Kuka kirjoitti:** vasen värireuna poistui kaikista näkymistä: Muistion kortit, viikkolista, aikajanan merkinnät, koko päivän sirut ja rivinäkymän otsikkosolu. Tilalla on 7 px:n pyöreä, hennosti hehkuva täplä vasemmassa yläkulmassa: sininen = yhdessä kirjoitettu, violetti = tekoälyn. Emilin omassa ei ole täplää. Rivinäkymän Kuka-sarakkeen pieni merkki on samanlainen täplä. Aikajanan merkinnöissä kaikkien vasen reuna on nyt yhtä ohut kuin muut reunat (ennen 4 px korostusvärillä kaikilla).
+- **Testit:** uusi `selain_102.py` (390, 320 ja 1280 px: viikkolista, aikajana, kortit ja rivit; täplä vain yhdessä/tekoäly, eri värit, ei vasenta raitaa, ruutu palkin sisällä eikä tekstin päällä, kuittaus toimii, ei vaakavieritystä). `selain_36.py` ja `selain_06.py` päivitetty uuteen ulkoasuun. Tumma tila katsottu kuvakaappauksesta.
+- **Ei tarkistettu:** oikea iPhone ja Emilin estetiikkateemat (lasi, eri muotokielet) muuten kuin oletusteemalla vaaleana ja tummana.
 
 **0.101 (26.11.2026): ehdot ja muistiinpanon tiedot kaavassa (jäsennys A3.7, suunnitelman 21.7).**
 - **Rivin muuttujat kaavassa:** `otsikko`, `kansio`, `tunnisteet`, `luotu` ja `ajankohta`. Arvot ovat samat kuin Muistion vastaavissa sarakkeissa, ja ne voittavat samannimisen alkutietokentän. Toisen muistiinpanon arvo: `[[piha]].luotu`.
