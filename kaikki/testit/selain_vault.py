@@ -83,8 +83,8 @@ async def run(p,w,h):
     want('muokkaus GitHubiin, alkutiedot säilyivät','Lisäys apista' in md and 'lahde: claude' in md and '# Uusi asia' in md,md)
     # poisto -> arkistoon
     await tab(pg,'notes'); await settle(100)
-    await pg.evaluate("(function(){var L=KaikkiTesti.notes(),i=L.findIndex(function(n){return n.vp==='alueet/tyo/uusi.md';});L.splice(i,1);})()")
-    await sync()
+    # 0.112: poisto kulkee roskakorin kautta; pelkkä katoaminen listasta on täsmäytysaukko, joka palautetaan (selain_112)
+    await pg.evaluate("KaikkiTesti.trash('alueet/tyo/uusi.md')"); await settle(800)
     want('poisto siirsi arkistoon',await pg.evaluate("!__repo.get('alueet/tyo/uusi.md')&&!!__repo.get('arkisto/alueet/tyo/uusi.md')"))
     # nakyy: ei piilottaa ilman arkistointia
     await pg.evaluate("__repo.put('paivat/2026/2026-11-22.md',__repo.get('paivat/2026/2026-11-22.md').replace('lahde: emil+claude','lahde: emil+claude\\nnakyy: ei'))")
