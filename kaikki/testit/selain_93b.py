@@ -1,5 +1,5 @@
 """0.93: Kirjaa siihen, mitä olet tekemässä. Muistiinpanon lukunäkymästä ＋ Kirjaa: teksti ja omat napit ryhmittäin avoimeen
-muistiinpanoon, teksti säilyy ryhmää vaihdettaessa, kumoa, lukittu näkymä estää."""
+muistiinpanoon, teksti säilyy ryhmää vaihdettaessa, kumoa. 0.111: lukittu näkymä ei estä kirjausta muistiinpanoon (lista ja muistiinpano ovat erilliset)."""
 from playwright.sync_api import expect, sync_playwright
 
 from selain_19 import APP, FAKE
@@ -116,16 +116,14 @@ def check(browser, width):
     expect(page.locator('#nl-text')).to_have_value('Lämmittely tehty.')
     page.locator('#nl-close').click()
     page.keyboard.press('Escape')
-    # Näkymästä avattu; näkymä lukitaan auki olevan ikkunan aikana -> kirjaus estyy.
+    # Näkymästä avattu; näkymä lukitaan auki olevan ikkunan aikana. 0.111 (Emil 26.11.2026): listan lukitus ei lukitse muistiinpanoa.
     page.evaluate("KaikkiTesti.openFromView('tieto/salitreeni.md','nakymat/treenit.md')")
     expect(page.locator('#ns-log')).to_be_visible()
     page.locator('#ns-log').click()
     page.evaluate(r"""()=>{const V=KaikkiTesti.vault();V.files['nakymat/treenit.md'].t='---\ntyyppi: nakyma\notsikko: Treenit\nlukittu: kyllä\n---\n# Treenit\n';}""")
-    before = repo(page)
     page.locator('#nl-btns button', has_text='Venyttely').click()
-    expect(page.locator('#nl-msg')).to_contain_text('lukittu')
-    page.wait_for_timeout(200)
-    assert repo(page) == before
+    expect(page.locator('#nl-msg')).to_contain_text('Venyttely kirjattu')
+    page.wait_for_function("() => (__repo.get('tieto/salitreeni.md') || '').includes('Venytelty')")
     assert not errors, errors
     page.close()
 
