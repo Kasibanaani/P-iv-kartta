@@ -60,7 +60,7 @@ def check(browser, width):
     page.locator('#nl-save').click()
     expect(page.locator('#nl-msg')).to_contain_text('Tallessa laitteella')
     expect(page.locator('#nl-text')).to_have_value('')
-    assert 'Ilman yhteyttä kirjattu.' in page.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('kaikki:vault')).ops)")
+    assert 'Ilman yhteyttä kirjattu.' in page.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('kaikki:vaultq')).ops)")
     assert 'odottaa' in page.evaluate("KaikkiTesti.status()")
     page.evaluate("sessionStorage.setItem('offline','0')")
     page.reload()

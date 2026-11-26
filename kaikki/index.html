@@ -5333,9 +5333,79 @@ var SAADIN=(function(){
 if(typeof module!=='undefined')module.exports.SAADIN=SAADIN;
 </script>
 <script id="ui">
+/* ---- Kaikki 0.100 (Emil 26.11.2026: Laitteen muisti täynnä): isot tallennukset IndexedDB:hen. Safarin localStorage on noin 5 Mt
+   per sivusto, ja kaikki kasibanaani.github.io-apit jakavat sen. Vault kasvoi Notion-tuonnissa yli sen. KSTORE hoitaa avaimet SPILL:
+   pieni arvo (enintään LIMIT merkkiä) tallentuu localStorageen heti kuten ennen; iso arvo, tai kun localStorage on täynnä, menee
+   IndexedDB:hen (kanta kaikki-tallennus, säilö avaimet) ja localStoragen oma vanha kopio poistetaan, jotta tila vapautuu muillekin
+   apeille. Käynnistys lukee ensin IndexedDB:n ja käynnistää apin vasta sitten (start). Sääntö: localStoragessa oleva arvo on uudempi
+   (IndexedDB-kirjoituksen onnistuminen poistaa sen), muuten IndexedDB. Jos IndexedDB:tä ei saatu luettua käynnistyksessä, siihen ei
+   kirjoiteta tämän käyttökerran aikana, jottei vanha tieto korvaudu tyhjällä. Kirjoitukset samaan avaimeen ovat jonossa, ja vain
+   uusin odottava kirjoitetaan (flush odottaa kaikki). Testi voi pakottaa IndexedDB:n: localStorage kaikki:idb-raja = merkkimäärä. ---- */
+var KSTORE=(function(){
+  var DB='kaikki-tallennus',ST='avaimet',SPILL={'kaikki:v1':1,'kaikki:vault':1,'kaikki:vaultq':1},LIMIT=200000;
+  try{var lim=localStorage.getItem('kaikki:idb-raja');if(lim!==null&&/^\d+$/.test(lim))LIMIT=+lim;}catch(e){}
+  var dbp=null,readOk=false,boot={},lsMine={},lsGen={},gen=0,where={},busy={},next={},waiters=[],cb={};
+  function open(){
+    if(!dbp)dbp=new Promise(function(ok,no){
+      try{var r=indexedDB.open(DB,1);
+        r.onupgradeneeded=function(){if(!r.result.objectStoreNames.contains(ST))r.result.createObjectStore(ST);};
+        r.onsuccess=function(){var db=r.result;db.onversionchange=function(){db.close();dbp=null;};ok(db);};
+        r.onerror=function(){no(r.error||new Error('IndexedDB ei auennut'));};r.onblocked=function(){no(new Error('IndexedDB varattu'));};
+      }catch(e){no(e);}
+    }).catch(function(e){dbp=null;throw e;});
+    return dbp;
+  }
+  function tx(mode,fn){return open().then(function(db){return new Promise(function(ok,no){
+    var t=db.transaction(ST,mode),out=fn(t.objectStore(ST));t.oncomplete=function(){ok(out);};
+    t.onerror=function(){no(t.error||new Error('IndexedDB-virhe'));};t.onabort=function(){no(t.error||new Error('IndexedDB keskeytyi'));};});});}
+  function start(fn){
+    var done=false;function go(){if(done)return;done=true;fn();}
+    var timer=setTimeout(go,4000);/* jumiutunut IndexedDB: appi käynnistyy, mutta ei kirjoita sinne (readOk false) */
+    if(typeof indexedDB==='undefined'){clearTimeout(timer);go();return;}
+    tx('readonly',function(st){var out={};Object.keys(SPILL).forEach(function(k){var q=st.get(k);q.onsuccess=function(){if(typeof q.result==='string')out[k]=q.result;};});return out;})
+      .then(function(out){if(done)return;boot=out;readOk=true;Object.keys(out).forEach(function(k){where[k]='idb';});})
+      .catch(function(){}).then(function(){clearTimeout(timer);go();});
+  }
+  function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+  /* Käynnistyksen luku: localStorage (uudempi) tai IndexedDB. */
+  function read(k){
+    var ls=lsGet(k);
+    if(ls!==null){lsMine[k]=ls;lsGen[k]=0;where[k]='ls';delete boot[k];return ls;}
+    var v=boot.hasOwnProperty(k)?boot[k]:null;delete boot[k];return v;
+  }
+  /* Oma localStorage-kopio poistetaan vain, jos se on vanhempi kuin juuri IndexedDB:hen kirjoitettu (g) eikä kukaan muu ole
+     kirjoittanut sitä sen jälkeen. */
+  function lsClean(k,g){
+    if(!lsGen.hasOwnProperty(k)||lsGen[k]>=g)return;
+    try{var cur=localStorage.getItem(k);if(cur!==null&&cur===lsMine[k])localStorage.removeItem(k);}catch(e){}
+    delete lsMine[k];delete lsGen[k];
+  }
+  function settle(){if(Object.keys(busy).length||Object.keys(next).length)return;var w=waiters;waiters=[];w.forEach(function(f){f();});}
+  function pump(k){
+    if(busy[k]||!next.hasOwnProperty(k)){settle();return;}
+    var n=next[k],v=n.v;delete next[k];busy[k]=1;
+    tx('readwrite',function(st){if(v===null)st.delete(k);else st.put(v,k);})
+      .then(function(){if(v!==null){lsClean(k,n.g);if(!lsGen.hasOwnProperty(k))where[k]='idb';}cb[k]&&cb[k](true);},
+        function(e){cb[k]&&cb[k](false,e);})
+      .then(function(){delete busy[k];pump(k);});
+  }
+  /* Kirjoitus. done(ok, virhe) kutsutaan, kun tulos selviää (localStoragella heti). Palauttaa true, jos tallennus onnistui tai on
+     matkalla IndexedDB:hen, false jos se epäonnistui heti. */
+  function write(k,v,done){
+    cb[k]=done;var g=++gen;
+    if(!SPILL[k]){try{if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v);done(true);return true;}catch(e){done(false,e);return false;}}
+    if(v===null){try{localStorage.removeItem(k);}catch(e){}delete lsMine[k];delete lsGen[k];if(readOk){next[k]={v:null,g:g};pump(k);}done(true);return true;}
+    var err=null;
+    if(v.length<=LIMIT){try{localStorage.setItem(k,v);lsMine[k]=v;lsGen[k]=g;where[k]='ls';delete next[k];done(true);return true;}catch(e){err=e;}}
+    if(!readOk){done(false,err||new Error('IndexedDB ei ole käytettävissä'));return false;}
+    next[k]={v:v,g:g};pump(k);return true;
+  }
+  function flush(){return new Promise(function(ok){waiters.push(ok);settle();});}
+  return {start:start,read:read,write:write,flush:flush,state:function(){return {readOk:readOk,where:Object.assign({},where),limit:LIMIT};}};
+})();
 /* 1.108 (Emil 18.11.2026): poistetut näkymät (vanha rivinäkymä, Aikaehdotukset, Vanhat puut, kierroslistat, ryhmät, Poissulkevat, Vaihepankki, Muistiinpanot listaan) eivät näy. Tiedot säilyvät ja toimivat; vanhat testit avaavat näkymät koukulla JuuriTesti.old(). */
 var OLDUI=(function(){try{return localStorage.getItem('kaikki:vanhat')==='1';}catch(e){return false;}})();if(OLDUI)document.body.classList.add('oldui');
-if(typeof document!=='undefined')(function(){
+if(typeof document!=='undefined')KSTORE.start(function(){
 try{if(window.navigator.standalone)document.documentElement.classList.add('standalone');}catch(e){}
 document.addEventListener('gesturestart',function(ev){ev.preventDefault();}); // Safari: ei nipistyszoomausta
 'use strict';
@@ -5366,7 +5436,7 @@ function stashK(){var k=kOf();if(k)KF.forEach(function(f){k[f]=data[f];});}
 function loadK(k){if(!Array.isArray(k.pk))k.pk=[];if(!k.pv||!Array.isArray(k.pv.on))k.pv={on:[],c:{},d:{}};if(!Array.isArray(k.st))k.st=[];if(!k.fl||!k.fl.m)k.fl={m:{},run:{}};if(!k.cfg)k.cfg=Object.assign({},data.cfg||CFG0);Object.keys(CFG0).forEach(function(c){if(typeof k.cfg[c]!=='string')k.cfg[c]=CFG0[c];});data.k=k.id;KF.forEach(function(f){data[f]=k[f];});}
 function newK(name){return {id:uid('k'),name:clean(name).slice(0,80)||'Projekti',cur:null,projects:[],notes:[],terms:[],words:{},trash:[],imp:[],reps:[],chk:[],grp:[],win:{},calv:null,lists:[],jl:null,ehdot:[],pk:[],pv:{on:[],c:{},d:{}},st:[],fl:{m:{},run:{}},cfg:Object.assign({},data.cfg||CFG0)};}
 function applyND(nd){data.K=nd.K;data.K.forEach(function(k){k.trash=purgeTrash(k.trash,Date.now());});loadK(data.K.filter(function(k){return k.id===nd.k;})[0]);}
-try{var raw=JSON.parse(localStorage.getItem(KEY)||'null'),nd=normalizeData(raw);
+try{var raw=JSON.parse(KSTORE.read(KEY)||'null'),nd=normalizeData(raw);
   if(nd){applyND(nd);if(raw.meta)data.meta={lastExport:raw.meta.lastExport||null,dirty:raw.meta.dirty||0};
     /* 1.31: vanha tallennus ilman projektikohtaista seurantaa: viemättömät muutokset lasketaan tälle päivälle */
     if(data.meta.dirty>0&&!data.K.some(function(k){return k.chg;}))data.K.forEach(function(k){k.chg=todayIso();});}}catch(e){}
@@ -5398,7 +5468,8 @@ function tabNet(){return !tabLeaving&&tabMine();}
 function tabGoPassive(){tabPassive=true;clearTimeout(vTimer);try{var d=$('tabsheet');$('tab-msg').textContent='';$('tab-take').disabled=false;if(!d.open)openSheet(d);}catch(e){}}
 function tabHandoff(to){if(tabPassive||tabLeaving)return;tabLeaving=true;
   try{clearTimeout(vTimer);if($('nsheet').open)draftSave();save0();vCollect();}catch(e){}
-  tabWrite(to);tabLeaving=false;tabGoPassive();}
+  /* 0.100: isot tallennukset IndexedDB:hen ennen luovutusta, jotta uusi välilehti lukee tuoreen tilan. */
+  KSTORE.flush().then(function(){tabWrite(to);tabLeaving=false;tabGoPassive();});}
 function tabTake(){var b=$('tab-take');b.disabled=true;$('tab-msg').textContent='Siirretään käyttö tähän välilehteen…';var done=false;
   function go(){if(done)return;done=true;try{sessionStorage.setItem('kaikki:tabtake',TAB_ID);}catch(e){}location.reload();}
   addEventListener('storage',function(ev){if(ev.key===TABKEY){var o=tabRead();if(o&&o.id===TAB_ID)go();}});
@@ -5412,10 +5483,11 @@ setInterval(function(){if(!document.hidden)tabTick();},3000);
 document.addEventListener('visibilitychange',function(){if(!document.hidden)tabTick();});
 addEventListener('pageshow',function(ev){if(ev.persisted&&!tabPassive){var o=tabRead();if(tabOther(o)&&Date.now()-o.at<TAB_FRESH)tabGoPassive();else tabWrite();}});
 addEventListener('pagehide',function(){if(!tabPassive&&!tabOther(tabRead()))try{localStorage.removeItem(TABKEY);}catch(e){}});
-function storeSet(key,value,what){if(what)STORE_WHAT[key]=what;if(!tabMine())return false;var was=storeOk;
-  try{if(value===null)localStorage.removeItem(key);else localStorage.setItem(key,value);delete STORE.fail[key];STORE.ok[key]=nowIso();}
-  catch(e){STORE.fail[key]={at:nowIso(),err:String(e&&e.name||e)};}
-  storeOk=!Object.keys(STORE.fail).length;if(was!==storeOk)try{renderStatus();}catch(e){}return !STORE.fail[key];}
+/* 0.100: kirjoitus kulkee KSTOREn kautta (isot avaimet IndexedDB:hen). Tulos voi selvitä myöhemmin, joten tila päivittyy takaisinkutsussa. */
+function storeSet(key,value,what){if(what)STORE_WHAT[key]=what;if(!tabMine())return false;
+  return KSTORE.write(key,value,function(ok,e){var was=storeOk;
+    if(ok){delete STORE.fail[key];STORE.ok[key]=nowIso();}else STORE.fail[key]={at:nowIso(),err:String(e&&e.name||e)};
+    storeOk=!Object.keys(STORE.fail).length;if(was!==storeOk)try{renderStatus();}catch(x){}});}
 function storeClock(iso){var d=new Date(iso);return (d.toDateString()===new Date().toDateString()?'':d.getDate()+'.'+(d.getMonth()+1)+'. ')+'klo '+d.getHours()+'.'+pad(d.getMinutes());}
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(function(){});}catch(e){}
 function snapshot(){stashK();return {app:'paatospuu',ver:VER,savedAt:nowIso(),kcur:data.k,kokonaisuudet:data.K.map(function(k){return {id:k.id,name:k.name,cur:k.cur,puut:k.projects,muistiinpanot:k.notes,termit:k.terms,termisanat:k.words,roskakori:k.trash,tarkeat:k.imp,toistuvat:k.reps,tarkistuslista:k.chk&&k.chk.length?k.chk:undefined,ryhmat:k.grp&&k.grp.length?k.grp:undefined,listat:k.lists&&k.lists.length?k.lists:undefined,jatkuvalista:k.jl||undefined,ehdot:k.ehdot&&k.ehdot.length?k.ehdot:undefined,pikat:k.pk&&k.pk.length?k.pk:undefined,paivanapit:pvOut(k.pv),yksinkertaisetPuut:k.st&&k.st.length?k.st:undefined,flow:flOut(k.fl),asetukset:k.cfg||undefined,aikavalit:k.win&&Object.keys(k.win).length?k.win:undefined,kalenteri:calvOut(k.calv),muokattu:k.mod||undefined,viety:k.ex||undefined,viematta:k.chg||undefined};}),cfg:data.cfg};}
@@ -5697,7 +5769,8 @@ function storeExplain(){var d=$('storesheet'),box=$('st-text');box.textContent='
   if(vOn())line('GitHub: '+vStatus()+'. Muutokset lähtevät GitHubiin silloinkin, kun laitteen muisti on täynnä, jos appi on auki ja yhteys toimii.');
   line('Vapauta tilaa esimerkiksi viemällä varmuuskopio ja poistamalla laitteelta vanhoja puita tai roskakorin sisältö. Yritä sitten uudelleen.','sub');
   $('st-msg').textContent='';if(!d.open)openSheet(d);}
-function storeRetry(){save0();vSaveC();nvPendSave();if($('nsheet').open)draftSave();storeExplain();$('st-msg').textContent=storeOk?'Tallennus onnistui.':'Ei vieläkään tilaa.';}
+function storeRetry(){save0();vSaveC();nvPendSave();if($('nsheet').open)draftSave();$('st-msg').textContent='Tallennetaan…';
+  KSTORE.flush().then(function(){storeExplain();$('st-msg').textContent=storeOk?'Tallennus onnistui.':'Ei vieläkään tilaa.';});}
 $('st-retry').addEventListener('click',storeRetry);
 $('tab-take').addEventListener('click',tabTake);$('st-close').addEventListener('click',function(){closeSheet($('storesheet'));});$('storesheet').addEventListener('click',function(ev){if(ev.target===this)closeSheet(this);});$('tabsheet').addEventListener('cancel',function(ev){ev.preventDefault();});
 /* Yläpalkki = projekti, puu valitaan Käytön ja Opetuksen yläosasta (Emil 21.10.2026) */
@@ -10626,11 +10699,15 @@ function listView(){if(lstV===null){try{lstV=localStorage.getItem('kaikki:listvi
    Tallennus: save() -> vQueue() vertaa muistiinpanoja välimuistiin ja jonottaa muuttuneet tiedostot; vFlush() vie ne yksi kerrallaan.
    Poistettu muistiinpano siirtyy vaultissa arkisto/-kansioon (vaultin sääntö: mitään ei poisteta). Ristiriita: GitHubin versio voittaa
    ja oma versio tallentuu viereen nimellä …-ristiriita-HHMM.md, joten mitään ei katoa. Avain vain tämän selaimen muistissa (kaikki:gh). */
-var GKEY='kaikki:gh',VKEY='kaikki:vault';
+var GKEY='kaikki:gh',VKEY='kaikki:vault',VQKEY='kaikki:vaultq';
 var G={repo:'Kasibanaani/vault123',token:'',branch:'main'};
 try{var g0=JSON.parse(localStorage.getItem(GKEY)||'null');if(g0){G.repo=g0.repo||G.repo;G.token=g0.token||'';G.branch=g0.branch||'main';}}catch(e){}
 var VC={files:{},known:{},q:{},ops:[]};
-try{var v0=JSON.parse(localStorage.getItem(VKEY)||'null');if(v0&&v0.files){VC.files=v0.files;VC.known=v0.known||{};VC.q=v0.q||{};VC.ops=Array.isArray(v0.ops)?v0.ops:[];}}catch(e){}
+/* 0.100: tiedostot ja tunnetut polut (kaikki:vault, iso, IndexedDB) erillään lähetysjonosta (kaikki:vaultq, pieni, localStorage).
+   Vanha yhteinen kaikki:vault, jossa on myös q ja ops, luetaan; jono otetaan siitä, jos omaa jonoa ei vielä ole. */
+try{var v0=JSON.parse(KSTORE.read(VKEY)||'null'),vq0=JSON.parse(KSTORE.read(VQKEY)||'null');
+  if(v0&&v0.files){VC.files=v0.files;VC.known=v0.known||{};if(!vq0){VC.q=v0.q||{};VC.ops=Array.isArray(v0.ops)?v0.ops:[];}}
+  if(vq0){VC.q=vq0.q||{};VC.ops=Array.isArray(vq0.ops)?vq0.ops:[];}}catch(e){}
 var vBusy=false,vMsg='',vAt='',vTimer=0,vApplying=false,vLastErr='';
 /* 0.3: lähdesuodatin (kaikki:lahde = SRCP-avain). Muutos vie ensin omat muutokset jonoon, sitten näkymä lasketaan välimuistista uudelleen. */
 var srcPre='std';try{srcPre=localStorage.getItem('kaikki:lahde')||'std';}catch(e){}
@@ -10641,7 +10718,7 @@ function srcMenu(anchor){var m=$('sortpop');m.textContent='';m.setAttribute('ari
 /* 0.3: päivitys. Nappi yläpalkissa vie omat muutokset ja hakee GitHubista; auki ollessa haku minuutin välein (vain kun mitään ei odota lähtöä). */
 function vRefresh(){if(!vOn())return Promise.resolve(false);clearTimeout(vTimer);return Promise.resolve(vCollect()).then(function(){return vPull();}).then(function(ok){if(!ok)return false;return Promise.resolve(vCollect()).then(function(){return !Object.keys(VC.q).length&&!vMsg;});});}
 setInterval(function(){if(!vOn()||vBusy||document.visibilityState!=='visible')return;if(!vPending())vPull();else vFlush();/* 0.94: odottavat kirjaukset yritetään uudelleen */},60000);
-function vSaveC(){storeSet(VKEY,JSON.stringify(VC),'holvin välimuisti ja lähetysjono');}
+function vSaveC(){storeSet(VQKEY,JSON.stringify({q:VC.q,ops:VC.ops}),'holvin lähetysjono');storeSet(VKEY,JSON.stringify({files:VC.files,known:VC.known}),'holvin välimuisti');}
 function vSaveG(){try{localStorage.setItem(GKEY,JSON.stringify(G));}catch(e){}}
 function vOn(){return !!(G.repo&&G.token);}
 function vRepo(repo=G.repo){return String(repo||'').trim().replace(/\s+/g,'').replace(/^https?:\/\/(www\.)?github\.com\//,'').replace(/\.git$/,'').replace(/\/+$/,'');}
@@ -11000,7 +11077,26 @@ var save0=save;save=function(){save0();vQueue();};
 document.addEventListener('visibilitychange',function(){if(!vOn())return;if(document.visibilityState==='visible')vPull().then(function(ok){if(ok)vCollect();});else{clearTimeout(vTimer);vCollect();}});
 window.addEventListener('online',function(){if(vOn())vFlush();});
 document.querySelectorAll('.vref').forEach(function(b){b.addEventListener('click',function(){vRefresh().then(function(ok){toast(ok?'Ajan tasalla '+vAt:(vReadError||vMsg||'Päivitys ei onnistunut.'));});});});
+/* 0.100: täsmäytys käynnistyksessä. Muistiinpanot (kaikki:v1) ja vaultin välimuisti (kaikki:vault) tallentuvat erikseen. Jos appi
+   suljetaan niiden välissä, välimuisti voi tuntea tiedoston, jonka muistiinpanoa laitteen tallennuksessa ei vielä ole. Ilman tätä
+   vCollect tulkitsisi sen poistetuksi ja arkistoisi sen GitHubissa. Aito poisto on aina jonossa (VC.q arkistointi) tai roskakorissa,
+   joten muuten tunnettu polku unohdetaan ja muistiinpano palautetaan välimuistin tiedostosta (vApply). */
+function vReconcile(){
+  if(!vOn())return 0;var k=vK(),has={},n=0;
+  vNotes().forEach(function(N){if(N&&N.vp)has[N.vp]=1;});
+  ((k&&k.id===data.k?data.trash:k&&k.trash)||[]).forEach(function(N){if(N&&N.vp)has[N.vp]=1;});
+  Object.keys(VC.known).forEach(function(p){if(!has[p]&&!VC.q[p]){delete VC.known[p];n++;}});
+  /* Jonossa oleva muokkaus ilman muistiinpanoa: muistiinpano jonon tekstistä (ei poisto). */
+  var notes=vNotes(),made=0;
+  Object.keys(VC.q).forEach(function(p){var q=VC.q[p];
+    if(has[p]||!q||vGone(q)||q.direct||q.requests||typeof q.t!=='string'||!VAULT.shown(p,q.t,srcPre))return;
+    var M=VAULT.noteOf(p,q.t);if(notes.some(function(x){return x.id===M.id;}))M.id=uid('v');notes.push(M);VC.known[p]=1;has[p]=1;made++;});
+  if(made){vApplying=true;try{save0();}finally{vApplying=false;}}
+  if(n||made){vSaveC();vApply();}
+  return n+made;
+}
 function vStart(){
+  vReconcile();
   vRender();
   if(vOn())vPull().then(function(ok){if(ok){openPendingMetricLink();vCollect();}});
   else if(metricLinkText)toast('Yhdistä GitHub-vault, jotta voit tarkistaa mittarilinkin.');
@@ -11197,7 +11293,7 @@ $('ns-text').addEventListener('touchstart',function(ev){var t=ev.touches[0];vLT=
 $('ns-text').addEventListener('touchmove',function(ev){if(!vLT)return;var t=ev.touches[0];if(Math.abs(t.clientX-vLT.x)>8||Math.abs(t.clientY-vLT.y)>8)vLT=null;},{passive:true,capture:true});
 $('ns-text').addEventListener('touchend',function(ev){var T=vLT;vLT=null;if(!T||Date.now()-T.at>600)return;vLinkTap(ev,T.x,T.y);},{passive:false,capture:true});
 $('ns-text').addEventListener('click',function(ev){vLinkTap(ev,ev.clientX,ev.clientY);},true);
-window.KaikkiTesti={save:function(){save();},openFromView:function(vp,path){var n=vNotes().find(function(x){return x.vp===vp;});noteFromView(n,path);},tab:function(){return {mine:tabMine(),passive:tabPassive,id:TAB_ID,rec:localStorage.getItem(TABKEY)};},trash:function(p){var n=vNotes().find(function(x){return x.vp===p;});if(n)toTrash(n);clearTimeout(vTimer);return vCollect();},restore:function(p){var n=data.trash.find(function(x){return x.vp===p;});if(n)restore(n);clearTimeout(vTimer);return vCollect();},store:function(){return STORE;},lsSync:function(){return lsSync();},reps:function(){return data.reps;},chk:function(){return data.chk;},lists:function(){return data.lists;},vault:function(){return VC;},gh:function(){return G;},pull:function(){return vPull();},collect:function(){clearTimeout(vTimer);vCollect();},flush:function(){return vFlush();},notes:function(){return vNotes();},status:function(){return vStatus();},src:function(k){setSrc(k);},refresh:function(){return vRefresh();},render:function(){render();},tz:function(v){if(v==null)delete data.cfg.tz;else data.cfg.tz=v;applyCfg();render();}};
+window.KaikkiTesti={save:function(){save();},openFromView:function(vp,path){var n=vNotes().find(function(x){return x.vp===vp;});noteFromView(n,path);},tab:function(){return {mine:tabMine(),passive:tabPassive,id:TAB_ID,rec:localStorage.getItem(TABKEY)};},trash:function(p){var n=vNotes().find(function(x){return x.vp===p;});if(n)toTrash(n);clearTimeout(vTimer);return vCollect();},restore:function(p){var n=data.trash.find(function(x){return x.vp===p;});if(n)restore(n);clearTimeout(vTimer);return vCollect();},store:function(){return STORE;},kstore:function(){return KSTORE.state();},kflush:function(){return KSTORE.flush();},lsSync:function(){return lsSync();},reps:function(){return data.reps;},chk:function(){return data.chk;},lists:function(){return data.lists;},vault:function(){return VC;},gh:function(){return G;},pull:function(){return vPull();},collect:function(){clearTimeout(vTimer);vCollect();},flush:function(){return vFlush();},notes:function(){return vNotes();},status:function(){return vStatus();},src:function(k){setSrc(k);},refresh:function(){return vRefresh();},render:function(){render();},tz:function(v){if(v==null)delete data.cfg.tz;else data.cfg.tz=v;applyCfg();render();}};
 window.JuuriTesti={setListView:function(v){if(v==='r')oldOn();setListView(v);},listView:function(){return listView();},old:function(){oldOn();render();}};
 function oldOn(){OLDUI=true;try{localStorage.setItem('kaikki:vanhat','1');}catch(e){}document.body.classList.add('oldui');}
 function setListView(v){lstV=v==='r'||v==='w'?v:'g';lwSel=false;try{localStorage.setItem('kaikki:listview',lstV);}catch(e){}lwOpen=null;chkOpen={};chkFreeze=null;main.scrollTop=0;render();}
@@ -16393,7 +16489,7 @@ HELP.vaiheet=['Vaihepankki','<p>Työnkulun rivi on yhteisen vaiheen esiintymä. 
 HELP.lista[1]+='<p><b>Työnkulku kuittaustapana:</b> valitse asiasanan Listassa-osiossa työnkulkupohja. Asiasanan painaminen listalla käynnistää erillisen suorituksen tai jatkaa saman lähtökohdan keskeneräistä. Vain valmis suoritus kuittaa lähtökohdan. Takaisin lähtökohtaan jättää suorituksen kesken. Listanvalitsimesta löytyvät myös valmiit suoritukset ja niiden poistaminen. Kalenterimerkinnän kuittaaminen ei ohita työnkulkuvaatimusta. Uusiutuva tarkistus tarvitsee uuden suorituksen.</p>';
 HELP.asiasanat[1]+='<p><b>Kuittaustapa</b> valitaan kortin Listassa-osiossa. Voit valita suoran kuittauksen tai Listoihin rakennetun työnkulun. Muistiinpanon asiasanan Avaa työnkulku on vapaaehtoinen: se ei kuittaa muistiinpanoa. Jokaisen lähtökohdan kuittaukset ovat erilliset. Suoritukseen tulevat pohjan vaiheet ja tekstit käynnistyshetkeltä, mutta yhteisten vaiheiden muokkaukset ja projektin ehdot päivittyvät myös keskeneräisiin. Poistunut tai muuttunut lähtökohta ei saa vanhan suorituksen kuittausta. Saman työnkulun sisäkkäinen kehä estetään.</p>';
 fiAll();renderStatus();renderHead();showTab(sectionsFor(hiddenSections,kt())[0]);if(tabPassive)tabGoPassive();else draftRestore();omatLoad();vStart();
-})();
+});
 </script>
 </body>
 </html>

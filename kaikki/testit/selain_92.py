@@ -23,6 +23,12 @@ SEED = r"""
     if (window.full && String(key).startsWith('kaikki')) throw new DOMException('Muisti täynnä', 'QuotaExceededError');
     return setItem.call(this, key, value);
   };
+  /* 0.100: täysi laite = myös IndexedDB hylkää isot tallennukset. */
+  const idbPut = IDBObjectStore.prototype.put;
+  IDBObjectStore.prototype.put = function(value, key) {
+    if (window.full && String(key).startsWith('kaikki')) throw new DOMException('Muisti täynnä', 'QuotaExceededError');
+    return idbPut.call(this, value, key);
+  };
 """
 
 

@@ -1,10 +1,26 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.99 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
+**Vaihe:** versio 0.100 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.100 (26.11.2026): Laitteen muisti täynnä korjattu, isot tallennukset IndexedDB:hen.**
+- **Syy.** Vault kasvoi 25.11. Notion-tuonnissa 390 → 1010 tiedostoon. Teksti kasvoi 1,6 Mt:stä 3,5 Mt:hen, josta `tieto/dkt` on 1,9 M merkkiä. Appi piti vaultin selaimen localStoragessa kahdesti: välimuistina `kaikki:vault` (noin 4,3 M merkkiä) ja muistiinpanoina `kaikki:v1`. Safarin localStorage on noin 5 Mt per sivusto, ja kaikki `kasibanaani.github.io`-apit jakavat sen. GitHubin tiedot olivat koko ajan tallessa. Vaarassa olivat laitteella odottavat kirjaukset ja laitteen omat tiedot.
+- **Korjaus.** Tallennusreitti on nyt `KSTORE` (`storeSet`):
+  - Avaimet `kaikki:v1`, `kaikki:vault` ja uusi `kaikki:vaultq` tallentuvat localStorageen heti, jos arvo on enintään 200 000 merkkiä.
+  - Muuten, tai jos localStorage on täynnä, ne menevät IndexedDB:hen (kanta `kaikki-tallennus`). Silloin apin oma vanha localStorage-kopio poistetaan, jotta tila vapautuu myös muille apeille.
+  - Käynnistys lukee IndexedDB:n ennen kuin appi piirretään (`KSTORE.start`). localStoragessa oleva arvo on uudempi. Jos IndexedDB:tä ei saada luettua, sinne ei kirjoiteta sillä käyttökerralla, jottei vanha tieto korvaudu tyhjällä.
+  - Lähetysjono (`q`, `ops`) erotettiin välimuistista omaan pieneen avaimeensa `kaikki:vaultq`. Vanha yhteinen `kaikki:vault` luetaan, ja sen jono otetaan käyttöön.
+  - Välilehden luovutus ja *Yritä uudelleen* odottavat, että IndexedDB-kirjoitukset valmistuvat.
+- **Täsmäytys käynnistyksessä (`vReconcile`).** Muistiinpanot ja välimuisti tallentuvat erikseen. Ilman täsmäytystä apin sulkeminen niiden välissä olisi voinut saada apin tulkitsemaan tunnetun mutta laitteelta puuttuvan muistiinpanon poistetuksi ja arkistoimaan sen GitHubissa. Nyt aito poisto tunnistetaan jonosta tai roskakorista. Muuten muistiinpano palautetaan välimuistin tiedostosta tai jonossa olevasta muokkauksesta.
+- **Ei tehty:** vaultin kaksinkertaista säilytystä (muistiinpanot ja välimuisti) ei poistettu. IndexedDB:ssä tila riittää, ja poisto olisi muuttanut muistiinpanojen tunnisteita, joihin laitteen muut tiedot viittaavat. Luonnokset ja muut pienet avaimet ovat edelleen localStoragessa.
+- **Testit:** uusi `selain_100.py`:
+  - Jäljitelty 1 000 000 merkin kiintiö, 400 tiedoston vault ja toisen apin 300 000 merkkiä, leveydet 320, 390 ja 1280 px. Tarkistettu: ei muisti täynnä -ilmoitusta, välimuisti ja muistiinpanot IndexedDB:ssä, toisen apin tiedot ennallaan, ilman verkkoa tehty muokkaus ja koko vault uudelleenlatauksen jälkeen ja muokkaus GitHubiin kerran verkon palattua.
+  - Vanha muoto siirtyy, odottava muokkaus lähtee, eikä mitään arkistoida.
+  - `selain_92.py` jäljittelee täyttä laitetta nyt myös IndexedDB:ssä. `selain_91`, `94` ja `95` lukevat jonon uudesta avaimesta.
+- **Ei tarkistettu:** oikea iPhone ja Safarin IndexedDB, kotinäytön appi ja Emilin oikea vault. Ensimmäinen avaus siirtää vanhan tallennuksen.
 
 **0.99 (26.11.2026): pohjaan jäävä nappi ja XY-pädi (A6.4 ja A6.5).**
 - **Pohjaan jäävä nappi** (säädineditorin Laji → *Pohjaan jäävä nappi*, tiedostossa `laji: pohjaan`). Painallus kirjoittaa rivin kuten kertanappi, ja nappi jää päälle: vihreä tausta ja väkänen. Uusi painallus poistaa täsmälleen saman rivin. Kumoa toimii molempiin suuntiin, ja poiston kumoaminen palauttaa rivin samaan kohtaan. Rivillä on jakson tunniste, esim. `^kahvi-2026-11-26` (viikkoajalla `^kahvi-2026-w48`). Tila luetaan tekstistä: rivi tänään = päällä. Siksi tila näkyy muillakin laitteilla, ja käsin poistettu rivi vapauttaa napin. Laitteella odottava kirjaus tai poisto näkyy tilassa heti. Toimii kojelaudalla, pikakirjauksessa, ＋ Kirjaa -ikkunassa, Säätimet-luettelossa ja Muistion nappisarakkeessa, jossa tila on rivikohtainen. Aika ei voi olla *Kysy*, eikä *Lisää vai päivitä* -valintaa näytetä.
@@ -309,7 +325,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Seuraava askel
 
-**Laitteen muisti täynnä (Emil 26.11.2026, ei vielä korjattu).** Vault kasvoi 25.11. Notion-tuonnissa 390 → 1010 tiedostoon (teksti 1,6 → 3,5 Mt, josta `tieto/dkt` 1,9 M merkkiä). Appi pitää koko vaultin selaimen localStoragessa kahdesti: välimuisti `kaikki:vault` (nyt noin 4,3 M merkkiä) ja muistiinpanot avaimessa `kaikki:v1`. Safarin localStorage on noin 5 Mt per sivusto, ja kaikki `kasibanaani.github.io`-apit jakavat sen. GitHubin tiedot ovat tallessa. Vaarassa ovat laitteella odottavat kirjaukset (lähetysjono `VC.q`, `VC.ops`), jos appi suljetaan ennen lähetystä, sekä laitteen omat tiedot (puut, asetukset). Ehdotettu korjaus odottaa Emilin päätöstä: tiedostojen välimuisti IndexedDB:hen (iso kiintiö, uudelleenhaettavissa GitHubista), jono ja muistiinpanojen omat tiedot pieninä localStorageen, ei kahta kopiota vaultista.
+**0.100:n jälkeen.** Avaa Kaikki iPhonella verkon kanssa ja anna synkan valmistua. *Laitteen muisti täynnä* -nappi katoaa yläpalkista, kun seuraava tallennus onnistuu. Jos se jää, napauta sitä ja *Yritä uudelleen*. Kokeile sitten lentokonetilassa: avaa appi kokonaan uudelleen ja tarkista, että muistiinpanot näkyvät ilman verkkoa.
 
 **Suunnitelma 25.11.2026.** Emil hyväksyi [laskennallisen ja käytettävän muistiinpanon](SUUNNITELMA.md#111-laskennallinen-ja-käytettävä-muistiinpano) lisäämisen suunnitelmaan. Tilakytkin kuuluu muistiinpanoikkunan käytettävyystyöhön, ensimmäinen havaintokaava yhteisen havaintohaun jatkoksi ja tekstin säätimet A6:n jatkoksi. Ensimmäisen käyttökokeen nimi on *Päivän tilanne*. Toteutus ja iPhone-koe ovat edessä.
 

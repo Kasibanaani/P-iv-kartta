@@ -45,7 +45,7 @@ def idle(page):
 
 
 def ops(page):
-    return page.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('kaikki:vault')).ops||[])")
+    return page.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('kaikki:vaultq')).ops||[])")
 
 
 def csv(page):
@@ -94,7 +94,7 @@ def check(browser, width):
     dialog.get_by_role('button', name='Vaihda suodatin', exact=True).click()
     page.locator(f'#dsheet [data-day="{TODAY}"]').click()
     page.keyboard.press('Escape')
-    page.wait_for_function("JSON.stringify(JSON.parse(localStorage.getItem('kaikki:vault')).q||{}).includes('#koti')")
+    page.wait_for_function("JSON.stringify(JSON.parse(localStorage.getItem('kaikki:vaultq')).q||{}).includes('#koti')")
     if dialog.is_visible():
         page.keyboard.press('Escape')
     assert HEADER == csv(page)

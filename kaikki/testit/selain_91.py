@@ -62,7 +62,7 @@ def check(browser, width):
     page.evaluate(r"""() => {__repo.put('tieto/koe.md','# Koe\n\nTekoälyn jatko.\n');window.failLookup=true;}""")
     edit(page, 'Koe\n\nOma jatko.')
     page.wait_for_function("document.querySelector('#gs-status').textContent.includes('503')")
-    assert page.evaluate("JSON.parse(localStorage.getItem('kaikki:vault')).q['tieto/koe.md'].t.includes('Oma jatko')")
+    assert page.evaluate("JSON.parse(localStorage.getItem('kaikki:vaultq')).q['tieto/koe.md'].t.includes('Oma jatko')")
     page.evaluate('window.failLookup=false')
     page.evaluate('KaikkiTesti.flush()')
     assert page.evaluate("__repo.get('tieto/koe.md').includes('Tekoälyn jatko')")
