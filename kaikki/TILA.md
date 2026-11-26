@@ -331,6 +331,8 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 ## Seuraava askel
 
+**Nopeus (Emil 26.11.2026: palataan myöhemmin).** Jokainen tallennus kirjoittaa koko vaultin. Tietokoneella muunto tallennusmuotoon vie noin 18 ms ja takaisinluku noin 6 ms, iPhonella todennäköisesti 2–4 kertaa enemmän. Ehdotus odottaa iPhonen havaintoja: jokainen tiedosto omaksi IndexedDB-tietueekseen, jolloin muutos kirjoittaa vain muuttuneen tiedoston.
+
 **0.100:n jälkeen.** Avaa Kaikki iPhonella verkon kanssa ja anna synkan valmistua. *Laitteen muisti täynnä* -nappi katoaa yläpalkista, kun seuraava tallennus onnistuu. Jos se jää, napauta sitä ja *Yritä uudelleen*. Kokeile sitten lentokonetilassa: avaa appi kokonaan uudelleen ja tarkista, että muistiinpanot näkyvät ilman verkkoa.
 
 **Suunnitelma 25.11.2026.** Emil hyväksyi [laskennallisen ja käytettävän muistiinpanon](SUUNNITELMA.md#111-laskennallinen-ja-käytettävä-muistiinpano) lisäämisen suunnitelmaan. Tilakytkin kuuluu muistiinpanoikkunan käytettävyystyöhön, ensimmäinen havaintokaava yhteisen havaintohaun jatkoksi ja tekstin säätimet A6:n jatkoksi. Ensimmäisen käyttökokeen nimi on *Päivän tilanne*. Toteutus ja iPhone-koe ovat edessä.
