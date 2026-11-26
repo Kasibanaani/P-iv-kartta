@@ -22,7 +22,7 @@ DATA = {
     'pohjat/pikakirjaus.md': '## Seuranta\n- Treeni | kyllä | #treeni\n',
     'inbox/muuta.md': '# Muuta\n\nTeksti.\n',
 }
-LINE = r'- \(\(' + re.escape(f'{TODAY.day}.{TODAY.month}.{TODAY.year}') + r' klo \d\d\.\d\d, Kahvi \(kpl\) = 1, \^qh[a-z0-9-]+\)\)'
+LINE = r'- \(\(' + re.escape(f'{TODAY.day}.{TODAY.month}.{TODAY.year}') + r' klo \d\d\.\d\d; Kahvi \(kpl\) = 1; \^qh[a-z0-9-]+\)\)'
 
 
 def repo(page, path):

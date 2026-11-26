@@ -87,7 +87,7 @@ def check(browser, width):
     expect(page.locator('#saadin-var-2')).to_be_focused()
     page.locator('#saadin-var-2').fill('toistot')
     page.locator('#saadin-subject').fill('Penkki')
-    expect(ed.locator('.saadin-preview')).to_contain_text('Penkki: paino = ‹paino› kg, toistot = ‹toistot›')
+    expect(ed.locator('.saadin-preview')).to_contain_text('Penkki: paino = ‹paino› kg; toistot = ‹toistot›')
     assert no_overflow(page, '#saadin-edit'), 'editorissa vaakaylivuoto'
     # Kolmas muuttuja lisätään ja poistetaan.
     page.locator('#saadin-add-var').click()
@@ -123,7 +123,7 @@ def check(browser, width):
     expect(d).to_be_visible()
     assert page.locator('#nl-text').input_value() == 'Kevyt olo.'
     first = [l for l in note(page).splitlines() if 'toistot = 8' in l][0]
-    assert re.match(r'^- \(\(\d+\.\d+\.\d{4} klo \d\d\.\d\d, Penkki: paino = 80 kg, toistot = 8, \^qh[\w-]+\)\)$', first), first
+    assert re.match(r'^- \(\(\d+\.\d+\.\d{4} klo \d\d\.\d\d; Penkki: paino = 80 kg; toistot = 8; \^qh[\w-]+\)\)$', first), first
     # Toinen sarja: edelliset arvot valmiina, kirjoitus korvaa valitun.
     page.locator('#nl-btns button', has_text='Penkki').click()
     expect(ask.get_by_label('Arvo · paino (kg)')).to_have_value('80')
@@ -156,7 +156,7 @@ def check(browser, width):
     expect(ask.get_by_label('Arvo · toistot')).to_have_count(0)
     ask.get_by_label('Arvo · paino (kg)').fill('82,5')
     ask.locator('button[type=submit]').click()
-    page.wait_for_function("(__repo.get('tieto/salitreeni.md')||'').includes('paino = 82,5 kg, toistot = 5')")
+    page.wait_for_function("(__repo.get('tieto/salitreeni.md')||'').includes('paino = 82,5 kg; toistot = 5')")
     page.locator('#nl-close').click()
     expect(d).to_be_hidden()
     page.keyboard.press('Escape')

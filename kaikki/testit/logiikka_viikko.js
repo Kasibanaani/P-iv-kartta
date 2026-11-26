@@ -79,7 +79,7 @@ const it = S.parse('# S\n\n## Viikon paino\n- tunnus: viikon-paino\n- muuttuja: 
 assert.equal(it.aika, 'viikko');
 assert.equal(it.virhe, '');
 const line = S.record(it, {day: '2027-01-01', clock: '', week: M.weekOf('2027-01-01'), values: ['80'], dayNote: false, id: 'qh9'});
-assert.equal(line, '- ((vk 53/2026, paino = 80 kg, ^qh9))');
+assert.equal(line, '- ((vk 53/2026; paino = 80 kg; ^qh9))');
 assert.deepEqual(M.parse(line, base).map(o => [o.viikko, o.paivat, o.luku]), [['2026-W53', [], 80]]);
 const stamp = S.parse('# S\n\n## Viikko tehty\n- aikaleima: kylla\n- aika: viikko\n').items[0];
 assert.equal(S.record(stamp, {day: '2026-11-25', clock: '', week: '2026-W48', dayNote: true}), '- vk 48/2026 · Viikko tehty');

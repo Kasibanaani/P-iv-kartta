@@ -46,7 +46,7 @@ const mk = S.mark(kahvi, day);
 assert.equal(mk, 'kahvi-2026-11-26');
 assert.equal(S.mark(lenkki, {day: '2026-11-26', week: '2026-W48'}), 'lenkki-2026-w48');
 const line = S.record(kahvi, {...day, mark: mk, id: 'qhX'});
-assert.equal(line, '- ((26.11.2026 klo 08.15, Kahvi (kpl) = 1, ^kahvi-2026-11-26))', 'jakson tunniste korvaa kertatunnuksen');
+assert.equal(line, '- ((26.11.2026 klo 08.15; Kahvi (kpl) = 1; ^kahvi-2026-11-26))', 'jakson tunniste korvaa kertatunnuksen');
 assert.equal(M.parse(line, new Date(2026, 10, 26))[0].luku, 1, 'havainto luetaan kuten ennen');
 const tline = S.record(lenkki, {day: '2026-11-26', week: '2026-W48', mark: 'lenkki-2026-w48'});
 assert.equal(tline, '- Lenkki tehty ^lenkki-2026-w48');
@@ -86,7 +86,7 @@ assert.equal(S.xyText(Y, S.xyAt(Y, RY, 0.26)), '-2,5');
 assert.equal(S.axis({min: '0', max: '0,5'}).step, 0.01);
 assert.equal(S.axis({min: '0', max: '5'}).step, 0.1);
 const xyLine = S.record(vire, {day: '2026-11-26', clock: '20:00', values: ['8', S.xyText(Y, -2.5)], dayNote: true, id: 'qh1'});
-assert.equal(xyLine, '- ((26.11.2026 klo 20.00, Olo: Vire = 8, Mieliala = -2,5 p, ^vire))');
+assert.equal(xyLine, '- ((26.11.2026 klo 20.00; Olo: Vire = 8; Mieliala = -2,5 p; ^vire))');
 const obs = M.parse(xyLine, new Date(2026, 10, 26));
 assert.deepEqual(obs.map(o => [o.nimi, o.luku]), [['Vire', 8], ['Mieliala (p)', -2.5]]);
 /* Päivitä-tapa korvaa oman rivin */

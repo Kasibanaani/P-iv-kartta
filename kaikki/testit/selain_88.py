@@ -67,7 +67,7 @@ def run(browser, url, width):
     # 0.96: muuttujarivin kentät Muuttuja, Arvo (tyhjä = kysytään) ja Yksikkö.
     ed.get_by_role('textbox', name='Arvo', exact=True).fill('1')
     ed.get_by_role('textbox', name='Havaintotunniste (valinnainen)').fill('ravinto')
-    expect(ed.locator('.saadin-preview')).to_contain_text('Kahvi (kpl) = 1, #ravinto))')
+    expect(ed.locator('.saadin-preview')).to_contain_text('Kahvi (kpl) = 1; #ravinto))')
     expect(ed.locator('.saadin-preview')).to_contain_text('päivän muistiinpano')
     expect(ed.get_by_role('checkbox', name='Aikaleima')).to_be_disabled()
     ed.get_by_role('button', name='Tallenna').click()
@@ -77,7 +77,7 @@ def run(browser, url, width):
     lst.get_by_role('button', name='Kirjaa: Kahvi').click()
     page.wait_for_function('p => !!__repo.get(p)', arg=DAY_PATH)
     day = repo(page, DAY_PATH)
-    assert re.search(r'\n## Pikakirjaukset\n\n- \(\(' + re.escape(fi(TODAY)) + r' klo \d\d\.\d\d, Kahvi \(kpl\) = 1, #ravinto, \^qh[a-z0-9-]+\)\)\n$', day), day
+    assert re.search(r'\n## Pikakirjaukset\n\n- \(\(' + re.escape(fi(TODAY)) + r' klo \d\d\.\d\d; Kahvi \(kpl\) = 1; #ravinto; \^qh[a-z0-9-]+\)\)\n$', day), day
     assert day.startswith('---\ntyyppi: paiva\n')
     expect(lst.locator('#saadin-list-msg')).to_contain_text('Kahvi kirjattu')
     undo = page.get_by_role('button', name='Kumoa: Kahvi')
@@ -137,7 +137,7 @@ def run(browser, url, width):
     expect(ask.get_by_text('Kirjoittaa: päivän muistiinpano', exact=False)).to_contain_text('20.11.2026')
     ask.get_by_role('button', name='Kirjaa').click()
     page.wait_for_function('p => !!__repo.get(p)', arg=OLD_DAY)
-    assert re.search(r'\n- \(\(20\.11\.2026, Uni \(h\) = 7,5, \^qh[a-z0-9-]+\)\)\n$', repo(page, OLD_DAY)), repo(page, OLD_DAY)
+    assert re.search(r'\n- \(\(20\.11\.2026; Uni \(h\) = 7,5; \^qh[a-z0-9-]+\)\)\n$', repo(page, OLD_DAY)), repo(page, OLD_DAY)
     expect(ask).to_be_hidden()
     expect(page.get_by_role('button', name='Kumoa: Uni (h)')).to_be_visible()
 

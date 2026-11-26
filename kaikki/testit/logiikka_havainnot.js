@@ -87,4 +87,4 @@ assert.equal(M.ruutu(mixed,{...spec,laske:'maara'},today).arvo,2);
 assert.equal(M.ruutu(mixed,{...spec,laske:'viimeisin'},today).arvo,'2 arvoa');
 const first = recipe[0], stripped = sample.slice(0,first.removeFrom)+sample.slice(first.removeTo);
 assert.equal(M.parse(stripped,base).length,3);
-assert.equal(M.format('Uni (h)','8,5','',today,'arki','qh2'),'((24.11.2026, Uni (h) = 8,5, #arki, ^qh2))');
+assert.equal(M.format('Uni (h)','8,5','',today,'arki','qh2'),'((24.11.2026; Uni (h) = 8,5; #arki; ^qh2))');

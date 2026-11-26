@@ -77,7 +77,7 @@ def toggle(browser, url, width):
     page.wait_for_function('([p,m]) => (__repo.get(p) || "").includes(m)', arg=[DAY_PATH, MARK])
     expect(kahvi).to_have_attribute('aria-pressed', 'true')
     line = [x for x in repo(page, DAY_PATH).split('\n') if MARK in x]
-    assert len(line) == 1 and re.match(r'- \(\(\d+\.\d+\.\d{4} klo \d\d\.\d\d, Kahvi \(kpl\) = 1, \^kahvi-[\d-]+\)\)$', line[0]), line
+    assert len(line) == 1 and re.match(r'- \(\(\d+\.\d+\.\d{4} klo \d\d\.\d\d; Kahvi \(kpl\) = 1; \^kahvi-[\d-]+\)\)$', line[0]), line
     before_on = repo(page, DAY_PATH)
 
     # Pois: täsmälleen sama rivi poistuu, muu teksti säilyy. Kumoa palauttaa rivin samaan kohtaan.
@@ -172,7 +172,7 @@ def xy(browser, url, width):
     expect(y).to_have_value('4')
     expect(y).to_have_attribute('aria-valuetext', '4,0')
     tap(page, card.get_by_role('button', name='Kirjaa: Olo'), phone)
-    page.wait_for_function('p => (__repo.get(p) || "").includes("Olo: Vire = 10, Mieliala = 4,0, ^olo))")', arg=DAY_PATH)
+    page.wait_for_function('p => (__repo.get(p) || "").includes("Olo: Vire = 10; Mieliala = 4,0; ^olo))")', arg=DAY_PATH)
     expect(page.get_by_role('button', name='Kumoa: Olo')).to_be_visible()
 
     # Pikakirjaus avaa saman pädin ikkunaan. Suhteellinen X keskittyy juuri kirjattuun 10:een (väli 5–10). Päivitä-tapa korvaa oman rivin, joten rivejä on yksi.
@@ -188,7 +188,7 @@ def xy(browser, url, width):
     dx.fill('6')
     dlg.get_by_role('slider', name='Y · Mieliala').fill('-2.5')
     tap(page, dlg.get_by_role('button', name='Kirjaa', exact=True), phone)
-    page.wait_for_function('p => __repo.get(p).includes("Olo: Vire = 6, Mieliala = -2,5, ^olo))")', arg=DAY_PATH)
+    page.wait_for_function('p => __repo.get(p).includes("Olo: Vire = 6; Mieliala = -2,5; ^olo))")', arg=DAY_PATH)
     expect(dlg).to_be_hidden()
     assert repo(page, DAY_PATH).count('^olo') == 1, repo(page, DAY_PATH)
     assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), 'ei vaakavieritystä'

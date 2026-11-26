@@ -35,7 +35,7 @@ assert.equal(kahvi.virhe, '');
 
 /* Kirjausrivit */
 const now = {day: '2026-11-24', clock: '12:30', value: '', dayNote: true, id: 'qh1'};
-assert.equal(S.record(kahvi, {...now, value: kahvi.arvo}), '- ((24.11.2026 klo 12.30, Kahvi (kpl) = 1, #ravinto, ^qh1))');
+assert.equal(S.record(kahvi, {...now, value: kahvi.arvo}), '- ((24.11.2026 klo 12.30; Kahvi (kpl) = 1; #ravinto; ^qh1))');
 const line = S.record(kahvi, {...now, value: '2'});
 const seen = M.parse(line, new Date(2026, 10, 24));
 assert.equal(seen.length, 1);
@@ -46,8 +46,8 @@ assert.equal(S.record(heratys, {...now, dayNote: false}), '- 2026-11-24 klo 12.3
 assert.equal(S.record(heratys, {...now, clock: '', dayNote: true}), '- Herätys ^heratys');
 assert.equal(S.record({...heratys, tapa: 'lisaa'}, now), '- klo 12.30 · Herätys');
 assert.equal(S.record(paino, {...now, value: ''}), '', 'tyhjä arvo ei kelpaa');
-assert.equal(S.record({...paino, teksti: 'Aamupaino'}, {...now, value: '72,4'}), '- Aamupaino ((24.11.2026 klo 12.30, Paino (kg) = 72,4, ^qh1))');
-assert.equal(S.record({...paino, tapa: 'paivita'}, {...now, clock: '', value: '72,4'}), '- ((24.11.2026, Paino (kg) = 72,4, ^paino))');
+assert.equal(S.record({...paino, teksti: 'Aamupaino'}, {...now, value: '72,4'}), '- Aamupaino ((24.11.2026 klo 12.30; Paino (kg) = 72,4; ^qh1))');
+assert.equal(S.record({...paino, tapa: 'paivita'}, {...now, clock: '', value: '72,4'}), '- ((24.11.2026; Paino (kg) = 72,4; ^paino))');
 
 /* Kalenteri ei lue säätimen aikaleimaa ajankohdaksi: rivin alku peitetään noteDates-funktiossa. */
 const masked = '- 2026-11-24 klo 12.30 · Herätys'.replace(/^- \d{4}-\d\d-\d\d(?: klo \d\d\.\d\d)? · /gm, x => x.replace(/\S/g, ' '));
@@ -119,12 +119,12 @@ assert.deepEqual(vanha.vars, [{nimi: 'Kahvi (kpl)', arvo: '2', yksikko: ''}], 'a
 assert.deepEqual(vanha.muut, ['- arvo: 3'], 'toinen arvo samalle muuttujalle säilyy tuntemattomana rivinä');
 assert.deepEqual(S.asked(penkki).map(a => a.nimi), ['paino', 'toistot']);
 const set = S.record(penkki, {day: '2026-11-25', clock: '18:05', values: ['80', '8'], dayNote: false, id: 'qh2'});
-assert.equal(set, '- ((25.11.2026 klo 18.05, Penkki: paino = 80 kg, toistot = 8, ^qh2))');
+assert.equal(set, '- ((25.11.2026 klo 18.05; Penkki: paino = 80 kg; toistot = 8; ^qh2))');
 const seenSet = M.parse(set, new Date(2026, 10, 25));
 assert.deepEqual(seenSet.map(o => [o.nimi, o.luku, o.kohde, o.kello]), [['paino (kg)', 80, 'Penkki', '18:05'], ['toistot', 8, 'Penkki', '18:05']]);
 assert.equal(S.record(penkki, {day: '2026-11-25', clock: '', values: ['80', ''], dayNote: true, id: 'x'}), '', 'kysytty arvo puuttuu');
 assert.equal(S.record({...penkki, vars: [penkki.vars[0], {nimi: 'toistot', arvo: '5', yksikko: ''}]}, {day: '2026-11-25', clock: '', values: ['82,5'], dayNote: true, id: 'x'}),
-  '- ((25.11.2026, Penkki: paino = 82,5 kg, toistot = 5, ^x))', 'kiinteä arvo täydentää');
+  '- ((25.11.2026; Penkki: paino = 82,5 kg; toistot = 5; ^x))', 'kiinteä arvo täydentää');
 assert.equal(S.withUnit('80 kg', 'kg'), '80 kg');
 assert.equal(S.withUnit('80kg', 'kg'), '80kg');
 assert.equal(S.withUnit('80', ''), '80');

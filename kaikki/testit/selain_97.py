@@ -83,7 +83,7 @@ def check(browser, width):
     ask.locator('button[type=submit]').click()
     expect(ask).to_be_hidden()
     page.wait_for_function("(__repo.get('tieto/vireloki.md')||'').includes('vire = 6')")
-    assert re.search(r'^- \(\(vk 53/2026, vire = 6, \^qh[\w-]+\)\)$', note(page), re.M), note(page)
+    assert re.search(r'^- \(\(vk 53/2026; vire = 6; \^qh[\w-]+\)\)$', note(page), re.M), note(page)
 
     # Päivä ja kellonaika samassa kentässä.
     lst.get_by_role('button', name='Kirjaa: Vire').click()
@@ -93,7 +93,7 @@ def check(browser, width):
     expect(clock).to_be_hidden()
     ask.locator('button[type=submit]').click()
     page.wait_for_function("(__repo.get('tieto/vireloki.md')||'').includes('vire = 8')")
-    assert '- ((5.1.2026 klo 07.30, vire = 8, ^qh' in note(page), note(page)
+    assert '- ((5.1.2026 klo 07.30; vire = 8; ^qh' in note(page), note(page)
 
     # Päivä ilman kelloa: kellonaikakenttä käytössä.
     lst.get_by_role('button', name='Kirjaa: Vire').click()
@@ -103,7 +103,7 @@ def check(browser, width):
     clock.fill('21:15')
     ask.locator('button[type=submit]').click()
     page.wait_for_function("(__repo.get('tieto/vireloki.md')||'').includes('vire = 9')")
-    assert '- ((5.1.2026 klo 21.15, vire = 9, ^qh' in note(page), note(page)
+    assert '- ((5.1.2026 klo 21.15; vire = 9; ^qh' in note(page), note(page)
 
     # Lukija: viikkohavainto näkyy viikkona.
     obs = page.evaluate("MUUTTUJA.parse(__repo.get('tieto/vireloki.md'),new Date()).map(o=>[o.viikko,o.paivat,o.kello,o.luku])")
@@ -121,14 +121,14 @@ def check(browser, width):
     page.locator('#saadin-where').select_option('teksti')
     page.locator('#saadin-find').fill('Vireloki')
     ed.locator('.saadin-found button').first.click()
-    expect(ed.locator('.saadin-preview')).to_contain_text(f'(({WEEK}, paino = 80 kg))')
+    expect(ed.locator('.saadin-preview')).to_contain_text(f'(({WEEK}; paino = 80 kg))')
     assert page.evaluate("document.getElementById('saadin-edit').scrollWidth<=document.getElementById('saadin-edit').clientWidth+1")
     page.locator('#saadin-save').click()
     expect(ed).to_be_hidden()
     page.wait_for_function("(__repo.get('pohjat/saatimet.md')||'').includes('- aika: viikko')")
     lst.get_by_role('button', name='Kirjaa: Viikon paino').click()
     page.wait_for_function("(__repo.get('tieto/vireloki.md')||'').includes('paino = 80 kg')")
-    assert f'- (({WEEK}, paino = 80 kg, ^qh' in note(page), note(page)
+    assert f'- (({WEEK}; paino = 80 kg; ^qh' in note(page), note(page)
     assert not errors, errors
     page.close()
 

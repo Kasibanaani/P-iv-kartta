@@ -1,10 +1,17 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.108 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
+**Vaihe:** versio 0.109 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.109 (26.11.2026): yhtenäinen kaavakieli.**
+- Havainnot, laskut, nimetyt tulokset, säätimet ja upotukset kirjoitetaan muistiinpanoissa samaan ((…))-muotoon. Uusissa havainnoissa puolipiste erottaa päivän, kentät ja tunnisteet. Vanhojen havaintojen, kaavojen ja taulukoiden lukutuki säilyy.
+- Kohde.muuttuja hakee havaintojoukon. RYHMÄ voi sisältää kohteita ja muita ryhmiä. Koosteet hyväksyvät ajan tai alku- ja loppurajan. Ristiinviittaukset, monirivinen JOS / MUUTEN, KUVAAJA ja UPOTA toimivat samassa kaavamoottorissa.
+- Lukutilassa säätimet toimivat ja ruutujen asettelu on lukittu. Muistiinpanon valikosta avattavassa asettelutilassa voi muuttaa kokoa ja siirtää ruutuja vierekkäisten ruutujen joukossa. Käyttöohjeessa on kopioitavat esimerkit.
+- Regressiot: logiikka_kaava_109.js, selain_109.py ja ennestään olevat kaava-, havainto-, säädin- ja taulukkotestit. Oikea iPhone Safari ja kahden laitteen samanaikainen muokkaus odottavat käyttökokeilua. Holvin Oma laskuri -muunnos kuuluu holvin omaan commitiin julkaisun jälkeen.
+- Kohteiden jäsenyys ryhmässä on ajaton. Parametrillisten käyttäjäfunktioiden ja havaintojen tapahtumatunnuksella tehtävien laskujen suunnittelu jatkuu erikseen.
 
 **0.108 (26.11.2026, Emil): muistiinpanon yhteinen muokkausnappi.**
 - Muokkaa ja Lukutila käyttävät samaa nappia, joka pysyy yläreunassa vieritettäessä. Kaavaruutu näyttää tuloksen, mahdolliset lähteet ja koonmuutoskahvan.

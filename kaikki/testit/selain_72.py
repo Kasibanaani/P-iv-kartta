@@ -132,8 +132,8 @@ def run(browser, url, width):
     assert current(page, DAY_PATH) == ORIGINAL_DAY
     quick.get_by_role('button', name='Valmis', exact=True).click()
     page.wait_for_function(
-        r'([path, expected]) => __repo.get(path).replace(/, \^qh[a-z0-9-]+(?=\)\))/g, "") === expected',
-        arg=[DAY_PATH, ORIGINAL_DAY + '\n## Pikakirjaukset\n\n- ((22.11.2026, Uni (h) = 8,5))\n'])
+        r'([path, expected]) => __repo.get(path).replace(/; \^qh[a-z0-9-]+(?=\)\))/g, "") === expected',
+        arg=[DAY_PATH, ORIGINAL_DAY + '\n## Pikakirjaukset\n\n- ((22.11.2026; Uni (h) = 8,5))\n'])
     select_tab(page, width, 'notes', 'Muistio')
     expect(page.locator('#nlist .rvb .rvr').get_by_role('button', name='Uni (h) · 2026-11-22 · 8,5 h')).to_be_visible()
     select_tab(page, width, 'dash', 'Kojelauta')
