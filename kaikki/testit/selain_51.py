@@ -59,7 +59,11 @@ async def check(browser, width):
     await page.keyboard.press('Escape')
     await expect(note_dialog).to_be_hidden()
     await page.evaluate('([p, body]) => __repo.put(p, body)', [TWO, note('Toinen', 'Linkki poistui.')])
-    await page.evaluate('KaikkiTesti.pull()')
+    # 0.100: haku ohitetaan, jos synkka on jo käynnissä (vPull palauttaa false). Toista, kunnes haku tehdään.
+    for _ in range(40):
+        if await page.evaluate('KaikkiTesti.pull()'):
+            break
+        await page.wait_for_timeout(150)
     await expect(cover.get_by_role('button', name='Takaisinlinkit: Keskus, 1')).to_be_visible()
 
     more = cover.get_by_role('button', name='Näytä kaikki 5 tunnistetta')

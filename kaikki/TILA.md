@@ -20,6 +20,12 @@ Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultiss
   - Jäljitelty 1 000 000 merkin kiintiö, 400 tiedoston vault ja toisen apin 300 000 merkkiä, leveydet 320, 390 ja 1280 px. Tarkistettu: ei muisti täynnä -ilmoitusta, välimuisti ja muistiinpanot IndexedDB:ssä, toisen apin tiedot ennallaan, ilman verkkoa tehty muokkaus ja koko vault uudelleenlatauksen jälkeen ja muokkaus GitHubiin kerran verkon palattua.
   - Vanha muoto siirtyy, odottava muokkaus lähtee, eikä mitään arkistoida.
   - `selain_92.py` jäljittelee täyttä laitetta nyt myös IndexedDB:ssä. `selain_91`, `94` ja `95` lukevat jonon uudesta avaimesta.
+- **Käynnistys:** jos kaikki kolme tallennusta ovat localStoragessa (pieni data), appi käynnistyy heti kuten ennen. Odotus koskee vain tilannetta, jossa iso tallennus voi olla IndexedDB:ssä.
+- **Koko sarja Chromiumissa:** 114 testitiedostoa meni läpi. `selain_23`, `51`, `60` ja `62` kaatuivat sarjassa mutta menivät yksinään läpi.
+  - `selain_28` ja `51` olivat oikeasti epävakaita, ja ne korjattiin testeissä. Syyt eivät olleet apissa:
+    - `28`: Chromium vie localStorage-kirjoitukset uudelleen ladatulle sivulle viiveellä, noin 5 s.
+    - `51`: ensimmäinen käynnistys odottaa nyt IndexedDB:n lukua, joten apin aloitussynkka ja testin haku osuivat päällekkäin, ja synkan aikana haku ohitetaan.
+  - Sama Chromiumin viive selittää todennäköisesti myös `23`:n, `60`:n ja `62`:n uudelleenlatausongelmat. Sitä ei varmistettu.
 - **Ei tarkistettu:** oikea iPhone ja Safarin IndexedDB, kotinäytön appi ja Emilin oikea vault. Ensimmäinen avaus siirtää vanhan tallennuksen.
 
 **0.99 (26.11.2026): pohjaan jäävä nappi ja XY-pädi (A6.4 ja A6.5).**
