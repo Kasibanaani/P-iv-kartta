@@ -79,8 +79,7 @@ def run(browser, width):
     expect(sheet.locator('.formula-result-text')).to_have_text('3')
     expect(sheet.get_by_role('button', name='Muuta kokoa', exact=False)).to_have_count(0)
 
-    sheet.locator('#ns-more').click()
-    page.get_by_role('menuitem', name='Muuta ruutujen asettelua').click()
+    sheet.get_by_role('button', name='Muuta ruutujen asettelua').click()
     expect(box('Elokuun proteiini').get_by_role('button', name='Muuta kokoa', exact=False)).to_be_visible()
     box('Elokuun proteiini').get_by_role('button', name='Siirrä aiemmaksi', exact=False).click()
     expect(sheet.locator('.ns-cell-name').first).to_have_text('Elokuun proteiini')
@@ -89,9 +88,9 @@ def run(browser, width):
     expect(box('Toimi näin').get_by_role('textbox', name='Kaavaruudun viittaus')).to_have_value(
         '[[projektit/suunnitelma]]."Toimi näin"')
     expect(sheet.get_by_role('button', name='Merkitse tehty')).to_be_disabled()
-    sheet.locator('#ns-more').click()
-    page.get_by_role('menuitem', name='Lukitse ruutujen asettelu').click()
-    expect(sheet.locator('summary[aria-label="Ruudun toiminnot"]').first).to_be_hidden()
+    sheet.get_by_role('button', name='Muuta ruutujen asettelua').click()
+    expect(sheet.get_by_role('button', name='Muuta ruutujen asettelua')).to_have_attribute('aria-pressed', 'false')
+    expect(sheet.get_by_role('button', name='Muuta kokoa', exact=False).first).to_be_hidden()
     sheet.get_by_role('button', name='Merkitse tehty').click()
     page.wait_for_function('p => __repo.get(p).includes("; Tehty = 1; ^qh")', arg=PLAN)
     expect(sheet.locator('.ns-cell-name').first).to_have_text('Elokuun proteiini')

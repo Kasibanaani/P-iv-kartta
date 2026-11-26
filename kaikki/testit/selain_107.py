@@ -116,8 +116,7 @@ def run(browser, width):
         return total.evaluate("""e => [e.getBoundingClientRect().width,
                                     parseFloat(e.style.getPropertyValue('--cell-h'))]""")
     expect(handle).to_be_hidden()
-    note.locator('#ns-more').click()
-    page.get_by_role('menuitem', name='Muuta ruutujen asettelua').click()
+    note.get_by_role('button', name='Muuta ruutujen asettelua').click()
     expect(handle).to_be_visible()
     before = size()
     drag_handle(page, handle, -32, -12, width < 500)

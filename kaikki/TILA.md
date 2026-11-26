@@ -1,10 +1,21 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.110 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
+**Vaihe:** versio 0.111 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.111 (26.11.2026, Emil): lukutilan yläpalkki, asettelu ja ruudun ⋯.**
+- Yläpalkissa on kaksi nappia: **Muokkaa** (teksti) ja **Asettelu** (ruutujen ja säätimien koko ja järjestys lukutilassa). Asettelu ei ole enää ⋯-valikossa. Muokatessa samassa paikassa on **Lukutila**. Puhelimella lukutilan napit ovat kuvakkeita.
+- Yläpalkki on tietokoneella yksi tiivis rivi ja pysyy kiinni ikkunan yläreunassa. Ikkunan yläreunan väli on palkin omaa täytettä, joten vieritetty teksti ei enää näy palkin yläpuolelta. Puhelimella paluurivi ja nappirivi pysyvät yhdessä ylhäällä.
+- Liukusäätimellä ja muilla säätimillä on asettelussa kokokahva. Ulkonäkö pysyy, kunnes kokoa muutetaan. Koko muistetaan puhelimelle ja tietokoneelle erikseen. Säätimet pysyvät omilla riveillään (eivät asetu ruutujen viereen).
+- Lähteet-nappi ei enää ilmesty ruutuun arvon mukaan. Se näkyi vain, kun laskettu arvo osui tallennettuun havaintoon (esim. tallennettu taso 3). Jokaisen ruudun ja säätimen oikeassa yläkulmassa on pieni pyöreä ⋯, jonka takana ovat Lähteet, Kopioi viittaus ja Muokkaa kaavaa.
+- Tallennettu muistiinpano aukeaa aina lukutilassa, mistä tahansa avattuna. Edellistä tilaa ei enää muisteta. Asetus *Muistiinpano aukeaa: Muokattavana* pätee yhä.
+- Lukitun listan lukitus koskee vain listaa. Lukitusta listasta muistiinpano aukeaa oikeaan ikkunaan (ei enää pelkkään tekstiesikatseluun) lukutilassa, säätimet toimivat, ja Muokkaa vaihtaa tekstin muokattavaksi.
+- Oranssit viivat listan rivillä: todennäköisesti rivin kohdistuskehys, joka palasi riville ikkunan sulkeutuessa. Hiirellä tai sormella suljettaessa kohdistus poistetaan rivistä, ja näppäimistön kehys piirretään rivin sisään.
+- Testit: uusi `selain_111.py` (320, 390, 1280, 1440 px), päivitetyt `selain_78`, `107`, `109`, `110`. Selainohje: Modern Web Guidance *menu* (popover-valikko ei ole Safarissa vielä laajasti saatavilla, joten ⋯ on `<details>`).
+- **Ei tarkistettu:** oikea iPhone ja Macin Safari. Oranssien viivojen syytä ei saatu toistettua Chromiumissa, joten korjaus on päätelty. Testiselaimessa ensimmäinen napautus kosketusvedon jälkeen jäi rekisteröitymättä (todennäköisesti testityökalun piirre, sama kahvakoodi kuin ennen): kokeile iPhonella, että Asettelu-nappi toimii heti säätimen koon muuttamisen jälkeen.
 
 **0.110 (26.11.2026): muistiinpanon käyttöelementit ja vuorovaikutteiset kuvaajat.**
 - Lukutilaan voi kirjoittaa kytkimiä, yhden arvon valintanapit tai valikon, lukukentän, askelsäätimen ja kuittauslistan. Kolmitilaisen valinnan Kirjaamatta jää erilleen Ei-arvosta. Säätimen voi jättää tilapäiseksi tai pyytää päivätallennuksen. KOKEILU palauttaa aiemmat arvot, ja sen aikana kirjoittavat napit ovat pois käytöstä.
@@ -407,6 +418,8 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 - Modern Web Guidance -hakua ei voitu ajaa (komento estettiin tässä istunnossa); uutta käyttöliittymää on vain asetusikkuna, Juuren tyyleillä.
 
 ## Seuraava askel
+
+**0.111:n jälkeen.** Avaa iPhonella muistiinpano, jossa on säädin ja kaavaruutu. Vieritä ja katso, pysyykö yläpalkki kiinni. Paina Asettelu, muuta liukusäätimen kokoa ja paina heti Asettelu uudelleen. Avaa ruudun ⋯ ja kokeile Lähteet ja Muokkaa kaavaa. Lukitse Muistion lista, avaa siitä muistiinpano ja vaihda Muokkaa. Kerro Macilla, jäävätkö oranssit viivat vielä riville.
 
 **0.107:n jälkeen.** Muokkaa muistiinpanoa. Lisää Kirjoitusohjeesta *Kaavaruutu ja säätimet*, vaihda lukutilaan ja kokeile sekä kaavaruudun vedon tuntumaa että liukusäätimen sulkemistallennusta iPhonella.
 

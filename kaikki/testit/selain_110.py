@@ -102,11 +102,14 @@ def check(browser, width):
     button('Kumoa viimeisin').click()
     expect(chart.locator('.ns-chart-info')).to_contain_text('8,5 h')
 
-    expect(sheet.locator('.ns-ref-more').first).to_be_hidden()
+    # 0.111: ruudun ⋯ näkyy aina, Asettelu on yläpalkin nappi.
+    expect(sheet.locator('.ns-box-menu').first).to_be_visible()
     sheet.locator('#ns-more').click()
     expect(sheet.get_by_role('menuitem',name='Kopioi käyttölinkki')).to_be_visible()
-    sheet.get_by_role('menuitem',name='Muuta ruutujen asettelua').click()
-    expect(sheet.locator('.ns-ref-more:visible').first).to_be_visible()
+    expect(sheet.get_by_role('menuitem',name='Muuta ruutujen asettelua')).to_have_count(0)
+    page.keyboard.press('Escape')
+    sheet.get_by_role('button',name='Muuta ruutujen asettelua').click()
+    expect(sheet.locator('.ns-box-menu:visible').first).to_be_visible()
     expect(button('Kirjaa uni')).to_be_disabled()
     close_outside(page)
     page.wait_for_function('p => __repo.get(p).includes("; ulkona = false; ^muistion-saadin")', arg=NOTE)

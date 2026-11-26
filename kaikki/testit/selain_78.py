@@ -1,5 +1,6 @@
 """Muistion oma järjestys sekä Muistion ja taulukoiden laitteiden välinen lukko."""
 import json
+import re
 
 from playwright.sync_api import expect, sync_playwright
 
@@ -56,6 +57,16 @@ def run(browser, url, width):
     def press(item):
         item.tap() if phone else item.click()
 
+    def close_note():
+        # Puhelimella koko ruudun ikkuna suljetaan paluunapista, tietokoneella ohi napsauttamalla.
+        note = page.locator('#nsheet')
+        if phone:
+            press(note.get_by_role('button', name=re.compile('^Takaisin')))
+        else:
+            box = note.bounding_box()
+            page.mouse.click(max(1, box['x'] - 5), box['y'] + min(20, box['height'] / 2))
+        expect(note).to_be_hidden()
+
     titles = page.locator('.rvb .rvt')
     lock = page.get_by_role('button', name='Näkymän lukitus')
     expect(titles).to_have_text(['Gamma', 'Alfa', 'Beta'])
@@ -82,14 +93,13 @@ def run(browser, url, width):
     assert locked_note_doc.replace('lukittu: kyllä\n', '') == remote
     expect(page.locator('#note-select-toggle,.note-order-handle,.rv-value,.rv-head-sort')).to_have_count(0)
     expect(page.locator('#newnote')).to_be_hidden()
+    # 0.111 (Emil 26.11.2026): lukitusta listasta muistiinpano aukeaa oikeaan ikkunaan lukutilassa, ja sen voi muokata.
     press(titles.first)
-    preview = page.get_by_role('dialog', name='Muistiinpanon esikatselu')
-    expect(preview.get_by_text('Lisätietoa.', exact=False)).to_be_visible()
-    expect(preview.locator('textarea,input')).to_have_count(0)
-    assert preview.get_by_role('button', name='Sulje').count() == 0
-    box = preview.bounding_box()
-    page.mouse.click(max(1, box['x'] - 5), box['y'] + min(20,box['height']/2))
-    expect(preview).to_be_hidden()
+    preview = page.locator('#nsheet')
+    expect(preview.locator('#ns-hl')).to_contain_text('Lisätietoa.')
+    expect(preview.locator('#ns-text')).not_to_be_editable()
+    expect(preview.get_by_role('button', name='Muokkaa muistiinpanoa')).to_be_visible()
+    close_note()
     press(page.locator('#nviewbtn'))
     expect(page.get_by_role('button', name='Näkymän lukitus')).to_have_attribute('aria-pressed', 'true')
     press(page.locator('.ncard').first)
@@ -171,10 +181,8 @@ def run(browser, url, width):
     expect(sheet_lock).to_have_attribute('aria-pressed', 'true')
     grid.press('Enter')
     expect(preview).to_be_visible()
-    assert preview.get_by_role('button', name='Sulje').count() == 0
-    box = preview.bounding_box()
-    page.mouse.click(max(1, box['x'] - 5), box['y'] + min(20,box['height']/2))
-    expect(preview).to_be_hidden()
+    expect(preview.locator('#ns-text')).not_to_be_editable()
+    close_note()
     assert document(page, DERIVED).replace('lukittu: kyllä\n', '') == DERIVED_TEXT
     assert all(document(page, path) == text for path, text in NOTES.items())
     assert not errors, errors
