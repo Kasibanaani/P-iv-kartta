@@ -1,10 +1,16 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.107 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
+**Vaihe:** versio 0.108 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.108 (26.11.2026, Emil): muistiinpanon yhteinen muokkausnappi.**
+- Muokkaa ja Lukutila käyttävät samaa nappia, joka pysyy yläreunassa vieritettäessä. Kaavaruutu näyttää tuloksen, mahdolliset lähteet ja koonmuutoskahvan.
+- Tilaa vaihtaessa appi etsii saman kohdan lähdetekstistä. Ruuduksi muuttuva kaava vie eri määrän tilaa kuin kirjoitettu kaava, joten kohdistus seuraa sisältöä. Puhelimella pitkän muistiinpanon keskellä näppäimistö avautuu tekstiä napauttamalla.
+- Laajennettu `selain_107.py` kattaa pitkän muistiinpanon, molemmat tilanvaihdot, jäädytetyn napin ja ruutujen toiminnot Chromiumissa 320, 390, 1280 ja 1440 px:n leveyksillä. Oikean iPhonen Safari ja näppäimistön kanssa vaihtaminen odottavat käyttökokeilua.
+- Seuraavaksi arvioidaan, mitkä kojelaudan arjen käyttötavat sopivat yhteen interaktiiviseen muistiinpanoon ja milloin lukutilan asettelulle kannattaa lisätä oma toiminto.
 
 **0.107 (26.11.2026, suunnitelman 11.1): kaavaruudut ja säätimet muistiinpanoissa.**
 - Lukutilan ja muokkaustilan kytkin muistaa viimeisen tilan muistiinpanokohtaisesti. Omalla rivillä oleva kaava näkyy lukutilassa ruutuna. Ruutua voi muuttaa kahvasta, napautuksesta tai nuolinäppäimillä. Koko muistetaan erikseen puhelimella ja tietokoneella. Ruudusta voi avata kaavan ja sen käyttämät havainto- tai muistiinpanolähteet.

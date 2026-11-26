@@ -132,12 +132,11 @@ def run(browser, width):
     assert size() == after
     note.get_by_role('button', name='Merkitse tehty').click()
     page.wait_for_function("p => __repo.get(p).includes('Tehty = 1')", arg=NOTE)
-    select = total.get_by_role('button', name='Muokkaa kaavaa: kuormitus')
-    select.click()
+    expect(cells.get_by_role('button', name='Muokkaa kaavaa', exact=False)).to_have_count(0)
+    note.get_by_role('button', name='Muokkaa muistiinpanoa').click()
     ta = note.locator('#ns-text')
     expect(ta).to_be_editable()
-    selected = ta.evaluate('e => e.value.slice(e.selectionStart, e.selectionEnd)')
-    assert selected == 'työ + arki + väsymys', selected
+    assert 'kuormitus: {=työ + arki + väsymys}' in ta.input_value()
     expect(note.locator('hr.note-divider')).to_have_count(0)
     note.get_by_role('button', name='Siirry lukutilaan').click()
     expect(val).to_have_text('14')
@@ -157,9 +156,50 @@ def run(browser, width):
     page.context.close()
 
 
+def check_long_note(browser, width):
+    page = open_app(browser, width)
+    content = '## Kaavat\n' + '\n'.join(f'koe{i}: {{={i} * 2}}' for i in range(30))
+    content += '\n\n' + '\n\n'.join(f'Kappale {i:02d}. ' + 'Tavallinen pitkä tekstirivi. ' * 10 for i in range(22))
+    page.evaluate('([p, text]) => __repo.put(p, text)', ['projektit/pitka.md', md('Pitkä muistio', content)])
+    page.wait_for_function("() => KaikkiTesti.notes().length >= 2")
+    page.evaluate('KaikkiTesti.pull()')
+    page.locator('#nlist').get_by_role('button', name='Pitkä muistio').click()
+    note = page.locator('#nsheet')
+    ta = note.locator('#ns-text')
+    mode = note.locator('#ns-mode')
+    def paragraph_y(scroll=False):
+        return page.evaluate("""scroll => {
+          const range = document.createRange(), header = document.querySelector('#ns-header');
+          const dialog = document.querySelector('#nsheet');
+          const walker = document.createTreeWalker(document.querySelector('#ns-hl'), NodeFilter.SHOW_TEXT);
+          for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+            const i = n.data.indexOf('Kappale 14.');
+            if (i < 0) continue;
+            range.setStart(n, i); range.setEnd(n, i + 12);
+            if (scroll) for (let j=0; j<2; j++)
+              dialog.scrollTop += range.getBoundingClientRect().top - header.getBoundingClientRect().bottom - 10;
+            return range.getBoundingClientRect().top - header.getBoundingClientRect().bottom;
+          }
+        }""", scroll)
+    initial = paragraph_y(True)
+    assert abs(initial) < 20, (initial, width)
+    position = mode.bounding_box()['y']
+    expect(mode).to_be_in_viewport()
+    mode.click()
+    expect(ta).to_be_editable()
+    assert abs(paragraph_y() - initial) < 50, (initial, paragraph_y(), width, 'edit')
+    assert abs(mode.bounding_box()['y'] - position) < 4
+    mode.click()
+    expect(ta).to_have_attribute('readonly', '')
+    assert abs(paragraph_y() - initial) < 50, (initial, paragraph_y(), width, 'read')
+    assert abs(mode.bounding_box()['y'] - position) < 4
+    page.context.close()
+
+
 if __name__ == '__main__':
     with sync_playwright() as p:
         browser = p.chromium.launch()
         for w in (320, 390, 1280, 1440):
             run(browser, w)
+            check_long_note(browser, w)
         browser.close()

@@ -1538,7 +1538,14 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 #nsheet.reading .formula-source{display:none}
 #nsheet.reading .formula-result-text{display:inline;padding:0 5px;border-radius:5px;background:var(--fill);font-variant-numeric:tabular-nums}
 #nsheet.reading .formula-error .formula-result-text,.rvc.formula-error{color:var(--red)}
+#nsheet{overflow-anchor:none}
+#ns-header{position:sticky;top:-12px;z-index:4;display:flow-root;background:var(--bg)}
+#ns-header>.hrow{position:static;margin-top:0;padding-top:4px}
 #ns-mode{margin-inline-start:auto;white-space:nowrap}
+@media(max-width:999px){
+  #nsheet.big #ns-header>.hrow{display:none}
+  #ns-header{top:0;padding-top:4px}
+}
 #nsheet.reading.note-blocks #ns-hl{position:relative;overflow:visible;pointer-events:auto;min-height:8em}
 #nsheet.reading.note-blocks #ns-text{position:absolute;inset:0;width:100%;pointer-events:none;visibility:hidden}
 .note-divider{display:block;height:1px;border:0;margin:9px 0;background:var(--sep)}
@@ -1552,6 +1559,7 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 .ns-cell strong[hidden],.ns-cell-trend[hidden]{display:none}
 .ns-cell strong.error,.ns-control.error{font-size:15px;color:var(--red)}
 .ns-cell-tools{display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:3px}
+.ns-cell-tools[hidden]{display:none}
 .ns-cell-tools .mini{padding:3px 6px}
 .ns-cell .ns-resize{position:absolute;right:0;bottom:0;width:38px;height:38px;display:grid;place-items:center;color:var(--label2);
   background:none;border:0;cursor:nwse-resize;touch-action:none;-webkit-user-select:none;user-select:none;font-size:19px}
@@ -2671,10 +2679,12 @@ html,body,#main,.rv-scroll,.sg-wrap{overscroll-behavior-x:none}
   <div class="btnrow"><button type="button" class="btn danger" id="es-drop">Lopeta tallentamatta</button></div>
 </dialog>
 <dialog id="nsheet" aria-labelledby="ns-h">
+  <div id="ns-header">
   <div class="hrow"><h2 id="ns-h">Muistiinpano</h2><button class="ibtn" type="button" data-help="muistiinpano" aria-label="Ohje">i</button><button type="button" class="nsmore" id="ns-more" aria-haspopup="menu" aria-expanded="false" aria-label="Lisää toimintoja"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="4.5" cy="10" r="1.7"/><circle cx="10" cy="10" r="1.7"/><circle cx="15.5" cy="10" r="1.7"/></svg></button></div>
-  <div id="ns-menubg" hidden></div><div class="popm" id="ns-menu" hidden role="menu" aria-label="Muistiinpanon toiminnot"></div>
   <p class="sub" id="ns-stamp" style="font-size:13px" hidden></p>
   <div class="nsmeta" id="ns-meta"><button type="button" class="nschip" id="ns-when" aria-haspopup="dialog" aria-expanded="false"></button><button type="button" class="nschip" id="ns-log" aria-haspopup="dialog" hidden>＋ Kirjaa</button><button type="button" class="nschip" id="ns-mode">Lukutila</button></div>
+  </div>
+  <div id="ns-menubg" hidden></div><div class="popm" id="ns-menu" hidden role="menu" aria-label="Muistiinpanon toiminnot"></div>
   <div id="ns-datebg" hidden></div><div class="nsdpop" id="ns-datepop" hidden role="dialog" aria-label="Ajankohta ja tiedot"></div>
   <div id="ns-tags" role="group" aria-label="Tunnisteet" hidden></div>
   <span id="ns-formula-results" class="vh" hidden></span>
@@ -9919,10 +9929,74 @@ function nsEditAt(offset,end,remember){
   if(offset!==undefined)ta.setSelectionRange(offset,end===undefined?offset:end);
   kbKeep(ta);try{ta.focus({preventScroll:true});}catch(e){ta.focus();}
 }
-$('ns-mode').addEventListener('click',function(){
+/* Sama lähdetekstin kohta voi olla ruutu lukutilassa ja yksi rivi muokkaustilassa. */
+function nsTextParts(){
+  var parts=[],offset=0;
+  function add(node){
+    if(node.nodeType===1&&node.classList.contains('ns-cell-row')){
+      Array.from(node.children).forEach(function(child,i){if(i)offset++;add(child);});
+      return;
+    }
+    var length=Number(node.dataset?.sourceLength)||node.textContent.length;
+    if(!length)return;
+    var text=node.nodeType===3?node:node.childNodes.length===1&&node.firstChild.nodeType===3&&!node.dataset?.sourceLength?node.firstChild:null;
+    parts.push({node:node,text:text,start:offset,length:length});
+    offset+=length;
+  }
+  Array.from($('ns-hl').childNodes).slice(0,-1).forEach(add); // Viimeinen solmu on korostuskerroksen päätemerkki.
+  return parts;
+}
+function nsTextRect(part,at,range){
+  if(!part.text)return part.node.getBoundingClientRect();
+  range.setStart(part.text,at);range.setEnd(part.text,at+1);
+  return range.getBoundingClientRect();
+}
+function nsReadingTop(){
+  var d=$('nsheet');
+  return Math.max(d.getBoundingClientRect().top,$('ns-header').getBoundingClientRect().bottom)+6;
+}
+function nsTextAnchor(){
+  var target=nsReadingTop(),parts=nsTextParts(),range=document.createRange();
   var ta=$('ns-text');
-  if(ta.readOnly){nsEditAt();return;}
-  ta.blur();nsSetMode(true,true);foundInfo();paintHl();noteGrow();
+  if(!$('nsheet').classList.contains('note-blocks'))target=Math.max(target,ta.getBoundingClientRect().top);
+  for(var part of parts){
+    var last=nsTextRect(part,part.length-1,range);
+    if(!last.height||last.bottom<=target)continue;
+    var lo=0,hi=part.text?part.length-1:0;
+    while(lo<hi){
+      var mid=(lo+hi)>>1;
+      if(nsTextRect(part,mid,range).bottom<=target)lo=mid+1;
+      else hi=mid;
+    }
+    var hit=nsTextRect(part,lo,range);
+    return {at:part.start+lo,dy:Math.min(12,Math.max(-22,hit.top-target))};
+  }
+  return null;
+}
+function nsRestoreTextAnchor(anchor){
+  if(!anchor)return;
+  var part=nsTextParts().find(function(p){return anchor.at>=p.start&&anchor.at<p.start+p.length;});
+  if(!part)return;
+  var d=$('nsheet'),ta=$('ns-text'),hl=$('ns-hl'),range=document.createRange(),at=anchor.at-part.start;
+  function delta(){return nsTextRect(part,at,range).top-nsReadingTop()-anchor.dy;}
+  d.scrollTop+=delta();
+  if(!ta.readOnly&&ta.scrollHeight>ta.clientHeight){
+    ta.scrollTop+=delta();hl.scrollTop=ta.scrollTop;
+  }
+}
+$('ns-mode').addEventListener('click',function(){
+  var ta=$('ns-text'),anchor=nsTextAnchor(),read=!ta.readOnly;
+  if(read)ta.blur();
+  ta.scrollTop=0;
+  nsSetMode(read,true);foundInfo();paintHl();noteGrow();
+  if(!read){
+    if(anchor)ta.setSelectionRange(anchor.at,anchor.at);
+    if(wide()||!anchor||anchor.at===0){
+      if(!wide())kbKeep(ta);
+      ta.focus({preventScroll:true});
+    }
+  }
+  nsRestoreTextAnchor(anchor);
 });
 /* Ulkopuolinen napautus toimii kosketuksella myös heti ruudun vedon jälkeen. */
 var nsBackdropTouch=null;
@@ -10151,10 +10225,6 @@ function nsCellEl(b){
   value.setAttribute('aria-live','polite');box.append(name,value,trend,actions,sources);
   var sourceButton=button(actions,'Lähteet','mini',function(){sources.hidden=!sources.hidden;sourceButton.setAttribute('aria-expanded',String(!sources.hidden));});
   sourceButton.setAttribute('aria-expanded','false');
-  var edit=button(actions,'Muokkaa kaavaa','mini',function(){
-    var offset=b.raw.indexOf('{=');
-    nsEditAt(b.start+offset+2,b.start+offset+1+b.source.length);
-  });edit.setAttribute('aria-label','Muokkaa kaavaa: '+(b.name||b.source));
   var handle=button(box,'⤡','ns-resize');
   handle.setAttribute('aria-label','Muuta kokoa: '+(b.name||'kaava')+'. Käytä nuolinäppäimiä.');
   nsResize(box,handle,b.layout,noteCur);
@@ -10164,7 +10234,7 @@ function nsCellEl(b){
     if(points)nsDrawTrend(trend,points);
     else value.textContent=nsFormulaLabel(result)||'–';
     value.classList.toggle('error',!!result.error);
-    sourceButton.hidden=!result.sources.length;
+    actions.hidden=sourceButton.hidden=!result.sources.length;
     if(!result.sources.length){sources.hidden=true;sourceButton.setAttribute('aria-expanded','false');}
     sources.textContent='';
     result.sources.forEach(function(src){
