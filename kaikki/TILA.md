@@ -1,10 +1,17 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.109 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
+**Vaihe:** versio 0.110 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.110 (26.11.2026): muistiinpanon käyttöelementit ja vuorovaikutteiset kuvaajat.**
+- Lukutilaan voi kirjoittaa kytkimiä, yhden arvon valintanapit tai valikon, lukukentän, askelsäätimen ja kuittauslistan. Kolmitilaisen valinnan Kirjaamatta jää erilleen Ei-arvosta. Säätimen voi jättää tilapäiseksi tai pyytää päivätallennuksen. KOKEILU palauttaa aiemmat arvot, ja sen aikana kirjoittavat napit ovat pois käytöstä.
+- PAINIKE voi kirjata KIRJAA-kaavalla monta syötettä samaan havaintoon tai päivittää oman päivän havaintonsa PÄIVITÄ-kaavalla. Viimeisen painalluksen voi kumota avoimessa muistiinpanossa. KIRJAUKSET näyttää kirjatut kentät ja NÄYTÄ näyttää ruudun ehdollisesti.
+- Päiväkuvaajan esitykset ovat viiva ja pylväät. Aikavälin, liukuvan keskiarvon ja tavoiteviivan voi sitoa säätimiin. Päivää voi tutkia napauttamalla tai nuolinäppäimillä. Kirjaamaton päivä jää aukoksi. Vanhat pienkuvaajat toimivat edelleen.
+- Muokkaa näkyy pienempänä yhteisenä nappina. Raahaus kuuluu asettelutilaan, ja viittauksen kopiointi löytyy siellä ruudun pienestä valikosta. Muistiinpanon valikon Kopioi käyttölinkki avaa Vault-muistiinpanon suoraan käyttötilaan.
+- Kirjoitusohjeessa on kopioitavat Treeniloki-, Unen seuranta-, Iltarutiini- ja Päivän tilanne -esimerkit. Regressiot logiikka_kaava_110.js, selain_110.py ja selain_109.py. Oikean iPhonen Safari, kotinäytölle lisääminen ja kahden laitteen yhtäaikainen käyttö odottavat käyttökokeilua.
 
 **0.109 (26.11.2026): yhtenäinen kaavakieli.**
 - Havainnot, laskut, nimetyt tulokset, säätimet ja upotukset kirjoitetaan muistiinpanoissa samaan ((…))-muotoon. Uusissa havainnoissa puolipiste erottaa päivän, kentät ja tunnisteet. Vanhojen havaintojen, kaavojen ja taulukoiden lukutuki säilyy.
