@@ -4,6 +4,8 @@ Itsenäinen ohje mille tahansa tekoälylle (Claude, ChatGPT/Codex, muu). Aiempaa
 
 Päivitetty 26.11.2026. Versio 0.104 toi vaakasuuntaisen aikajanan (kohta 22, AJ1 + AJ2) ja 0.103 poisti tietokoneen pysyvän sivupalkin. Versio 0.102 (Emilin ulkoasutoive) siirsi viikkolistan kuittausruudun palkin sisään ja vaihtoi kuka kirjoitti -raidan pieneksi täpläksi vasempaan yläkulmaan kaikissa näkymissä. Versio 0.101 toi ehdot ja muistiinpanon tiedot kaavaan (A3.7, kohta 21.7) ja ＋ sarake → Kaava. Versio 0.99 toi pohjaan jäävän napin (A6.4) ja XY-pädin (A6.5). Versio 0.98 toi kojelaudan raahauksen ja Muistion nappisarakkeen. Edellisen päivityksen tila (0.97: työjonon kärjen kohta 4; 0.96: kohta 3 ja osa kohdasta 2). Kriittinen arvio ja vakauskorjaukset ovat alla. Aiempi tilanne (0.88–0.89: säädineditori, kertanappi ja käyttö kojelaudalla ja pikakirjauksessa, A6.1–A6.2; 0.86: kojelaudan muokkaus ja asettelu, lukittu esikatselu ja viikkoaikajanan raahaus; 0.85: ((…))-havainnot, kohteet, havaintotaulukot ja kojelaudan rajaukset; 0.84: täyttö alas Muistiossa; 0.83: valinta, monivalinta ja tila; 0.80–0.82: ＋ sarake otsikkoriviltä, yhteenvetorivi ja päiväsarake kuukausivalitsimella ja kalenteriin, jäsennys A3.2–A3.4; 0.76: suodatus ja lajittelu taulukoissa; 0.75: rivien ja sarakkeiden jäädytys; 0.74: taulukon lukumuotoilu; 0.73: Lähteet sulkeutuu ulkopuolisella napautuksella; 0.72: täyttö alas ja Pikamuistiinpanon muuttujanapit; 0.71: Tämän päivän asiat ja Muistiinpanon kenttä kojelaudalle; 0.70: automaattisten sanalinkkien kytkin projektiasetuksissa; 0.69: Muistion tekstimuuttujasarakkeet, yhteinen vieritys ja nopeusmittaus; 0.68: kaavaviitteen poiminta Taulukoissa; 0.67: yhteinen editori Taulukoiden näkymävälilehdille; 0.66: kojelaudan muuttujaruudut; 0.65: tekstimuuttujien tunnistus, näyttö, infoikkuna ja luettelo; 0.64: Muistion lajittelu usealla kentällä; 0.63: Muistion kenttien solumuokkaus ja näyttötavat, kojelaudan kenttäkortit työjonossa; 0.62: jaetut sarakeleveydet ja sovitus sisältöön; 0.61: Lehto ja Hiillos oletusilmeenä; 0.60: korjaussuunnitelman kohdat 1–3 ja kohdan 4 sarakejärjestys tehty; uudet kohdat 21–22 Emilin sanelusta). Kohdan 18 ensimmäinen kokeilu on omassa haarassaan. Lista on toteutusjärjestyksessä. Merkitse tehty kohta tänne ~~yliviivattuna~~ ja kirjaa se `TILA.md`:hen.
 
+**Seuraavaksi (Emil 26.11.2026):** [omat sivut, uusi muistiinpano ja kohdetietokanta](#seuraava-työjono--omat-sivut-uusi-muistiinpano-ja-kohdetietokanta-emil-26112026).
+
 **0.110 (Emilin valitsemat lukutilademot):** toteutettu muistiinpanon kytkin, yksittäinen valinta, lukukenttä, askelsäädin, kuittauslista, ehdollinen ruutu ja tallentamaton kokeilu. Kirjaava nappi lisää tai päivittää yhden havaintolohkon ja sen viimeisen painalluksen voi kumota. Viiva- ja pylväskuvaajaa voi tutkia päiväkohtaisesti. Käyttölinkki avaa suoraan Vault-muistiinpanon. Kopioi viittaus löytyy ruudun pienestä valikosta asettelutilassa.
 
 **0.109:** [Yhtenäinen kaavakieli](#yhtenäinen-kaikki-kaavakieli-ja-holvin-migraatio-emil-26112026) on rakennettu. Holvin merkintämuunnos julkaistaan erillisessä holvin commitissa, kun GitHub Pages tarjoilee uuden lukijan.
@@ -17,6 +19,36 @@ Päivitetty 26.11.2026. Versio 0.104 toi vaakasuuntaisen aikajanan (kohta 22, AJ
 **Aiemmin päätettyjen ominaisuuksien jatko-ohje:** säätimien viisi ensimmäistä vaihetta on tehty versioissa 0.88–0.89, 0.98 ja 0.99. Jatka [A6:n toteutusjärjestyksen](#a-seuraavaksi-päätetty-valmis-rakennettavaksi) kohdasta 6, kaavion tuotosruudusta, kun kaaviokokeilu (23.1) on tehty. Sitä ennen tarkista [uusi havaintolohkon kirjoitusasu](#01-uusi-havaintolohkon-kirjoitusasu) ja [Kojelaudan, Muistion ja kalenterin käyttöparannukset](#kojelauta-muistio-ja-kalenteri-emil-24112026), sitten [havaintomallin säätimet](#0-havaintomalli-ja-säätimet-emil-24112026), sitten [Jäsennyksestä 24.11.2026](#jäsennys-24112026-seuraavaksi-tarkennettavat-ja-lykätyt): se kertoo, mikä on seuraavana, mikä tarkennetaan ensin ja mikä on lykätty. [Tulevien ominaisuuksien toteutusjono](#tulevien-ominaisuuksien-toteutusjono) ja numeroidut kohdat kuvaavat sisällön tarkemmin.
 
 **Ajatusten uudelleenlukeminen:** [Timanttien visio](#visio-ajatusten-risteämissä-syntyvät-timantit) ja [työjonon käyttökokeet](#10-timantin-nostaminen-löytäminen-ja-uudelleenlukeminen).
+
+## Seuraava työjono – omat sivut, uusi muistiinpano ja kohdetietokanta (Emil 26.11.2026)
+
+Emil käyttää mieluummin jatkuvasti rajattuja omia sivuja kuin kaikkien muistiinpanojen luetteloa. Samalla sivulla voi lukea koosteita ja käyttää muistiinpanoista rakennettuja työkaluja. Toteutusjärjestys alla ohittaa erillisen laskentataulukon ominaisuusjonon. Laskentataulukon nykyinen käyttö jatkuu. Ominaisuuksien karsiminen arvioidaan käyttökokeiden pohjalta.
+
+### S1. Omat sivut ja käyttäjän aloitussivu
+
+- Luo nimetty, tallentuva sivu kansion, tunnisteen tai nykyisen tallennetun näkymän rajauksesta. Sivu voi sisältää useita osioita, käsin kiinnitettyjä muistiinpanoja ja valitun järjestyksen. Esimerkit Arki, Treeni ja Seuranta. Muistiinpano tulee näkyviin ja poistuu rajauksen mukana.
+- Tarjoa sivut Muistion ensisijaisena näkymänä. Käyttäjä valitsee aloitussivun, ja kaikki muistiinpanot löytyvät hausta sekä Kaikki-näkymästä. Ensimmäisen sivun voi tehdä olemassa olevasta rajauksesta.
+- Osa muistiinpanoista avataan sivulla kortista. Valitun muistiinpanon käyttöliittymän voi myös näyttää suoraan sivulla, esimerkiksi Treenilokin kirjaus tai viikon uni. Käytä samaa lukutilan renderöintiä, laskentaa ja kirjoitusreittiä. Kirjaus kohdistuu elementin lähdemuistiinpanoon. Sivun poisto kohdistuu sivun määritykseen.
+- Hyväksymiskoe: Arki näyttää päivän kannalta valitut muistiinpanot. Treeni näyttää toimivan kirjauksen ja Seuranta sen koosteen. Rajauksen muuttaminen, lähteen synkkaus ja uudelleenavaus tuottavat saman rajatun sivun puhelimella ja tietokoneella.
+
+### S2. Uusi muistiinpano joka näkymästä
+
+- Lisää yhteinen, pienellä puhelinnäytöllä peukalon ulottuvilla oleva **＋ Muistiinpano**. Se avaa tavallisen uuden muistiinpanon nykyisen näkymän päälle.
+- Ulkopuolinen napautus tallentaa sisällön ja palauttaa huomion samaan näkymään, vierityskohtaan ja kalenterin päivään. Tyhjän luonnoksen sulkeminen peruu. Käytä nykyistä luonnostallennusta, GitHub-jonoa ja ristiriidan käsittelyä. Tavallinen muistiinpano ei saa ajoitusta pelkästä kalenterin taustalla olosta.
+- Hyväksymiskoe: selaa Kalenterissa toiselle viikolle ja luo muistiinpano. Sulje napauttamalla ulkopuolelle. Sama viikko ja vierityskohta näkyvät heti, ja muistiinpano löytyy hausta myös sovelluksen uudelleenavauksen jälkeen. Toista räätälöidyllä sivulla ja tietokannassa.
+
+### S3. Kohde–muuttuja-tietokanta ensisijaiseksi taulukkotyökaluksi
+
+- Rivi on oletuksena vakaan tunnisteen omaava kohde ja sarake sen muuttuja. Aika on näkymän rajaus tai ryhmittely. Tapahtumatasolle voi avata erillisen näkymän, jossa rivi on yksittäinen havaintolohko. Hyödynnä nykyisiä havaintotaulukoita, kohde- ja muuttujamäärityksiä ja niiden aliaksia.
+- Solu voi näyttää yhden arvon, uusimman arvon, koosteen tai nimetyn kaavan. Perussarake kohdistuu lähdehavaintoon. Koosteesta voi avata havainnot ja valita, mitä korjaa. Tyhjä, nolla, Ei ja useampi havainto pysyvät erillään. Saman kirjauksen kentät säilyvät yhdessä.
+- Kaavasarake lukee rivin kohteen nimetyt muuttujat, ryhmät ja aikavälin. Sen laskenta käyttää Kaikin yhteistä moottoria, jotta esimerkiksi viikon treenimäärä tuottaa saman tuloksen tietokannassa ja muistiinpanon kuvaajassa. Osoitteina käytetään kohteita ja muuttujia, jotta lajittelu, suodatus ja sarakkeiden siirto säilyttävät viitteet.
+- Hyväksymiskoe: Treeni-sivun sarjan kirjauksesta päivittyvät Penkki-rivi, viikon toistokooste ja painokuvaaja. Myös lähdekirjaus löytyy solusta. Kokeile kahta samanhetkistä sarjaa, erikseen puuttuvaa arvoa ja kirjattua nollaa.
+- Suuntaa uudet taulukko- ja kaavaominaisuudet tähän näkymään. Arvioi tavallisen laskentataulukon jatko todellisen, nimettyyn kohteeseen ja muuttujaan huonosti sopivan käyttötapauksen perusteella.
+
+### S4. Arvioi, mitä eri osioita tarvitaan käyttökokeiden jälkeen
+
+- Vertaa sivua nykyisen kojelaudan päivän koosteeseen, tarkistuslistaan ja mittareiden lähteisiin. Vertaa Treeni-sivua sarjojen kirjaamiseen, kumoamiseen, harjoitushistoriaan ja aiempien CSV-sarjojen lukemiseen.
+- Kun sama arjen työnkulku toimii luotettavasti sivulla, päätä Emilin kanssa, mitkä erilliset osiot jäävät käyttöön tai voidaan siirtää sivummalle. Mahdolliset tietojen siirrot testataan ja tehdään erillisinä palautettavina muutoksina.
 
 ## Yhtenäinen Kaikki-kaavakieli ja holvin migraatio (Emil 26.11.2026)
 
