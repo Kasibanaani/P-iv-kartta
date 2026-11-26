@@ -43,7 +43,8 @@ async def test(browser, width):
               head.getBoundingClientRect().left - cell.getBoundingClientRect().left,
               list.querySelector('.rvt').getBoundingClientRect().left - list.getBoundingClientRect().left];
     }''')
-    assert position[0] > 0 and position[0] == position[1] and max(abs(position[2]), abs(position[3])) <= 1, position
+    # 0.103: Muistio on koko sivun levyinen, joten leveällä näytöllä kaikki sarakkeet voivat mahtua ilman vieritystä
+    assert (position[1] == 0 or position[0] > 0) and position[0] == position[1] and max(abs(position[2]), abs(position[3])) <= 1, position
     assert await page.evaluate('document.documentElement.scrollWidth <= innerWidth')
     await page.locator('#nviewbtn').click()
     await expect(page.locator('#p-notes .ncard').get_by_text('Ensimmäinen rivi')).to_be_visible()
