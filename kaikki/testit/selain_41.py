@@ -51,6 +51,7 @@ async def check(browser, width):
         await page.locator('#roll').click()
         await page.locator('#section-sheets').click()
     else:
+        await page.locator('#navbtn').click()
         await page.locator('#nav [data-tab="sheets"]').click()
     await expect(page.locator('#sg-wrap td[data-r="0"][data-c="0"]')).to_have_text('9')
 

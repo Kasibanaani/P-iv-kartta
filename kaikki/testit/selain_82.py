@@ -150,7 +150,8 @@ def run(browser, width):
         page.locator('#roll').click()
         page.locator('#section-cal').click()
     else:
-        page.locator('[data-tab="cal"]').click()
+        page.locator('#navbtn').click()
+        page.locator('#nav [data-tab="cal"]').click()
     chip = page.locator('.nvcal-chip').filter(has_text='Ensimmäinen seuranta')
     expect(chip).to_have_count(1)
     expect(chip).to_contain_text('Lähtö')

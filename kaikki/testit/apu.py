@@ -8,7 +8,9 @@ async def menu(pg,sel):
     if await pg.is_visible('#menu'):
         await pg.click('#menu'); await pg.wait_for_timeout(40); await pg.click('#menupop '+sel); await pg.wait_for_timeout(40)
     else:
-        await pg.click(DESK.get(sel,sel))
+        t=DESK.get(sel,sel)
+        if t.startswith('[data-tab='): await pg.click('#navbtn'); t='#nav '+t  # 0.103: osiot osionapista
+        await pg.click(t)
 VIIKOT=False
 async def rivit(pg):
     """1.104: Listat avautuu Viikot-näkymään; vanhemmat testit käyttävät Rivit-näkymää (valinta muistetaan laitteella)."""
@@ -21,7 +23,7 @@ async def old(pg):
 async def tab(pg,t):
     if t in ('use','teach'): await old(pg)
     if not await pg.is_visible('#roll'):
-        await pg.click('[data-tab="%s"]'%t)
+        await pg.click('#navbtn'); await pg.click('#nav [data-tab="%s"]'%t)  # 0.103: osiot osionapista
         if t=='list': await rivit(pg)
         return
     if t in ('use','teach'):

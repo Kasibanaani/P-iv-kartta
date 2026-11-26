@@ -39,7 +39,8 @@ async def run(p,w,h,seed=SEED):
         want('osiovalikossa Kojelauta',await pg.is_visible('#section-dash'))
         await pg.click('#section-dash'); await pg.wait_for_timeout(200)
     else:
-        want('sivupalkissa Kojelauta',await pg.is_visible('#nav [data-tab="dash"]'))
+        await pg.click('#navbtn')  # 0.103: osiot osionapista
+        want('osiopaneelissa Kojelauta',await pg.is_visible('#nav [data-tab="dash"]'))
         await pg.click('#nav [data-tab="dash"]'); await pg.wait_for_timeout(200)
     if seed is not SEED:
         want('ilman mittareita viesti',await pg.evaluate("document.getElementById('p-dash').textContent.indexOf('Vaultissa ei ole mittareita')>=0"))

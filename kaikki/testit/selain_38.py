@@ -34,7 +34,7 @@ async def run(p,w,h):
     async def tabto(name): await pg.evaluate("(n)=>Array.from(document.querySelectorAll('.sg-tab')).filter(function(b){return b.textContent===n;})[0].click()",name); await pg.wait_for_timeout(150)
     async def sheets():
         if phone: await pg.click('#roll'); await pg.click('#section-sheets')
-        else: await pg.click('#nav [data-tab="sheets"]')
+        else: await pg.click('#navbtn'); await pg.click('#nav [data-tab="sheets"]')
         await pg.wait_for_timeout(250)
     print('leveys',w)
     await pg.goto(U); await pg.wait_for_timeout(1300)

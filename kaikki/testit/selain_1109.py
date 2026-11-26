@@ -144,7 +144,7 @@ async def run(p,w,h,touch):
     want('uusi Flow liittyy asiaan', m[0]==m[1])
     # Ruudun ikkuna: Flow rivikohtaisesti
     if await pg.is_visible('#roll'): await pg.click('#roll'); await pg.click('#section-list')
-    else: await pg.click('[data-tab="list"]')
+    else: await pg.click('#navbtn'); await pg.click('#nav [data-tab="list"]')
     await pg.wait_for_timeout(100); await pg.evaluate("JuuriTesti.setListView('g')"); await pg.wait_for_timeout(200)
     await tap('#rtiles .rtile[data-id="c1"]')
     want('Flow-nappi vain asialla, jolla on Flow', await pg.locator('#lwpop .rtfl[data-fl="t1"]').count()==1)

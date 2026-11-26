@@ -31,7 +31,7 @@ async def run(p,w,h):
     await pg.goto(U); await pg.wait_for_timeout(1200)
     t0=await pg.evaluate("performance.now()")
     if phone: await pg.click('#roll'); await pg.click('#section-sheets')
-    else: await pg.click('#nav [data-tab="sheets"]')
+    else: await pg.click('#navbtn'); await pg.click('#nav [data-tab="sheets"]')
     await frame(); print('  (avaus %d ms)'%round(await pg.evaluate("performance.now()")-t0))
     if await pg.evaluate("!document.querySelector('#sg-wrap td[data-r=\"0\"][data-c=\"2\"]')||document.querySelector('.sg-tab[aria-pressed=\"true\"]').textContent!=='Data'"):
         await pg.evaluate("Array.from(document.querySelectorAll('.sg-tab')).filter(function(b){return b.textContent==='Data';})[0].click()"); await frame()

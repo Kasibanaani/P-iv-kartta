@@ -39,6 +39,7 @@ def open_sheets(page, width):
         page.locator('#roll').click()
         page.locator('#section-sheets').click()
     else:
+        page.locator('#navbtn').click()
         page.locator('#nav [data-tab=sheets]').click()
 
 

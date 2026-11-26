@@ -22,7 +22,7 @@ async def page(b,w,h,seed):
     await pg.add_init_script(FAKE+";(function(){var S=%s;if(!window.__repo.kept)for(var k in S)window.__repo.put(k,S[k]);try{localStorage.setItem('kaikki:gh',JSON.stringify({repo:'testi/vault',token:'x',branch:'main'}));localStorage.setItem('kaikki:calview','w')}catch(e){}})();"%json.dumps(seed))
     return pg
 async def cal(pg,w):
-    if w>=1000: await pg.click('#nav [data-tab="cal"]')
+    if w>=1000: await pg.click('#navbtn'); await pg.click('#nav [data-tab="cal"]')
     else: await pg.click('#roll'); await pg.click('#section-cal')
     await pg.wait_for_timeout(300)
 def ck(name): return "(function(){var l=Array.from(document.querySelectorAll('.wline')).filter(function(x){return x.textContent.indexOf('%s')>=0;})[0];return l?l.querySelector('.wck').getAttribute('aria-pressed'):null;})()"%name
@@ -53,7 +53,7 @@ async def run(p,w,h):
     await cal(B,w)
     want('laite B näkee kuittauksen haun jälkeen',await B.evaluate(ck('Pyykit'))=='true')
     # Tiedot-osio
-    if w>=1000: await A.click('#nav [data-tab="notes"]')
+    if w>=1000: await A.click('#navbtn'); await A.click('#nav [data-tab="notes"]')
     else: await A.click('#roll'); await A.click('#section-notes')
     await A.wait_for_timeout(300)
     await A.evaluate("Array.from(document.querySelectorAll('#nlist [data-id]')).filter(function(c){return c.textContent.indexOf('Remontti')>=0;})[0].click()"); await A.wait_for_timeout(300)

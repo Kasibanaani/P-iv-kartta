@@ -33,7 +33,7 @@ async def run(p,w,h):
     await pg.goto(U); await pg.wait_for_timeout(1200)
     if phone:
         await pg.click('#roll'); await pg.click('#section-sheets')
-    else: await pg.click('#nav [data-tab="sheets"]')
+    else: await pg.click('#navbtn'); await pg.click('#nav [data-tab="sheets"]')
     await pg.wait_for_timeout(300)
     if not phone:
         g=await pg.evaluate("(function(){var w=document.getElementById('sg-wrap').getBoundingClientRect(),m=document.getElementById('p-sheets');return {w:w.width,m:m.clientWidth,hh:w.height,h:document.querySelector('#sg-wrap td').getBoundingClientRect().height};})()")

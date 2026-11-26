@@ -1,10 +1,17 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.102 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
+**Vaihe:** versio 0.103 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.103 (26.11.2026, Emil): tietokoneen sivupalkki pois.**
+- Tietokoneella (vähintään 1000 px leveä ikkuna) ei ole enää pysyvää sivupalkkia. Yläreunan vasemmassa laidassa on osionappi, jossa näkyvät nykyisen osion kuvake ja nimi (esim. *Kalenteri*). Napsautus avaa osiot lasisena paneelina sivun päälle. Osion valinta, Esc tai napsautus paneelin ulkopuolelle sulkee sen, ja kohdistus palaa napille.
+- Kalenteri, Muistio ja muut osiot ovat koko sivun levyisiä (ennen enintään 1100 px). Asetukset ja vanhat puut pysyvät kapeina.
+- Puhelin ennallaan.
+- **Testit:** uusi `selain_103.py` (1280, 1440 ja 390 px). 15 vanhaa testiä napsautti sivupalkin osioita suoraan, ja ne avaavat nyt ensin osionapin (`apu.py`, `selain_07`, `30`, `34`, `37`–`41`, `43`, `67`, `82`, `102` ja `1109`). SARJA103
+- **Ei tehty:** Emilin idea pysyvästä pienestä kuukausivalitsimesta kalenterin vasempaan alareunaan on kirjattu suunnitelmaan (työjonon kärki 7). Sitä ei rakennettu.
 
 **0.102 (26.11.2026, Emilin ulkoasutoive): kuittausruutu palkin sisään ja kuka kirjoitti -raita täpläksi.**
 - **Viikkolista:** kuittausruutu on nyt palkin sisällä oikeassa reunassa, ja palkki jatkuu reunaan asti. Näkyvä ruutu on ennallaan 16 px, osuma-alue 36 px (kojelaudan tarkistuslistassa 44 px). Teksti alkaa vähän oikeammalta, jotta täplä mahtuu.

@@ -819,21 +819,29 @@ dialog h2[data-crumb]::before{content:attr(data-crumb);color:var(--label2);font-
 @media (min-width:1000px){
 
 
-  .app{max-width:none;display:grid;grid-template-columns:220px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto auto;grid-template-areas:"nav top" "nav main" "nav act" "nav note"}
+  .app{max-width:none;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto auto;grid-template-areas:"top" "main" "act" "note"}
   .app.docked{padding-right:min(44vw,640px)}
-  nav{grid-area:nav;grid-row:1/-1;display:flex;flex-direction:column;gap:2px;padding:18px 12px;border-top:0;border-right:.5px solid var(--sep)}
+  /* Kaikki 0.103 (Emil 26.11.2026): ei pysyvää sivupalkkia. Osiot avautuvat yläreunan osionapista lasisena paneelina sivun päälle. */
+  nav{position:fixed;top:0;bottom:0;left:0;z-index:61;width:248px;box-sizing:border-box;display:flex;flex-direction:column;gap:2px;padding:18px 12px;border-top:0;border-right:.5px solid var(--sep);
+    background:color-mix(in srgb,var(--bg) 80%,transparent);-webkit-backdrop-filter:blur(22px) saturate(1.4);backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 12px 44px rgba(0,0,0,.22);
+    transform:translateX(-104%);visibility:hidden;transition:transform .2s ease,visibility 0s linear .2s}
+  .app.navopen nav{transform:none;visibility:visible;transition:transform .2s ease}
+  #navbg{position:fixed;inset:0;z-index:60;background:transparent}
+  .navbtn{display:inline-flex;align-items:center;gap:8px;flex:none;height:32px;padding:0 12px 0 9px;border:0;border-radius:9px;background:var(--cell);box-shadow:inset 0 0 0 1px var(--sep);color:var(--label);font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+  .navbtn:hover{background:var(--seg)}.navbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .navbtn-ic{display:inline-flex}.navbtn-ic svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
   nav .tab{flex-direction:row;justify-content:flex-start;gap:12px;padding:9px 12px;font-size:15px;border-radius:10px}
   nav .tab svg{width:22px;height:22px}
   nav .tab:hover{background:var(--seg)}
   nav .tab[aria-selected="true"]{background:var(--fill);font-weight:600}
   nav .dot{position:static;margin:0 0 0 auto}
   .top{grid-area:top;padding:12px 40px 6px}
-  .top .bar1,main>.info{max-width:1100px;margin-left:auto;margin-right:auto}
+  .top .bar1,main>.info{max-width:none;margin-left:auto;margin-right:auto}
   main{grid-area:main;padding:14px 40px 40px}
-  main>.panel{max-width:1100px;margin:0 auto}
+  main>.panel{max-width:none;margin:0 auto} /* 0.103: koko sivun levyinen (Emil 26.11.2026) */
   #p-use,#p-set{max-width:760px}
   #actbar{grid-area:act}#notebar{grid-area:note}
-  .actbar{padding:10px max(40px,calc((100% - 1100px) / 2))}
+  .actbar{padding:10px 40px}
   :root{--nbt:-14px}
   .tbar,.nbar,.calsticky{top:var(--nbt);margin-top:var(--nbt);margin-left:-24px;margin-right:-24px;padding-left:24px;padding-right:24px}
   .app.docked .tbar:has(> #opentext:only-child){display:none}
@@ -863,6 +871,8 @@ dialog h2[data-crumb]::before{content:attr(data-crumb);color:var(--label2);font-
    Tietokoneella sivupalkki ja yläpalkki ennallaan. */
 .crumb{display:none}
 .pbar{display:none}
+@media (max-width:999px){.navbtn{display:none}}#navbg[hidden]{display:none}
+@media (prefers-reduced-motion:reduce){nav{transition:none!important}}
 #popbg{position:fixed;inset:0;z-index:45;background:transparent}
 .popm{position:fixed;z-index:46;display:flex;flex-direction:column;min-width:200px;max-width:calc(100% - 32px);padding:6px;border-radius:14px;background:var(--cell);box-shadow:0 10px 34px rgba(0,0,0,.24);
   right:max(12px,env(safe-area-inset-right,0px));bottom:calc(var(--navh,64px) + 8px)}
@@ -2122,6 +2132,7 @@ html,body,#main,.rv-scroll,.sg-wrap{overscroll-behavior-x:none}
 <div class="esvg" id="artband" hidden aria-hidden="true"></div>
   <header class="top" id="top" data-mode="use">
     <div class="bar1">
+      <button class="navbtn" type="button" id="navbtn" aria-expanded="false" aria-controls="nav" aria-label="Osiot"><span class="navbtn-ic" id="navbtn-ic" aria-hidden="true"></span><span class="navbtn-t" id="navbtn-t"></span></button>
       <button class="title" type="button" id="title" aria-label="Vaihda projektia tai puuta">
         <span class="tn" id="tname"></span>
         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg>
@@ -2182,7 +2193,7 @@ html,body,#main,.rv-scroll,.sg-wrap{overscroll-behavior-x:none}
     <button type="button" class="pbtn" id="menu" aria-label="Valikko"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 6h13M3.5 10h13M3.5 14h13"/></svg></button>
   </div>
 </div>
-<div id="popbg" hidden></div>
+<div id="popbg" hidden></div><div id="navbg" hidden></div>
 <div class="popm" id="qxpop" hidden role="menu"><button type="button" id="qx-proj" role="menuitem"></button><button type="button" id="qx-all" role="menuitem">Vie kaikki (varmuuskopio)</button></div>
 <div class="popm" id="menupop" hidden role="menu"></div>
 <div class="popm" id="sectionpop" hidden role="menu" aria-label="Valitse osio"></div>
@@ -5995,7 +6006,7 @@ function syncChrome(){var tp=$('top');tp.dataset.mode=tab;tp.dataset.ed=(tab==='
   });
   var lb=document.querySelector('.tab[data-tab="list"]'),dot=lb&&data.chk&&data.chk.some(function(r){return !r.l&&chkOpenN(r,new Date(),ctxOf(r))>0;}),od=lb&&lb.querySelector('.segdot');
   if(lb&&!!od!==!!dot){if(dot){var dd=el('i','segdot');dd.setAttribute('aria-hidden','true');lb.appendChild(dd);}else od.remove();lb.setAttribute('aria-label',dot?'Listat, tekemättä olevia':'Listat');}
-  syncRoll(!!dot);}
+  syncRoll(!!dot);navBtnSync();}
 /* 1.72 (Emil 24.10.2026): osiot rullataan vasemman alakulman napista. Napautus = seuraava, pyyhkäisy napin päällä = edellinen tai seuraava.
    Järjestys Muistio · Kalenteri · Listat · Asiat (suositus: Listat ja Asiat vierekkäin). Päätöspuu on Valikon takana. */
 var ROLL0=['notes','cal','dash','sheets','treeni','list','puu','terms'],ROLL=ROLL0;/* Kaikki 0.7: Kojelauta kalenterin perään */
@@ -6196,7 +6207,18 @@ function sbarSync(){var s=$('sbar'),k=tabKey(),n=null;s.textContent='';$('pbar')
   if(!wide()){if(k==='notes')n=$('noteview');else if(k==='list'){var c=$('chlist-pick');n=c&&c.closest('.plbar');}else if(k==='cal')n=document.querySelector('#calsticky .calhead');else if(k==='dash')n=$('dashrange');}
   if(n){var par=n.parentNode;s.appendChild(n);if(k==='notes'&&$('nviewbtn'))s.appendChild($('nviewbtn'));/* 0.10: Kortit/Rivit puhelimella alapalkissa */if(par&&par.id==='nbar'&&!par.children.length)par.hidden=true;}
   s.hidden=!n;barSizes();}
-$('nav').addEventListener('click',function(ev){var b=ev.target.closest('[data-tab]');if(b)showTab(b.dataset.tab);});
+$('nav').addEventListener('click',function(ev){var b=ev.target.closest('[data-tab]');if(b){showTab(b.dataset.tab);navOpen(false,true);}});
+/* Kaikki 0.103 (Emil 26.11.2026): tietokoneella osiot yläreunan napista sivun päälle. Sulkeutuu valinnasta, Escistä ja ulkopuolelta. */
+function navOpen(on,focusBack){var app=document.querySelector('.app'),was=app.classList.contains('navopen');if(on===was)return;
+  app.classList.toggle('navopen',on);$('navbg').hidden=!on;$('navbtn').setAttribute('aria-expanded',on?'true':'false');
+  if(on){var cur=$('nav').querySelector('[aria-selected="true"]')||$('nav').querySelector('[data-tab]:not([hidden])');if(cur)cur.focus({preventScroll:true});}
+  else if(focusBack)$('navbtn').focus({preventScroll:true});}
+function navBtnSync(){var cur=$('nav').querySelector('[aria-selected="true"]'),svg=cur&&cur.querySelector('svg');
+  $('navbtn-ic').innerHTML=svg?svg.outerHTML:'';$('navbtn-t').textContent=cur?clean(cur.textContent):'Osiot';$('navbtn').setAttribute('aria-label','Osiot: '+(cur?clean(cur.textContent):''));}
+$('navbtn').addEventListener('click',function(){navOpen(!document.querySelector('.app').classList.contains('navopen'),true);});
+$('navbg').addEventListener('click',function(){navOpen(false,false);});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&document.querySelector('.app.navopen')){e.preventDefault();navOpen(false,true);}});
+addEventListener('resize',function(){if(innerWidth<1000)navOpen(false,false);});
 /* 1.55 (I1): isot ikkunat täyttävät tilan yläpalkin ja alapalkin välissä. Otsikon edessä harmaana se, minne ruksi palaa
    (välilehti tai alla oleva ikkuna). Puhelimella 1.74:stä alkaen ikkunalla on oma alapalkki, jonka ‹-nappi sulkee kuten ruksi; osio ei vaihdu. */
 /* 1.105 (Emil 18.11.2026): listojen ikkunat (Listat, rivin ikkuna) ovat pieniä ikkunoita päällä; ulkopuolinen napautus sulkee, ei ruksia */

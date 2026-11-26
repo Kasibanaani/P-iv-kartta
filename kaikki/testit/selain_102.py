@@ -65,6 +65,7 @@ def open_page(browser, width, errors, calview='w', nmode='cards', calendar=True)
     page.wait_for_timeout(1200)
     if calendar:
         if width >= 1000:
+            page.click('#navbtn')
             page.click('#nav [data-tab="cal"]')
         else:
             page.click('#roll')

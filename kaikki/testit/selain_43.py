@@ -27,6 +27,7 @@ async def check(browser, width):
         await page.locator('#roll').click()
         await page.locator('#section-sheets').click()
     else:
+        await page.locator('#navbtn').click()
         await page.locator('#nav [data-tab="sheets"]').click()
     header = page.locator('#sg-wrap th.sg-ch')
     await expect(header.first).to_contain_text('Nimi')

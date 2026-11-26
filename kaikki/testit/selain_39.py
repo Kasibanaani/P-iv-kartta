@@ -27,7 +27,7 @@ async def run(p,w,h):
         if not cond: bad.append(label)
     async def go(t):
         if phone: await pg.click('#roll'); await pg.click('#section-'+t)
-        else: await pg.click('#nav [data-tab="%s"]'%t)
+        else: await pg.click('#navbtn'); await pg.click('#nav [data-tab="%s"]'%t)
         await pg.wait_for_timeout(250)
     async def tocard():
         await pg.click('#sg-more'); await pg.click('#sgm-card'); await pg.wait_for_timeout(150)

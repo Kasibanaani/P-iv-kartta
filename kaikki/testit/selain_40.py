@@ -33,7 +33,7 @@ async def run(p,w,h):
     print('leveys',w)
     await pg.goto(U); await pg.wait_for_timeout(1300)
     if phone: await pg.click('#roll'); await pg.click('#section-sheets')
-    else: await pg.click('#nav [data-tab="sheets"]')
+    else: await pg.click('#navbtn'); await pg.click('#nav [data-tab="sheets"]')
     await pg.wait_for_timeout(300)
     # rivi 2: lisää yläpuolelle
     await pg.click('#sg-wrap th.sg-rn[data-r="1"]'); await menu('sgs-row-ib')
