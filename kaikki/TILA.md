@@ -1,10 +1,20 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.100 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
+**Vaihe:** versio 0.101 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.101 (26.11.2026): ehdot ja muistiinpanon tiedot kaavassa (jäsennys A3.7, suunnitelman 21.7).**
+- **Rivin muuttujat kaavassa:** `otsikko`, `kansio`, `tunnisteet`, `luotu` ja `ajankohta`. Arvot ovat samat kuin Muistion vastaavissa sarakkeissa, ja ne voittavat samannimisen alkutietokentän. Toisen muistiinpanon arvo: `[[piha]].luotu`.
+- **Uudet funktiot:** `SISÄLTÄÄ(teksti; "x")`, `ONTUNNISTE("x")`, `TYHJÄ(kenttä)`, `TÄNÄÄN()` ja `PÄIVIÄ(pvm1; pvm2)` (= päiviä pvm1:stä pvm2:een). Päivä on ISO tai suomalainen (30.11.2026, 30.11.26), ja kaksi päivää voi verrata (`ajankohta < TÄNÄÄN()`). `SISÄLTÄÄ` ja `TYHJÄ` pitävät puuttuvaa tai tuntematonta kenttää tyhjänä eivätkä anna virhettä. Ryhmäfunktion rajaukseen käy rivin muuttuja ja funktio, esim. `=SUMMA(hinta; luotu > "2026-11-15")`. Suunnitelman esimerkki `=JOS(SISÄLTÄÄ(otsikko; "lasku"); hinta*1,24; hinta)` toimii.
+- **Apissa:** Muistion rivinäkymän ＋ → *Arvo tallentuu: Kaava*. Kentän yläpuolella on vihje (rivin tiedot ja funktiot) ja alla neljä esimerkkiä (*Päiviä luonnista*, *Myöhässä?*, *Päiviä ajankohtaan*, *Otsikossa sana*). Esikatselu laskee kaavan näkymän ensimmäiselle riville. Kesken oleva kaava ei näytä virhettä kirjoittaessa, vasta *Lisää sarake* -napista. Sarake tallentuu näkymätiedostoon (`- =… | laji | yksikkö`), eikä muistiinpanoihin kirjoiteta mitään. Kaavan päivätulos näkyy suomalaisittain (30.11.2026).
+- **iPhonen älylainausmerkit** (“ ” „) käyvät kaavassa tavallisina lainausmerkkeinä kaikkialla, myös muistiinpanoon kirjoitetussa `{=…}`-kaavassa ja Taulukoissa. Ilman tätä puhelimella kirjoitettu `"lasku"` olisi antanut virheen.
+- **Huomaa:** muistiinpanon alkutietojen `otsikko:`-kenttään viittaava kaava lukee nyt Muistion otsikon (yleensä sama). Kaksi päivää (ISO + kellonaika) on nyt sama päivä yhtäsuuruusvertailussa.
+- **Ei tehty:** tekstimuuttujat `((…))` eivät näy kaavassa (vain kentät), ei `JA`/`TAI`/`EI`, eikä kaavasarakkeella ole näyttönimeä: otsikkona on kaava itse, ja se katkeaa kapeassa sarakkeessa. Vaultin `ohjeet/appi.md` päivitetty (versio 0.101). Selainohje: Modern Web Guidance *validate-input-after-interaction*.
+- **Testit:** `logiikka_kaava_101.js` (rivin muuttujat, funktiot, päivien vertailu ja kesäajan yli, rajaukset, viittaus, taulukon solu, muistiinpanot muuttumatta) ja `selain_101.py` (320, 390 ja 1280 px: Kaava-valinta, esimerkki ja esikatselu, virhe vasta lisättäessä, ehto tunnisteesta, päiviä luonnista lukuna ja yksiköllä, sama kaava kahdesti, ei vaakavieritystä, muistiinpanot ennallaan). TESTIT_TÄHÄN
+- **Ei tarkistettu:** oikea iPhone (kaavan kirjoittaminen puhelimen näppäimistöllä; älylainausmerkit testattiin vain logiikkatestissä) ja Emilin oikea vault.
 
 **0.100 (26.11.2026): Laitteen muisti täynnä korjattu, isot tallennukset IndexedDB:hen.**
 - **Syy.** Vault kasvoi 25.11. Notion-tuonnissa 390 → 1010 tiedostoon. Teksti kasvoi 1,6 Mt:stä 3,5 Mt:hen, josta `tieto/dkt` on 1,9 M merkkiä. Appi piti vaultin selaimen localStoragessa kahdesti: välimuistina `kaikki:vault` (noin 4,3 M merkkiä) ja muistiinpanoina `kaikki:v1`. Safarin localStorage on noin 5 Mt per sivusto, ja kaikki `kasibanaani.github.io`-apit jakavat sen. GitHubin tiedot olivat koko ajan tallessa. Vaarassa olivat laitteella odottavat kirjaukset ja laitteen omat tiedot.
@@ -333,6 +343,8 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 **Nopeus (Emil 26.11.2026: palataan myöhemmin).** Jokainen tallennus kirjoittaa koko vaultin. Tietokoneella muunto tallennusmuotoon vie noin 18 ms ja takaisinluku noin 6 ms, iPhonella todennäköisesti 2–4 kertaa enemmän. Ehdotus odottaa iPhonen havaintoja: jokainen tiedosto omaksi IndexedDB-tietueekseen, jolloin muutos kirjoittaa vain muuttuneen tiedoston.
 
+**0.101:n jälkeen.** Kokeile iPhonella: Muistio → rivinäkymä → ＋ → *Arvo tallentuu: Kaava* → *Päiviä luonnista* → Lisää sarake. Kirjoita sitten oma kaava, esim. `=JOS(ONTUNNISTE("dkt"); "DKT"; "")`, ja tarkista, että tulos näkyy (älylainausmerkkien pitäisi käydä). Seuraavat luontevat kaavatyöt: tekstimuuttujat kaavaan, `JA`/`TAI`/`EI` ja kaavasarakkeen näyttönimi. Muuten jäsennyksen A-kohdista seuraava on linkit- ja relaatiosarake (A3.8, kohta 21.8).
+
 **0.100:n jälkeen.** Avaa Kaikki iPhonella verkon kanssa ja anna synkan valmistua. *Laitteen muisti täynnä* -nappi katoaa yläpalkista, kun seuraava tallennus onnistuu. Jos se jää, napauta sitä ja *Yritä uudelleen*. Kokeile sitten lentokonetilassa: avaa appi kokonaan uudelleen ja tarkista, että muistiinpanot näkyvät ilman verkkoa.
 
 **Suunnitelma 25.11.2026.** Emil hyväksyi [laskennallisen ja käytettävän muistiinpanon](SUUNNITELMA.md#111-laskennallinen-ja-käytettävä-muistiinpano) lisäämisen suunnitelmaan. Tilakytkin kuuluu muistiinpanoikkunan käytettävyystyöhön, ensimmäinen havaintokaava yhteisen havaintohaun jatkoksi ja tekstin säätimet A6:n jatkoksi. Ensimmäisen käyttökokeen nimi on *Päivän tilanne*. Toteutus ja iPhone-koe ovat edessä.
@@ -351,7 +363,7 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 **Kojelaudan jatko (0.71:n jälkeen):** kokeile tarkistuslistaa ja kenttäruutua. Kuvaajien esitystavat ja ruutujen sijoittelu muokkaustilassa ovat auki.
 
-**Muistion tietokantanäkymä.** Suora solumuokkaus (0.79), ＋ sarake (0.80), yhteenvetorivi (0.81) ja päiväsarake valitsimella (0.82) ovat kokeiltavissa. Valinta, monivalinta ja tila (0.83) sekä täyttö alas (0.84) ovat kokeiltavissa. Seuraava työ on ehtokaavat ja muistiinpanon tiedot kaavassa (jäsennys 24.11., A3.7, suunnitelman 21.7).
+**Muistion tietokantanäkymä.** Suora solumuokkaus (0.79), ＋ sarake (0.80), yhteenvetorivi (0.81) ja päiväsarake valitsimella (0.82) ovat kokeiltavissa. Valinta, monivalinta ja tila (0.83) sekä täyttö alas (0.84) ovat kokeiltavissa. Ehtokaavat ja muistiinpanon tiedot kaavassa (0.101) ovat kokeiltavissa. Seuraava työ on linkit- ja relaatiosarake (A3.8, suunnitelman 21.8).
 
 
 Kohdan 18 toistuvuuskokeilu 0.52 on [omassa haarassaan](https://github.com/Kasibanaani/P-iv-kartta/tree/kaikki-toistuvuuskokeilu/kaikki). Se kattaa Muistion listan, kalenterin, kuittauksen ja uuden pikamuistutuksen. Kokeile erillisellä testivaultilla sekä kuittauksesta laskettavaa että kalenterissa tasavälistä toistoa. Toistuvuuden vakiinnuttaminen, kuukausirytmin reunatapaukset ja vanhan aineiston siirto ovat edelleen avoimia. Flow-tekstin pysyvä muoto odottaa kokeilupalautetta.

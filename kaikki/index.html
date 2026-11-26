@@ -1866,6 +1866,9 @@ html,body,#main,.rv-scroll,.sg-wrap{overscroll-behavior-x:none}
 .nvcol-check{display:flex;align-items:center;gap:8px}.nvcol-check[hidden]{display:none}
 #nvcol-form .nvcol-check input{width:22px;min-height:22px;margin:0}#nvcol-form .nvcol-check label{margin:0;font-weight:400}
 .nved-kal{display:inline-flex;align-items:center;gap:4px;flex:none;font-size:13px;color:var(--label2)}
+/* 0.101: kaavasarake ＋ sarake -ikkunassa */
+.nvcol-formula-hint{margin:0 0 6px}#nvcol-formula{font-variant-ligatures:none}
+.nvcol-formula-preview{margin:8px 0 0;overflow-wrap:anywhere}.nvcol-formula-preview:empty{display:none}
 /* 0.81: yhteenvetorivi taulukon alareunassa */
 .rvsum{position:sticky;bottom:0;z-index:2;cursor:default;background:var(--bg);border-top:1px solid var(--sep);box-shadow:0 -1px 0 var(--sep)}
 .rvsum .rvc{min-height:40px;flex-direction:column;align-items:flex-end;justify-content:center;gap:0;font-size:13px;line-height:1.2;font-variant-numeric:tabular-nums}
@@ -4173,6 +4176,8 @@ function noteTags(note){
 var KAAVA=(function(){
   var cmp=new Set(['=','==','!=','<>','≠','<','>','<=','>=','≤','≥']);
   var groups=new Set(['SUMMA','KESKIARVO','MÄÄRÄ','MIN','MAX']);
+  /* 0.101 (suunnitelman 21.7): rivin muuttujat. Samat arvot kuin Muistion vastaavissa sarakkeissa, ja ne voittavat samannimisen kentän. */
+  var ROW=new Set(['otsikko','tunnisteet','kansio','luotu','ajankohta']);
   var number=/^[+-]?\d+(?:[.,]\d+)?$/;
   function key(value){return String(value||'').normalize('NFC').toLocaleLowerCase('fi');}
   function fail(code){throw {code:code};}
@@ -4182,8 +4187,20 @@ var KAAVA=(function(){
   }
   function numeric(x){var n=optNumber(x);if(n===null)fail('#ARVO!');return n;}
   function finite(n){if(!Number.isFinite(n))fail('#ARVO!');return n;}
+  /* 0.101: päivä kaavassa. ISO 2026-11-30 (kellonaika saa seurata) tai suomalainen 30.11.2026 / 30.11.26. Päivänumero UTC:nä, jottei kesäaika siirrä. */
+  function dayNumber(x){
+    if(typeof x!=='string')return null;
+    var s=x.trim(),m=/^(\d{4})-(\d{2})-(\d{2})(?:$|[T ])/.exec(s),y,mo,d;
+    if(m){y=+m[1];mo=+m[2];d=+m[3];}
+    else if((m=/^(\d{1,2})\.(\d{1,2})\.(\d{4}|\d{2})$/.exec(s))){d=+m[1];mo=+m[2];y=m[3].length===2?2000+Number(m[3]):+m[3];}
+    else return null;
+    var t=Date.UTC(y,mo-1,d),c=new Date(t);
+    return c.getUTCFullYear()===y&&c.getUTCMonth()===mo-1&&c.getUTCDate()===d?Math.round(t/864e5):null;
+  }
+  function textOf(v){return v==null?'':typeof v==='boolean'?(v?'kyllä':'ei'):typeof v==='number'?String(v).replace('.',','):String(v);}
   function tokens(source,visit){
-    var end=String(source||'').trimEnd(),text=end.trimStart().replace(/^=(?!=)\s*/,''),out=[],match;
+    /* 0.101: iPhonen älylainausmerkit “ ” „ käyvät tavallisina. Sama pituus, joten paikat (fillDown, remap) pysyvät. */
+    var end=String(source||'').replace(/[“”„]/g,'"').trimEnd(),text=end.trimStart().replace(/^=(?!=)\s*/,''),out=[],match;
     if(text.length>4096)fail('#KAAVA!');
     while(text&&(text=text.trimStart())){
       if(out.length>=512)fail('#KAAVA!');
@@ -4293,6 +4310,7 @@ var KAAVA=(function(){
   function compareValues(a,b,op){
     var x=optNumber(a),y=optNumber(b),numericPair=x!==null&&y!==null;
     if(numericPair){a=x;b=y;}
+    else if(dayNumber(a)!==null&&dayNumber(b)!==null){a=dayNumber(a);b=dayNumber(b);}
     else if(['>','<','<=','>=','≤','≥'].indexOf(op)>=0)fail('#ARVO!');
     else if(typeof a==='string'&&typeof b==='string'){a=key(a);b=key(b);}
     if(op==='='||op==='==')return a===b;
@@ -4304,8 +4322,31 @@ var KAAVA=(function(){
   }
   /* 0.81: run(lähde, muistiinpano, rivit) rajaa kaavan omat ryhmäfunktiot (SUMMA(kenttä) jne.) annettuihin riveihin, esim. näkymän
      riveihin. Muistiinpanojen kenttäkaavat lasketaan aina koko aineistosta, joten sama kenttä on sama arvo joka näkymässä. */
-  function create(notes,allowed,readCell){
+  function create(notes,allowed,readCell,opts){
     var data=new Map(),byName=new Map(),known=new Set(allowed),memo=new Map(),active=new Map(),scope=notes.slice(),group=null;
+    var today=opts&&opts.today||isoD(new Date()),rowMemo=new Map();
+    function isRow(note){return !!note&&!note.sheet;}
+    function rowValue(n,name){
+      if(!rowMemo.has(n))rowMemo.set(n,new Map());
+      var cache=rowMemo.get(n),v='';
+      if(cache.has(name))return cache.get(name);
+      if(name==='otsikko')v=noteTitle(n)||'';
+      else if(name==='kansio')v=n.vp?(n.vp.indexOf('/')>0?n.vp.replace(/\/[^/]*$/,''):''):'laite';
+      else if(name==='tunnisteet')v=noteTags(n).join(', ');
+      else if(name==='luotu')v=n.created&&VAULT.creationPrecision(n)?isoD(new Date(n.created)):'';
+      else if(name==='ajankohta'){var next=nextDate(n,today);v=next?next.k:'';}
+      cache.set(name,v);return v;
+    }
+    /* Ehtofunktioiden lempeä luku: puuttuva tai tuntematon kenttä on tyhjä, toistuva kenttä yhdistetään. */
+    function soft(arg,note){
+      if(arg.type==='name'&&!(note&&note.sheet&&/^[a-z]+[1-9]\d*$/.test(arg.name))&&!(ROW.has(arg.name)&&isRow(note)))
+        return values(note,arg.name).map(textOf).filter(Boolean).join(' ');
+      try{return textOf(evaluate(arg,note));}catch(e){if(e&&e.code==='#PUUTTUU')return '';throw e;}
+    }
+    function dateArg(v){
+      if(v===''||v==null)fail('#PUUTTUU');
+      var d=dayNumber(v);if(d===null)fail('#ARVO!');return d;
+    }
     function rawFields(n){
       if(!data.has(n))data.set(n,fields(n,allowed));
       return data.get(n);
@@ -4346,16 +4387,17 @@ var KAAVA=(function(){
       if(v.length>1)fail('#ARVO!');
       return v[0];
     }
-    function filterText(node){
+    function filterText(node,note){
       if(node.type==='name')return node.name;
       if(node.type==='value')return node.value;
-      if(node.type==='neg'||node.type==='pos')return numeric(filterText(node.value))*(node.type==='neg'?-1:1);
-      if(node.type==='binary'&&node.op==='/')return filterText(node.left)+'/'+filterText(node.right);
+      if(node.type==='call')return evaluate(node,note);
+      if(node.type==='neg'||node.type==='pos')return numeric(filterText(node.value,note))*(node.type==='neg'?-1:1);
+      if(node.type==='binary'&&node.op==='/')return filterText(node.left,note)+'/'+filterText(node.right,note);
       fail('#KAAVA!');
     }
-    function predicate(condition){
+    function predicate(condition,note){
       if(condition.type!=='compare'||condition.left.type!=='name')fail('#KAAVA!');
-      var field=condition.left.name,op=condition.op,right=filterText(condition.right);
+      var field=condition.left.name,op=condition.op,right=filterText(condition.right,note);
       if(field==='tunniste'){
         if(op!=='='&&op!=='==')fail('#KAAVA!');
         var tag=noteTagKey(right);
@@ -4366,6 +4408,12 @@ var KAAVA=(function(){
         var path=key(right).replace(/\/$/,'')+'/';
         return function(n){return key(n.vp).startsWith(path);};
       }
+      if(field==='tunnisteet'){
+        if(op!=='='&&op!=='==')fail('#KAAVA!');
+        var listed=noteTagKey(right);
+        return function(n){return noteTags(n).indexOf(listed)>=0;};
+      }
+      if(ROW.has(field))return function(n){var v=rowValue(n,field);return v!==''&&compareValues(v,right,op);};
       if(!known.has(field))fail('#NIMI?');
       return function(n){return values(n,field).some(function(v){return compareValues(v,right,op);});};
     }
@@ -4383,7 +4431,7 @@ var KAAVA=(function(){
       if(groups.has(name)){
         if(first&&first.type==='name'&&!(note&&note.sheet&&/^[a-z]+[1-9]\d*$/.test(first.name))&&args.slice(1).every(function(a){return a.type==='compare';})){
           if(!known.has(first.name))fail('#NIMI?');
-          var items=[],conditions=args.slice(1).map(predicate);
+          var items=[],conditions=args.slice(1).map(function(a){return predicate(a,note);});
           (group||scope).forEach(function(n){
             if(conditions.every(function(test){return test(n);}))values(n,first.name).forEach(function(value){items.push(value);});
           });
@@ -4404,6 +4452,30 @@ var KAAVA=(function(){
         return finite(Math.sign(n)*Math.round((Math.abs(n)+Number.EPSILON)*scale)/scale);
       }
       if(name==='YHDISTÄ')return args.map(function(a){return String(evaluate(a,note));}).join('');
+      /* 0.101: ehdot ja päivät */
+      if(name==='SISÄLTÄÄ'){
+        if(args.length!==2)fail('#KAAVA!');
+        return key(soft(first,note)).indexOf(key(soft(args[1],note)))>=0;
+      }
+      if(name==='ONTUNNISTE'){
+        if(args.length!==1)fail('#KAAVA!');
+        var tag=noteTagKey(textOf(evaluate(first,note)));
+        if(!tag)fail('#ARVO!');
+        return isRow(note)&&noteTags(note).indexOf(tag)>=0;
+      }
+      if(name==='TYHJÄ'){
+        if(args.length!==1)fail('#KAAVA!');
+        return soft(first,note)==='';
+      }
+      if(name==='TÄNÄÄN'){
+        if(args.length)fail('#KAAVA!');
+        return today;
+      }
+      if(name==='PÄIVIÄ'){
+        if(args.length!==2)fail('#KAAVA!');
+        var from=dateArg(evaluate(first,note));
+        return dateArg(evaluate(args[1],note))-from;
+      }
       fail('#NIMI?');
     }
     function evaluate(ast,note){
@@ -4414,11 +4486,13 @@ var KAAVA=(function(){
       }
       if(ast.type==='name'){
         if(readCell&&note&&note.sheet&&/^[a-z]+[1-9]\d*$/.test(ast.name))return readCell(note,{from:ast.name});
+        if(ROW.has(ast.name)&&isRow(note))return rowValue(note,ast.name);
         return scalar(note,ast.name);
       }
       if(ast.type==='ref'){
         var files=byName.get(ast.note.replace(/\.md$/i,''))||[];
         if(files.length!==1)fail(files.length?'#ARVO!':'#PUUTTUU');
+        if(ROW.has(ast.name))return rowValue(files[0],ast.name);
         return scalar(files[0],ast.name);
       }
       if(ast.type==='call')return call(ast,note);
@@ -4466,7 +4540,9 @@ var KAAVA=(function(){
       return source;
     }catch(e){return null;}
   }
-  return {create:create,fields:fields,allowedFields:allowedFields,bodyFields:bodyFields,fillDown:fillDown};
+  /* 0.101: pelkkä jäsennys, käyttöliittymän kaavakentälle (virhekoodi tai tyhjä) */
+  function check(source){try{parse(source);return '';}catch(e){return e&&e.code||'#KAAVA!';}}
+  return {create:create,fields:fields,allowedFields:allowedFields,bodyFields:bodyFields,fillDown:fillDown,check:check,dayNumber:dayNumber,ROW:ROW};
 })();
 
 /* Kaikki 0.26: Markdown-taulukot ja solujen laskenta. */
@@ -6735,6 +6811,7 @@ function nvCell(c,v,today,note,locked){var td=el('div','rvc'+(c.k==='otsikko'?' 
   if(v&&typeof v==='object'&&('error' in v||'value' in v)){
     if(v.error){td.classList.add('formula-error');td.textContent=v.error;td.title=v.error;return td;}
     v=typeof v.value==='number'?v.value:formulaDisplay(v.value);
+    if(c.k.charAt(0)==='='&&!t&&/^\d{4}-\d{2}-\d{2}$/.test(v))v=nvDate(v); // 0.101: kaavan päivä suomalaisittain
   }
   if(c.k==='tunnisteet'){nvTagCell(td,v,locked);return td;}
   if(c.k==='takaisinlinkit'){
@@ -6951,6 +7028,7 @@ function nvSortList(list,sort,V,today,formulas){
 function rowsInto(list,l,today,dates,V,locked,baseSort){
   list.dataset.view=data.k+'|'+V.id;
   var L=l,formulas=formulaContext();
+  nvShownRows={view:V.id,rows:l}; // 0.101: ＋ sarake -ikkunan kaavan esikatselu laskee näkymän ensimmäiselle riville
   var activeSort=nvActiveSort(V);
   formulas.upcoming=dates;formulas.group=l; // 0.81: sarakkeen kaavan SUMMA(kenttä) laskee näkymän rivit
   if(vOn()&&V.cols.concat(V.sort).some(function(c){return c.k==='takaisinlinkit';}))formulas.linkIndex=vLinkIndex();
@@ -7988,7 +8066,20 @@ function nvCount(){var c=$('nved-count');if(!c||!nvDraft)return;var V={mista:nvD
    osapäivityksellä ja ristiriitavalinnalla kuin näkymäeditorissa (nvSaveDraft), ja odottava muutos näkyy heti (nvPendView). Oletusnäkymä
    Kaikki muistiinpanot on kiinteä, joten siellä sarake tallentuu uuteen näkymään, joka avautuu tallennuksen jälkeen. Muistiinpanoihin ei
    kirjoiteta mitään ennen kuin soluun annetaan arvo. ---- */
-var nvFocusHead=null;
+var nvFocusHead=null,nvShownRows=null;
+/* 0.101 (suunnitelman 21.7): ＋ sarake → Kaava. Kaava tallentuu näkymätiedoston sarakkeeksi (- =… | laji), lasketaan näytettäessä
+   eikä kirjoita muistiinpanoihin. Valmiit esimerkit täyttävät kentän, esikatselu laskee näkymän ensimmäiselle riville. */
+var NV_FORMULA_EXAMPLES=[['Päiviä luonnista','=PÄIVIÄ(luotu; TÄNÄÄN())','luku'],['Myöhässä?','=JOS(ajankohta < TÄNÄÄN(); "myöhässä"; "")',''],
+  ['Päiviä ajankohtaan','=JOS(TYHJÄ(ajankohta); ""; PÄIVIÄ(TÄNÄÄN(); ajankohta))','luku'],['Otsikossa sana','=SISÄLTÄÄ(otsikko; "lasku")','kylla-ei']];
+function nvFormulaSource(text){var src=String(text||'').trim();return src&&src.charAt(0)!=='='?'='+src:src;}
+function nvFormulaPreview(V,src){
+  if(!src||KAAVA.check(src))return '';
+  var rows=nvShownRows&&nvShownRows.view===V.id?nvShownRows.rows:[],first=rows[0];
+  if(!first)return 'Näkymässä ei ole rivejä esikatseluun.';
+  var r;try{r=formulaContext().get().run(src,first,rows);}catch(e){r={error:'#KAAVA!'};}
+  var shown=r.error||(/^\d{4}-\d{2}-\d{2}$/.test(String(r.value))?nvDate(r.value):formulaDisplay(r.value));
+  return 'Ensimmäinen rivi ('+(noteTitle(first)||'Nimetön')+'): '+(shown===''?'tyhjä':shown);
+}
 function nvCanAddColumn(V,locked){return !locked&&!noteSelectionMode&&noteOrderEnabled()&&!(V.id&&viewLocked(V.id));}
 function nvFieldKey(name){return String(name||'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'_');}
 function mvStem(key){return String(key||'').replace(/\([^)]*\)/g,' ').replace(/[^0-9a-zåäöü]+/gi,' ').trim();}
@@ -8030,7 +8121,7 @@ function nvAddColumn(V,anchor){
   function labelled(id,text,control){var box=el('div'),label=el('label','',text);control.id=id;label.htmlFor=id;box.append(label,control);form.appendChild(box);return box;}
   var viewName=el('input');viewName.type='text';viewName.value='Uusi näkymä';viewName.autocomplete='off';viewName.maxLength=80;
   if(fresh)labelled('nvcol-view','Uuden näkymän nimi',viewName);
-  var source=el('select');[['muuttuja','Tekstiin muuttujana'],['kentta','Alkutietoihin kenttänä'],['nappi','Nappisarake']].forEach(function(o){
+  var source=el('select');[['muuttuja','Tekstiin muuttujana'],['kentta','Alkutietoihin kenttänä'],['nappi','Nappisarake'],['kaava','Kaava (lasketaan, ei tallennu)']].forEach(function(o){
     var option=el('option','',o[1]);option.value=o[0];source.appendChild(option);});
   var sourceHint=el('p','sub');sourceHint.id='nvcol-source-hint';source.setAttribute('aria-describedby',sourceHint.id);
   labelled('nvcol-source','Arvo tallentuu',source).appendChild(sourceHint);
@@ -8038,6 +8129,16 @@ function nvAddColumn(V,anchor){
   nvButtonOptions(pickButton,V.cols,'');
   var name=el('input');name.type='text';name.autocomplete='off';name.maxLength=70;name.setAttribute('aria-describedby','nvcol-similar nvcol-error');
   var nameBox=labelled('nvcol-name','Nimi',name);
+  var formula=el('input');formula.type='text';formula.autocomplete='off';formula.spellcheck=false;formula.maxLength=600;
+  formula.setAttribute('autocapitalize','off');formula.setAttribute('autocorrect','off');formula.placeholder='=JOS(SISÄLTÄÄ(otsikko; "lasku"); hinta*1,24; hinta)';
+  var formulaBox=labelled('nvcol-formula','Kaava',formula),formulaHint=el('p','sub nvcol-formula-hint');formulaHint.id='nvcol-formula-hint';
+  formulaHint.textContent='Rivin tiedot: otsikko, kansio, tunnisteet, luotu, ajankohta ja omat kentät. Funktiot: JOS, SISÄLTÄÄ, ONTUNNISTE, TYHJÄ, TÄNÄÄN, PÄIVIÄ, SUMMA, YHDISTÄ ym. Erota osat puolipisteellä.';
+  formulaBox.insertBefore(formulaHint,formula);formula.setAttribute('aria-describedby','nvcol-formula-hint nvcol-error');
+  var examples=el('div','nvcol-picks');examples.setAttribute('role','group');examples.setAttribute('aria-label','Esimerkkikaavat');
+  NV_FORMULA_EXAMPLES.forEach(function(x){var chip=button(examples,x[0],'rvchip',function(){formula.value=x[1];formula.removeAttribute('aria-invalid');msg.textContent='';
+    if(!typeTouched)type.value=x[2];paint();formula.focus();});chip.title=x[1];});
+  var preview=el('p','sub nvcol-formula-preview');preview.id='nvcol-formula-preview';preview.setAttribute('aria-live','polite');
+  formulaBox.append(examples,preview);
   var picks=el('div','nvcol-picks');picks.id='nvcol-picks';picks.setAttribute('role','group');picks.setAttribute('aria-label','Olemassa olevat nimet');nameBox.appendChild(picks);
   var similar=el('p','sub');similar.id='nvcol-similar';similar.setAttribute('aria-live','polite');nameBox.appendChild(similar);
   var type=el('select'),typeTouched=false;NV_LAJIT.forEach(function(l){var option=el('option','',l[1]);option.value=l[0];type.appendChild(option);});
@@ -8059,12 +8160,18 @@ function nvAddColumn(V,anchor){
     var chip=button(host,entry.nimi,'rvchip',function(){pick(entry);});chip.dataset.name=entry.nimi;
   });}
   function paint(){
-    var isButton=source.value==='nappi';
-    buttonBox.hidden=!isButton;nameBox.hidden=isButton;typeBox.hidden=isButton;
+    var isButton=source.value==='nappi',isFormula=source.value==='kaava';
+    buttonBox.hidden=!isButton;nameBox.hidden=isButton||isFormula;typeBox.hidden=isButton;formulaBox.hidden=!isFormula;
     submit.disabled=isButton&&!pickButton.value;
     if(isButton){
       sourceHint.textContent='Nappi kirjaa sen rivin muistiinpanoon, jolla painat sitä.';
       optionBox.hidden=true;calendarBox.hidden=true;return;
+    }
+    if(isFormula){
+      sourceHint.textContent='Kaava lasketaan näytettäessä jokaiselle riville. Muistiinpanoihin ei kirjoiteta mitään.';
+      var src=nvFormulaSource(formula.value);preview.textContent=nvFormulaPreview(V,src);
+      optionBox.hidden=!['luku','palkki'].includes(type.value);calendarBox.hidden=true;
+      optionBox.querySelector('label').textContent=type.value==='palkki'?'Väli, esimerkiksi 0-10':'Yksikkö';option.maxLength=40;return;
     }
     var query=MUUTTUJA.key(name.value),all=names(),exact=all.find(function(g){return g.key===(source.value==='muuttuja'?query:nvFieldKey(name.value));});
     var near=exact?[]:mvSimilar(name.value,all);
@@ -8085,6 +8192,7 @@ function nvAddColumn(V,anchor){
   function fail(text,control){msg.textContent=text;control=control||name;control.setAttribute('aria-invalid','true');control.focus();}
   source.addEventListener('change',function(){msg.textContent='';paint();});
   pickButton.addEventListener('change',paint);
+  formula.addEventListener('input',function(){formula.removeAttribute('aria-invalid');msg.textContent='';paint();});
   name.addEventListener('input',function(){name.removeAttribute('aria-invalid');msg.textContent='';
     var hit=source.value==='muuttuja'&&variables.find(function(g){return g.key===MUUTTUJA.key(name.value);});
     if(hit&&!typeTouched){var last=mvLast(hit);type.value=last&&last.x.o.luku!==null?'luku':'';}
@@ -8100,6 +8208,17 @@ function nvAddColumn(V,anchor){
         fail('Valitse käytettävissä oleva nappi.',pickButton);return;
       }
       closeSheet(d);nvAddColumnSave(V,{k:nvButtonKey(id),t:'',o:'',w:0},title);return;
+    }
+    if(source.value==='kaava'){
+      var src=nvFormulaSource(formula.value),ft=type.value,fo=['luku','palkki'].includes(ft)?option.value.trim():'';
+      if(src.length<2){fail('Kirjoita kaava, esimerkiksi =PÄIVIÄ(luotu; TÄNÄÄN()).',formula);return;}
+      if(src.includes('|')){fail('Jätä pystyviiva pois kaavasta.',formula);return;}
+      if(KAAVA.check(src)){fail('Kaavaa ei voi lukea. Tarkista sulut, lainausmerkit ja puolipisteet.',formula);return;}
+      if(V.cols.some(function(c){return c.k===src;})){fail('Sama kaava on jo tässä näkymässä.',formula);return;}
+      if(fo.includes('|')){fail('Jätä pystyviiva pois.',option);return;}
+      if(ft==='palkki'&&fo&&!/^\s*-?\d+(?:[.,]\d+)?\s*-\s*-?\d+(?:[.,]\d+)?\s*$/.test(fo)){fail('Anna väli muodossa 0-10.',option);return;}
+      if(ft==='palkki')fo=fo.replace(/,/g,'.').replace(/\s+/g,'');
+      closeSheet(d);nvAddColumnSave(V,{k:src,t:ft,o:fo,w:0,laske:'',kal:false},title);return;
     }
     var key='',variable=source.value==='muuttuja';
     if(variable){
