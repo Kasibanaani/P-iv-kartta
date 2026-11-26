@@ -91,7 +91,7 @@ async def test(browser, width):
         await page.locator('#section-cal').click()
     day = page.locator(f'#wklist .wkday[data-day="{TODAY}"]')
     await expect(day.locator('.wk-recorded')).to_have_text('Kirjattu: Treeni, Vire 2, Paino 72,5 kg')
-    await expect(day.locator('.wrow').get_by_text('Vaihda suodatin #koti', exact=True)).to_be_visible()
+    await expect(page.locator(f'#wklist .uline[data-day="{TODAY}"]').get_by_text('Vaihda suodatin #koti', exact=True)).to_be_visible()
     assert await page.evaluate('document.documentElement.scrollWidth === innerWidth')
     assert not errors, errors
     print(f'{width} px: mittarit, rinnakkainen kirjaus, muistutus ja kalenteririvi toimivat')

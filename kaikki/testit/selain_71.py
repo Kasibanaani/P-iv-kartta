@@ -89,7 +89,7 @@ async def run(browser, width):
     await expect(page.locator('#nsheet')).to_be_hidden()
 
     await tab(page, 'cal')
-    day = page.locator(f'#wklist .wkday[data-day="{today}"]')
+    day = page.locator(f'#wklist .uline[data-day="{today}"]')
     await day.get_by_role('button', name='Kuitattu: Toinen', exact=True).click()
     await dashboard(page)
     await expect(checklist.get_by_role('button', name='Kuittaa: Toinen', exact=True)).to_have_attribute('aria-pressed', 'false')

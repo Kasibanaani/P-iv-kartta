@@ -1,10 +1,18 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.104 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
+**Vaihe:** versio 0.105 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.105 (26.11.2026, Emil): päävalikon ja aikajanan korjaukset, kellottomat palkit.**
+- Tietokoneen osionappi toimii myös kuvitustaustalla. Valikko ja klikkauksia vastaanottava tausta ovat samassa kerroksessa.
+- Vaakasuuntainen aikajana säilyttää näkyvät päivät molemmilla reunoilla. Alue jatkuu samassa vierityspinnassa, kun vieritys tasaantuu.
+- Viikkolistan ja Tunnit-näkymän alla on Koko päivä -palkit. Yhden päivän merkintä vie yhden sarakkeen ja monipäiväinen ulottuu näkyville päiville. Viikossa kuittaus kohdistuu palkin valittuun päivään, tai palkin ensimmäiseen näkyvään päivään, jos valittu päivä jää sen ulkopuolelle. Puhelimen Päivä-näkymässä palkki näyttää nuolilla, mistä suunnasta jakso jatkuu.
+- Muistion korteissa ja tietokannan otsikkosolussa lähdetäplän paikka säilyy. Hehku poistui ja teksti alkaa kauempaa.
+- **Testit:** `selain_105.py` läpi Chromiumissa 320, 390, 1280 ja 1440 px: kerrostettu päävalikko, aikajanan vierityspaikka useassa reunanylityksessä, viikon palkit ja kuittaus, päivän jatkonuolet, Muistion täplien väli.
+- **Ei tarkistettu:** oikea iPhone, Safarin tuntuma nopeassa pyyhkäisyssä ja Emilin oma vault. Seuraava suunniteltu vaihe on AJ3–AJ4.
 
 **0.104 (26.11.2026, Emil, suunnitelman 22 AJ1 + AJ2): vaakasuuntainen aikajana.**
 - **Missä:** Kalenteri → näkymävalitsimen kolmas kohta *Aikajana* (puhelimella *Aj*). Tietokoneen entinen *Aikajana*-nappi (viikko tunteineen) on nyt *Tunnit*.
