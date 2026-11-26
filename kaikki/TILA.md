@@ -1,10 +1,18 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.106 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
+**Vaihe:** versio 0.107 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.107 (26.11.2026, suunnitelman 11.1): kaavaruudut ja säätimet muistiinpanoissa.**
+- Lukutilan ja muokkaustilan kytkin muistaa viimeisen tilan muistiinpanokohtaisesti. Omalla rivillä oleva kaava näkyy lukutilassa ruutuna. Ruutua voi muuttaa kahvasta, napautuksesta tai nuolinäppäimillä. Koko muistetaan erikseen puhelimella ja tietokoneella. Ruudusta voi avata kaavan ja sen käyttämät havainto- tai muistiinpanolähteet.
+- Muistiinpanon liukusäädin laskee siihen sidotut tulokset uudelleen vedon aikana. Ulkopuolinen napautus, sulkemisnappi ja Esc tallentavat päivän lopullisen arvon avoimeen muistiinpanoon. Päivän myöhempi säätö päivittää saman säätimen oman havainnon. Muistiinpanon tekstissä määritelty nappi kirjaa painettaessa. Kaavaruudut päivittyvät automaattisesti lähteen synkronoiduttua.
+- Omalla rivillä oleva tekstijako näkyy lukutilassa ohuena erottimena. Tuettu esimerkiksi kolmen lyhyen viivan sekä pitkän ja lyhyen viivan yhdistelmä. Kirjoitusohjeessa on kopioitava esimerkki.
+- Kaavakieleen lisättiin havaintohaku, listat, ehdot, tilastot ja pienkuvaaja. Syntaksi on Vaultin ohjeessa. Nimetyllä ruudulla voi viitata myös toisesta muistiinpanosta aiemmalla wikilinkkiviitteellä.
+- Testit: `logiikka_kaava_107.js` ja `selain_107.py` 320, 390, 1280 ja 1440 px:n Chromium-näkymissä. Selainohjeet: Modern Web Guidance *drag* ja *slider*.
+- Oikean iPhonen Safari ja käyttäjän Vault odottavat käyttökokeilua. Seuraava kaavatyö on toistuvasti käytettävien parametrillisten laskentasääntöjen määrittely sekä mahdolliset käytössä löytyvät tarkennukset.
 
 **0.106 (26.11.2026, suunnitelman AJ3): aikajanan nimetyt vaiheet.**
 - Kirjoita muistiinpanoon `## Vaiheen nimi` ja sen alle aikaväli. Aikajana näyttää projektin otsikon ja palkit otsikkojen mukaisessa järjestyksessä. Projektin päivättömillä vaiheilla on merkintä *Ei aikaa*. Vain päivättömistä otsikoista koostuva muistiinpano jää Muistioon.
@@ -379,6 +387,8 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 - Modern Web Guidance -hakua ei voitu ajaa (komento estettiin tässä istunnossa); uutta käyttöliittymää on vain asetusikkuna, Juuren tyyleillä.
 
 ## Seuraava askel
+
+**0.107:n jälkeen.** Muokkaa muistiinpanoa. Lisää Kirjoitusohjeesta *Kaavaruutu ja säätimet*, vaihda lukutilaan ja kokeile sekä kaavaruudun vedon tuntumaa että liukusäätimen sulkemistallennusta iPhonella.
 
 **Nopeus (Emil 26.11.2026: palataan myöhemmin).** Jokainen tallennus kirjoittaa koko vaultin. Tietokoneella muunto tallennusmuotoon vie noin 18 ms ja takaisinluku noin 6 ms, iPhonella todennäköisesti 2–4 kertaa enemmän. Ehdotus odottaa iPhonen havaintoja: jokainen tiedosto omaksi IndexedDB-tietueekseen, jolloin muutos kirjoittaa vain muuttuneen tiedoston.
 
