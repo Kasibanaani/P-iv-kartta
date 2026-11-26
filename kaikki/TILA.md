@@ -1,10 +1,19 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.111 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
+**Vaihe:** versio 0.112 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.112 (27.11.2026): holvin uusi muistiinpano näkyviin ja synkronoinnin tila totuudenmukaiseksi** ([suunnitelman korjattava kohta](SUUNNITELMA.md#korjattava-vaultin-uusi-muistiinpano-puuttuu-muistiosta-vaikka-synkronointi-ilmoittaa-ajantasaista-26112026)).
+- **Mitä löytyi.** Vikaa ei saatu toistettua testiselaimessa: koko holvin sisällöllä (1003 tiedostoa) *Päivän voimavaraohjain* tulee Muistioon ja löytyy haulla sekä tuoreessa selaimessa että kesken käytön haettuna, myös muistiinpanon ollessa auki ja lukitulla näkymällä. Tiedostossa, polussa, monirivisissä kaavoissa tai lähdesuodattimessa ei ole vikaa. Koodista löytyi kaksi aukkoa, jotka selittävät oireen:
+  1. **Tila valehteli.** ”Ajan tasalla klo X” päivittyi myös jokaisesta onnistuneesta *tallennuksesta* GitHubiin, vaikka uusia tiedostoja ei olisi haettu. Klo 23.26 tehty tallennus näytti siis tuoreelta, vaikka viimeinen haku olisi ollut ennen kuin tiedosto lisättiin klo 23.08.
+  2. **Täsmäytysaukko.** Jos laitteen muistiinpanolistasta puuttui holvin jo tuntema tiedosto (muistiinpanot ja holvin välimuisti tallentuvat erikseen, ja ne voivat joutua eri tahtiin), haku ohitti tiedoston pysyvästi. Seuraava tallennus olisi lisäksi siirtänyt sen GitHubissa arkistoon. Sama aukko oli projektin poistossa ja varmuuskopion tuonnissa. Toistettu vanhalla koodilla: tiedosto ei palannut, ja tallennus arkistoi sen. Käynnistyksen täsmäytys (0.100) korjasi tämän vain uudelleenavauksessa.
+- **Korjaus.** ”Ajan tasalla” perustuu nyt vain tämän käyttökerran onnistuneeseen hakuun. GitHub-vault-ikkuna erittelee: haku (aika, tiedostomäärä tai virhe ja viimeisin onnistunut haku), liian isot hakematta jääneet tiedostot, lähetysjono ja viimeisin tallennus, laitteen tallennus ja holvin muistiinpanojen määrä. Jos näkyväksi tarkoitettu tiedosto puuttuu Muistiosta, tila on *tarkista synkronointi* ja tiedostot nimetään. Holvin muistiinpano arkistoidaan vain todellisesta poistosta (roskakori tai appin oma poisto). Muu puuttuminen palauttaa muistiinpanon välimuistin tiedostosta, ja lähettämätön kirjaus säilyy jonossa. Roskakori säilyttää holvin polun myös uudelleenkäynnistyksessä, joten poisto tunnistetaan silloinkin.
+- Ennallaan: yksikin epäonnistunut tiedosto keskeyttää koko haun (0.91, tarkoituksellinen), mutta virhe nimeää tiedoston eikä tila ole enää ”ajan tasalla”. Tallennusmuoto ei muuttunut (roskakorin holvikentät luetaan nyt, ne olivat jo tallessa). Vaultin `ohjeet/appi.md`:hen ei tarvittu muutosta.
+- Testit: uusi `selain_112.py` (390 ja 320 px) kattaa suunnitelman kohdat (a)–(f), täsmäytysaukon haussa ja tallennuksessa, aidon poiston arkistoinnin ja roskakorin uudelleenkäynnistyksen. Koko sarjan tulos kirjataan ajon valmistuttua.
+- **Ei tarkistettu:** oikea iPhone. Varsinaista juurisyytä Emilin puhelimessa ei voitu todentaa (laitteen tallennettua tilaa ei ole saatavilla), joten korjaus kattaa löydetyt mekanismit. Hyväksymiskoe iPhonella: sulje appi kokonaan, avaa, paina päivitä, hae `voimavaraohjain` ja avaa *Päivän voimavaraohjain* lukutilaan (liukusäätimet, nimetyt tulokset, infoikkunat). Jos se puuttuu yhä, avaa GitHub-vault-ikkuna ja kerro sen rivit.
 
 **0.111 (26.11.2026, Emil): lukutilan yläpalkki, asettelu ja ruudun ⋯.**
 - Yläpalkissa on kaksi nappia: **Muokkaa** (teksti) ja **Asettelu** (ruutujen ja säätimien koko ja järjestys lukutilassa). Asettelu ei ole enää ⋯-valikossa. Muokatessa samassa paikassa on **Lukutila**. Puhelimella lukutilan napit ovat kuvakkeita.
@@ -418,6 +427,8 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 - Modern Web Guidance -hakua ei voitu ajaa (komento estettiin tässä istunnossa); uutta käyttöliittymää on vain asetusikkuna, Juuren tyyleillä.
 
 ## Seuraava askel
+
+**0.112:n jälkeen.** iPhonella: sulje appi kokonaan ja avaa, paina päivitä ja hae `voimavaraohjain`. Avaa GitHub-vault-ikkuna ja katso, että siinä lukee *Haettu GitHubista klo …*. Jos muistiinpano puuttuu, kopioi ikkunan rivit tekoälylle.
 
 **0.111:n jälkeen.** Avaa iPhonella muistiinpano, jossa on säädin ja kaavaruutu. Vieritä ja katso, pysyykö yläpalkki kiinni. Paina Asettelu, muuta liukusäätimen kokoa ja paina heti Asettelu uudelleen. Avaa ruudun ⋯ ja kokeile Lähteet ja Muokkaa kaavaa. Lukitse Muistion lista, avaa siitä muistiinpano ja vaihda Muokkaa. Kerro Macilla, jäävätkö oranssit viivat vielä riville.
 
