@@ -1,10 +1,18 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.98 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 25.11.2026
+**Vaihe:** versio 0.99 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.99 (26.11.2026): pohjaan jäävä nappi ja XY-pädi (A6.4 ja A6.5).**
+- **Pohjaan jäävä nappi** (säädineditorin Laji → *Pohjaan jäävä nappi*, tiedostossa `laji: pohjaan`). Painallus kirjoittaa rivin kuten kertanappi, ja nappi jää päälle: vihreä tausta ja väkänen. Uusi painallus poistaa täsmälleen saman rivin. Kumoa toimii molempiin suuntiin, ja poiston kumoaminen palauttaa rivin samaan kohtaan. Rivillä on jakson tunniste, esim. `^kahvi-2026-11-26` (viikkoajalla `^kahvi-2026-w48`). Tila luetaan tekstistä: rivi tänään = päällä. Siksi tila näkyy muillakin laitteilla, ja käsin poistettu rivi vapauttaa napin. Laitteella odottava kirjaus tai poisto näkyy tilassa heti. Toimii kojelaudalla, pikakirjauksessa, ＋ Kirjaa -ikkunassa, Säätimet-luettelossa ja Muistion nappisarakkeessa, jossa tila on rivikohtainen. Aika ei voi olla *Kysy*, eikä *Lisää vai päivitä* -valintaa näytetä.
+- **XY-pädi** (`laji: xy`). X-akseli on vaakasuunta, Y-akseli pystysuunta ja valinnainen. Kummallekin annetaan muuttuja, pienin ja suurin arvo, askel ja yksikkö. Valinnalla *Suhteellinen* pädin keskellä on muuttujan edellinen arvo, ja pädi kattaa puolet välistä kumpaankin suuntaan. Arvo pysyy silti rajoissa. Kojelaudalla pädi on suoraan ruudussa, muualla nappi avaa sen ikkunaan. Sormi tai hiiri valitsee kohdan. Pädin alla on kummallekin akselille tavallinen liukusäädin hienosäätöön, näppäimistölle ja ruudunlukijalle. Edellinen arvo näkyy katkoviivaympyränä ja tekstinä. *Kirjaa* kirjoittaa molemmat arvot samaan havaintolohkoon, esim. `((26.11.2026 klo 20.00, Olo: Vire = 8, Mieliala = -2,5, ^qh…))`. *Päivitä edellinen* korvaa saman pädin edellisen rivin.
+- **Tekniikka.** Poisto on uusi kirjausjonon laji `saadin-pois`. Se toimii offline, ja sen uusinta ei poista mitään kahdesti. Puuttuva kohde ei tee inbox-kopiota, koska poistettavaa ei ole. Vaultin `ohjeet/appi.md` päivitettiin (versio 0.99), myös *Ei saa muuttaa* -luettelo. Selainohje: Modern Web Guidance *drag* ja *slider*.
+- **Testit:** `logiikka_saadin_99.js` (tiedostomuoto, jakson tunniste, poisto ja palautus, CRLF, akselit, suhteellinen väli, askel ja päivitä-tapa) ja `selain_99.py` (320, 390 ja 1280 px: päälle ja pois kojelaudalta ja pikakirjauksesta, Kumoa, toisen laitteen rivi latauksessa, Muistion nappisarakkeen rivikohtainen tila, pädin veto kosketuksella ja hiirellä, näppäimistö, suhteellinen akseli, ikkuna ja päivitä-tapa, editorin rajaukset ja tiedostomuoto). Koko sarjan tulos: ks. *Ei tarkistettu*.
+- **Ei tehty:** liukusäädin (yksiakselinen XY korvaa sen toistaiseksi), kertanappien järjestys, napin oma tila päivän vaihtuessa ilman uudelleenpiirtoa (tila päivittyy seuraavassa piirrossa tai synkassa). Pohjaan jäävä nappi poistaa tunnisteen rivin kokonaan, vaikka riviä olisi muokattu käsin. Kumoa palauttaa sen.
+- **Ei tarkistettu:** oikea iPhone (pädin veto Safarissa, sivun vieritys pädin ympärillä, liukusäätimen tarkkuus sormella) ja oikea GitHub.
 
 **0.98 (25.11.2026): kojelaudan raahaus ja Muistion nappisarake (työjonon kärki 5 ja A6.3).**
 - **Kojelauta.** Siirtokahvasta ruutu seuraa osoitinta ja kohderuudun reunassa näkyy pudotussuunta. Kokokahvasta näkyvät vedon hetkellinen koko ja ruudukon sallima koko. Ruudukko asettuu uudelleen vapautuksessa. Reunavieritys jatkuu osoittimen ollessa paikallaan. Esc, kosketuksen keskeytys ja osoitinkaappauksen menetys peruuttavat vedon. Ruutuasetuksissa *Asettelu* tarjoaa samat koko- ja järjestysmuutokset valitsimina.
@@ -303,7 +311,9 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 
 **Suunnitelma 25.11.2026.** Emil hyväksyi [laskennallisen ja käytettävän muistiinpanon](SUUNNITELMA.md#111-laskennallinen-ja-käytettävä-muistiinpano) lisäämisen suunnitelmaan. Tilakytkin kuuluu muistiinpanoikkunan käytettävyystyöhön, ensimmäinen havaintokaava yhteisen havaintohaun jatkoksi ja tekstin säätimet A6:n jatkoksi. Ensimmäisen käyttökokeen nimi on *Päivän tilanne*. Toteutus ja iPhone-koe ovat edessä.
 
-**0.98:n jälkeen.** Kokeile iPhonella kojelaudan siirto- ja kokokahvaa sekä Muistion nappisaraketta pitkällä nimellä. Seuraava rakennettava säädin on pohjaan jäävä nappi (A6.4), sen jälkeen XY (A6.5).
+**0.99:n jälkeen.** Kokeile iPhonella: tee Säätimissä pohjaan jäävä nappi (esim. *Vitamiini*, Aika: Vain päivä), lisää se kojelaudalle, paina päälle ja pois ja avaa sama päivä tietokoneella. Tee XY-pädi (esim. *Olo*: Vire 0–10 suhteellisena ja Mieliala −5–5) ja kokeile, pysyykö sivu paikallaan, kun vedät sormella pädillä. Seuraava A6-vaihe on kaavion tuotosruutu (A6.6, kohta 23.2), joka edellyttää kaaviokokeilua (23.1). Muuten työjono jatkuu Jäsennyksen A-kohdista.
+
+**0.98:n jälkeen.** Kokeile iPhonella kojelaudan siirto- ja kokokahvaa sekä Muistion nappisaraketta pitkällä nimellä.
 
 **0.96:n jälkeen.** Kokeile puhelimella kokonainen treenikerta: avaa kalenterista salitreeni, ＋ Kirjaa → Muokkaa → + Uusi nappi, tee *Penkki* (kohde Penkki, muuttujat paino kg ja toistot), Valmis, kirjoita huomio ja kirjaa kaksi sarjaa. Tarkista, että näppäimistö jättää molemmat kentät ja Kirjaa-napin näkyviin, ja avaa sama muistiinpano tietokoneella. Seuraavaksi: työjonon kärjen kohta 4 (suomalainen aika ja viikkotarkkuus) tai kohta 5 (kojelaudan raahaus kalenterin tapaan), sitten A6.3 (Muistion nappisarake samalla napilla).
 
@@ -334,6 +344,13 @@ Emil kokeilee: avain asetuksiin, muistiinpanoja apissa ja tekoälyn kautta, kale
 4. Karsinta: mitä Juuren osia Kaikki ei tarvitse.
 
 ## Avoimet kysymykset
+
+**Pohjaan jäävä nappi ja XY (0.99), tekoälyn ratkaisut, jotka Emil vahvistaa:**
+1. Pohjaan jäävän napin jakso on päivä (tai viikko, jos aika on Kuluva viikko). Huomenna nappi on taas pois päältä, ja eilinen rivi jää. Onko tämä oikea jakso, vai tarvitaanko myös pysyvä tila (päällä, kunnes painetaan pois, päivästä riippumatta)?
+2. Pois kytkeminen poistaa tunnisteen rivin kokonaan, vaikka sitä olisi muokattu käsin (Kumoa palauttaa). Käykö, vai pitäisikö käsin muokattu rivi jättää paikalleen ja kertoa siitä?
+3. XY kirjaa vasta *Kirjaa*-napista, ei sormen noustessa. Näin vahinkokosketus ei kirjaa. Kirjataanko mieluummin heti sormen noustessa (Kumoa näkyy kuten kertanapissa)?
+4. Suhteellinen akseli: pädi kattaa puolet koko välistä kumpaankin suuntaan edellisestä arvosta. Sopiiko alue, vai pitäisikö muutoksen enimmäismäärä voida asettaa itse (esim. ±2)?
+5. XY:llä ei ole omaa tekstiä eikä akseleiden nimiä pädin reunoilla, vaan nimet ja arvot näkyvät liukusäätimissä pädin alla. Riittääkö?
 
 **Suomalainen aika (0.97), tekoälyn ratkaisut, jotka Emil vahvistaa:**
 1. Viikkohavainnon *viimeisin*-vertailu käyttää viikon maanantaita. Jos samalla viikolla on päiväkirjaus, se on viikkokirjausta uudempi. Käykö?
