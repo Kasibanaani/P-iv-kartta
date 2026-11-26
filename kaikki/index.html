@@ -5359,9 +5359,12 @@ var KSTORE=(function(){
     var t=db.transaction(ST,mode),out=fn(t.objectStore(ST));t.oncomplete=function(){ok(out);};
     t.onerror=function(){no(t.error||new Error('IndexedDB-virhe'));};t.onabort=function(){no(t.error||new Error('IndexedDB keskeytyi'));};});});}
   function start(fn){
+    /* Kaikki tallennukset localStoragessa: ne ovat IndexedDB:n arvoja uudempia, joten appi käynnistyy heti kuten ennen, ja
+       IndexedDB:hen saa kirjoittaa. Odotus vain, kun jokin iso tallennus voi olla IndexedDB:ssä. */
+    if(Object.keys(SPILL).every(function(k){return lsGet(k)!==null;})){readOk=typeof indexedDB!=='undefined';fn();return;}
+    if(typeof indexedDB==='undefined'){fn();return;}
     var done=false;function go(){if(done)return;done=true;fn();}
     var timer=setTimeout(go,4000);/* jumiutunut IndexedDB: appi käynnistyy, mutta ei kirjoita sinne (readOk false) */
-    if(typeof indexedDB==='undefined'){clearTimeout(timer);go();return;}
     tx('readonly',function(st){var out={};Object.keys(SPILL).forEach(function(k){var q=st.get(k);q.onsuccess=function(){if(typeof q.result==='string')out[k]=q.result;};});return out;})
       .then(function(out){if(done)return;boot=out;readOk=true;Object.keys(out).forEach(function(k){where[k]='idb';});})
       .catch(function(){}).then(function(){clearTimeout(timer);go();});

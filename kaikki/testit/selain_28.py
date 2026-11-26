@@ -29,11 +29,19 @@ async def test(browser, width):
     ''' % json.dumps(FIXTURES))
     await page.goto(APP)
     await page.wait_for_function("KaikkiTesti.vault().files['inbox/piha.md']")
+    # 0.100: ajastettu keräys (vCollect) tallentaa apin muistissa olevan tilan. Aja se ennen syötettä, ettei se korvaa
+    # testin kirjoittamaa tallennusta ennen uudelleenlatausta (kilpailutilanne oli jo 0.99:ssä).
+    await page.wait_for_function("!KaikkiTesti.status().includes('…')")
+    await page.evaluate('KaikkiTesti.collect()')
+    await page.wait_for_function("!KaikkiTesti.status().includes('…') && !Object.keys(KaikkiTesti.vault().q).length")
     await page.evaluate('''terms => {
       const db = JSON.parse(localStorage.getItem('kaikki:v1'));
       db.kokonaisuudet[0].termit = terms;
       localStorage.setItem('kaikki:v1', JSON.stringify(db));
     }''', TERMS)
+    # Chromium vie localStorage-kirjoitukset perille viiveellä (koottuna, noin 5 s): uudelleen ladattu sivu voi muuten lukea
+    # vanhan arvon (sama ilmiö kuin fakegh.js:n sessionStorage-huomautuksessa).
+    await page.wait_for_timeout(5500)
     await page.reload()
     await page.locator('#filterpick').click()
     filters = page.locator('#fsheet')
