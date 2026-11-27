@@ -1,10 +1,15 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.116 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 27.11.2026
+**Vaihe:** versio 0.117 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 27.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.117 (27.11.2026): JUURISYY LÖYTYI – kenen kirjoittamat -suodatin piilotti tekoälyn muistiinpanot.** Puhelimen tarkistus (`yllapito/kaikki-tarkistus.md`, 18.33): versio 0.116, haku onnistui (1033 tiedostoa), *Päivän voimavaraohjain* oli välimuistissa samana versiona kuin GitHubissa, jono oli tyhjä. Suodatin oli kuitenkin **Omat ja yhdessä tehdyt** (`kaikki:lahde = emil`). ChatGPT:n tiedostot (`lahde: chatgpt`) ovat tekoälyn kirjoittamia, joten ne eivät tulleet Muistioon. Sama koski klo 18.12 lisättyjä demoja. Synkronoinnissa ei ollut vikaa. Suodatinnappi on pelkkä kuvake (0.4), eikä valintaa nähnyt. Viereinen asiasananappi sanoo *Kaikki*, mikä todennäköisesti sai valinnan näyttämään *Kaikki sisältö* -tilalta.
+- Korjaus: kun suodatin rajaa, Muistion yläosassa on aina kaista *Näytetään vain: … · N muistiinpanoa piilossa* ja nappi **Näytä kaikki**. Tyhjä haku kertoo, montako muistiinpanoa suodatin piilottaa. Testi `selain_117.py` (390, 320, 1440 px). Lisäksi `lahde`, `vault`, `111`, `112`, `113` ja `116` läpi.
+- 0.112–0.116:n muutokset jäävät voimaan: niistä löytyneet aukot olivat todellisia (tila, täsmäytysaukko, roskakori, lukitun näkymän hiljainen nappi), vaikka ne eivät aiheuttaneet tätä oiretta. Tarkistuspyyntö `yllapito/kaikki-tarkistus-pyynto.md` on käsitelty eikä lähetä uudelleen.
+- **Ei tarkistettu:** oikea iPhone. Emil: paina kaistan Näytä kaikki.
 
 **0.116 (27.11.2026): lukitun näkymän järjestysnappi kertoo lukituksesta.** Emil 27.11.: Tulevat-nappi ei tee mitään. Syy: näkymä *Kaikki muistiinpanot* lukittiin klo 18.25 (vaultin commit *appi: lukitse näkymä*), ja lukitussa näkymässä järjestysnappi oli pois käytöstä ilman ilmoitusta. Nyt nappi on himmeä, ja napautus kertoo, että näkymä on lukittu ja lukitus avataan listan yläpuolen lukosta (lukko korostuu hetkeksi). Lukitus ei rajaa listan sisältöä, joten se ei selitä puuttuvaa voimavaraohjainta. Testi `selain_116.py` (390, 320, 1440 px). Lisäksi `23`, `66`, `78`, `93b` ja `113` läpi.
 

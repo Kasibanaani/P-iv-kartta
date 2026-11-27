@@ -1448,6 +1448,10 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 #ns-hl .wl{text-decoration:underline dotted;text-decoration-color:color-mix(in srgb,var(--label2) 40%,transparent);text-decoration-thickness:1px;text-underline-offset:3px}
 /* Kaikki 0.1: GitHub-vault */
 .gsf{display:flex;flex-direction:column;gap:8px;margin:8px 0}
+/* 0.117: rajattu kenen kirjoittamat -suodatin näkyvissä */
+.srcband{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:6px 0 0;padding:6px 10px;border-radius:10px;background:var(--fill);color:var(--label);border:1px solid var(--sep);font-size:14px}
+.srcband span{min-width:0}
+.srcband .mini{flex:none}
 /* 0.116: lukitun näkymän järjestysnappi himmeänä, napautus näyttää lukon */
 #notesort.is-locked{opacity:.55}
 .view-lock.nudge{outline:2px solid var(--accent,currentColor);outline-offset:2px}
@@ -7572,6 +7576,12 @@ function renderNotes(){if(nbObs){nbObs.disconnect();nbObs=null;}if(nvTagObserver
   vb.innerHTML=nvRows()?'<svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><path d="M2.5 8h15M2.5 12.3h15M8 3.5v13"/></svg>':'<svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="3.5" width="14" height="5.5" rx="1.5"/><rect x="3" y="11" width="14" height="5.5" rx="1.5"/></svg>';
   var q=el('input');q.type='search';q.id='nsearch';q.placeholder='Hae';q.autocomplete='off';q.setAttribute('aria-label','Hae muistiinpanoista sanalla');q.value=noteQuery;tb.appendChild(q);
   q.addEventListener('input',function(){noteQuery=q.value;filterNotes();});nb.appendChild(tb);
+  /* 0.117 (Emil 27.11.2026: tekoälyn uudet muistiinpanot eivät näkyneet, koska kenen kirjoittamat -suodatin oli Omat ja yhdessä tehdyt eikä
+     kuvakenapista näe valintaa): rajattu suodatin näkyy aina listan yläpuolella piilotettujen määrän kanssa, ja Näytä kaikki palauttaa. */
+  var hidN=srcHiddenCount();
+  if(srcPre!=='std'){var sbx=el('div','srcband');sbx.id='srcband';sbx.setAttribute('role','status');
+    sbx.appendChild(el('span','','Näytetään vain: '+SRCN[srcPre]+(hidN?' · '+hidN+(hidN===1?' muistiinpano piilossa':' muistiinpanoa piilossa'):'')));
+    button(sbx,'Näytä kaikki','mini',function(){setSrc('std');}).id='srcband-all';nb.appendChild(sbx);}
   var dates=new Map();
   var l=(sort==='own'?notesInOwnOrder(NS,today,noteViewPath(V)):sort==='prio'?prioSort(NS,rankFn(AT,today),today):sortNotes(NS,sort,today,dates)).filter(function(n){return notePass(nt[n.id])&&nvPass(V,n);});
   var tools=el('div','rvbar');p.appendChild(tools);
@@ -7597,7 +7607,7 @@ function renderNotes(){if(nbObs){nbObs.disconnect();nbObs=null;}if(nvTagObserver
   if(!l.length)(nvRows()?list:p).appendChild(noteFilter.length?el('p','sub','Valituilla rajauksilla ei ole muistiinpanoja.'):subI('Ei vielä muistiinpanoja.','Päättyneet kierrokset ja omat muistiinpanot tulevat tänne.'));
   p.appendChild(list);if(noteSelectionMode)addNoteSelectionActions(p);
   var footer=nvRows()?el('div','rv-footer'):p;if(footer!==p)list.appendChild(footer);
-  var em=el('p','sub','Ei osumia.');em.id='nempty';em.hidden=true;footer.appendChild(em);
+  var em=el('p','sub','Ei osumia.'+(srcPre!=='std'&&hidN?' Suodatin “'+SRCN[srcPre]+'” piilottaa '+hidN+' muistiinpanoa.':''));em.id='nempty';em.hidden=true;footer.appendChild(em);
   filterNotes();if(!locked)noteMore(footer);noteFab(p);
   if(scroll&&list.dataset.view===scroll[0]){list.scrollLeft=scroll[1];list.scrollTop=scroll[2];}
   if(editorFocus?.isConnected)editorFocus.focus({preventScroll:true});
@@ -12836,6 +12846,11 @@ try{var v0=JSON.parse(KSTORE.read(VKEY)||'null'),vq0=JSON.parse(KSTORE.read(VQKE
 var vBusy=false,vMsg='',vAt='',vTimer=0,vApplying=false,vLastErr='';
 /* 0.3: lähdesuodatin (kaikki:lahde = SRCP-avain). Muutos vie ensin omat muutokset jonoon, sitten näkymä lasketaan välimuistista uudelleen. */
 var srcPre='std';try{srcPre=localStorage.getItem('kaikki:lahde')||'std';}catch(e){}
+/* 0.117: montako holvin muistiinpanoa nykyinen kenen kirjoittamat -suodatin piilottaa (verrattuna Kaikki sisältö -valintaan). Välimuisti
+   päivittyy, kun suodatin tai välimuistin tiedostot vaihtuvat. */
+var srcHidMemo={k:'',n:0};
+function srcHiddenCount(){if(srcPre==='std'||!vOn())return 0;var ks=Object.keys(VC.files),key=srcPre+'|'+ks.length+'|'+vPullAt+'|'+vAt;if(srcHidMemo.k===key)return srcHidMemo.n;
+  var n=0;ks.forEach(function(p){var t=VC.files[p].t;if(VAULT.shown(p,t,'std')&&!VAULT.shown(p,t,srcPre))n++;});srcHidMemo={k:key,n:n};return n;}
 function setSrc(k){srcPre=VAULT.SRCP[k]?k:'std';try{localStorage.setItem('kaikki:lahde',srcPre);}catch(e){}clearTimeout(vTimer);if(vOn())vCollect();vApply();activeScroller().scrollTop=0;render();}
 var SRCN={std:'Kaikki sisältö',oma:'Vain omat',emil:'Omat ja yhdessä tehdyt',ai:'Tekoälyn kirjoittamat',ohje:'Tekoälylle (ohjeet)',all:'Kaikki, myös tekoälylle'};
 var SRCS={std:'Kaikki',oma:'Omat',emil:'Omat + yhdessä',ai:'Tekoäly',ohje:'Tekoälylle',all:'Kaikki + ohjeet'};
@@ -12862,7 +12877,7 @@ function vTrash(){var k=vK();return k&&k.id===data.k?data.trash:(k?k.trash:[]);}
    käyttökerran onnistuneeseen hakuun GitHubista (vPullAt). vAt on viimeisin onnistunut tallennus GitHubiin; se ei enää kerro hausta mitään.
    vGap = näkyviksi tarkoitetut holvin tiedostot, joille ei ole muistiinpanoa; vBig = liian isot, hakematta jääneet tiedostot. */
 var vPullAt='',vPullFiles=0,vBig=[],vGap=[],vDropped=new Set(),vTree=null,vFullNext=false;
-var KAIKKI_VER='0.116';
+var KAIKKI_VER='0.117';
 var vPullLast='';try{vPullLast=localStorage.getItem('kaikki:vhaku')||'';}catch(e){}
 function vWhen(iso){if(!iso)return '';var d=new Date(iso);return (d.toDateString()===new Date().toDateString()?'':d.getDate()+'.'+(d.getMonth()+1)+'. ')+pad(d.getHours())+'.'+pad(d.getMinutes());}
 function vStatus(){if(!vOn())return 'ei käytössä';if(vBusy)return 'synkronoidaan…';var n=vPending();
