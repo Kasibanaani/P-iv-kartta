@@ -1,10 +1,17 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.112 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 26.11.2026
+**Vaihe:** versio 0.113 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 27.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.113 (27.11.2026): holvin vianetsintä GitHub-vault-ikkunaan.** Emil 27.11.: *Päivän voimavaraohjain* ei näy yhä 0.112:n jälkeenkään, vaikka hän on päivittänyt ja synkannut. Vaultissa tiedosto on paikallaan, eikä sitä ole arkistoitu. Appi tallensi puhelimelta tänään klo 7.06, eli yhteys toimii. Kaikki vaultin .md-, .csv- ja .json-tiedostot ovat kelvollista UTF-8:aa ja alle 400 kt, joten mikään tiedosto ei kaada hakua. Juurisyy on yhä todentamatta.
+- Ikkunan ensimmäinen rivi kertoo version (*Kaikki 0.113*), repon ja haaran. Näin nähdään, ajaako puhelin uutta koodia.
+- **Tarkista tiedosto** (sana tai polun osa): kertoo portaittain, onko tiedosto GitHubin listassa ja laitteen välimuistissa (sama vai vanha versio), näkyykö se suodattimella, onko se jonossa tai roskakorissa ja onko siitä muistiinpano. Lisäksi huomautus, jos vault on eri projektissa kuin auki oleva.
+- **Hae kaikki uudelleen**: jokainen tiedosto haetaan GitHubista, vaikka versio näyttäisi samalta. Omat odottavat muutokset säilyvät.
+- Testi `selain_113.py` (390 ja 320 px). Holvin testit `vault`, `lahde`, `91`–`95`, `100`, `112`, `113` ja `logiikka_112` läpi. Koko sarjaa ei ajettu uudelleen (muutos rajoittuu GitHub-vault-ikkunaan ja haun täysi-tilaan).
+- **Ei tarkistettu:** oikea iPhone. Seuraava askel riippuu Emilin puhelimen tarkistustuloksesta.
 
 **0.112 (27.11.2026): holvin uusi muistiinpano näkyviin ja synkronoinnin tila totuudenmukaiseksi** ([suunnitelman korjattava kohta](SUUNNITELMA.md#korjattava-vaultin-uusi-muistiinpano-puuttuu-muistiosta-vaikka-synkronointi-ilmoittaa-ajantasaista-26112026)).
 - **Mitä löytyi.** Vikaa ei saatu toistettua testiselaimessa: koko holvin sisällöllä (1003 tiedostoa) *Päivän voimavaraohjain* tulee Muistioon ja löytyy haulla sekä tuoreessa selaimessa että kesken käytön haettuna, myös muistiinpanon ollessa auki ja lukitulla näkymällä. Tiedostossa, polussa, monirivisissä kaavoissa tai lähdesuodattimessa ei ole vikaa. Koodista löytyi kaksi aukkoa, jotka selittävät oireen:
@@ -427,6 +434,8 @@ Siirretty 22.11.2026 toimintaohjeiksi `SUUNNITELMA.md`:n kohtiin 10–14 (kentä
 - Modern Web Guidance -hakua ei voitu ajaa (komento estettiin tässä istunnossa); uutta käyttöliittymää on vain asetusikkuna, Juuren tyyleillä.
 
 ## Seuraava askel
+
+**0.113:n jälkeen.** iPhonella: sulje appi kokonaan ja avaa. GitHub-vault-ikkunan ensimmäisellä rivillä pitää lukea *Kaikki 0.113*. Kirjoita *voimavara*, paina Tarkista tiedosto ja kopioi tulos tekoälylle. Kokeile sitten Hae kaikki uudelleen ja tarkista uudelleen.
 
 **0.112:n jälkeen.** iPhonella: sulje appi kokonaan ja avaa, paina päivitä ja hae `voimavaraohjain`. Avaa GitHub-vault-ikkuna ja katso, että siinä lukee *Haettu GitHubista klo …*. Jos muistiinpano puuttuu, kopioi ikkunan rivit tekoälylle.
 
