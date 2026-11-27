@@ -1,10 +1,12 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.114 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 27.11.2026
+**Vaihe:** versio 0.115 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 27.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.115 (27.11.2026): tekoäly voi pyytää tarkistuksen.** Emil 27.11.: versio 0.114 on puhelimessa, mutta muistiinpano ei näy vieläkään. Tarkistusta ei lähetetty. Jos vaultissa on `yllapito/kaikki-tarkistus-pyynto.md` (rivi `sana: …`), appi lähettää tarkistuksen itse seuraavan onnistuneen haun jälkeen, kerran kutakin pyynnön versiota kohti. Tarkistukseen tulivat lisäksi projektit (muistiinpanojen, holvin muistiinpanojen ja sanaosumien määrät) sekä mitä Muistio piirsi (kortit, piilotetut, osuvan muistiinpanon kortti). Testi `selain_113.py` laajennettu. Holvin testit läpi. Pyyntö sanalla *voimavara* jätetty vaultiin. **Seuraava askel:** Emil avaa appin, ja tekoäly lukee `yllapito/kaikki-tarkistus.md`:n.
 
 **0.114 (27.11.2026): tarkistus vaultiin.** Emil 27.11.: muistiinpano ei näy vieläkään. Tarkistuksen tulosta ei saatu, eikä puhelimelta ole tullut vaultiin uusia kirjoituksia klo 7.06 jälkeen. GitHub-vault-ikkunan **Lähetä tarkistus vaultiin** kirjoittaa tiedoston `yllapito/kaikki-tarkistus.md`. Siinä ovat erittely, laitteen tila (projektit, suodattimet, välimuistin koot, tallennuspaikat, selain) ja Tarkista tiedosto -tulos kentän sanalla, oletuksena *voimavara*. Muistiinpanojen tekstiä ei kirjoiteta. Vaultin `ohjeet/appi.md` on päivitetty. Testi `selain_113.py` laajennettu. Holvin testit läpi (`selain_112` kerran satunnaisesti kaatui, kaksi uusintaa läpi). **Seuraava askel:** Emil painaa napin, ja tekoäly lukee tiedoston ja korjaa löydöksen mukaan.
 

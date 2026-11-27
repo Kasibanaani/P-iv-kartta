@@ -57,6 +57,19 @@ def check(browser, width):
     assert 'vault projektissa 1.' in md and 'LIUKUSÄÄDIN' not in md
     assert page.evaluate("KaikkiTesti.sendCheck('ohjai')").get('file')
     assert not page.evaluate("KaikkiTesti.notes().some(n=>n.vp==='yllapito/kaikki-tarkistus.md')")
+    assert '## Projektit' in md and '(auki)' in md and '## Muistio-näkymä' in md and NEW + ': kortti on' in md, md
+    # Tekoälyn pyyntö: appi lähettää tarkistuksen itse haun jälkeen, kerran pyyntöä kohti.
+    page.evaluate("__repo.put('yllapito/kaikki-tarkistus-pyynto.md','---\\nnakyy: ei\\n---\\nsana: koe\\n')")
+    assert page.evaluate("KaikkiTesti.pull()")
+    page.wait_for_function("(__repo.get('yllapito/kaikki-tarkistus.md')||'').includes('## Tarkista tiedosto “koe”')")
+    page.wait_for_timeout(300)
+    n0 = len([x for x in page.evaluate("__repo.log") if 'kaikki-tarkistus.md' in x and x.startswith('PUT')])
+    assert page.evaluate("KaikkiTesti.pull()")
+    page.wait_for_timeout(2000)
+    assert len([x for x in page.evaluate("__repo.log") if 'kaikki-tarkistus.md' in x and x.startswith('PUT')]) == n0
+    page.evaluate("__repo.put('yllapito/kaikki-tarkistus-pyynto.md','---\\nnakyy: ei\\n---\\nsana: oma\\n')")
+    assert page.evaluate("KaikkiTesti.pull()")
+    page.wait_for_function("(__repo.get('yllapito/kaikki-tarkistus.md')||'').includes('## Tarkista tiedosto “oma”')")
     # Ikkunan napit ja versio.
     page.evaluate("document.getElementById('ghbtn').click()")
     assert ('Kaikki ' + page.evaluate("KaikkiTesti.ver()")) in page.locator('#gs-status').inner_text()

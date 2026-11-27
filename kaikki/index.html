@@ -12859,7 +12859,7 @@ function vTrash(){var k=vK();return k&&k.id===data.k?data.trash:(k?k.trash:[]);}
    käyttökerran onnistuneeseen hakuun GitHubista (vPullAt). vAt on viimeisin onnistunut tallennus GitHubiin; se ei enää kerro hausta mitään.
    vGap = näkyviksi tarkoitetut holvin tiedostot, joille ei ole muistiinpanoa; vBig = liian isot, hakematta jääneet tiedostot. */
 var vPullAt='',vPullFiles=0,vBig=[],vGap=[],vDropped=new Set(),vTree=null,vFullNext=false;
-var KAIKKI_VER='0.114';
+var KAIKKI_VER='0.115';
 var vPullLast='';try{vPullLast=localStorage.getItem('kaikki:vhaku')||'';}catch(e){}
 function vWhen(iso){if(!iso)return '';var d=new Date(iso);return (d.toDateString()===new Date().toDateString()?'':d.getDate()+'.'+(d.getMonth()+1)+'. ')+pad(d.getHours())+'.'+pad(d.getMinutes());}
 function vStatus(){if(!vOn())return 'ei käytössä';if(vBusy)return 'synkronoidaan…';var n=vPending();
@@ -12909,11 +12909,26 @@ function vCheckText(word){var k=vK(),cur=data.K.findIndex(function(x){return x.i
     '- suodatin '+srcPre+', asiasanarajaus '+noteFilter.length+', haku “'+noteQuery+'”, näkymä '+(nv||'oletus')+', '+nm+', osio '+tab,
     '- tallennus '+JSON.stringify(st.where||{})+', IndexedDB luettu '+!!st.readOk+', välilehti oma '+tabMine()+', synkronoi '+vBusy,
     '- selain '+navigator.userAgent+(window.navigator.standalone?' (kotivalikon appi)':''),
-    '','## Tarkista tiedosto “'+word+'”'],vWhy(word).map(function(l){return '- '+l;}));
+    '','## Projektit'],data.K.map(function(K,i){var ns=K.id===data.k?data.notes:K.notes||[],w=String(word||'').toLowerCase();
+      return '- '+(i+1)+'. '+(K.name||'?')+(K.id===data.k?' (auki)':'')+': muistiinpanoja '+ns.length+', holvista '+ns.filter(function(n){return n.vp;}).length+(w?', polussa “'+word+'” '+ns.filter(function(n){return n.vp&&n.vp.toLowerCase().indexOf(w)>=0;}).length+', tekstissä '+ns.filter(function(n){return String(n.text||'').toLowerCase().indexOf(w)>=0;}).length:'');}),
+    ['','## Muistio-näkymä'],vCheckView(word),['','## Tarkista tiedosto “'+word+'”'],vWhy(word).map(function(l){return '- '+l;}));
   return L.join('\n')+'\n';}
+/* 0.115: mitä Muistio oikeasti piirsi: kortit ja rivit, piilotetut, haun sana ja osuvan muistiinpanon kortti. */
+function vCheckView(word){var L=[],cards=document.querySelectorAll('#nlist [data-id]'),hid=0,w=String(word||'').toLowerCase();
+  Array.prototype.forEach.call(cards,function(c){if(c.hidden)hid++;});
+  L.push('- piirrettyjä rivejä tai kortteja '+cards.length+', joista piilossa '+hid+' (haku “'+noteQuery+'”), osio nyt '+tab);
+  vNotes().filter(function(n){return n.vp&&n.vp.toLowerCase().indexOf(w)>=0;}).slice(0,5).forEach(function(n){var c=document.querySelector('#nlist [data-id="'+n.id+'"]');
+    L.push('- '+n.vp+': '+(c?'kortti on'+(c.hidden?', mutta piilossa':'')+(c.offsetParent===null&&!c.hidden?', ei näkyvissä ruudulla':''):'korttia EI ole')+(n.arch?' · arkistoitu':'')+(n.rep?' · toistuva':''));});
+  return L;}
 async function vSendCheck(word){if(!vOn())return {error:'GitHub-vault ei ole käytössä.'};var text=vCheckText(word);
   var r=await vWriteText(CHECK_PATH,function(){return text;},'appi: tarkistus tekoälylle',{repo:vRepo(),branch:G.branch});
   if(r.file&&r.file.sha){VC.files[CHECK_PATH]=r.file;vSaveC();}return r;}
+/* 0.115: tekoäly voi pyytää tarkistusta tiedostolla yllapito/kaikki-tarkistus-pyynto.md (rivi `sana: …`). Appi lähettää tarkistuksen itse
+   onnistuneen haun jälkeen, kerran kutakin pyynnön versiota kohti (kaikki:tarkistus-sha). Käyttäjän ei tarvitse tehdä muuta kuin avata appi. */
+var CHECK_REQ='yllapito/kaikki-tarkistus-pyynto.md',vAutoBusy=false;
+function vAutoCheck(){var f=VC.files[CHECK_REQ];if(!vOn()||vAutoBusy||!f||!tabMine())return;var done='';try{done=localStorage.getItem('kaikki:tarkistus-sha')||'';}catch(e){}if(done===f.sha)return;
+  var m=/^sana:\s*(.+)$/m.exec(f.t),w=m?m[1].trim():'';vAutoBusy=true;
+  setTimeout(function(){vSendCheck(w).then(function(r){if(r&&r.file){try{localStorage.setItem('kaikki:tarkistus-sha',f.sha);}catch(e){}}}).catch(function(){}).finally(function(){vAutoBusy=false;});},1500);}
 /* 0.113: Hae kaikki uudelleen: jokainen tiedosto haetaan GitHubista, vaikka versio näyttäisi samalta. Omat odottavat muutokset säilyvät. */
 function vFullPull(){vFullNext=true;return vRefresh();}
 var vReadError='',lsError='',vDeferredNote=false;
@@ -12976,6 +12991,7 @@ async function vPull(){
     vReadError=error.message||'Holvin haku epäonnistui.';return false;
   }finally{vBusy=false;vRender();}
   if(vPending())await vFlush();
+  vAutoCheck();
   return true;
 }
 /* Välimuisti -> muistiinpanot (vain tiedostot, joilla ei ole lähtemättömiä omia muutoksia) */
@@ -13494,7 +13510,7 @@ $('ns-text').addEventListener('touchstart',function(ev){var t=ev.touches[0];vLT=
 $('ns-text').addEventListener('touchmove',function(ev){if(!vLT)return;var t=ev.touches[0];if(Math.abs(t.clientX-vLT.x)>8||Math.abs(t.clientY-vLT.y)>8)vLT=null;},{passive:true,capture:true});
 $('ns-text').addEventListener('touchend',function(ev){var T=vLT;vLT=null;if(!T||Date.now()-T.at>600)return;vLinkTap(ev,T.x,T.y);},{passive:false,capture:true});
 $('ns-text').addEventListener('click',function(ev){vLinkTap(ev,ev.clientX,ev.clientY);},true);
-window.KaikkiTesti={save:function(){save();},openFromView:function(vp,path){var n=vNotes().find(function(x){return x.vp===vp;});noteFromView(n,path);},tab:function(){return {mine:tabMine(),passive:tabPassive,id:TAB_ID,rec:localStorage.getItem(TABKEY)};},trash:function(p){var n=vNotes().find(function(x){return x.vp===p;});if(n)toTrash(n);clearTimeout(vTimer);return vCollect();},restore:function(p){var n=data.trash.find(function(x){return x.vp===p;});if(n)restore(n);clearTimeout(vTimer);return vCollect();},store:function(){return STORE;},kstore:function(){return KSTORE.state();},kflush:function(){return KSTORE.flush();},lsSync:function(){return lsSync();},reps:function(){return data.reps;},chk:function(){return data.chk;},lists:function(){return data.lists;},vault:function(){return VC;},gh:function(){return G;},pull:function(){return vPull();},collect:function(){clearTimeout(vTimer);vCollect();},flush:function(){return vFlush();},notes:function(){return vNotes();},/* 0.113 */why:function(w){return vWhy(w);},sendCheck:function(w){return vSendCheck(w);},fullPull:function(){return vFullPull();},ver:function(){return KAIKKI_VER;},/* 0.112 */desync:function(p){var L=vNotes(),i=L.findIndex(function(x){return x.vp===p;});if(i>=0)L.splice(i,1);return i>=0;},gap:function(){return vGap.slice();},detail:function(){return vDetail();},trashPaths:function(){return (vTrash()||[]).map(function(n){return n.vp;}).filter(Boolean);},status:function(){return vStatus();},src:function(k){setSrc(k);},refresh:function(){return vRefresh();},render:function(){render();},tz:function(v){if(v==null)delete data.cfg.tz;else data.cfg.tz=v;applyCfg();render();}};
+window.KaikkiTesti={save:function(){save();},openFromView:function(vp,path){var n=vNotes().find(function(x){return x.vp===vp;});noteFromView(n,path);},tab:function(){return {mine:tabMine(),passive:tabPassive,id:TAB_ID,rec:localStorage.getItem(TABKEY)};},trash:function(p){var n=vNotes().find(function(x){return x.vp===p;});if(n)toTrash(n);clearTimeout(vTimer);return vCollect();},restore:function(p){var n=data.trash.find(function(x){return x.vp===p;});if(n)restore(n);clearTimeout(vTimer);return vCollect();},store:function(){return STORE;},kstore:function(){return KSTORE.state();},kflush:function(){return KSTORE.flush();},lsSync:function(){return lsSync();},reps:function(){return data.reps;},chk:function(){return data.chk;},lists:function(){return data.lists;},vault:function(){return VC;},gh:function(){return G;},pull:function(){return vPull();},collect:function(){clearTimeout(vTimer);vCollect();},flush:function(){return vFlush();},notes:function(){return vNotes();},/* 0.113 */why:function(w){return vWhy(w);},sendCheck:function(w){return vSendCheck(w);},autoCheck:function(){vAutoCheck();},fullPull:function(){return vFullPull();},ver:function(){return KAIKKI_VER;},/* 0.112 */desync:function(p){var L=vNotes(),i=L.findIndex(function(x){return x.vp===p;});if(i>=0)L.splice(i,1);return i>=0;},gap:function(){return vGap.slice();},detail:function(){return vDetail();},trashPaths:function(){return (vTrash()||[]).map(function(n){return n.vp;}).filter(Boolean);},status:function(){return vStatus();},src:function(k){setSrc(k);},refresh:function(){return vRefresh();},render:function(){render();},tz:function(v){if(v==null)delete data.cfg.tz;else data.cfg.tz=v;applyCfg();render();}};
 window.JuuriTesti={setListView:function(v){if(v==='r')oldOn();setListView(v);},listView:function(){return listView();},old:function(){oldOn();render();}};
 function oldOn(){OLDUI=true;try{localStorage.setItem('kaikki:vanhat','1');}catch(e){}document.body.classList.add('oldui');}
 function setListView(v){lstV=v==='r'||v==='w'?v:'g';lwSel=false;try{localStorage.setItem('kaikki:listview',lstV);}catch(e){}lwOpen=null;chkOpen={};chkFreeze=null;main.scrollTop=0;render();}
