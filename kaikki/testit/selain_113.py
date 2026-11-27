@@ -49,12 +49,22 @@ def check(browser, width):
     assert sum(1 for x in log if x.startswith('GET /git/blobs/')) >= 3, log
     assert not [p for p in page.evaluate("Object.keys(__repo.files)") if p.startswith('arkisto/')]
 
+    # Tarkistus vaultiin: tiedosto syntyy, sisältää erittelyn ja tarkistuksen, ei näy muistiinpanona eikä sisällä tekstiä.
+    r = page.evaluate("KaikkiTesti.sendCheck('ohjai')")
+    assert not r.get('error'), r
+    md = page.evaluate("__repo.get('yllapito/kaikki-tarkistus.md')")
+    assert 'nakyy: ei' in md and '## Erittely' in md and '- — ' + NEW in md and '6. Muistiinpano: on.' in md, md
+    assert 'vault projektissa 1.' in md and 'LIUKUSÄÄDIN' not in md
+    assert page.evaluate("KaikkiTesti.sendCheck('ohjai')").get('file')
+    assert not page.evaluate("KaikkiTesti.notes().some(n=>n.vp==='yllapito/kaikki-tarkistus.md')")
     # Ikkunan napit ja versio.
     page.evaluate("document.getElementById('ghbtn').click()")
     assert ('Kaikki ' + page.evaluate("KaikkiTesti.ver()")) in page.locator('#gs-status').inner_text()
     page.fill('#gs-why', 'ohjai')
     page.click('#gs-whybtn')
     assert '6. Muistiinpano: on.' in page.locator('#gs-whyout').inner_text()
+    page.click('#gs-send')
+    page.wait_for_function("document.getElementById('gs-whyout').textContent.startsWith('Tarkistus tallennettu vaultiin')")
     page.click('#gs-full')
     page.wait_for_function("document.getElementById('gs-whyout').textContent.startsWith('Kaikki tiedostot haettu uudelleen')")
     assert page.evaluate("document.documentElement.scrollWidth<=innerWidth")

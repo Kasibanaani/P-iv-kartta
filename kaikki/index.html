@@ -2386,7 +2386,7 @@ html,body,#main,.rv-scroll,.sg-wrap{overscroll-behavior-x:none}
   <div class="gsf"><input type="text" id="gs-repo" name="kaikki-vault-repo" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Repo" placeholder="Kasibanaani/vault123"><input type="text" id="gs-tok" name="kaikki-vault-avain" class="gstok" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Avain" placeholder="Avain (github_pat_…)"></div>
   <div class="btnrow"><button type="button" class="btn solid" id="gs-save">Ota käyttöön</button><button type="button" class="btn" id="gs-pull">Hae nyt</button><button type="button" class="btn" id="gs-off">Poista käytöstä</button></div>
   <p class="msg" id="gs-msg" aria-live="polite"></p>
-  <div class="gsf" id="gs-whybox"><input type="search" id="gs-why" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Tarkistettava tiedosto tai sana" placeholder="Tiedosto tai sana, esim. voimavara"><div class="btnrow"><button type="button" class="btn" id="gs-whybtn">Tarkista tiedosto</button><button type="button" class="btn" id="gs-full">Hae kaikki uudelleen</button></div></div>
+  <div class="gsf" id="gs-whybox"><input type="search" id="gs-why" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Tarkistettava tiedosto tai sana" placeholder="Tiedosto tai sana, esim. voimavara"><div class="btnrow"><button type="button" class="btn" id="gs-whybtn">Tarkista tiedosto</button><button type="button" class="btn" id="gs-full">Hae kaikki uudelleen</button><button type="button" class="btn" id="gs-send">Lähetä tarkistus vaultiin</button></div></div>
   <p id="gs-whyout" aria-live="polite" style="white-space:pre-line"></p>
 </dialog>
 <dialog id="note-log" aria-labelledby="nl-h">
@@ -12859,7 +12859,7 @@ function vTrash(){var k=vK();return k&&k.id===data.k?data.trash:(k?k.trash:[]);}
    käyttökerran onnistuneeseen hakuun GitHubista (vPullAt). vAt on viimeisin onnistunut tallennus GitHubiin; se ei enää kerro hausta mitään.
    vGap = näkyviksi tarkoitetut holvin tiedostot, joille ei ole muistiinpanoa; vBig = liian isot, hakematta jääneet tiedostot. */
 var vPullAt='',vPullFiles=0,vBig=[],vGap=[],vDropped=new Set(),vTree=null,vFullNext=false;
-var KAIKKI_VER='0.113';
+var KAIKKI_VER='0.114';
 var vPullLast='';try{vPullLast=localStorage.getItem('kaikki:vhaku')||'';}catch(e){}
 function vWhen(iso){if(!iso)return '';var d=new Date(iso);return (d.toDateString()===new Date().toDateString()?'':d.getDate()+'.'+(d.getMonth()+1)+'. ')+pad(d.getHours())+'.'+pad(d.getMinutes());}
 function vStatus(){if(!vOn())return 'ei käytössä';if(vBusy)return 'synkronoidaan…';var n=vPending();
@@ -12894,6 +12894,26 @@ function vWhy(word){var w=String(word||'').trim().toLowerCase();if(!w)return ['K
     if(vRemoved(p))L.push('5. Poistettu tällä laitteella (roskakorissa).');
     L.push(ns.length?'6. Muistiinpano: on'+(ns.length>1?' ('+ns.length+' kpl!)':'')+(ns.some(function(n){return n.arch;})?', mutta arkistoitu.':'.')+(vK()&&vK().id!==data.k?' Huom: vault on projektissa “'+vK().name+'”, nyt auki on toinen projekti.':''):'6. Muistiinpano: EI'+(VC.known[p]?' (laite muistaa tiedoston aiemmalta).':'.'));});
   return L;}
+/* 0.114: tarkistus tekoälylle vaultin tiedostoon yllapito/kaikki-tarkistus.md (piilossa apista, nakyy: ei). Sisältö: erittely, laitteen
+   tila (projektit, suodattimet, välimuistin koot, tallennuspaikat) ja Tarkista tiedosto -tulos. Vain polkuja ja lukuja, ei muistiinpanojen tekstiä. */
+var CHECK_PATH='yllapito/kaikki-tarkistus.md';
+function vCheckText(word){var k=vK(),cur=data.K.findIndex(function(x){return x.id===data.k;}),vn=vNotes(),shownN=0;
+  Object.keys(VC.files).forEach(function(p){if(VAULT.shown(p,VC.files[p].t,srcPre))shownN++;});
+  var st={};try{st=KSTORE.state();}catch(e){}var nv='',nm='';try{nv=localStorage.getItem('kaikki:nview')||'';nm=nvMode();}catch(e){}
+  var L=['---','tyyppi: yllapito','otsikko: Kaikki-appin tarkistus','kuvaus: Appin synkronoinnin tila tekoälylle. Korvautuu joka lähetyksellä.','luotu: '+todayIso(),'lahde: appi','nakyy: ei','---',
+    '# Kaikki-appin tarkistus','','Lähetetty '+new Date().toString(),'','## Erittely'].concat(vDetail().map(function(l){return '- '+l;}),['','## Laite',
+    '- projekteja '+data.K.length+', auki '+(cur+1)+'. ('+(kOf()&&kOf().name||'?')+'), vault projektissa 1. ('+(k&&k.name||'?')+')',
+    '- muistiinpanoja auki olevassa projektissa '+data.notes.length+', vaultin projektissa '+vn.length+', joista holvista '+vn.filter(function(n){return n.vp;}).length+', arkistoituja '+vn.filter(function(n){return n.arch;}).length,
+    '- välimuistissa tiedostoja '+Object.keys(VC.files).length+', näkyviä '+shownN+', tunnettuja '+Object.keys(VC.known).length+', jonossa '+Object.keys(VC.q).length+', suoria '+vOpsHere().length,
+    '- GitHubin lista tällä käyttökerralla: '+(vTree?vTree.items.size+' tiedostoa, haettu '+vWhen(vTree.at):'ei haettu'),
+    '- suodatin '+srcPre+', asiasanarajaus '+noteFilter.length+', haku “'+noteQuery+'”, näkymä '+(nv||'oletus')+', '+nm+', osio '+tab,
+    '- tallennus '+JSON.stringify(st.where||{})+', IndexedDB luettu '+!!st.readOk+', välilehti oma '+tabMine()+', synkronoi '+vBusy,
+    '- selain '+navigator.userAgent+(window.navigator.standalone?' (kotivalikon appi)':''),
+    '','## Tarkista tiedosto “'+word+'”'],vWhy(word).map(function(l){return '- '+l;}));
+  return L.join('\n')+'\n';}
+async function vSendCheck(word){if(!vOn())return {error:'GitHub-vault ei ole käytössä.'};var text=vCheckText(word);
+  var r=await vWriteText(CHECK_PATH,function(){return text;},'appi: tarkistus tekoälylle',{repo:vRepo(),branch:G.branch});
+  if(r.file&&r.file.sha){VC.files[CHECK_PATH]=r.file;vSaveC();}return r;}
 /* 0.113: Hae kaikki uudelleen: jokainen tiedosto haetaan GitHubista, vaikka versio näyttäisi samalta. Omat odottavat muutokset säilyvät. */
 function vFullPull(){vFullNext=true;return vRefresh();}
 var vReadError='',lsError='',vDeferredNote=false;
@@ -13248,6 +13268,9 @@ $('gs-save').addEventListener('click',async function(){
 $('gs-pull').addEventListener('click',function(){vRefresh();});
 function gsWhy(){$('gs-whyout').textContent=vWhy($('gs-why').value).join('\n');}
 $('gs-whybtn').addEventListener('click',gsWhy);$('gs-why').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();gsWhy();}});
+$('gs-send').addEventListener('click',function(){var b=$('gs-send'),w=$('gs-why').value.trim()||'voimavara';b.disabled=true;$('gs-whyout').textContent='Lähetetään tarkistusta…';
+  vSendCheck(w).then(function(r){$('gs-whyout').textContent=r.error?'Tarkistus ei lähtenyt: '+r.error:'Tarkistus tallennettu vaultiin ('+CHECK_PATH+'). Kerro tekoälylle, että se on lähetetty.\n\n'+vWhy(w).join('\n');})
+  .catch(function(e){$('gs-whyout').textContent='Tarkistus ei lähtenyt: '+(e&&e.message||e);}).finally(function(){b.disabled=false;});});
 $('gs-full').addEventListener('click',function(){var b=$('gs-full');b.disabled=true;$('gs-whyout').textContent='Haetaan kaikki tiedostot uudelleen…';
   vFullPull().then(function(ok){$('gs-whyout').textContent=(ok?'Kaikki tiedostot haettu uudelleen klo '+vWhen(vPullAt)+'.':'Haku ei onnistunut: '+(vReadError||vMsg||vGapText()||'yritä uudelleen.'))+($('gs-why').value.trim()?'\n\n'+vWhy($('gs-why').value).join('\n'):'');}).finally(function(){b.disabled=false;});});
 $('gs-off').addEventListener('click',function(){++vSettingsAttempt;G.token='';vSaveG();vRender();$('gs-tok').value='';$('gs-msg').textContent='Yhteys pois. Muistiinpanot jäävät tälle laitteelle.';});
@@ -13471,7 +13494,7 @@ $('ns-text').addEventListener('touchstart',function(ev){var t=ev.touches[0];vLT=
 $('ns-text').addEventListener('touchmove',function(ev){if(!vLT)return;var t=ev.touches[0];if(Math.abs(t.clientX-vLT.x)>8||Math.abs(t.clientY-vLT.y)>8)vLT=null;},{passive:true,capture:true});
 $('ns-text').addEventListener('touchend',function(ev){var T=vLT;vLT=null;if(!T||Date.now()-T.at>600)return;vLinkTap(ev,T.x,T.y);},{passive:false,capture:true});
 $('ns-text').addEventListener('click',function(ev){vLinkTap(ev,ev.clientX,ev.clientY);},true);
-window.KaikkiTesti={save:function(){save();},openFromView:function(vp,path){var n=vNotes().find(function(x){return x.vp===vp;});noteFromView(n,path);},tab:function(){return {mine:tabMine(),passive:tabPassive,id:TAB_ID,rec:localStorage.getItem(TABKEY)};},trash:function(p){var n=vNotes().find(function(x){return x.vp===p;});if(n)toTrash(n);clearTimeout(vTimer);return vCollect();},restore:function(p){var n=data.trash.find(function(x){return x.vp===p;});if(n)restore(n);clearTimeout(vTimer);return vCollect();},store:function(){return STORE;},kstore:function(){return KSTORE.state();},kflush:function(){return KSTORE.flush();},lsSync:function(){return lsSync();},reps:function(){return data.reps;},chk:function(){return data.chk;},lists:function(){return data.lists;},vault:function(){return VC;},gh:function(){return G;},pull:function(){return vPull();},collect:function(){clearTimeout(vTimer);vCollect();},flush:function(){return vFlush();},notes:function(){return vNotes();},/* 0.113 */why:function(w){return vWhy(w);},fullPull:function(){return vFullPull();},ver:function(){return KAIKKI_VER;},/* 0.112 */desync:function(p){var L=vNotes(),i=L.findIndex(function(x){return x.vp===p;});if(i>=0)L.splice(i,1);return i>=0;},gap:function(){return vGap.slice();},detail:function(){return vDetail();},trashPaths:function(){return (vTrash()||[]).map(function(n){return n.vp;}).filter(Boolean);},status:function(){return vStatus();},src:function(k){setSrc(k);},refresh:function(){return vRefresh();},render:function(){render();},tz:function(v){if(v==null)delete data.cfg.tz;else data.cfg.tz=v;applyCfg();render();}};
+window.KaikkiTesti={save:function(){save();},openFromView:function(vp,path){var n=vNotes().find(function(x){return x.vp===vp;});noteFromView(n,path);},tab:function(){return {mine:tabMine(),passive:tabPassive,id:TAB_ID,rec:localStorage.getItem(TABKEY)};},trash:function(p){var n=vNotes().find(function(x){return x.vp===p;});if(n)toTrash(n);clearTimeout(vTimer);return vCollect();},restore:function(p){var n=data.trash.find(function(x){return x.vp===p;});if(n)restore(n);clearTimeout(vTimer);return vCollect();},store:function(){return STORE;},kstore:function(){return KSTORE.state();},kflush:function(){return KSTORE.flush();},lsSync:function(){return lsSync();},reps:function(){return data.reps;},chk:function(){return data.chk;},lists:function(){return data.lists;},vault:function(){return VC;},gh:function(){return G;},pull:function(){return vPull();},collect:function(){clearTimeout(vTimer);vCollect();},flush:function(){return vFlush();},notes:function(){return vNotes();},/* 0.113 */why:function(w){return vWhy(w);},sendCheck:function(w){return vSendCheck(w);},fullPull:function(){return vFullPull();},ver:function(){return KAIKKI_VER;},/* 0.112 */desync:function(p){var L=vNotes(),i=L.findIndex(function(x){return x.vp===p;});if(i>=0)L.splice(i,1);return i>=0;},gap:function(){return vGap.slice();},detail:function(){return vDetail();},trashPaths:function(){return (vTrash()||[]).map(function(n){return n.vp;}).filter(Boolean);},status:function(){return vStatus();},src:function(k){setSrc(k);},refresh:function(){return vRefresh();},render:function(){render();},tz:function(v){if(v==null)delete data.cfg.tz;else data.cfg.tz=v;applyCfg();render();}};
 window.JuuriTesti={setListView:function(v){if(v==='r')oldOn();setListView(v);},listView:function(){return listView();},old:function(){oldOn();render();}};
 function oldOn(){OLDUI=true;try{localStorage.setItem('kaikki:vanhat','1');}catch(e){}document.body.classList.add('oldui');}
 function setListView(v){lstV=v==='r'||v==='w'?v:'g';lwSel=false;try{localStorage.setItem('kaikki:listview',lstV);}catch(e){}lwOpen=null;chkOpen={};chkFreeze=null;main.scrollTop=0;render();}
