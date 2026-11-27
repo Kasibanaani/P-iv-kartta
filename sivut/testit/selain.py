@@ -116,6 +116,7 @@ def offline(browser,width):
     page.get_by_role('button',name='Soutu',exact=True).click()
     expect(page.locator('tbody tr')).to_have_count(1)
     expect(page.locator('tbody')).to_contain_text('9')
+    page.get_by_role('button',name='Suodata ja järjestä, rajauksia käytössä',exact=True).click()
     page.get_by_role('button',name='Tyhjennä',exact=True).click()
     page.get_by_role('button',name='Arvo',exact=True).click()
     expect(page.locator('tbody tr').first).to_contain_text('7')
@@ -202,11 +203,90 @@ def vault_works(browser):
     page.close()
 
 
+def compact_layout(browser, width, screenshot=None):
+    page, errors = setup(browser, width)
+    page.add_init_script("""(() => {
+        const viewport = new EventTarget();
+        Object.assign(viewport, { scale: 1, offsetTop: 0 });
+        Object.defineProperty(viewport, 'height', {
+            get: () => window.innerHeight - (viewport.covered || 0)
+        });
+        Object.defineProperty(window, 'visualViewport', { value: viewport });
+        window.resizeKeyboard = pixels => {
+            viewport.covered = pixels;
+            viewport.dispatchEvent(new Event('resize'));
+        };
+    })()""")
+    page.goto(APP)
+    expect(page.locator('html')).to_have_attribute('data-theme', 'hiillos')
+    assert page.locator('meta[name=viewport]').get_attribute('content').find('maximum-scale=1') >= 0
+    editor = create(page, 'Treeni ja palautuminen')
+    paragraphs = [f'Kirjaus {i}: tänään harjoittelin rauhallisesti ja tarkastelin edellisen viikon harjoittelua.'
+                  for i in range(42)]
+    editor.fill((chr(10)*2).join(['## Tämän päivän treeni', *paragraphs, '((viimeinen: =8*65))']))
+    page.get_by_role('button', name='Käyttötila', exact=True).click()
+    page.locator('main').evaluate('node => { node.scrollTop = 535; }')
+    previous = page.locator('main').evaluate('node => node.scrollTop')
+    assert previous > 0
+    page.get_by_role('button', name='Muokkaa', exact=True).click()
+    editor = page.get_by_role('textbox', name='Muistiinpanon teksti')
+    expect(editor).to_be_visible()
+    assert editor.evaluate('node => node.scrollTop') > 0
+    assert page.get_by_role('button', name='Lisää kaava tai havainto').count() == 0
+    page.locator('#more summary').click()
+    expect(page.get_by_role('button', name='Lisää kaava tai havainto')).to_be_visible()
+    page.locator('#more summary').click()
+    editor.focus()
+    before = editor.bounding_box()
+    top_before = page.locator('header').bounding_box()
+    page.evaluate('resizeKeyboard(315)')
+    expect(page.locator('html')).to_have_class('keyboard-open')
+    after = editor.bounding_box()
+    top_after = page.locator('header').bounding_box()
+    assert top_before == top_after
+    assert abs(before['y'] - after['y']) <= 1
+    assert after['height'] < before['height'] - 220
+    assert after['y'] + after['height'] <= 850 - 315
+    assert page.evaluate('scrollY') == 0
+    assert page.get_by_role('navigation').is_hidden()
+    page.evaluate('resizeKeyboard(0)')
+    expect(page.locator('html')).not_to_have_class('keyboard-open')
+    assert abs(editor.bounding_box()['height'] - before['height']) <= 1
+    page.get_by_role('button', name='Käyttötila', exact=True).click()
+    assert abs(page.locator('main').evaluate('node => node.scrollTop') - previous) <= 2
+    page.locator('main').evaluate('node => { node.scrollTop = 0; }')
+    page.locator('#more summary').click()
+    page.get_by_role('button', name='Vault', exact=True).click()
+    page.locator('input[type=password]').focus()
+    dialog = page.get_by_role('dialog')
+    original_modal = dialog.bounding_box()
+    page.evaluate('resizeKeyboard(315)')
+    expect(page.locator('html')).to_have_class('keyboard-open')
+    current_modal = dialog.bounding_box()
+    assert current_modal['y'] + current_modal['height'] <= 850 - 315
+    if width < 580:
+        assert abs(current_modal['y'] - original_modal['y']) <= 1
+    assert page.evaluate('scrollY') == 0
+    page.evaluate('resizeKeyboard(0)')
+    page.get_by_role('combobox',name='Teema').select_option('light')
+    expect(page.locator('html')).to_have_attribute('data-theme','lehto')
+    page.get_by_role('combobox',name='Teema').select_option('dark')
+    page.get_by_role('button',name='Sulje',exact=True).click()
+    if screenshot:
+        page.screenshot(path=screenshot)
+    assert page.evaluate('document.documentElement.scrollWidth === innerWidth')
+    assert not errors, errors
+    page.close()
+
+
 with sync_playwright() as playwright:
-    browser=playwright.chromium.launch(executable_path=os.environ.get('SIVUT_CHROMIUM') or None,args=['--no-sandbox'])
+    browser=playwright.webkit.launch() if os.environ.get('SIVUT_WEBKIT') else playwright.chromium.launch(executable_path=os.environ.get('SIVUT_CHROMIUM') or None,args=['--no-sandbox'])
     for width in (320,390,1440):
         offline(browser,width)
         print(f'Paikallinen käyttö {width} px OK')
+    for width in (320,390,1440):
+        compact_layout(browser,width,os.environ.get('SIVUT_SCREENSHOT') if width==390 else None)
+        print(f'Tiivis näkymä ja simuloitu näppäimistö {width} px OK')
     vault_works(browser)
     print('Rajattu Vault, sivuviittaus, synkka ja rinnakkaismuutos OK')
     browser.close()
