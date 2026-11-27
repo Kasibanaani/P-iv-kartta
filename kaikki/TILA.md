@@ -1,10 +1,12 @@
 # Kaikki: tila
 
-**Vaihe:** versio 0.115 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 27.11.2026
+**Vaihe:** versio 0.116 (kokeilu) · **Käyttölinkki:** https://kasibanaani.github.io/P-iv-kartta/kaikki/ · **Päivitetty:** 27.11.2026
 
 Emilin "toinen aivo" -appi. **Juuren (`paatospuu/`, versio 1.113) kopio**, johon on lisätty yhteys Emilin yksityiseen GitHub-vaultiin (`Kasibanaani/vault123`). Emil 22.11.2026: Juuren muistiinpanot ja kalenteri tehdään *tarkasti Juuren mukaan*, koska niiden käytettävyys on jo hiottu. Siksi koodi on kopio eikä uudelleen kirjoitettu. Kaikkea Juuresta ei tarvitse säilyttää: karsinta päätetään Emilin kokeilun jälkeen.
 
 Vaultin oma ohje tekoälylle on vaultin `AGENTS.md`. Mihin appi luottaa vaultissa: vaultin `ohjeet/appi.md` (pidä ajan tasalla, kun appi muuttuu).
+
+**0.116 (27.11.2026): lukitun näkymän järjestysnappi kertoo lukituksesta.** Emil 27.11.: Tulevat-nappi ei tee mitään. Syy: näkymä *Kaikki muistiinpanot* lukittiin klo 18.25 (vaultin commit *appi: lukitse näkymä*), ja lukitussa näkymässä järjestysnappi oli pois käytöstä ilman ilmoitusta. Nyt nappi on himmeä, ja napautus kertoo, että näkymä on lukittu ja lukitus avataan listan yläpuolen lukosta (lukko korostuu hetkeksi). Lukitus ei rajaa listan sisältöä, joten se ei selitä puuttuvaa voimavaraohjainta. Testi `selain_116.py` (390, 320, 1440 px). Lisäksi `23`, `66`, `78`, `93b` ja `113` läpi.
 
 **0.115 (27.11.2026): tekoäly voi pyytää tarkistuksen.** Emil 27.11.: versio 0.114 on puhelimessa, mutta muistiinpano ei näy vieläkään. Tarkistusta ei lähetetty. Jos vaultissa on `yllapito/kaikki-tarkistus-pyynto.md` (rivi `sana: …`), appi lähettää tarkistuksen itse seuraavan onnistuneen haun jälkeen, kerran kutakin pyynnön versiota kohti. Tarkistukseen tulivat lisäksi projektit (muistiinpanojen, holvin muistiinpanojen ja sanaosumien määrät) sekä mitä Muistio piirsi (kortit, piilotetut, osuvan muistiinpanon kortti). Testi `selain_113.py` laajennettu. Holvin testit läpi. Pyyntö sanalla *voimavara* jätetty vaultiin. **Seuraava askel:** Emil avaa appin, ja tekoäly lukee `yllapito/kaikki-tarkistus.md`:n.
 

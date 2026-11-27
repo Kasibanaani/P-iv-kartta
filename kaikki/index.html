@@ -1448,6 +1448,9 @@ html,body{overscroll-behavior:none}#main{overflow-x:hidden;overscroll-behavior:n
 #ns-hl .wl{text-decoration:underline dotted;text-decoration-color:color-mix(in srgb,var(--label2) 40%,transparent);text-decoration-thickness:1px;text-underline-offset:3px}
 /* Kaikki 0.1: GitHub-vault */
 .gsf{display:flex;flex-direction:column;gap:8px;margin:8px 0}
+/* 0.116: lukitun näkymän järjestysnappi himmeänä, napautus näyttää lukon */
+#notesort.is-locked{opacity:.55}
+.view-lock.nudge{outline:2px solid var(--accent,currentColor);outline-offset:2px}
 .gsf input{font-size:16px;min-height:44px;padding:0 12px;border:1px solid var(--sep,#ccc);border-radius:10px;background:var(--cell,#fff);color:inherit;width:100%;box-sizing:border-box}
 /* 0.1.2: ei salasanakenttää, jottei Safari tulkitse ikkunaa kirjautumiseksi ja täytä repoon käyttäjänimeä */.gstok{-webkit-text-security:disc}
 #menu.vwait,#ghbtn.vwait,#nvpick.nv-warn{position:relative}#nvpick.nv-warn::after{content:"";position:absolute;top:3px;right:3px;width:7px;height:7px;border-radius:50%;background:#9B2335}#ghbtn.vwait::after{content:"";position:absolute;top:-1px;right:-1px;width:7px;height:7px;border-radius:50%;background:#9B2335}#menu.vwait::after{content:"";position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:#9B2335}
@@ -7008,7 +7011,7 @@ function anchoredMenu(id,anchor){popAnchor=anchor;popOpen(id);var m=$(id),a=anch
 function sectionMenu(){var m=$('sectionpop');m.textContent='';ROLL.forEach(function(k){var b=menuItem(m,'section-'+k,MODE[k],function(){showTab(k);$('roll').focus();});b.setAttribute('aria-current',tabKey()===k?'true':'false');});
   m.appendChild(el('div','msep'));menuItem(m,'section-settings-item','Osiot tällä laitteella',function(){$('roll').focus();showSectionSettings();});
   $('roll').setAttribute('aria-expanded','true');anchoredMenu('sectionpop',$('roll'));}
-function sortMenu(anchor){var m=$('sortpop'),V=nvCur();if(viewLocked(noteViewPath(V)))return;
+function sortMenu(anchor){var m=$('sortpop'),V=nvCur();if(viewLocked(noteViewPath(V))){toast('Näkymä “'+V.name+'” on lukittu, joten järjestystä ei voi vaihtaa. Avaa lukitus lukon kuvasta listan yläpuolelta.');var lb=document.querySelector('#notes .view-lock,.view-lock');if(lb){lb.classList.add('nudge');setTimeout(function(){lb.classList.remove('nudge');},1600);}return;}
   m.textContent='';var modes=noteOrderEnabled()?SORTO.concat('own'):SORTO;
   modes.forEach(function(k){var b=menuItem(m,'sort-'+k,SORTN[k],function(){
     if(k==='own')noteOwnReset(V);
@@ -7560,7 +7563,7 @@ function renderNotes(){if(nbObs){nbObs.disconnect();nbObs=null;}if(nvTagObserver
   fb.appendChild(el('small','','Asiasanat'));fb.appendChild(el('span','',filterLabel(facets)));fb.insertAdjacentHTML('beforeend',CHEV);fb.setAttribute('aria-pressed',noteFilter.length?'true':'false');
   /* Järjestys yhtenä nappina suodattimen vieressä (1.50): napautus kiertää Tulevat → Uusimmat → Tärkeys */
   var sort=noteBaseSort(V);
-  var sb=button(tb,'','treepick',function(){sortMenu(this);});sb.id='notesort';sb.disabled=locked;sb.dataset.ns=sort;sb.setAttribute('aria-haspopup','menu');
+  var sb=button(tb,'','treepick',function(){sortMenu(this);});sb.id='notesort';if(locked){sb.setAttribute('aria-disabled','true');sb.classList.add('is-locked');}/* 0.116: ei disabled, jotta napautus kertoo lukituksesta */sb.dataset.ns=sort;sb.setAttribute('aria-haspopup','menu');
   sb.setAttribute('aria-label','Järjestys: '+SORTN[sort]+'. Napauta vaihtaaksesi.');sb.insertAdjacentHTML('beforeend','<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M6.5 3.5v13M3.5 13.5l3 3 3-3M13.5 16.5v-13M10.5 6.5l3-3 3 3"/></svg>');sb.appendChild(el('span','',SORTN[sort]));
   /* 0.3: kenen kirjoittamat (vaultin lahde-kenttä) */
   if(vOn()||srcPre!=='std'){tb.classList.add('hassrc');var srb=button(tb,'','treepick',function(){srcMenu(this);});srb.id='srcpick';srb.setAttribute('aria-haspopup','menu');srb.setAttribute('aria-pressed',srcPre!=='std'?'true':'false');srb.setAttribute('aria-label','Kenen kirjoittamat: '+SRCN[srcPre]);
@@ -12859,7 +12862,7 @@ function vTrash(){var k=vK();return k&&k.id===data.k?data.trash:(k?k.trash:[]);}
    käyttökerran onnistuneeseen hakuun GitHubista (vPullAt). vAt on viimeisin onnistunut tallennus GitHubiin; se ei enää kerro hausta mitään.
    vGap = näkyviksi tarkoitetut holvin tiedostot, joille ei ole muistiinpanoa; vBig = liian isot, hakematta jääneet tiedostot. */
 var vPullAt='',vPullFiles=0,vBig=[],vGap=[],vDropped=new Set(),vTree=null,vFullNext=false;
-var KAIKKI_VER='0.115';
+var KAIKKI_VER='0.116';
 var vPullLast='';try{vPullLast=localStorage.getItem('kaikki:vhaku')||'';}catch(e){}
 function vWhen(iso){if(!iso)return '';var d=new Date(iso);return (d.toDateString()===new Date().toDateString()?'':d.getDate()+'.'+(d.getMonth()+1)+'. ')+pad(d.getHours())+'.'+pad(d.getMinutes());}
 function vStatus(){if(!vOn())return 'ei käytössä';if(vBusy)return 'synkronoidaan…';var n=vPending();
