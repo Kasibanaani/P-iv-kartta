@@ -26,6 +26,8 @@ Emil käyttää mieluummin jatkuvasti rajattuja omia sivuja kuin kaikkien muisti
 
 ### S1. Omat sivut ja käyttäjän aloitussivu
 
+**0.118:** Emilin pyytämä Kotisivun ensimmäinen versio on tehty. Valitut muistiinpanot kiinnitetään muistiinpanon valikosta. Kotisivu avaa ne suoraan lukutilaan ja sen voi valita aloitussivuksi. Kiinnitykset muistetaan selaimessa. Alla olevat nimetyt sivut, automaattiset rajaukset ja käyttöelementtien näyttäminen suoraan sivulla ovat laajemman S1:n jatkoa.
+
 - Luo nimetty, tallentuva sivu kansion, tunnisteen tai nykyisen tallennetun näkymän rajauksesta. Sivu voi sisältää useita osioita, käsin kiinnitettyjä muistiinpanoja ja valitun järjestyksen. Esimerkit Arki, Treeni ja Seuranta. Muistiinpano tulee näkyviin ja poistuu rajauksen mukana.
 - Tarjoa sivut Muistion ensisijaisena näkymänä. Käyttäjä valitsee aloitussivun, ja kaikki muistiinpanot löytyvät hausta sekä Kaikki-näkymästä. Ensimmäisen sivun voi tehdä olemassa olevasta rajauksesta.
 - Osa muistiinpanoista avataan sivulla kortista. Valitun muistiinpanon käyttöliittymän voi myös näyttää suoraan sivulla, esimerkiksi Treenilokin kirjaus tai viikon uni. Käytä samaa lukutilan renderöintiä, laskentaa ja kirjoitusreittiä. Kirjaus kohdistuu elementin lähdemuistiinpanoon. Sivun poisto kohdistuu sivun määritykseen.

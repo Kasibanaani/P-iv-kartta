@@ -74,6 +74,7 @@ def big(browser, url, width):
 
     # Ilman verkkoa: muokkaus jonoon, uudelleenlataus lukee koko vaultin ja muokkauksen laitteelta.
     page.evaluate("sessionStorage.setItem('alhaalla', '1')")
+    page.locator('#nsearch').fill('Alku.')
     page.locator('#nlist .nt').filter(has_text='Alku.').first.click()
     expect(page.locator('#nsheet')).to_be_visible()
     page.locator('#ns-text').evaluate(r"""el => { el.value = 'Koe\n\nAlku.\n\nKirjoitettu ilman verkkoa.'; el.dispatchEvent(new Event('input', {bubbles: true})); }""")

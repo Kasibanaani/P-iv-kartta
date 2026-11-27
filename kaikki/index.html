@@ -659,6 +659,19 @@ main{padding-bottom:28px}
 .ncard .nf i{font-style:normal;padding:1px 8px;border-radius:9px;background:var(--fill);color:var(--label)}
 .ncard .nf i.inf,.found i.th.inf{background:transparent;box-shadow:inset 0 0 0 1px var(--fill2);color:var(--label2)}
 .nlist{display:grid;gap:10px}
+.note-window{overflow-anchor:none}
+#p-notes .nlist.note-window{grid-template-columns:repeat(var(--note-columns,1),minmax(0,1fr))}
+.note-spacer{grid-column:1/-1;pointer-events:none}
+.note-window>.ncard{height:var(--note-window-height);overflow:hidden}
+.note-window>.ncard .nf{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap}
+.rvb.note-window>.rvr{height:44px}
+.home-heading{display:flex;align-items:center;flex-wrap:wrap;justify-content:space-between;gap:8px;margin-bottom:12px}
+.home-heading h2{margin:0}
+.home-note{display:flex;align-items:center;gap:8px;min-width:0;padding:6px 9px;background:var(--cell);border-radius:12px}
+.home-note .home-open{flex:1;min-width:0;min-height:44px;text-align:left;overflow-wrap:anywhere}
+.home-note .home-remove{flex:none;min-width:44px;min-height:44px}
+.home-note .home-title{flex:1;min-width:0;overflow-wrap:anywhere;padding:6px}
+.home-start{display:flex;align-items:center;gap:8px;margin-top:14px;color:var(--label2);font-size:.9rem;min-height:44px}
 .found{font-size:13px;color:var(--label2);margin:8px 0 0}
 .found i{font-style:normal;display:inline-block;margin:2px 4px 0 0;padding:1px 8px;border-radius:9px;background:var(--fill);color:var(--label)}
 #rs-terms{max-height:34vh;overflow:auto;margin-top:8px}#rs-terms .chip{min-height:36px;font-size:14px}#rs-tfind{width:100%}
@@ -1946,7 +1959,7 @@ html,body,#main,.rv-scroll,.sg-wrap{overscroll-behavior-x:none}
 @media (min-width:1000px){
   main>#p-notes.notes-wide,.app:has(#p-notes.notes-wide:not([hidden])) .top .bar1,
   .app:has(#p-notes.notes-wide:not([hidden])) main>.info{max-width:none}
-  #p-notes.notes-wide .nlist:not(.rv-scroll){grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+  #p-notes.notes-wide .nlist:not(.rv-scroll,.note-window){grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
   .rows-wide .nlist.rv-scroll{scrollbar-width:thin}
   .rows-wide .nlist.rv-scroll::-webkit-scrollbar{display:initial;height:8px}
   .rows-wide .nlist.rv-scroll::-webkit-scrollbar-thumb{background:var(--sep);border-radius:4px}
@@ -2341,6 +2354,7 @@ html,body,#main,.rv-scroll,.sg-wrap{overscroll-behavior-x:none}
     <div class="panel" id="p-use" role="tabpanel"></div>
     <div class="panel" id="p-teach" role="tabpanel" hidden></div>
     <div class="panel" id="p-notes" role="tabpanel" hidden></div>
+    <div class="panel" id="p-home" role="tabpanel" hidden></div>
     <div class="panel" id="p-cal" role="tabpanel" hidden></div>
     <div class="panel" id="p-set" role="tabpanel" hidden></div>
     <div class="panel" id="p-terms" role="tabpanel" hidden></div>
@@ -2359,6 +2373,7 @@ html,body,#main,.rv-scroll,.sg-wrap{overscroll-behavior-x:none}
   <div id="navbg" hidden></div>
   <nav role="tablist" aria-label="Näkymät" id="nav">
     <button class="tab" type="button" role="tab" data-tab="notes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h9l4 4V20a.5.5 0 0 1-.5.5h-12A.5.5 0 0 1 6 20z"/><path d="M9 11h7M9 14.5h7M9 18h4"/></svg>Muistio</button>
+    <button class="tab" type="button" role="tab" data-tab="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11 12 4l8.5 7M6 10v10h12V10M10 20v-6h4v6"/></svg>Kotisivu</button>
     <button class="tab" type="button" role="tab" data-tab="cal"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Kalenteri</button>
     <button class="tab" type="button" role="tab" data-tab="treeni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7v10m12-10v10M3 9v6m18-6v6M6 12h12"/></svg>Treeni</button>
     <button class="tab" type="button" role="tab" data-tab="sheets"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M4 10h16M4 14h16M10 10v9M15 10v9"/></svg>Taulukot</button>
@@ -4391,15 +4406,21 @@ function noteTagKey(value){
   var key=String(value||'').trim().replace(/^['"]|['"]$/g,'').replace(/^#/,'').normalize('NFC').toLocaleLowerCase('fi');
   return /^[\p{L}\p{N}][\p{L}\p{N}\p{M}]*(?:-[\p{L}\p{N}][\p{L}\p{N}\p{M}]*)*$/u.test(key)&&/\p{L}/u.test(key)?key:'';
 }
+var noteTagCache=new WeakMap();
 function noteTags(note){
+  var fm=VAULT.fmGet(note.vfm,'tagit'),cached=noteTagCache.get(note);
+  if(cached&&cached.text===note.text&&cached.created===note.created&&cached.fm===fm)return cached.tags.slice();
   var tags=new Set();
-  var text=MUUTTUJA.maskModern(KAAVA.maskCells(note.text),note.created).replace(/```[\s\S]*?(?:```|$)|`[^`\n]*`/g,' ');
   var pattern=/(^|[^\p{L}\p{N}\p{M}#_/@&=-])#([\p{L}\p{N}][\p{L}\p{N}\p{M}]*(?:-[\p{L}\p{N}][\p{L}\p{N}\p{M}]*)*)(?![\p{L}\p{N}\p{M}_-])/gu,hit;
   function add(value){var tag=noteTagKey(value);if(tag)tags.add(tag);}
-  while((hit=pattern.exec(text)))add(hit[2]);
-  var fm=VAULT.fmGet(note.vfm,'tagit');
+  if(String(note.text||'').includes('#')){
+    var text=MUUTTUJA.maskModern(KAAVA.maskCells(note.text),note.created).replace(/```[\s\S]*?(?:```|$)|`[^`\n]*`/g,' ');
+    while((hit=pattern.exec(text)))add(hit[2]);
+  }
   if(/^\[.*\]$/.test(fm))fm.slice(1,-1).split(',').forEach(add);
-  return Array.from(tags);
+  var values=Array.from(tags);
+  noteTagCache.set(note,{text:note.text,created:note.created,fm:fm,tags:values});
+  return values.slice();
 }
 
 /* Kaikki 0.24: kentät ja kaavat. Jäsennyksen operaattoritasot noudattavat Kytköskartan mallia.
@@ -4811,7 +4832,15 @@ var KAAVA=(function(){
     var data=new Map(),byName=new Map(),known=new Set(allowed),memo=new Map(),active=new Map(),scope=notes.slice(),group=null;
     var today=opts&&opts.today||isoD(new Date()),rowMemo=new Map(),observations=new Map(),used=null;
     var subjectGroups=new Map(),byTitle=null,embedding=new Map(),inputCache=new Map();
-    if(opts&&opts.preview)opts.preview.values.forEach(function(_,k){known.add(k);});
+    var indexedNames=false,indexedFields=false,observationIndex=null,previewReads=null,preview=opts?.preview;
+    var definitions=new Map();
+    var resolve=opts?.resolve?function(kind,name){
+      var cacheKey=kind+'\n'+name;
+      if(!definitions.has(cacheKey))definitions.set(cacheKey,opts.resolve(kind,name));
+      return definitions.get(cacheKey);
+    }:undefined;
+    preview?.values.forEach(function(_,k){known.add(k);});
+    function keepReads(target,reads){if(target&&reads)reads.forEach(function(name){target.add(name);});}
     function isRow(note){return !!note&&!note.sheet;}
     function rowValue(n,name){
       if(!rowMemo.has(n))rowMemo.set(n,new Map());
@@ -4840,24 +4869,40 @@ var KAAVA=(function(){
       if(!data.has(n))data.set(n,fields(n,allowed));
       return data.get(n);
     }
-    scope.forEach(function(n){
-      rawFields(n).forEach(function(raw,k){
-        known.add(k);
-        raw.filter(function(v){return /^=\s*RYHMÄ\s*\(/iu.test(v);}).forEach(function(v){
-          var id=subjectKey(k);
-          if(subjectGroups.has(id)){subjectGroups.set(id,null);return;}
-          try{subjectGroups.set(id,{note:n,members:groupMembers(parse(v).args)});}
-          catch(e){subjectGroups.set(id,null);}
+    function indexFields(){
+      if(indexedFields)return;
+      indexedFields=true;
+      scope.forEach(function(n){
+        rawFields(n).forEach(function(raw,k){
+          known.add(k);
+          raw.filter(function(v){return /^=\s*RYHMÄ\s*\(/iu.test(v);}).forEach(function(v){
+            var id=subjectKey(k);
+            if(subjectGroups.has(id)){subjectGroups.set(id,null);return;}
+            try{subjectGroups.set(id,{note:n,members:groupMembers(parse(v).args)});}
+            catch(e){subjectGroups.set(id,null);}
+          });
         });
       });
-      if(!n.vp)return;
-      var path=key(n.vp.replace(/\.md$/i,'')),base=path.split('/').pop();
-      [path].concat(base===path?[]:[base]).forEach(function(name){
-        if(!byName.has(name))byName.set(name,[]);
-        byName.get(name).push(n);
+    }
+    function hasKnown(name){
+      if(known.has(name))return true;
+      indexFields();
+      return known.has(name);
+    }
+    function indexNames(){
+      if(indexedNames)return;
+      indexedNames=true;
+      scope.forEach(function(n){
+        if(!n.vp)return;
+        var path=key(n.vp.replace(/\.md$/i,'')),base=path.split('/').pop();
+        [path].concat(base===path?[]:[base]).forEach(function(name){
+          if(!byName.has(name))byName.set(name,[]);
+          byName.get(name).push(n);
+        });
       });
-    });
+    }
     function findNote(name,missing){
+      indexNames();
       var files=byName.get(name.replace(/\.md$/i,''));
       if(!files){
         if(!byTitle){
@@ -4876,7 +4921,7 @@ var KAAVA=(function(){
       return files[0];
     }
     function subjectKey(name){
-      return opts?.resolve?opts.resolve('subjects',name).key:MUUTTUJA.key(name);
+      return resolve?resolve('subjects',name).key:MUUTTUJA.key(name);
     }
     function groupMembers(args){
       if(!args?.length||args.some(function(a){return a.type!=='name'&&(a.type!=='value'||typeof a.value!=='string')||!MUUTTUJA.validName(a.name??a.value);}))
@@ -4884,6 +4929,7 @@ var KAAVA=(function(){
       return args.map(function(a){return a.name??a.value;});
     }
     function subjects(name){
+      indexFields();
       var members=new Set(),visiting=new Set(),done=new Set();
       function expand(id){
         if(!subjectGroups.has(id)){members.add(id);return;}
@@ -4901,6 +4947,7 @@ var KAAVA=(function(){
     }
     function inputState(note,name){
       if(!note)fail('#PUUTTUU');
+      if(note===preview?.note&&previewReads)previewReads.add(name);
       if(!inputCache.has(note)){
         var registry=new Map();
         noteSpans(note.text).blocks.forEach(function(b){
@@ -4971,24 +5018,78 @@ var KAAVA=(function(){
         stop:[series.stop,range.stop].filter(Boolean).sort()[0]||''
       });
     }
+    function variableKey(name){
+      return resolve?resolve('variables',name).key:MUUTTUJA.key(name);
+    }
+    function observationBucket(variable,bare){
+      if(!observationIndex){
+        var exact=new Map(),withUnits=new Map(),order=new Map();
+        function add(map,k,n,o){
+          if(!map.has(k))map.set(k,new Map());
+          var bucket=map.get(k);
+          if(!bucket.has(n))bucket.set(n,[]);
+          bucket.get(n).push(o);
+        }
+        scope.forEach(function(n,index){
+          order.set(n,index);
+          MUUTTUJA.observe(n).forEach(function(o){
+            var key0=variableKey(o.nimi),base=variableKey(MUUTTUJA.unitParts(o.nimi).name);
+            add(exact,key0,n,o);add(withUnits,key0,n,o);
+            if(base!==key0)add(withUnits,base,n,o);
+          });
+        });
+        observationIndex={exact:exact,withUnits:withUnits,order:order};
+      }
+      return (bare?observationIndex.withUnits:observationIndex.exact).get(variable);
+    }
+    function cachedObservations(cacheKey,query,own,format){
+      var entry=observations.get(cacheKey);
+      if(!entry){
+        var variable=variableKey(query.muuttuja),bare=query.paljasYksikkö&&!MUUTTUJA.unitParts(query.muuttuja).unit;
+        var deps=new Set(),subject=subjectKey(query.kohde);
+        function variableMatches(name){
+          return variableKey(name)===variable||(bare&&variableKey(MUUTTUJA.unitParts(name).name)===variable);
+        }
+        if(preview&&(!own||own===preview.note)){
+          if(!preview.controls)deps.add(null);
+          else preview.controls.forEach(function(c){
+            if(!c.persist||!variableMatches(c.variable))return;
+            var k=subjectKey(c.subject);
+            if(query.kohteet?query.kohteet.has(k):!subject||subject===k)deps.add(c.name);
+          });
+        }
+        var pending=deps.size?preview?.observations?.():null;
+        var selection=own?null:observationBucket(variable,bare);
+        if(!own&&pending){
+          var prior=preview.note,changed=MUUTTUJA.observe(pending).filter(function(o){return variableMatches(o.nimi);});
+          if(changed.length||selection?.has(prior)){
+            var pairs=Array.from(selection||[]);
+            var pos=pairs.findIndex(function(pair){return pair[0]===prior;});
+            if(pos>=0)pairs.splice(pos,1,[pending,changed]);
+            else{
+              var order=observationIndex.order,slot=pairs.findIndex(function(pair){return order.get(pair[0])>order.get(prior);});
+              pairs.splice(slot<0?pairs.length:slot,0,[pending,changed]);
+            }
+            selection=new Map(pairs);
+          }
+        }
+        var result=MUUTTUJA.ruutu(own?[pending||own]:[],query,today,null,resolve,false,own?null:selection||new Map());
+        entry={deps:deps,value:format(result)};
+        observations.set(cacheKey,entry);
+      }
+      keepReads(previewReads,entry.deps);
+      return entry.value;
+    }
     function readSeries(series){
       var members=series.subject?subjects(series.subject):null;
       if(series.start&&series.stop&&series.start>series.stop)return [];
       var cacheKey=JSON.stringify(['sarja',members&&Array.from(members),series.variable,series.start,series.stop,series.own?scope.indexOf(series.own):null]);
-      if(!observations.has(cacheKey)){
-        var pending=opts?.preview?.observations?.();
-        var notes=series.own?[series.own]:scope;
-        if(pending)notes=notes.map(function(n){return n===opts.preview.note?pending:n;});
-        var q={kohteet:members,muuttuja:series.variable,alku:series.start,loppu:series.stop,paljasYksikkö:true};
-        var result=MUUTTUJA.ruutu(notes,q,today,null,opts?.resolve,false);
+      var query={kohteet:members,muuttuja:series.variable,alku:series.start,loppu:series.stop,paljasYksikkö:true};
+      var result=cachedObservations(cacheKey,query,series.own,function(result){
         var points=result.havainnot.slice().sort(function(a,b){return a.when.localeCompare(b.when);}),lastPoint=new Map();
         points.forEach(function(p){lastPoint.set(p.o,p);});
-        observations.set(cacheKey,{
-          sources:result.lahteet,
-          points:points.filter(function(p){return lastPoint.get(p.o)===p;})
-        });
-      }
-      var result=observations.get(cacheKey);
+        return {sources:result.lahteet,points:points.filter(function(p){return lastPoint.get(p.o)===p;})};
+      });
       if(used)result.sources.forEach(function(source){used.add(source);});
       return result.points;
     }
@@ -5010,7 +5111,10 @@ var KAAVA=(function(){
     function values(n,name){
       name=key(name);
       if(!n)return [];
-      if(opts&&opts.preview&&opts.preview.note===n&&opts.preview.values.has(name))return [opts.preview.values.get(name)];
+      if(n===preview?.note){
+        if(previewReads)previewReads.add(name);
+        if(preview.values.has(name))return [preview.values.get(name)];
+      }
       if(!memo.has(n))memo.set(n,new Map());
       if(!active.has(n))active.set(n,new Set());
       var seen=active.get(n),cache=memo.get(n);
@@ -5018,11 +5122,13 @@ var KAAVA=(function(){
       if(cache.has(name)){
         var cached=cache.get(name);
         if(used)cached.sources.forEach(function(source){used.add(source);});
+        keepReads(previewReads,cached.reads);
         return cached.result;
       }
       if(seen.size>128)fail('#KEHÄ');
       seen.add(name);
-      var parent=used;used=new Set();
+      var parent=used,parentReads=previewReads;used=new Set();
+      if(parentReads)previewReads=new Set();
       try{
         var result=(rawFields(n).get(name)||[]).map(function(raw){
           if(/^=/.test(raw)){var outer=group;group=null;try{return evaluate(parse(raw),n);}finally{group=outer;}}
@@ -5031,15 +5137,16 @@ var KAAVA=(function(){
           if(num!==null)return num;
           return raw;
         });
-        cache.set(name,{result:result,sources:used});return result;
+        cache.set(name,{result:result,sources:used,reads:previewReads});return result;
       }finally{
         if(parent)used.forEach(function(source){parent.add(source);});
-        used=parent;seen.delete(name);
+        keepReads(parentReads,previewReads);
+        used=parent;previewReads=parentReads;seen.delete(name);
       }
     }
     function scalar(n,name){
       var v=values(n,name);
-      if(!v.length)fail(known.has(name)?'#PUUTTUU':'#NIMI?');
+      if(!v.length)fail(hasKnown(name)?'#PUUTTUU':'#NIMI?');
       if(v.length>1)fail('#ARVO!');
       return v[0];
     }
@@ -5070,7 +5177,7 @@ var KAAVA=(function(){
         return function(n){return noteTags(n).indexOf(listed)>=0;};
       }
       if(ROW.has(field))return function(n){var v=rowValue(n,field);return v!==''&&compareValues(v,right,op);};
-      if(!known.has(field))fail('#NIMI?');
+      if(!hasKnown(field))fail('#NIMI?');
       return function(n){return values(n,field).some(function(v){return compareValues(v,right,op);});};
     }
     function aggregate(name,items){
@@ -5107,12 +5214,7 @@ var KAAVA=(function(){
       if(days&&+days[1]>0)q.aika=Number(days[1]);
       else if(range)q.alku=q.loppu=new Date(dateArg(range)*864e5).toISOString().slice(0,10);
       var query=JSON.stringify([q,own?scope.indexOf(note):null]);
-      if(!observations.has(query)){
-        var pending=opts&&opts.preview&&opts.preview.observations&&opts.preview.observations(),notes=own?[note]:scope;
-        if(pending)notes=notes.map(function(n){return n===opts.preview.note?pending:n;});
-        observations.set(query,MUUTTUJA.ruutu(notes,q,today,null,opts&&opts.resolve,false));
-      }
-      var result=observations.get(query);
+      var result=cachedObservations(query,q,own?note:null,function(result){return result;});
       if(used)result.lahteet.forEach(function(source){used.add(source);});
       if(name==='HAVAINNOT')return result.havainnot.slice().sort(function(a,b){return a.when.localeCompare(b.when);}).map(observationValue);
       if(result.arvo===null)fail('#PUUTTUU');
@@ -5251,7 +5353,7 @@ var KAAVA=(function(){
       }
       if(groups.has(name)){
         if(first&&first.type==='name'&&!(note&&note.sheet&&/^[a-z]+[1-9]\d*$/.test(first.name))&&args.slice(1).every(function(a){return a.type==='compare';})){
-          if(!known.has(first.name))fail('#NIMI?');
+          if(!hasKnown(first.name))fail('#NIMI?');
           var items=[],conditions=args.slice(1).map(function(a){return predicate(a,note);});
           (group||scope).forEach(function(n){
             if(conditions.every(function(test){return test(n);}))values(n,first.name).forEach(function(value){items.push.apply(items,Array.isArray(value)?value:[value]);});
@@ -5385,6 +5487,7 @@ var KAAVA=(function(){
       if(ast.type==='value')return ast.value;
       if(ast.type==='cell'){
         if(!readCell)fail('#PUUTTUU');
+        if(previewReads)previewReads.add(null);
         return readCell(note,ast);
       }
       if(ast.type==='name'){
@@ -5422,12 +5525,29 @@ var KAAVA=(function(){
       try{return {value:fn()};}catch(e){return {error:e&&e.code||'#KAAVA!'};}
     }
     return {
-      refreshPreview:function(){memo.clear();observations.clear();},
+      refreshPreview:function(changed){
+        if(!changed){memo.clear();observations.clear();return;}
+        function invalid(reads){
+          if(!reads||reads.has(null))return true;
+          for(var name of changed)if(reads.has(name))return true;
+          return false;
+        }
+        memo.forEach(function(fields,note){
+          fields.forEach(function(entry,name){if(invalid(entry.reads))fields.delete(name);});
+          if(!fields.size)memo.delete(note);
+        });
+        observations.forEach(function(entry,k){if(invalid(entry.deps))observations.delete(k);});
+      },
       action:function(source,note){return safe(function(){return recordAction(source,note);});},
       trace:function(source,note){
-        var parent=used;used=new Set();
-        try{var result=safe(function(){return list(evaluate(parse(source),note));});result.sources=Array.from(used);return result;}
-        finally{used=parent;}
+        var parent=used,parentReads=previewReads;used=new Set();
+        if(preview)previewReads=new Set();
+        try{
+          var result=safe(function(){return list(evaluate(parse(source),note));});
+          result.sources=Array.from(used);
+          if(previewReads)result.reads=previewReads;
+          return result;
+        }finally{used=parent;previewReads=parentReads;}
       },
       run:function(source,note,rows){return safe(function(){
         var outer=group;group=Array.isArray(rows)?rows:null;
@@ -5541,6 +5661,7 @@ var TAULUKKO=(function(){
       memo.set(key,result);return result;
     }
     function readCell(scope,ref){
+      options?.prepareSheets?.();
       var sheet=scope&&scope.sheet;
       if(ref.sheet){
         var key=ref.sheet.toLocaleLowerCase('fi').replace(/\.md$/,'');
@@ -5562,7 +5683,7 @@ var TAULUKKO=(function(){
       for(var r=lowR;r<=highR;r++)for(var c=lowC;c<=highC;c++)out.push(at(r,c));
       return out;
     }
-    var refresh=engine.refreshPreview;engine.refreshPreview=function(){memo.clear();refresh();};
+    var refresh=engine.refreshPreview;engine.refreshPreview=function(changed){memo.clear();refresh(changed);};
     return {formulas:engine,value:value};
   }
   /* 0.40 (A3.3): rivien tai sarakkeiden lisäys, poisto ja siirto kirjoittaa kaavojen viittaukset uudelleen. own(sheetName|null) kertoo, osoittaako
@@ -5909,7 +6030,7 @@ var MUUTTUJA=(function(){
     var number=typeof result.value==='number'?result.value:num(value);
     return [{key:key(name),arvo:value,luku:Number.isFinite(number)?number:null,paivat:day?[day]:[]}];
   }
-  function ruutu(notes,R,today,fields,resolve,series){
+  function ruutu(notes,R,today,fields,resolve,series,candidates){
     var k0=key(R.muuttuja),tag=String(R.tunniste||'').trim().replace(/^#/,''),dir=String(R.kansio||'').trim().replace(/^\/+|\/+$/g,'');
     var fromField=R.lahde==='kentta';
     if(resolve&&!fromField)k0=resolve('variables',R.muuttuja).key;
@@ -5917,9 +6038,9 @@ var MUUTTUJA=(function(){
     if(tag&&typeof noteTagKey==='function')tag=noteTagKey(tag)||tag.toLocaleLowerCase('fi');
     var start=R.alku||from,stop=R.loppu||(N?today:''),subject=resolve?resolve('subjects',R.kohde).key:key(R.kohde),
       ownTag=noteTagKey(R.havaintotunniste),pts=[],src=[];
-    (notes||[]).forEach(function(n){if(dir&&String(n.vp||'').indexOf(dir+'/')!==0)return;
+    function addNote(n,picked){if(dir&&String(n.vp||'').indexOf(dir+'/')!==0)return;
       if(tag&&noteTags(n).indexOf(tag)<0)return;
-      var observations=fromField?(fields?fieldObservation(n,R.muuttuja,fields):[]):observe(n);
+      var observations=picked||(fromField?(fields?fieldObservation(n,R.muuttuja,fields):[]):observe(n));
       observations.forEach(function(o){
         var v=resolve&&!fromField?resolve('variables',o.nimi).key:o.key,
           s=resolve?resolve('subjects',o.kohde).key:o.kohdeKey;
@@ -5934,7 +6055,9 @@ var MUUTTUJA=(function(){
         /* Viikkohavainto: yksi piste, mukana jos viikko osuu aikaväliin; ei päiväsarjassa. */
         if(W){if(!(start&&W.sun<start||stop&&W.mon>stop)){pts.push({d:'',w:o.viikko,v:o.luku,a:o.arvo,when:moment(W.mon,''),n:n,o:o});used=true;}}
         else (o.paivat.length?o.paivat:['']).forEach(function(d){
-        if((start||stop)&&(!d||start&&d<start||stop&&d>stop))return;pts.push({d:d,v:o.luku,a:o.arvo,when:moment(d,o.kello),n:n,o:o});used=true;});if(used)src.push({n:n,o:o});});});
+        if((start||stop)&&(!d||start&&d<start||stop&&d>stop))return;pts.push({d:d,v:o.luku,a:o.arvo,when:moment(d,o.kello),n:n,o:o});used=true;});if(used)src.push({n:n,o:o});});}
+    if(candidates)candidates.forEach(function(picked,n){addNote(n,picked);});
+    else (notes||[]).forEach(function(n){addNote(n);});
     var nums=pts.filter(function(p){return p.v!==null;}).map(function(p){return p.v;}),last=null,val=null;
     pts.forEach(function(p){if(!last||p.when>=last.when)last=p;});
     function sum(a){return a.reduce(function(x,y){return x+y;},0);}
@@ -6439,8 +6562,15 @@ function fiPick(inp){if(inp.dataset.fi||!inp.parentNode)return;inp.dataset.fi='1
   Object.defineProperty(inp,'value',{configurable:true,get:function(){return VAL.get.call(inp);},set:function(v){VAL.set.call(inp,v);upd();}});
   inp.addEventListener('input',upd);inp.addEventListener('change',upd);
   inp.addEventListener('click',function(){try{if(inp.showPicker)inp.showPicker();}catch(e){}});upd();}
-function fiAll(root){Array.prototype.forEach.call((root||document).querySelectorAll('input[type="date"],input[type="time"]'),fiPick);}
-try{new MutationObserver(function(){fiAll();}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
+var fiSelector='input[type="date"],input[type="time"]';
+function fiAll(root){(root||document).querySelectorAll(fiSelector).forEach(fiPick);}
+try{new MutationObserver(function(records){
+  records.forEach(function(record){record.addedNodes.forEach(function(node){
+    if(node.nodeType!==1||!node.isConnected)return;
+    if(node.matches(fiSelector))fiPick(node);
+    else if(node.firstElementChild)fiAll(node);
+  });});
+}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
 function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e;}
 function $(id){return document.getElementById(id);}
 function nowIso(){return new Date().toISOString();}
@@ -6746,8 +6876,8 @@ if(mq){if(mq.addEventListener)mq.addEventListener('change',applyCfg);else if(mq.
 applyCfg();
 
 /* ---- runko ---- */
-var main=$('main'),panels={use:$('p-use'),teach:$('p-teach'),notes:$('p-notes'),cal:$('p-cal'),set:$('p-set'),terms:$('p-terms'),puu:$('p-puu'),dash:$('p-dash'),sheets:$('p-sheets'),treeni:$('p-treeni')},tab='use',scrollPos={};
-var MODE={treeni:'Treeni',sheets:'Taulukot',dash:'Kojelauta',puu:'Flow',use:'Vanhat puut',teach:'Rakentaminen',notes:'Muistio',list:'Listat',cal:'Kalenteri',set:'Asetukset',terms:'Asiat'};
+var main=$('main'),panels={use:$('p-use'),teach:$('p-teach'),notes:$('p-notes'),home:$('p-home'),cal:$('p-cal'),set:$('p-set'),terms:$('p-terms'),puu:$('p-puu'),dash:$('p-dash'),sheets:$('p-sheets'),treeni:$('p-treeni')},tab='use',scrollPos={};
+var MODE={treeni:'Treeni',sheets:'Taulukot',dash:'Kojelauta',puu:'Flow',use:'Vanhat puut',teach:'Rakentaminen',notes:'Muistio',home:'Kotisivu',list:'Listat',cal:'Kalenteri',set:'Asetukset',terms:'Asiat'};
 function statusText(){return data.K.some(function(k){return k.chg;})?'Muutoksia viemättä':(data.meta.lastExport?'Viety '+whenTxt(data.meta.lastExport):'Tallessa laitteessa');}
 /* Vanha tallennus piti päivän (VVVV-KK-PP), uusi aikaleiman */
 function whenTxt(t){return !t?'ei vielä kertaakaan':/^\d{4}-\d\d-\d\d$/.test(t)?fiDate(t):stamp(t);}
@@ -6952,7 +7082,7 @@ function syncChrome(){var tp=$('top');tp.dataset.mode=tab;tp.dataset.ed=(tab==='
   syncRoll(!!dot);navBtnSync();}
 /* 1.72 (Emil 24.10.2026): osiot rullataan vasemman alakulman napista. Napautus = seuraava, pyyhkäisy napin päällä = edellinen tai seuraava.
    Järjestys Muistio · Kalenteri · Listat · Asiat (suositus: Listat ja Asiat vierekkäin). Päätöspuu on Valikon takana. */
-var ROLL0=['notes','cal','dash','sheets','treeni','list','puu','terms'],ROLL=ROLL0;/* Kaikki 0.7: Kojelauta kalenterin perään */
+var ROLL0=['notes','cal','dash','sheets','treeni','list','puu','terms','home'],ROLL=ROLL0;/* Kaikki 0.7: Kojelauta kalenterin perään */
 var SECTION_KEY='kaikki:piilotetut-osiot',hiddenSections=[];
 try{
   var storedSections=JSON.parse(localStorage.getItem(SECTION_KEY)||'[]');
@@ -7143,7 +7273,7 @@ function runReps(){
   else save0();
 }
 function render0(){impAll();document.body.classList.toggle('kt',kt());ROLL=sectionsFor(hiddenSections,kt());phaseEnsure(data);txAll();runRel();runReps();setInfo();main.style.overscrollBehaviorY=tab==='cal'?'none':'';$('actbar').hidden=true;
-  if(tab==='puu')renderPuu();else if(tab==='use')renderUse();else if(tab==='teach')renderTeach();else if(tab==='notes')renderNotes();else if(tab==='dash')renderDash();else if(tab==='sheets')renderSheets();else if(tab==='treeni')renderTreeni();else if(tab==='cal')renderCal();else if(tab==='terms')renderAsiat();else renderSettings();sbarSync();syncChrome();}
+  if(tab==='puu')renderPuu();else if(tab==='use')renderUse();else if(tab==='teach')renderTeach();else if(tab==='notes')renderNotes();else if(tab==='home')renderHome();else if(tab==='dash')renderDash();else if(tab==='sheets')renderSheets();else if(tab==='treeni')renderTreeni();else if(tab==='cal')renderCal();else if(tab==='terms')renderAsiat();else renderSettings();sbarSync();syncChrome();}
 /* 1.73 (Emil 24.10.2026): puhelimella osion ohjainrivi siirretään alas alapalkin yläpuolelle. Rivi rakennetaan osioon kuten ennen ja siirretään
    joka piirrossa; tietokoneella se jää paikalleen. */
 function sbarSync(){var s=$('sbar'),k=tabKey(),n=null;s.textContent='';$('pbar').dataset.sec=k;
@@ -7523,6 +7653,80 @@ function allTerms(){
 }
 var termCache=null;
 function termName(id){var l=termCache||allTerms();for(var i=0;i<l.length;i++)if(l[i].id===id)return l[i].name;return '';}
+function homeKey(){
+  return 'kaikki:kotisivu:'+(noteOrderEnabled()?vRepo()+'@'+G.branch:data.k);
+}
+function homeRead(){
+  try{
+    var value=JSON.parse(localStorage.getItem(homeKey())||'null');
+    if(value&&Array.isArray(value.pins))return value;
+  }catch(e){}
+  return {pins:[],start:false};
+}
+function homeSave(value){
+  try{localStorage.setItem(homeKey(),JSON.stringify(value));return true;}
+  catch(e){toast('Kotisivun valintaa ei voitu tallentaa.');return false;}
+}
+function homePinIndex(pins,n){
+  return pins.findIndex(function(pin){return pin.id===n.id||!!pin.path&&pin.path===n.vp;});
+}
+function homeToggle(n){
+  var value=homeRead(),index=homePinIndex(value.pins,n);
+  if(index<0)value.pins.push({id:n.id,path:n.vp||'',title:noteTitle(n)||'Nimetön muistiinpano'});
+  else value.pins.splice(index,1);
+  if(homeSave(value)){
+    if(tab==='home')renderHome();
+    toast(index<0?'Lisätty Kotisivulle.':'Poistettu Kotisivulta.');
+  }
+}
+function renderHome(){
+  var p=panels.home,cfg=homeRead(),head=el('div','home-heading'),notes=el('div','nlist');
+  p.replaceChildren(head,notes);
+  head.appendChild(el('h2','','Kotisivu'));
+  button(head,'Avaa Muistio','mini',function(){showTab('notes');});
+  if(!cfg.pins.length){
+    notes.appendChild(el('p','sub','Avaa muistiinpano ja valitse sen ⋯-valikosta Lisää Kotisivulle.'));
+  }else{
+    var byId=new Map(),byPath=new Map();
+    data.notes.forEach(function(n){
+      byId.set(n.id,n);
+      if(n.vp)byPath.set(n.vp,n);
+    });
+    cfg.pins.forEach(function(pin){
+      var n=byPath.get(pin.path)||byId.get(pin.id);
+      var row=el('div','home-note'),stored=noteOrderEnabled()&&pin.path&&VC.files[pin.path];
+      var canShow=!n&&stored&&!vRemoved(pin.path)&&VAULT.shown(pin.path,stored.t,'std')&&srcPre!=='std';
+      var title=n?noteTitle(n)||pin.title:pin.title;
+      if(n&&!n.arch){
+        button(row,title,'mini home-open',function(){openNote(n,null,null,null,true);});
+      }else if(canShow){
+        var reveal=button(row,title,'mini home-open',function(){
+          setSrc('std');
+          var target=data.notes.find(function(note){return note.vp===pin.path&&!note.arch;});
+          if(target)openNote(target,null,null,null,true);
+        });
+        reveal.appendChild(el('small','sub',' · avaa kaikista lähteistä'));
+      }else{
+        row.appendChild(el('span','home-title',title+' · '+(n?.arch?'arkistossa':'ei saatavilla')));
+      }
+      var remove=button(row,'×','mini home-remove',function(){
+        cfg.pins=cfg.pins.filter(function(other){return other!==pin;});
+        if(homeSave(cfg)){
+          renderHome();
+          (p.querySelector('.home-open')||p.querySelector('.home-heading button')).focus({preventScroll:true});
+        }
+      });
+      remove.setAttribute('aria-label','Poista Kotisivulta: '+title);
+      notes.appendChild(row);
+    });
+  }
+  var start=el('label','home-start'),choice=el('input');choice.type='checkbox';choice.checked=!!cfg.start;
+  start.append(choice,document.createTextNode('Avaa Kotisivu käynnistyessä'));p.appendChild(start);
+  choice.addEventListener('change',function(){
+    var value=homeRead();value.start=choice.checked;
+    if(!homeSave(value))choice.checked=!choice.checked;
+  });
+}
 /* Muistiinpanon teksti kortissa: muuttuneet suhteelliset sanat katkoviivalla, alkuperäinen vihjeenä */
 /* 1.56: kuitattu päivä (pts) yliviivattuna myös korteissa, kuten muistiinpanon tekstissä */
 /* Kaikki 0.6: kortin teksti lyhennetään (lim merkkiä) ja tyhjät rivit tiivistetään, jotta pitkät vaultin tekstit eivät hidasta listaa */
@@ -7535,7 +7739,64 @@ function relText(n,cls,lim){var d=el('div',cls||'nt'),txt=String(n.text||''),at=
   L.sort(function(a,b){return a.s-b.s;}).forEach(function(m){if(m.s<at)return;
     d.appendChild(document.createTextNode(T(at,m.s)));var sp=el('span',m.c||'rel',txt.slice(m.s,m.e));sp.title=m.t;d.appendChild(sp);at=m.e;});
   d.appendChild(document.createTextNode(T(at)));return d;}
+var NOTE_WINDOW_LIMIT=120,NOTE_WINDOW_BUFFER=5,libraryTermCache={key:null,notes:new WeakMap()};
+function noteWindow(list,host,scroller,all,make,isRows){
+  var above=el('div','note-spacer'),below=el('div','note-spacer'),mounted=new Map();
+  var shown=[],shownIds=new Set(),frame=0,observer=null,query=null,from=-1,to=-1;
+  above.setAttribute('aria-hidden','true');below.setAttribute('aria-hidden','true');
+  host.classList.add('note-window');host.append(above,below);
+  function draw(){
+    if(!list.isConnected||tab!=='notes'||!list.clientWidth)return;
+    var width=host.clientWidth,style=getComputedStyle(host),gap=parseFloat(style.rowGap)||0;
+    var cols=isRows||!wide()?1:Math.max(1,Math.floor((width+gap)/(300+gap)));
+    var height=isRows?44:Math.round(142*(parseFloat(style.getPropertyValue('--tz'))||1));
+    var level=height+gap,total=Math.ceil(shown.length/cols);
+    var offset=scroller.getBoundingClientRect().top-host.getBoundingClientRect().top;
+    var start=Math.min(Math.max(0,total-1),Math.max(0,Math.floor(offset/level)-NOTE_WINDOW_BUFFER));
+    var end=Math.min(total,Math.max(start+1,Math.ceil((offset+scroller.clientHeight)/level)+NOTE_WINDOW_BUFFER));
+    var first=start*cols,last=Math.min(shown.length,end*cols);
+    host.style.setProperty('--note-columns',cols);
+    host.style.setProperty('--note-window-height',height+'px');
+    function space(node,rows){
+      node.hidden=!rows;
+      if(rows)node.style.height=rows*level-gap+'px';
+    }
+    space(above,start);space(below,total-end);
+    if(first===from&&last===to)return;
+    from=first;to=last;
+    var visible=new Set(shown.slice(first,last).map(function(n){return n.id;}));
+    mounted.forEach(function(row,id){
+      if(!visible.has(id)){row.remove();mounted.delete(id);}
+    });
+    var next=below;
+    for(var i=last-1;i>=first;i--){
+      var n=shown[i],row=mounted.get(n.id);
+      if(!row){row=make(n);mounted.set(n.id,row);}
+      if(row.nextSibling!==next)host.insertBefore(row,next);
+      next=row;
+    }
+    if(isRows)nvTagObserver?.sync?.();
+  }
+  function schedule(){
+    if(!frame&&tab==='notes')frame=requestAnimationFrame(function(){frame=0;draw();});
+  }
+  function filter(w){
+    if(query!==null&&query!==w)scroller.scrollTop=0;
+    query=w;shown=w?all.filter(function(n){return noteSearchMatch(n,w);}):all;
+    shownIds=new Set(shown.map(function(n){return n.id;}));
+    from=-1;to=-1;draw();
+  }
+  scroller.addEventListener('scroll',schedule,{passive:true});
+  if(typeof ResizeObserver==='function'){observer=new ResizeObserver(schedule);observer.observe(scroller);if(scroller!==host)observer.observe(host);}
+  list._virtual={
+    draw:draw,filter:filter,count:function(){return shown.length;},total:function(){return all.length;},
+    visible:function(id){return shownIds.has(id);},
+    order:function(notes){all=notes;filter(query||'');},
+    disconnect:function(){scroller.removeEventListener('scroll',schedule);observer?.disconnect();if(frame)cancelAnimationFrame(frame);}
+  };
+}
 function renderNotes(){if(nbObs){nbObs.disconnect();nbObs=null;}if(nvTagObserver){nvTagObserver.disconnect();nvTagObserver=null;}var p=panels.notes,previous=$('nlist');
+  previous?._virtual?.disconnect();
   var editorFocus=nvInline&&p.contains(nvInline.form)&&nvInline.form.contains(document.activeElement)?document.activeElement:null;
   var headFocus=previous&&previous.contains(document.activeElement)&&document.activeElement.closest('.rvhead .rvc,.rvsum .rvc');
   if(headFocus&&!nvFocusHead)nvFocusHead={key:headFocus.classList.contains('rv-add')?'+':(headFocus.closest('.rvsum')?'sum:':'')+headFocus.dataset.k,until:Date.now()+1000};
@@ -7550,7 +7811,20 @@ function renderNotes(){if(nbObs){nbObs.disconnect();nbObs=null;}if(nvTagObserver
   if(noteView!=='open'||(noteSelectionMode&&noteSelectionProject!==data.k))noteSelectionReset();
   if(noteView==='rep'){cn.textContent=data.reps.length+' kpl';renderReps(p);noteFab(p);return;}if(noteView==='chk'){cn.textContent=listRows().length+' kpl';renderChk(p);noteFab(p);return;}
   var V=nvCur(),locked=viewLocked(noteViewPath(V));if(locked&&noteSelectionMode)noteSelectionReset();
-  var AT=termCache=allTerms(),hits={},nt={},ni={};NS.forEach(function(n){var R=nInf(AT,n.text,n,today);nt[n.id]=R.ids.concat(R.inf);ni[n.id]=R.inf;nt[n.id].forEach(function(id){hits[id]=1;});});
+  var AT=termCache=allTerms(),hits={},nt={},ni={},termKey=AT.length&&tunOn()?JSON.stringify(AT):'';
+  if(libraryTermCache.key!==termKey)libraryTermCache={key:termKey,notes:new WeakMap()};
+  NS.forEach(function(n){
+    var R=termKey?libraryTermInfo(n):{ids:[],inf:[]};
+    nt[n.id]=R.ids.concat(R.inf);ni[n.id]=R.inf;nt[n.id].forEach(function(id){hits[id]=1;});
+  });
+  function libraryTermInfo(n){
+    if(data.ehdot?.length)return nInf(AT,n.text,n,today);
+    var cached=libraryTermCache.notes.get(n);
+    if(cached&&cached.text===n.text)return cached.result;
+    var result=nInf(AT,n.text,n,today);
+    libraryTermCache.notes.set(n,{text:n.text,result:result});
+    return result;
+  }
   var tagNames=new Set();
   NS.forEach(function(n){
     noteTags(n).forEach(function(tag){tagNames.add(tag);nt[n.id].push('tag:'+tag);});
@@ -7582,8 +7856,8 @@ function renderNotes(){if(nbObs){nbObs.disconnect();nbObs=null;}if(nvTagObserver
   if(srcPre!=='std'){var sbx=el('div','srcband');sbx.id='srcband';sbx.setAttribute('role','status');
     sbx.appendChild(el('span','','Näytetään vain: '+SRCN[srcPre]+(hidN?' · '+hidN+(hidN===1?' muistiinpano piilossa':' muistiinpanoa piilossa'):'')));
     button(sbx,'Näytä kaikki','mini',function(){setSrc('std');}).id='srcband-all';nb.appendChild(sbx);}
-  var dates=new Map();
-  var l=(sort==='own'?notesInOwnOrder(NS,today,noteViewPath(V)):sort==='prio'?prioSort(NS,rankFn(AT,today),today):sortNotes(NS,sort,today,dates)).filter(function(n){return notePass(nt[n.id])&&nvPass(V,n);});
+  var dates=new Map(),matched=NS.filter(function(n){return notePass(nt[n.id])&&nvPass(V,n);});
+  var l=sort==='own'?notesInOwnOrder(matched,today,noteViewPath(V)):sort==='prio'?prioSort(matched,rankFn(AT,today),today):sortNotes(matched,sort,today,dates);
   var tools=el('div','rvbar');p.appendChild(tools);
   noteViewTools(tools,V,locked);
   if(!locked){var select=button(tools,noteSelectionMode?'Lopeta valinta':'Valitse','mini',function(){
@@ -7592,7 +7866,12 @@ function renderNotes(){if(nbObs){nbObs.disconnect();nbObs=null;}if(nvTagObserver
   });
   select.id='note-select-toggle';select.setAttribute('aria-pressed',noteSelectionMode?'true':'false');}
   var list=el('div','nlist');list.id='nlist';
-  if(nvRows()){list.classList.add('rv-scroll');list.tabIndex=0;list.setAttribute('role','region');list.setAttribute('aria-label','Muistiinpanojen rivit');list.appendChild(tools);rowsInto(list,l,today,dates,V,locked,sort);}else (nvActiveSort(V).length?nvSortList(l,nvActiveSort(V),V,today,Object.assign(formulaContext(),{group:l})):l).forEach(function(n){var kd=n.vp?VAULT.kindOf(n.vp,n.vfm):'oma',c=el('div','ncard'+(n.rep?' auto':'')+(kd!=='oma'?' src-'+(kd==='yhdessa'?'yhdessa':'tekoaly'):''));c.setAttribute('role','button');c.tabIndex=0;c.dataset.id=n.id;var nx=nextDate(n,today);
+  if(nvRows()){list.classList.add('rv-scroll');list.tabIndex=0;list.setAttribute('role','region');list.setAttribute('aria-label','Muistiinpanojen rivit');list.appendChild(tools);rowsInto(list,l,today,dates,V,locked,sort);}else{
+    var sorted=nvActiveSort(V).length?nvSortList(l,nvActiveSort(V),V,today,Object.assign(formulaContext(),{group:l})):l;
+    if(sorted.length>NOTE_WINDOW_LIMIT)noteWindow(list,list,main,sorted,card,false);
+    else sorted.forEach(function(n){list.appendChild(card(n));});
+  }
+  function card(n){var kd=n.vp?VAULT.kindOf(n.vp,n.vfm):'oma',c=el('div','ncard'+(n.rep?' auto':'')+(kd!=='oma'?' src-'+(kd==='yhdessa'?'yhdessa':'tekoaly'):''));c.setAttribute('role','button');c.tabIndex=0;c.dataset.id=n.id;var nx=dates.has(n)?dates.get(n):nextDate(n,today);
     /* Kaikki 0.6 (Emil 22.11.2026): kortti on esikatselu (otsikko ja kaksi riviä), ei kuittausympyrää; kuittaus tehdään kalenterissa.
        Kuka kirjoitti näkyy reunan raitana: oma ilman raitaa, yhdessä ja tekoäly omilla väreillään. */
     if(nx){var d=fromIsoW(nx.k);c.appendChild(el('div','nd'+(nx.k===today?' today':''),(nx.k===today?'Tänään ':'')+d+(nx.o.time?' klo '+nx.o.time.s.replace(/^0/,'').replace(':','.')+(nx.o.time.e?'–'+nx.o.time.e.replace(/^0/,'').replace(':','.'):''):'')+((nx.o.rec||(nx.o.b&&nx.o.b!==nx.o.a))?' · '+dateLabel(nx.o).replace(/ klo .*$/,''):'')+(hidDay(nx.k)?' · '+hidTxt(nx.k):'')));}
@@ -7603,13 +7882,14 @@ function renderNotes(){if(nbObs){nbObs.disconnect();nbObs=null;}if(nvTagObserver
       var ii=el('i',ni[n.id].indexOf(id)>=0?'inf':'',termName(id));if(ii.className)ii.title='päätelty';f.appendChild(ii);if(!locked&&!noteSelectionMode&&flowLink(id)){var wb=button(f,'Avaa työnkulku','dck',function(e){e.stopPropagation();startFlow(id,null,n);});wb.dataset.flow=id;wb.setAttribute('aria-label','Avaa työnkulku: '+termName(id));}});c.appendChild(f);
     if(noteSelectionMode)bindNoteSelection(c,n,c);
     else{c.addEventListener('click',function(){noteFromView(n,noteViewPath(V));});c.addEventListener('keydown',function(ev){if(ev.key==='Enter'&&ev.target===c)noteFromView(n,noteViewPath(V));});}
-    list.appendChild(c);});
+    return c;
+  }
   if(!l.length)(nvRows()?list:p).appendChild(noteFilter.length?el('p','sub','Valituilla rajauksilla ei ole muistiinpanoja.'):subI('Ei vielä muistiinpanoja.','Päättyneet kierrokset ja omat muistiinpanot tulevat tänne.'));
   p.appendChild(list);if(noteSelectionMode)addNoteSelectionActions(p);
   var footer=nvRows()?el('div','rv-footer'):p;if(footer!==p)list.appendChild(footer);
   var em=el('p','sub','Ei osumia.'+(srcPre!=='std'&&hidN?' Suodatin “'+SRCN[srcPre]+'” piilottaa '+hidN+' muistiinpanoa.':''));em.id='nempty';em.hidden=true;footer.appendChild(em);
   filterNotes();if(!locked)noteMore(footer);noteFab(p);
-  if(scroll&&list.dataset.view===scroll[0]){list.scrollLeft=scroll[1];list.scrollTop=scroll[2];}
+  if(scroll&&list.dataset.view===scroll[0]){list.scrollLeft=scroll[1];list.scrollTop=scroll[2];list._virtual?.draw();}
   if(editorFocus?.isConnected)editorFocus.focus({preventScroll:true});
   else nvFocusHeadNow();
 }
@@ -7872,7 +8152,7 @@ function nvFitTags(cells){
   });
 }
 function nvWatchTags(list){
-  var cells=list.querySelectorAll('.note-tag-cell'),visible=new Set(),intersection=null,resize=null;
+  var observed=new Set(),visible=new Set(),intersection=null,resize=null;
   function fit(){if(list.isConnected)nvFitTags(visible);}
   if(typeof IntersectionObserver==='function'){
     intersection=new IntersectionObserver(function(entries){
@@ -7883,10 +8163,20 @@ function nvWatchTags(list){
       });
       if(list.isConnected)nvFitTags(added);
     },{root:list,rootMargin:'144px 96px'});
-    cells.forEach(function(cell){intersection.observe(cell);});
-  }else{cells.forEach(function(cell){visible.add(cell);});requestAnimationFrame(fit);}
+  }
+  function sync(){
+    var cells=new Set(list.querySelectorAll('.note-tag-cell'));
+    observed.forEach(function(cell){if(!cells.has(cell)){intersection?.unobserve(cell);visible.delete(cell);}});
+    cells.forEach(function(cell){
+      if(observed.has(cell))return;
+      if(intersection)intersection.observe(cell);else visible.add(cell);
+    });
+    observed=cells;
+    if(!intersection)requestAnimationFrame(fit);
+  }
   if(typeof ResizeObserver==='function'){resize=new ResizeObserver(fit);resize.observe(list);}
-  nvTagObserver={fit:fit,disconnect:function(){if(intersection)intersection.disconnect();if(resize)resize.disconnect();}};
+  nvTagObserver={fit:fit,sync:sync,disconnect:function(){if(intersection)intersection.disconnect();if(resize)resize.disconnect();}};
+  sync();
 }
 function nvGraphValues(value,option){
   var ref=/^(data\/[a-z0-9_-]+\.csv):([a-z0-9_-]+)$/i.exec(String(option||value||''));
@@ -8040,9 +8330,14 @@ function rowsInto(list,l,today,dates,V,locked,baseSort){
       activeSort=nvActiveSort(V);
       paintOrderHandles();
       L=nvSortList(baseOrder,activeSort,V,today,formulas);
-      var top=list.scrollTop,fragment=document.createDocumentFragment();
-      L.forEach(function(n){fragment.appendChild(rows.get(n.id));});
-      body.appendChild(fragment);list.scrollTop=top;paintSort();sort.focus({preventScroll:true});
+      var top=list.scrollTop;
+      if(list._virtual)list._virtual.order(L);
+      else{
+        var fragment=document.createDocumentFragment();
+        L.forEach(function(n){fragment.appendChild(rows.get(n.id));});
+        body.appendChild(fragment);
+      }
+      list.scrollTop=top;list._virtual?.draw();paintSort();sort.focus({preventScroll:true});
     });
     sort.id='rv-head-sort-'+i;
     if(isButton){sort.appendChild(el('span','',nvFieldLabel(c.k)));sort.setAttribute('aria-haspopup','menu');}
@@ -8060,9 +8355,16 @@ function rowsInto(list,l,today,dates,V,locked,baseSort){
   var rowButtons=new Map(hasButtons?saadinItems().map(function(it){return [it.tunnus,it];}):[]);
   var actionCells=!locked&&NL.cols.some(function(c){return c.k==='tunnisteet'||c.k==='takaisinlinkit'||nvButtonId(c.k);});
   var sumEntries=NL.cols.some(function(c){return c.laske;})?[]:null;
-  L.forEach(function(n){var r=el('div','rvr'+srcCls(n)),canEdit=!locked&&!noteSelectionMode&&nvCanEditNote(n),editable=false;
+  // Solujen näppäinkierto, täyttö ja oma raahaus tarvitsevat kaikki toimintarivit.
+  var virtual=L.length>NOTE_WINDOW_LIMIT&&!ownOrder&&!hasButtons&&!NL.cols.some(function(c){
+    return c.t==='minigraafi'||!locked&&(nvVariableName(c.k)||nvUserKey(c.k));
+  });
+  if(virtual&&sumEntries)L.forEach(function(n){
+    sumEntries.push({id:n.id,vals:NL.cols.map(function(c){return c.laske?nvRaw(n,c.k,today,formulas):null;})});
+  });
+  function makeRow(n){var r=el('div','rvr'+srcCls(n)),canEdit=!locked&&!noteSelectionMode&&nvCanEditNote(n),editable=false;
     r.dataset.id=n.id;r.setAttribute('role','button');r.tabIndex=0;
-    var sumValues=sumEntries&&[];if(sumEntries)sumEntries.push({row:r,vals:sumValues});
+    var sumValues=!virtual&&sumEntries?[]:null;if(sumValues)sumEntries.push({row:r,vals:sumValues});
     NL.cols.forEach(function(c,index){
       var id=nvButtonId(c.k);
       if(id){r.appendChild(nvButtonCell(n,rowButtons.get(id),canEdit,path));return;}
@@ -8091,7 +8393,10 @@ function rowsInto(list,l,today,dates,V,locked,baseSort){
       r.addEventListener('keydown',function(ev){if(ev.key==='Enter'&&ev.target===r)noteFromView(n,path);});
     }
     if(noteSelectionMode)r.addEventListener('click',function(ev){if(ev.shiftKey&&nvAnchor){ev.preventDefault();ev.stopImmediatePropagation();nvRange(n,L);}else nvAnchor=n.id;},true);
-    rows.set(n.id,r);body.appendChild(r);});
+    return r;
+  }
+  if(virtual)noteWindow(list,body,list,L,makeRow,true);
+  else L.forEach(function(n){var row=makeRow(n);rows.set(n.id,row);body.appendChild(row);});
   paintOrderHandles();
   if(NL.cols.some(function(c){return c.k==='tunnisteet';}))nvWatchTags(list);
   if(sumEntries)list.appendChild(nvSumRow(list,NL.cols,V,locked,sumEntries));
@@ -9300,7 +9605,7 @@ function nvSumRow(list,cols,V,locked,entries){
     var td=el('div','rvc'+(c.k==='otsikko'?' rvt':''));td.dataset.k=nvKey(c);row.appendChild(td);cells.push(td);
   });
   function paint(){
-    var shown=entries.filter(function(entry){return !entry.row.hidden;});
+    var shown=entries.filter(function(entry){return entry.row?!entry.row.hidden:list._virtual?.visible(entry.id);});
     cols.forEach(function(c,i){
       var td=cells[i];td.textContent='';td.classList.remove('rvsum-edit');
       if(!c.laske){
@@ -9940,8 +10245,8 @@ function noteSelectionReset(){noteSelectionMode=false;noteSelectionProject=null;
 function noteSelectionCount(){
   var count=$('note-select-count');
   if(!count)return;
-  var visible=new Set(Array.from(document.querySelectorAll('#nlist [data-id]:not([hidden])')).map(function(row){return row.dataset.id;}));
-  noteSelection.forEach(function(id){if(!visible.has(id))noteSelection.delete(id);});
+  var virtual=$('nlist')?._virtual,visible=virtual?null:new Set(Array.from(document.querySelectorAll('#nlist [data-id]:not([hidden])')).map(function(row){return row.dataset.id;}));
+  noteSelection.forEach(function(id){if(!(virtual?virtual.visible(id):visible.has(id)))noteSelection.delete(id);});
   count.textContent='Valittu '+noteSelection.size;
   $('note-batch-archive').disabled=$('note-batch-open').disabled=!noteSelection.size;
   var tagButton=$('note-batch-tag-open');
@@ -10183,16 +10488,27 @@ $('tag-migration-form').addEventListener('submit',async function(event){
   finally{controls.forEach(function(control){control.disabled=false;});}
 });
 var noteSearchText=new WeakMap();
-function filterNotes(){var w=normT(noteQuery).trim(),n=0,byId={};if(w)data.notes.forEach(function(x){byId[x.id]=x;});Array.prototype.forEach.call(document.querySelectorAll('#nlist [data-id]'),function(c){
-  var N=w?byId[c.dataset.id]:null;
+function noteSearchMatch(N,w){
   var cached=N&&noteSearchText.get(N);
   if(N&&(!cached||cached.text!==N.text)){cached={text:N.text,normal:normT(N.text)};noteSearchText.set(N,cached);}
-  var ok=!w||cached&&cached.normal.includes(w);
+  return !!cached&&cached.normal.includes(w);
+}
+function filterNotes(){var w=normT(noteQuery).trim(),n=0,byId={},list=$('nlist'),virtual=list?._virtual,total=0;
+  if(virtual){
+    virtual.filter(w);n=virtual.count();total=virtual.total();
+  }else{
+    if(w)data.notes.forEach(function(x){byId[x.id]=x;});
+    (list?.querySelectorAll('[data-id]')||[]).forEach(function(c){
+  total++;
+  var ok=!w||noteSearchMatch(byId[c.dataset.id],w);
   if(c.hidden!==!ok)c.hidden=!ok;
   if(ok)n++;
   var handle=c.querySelector('.note-order-handle');if(handle)handle.hidden=!!w||handle.dataset.sorted==='true';
   if(!ok&&noteSelection.delete(c.dataset.id)){var box=c.querySelector('.note-select-check input');if(box)box.checked=false;c.classList.remove('note-selected');}
-  });nvHiddenDraft();noteSelectionCount();var sumList=$('nlist');if(sumList&&sumList._sum)sumList._sum();var e=$('nempty');if(e)e.hidden=n>0||!document.querySelectorAll('#nlist [data-id]').length;}
+    });
+  }
+  nvHiddenDraft();noteSelectionCount();list?._sum?.();var e=$('nempty');if(e)e.hidden=n>0||!total;
+}
 function fromIsoW(iso){var p=iso.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]);return WDS[d.getDay()]+' '+fiDate(iso);}
 /* Kuittaus ja arkistointi (Emil 22.10.2026): kuitattu jää kalenteriin erinäköisenä, arkistointi on erillinen toinen valinta. */
 /* 1.61: kuittauksen peruminen palauttaa vain kokonaiskuittauksen; ajankohtien kuittaukset (pts) säilyvät */
@@ -10331,6 +10647,10 @@ function nsMenu(){var m=$('ns-menu'),n=noteCur;m.textContent='';if(n)m.appendChi
   if(n&&vOn()&&n.vp&&!n.arch&&VAULT.visible(n.vp)&&VAULT.kindOf(n.vp,n.vfm)!=='ohje'){
     nsMenuItem(m,'nsm-graph','Paikallinen graafi',function(){graphOpen(n);});
     if($('nsheet').classList.contains('note-controls'))nsMenuItem(m,'nsm-use-link','Kopioi käyttölinkki',function(){nsCopyUseLink(n);});
+  }
+  if(n&&!n.arch&&!n._vaultEdit){
+    var pinned=homePinIndex(homeRead().pins,n)>=0;
+    nsMenuItem(m,'nsm-home',pinned?'Poista Kotisivulta':'Lisää Kotisivulle',function(){homeToggle(n);});
   }
   if(n){nsMenuItem(m,'nsm-arch',n.arch?'Palauta arkistosta':'Arkistoi',function(){$('ns-arch').click();});
     nsMenuItem(m,'nsm-del','Poista',function(){$('ns-del').click();},'danger');}
@@ -10530,8 +10850,8 @@ function formulaDisplay(value){
   return typeof value==='boolean'?(value?'kyllä':'ei'):typeof value==='number'?String(value).replace('.',','):String(value??'');
 }
 function formulaContext(override,preview){
-  var doc=vOn()&&VC.files['ohjeet/muistiinpanot.md'],allowed=KAAVA.allowedFields(doc&&doc.t),engine=null;
-  function tables(){
+  var doc=vOn()&&VC.files['ohjeet/muistiinpanot.md'],allowed=KAAVA.allowedFields(doc&&doc.t),engine=null,prepare=null;
+  function model(){
     if(engine)return engine;
     var known=new Set(data.notes.map(function(n){return n.vp;}));
     var live=data.notes.filter(function(n){return !n.arch;});
@@ -10544,12 +10864,34 @@ function formulaContext(override,preview){
       var note=VAULT.noteOf(path,file.t);if(!note.arch)notes.push(note);
     });
     if(override&&!notes.includes(override))notes.push(override);
-    var sheets=sheetFiles();sgFillViews(sheets,notes,allowed);engine=TAULUKKO.create(sheets,notes,allowed,{resolve:mvDefinition,preview:preview});return engine;
+    var sheets=sheetFiles(),prepared=false;
+    prepare=function(){if(!prepared){prepared=true;sgFillViews(sheets,notes,allowed);}};
+    engine=TAULUKKO.create(sheets,notes,allowed,{resolve:mvDefinition,preview:preview,prepareSheets:prepare});return engine;
   }
-  return {allowed:allowed,get:function(){return tables().formulas;},tables:tables};
+  return {allowed:allowed,get:function(){return model().formulas;},tables:function(){var result=model();prepare();return result;}};
 }
 /* Kaikki 0.107: muistiinpanon kaavaruudut ja säätimet. Raakateksti on aina editorissa. */
 var nsControlDraft=new Map(),nsTrial=null,nsLastRecord=null,nsBlockContext=null,nsBlockFrame=0,nsBlockControls=[],nsBlockCells=[],nsInlineFormulas=[];
+var nsChangedControls=new Set(),nsRangePointer=null,nsRangeWaiters=[],nsResultDay='';
+function nsStartRange(event){
+  if(event.isPrimary&&event.button===0)nsRangePointer=event.pointerId;
+}
+function nsEndRange(event){
+  if(nsRangePointer===null||event&&event.pointerId!==nsRangePointer)return;
+  nsRangePointer=null;
+  nsRangeWaiters.splice(0).forEach(function(done){done();});
+}
+window.addEventListener('pointerup',nsEndRange,true);
+window.addEventListener('pointercancel',nsEndRange,true);
+window.addEventListener('blur',function(){nsEndRange();});
+function nsWaitForRange(){
+  return nsRangePointer===null?null:new Promise(function(done){nsRangeWaiters.push(done);});
+}
+function nsUsesControl(reads,changed){
+  if(!changed||!reads||reads.has(null))return true;
+  for(var name of changed)if(reads.has(name))return true;
+  return false;
+}
 function nsPersisted(control){return !!control.persist;}
 function nsHasSavedDraft(){
   return Array.from((nsTrial||nsControlDraft).values()).some(function(entry){return nsPersisted(entry.control);});
@@ -10699,6 +11041,8 @@ $('nsheet').addEventListener('close',function(){
   if(this.open)return;
   nsDropListFocus();requestAnimationFrame(nsDropListFocus);
   nsControlDraft.clear();nsTrial=null;nsLastRecord=null;nsBlockContext=null;
+  if(nsBlockFrame)cancelAnimationFrame(nsBlockFrame);
+  nsBlockFrame=0;nsChangedControls.clear();nsEndRange();
   this.classList.remove('ns-layout');nsGraphWatch?.disconnect();
   nsBlockControls=[];nsBlockCells=[];nsInlineFormulas=[];
 });
@@ -10730,17 +11074,19 @@ function nsStructuredSpans(text){
 }
 function nsReadContext(){
   var text=$('ns-text').value,source=noteCur?Object.assign({},noteCur,{text:text}):{text:text,created:nowIso()};
-  var values=new Map(),checked=false,previewNote=null;
+  var values=new Map(),checked=false,previewNote=null,spans=nsStructuredSpans(text),controls=[];
+  spans.forEach(function(c){if(c.type==='control'&&!c.error&&c.name)controls.push(c);});
   nsControlDraft.forEach(function(d,name){values.set(name,d.value);});
   function pending(){
     if(!checked){
-      previewNote=nsControlDraft.size?Object.assign({},source,{text:nsApplyControls(source.text)}):null;
+      var pendingText=nsApplyControls(source.text,spans);
+      previewNote=pendingText!==source.text?Object.assign({},source,{text:pendingText}):null;
       checked=true;
     }
     return previewNote;
   }
-  var preview={note:source,values:values,observations:pending},engine=formulaContext(source,preview).get();
-  return {source:source,preview:values,engine:engine,refresh:function(){checked=false;engine.refreshPreview();}};
+  var preview={note:source,values:values,controls:controls,observations:pending},engine=formulaContext(source,preview).get();
+  return {source:source,preview:values,engine:engine,refresh:function(changed){checked=false;engine.refreshPreview(changed);}};
 }
 function nsEvalCell(source){
   return (nsBlockContext||(nsBlockContext=nsReadContext())).engine.trace(source,nsBlockContext.source);
@@ -10770,31 +11116,40 @@ function nsFormulaLabel(result){
 }
 function nsRefreshResults(){
   if(!$('nsheet').open||!$('ns-text').readOnly)return;
+  nsResultDay=todayIso();
   if(!$('nsheet').classList.contains('note-blocks')){paintHl();return;}
   nsBlockContext=null;nsUpdateResults();
 }
-function nsUpdateResults(){
-  nsBlockCells.forEach(function(block){block.update();});
+function nsUpdateResults(changed){
+  nsBlockCells.forEach(function(block){block.update(changed);});
+  var inlineChanged=false;
   nsInlineFormulas.forEach(function(span){
+    if(!nsUsesControl(span.reads,changed))return;
     var result=nsEvalCell(span.source);
+    span.reads=result.reads;inlineChanged=true;
     span.result=nsFormulaLabel(result);span.error=!!result.error;
     if(span.piece){span.piece.classList.toggle('formula-error',span.error);span.piece.title=formulaErrorHint(result.error);span.piece.lastChild.textContent=span.result;}
   });
-  if(nsInlineFormulas.length)$('ns-formula-results').textContent='Kaavojen tulokset: '+nsInlineFormulas.map(function(x){return x.result;}).join(', ');
-  nsBlockControls.forEach(function(slider){slider.update();});
+  if(inlineChanged)$('ns-formula-results').textContent='Kaavojen tulokset: '+nsInlineFormulas.map(function(x){return x.result;}).join(', ');
+  nsBlockControls.forEach(function(control){control.update(changed);});
 }
 function nsSetControlValue(control,value){
   var old=nsControlDraft.get(control.name),base=old?old.base:control.saved;
+  if(Object.is(old?old.value:base,value))return;
   var same=Object.is(value,base)||Array.isArray(value)&&JSON.stringify(value)===JSON.stringify(base);
   if(same)nsControlDraft.delete(control.name);
   else nsControlDraft.set(control.name,{control:control,base:base,value:value});
   if(nsBlockContext){
     if(same)nsBlockContext.preview.delete(control.name);
     else nsBlockContext.preview.set(control.name,value);
-    nsBlockContext.refresh();
   }
+  nsChangedControls.add(control.name);
   if(!nsBlockFrame)nsBlockFrame=requestAnimationFrame(function(){
-    nsBlockFrame=0;if($('nsheet').open&&$('ns-text').readOnly)nsUpdateResults();
+    nsBlockFrame=0;
+    var changed=nsChangedControls;nsChangedControls=new Set();
+    if(!$('nsheet').open||!$('ns-text').readOnly)return;
+    nsBlockContext?.refresh(changed);
+    nsUpdateResults(changed);
   });
 }
 function nsObservationLine(subject,pairs,id,moment){
@@ -10814,9 +11169,9 @@ function nsWriteControl(text,c,value){
   var line=nsObservationLine(c.subject,[{name:c.variable,value:value,literal:typeof value==='string'}],token,m);
   return line?SAADIN.write(text,{tapa:'paivita',tunnus:token},line,{}).text:text;
 }
-function nsApplyControls(text){
+function nsApplyControls(text,spans){
   if(!nsControlDraft.size)return text;
-  nsStructuredSpans(text).forEach(function(c){
+  (spans||nsStructuredSpans(text)).forEach(function(c){
     var draft=nsControlDraft.get(c.name);
     if(!nsPersisted(c)||c.error||!draft)return;
     var original=draft.control;
@@ -10888,7 +11243,8 @@ function nsControlEl(c){
     var status=el('small');status.setAttribute('role','status');
     var press=button(box,c.label,'btn',function(){nsInlineButton(c,status);});
     var undo=button(box,'Kumoa viimeisin','mini',nsUndoRecord);
-    function update(){
+    function update(changed){
+      if(changed)return;
       press.disabled=!!nsTrial||nsLayoutActive()||!tabMine();
       var record=nsLastRecord?.note===noteCur&&nsLastRecord.start===c.start?nsLastRecord:null;
       undo.hidden=!record||press.disabled;
@@ -10899,7 +11255,7 @@ function nsControlEl(c){
   }
   if(c.control==='kokeilu'){
     var toggle=button(box,c.label,'btn',nsToggleTrial);
-    function update(){toggle.disabled=nsLayoutActive();toggle.textContent=nsTrial?'Palaa aiempiin arvoihin':c.label;toggle.setAttribute('aria-pressed',String(!!nsTrial));}
+    function update(changed){if(changed)return;toggle.disabled=nsLayoutActive();toggle.textContent=nsTrial?'Palaa aiempiin arvoihin':c.label;toggle.setAttribute('aria-pressed',String(!!nsTrial));}
     update();nsBlockControls.push({update:update});return box;
   }
   if(c.control!=='liukusäädin')return nsInputEl(box,c);
@@ -10908,13 +11264,16 @@ function nsControlEl(c){
   input.id=id;input.type='range';input.min=c.min;input.max=c.max;input.step=c.step;
   input.disabled=nsLayoutActive()||!tabMine();
   box.append(label,input);
+  input.addEventListener('pointerdown',nsStartRange);
   function show(v,empty){out.textContent=empty?'–':formulaDisplay(v);input.setAttribute('aria-valuetext',empty?'Ei kirjattu':formulaDisplay(v));}
-  function update(){
+  var reads;
+  function update(changed){
+    if(changed&&!changed.has(c.name)&&!nsUsesControl(reads,changed))return;
     var pending=nsControlDraft.get(c.name),v;
     if(pending)v=pending.value;
     else{
       var formula=c.persist?KAAVA.sliderFormula(c):'=SÄÄDINTILA('+JSON.stringify(c.name)+')';
-      var result=nsEvalCell(formula);c.saved=Number.isFinite(result.value)?result.value:null;v=c.saved;
+      var result=nsEvalCell(formula);reads=result.reads;c.saved=Number.isFinite(result.value)?result.value:null;v=c.saved;
     }
     if(input.valueAsNumber!==(v??c.initial??c.min))input.value=String(v??c.initial??c.min);
     show(v,v===null);
@@ -10982,8 +11341,9 @@ function nsInputEl(box,c){
       });
     }
   }
-  function update(){
-    c.saved=committed();
+  function update(changed){
+    if(changed&&!changed.has(c.name))return;
+    if(!changed)c.saved=committed();
     var v=nsControlDraft.get(c.name)?.value??c.saved;
     controls.forEach(function(element){element.disabled=locked;});
     if(type==='askellus'){
@@ -11163,17 +11523,17 @@ function nsGraph(){
 }
 function nsCellEl(b){
   var box=el('div','ns-cell'),name=el('span','ns-cell-name',b.name?b.name.replace(/[_-]/g,' '):'Kaava'),
-    value=el('strong','ns-cell-value'),trend=el('canvas','ns-cell-trend'),sources=el('div','ns-cell-sources'),sourceCount=0;
+    value=el('strong','ns-cell-value'),trend=el('canvas','ns-cell-trend'),sources=el('div','ns-cell-sources'),sourceItems=[],reads;
   var graph=nsGraph(),records=el('ul','ns-records');
   sources.hidden=true;trend.hidden=true;trend.width=300;trend.height=82;trend.setAttribute('role','img');
   graph.node.hidden=true;records.hidden=true;
   value.setAttribute('aria-live','polite');box.append(name,value,trend,graph.node,records,sources);
   sources.id=uid('nssrc');sources.setAttribute('role','region');sources.setAttribute('aria-label','Lähteet: '+(b.name||'kaava'));
   nsBoxMenu(box,b,function(pop,close){
-    if(!sourceCount)return;
-    var toggle=button(pop,sources.hidden?'Lähteet ('+sourceCount+')':'Piilota lähteet','mini',function(){
+    if(!sourceItems.length)return;
+    var toggle=button(pop,sources.hidden?'Lähteet ('+sourceItems.length+')':'Piilota lähteet','mini',function(){
       sources.hidden=!sources.hidden;close();
-      if(!sources.hidden)sources.scrollIntoView({block:'nearest'});
+      if(!sources.hidden){paintSources();sources.scrollIntoView({block:'nearest'});}
     });
     toggle.setAttribute('aria-controls',sources.id);toggle.setAttribute('aria-expanded',String(!sources.hidden));
   },true);
@@ -11193,8 +11553,9 @@ function nsCellEl(b){
   box.appendChild(moves);
   var formula=b.name?'=NIMETTY('+JSON.stringify(b.name)+')':b.source,initial=nsEvalCell(formula);
   nsResize(box,handle,b.layout,noteCur,initial.value?.chart||initial.value?.records?[340,175]:null);
-  function update(){
-    var result=nsEvalCell(formula);
+  function update(changed,initialResult){
+    if(!nsUsesControl(reads,changed))return;
+    var result=initialResult||nsEvalCell(formula);reads=result.reads;
     box.classList.toggle('ns-cell-embed',result.value?.embed!==undefined);
     box.hidden=!!result.value?.hidden&&!nsLayoutActive();
     var points=result.value?.trend,chart=result.value?.chart,rows=result.value?.records;
@@ -11211,10 +11572,13 @@ function nsCellEl(b){
       if(!rows.length)records.append(el('li','','Ei kirjauksia'));
     }
     value.classList.toggle('error',!!result.error);
-    sourceCount=result.sources.length;
-    if(!sourceCount)sources.hidden=true;
+    sourceItems=result.sources;
+    if(!sourceItems.length)sources.hidden=true;
+    if(!sources.hidden)paintSources();
+  }
+  function paintSources(){
     sources.textContent='';
-    result.sources.forEach(function(src){
+    sourceItems.forEach(function(src){
       var n=src.n,label=noteTitle(n)+(src.o?' · '+formulaDisplay(src.o.luku??src.o.arvo)+' · '+mvDays(src.o):'');
       var row=el('div');
       if(n.id!==noteCur?.id)button(row,label,'mini',function(){var target=data.notes.find(function(x){return x.id===n.id;})||n;openNote(target);});
@@ -11222,7 +11586,7 @@ function nsCellEl(b){
       sources.append(row);
     });
   }
-  update();nsBlockCells.push({update:update});
+  update(null,initial);nsBlockCells.push({update:update});
   box.dataset.layout=b.layout;
   return box;
 }
@@ -11312,7 +11676,7 @@ function paintFormulaSpans(text,ta,flags,blocks){
   var terms=[];nsInlineFormulas=spans;
   spans.forEach(function(span){
     var result=nsEvalCell(span.source),label=nsFormulaLabel(result);
-    span.result=label;span.error=!!result.error;span.hint=formulaErrorHint(result.error);terms.push(label);computed.set(span.start,span);
+    span.reads=result.reads;span.result=label;span.error=!!result.error;span.hint=formulaErrorHint(result.error);terms.push(label);computed.set(span.start,span);
     for(var i=span.start;i<span.end;i++)flags[i]=65536+span.start;
   });
   results.textContent='Kaavojen tulokset: '+terms.join(', ');results.hidden=false;ta.setAttribute('aria-describedby','ns-formula-results');
@@ -11630,6 +11994,7 @@ function openObservationView(id){
 function hidTxt(iso){return 'ei näy kalenterissa ('+WDS[fromIso(iso).getDay()]+')';}
 var AJ_HEADING=65536,AJ_DATE=131072;
 function paintHl(){var ta=$('ns-text'),hl=$('ns-hl'),txt=ta.value,N={text:txt,created:noteCur?noteCur.created:nowIso()},f=[],i;
+  if(ta.readOnly)nsResultDay=todayIso();
   nsGraphWatch?.disconnect();hl.textContent='';
   paintNoteTags(noteCur,ta);
   var blockModel=nsStructuredSpans(txt),blocks=ta.readOnly?blockModel:new Map();
@@ -12850,14 +13215,14 @@ var srcPre='std';try{srcPre=localStorage.getItem('kaikki:lahde')||'std';}catch(e
    päivittyy, kun suodatin tai välimuistin tiedostot vaihtuvat. */
 var srcHidMemo={k:'',n:0};
 function srcHiddenCount(){if(srcPre==='std'||!vOn())return 0;var ks=Object.keys(VC.files),key=srcPre+'|'+ks.length+'|'+vPullAt+'|'+vAt;if(srcHidMemo.k===key)return srcHidMemo.n;
-  var n=0;ks.forEach(function(p){var t=VC.files[p].t;if(VAULT.shown(p,t,'std')&&!VAULT.shown(p,t,srcPre))n++;});srcHidMemo={k:key,n:n};return n;}
+  var n=0;ks.forEach(function(p){var file=VC.files[p];if(vShown(p,file,'std')&&!vShown(p,file,srcPre))n++;});srcHidMemo={k:key,n:n};return n;}
 function setSrc(k){srcPre=VAULT.SRCP[k]?k:'std';try{localStorage.setItem('kaikki:lahde',srcPre);}catch(e){}clearTimeout(vTimer);if(vOn())vCollect();vApply();activeScroller().scrollTop=0;render();}
 var SRCN={std:'Kaikki sisältö',oma:'Vain omat',emil:'Omat ja yhdessä tehdyt',ai:'Tekoälyn kirjoittamat',ohje:'Tekoälylle (ohjeet)',all:'Kaikki, myös tekoälylle'};
 var SRCS={std:'Kaikki',oma:'Omat',emil:'Omat + yhdessä',ai:'Tekoäly',ohje:'Tekoälylle',all:'Kaikki + ohjeet'};
 function srcMenu(anchor){var m=$('sortpop');m.textContent='';m.setAttribute('aria-label','Kenen kirjoittamat');['std','oma','emil','ai','ohje','all'].forEach(function(k){var b=menuItem(m,'src-'+k,SRCN[k],function(){setSrc(k);var f=$('srcpick');if(f)f.focus();});b.setAttribute('aria-current',srcPre===k?'true':'false');if(k==='ai'||k==='emil')b.insertBefore(el('span','srcdot'+(k==='ai'?' ai':'')),b.firstChild);/* 0.6: raidan värin selite */});anchoredMenu('sortpop',anchor);}
 /* 0.3: päivitys. Nappi yläpalkissa vie omat muutokset ja hakee GitHubista; auki ollessa haku minuutin välein (vain kun mitään ei odota lähtöä). */
 function vRefresh(){if(!vOn())return Promise.resolve(false);clearTimeout(vTimer);return Promise.resolve(vCollect()).then(function(){return vPull();}).then(function(ok){if(!ok)return false;return Promise.resolve(vCollect()).then(function(){return !Object.keys(VC.q).length&&!vMsg&&!vGap.length;});});}
-setInterval(function(){if(!vOn()||vBusy||document.visibilityState!=='visible')return;if(!vPending())vPull();else vFlush();/* 0.94: odottavat kirjaukset yritetään uudelleen */},60000);
+setInterval(function(){if(!vOn()||vBusy||nsRangePointer!==null||document.visibilityState!=='visible')return;if(!vPending())vPull();else vFlush();/* 0.94: odottavat kirjaukset yritetään uudelleen */},60000);
 function vSaveC(){storeSet(VQKEY,JSON.stringify({q:VC.q,ops:VC.ops}),'holvin lähetysjono');storeSet(VKEY,JSON.stringify({files:VC.files,known:VC.known}),'holvin välimuisti');}
 function vSaveG(){try{localStorage.setItem(GKEY,JSON.stringify(G));}catch(e){}}
 function vOn(){return !!(G.repo&&G.token);}
@@ -12877,7 +13242,7 @@ function vTrash(){var k=vK();return k&&k.id===data.k?data.trash:(k?k.trash:[]);}
    käyttökerran onnistuneeseen hakuun GitHubista (vPullAt). vAt on viimeisin onnistunut tallennus GitHubiin; se ei enää kerro hausta mitään.
    vGap = näkyviksi tarkoitetut holvin tiedostot, joille ei ole muistiinpanoa; vBig = liian isot, hakematta jääneet tiedostot. */
 var vPullAt='',vPullFiles=0,vBig=[],vGap=[],vDropped=new Set(),vTree=null,vFullNext=false;
-var KAIKKI_VER='0.117';
+var KAIKKI_VER='0.118';
 var vPullLast='';try{vPullLast=localStorage.getItem('kaikki:vhaku')||'';}catch(e){}
 function vWhen(iso){if(!iso)return '';var d=new Date(iso);return (d.toDateString()===new Date().toDateString()?'':d.getDate()+'.'+(d.getMonth()+1)+'. ')+pad(d.getHours())+'.'+pad(d.getMinutes());}
 function vStatus(){if(!vOn())return 'ei käytössä';if(vBusy)return 'synkronoidaan…';var n=vPending();
@@ -12932,11 +13297,14 @@ function vCheckText(word){var k=vK(),cur=data.K.findIndex(function(x){return x.i
     ['','## Muistio-näkymä'],vCheckView(word),['','## Tarkista tiedosto “'+word+'”'],vWhy(word).map(function(l){return '- '+l;}));
   return L.join('\n')+'\n';}
 /* 0.115: mitä Muistio oikeasti piirsi: kortit ja rivit, piilotetut, haun sana ja osuvan muistiinpanon kortti. */
-function vCheckView(word){var L=[],cards=document.querySelectorAll('#nlist [data-id]'),hid=0,w=String(word||'').toLowerCase();
+function vCheckView(word){var L=[],cards=document.querySelectorAll('#nlist [data-id]'),hid=0,w=String(word||'').toLowerCase(),virtual=$('nlist')?._virtual;
   Array.prototype.forEach.call(cards,function(c){if(c.hidden)hid++;});
   L.push('- piirrettyjä rivejä tai kortteja '+cards.length+', joista piilossa '+hid+' (haku “'+noteQuery+'”), osio nyt '+tab);
+  if(virtual)L.push('- hakutuloksia yhteensä '+virtual.count()+'/'+virtual.total()+', lista piirtää ruudun ympäristön.');
   vNotes().filter(function(n){return n.vp&&n.vp.toLowerCase().indexOf(w)>=0;}).slice(0,5).forEach(function(n){var c=document.querySelector('#nlist [data-id="'+n.id+'"]');
-    L.push('- '+n.vp+': '+(c?'kortti on'+(c.hidden?', mutta piilossa':'')+(c.offsetParent===null&&!c.hidden?', ei näkyvissä ruudulla':''):'korttia EI ole')+(n.arch?' · arkistoitu':'')+(n.rep?' · toistuva':''));});
+    var status=c?'kortti on'+(c.hidden?', mutta piilossa':'')+(c.offsetParent===null&&!c.hidden?', ei näkyvissä ruudulla':''):
+      virtual?.visible(n.id)?'kuuluu listaan, ruudun ulkopuolella':'korttia EI ole';
+    L.push('- '+n.vp+': '+status+(n.arch?' · arkistoitu':'')+(n.rep?' · toistuva':''));});
   return L;}
 async function vSendCheck(word){if(!vOn())return {error:'GitHub-vault ei ole käytössä.'};var text=vCheckText(word);
   var r=await vWriteText(CHECK_PATH,function(){return text;},'appi: tarkistus tekoälylle',{repo:vRepo(),branch:G.branch});
@@ -12977,34 +13345,39 @@ async function vPull(){
         staged.set(item.path,{sha:item.sha,t:b64d(blob.j.content)});
       }));
     }
+    var range=nsWaitForRange();
+    if(range)await range;
+    var affected=new Set();
+    staged.forEach(function(file,path){if(VC.files[path]?.sha!==file.sha||full&&VC.files[path]?.t!==file.t)affected.add(path);});
+    Object.keys(VC.files).forEach(function(path){if(!seen.has(path))affected.add(path);});
     // Vertaa suljetunkin muistiinpanon lähettämätöntä muokkausta sen omaan pohjaan.
     // Avoimen editorin vanha SHA säilyy sulkemiseen asti.
     var local=new Set();
     vNotes().forEach(function(note){
       var path=note.vp,file=VC.files[path];
-      if(!file)return;
+      if(!file||!affected.has(path))return;
       if((!seen.has(path)||staged.has(path))&&noteCur===note&&$('nsheet').open&&(!$('nsheet').classList.contains('note-controls')||!$('ns-text').readOnly||$('ns-text').value!==note.text||!seen.has(path))){
         local.add(path);vDeferredNote=true;
         $('ns-vmsg').hidden=false;$('ns-vmsg').textContent='Holvin versio muuttui. Kun suljet muistiinpanon, mahdollinen oma muutoksesi säilytetään.';
       }else if(VAULT.mdOf(note)!==file.t)local.add(path);
     });
-    var viewsChanged=false;
+    var viewsChanged=false,appliedPaths=new Set();
     function protectedPath(path){return VC.q[path]||local.has(path);}
     Object.keys(VC.files).forEach(function(path){
-      if(!seen.has(path)&&!protectedPath(path)){delete VC.files[path];if(path.startsWith('nakymat/'))viewsChanged=true;}
+      if(!seen.has(path)&&!protectedPath(path)){delete VC.files[path];appliedPaths.add(path);if(path.startsWith('nakymat/'))viewsChanged=true;}
     });
     staged.forEach(function(file,path){
-      if(!protectedPath(path)){VC.files[path]=file;if(path.startsWith('nakymat/'))viewsChanged=true;}
+      if(affected.has(path)&&!protectedPath(path)){VC.files[path]=file;appliedPaths.add(path);if(path.startsWith('nakymat/'))viewsChanged=true;}
     });
     vTree={at:nowIso(),items:new Map(tree.filter(function(x){return x.type==='blob';}).map(function(x){return [x.path,{sha:x.sha,size:x.size||0}];}))};if(full)vFullNext=false;
     vReadError='';vMsg='';vPullAt=nowIso();vPullLast=vPullAt;vPullFiles=seen.size;vBig=big;try{localStorage.setItem('kaikki:vhaku',vPullAt);}catch(e){}
-    vApply(local);
-    if($('nsheet').open&&$('ns-text').readOnly){
-      if(noteCur?.vp&&staged.has(noteCur.vp)&&!local.has(noteCur.vp))nsSyncFromFile(noteCur.vp);
+    var reconciled=vApply(local,appliedPaths);
+    if($('nsheet').open&&$('ns-text').readOnly&&(appliedPaths.size||reconciled||nsResultDay!==todayIso())){
+      if(noteCur?.vp&&appliedPaths.has(noteCur.vp)&&!local.has(noteCur.vp))nsSyncFromFile(noteCur.vp);
       nsRefreshResults();
     }
-    if(tab==='sheets'||tab==='dash'||tab==='treeni'||tab==='notes'&&viewsChanged)render();
-    if($('note-graph').open)graphBuild();
+    if(appliedPaths.size&&(tab==='sheets'||tab==='dash'||tab==='treeni'||tab==='notes'&&viewsChanged))render();
+    if(appliedPaths.size&&$('note-graph').open)graphBuild();
   }catch(error){
     vReadError=error.message||'Holvin haku epäonnistui.';return false;
   }finally{vBusy=false;vRender();}
@@ -13017,14 +13390,43 @@ async function vPull(){
    jää näyttämättä ja arkistoidaan (vCollect). Muu puuttuminen on täsmäytysaukko (esim. laitteen tallennukset eri tahdissa,
    projektin vaihto tai tuonti): muistiinpano palautetaan välimuistin tiedostosta eikä GitHubissa arkistoida mitään. */
 function vRemoved(p){return vDropped.has(p)||(vTrash()||[]).some(function(N){return N&&N.vp===p;});}
-function vApply(preserve){var notes=vNotes(),by={},ch=false;notes.forEach(function(N){if(N.vp)by[N.vp]=N;});
-  Object.keys(VC.files).forEach(function(p){if(preserve?.has(p)||VC.q[p]||!VAULT.shown(p,VC.files[p].t,srcPre))return;var md=VC.files[p].t,N=by[p];
-    if(!N){if(VC.known[p]&&vRemoved(p))return;var M=VAULT.noteOf(p,md);if(notes.some(function(x){return x.id===M.id;}))M.id=uid('v');notes.push(M);by[p]=M;VC.known[p]=1;ch=true;return;}
-    VC.known[p]=1;if(VAULT.mdOf(N)===md)return;if(noteCur===N&&$('nsheet').open)return;var M2=VAULT.noteOf(p,md);Object.keys(N).forEach(function(k){if(k!=='id')delete N[k];});Object.keys(M2).forEach(function(k){if(k!=='id')N[k]=M2[k];});ch=true;});
+var vVisibility=new WeakMap();
+function vShown(path,file,source){
+  var cached=vVisibility.get(file);
+  if(!cached||cached.text!==file.t||cached.path!==path){cached={text:file.t,path:path,bySource:{}};vVisibility.set(file,cached);}
+  if(!Object.hasOwn(cached.bySource,source))cached.bySource[source]=VAULT.shown(path,file.t,source);
+  return cached.bySource[source];
+}
+function vApply(preserve,affected){
+  var notes=vNotes(),by={},ids=new Set(),ch=false,knownChanged=false;
+  var removed=new Set(vDropped),paths=Object.keys(VC.files);
+  (vTrash()||[]).forEach(function(n){if(n?.vp)removed.add(n.vp);});
+  notes.forEach(function(n){ids.add(n.id);if(n.vp)by[n.vp]=n;});
+  paths.forEach(function(p){
+    if(preserve?.has(p)||VC.q[p]||!vShown(p,VC.files[p],srcPre))return;
+    var md=VC.files[p].t,N=by[p];
+    if(!N&&VC.known[p]&&removed.has(p))return;
+    if(!VC.known[p]){VC.known[p]=1;knownChanged=true;}
+    if(!N){
+      var M=VAULT.noteOf(p,md);if(ids.has(M.id))M.id=uid('v');
+      ids.add(M.id);notes.push(M);by[p]=M;ch=true;return;
+    }
+    if(affected&&!affected.has(p)||noteCur===N&&$('nsheet').open||VAULT.mdOf(N)===md)return;
+    var latest=VAULT.noteOf(p,md);
+    Object.keys(N).forEach(function(k){if(k!=='id')delete N[k];});
+    Object.keys(latest).forEach(function(k){if(k!=='id')N[k]=latest[k];});ch=true;
+  });
   for(var i=notes.length-1;i>=0;i--){var N=notes[i];if(!N.vp||preserve?.has(N.vp)||VC.q[N.vp])continue;var F=VC.files[N.vp];
-    if((!F&&VC.known[N.vp])||(F&&!VAULT.shown(N.vp,F.t,srcPre))){delete VC.known[N.vp];notes.splice(i,1);ch=true;}}
-  vGap=Object.keys(VC.files).filter(function(p){var N=by[p];return !(N&&!N.arch&&notes.indexOf(N)>=0)&&!preserve?.has(p)&&!VC.q[p]&&VAULT.shown(p,VC.files[p].t,srcPre)&&!vRemoved(p);}).sort();
-  vSaveC();if(ch){vApplying=true;try{save0();render();}finally{vApplying=false;}}saadinSyncToggles();return ch;}
+    if((!F&&VC.known[N.vp])||(F&&!vShown(N.vp,F,srcPre))){
+      if(VC.known[N.vp]){delete VC.known[N.vp];knownChanged=true;}
+      delete by[N.vp];notes.splice(i,1);ch=true;
+    }
+  }
+  vGap=paths.filter(function(p){var n=by[p];return !(n&&!n.arch)&&!preserve?.has(p)&&!VC.q[p]&&vShown(p,VC.files[p],srcPre)&&!removed.has(p);}).sort();
+  if(!affected||affected.size||knownChanged)vSaveC();
+  if(ch){vApplying=true;try{save0();render();}finally{vApplying=false;}}
+  saadinSyncToggles();return ch;
+}
 /* Muistiinpanot -> jono */
 function vQueue(){if(!vOn()||vApplying)return;clearTimeout(vTimer);vTimer=setTimeout(vCollect,900);}
 function vTaken(p){return !!(VC.files[p]||VC.q[p]||vNotes().some(function(N){return N.vp===p;}));}
@@ -18748,7 +19150,9 @@ HELP.muistiot[1]=HELP.muistiot[1].replace('napautus vie seuraavaan, sivupyyhkäi
 HELP.vaiheet=['Vaihepankki','<p>Työnkulun rivi on yhteisen vaiheen esiintymä. Uusi rivi luo vaiheen pankkiin; valmis vaihe voidaan lisätä muihin listoihin. Pankissa avattava rivi näyttää jäsenet ja säännön. Nimi, jäsenet ja valmistumissääntö muuttuvat kaikissa käyttökohteissa heti. Rivin teksti ja kuittaukset ovat sen omia. Poistettu jäsen säilyttää aiemman kuittauksensa piilossa; palautettu jäsen saa sen takaisin samalla kierroksella. Tee oma versio irrottaa vain tämän rivin uuteen vaiheeseen. Rivin poisto ei poista vaihetta pankista.</p>'];
 HELP.lista[1]+='<p><b>Työnkulku kuittaustapana:</b> valitse asiasanan Listassa-osiossa työnkulkupohja. Asiasanan painaminen listalla käynnistää erillisen suorituksen tai jatkaa saman lähtökohdan keskeneräistä. Vain valmis suoritus kuittaa lähtökohdan. Takaisin lähtökohtaan jättää suorituksen kesken. Listanvalitsimesta löytyvät myös valmiit suoritukset ja niiden poistaminen. Kalenterimerkinnän kuittaaminen ei ohita työnkulkuvaatimusta. Uusiutuva tarkistus tarvitsee uuden suorituksen.</p>';
 HELP.asiasanat[1]+='<p><b>Kuittaustapa</b> valitaan kortin Listassa-osiossa. Voit valita suoran kuittauksen tai Listoihin rakennetun työnkulun. Muistiinpanon asiasanan Avaa työnkulku on vapaaehtoinen: se ei kuittaa muistiinpanoa. Jokaisen lähtökohdan kuittaukset ovat erilliset. Suoritukseen tulevat pohjan vaiheet ja tekstit käynnistyshetkeltä, mutta yhteisten vaiheiden muokkaukset ja projektin ehdot päivittyvät myös keskeneräisiin. Poistunut tai muuttunut lähtökohta ei saa vanhan suorituksen kuittausta. Saman työnkulun sisäkkäinen kehä estetään.</p>';
-fiAll();renderStatus();renderHead();showTab(sectionsFor(hiddenSections,kt())[0]);if(tabPassive)tabGoPassive();else draftRestore();omatLoad();vStart();
+fiAll();renderStatus();renderHead();var initialSections=sectionsFor(hiddenSections,kt());
+showTab(initialSections.includes('home')&&homeRead().start?'home':initialSections[0]);
+if(tabPassive)tabGoPassive();else draftRestore();omatLoad();vStart();
 });
 </script>
 </body>
