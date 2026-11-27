@@ -33,6 +33,7 @@ Henkilökohtaiseen käyttöön tehtyjä selainappeja. Jokainen appi on yksi HTML
 | `katve/` | Katve (ylhäältä kuvattu zombipako, kaksi tattia, kolme tehtävää ja vapaa tutkiminen; tila `katve/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/katve/ |
 | `koodi/` | Koodi (yksin pelattava koodinmurtopeli Mastermindin logiikalla, litteä ilme; klassinen 4/6/10 ja Super 5/8/12; tila `koodi/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/koodi/ |
 | `kaikki/` | Kaikki: Juuren kopio, jonka muistiinpanot ovat Emilin yksityisessä GitHub-vaultissa (yksi .md-tiedosto per muistiinpano; tekoälyt lukevat ja kirjoittavat samaa vaultia; tila `kaikki/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/kaikki/ |
+| `sivut/` | Sivut: koko näytön laskennalliset sivut, datamuistiinpanot ja havaintotietokanta (tila `sivut/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/sivut/ |
 | `pikseli/` | Pikseli (pikselikuvien piirto puhelimella: tatti ja zoomaussäädin, paletit pohjaväristä, PNG-jako terävin pikselein; tila `pikseli/TILA.md`) | https://kasibanaani.github.io/P-iv-kartta/pikseli/ |
 
 Uusi appi tulee omaan kansioonsa nimellä `index.html`. Osoite on silloin `https://kasibanaani.github.io/P-iv-kartta/<kansio>/`.
