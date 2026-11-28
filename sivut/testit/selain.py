@@ -15,6 +15,7 @@ APP = 'https://sivut.test/'
 REPO = 'Kasibanaani/vault123'
 API = 'https://api.github.com/repos/' + REPO
 REGISTRY = 'data/sivut-lahteet.json'
+PROPERTIES = 'data/sivut-vakiot.json'
 TRAINING = 'sivut/treeni.md'
 SOURCE = 'alueet/treeni/voimadata.md'
 UNRELATED = 'tieto/vanha.md'
@@ -111,6 +112,7 @@ def offline(browser,width):
     page.get_by_role('button',name='Käyttötila',exact=True).click()
     expect(page.get_by_text('Vapaa teksti',exact=True)).to_be_visible()
     page.get_by_role('button',name='Tietokanta',exact=True).click()
+    page.get_by_role('button',name='Havainnot',exact=True).click()
     expect(page.locator('tbody tr')).to_have_count(2)
     page.get_by_role('button',name='Kohteet',exact=True).click()
     page.get_by_role('button',name='Soutu',exact=True).click()
@@ -122,8 +124,90 @@ def offline(browser,width):
     expect(page.locator('tbody tr').first).to_contain_text('7')
     assert page.evaluate('document.documentElement.scrollWidth === innerWidth')
     page.reload()
+    page.get_by_role('button',name='Havainnot',exact=True).click()
     expect(page.locator('tbody tr')).to_have_count(2)
     assert not errors, errors
+    page.close()
+
+
+def database_values(browser,width):
+    page,errors=setup(browser,width)
+    page.goto(APP)
+    editor=create(page,'Kahvilaskuri')
+    editor.fill('''((Vakioluku: =VAKIO("Kahvi"; "hinta")))
+((Yhteinen: =HAVAINTO("Kahvi"; "hinta")))
+((Historiallinen: =HAVAINTO("Kahvi"; "hinta"; "2026-11-28")))
+((Havaintojen määrä: =MÄÄRÄ(SARJA("Kahvi"; "hinta"))))
+((28.11.2026; Kahvi: hinta = 2))
+((28.11.2026; Kahvi: hinta = 2))
+((28.11.2026 klo 08.30; Kahvi: hinta = 3))
+((Kahvi: paahto = "Tumma"))
+((Tee: vahvuus = 2))
+((Tee: vahvuus = 3))''')
+    page.get_by_role('button',name='Käyttötila',exact=True).click()
+    page.get_by_role('button',name='Tietokanta',exact=True).click()
+    expect(page.get_by_role('button',name='Arvot',exact=True)).to_have_attribute('aria-pressed','true')
+    expect(page.locator('.matrix-table tbody tr')).to_have_count(2)
+    expect(page.get_by_role('button',name='Kahvi · paahto · Tumma',exact=True)).to_be_visible()
+    expect(page.get_by_role('button',name='Tee · vahvuus · Useita arvoja',exact=True)).to_be_visible()
+    search=page.get_by_role('searchbox',name='Hae kohdetta, muuttujaa tai arvoa')
+    assert search.bounding_box()['width']>=52
+    search.fill('paahto')
+    expect(page.locator('.matrix-table thead th')).to_have_count(2)
+    search.fill('Kahvi')
+    expect(page.locator('.matrix-table tbody tr')).to_have_count(1)
+    search.fill('')
+
+    def add(kind,label,name):
+        page.get_by_role('button',name=kind).click()
+        page.get_by_role('textbox',name=label,exact=True).fill(name)
+        page.get_by_role('button',name='Lisää',exact=True).click()
+
+    add('Lisää rivi','Kohde','Mehu')
+    add('Lisää sarake','Muuttuja','Saatavilla')
+    add('Lisää rivi','Kohde','  mEHU ')
+    expect(page.get_by_role('dialog')).to_be_visible()
+    page.get_by_role('button',name='Sulje',exact=True).click()
+    expect(page.locator('.matrix-table tbody tr')).to_have_count(3)
+
+    def change(button_label,field_label,value,finish='Enter'):
+        page.get_by_role('button',name=button_label,exact=True).click()
+        field=page.get_by_role('textbox',name=field_label,exact=True)
+        expect(field).to_be_focused()
+        field.fill(value)
+        if finish:
+            field.press(finish)
+        else:
+            page.get_by_role('heading',name='Tietokanta').click()
+
+    change('Mehu · Saatavilla · Tyhjä','Mehu · Saatavilla','false')
+    expect(page.get_by_role('button',name='Mehu · Saatavilla · Ei',exact=True)).to_be_visible()
+    change('Kahvi · hinta · Tyhjä','Kahvi · hinta','7,50',None)
+    expect(page.get_by_role('button',name='Kahvi · hinta · 7,5',exact=True)).to_be_visible()
+    change('Kahvi · hinta · 7,5','Kahvi · hinta','10','Escape')
+    change('Tee · vahvuus · Useita arvoja','Tee · vahvuus','4')
+    page.reload()
+    expect(page.get_by_role('button',name='Tee · vahvuus · 4',exact=True)).to_be_visible()
+    expect(page.get_by_role('button',name='Mehu · Saatavilla · Ei',exact=True)).to_be_visible()
+
+    def calculator():
+        page.get_by_role('button',name='Sivut',exact=True).click()
+        page.get_by_role('button',name='Kahvilaskuri',exact=True).click()
+
+    calculator()
+    for name,value in [('vakioluku','7,5'),('yhteinen','7,5'),('historiallinen','3'),('havaintojen määrä','3')]:
+        expect(page.locator(f'[data-layout="nimi:{name}:1"] .card-value')).to_have_text(value)
+    page.get_by_role('button',name='Tietokanta',exact=True).click()
+    change('Kahvi · hinta · 7,5','Kahvi · hinta','0')
+    calculator()
+    expect(page.locator('[data-layout="nimi:yhteinen:1"] .card-value')).to_have_text('0')
+    page.get_by_role('button',name='Tietokanta',exact=True).click()
+    change('Tee · vahvuus · 4','Tee · vahvuus','')
+    expect(page.get_by_role('button',name='Tee · vahvuus · Tyhjä',exact=True)).to_be_visible()
+    page.get_by_role('button',name='Havainnot',exact=True).click()
+    expect(page.locator('tbody tr')).to_have_count(6)
+    assert page.evaluate('document.documentElement.scrollWidth === innerWidth')
+    assert not errors,errors
     page.close()
 
 
@@ -132,7 +216,8 @@ def vault_works(browser):
     files={
         REGISTRY:json.dumps({'paths':[],'folders':[folder],'pages':[]}),
         TRAINING:note('Treeni','((Kirjattu: =SUMMA(SARJA("Penkki"; "toistot"))))\n((=PAINIKE("Kirjaa sarja"; KIRJAA("Penkki"; toistot = 2))))'),
-        NEXT:note('Seuranta','((Jaettu: =[[treeni]].kirjattu))'),
+        NEXT:note('Seuranta','((Jaettu: =[[treeni]].kirjattu))\n((Vakiopaino: =VAKIO("Penkki"; "paino")))'),
+        PROPERTIES:json.dumps({'version':1,'subjects':[],'variables':[],'values':[['Penkki','paino',40]]}),
         SOURCE:note('Voimadata','Tämä yleinen proosa ei kuulu välimuistiin.\n\n((' + TODAY + '; Penkki: toistot = 11))'),
         UNRELATED:note('Vanhaa proosaa','Tätä polkua ei haeta.'),
         SCOPED_PROSE:note('Yleinen proosa','Tätä ei tuoda tietokantaan.'),
@@ -178,6 +263,15 @@ def vault_works(browser):
     page.get_by_role('button',name='Sivut',exact=True).click()
     page.get_by_role('button',name='Seuranta',exact=True).click()
     expect(page.locator('[data-layout="nimi:jaettu:1"] .card-value')).to_have_text('11')
+    expect(page.locator('[data-layout="nimi:vakiopaino:1"] .card-value')).to_have_text('40')
+    page.get_by_role('button',name='Tietokanta',exact=True).click()
+    page.get_by_role('button',name='Penkki · paino · 40',exact=True).click()
+    property_cell=page.get_by_role('textbox',name='Penkki · paino',exact=True)
+    property_cell.fill('42')
+    property_cell.press('Enter')
+    page.evaluate('synchronize(true)')
+    page.wait_for_function('state.drafts.size === 0')
+    assert json.loads(files[PROPERTIES])['values']==[['Penkki','paino',42]]
     page.get_by_role('button',name='Sivut',exact=True).click()
     page.get_by_role('button',name='Treeni',exact=True).click()
     page.get_by_role('button',name='Kirjaa sarja').click()
@@ -367,6 +461,7 @@ def dock_and_dismiss(browser,width):
     tap_at(db)
     expect(page.get_by_role('heading',name='Tietokanta')).to_be_visible()
     toggle=page.get_by_role('group',name='Tietokannan näkymä')
+    page.get_by_role('button',name='Havainnot',exact=True).click()
     search=page.get_by_role('searchbox',name='Suodata havaintoja')
     filters=page.get_by_role('button',name='Suodata ja järjestä',exact=True)
     boxes=[item.bounding_box() for item in (toggle,search,filters)]
@@ -415,6 +510,7 @@ with sync_playwright() as playwright:
     browser=playwright.webkit.launch() if os.environ.get('SIVUT_WEBKIT') else playwright.chromium.launch(executable_path=os.environ.get('SIVUT_CHROMIUM') or None,args=['--no-sandbox'])
     for width in (320,390,1440):
         offline(browser,width)
+        database_values(browser,width)
         print(f'Paikallinen käyttö {width} px OK')
     for width in (320,390,1280,1440):
         dock_and_dismiss(browser,width)

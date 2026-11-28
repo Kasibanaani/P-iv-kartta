@@ -69,6 +69,20 @@ details{position:relative}summary{display:flex;align-items:center;justify-conten
 .dialog-body .filter-dates input{min-width:0;max-width:100%}.db-row-info{display:none}
 .list-row{min-height:46px}.source-picker{min-width:0}.source-picker input{min-width:0}.table-wrap{background:var(--surface);max-height:min(70svh,880px);overflow:auto;border:1px solid var(--sep);border-radius:14px}.table-wrap:focus-visible{outline:2px solid var(--accent)}
 table{border-collapse:separate;border-spacing:0;width:100%;min-width:610px;text-align:left}th,td{padding:7px 10px;vertical-align:top;border-bottom:1px solid var(--sep)}th{position:sticky;top:0;background:var(--fill);font-size:12px;white-space:nowrap;z-index:1}th button{min-height:32px;padding:2px 4px}.table-link{display:inline;min-height:0;padding:0;border:0;color:var(--accent);text-align:left;overflow-wrap:anywhere}td small{display:block}.table-foot{padding-top:8px}.table-foot span{flex:1}
+.matrix-tools{display:flex;gap:6px;margin-bottom:8px}.matrix-tools button{min-height:40px;padding-inline:9px}
+.table-wrap.matrix-wrap{max-height:min(63svh,820px);scroll-padding-inline-start:8rem}
+.matrix-wrap .matrix-table{min-width:0;width:max-content;table-layout:fixed;font-size:14px}
+.matrix-table th,.matrix-table td{width:9rem;min-width:9rem;max-width:9rem;vertical-align:middle}
+.matrix-table th[scope=row],.matrix-table thead th:first-child{position:sticky;left:0;min-width:8rem;width:8rem;max-width:8rem;white-space:normal;overflow-wrap:anywhere}
+.matrix-table th[scope=row]{top:auto;z-index:1;background:var(--surface)}.matrix-table thead th{z-index:2}.matrix-table thead th:first-child{z-index:3}
+.matrix-table td{padding:0}.matrix-table :is(th,td):not(:last-child){border-right:1px solid var(--sep)}
+.matrix-table :is(th button,td button){width:100%;justify-content:flex-start;text-align:left}.matrix-table td button{display:block;min-height:44px;padding:7px 9px;border-radius:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.matrix-table th button{white-space:normal;overflow-wrap:anywhere}.matrix-table :is(button,input):focus-visible{outline-offset:-2px}
+.matrix-table input:not([type=checkbox],[type=range]){width:100%;min-height:44px;padding:7px 9px;border-radius:0;font-size:16px}
+.matrix-wrap:has(input:focus){scroll-padding-bottom:16px}.matrix-pagination{justify-content:space-between}.matrix-pagination>div{flex-wrap:nowrap}
+@media(max-width:700px), (max-width:950px) and (pointer:coarse){.table-wrap.matrix-wrap{max-height:min(56svh,600px)}#list-tools .matrix-tabs button{padding-inline:4px}}
+.matrix-tabs .short-tab{display:none}
+@media(max-width:360px){.matrix-tabs .wide-tab{display:none}.matrix-tabs .short-tab{display:inline}}
 #modal-panel{position:fixed;inset:calc(min(8svh,48px) + env(safe-area-inset-top)) 0 auto;margin:0 auto;color:var(--text);background:var(--field);border:1px solid var(--sep);border-radius:15px;width:min(570px,calc(100% - 20px - env(safe-area-inset-left) - env(safe-area-inset-right)));max-height:min(610px,calc(100svh - min(8svh,48px) - env(safe-area-inset-top) - 14px - var(--keyboard-inset)));padding:0;box-shadow:0 14px 60px var(--shade);overflow:hidden}
 #modal{position:fixed;inset:0;margin:0;padding:0;border:0;width:100%;height:100%;max-width:none;max-height:none;background:transparent;color:inherit;overflow:hidden}
 #modal-panel{display:flex;flex-direction:column}
@@ -2602,7 +2616,7 @@ var KAAVA=(function(){
     }
     function observation(name,args,note){
       var own=name==='OMA_HAVAINTO';
-      if(args.length<2||args.length>(name==='HAVAINNOT'?3:4))fail('#KAAVA!');
+      if(args.length<2||args.length>(name==='VAKIO'?2:name==='HAVAINNOT'?3:4))fail('#KAAVA!');
       if(own&&!isRow(note))fail('#PUUTTUU');
       var subject=textOf(evaluate(args[0],note)),variable=textOf(evaluate(args[1],note));
       if(!variable.trim())fail('#ARVO!');
@@ -2610,6 +2624,16 @@ var KAAVA=(function(){
       var kind=mode?key(mode.type==='name'?mode.name:evaluate(mode,note)):'viimeisin';
       kind=kind==='määrä'?'maara':kind;
       if(!MUUTTUJA.LASKE.includes(kind))fail('#ARVO!');
+      if(subject.trim()&&(name==='VAKIO'||name==='HAVAINTO'&&!range&&(kind==='viimeisin'||kind==='arvo'))){
+        var property=opts?.property?.(subject,variable,name!=='VAKIO');
+        if(property?.conflict)fail('#MONTA ARVOA!');
+        if(property?.value!=null){
+          if(used&&property.source)used.add(property.source);
+          return property.value;
+        }
+        if(name==='VAKIO'||property)fail('#PUUTTUU');
+      }
+      if(name==='VAKIO')fail('#PUUTTUU');
       var q={kohde:subject,muuttuja:variable,laske:kind},days=/^(\d+)\s+(?:päivää|pv)$/i.exec(range);
       if(days&&+days[1]>0)q.aika=Number(days[1]);
       else if(range)q.alku=q.loppu=new Date(dateArg(range)*864e5).toISOString().slice(0,10);
@@ -2780,7 +2804,7 @@ var KAAVA=(function(){
         var condition=evaluate(first,note);
         return evaluate(condition?args[1]:args[2],note);
       }
-      if(name==='HAVAINTO'||name==='HAVAINNOT'||name==='OMA_HAVAINTO')return observation(name,args,note);
+      if(name==='HAVAINTO'||name==='HAVAINNOT'||name==='OMA_HAVAINTO'||name==='VAKIO')return observation(name,args,note);
       if(name==='JA'||name==='TAI'){
         if(!args.length)fail('#KAAVA!');
         return name==='JA'?args.every(function(a){return !!evaluate(a,note);}):args.some(function(a){return !!evaluate(a,note);});
@@ -3980,9 +4004,10 @@ const REPO = 'Kasibanaani/vault123';
 const BRANCH = 'main';
 const SELECTORS = 'data/sivut-lahteet.json';
 const CATALOG = 'data/havaintomaaritykset.json';
+const PROPERTIES = 'data/sivut-vakiot.json';
 const FIELDS = 'ohjeet/muistiinpanot.md';
 const BUTTONS = 'pohjat/saatimet.md';
-const META = new Set([SELECTORS, CATALOG, FIELDS, BUTTONS]);
+const META = new Set([SELECTORS, CATALOG, PROPERTIES, FIELDS, BUTTONS]);
 const owns = path => /^sivut\/[^/]+\.md$/i.test(path) || /^sivudata\/[^/]+\.md$/i.test(path);
 const markdown = path => /\.md$/i.test(path) && !/(^|\/)[_.]/.test(path) && !/^(arkisto|liitteet|ohjeet|yllapito|pohjat|nakymat|toistuvat|listat)\//i.test(path);
 const ownPage = path => path.startsWith('sivut/') && owns(path) && markdown(path);
@@ -4566,7 +4591,8 @@ let editor = null, editAnchor = null, read = null, deferred = false, usingRange 
 let renderFrame = 0, pendingNames = new Set();
 const liveValues = new Map();
 const positions = new Map();
-const database = {axis:'rows',query:'',subject:'',variable:'',from:'',to:'',sort:'time',asc:false,page:0};
+const database = {axis:'matrix',query:'',subject:'',variable:'',from:'',to:'',sort:'time',asc:false,page:0};
+const matrix = {query:'',subject:'',variable:'',sort:'',asc:true,page:0,columns:0,left:0};
 let noteQuery = '';
 function valuesFor(path) {
   if (!liveValues.has(path)) liveValues.set(path,new Map());
@@ -4764,6 +4790,7 @@ function render() {
   renderStatus();
 }
 function rerenderAtScroll() {
+  if(view.kind==='db'&&database.axis==='matrix')matrix.left=main.querySelector('.matrix-wrap')?.scrollLeft||0;
   const y=main.scrollTop;render();main.scrollTop=y;
 }
 function refreshFromData() {
@@ -5015,7 +5042,7 @@ const elementGroups=[
 ];
 const guideSections=[
  ['Sivut ja kirjoittaminen','Avaa vasemman alakulman Sivut ja luo sivu pluspainikkeella. Kynä vaihtaa muokkaukseen, kirjan kuva takaisin käyttöön. Kirjoita vapaasti. Otsikko (##), lihavointi (**teksti**), lista (-), lainaus (>), erotin (---) ja linkit näkyvät käyttötilassa. Muokkaustilan + lisää elementin kohdistimen kohdalle. Voit muuttaa sen tekstiä heti.'],
- ['Datamuistiinpanot ja tietokanta','Kirjoita Muistiinpanot-välilehdellä oma merkintä pluspainikkeesta. Sekä sivuilla että datamuistiinpanoissa olevat havaintosolut kertyvät tietokantaan. Valitse Havainnot, Kohteet tai Muuttujat. Samalla rivillä voit hakea tekstillä tai rajata kohteella, muuttujalla ja päivillä. Puhelimella työkalut ovat alareunassa. Sarakeotsikko vaihtaa lajittelua. Puhelimella rivin ⋯ näyttää myös ajan ja lähteen.'],
+ ['Datamuistiinpanot ja tietokanta','Tietokannan Arvot-välilehdellä kohteet ovat riveillä ja muuttujat sarakkeissa. Lisää nimeämällä rivi tai sarake. Napauta solua ja kirjoita arvo. Enter tai siirtyminen pois solusta tallentaa, Esc peruu ja kentän tyhjentäminen poistaa arvon. Luku, true ja false tunnistetaan. Lainausmerkit säilyttävät luvulta näyttävän tekstinä. ((=VAKIO("Kahvi"; "hinta"))) käyttää samaa arvoa kaikilla Sivut-sivuilla. HAVAINTO käyttää tallennettua vakiota, kun haet nimetyn kohteen yksittäistä arvoa ilman aikarajausta. Havainnot-välilehdellä voit hakea kirjauksia ja rajata niitä kohteella, muuttujalla ja päivillä. Puhelimella työkalut ovat alhaalla ja havainnon ⋯ näyttää ajan ja lähteen.'],
  ['Asettelu ja käyttötila','Valitse sivun ⋯ → Asettelu. Siirrä korttia kahvasta ja muuta kokoa kulmasta. Näppäimistöllä käytä kahvan nuolinäppäimiä. Kortin ⋯ → Muotoilu vaihtaa pinnan, leveyden ja luvun esityksen. Palkille voi antaa maksimin. Leveys ja korkeus voivat erota puhelimella ja tietokoneella. Valmis palaa käyttöön.'],
  ['Säätö, kokeilu ja kirjaus','Säätimen nimi toimii kaavassa muuttujana. Esimerkiksi määrää säätävä liukusäädin ohjaa kaavaa ((Tulos: =määrä * 2)). Valitse tallenna = "päivään" tallentaaksesi arvon päivän havainnoksi tai "ei" tilapäistä säätöä varten. Kokeilutilassa voi muuttaa arvoja ja palata lähtötilaan. Kirjauspainikkeella tehty viimeisin kirjaus voidaan kumota.'],
  ['Viittaukset ja lähteet','Kortin ⋯ → Kopioi viittaus antaa toisen sivun kaavaan liitettävän osoitteen. Tieto ja lähteet näyttää tuloksen, kaavan ja sen lähteet. Kuvaajan päivää voi tarkastella koskettamalla tai nuolinäppäimillä. SUMMA, KESKIARVO ja muut koosteet käsittelevät useita havaintoja.'],
@@ -5289,7 +5316,15 @@ function runtime(file) {
   };
   const allowed=KAAVA.allowedFields(currentFile(FIELDS)?.text);
   const resolve=definitionResolver(parseJSON(currentFile(CATALOG)?.text,{}));
-  const engine=TAULUKKO.create(tables,sources,allowed,{resolve,today:day(),preview}).formulas;
+  const saved=propertyData(currentFile(PROPERTIES)?.text,resolve);
+  let model;
+  const property=(subject,variable,savedOnly)=>{
+    const pair=propertyKey(resolve('subjects',subject).key,resolve('variables',variable).key);
+    if(savedOnly)return saved?.entries.get(pair);
+    model ??= propertyMatrix(collectRows(resolve),resolve);
+    return model.entries.get(pair);
+  };
+  const engine=TAULUKKO.create(tables,sources,allowed,{resolve,today:day(),preview,property}).formulas;
   return {n,engine,reset(changed){previewText=undefined;engine.refreshPreview(changed);}};
 }
 function uses(reads,changed) {
@@ -5303,7 +5338,7 @@ function valueLabel(result) {
 const errorHints={
   '#KAAVA!':'Tarkista sulut, lainausmerkit ja puolipisteet.', '#AIKA!':'Tarkista aikaväli.',
   '#EHTO!':'Tarkista JOS-ehto ja sen tulos.', '#KEHÄ':'Laskenta viittaa itseensä.',
-  '#MONTA ARVOA!':'Samalle ajalle osuu useampi arvo. Valitse kooste tai tarkempi aikaväli.',
+  '#MONTA ARVOA!':'Tarkenna havaintojen aikaväliä tai valitse kooste. VAKIO-kaavan arvon voit asettaa Tietokannan Arvot-välilehdellä.',
   '#MONTA VIITETTÄ!':'Viittaus osuu useampaan kohteeseen. Käytä tarkkaa holvipolkua.',
   '#NIMI?':'Muuttujaa, nimettyä tulosta tai funktiota ei löytynyt.',
   '#PUUTTUU':'Lähde tai kirjattu arvo puuttuu. Tarkista tarvittaessa Holvin sivut ja lähteet.',
@@ -5983,38 +6018,262 @@ function renderNotes() {
   search.addEventListener('input',()=>{noteQuery=search.value;refresh();});
   refresh();
 }
-function collectRows() {
+function collectRows(resolve=definitionResolver(parseJSON(currentFile(CATALOG)?.text,{}))) {
   const rows=[];
-  const resolve=definitionResolver(parseJSON(currentFile(CATALOG)?.text,{}));
   for(const file of allFiles().values()) {
     if(!markdown(file.path)||TAULUKKO.pathOk(file.path))continue;
     const note=vaultNote(file);if(!note)continue;
     for(const o of MUUTTUJA.observe(note)) {
       const subject=resolve('subjects',o.kohde||''),variable=resolve('variables',o.nimi);
       rows.push({path:file.path,title:titleOf(file),subject:subject.name||'',subjectKey:subject.key,variable:variable.name,variableKey:variable.key,
-        value:o.luku??o.arvo,time:obsTime(o),order:MUUTTUJA.obsWhen(o)||'',tags:(o.tags||o.tunnisteet||[]).join(' '),o});
+        value:o.luku??o.arvo,time:obsTime(o),order:MUUTTUJA.obsWhen(o)||'',tags:(o.tags||o.tunnisteet||[]).join(' '),o,n:note});
     }
   }
   return rows;
 }
+function propertyKey(subject,variable) {return JSON.stringify([subject,variable]);}
+function propertyData(text,resolve) {
+  const data=text===undefined?{version:1,subjects:[],variables:[],values:[]}:parseJSON(text,null);
+  if(data?.version!==1||!Array.isArray(data.subjects)||!Array.isArray(data.variables)||!Array.isArray(data.values))return null;
+  const entries=new Map();
+  for(const entry of data.values) {
+    if(!Array.isArray(entry)||entry.length!==3)return null;
+    const [subject,variable,value]=entry;
+    if(typeof subject!=='string'||!key(subject)||typeof variable!=='string'||!key(variable)||
+      !(value===null||typeof value==='string'||typeof value==='boolean'||Number.isFinite(value)))return null;
+    entries.set(propertyKey(resolve('subjects',subject).key,resolve('variables',variable).key),{subject,variable,value});
+  }
+  if([...data.subjects,...data.variables].some(name=>typeof name!=='string'||!key(name)))return null;
+  return {data,entries};
+}
+function propertyMatrix(rows,resolve,catalog={}) {
+  const saved=propertyData(currentFile(PROPERTIES)?.text,resolve);
+  const subjects=new Map(),variables=new Map(),legacy=new Map();
+  function add(axis,name) {
+    if(!key(name))return;
+    const item=resolve(axis,name),items=axis==='subjects'?subjects:variables;
+    items.set(item.key,item.name);
+  }
+  for(const axis of ['subjects','variables']) {
+    for(const item of Array.isArray(catalog[axis])?catalog[axis]:[])if(typeof item?.name==='string')add(axis,item.name);
+    for(const name of saved?.data[axis]||[])add(axis,name);
+  }
+  for(const row of rows) {
+    add('subjects',row.subject);add('variables',row.variable);
+    if(!row.subjectKey||row.time)continue;
+    const pair=propertyKey(row.subjectKey,row.variableKey),previous=legacy.get(pair),value=row.o.totuus??row.value;
+    if(!previous)legacy.set(pair,{value,source:{n:row.n,o:row.o}});
+    else if(!Object.is(previous.value,value))legacy.set(pair,{conflict:true});
+  }
+  for(const [pair,entry] of saved?.entries||[]) {
+    add('subjects',entry.subject);add('variables',entry.variable);legacy.set(pair,entry);
+  }
+  return {subjects,variables,entries:legacy};
+}
+function saveProperties(saved) {
+  const values=[...saved.entries.values()].map(({subject,variable,value})=>[subject,variable,value]);
+  stage(PROPERTIES,JSON.stringify({...saved.data,values},null,2)+'\n');
+}
+function propertyInput(raw) {
+  const input=raw.trim();
+  if(!input)return null;
+  if(input.startsWith('"')){
+    const value=parseJSON(input,null);
+    if(typeof value==='string')return value||null;
+  }
+  if(/^(true|false)$/i.test(input))return input.toLowerCase()==='true';
+  const number=MUUTTUJA.num(input);
+  return Number.isFinite(number)?number:input;
+}
+function propertyEditText(value) {
+  if(typeof value==='boolean')return String(value);
+  return typeof value==='string'&&propertyInput(value)!==value?JSON.stringify(value):display(value);
+}
 function renderDatabase() {
   const head=el('div','section-head');head.append(el('h1','','Tietokanta'));main.append(head);
-  const toggles=el('div','segmented');
+  const toggles=el('div','segmented matrix-tabs');
   toggles.setAttribute('role','group');toggles.setAttribute('aria-label','Tietokannan näkymä');
-  const rows=collectRows(), panel=el('section');
+  const catalog=parseJSON(currentFile(CATALOG)?.text,{}),resolve=definitionResolver(catalog);
+  const rows=collectRows(resolve), panel=el('section');
   mountListTools(toggles);main.append(panel);
-  const tabs=[['rows','Havainnot'],['subject','Kohteet'],['variable','Muuttujat']];
+  const tabs=[['matrix','Arvot'],['rows','Havainnot'],['subject','Kohteet'],['variable','Muuttujat']];
   const buttons=tabs.map(([axis,label])=>{
     const b=button(toggles,label,'',()=>{database.axis=axis;database.sort=axis==='rows'?'time':'name';database.asc=axis!=='rows';database.page=0;drawMode();});
+    if(axis==='rows'||axis==='variable') {
+      b.setAttribute('aria-label',label);
+      b.title=label;
+      b.replaceChildren(el('span','wide-tab',label),el('span','short-tab',axis==='rows'?'Hav.':'Muutt.'));
+    }
     return [axis,b];
   });
   function drawMode() {
     buttons.forEach(([value,b])=>b.setAttribute('aria-pressed',String(database.axis===value)));
     panel.replaceChildren();
     listTools.querySelector('.filters')?.remove();
-    buildDatabase(panel,rows,drawMode);
+    if(database.axis==='matrix')buildPropertyMatrix(panel,rows,resolve,catalog);
+    else buildDatabase(panel,rows,drawMode);
   }
   drawMode();
+}
+function buildPropertyMatrix(panel,rows,resolve,catalog) {
+  const collator=new Intl.Collator('fi',{numeric:true,sensitivity:'base'}),pageSize=50,columnSize=20;
+  let model=propertyMatrix(rows,resolve,catalog);
+  const filters=el('div','filters'),search=field('search','Hae kohdetta, muuttujaa tai arvoa',matrix.query);
+  search.placeholder=phoneDock.matches?'Hae':'Hae kohdetta, muuttujaa tai arvoa';search.dataset.compactPlaceholder='Hae';
+  filters.append(search);
+  const filter=iconButton(filters,'filter','Suodata arvoja',openFilters);
+  listTools.append(filters);
+  const actions=el('div','matrix-tools');panel.append(actions);
+  button(actions,'Lisää rivi','border',()=>addName('subjects'),'plus');
+  button(actions,'Lisää sarake','border',()=>addName('variables'),'plus');
+  const wrap=el('div','table-wrap matrix-wrap');wrap.tabIndex=0;
+  wrap.setAttribute('role','region');wrap.setAttribute('aria-label','Kohteiden ja muuttujien arvot');
+  const table=el('table','matrix-table'),head=el('thead'),body=el('tbody');table.append(head,body);wrap.append(table);
+  const foot=el('div','table-foot field-line matrix-pagination');panel.append(wrap,foot);
+  const valid=()=>propertyData(currentFile(PROPERTIES)?.text,resolve);
+  if(!valid())panel.prepend(el('p','error','Vakioiden tiedostoa ei voi lukea. Korjaa tiedosto Vaultissa ennen muokkausta.'));
+  function names(items,selected) {
+    return [...items].filter(([id])=>!selected||selected===id).sort((a,b)=>collator.compare(a[1],b[1]));
+  }
+  function lookup(subject,variable) {return model.entries.get(propertyKey(subject,variable));}
+  function editCell(cell,subject,variable,trigger) {
+    if(!valid())return toast('Vakioiden tiedostoa ei voi muokata.');
+    const old=lookup(subject[0],variable[0]);
+    const initial=propertyEditText(old?.value),input=field('text',subject[1]+' · '+variable[1],initial);
+    input.autocomplete='off';
+    let finished=false;
+    function finish(commit,focus) {
+      if(finished)return;
+      finished=true;
+      if(commit&&input.value!==initial) {
+        const saved=valid();
+        if(saved) {
+          const value=propertyInput(input.value),pair=propertyKey(subject[0],variable[0]);
+          const entry={subject:subject[1],variable:variable[1],value};
+          saved.entries.set(pair,entry);saveProperties(saved);model.entries.set(pair,entry);
+        } else toast('Vakioiden tiedostoa ei voi muokata.');
+      }
+      cell.replaceChildren(trigger);showCell(trigger,subject,variable);
+      if(focus)focusField(trigger);
+    }
+    input.addEventListener('keydown',e=>{
+      if(e.isComposing||!['Enter','Escape'].includes(e.key))return;
+      e.preventDefault();finish(e.key==='Enter',true);
+    });
+    input.addEventListener('blur',()=>finish(true,false));
+    cell.replaceChildren(input);focusField(input);input.select();
+  }
+  function showCell(trigger,subject,variable) {
+    const entry=lookup(subject[0],variable[0]);
+    const value=entry?.conflict?'Useita arvoja':display(entry?.value);
+    trigger.textContent=value||'–';
+    trigger.classList.toggle('muted',!value);trigger.classList.toggle('error',!!entry?.conflict);
+    trigger.setAttribute('aria-label',[subject[1],variable[1],value||'Tyhjä'].join(' · '));
+    trigger.title=value||'Lisää arvo';
+  }
+  function heading(row,id,title) {
+    const th=el('th');th.scope='col';row.append(th);
+    const selected=matrix.sort===id;
+    if(selected)th.setAttribute('aria-sort',matrix.asc?'ascending':'descending');
+    button(th,title+(selected?(matrix.asc?' ↑':' ↓'):''),'',()=>{
+      matrix.asc=!selected||!matrix.asc;matrix.sort=id;matrix.page=0;draw();
+    });
+  }
+  function paginate(label,index,count,change) {
+    if(count<2)return;
+    const nav=el('div','field-line');foot.append(nav);
+    for(const [step,icon,direction] of [[-1,'‹','Edelliset'],[1,'›','Seuraavat']]) {
+      const b=button(nav,icon,'border',()=>change(index+step));
+      b.setAttribute('aria-label',direction+' '+label);b.disabled=index+step<0||index+step>=count;
+      if(step===-1)nav.append(el('small','muted',label+' '+(index+1)+' / '+count));
+    }
+  }
+  function draw(reveal) {
+    const q=key(matrix.query),columns=names(model.variables,matrix.variable);
+    let subjects=names(model.subjects,matrix.subject),shown=columns;
+    if(q) {
+      const matchingColumns=columns.filter(([,name])=>key(name).includes(q));
+      const subjectMatches=subjects.filter(([,name])=>key(name).includes(q));
+      if(matchingColumns.length&&!subjectMatches.length)shown=matchingColumns;
+      else subjects=subjects.filter(([id,name])=>key(name).includes(q)||matchingColumns.length||
+        columns.some(([variable])=>key(display(lookup(id,variable)?.value)).includes(q)));
+    }
+    if(matrix.sort)subjects.sort((a,b)=>{
+      const x=lookup(a[0],matrix.sort)?.value,y=lookup(b[0],matrix.sort)?.value;
+      if(x==null||y==null)return Number(x==null)-Number(y==null);
+      const order=typeof x==='number'&&typeof y==='number'?x-y:collator.compare(display(x),display(y));
+      return matrix.asc?order:-order;
+    });
+    else if(!matrix.asc)subjects.reverse();
+    const rowPages=Math.max(1,Math.ceil(subjects.length/pageSize)),columnPages=Math.max(1,Math.ceil(shown.length/columnSize));
+    if(reveal) {
+      const [axis,id]=reveal,list=axis==='subjects'?subjects:shown;
+      const index=list.findIndex(item=>item[0]===id);
+      if(index>=0)matrix[axis==='subjects'?'page':'columns']=Math.floor(index/(axis==='subjects'?pageSize:columnSize));
+    }
+    matrix.page=Math.min(matrix.page,rowPages-1);matrix.columns=Math.min(matrix.columns,columnPages-1);
+    const visible=shown.slice(matrix.columns*columnSize,(matrix.columns+1)*columnSize);
+    const header=el('tr');heading(header,'','Kohde');
+    for(const [id,name] of visible)heading(header,id,name);
+    head.replaceChildren(header);
+    body.replaceChildren(...subjects.slice(matrix.page*pageSize,(matrix.page+1)*pageSize).map(subject=>{
+      const row=el('tr'),label=el('th','',subject[1]);label.scope='row';row.append(label);
+      for(const variable of visible) {
+        const cell=el('td');row.append(cell);
+        const trigger=button(cell,'','',()=>editCell(cell,subject,variable,trigger));showCell(trigger,subject,variable);
+      }
+      return row;
+    }));
+    foot.replaceChildren();
+    const active=!!(matrix.subject||matrix.variable);
+    filter.classList.toggle('active-filter',active);filter.setAttribute('aria-label',active?'Suodata arvoja, rajauksia käytössä':'Suodata arvoja');
+    foot.append(el('span','muted',subjects.length+' kohdetta · '+shown.length+' muuttujaa'));
+    paginate('rivit',matrix.page,rowPages,index=>{matrix.page=index;draw();wrap.scrollTop=0;});
+    paginate('sarakkeet',matrix.columns,columnPages,index=>{matrix.columns=index;draw();wrap.scrollLeft=0;});
+    if(reveal) {
+      const [axis,id]=reveal;
+      const index=axis==='subjects'?subjects.findIndex(item=>item[0]===id)-matrix.page*pageSize:visible.findIndex(item=>item[0]===id)+1;
+      const target=axis==='subjects'?body.rows[index]:header.cells[index];
+      target?.scrollIntoView({block:'nearest',inline:'nearest'});
+    }
+  }
+  function addName(axis) {
+    if(!valid())return toast('Vakioiden tiedostoa ei voi muokata.');
+    const title=axis==='subjects'?'Kohde':'Muuttuja',box=dialog(axis==='subjects'?'Lisää rivi':'Lisää sarake');
+    const form=el('form'),label=el('label','',title),name=field('text',title);
+    name.required=true;name.maxLength=110;label.append(name);
+    const submit=el('button','primary','Lisää');submit.type='submit';form.append(label,submit);box.append(form);
+    name.addEventListener('input',()=>name.setCustomValidity(''));
+    form.addEventListener('submit',e=>{
+      e.preventDefault();
+      const value=name.value.trim(),item=resolve(axis,value),saved=valid();
+      if(!saved)return;
+      if(!key(value)||model[axis].has(item.key)) {
+        name.setCustomValidity(key(value)?title+' on jo tietokannassa.':'Anna nimi.');name.reportValidity();return;
+      }
+      saved.data[axis].push(value);saveProperties(saved);
+      Object.assign(matrix,{query:'',page:0,columns:0,[axis==='subjects'?'subject':'variable']:''});search.value='';
+      model=propertyMatrix(rows,resolve,catalog);$('modal').close();draw([axis,item.key]);
+    });
+    focusField(name);
+  }
+  function openFilters() {
+    const box=dialog('Suodata arvoja'),form=el('form','filter-form'),selects={};
+    for(const [axis,id,title] of [['subjects','subject','Kohde'],['variables','variable','Muuttuja']]) {
+      const label=el('label','',title),select=el('select');selects[id]=select;
+      option(select,'','Kaikki');for(const [key,name] of names(model[axis]))option(select,key,name);
+      select.value=matrix[id];label.append(select);form.append(label);
+    }
+    const row=el('div','field-line'),submit=el('button','primary','Käytä');submit.type='submit';row.append(submit);
+    function apply(subject,variable) {
+      Object.assign(matrix,{subject,variable,page:0,columns:0});$('modal').close();draw();wrap.scrollLeft=0;wrap.scrollTop=0;
+    }
+    button(row,'Tyhjennä','',()=>{matrix.query='';search.value='';apply('','');});
+    form.append(row);box.append(form);styleChoices(form);
+    form.addEventListener('submit',e=>{e.preventDefault();apply(selects.subject.value,selects.variable.value);});
+  }
+  search.addEventListener('input',()=>{matrix.query=search.value;matrix.page=0;matrix.columns=0;draw();wrap.scrollTop=0;wrap.scrollLeft=0;});
+  draw();wrap.scrollLeft=matrix.left;
 }
 function buildDatabase(panel,rows,redraw) {
   const filters=el('div','filters'), search=field('search','Suodata havaintoja',database.query);
@@ -6297,7 +6556,7 @@ function openConflict(path) {
   }
 }
 function exportBackup() {
-  const backup={version:1,documents:[...allFiles().values()].filter(f=>f.text&&(markdown(f.path)||f.path===SELECTORS)).map(f=>({path:f.path,text:f.text})),
+  const backup={version:1,documents:[...allFiles().values()].filter(f=>f.text&&(markdown(f.path)||f.path===SELECTORS||f.path===PROPERTIES)).map(f=>({path:f.path,text:f.text})),
     unsynced:[...state.drafts.keys()], recovered:(state.recovered||[]).map(({path,text})=>({path,text}))};
   const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob), link=el('a');
@@ -6310,15 +6569,29 @@ function importBackup() {
     try{
       const file=chooser.files[0];if(!file)return;
       const data=JSON.parse(await file.text());if(data.version!==1||!Array.isArray(data.documents))throw new Error('Tiedosto ei ole Sivut-varmuuskopio.');
-      let count=0;
+      let count=0,properties=false;
       for(const {path,text} of [...data.documents,...(Array.isArray(data.recovered)?data.recovered:[])]) {
+        if(path===PROPERTIES&&typeof text==='string'&&currentFile(path)?.text!==text) {
+          const resolve=definitionResolver(parseJSON(currentFile(CATALOG)?.text,{}));
+          const imported=propertyData(text,resolve),existing=propertyData(currentFile(path)?.text,resolve);
+          if(!imported||!existing)throw new Error('Varmuuskopion tai Vaultin vakioita ei voi lukea.');
+          for(const axis of ['subjects','variables']) {
+            const names=new Map(existing.data[axis].map(name=>[resolve(axis,name).key,name]));
+            for(const name of imported.data[axis]) {
+              const id=resolve(axis,name).key;if(!names.has(id))names.set(id,name);
+            }
+            existing.data[axis]=[...names.values()];
+          }
+          for(const [pair,entry] of imported.entries)if(!existing.entries.has(pair))existing.entries.set(pair,entry);
+          saveProperties(existing);properties=true;continue;
+        }
         if(typeof path!=='string'||!(ownPage(path)||ownNote(path))||typeof text!=='string'||!text)continue;
         if(currentFile(path)?.text===text)continue;
         const imported=currentFile(path)?path.replace(/\.md$/,'-tuotu-'+id().slice(0,8)+'.md'):path;
         stage(imported,text);count++;
       }
       $('modal').close();refreshFromData();
-      toast('Tuotu '+count+' sivua ja datamuistiinpanoa.');
+      toast('Tuotu '+count+' sivua ja datamuistiinpanoa.'+(properties?' Täydennetty vakioita.':''));
     }catch(error){toast(error.message);}
   });
 }
