@@ -232,10 +232,7 @@ def compact_layout(browser, width, screenshot=None):
     editor = page.get_by_role('textbox', name='Muistiinpanon teksti')
     expect(editor).to_be_visible()
     assert editor.evaluate('node => node.scrollTop') > 0
-    assert page.get_by_role('button', name='Lisää kaava tai havainto').count() == 0
-    page.locator('#more summary').click()
-    expect(page.get_by_role('button', name='Lisää kaava tai havainto')).to_be_visible()
-    page.locator('#more summary').click()
+    expect(page.get_by_role('button', name='Lisää elementti')).to_be_visible()
     editor.focus()
     before = editor.bounding_box()
     top_before = page.locator('header').bounding_box()
@@ -268,9 +265,22 @@ def compact_layout(browser, width, screenshot=None):
         assert abs(current_modal['y'] - original_modal['y']) <= 1
     assert page.evaluate('scrollY') == 0
     page.evaluate('resizeKeyboard(0)')
-    page.get_by_role('combobox',name='Teema').select_option('light')
+    font=page.locator('main h1').evaluate('node=>getComputedStyle(node).fontFamily')
+    theme=page.get_by_role('combobox',name='Teema')
+    theme.click()
+    page.get_by_role('option',name='Lehto',exact=True).click()
     expect(page.locator('html')).to_have_attribute('data-theme','lehto')
-    page.get_by_role('combobox',name='Teema').select_option('dark')
+    assert page.locator('main h1').evaluate('node=>getComputedStyle(node).fontFamily')==font
+    page.get_by_role('button',name='Sammal',exact=True).click()
+    expect(page.locator('html')).to_have_attribute('data-accent','moss')
+    theme.click()
+    theme.press('End')
+    theme.press('Enter')
+    expect(page.locator('html')).to_have_attribute('data-theme','hiillos')
+    expect(page.locator('html')).to_have_attribute('data-accent','base')
+    theme.click()
+    theme.press('Escape')
+    expect(page.get_by_role('dialog')).to_be_visible()
     page.get_by_role('button',name='Sulje',exact=True).click()
     if screenshot:
         page.screenshot(path=screenshot)
@@ -279,12 +289,69 @@ def compact_layout(browser, width, screenshot=None):
     page.close()
 
 
+def authoring(browser,width):
+    page,errors=setup(browser,width)
+    page.goto(APP)
+    page.get_by_role('button',name='Pikaopas').click()
+    page.get_by_role('searchbox',name='Hae oppaasta').fill('liukusäädin')
+    page.get_by_text('Liukusäädin',exact=True).click()
+    expect(page.locator('.guide-topic[open] pre')).to_contain_text('LIUKUSÄÄDIN')
+    page.get_by_role('button',name='Sulje',exact=True).click()
+    editor=create(page,'Pieni laskuri')
+    page.get_by_role('textbox',name='Otsikko').fill('')
+    editor.fill('Ensimmäinen luonnos')
+    assert page.evaluate('bodyOf(currentFile(view.path))')=='Ensimmäinen luonnos'
+    page.get_by_role('textbox',name='Otsikko').fill('Pieni laskuri')
+    editor.fill('Alku\n\nLoppu')
+    editor.evaluate('x=>x.setSelectionRange(5,5)')
+    plus=page.get_by_role('button',name='Lisää elementti',exact=True)
+    for item in ['Liukusäädin','Pudotusvalikko','Liukusäädin']:
+        plus.click()
+        page.get_by_role('searchbox',name='Hae elementtiä').fill(item)
+        page.get_by_role('button',name=item,exact=True).click()
+    value=editor.input_value()
+    assert value.startswith('Alku\n') and value.endswith('Loppu') and 'määrä_2:' in value
+    assert page.evaluate('bodyOf(currentFile(view.path))')==value
+    editor.fill(value+'\n((alkuarvo: =LIUKUSÄÄDIN(min = 0; max = 10; alku = 4)))\n((Tupla: =alkuarvo * 2))')
+    page.get_by_role('button',name='Käyttötila',exact=True).click()
+    expect(page.locator('[data-layout="nimi:tupla:1"] .card-value')).to_have_text('8')
+    expect(page.get_by_role('slider')).to_have_count(3)
+    combo=page.get_by_role('combobox',name='vuoro')
+    combo.click()
+    combo.click()
+    expect(combo).to_have_attribute('aria-expanded','false')
+    combo.click()
+    page.get_by_role('option',name='Ilta').click()
+    expect(combo).to_have_text('Ilta')
+    page.locator('#more summary').click()
+    page.get_by_role('button',name='Asettelu',exact=True).click()
+    card=page.locator('.card').first
+    card.locator('summary').click()
+    page.get_by_role('button',name='Muotoilu',exact=True).click()
+    page.get_by_role('combobox',name='Pinta').click()
+    page.get_by_role('option',name='Kanerva').click()
+    page.get_by_role('dialog').get_by_role('button',name='Valmis',exact=True).click()
+    expect(card).to_have_attribute('data-color','heather')
+    assert page.evaluate("""() => {
+      const wheel=(node,x,y)=>node.dispatchEvent(new WheelEvent('wheel',{deltaX:x,deltaY:y,bubbles:true,cancelable:true}));
+      const box=document.createElement('div');box.style='width:50px;overflow-x:auto';box.innerHTML='<div style="width:200px">Testi</div>';document.body.append(box);
+      const ok=!wheel(document.body,-8,0)&&wheel(document.body,2,11)&&wheel(box,8,0)&&!wheel(box,-8,0);
+      box.remove();return ok;
+    }""")
+    page.reload()
+    expect(page.get_by_role('slider')).to_have_count(3)
+    expect(page.locator('.card').first).to_have_attribute('data-color','heather')
+    assert not errors,errors
+    page.close()
+
+
 with sync_playwright() as playwright:
     browser=playwright.webkit.launch() if os.environ.get('SIVUT_WEBKIT') else playwright.chromium.launch(executable_path=os.environ.get('SIVUT_CHROMIUM') or None,args=['--no-sandbox'])
     for width in (320,390,1440):
         offline(browser,width)
         print(f'Paikallinen käyttö {width} px OK')
-    for width in (320,390,1440):
+    for width in (320,390,1280,1440):
+        authoring(browser,width)
         compact_layout(browser,width,os.environ.get('SIVUT_SCREENSHOT') if width==390 else None)
         print(f'Tiivis näkymä ja simuloitu näppäimistö {width} px OK')
     vault_works(browser)
