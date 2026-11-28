@@ -33,13 +33,28 @@ def sha(text):
     return hashlib.sha1(text.encode()).hexdigest()
 
 
-def setup(browser, width):
-    page = browser.new_page(viewport={'width':width,'height':850}, is_mobile=width<500, has_touch=width<500)
+def setup(browser, width, height=850):
+    page = browser.new_page(viewport={'width':width,'height':height}, is_mobile=width<500, has_touch=width<500)
     page.clock.set_fixed_time(datetime(2026,11,28,8,tzinfo=timezone.utc))
     errors = []
     page.on('pageerror',lambda error:errors.append(str(error)))
     page.route(APP+'**',lambda route:route.fulfill(path=HTML,content_type='text/html; charset=utf-8'))
     return page, errors
+
+
+def simulate_keyboard(page):
+    page.add_init_script("""(() => {
+        const viewport = new EventTarget();
+        Object.assign(viewport, { scale: 1, offsetTop: 0 });
+        Object.defineProperty(viewport, 'height', {
+            get: () => window.innerHeight - (viewport.covered || 0)
+        });
+        Object.defineProperty(window, 'visualViewport', { value: viewport });
+        window.resizeKeyboard = pixels => {
+            viewport.covered = pixels;
+            viewport.dispatchEvent(new Event('resize'));
+        };
+    })()""")
 
 
 def create(page,title,kind='page'):
@@ -214,7 +229,8 @@ def database_values(browser,width):
 
 
 def database_pagination(browser,width):
-    page,errors=setup(browser,width)
+    page,errors=setup(browser,width,568 if width==320 else 850)
+    simulate_keyboard(page)
     page.goto(APP)
     page.wait_for_function('state.ready')
     properties={
@@ -250,6 +266,46 @@ def database_pagination(browser,width):
     title_box=page.get_by_role('heading',name='Tietokanta').bounding_box()
     assert count_box['height']<24 and count_box['y']<title_box['y']+title_box['height']
 
+    table=page.locator('.matrix-wrap')
+    dock=page.locator('#dock')
+    assert footer.bounding_box()['y']+footer.bounding_box()['height'] <= dock.bounding_box()['y']-4
+    assert page.locator('#main').evaluate('node => node.scrollHeight === node.clientHeight && node.clientWidth === innerWidth')
+    table.evaluate('node => { node.scrollTop=240; node.scrollLeft=75; }')
+    assert table.evaluate('node => [node.scrollTop, node.scrollLeft]')==[240,75]
+
+    def layout():
+        return page.evaluate("""() => {
+            const bounds=['.database-head','.matrix-tools','.matrix-wrap','.matrix-pagination','#dock']
+              .map(selector=>document.querySelector(selector).getBoundingClientRect().toJSON());
+            const table=document.querySelector('.matrix-wrap');
+            return [bounds,document.querySelector('#main').scrollTop,table.scrollTop,table.scrollLeft];
+        }""")
+
+    fixed=layout()
+    if width>=500:
+        page.mouse.move(title_box['x']+10,title_box['y']+10)
+        page.mouse.wheel(0,500)
+    page.get_by_role('button',name='Suodata arvoja',exact=True).click()
+    dialog=page.get_by_role('dialog')
+    expect(dialog).to_be_visible()
+    assert layout()==fixed
+    dialog.get_by_role('button',name='Sulje',exact=True).click()
+    assert layout()==fixed
+
+    page.get_by_label('Tallennetut näkymät',exact=True).click()
+    new_view=page.get_by_role('button',name='Uusi näkymä',exact=True)
+    expect(new_view).to_be_visible()
+    assert layout()==fixed
+    new_view.click()
+    dialog.get_by_role('textbox',name='Näkymän nimi').focus()
+    page.evaluate('resizeKeyboard(245)')
+    expect(page.locator('html')).to_have_class('keyboard-open')
+    assert layout()==fixed
+    dialog.get_by_role('button',name='Sulje',exact=True).click()
+    assert layout()==fixed
+    page.evaluate('resizeKeyboard(0)')
+    expect(page.locator('html')).not_to_have_class('keyboard-open')
+
     next_rows.press('Enter')
     expect(rows.get_by_text('Rivit 2/4',exact=True)).to_be_visible()
     expect(next_rows).to_be_focused()
@@ -277,6 +333,12 @@ def database_pagination(browser,width):
     expect(columns).to_be_visible()
     page.get_by_role('button',name='Havainnot',exact=True).click()
     expect(page.locator('.matrix-count')).to_be_hidden()
+    for label in ('Havainnot','Kohteet','Muuttujat'):
+        if label!='Havainnot':
+            page.get_by_role('button',name=label,exact=True).click()
+        foot=page.locator('.table-foot').bounding_box()
+        assert foot['y']+foot['height'] <= dock.bounding_box()['y']-4
+        assert page.locator('#main').evaluate('node => node.scrollHeight === node.clientHeight')
     assert not errors,errors
     page.close()
 
@@ -462,18 +524,7 @@ def vault_works(browser):
 
 def compact_layout(browser, width, screenshot=None):
     page, errors = setup(browser, width)
-    page.add_init_script("""(() => {
-        const viewport = new EventTarget();
-        Object.assign(viewport, { scale: 1, offsetTop: 0 });
-        Object.defineProperty(viewport, 'height', {
-            get: () => window.innerHeight - (viewport.covered || 0)
-        });
-        Object.defineProperty(window, 'visualViewport', { value: viewport });
-        window.resizeKeyboard = pixels => {
-            viewport.covered = pixels;
-            viewport.dispatchEvent(new Event('resize'));
-        };
-    })()""")
+    simulate_keyboard(page)
     page.goto(APP)
     expect(page.locator('html')).to_have_attribute('data-theme', 'hiillos')
     assert page.locator('meta[name=viewport]').get_attribute('content').find('maximum-scale=1') >= 0

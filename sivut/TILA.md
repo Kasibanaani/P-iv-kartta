@@ -1,7 +1,9 @@
 # Sivut: tila
 
-**Versio 0.6** · **28.11.2026** · [Avaa Sivut](https://kasibanaani.github.io/P-iv-kartta/sivut/)
+**Versio 0.6.1** · **28.11.2026** · [Avaa Sivut](https://kasibanaani.github.io/P-iv-kartta/sivut/)
 
+- **0.6.1.** Tietokannan työkalut ja sivunvaihtimet ovat kiinteästi alapalkin yläpuolella. Vain taulukko vierii. Suodatin ja näkymävalikko avautuvat taulukon päälle, ja taulukon paikka säilyy myös ikkunan näppäimistön avautuessa. Taulukon selainohje tarkistettiin Modern Web Guidancesta.
+- Kiinteä asettelu ja ikkunoiden avaaminen tarkistettiin Chromiumissa ja WebKitissä leveyksillä 320, 390, 1280 ja 1440 px, mukaan lukien 320 × 568 px:n näkymä. Seuraava käyttökokeilu on oikean iPhonen kosketusvieritys ja näppäimistö.
 - **0.6.** Arvot-taulukon oikean reunan näkymävalikko avaa nimetyt näkymät. Näkymä tallentaa ryhmän, hakuehdon ja valitut sarakkeet. Samasta valikosta voi luoda ja muokata ryhmiä. Ryhmällä voi rajata myös havaintolistaa.
 - `SARJA("Ryhmä"; "muuttuja")` hakee ryhmän havainnot. `VAKIOT("Ryhmä"; "muuttuja")` lukee ryhmän kohteiden nykyiset arvot. Ryhmät ja näkymät tallentuvat valinnaiseen `data/sivut-tietokanta.json`-tiedostoon ja sisältyvät Sivujen varmuuskopioon.
 - Ryhmien, näkymien, kaavojen ja synkronoinnin Chromium- ja WebKit-testit ajettiin mobiili- ja työpöytäleveyksillä. Näkymä ja kaavat tarkistettiin myös laajalla tuoteluettelolla. Käyttö oikealla iPhonella on avoin. Näkymävalikon ja lomakkeen toteutuksessa käytettiin Modern Web Guidancea.
