@@ -57,12 +57,17 @@ def simulate_keyboard(page):
     })()""")
 
 
+def open_main_view(page,label):
+    page.locator('#navigation-trigger').click()
+    page.locator('#navigation-menu').get_by_role('button',name=label,exact=True).click()
+
+
 def create(page,title,kind='page'):
     if kind=='page':
-        page.get_by_role('button',name='Sivut',exact=True).click()
+        open_main_view(page,'Sivut')
         page.get_by_role('button',name='Uusi sivu',exact=True).last.click()
     else:
-        page.get_by_role('button',name='Muistiinpanot',exact=True).click()
+        open_main_view(page,'Muistiinpanot')
         page.get_by_role('button',name='Uusi',exact=True).click()
     page.get_by_role('textbox',name='Nimi',exact=True).fill(title)
     page.get_by_role('button',name='Luo',exact=True).click()
@@ -127,7 +132,7 @@ def offline(browser,width):
     editor.fill('Vapaa teksti\n\n((' + TODAY + '; Soutu: toistot = 9))')
     page.get_by_role('button',name='Käyttötila',exact=True).click()
     expect(page.get_by_text('Vapaa teksti',exact=True)).to_be_visible()
-    page.get_by_role('button',name='Tietokanta',exact=True).click()
+    open_main_view(page,'Tietokanta')
     page.get_by_role('button',name='Havainnot',exact=True).click()
     expect(page.locator('tbody tr')).to_have_count(2)
     page.get_by_role('button',name='Kohteet',exact=True).click()
@@ -161,10 +166,10 @@ def database_values(browser,width):
 ((Tee: vahvuus = 2))
 ((Tee: vahvuus = 3))''')
     page.get_by_role('button',name='Käyttötila',exact=True).click()
-    page.get_by_role('button',name='Tietokanta',exact=True).click()
+    open_main_view(page,'Tietokanta')
     expect(page.get_by_role('button',name='Arvot',exact=True)).to_have_attribute('aria-pressed','true')
     expect(page.locator('.matrix-table tbody tr')).to_have_count(2)
-    expect(page.locator('.matrix-pagination')).to_be_hidden()
+    expect(page.locator('.matrix-pager')).to_be_hidden()
     expect(page.get_by_role('button',name='Kahvi · paahto · Tumma',exact=True)).to_be_visible()
     expect(page.get_by_role('button',name='Tee · vahvuus · Useita arvoja',exact=True)).to_be_visible()
     search=page.get_by_role('searchbox',name='Hae kohdetta, muuttujaa tai arvoa')
@@ -176,6 +181,7 @@ def database_values(browser,width):
     search.fill('')
 
     def add(kind,label,name):
+        page.get_by_label('Lisää tietokantaan',exact=True).click()
         page.get_by_role('button',name=kind).click()
         page.get_by_role('textbox',name=label,exact=True).fill(name)
         page.get_by_role('button',name='Lisää',exact=True).click()
@@ -208,17 +214,17 @@ def database_values(browser,width):
     expect(page.get_by_role('button',name='Mehu · Saatavilla · Ei',exact=True)).to_be_visible()
 
     def calculator():
-        page.get_by_role('button',name='Sivut',exact=True).click()
+        open_main_view(page,'Sivut')
         page.get_by_role('button',name='Kahvilaskuri',exact=True).click()
 
     calculator()
     for name,value in [('vakioluku','7,5'),('yhteinen','7,5'),('historiallinen','3'),('havaintojen määrä','3')]:
         expect(page.locator(f'[data-layout="nimi:{name}:1"] .card-value')).to_have_text(value)
-    page.get_by_role('button',name='Tietokanta',exact=True).click()
+    open_main_view(page,'Tietokanta')
     change('Kahvi · hinta · 7,5','Kahvi · hinta','0')
     calculator()
     expect(page.locator('[data-layout="nimi:yhteinen:1"] .card-value')).to_have_text('0')
-    page.get_by_role('button',name='Tietokanta',exact=True).click()
+    open_main_view(page,'Tietokanta')
     change('Tee · vahvuus · 4','Tee · vahvuus','')
     expect(page.get_by_role('button',name='Tee · vahvuus · Tyhjä',exact=True)).to_be_visible()
     page.get_by_role('button',name='Havainnot',exact=True).click()
@@ -240,42 +246,39 @@ def database_pagination(browser,width):
         'values':[],
     }
     page.evaluate('data => stage(PROPERTIES, JSON.stringify(data))',properties)
-    page.get_by_role('button',name='Tietokanta',exact=True).click()
-    footer=page.locator('.matrix-pagination')
-    rows=footer.get_by_role('group',name='Rivit')
-    columns=footer.get_by_role('group',name='Sarakkeet')
+    open_main_view(page,'Tietokanta')
+    rows=page.get_by_role('group',name='Rivit',exact=True)
+    columns=page.get_by_role('group',name='Sarakkeet',exact=True)
     previous_rows=rows.get_by_role('button',name='Edelliset rivit')
     next_rows=rows.get_by_role('button',name='Seuraavat rivit')
     previous_columns=columns.get_by_role('button',name='Edelliset sarakkeet')
     next_columns=columns.get_by_role('button',name='Seuraavat sarakkeet')
 
-    expect(rows.get_by_text('Rivit 1/4',exact=True)).to_be_visible()
-    expect(columns.get_by_text('Sarakkeet 1/2',exact=True)).to_be_visible()
+    expect(rows.get_by_label('Sivutussuunta: Rivit 1/4',exact=True)).to_be_visible()
     expect(previous_rows).to_be_disabled()
-    expect(previous_columns).to_be_disabled()
-    row_box,column_box=rows.bounding_box(),columns.bounding_box()
-    assert abs(row_box['y']-column_box['y'])<=1
-    assert 0<=row_box['x'] and row_box['x']+row_box['width']<=column_box['x']
-    assert column_box['x']+column_box['width']<=width
-    if width<500:
-        assert footer.bounding_box()['height']<=46
-        assert next_rows.bounding_box()['height']>=44
-    count=page.get_by_text('168 kohdetta · 35 muuttujaa',exact=True)
-    expect(count).to_be_visible()
-    count_box=count.bounding_box()
-    title_box=page.get_by_role('heading',name='Tietokanta').bounding_box()
-    assert count_box['height']<24 and count_box['y']<title_box['y']+title_box['height']
+    title=page.get_by_role('heading',name='Tietokanta',exact=True)
+    expect(title).to_have_count(1)
+    expect(page.locator('header').get_by_role('heading',name='Tietokanta')).to_be_visible()
+    title_box=title.bounding_box()
 
     table=page.locator('.matrix-wrap')
-    dock=page.locator('#dock')
-    assert footer.bounding_box()['y']+footer.bounding_box()['height'] <= dock.bounding_box()['y']-4
+    add=page.get_by_label('Lisää tietokantaan',exact=True)
+    views=page.get_by_label('Tallennetut näkymät',exact=True)
+    controls=[page.locator('#navigation-trigger'),add,views,rows]
+    if width<500:
+        controls.append(page.locator('#more summary'))
+    boxes=[control.bounding_box() for control in controls]
+    assert all(0<=box['x'] and box['x']+box['width']<=width for box in boxes)
+    assert all(left['x']+left['width']<=right['x'] for left,right in zip(boxes,boxes[1:]))
+    assert max(box['y'] for box in boxes)-min(box['y'] for box in boxes)<=2
+    assert table.bounding_box()['y']+table.bounding_box()['height'] <= page.locator('#dock').bounding_box()['y']-4
     assert page.locator('#main').evaluate('node => node.scrollHeight === node.clientHeight && node.clientWidth === innerWidth')
     table.evaluate('node => { node.scrollTop=240; node.scrollLeft=75; }')
     assert table.evaluate('node => [node.scrollTop, node.scrollLeft]')==[240,75]
 
     def layout():
         return page.evaluate("""() => {
-            const bounds=['.database-head','.matrix-tools','.matrix-wrap','.matrix-pagination','#dock']
+            const bounds=['header','.matrix-wrap','.matrix-pager','#dock']
               .map(selector=>document.querySelector(selector).getBoundingClientRect().toJSON());
             const table=document.querySelector('.matrix-wrap');
             return [bounds,document.querySelector('#main').scrollTop,table.scrollTop,table.scrollLeft];
@@ -292,7 +295,12 @@ def database_pagination(browser,width):
     dialog.get_by_role('button',name='Sulje',exact=True).click()
     assert layout()==fixed
 
-    page.get_by_label('Tallennetut näkymät',exact=True).click()
+    add.click()
+    expect(page.get_by_role('button',name='Lisää sarake',exact=True)).to_be_visible()
+    assert layout()==fixed
+    add.press('Escape')
+    views.click()
+    expect(page.get_by_text('168 kohdetta · 35 muuttujaa',exact=True)).to_be_visible()
     new_view=page.get_by_role('button',name='Uusi näkymä',exact=True)
     expect(new_view).to_be_visible()
     assert layout()==fixed
@@ -307,22 +315,26 @@ def database_pagination(browser,width):
     expect(page.locator('html')).not_to_have_class('keyboard-open')
 
     next_rows.press('Enter')
-    expect(rows.get_by_text('Rivit 2/4',exact=True)).to_be_visible()
+    expect(rows.get_by_label('Sivutussuunta: Rivit 2/4',exact=True)).to_be_visible()
     expect(next_rows).to_be_focused()
     expect(page.get_by_role('rowheader',name='Kohde 51',exact=True)).to_be_visible()
+    rows.get_by_label('Sivutussuunta: Rivit 2/4',exact=True).click()
+    page.get_by_role('button',name='Sarakkeet 1/2',exact=True).click()
+    expect(previous_columns).to_be_disabled()
     next_columns.press('Enter')
-    expect(columns.get_by_text('Sarakkeet 2/2',exact=True)).to_be_visible()
+    expect(columns.get_by_label('Sivutussuunta: Sarakkeet 2/2',exact=True)).to_be_visible()
     expect(page.get_by_role('columnheader',name='Muuttuja 21',exact=True)).to_be_visible()
-    expect(rows.get_by_text('Rivit 2/4',exact=True)).to_be_visible()
+    expect(page.get_by_role('rowheader',name='Kohde 51',exact=True)).to_be_visible()
     expect(next_columns).to_be_disabled()
     expect(previous_columns).to_be_focused()
     if width<500:
         previous_columns.tap()
     else:
         previous_columns.click()
-    expect(columns.get_by_text('Sarakkeet 1/2',exact=True)).to_be_visible()
+    columns.get_by_label('Sivutussuunta: Sarakkeet 1/2',exact=True).click()
+    page.get_by_role('button',name='Rivit 2/4',exact=True).click()
     previous_rows.press('Enter')
-    expect(rows.get_by_text('Rivit 1/4',exact=True)).to_be_visible()
+    expect(rows.get_by_label('Sivutussuunta: Rivit 1/4',exact=True)).to_be_visible()
 
     search=page.get_by_role('searchbox',name='Hae kohdetta, muuttujaa tai arvoa')
     search.fill('Muuttuja 21')
@@ -331,13 +343,10 @@ def database_pagination(browser,width):
     search.fill('Kohde 168')
     expect(rows).to_be_hidden()
     expect(columns).to_be_visible()
-    page.get_by_role('button',name='Havainnot',exact=True).click()
-    expect(page.locator('.matrix-count')).to_be_hidden()
     for label in ('Havainnot','Kohteet','Muuttujat'):
-        if label!='Havainnot':
-            page.get_by_role('button',name=label,exact=True).click()
-        foot=page.locator('.table-foot').bounding_box()
-        assert foot['y']+foot['height'] <= dock.bounding_box()['y']-4
+        page.get_by_role('button',name=label,exact=True).click()
+        expect(page.locator('.database-result-count')).to_be_visible()
+        expect(add).to_be_hidden()
         assert page.locator('#main').evaluate('node => node.scrollHeight === node.clientHeight')
     assert not errors,errors
     page.close()
@@ -358,7 +367,7 @@ def database_groups(browser,width):
 ((Vanha ryhmä: =RYHMÄ("Omena"; "Talouspaperi")))
 ((Vanha: =SUMMA(SARJA("Vanha ryhmä"; "kpl"))))""")
     page.get_by_role('button',name='Käyttötila',exact=True).click()
-    page.get_by_role('button',name='Tietokanta',exact=True).click()
+    open_main_view(page,'Tietokanta')
     menu=page.get_by_label('Tallennetut näkymät',exact=True)
     dialog=page.get_by_role('dialog')
     table=page.locator('.matrix-table')
@@ -406,11 +415,11 @@ def database_groups(browser,width):
     menu.click()
     page.get_by_role('button',name='Kaikki arvot',exact=True).click()
     expect(table.locator('tbody tr')).to_have_count(3)
-    page.get_by_role('button',name='Sivut',exact=True).click()
+    open_main_view(page,'Sivut')
     page.get_by_role('button',name='Ostoslaskuri',exact=True).click()
     for name,value in [('hinnat','5'),('havainnot','10'),('vanha','34')]:
         expect(page.locator(f'[data-layout="nimi:{name}:1"] .card-value')).to_have_text(value)
-    page.get_by_role('button',name='Tietokanta',exact=True).click()
+    open_main_view(page,'Tietokanta')
     page.wait_for_function('dbGet("drafts",DATABASE).then(Boolean)')
     page.reload()
     menu.click()
@@ -471,7 +480,7 @@ def vault_works(browser):
     assert UNRELATED not in reads
     assert {REGISTRY,DATABASE,TRAINING,NEXT,SOURCE,SCOPED_PROSE}.issubset(reads)
     page.get_by_role('button',name='Sulje',exact=True).click()
-    page.get_by_role('button',name='Tietokanta',exact=True).click()
+    open_main_view(page,'Tietokanta')
     page.get_by_label('Tallennetut näkymät',exact=True).click()
     page.get_by_role('button',name='Voima',exact=True).click()
     expect(page.locator('.matrix-table tbody tr')).to_have_count(1)
@@ -485,11 +494,11 @@ def vault_works(browser):
     assert json.loads(files[DATABASE])['views'][0]['name']=='Oma voima'
     assert page.evaluate("!currentFile(%s).text && !!currentFile(%s).projection" %(json.dumps(SOURCE),json.dumps(SOURCE)))
     assert not page.evaluate('!!currentFile('+json.dumps(SCOPED_PROSE)+')')
-    page.get_by_role('button',name='Sivut',exact=True).click()
+    open_main_view(page,'Sivut')
     page.get_by_role('button',name='Seuranta',exact=True).click()
     expect(page.locator('[data-layout="nimi:jaettu:1"] .card-value')).to_have_text('11')
     expect(page.locator('[data-layout="nimi:vakiopaino:1"] .card-value')).to_have_text('40')
-    page.get_by_role('button',name='Tietokanta',exact=True).click()
+    open_main_view(page,'Tietokanta')
     page.get_by_role('button',name='Penkki · paino · 40',exact=True).click()
     property_cell=page.get_by_role('textbox',name='Penkki · paino',exact=True)
     property_cell.fill('42')
@@ -497,11 +506,11 @@ def vault_works(browser):
     page.evaluate('synchronize(true)')
     page.wait_for_function('state.drafts.size === 0')
     assert json.loads(files[PROPERTIES])['values']==[['Penkki','paino',42]]
-    page.get_by_role('button',name='Sivut',exact=True).click()
+    open_main_view(page,'Sivut')
     page.get_by_role('button',name='Treeni',exact=True).click()
     page.get_by_role('button',name='Kirjaa sarja').click()
     expect(page.locator('[data-layout="nimi:kirjattu:1"] .card-value')).to_have_text('13')
-    page.get_by_role('button',name='Sivut',exact=True).click()
+    open_main_view(page,'Sivut')
     page.get_by_role('button',name='Seuranta',exact=True).click()
     expect(page.locator('[data-layout="nimi:jaettu:1"] .card-value')).to_have_text('13')
     page.wait_for_function('state.drafts.size === 0')
@@ -667,12 +676,12 @@ def dock_and_dismiss(browser,width):
         x,y=box['x']+box['width']/2,box['y']+box['height']/2
         (page.touchscreen.tap if mobile else page.mouse.click)(x,y)
 
-    db=page.get_by_role('button',name='Tietokanta',exact=True)
-    page.get_by_role('button',name='Sivut',exact=True).click()
-    tap_at(db)
+    navigation=page.locator('#navigation-trigger')
+    open_main_view(page,'Sivut')
+    tap_at(navigation)
     expect(page.locator('#page-menu')).to_be_hidden()
     expect(page.get_by_role('heading',name='Omat sivut')).to_be_visible()
-    tap_at(db)
+    open_main_view(page,'Tietokanta')
     expect(page.get_by_role('heading',name='Tietokanta')).to_be_visible()
     toggle=page.get_by_role('group',name='Tietokannan näkymä')
     page.get_by_role('button',name='Havainnot',exact=True).click()
@@ -688,22 +697,22 @@ def dock_and_dismiss(browser,width):
     page.get_by_role('button',name='Kohteet',exact=True).click()
     expect(search).to_have_value('abc')
     page.locator('#more summary').click()
-    notes=page.get_by_role('button',name='Muistiinpanot',exact=True)
-    tap_at(notes)
+    tap_at(navigation)
     expect(page.locator('#more')).not_to_have_attribute('open','')
+    expect(page.locator('#navigation-menu')).not_to_have_attribute('open','')
     expect(page.get_by_role('heading',name='Tietokanta')).to_be_visible()
     filters.click()
     dlg=page.get_by_role('dialog')
     combo=dlg.get_by_role('combobox',name='Kohde')
     combo.click()
     # A single tap at the backdrop closes the upper choice layer first.
-    tap_at(notes)
+    tap_at(navigation)
     expect(combo).to_have_attribute('aria-expanded','false')
     expect(dlg).to_be_visible()
-    tap_at(notes)
+    tap_at(navigation)
     expect(dlg).to_be_hidden()
     expect(page.get_by_role('heading',name='Tietokanta')).to_be_visible()
-    tap_at(notes)
+    open_main_view(page,'Muistiinpanot')
     expect(page.get_by_role('heading',name='Datamuistiinpanot')).to_be_visible()
     new=page.get_by_role('button',name='Uusi',exact=True)
     notes_search=page.get_by_role('searchbox',name='Hae datamuistiinpanoista')
@@ -713,7 +722,7 @@ def dock_and_dismiss(browser,width):
     # Tapping an ordinary part of the dialog keeps it open.
     tap_at(dlg.get_by_role('heading'))
     expect(dlg).to_be_visible()
-    tap_at(db)
+    tap_at(navigation)
     expect(dlg).to_be_hidden()
     expect(page.get_by_role('heading',name='Datamuistiinpanot')).to_be_visible()
     assert not errors,errors
