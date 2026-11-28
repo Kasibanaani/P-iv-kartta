@@ -246,6 +246,10 @@ def compact_layout(browser, width, screenshot=None):
     assert after['y'] + after['height'] <= 850 - 315
     assert page.evaluate('scrollY') == 0
     assert page.get_by_role('navigation').is_hidden()
+    if width<500:
+        modes=page.get_by_role('button',name='Käyttötila',exact=True).bounding_box()
+        plus=page.get_by_role('button',name='Lisää elementti',exact=True).bounding_box()
+        assert 440 < modes['y'] == plus['y'] and modes['y']+modes['height'] <= 850-315
     page.evaluate('resizeKeyboard(0)')
     expect(page.locator('html')).not_to_have_class('keyboard-open')
     assert abs(editor.bounding_box()['height'] - before['height']) <= 1
@@ -256,10 +260,10 @@ def compact_layout(browser, width, screenshot=None):
     page.get_by_role('button', name='Vault', exact=True).click()
     page.locator('input[type=password]').focus()
     dialog = page.get_by_role('dialog')
-    original_modal = dialog.bounding_box()
+    original_modal = page.locator('#modal-panel').bounding_box()
     page.evaluate('resizeKeyboard(315)')
     expect(page.locator('html')).to_have_class('keyboard-open')
-    current_modal = dialog.bounding_box()
+    current_modal = page.locator('#modal-panel').bounding_box()
     assert current_modal['y'] + current_modal['height'] <= 850 - 315
     if width < 580:
         assert abs(current_modal['y'] - original_modal['y']) <= 1
@@ -345,12 +349,75 @@ def authoring(browser,width):
     page.close()
 
 
+def dock_and_dismiss(browser,width):
+    page,errors=setup(browser,width)
+    page.goto(APP)
+    mobile=width<500
+
+    def tap_at(loc):
+        box=loc.bounding_box()
+        x,y=box['x']+box['width']/2,box['y']+box['height']/2
+        (page.touchscreen.tap if mobile else page.mouse.click)(x,y)
+
+    db=page.get_by_role('button',name='Tietokanta',exact=True)
+    page.get_by_role('button',name='Sivut',exact=True).click()
+    tap_at(db)
+    expect(page.locator('#page-menu')).to_be_hidden()
+    expect(page.get_by_role('heading',name='Omat sivut')).to_be_visible()
+    tap_at(db)
+    expect(page.get_by_role('heading',name='Tietokanta')).to_be_visible()
+    toggle=page.get_by_role('group',name='Tietokannan näkymä')
+    search=page.get_by_role('searchbox',name='Suodata havaintoja')
+    filters=page.get_by_role('button',name='Suodata ja järjestä',exact=True)
+    boxes=[item.bounding_box() for item in (toggle,search,filters)]
+    centers=[b['y']+b['height']/2 for b in boxes]
+    assert max(centers)-min(centers)<=2
+    assert all(0<=b['x'] and b['x']+b['width']<=width for b in boxes)
+    assert (centers[0]>700)==mobile
+    assert search.bounding_box()['width']>=52
+    search.fill('abc')
+    page.get_by_role('button',name='Kohteet',exact=True).click()
+    expect(search).to_have_value('abc')
+    page.locator('#more summary').click()
+    notes=page.get_by_role('button',name='Muistiinpanot',exact=True)
+    tap_at(notes)
+    expect(page.locator('#more')).not_to_have_attribute('open','')
+    expect(page.get_by_role('heading',name='Tietokanta')).to_be_visible()
+    filters.click()
+    dlg=page.get_by_role('dialog')
+    combo=dlg.get_by_role('combobox',name='Kohde')
+    combo.click()
+    # A single tap at the backdrop closes the upper choice layer first.
+    tap_at(notes)
+    expect(combo).to_have_attribute('aria-expanded','false')
+    expect(dlg).to_be_visible()
+    tap_at(notes)
+    expect(dlg).to_be_hidden()
+    expect(page.get_by_role('heading',name='Tietokanta')).to_be_visible()
+    tap_at(notes)
+    expect(page.get_by_role('heading',name='Datamuistiinpanot')).to_be_visible()
+    new=page.get_by_role('button',name='Uusi',exact=True)
+    notes_search=page.get_by_role('searchbox',name='Hae datamuistiinpanoista')
+    assert (new.bounding_box()['y']>700)==mobile
+    assert (notes_search.bounding_box()['y']>700)==mobile
+    new.click()
+    # Tapping an ordinary part of the dialog keeps it open.
+    tap_at(dlg.get_by_role('heading'))
+    expect(dlg).to_be_visible()
+    tap_at(db)
+    expect(dlg).to_be_hidden()
+    expect(page.get_by_role('heading',name='Datamuistiinpanot')).to_be_visible()
+    assert not errors,errors
+    page.close()
+
+
 with sync_playwright() as playwright:
     browser=playwright.webkit.launch() if os.environ.get('SIVUT_WEBKIT') else playwright.chromium.launch(executable_path=os.environ.get('SIVUT_CHROMIUM') or None,args=['--no-sandbox'])
     for width in (320,390,1440):
         offline(browser,width)
         print(f'Paikallinen käyttö {width} px OK')
     for width in (320,390,1280,1440):
+        dock_and_dismiss(browser,width)
         authoring(browser,width)
         compact_layout(browser,width,os.environ.get('SIVUT_SCREENSHOT') if width==390 else None)
         print(f'Tiivis näkymä ja simuloitu näppäimistö {width} px OK')
