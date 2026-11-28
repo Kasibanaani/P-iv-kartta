@@ -1,7 +1,9 @@
 # Sivut: tila
 
-**Versio 0.5** · **28.11.2026** · [Avaa Sivut](https://kasibanaani.github.io/P-iv-kartta/sivut/)
+**Versio 0.5.1** · **28.11.2026** · [Avaa Sivut](https://kasibanaani.github.io/P-iv-kartta/sivut/)
 
+- **0.5.1.** Arvot-taulukon rivi- ja sarakesivutus mahtuvat samalle riville. Kumpikin sivunvaihdin näkyy, kun sillä suunnalla on useita sivuja. Kohteiden ja muuttujien määrät näkyvät Tietokanta-otsikon yhteydessä. Nuolipainikkeiden kosketusalue tarkistettiin Modern Web Guidancen avulla.
+- Sivutus läpäisi Chromium- ja WebKit-testit leveyksillä 320, 390, 1280 ja 1440 px. Testit kattavat yhden rivin asettelun, napautuksen, näppäimistön kohdistuksen ja hakurajauksen. Oikealla iPhonella tehtävä käyttökokeilu on avoinna.
 - **0.5.** Tietokanta avautuu Arvot-välilehdelle. Pluspainikkeista saa uusia kohteita ja muuttujia, ja solu aukeaa napauttamalla. Enter ja kentästä poistuminen tallentavat, Esc peruu. Haku, kohde- ja muuttujasuodatin sekä sarakeotsikoiden lajittelu toimivat myös taulukossa.
 - Vakioita on yksi kohde–muuttuja-paria kohti. `VAKIO("Kahvi"; "hinta")` ja nimetyn kohteen ajaton `HAVAINTO` lukevat taulukkoon tallennetun arvon. `VAKIO` voi lukea myös yksiselitteisen vanhan päivättömän arvon. Päivätyt kirjaukset näkyvät Havainnot-välilehdellä ja toimivat kaavasarjoissa. Tietokannan nimet ja vakiot synkronoidaan tiedostoon `data/sivut-vakiot.json`, joka sisältyy myös varmuuskopioon.
 - Tietokannan välilehdet, haku ja suodatin ovat samassa palkissa. Puhelimella tietokannan palkki, muistiinpanojen haku, muokkaus, uuden muistiinpanon luonti, elementin lisäys ja ⋯ ovat alhaalla. Hakurivi ja muokkaustilan työkalut liikkuvat tarvittaessa näppäimistön yläpuolelle. Pikaopas säilyy otsikkopalkissa.

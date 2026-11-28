@@ -148,6 +148,7 @@ def database_values(browser,width):
     page.get_by_role('button',name='Tietokanta',exact=True).click()
     expect(page.get_by_role('button',name='Arvot',exact=True)).to_have_attribute('aria-pressed','true')
     expect(page.locator('.matrix-table tbody tr')).to_have_count(2)
+    expect(page.locator('.matrix-pagination')).to_be_hidden()
     expect(page.get_by_role('button',name='Kahvi · paahto · Tumma',exact=True)).to_be_visible()
     expect(page.get_by_role('button',name='Tee · vahvuus · Useita arvoja',exact=True)).to_be_visible()
     search=page.get_by_role('searchbox',name='Hae kohdetta, muuttujaa tai arvoa')
@@ -207,6 +208,74 @@ def database_values(browser,width):
     page.get_by_role('button',name='Havainnot',exact=True).click()
     expect(page.locator('tbody tr')).to_have_count(6)
     assert page.evaluate('document.documentElement.scrollWidth === innerWidth')
+    assert not errors,errors
+    page.close()
+
+
+def database_pagination(browser,width):
+    page,errors=setup(browser,width)
+    page.goto(APP)
+    page.wait_for_function('state.ready')
+    properties={
+        'version':1,
+        'subjects':[f'Kohde {number}' for number in range(1,169)],
+        'variables':[f'Muuttuja {number}' for number in range(1,36)],
+        'values':[],
+    }
+    page.evaluate('data => stage(PROPERTIES, JSON.stringify(data))',properties)
+    page.get_by_role('button',name='Tietokanta',exact=True).click()
+    footer=page.locator('.matrix-pagination')
+    rows=footer.get_by_role('group',name='Rivit')
+    columns=footer.get_by_role('group',name='Sarakkeet')
+    previous_rows=rows.get_by_role('button',name='Edelliset rivit')
+    next_rows=rows.get_by_role('button',name='Seuraavat rivit')
+    previous_columns=columns.get_by_role('button',name='Edelliset sarakkeet')
+    next_columns=columns.get_by_role('button',name='Seuraavat sarakkeet')
+
+    expect(rows.get_by_text('Rivit 1/4',exact=True)).to_be_visible()
+    expect(columns.get_by_text('Sarakkeet 1/2',exact=True)).to_be_visible()
+    expect(previous_rows).to_be_disabled()
+    expect(previous_columns).to_be_disabled()
+    row_box,column_box=rows.bounding_box(),columns.bounding_box()
+    assert abs(row_box['y']-column_box['y'])<=1
+    assert 0<=row_box['x'] and row_box['x']+row_box['width']<=column_box['x']
+    assert column_box['x']+column_box['width']<=width
+    if width<500:
+        assert footer.bounding_box()['height']<=46
+        assert next_rows.bounding_box()['height']>=44
+    count=page.get_by_text('168 kohdetta · 35 muuttujaa',exact=True)
+    expect(count).to_be_visible()
+    count_box=count.bounding_box()
+    title_box=page.get_by_role('heading',name='Tietokanta').bounding_box()
+    assert count_box['height']<24 and count_box['y']<title_box['y']+title_box['height']
+
+    next_rows.press('Enter')
+    expect(rows.get_by_text('Rivit 2/4',exact=True)).to_be_visible()
+    expect(next_rows).to_be_focused()
+    expect(page.get_by_role('rowheader',name='Kohde 51',exact=True)).to_be_visible()
+    next_columns.press('Enter')
+    expect(columns.get_by_text('Sarakkeet 2/2',exact=True)).to_be_visible()
+    expect(page.get_by_role('columnheader',name='Muuttuja 21',exact=True)).to_be_visible()
+    expect(rows.get_by_text('Rivit 2/4',exact=True)).to_be_visible()
+    expect(next_columns).to_be_disabled()
+    expect(previous_columns).to_be_focused()
+    if width<500:
+        previous_columns.tap()
+    else:
+        previous_columns.click()
+    expect(columns.get_by_text('Sarakkeet 1/2',exact=True)).to_be_visible()
+    previous_rows.press('Enter')
+    expect(rows.get_by_text('Rivit 1/4',exact=True)).to_be_visible()
+
+    search=page.get_by_role('searchbox',name='Hae kohdetta, muuttujaa tai arvoa')
+    search.fill('Muuttuja 21')
+    expect(columns).to_be_hidden()
+    expect(rows).to_be_visible()
+    search.fill('Kohde 168')
+    expect(rows).to_be_hidden()
+    expect(columns).to_be_visible()
+    page.get_by_role('button',name='Havainnot',exact=True).click()
+    expect(page.locator('.matrix-count')).to_be_hidden()
     assert not errors,errors
     page.close()
 
@@ -513,6 +582,7 @@ with sync_playwright() as playwright:
         database_values(browser,width)
         print(f'Paikallinen käyttö {width} px OK')
     for width in (320,390,1280,1440):
+        database_pagination(browser,width)
         dock_and_dismiss(browser,width)
         authoring(browser,width)
         compact_layout(browser,width,os.environ.get('SIVUT_SCREENSHOT') if width==390 else None)
