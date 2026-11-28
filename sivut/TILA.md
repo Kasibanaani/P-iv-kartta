@@ -1,7 +1,10 @@
 # Sivut: tila
 
-**Versio 0.5.1** · **28.11.2026** · [Avaa Sivut](https://kasibanaani.github.io/P-iv-kartta/sivut/)
+**Versio 0.6** · **28.11.2026** · [Avaa Sivut](https://kasibanaani.github.io/P-iv-kartta/sivut/)
 
+- **0.6.** Arvot-taulukon oikean reunan näkymävalikko avaa nimetyt näkymät. Näkymä tallentaa ryhmän, hakuehdon ja valitut sarakkeet. Samasta valikosta voi luoda ja muokata ryhmiä. Ryhmällä voi rajata myös havaintolistaa.
+- `SARJA("Ryhmä"; "muuttuja")` hakee ryhmän havainnot. `VAKIOT("Ryhmä"; "muuttuja")` lukee ryhmän kohteiden nykyiset arvot. Ryhmät ja näkymät tallentuvat valinnaiseen `data/sivut-tietokanta.json`-tiedostoon ja sisältyvät Sivujen varmuuskopioon.
+- Ryhmien, näkymien, kaavojen ja synkronoinnin Chromium- ja WebKit-testit ajettiin mobiili- ja työpöytäleveyksillä. Näkymä ja kaavat tarkistettiin myös laajalla tuoteluettelolla. Käyttö oikealla iPhonella on avoin. Näkymävalikon ja lomakkeen toteutuksessa käytettiin Modern Web Guidancea.
 - **0.5.1.** Arvot-taulukon rivi- ja sarakesivutus mahtuvat samalle riville. Kumpikin sivunvaihdin näkyy, kun sillä suunnalla on useita sivuja. Kohteiden ja muuttujien määrät näkyvät Tietokanta-otsikon yhteydessä. Nuolipainikkeiden kosketusalue tarkistettiin Modern Web Guidancen avulla.
 - Sivutus läpäisi Chromium- ja WebKit-testit leveyksillä 320, 390, 1280 ja 1440 px. Testit kattavat yhden rivin asettelun, napautuksen, näppäimistön kohdistuksen ja hakurajauksen. Oikealla iPhonella tehtävä käyttökokeilu on avoinna.
 - **0.5.** Tietokanta avautuu Arvot-välilehdelle. Pluspainikkeista saa uusia kohteita ja muuttujia, ja solu aukeaa napauttamalla. Enter ja kentästä poistuminen tallentavat, Esc peruu. Haku, kohde- ja muuttujasuodatin sekä sarakeotsikoiden lajittelu toimivat myös taulukossa.

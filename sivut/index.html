@@ -92,6 +92,18 @@ table{border-collapse:separate;border-spacing:0;width:100%;min-width:610px;text-
   .matrix-pager button::before{content:"";position:absolute;inset:0 -4px}
 }
 @media(max-width:700px), (max-width:950px) and (pointer:coarse){.table-wrap.matrix-wrap{max-height:min(56svh,600px)}#list-tools .matrix-tabs button{padding-inline:4px}}
+.matrix-tools>.database-views{margin-inline-start:auto}
+.database-views>summary{width:44px;min-height:44px;display:grid;place-items:center;list-style:none;border:1px solid var(--sep);border-radius:9px;cursor:pointer}
+.database-views>summary::-webkit-details-marker{display:none}
+.database-views .pop button[aria-pressed=true]{background:var(--fill);font-weight:650}
+.database-menu-actions{display:grid;gap:2px;border-top:1px solid var(--sep);padding-top:4px;margin-top:3px}
+.database-pick{margin:0;padding:5px 8px 8px;border:1px solid var(--sep);border-radius:9px;min-width:0}
+.database-pick>input{width:100%;margin-bottom:5px}
+.database-pick-list{max-height:min(36svh,305px);overflow:auto;overscroll-behavior:contain}
+.dialog-body .database-pick-list label,.filter-form .database-pick-all{display:flex;align-items:center;gap:9px;min-height:44px;font-size:14px}
+.database-pick-list label{padding:4px 6px;border-bottom:1px solid var(--sep)}
+.database-pick-list label:last-child{border-bottom:0}
+.database-pick-list input,.database-pick-all input{flex:none}
 .matrix-tabs .short-tab{display:none}
 @media(max-width:360px){.matrix-tabs .wide-tab{display:none}.matrix-tabs .short-tab{display:inline}}
 #modal-panel{position:fixed;inset:calc(min(8svh,48px) + env(safe-area-inset-top)) 0 auto;margin:0 auto;color:var(--text);background:var(--field);border:1px solid var(--sep);border-radius:15px;width:min(570px,calc(100% - 20px - env(safe-area-inset-left) - env(safe-area-inset-right)));max-height:min(610px,calc(100svh - min(8svh,48px) - env(safe-area-inset-top) - 14px - var(--keyboard-inset)));padding:0;box-shadow:0 14px 60px var(--shade);overflow:hidden}
@@ -2355,6 +2367,8 @@ var KAAVA=(function(){
       return args.map(function(a){return a.name??a.value;});
     }
     function subjects(name){
+      var saved=opts?.savedGroup?.(name);
+      if(saved)return saved;
       indexFields();
       var members=new Set(),visiting=new Set(),done=new Set();
       function expand(id){
@@ -2750,6 +2764,16 @@ var KAAVA=(function(){
     function call(ast,note){
       var name=ast.name,args=ast.args,first=args[0];
       if(name==='RYHMÄ')return groupMembers(args).join(', ');
+      if(name==='VAKIOT'&&opts?.groupProperties){
+        if(args.length!==2)fail('#KAAVA!');
+        var groupName=textOf(evaluate(first,note)),column=textOf(evaluate(args[1],note));
+        if(!column.trim())fail('#ARVO!');
+        var properties=opts.groupProperties(groupName,column);
+        if(!properties)fail('#RYHMÄ!');
+        if(properties.some(function(p){return p.conflict;}))fail('#MONTA ARVOA!');
+        if(used)properties.forEach(function(p){if(p.source)used.add(p.source);});
+        return properties.map(function(p){return p.value;}).filter(function(value){return value!=null;});
+      }
       if(name==='SÄÄDINTILA'){
         if(args.length!==1)fail('#KAAVA!');
         return inputState(note,key(evaluate(first,note)));
@@ -4017,9 +4041,10 @@ const BRANCH = 'main';
 const SELECTORS = 'data/sivut-lahteet.json';
 const CATALOG = 'data/havaintomaaritykset.json';
 const PROPERTIES = 'data/sivut-vakiot.json';
+const DATABASE = 'data/sivut-tietokanta.json';
 const FIELDS = 'ohjeet/muistiinpanot.md';
 const BUTTONS = 'pohjat/saatimet.md';
-const META = new Set([SELECTORS, CATALOG, PROPERTIES, FIELDS, BUTTONS]);
+const META = new Set([SELECTORS, CATALOG, PROPERTIES, DATABASE, FIELDS, BUTTONS]);
 const owns = path => /^sivut\/[^/]+\.md$/i.test(path) || /^sivudata\/[^/]+\.md$/i.test(path);
 const markdown = path => /\.md$/i.test(path) && !/(^|\/)[_.]/.test(path) && !/^(arkisto|liitteet|ohjeet|yllapito|pohjat|nakymat|toistuvat|listat)\//i.test(path);
 const ownPage = path => path.startsWith('sivut/') && owns(path) && markdown(path);
@@ -4604,8 +4629,8 @@ let editor = null, editAnchor = null, read = null, deferred = false, usingRange 
 let renderFrame = 0, pendingNames = new Set();
 const liveValues = new Map();
 const positions = new Map();
-const database = {axis:'matrix',query:'',subject:'',variable:'',from:'',to:'',sort:'time',asc:false,page:0};
-const matrix = {query:'',subject:'',variable:'',sort:'',asc:true,page:0,columns:0,left:0};
+const database = {axis:'matrix',query:'',group:'',subject:'',variable:'',from:'',to:'',sort:'time',asc:false,page:0};
+const matrix = {view:'',config:'',query:'',group:'',subject:'',variable:'',sort:'',asc:true,page:0,columns:0,left:0};
 let noteQuery = '';
 function valuesFor(path) {
   if (!liveValues.has(path)) liveValues.set(path,new Map());
@@ -4803,8 +4828,11 @@ function render() {
   renderStatus();
 }
 function rerenderAtScroll() {
-  if(view.kind==='db'&&database.axis==='matrix')matrix.left=main.querySelector('.matrix-wrap')?.scrollLeft||0;
+  const table=view.kind==='db'&&database.axis==='matrix'?main.querySelector('.matrix-wrap'):null;
+  const tableTop=table?.scrollTop||0;
+  if(table)matrix.left=table.scrollLeft;
   const y=main.scrollTop;render();main.scrollTop=y;
+  if(table)main.querySelector('.matrix-wrap').scrollTop=tableTop;
 }
 function refreshFromData() {
   if (usingRange || usingThumb || editMode || textField(document.activeElement) || $('modal').open) {deferred=true;return;}
@@ -5055,6 +5083,7 @@ const elementGroups=[
 ];
 const guideSections=[
  ['Sivut ja kirjoittaminen','Avaa vasemman alakulman Sivut ja luo sivu pluspainikkeella. Kynä vaihtaa muokkaukseen, kirjan kuva takaisin käyttöön. Kirjoita vapaasti. Otsikko (##), lihavointi (**teksti**), lista (-), lainaus (>), erotin (---) ja linkit näkyvät käyttötilassa. Muokkaustilan + lisää elementin kohdistimen kohdalle. Voit muuttaa sen tekstiä heti.'],
+ ['Ryhmät ja tallennetut näkymät','Avaa Tallennetut näkymät Arvot-taulukon oikeasta yläkulmasta. Hallitse ryhmiä -kohdassa voit valita ryhmän kohteet. Näkymä muistaa ryhmän, hakuehdon ja näkyvät sarakkeet. Sarja hakee ryhmän kirjatut havainnot ja VAKIOT lukee kunkin kohteen nykyisen arvon. ((=SUMMA(SARJA("Ryhmä"; "muuttuja")))) ((=SUMMA(VAKIOT("Ryhmä"; "muuttuja"))))'],
  ['Datamuistiinpanot ja tietokanta','Tietokannan Arvot-välilehdellä kohteet ovat riveillä ja muuttujat sarakkeissa. Lisää nimeämällä rivi tai sarake. Napauta solua ja kirjoita arvo. Enter tai siirtyminen pois solusta tallentaa, Esc peruu ja kentän tyhjentäminen poistaa arvon. Luku, true ja false tunnistetaan. Lainausmerkit säilyttävät luvulta näyttävän tekstinä. ((=VAKIO("Kahvi"; "hinta"))) käyttää samaa arvoa kaikilla Sivut-sivuilla. HAVAINTO käyttää tallennettua vakiota, kun haet nimetyn kohteen yksittäistä arvoa ilman aikarajausta. Havainnot-välilehdellä voit hakea kirjauksia ja rajata niitä kohteella, muuttujalla ja päivillä. Puhelimella työkalut ovat alhaalla ja havainnon ⋯ näyttää ajan ja lähteen.'],
  ['Asettelu ja käyttötila','Valitse sivun ⋯ → Asettelu. Siirrä korttia kahvasta ja muuta kokoa kulmasta. Näppäimistöllä käytä kahvan nuolinäppäimiä. Kortin ⋯ → Muotoilu vaihtaa pinnan, leveyden ja luvun esityksen. Palkille voi antaa maksimin. Leveys ja korkeus voivat erota puhelimella ja tietokoneella. Valmis palaa käyttöön.'],
  ['Säätö, kokeilu ja kirjaus','Säätimen nimi toimii kaavassa muuttujana. Esimerkiksi määrää säätävä liukusäädin ohjaa kaavaa ((Tulos: =määrä * 2)). Valitse tallenna = "päivään" tallentaaksesi arvon päivän havainnoksi tai "ei" tilapäistä säätöä varten. Kokeilutilassa voi muuttaa arvoja ja palata lähtötilaan. Kirjauspainikkeella tehty viimeisin kirjaus voidaan kumota.'],
@@ -5330,14 +5359,29 @@ function runtime(file) {
   const allowed=KAAVA.allowedFields(currentFile(FIELDS)?.text);
   const resolve=definitionResolver(parseJSON(currentFile(CATALOG)?.text,{}));
   const saved=propertyData(currentFile(PROPERTIES)?.text,resolve);
+  const groups=databaseConfiguration()?.groups||[];
+  const byGroup=new Map(groups.map(group=>[key(group.name),group]));
+  const membership=new Map();
+  const savedGroup=name=>{
+    const group=byGroup.get(key(name));
+    if(!group)return null;
+    if(!membership.has(group.id))membership.set(group.id,memberIds(group,resolve));
+    return membership.get(group.id);
+  };
   let model;
+  const properties=()=>model ??= propertyMatrix(collectRows(resolve),resolve);
   const property=(subject,variable,savedOnly)=>{
     const pair=propertyKey(resolve('subjects',subject).key,resolve('variables',variable).key);
     if(savedOnly)return saved?.entries.get(pair);
-    model ??= propertyMatrix(collectRows(resolve),resolve);
-    return model.entries.get(pair);
+    return properties().entries.get(pair);
   };
-  const engine=TAULUKKO.create(tables,sources,allowed,{resolve,today:day(),preview,property}).formulas;
+  const groupProperties=(name,variable)=>{
+    const members=savedGroup(name);
+    if(!members)return null;
+    const column=resolve('variables',variable).key,entries=properties().entries;
+    return [...members].map(member=>entries.get(propertyKey(member,column))).filter(Boolean);
+  };
+  const engine=TAULUKKO.create(tables,sources,allowed,{resolve,today:day(),preview,property,savedGroup,groupProperties}).formulas;
   return {n,engine,reset(changed){previewText=undefined;engine.refreshPreview(changed);}};
 }
 function uses(reads,changed) {
@@ -6102,6 +6146,157 @@ function propertyEditText(value) {
   if(typeof value==='boolean')return String(value);
   return typeof value==='string'&&propertyInput(value)!==value?JSON.stringify(value):display(value);
 }
+function databaseConfiguration(text=currentFile(DATABASE)?.text) {
+  if(text===undefined)return {version:1,groups:[],views:[]};
+  const data=parseJSON(text,null);
+  const name=value=>typeof value==='string'&&!!key(value);
+  const names=value=>Array.isArray(value)&&value.every(name);
+  const unique=items=>new Set(items.map(item=>key(item.name))).size===items.length&&
+    new Set(items.map(item=>item.id)).size===items.length;
+  if(data?.version!==1||!Array.isArray(data.groups)||!Array.isArray(data.views))return null;
+  if(!data.groups.every(g=>g&&name(g.id)&&name(g.name)&&names(g.subjects))||!unique(data.groups))return null;
+  if(!data.views.every(v=>v&&name(v.id)&&name(v.name)&&typeof v.group==='string'&&
+    typeof v.query==='string'&&(v.columns===null||names(v.columns)))||!unique(data.views))return null;
+  return data;
+}
+function saveDatabase(data) {stage(DATABASE,JSON.stringify(data,null,2)+'\n');}
+function memberIds(group,resolve) {
+  return group ? new Set(group.subjects.map(subject=>resolve('subjects',subject).key)) : null;
+}
+function groupSelect(groups,selected) {
+  const select=el('select');
+  option(select,'','Kaikki ryhmät');
+  for(const group of groups)option(select,group.id,group.name);
+  select.value=selected;
+  return select;
+}
+function databaseLabel(title,input) {
+  const label=el('label','',title);label.append(input);return label;
+}
+function databaseChecklist(title,items,selected,searchTitle) {
+  const fieldset=el('fieldset','database-pick'),legend=el('legend','',title),list=el('div','database-pick-list');
+  fieldset.append(legend);
+  const search=searchTitle?field('search',searchTitle):null;
+  if(search){search.placeholder=searchTitle;fieldset.append(search);}
+  fieldset.append(list);
+  function draw() {
+    const q=key(search?.value), matches=items.filter(([,label])=>key(label).includes(q));
+    list.replaceChildren(...matches.map(([id,name])=>{
+      const label=el('label'),check=el('input');check.type='checkbox';check.checked=selected.has(id);
+      label.append(check,el('span','',name));
+      check.addEventListener('change',()=>{if(check.checked)selected.add(id);else selected.delete(id);});
+      return label;
+    }));
+    if(!matches.length)list.append(el('small','muted','Ei osumia'));
+    list.scrollTop=0;
+  }
+  search?.addEventListener('input',draw);draw();
+  return fieldset;
+}
+function openDatabaseViews(host,getModel,resolve,redraw,apply) {
+  const data=databaseConfiguration();
+  const {details,list}=menu(host,'Tallennetut näkymät');
+  details.classList.add('database-views');
+  const trigger=details.querySelector('summary');
+  labelButton(trigger,'','layout');
+  trigger.setAttribute('aria-label','Tallennetut näkymät');
+  const current=data?.views.find(item=>item.id===matrix.view);
+  if(current)trigger.classList.add('mode-active');
+  const defaultButton=menuItem(list,'Kaikki arvot',()=>apply(null));
+  defaultButton.setAttribute('aria-pressed',String(!current));
+  if(!data){list.append(el('small','menu-status','Näkymiä ei voitu lukea Vaultista.'));return;}
+  for(const item of data.views) {
+    const entry=menuItem(list,item.name,()=>apply(item));
+    entry.setAttribute('aria-pressed',String(item===current));
+  }
+  const actions=el('div','database-menu-actions');list.append(actions);
+  if(current)menuItem(actions,'Muokkaa näkymää',()=>editView(current),'edit');
+  menuItem(actions,'Uusi näkymä',()=>editView(null),'plus');
+  menuItem(actions,'Hallitse ryhmiä',manageGroups);
+  function editView(item) {
+    const box=dialog(item?'Muokkaa näkymää':'Uusi näkymä'),form=el('form','filter-form');
+    const name=field('text','Näkymän nimi',item?.name||'');name.required=true;name.maxLength=110;
+    const query=field('text','Hakuehto',matrix.query),group=groupSelect(data.groups,matrix.group);
+    const model=getModel();
+    const columns=[...model.variables].sort((a,b)=>a[1].localeCompare(b[1],'fi'));
+    const saved=item?.columns,selected=new Set(saved===null||!item?columns.map(([id])=>id):saved.map(column=>resolve('variables',column).key));
+    const all=el('input');all.type='checkbox';all.checked=!item||saved===null;
+    const allLabel=el('label','database-pick-all');allLabel.append(all,el('span','','Kaikki sarakkeet'));
+    const picker=databaseChecklist('Näkyvät sarakkeet',columns,selected,'Hae saraketta');
+    picker.hidden=all.checked;
+    all.addEventListener('change',()=>{picker.hidden=all.checked;});
+    const buttons=el('div','field-line'),save=el('button','primary','Tallenna');
+    save.type='submit';buttons.append(save);
+    function removeView() {
+      const confirm=dialog('Poista näkymä');
+      confirm.append(el('p','',item.name));
+      const row=el('div','field-line');confirm.append(row);
+      const cancel=button(row,'Säilytä','border',()=>editView(item));
+      button(row,'Poista','border',()=>{
+        const latest=databaseConfiguration();if(!latest)return;
+        latest.views=latest.views.filter(view=>view.id!==item.id);
+        saveDatabase(latest);$('modal').close();apply(null);
+      });
+      focusField(cancel);
+    }
+    if(item)button(buttons,'Poista näkymä','border',removeView);
+    form.append(databaseLabel('Näkymän nimi',name),databaseLabel('Ryhmä',group),databaseLabel('Hakuehto',query),allLabel,picker,buttons);
+    box.append(form);styleChoices(form);
+    name.addEventListener('input',()=>name.setCustomValidity(''));
+    form.addEventListener('submit',event=>{
+      event.preventDefault();
+      const latest=databaseConfiguration();if(!latest)return;
+      const title=name.value.trim();
+      if(!title||latest.views.some(v=>v.id!==item?.id&&key(v.name)===key(title))) {
+        name.setCustomValidity(title?'Nimi on jo käytössä.':'Anna näkymän nimi.');name.reportValidity();return;
+      }
+      const next={id:item?.id||id(),name:title,group:group.value,query:query.value.trim(),
+        columns:all.checked?null:[...columns.filter(([column])=>selected.has(column)).map(([,label])=>label),
+          ...(saved||[]).filter(column=>!model.variables.has(resolve('variables',column).key))]};
+      if(item)latest.views=latest.views.map(v=>v.id===item.id?next:v);
+      else latest.views.push(next);
+      saveDatabase(latest);$('modal').close();apply(next);
+    });
+  }
+  function manageGroups() {
+    const box=dialog('Ryhmät'),groupList=el('div','list');
+    const latest=databaseConfiguration();if(!latest)return;
+    for(const group of latest.groups) {
+      const entry=button(groupList,group.name,'list-row',()=>editGroup(group));
+      entry.append(el('small','muted',memberIds(group,resolve).size+' kohdetta'));
+    }
+    const actions=el('div','field-line');
+    button(actions,'Uusi ryhmä','primary',()=>editGroup(null),'plus');box.append(groupList,actions);
+  }
+  function editGroup(group) {
+    const box=dialog(group?'Muokkaa ryhmää':'Uusi ryhmä'),form=el('form','filter-form');
+    const name=field('text','Ryhmän nimi',group?.name||'');name.required=true;name.maxLength=110;
+    const subjects=new Map(getModel().subjects);
+    for(const subject of group?.subjects||[]) {
+      const item=resolve('subjects',subject);if(!subjects.has(item.key))subjects.set(item.key,item.name);
+    }
+    const choices=[...subjects].sort((a,b)=>a[1].localeCompare(b[1],'fi'));
+    const selected=memberIds(group,resolve)||new Set();
+    const picker=databaseChecklist('Ryhmän kohteet',choices,selected,'Hae kohdetta');
+    const actions=el('div','field-line'),save=el('button','primary','Tallenna ryhmä');
+    save.type='submit';actions.append(save);
+    button(actions,'Takaisin','border',manageGroups);
+    form.append(databaseLabel('Ryhmän nimi',name),picker,actions);box.append(form);
+    name.addEventListener('input',()=>name.setCustomValidity(''));
+    form.addEventListener('submit',event=>{
+      event.preventDefault();
+      const latest=databaseConfiguration();if(!latest)return;
+      const title=name.value.trim();
+      if(!title||latest.groups.some(g=>g.id!==group?.id&&key(g.name)===key(title))) {
+        name.setCustomValidity(title?'Nimi on jo käytössä.':'Anna ryhmän nimi.');name.reportValidity();return;
+      }
+      const next={id:group?.id||id(),name:title,subjects:choices.filter(([k])=>selected.has(k)).map(([,label])=>label)};
+      if(group)latest.groups=latest.groups.map(g=>g.id===group.id?next:g);
+      else latest.groups.push(next);
+      saveDatabase(latest);$('modal').close();redraw();
+    });
+  }
+}
 function renderDatabase() {
   const head=el('div','section-head database-head'),count=el('small','matrix-count');
   head.append(el('h1','','Tietokanta'),count);main.append(head);
@@ -6125,14 +6320,24 @@ function renderDatabase() {
     panel.replaceChildren();
     listTools.querySelector('.filters')?.remove();
     count.hidden=database.axis!=='matrix';
-    if(database.axis==='matrix')buildPropertyMatrix(panel,count,rows,resolve,catalog);
-    else buildDatabase(panel,rows,drawMode);
+    if(database.axis==='matrix')buildPropertyMatrix(panel,count,rows,resolve,catalog,drawMode);
+    else buildDatabase(panel,rows,drawMode,resolve);
   }
   drawMode();
 }
-function buildPropertyMatrix(panel,count,rows,resolve,catalog) {
+function buildPropertyMatrix(panel,count,rows,resolve,catalog,redraw) {
   const collator=new Intl.Collator('fi',{numeric:true,sensitivity:'base'}),pageSize=50,columnSize=20;
   let model=propertyMatrix(rows,resolve,catalog);
+  const settings=databaseConfiguration();
+  const groupMembers=new Map((settings?.groups||[]).map(group=>[group.id,memberIds(group,resolve)]));
+  const selectedView=settings?.views.find(item=>item.id===matrix.view);
+  const config=selectedView?JSON.stringify(selectedView):'';
+  if(matrix.config!==config) {
+    Object.assign(matrix,{view:selectedView?.id||'',config,group:selectedView?.group||'',query:selectedView?.query||'',
+      subject:'',variable:'',page:0,columns:0,left:0,sort:'',asc:true});
+  }
+  const viewColumns=selectedView?.columns===null||!selectedView?null:
+    new Set(selectedView.columns.map(name=>resolve('variables',name).key));
   const filters=el('div','filters'),search=field('search','Hae kohdetta, muuttujaa tai arvoa',matrix.query);
   search.placeholder=phoneDock.matches?'Hae':'Hae kohdetta, muuttujaa tai arvoa';search.dataset.compactPlaceholder='Hae';
   filters.append(search);
@@ -6147,6 +6352,12 @@ function buildPropertyMatrix(panel,count,rows,resolve,catalog) {
   const foot=el('div','matrix-pagination');panel.append(wrap,foot);
   const rowPager=makePager('Rivit','rivit','page','scrollTop');
   const columnPager=makePager('Sarakkeet','sarakkeet','columns','scrollLeft');
+  openDatabaseViews(actions,()=>model,resolve,redraw,applyView);
+  function applyView(item) {
+    Object.assign(matrix,{view:item?.id||'',config:item?JSON.stringify(item):'',group:item?.group||'',query:item?.query||'',subject:'',
+      variable:'',page:0,columns:0,left:0,sort:'',asc:true});
+    redraw();
+  }
   const valid=()=>propertyData(currentFile(PROPERTIES)?.text,resolve);
   if(!valid())panel.prepend(el('p','error','Vakioiden tiedostoa ei voi lukea. Korjaa tiedosto Vaultissa ennen muokkausta.'));
   function names(items,selected) {
@@ -6218,8 +6429,9 @@ function buildPropertyMatrix(panel,count,rows,resolve,catalog) {
     };
   }
   function draw(reveal) {
-    const q=key(matrix.query),columns=names(model.variables,matrix.variable);
-    let subjects=names(model.subjects,matrix.subject),shown=columns;
+    const q=key(matrix.query),columns=names(model.variables,matrix.variable).filter(([id])=>!viewColumns||viewColumns.has(id));
+    const members=groupMembers.get(matrix.group);
+    let subjects=names(model.subjects,matrix.subject).filter(([id])=>!members||members.has(id)),shown=columns;
     if(q) {
       const matchingColumns=columns.filter(([,name])=>key(name).includes(q));
       const subjectMatches=subjects.filter(([,name])=>key(name).includes(q));
@@ -6253,7 +6465,7 @@ function buildPropertyMatrix(panel,count,rows,resolve,catalog) {
       }
       return row;
     }));
-    const active=!!(matrix.subject||matrix.variable);
+    const active=!!(matrix.subject||matrix.variable||matrix.group);
     filter.classList.toggle('active-filter',active);filter.setAttribute('aria-label',active?'Suodata arvoja, rajauksia käytössä':'Suodata arvoja');
     count.textContent=subjects.length+' kohdetta · '+shown.length+' muuttujaa';
     foot.hidden=rowPages===1&&columnPages===1;
@@ -6287,31 +6499,35 @@ function buildPropertyMatrix(panel,count,rows,resolve,catalog) {
   }
   function openFilters() {
     const box=dialog('Suodata arvoja'),form=el('form','filter-form'),selects={};
+    const group=groupSelect(settings?.groups||[],matrix.group);
+    form.append(databaseLabel('Ryhmä',group));
     for(const [axis,id,title] of [['subjects','subject','Kohde'],['variables','variable','Muuttuja']]) {
       const label=el('label','',title),select=el('select');selects[id]=select;
       option(select,'','Kaikki');for(const [key,name] of names(model[axis]))option(select,key,name);
       select.value=matrix[id];label.append(select);form.append(label);
     }
     const row=el('div','field-line'),submit=el('button','primary','Käytä');submit.type='submit';row.append(submit);
-    function apply(subject,variable) {
-      Object.assign(matrix,{subject,variable,page:0,columns:0});$('modal').close();draw();wrap.scrollLeft=0;wrap.scrollTop=0;
+    function apply(subject,variable,group) {
+      Object.assign(matrix,{subject,variable,group,page:0,columns:0});$('modal').close();draw();wrap.scrollLeft=0;wrap.scrollTop=0;
     }
-    button(row,'Tyhjennä','',()=>{matrix.query='';search.value='';apply('','');});
+    button(row,'Tyhjennä','',()=>{matrix.query='';search.value='';apply('','','');});
     form.append(row);box.append(form);styleChoices(form);
-    form.addEventListener('submit',e=>{e.preventDefault();apply(selects.subject.value,selects.variable.value);});
+    form.addEventListener('submit',e=>{e.preventDefault();apply(selects.subject.value,selects.variable.value,group.value);});
   }
   search.addEventListener('input',()=>{matrix.query=search.value;matrix.page=0;matrix.columns=0;draw();wrap.scrollTop=0;wrap.scrollLeft=0;});
   draw();wrap.scrollLeft=matrix.left;
 }
-function buildDatabase(panel,rows,redraw) {
+function buildDatabase(panel,rows,redraw,resolve) {
+  const groups=databaseConfiguration()?.groups||[];
+  const groupMembers=new Map(groups.map(group=>[group.id,memberIds(group,resolve)]));
   const filters=el('div','filters'), search=field('search','Suodata havaintoja',database.query);
   search.placeholder=phoneDock.matches?'Hae':'Hae kohdetta, muuttujaa tai lähdettä';
   search.title='Hae kohdetta, muuttujaa tai lähdettä';search.dataset.compactPlaceholder='Hae';
   filters.append(search);
-  const filter=iconButton(filters,'filter','Suodata ja järjestä',()=>openDatabaseFilters(rows,()=>{database.page=0;search.value=database.query;draw();showFilterCount();}));
+  const filter=iconButton(filters,'filter','Suodata ja järjestä',()=>openDatabaseFilters(rows,groups,()=>{database.page=0;search.value=database.query;draw();showFilterCount();}));
   listTools.append(filters);
   function showFilterCount(){
-    const has=!!(database.subject||database.variable||database.from||database.to);
+    const has=!!(database.group||database.subject||database.variable||database.from||database.to);
     filter.classList.toggle('active-filter',has);
     filter.setAttribute('aria-label',has?'Suodata ja järjestä, rajauksia käytössä':'Suodata ja järjestä');
   }
@@ -6339,8 +6555,9 @@ function buildDatabase(panel,rows,redraw) {
   search.addEventListener('input',()=>{database.query=search.value;database.page=0;draw();});
   function datum(row,id) {return id==='time'?row.order:row[id];}
   function draw() {
-    const q=key(database.query);
+    const q=key(database.query),members=groupMembers.get(database.group);
     let matches=rows.filter(r=>{
+      if(members&&!members.has(r.subjectKey))return false;
       if(database.subject&&database.subject!==r.subject||database.variable&&database.variable!==r.variable)return false;
       if(database.from||database.to) {
         if(r.o.viikko){const range=MUUTTUJA.weekDays(r.o.viikko);if(!range||database.from&&range.sun<database.from||database.to&&range.mon>database.to)return false;}
@@ -6404,8 +6621,9 @@ function buildDatabase(panel,rows,redraw) {
   draw();
 }
 
-function openDatabaseFilters(rows,show) {
+function openDatabaseFilters(rows,groups,show) {
   const body=dialog('Suodata ja järjestä'), form=el('form','filter-form');
+  const group=groupSelect(groups,database.group);
   const subject=el('select'),variable=el('select'),sort=el('select'),direction=el('select');
   for(const [select,prop,title] of [[subject,'subject','Kaikki kohteet'],[variable,'variable','Kaikki muuttujat']]){
     option(select,'',title);
@@ -6424,16 +6642,16 @@ function openDatabaseFilters(rows,show) {
   }
   const dates=el('div','filter-dates');dates.append(label('Alkupäivä',from),label('Loppupäivä',to));
   const sorting=el('div','filter-dates');sorting.append(label('Järjestys',sort),label('Suunta',direction));
-  form.append(label('Kohde',subject),label('Muuttuja',variable),dates,sorting);
+  form.append(label('Ryhmä',group),label('Kohde',subject),label('Muuttuja',variable),dates,sorting);
   const buttons=el('div','field-line'),submit=el('button','primary','Käytä');submit.type='submit';buttons.append(submit);
   button(buttons,'Tyhjennä','',()=>{
-    Object.assign(database,{query:'',subject:'',variable:'',from:'',to:''});$('modal').close();show();
+    Object.assign(database,{query:'',group:'',subject:'',variable:'',from:'',to:''});$('modal').close();show();
   });
   form.append(buttons);body.append(form);styleChoices(form);
   from.oninput=()=>{to.min=from.value;};to.oninput=()=>{from.max=to.value;};from.oninput();to.oninput();
   form.addEventListener('submit',e=>{
     e.preventDefault();
-    Object.assign(database,{subject:subject.value,variable:variable.value,from:from.value,to:to.value,sort:sort.value,asc:direction.value==='asc'});
+    Object.assign(database,{group:group.value,subject:subject.value,variable:variable.value,from:from.value,to:to.value,sort:sort.value,asc:direction.value==='asc'});
     $('modal').close();show();
   });
 }
@@ -6584,7 +6802,7 @@ function openConflict(path) {
   }
 }
 function exportBackup() {
-  const backup={version:1,documents:[...allFiles().values()].filter(f=>f.text&&(markdown(f.path)||f.path===SELECTORS||f.path===PROPERTIES)).map(f=>({path:f.path,text:f.text})),
+  const backup={version:1,documents:[...allFiles().values()].filter(f=>f.text&&(markdown(f.path)||f.path===SELECTORS||f.path===PROPERTIES||f.path===DATABASE)).map(f=>({path:f.path,text:f.text})),
     unsynced:[...state.drafts.keys()], recovered:(state.recovered||[]).map(({path,text})=>({path,text}))};
   const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob), link=el('a');
@@ -6597,8 +6815,24 @@ function importBackup() {
     try{
       const file=chooser.files[0];if(!file)return;
       const data=JSON.parse(await file.text());if(data.version!==1||!Array.isArray(data.documents))throw new Error('Tiedosto ei ole Sivut-varmuuskopio.');
-      let count=0,properties=false;
+      let count=0,properties=false,configured=false;
       for(const {path,text} of [...data.documents,...(Array.isArray(data.recovered)?data.recovered:[])]) {
+        if(path===DATABASE&&typeof text==='string'&&currentFile(path)?.text!==text) {
+          const existing=databaseConfiguration(),incoming=databaseConfiguration(text);
+          if(!existing||!incoming)throw new Error('Tietokannan näkymiä tai ryhmiä ei voi lukea.');
+          const remap=new Map();
+          for(const group of incoming.groups) {
+            const found=existing.groups.find(item=>item.id===group.id||key(item.name)===key(group.name));
+            if(!found){existing.groups.push(group);configured=true;}
+            remap.set(group.id,found?.id||group.id);
+          }
+          for(const v of incoming.views) {
+            if(existing.views.some(item=>item.id===v.id||key(item.name)===key(v.name)))continue;
+            existing.views.push({...v,group:remap.get(v.group)||v.group});configured=true;
+          }
+          if(configured)saveDatabase(existing);
+          continue;
+        }
         if(path===PROPERTIES&&typeof text==='string'&&currentFile(path)?.text!==text) {
           const resolve=definitionResolver(parseJSON(currentFile(CATALOG)?.text,{}));
           const imported=propertyData(text,resolve),existing=propertyData(currentFile(path)?.text,resolve);
@@ -6619,7 +6853,7 @@ function importBackup() {
         stage(imported,text);count++;
       }
       $('modal').close();refreshFromData();
-      toast('Tuotu '+count+' sivua ja datamuistiinpanoa.'+(properties?' Täydennetty vakioita.':''));
+      toast('Tuotu '+count+' sivua ja datamuistiinpanoa.'+(properties?' Täydennetty vakioita.':'')+(configured?' Täydennetty ryhmiä ja näkymiä.':''));
     }catch(error){toast(error.message);}
   });
 }

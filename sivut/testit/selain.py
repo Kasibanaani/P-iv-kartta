@@ -16,6 +16,7 @@ REPO = 'Kasibanaani/vault123'
 API = 'https://api.github.com/repos/' + REPO
 REGISTRY = 'data/sivut-lahteet.json'
 PROPERTIES = 'data/sivut-vakiot.json'
+DATABASE = 'data/sivut-tietokanta.json'
 TRAINING = 'sivut/treeni.md'
 SOURCE = 'alueet/treeni/voimadata.md'
 UNRELATED = 'tieto/vanha.md'
@@ -280,6 +281,85 @@ def database_pagination(browser,width):
     page.close()
 
 
+def database_groups(browser,width):
+    page,errors=setup(browser,width)
+    page.goto(APP)
+    editor=create(page,'Ostoslaskuri')
+    editor.fill("""((Omena: energia (kcal) = 52; hinta = 2))
+((Päärynä: energia (kcal) = 57; hinta = 3))
+((Talouspaperi: hinta = 10))
+((28.11.2026; Omena: kpl = 4))
+((28.11.2026; Päärynä: kpl = 6))
+((28.11.2026; Talouspaperi: kpl = 30))
+((Hinnat: =SUMMA(VAKIOT("Ostokset"; "hinta"))))
+((Havainnot: =SUMMA(SARJA("Ostokset"; "kpl"))))
+((Vanha ryhmä: =RYHMÄ("Omena"; "Talouspaperi")))
+((Vanha: =SUMMA(SARJA("Vanha ryhmä"; "kpl"))))""")
+    page.get_by_role('button',name='Käyttötila',exact=True).click()
+    page.get_by_role('button',name='Tietokanta',exact=True).click()
+    menu=page.get_by_label('Tallennetut näkymät',exact=True)
+    dialog=page.get_by_role('dialog')
+    table=page.locator('.matrix-table')
+    expect(table.locator('tbody tr')).to_have_count(3)
+    menu.click()
+    page.get_by_role('button',name='Hallitse ryhmiä',exact=True).click()
+    dialog.get_by_role('button',name='Uusi ryhmä',exact=True).click()
+    dialog.get_by_role('textbox',name='Ryhmän nimi').fill('Ostokset')
+    find=dialog.get_by_role('searchbox',name='Hae kohdetta',exact=True)
+    find.fill('om')
+    dialog.get_by_role('checkbox',name='Omena',exact=True).check()
+    find.fill('pää')
+    dialog.get_by_role('checkbox',name='Päärynä',exact=True).check()
+    dialog.get_by_role('button',name='Tallenna ryhmä',exact=True).click()
+
+    def choose_group():
+        dialog.get_by_role('combobox',name='Ryhmä',exact=True).click()
+        page.get_by_role('option',name='Ostokset',exact=True).click()
+
+    page.get_by_role('button',name='Suodata arvoja',exact=True).click()
+    choose_group()
+    dialog.get_by_role('button',name='Käytä',exact=True).click()
+    expect(table.locator('tbody tr')).to_have_count(2)
+    expect(table.get_by_role('rowheader',name='Talouspaperi')).to_have_count(0)
+    page.get_by_role('button',name='Havainnot',exact=True).click()
+    page.get_by_role('button',name='Suodata ja järjestä',exact=True).click()
+    choose_group()
+    dialog.get_by_role('button',name='Käytä',exact=True).click()
+    expect(page.locator('tbody tr')).to_have_count(6)
+    expect(page.locator('tbody')).not_to_contain_text('Talouspaperi')
+    page.get_by_role('button',name='Arvot',exact=True).click()
+
+    menu.click()
+    page.get_by_role('button',name='Uusi näkymä',exact=True).click()
+    dialog.get_by_role('textbox',name='Näkymän nimi').fill('Ravintoarvot')
+    dialog.get_by_role('textbox',name='Hakuehto').fill('Omena')
+    dialog.get_by_role('checkbox',name='Kaikki sarakkeet',exact=True).uncheck()
+    dialog.get_by_role('checkbox',name='hinta',exact=True).uncheck()
+    dialog.get_by_role('checkbox',name='kpl',exact=True).uncheck()
+    dialog.get_by_role('button',name='Tallenna',exact=True).click()
+    expect(table.locator('tbody tr')).to_have_count(1)
+    expect(table.get_by_role('rowheader',name='Omena')).to_be_visible()
+    expect(table.get_by_role('columnheader')).to_have_count(2)
+    expect(table.get_by_role('columnheader',name='energia (kcal)')).to_have_count(1)
+    menu.click()
+    page.get_by_role('button',name='Kaikki arvot',exact=True).click()
+    expect(table.locator('tbody tr')).to_have_count(3)
+    page.get_by_role('button',name='Sivut',exact=True).click()
+    page.get_by_role('button',name='Ostoslaskuri',exact=True).click()
+    for name,value in [('hinnat','5'),('havainnot','10'),('vanha','34')]:
+        expect(page.locator(f'[data-layout="nimi:{name}:1"] .card-value')).to_have_text(value)
+    page.get_by_role('button',name='Tietokanta',exact=True).click()
+    page.wait_for_function('dbGet("drafts",DATABASE).then(Boolean)')
+    page.reload()
+    menu.click()
+    page.get_by_role('button',name='Ravintoarvot',exact=True).click()
+    expect(table.locator('tbody tr')).to_have_count(1)
+    expect(table.get_by_role('columnheader')).to_have_count(2)
+    assert page.evaluate('document.documentElement.scrollWidth === innerWidth')
+    assert not errors,errors
+    page.close()
+
+
 def vault_works(browser):
     folder='alueet/treeni/'
     files={
@@ -287,6 +367,8 @@ def vault_works(browser):
         TRAINING:note('Treeni','((Kirjattu: =SUMMA(SARJA("Penkki"; "toistot"))))\n((=PAINIKE("Kirjaa sarja"; KIRJAA("Penkki"; toistot = 2))))'),
         NEXT:note('Seuranta','((Jaettu: =[[treeni]].kirjattu))\n((Vakiopaino: =VAKIO("Penkki"; "paino")))'),
         PROPERTIES:json.dumps({'version':1,'subjects':[],'variables':[],'values':[['Penkki','paino',40]]}),
+        DATABASE:json.dumps({'version':1,'groups':[{'id':'voima','name':'Voimaliikkeet','subjects':['Penkki']}],
+                             'views':[{'id':'voima','name':'Voima','group':'voima','columns':['paino'],'query':''}]}),
         SOURCE:note('Voimadata','Tämä yleinen proosa ei kuulu välimuistiin.\n\n((' + TODAY + '; Penkki: toistot = 11))'),
         UNRELATED:note('Vanhaa proosaa','Tätä polkua ei haeta.'),
         SCOPED_PROSE:note('Yleinen proosa','Tätä ei tuoda tietokantaan.'),
@@ -325,10 +407,22 @@ def vault_works(browser):
     page.get_by_role('button',name='Yhdistä',exact=True).click()
     expect(page.get_by_text('Haettu klo',exact=False)).to_be_visible()
     assert UNRELATED not in reads
-    assert {REGISTRY,TRAINING,NEXT,SOURCE,SCOPED_PROSE}.issubset(reads)
+    assert {REGISTRY,DATABASE,TRAINING,NEXT,SOURCE,SCOPED_PROSE}.issubset(reads)
+    page.get_by_role('button',name='Sulje',exact=True).click()
+    page.get_by_role('button',name='Tietokanta',exact=True).click()
+    page.get_by_label('Tallennetut näkymät',exact=True).click()
+    page.get_by_role('button',name='Voima',exact=True).click()
+    expect(page.locator('.matrix-table tbody tr')).to_have_count(1)
+    expect(page.locator('.matrix-table thead th')).to_have_count(2)
+    page.get_by_label('Tallennetut näkymät',exact=True).click()
+    page.get_by_role('button',name='Muokkaa näkymää',exact=True).click()
+    page.get_by_role('textbox',name='Näkymän nimi').fill('Oma voima')
+    page.get_by_role('button',name='Tallenna',exact=True).click()
+    page.evaluate('synchronize(true)')
+    page.wait_for_function('state.drafts.size === 0')
+    assert json.loads(files[DATABASE])['views'][0]['name']=='Oma voima'
     assert page.evaluate("!currentFile(%s).text && !!currentFile(%s).projection" %(json.dumps(SOURCE),json.dumps(SOURCE)))
     assert not page.evaluate('!!currentFile('+json.dumps(SCOPED_PROSE)+')')
-    page.get_by_role('button',name='Sulje',exact=True).click()
     page.get_by_role('button',name='Sivut',exact=True).click()
     page.get_by_role('button',name='Seuranta',exact=True).click()
     expect(page.locator('[data-layout="nimi:jaettu:1"] .card-value')).to_have_text('11')
@@ -580,6 +674,7 @@ with sync_playwright() as playwright:
     for width in (320,390,1440):
         offline(browser,width)
         database_values(browser,width)
+        database_groups(browser,width)
         print(f'Paikallinen käyttö {width} px OK')
     for width in (320,390,1280,1440):
         database_pagination(browser,width)
